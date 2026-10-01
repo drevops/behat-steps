@@ -18,6 +18,7 @@ use DrevOps\BehatSteps\Steps\Web\FieldTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Mink\Fixtures\AnyDriverAdapter;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
@@ -85,6 +86,31 @@ class FieldTraitTest extends UnitTestCase {
     $this->testObject->fieldFillMultiValue('Tags', new TableNode([['value'], ['Drupal']]));
   }
 
+  /**
+   * Tests that the validation tag is read from the scenario and its feature.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   * @param bool $expected
+   *   Whether validation is expected to be disabled on every form.
+   */
+  #[DataProvider('dataProviderBeforeScenarioReadsValidationTag')]
+  public function testBeforeScenarioReadsValidationTag(array $scenario_tags, array $feature_tags, bool $expected): void {
+    $this->testObject->fieldBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+
+    $this->assertSame($expected, $this->testObject->isAllFormValidationDisabled());
+  }
+
+  public static function dataProviderBeforeScenarioReadsValidationTag(): \Iterator {
+    yield 'on neither' => [['javascript'], ['api'], FALSE];
+    yield 'on the scenario' => [['disable-form-validation'], [], TRUE];
+    yield 'on the feature' => [[], ['disable-form-validation'], TRUE];
+    yield 'on both' => [['disable-form-validation'], ['disable-form-validation'], TRUE];
+    yield 'skipped on the feature' => [['disable-form-validation'], ['behat-steps-skip:FieldTrait'], FALSE];
+  }
+
 }
 
 /**
@@ -93,5 +119,12 @@ class FieldTraitTest extends UnitTestCase {
 class FieldTraitTestImplementation extends WebRawContext {
 
   use FieldTrait;
+
+  /**
+   * Whether validation is disabled on every form of the scenario.
+   */
+  public function isAllFormValidationDisabled(): bool {
+    return $this->fieldDisableAllFormValidation;
+  }
 
 }

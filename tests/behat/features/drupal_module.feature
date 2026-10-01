@@ -226,3 +226,24 @@ Feature: Check that ModuleTrait works
       """
     When I run "behat --no-colors"
     Then it should pass
+
+  @trait:Drupal\ModuleTrait
+  Scenario: Assert that a @module tag on the feature applies to every scenario and a scenario tag overrides it
+    Given some behat configuration
+    And a file named "features/stub.feature" with:
+      """
+      @module:help
+      Feature: Stub feature
+
+        Scenario: The feature tag enables the module
+          Then the module "help" should be enabled
+
+        @module:!help
+        Scenario: The scenario tag overrides the feature tag
+          Then the module "help" should be disabled
+      """
+    When I run "behat --no-colors"
+    Then it should pass with:
+      """
+      2 scenarios (2 passed)
+      """

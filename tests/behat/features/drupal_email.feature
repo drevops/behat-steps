@@ -928,3 +928,35 @@ Feature: Check that EmailTrait works
       """
       Expected 0 email(s) to have been sent with the subject "Test Email", but 1 were found.
       """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that @email and @debug tags on the feature apply to every scenario
+    Given some behat configuration
+    And a file named "features/stub.feature" with:
+      """
+      @email @debug
+      Feature: Stub feature
+
+        Scenario: First scenario collects email
+          When I send test email to "first@example.com" with:
+            '''
+            First scenario content
+            '''
+          Then an email should be sent to the address "first@example.com"
+
+        Scenario: Second scenario collects email
+          When I send test email to "second@example.com" with:
+            '''
+            Second scenario content
+            '''
+          Then an email should be sent to the address "second@example.com"
+      """
+    When I run "behat --no-colors"
+    Then it should pass with:
+      """
+      2 scenarios (2 passed)
+      """
+    And the output should contain:
+      """
+      Email message number: 0
+      """

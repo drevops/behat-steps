@@ -41,6 +41,16 @@ trait EmailTrait {
   use StringTrait;
 
   /**
+   * The tag that collects the scenario's email, with an optional handler type.
+   */
+  protected const EMAIL_TAG = 'email';
+
+  /**
+   * The tag that prints each collected message as it is read.
+   */
+  protected const EMAIL_DEBUG_TAG = 'debug';
+
+  /**
    * List of email handler types.
    *
    * @var array<int, string>
@@ -61,22 +71,14 @@ trait EmailTrait {
       return;
     }
 
-    if (!Tag::has($scope->getScenario(), 'email')) {
+    if (!Tag::has($scope, self::EMAIL_TAG)) {
       return;
     }
 
     $this->driverFor(CoreCapabilityInterface::class);
 
-    if (Tag::has($scope->getScenario(), 'debug')) {
-      $this->emailDebug = TRUE;
-    }
-
-    foreach (Tag::on($scope->getScenario()) as $tag) {
-      if (str_starts_with($tag, 'email:')) {
-        $parts = explode(':', $tag);
-        $this->emailHandlerTypes[] = count($parts) > 1 ? implode(':', array_slice($parts, 1)) : 'default';
-      }
-    }
+    $this->emailDebug = Tag::has($scope, self::EMAIL_DEBUG_TAG);
+    $this->emailHandlerTypes = Tag::values($scope, self::EMAIL_TAG);
 
     $this->emailEnableTestSystem();
   }

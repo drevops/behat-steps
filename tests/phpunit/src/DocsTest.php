@@ -2696,6 +2696,23 @@ EOD,
     }
   }
 
+  public function testTagRegistryListsEveryTraitTag(): void {
+    $registry = tag_registry();
+    $missing = [];
+
+    foreach (array_keys(static::discoverTraits()) as $trait) {
+      foreach (static::reflect($trait)->getReflectionConstants() as $constant) {
+        $tag = $constant->getValue();
+
+        if (str_ends_with($constant->getName(), '_TAG') && is_string($tag) && !array_key_exists($tag, $registry)) {
+          $missing[$tag] = sprintf('%s::%s', $trait, $constant->getName());
+        }
+      }
+    }
+
+    $this->assertSame([], $missing, 'A tag a trait names in a constant is documented in tag_registry().');
+  }
+
   public function testNonDescriptivePlaceholders(): void {
     $placeholders = non_descriptive_placeholders();
 

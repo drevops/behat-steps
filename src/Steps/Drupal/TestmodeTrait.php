@@ -28,6 +28,11 @@ use Drupal\testmode\Testmode;
 trait TestmodeTrait {
 
   /**
+   * The tag that runs the scenario in test mode.
+   */
+  protected const TESTMODE_TAG = 'testmode';
+
+  /**
    * Whether this scenario enabled test mode.
    */
   protected bool $testmodeActive = FALSE;
@@ -37,7 +42,7 @@ trait TestmodeTrait {
    */
   #[BeforeScenario]
   public function testmodeBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope->getScenario(), 'testmode')) {
+    if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope, self::TESTMODE_TAG)) {
       return;
     }
 

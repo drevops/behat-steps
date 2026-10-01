@@ -306,12 +306,14 @@ The declared default carries the option's type, and the composing context reads 
 
 ## 3. Tags
 
-A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A flag tag stands alone.
+A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon names nothing and is ignored. A flag tag stands alone. `@module:` also switches its value off with a `!`: `@module:!redirect`.
 
 ```gherkin
 @module:redirect @behat-steps-skip:WatchdogTrait
 Scenario: Editor publishes a page
 ```
+
+A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines, and `@module:VALUE` for the same module and `@breakpoint:VALUE` take the scenario's value over the feature's.
 
 [//]: # (START_TAGS)
 
@@ -321,7 +323,7 @@ Scenario: Editor publishes a page
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
 | `@driver:VALUE` | Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |
-| `@breakpoint:VALUE` | Resize the viewport to the named breakpoint before the first step. One tag per scenario, and the scenario has to be `@javascript`. |
+| `@breakpoint:VALUE` | Resize the viewport to the named breakpoint before the first step. A scenario and its feature take 1 tag each, and the scenario's replaces the feature's. The scenario or its feature has to be `@javascript`. |
 | `@email:VALUE` | Collect email for the scenario with the named handler type. A bare `@email` uses the `default` handler. |
 | `@watchdog:VALUE` | Track the named Watchdog message type in addition to `php`, which is always tracked. |
 | `@disable-config-override:VALUE` | Disable `settings.php` overrides for the named configuration object for the duration of the scenario. |

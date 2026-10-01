@@ -274,22 +274,29 @@ The test suite follows the same rule. Behat 4 reads only PHP configuration and i
 
 Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, while `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison that matches on one major silently fails on the other.
 
-Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly:
+Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly. A hook passes its scope to one of 3 readers, which read the scenario's tags together with its feature's, so a tag on the `Feature:` line applies to every scenario below it:
 
 ```php
-// Every tag on the scenario and on the feature that holds it, without the '@'.
-$tags = Tag::all($scope);
-
-// Every tag on one node.
-$tags = Tag::on($scope->getScenario());
-
-// One tag on one node.
-if (Tag::has($scope->getScenario(), 'email')) {
+// A flag: '@testmode' on the scenario or on its feature.
+if (Tag::has($scope, self::TESTMODE_TAG)) {
   // ...
 }
+
+// The values of a parametrized tag: '@watchdog:php @watchdog:cron' gives
+// 'php' and 'cron', feature tags first.
+$types = Tag::values($scope, self::WATCHDOG_TAG);
+
+// The on/off state of each value: '@module:help @module:!contextual' gives
+// ['help' => TRUE, 'contextual' => FALSE]. A later tag for a value replaces
+// an earlier one, so a scenario tag overrides a feature tag.
+$modules = Tag::valueStates($scope, self::MODULE_TAG);
 ```
 
-`Tag::normalize()` takes a raw list when none of those fit. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
+Every tag has the same syntax: a flag stands alone, a parametrized tag takes its value after `Tag::SEPARATOR` (`:`), and `Tag::NEGATION` (`!`) before a value switches it off. A tag with nothing after the separator names no value.
+
+A trait names each tag it reads in a constant carrying its prefix, such as `TestmodeTrait::TESTMODE_TAG`, and documents the tag in `tag_registry()` in [docs.php](docs.php). `Tag::JAVASCRIPT` names the tag Mink reads to run a scenario in its JavaScript session. `TagReadTest` fails on a trait that passes a reader a string literal or a single node, or calls `Tag::all()`, `Tag::on()` or `Tag::normalize()`, and `DocsTest` fails on a tag constant the registry does not list.
+
+A reader also takes a single node, for a hook that ranks the 2 lines itself: `ResponsiveTrait` validates the `@breakpoint:` tag of the scenario and of its feature separately. `Tag::all()`, `Tag::on()` and `Tag::normalize()` return raw lists for code outside the traits, such as a listener. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
 
 ## Skipping a trait's hooks
 
@@ -324,7 +331,7 @@ A trait's hooks and steps answer 3 separate questions, and each has 1 mechanism.
 | Question | Mechanism | When the answer is no |
 | --- | --- | --- |
 | Opt-in: is the trait switched on? | `skipTag(__TRAIT__, $scope)`, which reads the `enabled` option and the skip tag | The hook returns quietly |
-| Activation: does this scenario ask for it? | The trait's own tag check, such as `Tag::has($scope->getScenario(), 'testmode')` | The hook returns quietly |
+| Activation: does this scenario ask for it? | The trait's own tag check, such as `Tag::has($scope, self::TESTMODE_TAG)` | The hook returns quietly |
 | Prerequisites: does the site provide what it needs? | The trait's `<prefix>Prerequisites()`, checked by `assertPrerequisites(__TRAIT__)` | The scenario fails, naming what's missing |
 
 Don't merge them into 1 boolean. Opted out means the trait does nothing, while opted in without its prerequisites means the scenario can't be trusted, so the first returns and the second throws.
@@ -334,7 +341,7 @@ A setup hook applies them in that order:
 ```php
 #[BeforeScenario]
 public function acmeBeforeScenario(BeforeScenarioScope $scope): void {
-  if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope->getScenario(), 'acme')) {
+  if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope, self::ACME_TAG)) {
     return;
   }
 

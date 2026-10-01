@@ -55,6 +55,11 @@ trait BigPipeTrait {
   protected const BIG_PIPE_SERVER_RENDER_COOKIE = 'big_pipe_nojs';
 
   /**
+   * The tag that renders BigPipe placeholders server-side.
+   */
+  protected const BIG_PIPE_TAG = 'bigpipe';
+
+  /**
    * Whether the automatic BigPipe wait is active for the current scenario.
    */
   protected bool $bigPipeAutoWaitEnabled = FALSE;
@@ -79,13 +84,12 @@ trait BigPipeTrait {
    */
   #[BeforeScenario]
   public function bigPipeBeforeScenario(BeforeScenarioScope $scope): void {
-    $tags = Tag::all($scope);
     $is_skipped = $this->skipTag(__TRAIT__, $scope);
 
-    $this->bigPipeAutoWaitEnabled = in_array('javascript', $tags, TRUE) && !$is_skipped;
+    $this->bigPipeAutoWaitEnabled = Tag::has($scope, Tag::JAVASCRIPT) && !$is_skipped;
     $this->bigPipeJavascriptProbe = NULL;
 
-    $this->bigPipeServerRenderEnabled = !$is_skipped && in_array('bigpipe', $tags, TRUE);
+    $this->bigPipeServerRenderEnabled = !$is_skipped && Tag::has($scope, self::BIG_PIPE_TAG);
 
     $this->bigPipeApplyServerRenderCookie();
   }

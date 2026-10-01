@@ -660,6 +660,25 @@ Feature: Check that FieldTrait works
     # Without JavaScript, the tag should not throw an error
     Then the field "username" should exist
 
+  @trait:FieldTrait
+  Scenario: Assert that the @disable-form-validation tag on the feature applies to every scenario
+    Given some behat configuration
+    And a file named "features/stub.feature" with:
+      """
+      @javascript @disable-form-validation @phpserver
+      Feature: Stub feature
+
+        Scenario: Forms submit without browser validation
+          When I visit "http://cli:8888/fields.html"
+          And I press "Submit 1"
+          Then I should see "Please fill in all required fields"
+      """
+    When I run "behat --no-colors"
+    Then it should pass with:
+      """
+      1 scenario (1 passed)
+      """
+
   @datetime @skipped
   Scenario: Fill datetime field with date and time
     Given the following page content exist:

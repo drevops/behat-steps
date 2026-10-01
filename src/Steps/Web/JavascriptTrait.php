@@ -53,6 +53,11 @@ trait JavascriptTrait {
   use LastStepTrait;
 
   /**
+   * The tag that keeps a scenario collecting JavaScript errors from failing.
+   */
+  protected const JAVASCRIPT_ERRORS_TAG = 'js-errors';
+
+  /**
    * Registry of JavaScript errors collected during scenario execution.
    *
    * @var array<string, array<int, array<string, mixed>>>
@@ -343,7 +348,7 @@ JS;
   protected function javascriptConfigSchema(): array {
     return [
       new Option('enabled', default: TRUE, description: 'Collect JavaScript console errors on a `@javascript` scenario.'),
-      new Option('fail_on_errors', default: TRUE, description: 'Fail a scenario that collected a console error. Errors are still collected when this is off.', tags: ['js-errors' => FALSE]),
+      new Option('fail_on_errors', default: TRUE, description: 'Fail a scenario that collected a console error. Errors are still collected when this is off.', tags: [self::JAVASCRIPT_ERRORS_TAG => FALSE]),
     ];
   }
 

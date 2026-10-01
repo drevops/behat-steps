@@ -51,8 +51,7 @@ trait WaitTrait {
    */
   #[BeforeScenario]
   public function waitBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->waitAroundSteps = !$this->skipTag(__TRAIT__, $scope)
-      && in_array('javascript', Tag::all($scope), TRUE);
+    $this->waitAroundSteps = !$this->skipTag(__TRAIT__, $scope) && Tag::has($scope, Tag::JAVASCRIPT);
   }
 
   /**

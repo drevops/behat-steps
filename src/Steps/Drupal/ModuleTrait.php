@@ -20,7 +20,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
 /**
  * Enable and disable Drupal modules with automatic state restoration.
  *
- * Supports automatic module management via scenario tags.
+ * Supports automatic module management via scenario and feature tags. A
+ * scenario tag overrides a feature tag naming the same module.
  *
  * Skip processing with tag: `@behat-steps-skip:ModuleTrait`.
  *
@@ -31,6 +32,11 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait ModuleTrait {
+
+  /**
+   * The tag that enables the module it names, or disables it after a '!'.
+   */
+  protected const MODULE_TAG = 'module';
 
   /**
    * Stores original module states for restoration.
@@ -47,23 +53,17 @@ trait ModuleTrait {
     if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
-    $tags = Tag::on($scope->getScenario());
-    foreach ($tags as $tag) {
-      if (str_starts_with($tag, 'module:')) {
-        $module_spec = substr($tag, 7);
-        $should_disable = str_starts_with($module_spec, '!');
-        $module_name = $should_disable ? substr($module_spec, 1) : $module_spec;
 
-        $this->moduleStoreOriginalState($module_name);
+    foreach (Tag::valueStates($scope, self::MODULE_TAG) as $module_name => $should_enable) {
+      $this->moduleStoreOriginalState($module_name);
 
-        if ($should_disable) {
-          if ($this->moduleIsEnabled($module_name)) {
-            $this->moduleDisable($module_name);
-          }
-        }
-        elseif (!$this->moduleIsEnabled($module_name)) {
+      if ($should_enable) {
+        if (!$this->moduleIsEnabled($module_name)) {
           $this->moduleEnable($module_name);
         }
+      }
+      elseif ($this->moduleIsEnabled($module_name)) {
+        $this->moduleDisable($module_name);
       }
     }
   }

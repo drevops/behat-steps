@@ -685,6 +685,41 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   /**
+   * Tests the mode and gate the scenario and feature tags resolve to.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   * @param array{bool, string|null, bool|null} $expected
+   *   Automatic mode, the threshold override and the incomplete-fail override.
+   */
+  #[DataProvider('dataProviderSetupScenarioResolvesTags')]
+  public function testSetupScenarioResolvesTags(array $scenario_tags, array $feature_tags, array $expected): void {
+    $this->testObject->accessibilitySetupScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+
+    $this->assertSame($expected, $this->testObject->testGetTagState());
+  }
+
+  public static function dataProviderSetupScenarioResolvesTags(): array {
+    return [
+      'no tags' => [[], [], [FALSE, NULL, NULL]],
+      'the bare tag on the scenario' => [['accessibility'], [], [TRUE, NULL, NULL]],
+      'the bare tag on the feature' => [[], ['accessibility'], [TRUE, NULL, NULL]],
+      'a threshold on the feature' => [[], ['accessibility:serious'], [TRUE, 'serious', NULL]],
+      'the scenario threshold replaces the feature one' => [['accessibility:critical'], ['accessibility:serious'], [TRUE, 'critical', NULL]],
+      'the warning variant' => [['accessibility:warning'], [], [TRUE, 'never', NULL]],
+      'the short warning variant' => [['accessibility:warn'], [], [TRUE, 'never', NULL]],
+      'the any variant' => [['accessibility:any'], [], [TRUE, 'any', NULL]],
+      'the strict variant' => [['accessibility:strict'], [], [TRUE, NULL, TRUE]],
+      'a variant in capitals' => [['accessibility:SERIOUS'], [], [TRUE, 'serious', NULL]],
+      'an unknown variant switches the mode on alone' => [['accessibility:bogus'], [], [TRUE, NULL, NULL]],
+      'an empty variant names nothing' => [['accessibility:'], [], [FALSE, NULL, NULL]],
+      'skipped on the feature' => [['accessibility:serious'], ['behat-steps-skip:AccessibilityTrait'], [FALSE, NULL, NULL]],
+    ];
+  }
+
+  /**
    * Builds a scenario result with one violation per impact plus two passes.
    *
    * @return array<int, array{url: string, rules: string, result: array<string, mixed>}>
@@ -740,6 +775,16 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
 
   public function testFormatUrl(string $url): string {
     return $this->accessibilityFormatUrl($url);
+  }
+
+  /**
+   * Returns the mode and gate overrides the tags resolved to.
+   *
+   * @return array{bool, string|null, bool|null}
+   *   Automatic mode, the threshold override and the incomplete-fail override.
+   */
+  public function testGetTagState(): array {
+    return [$this->accessibilityAutoMode, $this->accessibilityScenarioThreshold, $this->accessibilityScenarioFailOnIncomplete];
   }
 
   public function testGetReportDir(): string {

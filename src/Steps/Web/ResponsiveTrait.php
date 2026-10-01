@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Web;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Gherkin\Node\TaggedNodeInterface;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Step\Given;
@@ -61,6 +62,11 @@ use DrevOps\BehatSteps\Behat\Tag;
 trait ResponsiveTrait {
 
   /**
+   * The tag that resizes the viewport to the breakpoint it names.
+   */
+  protected const RESPONSIVE_BREAKPOINT_TAG = 'breakpoint';
+
+  /**
    * Default breakpoint definitions.
    *
    * Format: 'name' => 'WIDTHxHEIGHT'
@@ -90,33 +96,24 @@ trait ResponsiveTrait {
 
   /**
    * Validate @breakpoint:NAME tag before scenario.
+   *
+   * A scenario tag replaces a feature tag.
    */
   #[BeforeScenario]
   public function responsiveBeforeScenario(BeforeScenarioScope $scope): void {
-    $tags = Tag::on($scope->getScenario());
+    // Both nodes are validated, so a feature with 2 tags fails even in a
+    // scenario with its own tag.
+    $scenario_breakpoint = $this->responsiveFindTagBreakpoint($scope->getScenario(), 'scenario');
+    $feature_breakpoint = $this->responsiveFindTagBreakpoint($scope->getFeature(), 'feature');
+    $breakpoint = $scenario_breakpoint ?? $feature_breakpoint;
 
-    $breakpoint_tags = [];
-    foreach ($tags as $tag) {
-      if (str_starts_with($tag, 'breakpoint:')) {
-        $breakpoint_tags[] = $tag;
-      }
-    }
-
-    if (empty($breakpoint_tags)) {
+    if ($breakpoint === NULL) {
       return;
     }
 
-    if (count($breakpoint_tags) > 1) {
-      throw new \RuntimeException(sprintf('Only one @breakpoint tag is allowed per scenario. Found: @%s.', implode(', @', $breakpoint_tags)));
+    if (!Tag::has($scope, Tag::JAVASCRIPT)) {
+      throw new \RuntimeException(sprintf('@%s%s%s tag requires @%s tag to resize viewport.', self::RESPONSIVE_BREAKPOINT_TAG, Tag::SEPARATOR, $breakpoint, Tag::JAVASCRIPT));
     }
-
-    $tag = $breakpoint_tags[0];
-
-    if (!in_array('javascript', $tags, TRUE)) {
-      throw new \RuntimeException(sprintf('@%s tag requires @javascript tag to resize viewport.', $tag));
-    }
-
-    $breakpoint = substr($tag, strlen('breakpoint:'));
 
     // The lookup throws when the breakpoint does not exist.
     $this->responsiveGetBreakpoint($breakpoint);
@@ -296,6 +293,32 @@ trait ResponsiveTrait {
    */
   public function responsiveGetAllBreakpoints(): array {
     return array_merge($this->responsiveDefaultBreakpoints, $this->responsiveCustomBreakpoints);
+  }
+
+  /**
+   * Find the breakpoint that the @breakpoint tag of one node names.
+   *
+   * @param \Behat\Gherkin\Node\TaggedNodeInterface $node
+   *   The scenario or the feature to read.
+   * @param string $node_type
+   *   The kind of node, 'scenario' or 'feature', for the message.
+   *
+   * @return string|null
+   *   The breakpoint name, or NULL when the node carries no @breakpoint tag.
+   *
+   * @throws \RuntimeException
+   *   If the node carries more than one.
+   */
+  protected function responsiveFindTagBreakpoint(TaggedNodeInterface $node, string $node_type): ?string {
+    $breakpoints = Tag::values($node, self::RESPONSIVE_BREAKPOINT_TAG);
+
+    if (count($breakpoints) > 1) {
+      $tags = array_map(static fn(string $breakpoint): string => '@' . self::RESPONSIVE_BREAKPOINT_TAG . Tag::SEPARATOR . $breakpoint, $breakpoints);
+
+      throw new \RuntimeException(sprintf('Only one @%s tag is allowed per %s. Found: %s.', self::RESPONSIVE_BREAKPOINT_TAG, $node_type, implode(', ', $tags)));
+    }
+
+    return $breakpoints[0] ?? NULL;
   }
 
   /**

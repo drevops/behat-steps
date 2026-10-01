@@ -165,6 +165,38 @@ class FileDownloadTraitTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * Tests that the download tag on either line prepares the directory.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   * @param bool $expected
+   *   Whether the directory is expected to be prepared.
+   */
+  #[DataProvider('dataProviderDownloadTagPreparesDirectory')]
+  public function testDownloadTagPreparesDirectory(array $scenario_tags, array $feature_tags, bool $expected): void {
+    $directory = self::$downloadDir . DIRECTORY_SEPARATOR . 'scenario';
+    $context = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => $directory]]);
+
+    $context->fileDownloadBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+    $this->assertSame($expected, is_dir($directory));
+
+    $context->fileDownloadAfterScenario($this->createAfterScenarioScope($scenario_tags, $feature_tags));
+    $this->assertDirectoryDoesNotExist($directory);
+  }
+
+  public static function dataProviderDownloadTagPreparesDirectory(): array {
+    return [
+      'on neither' => [['javascript'], ['api'], FALSE],
+      'on the scenario' => [['download'], [], TRUE],
+      'on the feature' => [[], ['download'], TRUE],
+      'on both' => [['download'], ['download'], TRUE],
+      'skipped on the feature' => [['download'], ['behat-steps-skip:FileDownloadTrait'], FALSE],
+    ];
+  }
+
 }
 
 /**

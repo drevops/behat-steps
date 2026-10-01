@@ -307,6 +307,89 @@ class ResponsiveTraitTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * Tests the breakpoint the scenario and feature tags resolve to.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   * @param string|null $expected
+   *   The breakpoint expected to be applied, or NULL for none.
+   */
+  #[DataProvider('dataProviderBeforeScenarioResolvesBreakpoint')]
+  public function testBeforeScenarioResolvesBreakpoint(array $scenario_tags, array $feature_tags, ?string $expected): void {
+    $this->testObject->responsiveBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+
+    $this->assertSame($expected, $this->testObject->testResponsiveGetBreakpointFromTag());
+  }
+
+  public static function dataProviderBeforeScenarioResolvesBreakpoint(): array {
+    return [
+      'no tags' => [[], [], NULL],
+      'no breakpoint tag' => [['javascript'], ['javascript'], NULL],
+      'on the scenario' => [['javascript', 'breakpoint:desktop'], [], 'desktop'],
+      'on the feature' => [[], ['javascript', 'breakpoint:desktop'], 'desktop'],
+      'javascript on the feature' => [['breakpoint:desktop'], ['javascript'], 'desktop'],
+      'the scenario replaces the feature' => [['breakpoint:mobile_portrait'], ['javascript', 'breakpoint:desktop'], 'mobile_portrait'],
+      'the same tag on both' => [['javascript', 'breakpoint:desktop'], ['breakpoint:desktop'], 'desktop'],
+      'Behat 4 tags' => [['@javascript'], ['@breakpoint:desktop'], 'desktop'],
+    ];
+  }
+
+  /**
+   * Tests the tag combinations that fail the scenario.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   * @param string $message
+   *   The expected exception message.
+   */
+  #[DataProvider('dataProviderBeforeScenarioRejectsBreakpoint')]
+  public function testBeforeScenarioRejectsBreakpoint(array $scenario_tags, array $feature_tags, string $message): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($message);
+
+    $this->testObject->responsiveBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+  }
+
+  public static function dataProviderBeforeScenarioRejectsBreakpoint(): array {
+    return [
+      '2 tags on the scenario' => [
+        ['javascript', 'breakpoint:desktop', 'breakpoint:laptop'],
+        [],
+        'Only one @breakpoint tag is allowed per scenario. Found: @breakpoint:desktop, @breakpoint:laptop.',
+      ],
+      '2 tags on the feature' => [
+        ['javascript'],
+        ['breakpoint:desktop', 'breakpoint:laptop'],
+        'Only one @breakpoint tag is allowed per feature. Found: @breakpoint:desktop, @breakpoint:laptop.',
+      ],
+      '2 tags on the feature under a scenario tag' => [
+        ['javascript', 'breakpoint:tablet_portrait'],
+        ['breakpoint:desktop', 'breakpoint:laptop'],
+        'Only one @breakpoint tag is allowed per feature. Found: @breakpoint:desktop, @breakpoint:laptop.',
+      ],
+      'no javascript on the scenario' => [
+        ['breakpoint:desktop'],
+        [],
+        '@breakpoint:desktop tag requires @javascript tag to resize viewport.',
+      ],
+      'no javascript under a feature tag' => [
+        [],
+        ['breakpoint:desktop'],
+        '@breakpoint:desktop tag requires @javascript tag to resize viewport.',
+      ],
+      'an unknown breakpoint on the feature' => [
+        ['javascript'],
+        ['breakpoint:unknown'],
+        "Breakpoint 'unknown' not found.",
+      ],
+    ];
+  }
+
 }
 
 /**
@@ -335,6 +418,13 @@ class ResponsiveTraitTestImplementation extends RawMinkContext {
    */
   public function testResponsiveGetAllBreakpoints(): array {
     return $this->responsiveGetAllBreakpoints();
+  }
+
+  /**
+   * Exposes the breakpoint the tags resolved to.
+   */
+  public function testResponsiveGetBreakpointFromTag(): ?string {
+    return $this->responsiveBreakpointFromTag;
   }
 
 }

@@ -46,6 +46,16 @@ trait WatchdogTrait {
   use LastStepTrait;
 
   /**
+   * The tag that adds its value to the message types the scenario tracks.
+   */
+  protected const WATCHDOG_TAG = 'watchdog';
+
+  /**
+   * The tag that keeps a scenario logging an error from failing.
+   */
+  protected const WATCHDOG_ERROR_TAG = 'error';
+
+  /**
    * Start time for each scenario.
    */
   protected ?int $watchdogScenarioStartTime = NULL;
@@ -84,7 +94,7 @@ trait WatchdogTrait {
     $this->watchdogScenarioTitle = $scenario->getTitle() ?? '';
     $this->watchdogScenarioLine = $scenario->getLine();
 
-    $this->watchdogMessageTypes = $this->watchdogParseMessageTypes(Tag::on($scenario));
+    $this->watchdogMessageTypes = array_values(array_unique([...Tag::values($scope, self::WATCHDOG_TAG), 'php']));
 
     $this->lastStepSetLine($scope);
   }
@@ -144,32 +154,6 @@ trait WatchdogTrait {
     }
 
     $this->watchdogAssertNotHasErrors($context);
-  }
-
-  /**
-   * Parse scenario tags into message types.
-   *
-   * @code
-   * @watchdog:my_module_type @watchdog:my_other_module_type
-   * @endcode
-   *
-   * @param array<int, string> $tags
-   *   Array of scenario tags.
-   * @param string $prefix
-   *   Optional tag prefix to filter by.
-   *
-   * @return array<int, string>
-   *   Array of message types. 'php' is always added to the list.
-   */
-  protected function watchdogParseMessageTypes(array $tags = [], string $prefix = 'watchdog:'): array {
-    $types = [];
-    foreach ($tags as $tag) {
-      if (str_starts_with((string) $tag, $prefix) && strlen((string) $tag) > strlen($prefix)) {
-        $types[] = substr((string) $tag, strlen($prefix));
-      }
-    }
-
-    return array_unique(array_merge($types, ['php']));
   }
 
   /**
@@ -250,7 +234,7 @@ trait WatchdogTrait {
   protected function watchdogConfigSchema(): array {
     return [
       new Option('enabled', default: TRUE, description: 'Read the errors a scenario logged to Watchdog. Nothing is read when this is off.'),
-      new Option('fail_on_errors', default: TRUE, description: 'Fail a scenario that logged an error. The errors are still read and cleared when this is off.', tags: ['error' => FALSE]),
+      new Option('fail_on_errors', default: TRUE, description: 'Fail a scenario that logged an error. The errors are still read and cleared when this is off.', tags: [self::WATCHDOG_ERROR_TAG => FALSE]),
     ];
   }
 
