@@ -230,7 +230,7 @@ Scoping a run to a restricted driver set is a profile's job, not a suite's: the 
 At step time the resolution is:
 
 1. Start from the configured order.
-2. Move every name a `@driver:` tag promotes to the front, scenario tags ahead of feature tags and, within one line, in the order they were written.
+2. Move every name a `@driver:` tag promotes to the front: the names on the scenario line first, then those on the feature line. Each group keeps the configured order, so the order the tags are written in never changes the result.
 3. Walk that order and return the first driver implementing the capability the step asked for, bootstrapping only that one.
 
 ```gherkin
@@ -244,6 +244,8 @@ Scenario: Content created over the public API is immediately visible
 ```
 
 The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability - promotion only affects the capabilities the promoted driver actually provides.
+
+Repeated tags promote their names in the configured order: `@driver:blackbox @driver:api` and `@driver:api @driver:blackbox` both give `acme-jsonapi, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
 
 `@driver:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo cannot quietly run the wrong driver, and a `smoke` profile listing only `blackbox` cannot be handed a Drupal driver by any tag. When no driver in the order provides the capability a step asked for, the step fails with an `UnsupportedDriverActionException` naming the capability and the resolved order.
 
@@ -313,7 +315,7 @@ A tag configures one scenario or one feature. A parametrized tag takes its value
 Scenario: Editor publishes a page
 ```
 
-A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines, and `@module:VALUE` for the same module and `@breakpoint:VALUE` take the scenario's value over the feature's.
+A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines, and `@module:VALUE` for the same module and `@breakpoint:VALUE` take the scenario's value over the feature's. `@driver:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [driver resolution](#driver-resolution) describes.
 
 [//]: # (START_TAGS)
 
@@ -321,7 +323,7 @@ A tag on the `Feature:` line applies to every scenario in that feature. Where a 
 | --- | --- |
 | `@behat-steps-skip:VALUE` | Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value that is not a trait name fails the run at scenario start. |
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
-| `@driver:VALUE` | Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several, most important first. The tag reorders the list; it never adds to it. |
+| `@driver:VALUE` | Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several: they keep the configured order among themselves, so the order the tags are written in does not matter. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |
 | `@breakpoint:VALUE` | Resize the viewport to the named breakpoint before the first step. A scenario and its feature take 1 tag each, and the scenario's replaces the feature's. The scenario or its feature has to be `@javascript`. |
 | `@email:VALUE` | Collect email for the scenario with the named handler type. A bare `@email` uses the `default` handler. |
