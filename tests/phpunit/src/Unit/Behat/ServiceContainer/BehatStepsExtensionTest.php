@@ -21,7 +21,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpClient\HttpClient;
 
 /**
  * Tests the config schema and the services the extension puts in the container.
@@ -103,22 +103,25 @@ class BehatStepsExtensionTest extends TestCase {
     yield 'Mink activated last' => [[BehatStepsExtension::class, MinkExtension::class]];
   }
 
-  public function testInitializeBuildsTheBrowserKitSessionOnTheSharedTransport(): void {
+  public function testInitializeBuildsTheBrowserKitSessionOnItsOwnClient(): void {
     $mink = $this->initializeMink(new BehatStepsExtension());
     $container = new ContainerBuilder();
 
-    $mink->load($container, $this->processMinkConfig($mink, ['base_url' => 'http://example.com', 'sessions' => ['default' => ['browserkit_http' => NULL]]]));
+    $mink->load($container, $this->processMinkConfig($mink, ['base_url' => 'http://example.com', 'sessions' => ['default' => ['browserkit_http' => ['http_client_parameters' => ['verify_peer' => FALSE]]]]]));
 
     $session = $container->getDefinition('mink')->getMethodCalls()[0][1][1];
     $this->assertInstanceOf(Definition::class, $session);
     $driver = $session->getArgument(0);
     $this->assertInstanceOf(Definition::class, $driver);
-    $client = $driver->getArgument(0);
+    $browser = $driver->getArgument(0);
+    $this->assertInstanceOf(Definition::class, $browser);
+    $client = $browser->getArgument(0);
     $this->assertInstanceOf(Definition::class, $client);
 
     $this->assertSame(BrowserKitDriver::class, $driver->getClass());
-    $this->assertSame(HttpBrowser::class, $client->getClass());
-    $this->assertEquals(new Reference(BrowserKitFactory::TRANSPORT_SERVICE), $client->getArgument(0));
+    $this->assertSame(HttpBrowser::class, $browser->getClass());
+    $this->assertSame([HttpClient::class, 'create'], $client->getFactory());
+    $this->assertSame([['verify_peer' => FALSE]], $client->getArguments());
   }
 
   public function testInitializeSkipsSuiteWithoutMink(): void {
@@ -163,7 +166,7 @@ class BehatStepsExtensionTest extends TestCase {
     $mink->load($container, $this->processMinkConfig($mink, ['base_url' => 'http://example.com', 'sessions' => $sessions]));
     $extension->process($container);
 
-    $transport = $container->getDefinition(BrowserKitFactory::TRANSPORT_SERVICE);
+    $transport = $container->getDefinition(BehatStepsExtension::TRANSPORT_SERVICE);
     $this->assertSame([HttpClientFactory::class, 'createTransport'], $transport->getFactory());
     $this->assertSame([$expected, 'http://example.com'], $transport->getArguments());
   }
@@ -205,7 +208,7 @@ class BehatStepsExtensionTest extends TestCase {
 
     $extension->process($container);
 
-    $this->assertSame([[], NULL], $container->getDefinition(BrowserKitFactory::TRANSPORT_SERVICE)->getArguments());
+    $this->assertSame([[], NULL], $container->getDefinition(BehatStepsExtension::TRANSPORT_SERVICE)->getArguments());
   }
 
   public function testBlackboxDriverIsAlwaysRegistered(): void {

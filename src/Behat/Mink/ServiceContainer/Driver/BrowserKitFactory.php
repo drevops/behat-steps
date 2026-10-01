@@ -4,30 +4,20 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver;
 
-use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory as UpstreamBrowserKitFactory;
-use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Builds the 'browserkit_http' driver on the transport Behat Steps shares.
+ * Builds the 'browserkit_http' driver and records its connection options.
  *
- * Mink's own factory creates a transport for each session out of its
- * 'http_client_parameters'. This factory keeps Mink's options and Mink's
- * 'HttpBrowser', records the options each session declares, and points every
- * session at 1 transport service. The detached and bare browsers send through
- * the same service, so every request to the site uses 1 set of options.
+ * Each session is built exactly as Mink builds it, on a client of its own that
+ * applies the session's 'http_client_parameters' to every host. The options
+ * are also recorded, because the detached and bare browsers send with them.
  *
  * @see \DrevOps\BehatSteps\Behat\Http\HttpClientFactory
  */
 class BrowserKitFactory extends UpstreamBrowserKitFactory {
-
-  /**
-   * Service ID of the transport every browser sends through.
-   */
-  public const TRANSPORT_SERVICE = 'behat_steps.http_client';
 
   /**
    * The 'http_client_parameters' of each session built, in build order.
@@ -46,9 +36,7 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
     $options = $config['http_client_parameters'] ?? [];
     $this->sessionOptions[] = is_array($options) ? $options : [];
 
-    $browser = new Definition(HttpBrowser::class, [new Reference(self::TRANSPORT_SERVICE)]);
-
-    return new Definition(BrowserKitDriver::class, [$browser, '%mink.base_url%']);
+    return parent::buildDriver($config);
   }
 
   /**

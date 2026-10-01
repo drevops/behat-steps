@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Mink\ServiceContainer\Driver;
 
 use Behat\Mink\Driver\BrowserKitDriver;
+use Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory as UpstreamBrowserKitFactory;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -14,10 +15,10 @@ use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpClient\HttpClient;
 
 /**
- * Tests the 'browserkit_http' driver built on the shared transport.
+ * Tests the 'browserkit_http' driver and the options it records.
  */
 #[CoversClass(BrowserKitFactory::class)]
 class BrowserKitFactoryTest extends UnitTestCase {
@@ -36,8 +37,24 @@ class BrowserKitFactoryTest extends UnitTestCase {
     $this->assertArrayHasKey('http_client_parameters', $children);
   }
 
-  public function testTheDriverRunsOnHttpBrowserOverTheSharedTransport(): void {
-    $driver = (new BrowserKitFactory())->buildDriver([]);
+  /**
+   * Tests that the session is built exactly as Mink builds it.
+   *
+   * @param array<string, mixed> $config
+   *   The driver configuration of the session.
+   */
+  #[DataProvider('dataProviderTheDriverIsTheOneMinkBuilds')]
+  public function testTheDriverIsTheOneMinkBuilds(array $config): void {
+    $this->assertEquals((new UpstreamBrowserKitFactory())->buildDriver($config), (new BrowserKitFactory())->buildDriver($config));
+  }
+
+  public static function dataProviderTheDriverIsTheOneMinkBuilds(): \Iterator {
+    yield 'a session without options' => [[]];
+    yield 'a session with options' => [['http_client_parameters' => ['verify_peer' => FALSE, 'timeout' => 30]]];
+  }
+
+  public function testTheDriverSendsThroughClientCarryingTheSessionOptions(): void {
+    $driver = (new BrowserKitFactory())->buildDriver(['http_client_parameters' => ['verify_peer' => FALSE]]);
 
     $this->assertSame(BrowserKitDriver::class, $driver->getClass());
     $this->assertSame('%mink.base_url%', $driver->getArgument(1));
@@ -46,9 +63,10 @@ class BrowserKitFactoryTest extends UnitTestCase {
     $this->assertInstanceOf(Definition::class, $browser);
     $this->assertSame(HttpBrowser::class, $browser->getClass());
 
-    $transport = $browser->getArgument(0);
-    $this->assertInstanceOf(Reference::class, $transport);
-    $this->assertSame(BrowserKitFactory::TRANSPORT_SERVICE, (string) $transport);
+    $client = $browser->getArgument(0);
+    $this->assertInstanceOf(Definition::class, $client);
+    $this->assertSame([HttpClient::class, 'create'], $client->getFactory());
+    $this->assertSame([['verify_peer' => FALSE]], $client->getArguments());
   }
 
   /**
