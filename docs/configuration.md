@@ -15,7 +15,7 @@ The tables in sections 2 and 3 are generated from the source by [docs.php](../do
 
 ### Suite per surface
 
-A suite is the unit that binds a set of feature files to a set of contexts. The default layout is one suite per surface under test, because each surface needs a different vocabulary and a different driver.
+A suite is the unit that binds a set of feature files to a set of contexts. The default layout is one suite per surface under test, because each surface needs a different vocabulary and a different backend.
 
 ```php
 <?php
@@ -142,13 +142,13 @@ default:
 
 ## 2. The `behat_steps` extension key
 
-Settings under this key configure how the package reaches the site: which drivers a scenario may resolve and in what order, how each of them connects, what the login form looks like, which CSS selector each named region resolves to. They are read once per profile.
+Settings under this key configure how the package reaches the site: which backends a scenario may resolve and in what order, how each of them connects, what the login form looks like, which CSS selector each named region resolves to. They are read once per profile.
 
 HTTP connection settings are the exception. Certificate checks, a proxy or DNS pinning live on Mink's `browserkit_http` session as `http_client_parameters`, and the requests steps send from PHP, such as a file download, share them with the page. [HTTP clients](http-clients.md) covers how.
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
-  'drivers' => ['drupal', 'blackbox'],
+  'backends' => ['drupal', 'blackbox'],
   'drupal' => ['drupal_root' => 'web'],
   'regions' => ['content' => '#content'],
 ]));
@@ -160,7 +160,7 @@ A nested option is written as a section in the configuration and reads as a dott
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `drivers` | map | `[]` | Ordered list of the drivers a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first driver here providing it answers. A bare entry names a registered driver; a "tag: driver" entry gives it a name of its own, so the same feature file runs against a different driver in another profile. Omit it to get every registered driver, in registration order.<br>- drupal<br>- api: acme-jsonapi<br>- blackbox |
+| `backends` | map | `[]` | Ordered list of the backends a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first backend here providing it answers. A bare entry names a registered backend; a "tag: backend" entry gives it a name of its own, so the same feature file runs against a different backend in another profile. Omit it to get every registered backend, in registration order.<br>- drupal<br>- api: acme-jsonapi<br>- blackbox |
 | `login_field` | string | `'name'` | User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property. |
 | `regions` | map | `[]` | Map of named regions to CSS selectors. Region steps such as 'I press the button :button in the region :region' resolve against this map.<br>My region: "#css-selector"<br>Content: "#main .region-content"<br>Right sidebar: "#sidebar-second" |
 | `text` | section | - | Text strings, such as Log out or the Username field can be altered in the Behat configuration if they vary from the default values.<br>login_url: "/user"<br>logout_url: "/user/logout"<br>logout_confirm_url: "/user/logout/confirm"<br>log_out: "Sign out"<br>log_in: "Sign in"<br>password_field: "Enter your password"<br>username_field: "Nickname" |
@@ -176,10 +176,10 @@ A nested option is written as a section in the configuration and reads as a dott
 | `selectors` | section | - | CSS selectors the steps resolve page structures against. |
 | `selectors.login_form_selector` | string | `'form#user-login,form#user-login-form'` | Selector of the login form, used to tell a login page from a page that merely holds a login block. |
 | `selectors.logged_in_selector` | string | `'body.logged-in,body.user-logged-in'` | Selector present only while a user is authenticated, used to confirm a login took effect. |
-| `blackbox` | section | - | Settings of the driver that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve. |
-| `drupal` | section | - | Settings of the driver that bootstraps Drupal in-process. |
-| `drupal.drupal_root` | string | required | Path to the Drupal root the in-process driver bootstraps. |
-| `drush` | section | - | Settings of the driver that reaches the site by running Drush. |
+| `blackbox` | section | - | Settings of the backend that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve. |
+| `drupal` | section | - | Settings of the backend that bootstraps Drupal in-process. |
+| `drupal.drupal_root` | string | required | Path to the Drupal root the in-process backend bootstraps. |
+| `drush` | section | - | Settings of the backend that reaches the site by running Drush. |
 | `drush.alias` | string | - | Drush site alias to run every command against. |
 | `drush.binary` | string | `'vendor/bin/drush'` | Path to the Drush binary. |
 | `drush.root` | string | - | Drupal root passed to Drush, for a site Drush cannot locate on its own. |
@@ -187,25 +187,25 @@ A nested option is written as a section in the configuration and reads as a dott
 
 [//]: # (END_EXTENSION_OPTIONS)
 
-### Driver resolution
+### Backend resolution
 
-Five authorities decide which driver runs a step, and each decides exactly one thing.
+Five authorities decide which backend runs a step, and each decides exactly one thing.
 
 | Authority | Decides | Where |
 | --- | --- | --- |
-| Extension | Which drivers exist at all, and in what order | `behat_steps: { drivers: [...] }` |
-| Profile | Which drivers exist per environment | `behat -p remote` |
-| Scenario tag | Preference among the drivers that exist | `@driver:NAME` |
-| Step | Which capability it needs | `driverFor(X::class)` |
-| Capability interface | Which drivers are even eligible | `instanceof` during the walk |
+| Extension | Which backends exist at all, and in what order | `behat_steps: { backends: [...] }` |
+| Profile | Which backends exist per environment | `behat -p remote` |
+| Scenario tag | Preference among the backends that exist | `@backend:NAME` |
+| Step | Which capability it needs | `backendFor(X::class)` |
+| Capability interface | Which backends are even eligible | `instanceof` during the walk |
 
-The `drivers` list is both the allow-list and the precedence order. Each entry names a driver the extension registers; a keyed entry gives the driver a name of its own, so the same feature file can run against a different driver in another profile.
+The `backends` list is both the allow-list and the precedence order. Each entry names a backend the extension registers; a keyed entry gives the backend a name of its own, so the same feature file can run against a different backend in another profile.
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
   'blackbox' => NULL,
   'drupal' => ['drupal_root' => 'web'],
-  'drivers' => [
+  'backends' => [
     'drupal',
     'api' => 'acme-jsonapi',
     'blackbox',
@@ -216,25 +216,25 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 That aliasing is what lets a profile swap the implementation behind a name without touching any Gherkin:
 
 ```php
-// Default profile: "api" is the in-process driver.
-'drivers' => ['api' => 'drupal', 'blackbox'],
+// Default profile: "api" is the in-process backend.
+'backends' => ['api' => 'drupal', 'blackbox'],
 
 // "behat -p staging": "api" is the real HTTP API, and Drupal is unreachable.
-'drivers' => ['api' => 'acme-jsonapi', 'blackbox'],
+'backends' => ['api' => 'acme-jsonapi', 'blackbox'],
 ```
 
-A name holds only letters, digits, `_` and `-`, so that `@driver:NAME` is a valid tag, and it is unique. A name the extension does not register fails the container build. A configuration that declares no list gets every registered driver, in registration order.
+A name holds only letters, digits, `_` and `-`, so that `@backend:NAME` is a valid tag, and it is unique. A name the extension does not register fails the container build. A configuration that declares no list gets every registered backend, in registration order.
 
-Scoping a run to a restricted driver set is a profile's job, not a suite's: the package reads nothing from a Behat suite's settings.
+Scoping a run to a restricted backend set is a profile's job, not a suite's: the package reads nothing from a Behat suite's settings.
 
 At step time the resolution is:
 
 1. Start from the configured order.
-2. Move every name a `@driver:` tag promotes to the front: the names on the scenario line first, then those on the feature line. Each group keeps the configured order, so the order the tags are written in never changes the result.
-3. Walk that order and return the first driver implementing the capability the step asked for, bootstrapping only that one.
+2. Move every name a `@backend:` tag promotes to the front: the names on the scenario line first, then those on the feature line. Each group keeps the configured order, so the order the tags are written in never changes the result.
+3. Walk that order and return the first backend implementing the capability the step asked for, bootstrapping only that one.
 
 ```gherkin
-@driver:api
+@backend:api
 Scenario: Content created over the public API is immediately visible
   Given the following "article" content exist:
     | title      |
@@ -243,11 +243,11 @@ Scenario: Content created over the public API is immediately visible
   Then the page should contain "Lab report"
 ```
 
-The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability - promotion only affects the capabilities the promoted driver actually provides.
+The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability - promotion only affects the capabilities the promoted backend actually provides.
 
-Repeated tags promote their names in the configured order: `@driver:blackbox @driver:api` and `@driver:api @driver:blackbox` both give `acme-jsonapi, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
+Repeated tags promote their names in the configured order: `@backend:blackbox @backend:api` and `@backend:api @backend:blackbox` both give `acme-jsonapi, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
 
-`@driver:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo cannot quietly run the wrong driver, and a `smoke` profile listing only `blackbox` cannot be handed a Drupal driver by any tag. When no driver in the order provides the capability a step asked for, the step fails with an `UnsupportedDriverActionException` naming the capability and the resolved order.
+`@backend:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo cannot quietly run the wrong backend, and a `smoke` profile listing only `blackbox` cannot be handed a Drupal backend by any tag. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
 
 ### Trait options
 
@@ -308,14 +308,14 @@ The declared default carries the option's type, and the composing context reads 
 
 ## 3. Tags
 
-A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon names nothing and is ignored, except `@behat-steps-skip:` and `@driver:`, which fail at scenario start like any other value they cannot resolve. A flag tag stands alone. `@module:` also switches its value off with a `!`: `@module:!redirect`.
+A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon names nothing and is ignored, except `@behat-steps-skip:` and `@backend:`, which fail at scenario start like any other value they cannot resolve. A flag tag stands alone. `@module:` also switches its value off with a `!`: `@module:!redirect`.
 
 ```gherkin
 @module:redirect @behat-steps-skip:WatchdogTrait
 Scenario: Editor publishes a page
 ```
 
-A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines, and `@module:VALUE` for the same module and `@breakpoint:VALUE` take the scenario's value over the feature's. `@driver:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [driver resolution](#driver-resolution) describes.
+A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines, and `@module:VALUE` for the same module and `@breakpoint:VALUE` take the scenario's value over the feature's. `@backend:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes.
 
 [//]: # (START_TAGS)
 
@@ -323,7 +323,7 @@ A tag on the `Feature:` line applies to every scenario in that feature. Where a 
 | --- | --- |
 | `@behat-steps-skip:VALUE` | Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value that is not a trait name fails the run at scenario start. |
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
-| `@driver:VALUE` | Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several: they keep the configured order among themselves, so the order the tags are written in does not matter. The tag reorders the list; it never adds to it. |
+| `@backend:VALUE` | Move the named backend to the front of the configured backend list for the scenario. Repeat the tag to promote several: they keep the configured order among themselves, so the order the tags are written in does not matter. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |
 | `@breakpoint:VALUE` | Resize the viewport to the named breakpoint before the first step. A scenario and its feature take 1 tag each, and the scenario's replaces the feature's. The scenario or its feature has to be `@javascript`. |
 | `@email:VALUE` | Collect email for the scenario with the named handler type. A bare `@email` uses the `default` handler. |
@@ -340,7 +340,7 @@ A tag on the `Feature:` line applies to every scenario in that feature. Where a 
 
 [//]: # (END_TAGS)
 
-`@javascript` is a Mink tag rather than a tag of this package: it selects the browser session. Which driver a step runs against is settled by [driver resolution](#driver-resolution) and the `@driver:NAME` tag above.
+`@javascript` is a Mink tag rather than a tag of this package: it selects the browser session. Which backend a step runs against is settled by [backend resolution](#backend-resolution) and the `@backend:NAME` tag above.
 
 ## 4. Environment variables
 
@@ -350,6 +350,6 @@ These vary a run without changing any committed configuration. Nothing else in t
 | --- | --- | --- |
 | `BEHAT_STEPS_DISABLE_CLEANUP` | `EntityLifecycleTrait` | Set to `1`, `true`, `yes` or `on` to keep the entities, users and roles a scenario created, instead of deleting them in the teardown. For inspecting the state a failing scenario left behind, not for CI. |
 | `BEHAT_ACCESSIBILITY_PRINT` | `AccessibilityTrait` | Set to any value other than `0` to print a one-line accessibility summary per page to the console. |
-| `COMPOSER_BIN_DIR` | `DrushDriver` | Names the directory the Drush binary is resolved from, before the driver falls back to `vendor/bin/drush` under the working directory. Composer sets it inside its own scripts. |
+| `COMPOSER_BIN_DIR` | `DrushBackend` | Names the directory the Drush binary is resolved from, before the backend falls back to `vendor/bin/drush` under the working directory. Composer sets it inside its own scripts. |
 
 `BEHAT_PARAMS` is Behat's own override channel and applies here as it does to any extension: it carries a JSON object merged over the loaded configuration, which is the usual way to point `base_url` or a browser driver's `api_url` somewhere else for one run.

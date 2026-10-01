@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Behat\Hook\Scope;
 use Behat\Behat\Context\Context;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Suite\Suite;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 /**
  * Base implementation of an entity creation scope.

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
 
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserRegistry;
 use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -61,7 +61,7 @@ class UserRegistryTest extends TestCase {
     $registry = new UserRegistry();
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('No user with ghost name is registered with the driver.');
+    $this->expectExceptionMessage('No user with ghost name is registered with the backend.');
 
     $registry->getUser('ghost');
   }
@@ -110,7 +110,7 @@ class UserRegistryTest extends TestCase {
   /**
    * Tests whether the registry reports holding any users.
    *
-   * @param array<int, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface> $users
+   * @param array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface> $users
    *   Users to add to the registry.
    * @param bool $expected
    *   Expected hasUsers() result.

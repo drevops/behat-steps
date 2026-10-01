@@ -23,7 +23,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * The transform matches the token's braces rather than a placeholder name, so
  * one map covers every string argument without the step opting in.
  *
- * Operates on Gherkin text alone: no Mink session and no driver, so the trait
+ * Operates on Gherkin text alone: no Mink session and no backend, so the trait
  * works in any suite.
  *
  * Skip processing with tag: `@behat-steps-skip:MappingTrait`.

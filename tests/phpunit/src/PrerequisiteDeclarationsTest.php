@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Tests that every trait states its prerequisites the same way.
  *
  * A trait declares what it needs in '<prefix>Prerequisites()', through the
- * driver capabilities, and checks it with 'assertPrerequisites(__TRAIT__)' or
+ * backend capabilities, and checks it with 'assertPrerequisites(__TRAIT__)' or
  * 'prerequisitesMet(__TRAIT__)'. Module state is asked of
  * 'ModuleCapabilityInterface', never of Drupal's module handler.
  */
@@ -23,7 +23,7 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
   /**
    * Namespace every capability a shipped trait declares belongs to.
    */
-  protected const CAPABILITY_NAMESPACE = 'DrevOps\BehatSteps\Driver\Capability\\';
+  protected const CAPABILITY_NAMESPACE = 'DrevOps\BehatSteps\Backend\Capability\\';
 
   /**
    * The methods that evaluate a trait's prerequisites.
@@ -44,7 +44,7 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
     $this->assertNotSame([], $prerequisites, sprintf('%s declares an empty list of prerequisites.', $trait));
 
     foreach ($prerequisites as $prerequisite) {
-      $this->assertStringStartsWith(static::CAPABILITY_NAMESPACE, $prerequisite->capability, sprintf('%s declares a prerequisite on "%s", which is not a driver capability.', $trait, $prerequisite->capability));
+      $this->assertStringStartsWith(static::CAPABILITY_NAMESPACE, $prerequisite->capability, sprintf('%s declares a prerequisite on "%s", which is not a backend capability.', $trait, $prerequisite->capability));
       $this->assertMatchesRegularExpression('/^[a-z].*[^.]$/', $prerequisite->description, sprintf('%s describes a prerequisite as "%s". A description is a clause completing "requires that", so it starts in lower case and carries no closing period.', $trait, $prerequisite->description));
     }
   }

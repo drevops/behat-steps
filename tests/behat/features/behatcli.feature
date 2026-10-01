@@ -40,7 +40,7 @@ Feature: Behat CLI context
       $profile = (new Profile('default'))
         ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
         ->withExtension(new Extension(MinkExtension::class, ['base_url' => 'http://nginx:8080', 'sessions' => ['browserkit_http' => ['browserkit_http' => NULL], 'selenium2' => ['selenium2' => NULL]]]))
-        ->withExtension(new Extension(BehatStepsExtension::class, ['drivers' => ['drupal', 'blackbox'], 'drupal' => ['drupal_root' => '/app/build/web']]));
+        ->withExtension(new Extension(BehatStepsExtension::class, ['backends' => ['drupal', 'blackbox'], 'drupal' => ['drupal_root' => '/app/build/web']]));
 
       return (new Config())->withProfile($profile);
       """
@@ -135,7 +135,7 @@ Feature: Behat CLI context
     When I run "behat --no-colors"
     Then it should pass
 
-  Scenario: A Drupal step in a configuration listing no Drupal driver names the capability
+  Scenario: A Drupal step in a configuration listing no Drupal backend names the capability
     Given a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
@@ -159,7 +159,7 @@ Feature: Behat CLI context
       $profile = (new Profile('default'))
         ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
         ->withExtension(new Extension(MinkExtension::class, ['base_url' => 'http://nginx:8080', 'sessions' => ['browserkit_http' => ['browserkit_http' => NULL], 'selenium2' => ['selenium2' => NULL]]]))
-        ->withExtension(new Extension(BehatStepsExtension::class, ['drivers' => ['blackbox'], 'drupal' => ['drupal_root' => '/app/build/web']]));
+        ->withExtension(new Extension(BehatStepsExtension::class, ['backends' => ['blackbox'], 'drupal' => ['drupal_root' => '/app/build/web']]));
 
       return (new Config())->withProfile($profile);
       """
@@ -172,21 +172,67 @@ Feature: Behat CLI context
     When I run "behat --no-colors"
     Then it should fail with:
       """
-      No driver provides "DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface". Drivers available to this scenario, in order: blackbox.
+      No backend provides "DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface". Backends available to this scenario, in order: blackbox.
       """
 
-  Scenario: A "@driver" tag naming a driver the configuration does not hold fails at scenario start
+  Scenario: A "@backend" tag naming a backend the configuration does not hold fails at scenario start
     Given a file named "features/drupal_bootstrap.feature" with:
       """
       Feature: Content
-        @driver:typo
-        Scenario: A scenario promotes a driver that does not exist
+        @backend:typo
+        Scenario: A scenario promotes a backend that does not exist
           Given I go to the homepage
       """
     When I run "behat --no-colors"
     Then it should fail with:
       """
-      The "@driver:typo" tag names a driver that the configured driver list does not hold. Configured drivers: drupal, blackbox. The tag reorders that list; it never adds to it.
+      The "@backend:typo" tag names a backend that the configured backend list does not hold. Configured backends: drupal, blackbox. The tag reorders that list; it never adds to it.
+      """
+
+  Scenario: A "@driver" tag fails at scenario start naming the "@backend" tag
+    Given a file named "features/drupal_bootstrap.feature" with:
+      """
+      Feature: Content
+        @driver:drupal
+        Scenario: A scenario promotes a backend with a driver tag
+          Given I go to the homepage
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      The "@driver:drupal" tag moved to "@backend:drupal". Rename the tag; the name it carries is unchanged.
+      """
+
+  Scenario: A "drivers" key in the extension configuration fails naming the "backends" key
+    Given a file named "behat.php" with:
+      """
+      <?php
+      use Behat\Config\Config;
+      use Behat\Config\Extension;
+      use Behat\Config\Profile;
+      use Behat\Config\Suite;
+      use Behat\MinkExtension\Context\MinkContext;
+      use Behat\MinkExtension\ServiceContainer\MinkExtension;
+      use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+
+      $profile = (new Profile('default'))
+        ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
+        ->withExtension(new Extension(MinkExtension::class, ['base_url' => 'http://nginx:8080', 'sessions' => ['browserkit_http' => ['browserkit_http' => NULL]]]))
+        ->withExtension(new Extension(BehatStepsExtension::class, ['drivers' => ['drupal', 'blackbox'], 'drupal' => ['drupal_root' => '/app/build/web']]));
+
+      return (new Config())->withProfile($profile);
+      """
+    And a file named "features/drupal_bootstrap.feature" with:
+      """
+      Feature: Content
+        Scenario: A scenario under a configuration carrying a drivers key
+          Given I go to the homepage
+      """
+    When I run "behat --no-colors"
+    Then it should fail
+    And the output should contain:
+      """
+      The "drivers" setting under "behat_steps" moved to "backends".
       """
 
   Scenario: A skip tag naming a hook rather than a trait fails at scenario start

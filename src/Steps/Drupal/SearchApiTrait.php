@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\node\Entity\Node;
 
@@ -32,7 +32,7 @@ trait SearchApiTrait {
    */
   #[When('I add the :content_type content with the title :title to the search index')]
   public function searchApiIndexContent(string $content_type, string $title): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -63,7 +63,7 @@ trait SearchApiTrait {
    */
   #[When('I run search indexing for :count item(s)')]
   public function searchApiDoIndex(string|int $count): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -93,7 +93,7 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API cron')]
   public function searchApiRunCron(): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -112,12 +112,12 @@ trait SearchApiTrait {
    */
   #[When('I run the Search API Solr cron')]
   public function searchApiRunSolrCron(): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
     // @codeCoverageIgnoreStart
-    if (!$this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('search_api_solr')) {
+    if (!$this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('search_api_solr')) {
       return;
     }
 
@@ -134,7 +134,7 @@ trait SearchApiTrait {
   protected function searchApiPrerequisites(): array {
     return [
       Prerequisite::capability(CoreCapabilityInterface::class),
-      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('search_api'), 'the "search_api" module from the "drupal/search_api" package is enabled'),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('search_api'), 'the "search_api" module from the "drupal/search_api" package is enabled'),
     ];
   }
 

@@ -6,9 +6,9 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
@@ -57,7 +57,7 @@ trait MenuTrait {
    */
   #[Given('the following menus exist:')]
   public function menuCreate(TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $menu_hash) {
       if (empty($menu_hash['id'])) {
@@ -85,7 +85,7 @@ trait MenuTrait {
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuLinksDelete(string $menu_name, TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -109,7 +109,7 @@ trait MenuTrait {
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuLinksCreate(string $menu_name, TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -157,7 +157,7 @@ trait MenuTrait {
    *   The menu or NULL if not found.
    */
   public function menuFindByLabel(string $label): ?MenuInterface {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::entityTypeManager();
@@ -187,7 +187,7 @@ trait MenuTrait {
    *   The menu link or NULL if not found.
    */
   public function menuFindLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $menu = $this->menuFindByLabel($menu_name);
 
@@ -225,7 +225,7 @@ trait MenuTrait {
   protected function menuPrerequisites(): array {
     return [
       Prerequisite::capability(CoreCapabilityInterface::class),
-      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('menu_link_content'), 'the core "menu_link_content" module is enabled, for the menu link steps'),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('menu_link_content'), 'the core "menu_link_content" module is enabled, for the menu link steps'),
     ];
   }
 

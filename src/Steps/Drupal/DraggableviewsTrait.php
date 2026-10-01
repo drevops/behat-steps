@@ -6,9 +6,9 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
@@ -36,7 +36,7 @@ trait DraggableviewsTrait {
    */
   #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:')]
   public function draggableviewsSaveBundleOrder(string $view_id, string $view_display_id, string $content_type, TableNode $order_table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -107,7 +107,7 @@ trait DraggableviewsTrait {
   protected function draggableviewsPrerequisites(): array {
     return [
       Prerequisite::capability(CoreCapabilityInterface::class),
-      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('draggableviews'), 'the "draggableviews" module from the "drupal/draggableviews" package is enabled'),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('draggableviews'), 'the "draggableviews" module from the "drupal/draggableviews" package is enabled'),
     ];
   }
 

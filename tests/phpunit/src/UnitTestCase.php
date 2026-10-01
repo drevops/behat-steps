@@ -39,7 +39,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    * library names itself and flattens into a consuming context: the step
    * vocabulary under `Steps/` and the helpers under `Helper/`. The traits
    * under `Behat/` carry the names the framework interfaces dictate, and the
-   * driver layer is library code with its own shapes.
+   * backend layer is library code with its own shapes.
    *
    * @param string $relative_path
    *   A path relative to `src/`.

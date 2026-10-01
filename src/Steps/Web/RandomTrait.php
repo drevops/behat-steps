@@ -23,7 +23,7 @@ use Drupal\Component\Utility\Random;
  * `uuid`. The default is `string` with length `10`, so `[?title]`,
  * `[?title:string]` and `[?title:string,10]` share one value.
  *
- * Operates on Gherkin text alone: no Mink session and no driver, so the trait
+ * Operates on Gherkin text alone: no Mink session and no backend, so the trait
  * works in any suite.
  *
  * Skip processing with tag: `@behat-steps-skip:RandomTrait`.

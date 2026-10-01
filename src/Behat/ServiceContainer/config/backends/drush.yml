@@ -1,0 +1,18 @@
+parameters:
+  behat_steps.backend.drush.class: DrevOps\BehatSteps\Backend\DrushBackend
+
+  # Random generator.
+  behat_steps.random.class: Drupal\Component\Utility\Random
+
+services:
+  behat_steps.backend.random:
+    class: "%behat_steps.random.class%"
+  behat_steps.backend.drush:
+    class: "%behat_steps.backend.drush.class%"
+    arguments:
+      - "%behat_steps.backend.drush.alias%"
+      - "%behat_steps.backend.drush.root%"
+      - "%behat_steps.backend.drush.binary%"
+      - "@behat_steps.backend.random"
+    tags:
+      - { name: behat_steps.backend, alias: drush }

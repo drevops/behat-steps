@@ -38,14 +38,14 @@ parameters:
   treatPhpDocTypesAsCertain: false
 
   ignoreErrors:
-    # The driver layer boots Drupal and then reaches into the container it
+    # The backend layer boots Drupal and then reaches into the container it
     # booted. Its classes are constructed before that container exists, so
     # they have no services to be injected with and static \Drupal:: calls
-    # are the access pattern the layer is built on. Scoped to src/Driver so
+    # are the access pattern the layer is built on. Scoped to src/Backend so
     # the rule still covers the step vocabulary.
     -
       identifier: globalDrupalDependencyInjection.useDependencyInjection
-      path: src/Driver/*
+      path: src/Backend/*
     -
       messages:
         - '#.*no value type specified in iterable type.*#'

@@ -6,8 +6,8 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Prerequisite;
 
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Behat\Prerequisite\PrerequisiteReader;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Steps\Drupal\SearchApiTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\CountedPrerequisiteTrait;

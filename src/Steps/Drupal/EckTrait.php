@@ -7,11 +7,11 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\Core\Entity\EntityInterface;
@@ -42,7 +42,7 @@ trait EckTrait {
    */
   #[Given('the following eck :bundle :entity_type entities exist:')]
   public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -62,7 +62,7 @@ trait EckTrait {
    */
   #[Given('the following eck :bundle :entity_type entities do not exist:')]
   public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -84,7 +84,7 @@ trait EckTrait {
    */
   #[When('I visit the eck :bundle :entity_type entity with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -110,7 +110,7 @@ trait EckTrait {
    */
   #[When('I edit the eck :bundle :entity_type entity with the title :title')]
   public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -169,7 +169,7 @@ trait EckTrait {
   public function eckCreateEntity(EntityStub $stub): void {
     $this->entityLifecycleParseFields($stub);
 
-    $this->driverFor(ContentCapabilityInterface::class)->entityCreate($stub);
+    $this->backendFor(ContentCapabilityInterface::class)->entityCreate($stub);
 
     $saved = $stub->getSavedEntity();
     if ($saved instanceof EntityInterface) {
@@ -186,7 +186,7 @@ trait EckTrait {
   protected function eckPrerequisites(): array {
     return [
       Prerequisite::capability(CoreCapabilityInterface::class),
-      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('eck'), 'the "eck" module from the "drupal/eck" package is enabled'),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('eck'), 'the "eck" module from the "drupal/eck" package is enabled'),
     ];
   }
 

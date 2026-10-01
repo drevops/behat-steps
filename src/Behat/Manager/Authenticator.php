@@ -10,10 +10,10 @@ use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Mink;
+use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\MinkAwareTrait;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
-use DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 
 /**
  * Logs a user in and out of the site under test.
@@ -34,8 +34,8 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
    *   The Mink instance.
    * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface $userRegistry
    *   The user registry.
-   * @param \DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface $driverRegistry
-   *   The driver registry.
+   * @param \DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface $backendRegistry
+   *   The backend registry.
    * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface $basicAuthenticator
    *   Reapplies basic auth after a session reset clears the request headers.
    * @param array<string, mixed> $mink_parameters
@@ -46,7 +46,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
   public function __construct(
     Mink $mink,
     protected UserRegistryInterface $userRegistry,
-    protected DriverRegistryInterface $driverRegistry,
+    protected BackendRegistryInterface $backendRegistry,
     protected BasicAuthenticatorInterface $basicAuthenticator,
     array $mink_parameters,
     array $parameters,
@@ -238,22 +238,22 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
   }
 
   /**
-   * Logs in on the driver if it supports authentication.
+   * Logs in on the backend if it supports authentication.
    */
   protected function backendLogin(EntityStubInterface $user): void {
-    if ($this->driverRegistry->hasCapability(AuthenticationCapabilityInterface::class)) {
-      $this->driverRegistry->getDriverFor(AuthenticationCapabilityInterface::class)->login($user);
+    if ($this->backendRegistry->hasCapability(AuthenticationCapabilityInterface::class)) {
+      $this->backendRegistry->getBackendFor(AuthenticationCapabilityInterface::class)->login($user);
     }
   }
 
   /**
-   * Logs out on the driver if it supports authentication.
+   * Logs out on the backend if it supports authentication.
    */
   protected function backendLogout(): void {
-    // Only a driver the scenario already reached can hold a backend session,
+    // Only a backend the scenario already reached can hold a backend session,
     // and resolving one here would bootstrap it: teardown logs every scenario
     // out, so asking for the capability would boot Drupal for all of them.
-    $this->driverRegistry->getResolvedDriverFor(AuthenticationCapabilityInterface::class)?->logout();
+    $this->backendRegistry->getResolvedBackendFor(AuthenticationCapabilityInterface::class)?->logout();
   }
 
 }

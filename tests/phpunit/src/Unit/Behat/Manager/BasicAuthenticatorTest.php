@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
 
-use Behat\Mink\Driver\DriverInterface as MinkDriverInterface;
+use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
@@ -92,7 +92,7 @@ class BasicAuthenticatorTest extends TestCase {
    */
   public function testApplyBasicAuthIgnoresUnsupportedDriver(): void {
     $session = $this->createMock(Session::class);
-    $session->expects($this->once())->method('setBasicAuth')->willThrowException(new UnsupportedDriverActionException('Basic auth setup is not supported by %s', $this->createMock(MinkDriverInterface::class)));
+    $session->expects($this->once())->method('setBasicAuth')->willThrowException(new UnsupportedDriverActionException('Basic auth setup is not supported by %s', $this->createMock(DriverInterface::class)));
 
     $this->createManager($session, 'http://alice:secret@localhost')->applyBasicAuth();
   }

@@ -118,7 +118,7 @@ class LintLayersTest extends UnitTestCase {
         [],
       ],
       'prose mention in a comment' => [
-        "<?php\n\n// The driver runs without Behat\\Mink loaded.\n",
+        "<?php\n\n// The backend runs without Behat\\Mink loaded.\n",
         [],
       ],
       'prose mention in a docblock' => [

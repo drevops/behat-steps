@@ -11,8 +11,8 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Backend\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Driver\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -81,19 +81,19 @@ trait ConfigTrait {
     }
 
     // A scenario that recorded no snapshot has nothing to revert, and
-    // resolving a driver would fail a suite that lists none reaching Drupal.
+    // resolving a backend would fail a suite that lists none reaching Drupal.
     if ($this->configOriginalData === []) {
       return;
     }
 
-    $driver = $this->driverFor(ConfigCapabilityInterface::class);
+    $backend = $this->backendFor(ConfigCapabilityInterface::class);
 
     foreach ($this->configOriginalData as $name => $snapshot) {
       if ($snapshot['existed']) {
-        $driver->configSetData($name, $snapshot['data']);
+        $backend->configSetData($name, $snapshot['data']);
       }
       else {
-        $driver->configDelete($name);
+        $backend->configDelete($name);
       }
     }
 
@@ -110,7 +110,7 @@ trait ConfigTrait {
   #[Given('the config :name key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
     $this->configSnapshot($name);
-    $this->driverFor(ConfigCapabilityInterface::class)->configSet($name, $key, $this->configCastValue($value));
+    $this->backendFor(ConfigCapabilityInterface::class)->configSet($name, $key, $this->configCastValue($value));
   }
 
   /**
@@ -126,7 +126,7 @@ trait ConfigTrait {
    */
   #[Given('the following config values exist:')]
   public function configSetMultiple(TableNode $table): void {
-    $driver = $this->driverFor(ConfigCapabilityInterface::class);
+    $backend = $this->backendFor(ConfigCapabilityInterface::class);
 
     foreach ($table->getHash() as $row) {
       if (!isset($row['name'], $row['key']) || !array_key_exists('value', $row)) {
@@ -134,7 +134,7 @@ trait ConfigTrait {
       }
 
       $this->configSnapshot($row['name']);
-      $driver->configSet($row['name'], $row['key'], $this->configCastValue($row['value']));
+      $backend->configSet($row['name'], $row['key'], $this->configCastValue($row['value']));
     }
   }
 
@@ -257,7 +257,7 @@ trait ConfigTrait {
    *   The stored value, or NULL when the object or key does not exist.
    */
   public function configReadStored(string $name, string $key): mixed {
-    return $this->driverFor(ConfigCapabilityInterface::class)->configGetOriginal($name, $key);
+    return $this->backendFor(ConfigCapabilityInterface::class)->configGetOriginal($name, $key);
   }
 
   /**
@@ -272,7 +272,7 @@ trait ConfigTrait {
    *   The effective value, or NULL when the object or key does not exist.
    */
   public function configReadEffective(string $name, string $key): mixed {
-    return $this->driverFor(ConfigCapabilityInterface::class)->configGet($name, $key);
+    return $this->backendFor(ConfigCapabilityInterface::class)->configGet($name, $key);
   }
 
   /**
@@ -286,10 +286,10 @@ trait ConfigTrait {
       return;
     }
 
-    $driver = $this->driverFor(ConfigCapabilityInterface::class);
+    $backend = $this->backendFor(ConfigCapabilityInterface::class);
     $this->configOriginalData[$name] = [
-      'existed' => $driver->configExists($name),
-      'data' => $driver->configGetData($name),
+      'existed' => $backend->configExists($name),
+      'data' => $backend->configGetData($name),
     ];
   }
 

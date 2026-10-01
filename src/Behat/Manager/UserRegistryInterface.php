@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Manager;
 
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 /**
  * Interface for classes that hold the users created during tests.
@@ -14,7 +14,7 @@ interface UserRegistryInterface {
   /**
    * Returns the currently logged in user.
    *
-   * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface|false
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|false
    *   The user stub, or FALSE if the user is anonymous.
    */
   public function getCurrentUser(): EntityStubInterface|false;
@@ -22,7 +22,7 @@ interface UserRegistryInterface {
   /**
    * Sets the currently logged in user.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface|false $user
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|false $user
    *   The user stub, or FALSE if the user has been logged out.
    */
   public function setCurrentUser(EntityStubInterface|false $user): void;
@@ -33,7 +33,7 @@ interface UserRegistryInterface {
    * Tracks a created user, so every user created in a scenario can be cleaned
    * up after the test.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $user
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
    *   The user stub.
    */
   public function addUser(EntityStubInterface $user): void;
@@ -49,7 +49,7 @@ interface UserRegistryInterface {
   /**
    * Returns the list of users that were created in the test.
    *
-   * @return array<string, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface>
+   * @return array<string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
    *   An array of user stubs keyed by user name.
    */
   public function getUsers(): array;
@@ -60,7 +60,7 @@ interface UserRegistryInterface {
    * @param string $name
    *   The name of the user to return.
    *
-   * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The user stub.
    *
    * @throws \RuntimeException

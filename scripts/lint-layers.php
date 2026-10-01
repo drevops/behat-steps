@@ -24,8 +24,8 @@ use Drupal\Component\Utility\Random;
  */
 const LAYERS = [
   [
-    'name' => 'src/Driver',
-    'paths' => ['src/Driver'],
+    'name' => 'src/Backend',
+    'paths' => ['src/Backend'],
     'forbidden' => ['Behat', 'Mink'],
     'allowed' => [],
   ],

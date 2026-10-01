@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   The suites run against the provisioned fixture site in build/ and are
-  bootstrapped by Drupal's own test bootstrap: the driver layer and the traits
+  bootstrapped by Drupal's own test bootstrap: the backend layer and the traits
   that exercise it resolve Drupal classes from there, and the kernel suite
   needs a bootable Drupal. Run them with `ahoy test-unit` and `ahoy test-kernel`.
 -->

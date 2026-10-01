@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper\Drupal;
 
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 
 /**
- * Reads Drupal state a step asserts on without going through a driver.
+ * Reads Drupal state a step asserts on without going through a backend.
  *
  * Every member runs in the site's own process, so each resolves
  * 'CoreCapabilityInterface' first.
@@ -35,7 +35,7 @@ trait QueryTrait {
    *   When a bundle is given for an entity type that declares no bundle key.
    */
   public function queryEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $query = \Drupal::entityQuery($entity_type)->accessCheck(FALSE);
 

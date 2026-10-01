@@ -13,10 +13,10 @@ use DrevOps\BehatSteps\Behat\Mink\Adapter\Selenium2Adapter;
 /**
  * Answers what a session's browser driver can do.
  *
- * Mirrors 'DriverRegistry::getDriverFor()' on the Drupal side: a step names the
- * capability it needs and never a browser driver, so a project registering
- * its own browser driver gets the shipped steps working as soon as it
- * registers an adapter declaring that capability.
+ * Mirrors 'BackendRegistry::getBackendFor()' on the Drupal side: a step names
+ * the capability it needs and never a browser driver, so a project
+ * registering its own browser driver gets the shipped steps working as soon
+ * as it registers an adapter declaring that capability.
  */
 class BrowserCapabilityResolver {
 
@@ -88,8 +88,8 @@ class BrowserCapabilityResolver {
   /**
    * Whether the given browser driver provides a capability.
    *
-   * Pairs with 'resolve()' the way 'DriverRegistryInterface::hasCapability()'
-   * pairs with 'getDriverFor()': a step that degrades gracefully asks this,
+   * Pairs with 'resolve()' the way 'BackendRegistryInterface::hasCapability()'
+   * pairs with 'getBackendFor()': a step that degrades gracefully asks this,
    * and a step that cannot proceed without the capability calls 'resolve()'.
    *
    * @param \Behat\Mink\Driver\DriverInterface $driver

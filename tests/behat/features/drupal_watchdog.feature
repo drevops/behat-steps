@@ -225,16 +225,16 @@ Feature: Check that WatchdogTrait works
 
   @trait:Drupal\WatchdogTrait
   Scenario: Assert that an opted-in configuration reaching Drupal only through Drush fails at its start
-    Given a configuration listing the drivers "drush, blackbox"
+    Given a configuration listing the backends "drush, blackbox"
     And some behat configuration
     And scenario steps:
       """
       When I visit "/"
       """
     When I run "behat --no-colors"
-    Then it should fail with a "DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException" exception:
+    Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException" exception:
       """
-      WatchdogTrait requires that a driver in the scenario's list provides "CoreCapabilityInterface", which does not hold. Drivers available to this scenario, in order: drush, blackbox. Meet the prerequisite, or switch WatchdogTrait off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
+      WatchdogTrait requires that a backend in the scenario's list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: drush, blackbox. Meet the prerequisite, or switch WatchdogTrait off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
       """
     And the output should contain:
       """
@@ -243,7 +243,7 @@ Feature: Check that WatchdogTrait works
 
   @trait:Drupal\WatchdogTrait
   Scenario: Assert that an opted-out configuration reaching Drupal only through Drush passes
-    Given a configuration listing the drivers "drush, blackbox"
+    Given a configuration listing the backends "drush, blackbox"
     And a configuration with the step options:
       """
       'watchdog' => ['enabled' => FALSE],

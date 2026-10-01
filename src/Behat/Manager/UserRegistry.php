@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Manager;
 
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 /**
  * Default implementation of the user registry service.
@@ -19,7 +19,7 @@ class UserRegistry implements UserRegistryInterface {
   /**
    * An array of user stubs representing users created during the test.
    *
-   * @var array<string, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface>
+   * @var array<string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
    */
   protected array $users = [];
 
@@ -57,7 +57,7 @@ class UserRegistry implements UserRegistryInterface {
    */
   public function getUser(string $name): EntityStubInterface {
     if (!isset($this->users[$name])) {
-      throw new \RuntimeException(sprintf('No user with %s name is registered with the driver.', $name));
+      throw new \RuntimeException(sprintf('No user with %s name is registered with the backend.', $name));
     }
 
     return $this->users[$name];

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 
 /**
  * Trait with no option to switch it off, needing a module.
@@ -20,7 +20,7 @@ trait StepPrerequisiteTrait {
    */
   protected function stepPrerequisitePrerequisites(): array {
     return [
-      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('step'), 'the "step" module is enabled'),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('step'), 'the "step" module is enabled'),
     ];
   }
 

@@ -9,12 +9,12 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
@@ -66,7 +66,7 @@ trait ContentTrait {
    */
   #[Given('the content type :content_type does not exist')]
   public function contentRemoveContentType(string $content_type): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 
@@ -87,7 +87,7 @@ trait ContentTrait {
    */
   #[Given('the following :content_type content does not exist:')]
   public function contentDelete(string $content_type, TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $node_hash) {
       $nids = $this->queryNodeIds($content_type, $node_hash);
@@ -211,7 +211,7 @@ trait ContentTrait {
    */
   #[When('I change the moderation state of the :content_type content with the title :title to the state :new_state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $node = $this->contentGetNodeByTitle($content_type, $title);
 
@@ -242,7 +242,7 @@ trait ContentTrait {
    */
   #[When('I rebuild the access grants for the :content_type content with the title :title')]
   public function contentRebuildAccessGrantsByTitle(string $content_type, string $title): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $node = $this->contentGetNodeByTitle($content_type, $title);
 
@@ -267,7 +267,7 @@ trait ContentTrait {
    */
   #[When('I rebuild the access grants for all content')]
   public function contentRebuildAccessGrantsAll(): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     \Drupal::service(NodeAccessRebuild::class)->rebuild(FALSE);
   }
@@ -285,7 +285,7 @@ trait ContentTrait {
    */
   #[When('I set the path alias of the :content_type content with the title :title to :alias')]
   public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -304,7 +304,7 @@ trait ContentTrait {
 
     // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
     // on save.
-    if ($this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('pathauto')) {
+    if ($this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('pathauto')) {
       $path_value['pathauto'] = 0;
     }
 
@@ -396,7 +396,7 @@ trait ContentTrait {
    *   When the content type does not exist or no node of it has the title.
    */
   public function contentGetNidByTitle(string $content_type, string $title): int {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 
@@ -432,7 +432,7 @@ trait ContentTrait {
    *   When the content type does not exist or no node of it has the title.
    */
   public function contentGetNodeByTitle(string $content_type, string $title): NodeInterface {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $node = Node::load($this->contentGetNidByTitle($content_type, $title));
 
@@ -454,7 +454,7 @@ trait ContentTrait {
   protected function contentPrerequisites(): array {
     return [
       Prerequisite::capability(CoreCapabilityInterface::class),
-      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('path'), 'the core "path" module is enabled, for the path alias step'),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('path'), 'the core "path" module is enabled, for the path alias step'),
     ];
   }
 

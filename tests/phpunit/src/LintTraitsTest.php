@@ -42,7 +42,7 @@ class LintTraitsTest extends UnitTestCase {
     $this->writeFixture('src/Steps/Web/PathTrait.php', "<?php\n\ntrait PathTrait {}\n");
     $this->writeFixture('src/Steps/Web/README.md', 'not code');
     $this->writeFixture('src/Helper/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
-    $this->writeFixture('src/Driver/Ignored.php', "<?php\n\ntrait Ignored {}\n");
+    $this->writeFixture('src/Backend/Ignored.php', "<?php\n\ntrait Ignored {}\n");
 
     $collected = traits_collect(static::$tmp);
 

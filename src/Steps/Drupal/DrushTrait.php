@@ -7,18 +7,18 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Driver\Capability\DrushCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\DrushCapabilityInterface;
 
 /**
  * Run Drush commands and assert their output.
  *
- * - Run a command with or without arguments, through the Drush driver.
+ * - Run a command with or without arguments, through the Drush backend.
  * - Run a command that is expected to fail and keep its output.
  * - Assert the last command's output by substring or regular expression.
  *
- * Steps resolve the driver that can run Drush commands rather than the one at
+ * Steps resolve the backend that can run Drush commands rather than the one at
  * the front of the scenario's order, so they work in a scenario driven by any
- * other driver as long as the suite lists a Drush-capable one.
+ * other backend as long as the suite lists a Drush-capable one.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -38,7 +38,7 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command')]
   public function drushRun(string $command): void {
-    $this->drushOutput = $this->drushGetDriver()->drush($command);
+    $this->drushOutput = $this->drushGetBackend()->drush($command);
   }
 
   /**
@@ -54,7 +54,7 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command with the arguments :arguments')]
   public function drushRunWithArguments(string $command, string $arguments): void {
-    $this->drushOutput = $this->drushGetDriver()->drush($command, [$this->drushFixArgument($arguments)]);
+    $this->drushOutput = $this->drushGetBackend()->drush($command, [$this->drushFixArgument($arguments)]);
   }
 
   /**
@@ -163,13 +163,13 @@ trait DrushTrait {
   }
 
   /**
-   * Return the driver that runs Drush commands.
+   * Return the backend that runs Drush commands.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
-   *   When no driver in the scenario's order can run Drush commands.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can run Drush commands.
    */
-  public function drushGetDriver(): DrushCapabilityInterface {
-    return $this->driverFor(DrushCapabilityInterface::class);
+  public function drushGetBackend(): DrushCapabilityInterface {
+    return $this->backendFor(DrushCapabilityInterface::class);
   }
 
   /**
@@ -185,7 +185,7 @@ trait DrushTrait {
    */
   public function drushRunExpectingFailure(string $command, ?string $arguments = NULL): void {
     $args = $arguments === NULL ? [] : [$this->drushFixArgument($arguments)];
-    $result = $this->drushGetDriver()->drushResult($command, $args);
+    $result = $this->drushGetBackend()->drushResult($command, $args);
 
     // Prefer stdout and fall back to stderr. The success path returns whatever
     // the command wrote, and the failure path matches it.

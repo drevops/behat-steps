@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Helper\Drupal;
 
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 /**
  * Resolves a fixture file path for a file or image field.
@@ -31,7 +31,7 @@ trait FixtureFileTrait {
    *
    * @param string $entity_type
    *   The entity type machine name (e.g. 'node', 'media').
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub mutated in place.
    */
   public function fixtureFileExpandEntityFields(string $entity_type, EntityStubInterface $stub): void {
@@ -49,11 +49,11 @@ trait FixtureFileTrait {
 
     $fixture_path = rtrim($resolved_files_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-    if (!$this->getDriverRegistry()->hasCapability(CoreCapabilityInterface::class)) {
+    if (!$this->getBackendRegistry()->hasCapability(CoreCapabilityInterface::class)) {
       return;
     }
 
-    $field_types = $this->driverFor(CoreCapabilityInterface::class)->getCore()->getEntityFieldTypes($entity_type);
+    $field_types = $this->backendFor(CoreCapabilityInterface::class)->getCore()->getEntityFieldTypes($entity_type);
 
     foreach ($stub->getValues() as $name => $value) {
       if (empty($field_types[$name]) || ($field_types[$name] !== 'image' && $field_types[$name] !== 'file')) {
@@ -205,7 +205,7 @@ trait FixtureFileTrait {
    * Check whether a managed file with the given basename already exists.
    *
    * Mirrors drupal-driver FileHandler::resolveExistingFile() for bare
-   * basenames so the driver's own lookup is not pre-empted.
+   * basenames so the backend's own lookup is not pre-empted.
    *
    * @param string $basename
    *   Candidate basename (no path separators).
@@ -215,7 +215,7 @@ trait FixtureFileTrait {
    *   private://basename.
    */
   protected function fixtureFileManagedExists(string $basename): bool {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     if (str_contains($basename, '/') || str_contains($basename, '\\')) {
       return FALSE;

@@ -8,7 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\block\Entity\Block;
 
@@ -38,7 +38,7 @@ trait BlockTrait {
    */
   #[Given('the instance of the block :admin_label exists with the following configuration:')]
   public function blockCreateInstance(string $admin_label, TableNode $fields): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $block = NULL;
 
@@ -365,7 +365,7 @@ trait BlockTrait {
    *   The loaded block entity, or NULL when no block carries that label.
    */
   public function blockFindByLabel(string $label): ?Block {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $default_theme = \Drupal::config('system.theme')->get('default');
 

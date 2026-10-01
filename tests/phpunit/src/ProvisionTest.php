@@ -510,7 +510,7 @@ class ProvisionTest extends UnitTestCase {
   /**
    * Assert that the package's own test namespaces are rebased too.
    *
-   * The driver test suites run from the build and resolve the package, its
+   * The backend test suites run from the build and resolve the package, its
    * tests and their fixtures through these entries.
    */
   public function testMergeComposerRebasesThePackageTestNamespaces(): void {
@@ -518,7 +518,7 @@ class ProvisionTest extends UnitTestCase {
 
     $expected = [
       'DrevOps\\BehatSteps\\' => '../src/',
-      'ConsumerProject\\Driver\\' => '../tests/phpunit/fixtures/driver/ConsumerProject/Driver/',
+      'ConsumerProject\\Backend\\' => '../tests/phpunit/fixtures/backend/ConsumerProject/Backend/',
       'DrevOps\\BehatSteps\\Tests\\' => '../tests/phpunit/src/',
     ];
 
@@ -691,7 +691,7 @@ class ProvisionTest extends UnitTestCase {
       'autoload' => ['psr-4' => ['DrevOps\\BehatSteps\\' => 'src/']],
       'autoload-dev' => [
         'psr-4' => [
-          'ConsumerProject\\Driver\\' => 'tests/phpunit/fixtures/driver/ConsumerProject/Driver/',
+          'ConsumerProject\\Backend\\' => 'tests/phpunit/fixtures/backend/ConsumerProject/Backend/',
           'DrevOps\\BehatSteps\\Tests\\' => 'tests/phpunit/src/',
         ],
       ],

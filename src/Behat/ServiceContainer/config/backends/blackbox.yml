@@ -1,0 +1,8 @@
+parameters:
+  behat_steps.backend.blackbox.class: DrevOps\BehatSteps\Backend\BlackboxBackend
+
+services:
+  behat_steps.backend.blackbox:
+    class: "%behat_steps.backend.blackbox.class%"
+    tags:
+      - { name: behat_steps.backend, alias: blackbox }

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
+use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
-use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Driver\DriverInterface;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\ModuleTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -31,17 +31,17 @@ class ModuleTraitTest extends UnitTestCase {
    * @param bool $enabled
    *   Whether the module starts enabled.
    * @param string|null $expected_call
-   *   The driver method expected to run once, or NULL when neither runs.
+   *   The backend method expected to run once, or NULL when neither runs.
    */
   #[DataProvider('dataProviderBeforeScenarioAppliesTags')]
   public function testBeforeScenarioAppliesTags(array $scenario_tags, array $feature_tags, bool $enabled, ?string $expected_call): void {
-    $driver = $this->createModuleDriver();
-    $driver->method('moduleIsEnabled')->willReturn($enabled);
-    $driver->method('moduleIsPresent')->willReturn(TRUE);
-    $driver->expects($expected_call === 'moduleInstall' ? $this->once() : $this->never())->method('moduleInstall')->with('help');
-    $driver->expects($expected_call === 'moduleUninstall' ? $this->once() : $this->never())->method('moduleUninstall')->with('help');
+    $backend = $this->createModuleBackend();
+    $backend->method('moduleIsEnabled')->willReturn($enabled);
+    $backend->method('moduleIsPresent')->willReturn(TRUE);
+    $backend->expects($expected_call === 'moduleInstall' ? $this->once() : $this->never())->method('moduleInstall')->with('help');
+    $backend->expects($expected_call === 'moduleUninstall' ? $this->once() : $this->never())->method('moduleUninstall')->with('help');
 
-    $this->createContext($driver)->moduleBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+    $this->createContext($backend)->moduleBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
   }
 
   public static function dataProviderBeforeScenarioAppliesTags(): array {
@@ -57,29 +57,29 @@ class ModuleTraitTest extends UnitTestCase {
   }
 
   /**
-   * Builds a context resolving the module capability to the given driver.
+   * Builds a context resolving the module capability to the given backend.
    */
-  protected function createContext(DriverInterface $driver): ModuleTraitTestImplementation {
-    $driver_registry = new DriverRegistry(['test' => $driver]);
-    $driver_registry->setScenarioDrivers(['test' => 'test']);
+  protected function createContext(BackendInterface $backend): ModuleTraitTestImplementation {
+    $backend_registry = new BackendRegistry(['test' => $backend]);
+    $backend_registry->setScenarioBackends(['test' => 'test']);
 
     $context = new ModuleTraitTestImplementation();
-    $context->setDriverRegistry($driver_registry);
+    $context->setBackendRegistry($backend_registry);
 
     return $context;
   }
 
   /**
-   * Builds a driver double that installs modules and clears caches.
+   * Builds a backend double that installs modules and clears caches.
    *
-   * @return \DrevOps\BehatSteps\Driver\DriverInterface&\DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject
-   *   The driver double.
+   * @return \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject
+   *   The backend double.
    */
-  protected function createModuleDriver(): DriverInterface&ModuleCapabilityInterface&MockObject {
-    /** @var \DrevOps\BehatSteps\Driver\DriverInterface&\DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $driver */
-    $driver = $this->createMockForIntersectionOfInterfaces([DriverInterface::class, ModuleCapabilityInterface::class, CacheCapabilityInterface::class]);
+  protected function createModuleBackend(): BackendInterface&ModuleCapabilityInterface&MockObject {
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, ModuleCapabilityInterface::class, CacheCapabilityInterface::class]);
 
-    return $driver;
+    return $backend;
   }
 
 }

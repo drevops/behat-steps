@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Prerequisite;
 
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,19 +18,19 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class PrerequisiteTest extends UnitTestCase {
 
   public function testCapabilityCarriesItsDescription(): void {
-    $prerequisite = Prerequisite::capability(CoreCapabilityInterface::class, 'a driver runs Drupal in the Behat process');
+    $prerequisite = Prerequisite::capability(CoreCapabilityInterface::class, 'a backend runs Drupal in the Behat process');
 
     $this->assertSame(CoreCapabilityInterface::class, $prerequisite->capability);
     $this->assertNull($prerequisite->check);
-    $this->assertSame('a driver runs Drupal in the Behat process', $prerequisite->description);
+    $this->assertSame('a backend runs Drupal in the Behat process', $prerequisite->description);
   }
 
   public function testCapabilityDescriptionDefaultsToNamingTheCapability(): void {
-    $this->assertSame('a driver in the scenario\'s list provides "CoreCapabilityInterface"', Prerequisite::capability(CoreCapabilityInterface::class)->description);
+    $this->assertSame('a backend in the scenario\'s list provides "CoreCapabilityInterface"', Prerequisite::capability(CoreCapabilityInterface::class)->description);
   }
 
   public function testCheckTakesItsCapabilityFromTheClosure(): void {
-    $check = static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('dblog');
+    $check = static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('dblog');
 
     $prerequisite = Prerequisite::check($check, 'the core "dblog" module is enabled');
 
@@ -54,7 +54,7 @@ class PrerequisiteTest extends UnitTestCase {
     ];
     yield 'capability that is not an interface' => [
       static fn(): Prerequisite => Prerequisite::capability(\stdClass::class),
-      'The prerequisite "a driver in the scenario\'s list provides "stdClass"" names "stdClass", which is not an interface.',
+      'The prerequisite "a backend in the scenario\'s list provides "stdClass"" names "stdClass", which is not an interface.',
     ];
     yield 'check bound to an object' => [
       static fn(): Prerequisite => Prerequisite::check((new class() {
@@ -68,7 +68,7 @@ class PrerequisiteTest extends UnitTestCase {
          * Builds a closure bound to this object.
          */
         public function check(): \Closure {
-          return fn(ModuleCapabilityInterface $driver): bool => $this->holds;
+          return fn(ModuleCapabilityInterface $backend): bool => $this->holds;
         }
 
       })->check(), 'bound'),
@@ -83,31 +83,31 @@ class PrerequisiteTest extends UnitTestCase {
       'The prerequisite "two" declares a check taking exactly 1 parameter, typed to a capability interface.',
     ];
     yield 'check taking an untyped parameter' => [
-      static fn(): Prerequisite => Prerequisite::check(static fn($driver): bool => TRUE, 'untyped'),
+      static fn(): Prerequisite => Prerequisite::check(static fn($backend): bool => TRUE, 'untyped'),
       'The prerequisite "untyped" declares a check taking exactly 1 parameter, typed to a capability interface.',
     ];
     yield 'check taking a nullable parameter' => [
-      static fn(): Prerequisite => Prerequisite::check(static fn(?ModuleCapabilityInterface $driver): bool => TRUE, 'nullable'),
+      static fn(): Prerequisite => Prerequisite::check(static fn(?ModuleCapabilityInterface $backend): bool => TRUE, 'nullable'),
       'The prerequisite "nullable" declares a check taking exactly 1 parameter, typed to a capability interface.',
     ];
     yield 'check taking a union parameter' => [
-      static fn(): Prerequisite => Prerequisite::check(static fn(ModuleCapabilityInterface|CoreCapabilityInterface $driver): bool => TRUE, 'union'),
+      static fn(): Prerequisite => Prerequisite::check(static fn(ModuleCapabilityInterface|CoreCapabilityInterface $backend): bool => TRUE, 'union'),
       'The prerequisite "union" declares a check taking exactly 1 parameter, typed to a capability interface.',
     ];
     yield 'check taking a class' => [
-      static fn(): Prerequisite => Prerequisite::check(static fn(\stdClass $driver): bool => TRUE, 'class'),
+      static fn(): Prerequisite => Prerequisite::check(static fn(\stdClass $backend): bool => TRUE, 'class'),
       'The prerequisite "class" names "stdClass", which is not an interface.',
     ];
     yield 'check typed to another capability' => [
-      static fn(): Prerequisite => new Prerequisite(CoreCapabilityInterface::class, static fn(ModuleCapabilityInterface $driver): bool => TRUE, 'other'),
+      static fn(): Prerequisite => new Prerequisite(CoreCapabilityInterface::class, static fn(ModuleCapabilityInterface $backend): bool => TRUE, 'other'),
       sprintf('The prerequisite "other" declares a check whose parameter is typed to "%s" rather than to its capability "%s".', ModuleCapabilityInterface::class, CoreCapabilityInterface::class),
     ];
     yield 'check returning true rather than bool' => [
-      static fn(): Prerequisite => Prerequisite::check(static fn(ModuleCapabilityInterface $driver): true => TRUE, 'always'),
+      static fn(): Prerequisite => Prerequisite::check(static fn(ModuleCapabilityInterface $backend): true => TRUE, 'always'),
       'The prerequisite "always" declares a check returning "bool".',
     ];
     yield 'check returning another type' => [
-      static fn(): Prerequisite => Prerequisite::check(static fn(ModuleCapabilityInterface $driver): int => 1, 'integer'),
+      static fn(): Prerequisite => Prerequisite::check(static fn(ModuleCapabilityInterface $backend): int => 1, 'integer'),
       'The prerequisite "integer" declares a check returning "bool".',
     ];
   }

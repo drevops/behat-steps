@@ -11,10 +11,10 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -235,7 +235,7 @@ trait ModuleTrait {
    *   TRUE if the module is enabled, FALSE otherwise.
    */
   public function moduleIsEnabled(string $module): bool {
-    return $this->driverFor(ModuleCapabilityInterface::class)->moduleIsEnabled($module);
+    return $this->backendFor(ModuleCapabilityInterface::class)->moduleIsEnabled($module);
   }
 
   /**
@@ -256,10 +256,10 @@ trait ModuleTrait {
 
     // @codeCoverageIgnoreStart
     try {
-      $this->driverFor(ModuleCapabilityInterface::class)->moduleInstall($module);
+      $this->backendFor(ModuleCapabilityInterface::class)->moduleInstall($module);
       // An install leaves the running container holding the pre-install
       // service and route definitions.
-      $this->driverFor(CacheCapabilityInterface::class)->cacheClear();
+      $this->backendFor(CacheCapabilityInterface::class)->cacheClear();
     }
     catch (\Exception $e) {
       throw new \RuntimeException(sprintf('Failed to enable module "%s": %s.', $module, $e->getMessage()), $e->getCode(), $e);
@@ -281,10 +281,10 @@ trait ModuleTrait {
     // @codeCoverageIgnoreEnd
     // @codeCoverageIgnoreStart
     try {
-      $this->driverFor(ModuleCapabilityInterface::class)->moduleUninstall($module);
+      $this->backendFor(ModuleCapabilityInterface::class)->moduleUninstall($module);
       // An uninstall leaves the running container holding the pre-uninstall
       // service and route definitions.
-      $this->driverFor(CacheCapabilityInterface::class)->cacheClear();
+      $this->backendFor(CacheCapabilityInterface::class)->cacheClear();
     }
     catch (\Exception $e) {
       throw new \RuntimeException(sprintf('Failed to disable module "%s": %s.', $module, $e->getMessage()), $e->getCode(), $e);
@@ -302,7 +302,7 @@ trait ModuleTrait {
    *   TRUE if the module's code is present, FALSE otherwise.
    */
   public function moduleIsPresent(string $module): bool {
-    return $this->driverFor(ModuleCapabilityInterface::class)->moduleIsPresent($module);
+    return $this->backendFor(ModuleCapabilityInterface::class)->moduleIsPresent($module);
   }
 
   /**

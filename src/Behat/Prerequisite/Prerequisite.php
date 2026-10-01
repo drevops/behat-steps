@@ -7,8 +7,8 @@ namespace DrevOps\BehatSteps\Behat\Prerequisite;
 /**
  * One prerequisite a trait declares.
  *
- * A prerequisite is stated through a driver capability: a driver in the
- * scenario's list provides the capability, and for a check, that driver passes
+ * A prerequisite is stated through a backend capability: a backend in the
+ * scenario's list provides the capability, and for a check, that backend passes
  * the check. A trait returns its prerequisites from a '<prefix>Prerequisites()'
  * method.
  *
@@ -17,7 +17,7 @@ namespace DrevOps\BehatSteps\Behat\Prerequisite;
 final readonly class Prerequisite {
 
   /**
-   * The capability interface a driver in the scenario's list provides.
+   * The capability interface a backend in the scenario's list provides.
    *
    * @var class-string
    */
@@ -27,10 +27,10 @@ final readonly class Prerequisite {
    * Constructs a Prerequisite.
    *
    * @param string $capability
-   *   The capability interface a driver in the scenario's list provides.
+   *   The capability interface a backend in the scenario's list provides.
    * @param \Closure|null $check
-   *   The check that driver passes, or NULL when providing the capability is
-   *   the whole prerequisite. It takes the driver as its only parameter, typed
+   *   The check that backend passes, or NULL when providing the capability is
+   *   the whole prerequisite. It takes the backend as its only parameter, typed
    *   to the capability interface, and returns whether the prerequisite holds.
    * @param string $description
    *   What holds when the prerequisite is met, as a clause that completes
@@ -83,12 +83,12 @@ final readonly class Prerequisite {
   }
 
   /**
-   * Declares a capability a driver in the scenario's list provides.
+   * Declares a capability a backend in the scenario's list provides.
    *
    * @param string $capability
    *   The capability interface.
    * @param string $description
-   *   What holds when a driver provides it, as a clause. Defaults to naming
+   *   What holds when a backend provides it, as a clause. Defaults to naming
    *   the capability.
    *
    * @return self
@@ -100,20 +100,20 @@ final readonly class Prerequisite {
   public static function capability(string $capability, string $description = ''): self {
     if ($description === '') {
       $separator = strrpos($capability, '\\');
-      $description = sprintf('a driver in the scenario\'s list provides "%s"', $separator === FALSE ? $capability : substr($capability, $separator + 1));
+      $description = sprintf('a backend in the scenario\'s list provides "%s"', $separator === FALSE ? $capability : substr($capability, $separator + 1));
     }
 
     return new self($capability, NULL, $description);
   }
 
   /**
-   * Declares a check a driver providing a capability passes.
+   * Declares a check a backend providing a capability passes.
    *
    * The capability is the type of the closure's only parameter, so it cannot
    * drift from what the closure calls.
    *
    * @param \Closure $check
-   *   A static closure taking the driver, typed to the capability interface it
+   *   A static closure taking the backend, typed to the capability interface it
    *   calls, and returning whether the prerequisite holds.
    * @param string $description
    *   What holds when the check passes, as a clause.
