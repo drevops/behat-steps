@@ -76,6 +76,8 @@ An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` dir
 
 A check that throws `\RuntimeException` on a bad step argument or a missing precondition isn't an assertion, so it isn't named `Assert`. It takes the verb for what it does instead: `commandParseInteger()` turns a step argument into an integer, and `commandRequireRun()` fails when no command has run yet.
 
+`TraitMethodNamingTest` reads every name for this shape: `Assert` right after the prefix with something after it, no qualifier ahead of `Not` or `Exists`, no `Includes` or `Present`, no `Has` before a compared value, and an assertion exception from every `Assert` method that throws one directly. A `Has` standing in for existence looks just like one naming something held, so review holds that half of the `Has` rule.
+
 ### Negation
 
 `Not` is the only negation particle, and it sits immediately after `Assert<Subject>`, directly before the predicate it negates. A negative name is its positive counterpart with `Not` inserted and nothing else changed.
@@ -88,7 +90,7 @@ A check that throws `\RuntimeException` on a bad step argument or a missing prec
 | `elementAssertIsVisuallyHidden()` | `elementAssertNotVisuallyVisible()` |
 | `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |
 
-The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out.
+The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out. `TraitMethodNamingTest` pairs every `should not` step with its `should` twin in the same trait and fails a pair whose method names differ by anything but `Not`.
 
 ### Consumer override points
 
@@ -98,7 +100,7 @@ A documented override point that supplies a value is `<trait>Get<Noun>()`, boole
 
 Every published helper names what it does with a verb: `messageGetSelector()`, not `messageSelector()`. A yes-or-no question takes `Is` or `Has`, as in `authIsLoggedIn()` and `metatagResponseHasNoindexHeader()`. A verb in the trait prefix counts, as `query` does in `queryEntityIds()`.
 
-`TraitMethodNamingTest` reads the words of every public helper against its `VERBS` list, so a helper built on a verb the toolbox hasn't used yet adds that verb to the list. Steps take their verb from the step text and hooks are named for their event, so the check skips both.
+`TraitMethodNamingTest` reads the words of every public helper against its `VERBS` list, so a helper built on a verb the toolbox hasn't used yet adds that verb to the list in the same change. Steps take their verb from the step text and hooks are named for their event, so the check skips both.
 
 ### Lookups
 
