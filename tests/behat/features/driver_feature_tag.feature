@@ -10,3 +10,7 @@ Feature: Check that a feature-level driver tag promotes for every scenario
   @driver:blackbox
   Scenario: A scenario tag is promoted ahead of the feature tag
     Then the scenario driver order should be "blackbox, drush, drupal"
+
+  @driver:blackbox @driver:drupal
+  Scenario: Repeated scenario tags keep the configured order ahead of the feature tag
+    Then the scenario driver order should be "drupal, blackbox, drush"

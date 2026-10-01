@@ -7,7 +7,9 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Listener;
 use Behat\Behat\EventDispatcher\Event\BeforeScenarioTested;
 use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
+use Behat\Gherkin\Node\ExampleTableNode;
 use Behat\Gherkin\Node\FeatureNode;
+use Behat\Gherkin\Node\OutlineNode;
 use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Behat\Listener\DriverListener;
@@ -60,7 +62,7 @@ class DriverListenerTest extends TestCase {
   #[DataProvider('dataProviderDriverOrder')]
   public function testDriverOrder(array $feature_tags, array $scenario_tags, array $expected): void {
     $driver_registry = $this->createMock(DriverRegistryInterface::class);
-    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with($expected);
+    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with($this->identicalTo($expected));
 
     $listener = new DriverListener($driver_registry, $this->scenarioTags, self::DRIVERS);
     $listener->prepareScenarioDrivers($this->createEvent($feature_tags, $scenario_tags));
@@ -82,19 +84,44 @@ class DriverListenerTest extends TestCase {
       [],
       ['blackbox' => 'blackbox', 'drupal' => 'drupal', 'drush' => 'drush'],
     ];
-    yield 'repeated tags keep the order they were written in' => [
+    yield 'repeated scenario tags keep the configured order' => [
       [],
       ['driver:blackbox', 'driver:drush'],
-      ['blackbox' => 'blackbox', 'drush' => 'drush', 'drupal' => 'drupal'],
+      ['drush' => 'drush', 'blackbox' => 'blackbox', 'drupal' => 'drupal'],
+    ];
+    yield 'repeated scenario tags in reverse give the same order' => [
+      [],
+      ['driver:drush', 'driver:blackbox'],
+      ['drush' => 'drush', 'blackbox' => 'blackbox', 'drupal' => 'drupal'],
+    ];
+    yield 'repeated feature tags keep the configured order' => [
+      ['driver:blackbox', 'driver:drush'],
+      [],
+      ['drush' => 'drush', 'blackbox' => 'blackbox', 'drupal' => 'drupal'],
     ];
     yield 'a scenario tag is promoted ahead of a feature tag' => [
       ['driver:drush'],
       ['driver:blackbox'],
       ['blackbox' => 'blackbox', 'drush' => 'drush', 'drupal' => 'drupal'],
     ];
+    yield 'scenario tags keep the configured order ahead of a feature tag' => [
+      ['driver:drush'],
+      ['driver:blackbox', 'driver:drupal'],
+      ['drupal' => 'drupal', 'blackbox' => 'blackbox', 'drush' => 'drush'],
+    ];
+    yield 'a name on both lines is promoted with the scenario' => [
+      ['driver:drush', 'driver:blackbox'],
+      ['driver:blackbox'],
+      ['blackbox' => 'blackbox', 'drush' => 'drush', 'drupal' => 'drupal'],
+    ];
     yield 'a repeated name is promoted once' => [
       ['driver:drush'],
       ['driver:drush'],
+      ['drush' => 'drush', 'drupal' => 'drupal', 'blackbox' => 'blackbox'],
+    ];
+    yield 'a name repeated on one line is promoted once' => [
+      [],
+      ['driver:drush', 'driver:drush'],
       ['drush' => 'drush', 'drupal' => 'drupal', 'blackbox' => 'blackbox'],
     ];
     yield 'a tag that is not a driver tag is ignored' => [
@@ -104,9 +131,28 @@ class DriverListenerTest extends TestCase {
     ];
   }
 
+  /**
+   * Tests that an example's outline tags and table tags rank together.
+   *
+   * Gherkin merges the outline's tags and the 'Examples:' table's tags into the
+   * example's own list, outline first.
+   */
+  public function testExampleRanksOutlineAndTableTagsTogether(): void {
+    $table = new ExampleTableNode([1 => ['name'], 2 => ['value']], 'Examples', ['driver:drush']);
+    $outline = new OutlineNode('Outline', ['driver:blackbox'], [], $table, 'Scenario Outline', 2);
+    $feature = new FeatureNode('Feature', NULL, [], NULL, [$outline], 'Feature', 'en', NULL, 1);
+    $event = new BeforeScenarioTested($this->createMock(Environment::class), $feature, $outline->getExamples()[0]);
+
+    $driver_registry = $this->createMock(DriverRegistryInterface::class);
+    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with($this->identicalTo(['drush' => 'drush', 'blackbox' => 'blackbox', 'drupal' => 'drupal']));
+
+    $listener = new DriverListener($driver_registry, $this->scenarioTags, self::DRIVERS);
+    $listener->prepareScenarioDrivers($event);
+  }
+
   public function testAnAliasedEntryNamesTheDriverBehindIt(): void {
     $driver_registry = $this->createMock(DriverRegistryInterface::class);
-    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
+    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with($this->identicalTo(['api' => 'drupal', 'blackbox' => 'blackbox']));
 
     $listener = new DriverListener($driver_registry, $this->scenarioTags, ['blackbox', 'api' => 'drupal']);
     $listener->prepareScenarioDrivers($this->createEvent([], ['driver:api']));
@@ -114,7 +160,7 @@ class DriverListenerTest extends TestCase {
 
   public function testTagNameIsMatchedWithoutRegardToCase(): void {
     $driver_registry = $this->createMock(DriverRegistryInterface::class);
-    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with(['api' => 'drupal', 'blackbox' => 'blackbox']);
+    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with($this->identicalTo(['api' => 'drupal', 'blackbox' => 'blackbox']));
 
     $listener = new DriverListener($driver_registry, $this->scenarioTags, ['API' => 'drupal', 'blackbox']);
     $listener->prepareScenarioDrivers($this->createEvent([], ['driver:API']));
@@ -126,19 +172,37 @@ class DriverListenerTest extends TestCase {
       'blackbox' => $this->createMock(DriverInterface::class),
       'drupal' => $this->createMock(DriverInterface::class),
     ]);
-    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with(['blackbox' => 'blackbox', 'drupal' => 'drupal']);
+    $driver_registry->expects($this->once())->method('setScenarioDrivers')->with($this->identicalTo(['blackbox' => 'blackbox', 'drupal' => 'drupal']));
 
     $listener = new DriverListener($driver_registry, $this->scenarioTags);
     $listener->prepareScenarioDrivers($this->createEvent([], []));
   }
 
-  public function testTagNamingUnlistedDriverIsReported(): void {
+  /**
+   * Tests that a tag naming a driver outside the configured list is reported.
+   *
+   * @param list<string> $feature_tags
+   *   Tags declared on the feature.
+   * @param list<string> $scenario_tags
+   *   Tags declared on the scenario.
+   * @param string $expected_tag
+   *   The tag the message is expected to name.
+   */
+  #[DataProvider('dataProviderTagNamingUnlistedDriverIsReported')]
+  public function testTagNamingUnlistedDriverIsReported(array $feature_tags, array $scenario_tags, string $expected_tag): void {
     $listener = new DriverListener($this->createMock(DriverRegistryInterface::class), $this->scenarioTags, self::DRIVERS);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('The "@driver:typo" tag names a driver that the configured driver list does not hold. Configured drivers: drupal, drush, blackbox. The tag reorders that list; it never adds to it.');
+    $this->expectExceptionMessage(sprintf('The "%s" tag names a driver that the configured driver list does not hold. Configured drivers: drupal, drush, blackbox. The tag reorders that list; it never adds to it.', $expected_tag));
 
-    $listener->prepareScenarioDrivers($this->createEvent([], ['driver:typo']));
+    $listener->prepareScenarioDrivers($this->createEvent($feature_tags, $scenario_tags));
+  }
+
+  public static function dataProviderTagNamingUnlistedDriverIsReported(): \Iterator {
+    yield 'on the scenario line' => [[], ['driver:typo'], '@driver:typo'];
+    yield 'on the feature line' => [['driver:typo'], [], '@driver:typo'];
+    yield 'beside a listed name' => [[], ['driver:drush', 'driver:typo'], '@driver:typo'];
+    yield 'with no name' => [[], ['driver:'], '@driver:'];
   }
 
   public function testTheEnvironmentIsHandedToTheManager(): void {
