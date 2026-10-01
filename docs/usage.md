@@ -18,7 +18,7 @@ The vocabulary sits on a single chain. Every class is honest about what it drags
         Behat\MinkExtension\Context\RawMinkContext
                           |
                     WebRawContext
-       driver access, configuration, hook dispatch,
+      backend access, configuration, hook dispatch,
                3 web helper traits, no steps
                           |
                      WebContext
@@ -30,7 +30,7 @@ The vocabulary sits on a single chain. Every class is honest about what it drags
 
 | Extend | When |
 | --- | --- |
-| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits. The Watchdog check needs the core `dblog` module and a driver such as `drupal`, or it's [switched off](#switch-a-trait-off) |
+| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits. The Watchdog check needs the core `dblog` module and a backend such as `drupal`, or it's [switched off](#switch-a-trait-off) |
 | `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
 
@@ -85,7 +85,7 @@ A suite that writes its own Drupal steps composes the helper for the concern it 
 
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 
 class SpecContext extends WebRawContext {
@@ -132,7 +132,7 @@ $ui = (new Suite('ui'))
 $profile = (new Profile('default'))
   ->withSuite($ui)
   ->withExtension(new Extension(BehatStepsExtension::class, [
-    'drivers' => ['drupal', 'blackbox'],
+    'backends' => ['drupal', 'blackbox'],
     'drupal' => ['drupal_root' => 'web'],
   ]));
 ```
@@ -176,7 +176,7 @@ The three reach the same value, most specific last: `steps`, then the context's 
 
 Two options recur across the traits that carry hooks, and they mean different things:
 
-- `enabled` turns the trait's hooks off entirely: nothing is collected, and no driver is bootstrapped on its account.
+- `enabled` turns the trait's hooks off entirely: nothing is collected, and no backend is bootstrapped on its account.
 - `fail_on_errors` leaves the collection running and stops what it collects from failing the scenario.
 
 A project that never wants a trait's gate sets it once:
@@ -187,18 +187,18 @@ A project that never wants a trait's gate sets it once:
 
 rather than tagging every feature file with `@behat-steps-skip:WatchdogTrait`.
 
-`WatchdogTrait` is the gate you're most likely to meet first, because `DrupalContext` composes it. It reads the errors each scenario logged from the `watchdog` table, and only the core `dblog` module creates that table. It reads the table in the Behat process, so it also needs a driver that loads Drupal there, such as `drupal`.
+`WatchdogTrait` is the gate you're most likely to meet first, because `DrupalContext` composes it. It reads the errors each scenario logged from the `watchdog` table, and only the core `dblog` module creates that table. It reads the table in the Behat process, so it also needs a backend that loads Drupal there, such as `drupal`.
 
 Those are the trait's prerequisites, and it checks them when a scenario starts. Here's what happens with and without `dblog`:
 
 | Watchdog check | `dblog` enabled | `dblog` not enabled |
 | --- | --- | --- |
 | On, the default | Reads the errors after the last step, and fails a scenario that logged one | Fails the scenario at its start, before any step runs |
-| Off, through `watchdog.enabled` or `@behat-steps-skip:WatchdogTrait` | Reads nothing and bootstraps no driver | Reads nothing and bootstraps no driver |
+| Off, through `watchdog.enabled` or `@behat-steps-skip:WatchdogTrait` | Reads nothing and bootstraps no backend | Reads nothing and bootstraps no backend |
 
-A profile that lists no driver loading Drupal into the Behat process, such as `'drivers' => ['drush', 'blackbox']`, fails at the start the same way. The error names the prerequisite that doesn't hold and both ways out: meet it, or switch the trait off as above. A scenario that uninstalls `dblog` itself starts with the table in place, so it fails at its last step instead.
+A profile that lists no backend loading Drupal into the Behat process, such as `'backends' => ['drush', 'blackbox']`, fails at the start the same way. The error names the prerequisite that doesn't hold and both ways out: meet it, or switch the trait off as above. A scenario that uninstalls `dblog` itself starts with the table in place, so it fails at its last step instead.
 
-Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help with an unmet prerequisite. Both decide what happens to errors that were read, and without the table or a driver to read it through, there's nothing to read.
+Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help with an unmet prerequisite. Both decide what happens to errors that were read, and without the table or a backend to read it through, there's nothing to read.
 
 ## Go further than the options
 

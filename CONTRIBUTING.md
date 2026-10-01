@@ -59,7 +59,7 @@ Run `ahoy lint-docs` to validate the format of the steps.
 
 Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, helper verb, lookup and spelling conventions below.
 
-`TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleNodeCreate()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Behat` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Driver` is composed into nothing.
+`TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleNodeCreate()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Behat` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Backend` is composed into nothing.
 
 ### Assertions
 
@@ -124,40 +124,40 @@ A set of entities comes back loaded, never as bare IDs: every `<trait>LoadMultip
 
 A class name states the role the class plays, so a reader can tell a lookup table apart from a service that acts without opening the file. Two shapes cover everything under `src/Behat`:
 
-- **`<Noun>Registry`** holds things and looks them up. `DriverRegistry` registers drivers and resolves one by capability; `UserRegistry` stores the users a scenario created and tracks the current one.
+- **`<Noun>Registry`** holds things and looks them up. `BackendRegistry` registers backends and resolves one by capability; `UserRegistry` stores the users a scenario created and tracks the current one.
 - **An agent noun** performs an action. `Authenticator` logs a user in and out; `BasicAuthenticator` applies HTTP Basic credentials to a session.
 
 `Manager` is not a role, so it names nothing. Do not reach for it, or for `Handler`, `Helper` or `Service` as a class suffix - each would describe every class in the package equally well.
 
-An accessor is named for what it returns, after its trait prefix where one applies: `getDriverRegistry()`, `authGetUserRegistry()`. A name and its return type cannot disagree, so renaming a class renames its accessors with it.
+An accessor is named for what it returns, after its trait prefix where one applies: `getBackendRegistry()`, `authGetUserRegistry()`. A name and its return type cannot disagree, so renaming a class renames its accessors with it.
 
 ### A capability wrapper is not a class
 
-Do not write a class whose only job is to forward to a capability interface. The capability interface already is the abstraction, and a trait reaches it through `driverFor(SomeCapabilityInterface::class)` on `WebRawContext`. A wrapper adds a second name for the same contract, a second place to keep in step, and nothing else - which is why the one that existed was never wired into the container.
+Do not write a class whose only job is to forward to a capability interface. The capability interface already is the abstraction, and a trait reaches it through `backendFor(SomeCapabilityInterface::class)` on `WebRawContext`. A wrapper adds a second name for the same contract, a second place to keep in step, and nothing else - which is why the one that existed was never wired into the container.
 
 A class earns its place when it holds state across calls, composes more than one collaborator, or decides something the capability cannot. Forwarding 4 methods and renaming them on the way through is none of those.
 
-## Driver, browser driver and HTTP client
+## Backend, browser driver and HTTP client
 
 3 things sit close together in this codebase, and each has 1 name. Use it in identifiers, docblocks and prose alike.
 
 | Term | What it is | Where it shows up |
 | --- | --- | --- |
-| **Driver** | The backend a step resolves a capability from: Drupal in-process, Drush or Blackbox | `src/Driver`, `DriverInterface`, the `drivers` list and the `@driver:` tag, `driverFor()` and `getDriver()` on `WebRawContext`, `DriverRegistry` |
+| **Backend** | What a step resolves a capability from: Drupal in-process, Drush or Blackbox | `src/Backend`, `BackendInterface`, the `backends` list and the `@backend:` tag, `backendFor()` and `getBackend()` on `WebRawContext`, `BackendRegistry` |
 | **Browser driver** | Mink's driver behind the session: BrowserKit, Selenium2 or Chrome | `browserDriverFor()` and `browserDriverHas()` on `WebRawContext`, the adapters and capabilities under `src/Behat/Mink` |
 | **HTTP client** | What a step sends its own request through: the page, detached or bare client | `httpPageClient()`, `httpDetachedClient()` and `httpBareClient()` on `WebRawContext`, `HttpClientFactory` |
 
-A bare "driver" always means the first. Mink's is always a "browser driver", never a "Mink driver" or "the session's driver", and that holds inside `src/Behat/Mink` too, where no other kind exists. An HTTP client isn't a driver of either kind. It's a BrowserKit `AbstractBrowser`, so a docblock may call the object a browser.
+Mink owns the word "driver" across the Behat ecosystem, so no name this package owns uses it for anything else. `Backend` in one of our identifiers means a backend, and `Driver` or `BrowserDriver` means Mink's. In prose, Mink's is a "browser driver", never a "Mink driver" or "the session's driver", and that holds inside `src/Behat/Mink` too. An HTTP client is neither. It's a BrowserKit `AbstractBrowser`, so a docblock may call the object a browser.
 
-Every name this package owns follows that: `Driver` in one of our identifiers means a driver, and `BrowserDriver` means Mink's. The exceptions are Mink's own names, which we can't change, and 3 of them collide with ours:
+Each side has a counterpart on the other, and the names keep the 2 apart:
 
-| Ours | Mink's |
+| Backend | Browser driver |
 | --- | --- |
-| `DrevOps\BehatSteps\Driver\DriverInterface` | `Behat\Mink\Driver\DriverInterface` |
-| `DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException`, thrown by `driverFor()` | `Behat\Mink\Exception\UnsupportedDriverActionException`, thrown by `browserDriverFor()` |
-| `$this->getDriver($name)`, a driver by the name its suite gave it | `$this->getSession()->getDriver()`, the browser driver |
+| `DrevOps\BehatSteps\Backend\BackendInterface` | `Behat\Mink\Driver\DriverInterface` |
+| `DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException`, thrown by `backendFor()` | `Behat\Mink\Exception\UnsupportedDriverActionException`, thrown by `browserDriverFor()` |
+| `$this->getBackend($name)`, a backend by the name its suite gave it | `$this->getSession()->getDriver()`, the browser driver |
 
-A file that needs both of a pair imports Mink's under a `Mink` prefix, as `use Behat\Mink\Driver\DriverInterface as MinkDriverInterface;` does in the tests.
+A file that needs both of a pair imports each under its own name, with no alias.
 
 ## The helper API
 
@@ -183,7 +183,7 @@ Withdraw a member that exists only to serve the machinery with `@internal`, nami
 
 ```php
 /**
- * Sets the driver registry.
+ * Sets the backend registry.
  *
  * @internal
  *   Injection point called by the context initializer.
@@ -221,10 +221,10 @@ Data provider naming and placement are settled too. A provider is named `dataPro
 
 ## Layers
 
-The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Driver`.
+The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Backend`.
 
-- **`src/Driver`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the driver and user registries, the authenticator and the basic authenticator, `Context/` holds the 3 context classes, `Mink/` holds the browser capabilities, their adapters and the `browserkit_http` browser driver factory, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario driver selection and skip-tag check, the `region` Mink selector and the starter-class generator.
+- **`src/Backend`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
+- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Manager/` holds the backend and user registries, the authenticator and the basic authenticator, `Context/` holds the 3 context classes, `Mink/` holds the browser capabilities, their adapters and the `browserkit_http` browser driver factory, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator.
 - **`src/Helper`** holds the step-free traits a step trait and a context both compose, split into `Web/` (last-step tracking, the request header bag, string shaping, table transposition) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, direct queries). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened.
 - **`src/Steps`** is the step vocabulary - traits a context mixes in. `Web/` holds the ones that drive a page, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 
@@ -236,16 +236,16 @@ That is what keeps `src/Helper` a library rather than a catch-all: teardown live
 
 A trait's directory is its classification, so nothing has to be declared twice: `src/Steps` registers Gherkin and `src/Helper` registers none. [scripts/lint-traits.php](scripts/lint-traits.php) fails a step trait composing another step trait, and a helper trait carrying a step or transform attribute. A helper may carry a hook: the trait that owns a teardown carries the hook that runs it. Shared logic goes in a helper trait under `src/Helper` named for its concern, composed by whoever needs it.
 
-## What a trait needs from the driver
+## What a trait needs from the backend
 
-A step is only as portable as the driver behind it, so each trait falls into one of four bands. Which band a trait is in decides which capability its steps resolve, and therefore which suites can run them.
+A step is only as portable as the backend behind it, so each trait falls into one of four bands. Which band a trait is in decides which capability its steps resolve, and therefore which suites can run them.
 
-- **Nothing.** Every trait under `src/Steps/Web` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any driver, against any site, with no Drupal at all.
-- **Extension configuration, but no driver.** `MessageTrait`, `RegionTrait` and `MappingTrait` read the `selectors`, `regions` and `mappings` maps that `BehatStepsExtension` injects, and `BasicAuthTrait` reads the authentication manager. They need the extension registered, not a bootstrapped site.
-- **A narrow capability.** `CacheTrait`'s clear and cron steps, `DrushTrait` and the user and content creation steps resolve one named capability (`CacheCapabilityInterface`, `CronCapabilityInterface`, `DrushCapabilityInterface`, `UserCapabilityInterface`, `ContentCapabilityInterface`, `RoleCapabilityInterface`). They work on any driver implementing it, which for most is the Drush driver as well as the in-process one.
-- **Drupal's API in this process.** Every other trait under `src/Steps/Drupal` calls into `\Drupal::` directly, which only a driver that bootstraps Drupal in-process can serve. Those steps resolve `CoreCapabilityInterface`.
+- **Nothing.** Every trait under `src/Steps/Web` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any backend, against any site, with no Drupal at all.
+- **Extension configuration, but no backend.** `MessageTrait`, `RegionTrait` and `MappingTrait` read the `selectors`, `regions` and `mappings` maps that `BehatStepsExtension` injects, and `BasicAuthTrait` reads the authentication manager. They need the extension registered, not a bootstrapped site.
+- **A narrow capability.** `CacheTrait`'s clear and cron steps, `DrushTrait` and the user and content creation steps resolve one named capability (`CacheCapabilityInterface`, `CronCapabilityInterface`, `DrushCapabilityInterface`, `UserCapabilityInterface`, `ContentCapabilityInterface`, `RoleCapabilityInterface`). They work on any backend implementing it, which for most is the Drush backend as well as the in-process one.
+- **Drupal's API in this process.** Every other trait under `src/Steps/Drupal` calls into `\Drupal::` directly, which only a backend that bootstraps Drupal in-process can serve. Those steps resolve `CoreCapabilityInterface`.
 
-A step names a capability and never a driver. `WebRawContext::driverFor()` walks the scenario's driver order, returns the first driver implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedDriverActionException` naming the capability and the order. The order itself comes from the `drivers` list under `behat_steps` and the `@driver:NAME` tag, documented in [docs/configuration.md](docs/configuration.md#driver-resolution).
+A step names a capability and never a backend. `WebRawContext::backendFor()` walks the scenario's backend order, returns the first backend implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedBackendActionException` naming the capability and the order. The order itself comes from the `backends` list under `behat_steps` and the `@backend:NAME` tag, documented in [docs/configuration.md](docs/configuration.md#backend-resolution).
 
 ## Sending a request from a trait
 
@@ -263,9 +263,9 @@ The page client exists only under BrowserKit, and throws `UnsupportedDriverActio
 
 In a unit test, the test implementation overrides `httpDetachedClient()` or `httpBareClient()` to return an `HttpBrowser` over Symfony's `MockHttpClient`, as `FileDownloadTraitTest` and `MetatagTraitTest` do. [docs/http-clients.md](docs/http-clients.md) covers the settings, the identity the detached client carries, and the extension points.
 
-A new step that touches `\Drupal::` calls `$this->driverFor(CoreCapabilityInterface::class);` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists. A step whose trait declares prerequisites calls `$this->assertPrerequisites(__TRAIT__)` next, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes.
+A new step that touches `\Drupal::` calls `$this->backendFor(CoreCapabilityInterface::class);` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists. A step whose trait declares prerequisites calls `$this->assertPrerequisites(__TRAIT__)` next, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes.
 
-[scripts/lint-layers.php](scripts/lint-layers.php) holds both boundaries. It reads every file of each declared layer and fails on any code reference into the namespaces that layer excludes: imports, type declarations, and class names reached through a string. `src/Driver` excludes `Behat` and `Mink`; `src/Steps/Web`, `WebRawContext`, `WebContext` and the 4 web helper traits exclude `Drupal`, apart from `Drupal\Component\Utility\Random`, which ships in `drupal/core-utility` and every consumer loads already. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
+[scripts/lint-layers.php](scripts/lint-layers.php) holds both boundaries. It reads every file of each declared layer and fails on any code reference into the namespaces that layer excludes: imports, type declarations, and class names reached through a string. `src/Backend` excludes `Behat` and `Mink`; `src/Steps/Web`, `WebRawContext`, `WebContext` and the 4 web helper traits exclude `Drupal`, apart from `Drupal\Component\Utility\Random`, which ships in `drupal/core-utility` and every consumer loads already. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
 
 ## Behat 4 readiness
 
@@ -275,7 +275,7 @@ A new step that touches `\Drupal::` calls `$this->driverFor(CoreCapabilityInterf
 
 - **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.33 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `FilterableHook::filterMatches(): bool`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.33 interface is not narrowed.
 - **The `browserkit_http` factory is registered from `BehatStepsExtension::initialize()`.** The factory extends Mink's own, records each session's `http_client_parameters` through `buildDriver()` for the transport the library's own requests share, and builds the session exactly as Mink does. Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so it can't be subclassed, and a wrapper would take the `mink` key away from any other Mink extension a project registers. `initialize()` runs once every extension is activated and before any configuration tree is built, so it hands the factory to `registerDriverFactory()` on whichever Mink extension holds the key - the hook every browser driver extension uses - and that works on both majors.
-- **`DriverListener` reads the event, not the removed interface.** Behat 4 drops `ScenarioLikeTested`. Both `ScenarioTested::BEFORE` and `ExampleTested::BEFORE` carry a `BeforeScenarioTested`, which declares `getFeature()` and `getScenario()` itself in both versions, so the listener type-hints that class.
+- **`BackendListener` reads the event, not the removed interface.** Behat 4 drops `ScenarioLikeTested`. Both `ScenarioTested::BEFORE` and `ExampleTested::BEFORE` carry a `BeforeScenarioTested`, which declares `getFeature()` and `getScenario()` itself in both versions, so the listener type-hints that class.
 - **`HookAttributeReader` builds its callable through Behat's factory when there is one.** Behat 4 types the callee constructor as `callable`, and `[class-string, method]` is not callable for an instance method. `ContextMethodCallableFactory` wraps such methods on Behat 4 and is absent on Behat 3, so `makeCallable()` uses it only when the class exists.
 - **The `context.class_generator.simple` override survives by service id.** Behat collects generators by tag before an activated extension's `process()` runs and injects them as references, so replacing the definition behind that id swaps the class in both versions.
 
@@ -366,31 +366,31 @@ public function acmeBeforeScenario(BeforeScenarioScope $scope): void {
 
 ### Declaring prerequisites
 
-A trait declares what it needs from the site in a `<prefix>Prerequisites()` method, named by its prefix like `<prefix>ConfigSchema()`, and states each prerequisite through a driver capability:
+A trait declares what it needs from the site in a `<prefix>Prerequisites()` method, named by its prefix like `<prefix>ConfigSchema()`, and states each prerequisite through a backend capability:
 
 ```php
 protected function acmePrerequisites(): array {
   return [
     Prerequisite::capability(CoreCapabilityInterface::class),
-    Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('acme'), 'the "acme" module from the "drupal/acme" package is enabled'),
+    Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('acme'), 'the "acme" module from the "drupal/acme" package is enabled'),
   ];
 }
 ```
 
-- `Prerequisite::capability()` holds when a driver in the scenario's list provides the capability.
-- `Prerequisite::check()` takes a static closure whose only parameter is typed to a capability interface. The checker hands it a driver providing that capability, and the closure returns whether the prerequisite holds. The closure gets nothing else: a condition that depends on an option, a tag or a step argument is opt-in, activation or input validation, not a prerequisite.
+- `Prerequisite::capability()` holds when a backend in the scenario's list provides the capability.
+- `Prerequisite::check()` takes a static closure whose only parameter is typed to a capability interface. The checker hands it a backend providing that capability, and the closure returns whether the prerequisite holds. The closure gets nothing else: a condition that depends on an option, a tag or a step argument is opt-in, activation or input validation, not a prerequisite.
 - A description is a clause completing "requires that", in lower case with no closing period. It appears both in the failure message and in the Prerequisites table `docs.php` renders into [STEPS.md](STEPS.md).
 
-A module the trait needs is declared. A module it only adapts to, such as `pathauto`, is asked with `$this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled()`, which reuses a driver the scenario already reached, so the question never starts a second driver the way `driverFor()` would under `@driver:drush`. Either way, module state goes through `ModuleCapabilityInterface`, never `\Drupal::moduleHandler()->moduleExists()`.
+A module the trait needs is declared. A module it only adapts to, such as `pathauto`, is asked with `$this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled()`, which reuses a backend the scenario already reached, so the question never starts a second backend the way `backendFor()` would under `@backend:drush`. Either way, module state goes through `ModuleCapabilityInterface`, never `\Drupal::moduleHandler()->moduleExists()`.
 
 ### Where a trait checks them
 
-- **A step** calls `$this->assertPrerequisites(__TRAIT__)` right after resolving its driver. It checks only when a scenario uses it, so a suite that never runs a webform step never needs `webform`.
+- **A step** calls `$this->assertPrerequisites(__TRAIT__)` right after resolving its backend. It checks only when a scenario uses it, so a suite that never runs a webform step never needs `webform`.
 - **A setup hook** checks at scenario start, straight after its guard.
 - **A check at step scope** that reads what a prerequisite provides checks again first, in case the scenario removed it.
 - **A teardown** never throws for an unmet prerequisite. It asks `$this->prerequisitesMet(__TRAIT__)`, or reads a flag its setup set, and undoes only what the setup did, so it can't replace a failure the scenario already recorded.
 
-The checker reads each trait's declarations once per context class and run, since a context can redeclare the declaring method, and evaluates them in order. For each capability it goes through `anyDriverFor()`, which reuses a driver the scenario already reached before trying the first one listed, so checking never starts a second driver. A capability with no check still reaches its driver, so declaring `CoreCapabilityInterface` first is what keeps the rest in-process: once it has resolved `drupal`, a module check runs there even under `@driver:drush`. Answers aren't cached, because a tag, a step or an out-of-process command can install or uninstall a module at any time.
+The checker reads each trait's declarations once per context class and run, since a context can redeclare the declaring method, and evaluates them in order. For each capability it goes through `anyBackendFor()`, which reuses a backend the scenario already reached before trying the first one listed, so checking never starts a second backend. A capability with no check still reaches its backend, so declaring `CoreCapabilityInterface` first is what keeps the rest in-process: once it has resolved `drupal`, a module check runs there even under `@backend:drush`. Answers aren't cached, because a tag, a step or an out-of-process command can install or uninstall a module at any time.
 
 `tests/phpunit/src/PrerequisiteDeclarationsTest.php` holds all of this. It fails a malformed declaration, a trait that declares prerequisites but never checks them or checks prerequisites it never declares, a check naming anything but `__TRAIT__`, and a `moduleExists()` call anywhere under `src/Steps` or `src/Helper`.
 
@@ -398,7 +398,7 @@ The checker reads each trait's declarations once per context class and run, sinc
 
 Keep the `require` section of `composer.json` minimal - it should contain only what **every** consumer needs regardless of which traits they use.
 
-- **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink` - plus what the driver and Behat layers need at runtime. Both ship in `src/`, so every consumer loads them: `drupal/core-utility`, `symfony/process` for the driver, and `friends-of-behat/mink-extension`, `symfony/config`, `symfony/dependency-injection`, `symfony/event-dispatcher` for the extension, its config schema and `WebRawContext`'s Mink ancestor.
+- **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink` - plus what the backend and Behat layers need at runtime. Both ship in `src/`, so every consumer loads them: `drupal/core-utility`, `symfony/process` for the Drush backend, and `friends-of-behat/mink-extension`, `symfony/config`, `symfony/dependency-injection`, `symfony/event-dispatcher` for the extension, its config schema and `WebRawContext`'s Mink ancestor.
 - **`require-dev` + `suggest`**: any package used by only a subset of traits. List it in `require-dev` so this library's own test suite still exercises it, **and** in `suggest` with a message naming the exact trait(s) or step(s) that need it (as `justinrainbow/json-schema` does for `JsonTrait`).
 
 When a new trait needs a package, decide up front: trait-specific packages go in `require-dev` + `suggest`, never in `require`. Demoting a package from `require` to `suggest` later is a breaking change for consumers relying on transitive installation, so batch such demotions into the next major release and document them in [MIGRATION.md](MIGRATION.md).
@@ -429,7 +429,7 @@ There are 3 types of tests in this repository: unit tests, kernel tests and Beha
 ### Unit and kernel tests
 
 Both suites are declared in [phpunit.xml](phpunit.xml) and run against the
-fixture site, because the driver layer and the tests around it resolve Drupal
+fixture site, because the backend layer and the tests around it resolve Drupal
 classes from there. Run `ahoy build` first.
 
 Tests live under `tests/phpunit/src/` in a directory named after their suite:
@@ -501,7 +501,7 @@ Mark a block only when a test cannot reach it in this environment:
 
 - An I/O failure that cannot be provoked - `file_get_contents()` returning `FALSE` on a file just written, `tempnam()` failing.
 - A type guard that the preceding call makes impossible - `!$node instanceof NodeInterface` directly after a successful load.
-- A capability branch for a driver the suite does not run.
+- A capability branch for a backend the suite does not run.
 
 Do not mark a branch that a scenario could reach. In particular:
 

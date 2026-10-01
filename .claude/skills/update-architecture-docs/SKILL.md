@@ -42,14 +42,14 @@ If it reports that the command is missing, stop before rendering, say explicitly
 4. Update the surrounding prose so the visuals and the prose agree.
 5. Add any new diagram to the index table in `docs/architecture/README.md`.
 
-A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new driver or capability interface, a change to how a context composes the scenario lifecycle, a change to what `BehatStepsExtension` wires up, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
+A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new backend or capability interface, a change to how a context composes the scenario lifecycle, a change to what `BehatStepsExtension` wires up, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
 
 ## Sources to trace from
 
 The project is 3 layers, and the boundary between them is the architecture. Read them in this order:
 
-- `src/Driver/` - the driver layer. `DriverInterface` plus the capability interfaces in `Driver/Capability/`, the 3 drivers, and the `Driver/Core/` field-handling bridge. It references nothing from Behat or Mink.
-- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/` for the 3 context classes and the lifecycle trait they compose, `Manager/` for driver, authentication, user and mail delegation, `Hook/` for the entity-create hooks.
+- `src/Backend/` - the backend layer. `BackendInterface` plus the capability interfaces in `Backend/Capability/`, the 3 backends, and the `Backend/Core/` field-handling bridge. It references nothing from Behat or Mink.
+- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/` for the 3 context classes and the lifecycle trait they compose, `Manager/` for backend, authentication, user and mail delegation, `Hook/` for the entity-create hooks.
 - `src/Steps/Web/` and `src/Steps/Drupal/` - the vocabulary. Each trait's `@phpstan-require-extends` annotation says what it needs from its host.
 - `src/Helper/` - the step-free traits a step trait and a context both compose, split into `Web/` and `Drupal/`.
 - `src/Exception/AssertionException.php` - what a session-less trait throws.
@@ -77,7 +77,7 @@ title <Component architecture | Class structure: ... | Data flow: ...>
 @enduml
 ```
 
-- Package colours are keyed by role: driver layer green (`#E8F5E9`), step vocabulary blue (`#E3F2FD`), integration layer and shared helpers purple (`#F3E5F5`), consuming project and documentation orange (`#FFF3E0`), runtime and targets slate (`#ECEFF1`), test harness and thrown exceptions red (`#FFEBEE`).
+- Package colours are keyed by role: backend layer green (`#E8F5E9`), step vocabulary blue (`#E3F2FD`), integration layer and shared helpers purple (`#F3E5F5`), consuming project and documentation orange (`#FFF3E0`), runtime and targets slate (`#ECEFF1`), test harness and thrown exceptions red (`#FFEBEE`).
 - Sequence diagrams use solid arrows (`->`) for the forward path and dashed (`-->`) for returns.
 - Class diagrams set `skinparam classAttributeIconSize 0` and stereotype every PHP trait `<<trait>>`.
 - A class diagram with many sibling types lays out unreadably wide by default. Chain them into columns with `-[hidden]down-` links and check the rendered aspect ratio before committing.

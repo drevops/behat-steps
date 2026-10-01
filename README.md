@@ -181,7 +181,7 @@ class FeatureContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` registers no steps of its own: it owns the driver access, the configuration and 3 of the web helper traits. A step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created. [Usage](docs/usage.md) covers the 3 entry points and the rules that govern composing them.
+`WebRawContext` registers no steps of its own: it owns the backend access, the configuration and 3 of the web helper traits. A step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created. [Usage](docs/usage.md) covers the 3 entry points and the rules that govern composing them.
 
 ### 2. Enable the extension
 
@@ -206,18 +206,18 @@ $suite = (new Suite('default'))
 $profile = (new Profile('default'))
   ->withSuite($suite)
   ->withExtension(new Extension(BehatStepsExtension::class, [
-    'drivers' => ['drupal', 'blackbox'],
+    'backends' => ['drupal', 'blackbox'],
     'drupal' => ['drupal_root' => 'web'],
   ]));
 
 return (new Config())->withProfile($profile);
 ```
 
-The `drivers` list says which drivers a scenario may reach, and in what order. A step never names a driver - it names the capability it needs, and the first driver in the list providing that capability answers. See [Driver resolution](docs/configuration.md#driver-resolution).
+The `backends` list says which backends a scenario may reach, and in what order. A step never names a backend - it names the capability it needs, and the first backend in the list providing that capability answers. See [Backend resolution](docs/configuration.md#backend-resolution).
 
 Browser sessions come from Mink's own extension, `Behat\MinkExtension\ServiceContainer\MinkExtension`, registered in the same profile as [behat.dist.php](behat.dist.php) shows. `BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and sends the requests steps make from PHP, such as a file download, with the same options. So the page and the download reach the site with the same settings, and [HTTP clients](docs/http-clients.md) covers the rest.
 
-By default, `DrupalContext` fails any scenario that logs a PHP error, reading those errors from the table the core `dblog` module creates, through a driver that loads Drupal into the Behat process. On a site without `dblog`, or under a profile without such a driver, every scenario fails at its start until you provide what's missing or [switch the Watchdog check off](docs/usage.md#switch-a-trait-off).
+By default, `DrupalContext` fails any scenario that logs a PHP error, reading those errors from the table the core `dblog` module creates, through a backend that loads Drupal into the Behat process. On a site without `dblog`, or under a profile without such a backend, every scenario fails at its start until you provide what's missing or [switch the Watchdog check off](docs/usage.md#switch-a-trait-off).
 
 Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
 
@@ -294,13 +294,14 @@ your host - as long as that browser can reach your site's `base_url`.
 
 This library reports failures with a small, fixed set of exception types, mostly [Mink's](https://mink.behat.org/en/latest/):
 
-| Exception                          | When thrown                                          |
-|------------------------------------|------------------------------------------------------|
-| `ElementNotFoundException`         | Element, field, link, or selector not found on page  |
-| `ExpectationException`             | Assertion fails (value mismatch, state verification) |
-| `AssertionException`               | Assertion fails in a step with no Mink session       |
-| `UnsupportedDriverActionException` | The browser driver lacks a capability the step needs |
-| `\RuntimeException`                | Invalid input or processing error (not an assertion) |
+| Exception                           | When thrown                                                        |
+|-------------------------------------|--------------------------------------------------------------------|
+| `ElementNotFoundException`          | Element, field, link, or selector not found on page                |
+| `ExpectationException`              | Assertion fails (value mismatch, state verification)               |
+| `AssertionException`                | Assertion fails in a step with no Mink session                     |
+| `UnsupportedDriverActionException`  | The browser driver lacks a capability the step needs               |
+| `UnsupportedBackendActionException` | No backend the scenario lists provides a capability the step needs |
+| `\RuntimeException`                 | Invalid input or processing error (not an assertion)               |
 
 `ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both.
 
@@ -331,7 +332,7 @@ starts.
 
 ### Automatic entity cleanup
 
-Every entity a scenario creates - through a creation step, through the driver,
+Every entity a scenario creates - through a creation step, through the backend,
 or through Drupal's API in one of your own steps - is registered on the context
 and deleted in reverse creation order at the end of the scenario, keeping the
 test database clean across long suites. Reverse order means a node comes down
@@ -361,7 +362,7 @@ This package follows [semantic versioning](https://semver.org), and 5 surfaces a
 - **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) above.
 - **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
 
-Two things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Driver` and `src/Behat` that none of the surfaces above exposes.
+Two things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Behat` that none of the surfaces above exposes.
 
 ## 🤖 Writing tests with AI assistants
 
