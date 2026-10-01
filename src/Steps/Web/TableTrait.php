@@ -249,7 +249,7 @@ trait TableTrait {
    * @endcode
    */
   #[Then('the row :row_text should contain the following:')]
-  public function tableAssertMultipleTextsInRow(string $row_text, TableNode $table): void {
+  public function tableAssertRowContainsMultiple(string $row_text, TableNode $table): void {
     $actual_text = $this->tableGetRowByText($row_text)->getText();
     foreach ($table->getColumn(0) as $expected_text) {
       if (!str_contains((string) $actual_text, $expected_text)) {
@@ -266,7 +266,7 @@ trait TableTrait {
    * @endcode
    */
   #[Then('the row :row_text should contain the value :value')]
-  public function tableAssertTextInRow(string $row_text, string $value): void {
+  public function tableAssertRowContains(string $row_text, string $value): void {
     $row = $this->tableGetRowByText($row_text);
 
     if (!str_contains($row->getText(), $value)) {
@@ -282,7 +282,7 @@ trait TableTrait {
    * @endcode
    */
   #[Then('the row :row_text should not contain the value :value')]
-  public function tableAssertTextNotInRow(string $row_text, string $value): void {
+  public function tableAssertRowNotContains(string $row_text, string $value): void {
     $row = $this->tableGetRowByText($row_text);
 
     if (str_contains($row->getText(), $value)) {
@@ -298,7 +298,7 @@ trait TableTrait {
    * @endcode
    */
   #[Then('the link :link should exist in the row :row_text')]
-  public function tableAssertLinkInRow(string $link, string $row_text): void {
+  public function tableAssertLinkExistsInRow(string $link, string $row_text): void {
     if (!$this->tableGetRowByText($row_text)->findLink($link) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the row containing "%s"', $row_text), 'id|title|alt|text', $link);
     }
@@ -312,7 +312,7 @@ trait TableTrait {
    * @endcode
    */
   #[Then('the link :link should not exist in the row :row_text')]
-  public function tableAssertLinkNotInRow(string $link, string $row_text): void {
+  public function tableAssertLinkNotExistsInRow(string $link, string $row_text): void {
     if ($this->tableGetRowByText($row_text)->findLink($link) instanceof NodeElement) {
       throw new ExpectationException(sprintf('The row containing "%s" has a "%s" link.', $row_text, $link), $this->getSession()->getDriver());
     }

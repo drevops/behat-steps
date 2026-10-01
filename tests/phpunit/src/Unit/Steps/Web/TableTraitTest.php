@@ -69,7 +69,7 @@ class TableTraitTest extends UnitTestCase {
     return [
       'click a missing link' => ['tableClickLinkInRow', 'findLink', 'Edit', 'Link in the row containing "Article title" with id|title|alt|text "Edit" not found.'],
       'press a missing button' => ['tablePressButtonInRow', 'findButton', 'Remove', 'Button in the row containing "Article title" with id|name|title|alt|value "Remove" not found.'],
-      'assert a missing link' => ['tableAssertLinkInRow', 'findLink', 'Edit', 'Link in the row containing "Article title" with id|title|alt|text "Edit" not found.'],
+      'assert a missing link' => ['tableAssertLinkExistsInRow', 'findLink', 'Edit', 'Link in the row containing "Article title" with id|title|alt|text "Edit" not found.'],
     ];
   }
 

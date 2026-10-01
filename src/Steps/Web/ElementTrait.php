@@ -325,7 +325,7 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector with the attribute :attribute and the value :value should exist')]
-  public function elementAssertAttributeWithValueExists(string $selector, string $attribute, mixed $value): void {
+  public function elementAssertExistsWithAttributeValue(string $selector, string $attribute, mixed $value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $value, TRUE, FALSE);
   }
 
@@ -337,7 +337,7 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector with the attribute :attribute and a value containing :partial_value should exist')]
-  public function elementAssertAttributeContainingValueExists(string $selector, string $attribute, mixed $partial_value): void {
+  public function elementAssertExistsWithAttributeContainingValue(string $selector, string $attribute, mixed $partial_value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $partial_value, FALSE, FALSE);
   }
 
@@ -349,7 +349,7 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector with the attribute :attribute and the value :value should not exist')]
-  public function elementAssertAttributeWithValueNotExists(string $selector, string $attribute, mixed $value): void {
+  public function elementAssertNotExistsWithAttributeValue(string $selector, string $attribute, mixed $value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $value, TRUE, TRUE);
   }
 
@@ -361,7 +361,7 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector with the attribute :attribute and a value containing :partial_value should not exist')]
-  public function elementAssertAttributeContainingValueNotExists(string $selector, string $attribute, mixed $partial_value): void {
+  public function elementAssertNotExistsWithAttributeContainingValue(string $selector, string $attribute, mixed $partial_value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $partial_value, FALSE, TRUE);
   }
 

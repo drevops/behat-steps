@@ -53,8 +53,8 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href should exist')]
-  public function linkAssertTextWithHrefExists(string $link, string $href): void {
-    $this->linkAssertTextWithHrefWithinElementExists($link, $href, NULL);
+  public function linkAssertExistsWithHref(string $link, string $href): void {
+    $this->linkAssertExistsWithHrefWithinElement($link, $href, NULL);
   }
 
   /**
@@ -68,7 +68,7 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href within the element :selector should exist')]
-  public function linkAssertTextWithHrefWithinElementExists(string $link, string $href, ?string $selector): void {
+  public function linkAssertExistsWithHrefWithinElement(string $link, string $href, ?string $selector): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 
@@ -105,8 +105,8 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href should not exist')]
-  public function linkAssertTextWithHrefNotExists(string $link, string $href): void {
-    $this->linkAssertTextWithHrefWithinElementNotExists($link, $href, NULL);
+  public function linkAssertNotExistsWithHref(string $link, string $href): void {
+    $this->linkAssertNotExistsWithHrefWithinElement($link, $href, NULL);
   }
 
   /**
@@ -120,7 +120,7 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href within the element :selector should not exist')]
-  public function linkAssertTextWithHrefWithinElementNotExists(string $link, string $href, ?string $selector): void {
+  public function linkAssertNotExistsWithHrefWithinElement(string $link, string $href, ?string $selector): void {
     /** @var \Behat\Mink\Element\DocumentElement $page */
     $page = $this->getSession()->getPage();
 
@@ -157,7 +157,7 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link with the title :title should exist')]
-  public function linkAssertWithTitleExists(string $title): void {
+  public function linkAssertExistsWithTitle(string $title): void {
     $title = $this->stringFixStepArgument($title);
 
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
@@ -175,7 +175,7 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link with the title :title should not exist')]
-  public function linkAssertWithTitleNotExists(string $title): void {
+  public function linkAssertNotExistsWithTitle(string $title): void {
     $title = $this->stringFixStepArgument($title);
 
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');

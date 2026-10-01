@@ -38,7 +38,7 @@ trait MetatagTrait {
    * @endcode
    */
   #[Then('the meta tag should exist with the following attributes:')]
-  public function metatagAssertWithAttributesExists(TableNode $table): void {
+  public function metatagAssertExistsWithAttributes(TableNode $table): void {
     $elements = $this->getSession()->getPage()->findAll('css', 'meta');
 
     $attributes = [];
@@ -79,7 +79,7 @@ trait MetatagTrait {
    * @endcode
    */
   #[Then('the meta tag should not exist with the following attributes:')]
-  public function metatagAssertWithAttributesNotExists(TableNode $table): void {
+  public function metatagAssertNotExistsWithAttributes(TableNode $table): void {
     $meta_tags = $this->getSession()->getPage()->findAll('css', 'meta');
 
     $attributes = [];

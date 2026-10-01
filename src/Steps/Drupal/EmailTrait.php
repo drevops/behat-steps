@@ -514,7 +514,7 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('an email should be sent to the address :address with the content not containing:')]
-  public function emailAssertMessageSentToAddressWithContentNotContaining(string $address, PyStringNode $string): void {
+  public function emailAssertMessageSentToAddressNotContains(string $address, PyStringNode $string): void {
     $this->emailAssertMessageSentTo($address);
     $this->emailAssertMessageFieldNotContains('body', $string);
   }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\Step\Then;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -18,6 +19,19 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 #[CoversNothing]
 class TraitMethodNamingTest extends UnitTestCase {
+
+  /**
+   * Words that open a qualifier narrowing the subject of an assertion.
+   *
+   * `To` is absent: in `SentToAddress` it completes the verb rather than
+   * narrowing the subject.
+   */
+  protected const QUALIFIERS = ['At', 'By', 'Containing', 'For', 'From', 'In', 'Of', 'On', 'With', 'Within', 'Without'];
+
+  /**
+   * Words that open the predicate of an assertion.
+   */
+  protected const PREDICATES = ['Contains', 'Equals', 'Exist', 'Exists', 'Matches', 'Not'];
 
   /**
    * Assert that every method a trait declares carries the trait's prefix.
@@ -69,6 +83,72 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   public static function dataProviderNegationSpelledNot(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that a qualifier follows the predicate it narrows.
+   *
+   * The subject comes first, so `Not` lands directly after it: a qualifier
+   * placed before the predicate takes that slot, as in
+   * `cookieAssertWithNameNotExists`. `Not` is also never followed by a
+   * qualifier, which leaves the negation with no predicate to negate.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderQualifiersFollowPredicate')]
+  public function testQualifiersFollowPredicate(string $trait, string $file): void {
+    $qualifiers = implode('|', static::QUALIFIERS);
+    $predicates = implode('|', static::PREDICATES);
+    $pattern = sprintf('/Assert(?:(?!%2$s)[A-Z][a-z0-9]*)*?(?:%1$s)(?=[A-Z])[A-Za-z0-9]*?(?:%2$s)(?![a-z])|Assert[A-Za-z0-9]*?Not(?:%1$s)(?=[A-Z])/', $qualifiers, $predicates);
+
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match($pattern, $name) === 1));
+
+    $this->assertSame([], $violations, 'Place a qualifier after the predicate so "Not" sits directly after the subject: "cookieAssertNotExistsWithName", not "cookieAssertWithNameNotExists", and "tableAssertLinkNotExistsInRow", not "tableAssertLinkNotInRow".');
+  }
+
+  public static function dataProviderQualifiersFollowPredicate(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that a negative step is named as its positive with `Not` added.
+   *
+   * A pair of steps whose text differs only by "should" and "should not"
+   * reaches 2 methods whose names differ only by `Not`.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderNegativeMirrorsPositive')]
+  public function testNegativeMirrorsPositive(string $trait, string $file): void {
+    $names = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      foreach ($method->getAttributes(Then::class) as $attribute) {
+        $names[(string) $attribute->newInstance()->getPattern()] = $method->getName();
+      }
+    }
+
+    $violations = [];
+    foreach ($names as $step => $name) {
+      $positive = $names[preg_replace('/ should not /', ' should ', $step, 1)] ?? NULL;
+
+      if (!str_contains($step, ' should not ') || $positive === NULL || self::insertsNot($positive, $name)) {
+        continue;
+      }
+
+      $violations[] = sprintf('%s() for %s()', $name, $positive);
+    }
+
+    $this->assertSame([], $violations, 'Name a negative step as its positive with "Not" inserted and nothing else changed: "elementAssertNotVisible" for "elementAssertVisible".');
+  }
+
+  public static function dataProviderNegativeMirrorsPositive(): array {
     return static::discoverTraitFiles();
   }
 
@@ -350,6 +430,23 @@ class TraitMethodNamingTest extends UnitTestCase {
     }
 
     return str_starts_with($method, $prefix) && ctype_upper($method[strlen($prefix)]);
+  }
+
+  /**
+   * Check that a negative name is the positive name with one `Not` added.
+   */
+  protected static function insertsNot(string $positive, string $negative): bool {
+    $offset = 0;
+
+    while (($position = strpos($negative, 'Not', $offset)) !== FALSE) {
+      if (substr($negative, 0, $position) . substr($negative, $position + strlen('Not')) === $positive) {
+        return TRUE;
+      }
+
+      $offset = $position + 1;
+    }
+
+    return FALSE;
   }
 
 }
