@@ -198,6 +198,28 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that existence and containment carry their documented words.
+   *
+   * Existence is `Exists` or `Exist` and containment is `Contains`, so an
+   * assertion names neither with a synonym.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderPredicatesSpelledExistsAndContains')]
+  public function testPredicatesSpelledExistsAndContains(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*(?:Absent|Includes?|Including|Missing|Presence|Present)(?![a-z])/', $name) === 1));
+
+    $this->assertSame([], $violations, 'Spell existence "Exists" or "Exist" and containment "Contains": "metatagAssertRobotsContains", not "metatagAssertRobotsIncludes", and "metatagAssertMetaSetExists", not "metatagAssertMetaSetPresent".');
+  }
+
+  public static function dataProviderPredicatesSpelledExistsAndContains(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Assert that names spell normalisation the American way.
    *
    * @param class-string $trait

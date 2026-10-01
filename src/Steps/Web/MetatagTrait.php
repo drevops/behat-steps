@@ -228,7 +228,7 @@ trait MetatagTrait {
    * @endcode
    */
   #[Then('the meta robots should include :directive')]
-  public function metatagAssertRobotsIncludes(string $directive): void {
+  public function metatagAssertRobotsContains(string $directive): void {
     $directives = $this->metatagGetRobotsDirectives();
 
     if (!in_array(strtolower(trim($directive)), $directives, TRUE)) {
@@ -245,7 +245,7 @@ trait MetatagTrait {
    * @endcode
    */
   #[Then('the meta robots should not include :directive')]
-  public function metatagAssertRobotsNotIncludes(string $directive): void {
+  public function metatagAssertRobotsNotContains(string $directive): void {
     $directives = $this->metatagGetRobotsDirectives();
 
     if (in_array(strtolower(trim($directive)), $directives, TRUE)) {
@@ -336,7 +336,7 @@ trait MetatagTrait {
    */
   #[Then('the Open Graph tags should be valid')]
   public function metatagAssertOpenGraphValid(): void {
-    $this->metatagAssertMetaSetPresent($this->metatagOpenGraphRequired(), 'Open Graph');
+    $this->metatagAssertMetaSetExists($this->metatagOpenGraphRequired(), 'Open Graph');
   }
 
   /**
@@ -351,7 +351,7 @@ trait MetatagTrait {
    */
   #[Then('the following Open Graph tags should exist:')]
   public function metatagAssertOpenGraphTags(TableNode $table): void {
-    $this->metatagAssertMetaSetPresent($this->metatagTablePropertyNames($table), 'Open Graph');
+    $this->metatagAssertMetaSetExists($this->metatagTablePropertyNames($table), 'Open Graph');
   }
 
   /**
@@ -366,7 +366,7 @@ trait MetatagTrait {
    */
   #[Then('the Twitter Card tags should be valid')]
   public function metatagAssertTwitterCardValid(): void {
-    $this->metatagAssertMetaSetPresent($this->metatagTwitterCardRequired(), 'Twitter Card');
+    $this->metatagAssertMetaSetExists($this->metatagTwitterCardRequired(), 'Twitter Card');
   }
 
   /**
@@ -380,7 +380,7 @@ trait MetatagTrait {
    */
   #[Then('the following Twitter Card tags should exist:')]
   public function metatagAssertTwitterCardTags(TableNode $table): void {
-    $this->metatagAssertMetaSetPresent($this->metatagTablePropertyNames($table), 'Twitter Card');
+    $this->metatagAssertMetaSetExists($this->metatagTablePropertyNames($table), 'Twitter Card');
   }
 
   /**
@@ -635,7 +635,7 @@ trait MetatagTrait {
    * @param string $label
    *   A human-readable label for the set, used in the failure message.
    */
-  public function metatagAssertMetaSetPresent(array $names, string $label): void {
+  public function metatagAssertMetaSetExists(array $names, string $label): void {
     $missing = [];
 
     foreach ($names as $name) {

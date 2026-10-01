@@ -115,7 +115,7 @@ trait FileDownloadTrait {
    */
   #[When('I download the file from the link :link')]
   public function fileDownloadFromLink(string $link): void {
-    $link_element = $this->fileDownloadAssertLinkPresent($link);
+    $link_element = $this->fileDownloadGetLink($link);
 
     $url = $link_element->getAttribute('href');
     $this->fileDownloadFrom($url);
@@ -283,9 +283,12 @@ trait FileDownloadTrait {
   }
 
   /**
-   * Assert that an HTML link is present on the page.
+   * Return a link on the page by its text, id, title or alt.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the page has no such link.
    */
-  protected function fileDownloadAssertLinkPresent(string $link): NodeElement {
+  protected function fileDownloadGetLink(string $link): NodeElement {
     $page = $this->getSession()->getPage();
     $link_element = $page->findLink($link);
 
