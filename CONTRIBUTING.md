@@ -331,7 +331,7 @@ A trait's hooks and steps answer 3 separate questions, and each has 1 mechanism.
 | Question | Mechanism | When the answer is no |
 | --- | --- | --- |
 | Opt-in: is the trait switched on? | `skipTag(__TRAIT__, $scope)`, which reads the `enabled` option and the skip tag | The hook returns quietly |
-| Activation: does this scenario ask for it? | The trait's own tag check, such as `Tag::has($scope->getScenario(), 'testmode')` | The hook returns quietly |
+| Activation: does this scenario ask for it? | The trait's own tag check, such as `Tag::has($scope, self::TESTMODE_TAG)` | The hook returns quietly |
 | Prerequisites: does the site provide what it needs? | The trait's `<prefix>Prerequisites()`, checked by `assertPrerequisites(__TRAIT__)` | The scenario fails, naming what's missing |
 
 Don't merge them into 1 boolean. Opted out means the trait does nothing, while opted in without its prerequisites means the scenario can't be trusted, so the first returns and the second throws.
@@ -341,7 +341,7 @@ A setup hook applies them in that order:
 ```php
 #[BeforeScenario]
 public function acmeBeforeScenario(BeforeScenarioScope $scope): void {
-  if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope->getScenario(), 'acme')) {
+  if ($this->skipTag(__TRAIT__, $scope) || !Tag::has($scope, self::ACME_TAG)) {
     return;
   }
 
