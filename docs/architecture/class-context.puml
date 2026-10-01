@@ -222,7 +222,7 @@ package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
     +authUserCreate(stub) : EntityStubInterface
     +authLogin(user) : void
     +authLogout(fast) : void
-    +authLoggedIn() : bool
+    +authIsLoggedIn() : bool
     --
     +authCleanUsers(scope) : void
     +authCleanRoles(scope) : void
@@ -256,7 +256,7 @@ package "Steps\\Web" #E8F5E9 {
     +pathVisit(path) : void
     +pathGoBack() : void
     +pathAssertCurrent(path) : void
-    +pathAssertUrlHasParameter(name) : void
+    +pathAssertUrlParameterExists(name) : void
   }
 
   class CommandTrait <<trait>> {

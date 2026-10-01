@@ -540,8 +540,8 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  
 >  `dateRelativeProcessValue()` is public API. It and its helpers are static so
 >  a token resolves without a context instance. Late static binding routes the
->  resolution through a `dateNow()` override in the composing context, which is
->  the supported seam for pinning the clock.
+>  resolution through a `dateGetNow()` override in the composing context,
+>  which is the supported seam for pinning the clock.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:DateTrait`.
 

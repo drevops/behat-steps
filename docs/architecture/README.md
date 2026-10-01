@@ -101,7 +101,7 @@ The context layer is one chain. `WebRawContext` is the root and registers no ste
 
 - Entity creation (`entityLifecycleNodeCreate`, `authUserCreate`, `entityLifecycleTermCreate`, `entityLifecycleCreate`, `entityLifecycleLanguageCreate`), each dispatching before/after hooks so a project can adjust a stub in flight.
 - Cleanup: `entityLifecycleCleanAll`, `authCleanUsers` and `authCleanRoles` run after the scenario and delete what it created, in reverse.
-- Authentication: `authLogin`, `authLogout`, `authLoggedIn`, delegated to `Authenticator`.
+- Authentication: `authLogin`, `authLogout`, `authIsLoggedIn`, delegated to `Authenticator`.
 
 Every helper member carries its trait's prefix, so two helpers mixed into one context cannot collide and a reader can tell from a call site which trait has to be composed.
 

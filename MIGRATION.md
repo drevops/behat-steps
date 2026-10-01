@@ -1024,7 +1024,7 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 | Helper | Holds | Composed by |
 | --- | --- | --- |
 | `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()`, `entityLifecycleTermCreate()`, `entityLifecycleCreate()`, `entityLifecycleLanguageCreate()`, `entityLifecycleRegister()`, `entityLifecycleParseFields()`, `entityLifecycleCleanAll()`, `entityLifecycleAlterNodeParameters()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
-| `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
+| `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authIsLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
 | `Helper\Drupal\StaticCacheTrait` | `staticCacheClear()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
 | `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 9 step traits |
@@ -1053,7 +1053,7 @@ A call or an override in a consumer context is renamed:
 | `userCreate()` | `Helper\Drupal\AuthTrait::authUserCreate()` |
 | `login()` | `Helper\Drupal\AuthTrait::authLogin()` |
 | `logout()` | `Helper\Drupal\AuthTrait::authLogout()` |
-| `loggedIn()` | `Helper\Drupal\AuthTrait::authLoggedIn()` |
+| `loggedIn()` | `Helper\Drupal\AuthTrait::authIsLoggedIn()` |
 | `getUserManager()` | `Helper\Drupal\AuthTrait::authGetUserRegistry()` |
 | `setUserManager()` | `Helper\Drupal\AuthTrait::authSetUserRegistry()` |
 | `cleanUsers()` | `Helper\Drupal\AuthTrait::authCleanUsers()` |
@@ -1320,14 +1320,14 @@ Change the `protected` keyword to `public` on any override of a method [HELPERS.
 
 ### Internal helpers are now `protected`
 
-Neither method is a step or a hook, and both were only ever called from step methods in their own trait. Calling them from outside the context object no longer works; calling them from inside it is unchanged.
+Neither method is a step or a hook, and both were only ever called from step methods in their own trait. Calling them from outside the context object no longer works. From inside it, `keyboardPressKeyOnElementSingle()` is unchanged and `fileDownloadAssertLinkPresent()` is now `fileDownloadGetLink()`, listed under [A lookup's verb says what a miss does](#a-lookups-verb-says-what-a-miss-does).
 
 | Method | Was | Now |
 | --- | --- | --- |
 | `KeyboardTrait::keyboardPressKeyOnElementSingle()` | `public` | `protected` |
 | `FileDownloadTrait::fileDownloadAssertLinkPresent()` | `public` | `protected` |
 
-`DateTrait::dateRelativeProcessValue()` and `ResponsiveTrait::responsiveSetBreakpoints()` stay public and are now documented as API in their docblocks. `DateTrait` also stays static on purpose: `dateNow()` is the supported seam for pinning the clock, and overriding it in your `FeatureContext` still works exactly as before.
+`DateTrait::dateRelativeProcessValue()` and `ResponsiveTrait::responsiveSetBreakpoints()` stay public and are now documented as API in their docblocks. `DateTrait` also stays static on purpose: `dateGetNow()` is the supported seam for pinning the clock, and overriding it in your `FeatureContext` works as before under that name, which [Consumer override points are `Get`-prefixed](#consumer-override-points-are-get-prefixed) lists against the old `dateNow()`.
 
 ### Constants carry their trait prefix
 
@@ -1397,7 +1397,7 @@ No step shipped by this library declares `:expectedValue`, so the shipped vocabu
 
 ## One shape per naming idea
 
-Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize", 2 shapes for a consumer override point, and 3 lookup verbs that didn't say what a lookup does when nothing matches. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
+Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize", 2 shapes for a consumer override point, 3 lookup verbs that didn't say what a lookup does when nothing matches, and assertions that put a qualifier ahead of their predicate, used `Has`, `Includes` or `Present` where the rules say `Equals`, `Contains` or `Exists`, or weren't named as assertions at all. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
 
 `CONTRIBUTING.md` states the settled conventions and `tests/phpunit/src/TraitMethodNamingTest.php` enforces them.
 
@@ -1409,11 +1409,11 @@ Method names carried 6 shapes for "assert the negative", 2 spellings of "normali
 | --- | --- | --- |
 | `Drupal\EmailTrait` | `emailAssertNoMessagesSent()` | `emailAssertMessagesNotSent()` |
 | `Drupal\EmailTrait` | `emailAssertNoMessagesSentToAddress()` | `emailAssertMessagesNotSentToAddress()` |
-| `Drupal\FileTrait` | `fileAssertUnmanagedHasNoContent()` | `fileAssertUnmanagedNotHasContent()` |
+| `Drupal\FileTrait` | `fileAssertUnmanagedHasNoContent()` | `fileAssertUnmanagedNotContains()` |
 | `Drupal\UserTrait` | `userAssertHasNoRoles()` | `userAssertNotHasRoles()` |
 | `Drupal\UserTrait` | `userAssertIsBlocked()` | `userAssertBlocked()` |
 | `Drupal\UserTrait` | `userAssertIsNotBlocked()` | `userAssertNotBlocked()` |
-| `Drupal\WatchdogTrait` | `watchdogAssertNoErrors()` | `watchdogAssertNotHasErrors()` |
+| `Drupal\WatchdogTrait` | `watchdogAssertNoErrors()` | `watchdogAssertErrorsNotExist()` |
 | `ElementTrait` | `elementAssertIsNotPinnedToTop()` | `elementAssertNotPinnedToTop()` |
 | `ElementTrait` | `elementAssertIsNotVisible()` | `elementAssertNotVisible()` |
 | `ElementTrait` | `elementAssertIsNotVisuallyVisibleWithOffset()` | `elementAssertNotVisuallyVisibleWithOffset()` |
@@ -1425,18 +1425,20 @@ Method names carried 6 shapes for "assert the negative", 2 spellings of "normali
 | `ElementTrait` | `elementAssertIsVisuallyVisibleWithOffset()` | `elementAssertVisuallyVisibleWithOffset()` |
 | `ElementTrait` | `elementAssertPinnedToTop()` (protected helper) | `elementAssertPinnedToTopWithin()` |
 | `FileDownloadTrait` | `fileDownloadAssertNoZipContainsPartial()` | `fileDownloadAssertZipNotContainsPartial()` |
-| `JavascriptTrait` | `javascriptAssertNoErrors()` | `javascriptAssertNotHasErrors()` |
+| `JavascriptTrait` | `javascriptAssertNoErrors()` | `javascriptAssertErrorsNotExist()` |
 | `JsonTrait` | `jsonAssertResponseIsJson()` | `jsonAssertResponseJson()` |
 | `JsonTrait` | `jsonAssertResponseIsNotJson()` | `jsonAssertResponseNotJson()` |
 | `LinkTrait` | `linkAssertLinkIsAbsolute()` | `linkAssertAbsolute()` |
 | `LinkTrait` | `linkAssertLinkIsNotAbsolute()` | `linkAssertNotAbsolute()` |
 | `MetatagTrait` | `metatagAssertNoHtml()` | `metatagAssertNotContainsHtml()` |
-| `PathTrait` | `pathAssertUrlHasNoParameter()` | `pathAssertUrlNotHasParameter()` |
-| `PathTrait` | `pathAssertUrlHasNoParameterWithValue()` | `pathAssertUrlNotHasParameterWithValue()` |
+| `PathTrait` | `pathAssertUrlHasNoParameter()` | `pathAssertUrlParameterNotExists()` |
+| `PathTrait` | `pathAssertUrlHasNoParameterWithValue()` | `pathAssertUrlParameterNotEquals()` |
 | `XmlTrait` | `xmlAssertResponseIsXml()` | `xmlAssertResponseXml()` |
 | `XmlTrait` | `xmlAssertResponseIsNotXml()` | `xmlAssertResponseNotXml()` |
 
 `ElementTrait::elementAssertPinnedToTop()` appears on both sides of that table. The public step took the name once its copula was dropped, and the protected helper that backs all three pinned-to-top steps moved to `elementAssertPinnedToTopWithin()`, after the tolerance it takes.
+
+The file, watchdog, JavaScript and path rows point straight at the names [`Has` names something the subject holds](#has-names-something-the-subject-holds) settles on.
 
 Three `Drupal\EmailTrait` methods asserted an exact match under names that gave no way to derive one from the other. They now carry the `Equals` predicate the rest of the library uses.
 
@@ -1471,6 +1473,7 @@ A documented override point that supplies a value now reads `<trait>Get<Noun>()`
 | Trait | Old | New |
 | --- | --- | --- |
 | `CommandTrait` | `commandTimeout()` | `commandGetTimeout()` |
+| `DateTrait` | `dateNow()` | `dateGetNow()` |
 | `DiagnosticsTrait` | `diagnosticsHeader()` | `diagnosticsGetHeader()` |
 | `DiagnosticsTrait` | `diagnosticsRerunBinary()` | `diagnosticsGetRerunBinary()` |
 | `DiagnosticsTrait` | `diagnosticsShowDriver()` | `diagnosticsGetShowBrowserDriver()` |
@@ -1479,6 +1482,10 @@ A documented override point that supplies a value now reads `<trait>Get<Noun>()`
 | `DiagnosticsTrait` | `diagnosticsShowStatusCode()` | `diagnosticsGetShowStatusCode()` |
 | `DiagnosticsTrait` | `diagnosticsShowUrl()` | `diagnosticsGetShowUrl()` |
 | `ElementTrait` | `elementScrollIntoViewCenter()` | `elementGetScrollIntoViewCenter()` |
+| `MetatagTrait` | `metatagOpenGraphRequired()` | `metatagGetRequiredOpenGraphTags()` |
+| `MetatagTrait` | `metatagTwitterCardRequired()` | `metatagGetRequiredTwitterCardTags()` |
+
+The 2 `MetatagTrait` override points also name what they return, the required tags, since `OpenGraphRequired` on its own isn't a noun.
 
 ### A lookup's verb says what a miss does
 
@@ -1494,18 +1501,107 @@ Only the name changes. Each method keeps its body, its parameters, its return ty
 | `Drupal\EmailTrait` | `emailGetMailSystemDefault()` (protected) | `emailFindMailSystemDefault()` | returns `NULL` |
 | `Drupal\EmailTrait` | `emailGetMailSystemOriginal()` (protected) | `emailFindMailSystemOriginal()` | returns `NULL` |
 | `Drupal\UserTrait` | `userLoadByName()` | `userGetByName()` | throws `\RuntimeException` |
+| `Drupal\WebformTrait` | `webformTemplates()` | `webformLoadTemplates()` | returns an empty array |
 | `CookieTrait` | `cookieGetByName()` | `cookieFindByName()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetDriverName()` | `diagnosticsFindBrowserDriverName()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetRerunCommand()` | `diagnosticsFindRerunCommand()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetStatusCode()` | `diagnosticsFindStatusCode()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetUrl()` | `diagnosticsFindUrl()` | returns `NULL` |
 | `ElementTrait` | `elementFindNthOrFail()` | `elementGetNth()` | throws `ElementNotFoundException`, or `ExpectationException` past the last match |
+| `FileDownloadTrait` | `fileDownloadAssertLinkPresent()` (protected) | `fileDownloadGetLink()` | throws `ElementNotFoundException` |
 | `MetatagTrait` | `metatagGetCanonicalHref()` | `metatagFindCanonicalHref()` | returns `NULL` |
 | `MetatagTrait` | `metatagGetMetaContent()` | `metatagFindMetaContent()` | returns `NULL` |
 | `ModalTrait` | `modalFindVisible()` | `modalGetVisible()` | throws `ExpectationException` |
 | `TableTrait` | `tableFind()` | `tableGet()` | throws `ElementNotFoundException` |
 
 The 2 `MenuTrait` lookups go straight to their `Find` names, listed under [Trait methods prefixed with their trait name](#trait-methods-prefixed-with-their-trait-name). A lookup that already matched its contract keeps its name, such as `tableFindRowByText()`, `modalFind()`, `metatagFindMeta()` and `emailFindMessage()`.
+
+`webformTemplates()` carried no verb at all, and `fileDownloadAssertLinkPresent()` was named as an assertion although it returns the link it finds, so both take the lookup verb for what they do.
+
+### A qualifier follows the predicate
+
+An assertion that narrows its subject with a qualifier, such as a cookie's name or an attribute's value, put that qualifier ahead of the predicate in some traits and after it in others: `cookieAssertWithNameExists()` sat beside `mediaAssertExistsWithName()`. Ahead of the predicate, the qualifier takes the slot `Not` belongs in, so the negative read `cookieAssertWithNameNotExists()`. The qualifier now follows the predicate everywhere, and each negative is its positive with `Not` inserted.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `CookieTrait` | `cookieAssertWithNameExists()` | `cookieAssertExistsWithName()` |
+| `CookieTrait` | `cookieAssertWithNameValueExists()` | `cookieAssertExistsWithNameValue()` |
+| `CookieTrait` | `cookieAssertWithNamePartialValueExists()` | `cookieAssertExistsWithNamePartialValue()` |
+| `CookieTrait` | `cookieAssertWithPartialNameExists()` | `cookieAssertExistsWithPartialName()` |
+| `CookieTrait` | `cookieAssertWithPartialNameValueExists()` | `cookieAssertExistsWithPartialNameValue()` |
+| `CookieTrait` | `cookieAssertWithPartialNamePartialValueExists()` | `cookieAssertExistsWithPartialNamePartialValue()` |
+| `CookieTrait` | `cookieAssertWithNameNotExists()` | `cookieAssertNotExistsWithName()` |
+| `CookieTrait` | `cookieAssertWithNameValueNotExists()` | `cookieAssertNotExistsWithNameValue()` |
+| `CookieTrait` | `cookieAssertWithNamePartialValueNotExists()` | `cookieAssertNotExistsWithNamePartialValue()` |
+| `CookieTrait` | `cookieAssertWithPartialNameNotExists()` | `cookieAssertNotExistsWithPartialName()` |
+| `CookieTrait` | `cookieAssertWithPartialNameValueNotExists()` | `cookieAssertNotExistsWithPartialNameValue()` |
+| `CookieTrait` | `cookieAssertWithPartialNamePartialValueNotExists()` | `cookieAssertNotExistsWithPartialNamePartialValue()` |
+| `ElementTrait` | `elementAssertAttributeWithValueExists()` | `elementAssertExistsWithAttributeValue()` |
+| `ElementTrait` | `elementAssertAttributeContainingValueExists()` | `elementAssertExistsWithAttributeContainingValue()` |
+| `ElementTrait` | `elementAssertAttributeWithValueNotExists()` | `elementAssertNotExistsWithAttributeValue()` |
+| `ElementTrait` | `elementAssertAttributeContainingValueNotExists()` | `elementAssertNotExistsWithAttributeContainingValue()` |
+| `LinkTrait` | `linkAssertTextWithHrefExists()` | `linkAssertExistsWithHref()` |
+| `LinkTrait` | `linkAssertTextWithHrefWithinElementExists()` | `linkAssertExistsWithHrefWithinElement()` |
+| `LinkTrait` | `linkAssertTextWithHrefNotExists()` | `linkAssertNotExistsWithHref()` |
+| `LinkTrait` | `linkAssertTextWithHrefWithinElementNotExists()` | `linkAssertNotExistsWithHrefWithinElement()` |
+| `LinkTrait` | `linkAssertWithTitleExists()` | `linkAssertExistsWithTitle()` |
+| `LinkTrait` | `linkAssertWithTitleNotExists()` | `linkAssertNotExistsWithTitle()` |
+| `MetatagTrait` | `metatagAssertWithAttributesExists()` | `metatagAssertExistsWithAttributes()` |
+| `MetatagTrait` | `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |
+| `TableTrait` | `tableAssertMultipleTextsInRow()` | `tableAssertRowContainsMultiple()` |
+
+The subject is what the step asserts about. `ElementTrait`'s attribute steps assert that an element exists, so the attribute and its value join the qualifier, and `LinkTrait` drops `Text`, which named how the step finds the link: `the link :link with the href :href should exist` is `linkAssertExistsWithHref()`. `the row :row_text should contain the following:` asserts about the row, so `TableTrait` names it first.
+
+`Drupal\EmailTrait::emailAssertMessageSentToAddressWithContentNotContaining()` negates its content check rather than the send, so `Not` can't move into the predicate slot without changing what it asserts, and `emailAssertMessageNotSentToAddressWithContentContaining()` already asserts the other thing. The message sent to the address becomes the subject instead:
+
+| Old | New |
+| --- | --- |
+| `emailAssertMessageSentToAddressWithContentNotContaining()` | `emailAssertMessageSentToAddressNotContains()` |
+
+It still asserts that an email went to the address and that no collected email's body contains the text.
+
+### `Has` names something the subject holds
+
+`Has` named something a subject holds, such as a user's roles, and also stood in for a comparison: `stateAssertHasValue()` checks that a state value equals the expected one. A compared value now reads `Equals` or `Contains`, and `Has` stays for what a subject holds, as in `userAssertHasRoles()` and `elementAssertHasKeyboardFocus()`.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\FileTrait` | `fileAssertUnmanagedHasContent()` | `fileAssertUnmanagedContains()` |
+| `Drupal\StateTrait` | `stateAssertHasValue()` | `stateAssertValueEquals()` |
+| `ElementTrait` | `elementAssertHasCssPropertyWithValue()` | `elementAssertCssPropertyEquals()` |
+| `ElementTrait` | `elementAssertHasCssPropertyContainingValue()` | `elementAssertCssPropertyContains()` |
+| `ElementTrait` | `elementAssertNotHasCssPropertyWithValue()` | `elementAssertCssPropertyNotEquals()` |
+| `ElementTrait` | `elementAssertNotHasCssPropertyContainingValue()` | `elementAssertCssPropertyNotContains()` |
+| `FieldTrait` | `fieldAssertColorFieldHasValue()` | `fieldAssertColorFieldEquals()` |
+| `PathTrait` | `pathAssertUrlHasParameter()` | `pathAssertUrlParameterExists()` |
+| `PathTrait` | `pathAssertUrlHasParameterWithValue()` | `pathAssertUrlParameterEquals()` |
+
+`PathTrait`'s existence pair follows its value pair, as `ResponseTrait`'s header assertions do, so all 4 name `UrlParameter` before the predicate. The watchdog and JavaScript error checks read like `messageAssertErrorsNotExist()`, because errors are entries that must be absent rather than something the log holds. Those and the negative file and path assertions shipped under older names, so their rows in [Negation is spelled `Not`, in one slot](#negation-is-spelled-not-in-one-slot) point straight at the new names.
+
+### `Contains` and `Exists`, not `Includes` and `Present`
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `MetatagTrait` | `metatagAssertRobotsIncludes()` | `metatagAssertRobotsContains()` |
+| `MetatagTrait` | `metatagAssertRobotsNotIncludes()` | `metatagAssertRobotsNotContains()` |
+| `MetatagTrait` | `metatagAssertMetaSetPresent()` | `metatagAssertMetaSetExists()` |
+
+The step text still reads `the meta robots should include :directive`.
+
+### Only an assertion is named `Assert`
+
+A method that fails with an assertion exception is named as an assertion, whether or not it registers a step. A method that only rejects a bad step argument or a missing precondition throws `\RuntimeException` instead, so it isn't an assertion and is named for what it does.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\ConfigTrait` | `configCompareContains()` (protected) | `configAssertContains()` |
+| `Drupal\ConfigTrait` | `configCompareEquals()` (protected) | `configAssertEquals()` |
+| `Drupal\EmailTrait` | `emailAssertLinkNumber()` (protected) | `emailParseLinkNumber()` |
+| `CommandTrait` | `commandAssertHasRun()` (protected) | `commandRequireRun()` |
+| `CommandTrait` | `commandAssertInteger()` (protected) | `commandParseInteger()` |
+| `CommandTrait` | `commandAssertNumeric()` (protected) | `commandParseNumeric()` |
+| `CookieTrait` | `cookieExists()` | `cookieAssertExists()` |
+| `CookieTrait` | `cookieNotExists()` | `cookieAssertNotExists()` |
 
 ## A class is named for the role it plays
 
