@@ -42,7 +42,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
     $this->assertStringContainsString('--- Failure diagnostics ---', $block);
     $this->assertStringContainsString('URL: http://example.com/page', $block);
     $this->assertStringContainsString('HTTP status: 200', $block);
-    $this->assertStringContainsString('Mink driver: ' . DiagnosticsFakeDriver::class, $block);
+    $this->assertStringContainsString('Browser driver: ' . DiagnosticsFakeDriver::class, $block);
     $this->assertStringContainsString('JS console errors: ReferenceError: x is not defined', $block);
     $this->assertStringContainsString('Re-run: vendor/bin/behat', $block);
     $this->assertStringContainsString('example.feature:12', $block);
@@ -64,7 +64,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
     return [
       'url off' => ['url', 'URL:'],
       'status off' => ['status', 'HTTP status:'],
-      'driver off' => ['driver', 'Mink driver:'],
+      'driver off' => ['driver', 'Browser driver:'],
       'js errors off' => ['js', 'JS console errors:'],
       'rerun off' => ['rerun', 'Re-run:'],
     ];
@@ -91,7 +91,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
   public function testDriverIsOmittedWhenDriverErrors(): void {
     $this->testObject->session->driverError = new \RuntimeException('unsupported');
 
-    $this->assertStringNotContainsString('Mink driver:', $this->testObject->buildBlock());
+    $this->assertStringNotContainsString('Browser driver:', $this->testObject->buildBlock());
   }
 
   public function testJsErrorsAreOmittedWhenNoneCaptured(): void {
@@ -283,7 +283,7 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
   }
 
   public function getDriverName(): ?string {
-    return $this->diagnosticsFindDriverName();
+    return $this->diagnosticsFindBrowserDriverName();
   }
 
   /**
@@ -308,7 +308,7 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
     return $this->show['status'];
   }
 
-  protected function diagnosticsGetShowDriver(): bool {
+  protected function diagnosticsGetShowBrowserDriver(): bool {
     return $this->show['driver'];
   }
 

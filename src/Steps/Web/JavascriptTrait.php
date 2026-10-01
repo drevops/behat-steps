@@ -135,8 +135,8 @@ trait JavascriptTrait {
       return;
     }
 
-    // Collection runs through the driver-agnostic Mink script API, so any
-    // JavaScript-capable driver qualifies.
+    // Collection runs through the Mink script API, which is the same for every
+    // browser driver, so any JavaScript-capable one qualifies.
     // @codeCoverageIgnoreStart
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
@@ -171,8 +171,8 @@ trait JavascriptTrait {
       return;
     }
 
-    // Collection runs through the driver-agnostic Mink script API, so any
-    // JavaScript-capable driver qualifies.
+    // Collection runs through the Mink script API, which is the same for every
+    // browser driver, so any JavaScript-capable one qualifies.
     // @codeCoverageIgnoreStart
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;

@@ -26,7 +26,7 @@ Feature: Check that DiagnosticsTrait works
       """
     And the output should contain:
       """
-      Mink driver:
+      Browser driver:
       """
     And the output should contain:
       """

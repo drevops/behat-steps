@@ -1799,7 +1799,7 @@ function tag_registry(): array {
     ],
     'bigpipe' => [
       'form' => 'flag',
-      'description' => 'Render BigPipe placeholders server-side, for a driver without JavaScript.',
+      'description' => 'Render BigPipe placeholders server-side, for a browser driver without JavaScript.',
     ],
     'disable-form-validation' => [
       'form' => 'flag',

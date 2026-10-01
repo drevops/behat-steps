@@ -17,6 +17,8 @@ Step traits never `use` other step traits. Shared logic belongs in a helper trai
 
 A trait's directory says what it is: `src/Steps/` registers Gherkin, `src/Helper/` registers none. `scripts/lint-traits.php` holds a step trait to composing no other step trait, and a helper trait to registering no Gherkin. A helper may register a hook, because the trait that owns a teardown carries the hook that runs it.
 
+3 terms stay apart in identifiers, docblocks and prose. A *driver* is a backend under `src/Driver` (Drupal, Drush or Blackbox), reached with `driverFor()`. A *browser driver* is Mink's driver behind the session, reached with `browserDriverFor()`, and is never called a "Mink driver" or a bare "driver". An *HTTP client* is the page, detached or bare client on `WebRawContext`, and is not a driver of either kind. See the "Driver, browser driver and HTTP client" section of [CONTRIBUTING.md](CONTRIBUTING.md).
+
 Every trait that calls a method it does not declare carries a `@phpstan-require-extends` annotation naming the base class that provides it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches, and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reaches the driver or the extension configuration. A trait that calls nothing outside itself carries none. A context that composes `AuthTrait` declares `\DrevOps\BehatSteps\Behat\Context\UserAwareInterface` so the initializer injects the user manager.
 
 
@@ -128,7 +130,7 @@ Which exception a step throws is part of the public contract - consumers catch o
 | An expected element, field, link or selector is missing | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
 | An assertion failed and the trait has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
 | Not an assertion: an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
-| The current driver lacks a required capability | `Behat\Mink\Exception\UnsupportedDriverActionException` |
+| The current browser driver lacks a required capability | `Behat\Mink\Exception\UnsupportedDriverActionException` |
 
 Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
 

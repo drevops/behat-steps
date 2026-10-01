@@ -12,7 +12,8 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
  * Verify and inspect browser cookies.
  *
  * - Assert cookie existence and values with exact or partial matching.
- * - Support both WebDriver and BrowserKit drivers for test compatibility.
+ * - Support both WebDriver and BrowserKit browser drivers for test
+ *   compatibility.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */

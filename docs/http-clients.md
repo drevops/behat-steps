@@ -2,11 +2,11 @@
 
 Most steps read the page the Mink session holds. A few send HTTP requests of their own from PHP: `FileDownloadTrait` downloads a file, `MetatagTrait` fetches the hreflang alternates of a page, `AccessibilityTrait` fetches its engine script, and `RestTrait` sends a request whose response becomes the page. Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from, and how to change them.
 
-3 terms stay apart throughout, because the codebase has more than one thing called a driver:
+3 terms stay apart throughout, and [CONTRIBUTING.md](../CONTRIBUTING.md#driver-browser-driver-and-http-client) holds them for the whole codebase:
 
-- **Backend driver** - Drupal, Drush or Blackbox under `src/Driver`, reached with `driverFor()`. Nothing on this page touches them.
-- **Browser driver** - the Mink driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
-- **HTTP client** - one of the 3 clients below. None of them is a driver.
+- **Driver** - Drupal, Drush or Blackbox under `src/Driver`, reached with `driverFor()`. Nothing on this page touches them.
+- **Browser driver** - Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
+- **HTTP client** - one of the 3 clients below. None of them is a driver of either kind.
 
 ## The 3 clients
 
@@ -66,7 +66,7 @@ Connection settings come from 1 place, and per-trait settings from another:
                               per-trait options, per request
 ```
 
-**Connection settings** are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest. `BehatStepsExtension` registers its own factory for the `browserkit_http` driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. It builds the session exactly as Mink does, so the page client applies the options to every host. It also records them, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
+**Connection settings** are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. It builds the session exactly as Mink does, so the page client applies the options to every host. It also records them, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
 
 To a project this looks like stock Mink: it registers Mink's own extension and `BehatStepsExtension`, nothing else, and never sees the factory.
 
@@ -88,7 +88,7 @@ Both timeouts are idle timeouts: a slow download that keeps receiving data never
 - **A step's own options win over the site's.** A download from the site waits `file_download.timeout` for data even when the session declares a `timeout` of its own.
 - **A `base_url` without a host** applies the options to every request.
 - **A suite without a `browserkit_http` session** sends every request with Symfony's defaults.
-- **Every `browserkit_http` session declares the same options.** Mink lets a suite declare any number of named sessions, and more than 1 can use the `browserkit_http` driver. The detached and bare clients send with 1 set of options, so the sessions can't carry different ones, and Behat stops at startup rather than pick 1 set silently. Key order doesn't count as a difference. This suite fails:
+- **Every `browserkit_http` session declares the same options.** Mink lets a suite declare any number of named sessions, and more than 1 can use the `browserkit_http` browser driver. The detached and bare clients send with 1 set of options, so the sessions can't carry different ones, and Behat stops at startup rather than pick 1 set silently. Key order doesn't count as a difference. This suite fails:
 
   ```php
   'sessions' => [
@@ -139,7 +139,7 @@ Those PHP requests take their settings from `http_client_parameters`, which only
 ]))
 ```
 
-The Selenium driver doesn't need that session; the requests steps send from PHP do.
+The Selenium2 browser driver doesn't need that session; the requests steps send from PHP do.
 
 ## Where content lives
 
@@ -179,7 +179,7 @@ WebRawContext
 ```
 
 - **The page client is a browser capability.** Whether one exists depends on the browser driver, so `httpPageClient()` resolves `HttpClientCapabilityInterface` through `browserDriverFor()`, like any other capability. The BrowserKit adapter provides it; the Selenium2 and Chrome adapters don't.
-- **The detached and bare clients come from a factory.** They exist under every browser driver, so there's nothing to resolve per driver. `HttpClientFactoryInterface` builds them, and the context initializer injects the `behat_steps.http_client_factory` service into `WebRawContext`, the same way it injects the option resolver factory. The scenario's identity reaches the factory as an `HttpIdentity` value object: the cookies, the URL they were read from, the headers and the credentials.
+- **The detached and bare clients come from a factory.** They exist under every browser driver, so there's nothing to resolve for each one. `HttpClientFactoryInterface` builds them, and the context initializer injects the `behat_steps.http_client_factory` service into `WebRawContext`, the same way it injects the option resolver factory. The scenario's identity reaches the factory as an `HttpIdentity` value object: the cookies, the URL they were read from, the headers and the credentials.
 
 ```php
 interface HttpClientFactoryInterface {
@@ -297,10 +297,10 @@ public function process(ContainerBuilder $container): void {
 }
 ```
 
-**Register a browser adapter** that implements `HttpClientCapabilityInterface` to give another Mink driver a page client:
+**Register a browser adapter** that implements `HttpClientCapabilityInterface` to give another browser driver a page client:
 
 ```php
 $this->getBrowserResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
-[Browser capabilities](../MIGRATION.md#browser-capabilities-for-the-mink-driver) covers writing the adapter itself.
+[Capabilities of the browser driver](../MIGRATION.md#capabilities-of-the-browser-driver) covers writing the adapter itself.

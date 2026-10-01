@@ -32,7 +32,7 @@ use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
  * the scenario.
  *
  * Limitations:
- * - The request header reaches the SUT only on a driver providing
+ * - The request header reaches the SUT only on a browser driver providing
  *   `RequestHeaderCapabilityInterface`. A WebDriver session carries no request
  *   headers, so a scenario running on Selenium falls back to the `$_SERVER`
  *   entry and the environment variable alone.
@@ -117,18 +117,18 @@ trait ConfigOverrideTrait {
   public function configOverrideBeforeStep(BeforeStepScope $scope): void {
     if ($this->configOverrideDisabledNames === []) {
       // Nothing to propagate. The process-level signal persists beyond the
-      // scenario that set it, so it is cleared here along with the
-      // driver-level header.
+      // scenario that set it, so it is cleared here along with the browser
+      // driver's header.
       $this->configOverrideClearSignal();
-      $this->configOverrideClearDriverHeader();
+      $this->configOverrideClearBrowserDriverHeader();
 
       return;
     }
 
     $value = implode(',', $this->configOverrideDisabledNames);
 
-    // A hook cannot fail a scenario over a driver that carries no request
-    // headers, so the capability is asked for rather than required.
+    // A hook cannot fail a scenario over a browser driver that carries no
+    // request headers, so the capability is asked for rather than required.
     if ($this->browserDriverHas(RequestHeaderCapabilityInterface::class)) {
       $this->browserDriverFor(RequestHeaderCapabilityInterface::class)->requestHeaderSet('X-Config-No-Override', $value);
     }
@@ -145,9 +145,9 @@ trait ConfigOverrideTrait {
   /**
    * Clear the process-level and REST-level X-Config-No-Override signal.
    *
-   * Driver-level request headers are cleared separately in the BeforeStep
-   * hook because the session is not guaranteed to be started at the point
-   * BeforeScenario runs.
+   * The browser driver's request headers are cleared separately in the
+   * BeforeStep hook because the session is not guaranteed to be started at the
+   * point BeforeScenario runs.
    */
   protected function configOverrideClearSignal(): void {
     unset($_SERVER['HTTP_X_CONFIG_NO_OVERRIDE']);
@@ -157,9 +157,9 @@ trait ConfigOverrideTrait {
   }
 
   /**
-   * Clear the driver-level X-Config-No-Override request header.
+   * Clear the browser driver's X-Config-No-Override request header.
    */
-  protected function configOverrideClearDriverHeader(): void {
+  protected function configOverrideClearBrowserDriverHeader(): void {
     try {
       $has_capability = $this->browserDriverHas(RequestHeaderCapabilityInterface::class);
     }

@@ -147,7 +147,7 @@ composer require --dev drevops/behat-steps:^3
 To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements (only `behat/behat` and `behat/mink` are required). Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
 
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
-- **`@javascript` scenarios** need a Mink driver - see [JavaScript drivers](#javascript-drivers) below.
+- **`@javascript` scenarios** need a JavaScript-capable browser driver - see [JavaScript browser drivers](#javascript-browser-drivers) below.
 
 ## 🚀 Quick start
 
@@ -259,12 +259,9 @@ That is the lifecycle this package is built for: start in the vocabulary for cov
 
 [Scenario styles](docs/scenario-styles.md) explains when each style earns its keep, and [HELPERS.md](HELPERS.md) lists every helper a domain step can build on.
 
-### JavaScript drivers
+### JavaScript browser drivers
 
-Steps that require a real browser (used by scenarios tagged `@javascript`) are
-driver agnostic: they work with a Selenium/WebDriver driver and with
-selenium-less drivers that talk to Chrome directly over the Chrome DevTools
-Protocol. Both are exercised by this library's own CI.
+Steps that require a real browser (used by scenarios tagged `@javascript`) work with any browser driver that runs one: a Selenium/WebDriver browser driver, or a Selenium-less one that talks to Chrome directly over the Chrome DevTools Protocol. Both are exercised by this library's own CI.
 
 To run `@javascript` scenarios without a Selenium server, add
 [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension)
@@ -300,12 +297,12 @@ This library reports failures with a small, fixed set of exception types, mostly
 | `ElementNotFoundException`         | Element, field, link, or selector not found on page  |
 | `ExpectationException`             | Assertion fails (value mismatch, state verification) |
 | `AssertionException`               | Assertion fails in a step with no Mink session       |
-| `UnsupportedDriverActionException` | Feature requires specific driver (e.g., Selenium)    |
+| `UnsupportedDriverActionException` | The browser driver lacks a capability the step needs |
 | `\RuntimeException`                | Invalid input or processing error (not an assertion) |
 
 `ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both.
 
-`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a Mink driver, which those traits do not have, so they report a failed assertion with this instead.
+`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a browser driver, which those traits do not have, so they report a failed assertion with this instead.
 
 Example error messages:
 

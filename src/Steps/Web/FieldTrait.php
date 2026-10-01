@@ -140,8 +140,8 @@ trait FieldTrait {
    * "Add another item" as many times as needed (waiting for AJAX between
    * clicks), and fills each row in order.
    *
-   * Requires a JavaScript-capable driver because the "Add another item"
-   * button relies on AJAX.
+   * Requires a JavaScript-capable browser driver because the "Add another
+   * item" button relies on AJAX.
    *
    * @code
    * When I fill in the multi-value field "Tags" with the following values:
@@ -266,8 +266,8 @@ JS;
   /**
    * Set value for WYSIWYG field.
    *
-   * A JavaScript-capable driver fills the associated WYSIWYG editor; any other
-   * driver sets the field value directly.
+   * A JavaScript-capable browser driver fills the associated WYSIWYG editor;
+   * any other one sets the field value directly.
    *
    * @code
    * When I fill in the WYSIWYG field "edit-body-0-value" with the value "<p>This is a <strong>formatted</strong> paragraph.</p>"

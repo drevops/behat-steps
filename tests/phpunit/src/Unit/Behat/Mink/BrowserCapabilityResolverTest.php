@@ -36,7 +36,7 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
    * Tests that each driver resolves to the adapter speaking for it.
    *
    * @param class-string<\Behat\Mink\Driver\DriverInterface> $driver_class
-   *   The Mink driver class to mock.
+   *   The browser driver class to mock.
    * @param class-string $expected
    *   The adapter class the resolver must build.
    */
@@ -62,7 +62,7 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
    * Tests the capability set each shipped adapter declares.
    *
    * @param class-string<\Behat\Mink\Driver\DriverInterface> $driver_class
-   *   The Mink driver class to mock.
+   *   The browser driver class to mock.
    * @param array<int, class-string> $expected
    *   Every capability the driver must provide.
    */
@@ -181,7 +181,7 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
   }
 
   /**
-   * Skips the test when the Mink driver package is not installed.
+   * Skips the test when the browser driver package is not installed.
    *
    * Both JavaScript drivers are suggested rather than required, and the Chrome
    * extension pins Behat 3, so a Behat 4 install resolves without it. An
@@ -190,7 +190,7 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
    * directly needs the package present.
    *
    * @param string $driver_class
-   *   The Mink driver class the test mocks.
+   *   The browser driver class the test mocks.
    */
   protected function skipWithoutDriver(string $driver_class): void {
     if (!class_exists($driver_class)) {

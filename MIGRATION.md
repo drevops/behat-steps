@@ -573,7 +573,7 @@ Trait-specific packages are no longer hard `require` dependencies. They now live
 | `drupal/drupal-extension` | any Drupal trait (`DrevOps\BehatSteps\Steps\Drupal\*`) |
 | `softcreatr/jsonpath` | `JsonTrait` JSON path steps (`the JSON path ... should ...`) |
 
-`@javascript` scenarios need a JavaScript-capable Mink driver. The steps are driver agnostic, so install **one** of these interchangeable drivers - both run the full `@javascript` suite and both are exercised by this library's CI:
+`@javascript` scenarios need a JavaScript-capable browser driver. The steps work with either of these, so install **one** of them - both run the full `@javascript` suite and both are exercised by this library's CI:
 
 - `lullabot/mink-selenium2-driver` - drives a Selenium/WebDriver server.
 - `dmore/behat-chrome-extension` - drives headless Chrome directly over the Chrome DevTools Protocol, with no Selenium server.
@@ -1205,7 +1205,7 @@ Assertion steps used to throw whatever their trait happened to reach for: `Expec
 | Anything that is not an assertion - an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
 | A step needs a driver capability the current driver lacks | `Behat\Mink\Exception\UnsupportedDriverActionException` |
 
-`ExpectationException` requires a Mink driver as its second constructor argument, so traits that never touch the browser cannot construct it. Those traits throw `AssertionException` instead, which carries the same meaning without the dependency.
+`ExpectationException` requires a browser driver as its second constructor argument, so traits that never touch the browser cannot construct it. Those traits throw `AssertionException` instead, which carries the same meaning without the dependency.
 
 If your project catches an exception from one of these steps, update the type:
 
@@ -1441,7 +1441,7 @@ A documented override point that supplies a value now reads `<trait>Get<Noun>()`
 | `CommandTrait` | `commandTimeout()` | `commandGetTimeout()` |
 | `DiagnosticsTrait` | `diagnosticsHeader()` | `diagnosticsGetHeader()` |
 | `DiagnosticsTrait` | `diagnosticsRerunBinary()` | `diagnosticsGetRerunBinary()` |
-| `DiagnosticsTrait` | `diagnosticsShowDriver()` | `diagnosticsGetShowDriver()` |
+| `DiagnosticsTrait` | `diagnosticsShowDriver()` | `diagnosticsGetShowBrowserDriver()` |
 | `DiagnosticsTrait` | `diagnosticsShowJsErrors()` | `diagnosticsGetShowJsErrors()` |
 | `DiagnosticsTrait` | `diagnosticsShowRerun()` | `diagnosticsGetShowRerun()` |
 | `DiagnosticsTrait` | `diagnosticsShowStatusCode()` | `diagnosticsGetShowStatusCode()` |
@@ -1463,7 +1463,7 @@ Only the name changes. Each method keeps its body, its parameters, its return ty
 | `Drupal\EmailTrait` | `emailGetMailSystemOriginal()` (protected) | `emailFindMailSystemOriginal()` | returns `NULL` |
 | `Drupal\UserTrait` | `userLoadByName()` | `userGetByName()` | throws `\RuntimeException` |
 | `CookieTrait` | `cookieGetByName()` | `cookieFindByName()` | returns `NULL` |
-| `DiagnosticsTrait` | `diagnosticsGetDriverName()` | `diagnosticsFindDriverName()` | returns `NULL` |
+| `DiagnosticsTrait` | `diagnosticsGetDriverName()` | `diagnosticsFindBrowserDriverName()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetRerunCommand()` | `diagnosticsFindRerunCommand()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetStatusCode()` | `diagnosticsFindStatusCode()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetUrl()` | `diagnosticsFindUrl()` | returns `NULL` |
@@ -1542,11 +1542,11 @@ $messages = $driver->mailGet();
 
 `MailManagerInterface` is removed with the class.
 
-## Browser capabilities for the Mink driver
+## Capabilities of the browser driver
 
-The Drupal half of the vocabulary resolves its drivers by capability. The browser half now does the same: a step names the capability it needs and never a driver, so a project registering its own Mink driver gets the shipped steps working as soon as it registers an adapter declaring that capability.
+The Drupal half of the vocabulary resolves its drivers by capability. The browser half now does the same: a step names the capability it needs and never a browser driver, so a project registering its own browser driver gets the shipped steps working as soon as it registers an adapter declaring that capability.
 
-`DrevOps\BehatSteps\Behat\Mink\Capability` holds the 5 interfaces, and `DrevOps\BehatSteps\Behat\Mink\Adapter` holds 1 adapter per shipped driver family. A Mink driver comes from another package, so an adapter declares the capabilities on the driver's behalf rather than the driver implementing them.
+`DrevOps\BehatSteps\Behat\Mink\Capability` holds the 5 interfaces, and `DrevOps\BehatSteps\Behat\Mink\Adapter` holds 1 adapter per shipped browser driver family. A browser driver comes from another package, so an adapter declares the capabilities on its behalf rather than the browser driver implementing them.
 
 | Capability | BrowserKit | Selenium2 | Chrome (CDP) |
 | --- | --- | --- | --- |
@@ -1560,7 +1560,7 @@ The Drupal half of the vocabulary resolves its drivers by capability. The browse
 
 ### `JavascriptSupportTrait` is gone
 
-`javascriptSupportAvailable()` probed the driver by evaluating `true` in the browser, so every call paid a round trip to answer a question that cannot change during a scenario. A custom step that called it asks the capability instead:
+`javascriptSupportAvailable()` probed the browser driver by evaluating `true` in the browser, so every call paid a round trip to answer a question that cannot change during a scenario. A custom step that called it asks the capability instead:
 
 ```php
 // Before.
@@ -1588,15 +1588,15 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
 `I wait for the modal to appear`, `I drop the following files on the dropzone :selector:` and `I switch to the iframe with the selector :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
 
-`I press the key ...` and `I wait for :seconds second(s) for AJAX to finish` still raise on a driver that cannot serve them, with the capability named in place of a hardcoded driver list.
+`I press the key ...` and `I wait for :seconds second(s) for AJAX to finish` still raise on a browser driver that cannot serve them, with the capability named in place of a hardcoded list of browser drivers.
 
-### Registering an adapter for another driver
+### Registering an adapter for another browser driver
 
 ```php
 $this->getBrowserResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
-An adapter extends `BrowserAdapterBase`, implements the capability interfaces its driver can honour, and answers `supports()` for the driver it speaks for. A registered adapter is offered each driver ahead of the shipped ones.
+An adapter extends `BrowserAdapterBase`, implements the capability interfaces its browser driver can honour, and answers `supports()` for the browser driver it speaks for. A registered adapter is offered each browser driver ahead of the shipped ones.
 
 ## Steps send their own requests through 3 HTTP clients
 

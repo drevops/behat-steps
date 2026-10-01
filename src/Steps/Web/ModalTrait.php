@@ -21,7 +21,7 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
  *
  * Supports multiple modal implementations (jQuery UI dialogs, Bootstrap
  * modals, native HTML dialog element, custom modals) via overridable
- * selector methods. All steps require a JavaScript-enabled driver.
+ * selector methods. All steps require a JavaScript-enabled browser driver.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -96,8 +96,8 @@ trait ModalTrait {
    */
   #[When('I wait for the modal to appear')]
   public function modalWaitForAppear(): void {
-    // Without the capability the wait can only time out, so the driver is
-    // checked before the timeout is spent.
+    // Without the capability the wait can only time out, so the browser driver
+    // is checked before the timeout is spent.
     $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
     $timeout = $this->modalGetWaitTimeout();

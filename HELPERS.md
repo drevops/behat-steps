@@ -330,10 +330,10 @@ Check whether a string holds a relative date token
 > Append on-failure diagnostics to the failure message of any failed step.
 
 <details>
-  <summary><code>public function diagnosticsFindDriverName(): ?string</code></summary>
+  <summary><code>public function diagnosticsFindBrowserDriverName(): ?string</code></summary>
 
 <br/>
-Return the active Mink driver class, or NULL when it is unavailable
+Return the browser driver's class, or NULL when it is unavailable
 <br/><br/>
 
 </details>
@@ -393,10 +393,10 @@ Return the binary used in the re-run command. Override to customise
 </details>
 
 <details>
-  <summary><code>public function diagnosticsGetShowDriver(): bool</code></summary>
+  <summary><code>public function diagnosticsGetShowBrowserDriver(): bool</code></summary>
 
 <br/>
-Return TRUE to include the Mink driver class. Override to suppress
+Return TRUE to include the browser driver class. Override to suppress
 <br/><br/>
 
 </details>
@@ -2218,7 +2218,7 @@ Returns the adapter providing a browser capability for this session
   <summary><code>public function browserDriverHas(string $capability): bool</code></summary>
 
 <br/>
-Whether this session's driver provides a browser capability
+Whether this session's browser driver provides a browser capability
 <br/><br/>
 
 </details>

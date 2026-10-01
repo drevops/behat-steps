@@ -373,7 +373,8 @@ trait ResponsiveTrait {
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
-      // A driver without resize support throws; the exception is ignored.
+      // A browser driver without resize support throws; the exception is
+      // ignored.
     }
     // @codeCoverageIgnoreEnd
   }
