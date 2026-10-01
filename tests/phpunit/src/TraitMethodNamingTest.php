@@ -34,6 +34,11 @@ class TraitMethodNamingTest extends UnitTestCase {
   protected const PREDICATES = ['Contains', 'Equals', 'Exist', 'Exists', 'Matches', 'Not'];
 
   /**
+   * Exceptions that report a failed assertion rather than an error.
+   */
+  protected const ASSERTION_EXCEPTIONS = ['AssertionException', 'ElementNotFoundException', 'ExpectationException'];
+
+  /**
    * Assert that every method a trait declares carries the trait's prefix.
    *
    * @param class-string $trait
@@ -59,6 +64,92 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   public static function dataProviderMethodsArePrefixed(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that an assertion carries `Assert` directly after the prefix.
+   *
+   * A `Then` step is an assertion, and so is any method other than a hook
+   * whose docblock opens with "Assert". `Assert` appears nowhere else in a
+   * name, so the shape is always `<prefix>Assert<Subject><Predicate>`.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderAssertionsOpenWithAssert')]
+  public function testAssertionsOpenWithAssert(string $trait, string $file): void {
+    $prefix = self::traitPrefix((new \ReflectionClass($trait))->getShortName());
+
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      $name = $method->getName();
+      $is_assertion = $method->getAttributes(Then::class) !== [] || (!self::isHook($method) && str_starts_with(self::docblockSummary($method), 'Assert'));
+
+      if ((!$is_assertion && preg_match('/Assert(?![a-z])/', $name) !== 1) || str_starts_with($name, $prefix . 'Assert')) {
+        continue;
+      }
+
+      $violations[] = $name;
+    }
+
+    $this->assertSame([], $violations, 'Name an assertion "<prefix>Assert<Subject><Predicate>", with "Assert" nowhere else: "cookieAssertExists", not "cookieExists".');
+  }
+
+  public static function dataProviderAssertionsOpenWithAssert(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that `Assert` is followed by what the assertion asserts.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderAssertionsNameWhatTheyAssert')]
+  public function testAssertionsNameWhatTheyAssert(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert(?:Not)?$/', $name) === 1));
+
+    $this->assertSame([], $violations, 'Follow "Assert" with the subject or the predicate it asserts: "messageAssertExistsOfType", not "messageAssert".');
+  }
+
+  public static function dataProviderAssertionsNameWhatTheyAssert(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that an `Assert` method fails with an assertion exception.
+   *
+   * A method that throws only `\RuntimeException` guards an argument or a
+   * precondition, which fails the scenario as an error rather than as a
+   * broken expectation, so its name states what it does instead.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderAssertionsFailWithAssertionException')]
+  public function testAssertionsFailWithAssertionException(string $trait, string $file): void {
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      $thrown = self::thrownExceptionNames($method);
+
+      if (preg_match('/Assert(?![a-z])/', $method->getName()) !== 1 || $thrown === [] || array_intersect($thrown, static::ASSERTION_EXCEPTIONS) !== []) {
+        continue;
+      }
+
+      $violations[] = $method->getName();
+    }
+
+    $this->assertSame([], $violations, 'An "Assert" method fails with ExpectationException, ElementNotFoundException or AssertionException. Name a check that throws only \RuntimeException for what it does: "commandParseInteger", not "commandAssertInteger".');
+  }
+
+  public static function dataProviderAssertionsFailWithAssertionException(): array {
     return static::discoverTraitFiles();
   }
 
@@ -453,6 +544,61 @@ class TraitMethodNamingTest extends UnitTestCase {
     $type = $method->getReturnType();
 
     return sprintf('%s(): %s', $method->getName(), $type instanceof \ReflectionType ? (string) $type : 'no return type');
+  }
+
+  /**
+   * Check whether a method is registered as a hook.
+   *
+   * A hook is named for the event it runs on rather than for what it does.
+   */
+  protected static function isHook(\ReflectionMethod $method): bool {
+    foreach ($method->getAttributes() as $attribute) {
+      if (str_contains($attribute->getName(), '\\Hook\\')) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Read the first line of text in a method's docblock.
+   *
+   * @param \ReflectionMethod $method
+   *   The method to read.
+   *
+   * @return string
+   *   The summary line, or an empty string when the method has no docblock.
+   */
+  protected static function docblockSummary(\ReflectionMethod $method): string {
+    foreach (explode("\n", (string) $method->getDocComment()) as $line) {
+      $text = trim((string) preg_replace('#^\s*/?\*+/?#', '', $line));
+
+      if ($text !== '') {
+        return $text;
+      }
+    }
+
+    return '';
+  }
+
+  /**
+   * Collect the short names of the exceptions a method throws itself.
+   *
+   * @param \ReflectionMethod $method
+   *   The method to read.
+   *
+   * @return array<int, string>
+   *   The class names after each 'throw new' in the method body, without
+   *   their namespace.
+   */
+  protected static function thrownExceptionNames(\ReflectionMethod $method): array {
+    $lines = explode("\n", (string) file_get_contents((string) $method->getFileName()));
+    $body = implode("\n", array_slice($lines, (int) $method->getStartLine() - 1, (int) $method->getEndLine() - (int) $method->getStartLine() + 1));
+
+    preg_match_all('/throw new \\\\?(?:\w+\\\\)*(\w+)/', $body, $matches);
+
+    return $matches[1];
   }
 
   /**

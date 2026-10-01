@@ -33,7 +33,7 @@ trait MessageTrait {
    */
   #[Then('the message :message should exist')]
   public function messageAssertExists(string $message): void {
-    $this->messageAssert($message, 'default');
+    $this->messageAssertExistsOfType($message, 'default');
   }
 
   /**
@@ -45,7 +45,7 @@ trait MessageTrait {
    */
   #[Then('the message :message should not exist')]
   public function messageAssertNotExists(string $message): void {
-    $this->messageAssertNot($message, 'default');
+    $this->messageAssertNotExistsOfType($message, 'default');
   }
 
   /**
@@ -57,7 +57,7 @@ trait MessageTrait {
    */
   #[Then('the error message :message should exist')]
   public function messageAssertErrorExists(string $message): void {
-    $this->messageAssert($message, 'error');
+    $this->messageAssertExistsOfType($message, 'error');
   }
 
   /**
@@ -69,7 +69,7 @@ trait MessageTrait {
    */
   #[Then('the error message :message should not exist')]
   public function messageAssertErrorNotExists(string $message): void {
-    $this->messageAssertNot($message, 'error');
+    $this->messageAssertNotExistsOfType($message, 'error');
   }
 
   /**
@@ -81,7 +81,7 @@ trait MessageTrait {
    */
   #[Then('the success message :message should exist')]
   public function messageAssertSuccessExists(string $message): void {
-    $this->messageAssert($message, 'success');
+    $this->messageAssertExistsOfType($message, 'success');
   }
 
   /**
@@ -93,7 +93,7 @@ trait MessageTrait {
    */
   #[Then('the success message :message should not exist')]
   public function messageAssertSuccessNotExists(string $message): void {
-    $this->messageAssertNot($message, 'success');
+    $this->messageAssertNotExistsOfType($message, 'success');
   }
 
   /**
@@ -105,7 +105,7 @@ trait MessageTrait {
    */
   #[Then('the warning message :message should exist')]
   public function messageAssertWarningExists(string $message): void {
-    $this->messageAssert($message, 'warning');
+    $this->messageAssertExistsOfType($message, 'warning');
   }
 
   /**
@@ -117,7 +117,7 @@ trait MessageTrait {
    */
   #[Then('the warning message :message should not exist')]
   public function messageAssertWarningNotExists(string $message): void {
-    $this->messageAssertNot($message, 'warning');
+    $this->messageAssertNotExistsOfType($message, 'warning');
   }
 
   /**
@@ -132,7 +132,7 @@ trait MessageTrait {
   #[Then('the following error messages should exist:')]
   public function messageAssertErrorsExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
-      $this->messageAssert(trim($message), 'error');
+      $this->messageAssertExistsOfType(trim($message), 'error');
     }
   }
 
@@ -147,7 +147,7 @@ trait MessageTrait {
   #[Then('the following error messages should not exist:')]
   public function messageAssertErrorsNotExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
-      $this->messageAssertNot(trim($message), 'error');
+      $this->messageAssertNotExistsOfType(trim($message), 'error');
     }
   }
 
@@ -162,7 +162,7 @@ trait MessageTrait {
   #[Then('the following success messages should exist:')]
   public function messageAssertSuccessesExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
-      $this->messageAssert(trim($message), 'success');
+      $this->messageAssertExistsOfType(trim($message), 'success');
     }
   }
 
@@ -177,7 +177,7 @@ trait MessageTrait {
   #[Then('the following success messages should not exist:')]
   public function messageAssertSuccessesNotExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
-      $this->messageAssertNot(trim($message), 'success');
+      $this->messageAssertNotExistsOfType(trim($message), 'success');
     }
   }
 
@@ -192,7 +192,7 @@ trait MessageTrait {
   #[Then('the following warning messages should exist:')]
   public function messageAssertWarningsExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
-      $this->messageAssert(trim($message), 'warning');
+      $this->messageAssertExistsOfType(trim($message), 'warning');
     }
   }
 
@@ -207,7 +207,7 @@ trait MessageTrait {
   #[Then('the following warning messages should not exist:')]
   public function messageAssertWarningsNotExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
-      $this->messageAssertNot(trim($message), 'warning');
+      $this->messageAssertNotExistsOfType(trim($message), 'warning');
     }
   }
 
@@ -223,7 +223,7 @@ trait MessageTrait {
    *   When the page renders no message of that type, or none containing the
    *   expected text.
    */
-  public function messageAssert(string $message, string $type): void {
+  public function messageAssertExistsOfType(string $message, string $type): void {
     $elements = $this->getSession()->getPage()->findAll('css', $this->messageSelector($type));
 
     if ($elements === []) {
@@ -250,7 +250,7 @@ trait MessageTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When a message of that type contains the text.
    */
-  public function messageAssertNot(string $message, string $type): void {
+  public function messageAssertNotExistsOfType(string $message, string $type): void {
     $elements = $this->getSession()->getPage()->findAll('css', $this->messageSelector($type));
 
     foreach ($elements as $element) {

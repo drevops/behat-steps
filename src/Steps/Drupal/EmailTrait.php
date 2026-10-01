@@ -130,7 +130,7 @@ trait EmailTrait {
    */
   #[When('I follow the link with the index :index in the email with the subject :subject')]
   public function emailFollowLinkNumber(string $index, string $subject): void {
-    $index = $this->emailAssertLinkNumber($index);
+    $index = $this->emailParseLinkNumber($index);
 
     $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
 
@@ -209,7 +209,7 @@ trait EmailTrait {
    */
   #[When('I follow the link with the index :index in the email with a subject containing :partial_subject')]
   public function emailFollowLinkNumberWithSubjectContaining(string $index, string $partial_subject): void {
-    $index = $this->emailAssertLinkNumber($index);
+    $index = $this->emailParseLinkNumber($index);
 
     $message = NULL;
     foreach ($this->emailGetCollectedMessages() as $m) {
@@ -824,7 +824,7 @@ trait EmailTrait {
   }
 
   /**
-   * Convert a link number step argument into a positive integer.
+   * Parse a link number step argument into a positive integer.
    *
    * Links are numbered from 1, so a number below 1 is rejected.
    *
@@ -837,7 +837,7 @@ trait EmailTrait {
    * @throws \RuntimeException
    *   When the link number is not a positive integer.
    */
-  protected function emailAssertLinkNumber(string $link_number): int {
+  protected function emailParseLinkNumber(string $link_number): int {
     if (!ctype_digit(trim($link_number)) || (int) $link_number < 1) {
       throw new \RuntimeException(sprintf('The link number must be a positive integer, but "%s" was provided.', $link_number));
     }

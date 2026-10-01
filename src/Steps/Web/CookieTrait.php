@@ -28,7 +28,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with the name :name should exist')]
   public function cookieAssertExistsWithName(string $name): void {
-    $this->cookieExists($name);
+    $this->cookieAssertExists($name);
   }
 
   /**
@@ -40,7 +40,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with the name :name and the value :value should exist')]
   public function cookieAssertExistsWithNameValue(string $name, string $value): void {
-    $this->cookieExists($name, $value);
+    $this->cookieAssertExists($name, $value);
   }
 
   /**
@@ -52,7 +52,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with the name :name and a value containing :partial_value should exist')]
   public function cookieAssertExistsWithNamePartialValue(string $name, string $partial_value): void {
-    $this->cookieExists($name, $partial_value, FALSE, TRUE);
+    $this->cookieAssertExists($name, $partial_value, FALSE, TRUE);
   }
 
   /**
@@ -64,7 +64,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with a name containing :partial_name should exist')]
   public function cookieAssertExistsWithPartialName(string $partial_name): void {
-    $this->cookieExists($partial_name, NULL, TRUE);
+    $this->cookieAssertExists($partial_name, NULL, TRUE);
   }
 
   /**
@@ -76,7 +76,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with a name containing :partial_name and the value :value should exist')]
   public function cookieAssertExistsWithPartialNameValue(string $partial_name, string $value): void {
-    $this->cookieExists($partial_name, $value, TRUE);
+    $this->cookieAssertExists($partial_name, $value, TRUE);
   }
 
   /**
@@ -88,7 +88,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with a name containing :partial_name and a value containing :partial_value should exist')]
   public function cookieAssertExistsWithPartialNamePartialValue(string $partial_name, string $partial_value): void {
-    $this->cookieExists($partial_name, $partial_value, TRUE, TRUE);
+    $this->cookieAssertExists($partial_name, $partial_value, TRUE, TRUE);
   }
 
   /**
@@ -100,7 +100,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with the name :name should not exist')]
   public function cookieAssertNotExistsWithName(string $name): void {
-    $this->cookieNotExists($name);
+    $this->cookieAssertNotExists($name);
   }
 
   /**
@@ -112,7 +112,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with the name :name and the value :value should not exist')]
   public function cookieAssertNotExistsWithNameValue(string $name, string $value): void {
-    $this->cookieNotExists($name, $value);
+    $this->cookieAssertNotExists($name, $value);
   }
 
   /**
@@ -124,7 +124,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with the name :name and a value containing :partial_value should not exist')]
   public function cookieAssertNotExistsWithNamePartialValue(string $name, string $partial_value): void {
-    $this->cookieNotExists($name, $partial_value, FALSE, TRUE);
+    $this->cookieAssertNotExists($name, $partial_value, FALSE, TRUE);
   }
 
   /**
@@ -136,7 +136,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with a name containing :partial_name should not exist')]
   public function cookieAssertNotExistsWithPartialName(string $partial_name): void {
-    $this->cookieNotExists($partial_name, NULL, TRUE);
+    $this->cookieAssertNotExists($partial_name, NULL, TRUE);
   }
 
   /**
@@ -148,7 +148,7 @@ trait CookieTrait {
    */
   #[Then('a cookie with a name containing :partial_name and the value :value should not exist')]
   public function cookieAssertNotExistsWithPartialNameValue(string $partial_name, string $value): void {
-    $this->cookieNotExists($partial_name, $value, TRUE);
+    $this->cookieAssertNotExists($partial_name, $value, TRUE);
   }
 
   /**
@@ -160,13 +160,13 @@ trait CookieTrait {
    */
   #[Then('a cookie with a name containing :partial_name and a value containing :partial_value should not exist')]
   public function cookieAssertNotExistsWithPartialNamePartialValue(string $partial_name, string $partial_value): void {
-    $this->cookieNotExists($partial_name, $partial_value, TRUE, TRUE);
+    $this->cookieAssertNotExists($partial_name, $partial_value, TRUE, TRUE);
   }
 
   /**
    * Assert that a cookie exists.
    */
-  public function cookieExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
+  public function cookieAssertExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
     $cookie = $this->cookieFindByName($name, $is_partial_name);
 
     if ($cookie === NULL) {
@@ -200,7 +200,7 @@ trait CookieTrait {
   /**
    * Assert that a cookie does not exist.
    */
-  public function cookieNotExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
+  public function cookieAssertNotExists(string $name, ?string $value = NULL, bool $is_partial_name = FALSE, bool $is_partial_value = FALSE): void {
     $cookie = $this->cookieFindByName($name, $is_partial_name);
 
     if ($cookie === NULL) {
