@@ -3,7 +3,7 @@ x-project:
   &project ${PROJECT:-behat-steps}
 
 x-url:
-  &url ${LOCALDEV_URL:-http://behat-steps.docker.amazee.io}
+  &url ${LOCALDEV_URL:-http://${COMPOSE_PROJECT_NAME:-behat-steps}.docker.amazee.io}
 
 x-volumes:
   &default-volumes
@@ -76,7 +76,7 @@ services:
   chrome:
     image: selenium/standalone-chromium:152.0@sha256:08fd293648e126275782c616a61f4ee1d90cf413b1972ebc35dbd054d6789f55
     ports:
-      - "7900" # Access Chrome using noVNC at http://behat-steps.docker.amazee.io:7900/?autoconnect=1&password=secret
+      - "7900" # Find the noVNC URL on host with 'ahoy info'.
     expose:
       - "8888"
     shm_size: '1gb'
