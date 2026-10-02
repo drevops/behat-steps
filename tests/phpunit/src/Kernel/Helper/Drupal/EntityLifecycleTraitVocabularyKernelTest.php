@@ -10,14 +10,14 @@ use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
-use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Core\CoreInterface;
-use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
-use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Core\CoreInterface;
+use DrevOps\BehatSteps\Backend\Core\Field\FieldClassifierInterface;
+use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\taxonomy\Entity\Vocabulary;
@@ -55,7 +55,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     Vocabulary::create(['vid' => 'tags', 'name' => 'Tags'])->save();
 
     $this->context = new TestableRawContext();
-    $this->context->setDriverRegistry($this->createDriverRegistry($this->createInProcessDriver()));
+    $this->context->setBackendRegistry($this->createBackendRegistry($this->createInProcessBackend()));
     $this->context->setDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
   }
 
@@ -74,26 +74,26 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests that an unknown identifier is returned for the driver to reject.
+   * Tests that an unknown identifier is returned for the backend to reject.
    */
   public function testAnUnknownIdentifierIsReturnedUnchanged(): void {
     $this->assertSame('Unknown', $this->context->callResolveVocabularyMachineName('Unknown'));
   }
 
   /**
-   * Tests that term creation resolves the label before calling the driver.
+   * Tests that term creation resolves the label before calling the backend.
    */
   public function testTermCreationResolvesTheVocabularyLabel(): void {
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
 
-    $driver = $this->createInProcessDriver();
-    $driver->expects($this->once())->method('termCreate')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
+    $backend = $this->createInProcessBackend();
+    $backend->expects($this->once())->method('termCreate')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
       $this->assertSame('tags', $received->getValue('vocabulary_machine_name'));
 
       return $stub;
     });
 
-    $this->context->setDriverRegistry($this->createDriverRegistry($driver));
+    $this->context->setBackendRegistry($this->createBackendRegistry($backend));
 
     $this->context->entityLifecycleTermCreate($stub);
 
@@ -101,20 +101,20 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests that a driver without Drupal receives the identifier as given.
+   * Tests that a backend without Drupal receives the identifier as given.
    */
-  public function testTermCreationLeavesLabelForNonDrupalDriver(): void {
+  public function testTermCreationLeavesLabelForNonDrupalBackend(): void {
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
 
-    /** @var \DrevOps\BehatSteps\Driver\DriverInterface&\DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $driver */
-    $driver = $this->createMockForIntersectionOfInterfaces([DriverInterface::class, ContentCapabilityInterface::class]);
-    $driver->expects($this->once())->method('termCreate')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, ContentCapabilityInterface::class]);
+    $backend->expects($this->once())->method('termCreate')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
       $this->assertSame('Tags', $received->getValue('vocabulary_machine_name'));
 
       return $stub;
     });
 
-    $this->context->setDriverRegistry($this->createDriverRegistry($driver));
+    $this->context->setBackendRegistry($this->createBackendRegistry($backend));
 
     $this->context->entityLifecycleTermCreate($stub);
 
@@ -122,43 +122,43 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
   }
 
   /**
-   * Builds a bootstrapped in-process driver double.
+   * Builds a bootstrapped in-process backend double.
    *
    * Its classifier reports every value as a standard base field, so the
    * field parser passes the stub through unchanged.
    *
-   * @return \DrevOps\BehatSteps\Driver\DrupalDriverInterface&\PHPUnit\Framework\MockObject\MockObject
-   *   The driver double.
+   * @return \DrevOps\BehatSteps\Backend\DrupalBackendInterface&\PHPUnit\Framework\MockObject\MockObject
+   *   The backend double.
    */
-  protected function createInProcessDriver(): DrupalDriverInterface&MockObject {
+  protected function createInProcessBackend(): DrupalBackendInterface&MockObject {
     $classifier = $this->createMock(FieldClassifierInterface::class);
     $classifier->method('fieldIsBaseStandard')->willReturn(TRUE);
 
     $core = $this->createMock(CoreInterface::class);
     $core->method('getFieldClassifier')->willReturn($classifier);
 
-    $driver = $this->createMock(DrupalDriverInterface::class);
-    $driver->method('isBootstrapped')->willReturn(TRUE);
-    $driver->method('getCore')->willReturn($core);
+    $backend = $this->createMock(DrupalBackendInterface::class);
+    $backend->method('isBootstrapped')->willReturn(TRUE);
+    $backend->method('getCore')->willReturn($core);
 
-    return $driver;
+    return $backend;
   }
 
   /**
-   * Builds a driver registry holding the given driver as the only one.
+   * Builds a backend registry holding the given backend as the only one.
    *
-   * @param \DrevOps\BehatSteps\Driver\DriverInterface $driver
-   *   The driver the scenario resolves against.
+   * @param \DrevOps\BehatSteps\Backend\BackendInterface $backend
+   *   The backend the scenario resolves against.
    *
-   * @return \DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface
-   *   The driver registry.
+   * @return \DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface
+   *   The backend registry.
    */
-  protected function createDriverRegistry(DriverInterface $driver): DriverRegistryInterface {
-    $driver_registry = new DriverRegistry(['test' => $driver]);
-    $driver_registry->setScenarioDrivers(['test' => 'test']);
-    $driver_registry->setEnvironment($this->createMock(Environment::class));
+  protected function createBackendRegistry(BackendInterface $backend): BackendRegistryInterface {
+    $backend_registry = new BackendRegistry(['test' => $backend]);
+    $backend_registry->setScenarioBackends(['test' => 'test']);
+    $backend_registry->setEnvironment($this->createMock(Environment::class));
 
-    return $driver_registry;
+    return $backend_registry;
   }
 
 }

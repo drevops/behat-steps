@@ -1,0 +1,145 @@
+@startuml
+' drevops/behat-steps - the Behat-free backend layer and its capability model.
+' Traced from src/Backend/BackendInterface.php, DrupalBackendInterface.php,
+' DrushBackendInterface.php, BlackboxBackendInterface.php, DrupalBackend.php,
+' DrushBackend.php, BlackboxBackend.php, src/Backend/Capability/,
+' src/Backend/Core/, src/Backend/Entity/, src/Behat/Manager/BackendRegistry.php,
+' scripts/lint-layers.php.
+' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+title Class structure: the backend layer
+
+package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
+  class BackendRegistry {
+    +registerBackend(name, backend) : void
+    +setScenarioBackends(backends) : void
+    +getBackend(name) : BackendInterface
+    +getBackendFor(capability) : object
+    +hasCapability(capability) : bool
+    +getResolvedBackendFor(capability) : ?object
+    +getBackends() : array
+  }
+}
+
+package "DrevOps\\BehatSteps\\Backend" #E8F5E9 {
+
+  interface BackendInterface {
+    +getRandom() : Random
+    +bootstrap() : void
+    +isBootstrapped() : bool
+  }
+
+  interface BlackboxBackendInterface
+  interface DrupalBackendInterface {
+    +setCore(core) : void
+  }
+  interface DrushBackendInterface
+
+  class BlackboxBackend
+  class DrupalBackend {
+    bootstraps Drupal in-process
+  }
+  class DrushBackend {
+    shells out to drush
+  }
+
+  BackendInterface <|-- BlackboxBackendInterface
+  BackendInterface <|-- DrupalBackendInterface
+  BackendInterface <|-- DrushBackendInterface
+
+  BlackboxBackendInterface <|.. BlackboxBackend
+  DrupalBackendInterface <|.. DrupalBackend
+  DrushBackendInterface <|.. DrushBackend
+}
+
+package "DrevOps\\BehatSteps\\Backend\\Capability" #E8F5E9 {
+  interface AuthenticationCapabilityInterface
+  interface BatchCapabilityInterface
+  interface BlockCapabilityInterface
+  interface CacheCapabilityInterface
+  interface ConfigCapabilityInterface
+  interface ContentCapabilityInterface
+  interface CoreCapabilityInterface
+  interface CreationAliasCapabilityInterface
+  interface CronCapabilityInterface
+  interface DrushCapabilityInterface
+  interface LanguageCapabilityInterface
+  interface MailCapabilityInterface
+  interface ModuleCapabilityInterface
+  interface RoleCapabilityInterface
+  interface StateCapabilityInterface
+  interface UserCapabilityInterface
+
+  AuthenticationCapabilityInterface -[hidden]down- BatchCapabilityInterface
+  BatchCapabilityInterface -[hidden]down- BlockCapabilityInterface
+  BlockCapabilityInterface -[hidden]down- CacheCapabilityInterface
+  CacheCapabilityInterface -[hidden]down- ConfigCapabilityInterface
+  ConfigCapabilityInterface -[hidden]down- ContentCapabilityInterface
+
+  CoreCapabilityInterface -[hidden]down- CreationAliasCapabilityInterface
+  CreationAliasCapabilityInterface -[hidden]down- CronCapabilityInterface
+  CronCapabilityInterface -[hidden]down- DrushCapabilityInterface
+  DrushCapabilityInterface -[hidden]down- LanguageCapabilityInterface
+  LanguageCapabilityInterface -[hidden]down- MailCapabilityInterface
+
+  ModuleCapabilityInterface -[hidden]down- RoleCapabilityInterface
+  RoleCapabilityInterface -[hidden]down- StateCapabilityInterface
+  StateCapabilityInterface -[hidden]down- UserCapabilityInterface
+}
+
+package "DrevOps\\BehatSteps\\Backend\\Core" #E8F5E9 {
+  interface CoreInterface
+  class Core
+  interface FieldHandlerInterface {
+    one per field type
+  }
+  class FieldClassifier
+  class EntityFieldParser
+
+  CoreInterface <|.. Core
+  Core --> FieldClassifier
+  FieldClassifier --> FieldHandlerInterface
+  EntityFieldParser --> FieldHandlerInterface
+}
+
+package "DrevOps\\BehatSteps\\Backend\\Entity" #E8F5E9 {
+  interface EntityStubInterface
+  class EntityStub
+  EntityStubInterface <|.. EntityStub
+}
+
+BackendRegistry o--> BackendInterface : registered by name
+
+DrupalBackendInterface ..|> AuthenticationCapabilityInterface
+DrupalBackendInterface ..|> ContentCapabilityInterface
+DrupalBackendInterface ..|> CoreCapabilityInterface
+DrushBackendInterface ..|> DrushCapabilityInterface
+DrushBackendInterface ..|> ModuleCapabilityInterface
+
+DrupalBackend --> CoreInterface : getCore
+Core --> EntityStubInterface : creates and loads
+
+note right of BlackboxBackend
+  Implements the base contract only, so it
+  answers no capability. A step whose
+  capability no backend in the scenario's
+  order provides throws
+  UnsupportedBackendActionException.
+end note
+
+note bottom of DrupalBackendInterface
+  DrupalBackendInterface extends 14 capability
+  interfaces and DrushBackendInterface 9, of
+  which DrushCapabilityInterface is its own.
+  Only a few edges are drawn here.
+
+  BackendRegistry walks the scenario's backend
+  order and returns the first instance of the
+  capability a step asked for, bootstrapping
+  only that one.
+end note
+@enduml

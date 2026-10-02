@@ -49,11 +49,11 @@ trait BehatCliTrait {
   protected const BEHAT_CLI_MESSAGE_SELECTORS = "'message' => ['selectors' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning']],";
 
   /**
-   * Driver list the generated extension configuration declares.
+   * Backend list the generated extension configuration declares.
    *
    * @var array<int, string>
    */
-  protected array $behatCliConfiguredDrivers = ['drupal', 'blackbox'];
+  protected array $behatCliConfiguredBackends = ['drupal', 'blackbox'];
 
   /**
    * Body of the 'steps' section the generated configuration declares.
@@ -67,7 +67,7 @@ trait BehatCliTrait {
 
   #[BeforeScenario]
   public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->behatCliConfiguredDrivers = ['drupal', 'blackbox'];
+    $this->behatCliConfiguredBackends = ['drupal', 'blackbox'];
     $this->behatCliStepsConfig = '';
     $this->behatCliContextArguments = '';
     $this->behatCliCopyFixtures();
@@ -152,7 +152,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
 {{USE_DECLARATION}}
@@ -178,7 +178,7 @@ class FeatureContext extends WebRawContext implements UserAwareInterface {
    */
   #[AfterScenario('@test-watchdog-teardown')]
   public function testSetWatchdogErrorInTeardown() {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     \Drupal::logger('php')->log('warning', 'test');
   }
@@ -241,14 +241,14 @@ EOL;
   }
 
   /**
-   * Narrow the generated configuration's driver list.
+   * Narrow the generated configuration's backend list.
    *
    * Runs before 'some behat configuration', so a scenario can exercise a
-   * configuration that lists no in-process Drupal driver.
+   * configuration that lists no in-process Drupal backend.
    */
-  #[Given('a configuration listing the driver(s) :drivers')]
-  public function behatCliSetConfiguredDrivers(string $drivers): void {
-    $this->behatCliConfiguredDrivers = array_map(trim(...), explode(',', $drivers));
+  #[Given('a configuration listing the backend(s) :backends')]
+  public function behatCliSetConfiguredBackends(string $backends): void {
+    $this->behatCliConfiguredBackends = array_map(trim(...), explode(',', $backends));
   }
 
   /**
@@ -274,17 +274,17 @@ EOL;
   }
 
   /**
-   * Render the driver list as the PHP array literal the config holds.
+   * Render the backend list as the PHP array literal the config holds.
    */
-  protected function behatCliRenderConfiguredDrivers(): string {
-    return sprintf("['%s']", implode("', '", $this->behatCliConfiguredDrivers));
+  protected function behatCliRenderConfiguredBackends(): string {
+    return sprintf("['%s']", implode("', '", $this->behatCliConfiguredBackends));
   }
 
   /**
-   * Render the Drush driver section when the driver list names the driver.
+   * Render the Drush backend section when the backend list names the backend.
    */
-  protected function behatCliRenderDrushDriver(): string {
-    if (!in_array('drush', $this->behatCliConfiguredDrivers, TRUE)) {
+  protected function behatCliRenderDrushBackend(): string {
+    if (!in_array('drush', $this->behatCliConfiguredBackends, TRUE)) {
       return '';
     }
 
@@ -357,8 +357,8 @@ $profile = (new Profile('default'))
     ],
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
-    'drivers' => {{CONFIGURED_DRIVERS}},
-    'drupal' => ['drupal_root' => '/app/build/web'],{{DRUSH_DRIVER}}
+    'backends' => {{CONFIGURED_BACKENDS}},
+    'drupal' => ['drupal_root' => '/app/build/web'],{{DRUSH_BACKEND}}
     'steps' => {{STEPS_CONFIG}},
   ]))
   ->withExtension(new Extension(BehatScreenshotExtension::class, ['dir' => '%paths.base%/.logs/screenshots', 'purge' => FALSE, 'on_failed' => TRUE, 'always_fullscreen' => TRUE, 'info_types' => ['url', 'feature', 'step', 'datetime']])){{COVERAGE_EXTENSION}};
@@ -378,8 +378,8 @@ EOL;
 
     $content = strtr($content, [
       '{{COVERAGE_EXTENSION}}' => $coverage_extension,
-      '{{CONFIGURED_DRIVERS}}' => $this->behatCliRenderConfiguredDrivers(),
-      '{{DRUSH_DRIVER}}' => $this->behatCliRenderDrushDriver(),
+      '{{CONFIGURED_BACKENDS}}' => $this->behatCliRenderConfiguredBackends(),
+      '{{DRUSH_BACKEND}}' => $this->behatCliRenderDrushBackend(),
       '{{STEPS_CONFIG}}' => $this->behatCliRenderStepsConfig(),
       '{{CONTEXT_ARGUMENTS}}' => $this->behatCliRenderContextArguments(),
     ]);

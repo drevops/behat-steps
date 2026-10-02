@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
+use DrevOps\BehatSteps\Behat\Context\BackendAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\DocumentedOptionsContext;
@@ -3061,8 +3061,8 @@ EOD,
     // The injection points the initializer calls are withdrawn from the
     // published surface.
     $names = array_column($actual['WebRawContext']['helpers'], 'name');
-    $this->assertContains('driverFor', $names);
-    $this->assertNotContains('setDriverRegistry', $names);
+    $this->assertContains('backendFor', $names);
+    $this->assertNotContains('setBackendRegistry', $names);
     $this->assertNotContains('setParameters', $names);
 
     // A composed helper trait is published under its own name, so the context
@@ -3110,12 +3110,12 @@ EOD,
     $contracts = helper_trait_contracts(new \ReflectionClass($trait_name), [WebContext::class, DrupalContext::class]);
     $names = array_map(static fn(\ReflectionClass $contract): string => $contract->getName(), $contracts);
 
-    $this->assertSame($expected, array_values(array_intersect($names, [UserAwareInterface::class, DriverAwareInterface::class])));
+    $this->assertSame($expected, array_values(array_intersect($names, [UserAwareInterface::class, BackendAwareInterface::class])));
   }
 
   public static function dataProviderHelperTraitContracts(): \Iterator {
-    yield 'reached through a composed step trait' => [AuthTrait::class, [DriverAwareInterface::class, UserAwareInterface::class]];
-    yield 'reached through the root context' => [StringTrait::class, [DriverAwareInterface::class, UserAwareInterface::class]];
+    yield 'reached through a composed step trait' => [AuthTrait::class, [BackendAwareInterface::class, UserAwareInterface::class]];
+    yield 'reached through the root context' => [StringTrait::class, [BackendAwareInterface::class, UserAwareInterface::class]];
   }
 
   public function testHelperTraitContractsSkipsTheClassComposingNothing(): void {
@@ -3363,7 +3363,7 @@ EOD,
   public function testExtractTraitPrerequisites(): void {
     $prerequisites = extract_trait_prerequisites(DocumentedPrerequisitesContext::class, DocumentedPrerequisitesTrait::class);
 
-    $this->assertSame(['a driver in the scenario\'s list provides "CoreCapabilityInterface"', 'the "documented" module is enabled'], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->description, $prerequisites));
+    $this->assertSame(['a backend in the scenario\'s list provides "CoreCapabilityInterface"', 'the "documented" module is enabled'], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->description, $prerequisites));
   }
 
   #[DataProvider('dataProviderRenderTraitPrerequisites')]
@@ -3375,7 +3375,7 @@ EOD,
     $table = implode("\n", [
       '| Prerequisite | Capability |',
       '| --- | --- |',
-      '| A driver in the scenario\'s list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |',
+      '| A backend in the scenario\'s list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |',
       '| The "a \| b" module is enabled | `ModuleCapabilityInterface` |',
     ]);
 
@@ -3387,7 +3387,7 @@ EOD,
         [
           Prerequisite::capability(CoreCapabilityInterface::class),
           'not a prerequisite',
-          Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('a|b'), 'the "a | b" module is enabled'),
+          Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('a|b'), 'the "a | b" module is enabled'),
         ],
         '### Prerequisites' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
       ],

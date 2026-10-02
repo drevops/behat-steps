@@ -6,10 +6,10 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\Core\Entity\ContentEntityInterface;
@@ -44,7 +44,7 @@ trait ParagraphsTrait {
    */
   #[Given('the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:')]
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -72,7 +72,7 @@ trait ParagraphsTrait {
    *   Field name on the entity that references the paragraphs item.
    * @param string $paragraph_type
    *   Paragraphs item bundle name.
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub
    *   Stub with filled-in fields. Fields are merged with created
    *   paragraphs item object.
    * @param bool $save_entity
@@ -83,7 +83,7 @@ trait ParagraphsTrait {
    *   Created paragraphs item.
    */
   public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -141,11 +141,11 @@ trait ParagraphsTrait {
   /**
    * Expand parsed fields into expected field values based on field type.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStub $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub
    *   Stub object.
    */
   protected function paragraphsExpandEntityFields(EntityStub $stub): void {
-    $core = $this->driverFor(CoreCapabilityInterface::class)->getCore();
+    $core = $this->backendFor(CoreCapabilityInterface::class)->getCore();
 
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
@@ -167,7 +167,7 @@ trait ParagraphsTrait {
    *   If the field does not exist on the entity.
    */
   protected function paragraphsValidateEntityHasField(string $entity_type, string $bundle, string $field_name): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_info */
     $field_info = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);
@@ -186,7 +186,7 @@ trait ParagraphsTrait {
   protected function paragraphsPrerequisites(): array {
     return [
       Prerequisite::capability(CoreCapabilityInterface::class),
-      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('paragraphs'), 'the "paragraphs" module from the "drupal/paragraphs" package is enabled'),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('paragraphs'), 'the "paragraphs" module from the "drupal/paragraphs" package is enabled'),
     ];
   }
 

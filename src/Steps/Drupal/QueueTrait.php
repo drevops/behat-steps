@@ -11,8 +11,8 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
 
 /**
  * Manage and assert Drupal queue state.
@@ -43,7 +43,7 @@ trait QueueTrait {
       return;
     }
 
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($this->queueNames as $queue_name) {
       $queue_instance = \Drupal::service('queue')->get($queue_name);
@@ -66,7 +66,7 @@ trait QueueTrait {
    */
   #[Given('the following item is in the queue :queue:')]
   public function queueAddItem(string $queue, TableNode $fields): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $values = $fields->getRowsHash();
     $data = $values['data'] ?? '{}';
@@ -95,7 +95,7 @@ trait QueueTrait {
    */
   #[Given('the queue :queue is empty')]
   public function queueEmpty(string $queue): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
@@ -116,7 +116,7 @@ trait QueueTrait {
    */
   #[When('I process :count item(s) from the queue :queue')]
   public function queueProcessItems(int $count, string $queue): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
@@ -145,7 +145,7 @@ trait QueueTrait {
    */
   #[When('I process the queue :queue')]
   public function queueProcessAll(string $queue): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
@@ -183,7 +183,7 @@ trait QueueTrait {
    */
   #[Then('the queue :queue should have :count item(s)')]
   public function queueAssertItemCount(string $queue, int $count): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
@@ -202,7 +202,7 @@ trait QueueTrait {
    */
   #[Then('the queue :queue should be empty')]
   public function queueAssertEmpty(string $queue): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);

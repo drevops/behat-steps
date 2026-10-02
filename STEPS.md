@@ -2457,7 +2457,7 @@ Then the link "Return to site content" should not be an absolute link
 >  The transform matches the token's braces rather than a placeholder name, so
 >  one map covers every string argument without the step opting in.
 >  <br/><br/>
->  Operates on Gherkin text alone: no Mink session and no driver, so the trait
+>  Operates on Gherkin text alone: no Mink session and no backend, so the trait
 >  works in any suite.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:MappingTrait`.
@@ -3218,7 +3218,7 @@ Then the current URL should not have the query parameter "filter" with the value
 >  `uuid`. The default is `string` with length `10`, so `[?title]`,
 >  `[?title:string]` and `[?title:string,10]` share one value.
 >  <br/><br/>
->  Operates on Gherkin text alone: no Mink session and no driver, so the trait
+>  Operates on Gherkin text alone: no Mink session and no backend, so the trait
 >  works in any suite.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:RandomTrait`.
@@ -5223,7 +5223,7 @@ Then the content block type "Search" should exist
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The core "path" module is enabled, for the path alias step | `ModuleCapabilityInterface` |
 
 <details>
@@ -5471,7 +5471,7 @@ Then the "page" content with the title "Test page" should not be published
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The "draggableviews" module from the "drupal/draggableviews" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -5496,13 +5496,13 @@ When I save the draggable views items of the view "draggableviews_demo" and the 
 [Source](src/Steps/Drupal/DrushTrait.php), [Example](tests/behat/features/drupal_drush.feature)
 
 >  Run Drush commands and assert their output.
->  - Run a command with or without arguments, through the Drush driver.
+>  - Run a command with or without arguments, through the Drush backend.
 >  - Run a command that is expected to fail and keep its output.
 >  - Assert the last command's output by substring or regular expression.
 >  
->  Steps resolve the driver that can run Drush commands rather than the one at
+>  Steps resolve the backend that can run Drush commands rather than the one at
 >  the front of the scenario's order, so they work in a scenario driven by any
->  other driver as long as the suite lists a Drush-capable one.
+>  other backend as long as the suite lists a Drush-capable one.
 
 
 <details>
@@ -5632,7 +5632,7 @@ Then the drush output should match the pattern "/Drupal [0-9]+/"
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The "eck" module from the "drupal/eck" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -6509,7 +6509,7 @@ Then the "image" media with the name "Test media image" should not exist
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The core "menu_link_content" module is enabled, for the menu link steps | `ModuleCapabilityInterface` |
 
 <details>
@@ -6733,7 +6733,7 @@ Then the following modules should be disabled:
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The "paragraphs" module from the "drupal/paragraphs" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -6876,7 +6876,7 @@ Then the queue "myqueue" should be empty
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The "redirect" module from the "drupal/redirect" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -6960,7 +6960,7 @@ Then the following redirects should not exist:
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The "search_api" module from the "drupal/search_api" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -7286,7 +7286,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The "testmode" module from the "drupal/testmode" package is enabled | `ModuleCapabilityInterface` |
 
 ### Options
@@ -7799,7 +7799,7 @@ Then the user "John" should not be blocked
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The core "dblog" module is enabled | `ModuleCapabilityInterface` |
 
 ### Options
@@ -7823,7 +7823,7 @@ Then the user "John" should not be blocked
 
 | Prerequisite | Capability |
 | --- | --- |
-| A driver in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 | The "webform" module from the "drupal/webform" package is enabled | `ModuleCapabilityInterface` |
 
 <details>

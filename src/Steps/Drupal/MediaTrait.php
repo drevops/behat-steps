@@ -9,9 +9,9 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
@@ -46,7 +46,7 @@ trait MediaTrait {
    */
   #[Given('the media type :media_type does not exist')]
   public function mediaRemoveType(string $media_type): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
     if ($type_entity) {
@@ -116,7 +116,7 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media do not exist:')]
   public function mediaDelete(string $media_type, TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $storage = \Drupal::entityTypeManager()->getStorage('media');
 
@@ -182,7 +182,7 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should exist')]
   public function mediaAssertTypeExists(string $media_type): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
@@ -200,7 +200,7 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
@@ -274,7 +274,7 @@ trait MediaTrait {
   /**
    * Create a single media item.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The media item properties.
    *
    * @return \Drupal\media\MediaInterface
@@ -291,14 +291,14 @@ trait MediaTrait {
   /**
    * Create media entity.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The media entity properties.
    *
    * @return \Drupal\media\MediaInterface
    *   The created media entity.
    */
   public function mediaCreateEntity(EntityStubInterface $stub): MediaInterface {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $bundle = $stub->getBundle();
 
@@ -326,13 +326,13 @@ trait MediaTrait {
   /**
    * Expand parsed fields into expected field values based on field type.
    *
-   * Reuses the protected expansion provided by the Drupal driver core.
+   * Reuses the protected expansion provided by the Drupal backend core.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub.
    */
   protected function mediaExpandEntityFields(EntityStubInterface $stub): void {
-    $core = $this->driverFor(CoreCapabilityInterface::class)->getCore();
+    $core = $this->backendFor(CoreCapabilityInterface::class)->getCore();
 
     $class = new \ReflectionClass($core::class);
     $method = $class->getMethod('expandEntityFields');
@@ -343,7 +343,7 @@ trait MediaTrait {
   /**
    * Expand entity fields with fixture values.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub.
    */
   protected function mediaExpandEntityFieldsFixtures(EntityStubInterface $stub): void {

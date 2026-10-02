@@ -113,7 +113,7 @@ Dropping the scope also removes an asymmetry. The two tag layers used to be read
 
 ### Option resolution is a service a project can replace
 
-`WebRawContext` delegates to a `TraitOptionResolverInterface` built by the `behat_steps.config.resolver_factory` service. Registering another `TraitOptionResolverFactoryInterface` under that id replaces resolution for every context, in place of overriding the protected methods the base class used to carry. A context implementing `DriverAwareInterface` directly rather than extending `WebRawContext` adds `setOptionResolverFactory()` and `getOptionResolver()`.
+`WebRawContext` delegates to a `TraitOptionResolverInterface` built by the `behat_steps.config.resolver_factory` service. Registering another `TraitOptionResolverFactoryInterface` under that id replaces resolution for every context, in place of overriding the protected methods the base class used to carry. A context implementing `BackendAwareInterface` directly rather than extending `WebRawContext` adds `setOptionResolverFactory()` and `getOptionResolver()`.
 
 ### `getMapping()` became `mappingGetValue()`
 
@@ -633,7 +633,7 @@ $profile
   ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => 'web']]));
 ```
 
-Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. `guzzle_request_options`, `ajax_timeout` and the 3 driver-selection keys are the exceptions; see below and [Capability-based driver resolution](#capability-based-driver-resolution).
+Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. `guzzle_request_options`, `ajax_timeout` and the 3 `*_driver` keys are the exceptions; see below and [Capability-based backend resolution](#capability-based-backend-resolution).
 
 `BehatStepsExtension` registers its own factory behind `browserkit_http` with whichever Mink extension the suite registers. The factory builds every `browserkit_http` session exactly as Mink does, on Mink's own `HttpBrowser`, and records the session's options for the requests steps send from PHP, which go through 1 shared Symfony HttpClient transport. Drupal's `DrupalTestBrowser` and Guzzle are no longer used, so `guzzle_request_options` gives way to Mink's own `http_client_parameters`, which takes [Symfony HttpClient options](https://symfony.com/doc/current/http_client.html):
 
@@ -690,15 +690,15 @@ extensions:
 
 Mink's own extension declares no `ajax_timeout`, so one left under the `mink` key fails the container build with an `Unrecognized option "ajax_timeout"` error.
 
-## Capability-based driver resolution
+## Capability-based backend resolution
 
-`@api` no longer selects a driver, and the `default_driver`, `api_driver` and `drush_driver` options are replaced by one `drivers` list under `behat_steps`. That list names the drivers a scenario may reach, in precedence order, and a step resolves the driver by the capability it needs.
+`@api` no longer selects a backend, and the `default_driver`, `api_driver` and `drush_driver` options are replaced by one `backends` list under `behat_steps`. That list names the backends a scenario may reach, in precedence order, and a step resolves the backend by the capability it needs.
 
 | Before | After |
 | --- | --- |
-| `'default_driver' => 'blackbox'` | A configuration that declares no `drivers` list gets every registered driver, in registration order |
-| `'api_driver' => 'drupal'` | `'drivers' => ['drupal', 'blackbox']` |
-| `'drush_driver' => 'drush'` | Add `'drush'` to the `drivers` list |
+| `'default_driver' => 'blackbox'` | A configuration that declares no `backends` list gets every registered backend, in registration order |
+| `'api_driver' => 'drupal'` | `'backends' => ['drupal', 'blackbox']` |
+| `'drush_driver' => 'drush'` | Add `'drush'` to the `backends` list |
 | `@api` on a scenario | Nothing. A step that needs Drupal resolves `CoreCapabilityInterface` from the configured list |
 | `@drush` on a scenario | Nothing. `DrushTrait` resolves `DrushCapabilityInterface` |
 
@@ -714,30 +714,30 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 
 // After.
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
-  'drivers' => ['drupal', 'drush', 'blackbox'],
+  'backends' => ['drupal', 'drush', 'blackbox'],
   'drupal' => ['drupal_root' => 'web'],
   'drush' => ['root' => 'web'],
 ]));
 ```
 
-Every name in the list has to be a driver the extension registers, so a `drivers` entry keeps company with the settings block that registers it: `drupal` needs `drupal:`, `drush` needs `drush:`, and `blackbox` is always registered. Naming one without its block fails the container build.
+Every name in the list has to be a backend the extension registers, so a `backends` entry keeps company with the settings block that registers it: `drupal` needs `drupal:`, `drush` needs `drush:`, and `blackbox` is always registered. Naming one without its block fails the container build.
 
-Then remove `@api` from every scenario and feature. It is not a tag of this package any more, and a configuration that lists a Drupal driver reaches Drupal without it.
+Then remove `@api` from every scenario and feature. It is not a tag of this package any more, and a configuration that lists a Drupal backend reaches Drupal without it.
 
-To run one scenario against a different driver, tag it `@driver:NAME`, where `NAME` is a name the `drivers` list holds. The tag moves that driver to the front of the scenario's order; it never adds a driver the list does not hold. A name outside the list fails at scenario start.
+To run one scenario against a different backend, tag it `@backend:NAME`, where `NAME` is a name the `backends` list holds. The tag moves that backend to the front of the scenario's order; it never adds a backend the list does not hold. A name outside the list fails at scenario start.
 
-An entry may be keyed, so a profile can swap the implementation behind a name without editing any Gherkin: `'drivers' => ['api' => 'drupal', 'blackbox']` in one profile and `'drivers' => ['api' => 'acme-jsonapi', 'blackbox']` in another both answer `@driver:api`. Restricting a run to a narrower driver set is a profile's job - the package reads nothing from a Behat suite's settings.
+An entry may be keyed, so a profile can swap the implementation behind a name without editing any Gherkin: `'backends' => ['api' => 'drupal', 'blackbox']` in one profile and `'backends' => ['api' => 'acme-jsonapi', 'blackbox']` in another both answer `@backend:api`. Restricting a run to a narrower backend set is a profile's job - the package reads nothing from a Behat suite's settings.
 
 ```gherkin
-@driver:drush
+@backend:drush
 Scenario: The cache is cleared over the command line
   Given the cache is empty
 ```
 
 Two consequences are worth checking in an existing project:
 
-- **A step that used to fail for a missing `@api` now succeeds.** The tag no longer gates anything, so a scenario that reached a Drupal step without it used to throw and now runs. Where that gate was load-bearing, run those scenarios under a profile whose `drivers` list excludes the Drupal driver.
-- **`RawContext::assertDrupal()` is gone.** A custom step that called it calls `$this->driverFor(CoreCapabilityInterface::class);` instead. `RawContext::getDriver()` now takes a name and no longer defaults to "the current driver"; a call with no argument becomes `driverFor()` naming the capability the caller needs.
+- **A step that used to fail for a missing `@api` now succeeds.** The tag no longer gates anything, so a scenario that reached a Drupal step without it used to throw and now runs. Where that gate was load-bearing, run those scenarios under a profile whose `backends` list excludes the Drupal backend.
+- **`RawContext::assertDrupal()` is gone.** A custom step that called it calls `$this->backendFor(CoreCapabilityInterface::class);` instead. `RawContext::getDriver()` becomes `WebRawContext::getBackend()`, which takes a name and no longer defaults to "the current driver"; a call with no argument becomes `backendFor()` naming the capability the caller needs.
 
 ## DrupalExtension step text mapped to the v4 vocabulary
 
@@ -940,7 +940,7 @@ Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchan
 
 ## Unified entity cleanup
 
-Every entity a creation step or the driver creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleCleanAll` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+Every entity a creation step or the backend creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleCleanAll` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
 
 An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityLifecycleRegister($entity)`. Without that call the entity survives the scenario.
 
@@ -1090,7 +1090,7 @@ There is no way to remove an inherited step, so a Drupal project cannot take the
 
 Scoped configuration follows the chain. `WebContext` accepts the `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics` groups, and `DrupalContext` accepts those plus `watchdog`, `big_pipe`, `cache`, `queue` and `email`. A group no trait in the chain declares is an error at construction, naming what that context does accept.
 
-`DrupalContext` composes `WatchdogTrait`, so a suite that registers it fails any scenario that logs a PHP error, even if your v3 context never composed the trait. The check reads the `watchdog` table, which only the core `dblog` module creates, and it reads it in the Behat process, so it needs a driver such as `drupal`. On a site without `dblog`, or under a profile that lists no such driver, such as `'drivers' => ['drush', 'blackbox']`, every scenario fails at its start until you meet the prerequisite or switch the check off for the profile:
+`DrupalContext` composes `WatchdogTrait`, so a suite that registers it fails any scenario that logs a PHP error, even if your v3 context never composed the trait. The check reads the `watchdog` table, which only the core `dblog` module creates, and it reads it in the Behat process, so it needs a backend such as `drupal`. On a site without `dblog`, or under a profile that lists no such backend, such as `'backends' => ['drush', 'blackbox']`, every scenario fails at its start until you meet the prerequisite or switch the check off for the profile:
 
 ```php
 'steps' => ['watchdog' => ['enabled' => FALSE]],
@@ -1100,19 +1100,19 @@ Setting `fail_on_errors` to `FALSE` or tagging a scenario `@error` doesn't cover
 
 ## Traits declare the host they need
 
-Every trait that reaches beyond its own methods states what it needs from its host. A web trait carries `@phpstan-require-extends`, naming `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reads the driver or the extension configuration. A Drupal trait carries the same annotation and composes the helper traits its body calls, rather than requiring them of its host.
+Every trait that reaches beyond its own methods states what it needs from its host. A web trait carries `@phpstan-require-extends`, naming `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reads a backend or the extension configuration. A Drupal trait carries the same annotation and composes the helper traits its body calls, rather than requiring them of its host.
 
 Composition is unchanged at run time, but a project running PHPStan gets an error when a context uses a trait without extending the class or declaring the interface that trait needs. The fix is to extend the named class and declare the named interface, which is what the trait already assumed.
 
 ## A trait declares its prerequisites
 
-A trait states what it needs from the site in a `<prefix>Prerequisites()` method, named like its `<prefix>ConfigSchema()`, and each prerequisite goes through a driver capability rather than a query of its own. The module checks the step traits ran through `queryAssertModuleEnabled()` moved onto these declarations, and [STEPS.md](STEPS.md) lists each trait's prerequisites beside its options.
+A trait states what it needs from the site in a `<prefix>Prerequisites()` method, named like its `<prefix>ConfigSchema()`, and each prerequisite goes through a backend capability rather than a query of its own. The module checks the step traits ran through `queryAssertModuleEnabled()` moved onto these declarations, and [STEPS.md](STEPS.md) lists each trait's prerequisites beside its options.
 
 ```php
 protected function acmePrerequisites(): array {
   return [
     Prerequisite::capability(CoreCapabilityInterface::class),
-    Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('acme'), 'the "acme" module from the "drupal/acme" package is enabled'),
+    Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('acme'), 'the "acme" module from the "drupal/acme" package is enabled'),
   ];
 }
 ```
@@ -1122,7 +1122,7 @@ A step or a setup hook checks them with `$this->assertPrerequisites(__TRAIT__)`,
 | Before | After |
 | --- | --- |
 | `$this->queryAssertModuleEnabled('acme', 'drupal/acme')` in a step | Declare the module in `<prefix>Prerequisites()` and call `$this->assertPrerequisites(__TRAIT__)` |
-| `\Drupal::moduleHandler()->moduleExists('acme')` to adapt to an optional module | `$this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('acme')` |
+| `\Drupal::moduleHandler()->moduleExists('acme')` to adapt to an optional module | `$this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('acme')` |
 
 The message for a missing module changes with it. `The "webform" module is not enabled. Add "drupal/webform" to the consumer project's composer.json and enable the module as part of the site setup.` becomes `WebformTrait requires that the "webform" module from the "drupal/webform" package is enabled, which does not hold.`, so a test asserting the old text needs the new one.
 
@@ -1236,6 +1236,7 @@ Assertion steps used to throw whatever their trait happened to reach for: `Expec
 | An expected element, field, link or selector is missing | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
 | Anything that is not an assertion - an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
 | A step needs a driver capability the current driver lacks | `Behat\Mink\Exception\UnsupportedDriverActionException` |
+| No backend the scenario lists provides a capability the step needs | `DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException`, a `\RuntimeException` |
 
 `ExpectationException` requires a browser driver as its second constructor argument, so traits that never touch the browser cannot construct it. Those traits throw `AssertionException` instead, which carries the same meaning without the dependency.
 
@@ -1287,16 +1288,16 @@ If your project catches an exception from one of these steps, update the type:
 | `the meta tag should exist with the following attributes:` | `Meta tag with specified attributes was not found: {...}.` | `Meta tag with attributes "{...}" not found.` |
 | `the meta tag :name should not contain any HTML tags` | `Meta tag with name or property "..." not found.` | `Meta tag with name\|property "..." not found.` |
 
-The same rule now covers the driver layer and the Behat services under `src/Behat`, which used to throw `\InvalidArgumentException` and plain `\Exception` for an invalid argument or an unmet prerequisite. If your project calls the driver or one of those services directly and catches on the type, update it:
+The same rule now covers the backend layer and the Behat services under `src/Behat`, which used to throw `\InvalidArgumentException` and plain `\Exception` for an invalid argument or an unmet prerequisite. If your project calls a backend or one of those services directly and catches on the type, update it:
 
 | Class | Was | Now |
 | --- | --- | --- |
-| `Driver\Core\Core` (an unknown entity type, bundle, vocabulary, user, language, severity or handler class) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
-| `Driver\Core\Field\*Handler` (a malformed field value, an unreadable file, a missing referenced entity) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
-| `Behat\Manager\DriverRegistry::getDriver()` and `setScenarioDrivers()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Backend\Core\Core` (an unknown entity type, bundle, vocabulary, user, language, severity or handler class) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
+| `Backend\Core\Field\*Handler` (a malformed field value, an unreadable file, a missing referenced entity) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
+| `Behat\Manager\BackendRegistry::getBackend()` and `setScenarioBackends()` | `\InvalidArgumentException` | `\RuntimeException` |
 | `Behat\Manager\UserRegistry::getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
 | `Behat\Selector\RegionSelector::translateToXPath()` | `\InvalidArgumentException` | `\RuntimeException` |
-| `Driver\Exception\CreationAliasResolutionException` | extends `\InvalidArgumentException` | extends `Driver\Exception\Exception` |
+| `Backend\Exception\CreationAliasResolutionException` | extends `\InvalidArgumentException` | extends `Backend\Exception\Exception` |
 
 `CreationAliasResolutionException` is no longer a `\LogicException`, so a `catch (\InvalidArgumentException)` or `catch (\LogicException)` no longer catches it; catch the class itself.
 
@@ -1609,7 +1610,7 @@ A method that fails with an assertion exception is named as an assertion, whethe
 
 | Old | Role | New |
 | --- | --- | --- |
-| `Behat\Manager\DriverManager` | registers drivers, resolves one by capability, tracks the scenario's order | `Behat\Manager\DriverRegistry` |
+| `Behat\Manager\DriverManager` | registers backends, resolves one by capability, tracks the scenario's order | `Behat\Manager\BackendRegistry` |
 | `Behat\Manager\UserManager` | stores the users a scenario created, tracks the current one | `Behat\Manager\UserRegistry` |
 | `Behat\Manager\AuthenticationManager` | logs a user in and out, holds a Drupal session | `Behat\Manager\Authenticator` |
 | `Behat\Manager\BasicAuthManager` | derives credentials from `base_url`, applies them to Mink | `Behat\Manager\BasicAuthenticator` |
@@ -1618,21 +1619,21 @@ Each interface travels with its class:
 
 | Old | New |
 | --- | --- |
-| `DriverManagerInterface` | `DriverRegistryInterface` |
+| `DriverManagerInterface` | `BackendRegistryInterface` |
 | `UserManagerInterface` | `UserRegistryInterface` |
 | `AuthenticationManagerInterface` | `AuthenticatorInterface` |
 | `BasicAuthInterface` | `BasicAuthenticatorInterface` |
 
 `FastLogoutInterface` keeps its name. It describes a capability rather than a role.
 
-A context implements `DriverAwareInterface` or `UserAwareInterface`, so the 8 accessors those interfaces declare are renamed too. A project that composes `AuthTrait` or extends any shipped context inherits the new names for free; one that calls them from its own step definitions renames the calls.
+A context implements `BackendAwareInterface` or `UserAwareInterface`, so the 8 accessors those interfaces declare are renamed too. A project that composes `AuthTrait` or extends any shipped context inherits the new names for free; one that calls them from its own step definitions renames the calls.
 
 | Interface | Old | New |
 | --- | --- | --- |
-| `DriverAwareInterface` | `setDriverManager()` | `setDriverRegistry()` |
-| `DriverAwareInterface` | `getDriverManager()` | `getDriverRegistry()` |
-| `DriverAwareInterface` | `setBasicAuthManager()` | `setBasicAuthenticator()` |
-| `DriverAwareInterface` | `getBasicAuthManager()` | `getBasicAuthenticator()` |
+| `BackendAwareInterface` | `setDriverManager()` | `setBackendRegistry()` |
+| `BackendAwareInterface` | `getDriverManager()` | `getBackendRegistry()` |
+| `BackendAwareInterface` | `setBasicAuthManager()` | `setBasicAuthenticator()` |
+| `BackendAwareInterface` | `getBasicAuthManager()` | `getBasicAuthenticator()` |
 | `UserAwareInterface` | `authSetUserManager()` | `authSetUserRegistry()` |
 | `UserAwareInterface` | `authGetUserManager()` | `authGetUserRegistry()` |
 | `UserAwareInterface` | `authSetManager()` | `authSetAuthenticator()` |
@@ -1642,7 +1643,7 @@ The service ids and the `*.class` parameters that let a suite swap an implementa
 
 | Old | New |
 | --- | --- |
-| `behat_steps.driver_manager` | `behat_steps.driver_registry` |
+| `behat_steps.driver_manager` | `behat_steps.backend_registry` |
 | `behat_steps.user_manager` | `behat_steps.user_registry` |
 | `behat_steps.authentication_manager` | `behat_steps.authenticator` |
 | `behat_steps.basic_auth_manager` | `behat_steps.basic_authenticator` |
@@ -1651,28 +1652,28 @@ The service ids and the `*.class` parameters that let a suite swap an implementa
 
 `MailManager` forwarded to `MailCapabilityInterface` and added nothing: `stopCollectingMail()` called `mailStopCollecting()`, `getMail()` called `mailGet()`, `clearMail()` called `mailClear()`, and `startCollectingMail()` called `mailStartCollecting()` and then cleared. Nothing registered it as a service, and `EmailTrait` resolves `CoreCapabilityInterface` directly rather than asking for the mail capability at all, which is why the class was never wired.
 
-That is the general rule, not a one-off: a class that only wraps a capability interface is not written, because the capability interface already is the abstraction. A trait reaches a capability through `driverFor(SomeCapabilityInterface::class)` on `WebRawContext`.
+That is the general rule, not a one-off: a class that only wraps a capability interface is not written, because the capability interface already is the abstraction. A trait reaches a capability through `backendFor(SomeCapabilityInterface::class)` on `WebRawContext`.
 
 A project that constructed `MailManager` itself calls the capability instead:
 
 ```php
 // Before.
-$mail = new MailManager($driver);
+$mail = new MailManager($backend);
 $mail->startCollectingMail();
 $messages = $mail->getMail();
 
 // After.
-$driver = $this->driverFor(MailCapabilityInterface::class);
-$driver->mailStartCollecting();
-$driver->mailClear();
-$messages = $driver->mailGet();
+$backend = $this->backendFor(MailCapabilityInterface::class);
+$backend->mailStartCollecting();
+$backend->mailClear();
+$messages = $backend->mailGet();
 ```
 
 `MailManagerInterface` is removed with the class.
 
 ## Capabilities of the browser driver
 
-The Drupal half of the vocabulary resolves its drivers by capability. The browser half now does the same: a step names the capability it needs and never a browser driver, so a project registering its own browser driver gets the shipped steps working as soon as it registers an adapter declaring that capability.
+The Drupal half of the vocabulary resolves its backends by capability. The browser half now does the same: a step names the capability it needs and never a browser driver, so a project registering its own browser driver gets the shipped steps working as soon as it registers an adapter declaring that capability.
 
 `DrevOps\BehatSteps\Behat\Mink\Capability` holds the 5 interfaces, and `DrevOps\BehatSteps\Behat\Mink\Adapter` holds 1 adapter per shipped browser driver family. A browser driver comes from another package, so an adapter declares the capabilities on its behalf rather than the browser driver implementing them.
 
@@ -1754,9 +1755,9 @@ The download timeout moves from a hardcoded 120 seconds to the `file_download.ti
 
 ## Drupal capabilities cover the config, module and state steps
 
-The config, module and state steps resolved `CoreCapabilityInterface` - "bootstrap Drupal in this process" - and then reached into the container, so they ran only on the in-process driver. They now name the capability they need and run on any driver providing it, including Drush.
+The config, module and state steps resolved `CoreCapabilityInterface` - "bootstrap Drupal in this process" - and then reached into the container, so they ran only on the in-process backend. They now name the capability they need and run on any backend providing it, including Drush.
 
-A project with its own driver implementing these capabilities adds the methods below. A project using only the shipped drivers needs no change.
+A project with its own backend implementing these capabilities adds the methods below. A project using only the shipped backends needs no change.
 
 | Interface | Added |
 | --- | --- |
@@ -1764,9 +1765,9 @@ A project with its own driver implementing these capabilities adds the methods b
 | `ModuleCapabilityInterface` | `moduleIsEnabled()`, `moduleIsPresent()` |
 | `StateCapabilityInterface` | New: `stateGet()`, `stateSet()`, `stateDelete()`, `stateExists()` |
 
-### The Drush driver stores config values correctly
+### The Drush backend stores config values correctly
 
-`DrushDriver::configSet()` asked Drush for `--input-format=json`, which `drush config:set` does not parse - only `yaml` does. Every value the driver wrote was stored as its own JSON encoding, so a string landed with its quotes around it and an array landed as a JSON string rather than an array. A project that seeded config through the Drush driver and worked around the mangled values can drop the workaround.
+`DrushBackend::configSet()` asked Drush for `--input-format=json`, which `drush config:set` does not parse - only `yaml` does. Every value the backend wrote was stored as its own JSON encoding, so a string landed with its quotes around it and an array landed as a JSON string rather than an array. A project that seeded config through the Drush backend and worked around the mangled values can drop the workaround.
 
 Two smaller corrections come with it. A keyed `configGet()` returned Drush's `{"<name>:<key>": value}` envelope instead of the value. And `configGetOriginal()` was the same call as `configGet()`, so the stored and effective reads the config steps distinguish collapsed into one; the effective read now passes `--include-overridden` and the stored read does not.
 
@@ -1837,7 +1838,7 @@ Replace each hook-method tag with its trait's:
 | `@behat-steps-skip:fileDownloadBeforeScenario` | `@behat-steps-skip:FileDownloadTrait` |
 | `@behat-steps-skip:moduleAfterScenario` | `@behat-steps-skip:ModuleTrait` |
 | `@behat-steps-skip:moduleBeforeScenario` | `@behat-steps-skip:ModuleTrait` |
-| `@behat-steps-skip:overrideBootstrapDrupal` | Remove it. `OverrideTrait` is gone, and a step bootstraps Drupal through the driver it resolves. |
+| `@behat-steps-skip:overrideBootstrapDrupal` | Remove it. `OverrideTrait` is gone, and a step bootstraps Drupal through the backend it resolves. |
 | `@behat-steps-skip:queueAfterScenario` | `@behat-steps-skip:QueueTrait` |
 | `@behat-steps-skip:restBeforeScenario` | `@behat-steps-skip:RestTrait` |
 | `@behat-steps-skip:stateAfterScenario` | `@behat-steps-skip:StateTrait` |
@@ -1913,3 +1914,186 @@ A tag on the `Feature:` line that used to do nothing now acts on every scenario 
 - `@download` and `@debug`: the download directory is prepared around every scenario, and every `@email` scenario prints the messages it reads.
 
 A tag that was only meant for some of the scenarios in a feature moves down onto those scenarios.
+
+## Drupal, Drush and Blackbox are backends, not drivers
+
+Mink owns the word "driver" across the Behat ecosystem, and this package used it for a second thing: the Drupal, Drush and Blackbox backends a step resolves a capability from. So `$this->getDriver('drupal')` and `$this->getSession()->getDriver()` returned 2 unrelated objects, and only a naming rule told them apart. The backends now carry their own name, and "driver" in this package only ever means Mink's browser driver.
+
+Apart from 1 removed interface, it's a rename: behaviour stays the same, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name, so nothing keeps running against the old names by accident.
+
+### Configuration and tags
+
+The `drivers` list is now the `backends` list, and the `@driver:` tag is now the `@backend:` tag. The entries and the names they carry stay the same.
+
+```php
+// Before.
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'drivers' => ['api' => 'drupal', 'drush', 'blackbox'],
+  'drupal' => ['drupal_root' => 'web'],
+  'drush' => ['root' => 'web'],
+]));
+
+// After.
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'backends' => ['api' => 'drupal', 'drush', 'blackbox'],
+  'drupal' => ['drupal_root' => 'web'],
+  'drush' => ['root' => 'web'],
+]));
+```
+
+In `behat.yml`:
+
+```yaml
+# Before.
+default:
+  extensions:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+      drivers: [drupal, drush, blackbox]
+
+# After.
+default:
+  extensions:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+      backends: [drupal, drush, blackbox]
+```
+
+In feature files:
+
+```gherkin
+# Before.
+@driver:drush
+Scenario: The cache is cleared over the command line
+
+# After.
+@backend:drush
+Scenario: The cache is cleared over the command line
+```
+
+Neither old name is quietly ignored. A `drivers` key fails the container build:
+
+```
+The "drivers" setting under "behat_steps" moved to "backends". Rename the key; its entries are unchanged.
+```
+
+A `@driver:` tag on a scenario or on its feature fails the scenario at its start:
+
+```
+The "@driver:drush" tag moved to "@backend:drush". Rename the tag; the name it carries is unchanged.
+```
+
+`grep -rn '@driver:' <your features directory>` lists every tag that needs the rename.
+
+### Namespaces, classes and interfaces
+
+Everything under `DrevOps\BehatSteps\Driver` moved to `DrevOps\BehatSteps\Backend`. The capability interfaces, `Core`, the field handlers, `EntityStub` and the creation aliases keep their own names, so for them the namespace is the whole change:
+
+```php
+// Before.
+use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+
+// After.
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+```
+
+The names that said "driver" change as well:
+
+| Before | After |
+| --- | --- |
+| `Driver\DriverInterface` | `Backend\BackendInterface` |
+| `Driver\DrupalDriver` | `Backend\DrupalBackend` |
+| `Driver\DrupalDriverInterface` | `Backend\DrupalBackendInterface` |
+| `Driver\DrushDriver` | `Backend\DrushBackend` |
+| `Driver\DrushDriverInterface` | `Backend\DrushBackendInterface` |
+| `Driver\BlackboxDriver` | `Backend\BlackboxBackend` |
+| `Driver\BlackboxDriverInterface` | `Backend\BlackboxBackendInterface` |
+| `Driver\Exception\UnsupportedDriverActionException` | `Backend\Exception\UnsupportedBackendActionException` |
+| `Behat\Manager\DriverRegistry` | `Behat\Manager\BackendRegistry` |
+| `Behat\Manager\DriverRegistryInterface` | `Behat\Manager\BackendRegistryInterface` |
+| `Behat\Context\DriverAwareInterface` | `Behat\Context\BackendAwareInterface` |
+| `Behat\Context\Initializer\DriverAwareInitializer` | `Behat\Context\Initializer\BackendAwareInitializer` |
+| `Behat\Listener\DriverListener` | `Behat\Listener\BackendListener` |
+| `Behat\ServiceContainer\DriverPass` | `Behat\ServiceContainer\BackendPass` |
+
+`BackendInterface` and `UnsupportedBackendActionException` no longer share a short name with Mink's `DriverInterface` and `UnsupportedDriverActionException`, so a file that imported Mink's under an alias to tell a pair apart can drop the alias.
+
+A Drupal core of your own for one Drupal major is looked up as `DrevOps\BehatSteps\Backend\Core{N}\Core`, where `{N}` is the major version, so a class in the old namespace moves with the rest.
+
+`Driver\SubDriverFinderInterface` and `DrupalDriver::getSubDriverPaths()` are gone. They served the Drupal Extension's subcontext discovery, which this package doesn't do. Code that read the extension paths asks the in-process backend's core:
+
+```php
+// Before.
+$paths = $this->getDriver('drupal')->getSubDriverPaths();
+
+// After.
+$paths = $this->backendFor(CoreCapabilityInterface::class)->getCore()->getExtensionPathList();
+```
+
+### Methods and constants
+
+| Class | Before | After |
+| --- | --- | --- |
+| `WebRawContext` | `driverFor()` | `backendFor()` |
+| `WebRawContext` | `anyDriverFor()` (protected) | `anyBackendFor()` |
+| `WebRawContext` | `getDriver()` | `getBackend()` |
+| `WebRawContext`, `BackendAwareInterface` | `getDriverRegistry()` | `getBackendRegistry()` |
+| `WebRawContext`, `BackendAwareInterface` | `setDriverRegistry()` | `setBackendRegistry()` |
+| `BackendRegistryInterface` | `registerDriver()` | `registerBackend()` |
+| `BackendRegistryInterface` | `getDrivers()` | `getBackends()` |
+| `BackendRegistryInterface` | `getDriver()` | `getBackend()` |
+| `BackendRegistryInterface` | `getDriverFor()` | `getBackendFor()` |
+| `BackendRegistryInterface` | `getResolvedDriverFor()` | `getResolvedBackendFor()` |
+| `BackendRegistryInterface` | `setScenarioDrivers()` | `setScenarioBackends()` |
+| `BackendRegistryInterface` | `getScenarioDrivers()` | `getScenarioBackends()` |
+| `Backend\Exception\Exception` | `getDriver()` | `getBackend()` |
+| `BackendListener` | `prepareScenarioDrivers()` | `prepareScenarioBackends()` |
+| `BackendListener` | `configuredDrivers()` (protected) | `configuredBackends()` |
+| `BackendListener` | `promotedDrivers()` (protected) | `promotedBackends()` |
+| `BackendListener` | `DRIVER_TAG_PREFIX` | `BACKEND_TAG_PREFIX` |
+| `BackendPass` | `DRIVER_TAG` | `BACKEND_TAG` |
+| `BehatStepsExtension` | `DRIVERS_PARAMETER` | `BACKENDS_PARAMETER` |
+| `BehatStepsExtension` | `processDriverPass()` (protected) | `processBackendPass()` |
+| `BehatStepsExtension` | `processDrivers()` (protected) | `processBackends()` |
+| `BehatStepsExtension` | `validateDriverEntry()` (protected) | `validateBackendEntry()` |
+| `Steps\Drupal\DrushTrait` | `drushGetDriver()` | `drushGetBackend()` |
+| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleGetContentDriver()` (protected) | `entityLifecycleGetContentBackend()` |
+
+A parameter named `$driver` that held a backend is now `$backend`. That only matters to a call that passes it by name, such as `userAssignRoles(driver: ...)`.
+
+### Service ids and parameters
+
+| Before | After |
+| --- | --- |
+| `behat_steps.driver_registry` | `behat_steps.backend_registry` |
+| `behat_steps.driver.drupal` | `behat_steps.backend.drupal` |
+| `behat_steps.driver.drush` | `behat_steps.backend.drush` |
+| `behat_steps.driver.blackbox` | `behat_steps.backend.blackbox` |
+| `behat_steps.driver.core` | `behat_steps.backend.core` |
+| `behat_steps.driver.random` | `behat_steps.backend.random` |
+| `behat_steps.listener.driver` | `behat_steps.listener.backend` |
+| The `behat_steps.driver` service tag | The `behat_steps.backend` service tag |
+| `behat_steps.drivers` | `behat_steps.backends` |
+
+The parameters follow their service: `behat_steps.driver_registry.class` becomes `behat_steps.backend_registry.class`, `behat_steps.driver.drush.binary` becomes `behat_steps.backend.drush.binary`, and so on for every `.class`, `drupal_root`, `alias`, `binary` and `root` parameter. Unlike the configuration key, a parameter under its old name isn't rejected - it's just never read again - so a suite that swaps an implementation through one should check it renamed it.
+
+A backend of your own registers by tagging its service `behat_steps.backend`, with the name it answers to as the alias:
+
+```yaml
+# Before.
+tags:
+  - { name: behat_steps.driver, alias: acme-jsonapi }
+
+# After.
+tags:
+  - { name: behat_steps.backend, alias: acme-jsonapi }
+```
+
+### Messages
+
+A failure that names the concept now says "backend", so a test that asserts one of these messages needs the new text:
+
+| Before | After |
+| --- | --- |
+| `No driver provides "...". Drivers available to this scenario, in order: ...` | `No backend provides "...". Backends available to this scenario, in order: ...` |
+| `... requires that a driver in the scenario's list provides "...", which does not hold.` | `... requires that a backend in the scenario's list provides "...", which does not hold.` |
+| `The "@driver:..." tag names a driver that the configured driver list does not hold.` | `The "@backend:..." tag names a backend that the configured backend list does not hold.` |
+| `Driver "..." is not registered. Registered drivers: ...` | `Backend "..." is not registered. Registered backends: ...` |

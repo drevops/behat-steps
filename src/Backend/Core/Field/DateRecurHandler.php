@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Backend\Core\Field;
+
+/**
+ * Field handler for 'date_recur' fields (date_recur contrib module).
+ *
+ * The base normalize() folds the bare-scalar 'value' shorthand and keyed
+ * multi-column records ('value', 'end_value', 'rrule', 'timezone',
+ * 'infinite'). The 'value' and 'end_value' columns are stored verbatim and
+ * interpreted in the record's own 'timezone' (not UTC), and the field type's
+ * preSave() derives 'infinite' from the rrule. The handler therefore relays
+ * the multi-column records through unchanged.
+ *
+ * @see https://www.drupal.org/project/date_recur
+ */
+class DateRecurHandler extends AbstractHandler {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function doExpand(array $records): array {
+    return $records;
+  }
+
+}

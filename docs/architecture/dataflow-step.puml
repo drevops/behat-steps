@@ -4,9 +4,9 @@
 ' src/Steps/Drupal/WatchdogTrait.php, src/Behat/Prerequisite/,
 ' src/Behat/Context/WebRawContext.php, WebContext.php,
 ' src/Helper/Drupal/EntityLifecycleTrait.php, src/Helper/Drupal/AuthTrait.php,
-' DrupalContext.php, src/Behat/Manager/DriverRegistry.php,
+' DrupalContext.php, src/Behat/Manager/BackendRegistry.php,
 ' src/Behat/Listener/SkipTagListener.php,
-' src/Behat/Listener/DriverListener.php, src/Driver/DrupalDriver.php, behat.php.
+' src/Behat/Listener/BackendListener.php, src/Backend/DrupalBackend.php, behat.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -19,9 +19,9 @@ participant "Behat" as Behat
 participant "WebContext\nDrupalContext" as Ctx
 participant "Step trait method" as Trait
 participant "SkipTagListener" as SkipListener
-participant "DriverListener" as Listener
-participant "DriverRegistry" as DM
-participant "Driver\nDrupal, Drush or Blackbox" as Driver
+participant "BackendListener" as Listener
+participant "BackendRegistry" as Registry
+participant "Backend\nDrupal, Drush or Blackbox" as Backend
 participant "Mink session" as Mink
 
 Behat -> SkipListener: BeforeScenarioTested
@@ -35,11 +35,15 @@ deactivate SkipListener
 
 Behat -> Listener: BeforeScenarioTested
 activate Listener
-Listener -> Listener: take the configured drivers list,\npromote every "@driver:" tag
-Listener -> DM: setScenarioDrivers(order)
+alt the scenario or its feature carries a "@driver:" tag
+  Listener -> Behat: throw RuntimeException naming\nthe "@backend:" tag to use instead
+else
+  Listener -> Listener: take the configured backends list,\npromote every "@backend:" tag
+  Listener -> Registry: setScenarioBackends(order)
+end
 deactivate Listener
 
-Behat -> Ctx: instantiate each registered context,\ninject the services via DriverAwareInitializer
+Behat -> Ctx: instantiate each registered context,\ninject the services via BackendAwareInitializer
 activate Ctx
 Behat -> Ctx: scan the Given, When and Then step attributes
 note right of Behat: attributes inherited\nthrough "use" are\nfound too
@@ -50,14 +54,14 @@ Behat -> Ctx: BeforeScenario
 activate Ctx
 Ctx -> Ctx: each hook asks skipTag() for its own trait,\nand returns on the trait's skip tag or enabled = FALSE
 opt the hook's trait declares prerequisites
-  Ctx -> DM: assertPrerequisites(): hasCapability(), then the\ndriver already reached, else the first one listed
-  activate DM
-  DM --> Ctx: a driver providing each capability
-  deactivate DM
-  Ctx -> Driver: each check, e.g. moduleIsEnabled("dblog")
-  activate Driver
-  Driver --> Ctx: holds or not
-  deactivate Driver
+  Ctx -> Registry: assertPrerequisites(): hasCapability(), then the\nbackend already reached, else the first one listed
+  activate Registry
+  Registry --> Ctx: a backend providing each capability
+  deactivate Registry
+  Ctx -> Backend: each check, e.g. moduleIsEnabled("dblog")
+  activate Backend
+  Backend --> Ctx: holds or not
+  deactivate Backend
   alt one does not hold
     Ctx -> Behat: throw, naming the prerequisite and the\nswitches; the scenario fails, its steps are skipped
   end
@@ -75,22 +79,22 @@ alt the step only needs the browser
   Mink --> Trait: current URL
   deactivate Mink
 else the step needs Drupal
-  Trait -> DM: driverFor(ContentCapabilityInterface)
-  activate DM
-  alt a driver in the scenario's order implements it
-    DM -> Driver: bootstrap, the first time only
-    DM --> Trait: that driver
+  Trait -> Registry: backendFor(ContentCapabilityInterface)
+  activate Registry
+  alt a backend in the scenario's order implements it
+    Registry -> Backend: bootstrap, the first time only
+    Registry --> Trait: that backend
   else none does
-    DM -> Trait: throw UnsupportedDriverActionException
+    Registry -> Trait: throw UnsupportedBackendActionException
   end
-  deactivate DM
+  deactivate Registry
   opt the step's trait declares prerequisites
     Trait -> Ctx: assertPrerequisites() for its own trait, the same\nchecks, run only when a scenario uses the step
   end
-  Trait -> Driver: the capability call, e.g. nodeCreate(stub)
-  activate Driver
-  Driver --> Trait: result
-  deactivate Driver
+  Trait -> Backend: the capability call, e.g. nodeCreate(stub)
+  activate Backend
+  Backend --> Trait: result
+  deactivate Backend
 end
 
 alt assertion holds
@@ -108,6 +112,6 @@ activate Ctx
 Ctx -> Ctx: each hook asks skipTag() for its own trait,\nand returns on the trait's skip tag or enabled = FALSE
 Ctx -> Ctx: a teardown asks prerequisitesMet() and returns when\none does not hold, so it never replaces a recorded failure
 Ctx -> Ctx: EntityLifecycleTrait runs entityLifecycleCleanAll,\nAuthTrait authCleanUsers and authCleanRoles
-Ctx -> Driver: delete what the scenario created
+Ctx -> Backend: delete what the scenario created
 deactivate Ctx
 @enduml

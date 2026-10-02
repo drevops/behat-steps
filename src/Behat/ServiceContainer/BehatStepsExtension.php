@@ -23,7 +23,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Behat extension wiring the driver layer, its services and hooks into a suite.
+ * Behat extension wiring the backend layer, services and hooks into a suite.
  */
 class BehatStepsExtension implements ExtensionInterface {
 
@@ -33,9 +33,9 @@ class BehatStepsExtension implements ExtensionInterface {
   public const CONFIG_KEY = 'behat_steps';
 
   /**
-   * Container parameter holding the configured ordered driver list.
+   * Container parameter holding the configured ordered backend list.
    */
-  public const DRIVERS_PARAMETER = 'behat_steps.drivers';
+  public const BACKENDS_PARAMETER = 'behat_steps.backends';
 
   /**
    * Service ID of the transport the detached and bare browsers send through.
@@ -81,8 +81,8 @@ class BehatStepsExtension implements ExtensionInterface {
    * {@inheritdoc}
    */
   public function process(ContainerBuilder $container): void {
-    $this->processDriverPass($container);
-    $this->processDrivers($container);
+    $this->processBackendPass($container);
+    $this->processBackends($container);
     $this->processClassGenerator($container);
     $this->processHttpClient($container);
   }
@@ -94,9 +94,13 @@ class BehatStepsExtension implements ExtensionInterface {
     // @formatter:off
     // phpcs:disable
     $builder
+      ->beforeNormalization()
+        ->ifArray()
+        ->then(static fn(array $config): array => static::rejectRenamedKeys($config))
+      ->end()
       ->children()
-        ->arrayNode('drivers')
-          ->info('Ordered list of the drivers a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first driver here providing it answers. A bare entry names a registered driver; a "tag: driver" entry gives it a name of its own, so the same feature file runs against a different driver in another profile. Omit it to get every registered driver, in registration order.' . PHP_EOL
+        ->arrayNode('backends')
+          ->info('Ordered list of the backends a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first backend here providing it answers. A bare entry names a registered backend; a "tag: backend" entry gives it a name of its own, so the same feature file runs against a different backend in another profile. Omit it to get every registered backend, in registration order.' . PHP_EOL
             . '  - drupal' . PHP_EOL
             . '  - api: acme-jsonapi' . PHP_EOL
             . '  - blackbox' . PHP_EOL)
@@ -190,20 +194,20 @@ class BehatStepsExtension implements ExtensionInterface {
           ->end()
         ->end()
         ->arrayNode('blackbox')
-          ->info('Settings of the driver that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve.')
+          ->info('Settings of the backend that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve.')
         ->end()
         ->arrayNode('drupal')
-          ->info('Settings of the driver that bootstraps Drupal in-process.')
+          ->info('Settings of the backend that bootstraps Drupal in-process.')
           ->children()
             ->scalarNode('drupal_root')
               ->isRequired()
               ->cannotBeEmpty()
-              ->info('Path to the Drupal root the in-process driver bootstraps.')
+              ->info('Path to the Drupal root the in-process backend bootstraps.')
             ->end()
           ->end()
         ->end()
         ->arrayNode('drush')
-          ->info('Settings of the driver that reaches the site by running Drush.')
+          ->info('Settings of the backend that reaches the site by running Drush.')
           ->children()
             ->scalarNode('alias')->info('Drush site alias to run every command against.')->end()
             ->scalarNode('binary')->defaultValue('vendor/bin/drush')->info('Path to the Drush binary.')->end()
@@ -281,7 +285,7 @@ class BehatStepsExtension implements ExtensionInterface {
 
     $container->setParameter('behat_steps.parameters', $config);
     $container->setParameter('behat_steps.regions', $regions);
-    $container->setParameter(self::DRIVERS_PARAMETER, $config['drivers'] ?? []);
+    $container->setParameter(self::BACKENDS_PARAMETER, $config['backends'] ?? []);
   }
 
   /**
@@ -305,16 +309,39 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Loads the blackbox driver.
+   * Rejects a 'drivers' key, naming 'backends' in its place.
+   *
+   * The tree refuses an undeclared key before 'load()' runs, with a message
+   * listing only the declared keys, so this check runs before normalization.
+   *
+   * @param array<array-key, mixed> $config
+   *   The extension configuration, as written.
+   *
+   * @return array<array-key, mixed>
+   *   The configuration, unchanged.
+   *
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   *   When the configuration carries a 'drivers' key.
    */
-  protected function loadBlackbox(FileLoader $loader): void {
-    // The blackbox driver needs no configuration, unlike the Drupal and Drush
-    // drivers, which load only when configured.
-    $loader->load('drivers/blackbox.yml');
+  protected static function rejectRenamedKeys(array $config): array {
+    if (array_key_exists('drivers', $config)) {
+      throw new InvalidConfigurationException(sprintf('The "drivers" setting under "%s" moved to "backends". Rename the key; its entries are unchanged.', self::CONFIG_KEY));
+    }
+
+    return $config;
   }
 
   /**
-   * Loads the Drupal driver.
+   * Loads the blackbox backend.
+   */
+  protected function loadBlackbox(FileLoader $loader): void {
+    // The blackbox backend needs no configuration, unlike the Drupal and Drush
+    // backends, which load only when configured.
+    $loader->load('backends/blackbox.yml');
+  }
+
+  /**
+   * Loads the Drupal backend.
    *
    * @param \Symfony\Component\DependencyInjection\Loader\FileLoader $loader
    *   The file loader.
@@ -325,13 +352,13 @@ class BehatStepsExtension implements ExtensionInterface {
    */
   protected function loadDrupal(FileLoader $loader, ContainerBuilder $container, array $config): void {
     if (isset($config['drupal'])) {
-      $loader->load('drivers/drupal.yml');
-      $container->setParameter('behat_steps.driver.drupal.drupal_root', $config['drupal']['drupal_root']);
+      $loader->load('backends/drupal.yml');
+      $container->setParameter('behat_steps.backend.drupal.drupal_root', $config['drupal']['drupal_root']);
     }
   }
 
   /**
-   * Loads the Drush driver.
+   * Loads the Drush backend.
    *
    * @param \Symfony\Component\DependencyInjection\Loader\FileLoader $loader
    *   The file loader.
@@ -345,19 +372,19 @@ class BehatStepsExtension implements ExtensionInterface {
    */
   protected function loadDrush(FileLoader $loader, ContainerBuilder $container, array $config): void {
     if (isset($config['drush'])) {
-      $loader->load('drivers/drush.yml');
+      $loader->load('backends/drush.yml');
       if (!isset($config['drush']['alias']) && !isset($config['drush']['root'])) {
-        throw new \RuntimeException('Drush `alias` or `root` path is required for the Drush driver.');
+        throw new \RuntimeException('Drush `alias` or `root` path is required for the Drush backend.');
       }
       $config['drush']['alias'] ??= FALSE;
-      $container->setParameter('behat_steps.driver.drush.alias', $config['drush']['alias']);
+      $container->setParameter('behat_steps.backend.drush.alias', $config['drush']['alias']);
 
       $config['drush']['binary'] ??= 'vendor/bin/drush';
       $config['drush']['binary'] = self::resolveBinaryPath($config['drush']['binary']);
-      $container->setParameter('behat_steps.driver.drush.binary', $config['drush']['binary']);
+      $container->setParameter('behat_steps.backend.drush.binary', $config['drush']['binary']);
 
       $config['drush']['root'] ??= FALSE;
-      $container->setParameter('behat_steps.driver.drush.root', $config['drush']['root']);
+      $container->setParameter('behat_steps.backend.drush.root', $config['drush']['root']);
 
       $this->setDrushOptions($container, $config);
     }
@@ -409,52 +436,52 @@ class BehatStepsExtension implements ExtensionInterface {
    */
   protected function setDrushOptions(ContainerBuilder $container, array $config): void {
     if (isset($config['drush']['global_options'])) {
-      $definition = $container->getDefinition('behat_steps.driver.drush');
+      $definition = $container->getDefinition('behat_steps.backend.drush');
       $definition->addMethodCall('setArguments', [$config['drush']['global_options']]);
     }
   }
 
   /**
-   * Runs the driver pass.
+   * Runs the backend pass.
    */
-  protected function processDriverPass(ContainerBuilder $container): void {
-    $driver_pass = new DriverPass();
-    $driver_pass->process($container);
+  protected function processBackendPass(ContainerBuilder $container): void {
+    $backend_pass = new BackendPass();
+    $backend_pass->process($container);
   }
 
   /**
-   * Validates the ordered driver list the extension configuration declares.
+   * Validates the ordered backend list the extension configuration declares.
    *
-   * The 'drivers' list is both the allow-list and the precedence order.
+   * The 'backends' list is both the allow-list and the precedence order.
    * Checking it at container build means a typo fails before the first
    * scenario rather than at the step that would have resolved it.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
    *   When an entry is not a name, a tag name is not tag-safe, or a name
-   *   refers to a driver that is not registered.
+   *   refers to a backend that is not registered.
    */
-  protected function processDrivers(ContainerBuilder $container): void {
-    if (!$container->hasParameter(self::DRIVERS_PARAMETER)) {
+  protected function processBackends(ContainerBuilder $container): void {
+    if (!$container->hasParameter(self::BACKENDS_PARAMETER)) {
       return;
     }
 
-    $drivers = $container->getParameter(self::DRIVERS_PARAMETER);
+    $backends = $container->getParameter(self::BACKENDS_PARAMETER);
 
-    if (!is_array($drivers)) {
+    if (!is_array($backends)) {
       return;
     }
 
-    $registered = DriverPass::registeredNames($container);
+    $registered = BackendPass::registeredNames($container);
     $seen = [];
 
-    foreach ($drivers as $tag => $name) {
-      $tag = $this->validateDriverEntry($tag, $name, $registered);
+    foreach ($backends as $tag => $name) {
+      $tag = $this->validateBackendEntry($tag, $name, $registered);
 
       // Resolution lowercases a name, so two entries differing only by case
       // would collapse into one and the later would silently take the
       // earlier's place in the order.
       if (isset($seen[$tag])) {
-        throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names "%s" twice. A name is matched without regard to case, so it may appear only once.', self::CONFIG_KEY, $tag));
+        throw new InvalidConfigurationException(sprintf('The "backends" list under "%s" names "%s" twice. A name is matched without regard to case, so it may appear only once.', self::CONFIG_KEY, $tag));
       }
 
       $seen[$tag] = TRUE;
@@ -462,38 +489,38 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Validates one entry of the driver list and returns its tag name.
+   * Validates one entry of the backend list and returns its tag name.
    *
    * @param int|string $tag
    *   The entry's key: an integer for a bare entry, the tag name otherwise.
    * @param mixed $name
-   *   The entry's value, expected to be a registered driver name.
+   *   The entry's value, expected to be a registered backend name.
    * @param array<int, string> $registered
-   *   The names the extension registers drivers under.
+   *   The names the extension registers backends under.
    *
    * @return string
    *   The entry's tag name, lowercased.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
    *   When the entry is not a name, the tag name is not tag-safe, or the name
-   *   refers to a driver that is not registered.
+   *   refers to a backend that is not registered.
    */
-  protected function validateDriverEntry(int|string $tag, mixed $name, array $registered): string {
+  protected function validateBackendEntry(int|string $tag, mixed $name, array $registered): string {
     if (!is_string($name) || $name === '') {
-      throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" holds an entry that is not a driver name. Write each entry as a driver name, or as "tag: driver name".', self::CONFIG_KEY));
+      throw new InvalidConfigurationException(sprintf('The "backends" list under "%s" holds an entry that is not a backend name. Write each entry as a backend name, or as "tag: backend name".', self::CONFIG_KEY));
     }
 
     $tag = strtolower(is_int($tag) ? $name : $tag);
 
-    // A tag name is typed into a feature file after '@driver:', so it cannot
+    // A tag name is typed into a feature file after '@backend:', so it cannot
     // carry whitespace or a second colon. '\z' rather than '$', which would
     // also match before a trailing newline and let one through.
     if (preg_match('/^[a-z0-9_-]+\z/', $tag) !== 1) {
-      throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names a driver "%s". A driver name may hold only letters, digits, "_" and "-", so that "@driver:%s" is a valid tag.', self::CONFIG_KEY, $tag, $tag));
+      throw new InvalidConfigurationException(sprintf('The "backends" list under "%s" names a backend "%s". A backend name may hold only letters, digits, "_" and "-", so that "@backend:%s" is a valid tag.', self::CONFIG_KEY, $tag, $tag));
     }
 
     if (!in_array(strtolower($name), $registered, TRUE)) {
-      throw new InvalidConfigurationException(sprintf('The "drivers" list under "%s" names the driver "%s", which is not registered. Registered drivers: %s.', self::CONFIG_KEY, $name, $registered === [] ? 'none' : implode(', ', $registered)));
+      throw new InvalidConfigurationException(sprintf('The "backends" list under "%s" names the backend "%s", which is not registered. Registered backends: %s.', self::CONFIG_KEY, $name, $registered === [] ? 'none' : implode(', ', $registered)));
     }
 
     return $tag;

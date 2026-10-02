@@ -3,7 +3,7 @@
 ' Traced from src/Steps/Web/, src/Steps/Drupal/, src/Helper/Web/,
 ' src/Helper/Drupal/,
 ' src/Behat/Context/WebRawContext.php, WebContext.php, DrupalContext.php,
-' DriverAwareInterface.php, UserAwareInterface.php,
+' BackendAwareInterface.php, UserAwareInterface.php,
 ' tests/behat/bootstrap/FeatureContext.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
@@ -23,10 +23,10 @@ package "Behat\\MinkExtension\\Context" #ECEFF1 {
 }
 
 package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
-  interface DriverAwareInterface
+  interface BackendAwareInterface
   interface UserAwareInterface
   class WebRawContext {
-    driver and browser access, configuration,
+    backend and browser access, configuration,
     HTTP clients, 3 web helper traits, no steps
   }
   class WebContext {
@@ -44,7 +44,7 @@ class "Own context" as Consumer #FFF3E0 {
 }
 
 RawMinkContext <|-- WebRawContext
-DriverAwareInterface <|.. WebRawContext
+BackendAwareInterface <|.. WebRawContext
 UserAwareInterface <|.. DrupalContext
 WebRawContext <|-- WebContext
 WebContext <|-- DrupalContext
@@ -206,7 +206,7 @@ note bottom of Consumer
   the whole vocabulary, or extends WebRawContext and mixes in
   only the traits it needs. Each trait declares what it needs
   from its host with @phpstan-require-extends: WebRawContext
-  for the driver, RawMinkContext for a Mink session only, and
+  for a backend, RawMinkContext for a Mink session only, and
   composes the helper traits its own body calls.
 
   Step traits never use other step traits. Shared logic lives

@@ -152,10 +152,10 @@ class TagTest extends UnitTestCase {
   }
 
   public function testValuesFromEvent(): void {
-    [$feature, $scenario] = $this->createScenarioNodes(['driver:drush'], ['driver:blackbox']);
+    [$feature, $scenario] = $this->createScenarioNodes(['backend:drush'], ['backend:blackbox']);
     $event = new BeforeScenarioTested($this->createMock(Environment::class), $feature, $scenario);
 
-    $this->assertSame(['blackbox', 'drush'], Tag::values($event, 'driver'));
+    $this->assertSame(['blackbox', 'drush'], Tag::values($event, 'backend'));
   }
 
   /**

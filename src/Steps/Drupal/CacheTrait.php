@@ -6,10 +6,10 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Driver\Capability\CacheCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Database;
@@ -36,7 +36,7 @@ trait CacheTrait {
    */
   #[Given('the cache is empty')]
   public function cacheClearAll(): void {
-    $this->driverFor(CacheCapabilityInterface::class)->cacheClear();
+    $this->backendFor(CacheCapabilityInterface::class)->cacheClear();
   }
 
   /**
@@ -51,7 +51,7 @@ trait CacheTrait {
    */
   #[Given('the page cache for the path :path is empty')]
   public function cacheClearPagePath(string $path): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     if ($path === '') {
       throw new \RuntimeException('The path must not be empty.');
@@ -76,7 +76,7 @@ trait CacheTrait {
    */
   #[Given('the page cache for the paths matching :path_pattern is empty')]
   public function cacheClearPagePathWildcard(string $path_pattern): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     if ($path_pattern === '') {
       throw new \RuntimeException('The path pattern must not be empty.');
@@ -111,7 +111,7 @@ trait CacheTrait {
    */
   #[Given('the render cache is empty')]
   public function cacheClearRender(): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     \Drupal::cache('render')->deleteAll();
   }
@@ -125,7 +125,7 @@ trait CacheTrait {
    */
   #[When('I run cron')]
   public function cacheRunCron(): void {
-    if (!$this->driverFor(CronCapabilityInterface::class)->cronRun()) {
+    if (!$this->backendFor(CronCapabilityInterface::class)->cronRun()) {
       throw new \RuntimeException('Cron did not run. Another cron run may still hold the lock.');
     }
   }

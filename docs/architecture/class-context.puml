@@ -2,7 +2,7 @@
 ' drevops/behat-steps - the context chain, its services, the helper traits
 ' and 3 representative step traits, plus the exceptions a failing step throws.
 ' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
-' DrupalContext.php, DriverAwareInterface.php, UserAwareInterface.php,
+' DrupalContext.php, BackendAwareInterface.php, UserAwareInterface.php,
 ' src/Behat/Config/, src/Behat/Prerequisite/, src/Behat/Manager/,
 ' src/Behat/Listener/, src/Helper/Web/, src/Helper/Drupal/,
 ' src/Steps/Web/PathTrait.php, src/Steps/Web/CommandTrait.php,
@@ -17,8 +17,8 @@ title Class detail: context, services, helpers and step traits
 
 package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   class WebRawContext {
-    +getDriver(name) : DriverInterface
-    +driverFor(capability) : object
+    +getBackend(name) : BackendInterface
+    +backendFor(capability) : object
     +getRandom() : Random
     +getOption(group, key) : mixed
     +getOptionBool(group, key) : bool
@@ -34,7 +34,7 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     +httpBareClient(options) : AbstractBrowser
     --
     #skipTag(trait, scope) : bool
-    #anyDriverFor(capability) : object
+    #anyBackendFor(capability) : object
     #assertPrerequisites(trait) : void
     #prerequisitesMet(trait) : bool
     #shouldCleanup() : bool
@@ -75,11 +75,11 @@ package "Behat\\MinkExtension\\Context" #ECEFF1 {
 RawMinkContext <|-- WebRawContext
 
 package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
-  interface DriverRegistryInterface {
-    +getDriverFor(capability) : object
-    +getResolvedDriverFor(capability) : object|null
+  interface BackendRegistryInterface {
+    +getBackendFor(capability) : object
+    +getResolvedBackendFor(capability) : object|null
     +hasCapability(capability) : bool
-    +setScenarioDrivers(drivers) : void
+    +setScenarioBackends(backends) : void
   }
   interface BasicAuthenticatorInterface {
     +applyBasicAuth() : void
@@ -170,7 +170,7 @@ package "DrevOps\\BehatSteps\\Behat\\Prerequisite" #F3E5F5 {
   Prerequisite -[hidden]down- PrerequisiteReader
 }
 
-WebRawContext o--> DriverRegistryInterface
+WebRawContext o--> BackendRegistryInterface
 WebRawContext o--> BasicAuthenticatorInterface
 WebRawContext o--> TraitOptionResolverFactoryInterface
 WebRawContext ..> PrerequisiteReader : checks prerequisites
@@ -297,16 +297,25 @@ package "Thrown on failure" #FFEBEE {
     --
     no browser driver required
   }
-  class UnsupportedDriverActionException {
-    no driver in the scenario's
+  class UnsupportedBackendActionException {
+    DrevOps\\BehatSteps\\Backend\\Exception
+    --
+    no backend in the scenario's
     order provides the capability
+  }
+  class UnsupportedDriverActionException {
+    from Behat\\Mink
+    --
+    the session's browser driver
+    lacks the capability
   }
   class RuntimeException {
     invalid argument or
     unmet prerequisite
   }
   ExpectationException <|-- ElementNotFoundException
-  AssertionException -[hidden]down- UnsupportedDriverActionException
+  AssertionException -[hidden]down- UnsupportedBackendActionException
+  UnsupportedBackendActionException -[hidden]down- UnsupportedDriverActionException
   UnsupportedDriverActionException -[hidden]down- RuntimeException
 }
 
@@ -328,9 +337,9 @@ note bottom of EntityLifecycleTrait
   idempotent, so there is still one registry and
   one reverse-order deletion pass.
 
-  A step names a capability through driverFor()
-  and never a driver, so the vocabulary carries
-  over to a driver a project registers itself.
+  A step names a capability through backendFor()
+  and never a backend, so the vocabulary carries
+  over to a backend a project registers itself.
 end note
 
 note bottom of RequestHeadersTrait
@@ -357,7 +366,7 @@ note bottom of TraitOptionResolverInterface
   Registering another factory replaces option resolution
   for every context at once.
 
-  DriverListener fills ScenarioTagRegistry before the first
+  BackendListener fills ScenarioTagRegistry before the first
   BeforeScenario hook, so a tag that sets an option reaches
   a step as well as a hook.
 
@@ -368,14 +377,14 @@ end note
 
 note bottom of PrerequisiteReader
   A trait declares what it needs from the site in
-  <prefix>Prerequisites(), each entry through a driver
+  <prefix>Prerequisites(), each entry through a backend
   capability. A setup hook or a step calls
   assertPrerequisites(), which throws for the first entry
   that does not hold. A teardown asks prerequisitesMet(),
   so it never replaces a failure already recorded.
 
-  Each check runs against a driver the scenario already
+  Each check runs against a backend the scenario already
   reached before the first one listed, so checking never
-  starts a second driver.
+  starts a second backend.
 end note
 @enduml

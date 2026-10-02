@@ -1,0 +1,5 @@
+name: 'Backend field test'
+type: module
+description: 'Provides custom field types with no backend handler, for kernel tests.'
+package: Testing
+core_version_requirement: ^12

@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 
 use Behat\Mink\Driver\BrowserKitDriver;
-use Behat\Mink\Driver\DriverInterface as MinkDriverInterface;
-use Behat\Mink\Exception\UnsupportedDriverActionException as MinkUnsupportedDriverActionException;
+use Behat\Mink\Driver\DriverInterface;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use Behat\Testwork\Environment\Environment;
-use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
+use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\DrushBackendInterface;
+use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Behat\Context\BackendAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
 use DrevOps\BehatSteps\Behat\Http\HttpIdentity;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
-use DrevOps\BehatSteps\Driver\DrushDriverInterface;
-use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\PrerequisiteContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\SamplePrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\StepPrerequisiteTrait;
@@ -40,8 +40,8 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 #[CoversClass(WebRawContext::class)]
 class WebRawContextTest extends UnitTestCase {
 
-  public function testImplementsDriverAwareInterface(): void {
-    $this->assertInstanceOf(DriverAwareInterface::class, new WebRawContext());
+  public function testImplementsBackendAwareInterface(): void {
+    $this->assertInstanceOf(BackendAwareInterface::class, new WebRawContext());
   }
 
   /**
@@ -61,47 +61,47 @@ class WebRawContextTest extends UnitTestCase {
   }
 
   public static function dataProviderUninitializedContextNamesMissingCollaborator(): \Iterator {
-    yield 'driver registry' => ['getDriverRegistry', 'The driver registry is available only after Behat has initialized the context.'];
+    yield 'backend registry' => ['getBackendRegistry', 'The backend registry is available only after Behat has initialized the context.'];
     yield 'basic authenticator' => ['getBasicAuthenticator', 'The basic authenticator is available only after Behat has initialized the context.'];
   }
 
-  public function testTheDriverComesFromTheManager(): void {
-    $driver = $this->createMock(DriverInterface::class);
-    $context = $this->createContext($driver);
+  public function testTheBackendComesFromTheRegistry(): void {
+    $backend = $this->createMock(BackendInterface::class);
+    $context = $this->createContext($backend);
 
-    $this->assertSame($driver, $context->getDriver('test'));
-    $this->assertSame($driver, $context->driverFor(DriverInterface::class));
+    $this->assertSame($backend, $context->getBackend('test'));
+    $this->assertSame($backend, $context->backendFor(BackendInterface::class));
   }
 
-  public function testTheRandomGeneratorComesFromTheDriver(): void {
+  public function testTheRandomGeneratorComesFromTheBackend(): void {
     $random = new Random();
-    $driver = $this->createMock(DriverInterface::class);
-    $driver->method('getRandom')->willReturn($random);
+    $backend = $this->createMock(BackendInterface::class);
+    $backend->method('getRandom')->willReturn($random);
 
-    $this->assertSame($random, $this->createContext($driver)->getRandom());
+    $this->assertSame($random, $this->createContext($backend)->getRandom());
   }
 
-  public function testDriverForNamesTheCapabilityWhenNoDriverProvidesIt(): void {
-    $context = $this->createContext($this->createMock(DriverInterface::class));
+  public function testBackendForNamesTheCapabilityWhenNoBackendProvidesIt(): void {
+    $context = $this->createContext($this->createMock(BackendInterface::class));
 
-    $this->expectException(UnsupportedDriverActionException::class);
-    $this->expectExceptionMessage(sprintf('No driver provides "%s".', CoreCapabilityInterface::class));
+    $this->expectException(UnsupportedBackendActionException::class);
+    $this->expectExceptionMessage(sprintf('No backend provides "%s".', CoreCapabilityInterface::class));
 
-    $context->driverFor(CoreCapabilityInterface::class);
+    $context->backendFor(CoreCapabilityInterface::class);
   }
 
-  public function testDriverForBootstrapsOnceAndReturnsTheDriver(): void {
-    $driver = $this->createMock(DrupalDriverInterface::class);
-    $driver->method('isBootstrapped')->willReturnOnConsecutiveCalls(FALSE, TRUE);
-    $driver->expects($this->once())->method('bootstrap');
+  public function testBackendForBootstrapsOnceAndReturnsTheBackend(): void {
+    $backend = $this->createMock(DrupalBackendInterface::class);
+    $backend->method('isBootstrapped')->willReturnOnConsecutiveCalls(FALSE, TRUE);
+    $backend->expects($this->once())->method('bootstrap');
 
-    $context = $this->createContext($driver);
+    $context = $this->createContext($backend);
 
-    $first = $context->driverFor(CoreCapabilityInterface::class);
-    $second = $context->driverFor(CoreCapabilityInterface::class);
+    $first = $context->backendFor(CoreCapabilityInterface::class);
+    $second = $context->backendFor(CoreCapabilityInterface::class);
 
-    $this->assertSame($driver, $first);
-    $this->assertSame($driver, $second);
+    $this->assertSame($backend, $first);
+    $this->assertSame($backend, $second);
   }
 
   public function testHttpClientFactoryIsTheInjectedOne(): void {
@@ -129,12 +129,12 @@ class WebRawContextTest extends UnitTestCase {
   }
 
   public function testHttpPageClientIsUnsupportedWithoutPhpBrowser(): void {
-    $mink = new Mink(['default' => new Session($this->createMock(MinkDriverInterface::class))]);
+    $mink = new Mink(['default' => new Session($this->createMock(DriverInterface::class))]);
     $mink->setDefaultSessionName('default');
     $context = new WebRawContext();
     $context->setMink($mink);
 
-    $this->expectException(MinkUnsupportedDriverActionException::class);
+    $this->expectException(UnsupportedDriverActionException::class);
 
     $context->httpPageClient();
   }
@@ -178,7 +178,7 @@ class WebRawContextTest extends UnitTestCase {
   }
 
   public function testPrerequisitesHoldWhenEveryDeclarationIsMet(): void {
-    $drupal = $this->createStub(DrupalDriverInterface::class);
+    $drupal = $this->createStub(DrupalBackendInterface::class);
     $drupal->method('moduleIsEnabled')->willReturn(TRUE);
 
     $context = $this->createPrerequisiteContext(['drupal' => $drupal]);
@@ -190,8 +190,8 @@ class WebRawContextTest extends UnitTestCase {
   /**
    * Tests that the first unmet prerequisite fails with its message.
    *
-   * @param array<string, class-string<\DrevOps\BehatSteps\Driver\DriverInterface>> $drivers
-   *   Driver interfaces to stub, keyed by the name the scenario lists each
+   * @param array<string, class-string<\DrevOps\BehatSteps\Backend\BackendInterface>> $backends
+   *   Backend interfaces to stub, keyed by the name the scenario lists each
    *   one under, in order.
    * @param bool $enabled
    *   What each stub reports for any module.
@@ -203,10 +203,10 @@ class WebRawContextTest extends UnitTestCase {
    *   The message it throws with.
    */
   #[DataProvider('dataProviderUnmetPrerequisiteFails')]
-  public function testUnmetPrerequisiteFails(array $drivers, bool $enabled, string $trait, string $exception, string $message): void {
+  public function testUnmetPrerequisiteFails(array $backends, bool $enabled, string $trait, string $exception, string $message): void {
     $stubs = [];
 
-    foreach ($drivers as $name => $interface) {
+    foreach ($backends as $name => $interface) {
       $stub = $this->createStub($interface);
       $stub->method('moduleIsEnabled')->willReturn($enabled);
       $stubs[$name] = $stub;
@@ -225,22 +225,22 @@ class WebRawContextTest extends UnitTestCase {
   public static function dataProviderUnmetPrerequisiteFails(): \Iterator {
     $switch_off = ' Meet the prerequisite, or switch SamplePrerequisiteTrait off with the "sample_prerequisite.enabled" option or the "@behat-steps-skip:SamplePrerequisiteTrait" tag.';
 
-    yield 'no driver provides the capability' => [
-      ['drush' => DrushDriverInterface::class],
+    yield 'no backend provides the capability' => [
+      ['drush' => DrushBackendInterface::class],
       TRUE,
       SamplePrerequisiteTrait::class,
-      UnsupportedDriverActionException::class,
-      'SamplePrerequisiteTrait requires that a driver in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Drivers available to this scenario, in order: drush.' . $switch_off,
+      UnsupportedBackendActionException::class,
+      'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: drush.' . $switch_off,
     ];
-    yield 'no driver listed' => [
+    yield 'no backend listed' => [
       [],
       TRUE,
       SamplePrerequisiteTrait::class,
-      UnsupportedDriverActionException::class,
-      'SamplePrerequisiteTrait requires that a driver in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Drivers available to this scenario, in order: none.' . $switch_off,
+      UnsupportedBackendActionException::class,
+      'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: none.' . $switch_off,
     ];
     yield 'a check fails for a trait that switches off' => [
-      ['drupal' => DrupalDriverInterface::class],
+      ['drupal' => DrupalBackendInterface::class],
       FALSE,
       SamplePrerequisiteTrait::class,
       \RuntimeException::class,
@@ -249,7 +249,7 @@ class WebRawContextTest extends UnitTestCase {
   }
 
   public function testUnmetPrerequisiteOfTraitWithoutSwitchNamesNoSwitch(): void {
-    $drupal = $this->createStub(DrupalDriverInterface::class);
+    $drupal = $this->createStub(DrupalBackendInterface::class);
     $drupal->method('moduleIsEnabled')->willReturn(FALSE);
 
     try {
@@ -261,30 +261,30 @@ class WebRawContextTest extends UnitTestCase {
     }
   }
 
-  public function testReachedDriverAnswersBeforeFirstInList(): void {
-    $drush = $this->createMock(DrushDriverInterface::class);
+  public function testReachedBackendAnswersBeforeFirstInList(): void {
+    $drush = $this->createMock(DrushBackendInterface::class);
     $drush->expects($this->never())->method('moduleIsEnabled');
 
-    $drupal = $this->createStub(DrupalDriverInterface::class);
+    $drupal = $this->createStub(DrupalBackendInterface::class);
     $drupal->method('moduleIsEnabled')->willReturn(TRUE);
 
     $this->assertTrue($this->createPrerequisiteContext(['drush' => $drush, 'drupal' => $drupal])->callPrerequisitesMet(SamplePrerequisiteTrait::class));
   }
 
-  #[DataProvider('dataProviderAnyDriverForReusesReachedDriver')]
-  public function testAnyDriverForReusesReachedDriver(bool $reach_drupal, string $expected): void {
-    $drivers = ['drush' => $this->createStub(DrushDriverInterface::class), 'drupal' => $this->createStub(DrupalDriverInterface::class)];
-    $context = $this->createPrerequisiteContext($drivers);
+  #[DataProvider('dataProviderAnyBackendForReusesReachedBackend')]
+  public function testAnyBackendForReusesReachedBackend(bool $reach_drupal, string $expected): void {
+    $backends = ['drush' => $this->createStub(DrushBackendInterface::class), 'drupal' => $this->createStub(DrupalBackendInterface::class)];
+    $context = $this->createPrerequisiteContext($backends);
 
     if ($reach_drupal) {
-      $context->driverFor(CoreCapabilityInterface::class);
+      $context->backendFor(CoreCapabilityInterface::class);
     }
 
-    $this->assertSame($drivers[$expected], $context->callAnyDriverFor(ModuleCapabilityInterface::class));
+    $this->assertSame($backends[$expected], $context->callAnyBackendFor(ModuleCapabilityInterface::class));
   }
 
-  public static function dataProviderAnyDriverForReusesReachedDriver(): \Iterator {
-    yield 'a reached driver answers before the first listed' => [TRUE, 'drupal'];
+  public static function dataProviderAnyBackendForReusesReachedBackend(): \Iterator {
+    yield 'a reached backend answers before the first listed' => [TRUE, 'drupal'];
     yield 'the first listed answers when none was reached' => [FALSE, 'drush'];
   }
 
@@ -323,18 +323,18 @@ class WebRawContextTest extends UnitTestCase {
   }
 
   /**
-   * Builds an initialized context over the given driver.
+   * Builds an initialized context over the given backend.
    *
-   * @param \DrevOps\BehatSteps\Driver\DriverInterface $driver
-   *   The driver the registry hands out.
+   * @param \DrevOps\BehatSteps\Backend\BackendInterface $backend
+   *   The backend the registry hands out.
    */
-  protected function createContext(DriverInterface $driver): WebRawContext {
-    $driver_registry = new DriverRegistry(['test' => $driver]);
-    $driver_registry->setScenarioDrivers(['test' => 'test']);
-    $driver_registry->setEnvironment($this->createMock(Environment::class));
+  protected function createContext(BackendInterface $backend): WebRawContext {
+    $backend_registry = new BackendRegistry(['test' => $backend]);
+    $backend_registry->setScenarioBackends(['test' => 'test']);
+    $backend_registry->setEnvironment($this->createMock(Environment::class));
 
     $context = new WebRawContext();
-    $context->setDriverRegistry($driver_registry);
+    $context->setBackendRegistry($backend_registry);
     $context->setDispatcher($this->createHookDispatcher());
     $context->setBasicAuthenticator($this->createMock(BasicAuthenticatorInterface::class));
 
@@ -342,18 +342,18 @@ class WebRawContextTest extends UnitTestCase {
   }
 
   /**
-   * Builds a context composing traits with prerequisites over drivers.
+   * Builds a context composing traits with prerequisites over backends.
    *
-   * @param array<string, \DrevOps\BehatSteps\Driver\DriverInterface> $drivers
-   *   The drivers the scenario lists, in order, keyed by name.
+   * @param array<string, \DrevOps\BehatSteps\Backend\BackendInterface> $backends
+   *   The backends the scenario lists, in order, keyed by name.
    */
-  protected function createPrerequisiteContext(array $drivers): PrerequisiteContext {
-    $driver_registry = new DriverRegistry($drivers);
-    $names = array_keys($drivers);
-    $driver_registry->setScenarioDrivers(array_combine($names, $names));
+  protected function createPrerequisiteContext(array $backends): PrerequisiteContext {
+    $backend_registry = new BackendRegistry($backends);
+    $names = array_keys($backends);
+    $backend_registry->setScenarioBackends(array_combine($names, $names));
 
     $context = new PrerequisiteContext();
-    $context->setDriverRegistry($driver_registry);
+    $context->setBackendRegistry($backend_registry);
 
     return $context;
   }

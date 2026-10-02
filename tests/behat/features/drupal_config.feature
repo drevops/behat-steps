@@ -96,19 +96,19 @@ Feature: Check that ConfigTrait works
     Then the config "behat_steps_test.ephemeral" key "foo" should not have the value "bar"
 
   # The steps below resolve the Config capability instead of bootstrapping
-  # Drupal, so the '@driver:drush' tag promotes the Drush driver and the same
+  # Drupal, so the '@backend:drush' tag promotes the Drush backend and the same
   # step text runs against a site this process never boots.
-  @driver:drush
+  @backend:drush
   Scenario: Set and assert a stored string config value over Drush
     Given the config "behat_steps_test.drush" key "endpoint" has the value "https://drush.example.com"
     Then the config "behat_steps_test.drush" key "endpoint" should have the value "https://drush.example.com"
 
-  @driver:drush
+  @backend:drush
   Scenario: Set and assert a stored nested config value over Drush
     Given the config "behat_steps_test.drush" key "api.endpoint" has the value "https://nested.drush.example.com"
     Then the config "behat_steps_test.drush" key "api.endpoint" should have the value "https://nested.drush.example.com"
 
-  @driver:drush
+  @backend:drush
   Scenario: Set and assert typed config values over Drush
     Given the following config values exist:
       | name                         | key      | value           |
@@ -125,29 +125,29 @@ Feature: Check that ConfigTrait works
     And the config "behat_steps_test.drush_types" key "tags" should contain the value "b"
     And the config "behat_steps_test.drush_types" key "nested" should contain the value "y"
 
-  @behat-steps-skip:ConfigTrait @driver:drush
+  @behat-steps-skip:ConfigTrait @backend:drush
   Scenario: Seed a config value over Drush without auto-revert
     Given the config "behat_steps_test.drush_persistent" key "flag" has the value "seeded"
     Then the config "behat_steps_test.drush_persistent" key "flag" should have the value "seeded"
 
-  @driver:drush
+  @backend:drush
   Scenario: Config values set over Drush are reverted after scenario
     Given the config "behat_steps_test.drush_persistent" key "flag" has the value "overridden"
     And the config "behat_steps_test.drush_persistent" key "added" has the value "extra"
     Then the config "behat_steps_test.drush_persistent" key "flag" should have the value "overridden"
 
-  @driver:drush
+  @backend:drush
   Scenario: Verify the Drush revert restored the seed and dropped the added key
     Then the config "behat_steps_test.drush_persistent" key "flag" should have the value "seeded"
     And the config "behat_steps_test.drush_persistent" key "added" should not have the value "extra"
 
-  @driver:drush
+  @backend:drush
   Scenario: A config object created over Drush is deleted by the revert
     Given the config "behat_steps_test.drush_ephemeral" key "foo" should not have the value "bar"
     And the config "behat_steps_test.drush_ephemeral" key "foo" has the value "bar"
     Then the config "behat_steps_test.drush_ephemeral" key "foo" should have the value "bar"
 
-  @driver:drush
+  @backend:drush
   Scenario: Verify the Drush revert deleted the new config object
     Then the config "behat_steps_test.drush_ephemeral" key "foo" should not have the value "bar"
 

@@ -6,6 +6,10 @@ namespace DrevOps\BehatSteps\Helper\Drupal;
 
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
+use DrevOps\BehatSteps\Backend\Capability\BatchCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterEntityCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterUserCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeEntityCreateScope;
@@ -13,10 +17,6 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeUserCreateScope;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
-use DrevOps\BehatSteps\Driver\Capability\BatchCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 
 /**
  * Creates users and roles, logs them in, and removes them afterwards.
@@ -66,17 +66,17 @@ trait AuthTrait {
 
     $user_registry = $this->authGetUserRegistry();
 
-    // Resolving a driver bootstraps it, so a scenario that created no users
+    // Resolving a backend bootstraps it, so a scenario that created no users
     // never boots one during teardown.
-    if ($user_registry->hasUsers() && $this->getDriverRegistry()->hasCapability(UserCapabilityInterface::class)) {
-      $driver = $this->driverFor(UserCapabilityInterface::class);
+    if ($user_registry->hasUsers() && $this->getBackendRegistry()->hasCapability(UserCapabilityInterface::class)) {
+      $backend = $this->backendFor(UserCapabilityInterface::class);
 
       foreach ($user_registry->getUsers() as $user) {
-        $driver->userDelete($user);
+        $backend->userDelete($user);
       }
 
-      if ($driver instanceof BatchCapabilityInterface) {
-        $driver->processBatch();
+      if ($backend instanceof BatchCapabilityInterface) {
+        $backend->processBatch();
       }
 
       $user_registry->clearUsers();
@@ -106,14 +106,14 @@ trait AuthTrait {
       return;
     }
 
-    if (!$this->getDriverRegistry()->hasCapability(RoleCapabilityInterface::class)) {
+    if (!$this->getBackendRegistry()->hasCapability(RoleCapabilityInterface::class)) {
       return;
     }
 
-    $driver = $this->driverFor(RoleCapabilityInterface::class);
+    $backend = $this->backendFor(RoleCapabilityInterface::class);
 
     foreach ($this->roles as $role) {
-      $driver->roleDelete($role);
+      $backend->roleDelete($role);
     }
 
     $this->roles = [];
@@ -158,24 +158,24 @@ trait AuthTrait {
   /**
    * Creates a user.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The user stub.
    *
-   * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
-   *   When no driver in the scenario's order can create users.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can create users.
    */
   public function authUserCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeUserCreateScope::class, $stub);
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $driver = $this->driverFor(UserCapabilityInterface::class);
-    $this->entityLifecycleParseCreatedFields($stub, $driver, ['role']);
+    $backend = $this->backendFor(UserCapabilityInterface::class);
+    $this->entityLifecycleParseCreatedFields($stub, $backend, ['role']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
-    $driver->userCreate($stub);
+    $backend->userCreate($stub);
     $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
@@ -191,7 +191,7 @@ trait AuthTrait {
   /**
    * Logs the given user in.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $user
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
    *   The user stub to log in.
    */
   public function authLogin(EntityStubInterface $user): void {

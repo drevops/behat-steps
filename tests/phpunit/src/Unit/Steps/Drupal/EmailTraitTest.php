@@ -78,7 +78,8 @@ class EmailTraitTest extends UnitTestCase {
   public function testTeardownSkipsScenarioThatEnabledNothing(): void {
     $this->expectNotToPerformAssertions();
 
-    // The context holds no driver registry, so resolving a driver would throw.
+    // The context holds no backend registry, so resolving a backend would
+    // throw.
     (new EmailTraitTestImplementation())->emailAfterScenario($this->createAfterScenarioScope(['email']));
   }
 

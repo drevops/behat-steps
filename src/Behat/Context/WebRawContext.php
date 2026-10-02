@@ -8,6 +8,8 @@ use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Mink\Exception\DriverException;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
+use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Config\TagOverrides;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory;
@@ -16,8 +18,8 @@ use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverInterface;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
 use DrevOps\BehatSteps\Behat\Http\HttpIdentity;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
 use DrevOps\BehatSteps\Behat\Mink\BrowserCapabilityResolver;
 use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Mink\Capability\HttpClientCapabilityInterface;
@@ -25,8 +27,6 @@ use DrevOps\BehatSteps\Behat\ParametersTrait;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Behat\Prerequisite\PrerequisiteReader;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
@@ -37,7 +37,7 @@ use Symfony\Component\HttpClient\HttpClient;
 /**
  * Root context carrying the plumbing every suite needs.
  *
- * Provides driver access, authentication delegation, option resolution,
+ * Provides backend access, authentication delegation, option resolution,
  * prerequisite checks and the hook dispatcher, and composes 3 of the web
  * helper traits. It registers no step definitions and references no Drupal
  * class beyond 'Random', which a layer lint holds.
@@ -53,7 +53,7 @@ use Symfony\Component\HttpClient\HttpClient;
  * @see \DrevOps\BehatSteps\Behat\Context\WebContext
  * @see \DrevOps\BehatSteps\Behat\Context\DrupalContext
  */
-class WebRawContext extends RawMinkContext implements DriverAwareInterface {
+class WebRawContext extends RawMinkContext implements BackendAwareInterface {
 
   use LastStepTrait;
   use ParametersTrait {
@@ -63,9 +63,9 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   use StringTrait;
 
   /**
-   * Driver registry.
+   * Backend registry.
    */
-  protected ?DriverRegistryInterface $driverRegistry = NULL;
+  protected ?BackendRegistryInterface $backendRegistry = NULL;
 
   /**
    * Resolves what the session's browser driver can do.
@@ -128,19 +128,19 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   /**
    * {@inheritdoc}
    */
-  public function setDriverRegistry(DriverRegistryInterface $driver_registry): void {
-    $this->driverRegistry = $driver_registry;
+  public function setBackendRegistry(BackendRegistryInterface $backend_registry): void {
+    $this->backendRegistry = $backend_registry;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDriverRegistry(): DriverRegistryInterface {
-    if (!$this->driverRegistry instanceof DriverRegistryInterface) {
-      throw new \RuntimeException('The driver registry is available only after Behat has initialized the context.');
+  public function getBackendRegistry(): BackendRegistryInterface {
+    if (!$this->backendRegistry instanceof BackendRegistryInterface) {
+      throw new \RuntimeException('The backend registry is available only after Behat has initialized the context.');
     }
 
-    return $this->driverRegistry;
+    return $this->backendRegistry;
   }
 
   /**
@@ -292,35 +292,35 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Returns a driver of this scenario by the name its suite gave it.
+   * Returns a backend of this scenario by the name its suite gave it.
    *
    * @param string $name
-   *   The tag name the suite lists the driver under.
+   *   The tag name the suite lists the backend under.
    */
-  public function getDriver(string $name): DriverInterface {
-    return $this->getDriverRegistry()->getDriver($name);
+  public function getBackend(string $name): BackendInterface {
+    return $this->getBackendRegistry()->getBackend($name);
   }
 
   /**
-   * Returns the highest-priority driver providing the given capability.
+   * Returns the highest-priority backend providing the given capability.
    *
-   * A step names the capability it needs and never a driver, so the shipped
-   * vocabulary stays portable: a project that registers its own driver gets
-   * the step working as soon as that driver implements the interface.
+   * A step names the capability it needs and never a backend, so the shipped
+   * vocabulary stays portable: a project that registers its own backend gets
+   * the step working as soon as that backend implements the interface.
    *
    * @param class-string<T> $capability
    *   The capability interface the caller needs.
    *
    * @return T
-   *   The driver, bootstrapped.
+   *   The backend, bootstrapped.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
-   *   When no driver in the scenario's order implements the capability.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order implements the capability.
    *
    * @template T of object
    */
-  public function driverFor(string $capability): object {
-    return $this->getDriverRegistry()->getDriverFor($capability);
+  public function backendFor(string $capability): object {
+    return $this->getBackendRegistry()->getBackendFor($capability);
   }
 
   /**
@@ -368,10 +368,10 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Returns the driver's random generator.
+   * Returns the backend's random generator.
    */
   public function getRandom(): Random {
-    return $this->driverFor(DriverInterface::class)->getRandom();
+    return $this->backendFor(BackendInterface::class)->getRandom();
   }
 
   /**
@@ -545,43 +545,43 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
   }
 
   /**
-   * Returns a driver providing a capability, reusing one already reached.
+   * Returns a backend providing a capability, reusing one already reached.
    *
    * A read-only query such as a module check returns the same result through
-   * any driver, so a driver the scenario already reached is returned before
-   * the first one in the list, and no second driver starts.
+   * any backend, so a backend the scenario already reached is returned before
+   * the first one in the list, and no second backend starts.
    *
    * @param class-string<T> $capability
    *   The capability interface the caller needs.
    *
    * @return T
-   *   The driver, bootstrapped.
+   *   The backend, bootstrapped.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
-   *   When no driver in the scenario's order implements the capability.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order implements the capability.
    *
    * @template T of object
    */
-  protected function anyDriverFor(string $capability): object {
-    $registry = $this->getDriverRegistry();
+  protected function anyBackendFor(string $capability): object {
+    $registry = $this->getBackendRegistry();
 
-    return $registry->getResolvedDriverFor($capability) ?? $registry->getDriverFor($capability);
+    return $registry->getResolvedBackendFor($capability) ?? $registry->getBackendFor($capability);
   }
 
   /**
    * Asserts that the prerequisites a trait declares hold.
    *
    * A trait declares them in a '<prefix>Prerequisites()' method, each naming a
-   * capability a driver in the scenario's list provides and, optionally, a
-   * check that driver passes. A driver the scenario already reached answers
+   * capability a backend in the scenario's list provides and, optionally, a
+   * check that backend passes. A backend the scenario already reached answers
    * before the first one in the list, so checking never starts a second one.
    *
    * @param string $trait
    *   The trait whose prerequisites to assert. A hook or a step passes
    *   '__TRAIT__'.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
-   *   When no driver in the scenario's list provides a declared capability.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's list provides a declared capability.
    * @throws \RuntimeException
    *   When a declared check fails.
    */
@@ -616,21 +616,21 @@ class WebRawContext extends RawMinkContext implements DriverAwareInterface {
    *   The failure to throw, or NULL when every prerequisite holds.
    */
   protected function prerequisiteFailure(string $trait): ?\RuntimeException {
-    $registry = $this->getDriverRegistry();
+    $registry = $this->getBackendRegistry();
 
     foreach ((new PrerequisiteReader())->read($this, $trait) as $prerequisite) {
       if (!$registry->hasCapability($prerequisite->capability)) {
-        $drivers = array_keys($registry->getScenarioDrivers());
-        $detail = sprintf('Drivers available to this scenario, in order: %s.', $drivers === [] ? 'none' : implode(', ', $drivers));
+        $backends = array_keys($registry->getScenarioBackends());
+        $detail = sprintf('Backends available to this scenario, in order: %s.', $backends === [] ? 'none' : implode(', ', $backends));
 
-        return new UnsupportedDriverActionException($this->prerequisiteMessage($trait, $prerequisite, $detail));
+        return new UnsupportedBackendActionException($this->prerequisiteMessage($trait, $prerequisite, $detail));
       }
 
-      // A capability without a check still reaches its driver, so a later
-      // check runs through that driver.
-      $driver = $this->anyDriverFor($prerequisite->capability);
+      // A capability without a check still reaches its backend, so a later
+      // check runs through that backend.
+      $backend = $this->anyBackendFor($prerequisite->capability);
 
-      if ($prerequisite->check instanceof \Closure && !($prerequisite->check)($driver)) {
+      if ($prerequisite->check instanceof \Closure && !($prerequisite->check)($backend)) {
         return new \RuntimeException($this->prerequisiteMessage($trait, $prerequisite));
       }
     }

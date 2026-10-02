@@ -61,7 +61,7 @@
 | [Drupal\AuthTrait](#drupalauthtrait) | 12 | Creates users and roles, logs them in, and removes them afterwards. |
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 6 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
-| [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a driver. |
+| [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a backend. |
 
 ### Index of Toolbox helpers
 
@@ -1447,10 +1447,10 @@ Find a node using provided conditions
 > Run Drush commands and assert their output.
 
 <details>
-  <summary><code>public function drushGetDriver(): DrushCapabilityInterface</code></summary>
+  <summary><code>public function drushGetBackend(): DrushCapabilityInterface</code></summary>
 
 <br/>
-Return the driver that runs Drush commands
+Return the backend that runs Drush commands
 <br/><br/>
 
 </details>
@@ -1849,7 +1849,7 @@ Enable test mode
 > Manage Drupal users with role and permission assignments.
 
 <details>
-  <summary><code>public function userAssignRoles(UserCapabilityInterface $driver, EntityStubInterface $stub, string $roles): void</code></summary>
+  <summary><code>public function userAssignRoles(UserCapabilityInterface $backend, EntityStubInterface $stub, string $roles): void</code></summary>
 
 <br/>
 Assign the roles named in a comma-separated list to a saved account
@@ -2161,7 +2161,7 @@ Expand fixture file paths for file/image fields on an entity stub
 
 [Source](src/Helper/Drupal/QueryTrait.php)
 
-> Reads Drupal state a step asserts on without going through a driver.
+> Reads Drupal state a step asserts on without going through a backend.
 
 <details>
   <summary><code>public function queryEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array</code></summary>
@@ -2197,6 +2197,15 @@ Constructs a WebRawContext object
 </details>
 
 <details>
+  <summary><code>public function backendFor(string $capability): object</code></summary>
+
+<br/>
+Returns the highest-priority backend providing the given capability
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function browserDriverFor(string $capability): object</code></summary>
 
 <br/>
@@ -2215,10 +2224,19 @@ Whether this session's browser driver provides a browser capability
 </details>
 
 <details>
-  <summary><code>public function driverFor(string $capability): object</code></summary>
+  <summary><code>public function getBackend(string $name): BackendInterface</code></summary>
 
 <br/>
-Returns the highest-priority driver providing the given capability
+Returns a backend of this scenario by the name its suite gave it
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function getBackendRegistry(): BackendRegistryInterface</code></summary>
+
+<br/>
+Returns the backend registry
 <br/><br/>
 
 </details>
@@ -2237,24 +2255,6 @@ Returns the basic authenticator
 
 <br/>
 Returns the browser capability resolver, creating it on first use
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getDriver(string $name): DriverInterface</code></summary>
-
-<br/>
-Returns a driver of this scenario by the name its suite gave it
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function getDriverRegistry(): DriverRegistryInterface</code></summary>
-
-<br/>
-Returns the driver registry
 <br/><br/>
 
 </details>
@@ -2344,7 +2344,7 @@ Returns a trait option declared as a string
   <summary><code>public function getRandom(): Random</code></summary>
 
 <br/>
-Returns the driver's random generator
+Returns the backend's random generator
 <br/><br/>
 
 </details>

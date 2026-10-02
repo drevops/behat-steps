@@ -12,10 +12,10 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\StatementInterface;
@@ -75,7 +75,7 @@ trait EmailTrait {
       return;
     }
 
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->emailDebug = Tag::has($scope, self::EMAIL_DEBUG_TAG);
     $this->emailHandlerTypes = Tag::values($scope, self::EMAIL_TAG);
@@ -98,7 +98,7 @@ trait EmailTrait {
       return;
     }
 
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->emailDisableTestEmailSystem();
   }
@@ -112,7 +112,7 @@ trait EmailTrait {
    */
   #[When('I clear the test email system queue')]
   public function emailClearTestQueue(bool $force = FALSE): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     if (!$force && !static::emailFindMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
@@ -263,7 +263,7 @@ trait EmailTrait {
    */
   #[When('I enable the test email system')]
   public function emailEnableTestSystem(): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->emailHandlerTypes = array_values(array_unique($this->emailHandlerTypes ?: ['default']));
 
@@ -289,7 +289,7 @@ trait EmailTrait {
    */
   #[When('I disable the test email system')]
   public function emailDisableTestEmailSystem(): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = static::emailFindMailSystemOriginal($type);
@@ -702,7 +702,7 @@ trait EmailTrait {
     // The Mailsystem module replaces the default interface, so update its
     // configuration as well when the module is installed.
     // @codeCoverageIgnoreStart
-    if ($this->anyDriverFor(ModuleCapabilityInterface::class)->moduleIsEnabled('mailsystem')) {
+    if ($this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('mailsystem')) {
       \Drupal::configFactory()->getEditable('mailsystem.settings')
         ->set('defaults.sender', $value)
         ->save();
@@ -738,7 +738,7 @@ trait EmailTrait {
    *   Array of collected emails.
    */
   public function emailGetCollectedMessages(): array {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     // Directly read data from the database to avoid cache invalidation that
     // may corrupt the system under test.

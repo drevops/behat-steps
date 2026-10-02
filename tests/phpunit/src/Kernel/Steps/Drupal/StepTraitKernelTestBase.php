@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
+use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
-use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Base class for kernel tests calling the helpers of the Drupal step traits.
  *
  * A helper resolves 'CoreCapabilityInterface' before it reads Drupal, so the
- * context holds a driver double that reports itself bootstrapped. The helper
+ * context holds a backend double that reports itself bootstrapped. The helper
  * then reads the kernel this test booted.
  */
 #[RunTestsInSeparateProcesses]
@@ -32,14 +32,14 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    $driver = $this->createStub(DrupalDriverInterface::class);
-    $driver->method('isBootstrapped')->willReturn(TRUE);
+    $backend = $this->createStub(DrupalBackendInterface::class);
+    $backend->method('isBootstrapped')->willReturn(TRUE);
 
-    $driver_registry = new DriverRegistry(['test' => $driver]);
-    $driver_registry->setScenarioDrivers(['test' => 'test']);
+    $backend_registry = new BackendRegistry(['test' => $backend]);
+    $backend_registry->setScenarioBackends(['test' => 'test']);
 
     $this->context = new DrupalContext();
-    $this->context->setDriverRegistry($driver_registry);
+    $this->context->setBackendRegistry($backend_registry);
   }
 
   /**

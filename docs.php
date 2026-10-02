@@ -89,7 +89,7 @@ const HELPERS_DIRECTORY = 'src/Helper';
 /**
  * Classes published in the toolbox reference alongside the step traits.
  *
- * The root context contributes the driver access and the scenario plumbing a
+ * The root context contributes the backend access and the scenario plumbing a
  * domain step is written against, so that surface is part of the toolbox too.
  */
 const TOOLBOX_CLASSES = [WebRawContext::class];
@@ -1826,9 +1826,9 @@ function tag_registry(): array {
       'form' => 'parametrized',
       'description' => 'Keep entities of the named entity type after the scenario. Repeat the tag to keep several types.',
     ],
-    'driver' => [
+    'backend' => [
       'form' => 'parametrized',
-      'description' => 'Move the named driver to the front of the configured driver list for the scenario. Repeat the tag to promote several: they keep the configured order among themselves, so the order the tags are written in does not matter. The tag reorders the list; it never adds to it.',
+      'description' => 'Move the named backend to the front of the configured backend list for the scenario. Repeat the tag to promote several: they keep the configured order among themselves, so the order the tags are written in does not matter. The tag reorders the list; it never adds to it.',
     ],
     'module' => [
       'form' => 'parametrized',

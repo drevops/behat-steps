@@ -74,8 +74,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "ConsumerProject\\Driver\\": "tests/phpunit/fixtures/driver/ConsumerProject/Driver/",
-            "DrevOps\\BehatSteps\\Driver\\Core99\\": "tests/phpunit/fixtures/driver/Core99/",
+            "ConsumerProject\\Backend\\": "tests/phpunit/fixtures/backend/ConsumerProject/Backend/",
+            "DrevOps\\BehatSteps\\Backend\\Core99\\": "tests/phpunit/fixtures/backend/Core99/",
             "DrevOps\\BehatSteps\\Tests\\": "tests/phpunit/src/"
         }
     },

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
+use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
-use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\TestmodeTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -17,22 +17,23 @@ use PHPUnit\Framework\Attributes\CoversTrait;
 #[CoversTrait(TestmodeTrait::class)]
 class TestmodeTraitTest extends UnitTestCase {
 
-  public function testTeardownOfScenarioThatEnabledNothingTouchesNoDriver(): void {
+  public function testTeardownOfScenarioThatEnabledNothingTouchesNoBackend(): void {
     $this->expectNotToPerformAssertions();
 
-    // The context holds no driver registry, so resolving a driver would throw.
+    // The context holds no backend registry, so resolving a backend would
+    // throw.
     (new TestmodeTraitTestImplementation())->testmodeAfterScenario($this->createAfterScenarioScope(['testmode']));
   }
 
   public function testUnmetPrerequisiteFailsTheSetupAndLeavesNothingToUndo(): void {
-    $drupal = $this->createStub(DrupalDriverInterface::class);
+    $drupal = $this->createStub(DrupalBackendInterface::class);
     $drupal->method('moduleIsEnabled')->willReturn(FALSE);
 
-    $registry = new DriverRegistry(['drupal' => $drupal]);
-    $registry->setScenarioDrivers(['drupal' => 'drupal']);
+    $registry = new BackendRegistry(['drupal' => $drupal]);
+    $registry->setScenarioBackends(['drupal' => 'drupal']);
 
     $context = new TestmodeTraitTestImplementation();
-    $context->setDriverRegistry($registry);
+    $context->setBackendRegistry($registry);
 
     try {
       $context->testmodeBeforeScenario($this->createBeforeScenarioScope(['testmode']));

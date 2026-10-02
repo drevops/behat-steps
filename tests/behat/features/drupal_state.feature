@@ -58,9 +58,9 @@ Feature: Check that StateTrait works
     Then the state "behat_steps_test.persistent" should have the value "seeded"
 
   # The steps below resolve the State capability instead of bootstrapping
-  # Drupal, so the '@driver:drush' tag runs the same step text against a site
+  # Drupal, so the '@backend:drush' tag runs the same step text against a site
   # this process never boots.
-  @driver:drush
+  @backend:drush
   Scenario: Set and assert state values of every type over Drush
     Given the following state values exist:
       | name                          | value       |
@@ -73,23 +73,23 @@ Feature: Check that StateTrait works
     And the state "behat_steps_test.drush_bool" should have the value "true"
     And the state "behat_steps_test.drush_array" should have the value "[1,2,3]"
 
-  @driver:drush
+  @backend:drush
   Scenario: Delete a state value over Drush
     Given the state "behat_steps_test.drush_doomed" has the value "present"
     And the state "behat_steps_test.drush_doomed" does not exist
     Then the state "behat_steps_test.drush_doomed" should not exist
 
-  @behat-steps-skip:StateTrait @driver:drush
+  @behat-steps-skip:StateTrait @backend:drush
   Scenario: Seed a state value over Drush without auto-revert
     Given the state "behat_steps_test.drush_persistent" has the value "seeded"
     Then the state "behat_steps_test.drush_persistent" should have the value "seeded"
 
-  @driver:drush
+  @backend:drush
   Scenario: State values set over Drush are reverted after scenario
     Given the state "behat_steps_test.drush_persistent" has the value "overridden"
     Then the state "behat_steps_test.drush_persistent" should have the value "overridden"
 
-  @driver:drush
+  @backend:drush
   Scenario: Verify the Drush revert restored the seeded state value
     Then the state "behat_steps_test.drush_persistent" should have the value "seeded"
 

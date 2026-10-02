@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Helper\Drupal;
 
+use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\Core\CoreInterface;
+use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistry;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
-use DrevOps\BehatSteps\Driver\Core\CoreInterface;
-use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\DrupalDriverInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
 use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -175,11 +175,11 @@ class FixtureFileTraitTest extends UnitTestCase {
     $core = $this->createStub(CoreInterface::class);
     $core->method('getEntityFieldTypes')->willReturn($field_types);
 
-    $driver = $this->createStub(DrupalDriverInterface::class);
-    $driver->method('getCore')->willReturn($core);
+    $backend = $this->createStub(DrupalBackendInterface::class);
+    $backend->method('getCore')->willReturn($core);
 
     $this->testObject->managedBasenames = $existing_managed_basenames;
-    $this->testObject->driver = $driver;
+    $this->testObject->backend = $backend;
     $this->testObject->minkFilesPath = rtrim($this->fixturesPath, DIRECTORY_SEPARATOR);
 
     $stub = new EntityStub('node', 'article', $stub_values);
@@ -341,12 +341,12 @@ class FixtureFileTraitTest extends UnitTestCase {
     $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
   }
 
-  public function testDriverWithoutTheCoreCapabilityLeavesTheStubAlone(): void {
+  public function testBackendWithoutTheCoreCapabilityLeavesTheStubAlone(): void {
     $this->createFixtureFiles(['document.pdf']);
 
     $stub = new EntityStub('node', 'article', ['field_file' => 'document.pdf']);
 
-    $this->testObject->driver = $this->createStub(DriverInterface::class);
+    $this->testObject->backend = $this->createStub(BackendInterface::class);
     $this->testObject->minkFilesPath = rtrim($this->fixturesPath, DIRECTORY_SEPARATOR);
     $this->testObject->callHelperExpandEntityFieldsFixtures('node', $stub);
 
@@ -379,9 +379,9 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
   public string $minkFilesPath = '';
 
   /**
-   * Holds the stubbed driver instance once the test sets it.
+   * Holds the stubbed backend instance once the test sets it.
    */
-  public ?DriverInterface $driver = NULL;
+  public ?BackendInterface $backend = NULL;
 
   public function callHelperLooksLikeCompoundCell(string $value): bool {
     return $this->fixtureFileLooksLikeCompoundCell($value);
@@ -402,16 +402,16 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
   /**
    * {@inheritdoc}
    *
-   * Serves the stubbed driver from a one-driver manager, so the helper
+   * Serves the stubbed backend from a one-backend manager, so the helper
    * resolves through the same capability walk it uses in a run.
    */
-  public function getDriverRegistry(): DriverRegistryInterface {
-    if (!$this->driver instanceof DriverInterface) {
-      throw new \RuntimeException('Set the driver double before the helper reaches it.');
+  public function getBackendRegistry(): BackendRegistryInterface {
+    if (!$this->backend instanceof BackendInterface) {
+      throw new \RuntimeException('Set the backend double before the helper reaches it.');
     }
 
-    $manager = new DriverRegistry(['drupal' => $this->driver]);
-    $manager->setScenarioDrivers(['drupal' => 'drupal']);
+    $manager = new BackendRegistry(['drupal' => $this->backend]);
+    $manager->setScenarioBackends(['drupal' => 'drupal']);
 
     return $manager;
   }

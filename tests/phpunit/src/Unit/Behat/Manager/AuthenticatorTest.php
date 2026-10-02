@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
 
-use Behat\Mink\Driver\DriverInterface as MinkDriverInterface;
+use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\DriverException;
@@ -13,14 +13,14 @@ use Behat\Mink\Session;
 use DrevOps\BehatSteps\Behat\Manager\Authenticator;
 use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticator;
 use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
 use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
 use DrevOps\BehatSteps\Behat\Manager\UserRegistry;
 use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
-use DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface;
-use DrevOps\BehatSteps\Driver\DriverInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
+use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -71,8 +71,8 @@ class AuthenticatorTest extends TestCase {
     $session->method('isStarted')->willReturn(TRUE);
 
     $user_registry = new UserRegistry();
-    $driver_registry = $this->createDriverRegistryMock();
-    $authenticator = $this->createAuthenticator($session, $user_registry, $driver_registry);
+    $backend_registry = $this->createBackendRegistryMock();
+    $authenticator = $this->createAuthenticator($session, $user_registry, $backend_registry);
 
     $user = new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']);
     $authenticator->logIn($user);
@@ -161,7 +161,7 @@ class AuthenticatorTest extends TestCase {
     ];
   }
 
-  public function testLogInCallsBackendDriver(): void {
+  public function testLogInCallsBackend(): void {
     $submit = $this->createMock(NodeElement::class);
 
     $page = $this->createMock(DocumentElement::class);
@@ -172,15 +172,15 @@ class AuthenticatorTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
 
-    $auth_driver = $this->createAuthDriverMock();
-    $auth_driver->expects($this->once())->method('login');
+    $auth_backend = $this->createAuthBackendMock();
+    $auth_backend->expects($this->once())->method('login');
 
-    $driver_registry = $this->createMock(DriverRegistryInterface::class);
-    $driver_registry->method('hasCapability')->willReturn(TRUE);
-    $driver_registry->method('getDriverFor')->willReturn($auth_driver);
-    $driver_registry->method('getResolvedDriverFor')->willReturn($auth_driver);
+    $backend_registry = $this->createMock(BackendRegistryInterface::class);
+    $backend_registry->method('hasCapability')->willReturn(TRUE);
+    $backend_registry->method('getBackendFor')->willReturn($auth_backend);
+    $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
 
-    $authenticator = $this->createAuthenticator($session, NULL, $driver_registry);
+    $authenticator = $this->createAuthenticator($session, NULL, $backend_registry);
     $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
   }
 
@@ -196,8 +196,8 @@ class AuthenticatorTest extends TestCase {
     $user_registry = new UserRegistry();
     $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
 
-    $driver_registry = $this->createDriverRegistryMock();
-    $authenticator = $this->createAuthenticator($session, $user_registry, $driver_registry);
+    $backend_registry = $this->createBackendRegistryMock();
+    $authenticator = $this->createAuthenticator($session, $user_registry, $backend_registry);
     $authenticator->logOut();
     $this->assertFalse($user_registry->getCurrentUser());
   }
@@ -214,8 +214,8 @@ class AuthenticatorTest extends TestCase {
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/logout/confirm');
 
     $user_registry = new UserRegistry();
-    $driver_registry = $this->createDriverRegistryMock();
-    $authenticator = $this->createAuthenticator($session, $user_registry, $driver_registry);
+    $backend_registry = $this->createBackendRegistryMock();
+    $authenticator = $this->createAuthenticator($session, $user_registry, $backend_registry);
     $authenticator->logOut();
     $this->assertFalse($user_registry->getCurrentUser());
   }
@@ -235,21 +235,21 @@ class AuthenticatorTest extends TestCase {
     $authenticator->logOut();
   }
 
-  public function testLogoutCallsBackendDriver(): void {
+  public function testLogoutCallsBackend(): void {
     $page = $this->createMock(DocumentElement::class);
     $session = $this->createSessionMock($page);
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/logout');
 
-    $auth_driver = $this->createAuthDriverMock();
-    $auth_driver->expects($this->once())->method('logout');
+    $auth_backend = $this->createAuthBackendMock();
+    $auth_backend->expects($this->once())->method('logout');
 
-    $driver_registry = $this->createMock(DriverRegistryInterface::class);
-    $driver_registry->method('hasCapability')->willReturn(TRUE);
-    $driver_registry->method('getDriverFor')->willReturn($auth_driver);
-    $driver_registry->method('getResolvedDriverFor')->willReturn($auth_driver);
+    $backend_registry = $this->createMock(BackendRegistryInterface::class);
+    $backend_registry->method('hasCapability')->willReturn(TRUE);
+    $backend_registry->method('getBackendFor')->willReturn($auth_backend);
+    $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
 
-    $authenticator = $this->createAuthenticator($session, NULL, $driver_registry);
+    $authenticator = $this->createAuthenticator($session, NULL, $backend_registry);
     $authenticator->logOut();
   }
 
@@ -291,7 +291,7 @@ class AuthenticatorTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createDriverRegistryMock(), new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $this->assertFalse($authenticator->loggedIn());
   }
 
@@ -407,8 +407,8 @@ class AuthenticatorTest extends TestCase {
     $user_registry = new UserRegistry();
     $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
 
-    $driver_registry = $this->createDriverRegistryMock();
-    $authenticator = new Authenticator($mink, $user_registry, $driver_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $backend_registry = $this->createBackendRegistryMock();
+    $authenticator = new Authenticator($mink, $user_registry, $backend_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $authenticator->fastLogout();
 
     $this->assertFalse($user_registry->getCurrentUser());
@@ -422,27 +422,27 @@ class AuthenticatorTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $driver_registry = $this->createDriverRegistryMock();
-    $authenticator = new Authenticator($mink, new UserRegistry(), $driver_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $backend_registry = $this->createBackendRegistryMock();
+    $authenticator = new Authenticator($mink, new UserRegistry(), $backend_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $authenticator->fastLogout();
   }
 
-  public function testFastLogoutCallsBackendDriver(): void {
+  public function testFastLogoutCallsBackend(): void {
     $session = $this->createMock(Session::class);
     $session->method('isStarted')->willReturn(FALSE);
 
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $auth_driver = $this->createAuthDriverMock();
-    $auth_driver->expects($this->once())->method('logout');
+    $auth_backend = $this->createAuthBackendMock();
+    $auth_backend->expects($this->once())->method('logout');
 
-    $driver_registry = $this->createMock(DriverRegistryInterface::class);
-    $driver_registry->method('hasCapability')->willReturn(TRUE);
-    $driver_registry->method('getDriverFor')->willReturn($auth_driver);
-    $driver_registry->method('getResolvedDriverFor')->willReturn($auth_driver);
+    $backend_registry = $this->createMock(BackendRegistryInterface::class);
+    $backend_registry->method('hasCapability')->willReturn(TRUE);
+    $backend_registry->method('getBackendFor')->willReturn($auth_backend);
+    $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
 
-    $authenticator = new Authenticator($mink, new UserRegistry(), $driver_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, new UserRegistry(), $backend_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
     $authenticator->fastLogout();
   }
 
@@ -455,7 +455,7 @@ class AuthenticatorTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createDriverRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
     $authenticator->fastLogout();
   }
 
@@ -472,7 +472,7 @@ class AuthenticatorTest extends TestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createDriverRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
     $authenticator->fastLogout();
   }
 
@@ -489,33 +489,33 @@ class AuthenticatorTest extends TestCase {
   protected function createSessionMock(?DocumentElement $page = NULL): Session {
     $session = $this->createMock(Session::class);
     $session->method('getPage')->willReturn($page ?? $this->createMock(DocumentElement::class));
-    $session->method('getDriver')->willReturn($this->createMock(MinkDriverInterface::class));
+    $session->method('getDriver')->willReturn($this->createMock(DriverInterface::class));
     return $session;
   }
 
   /**
-   * Creates a mock for the AuthenticationCapability and DriverInterface.
+   * Creates a mock for the AuthenticationCapability and BackendInterface.
    *
-   * @return \DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Driver\DriverInterface&\PHPUnit\Framework\MockObject\MockObject
-   *   The mocked driver.
+   * @return \DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
+   *   The mocked backend.
    */
-  protected function createAuthDriverMock(): AuthenticationCapabilityInterface&DriverInterface&MockObject {
-    /** @var \DrevOps\BehatSteps\Driver\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Driver\DriverInterface&\PHPUnit\Framework\MockObject\MockObject $driver */
-    $driver = $this->createMockForIntersectionOfInterfaces([
+  protected function createAuthBackendMock(): AuthenticationCapabilityInterface&BackendInterface&MockObject {
+    /** @var \DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    $backend = $this->createMockForIntersectionOfInterfaces([
       AuthenticationCapabilityInterface::class,
-      DriverInterface::class,
+      BackendInterface::class,
     ]);
-    $driver->method('isBootstrapped')->willReturn(TRUE);
-    return $driver;
+    $backend->method('isBootstrapped')->willReturn(TRUE);
+    return $backend;
   }
 
-  protected function createDriverRegistryMock(): DriverRegistryInterface {
-    $driver = $this->createMock(DriverInterface::class);
-    $driver->method('isBootstrapped')->willReturn(TRUE);
-    $driver_registry = $this->createMock(DriverRegistryInterface::class);
-    $driver_registry->method('hasCapability')->willReturn(FALSE);
-    $driver_registry->method('getDriver')->willReturn($driver);
-    return $driver_registry;
+  protected function createBackendRegistryMock(): BackendRegistryInterface {
+    $backend = $this->createMock(BackendInterface::class);
+    $backend->method('isBootstrapped')->willReturn(TRUE);
+    $backend_registry = $this->createMock(BackendRegistryInterface::class);
+    $backend_registry->method('hasCapability')->willReturn(FALSE);
+    $backend_registry->method('getBackend')->willReturn($backend);
+    return $backend_registry;
   }
 
   public function testLogInSkipsWaitWhenLoginWaitIsZero(): void {
@@ -719,12 +719,12 @@ class AuthenticatorTest extends TestCase {
    *   Optional Mink session override.
    * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface|null $user_registry
    *   Optional user registry override.
-   * @param \DrevOps\BehatSteps\Behat\Manager\DriverRegistryInterface|null $driver_registry
-   *   Optional driver registry override.
+   * @param \DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface|null $backend_registry
+   *   Optional backend registry override.
    * @param array<string, mixed>|null $parameters
    *   Optional Drupal parameters override.
    */
-  protected function createAuthenticator(?Session $session = NULL, ?UserRegistryInterface $user_registry = NULL, ?DriverRegistryInterface $driver_registry = NULL, ?array $parameters = NULL): Authenticator {
+  protected function createAuthenticator(?Session $session = NULL, ?UserRegistryInterface $user_registry = NULL, ?BackendRegistryInterface $backend_registry = NULL, ?array $parameters = NULL): Authenticator {
     $session ??= $this->createSessionMock();
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
@@ -732,7 +732,7 @@ class AuthenticatorTest extends TestCase {
     return new Authenticator(
           $mink,
           $user_registry ?? new UserRegistry(),
-          $driver_registry ?? $this->createDriverRegistryMock(),
+          $backend_registry ?? $this->createBackendRegistryMock(),
           new BasicAuthenticator($mink, self::MINK_PARAMS),
           self::MINK_PARAMS,
           $parameters ?? self::EXTENSION_PARAMS

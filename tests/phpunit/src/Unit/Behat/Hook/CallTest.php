@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Hook;
 
 use Behat\Behat\Context\Context;
 use Behat\Testwork\Environment\Environment;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Behat\Hook\Call\AfterEntityCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\AfterNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\AfterTermCreate;
@@ -16,7 +17,6 @@ use DrevOps\BehatSteps\Behat\Hook\Call\BeforeTermCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\BeforeUserCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\EntityHook;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\HookedContext;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

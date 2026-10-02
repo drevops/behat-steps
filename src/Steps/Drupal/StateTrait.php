@@ -11,8 +11,8 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Backend\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Driver\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
@@ -59,19 +59,19 @@ trait StateTrait {
     }
 
     // A scenario with no snapshot has nothing to revert, and resolving a
-    // driver would fail a suite that lists none reaching Drupal.
+    // backend would fail a suite that lists none reaching Drupal.
     if ($this->stateOriginalValues === []) {
       return;
     }
 
-    $driver = $this->driverFor(StateCapabilityInterface::class);
+    $backend = $this->backendFor(StateCapabilityInterface::class);
 
     foreach ($this->stateOriginalValues as $name => $snapshot) {
       if ($snapshot['exists']) {
-        $driver->stateSet($name, $snapshot['value']);
+        $backend->stateSet($name, $snapshot['value']);
       }
       else {
-        $driver->stateDelete($name);
+        $backend->stateDelete($name);
       }
     }
 
@@ -88,7 +88,7 @@ trait StateTrait {
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
     $this->stateStoreOriginalValue($name);
-    $this->driverFor(StateCapabilityInterface::class)->stateSet($name, $this->stateNormalizeValue($value));
+    $this->backendFor(StateCapabilityInterface::class)->stateSet($name, $this->stateNormalizeValue($value));
   }
 
   /**
@@ -101,7 +101,7 @@ trait StateTrait {
   #[Given('the state :name does not exist')]
   public function stateDelete(string $name): void {
     $this->stateStoreOriginalValue($name);
-    $this->driverFor(StateCapabilityInterface::class)->stateDelete($name);
+    $this->backendFor(StateCapabilityInterface::class)->stateDelete($name);
   }
 
   /**
@@ -116,7 +116,7 @@ trait StateTrait {
    */
   #[Given('the following state values exist:')]
   public function stateSetMultiple(TableNode $table): void {
-    $driver = $this->driverFor(StateCapabilityInterface::class);
+    $backend = $this->backendFor(StateCapabilityInterface::class);
 
     foreach ($table->getHash() as $row) {
       if (!isset($row['name']) || !array_key_exists('value', $row)) {
@@ -124,7 +124,7 @@ trait StateTrait {
       }
       $name = $row['name'];
       $this->stateStoreOriginalValue($name);
-      $driver->stateSet($name, $this->stateNormalizeValue($row['value']));
+      $backend->stateSet($name, $this->stateNormalizeValue($row['value']));
     }
   }
 
@@ -180,13 +180,13 @@ trait StateTrait {
    *   An associative array with `exists` (bool) and `value` (mixed).
    */
   public function stateReadValue(string $name): array {
-    $driver = $this->driverFor(StateCapabilityInterface::class);
+    $backend = $this->backendFor(StateCapabilityInterface::class);
 
-    if (!$driver->stateExists($name)) {
+    if (!$backend->stateExists($name)) {
       return ['exists' => FALSE, 'value' => NULL];
     }
 
-    return ['exists' => TRUE, 'value' => $driver->stateGet($name)];
+    return ['exists' => TRUE, 'value' => $backend->stateGet($name)];
   }
 
   /**

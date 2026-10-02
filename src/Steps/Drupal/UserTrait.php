@@ -9,11 +9,11 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\RoleCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
@@ -116,7 +116,7 @@ trait UserTrait {
    */
   #[Given('the following users exist:')]
   public function userCreateMultiple(TableNode $table): void {
-    $driver = $this->driverFor(UserCapabilityInterface::class);
+    $backend = $this->backendFor(UserCapabilityInterface::class);
 
     foreach ($table->getHash() as $values) {
       $roles = '';
@@ -135,7 +135,7 @@ trait UserTrait {
       $stub = new EntityStub('user', NULL, $values);
       $this->authUserCreate($stub);
 
-      $this->userAssignRoles($driver, $stub, $roles);
+      $this->userAssignRoles($backend, $stub, $roles);
     }
   }
 
@@ -226,7 +226,7 @@ trait UserTrait {
    */
   #[Given('the role :role_name has the permissions :permissions')]
   public function userCreateRole(string $role_name, string $permissions): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $permissions = $this->stringSplitCommaSeparated($permissions);
 
@@ -322,13 +322,13 @@ trait UserTrait {
    */
   #[When('I log in as a user with the permission(s) :permissions')]
   public function userLogInWithPermissions(string $permissions): void {
-    $role = $this->driverFor(RoleCapabilityInterface::class)->roleCreate(array_filter(array_map(trim(...), explode(',', $permissions))));
+    $role = $this->backendFor(RoleCapabilityInterface::class)->roleCreate(array_filter(array_map(trim(...), explode(',', $permissions))));
     $this->roles[] = $role;
 
     $stub = $this->userBuildStub();
     $this->authUserCreate($stub);
 
-    $this->driverFor(UserCapabilityInterface::class)->userAddRole($stub, $role);
+    $this->backendFor(UserCapabilityInterface::class)->userAddRole($stub, $role);
 
     $this->authLogin($stub);
   }
@@ -570,16 +570,16 @@ trait UserTrait {
    * @param array<string, mixed> $extra_fields
    *   Additional values to set on the account.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
-   *   When no driver in the scenario's order can manage users.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can manage users.
    */
   public function userCreateAndLogIn(string $roles, array $extra_fields = []): void {
-    $driver = $this->driverFor(UserCapabilityInterface::class);
+    $backend = $this->backendFor(UserCapabilityInterface::class);
 
     $stub = $this->userBuildStub($extra_fields);
     $this->authUserCreate($stub);
 
-    $this->userAssignRoles($driver, $stub, $roles);
+    $this->userAssignRoles($backend, $stub, $roles);
 
     $this->authLogin($stub);
   }
@@ -587,15 +587,15 @@ trait UserTrait {
   /**
    * Assign the roles named in a comma-separated list to a saved account.
    *
-   * @param \DrevOps\BehatSteps\Driver\Capability\UserCapabilityInterface $driver
-   *   The driver that performs the assignment.
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface $backend
+   *   The backend that performs the assignment.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The saved user stub.
    * @param string $roles
    *   One role, or several as a comma-separated list. An empty string assigns
    *   nothing.
    */
-  public function userAssignRoles(UserCapabilityInterface $driver, EntityStubInterface $stub, string $roles): void {
+  public function userAssignRoles(UserCapabilityInterface $backend, EntityStubInterface $stub, string $roles): void {
     foreach (array_filter(array_map(trim(...), explode(',', $roles))) as $role) {
       // Every account carries 'authenticated', and the role is not assignable
       // in its own right.
@@ -603,7 +603,7 @@ trait UserTrait {
         continue;
       }
 
-      $driver->userAddRole($stub, $role);
+      $backend->userAddRole($stub, $role);
     }
   }
 
@@ -636,7 +636,7 @@ trait UserTrait {
    *   The user object.
    */
   public function userVisitPasswordResetLinkForUser(UserInterface $user): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $timestamp = \Drupal::time()->getRequestTime();
 
@@ -661,7 +661,7 @@ trait UserTrait {
    *   TRUE if a user with the email exists, FALSE otherwise.
    */
   public function userExistsByMail(string $mail): bool {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $ids = \Drupal::entityTypeManager()
       ->getStorage('user')
@@ -727,7 +727,7 @@ trait UserTrait {
         throw new \RuntimeException('Current user is not logged in.');
       }
 
-      // A stub the driver saved carries the entity; one the Drush driver
+      // A stub the backend saved carries the entity; one the Drush backend
       // created carries the id as a value instead.
       $uid = $user->getId() ?? $user->getValue('uid');
 

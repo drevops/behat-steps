@@ -12,10 +12,10 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\Core\File\FileExists;
@@ -56,7 +56,7 @@ trait FileTrait {
       return;
     }
 
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $fs = new Filesystem();
 
@@ -138,7 +138,7 @@ trait FileTrait {
    */
   #[Given('the following managed files do not exist:')]
   public function fileDeleteManagedFiles(TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $storage = \Drupal::entityTypeManager()->getStorage('file');
 
@@ -166,7 +166,7 @@ trait FileTrait {
    */
   #[Given('the unmanaged file at the URI :uri exists')]
   public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $directory = \Drupal::service('file_system')->dirname($uri);
 
@@ -204,7 +204,7 @@ trait FileTrait {
    */
   #[Then('an unmanaged file at the URI :uri should exist')]
   public function fileAssertUnmanagedExists(string $uri): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     if (!@file_exists($uri)) {
       throw new ExpectationException(sprintf('The file "%s" does not exist.', $uri), $this->getSession()->getDriver());
@@ -220,7 +220,7 @@ trait FileTrait {
    */
   #[Then('an unmanaged file at the URI :uri should not exist')]
   public function fileAssertUnmanagedNotExists(string $uri): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     if (@file_exists($uri)) {
       throw new ExpectationException(sprintf('The file "%s" exists but it should not.', $uri), $this->getSession()->getDriver());
@@ -276,7 +276,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Entity fields stub (must not contain 'path' or 'uri').
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -299,7 +299,7 @@ trait FileTrait {
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Entity fields stub.
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
@@ -308,7 +308,7 @@ trait FileTrait {
    *   Created file entity.
    */
   public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $path = ltrim($path, '/');
 

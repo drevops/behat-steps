@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Behat\Hook\Scope;
 
 use Behat\Behat\Context\Context;
 use Behat\Testwork\Hook\Scope\HookScope;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 /**
  * Contract for the scopes dispatched around entity creation.

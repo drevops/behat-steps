@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Exception\AssertionException;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\Component\Utility\UrlHelper;
@@ -56,7 +56,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects exist:')]
   public function redirectCreate(TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -97,7 +97,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects do not exist:')]
   public function redirectDelete(TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -141,7 +141,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should exist:')]
   public function redirectAssertExist(TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -194,7 +194,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should not exist:')]
   public function redirectAssertNotExist(TableNode $table): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -296,7 +296,7 @@ trait RedirectTrait {
   protected function redirectPrerequisites(): array {
     return [
       Prerequisite::capability(CoreCapabilityInterface::class),
-      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('redirect'), 'the "redirect" module from the "drupal/redirect" package is enabled'),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('redirect'), 'the "redirect" module from the "drupal/redirect" package is enabled'),
     ];
   }
 

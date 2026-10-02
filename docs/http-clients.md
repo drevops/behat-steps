@@ -2,11 +2,11 @@
 
 Most steps read the page the Mink session holds. A few send HTTP requests of their own from PHP: `FileDownloadTrait` downloads a file, `MetatagTrait` fetches the hreflang alternates of a page, `AccessibilityTrait` fetches its engine script, and `RestTrait` sends a request whose response becomes the page. Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from, and how to change them.
 
-3 terms stay apart throughout, and [CONTRIBUTING.md](../CONTRIBUTING.md#driver-browser-driver-and-http-client) holds them for the whole codebase:
+3 terms stay apart throughout, and [CONTRIBUTING.md](../CONTRIBUTING.md#backend-browser-driver-and-http-client) holds them for the whole codebase:
 
-- **Driver** - Drupal, Drush or Blackbox under `src/Driver`, reached with `driverFor()`. Nothing on this page touches them.
+- **Backend** - Drupal, Drush or Blackbox under `src/Backend`, reached with `backendFor()`. Nothing on this page touches them.
 - **Browser driver** - Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
-- **HTTP client** - one of the 3 clients below. None of them is a driver of either kind.
+- **HTTP client** - one of the 3 clients below. None of them is a backend or a browser driver.
 
 ## The 3 clients
 

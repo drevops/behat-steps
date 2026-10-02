@@ -9,7 +9,15 @@ use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Hook\HookDispatcher;
-use DrevOps\BehatSteps\Behat\Context\DriverAwareInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Core\Field\FieldClassifierInterface;
+use DrevOps\BehatSteps\Backend\Core\Field\Parser\EntityFieldParser;
+use DrevOps\BehatSteps\Backend\Core\Field\Parser\EntityFieldParserInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Behat\Context\BackendAwareInterface;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterEntityCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterLanguageCreateScope;
@@ -20,14 +28,6 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeLanguageCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeTermCreateScope;
 use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Driver\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\LanguageCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface;
-use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParser;
-use DrevOps\BehatSteps\Driver\Core\Field\Parser\EntityFieldParserInterface;
-use DrevOps\BehatSteps\Driver\Entity\EntityStub;
-use DrevOps\BehatSteps\Driver\Entity\EntityStubInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\taxonomy\Entity\Vocabulary;
 
@@ -52,7 +52,7 @@ trait EntityLifecycleTrait {
    * Users are tracked in the user registry instead, because a user is looked
    * up by name.
    *
-   * @var array<int, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface>
+   * @var array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
    */
   protected array $createdStubs = [];
 
@@ -66,22 +66,22 @@ trait EntityLifecycleTrait {
   public static function entityLifecycleAlterNodeParameters(BeforeNodeCreateScope $scope): void {
     $stub = $scope->getStub();
 
-    // A driver that writes the node over the command line takes the values as
-    // written, so string dates are converted only for a driver that saves them
+    // A backend that writes the node over the command line takes the values as
+    // written, so string dates are converted only for a backend that saves them
     // through Drupal's own storage.
     $context = $scope->getContext();
 
-    if (!$context instanceof DriverAwareInterface) {
+    if (!$context instanceof BackendAwareInterface) {
       return;
     }
 
-    $registry = $context->getDriverRegistry();
+    $registry = $context->getBackendRegistry();
 
     if (!$registry->hasCapability(ContentCapabilityInterface::class)) {
       return;
     }
 
-    if (!$registry->getDriverFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
+    if (!$registry->getBackendFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
       return;
     }
 
@@ -138,21 +138,21 @@ trait EntityLifecycleTrait {
   /**
    * Creates a node.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The node stub.
    *
-   * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    */
   public function entityLifecycleNodeCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeNodeCreateScope::class, $stub);
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $driver = $this->entityLifecycleGetContentDriver();
-    $this->entityLifecycleParseCreatedFields($stub, $driver, ['author']);
+    $backend = $this->entityLifecycleGetContentBackend();
+    $this->entityLifecycleParseCreatedFields($stub, $backend, ['author']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
-    $driver->nodeCreate($stub);
+    $backend->nodeCreate($stub);
     $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
@@ -168,23 +168,23 @@ trait EntityLifecycleTrait {
   /**
    * Creates a taxonomy term.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The term stub.
    *
-   * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    */
   public function entityLifecycleTermCreate(EntityStubInterface $stub): EntityStubInterface {
-    // The driver loads vocabularies by machine name only, so a human label is
-    // resolved to one first. The driver reports a clearer failure than this
+    // The backend loads vocabularies by machine name only, so a human label is
+    // resolved to one first. The backend reports a clearer failure than this
     // code could, so the resolution is best-effort.
     $vocabulary = $stub->getValue('vocabulary_machine_name');
 
-    if (!empty($vocabulary) && $this->getDriverRegistry()->hasCapability(CoreCapabilityInterface::class)) {
+    if (!empty($vocabulary) && $this->getBackendRegistry()->hasCapability(CoreCapabilityInterface::class)) {
       $stub->setValue('vocabulary_machine_name', $this->entityLifecycleResolveVocabularyMachineName((string) $vocabulary));
     }
 
-    // The driver resolves 'parent' as a term name in the same vocabulary, so
+    // The backend resolves 'parent' as a term name in the same vocabulary, so
     // it is passed through unchanged. An empty value is removed, because the
     // field pipeline would try to expand the empty string as an entity
     // reference.
@@ -195,11 +195,11 @@ trait EntityLifecycleTrait {
     $this->entityLifecycleDispatchHooks(BeforeTermCreateScope::class, $stub);
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $driver = $this->entityLifecycleGetContentDriver();
-    $this->entityLifecycleParseCreatedFields($stub, $driver, ['vocabulary_machine_name']);
+    $backend = $this->entityLifecycleGetContentBackend();
+    $this->entityLifecycleParseCreatedFields($stub, $backend, ['vocabulary_machine_name']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
-    $driver->termCreate($stub);
+    $backend->termCreate($stub);
     $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
@@ -216,23 +216,23 @@ trait EntityLifecycleTrait {
    * Creates an entity of a type that has no dedicated method.
    *
    * The stub is added to 'createdStubs', so 'entityLifecycleCleanAll()'
-   * removes it after the scenario through the driver's 'entityDelete()'
+   * removes it after the scenario through the backend's 'entityDelete()'
    * fallback.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub.
    *
-   * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    */
   public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $driver = $this->entityLifecycleGetContentDriver();
-    $this->entityLifecycleParseCreatedFields($stub, $driver);
+    $backend = $this->entityLifecycleGetContentBackend();
+    $this->entityLifecycleParseCreatedFields($stub, $backend);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
-    $driver->entityCreate($stub);
+    $backend->entityCreate($stub);
     $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hook runs: a hook that throws still
@@ -247,19 +247,19 @@ trait EntityLifecycleTrait {
   /**
    * Creates a language.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Language stub. Must carry a 'langcode' value.
    *
-   * @return \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface|false
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|false
    *   The created language stub, or FALSE if the language already existed.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
-   *   When no driver in the scenario's order can manage languages.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can manage languages.
    */
   public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false {
     $this->entityLifecycleDispatchHooks(BeforeLanguageCreateScope::class, $stub);
 
-    $result = $this->driverFor(LanguageCapabilityInterface::class)->languageCreate($stub);
+    $result = $this->backendFor(LanguageCapabilityInterface::class)->languageCreate($stub);
 
     if ($result === FALSE) {
       return FALSE;
@@ -277,7 +277,7 @@ trait EntityLifecycleTrait {
   /**
    * Registers an entity saved outside the create pipeline for cleanup.
    *
-   * An entity saved through Drupal's API rather than the driver is added to
+   * An entity saved through Drupal's API rather than the backend is added to
    * the same reverse-order teardown. Only the type and id are kept, so
    * cleanup reloads the entity and tolerates a row the scenario already
    * deleted.
@@ -301,19 +301,19 @@ trait EntityLifecycleTrait {
    *
    * A table cell is passed as written: a bare scalar, a comma-separated list,
    * or a compound 'key:"value"' cell. The parser resolves each against the
-   * field's own definition before the driver saves the entity.
+   * field's own definition before the backend saves the entity.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
    * @param array<int, string> $ignored_properties
    *   Value names to leave untouched, such as base properties the caller
    *   handles itself.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
-   *   When no driver in the scenario's order reaches Drupal's API.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order reaches Drupal's API.
    */
   public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    $classifier = $this->driverFor(CoreCapabilityInterface::class)->getCore()->getFieldClassifier();
+    $classifier = $this->backendFor(CoreCapabilityInterface::class)->getCore()->getFieldClassifier();
 
     $parser = $this->entityLifecycleGetFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
     $parser->ignoring($ignored_properties);
@@ -322,16 +322,16 @@ trait EntityLifecycleTrait {
   }
 
   /**
-   * Routes a stub to the right per-type driver delete method.
+   * Routes a stub to the right per-type backend delete method.
    */
   protected function entityLifecycleDeleteStub(EntityStubInterface $stub): void {
     $type = $stub->getEntityType();
-    $registry = $this->getDriverRegistry();
+    $registry = $this->getBackendRegistry();
 
     if (in_array($type, ['language', 'configurable_language'], TRUE)) {
       if ($registry->hasCapability(LanguageCapabilityInterface::class)) {
         try {
-          $this->driverFor(LanguageCapabilityInterface::class)->languageDelete($stub);
+          $this->backendFor(LanguageCapabilityInterface::class)->languageDelete($stub);
         }
         catch (\RuntimeException) {
           // The scenario removed the language itself. Deleting a node, a term
@@ -346,12 +346,12 @@ trait EntityLifecycleTrait {
       return;
     }
 
-    $driver = $this->driverFor(ContentCapabilityInterface::class);
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
 
     match ($type) {
-      'node' => $driver->nodeDelete($stub),
-      'taxonomy_term' => $driver->termDelete($stub),
-      default => $driver->entityDelete($stub),
+      'node' => $backend->nodeDelete($stub),
+      'taxonomy_term' => $backend->termDelete($stub),
+      default => $backend->entityDelete($stub),
     };
   }
 
@@ -374,7 +374,7 @@ trait EntityLifecycleTrait {
    *
    * @param class-string<\DrevOps\BehatSteps\Behat\Hook\Scope\BaseEntityScope> $scope_class
    *   The fully-qualified scope class name.
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub in the create pipeline.
    *
    * @throws \RuntimeException
@@ -385,7 +385,7 @@ trait EntityLifecycleTrait {
       throw new \RuntimeException('The hook dispatcher is available only after Behat has initialized the context.');
     }
 
-    $environment = $this->getDriverRegistry()->getEnvironment();
+    $environment = $this->getBackendRegistry()->getEnvironment();
 
     if (!$environment instanceof Environment) {
       throw new \RuntimeException('Hooks can be dispatched only once a scenario has started.');
@@ -406,24 +406,24 @@ trait EntityLifecycleTrait {
   }
 
   /**
-   * Expands a stub's values during creation, when the driver can classify them.
+   * Expands a stub's values during creation, if the backend can classify them.
    *
-   * Classification reads the site's field definitions, which only a driver
+   * Classification reads the site's field definitions, which only a backend
    * with Drupal bootstrapped exposes.
    *
-   * A driver that passes the values to the command line takes them as
+   * A backend that passes the values to the command line takes them as
    * written, so they are left unparsed. Parsing them would fail a creation
-   * the driver can perform.
+   * the backend can perform.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
-   * @param object $driver
-   *   The driver that will save the entity.
+   * @param object $backend
+   *   The backend that will save the entity.
    * @param array<int, string> $ignored_properties
    *   Value names to leave untouched.
    */
-  protected function entityLifecycleParseCreatedFields(EntityStubInterface $stub, object $driver, array $ignored_properties = []): void {
-    if (!$driver instanceof CoreCapabilityInterface) {
+  protected function entityLifecycleParseCreatedFields(EntityStubInterface $stub, object $backend, array $ignored_properties = []): void {
+    if (!$backend instanceof CoreCapabilityInterface) {
       return;
     }
 
@@ -438,7 +438,7 @@ trait EntityLifecycleTrait {
    *
    * @param string $entity_type
    *   The entity type the values belong to.
-   * @param \DrevOps\BehatSteps\Driver\Core\Field\FieldClassifierInterface $classifier
+   * @param \DrevOps\BehatSteps\Backend\Core\Field\FieldClassifierInterface $classifier
    *   The classifier resolving each value's field definition.
    * @param string|null $bundle
    *   The bundle, or NULL for an entity type without bundles.
@@ -452,10 +452,10 @@ trait EntityLifecycleTrait {
    *
    * Accepts either the machine name (returned as-is) or the human label
    * (looked up via the vocabulary storage). Falls back to the original value
-   * when no label matches, leaving the driver to surface a not-found error.
+   * when no label matches, leaving the backend to surface a not-found error.
    */
   protected function entityLifecycleResolveVocabularyMachineName(string $identifier): string {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     if (!class_exists(Vocabulary::class) || Vocabulary::load($identifier) instanceof Vocabulary) {
       return $identifier;
@@ -473,12 +473,12 @@ trait EntityLifecycleTrait {
   /**
    * Captures the scalar values on an entity stub.
    *
-   * The driver runs base fields through the field-handler pipeline during
+   * The backend runs base fields through the field-handler pipeline during
    * create, which casts scalar values such as 'title', 'name', 'mail' or
    * 'pass' to single-element arrays. Downstream code expects scalars, so the
-   * values are captured before the driver call and restored after it.
+   * values are captured before the backend call and restored after it.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub to inspect.
    *
    * @return array<string, scalar>
@@ -491,7 +491,7 @@ trait EntityLifecycleTrait {
   /**
    * Restores scalar values previously captured.
    *
-   * @param \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub to mutate.
    * @param array<string, scalar> $scalars
    *   Map of value name to original scalar value.
@@ -503,13 +503,13 @@ trait EntityLifecycleTrait {
   }
 
   /**
-   * Resolves the driver that saves entities for this scenario.
+   * Resolves the backend that saves entities for this scenario.
    *
-   * @throws \DrevOps\BehatSteps\Driver\Exception\UnsupportedDriverActionException
-   *   When no driver in the scenario's order can create content.
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can create content.
    */
-  protected function entityLifecycleGetContentDriver(): ContentCapabilityInterface {
-    return $this->driverFor(ContentCapabilityInterface::class);
+  protected function entityLifecycleGetContentBackend(): ContentCapabilityInterface {
+    return $this->backendFor(ContentCapabilityInterface::class);
   }
 
 }

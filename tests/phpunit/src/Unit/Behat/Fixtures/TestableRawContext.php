@@ -20,7 +20,7 @@ class TestableRawContext extends WebRawContext implements UserAwareInterface {
   /**
    * Returns the stubs created during the scenario.
    *
-   * @return array<int, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface>
+   * @return array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
    *   The stubs, in creation order.
    */
   public function getCreatedStubs(): array {
@@ -30,7 +30,7 @@ class TestableRawContext extends WebRawContext implements UserAwareInterface {
   /**
    * Seeds the creation registry.
    *
-   * @param array<int, \DrevOps\BehatSteps\Driver\Entity\EntityStubInterface> $stubs
+   * @param array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface> $stubs
    *   The stubs to register as created.
    */
   public function setCreatedStubs(array $stubs): void {

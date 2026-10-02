@@ -13,9 +13,9 @@ namespace DrevOps\BehatSteps\Behat;
  *
  * Any context reads parameters, text and selectors through this trait, whether
  * or not it extends 'WebRawContext'. A context implements
- * 'ParametersAwareInterface' and composes this trait; 'DriverAwareInitializer'
+ * 'ParametersAwareInterface' and composes this trait; 'BackendAwareInitializer'
  * then injects the parameter array through 'setParameters()' before any
- * scenario runs. No driver bootstrap is required.
+ * scenario runs. No backend bootstrap is required.
  *
  * @see \DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension
  */

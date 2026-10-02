@@ -29,13 +29,13 @@ class PrerequisiteContext extends WebRawContext {
   }
 
   /**
-   * Public bridge to the protected lookup that reuses a reached driver.
+   * Public bridge to the protected lookup that reuses a reached backend.
    *
    * @param class-string $capability
    *   The capability interface to look up.
    */
-  public function callAnyDriverFor(string $capability): object {
-    return $this->anyDriverFor($capability);
+  public function callAnyBackendFor(string $capability): object {
+    return $this->anyBackendFor($capability);
   }
 
 }

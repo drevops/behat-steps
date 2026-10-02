@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Driver\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 
 /**
@@ -37,7 +37,7 @@ trait WebformTrait {
    */
   #[Given('the webform :title does not exist')]
   public function webformDelete(string $title): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -62,7 +62,7 @@ trait WebformTrait {
    */
   #[Given('the webform :title exists from the template :template')]
   public function webformCloneTemplate(string $title, string $template): void {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -109,7 +109,7 @@ trait WebformTrait {
    *   An array of matching webform entities.
    */
   public function webformLoadAll(string $title): array {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -149,7 +149,7 @@ trait WebformTrait {
    *   A machine name suitable for a webform ID.
    */
   protected function webformMachineName(string $title): string {
-    $this->driverFor(CoreCapabilityInterface::class);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     $machine_name = strtolower($title);
     $machine_name = (string) preg_replace('/[^a-z0-9_]+/', '_', $machine_name);
@@ -178,7 +178,7 @@ trait WebformTrait {
   protected function webformPrerequisites(): array {
     return [
       Prerequisite::capability(CoreCapabilityInterface::class),
-      Prerequisite::check(static fn(ModuleCapabilityInterface $driver): bool => $driver->moduleIsEnabled('webform'), 'the "webform" module from the "drupal/webform" package is enabled'),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('webform'), 'the "webform" module from the "drupal/webform" package is enabled'),
     ];
   }
 

@@ -50,15 +50,15 @@ Feature: Check that ModuleTrait works
       | syslog |
 
   # The assertions below resolve the Module capability instead of bootstrapping
-  # Drupal, so the '@driver:drush' tag reads the module list off a site this
+  # Drupal, so the '@backend:drush' tag reads the module list off a site this
   # process never boots. Enabling and disabling over Drush is left to the
   # in-process scenarios above, which do not pay a subprocess per module.
-  @driver:drush
+  @backend:drush
   Scenario: Assert an enabled core module over Drush
     Then the module "node" should be enabled
     And the module "field" should be enabled
 
-  @driver:drush
+  @backend:drush
   Scenario: Assert a module whose code is absent is not enabled
     Then the module "no_such_module_xyz" should be disabled
 

@@ -1,5 +1,5 @@
 parameters:
-  behat_steps.driver_registry.class: DrevOps\BehatSteps\Behat\Manager\DriverRegistry
+  behat_steps.backend_registry.class: DrevOps\BehatSteps\Behat\Manager\BackendRegistry
   behat_steps.authenticator.class: DrevOps\BehatSteps\Behat\Manager\Authenticator
   behat_steps.basic_authenticator.class: DrevOps\BehatSteps\Behat\Manager\BasicAuthenticator
   behat_steps.user_registry.class: DrevOps\BehatSteps\Behat\Manager\UserRegistry
@@ -8,18 +8,18 @@ parameters:
   behat_steps.config.tag_overrides.class: DrevOps\BehatSteps\Behat\Config\TagOverrides
   behat_steps.config.resolver_factory.class: DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory
   behat_steps.http_client_factory.class: DrevOps\BehatSteps\Behat\Http\HttpClientFactory
-  behat_steps.context.initializer.class: DrevOps\BehatSteps\Behat\Context\Initializer\DriverAwareInitializer
+  behat_steps.context.initializer.class: DrevOps\BehatSteps\Behat\Context\Initializer\BackendAwareInitializer
   behat_steps.context.attribute_reader.class: DrevOps\BehatSteps\Behat\Context\Attribute\HookAttributeReader
-  behat_steps.listener.driver.class: DrevOps\BehatSteps\Behat\Listener\DriverListener
+  behat_steps.listener.backend.class: DrevOps\BehatSteps\Behat\Listener\BackendListener
   behat_steps.listener.skip_tag.class: DrevOps\BehatSteps\Behat\Listener\SkipTagListener
   behat_steps.region_selector.class: DrevOps\BehatSteps\Behat\Selector\RegionSelector
   behat_steps.parameters: {}
   behat_steps.regions: {}
-  behat_steps.drivers: {}
+  behat_steps.backends: {}
 
 services:
-  behat_steps.driver_registry:
-    class: "%behat_steps.driver_registry.class%"
+  behat_steps.backend_registry:
+    class: "%behat_steps.backend_registry.class%"
     arguments:
       - {}
   behat_steps.basic_authenticator:
@@ -32,7 +32,7 @@ services:
     arguments:
       - "@mink"
       - "@behat_steps.user_registry"
-      - "@behat_steps.driver_registry"
+      - "@behat_steps.backend_registry"
       - "@behat_steps.basic_authenticator"
       - "%mink.parameters%"
       - "%behat_steps.parameters%"
@@ -58,7 +58,7 @@ services:
   behat_steps.context.initializer:
     class: "%behat_steps.context.initializer.class%"
     arguments:
-      - "@behat_steps.driver_registry"
+      - "@behat_steps.backend_registry"
       - "%behat_steps.parameters%"
       - "@hook.dispatcher"
       - "@behat_steps.basic_authenticator"
@@ -72,12 +72,12 @@ services:
     class: "%behat_steps.context.attribute_reader.class%"
     tags:
       - { name: context.attribute_reader }
-  behat_steps.listener.driver:
-    class: "%behat_steps.listener.driver.class%"
+  behat_steps.listener.backend:
+    class: "%behat_steps.listener.backend.class%"
     arguments:
-      - "@behat_steps.driver_registry"
+      - "@behat_steps.backend_registry"
       - "@behat_steps.scenario_tag_registry"
-      - "%behat_steps.drivers%"
+      - "%behat_steps.backends%"
     tags:
       - { name: event_dispatcher.subscriber, priority: 0 }
   behat_steps.listener.skip_tag:
