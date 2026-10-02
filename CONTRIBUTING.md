@@ -88,7 +88,7 @@ and shut down local web services (Apache/Nginx, MAMP etc)
   the [supported Docker directories](https://docs.docker.com/docker-for-mac/osxfs/#access-control).
 - `pygmy up`
 - `ahoy build`
-- Access built site at http://behat-steps.docker.amazee.io/
+- Access the built site at `http://<directory>.docker.amazee.io/`, where `<directory>` is the name of your checkout directory. `ahoy info` prints the exact URL. Each checkout gets its own hostname, so several clones can run side by side.
 
 Use `ahoy --help` to see the list of available commands.
 
