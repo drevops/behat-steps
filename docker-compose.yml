@@ -95,7 +95,7 @@ services:
 
   # Helper container to wait for services to become available.
   wait_dependencies:
-    image: drevops/docker-wait-for-dependencies:26.6.1@sha256:ff47894232111c3ba3ae28eef447e039999ac47039296cf187b56c1195e241d8
+    image: drevops/docker-wait-for-dependencies:26.10.0@sha256:0a44e138673116e9cfa3e94dd4df29c97f56c0b8f0fdee58c1dc123dd9b52b08
     depends_on:
       - cli
       - mariadb
