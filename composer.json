@@ -37,7 +37,7 @@
         "cweagans/composer-patches": "^2.0",
         "dantleech/gherkin-lint": "^0.2.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
-        "dmore/behat-chrome-extension": "^1.4.1",
+        "dmore/behat-chrome-extension": "^1.5.0",
         "drevops/behat-phpserver": "^3.0.0",
         "drevops/behat-screenshot": "^3.0.0",
         "drevops/phpcs-standard": "^1.0",
