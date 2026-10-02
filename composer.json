@@ -47,6 +47,8 @@
         "softcreatr/jsonpath": "^0.10 || ^1.0"
     },
     "conflict": {
+        "behat/behat": ">=4",
+        "drupal/core": ">=12",
         "drupal/drupal-extension": "<6"
     },
     "suggest": {
