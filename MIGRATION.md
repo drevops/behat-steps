@@ -1919,7 +1919,7 @@ A tag that was only meant for some of the scenarios in a feature moves down onto
 
 Mink owns the word "driver" across the Behat ecosystem, and this package used it for a second thing: the Drupal, Drush and Blackbox backends a step resolves a capability from. So `$this->getDriver('drupal')` and `$this->getSession()->getDriver()` returned 2 unrelated objects, and only a naming rule told them apart. The backends now carry their own name, and "driver" in this package only ever means Mink's browser driver.
 
-Apart from 1 removed interface, it's a rename: behaviour stays the same, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name, so nothing keeps running against the old names by accident.
+Apart from 1 removed interface, it's a rename: behaviour stays the same, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name. The service container is the exception: a parameter, service tag or service id under its old name can go unread without an error, so [Service ids and parameters](#service-ids-and-parameters) lists what to check.
 
 ### Configuration and tags
 
@@ -2075,6 +2075,8 @@ A parameter named `$driver` that held a backend is now `$backend`. That only mat
 
 The parameters follow their service: `behat_steps.driver_registry.class` becomes `behat_steps.backend_registry.class`, `behat_steps.driver.drush.binary` becomes `behat_steps.backend.drush.binary`, and so on for every `.class`, `drupal_root`, `alias`, `binary` and `root` parameter. Unlike the configuration key, a parameter under its old name isn't rejected - it's just never read again - so a suite that swaps an implementation through one should check it renamed it.
 
+An old service id is only loud where something requires it. An `@behat_steps.driver_registry` argument or a `getDefinition()` call fails the container build on the missing service, though Symfony's message doesn't mention the rename. A `hasDefinition()` check or a service defined under an old id is as quiet as a parameter.
+
 A backend of your own registers by tagging its service `behat_steps.backend`, with the name it answers to as the alias:
 
 ```yaml
@@ -2086,6 +2088,10 @@ tags:
 tags:
   - { name: behat_steps.backend, alias: acme-jsonapi }
 ```
+
+A service still tagged `behat_steps.driver` isn't registered at all. When the `backends` list names it, the container build fails with `The "backends" list under "behat_steps" names the backend "acme-jsonapi", which is not registered.` Without a `backends` list it's left out of the scenario's order, so each step resolves the first remaining backend that provides its capability, or fails with `No backend provides "..."` when none does.
+
+`grep -rnE 'behat_steps\.(listener\.)?driver' <your extension directory>` lists every container name that needs the rename: parameters, service ids and tags.
 
 ### Messages
 
