@@ -150,9 +150,9 @@ trait BehatCliTrait {
 
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
 {{USE_DECLARATION}}

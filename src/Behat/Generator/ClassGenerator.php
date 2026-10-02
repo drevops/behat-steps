@@ -25,10 +25,10 @@ class ClassGenerator implements UpstreamClassGenerator {
   protected static string $template = <<<'PHP'
 <?php
 
-{namespace}use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+{namespace}use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Behat\Tester\Exception\PendingException;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
  * Defines application features from the specific context.
