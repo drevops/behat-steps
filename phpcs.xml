@@ -9,6 +9,7 @@
     <rule ref="Generic.PHP.RequireStrictTypes" />
     <rule ref="PHPCompatibility"/>
     <rule ref="DrevOps"/>
+    <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses"/>
 
     <!-- Show sniff codes in all reports -->
     <arg value="s"/>

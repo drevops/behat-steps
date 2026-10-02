@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\ServiceContainer;
 
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BackendPass;
 use DrevOps\BehatSteps\Backend\BlackboxBackend;
 use DrevOps\BehatSteps\Backend\Core\Core;
 use DrevOps\BehatSteps\Backend\DrupalBackend;
+use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BackendPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

@@ -51,10 +51,10 @@ class ClassGeneratorTest extends TestCase {
 
 namespace App\Tests\Behat;
 
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Behat\Tester\Exception\PendingException;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
  * Defines application features from the specific context.
@@ -82,10 +82,10 @@ PHP;
     $rootless = <<<'PHP'
 <?php
 
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Behat\Tester\Exception\PendingException;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
  * Defines application features from the specific context.

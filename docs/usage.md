@@ -84,8 +84,8 @@ A suite that writes its own Drupal steps composes the helper for the concern it 
 <?php
 
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 
 class SpecContext extends WebRawContext {

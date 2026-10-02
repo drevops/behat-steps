@@ -46,37 +46,37 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
    */
   public function testCacheClearDispatches(): void {
     // Populate a cache entry so the clear has something to flush.
-    \Drupal::cache()->set('drupal_driver_test:sentinel', 'value');
-    $this->assertNotFalse(\Drupal::cache()->get('drupal_driver_test:sentinel'));
+    \Drupal::cache()->set('drupal_backend_test:sentinel', 'value');
+    $this->assertNotFalse(\Drupal::cache()->get('drupal_backend_test:sentinel'));
 
     $this->core->cacheClear();
 
-    $this->assertFalse(\Drupal::cache()->get('drupal_driver_test:sentinel'));
+    $this->assertFalse(\Drupal::cache()->get('drupal_backend_test:sentinel'));
   }
 
   /**
    * Tests that 'cacheClearStatic()' resets Drupal's static caches.
    */
   public function testCacheClearStaticResetsStatics(): void {
-    $counter = &drupal_static('drupal_driver_test_counter');
+    $counter = &drupal_static('drupal_backend_test_counter');
     $counter = 7;
-    $this->assertSame(7, drupal_static('drupal_driver_test_counter'));
+    $this->assertSame(7, drupal_static('drupal_backend_test_counter'));
 
     $this->core->cacheClearStatic();
 
-    $this->assertNull(drupal_static('drupal_driver_test_counter'));
+    $this->assertNull(drupal_static('drupal_backend_test_counter'));
   }
 
   /**
    * Tests that 'cacheClearStatic()' empties the memory cache bin.
    */
   public function testCacheClearStaticEmptiesTheMemoryBin(): void {
-    \Drupal::cache('memory')->set('drupal_driver_test:memory', 'value');
-    $this->assertNotFalse(\Drupal::cache('memory')->get('drupal_driver_test:memory'));
+    \Drupal::cache('memory')->set('drupal_backend_test:memory', 'value');
+    $this->assertNotFalse(\Drupal::cache('memory')->get('drupal_backend_test:memory'));
 
     $this->core->cacheClearStatic();
 
-    $this->assertFalse(\Drupal::cache('memory')->get('drupal_driver_test:memory'));
+    $this->assertFalse(\Drupal::cache('memory')->get('drupal_backend_test:memory'));
   }
 
   /**
