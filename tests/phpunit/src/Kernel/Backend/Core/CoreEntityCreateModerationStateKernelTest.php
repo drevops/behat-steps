@@ -6,9 +6,9 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Core;
 
 use DrevOps\BehatSteps\Backend\Core\Core;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\content_moderation\Entity\ContentModerationState;
 use Drupal\content_moderation\Plugin\WorkflowType\ContentModeration;
+use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\workflows\Entity\Workflow;

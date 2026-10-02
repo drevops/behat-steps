@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Backend;
 
-use DrevOps\BehatSteps\Backend\Core99\Core as Core99Core;
 use DrevOps\BehatSteps\Backend\Core\Core;
+use DrevOps\BehatSteps\Backend\Core99\Core as Core99Core;
 use DrevOps\BehatSteps\Backend\DrupalBackend;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;

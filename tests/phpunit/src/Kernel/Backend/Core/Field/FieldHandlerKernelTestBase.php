@@ -7,10 +7,10 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Core\Field;
 use DrevOps\BehatSteps\Backend\Core\Core;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\entity_test\EntityTestHelper;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**

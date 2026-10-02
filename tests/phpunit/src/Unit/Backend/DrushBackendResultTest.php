@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Backend;
 
-use DrevOps\BehatSteps\Backend\DrushBackend;
 use DrevOps\BehatSteps\Backend\Drush\DrushResult;
+use DrevOps\BehatSteps\Backend\DrushBackend;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ProcessStubDrushBackend;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

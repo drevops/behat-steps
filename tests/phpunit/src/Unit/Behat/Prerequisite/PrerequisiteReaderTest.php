@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Prerequisite;
 
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Behat\Prerequisite\PrerequisiteReader;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Behat\Prerequisite\PrerequisiteReader;
 use DrevOps\BehatSteps\Steps\Drupal\SearchApiTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\CountedPrerequisiteTrait;
@@ -15,8 +15,8 @@ use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\NotListPrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\PrerequisiteContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\PrerequisiteReaderHost;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\RedeclaringPrerequisiteReaderHost;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\SamplePrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\SampleConfigTrait;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\SamplePrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\WrongEntryPrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;

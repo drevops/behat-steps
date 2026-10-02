@@ -6,9 +6,9 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Core;
 
 use DrevOps\BehatSteps\Backend\Core\Core;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\commerce_product\Entity\Product;
 use Drupal\commerce_store\Entity\Store;
+use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
