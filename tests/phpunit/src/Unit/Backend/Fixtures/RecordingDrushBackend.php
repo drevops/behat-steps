@@ -10,7 +10,7 @@ use DrevOps\BehatSteps\Backend\DrushBackend;
 /**
  * Subclass of 'DrushBackend' that records every Drush invocation.
  *
- * Both entry points are stubbed, because a backend method reaches for
+ * Both entry points are stubbed, because a backend method calls
  * 'drushResult()' when a non-zero exit is an answer rather than a failure.
  */
 class RecordingDrushBackend extends DrushBackend {
@@ -33,11 +33,10 @@ class RecordingDrushBackend extends DrushBackend {
   public int $drushExitCode = 0;
 
   /**
-   * Commands 'drush()' raises on, as a command name to remaining-failure count.
+   * Remaining failure counts keyed by the command name 'drush()' throws on.
    *
-   * A count lets a test fail the first call of a command and let a later one
-   * through, which is what a backend method recovering from a failed write
-   * needs.
+   * A count lets a test fail the first call of a command and let a later
+   * call succeed.
    *
    * @var array<string, int>
    */
@@ -52,7 +51,7 @@ class RecordingDrushBackend extends DrushBackend {
     if (($this->drushFailures[$command] ?? 0) > 0) {
       $this->drushFailures[$command]--;
 
-      throw new \RuntimeException(sprintf("Drush command '%s' exited with code 1.", $command));
+      throw new \RuntimeException(sprintf('Drush command "%s" exited with code 1.', $command));
     }
 
     return $this->drushResponse;

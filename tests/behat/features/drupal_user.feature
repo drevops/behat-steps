@@ -80,7 +80,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   @trait:Drupal\UserTrait
@@ -112,7 +112,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   @trait:Drupal\UserTrait
@@ -144,7 +144,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   @trait:Drupal\UserTrait
@@ -176,7 +176,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   Scenario: Assert "When I visit my own user profile page" for existing user
@@ -223,7 +223,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   Scenario: Assert "When I visit my own user profile edit page" for existing user
@@ -260,7 +260,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   Scenario: Assert "When I visit my own user profile delete page" for existing user
@@ -297,7 +297,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   Scenario: Assert "When I visit my own password reset link" works
@@ -371,7 +371,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" works
@@ -424,7 +424,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   Scenario: Assert "Then the user :name should be blocked"
@@ -453,7 +453,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   Scenario: Assert "Then the user :name should not be blocked"
@@ -482,7 +482,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      User with name "non_existing" does not exist.
+      The user "non_existing" does not exist.
       """
 
   Scenario: Assert "Given the role :role_name has the permissions :permissions" works

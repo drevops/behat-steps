@@ -59,7 +59,7 @@ Feature: Check that ContentTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Content type "non_existing" does not exist.
+      The content type "non_existing" does not exist.
       """
 
   @trait:Drupal\ContentTrait
@@ -95,7 +95,7 @@ Feature: Check that ContentTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Content type "non_existing" does not exist.
+      The content type "non_existing" does not exist.
       """
 
   @trait:Drupal\ContentTrait
@@ -131,7 +131,7 @@ Feature: Check that ContentTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Content type "non_existing" does not exist.
+      The content type "non_existing" does not exist.
       """
 
   @trait:Drupal\ContentTrait
@@ -167,7 +167,7 @@ Feature: Check that ContentTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Content type "non_existing" does not exist.
+      The content type "non_existing" does not exist.
       """
 
   @trait:Drupal\ContentTrait
@@ -206,7 +206,7 @@ Feature: Check that ContentTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Content type "non_existing" does not exist.
+      The content type "non_existing" does not exist.
       """
 
   @trait:Drupal\ContentTrait
@@ -437,7 +437,7 @@ Feature: Check that ContentTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Content type "non_existing" does not exist.
+      The content type "non_existing" does not exist.
       """
 
   @trait:Drupal\ContentTrait

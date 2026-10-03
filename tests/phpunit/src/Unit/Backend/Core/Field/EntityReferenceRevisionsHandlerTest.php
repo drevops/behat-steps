@@ -96,7 +96,7 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
       ['Paragraph X'],
       NULL,
       \RuntimeException::class,
-      "No entity 'Paragraph X' of type 'paragraph' exists.",
+      'No entity "Paragraph X" of type "paragraph" exists.',
     ];
   }
 
@@ -123,7 +123,7 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
     $handler = $this->createHandler();
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage("Entity '99' of type 'paragraph' no longer exists.");
+    $this->expectExceptionMessage('Entity "99" of type "paragraph" no longer exists.');
 
     $handler->expand([99]);
   }
@@ -135,7 +135,7 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
     $handler = $this->createHandlerWithSettings(['handler_settings' => ['target_bundles' => ['image' => 'image']]]);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage(sprintf("Entity '99' of type 'paragraph' is of bundle '%s', which the field does not accept. Allowed: image.", self::TARGET_BUNDLE));
+    $this->expectExceptionMessage(sprintf('Entity "99" of type "paragraph" is of bundle "%s", which the field does not accept. Allowed: image.', self::TARGET_BUNDLE));
 
     $handler->expand([99]);
   }

@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception;
 /**
  * Container for multiple parse errors detected in a single cell.
  *
- * Parsers collect all errors detected in one cell before throwing, so the
+ * Parsers collect all errors detected in 1 cell before throwing, so the
  * test author sees every problem at once.
  */
 class MultipleParseException extends ParseException {
@@ -16,7 +16,7 @@ class MultipleParseException extends ParseException {
    * Wraps multiple parse errors detected in a single cell.
    *
    * @param ParseException[] $errors
-   *   The individual parse errors. Must contain at least one entry.
+   *   The individual parse errors. Must contain at least 1 entry.
    * @param string $cell
    *   The cell value being parsed when the errors were collected.
    * @param \Throwable|null $previous
@@ -27,8 +27,8 @@ class MultipleParseException extends ParseException {
       throw new \RuntimeException('MultipleParseException requires at least one error.');
     }
 
-    // 'reset()' reads the first error by iteration order, because a caller
-    // that filtered its errors passes a list with gaps in its keys.
+    // 'reset()' reads the first error by iteration order, because '$errors'
+    // may have gaps in its keys.
     $first = reset($errors);
 
     parent::__construct($first->errorCode, $first->offset, $cell, $this->buildDescription($errors), NULL, $previous);

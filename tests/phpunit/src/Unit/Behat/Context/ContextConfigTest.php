@@ -140,12 +140,12 @@ class ContextConfigTest extends UnitTestCase {
   public static function dataProviderSkipTag(): \Iterator {
     yield 'no tag and no config runs the hook' => ['SampleTrait', [], [], FALSE];
     yield 'the trait tag skips the hook' => ['SampleTrait', ['behat-steps-skip:SampleTrait'], [], TRUE];
-    yield 'a fully qualified trait reads the short tag' => ['Acme\Behat\SampleTrait', ['behat-steps-skip:SampleTrait'], [], TRUE];
+    yield 'a fully qualified trait reads the short tag' => ['Acme\\Behat\\SampleTrait', ['behat-steps-skip:SampleTrait'], [], TRUE];
     yield 'a disabled group skips the hook' => ['SampleTrait', [], ['sample' => ['enabled' => FALSE]], TRUE];
     yield 'a hook tag does not skip the hook' => ['SampleTrait', ['behat-steps-skip:sampleBeforeScenario'], [], FALSE];
     yield 'another trait tag does not skip the hook' => ['SampleTrait', ['behat-steps-skip:SampleExtraTrait'], [], FALSE];
 
-    // 'SampleExtraTrait' starts with 'Sample', and each trait keeps to its own
+    // 'SampleExtraTrait' starts with 'Sample', and each trait maps to its own
     // group in both directions.
     yield 'a disabled group skips its own trait' => ['SampleExtraTrait', [], ['sample_extra' => ['enabled' => FALSE]], TRUE];
     yield 'a disabled group leaves a trait extending its name running' => ['SampleExtraTrait', [], ['sample' => ['enabled' => FALSE]], FALSE];

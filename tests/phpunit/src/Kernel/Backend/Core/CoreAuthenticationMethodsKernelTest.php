@@ -40,7 +40,7 @@ class CoreAuthenticationMethodsKernelTest extends KernelTestBase {
 
     $this->installEntitySchema('user');
     $this->installConfig(['user']);
-    // Anonymous user (uid 0) - Drupal expects it to exist.
+    // Drupal requires the anonymous user (uid 0) to exist.
     User::create([
       'uid' => 0,
       'name' => '',
@@ -50,9 +50,6 @@ class CoreAuthenticationMethodsKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests that 'login()' switches the active account.
-   */
   public function testLoginSwitchesAccount(): void {
     $account = User::create([
       'name' => 'alice',

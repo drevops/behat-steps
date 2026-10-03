@@ -58,9 +58,6 @@ class StepScenarioCoverageTest extends UnitTestCase {
    */
   protected const NESTED_FEATURE_PATTERN = '/^(?:there is )?a file named "[^"]*\.feature" with:$/';
 
-  /**
-   * Assert that every registered step matches a step some scenario runs.
-   */
   public function testEveryRegisteredStepIsRun(): void {
     $root = dirname(__DIR__, 3);
     $texts = static::scenarioStepTexts(glob($root . '/tests/behat/features/*.feature') ?: [], static::suiteFilter($root . '/behat.php'));
@@ -286,9 +283,6 @@ class StepScenarioCoverageTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Assert that a scenario is collected whatever its tags without a filter.
-   */
   public function testScenarioStepTextsWithoutFilter(): void {
     $file = $this->writeFixture('features/subject.feature', "Feature: Subject\n  @skipped\n  Scenario: Skipped\n    Given the skipped step\n");
 
@@ -393,9 +387,6 @@ class StepScenarioCoverageTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Assert that the steps declared under the directory are discovered.
-   */
   public function testRegisteredSteps(): void {
     $expected = [
       ['label' => 'StepCoverageContext::contextStep()', 'pattern' => 'the context step should run'],
@@ -408,9 +399,6 @@ class StepScenarioCoverageTest extends UnitTestCase {
     $this->assertSame($expected, static::registeredSteps(StepCoverageContext::class, __DIR__ . '/Fixtures/StepCoverage'));
   }
 
-  /**
-   * Assert that step discovery rejects a directory that does not exist.
-   */
   public function testRegisteredStepsWithMissingDirectory(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('does not exist.');
@@ -500,8 +488,6 @@ class StepScenarioCoverageTest extends UnitTestCase {
 
     $runs = [];
 
-    // The lowest supported Behat installs gherkin 4.17, which has no
-    // getExecutableChildren().
     // @phpstan-ignore method.deprecated
     foreach ($feature->getScenarios() as $scenario) {
       $runs = array_merge($runs, $scenario instanceof OutlineNode ? $scenario->getExamples() : [$scenario]);

@@ -28,8 +28,8 @@ use Drupal\paragraphs\ParagraphInterface;
  */
 trait ParagraphsTrait {
 
-  use QueryTrait;
   use EntityLifecycleTrait;
+  use QueryTrait;
 
   /**
    * Create a paragraph of the given type with fields within an existing entity.

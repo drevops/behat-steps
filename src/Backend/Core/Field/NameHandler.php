@@ -55,7 +55,7 @@ class NameHandler extends AbstractHandler {
     }
 
     if (!is_array($values)) {
-      throw new \RuntimeException(sprintf('Name field value must be a string or an array, got %s.', get_debug_type($values)));
+      throw new \RuntimeException(sprintf('Name field value must be a string or an array. Got %s.', get_debug_type($values)));
     }
 
     if (!array_is_list($values)) {
@@ -71,7 +71,7 @@ class NameHandler extends AbstractHandler {
       }
 
       if (!is_array($value)) {
-        throw new \RuntimeException(sprintf('Name field delta %d must be a string or an array, got %s.', $delta, get_debug_type($value)));
+        throw new \RuntimeException(sprintf('Name field delta %d must be a string or an array. Got %s.', $delta, get_debug_type($value)));
       }
 
       $names[] = $this->normalizeArray($value, $enabled);
@@ -156,7 +156,7 @@ class NameHandler extends AbstractHandler {
    */
   protected function normalizeArray(array $value, array $enabled): array {
     if ($value !== [] && !array_is_list($value) && $this->hasNumericKey($value)) {
-      throw new \RuntimeException('Cannot mix numeric and named keys in the same name value; use one shape consistently.');
+      throw new \RuntimeException('Cannot mix positional and named keys in the same name value; use one shape consistently.');
     }
 
     $name = [];

@@ -183,7 +183,7 @@ Feature: Check that FileTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      File contents "test content" contains "test content", but should not.
+      File contents "test content" contains "test content", but it should not.
       """
 
   @trait:Drupal\FileTrait

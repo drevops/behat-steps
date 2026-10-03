@@ -16,8 +16,8 @@ use Symfony\Component\BrowserKit\Cookie;
 /**
  * Capabilities of a BrowserKit-based browser driver.
  *
- * The browser driver is itself an HTTP client rather than a browser, so it
- * reads cookies, sets request headers and lends out its client, but runs no
+ * The browser driver is itself an HTTP client rather than a browser. It reads
+ * cookies, sets request headers and exposes its client, but runs no
  * JavaScript and dispatches no key events.
  */
 class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityInterface, HttpClientCapabilityInterface, RequestHeaderCapabilityInterface {
@@ -38,10 +38,9 @@ class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityIn
     $jar = $driver->getClient()->getCookieJar();
 
     // The value list holds 1 entry per name, already resolved for the current
-    // URL by domain, path and secure flag. The cookie objects supply the
-    // remaining properties, and 'all()' flattens every domain and path
-    // together, so several objects can share a name: the one carrying the
-    // resolved value is the one that belongs to this URL.
+    // URL by domain, path and secure flag. 'all()' flattens every domain and
+    // path together, so several objects can share a name: the one carrying
+    // the resolved value is the one that belongs to this URL.
     $resolved = $jar->allValues($driver->getCurrentUrl(), TRUE);
     $cookies = [];
 

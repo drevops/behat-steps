@@ -39,7 +39,7 @@ class BasicAuthenticatorTest extends TestCase {
       $session->expects($this->once())->method('setBasicAuth')->with($expected[0], $expected[1]);
     }
 
-    $this->createManager($session, $base_url)->applyBasicAuth();
+    $this->createBasicAuthenticator($session, $base_url)->applyBasicAuth();
   }
 
   public static function dataProviderApplyBasicAuth(): \Iterator {
@@ -75,7 +75,7 @@ class BasicAuthenticatorTest extends TestCase {
    */
   #[DataProvider('dataProviderFindCredentials')]
   public function testFindCredentials(string $base_url, ?array $expected): void {
-    $this->assertSame($expected, $this->createManager($this->createMock(Session::class), $base_url)->findCredentials());
+    $this->assertSame($expected, $this->createBasicAuthenticator($this->createMock(Session::class), $base_url)->findCredentials());
   }
 
   public static function dataProviderFindCredentials(): \Iterator {
@@ -94,13 +94,13 @@ class BasicAuthenticatorTest extends TestCase {
     $session = $this->createMock(Session::class);
     $session->expects($this->once())->method('setBasicAuth')->willThrowException(new UnsupportedDriverActionException('Basic auth setup is not supported by %s', $this->createMock(DriverInterface::class)));
 
-    $this->createManager($session, 'http://alice:secret@localhost')->applyBasicAuth();
+    $this->createBasicAuthenticator($session, 'http://alice:secret@localhost')->applyBasicAuth();
   }
 
   /**
    * Builds an authenticator over a session and a configured base URL.
    */
-  protected function createManager(Session $session, string $base_url): BasicAuthenticator {
+  protected function createBasicAuthenticator(Session $session, string $base_url): BasicAuthenticator {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 

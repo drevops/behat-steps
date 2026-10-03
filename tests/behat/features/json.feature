@@ -111,7 +111,7 @@ Feature: Check that JsonTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The JSON response must decode to an array or object, but got integer.
+      The JSON response must decode to an array or object, but got int.
       """
 
   @trait:JsonTrait

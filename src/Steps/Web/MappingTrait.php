@@ -21,7 +21,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * declared in does not take part in the lookup.
  *
  * The transform matches the token's braces rather than a placeholder name, so
- * one map covers every string argument without the step opting in.
+ * 1 map covers every string argument without the step opting in.
  *
  * Operates on Gherkin text alone: no Mink session and no backend, so the trait
  * works in any suite.
@@ -33,7 +33,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
 trait MappingTrait {
 
   /**
-   * Matches one `{{ Key }}` token, capturing the still-untrimmed key.
+   * Matches 1 `{{ Key }}` token, capturing the still-untrimmed key.
    */
   protected const MAPPING_TOKEN_REGEX = '#\{\{(.+?)\}\}#';
 
@@ -105,7 +105,7 @@ trait MappingTrait {
    *   The string with every token replaced by its mapped value.
    */
   public function mappingSubstitute(string $value): string {
-    $result = preg_replace_callback(self::MAPPING_TOKEN_REGEX, fn(array $match): string => $this->mappingGetValue(trim($match[1])), $value);
+    $result = preg_replace_callback(self::MAPPING_TOKEN_REGEX, fn(array $matches): string => $this->mappingGetValue(trim($matches[1])), $value);
 
     return $result ?? $value;
   }
@@ -126,7 +126,7 @@ trait MappingTrait {
     $mappings = $this->mappingGetFlattened();
 
     if (!isset($mappings[$name])) {
-      throw new \RuntimeException(sprintf('No such mapping: %s', $name));
+      throw new \RuntimeException(sprintf('No such mapping: %s.', $name));
     }
 
     return $mappings[$name];
@@ -136,7 +136,7 @@ trait MappingTrait {
    * Flattens the configured groups into a single key to value map.
    *
    * A group is a way to organise the configuration and takes no part in the
-   * lookup, so a key appearing in two groups would make its bare-key token
+   * lookup, so a key appearing in 2 groups would make its bare-key token
    * ambiguous.
    *
    * @return array<string, string>
@@ -173,7 +173,7 @@ trait MappingTrait {
   protected function mappingConfigSchema(): array {
     return [
       new Option('enabled', default: TRUE, description: 'Replace `{{ Key }}` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched.'),
-      new Option('groups', default: [], description: 'Named value mappings grouped for organisation. Group names take no part in the lookup, so a key must be unique across all groups.'),
+      new Option('groups', default: [], description: 'Named value mappings grouped for organization. Group names take no part in the lookup, so a key must be unique across all groups.'),
     ];
   }
 

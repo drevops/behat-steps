@@ -24,7 +24,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  * Test file download functionality with content verification.
  *
  * - Download files through links and URLs with session cookie handling.
- * - Verify file names, content, and extracted archives.
+ * - Verify file names, content, and zip archive entries.
  * - Set up download directories and handle file cleanup.
  *
  * Skip processing with tag: `@behat-steps-skip:FileDownloadTrait`.
@@ -143,7 +143,7 @@ trait FileDownloadTrait {
     if (is_array($lines)) {
       foreach ($lines as $line) {
         if ($this->fileDownloadIsRegex($string)) {
-          if (preg_match($string, $line)) {
+          if (preg_match($string, $line) === 1) {
             return;
           }
         }
@@ -271,7 +271,7 @@ trait FileDownloadTrait {
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
         if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partial_name)) {
-          $errors[] = sprintf('Found file partially named "%s" in archive but should not.', $partial_name);
+          $errors[] = sprintf('Found file partially named "%s" in archive, but it should not.', $partial_name);
           break;
         }
       }
@@ -317,7 +317,6 @@ trait FileDownloadTrait {
       throw new \RuntimeException('Downloaded file information does not have content type data.');
     }
     // @codeCoverageIgnoreEnd
-    // A ".zip" file name is exempt from the content-type check.
     $file_name = $this->fileDownloadDownloadedFileInfo['file_name'] ?? '';
     $has_zip_extension = str_ends_with(strtolower($file_name), '.zip');
 
@@ -346,9 +345,8 @@ trait FileDownloadTrait {
   /**
    * Download file.
    *
-   * The request goes through the detached client, so it carries the
-   * scenario's cookies and headers and leaves the page the session holds
-   * untouched.
+   * The detached client sends the request, so it carries the scenario's
+   * cookies and headers. The page the session holds is left untouched.
    *
    * @param string $url
    *   URL to download file from.
@@ -474,7 +472,7 @@ trait FileDownloadTrait {
    */
   protected function fileDownloadIsRegex(string $string): bool {
     $string = trim($string);
-    return (bool) preg_match('/^\/.+\/[imsxADSUXJun]*$/', $string);
+    return preg_match('/^\/.+\/[imsxADSUXJun]*$/', $string) === 1;
   }
 
   /**

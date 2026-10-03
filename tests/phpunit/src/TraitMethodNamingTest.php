@@ -117,6 +117,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    *
    * A `Then` step is an assertion, and so is a helper whose docblock opens
    * with "Assert". A hook is named for its event even when it asserts.
+   *
    * `Assert` appears nowhere else in a name, so the shape is always
    * `<prefix>Assert<Subject><Predicate>`.
    *
@@ -691,9 +692,8 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Check that a method name opens with the prefix as a whole word.
    *
-   * The character after the prefix must be uppercase so that a name which
-   * merely starts with the same letters, such as 'waiting' against 'wait',
-   * is not accepted.
+   * The character after the prefix must be uppercase, so a name that only
+   * starts with the same letters ('waiting' against 'wait') is not accepted.
    */
   protected static function hasPrefix(string $method, string $prefix): bool {
     if ($method === $prefix) {

@@ -48,8 +48,8 @@ interface HttpClientFactoryInterface {
    * Returns a copy whose browsers send through a decorated transport.
    *
    * The decorator receives the shared transport, so the copy keeps the site's
-   * connection options. A context overriding its factory uses it to add
-   * retries, tracing or a mock to every detached and bare browser.
+   * connection options. Retries, tracing or a mock added this way apply to
+   * every detached and bare browser.
    *
    * @param callable(\Symfony\Contracts\HttpClient\HttpClientInterface): \Symfony\Contracts\HttpClient\HttpClientInterface $decorator
    *   Receives the transport and returns the one to send through.

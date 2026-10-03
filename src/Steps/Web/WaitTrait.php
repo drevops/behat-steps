@@ -23,9 +23,9 @@ use DrevOps\BehatSteps\Behat\Tag;
  * - Wait for jQuery and Drupal AJAX activity to settle, on demand or around
  *   every step that navigates or submits.
  *
- * Mink's own AJAX wait watches `jQuery.active` alone, while Drupal renders many
- * updates through `Drupal.ajax`. An assertion following a click can read the
- * page before the update applies, so the wait here watches both.
+ * A wait on `jQuery.active` alone misses the updates Drupal renders through
+ * `Drupal.ajax`, so an assertion following a click can read the page before
+ * the update applies. The wait here watches both.
  *
  * Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
  *
@@ -57,9 +57,10 @@ trait WaitTrait {
   /**
    * Wait for AJAX before a step that navigates or submits.
    *
-   * The after-step wait fires only on steps matching the same pattern. AJAX
-   * from a non-matching step, such as a select or keystroke bound to a Drupal
-   * behaviour, is still in flight at the next click. This hook settles it.
+   * The after-step wait fires only on steps matching the pattern, so AJAX
+   * from a non-matching step is still in flight at the next click. A select
+   * or keystroke bound to a Drupal behaviour is one such step, so this hook
+   * settles the AJAX first.
    */
   #[BeforeStep]
   public function waitBeforeStep(BeforeStepScope $scope): void {

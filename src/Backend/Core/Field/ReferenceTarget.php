@@ -6,9 +6,6 @@ namespace DrevOps\BehatSteps\Backend\Core\Field;
 
 /**
  * Immutable entity-type facts a reference field resolves its lookups against.
- *
- * Read once per expansion so a field holding several deltas derives the entity
- * type definition a single time.
  */
 final readonly class ReferenceTarget {
 

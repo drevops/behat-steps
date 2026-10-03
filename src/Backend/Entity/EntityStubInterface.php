@@ -14,11 +14,10 @@ namespace DrevOps\BehatSteps\Backend\Entity;
 interface EntityStubInterface {
 
   /**
-   * Default bundle key for entity types that do not declare one.
+   * Bundle key a stub starts with, until 'setBundleKey()' replaces it.
    *
-   * Drupal Core's most common bundle key is 'type' (used by 'node',
-   * 'block_content', 'entity_test', and others), so it is the fallback when
-   * the caller has not specified a bundle key.
+   * Drupal Core's most common bundle key is 'type', used by 'node',
+   * 'block_content', 'entity_test' and others.
    */
   public const DEFAULT_BUNDLE_KEY = 'type';
 

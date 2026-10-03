@@ -89,9 +89,9 @@ class DocsTest extends UnitTestCase {
 
     require_once __DIR__ . '/../../../docs.php';
 
-    // The fixture traits are loaded up front so they are available to
-    // eval(). Drupal context traits are excluded because they are loaded
-    // from the test's temporary directory to get the correct context.
+    // The Web fixture traits are loaded up front so they are available to
+    // eval(). The Drupal fixture traits are loaded from the test's temporary
+    // directory instead, so they resolve to the correct context.
     $fixture_files = glob($this->getFixturesDir() . '/Web/*.php');
     if ($fixture_files !== FALSE) {
       foreach ($fixture_files as $fixture_file) {
@@ -103,7 +103,7 @@ class DocsTest extends UnitTestCase {
   #[DataProvider('dataProviderParseMethodComment')]
   public function testParseMethodComment(string $comment, ?array $expected, ?string $exception = NULL): void {
     if ($exception) {
-      $this->expectException(\Exception::class);
+      $this->expectException(\RuntimeException::class);
       $this->expectExceptionMessage($exception);
     }
 
@@ -433,7 +433,7 @@ EOD,
   #[DataProvider('dataProviderRenderInfo')]
   public function testRenderInfo(array $info, string $expected, ?string $exception = NULL): void {
     if ($exception) {
-      $this->expectException(\Exception::class);
+      $this->expectException(\RuntimeException::class);
       $exception = str_replace('@tmp', static::$tmp, $exception);
       $this->expectExceptionMessage($exception);
     }
@@ -1162,7 +1162,7 @@ EOD,
             ],
           ],
         ],
-        ['  TestTrait::testAssertShouldMethod - Assert method contains "Should" but should not.' . PHP_EOL],
+        ['  TestTrait::testAssertShouldMethod - Assert method contains "Should", but it should not.' . PHP_EOL],
       ],
       'then without should in step' => [
         [
@@ -1922,7 +1922,7 @@ EOD,
     ?string $exception = NULL,
   ): void {
     if ($exception) {
-      $this->expectException(\Exception::class);
+      $this->expectException(\RuntimeException::class);
       $this->expectExceptionMessage($exception);
     }
 
@@ -2008,9 +2008,6 @@ EOD,
     ];
   }
 
-  /**
-   * Test the extract_info function with actual reflection.
-   */
   #[DataProvider('dataProviderExtractInfo')]
   public function testExtractInfo(
     array $trait_names,
@@ -2054,9 +2051,6 @@ EOD,
     ];
   }
 
-  /**
-   * Get the fixtures directory path.
-   */
   protected function getFixturesDir(): string {
     return __DIR__ . '/../fixtures/docs';
   }
@@ -2153,9 +2147,6 @@ EOD,
     ];
   }
 
-  /**
-   * Create a test context class that uses specified traits.
-   */
   protected function createTestContext(array $trait_names, string $class_name = 'TestContextForDocs'): string {
     if (!class_exists($class_name, FALSE)) {
       $namespaced_traits = array_map(function ($trait_name): string {
@@ -2172,7 +2163,7 @@ EOD,
   }
 
   /**
-   * Test extract_info with trait having multiple methods (tests sorting).
+   * Tests that extract_info() sorts the methods of a multi-method trait.
    */
   public function testExtractInfoMultipleMethods(): void {
     $trait_name = 'MultiMethodTrait';
@@ -2209,10 +2200,10 @@ EOD,
   }
 
   /**
-   * Test extract_info with missing trait file.
+   * Tests that extract_info() rejects a trait file no class composes.
    */
   public function testExtractInfoMissingTrait(): void {
-    $this->expectException(\Exception::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/The following traits were not found in the class/');
 
     $paths = $this->setupTestEnvironment();
@@ -2228,9 +2219,6 @@ EOD,
     extract_info([$class_name], [], $paths['base_path']);
   }
 
-  /**
-   * Test extract_info with subdirectory traits (Drupal context).
-   */
   public function testExtractInfoWithSubdirectory(): void {
     $trait_name = 'DrupalTrait';
     $setup = $this->setupExtractInfoTest([$trait_name], 'Drupal');
@@ -2244,9 +2232,6 @@ EOD,
     $this->assertSame('Drupal\\' . $trait_name, $result[$trait_name]['name_contextual']);
   }
 
-  /**
-   * Test extract_info with trait without matching methods.
-   */
   public function testExtractInfoNoMatchingMethods(): void {
     $trait_name = 'NoMatchTrait';
     $setup = $this->setupExtractInfoTest([$trait_name]);
@@ -2261,9 +2246,6 @@ EOD,
     $this->assertEmpty($result[$trait_name]['methods']);
   }
 
-  /**
-   * Test extract_info validation of class comments.
-   */
   #[DataProvider('dataProviderExtractInfoErrors')]
   public function testExtractInfoErrors(string $error_case, string $expected_error): void {
     $this->assertTrue(
@@ -2273,9 +2255,6 @@ EOD,
     );
   }
 
-  /**
-   * Data provider for testExtractInfoErrors.
-   */
   public static function dataProviderExtractInfoErrors(): array {
     return [
       'empty class comment' => [
@@ -2292,7 +2271,7 @@ EOD,
   #[DataProvider('dataProviderParseClassComment')]
   public function testParseClassComment(string $trait_name, string $comment, array $expected, ?string $exception = NULL): void {
     if ($exception) {
-      $this->expectException(\Exception::class);
+      $this->expectException(\RuntimeException::class);
       $this->expectExceptionMessage($exception);
     }
 
@@ -2669,7 +2648,7 @@ EOD,
    * filtering, so extract_info() throws.
    */
   public function testExtractInfoEmptyClassComment(): void {
-    $this->expectException(\Exception::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Class comment for EmptyCommentTrait is empty');
 
     $trait_name = 'EmptyCommentTrait';
@@ -2687,8 +2666,6 @@ EOD,
     $this->assertSame('parametrized', $registry['accessibility']['form']);
     $this->assertSame('flag', $registry['disable-form-validation']['form']);
 
-    // Every entry is classified as exactly one of the two known forms and
-    // carries the description the reference renders.
     foreach ($registry as $prefix => $definition) {
       $this->assertIsString($prefix);
       $this->assertContains($definition['form'], ['parametrized', 'flag']);
@@ -3009,8 +2986,8 @@ EOD,
     $this->assertSame('Sample trait carrying helpers for testing.', $trait['description']);
 
     // Steps, hooks, transformations, protected members, internal members and
-    // members belonging to another trait by name are all left out, and the
-    // rest is sorted by name.
+    // members whose name belongs to another trait are left out. The rest is
+    // sorted by name.
     $this->assertSame(['helperSampleBuild', 'helperSampleDefaults'], array_column($trait['helpers'], 'name'));
 
     $this->assertSame('public function helperSampleBuild(string $name, ?int $count = NULL, bool $strict = TRUE): string', $trait['helpers'][0]['signature']);
@@ -3247,7 +3224,7 @@ EOD,
   }
 
   public function testRenderHelpersThrowsOnMissingSource(): void {
-    $this->expectException(\Exception::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Source file');
 
     render_helpers([
@@ -3418,7 +3395,7 @@ EOD,
     file_put_contents($base_path . '/docs/configuration.md', 'The `BEHAT_STEPS_DOCUMENTED` and `BEHAT_STEPS_DISABLE_CLEANUP` variables are documented.');
     file_put_contents($base_path . '/src/Documented.php', '<?php $value = getenv("BEHAT_STEPS_DOCUMENTED");');
     file_put_contents($base_path . '/src/Nested/Undocumented.php', "<?php \$value = getenv('BEHAT_STEPS_UNDOCUMENTED');");
-    // A documented name that merely starts with the source name does not
+    // A documented name that only starts with the source name does not
     // document it.
     file_put_contents($base_path . '/src/Prefix.php', "<?php \$value = getenv('BEHAT_STEPS_DISABLE');");
     // A variable named only in a comment belongs to a consuming project, not

@@ -23,7 +23,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  *
  * Commands run through the system shell with the privileges of the process
  * that runs the tests. The command string is passed to the shell verbatim and
- * is subject to shell expansion, so never interpolate untrusted input into it.
+ * is subject to shell expansion, so untrusted input must never be
+ * interpolated into it.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -374,7 +375,7 @@ trait CommandTrait {
    *   When the value is not an integer.
    */
   protected function commandParseInteger(string $value, string $label): int {
-    if (!preg_match('/^-?\d+$/', $value)) {
+    if (preg_match('/^-?\d+$/', $value) !== 1) {
       throw new \RuntimeException(sprintf('The %s must be an integer, but got "%s".', $label, $value));
     }
 

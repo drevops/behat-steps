@@ -8,9 +8,6 @@ use DrevOps\BehatSteps\Behat\Config\Option;
 
 /**
  * Trait whose group name extends another switchable group's.
- *
- * 'sample_extra' starts with 'sample', and both groups declare a switch, so
- * each has to resolve to its own group and never to the other.
  */
 trait SampleExtraConfigTrait {
 

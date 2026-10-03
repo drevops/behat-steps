@@ -138,30 +138,30 @@ class FileDownloadTraitTest extends UnitTestCase {
 
   public static function dataProviderIsRegex(): array {
     return [
-      ['/pattern/i', TRUE],
-      ['/pattern/m', TRUE],
-      ['/pattern/s', TRUE],
-      ['/pattern/x', TRUE],
-      ['/pattern/u', TRUE],
-      ['/pattern/imsxu', TRUE],
-      ['/pattern/', TRUE],
-      ['/[a-z]+\d{3}/i', TRUE],
-      ['/path\/to\/file/i', TRUE],
-      ['/pattern/A', TRUE],
-      ['/pattern/D', TRUE],
-      ['simple text', FALSE],
-      ['path/to/file', FALSE],
-      ['/not a regex', FALSE],
-      ['not a regex/', FALSE],
-      ['', FALSE],
-      ['/', FALSE],
-      ['//', FALSE],
-      ['/pattern/g', FALSE],
-      ['/pattern/igm', FALSE],
-      ['/pattern/I', FALSE],
-      ['/pattern/123', FALSE],
-      ['/pattern/ i', FALSE],
-      ['path/to/some/file.txt', FALSE],
+      'case-insensitive flag' => ['/pattern/i', TRUE],
+      'multiline flag' => ['/pattern/m', TRUE],
+      'dotall flag' => ['/pattern/s', TRUE],
+      'extended flag' => ['/pattern/x', TRUE],
+      'unicode flag' => ['/pattern/u', TRUE],
+      'every common flag at once' => ['/pattern/imsxu', TRUE],
+      'no flags' => ['/pattern/', TRUE],
+      'character class and quantifier' => ['/[a-z]+\d{3}/i', TRUE],
+      'escaped delimiters inside the pattern' => ['/path\/to\/file/i', TRUE],
+      'anchored flag' => ['/pattern/A', TRUE],
+      'dollar-end-only flag' => ['/pattern/D', TRUE],
+      'plain text' => ['simple text', FALSE],
+      'a path with slashes' => ['path/to/file', FALSE],
+      'an opening delimiter only' => ['/not a regex', FALSE],
+      'a closing delimiter only' => ['not a regex/', FALSE],
+      'an empty string' => ['', FALSE],
+      'a lone delimiter' => ['/', FALSE],
+      'delimiters around nothing' => ['//', FALSE],
+      'the JavaScript global flag' => ['/pattern/g', FALSE],
+      'flags including the JavaScript global flag' => ['/pattern/igm', FALSE],
+      'an upper-case flag' => ['/pattern/I', FALSE],
+      'numeric flags' => ['/pattern/123', FALSE],
+      'a space before the flag' => ['/pattern/ i', FALSE],
+      'a file path with an extension' => ['path/to/some/file.txt', FALSE],
     ];
   }
 
@@ -215,7 +215,7 @@ class FileDownloadTraitTestImplementation extends WebRawContext {
   public ?MockResponse $response = NULL;
 
   /**
-   * The options the trait asked the detached browser for.
+   * The options the trait passed to httpDetachedClient().
    *
    * @var array<string, mixed>
    */

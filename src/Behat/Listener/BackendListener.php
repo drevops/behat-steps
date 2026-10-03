@@ -70,8 +70,9 @@ class BackendListener implements EventSubscriberInterface {
    * tags name. Each group keeps the configured order, so the order the tags
    * are written in never changes the result.
    *
-   * The scenario's tags are published here rather than read from a hook scope,
-   * so a tag that sets a trait option applies to a step as well as to a hook.
+   * The scenario's tags are published here rather than read from a hook
+   * scope. A tag that sets a trait option thus applies to a step as well as
+   * to a hook.
    *
    * Both subscribed events carry a 'BeforeScenarioTested', an example's
    * scenario being the outline row itself.

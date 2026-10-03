@@ -49,9 +49,9 @@ class FileHandler extends AbstractHandler {
   /**
    * Reads the id from a saved file entity.
    *
-   * The parameter is typed 'object' so a unit-test double can stand in
-   * without implementing Drupal's File entity contract. The 'id()' call is
-   * therefore unchecked until here.
+   * The parameter is typed 'object' so a unit-test double need not implement
+   * Drupal's File entity contract. The 'method_exists()' guard is the only
+   * check on 'id()'.
    *
    * @param object $file
    *   A File entity, or a File-compatible stub in tests.
@@ -80,12 +80,11 @@ class FileHandler extends AbstractHandler {
    * A managed file that already exists can be referenced by its URI
    * ('public://foo.txt') or its bare basename ('foo.txt') without
    * triggering a re-upload. Paths containing '/' but no scheme (e.g.
-   * '/tmp/foo.txt') are treated as disk paths and fall through to the
-   * upload path unchanged.
+   * '/tmp/foo.txt') are disk paths and return NULL.
    *
    * The native return type is 'object' (not FileInterface) so a unit-test
-   * double that exposes only 'id()' can pass without implementing the full
-   * File entity contract. In production the storage returns File entities.
+   * double that exposes only 'id()' need not implement the full File entity
+   * contract. In production the storage returns File entities.
    *
    * @param string $value
    *   The raw field value: URI, bare basename, or absolute filesystem path.

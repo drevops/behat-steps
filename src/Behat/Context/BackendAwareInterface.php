@@ -42,7 +42,7 @@ interface BackendAwareInterface extends Context, ParametersAwareInterface {
    * @internal
    *   Injection point called by the context initializer.
    */
-  public function setDispatcher(HookDispatcher $dispatcher): void;
+  public function setHookDispatcher(HookDispatcher $hook_dispatcher): void;
 
   /**
    * Sets the basic authenticator.

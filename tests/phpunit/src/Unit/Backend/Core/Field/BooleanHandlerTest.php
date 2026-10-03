@@ -61,7 +61,7 @@ class BooleanHandlerTest extends FieldHandlerUnitTestBase {
       NULL,
     ];
 
-    yield 'unrecognised value rejected' => [
+    yield 'unrecognized value rejected' => [
       ['maybe'],
       NULL,
       \RuntimeException::class,

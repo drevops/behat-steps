@@ -41,9 +41,6 @@ class ContentBlockTraitKernelTest extends StepTraitKernelTestBase {
     BlockContentType::create(['id' => 'other', 'label' => 'Other'])->save();
   }
 
-  /**
-   * Tests that the matching content blocks of the type are loaded, keyed by ID.
-   */
   public function testLoadMultipleLoadsTheMatchingContentBlocks(): void {
     $first = $this->createContentBlock('basic', 'Shared');
     $second = $this->createContentBlock('basic', 'Shared');
@@ -55,9 +52,6 @@ class ContentBlockTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertLoadedSet([$first, $second], $content_blocks, BlockContentInterface::class);
   }
 
-  /**
-   * Tests that an empty array is returned when no content block matches.
-   */
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
     $this->createContentBlock('other', 'Shared');
 
@@ -67,8 +61,8 @@ class ContentBlockTraitKernelTest extends StepTraitKernelTestBase {
   /**
    * Creates and saves a content block.
    */
-  protected function createContentBlock(string $type, string $info): BlockContentInterface {
-    $content_block = BlockContent::create(['type' => $type, 'info' => $info]);
+  protected function createContentBlock(string $content_block_type, string $info): BlockContentInterface {
+    $content_block = BlockContent::create(['type' => $content_block_type, 'info' => $info]);
     $content_block->save();
 
     return $content_block;

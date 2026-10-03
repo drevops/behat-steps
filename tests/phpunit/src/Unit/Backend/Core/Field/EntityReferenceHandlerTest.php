@@ -25,7 +25,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
 
   /**
-   * Label -> id lookup the entity query stub returns matches against.
+   * Label-to-id index the entity query stub returns matches from.
    *
    * @var array<string, int>
    */
@@ -125,7 +125,7 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
       ['nobody'],
       NULL,
       \RuntimeException::class,
-      "No entity 'nobody' of type 'user' exists.",
+      'No entity "nobody" of type "user" exists.',
     ];
     yield 'mixed positional and named keys rejected' => [
       ['alice', 'extra' => 'oops'],

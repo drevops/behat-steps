@@ -21,11 +21,8 @@ use PHPUnit\Framework\TestCase;
 #[Group('aliases')]
 class AuthorAliasTest extends TestCase {
 
-  /**
-   * Tests metadata accessors.
-   */
   public function testMetadataAccessors(): void {
-    $alias = new AuthorAlias(static fn (): ?object => NULL);
+    $alias = new AuthorAlias(static fn(): ?object => NULL);
 
     $this->assertInstanceOf(PreCreateAliasInterface::class, $alias);
     $this->assertSame('author', $alias->getName());
@@ -37,7 +34,7 @@ class AuthorAliasTest extends TestCase {
    * Tests that a known username resolves to 'uid' and removes 'author'.
    */
   public function testApplyToStubResolvesKnownUser(): void {
-    $alias = new AuthorAlias(static fn (string $name): object => new FakeUser(42));
+    $alias = new AuthorAlias(static fn(string $name): object => new FakeUser(42));
 
     $stub = new EntityStub('node', 'article', ['title' => 'Hello', 'author' => 'alice']);
 
@@ -52,7 +49,7 @@ class AuthorAliasTest extends TestCase {
    * Tests that an unknown username throws and leaves the stub alone.
    */
   public function testApplyToStubThrowsOnUnknownUser(): void {
-    $alias = new AuthorAlias(static fn (): ?object => NULL);
+    $alias = new AuthorAlias(static fn(): ?object => NULL);
 
     $stub = new EntityStub('node', 'article', ['author' => 'auther']);
 
@@ -61,7 +58,7 @@ class AuthorAliasTest extends TestCase {
       $this->fail('Expected CreationAliasResolutionException.');
     }
     catch (CreationAliasResolutionException $e) {
-      $this->assertStringContainsString("'auther'", $e->getMessage());
+      $this->assertStringContainsString('"auther"', $e->getMessage());
       $this->assertTrue($stub->hasValue('author'), 'Stub must still carry the alias when resolution fails.');
       $this->assertFalse($stub->hasValue('uid'), 'No uid should be written when resolution fails.');
     }
@@ -114,7 +111,7 @@ class AuthorAliasTest extends TestCase {
    */
   #[DataProvider('dataProviderApplyToStubThrowsOnEmptyAuthor')]
   public function testApplyToStubThrowsOnEmptyAuthor(mixed $author): void {
-    $alias = new AuthorAlias(static fn (): object => new FakeUser(1));
+    $alias = new AuthorAlias(static fn(): object => new FakeUser(1));
 
     $stub = new EntityStub('node', 'article', ['author' => $author]);
 

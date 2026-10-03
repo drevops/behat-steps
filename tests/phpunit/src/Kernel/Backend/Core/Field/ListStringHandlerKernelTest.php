@@ -16,9 +16,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * The list_string field is single-property but its handler translates labels
  * to the machine keys declared in the field's allowed_values storage
- * setting. This test exercises that translation end-to-end: the backend
- * receives a label, the handler swaps it for the key, storage accepts the
- * key, and the round-trip returns the key unchanged.
+ * setting. This test exercises that translation end-to-end.
  */
 #[CoversClass(ListStringHandler::class)]
 #[Group('fields')]
@@ -35,9 +33,6 @@ class ListStringHandlerKernelTest extends FieldHandlerKernelTestBase {
     'options',
   ];
 
-  /**
-   * Tests that a label is translated to its allowed_values key on round-trip.
-   */
   public function testLabelToKeyRoundTrip(): void {
     $this->attachField('field_status', 'list_string', [
       'allowed_values' => [
@@ -46,14 +41,10 @@ class ListStringHandlerKernelTest extends FieldHandlerKernelTestBase {
       ],
     ]);
 
-    // Pass the label; the handler replaces it with 'active' (the key).
-    // After the backend mutates the stub, the assertion compares the key
-    // against what storage returned.
     $this->assertFieldRoundTripViaBackend('field_status', ['Active']);
 
-    // Pin the translation explicitly so a regression where the handler stops
-    // converting labels to keys is caught even though the mutated-stub
-    // round-trip would otherwise pass.
+    // The mutated-stub round-trip passes even when the handler stops
+    // converting labels to keys, so the key is asserted explicitly.
     $stub = new EntityStub('entity_test', 'entity_test', [
       'name' => 'pinned',
       'field_status' => ['Active'],
@@ -63,9 +54,6 @@ class ListStringHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertSame('active', $reloaded->get('field_status')->value);
   }
 
-  /**
-   * Tests that a value already equal to an allowed key round-trips as-is.
-   */
   public function testKeyPassesThroughRoundTrip(): void {
     $this->attachField('field_status', 'list_string', [
       'allowed_values' => [

@@ -15,11 +15,12 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel round-trip test for NameHandler via the Core backend.
  *
  * Name is a multi-property field provided by the 'drupal/name' contrib
- * module. The handler accepts three input shapes (shorthand string,
- * numeric array, associative array) and normalises them into the same
- * per-component keyed structure. It also honours the field's
- * 'components' setting: positional input skips disabled components and
- * named input throws if it targets one.
+ * module. The handler accepts 3 input shapes (shorthand string, numeric
+ * array, associative array) and normalises them into the same per-component
+ * keyed structure.
+ *
+ * The handler also honours the field's 'components' setting: positional input
+ * skips disabled components and named input throws if it targets one.
  */
 #[CoversClass(NameHandler::class)]
 #[Group('fields')]
@@ -36,9 +37,6 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
     'name',
   ];
 
-  /**
-   * Tests round-trip for a name field with associative input.
-   */
   public function testNameAssociativeRoundTrip(): void {
     $this->attachField('field_author', 'name');
 
@@ -59,7 +57,7 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertFieldRoundTripViaBackend('field_author', ['Doe, Jane']);
 
     // Pin the component split explicitly: the mutated-stub round-trip would
-    // still pass if the handler swapped the two components.
+    // still pass if the handler swapped the 2 components.
     $stub = new EntityStub('entity_test', 'entity_test', [
       'name' => 'pinned',
       'field_author' => ['Doe, Jane'],
@@ -70,9 +68,6 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertSame('Doe', $values[0]['family']);
   }
 
-  /**
-   * Tests positional input maps into enabled components only.
-   */
   public function testNamePositionalSkipsDisabledComponents(): void {
     $this->attachField('field_author', 'name', [], [
       'components' => [
@@ -89,8 +84,8 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
       ['Dr', 'Jane', 'Doe'],
     ]);
 
-    // Pin the positional mapping: the values must land on the three enabled
-    // components in canonical order, leaving the disabled ones empty.
+    // Pin the positional mapping: the values must fill the 3 enabled
+    // components in canonical order and leave the disabled ones empty.
     $stub = new EntityStub('entity_test', 'entity_test', [
       'name' => 'pinned',
       'field_author' => [['Dr', 'Jane', 'Doe']],

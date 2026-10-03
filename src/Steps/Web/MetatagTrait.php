@@ -131,9 +131,9 @@ trait MetatagTrait {
   /**
    * Assert the canonical URL equals a value.
    *
-   * Both the actual and expected URLs are resolved to absolute form against
-   * the Mink base URL, so a relative expected value matches an absolute
-   * canonical href for the same page.
+   * The actual and expected URLs are both resolved to absolute form against
+   * the Mink base URL. A relative expected value therefore matches an
+   * absolute canonical href for the same page.
    *
    * @code
    * Then the canonical URL should be "https://example.com/about"
@@ -217,46 +217,46 @@ trait MetatagTrait {
   }
 
   /**
-   * Assert the robots meta tag includes a directive.
+   * Assert the robots meta tag contains a directive.
    *
    * Directives are matched as whole, case-insensitive tokens, so a request for
    * "follow" never matches a "nofollow" directive.
    *
    * @code
-   * Then the meta robots should include "noindex"
-   * Then the meta robots should include "nofollow"
+   * Then the meta robots should contain "noindex"
+   * Then the meta robots should contain "nofollow"
    * @endcode
    */
-  #[Then('the meta robots should include :directive')]
+  #[Then('the meta robots should contain :directive')]
   public function metatagAssertRobotsContains(string $directive): void {
     $directives = $this->metatagGetRobotsDirectives();
 
     if (!in_array(strtolower(trim($directive)), $directives, TRUE)) {
-      throw new ExpectationException(sprintf('The robots meta tag does not include the "%s" directive. Found: %s.', $directive, $directives === [] ? '(none)' : implode(', ', $directives)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The robots meta tag does not contain the "%s" directive. Found: %s.', $directive, $directives === [] ? '(none)' : implode(', ', $directives)), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert the robots meta tag does not include a directive.
+   * Assert the robots meta tag does not contain a directive.
    *
    * @code
-   * Then the meta robots should not include "noindex"
-   * Then the meta robots should not include "nofollow"
+   * Then the meta robots should not contain "noindex"
+   * Then the meta robots should not contain "nofollow"
    * @endcode
    */
-  #[Then('the meta robots should not include :directive')]
+  #[Then('the meta robots should not contain :directive')]
   public function metatagAssertRobotsNotContains(string $directive): void {
     $directives = $this->metatagGetRobotsDirectives();
 
     if (in_array(strtolower(trim($directive)), $directives, TRUE)) {
-      throw new ExpectationException(sprintf('The robots meta tag includes the "%s" directive, but it should not.', $directive), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The robots meta tag contains the "%s" directive, but it should not.', $directive), $this->getSession()->getDriver());
     }
   }
 
   /**
    * Assert hreflang alternates are valid.
    *
-   * Checks, without fetching any alternate page, that at least one hreflang
+   * Checks, without fetching any alternate page, that at least 1 hreflang
    * alternate exists and that a self-referencing alternate for the current
    * URL is present. Every hreflang value must be a well-formed language code
    * (or "x-default").
@@ -526,7 +526,7 @@ trait MetatagTrait {
    * Fetch a URL through the detached client, leaving the page untouched.
    *
    * The request carries the scenario's cookies and headers, so an alternate
-   * page behind a login or basic auth is fetched as the scenario sees it.
+   * page behind a login or basic auth is fetched with the scenario's access.
    *
    * @param string $url
    *   The absolute URL to fetch.

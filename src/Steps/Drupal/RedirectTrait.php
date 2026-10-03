@@ -18,7 +18,7 @@ use Drupal\redirect\Entity\Redirect;
 /**
  * Manage Drupal redirect entities provided by the contrib `redirect` module.
  *
- * - Create one or more redirects from a table of source/destination/status.
+ * - Create 1 or more redirects from a table of source/destination/status.
  * - Delete redirects by source path.
  * - Assert that redirects do or do not exist for given source paths.
  * - Created redirects are automatically removed at the end of the scenario.
@@ -37,7 +37,7 @@ trait RedirectTrait {
   protected static array $redirectAllowedStatusCodes = [301, 302, 303, 307, 308];
 
   /**
-   * Create one or more redirects.
+   * Create 1 or more redirects.
    *
    * The `status_code` column is optional and defaults to `301` when omitted
    * or left blank. Allowed values: 301, 302, 303, 307, 308.
@@ -86,7 +86,7 @@ trait RedirectTrait {
   /**
    * Delete redirects by source path.
    *
-   * Each row is one source path. Rows that match no existing redirect are
+   * Each row is 1 source path. Rows that match no existing redirect are
    * silently skipped.
    *
    * @code
@@ -121,7 +121,7 @@ trait RedirectTrait {
   }
 
   /**
-   * Assert that one or more redirects exist.
+   * Assert that 1 or more redirects exist.
    *
    * The `from` column is required. The `to` and `status_code` columns are
    * optional: when blank or omitted, only the source path is matched.
@@ -182,9 +182,9 @@ trait RedirectTrait {
   }
 
   /**
-   * Assert that no redirect exists for one or more source paths.
+   * Assert that no redirect exists for 1 or more source paths.
    *
-   * Each row is one source path.
+   * Each row is 1 source path.
    *
    * @code
    * Then the following redirects should not exist:

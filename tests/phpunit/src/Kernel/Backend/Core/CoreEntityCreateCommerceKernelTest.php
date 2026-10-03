@@ -19,14 +19,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * A stub sets 'commerce_product.variations', a base entity_reference field
  * targeting 'commerce_product_variation'. The backend must resolve each
  * referenced variation and attach it to the product on save.
- *
- * Without the base-field auto-detection in 'expandEntityFields()', variations
- * are filtered out of the field-handler pipeline and reach entity storage in
- * raw scalar form. The product is then saved with no variations attached.
- *
- * Both the variation and the product are created via 'Core::entityCreate()'.
- * The product is then loaded back via the entity type manager to assert the
- * resolved relationship.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

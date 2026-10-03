@@ -83,7 +83,7 @@ class RequestHeadersTraitTestImplementation {
   use RequestHeadersTrait;
 
   /**
-   * Read the accumulated headers.
+   * Reads the accumulated headers.
    *
    * @return array<string, string>
    *   Header values keyed by header name.

@@ -17,7 +17,8 @@
  * and that every environment variable the source reads is documented.
  *
  * Run with --fail-on-change to fail if the documentation is not up to date.
- * Run with --path=path/to/dir to specify a custom path for the output file.
+ * Run with --path=path/to/dir to use another repository root: the autoloader,
+ * the sources and the written documents all resolve under it.
  */
 
 declare(strict_types=1);
@@ -264,8 +265,8 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
     sort($traits_files);
   }
 
-  // The scan above is consumed as each trait is found, so the membership test
-  // below reads a copy taken before that.
+  // Entries are removed from $traits_files as each trait is found, so the
+  // membership test below reads a copy taken first.
   $vocabulary = $traits_files;
   $collected = [];
 
@@ -294,7 +295,7 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
 
       // @codeCoverageIgnoreStart
       if (!$trait_file_path) {
-        throw new \Exception(sprintf('Trait %s does not have a file path', $trait_name));
+        throw new \RuntimeException(sprintf('Trait %s does not have a file path', $trait_name));
       }
       // @codeCoverageIgnoreEnd
       $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY . DIRECTORY_SEPARATOR, '', $trait_file_path);
@@ -305,7 +306,7 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
   }
 
   if (!empty($traits_files)) {
-    throw new \Exception(sprintf('The following traits were not found in the class: %s', implode(', ', $traits_files)));
+    throw new \RuntimeException(sprintf('The following traits were not found in the class: %s', implode(', ', $traits_files)));
   }
 
   uksort($collected, strcasecmp(...));
@@ -338,15 +339,15 @@ function collect_helper_traits(string $base_path = __DIR__): array {
     return $collected;
   }
 
-  foreach (scandir($helpers_path) ?: [] as $half) {
-    $half_path = $helpers_path . DIRECTORY_SEPARATOR . $half;
+  foreach (scandir($helpers_path) ?: [] as $context) {
+    $context_path = $helpers_path . DIRECTORY_SEPARATOR . $context;
 
-    if ($half === '.' || $half === '..' || !is_dir($half_path)) {
+    if ($context === '.' || $context === '..' || !is_dir($context_path)) {
       continue;
     }
 
-    foreach (scandir($half_path) ?: [] as $file) {
-      $file_path = $half_path . DIRECTORY_SEPARATOR . $file;
+    foreach (scandir($context_path) ?: [] as $file) {
+      $file_path = $context_path . DIRECTORY_SEPARATOR . $file;
 
       if (!is_file($file_path) || !file_declares_trait($file_path)) {
         continue;
@@ -354,9 +355,9 @@ function collect_helper_traits(string $base_path = __DIR__): array {
 
       $short_name = basename($file, '.php');
       /** @var class-string $trait_name */
-      $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $half . '\\' . $short_name;
+      $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $context . '\\' . $short_name;
 
-      $collected[$short_name] = ['reflection' => new \ReflectionClass($trait_name), 'context' => $half];
+      $collected[$short_name] = ['reflection' => new \ReflectionClass($trait_name), 'context' => $context];
     }
   }
 
@@ -518,12 +519,12 @@ function extract_trait_prerequisites(string $class_name, string $trait): array {
  */
 function parse_class_comment(string $trait_name, string $comment): array {
   if (empty($comment)) {
-    throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+    throw new \RuntimeException(sprintf('Class comment for %s is empty', $trait_name));
   }
 
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
   $lines = explode(PHP_EOL, (string) $comment);
-  // Strips the docblock asterisk and at most one space, so any further
+  // Strips the docblock asterisk and at most 1 space, so any further
   // indentation is preserved.
   $lines = array_map(static fn(string $line): string => preg_replace('/^\s*\* ?/', '', $line), $lines);
 
@@ -534,7 +535,6 @@ function parse_class_comment(string $trait_name, string $comment): array {
     array_pop($lines);
   }
 
-  // Lines are trimmed except inside @code blocks, where indentation is kept.
   $in_code_block = FALSE;
   $lines = array_map(static function (string $line) use (&$in_code_block): string {
     if (str_starts_with(trim($line), '@code')) {
@@ -564,22 +564,22 @@ function parse_class_comment(string $trait_name, string $comment): array {
 
   // @codeCoverageIgnoreStart
   if (empty($lines)) {
-    throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+    throw new \RuntimeException(sprintf('Class comment for %s is empty', $trait_name));
   }
   // @codeCoverageIgnoreEnd
   $description = $lines[0];
   if (empty($description)) {
-    throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+    throw new \RuntimeException(sprintf('Class comment for %s is empty', $trait_name));
   }
 
   if (str_starts_with($description, 'Trait ')) {
-    throw new \Exception(sprintf('Class comment should have a descriptive content for %s', $trait_name));
+    throw new \RuntimeException(sprintf('Class comment should have a descriptive content for %s', $trait_name));
   }
 
   $full_description = implode(PHP_EOL, $lines);
 
   if (substr_count($full_description, '`') % 2 !== 0) {
-    throw new \Exception(sprintf('Class inline code block is not closed for %s', $trait_name));
+    throw new \RuntimeException(sprintf('Class inline code block is not closed for %s', $trait_name));
   }
 
   return [
@@ -645,14 +645,12 @@ function parse_method_comment(string $comment): ?array {
   }
 
   if ($example_start) {
-    throw new \Exception('Example not closed');
+    throw new \RuntimeException('Example not closed');
   }
 
   $return['description'] = trim($return['description']);
 
   if (!empty($return['example'])) {
-    // Indentation is removed from the example, with the first line as the
-    // reference.
     $lines = explode(PHP_EOL, $return['example']);
     $first_line = '';
     foreach ($lines as $line) {
@@ -736,7 +734,7 @@ function method_is_registered(\ReflectionMethod $method): bool {
 }
 
 /**
- * Check whether a docblock withdraws the member from the published API.
+ * Check whether a docblock excludes the member from the published API.
  *
  * @param string $comment
  *   The docblock comment.
@@ -1000,19 +998,19 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
 
   foreach (collect_helper_traits($base_path) as $trait_name => $collected) {
     $trait = $collected['reflection'];
-    $half = $collected['context'];
+    $context = $collected['context'];
     $helpers = collect_helper_methods($trait, NULL, NULL, helper_trait_contracts($trait, $class_names));
     // @codeCoverageIgnoreStart
     if ($helpers === []) {
       continue;
     }
     // @codeCoverageIgnoreEnd
-    $name_contextual = ($half !== DEFAULT_CONTEXT ? $half . '\\' : '') . $trait_name;
+    $name_contextual = ($context !== DEFAULT_CONTEXT ? $context . '\\' : '') . $trait_name;
     $class_info = [
       'name' => $trait_name,
       'name_contextual' => $name_contextual,
-      'context' => $half,
-      'source' => sprintf('%s/%s/%s.php', HELPERS_DIRECTORY, $half, $trait_name),
+      'context' => $context,
+      'source' => sprintf('%s/%s/%s.php', HELPERS_DIRECTORY, $context, $trait_name),
       'steps_anchor' => NULL,
       'helpers' => $helpers,
     ];
@@ -1050,7 +1048,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
 }
 
 /**
- * List the contracts a helper trait answers to.
+ * List the contracts the classes composing a helper trait declare.
  *
  * A trait cannot implement an interface, so the class composing it declares
  * the contract instead. A trait method carrying '{@inheritdoc}' is documented
@@ -1114,8 +1112,8 @@ function composes_trait(\ReflectionClass $reflection, string $trait_name): bool 
  * Collect the toolbox methods a class or trait contributes.
  *
  * Visibility is the marker: a public method that Behat does not register is
- * the toolbox, and a protected one is an implementation detail carrying no
- * promise to a consuming project.
+ * part of the toolbox. A protected method is an implementation detail with
+ * no contract to a consuming project.
  *
  * @param \ReflectionClass<object> $reflection
  *   The class or trait reflection.
@@ -1243,7 +1241,7 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
  * Convert info to content.
  *
  * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
- *   Array of info items with 'name', 'from', and 'to' keys.
+ *   The extracted trait info from extract_info().
  * @param string $base_path
  *   Base path for the repository.
  *
@@ -1255,14 +1253,14 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
 
   $index_rows = [];
 
-  foreach ($info as $trait => $trait_info) {
-    $context = $trait_info['context'];
+  foreach ($info as $trait => $class_info) {
+    $context = $class_info['context'];
     // @phpstan-ignore-next-line
     $src_file = sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait);
     $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
 
     if (!file_exists($src_file_path)) {
-      throw new \Exception(sprintf('Source file %s does not exist', $src_file_path));
+      throw new \RuntimeException(sprintf('Source file %s does not exist', $src_file_path));
     }
 
     $example_name = camel_to_snake(str_replace('Trait', '', $trait));
@@ -1275,19 +1273,19 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
 
     // @codeCoverageIgnoreStart
     if (!file_exists($example_file_path)) {
-      throw new \Exception(sprintf('Example file %s does not exist', $example_file_path));
+      throw new \RuntimeException(sprintf('Example file %s does not exist', $example_file_path));
     }
     // @codeCoverageIgnoreEnd
     // @phpstan-ignore-next-line
     $content_output[$context] ??= '';
     // @phpstan-ignore-next-line
-    $content_output[$context] .= sprintf('## %s', $trait_info['name_contextual']) . PHP_EOL . PHP_EOL;
+    $content_output[$context] .= sprintf('## %s', $class_info['name_contextual']) . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
     $content_output[$context] .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
 
     $description_full = '';
     // @phpstan-ignore-next-line
-    $lines = explode(PHP_EOL, $trait_info['description_full']);
+    $lines = explode(PHP_EOL, $class_info['description_full']);
     $was_list = FALSE;
     $in_code_block = FALSE;
     $code_block = '';
@@ -1339,23 +1337,23 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     // @phpstan-ignore-next-line
     $content_output[$context] .= $description_full . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
-    $content_output[$context] .= render_trait_prerequisites($trait_info['prerequisites'] ?? []);
+    $content_output[$context] .= render_trait_prerequisites($class_info['prerequisites'] ?? []);
     // @phpstan-ignore-next-line
-    $content_output[$context] .= render_trait_options($trait, $trait_info['options'] ?? []);
+    $content_output[$context] .= render_trait_options($trait, $class_info['options'] ?? []);
     // @phpstan-ignore-next-line
-    $index_rows_path = '#' . heading_anchor((string) $trait_info['name_contextual']);
+    $index_rows_path = '#' . heading_anchor((string) $class_info['name_contextual']);
     if ($path_for_links) {
       $index_rows_path = $path_for_links . $index_rows_path;
     }
     // @phpstan-ignore-next-line
     $index_rows[$context][] = [
       // @phpstan-ignore-next-line
-      sprintf('[%s](%s)', $trait_info['name_contextual'], $index_rows_path),
-      $trait_info['description'],
+      sprintf('[%s](%s)', $class_info['name_contextual'], $index_rows_path),
+      $class_info['description'],
     ];
 
     // @phpstan-ignore-next-line
-    foreach ($trait_info['methods'] as $method) {
+    foreach ($class_info['methods'] as $method) {
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
@@ -1443,18 +1441,18 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
   $content_output = [];
   $index_rows = [];
 
-  foreach ($info as $trait_info) {
-    $context = (string) $trait_info['context'];
-    $name_contextual = (string) $trait_info['name_contextual'];
+  foreach ($info as $class_info) {
+    $context = (string) $class_info['context'];
+    $name_contextual = (string) $class_info['name_contextual'];
     $anchor = heading_anchor($name_contextual);
-    $helpers = is_array($trait_info['helpers']) ? $trait_info['helpers'] : [];
+    $helpers = is_array($class_info['helpers']) ? $class_info['helpers'] : [];
 
-    $src_file = (string) $trait_info['source'];
+    $src_file = (string) $class_info['source'];
     if (!file_exists($base_path . DIRECTORY_SEPARATOR . $src_file)) {
-      throw new \Exception(sprintf('Source file %s does not exist', $base_path . DIRECTORY_SEPARATOR . $src_file));
+      throw new \RuntimeException(sprintf('Source file %s does not exist', $base_path . DIRECTORY_SEPARATOR . $src_file));
     }
 
-    $steps_anchor = $trait_info['steps_anchor'] ?? NULL;
+    $steps_anchor = $class_info['steps_anchor'] ?? NULL;
     $links = sprintf('[Source](%s)', $src_file);
     if (is_string($steps_anchor)) {
       $links .= sprintf(', [Steps](STEPS.md#%s)', $steps_anchor);
@@ -1463,7 +1461,7 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     $content_output[$context] ??= '';
     $content_output[$context] .= sprintf('## %s', $name_contextual) . PHP_EOL . PHP_EOL;
     $content_output[$context] .= $links . PHP_EOL . PHP_EOL;
-    $content_output[$context] .= '> ' . $trait_info['description'] . PHP_EOL . PHP_EOL;
+    $content_output[$context] .= '> ' . $class_info['description'] . PHP_EOL . PHP_EOL;
 
     foreach ($helpers as $helper) {
       $example = (string) $helper['example'];
@@ -1484,7 +1482,7 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     $index_rows[$context][] = [
       sprintf('[%s](#%s)', $name_contextual, $anchor),
       (string) count($helpers),
-      (string) $trait_info['description'],
+      (string) $class_info['description'],
     ];
   }
 
@@ -1518,10 +1516,10 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
 function validate_helpers(array $info): array {
   $errors = [];
 
-  foreach ($info as $trait_info) {
-    $class_name = is_string($trait_info['name'] ?? NULL) ? $trait_info['name'] : '';
+  foreach ($info as $class_info) {
+    $class_name = is_string($class_info['name'] ?? NULL) ? $class_info['name'] : '';
 
-    foreach ((is_array($trait_info['helpers'] ?? NULL) ? $trait_info['helpers'] : []) as $helper) {
+    foreach ((is_array($class_info['helpers'] ?? NULL) ? $class_info['helpers'] : []) as $helper) {
       $name = is_string($helper['name'] ?? NULL) ? $helper['name'] : '';
       $description = is_string($helper['description'] ?? NULL) ? $helper['description'] : '';
 
@@ -1538,7 +1536,7 @@ function validate_helpers(array $info): array {
  * Validate the info.
  *
  * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
- *   Array of info items with 'name', 'from', and 'to' keys.
+ *   The extracted trait info from extract_info().
  *
  * @return array<string>
  *   Array of errors.
@@ -1587,7 +1585,7 @@ function validate(array $info): array {
         }
 
         if (str_contains((string) $method['name'], 'Should')) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Assert method contains "Should" but should not.');
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Assert method contains "Should", but it should not.');
         }
 
         if (!str_contains($step, ' should ')) {
@@ -1702,7 +1700,6 @@ function validate_step_patterns(array $info): array {
     }
   }
 
-  // Every documented step text is collected once, with the step that owns it.
   $examples = [];
   foreach ($steps as $step) {
     foreach ($step['examples'] as $example) {
@@ -2158,18 +2155,18 @@ function validate_tags(array $info, string $base_path = __DIR__): array {
   $registry = tag_registry();
   $errors = [];
 
-  foreach ($info as $trait => $trait_info) {
-    if (!is_array($trait_info)) {
+  foreach ($info as $trait => $class_info) {
+    if (!is_array($class_info)) {
       continue;
     }
 
-    $label = is_string($trait_info['name'] ?? NULL) ? $trait_info['name'] : (string) $trait;
+    $label = is_string($class_info['name'] ?? NULL) ? $class_info['name'] : (string) $trait;
 
     $texts = [];
-    if (is_string($trait_info['description_full'] ?? NULL)) {
-      $texts[] = $trait_info['description_full'];
+    if (is_string($class_info['description_full'] ?? NULL)) {
+      $texts[] = $class_info['description_full'];
     }
-    foreach ((is_array($trait_info['methods'] ?? NULL) ? $trait_info['methods'] : []) as $method) {
+    foreach ((is_array($class_info['methods'] ?? NULL) ? $class_info['methods'] : []) as $method) {
       if (is_array($method) && is_string($method['example'] ?? NULL)) {
         $texts[] = $method['example'];
       }
@@ -2249,15 +2246,15 @@ function camel_to_snake(string $string, string $separator = '_'): string {
  */
 function replace_content(string $haystack, string $start, string $end, string $replacement): string {
   if (!str_contains($haystack, $start)) {
-    throw new \Exception('Start not found in the haystack');
+    throw new \RuntimeException('Start not found in the haystack');
   }
 
   if (!str_contains($haystack, $end)) {
-    throw new \Exception('End not found in the haystack');
+    throw new \RuntimeException('End not found in the haystack');
   }
 
   if (strpos($haystack, $start) > strpos($haystack, $end)) {
-    throw new \Exception('Start is after the end');
+    throw new \RuntimeException('Start is after the end');
   }
 
   $pattern = '/' . preg_quote($start, '/') . '.*?' . preg_quote($end, '/') . '/s';

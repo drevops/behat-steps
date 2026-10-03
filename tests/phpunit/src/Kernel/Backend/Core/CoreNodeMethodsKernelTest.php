@@ -19,8 +19,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel test for node-related methods on Core via the backend.
  *
  * Exercises Core::nodeCreate and Core::nodeDelete end-to-end: bundle
- * validation, optional 'author' → 'uid' remapping, expandEntityFields
- * (no fields attached here, so it's a noop), save, and delete.
+ * validation, the optional 'author' to 'uid' remapping, expandEntityFields
+ * (a no-op here, with no fields attached), save, and delete.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -88,9 +88,6 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
     $this->assertNull(Node::load($result->getValue('nid')));
   }
 
-  /**
-   * Tests that nodeCreate rejects an unknown bundle.
-   */
   public function testNodeCreateRejectsUnknownBundle(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot create content because provided content type bogus does not exist.');
@@ -98,9 +95,6 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
     $this->core->nodeCreate(new EntityStub('node', 'bogus', ['title' => 'Nope']));
   }
 
-  /**
-   * Tests that nodeCreate rejects a node with no type.
-   */
   public function testNodeCreateRejectsMissingType(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage("Cannot create content because it is missing the required property 'type'.");
@@ -108,12 +102,9 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
     $this->core->nodeCreate(new EntityStub('node', NULL, ['title' => 'Nope']));
   }
 
-  /**
-   * Tests that nodeCreate rejects an unknown 'author' value.
-   */
   public function testNodeCreateRejectsUnknownAuthor(): void {
     $this->expectException(CreationAliasResolutionException::class);
-    $this->expectExceptionMessageMatches("/user 'auther'.*does not exist/");
+    $this->expectExceptionMessageMatches('/user "auther".*does not exist/');
 
     $this->core->nodeCreate(new EntityStub('node', 'article', [
       'title' => 'Hello',

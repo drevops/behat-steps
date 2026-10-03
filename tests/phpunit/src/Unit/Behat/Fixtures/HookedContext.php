@@ -18,7 +18,7 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 class HookedContext implements Context {
 
   /**
-   * Static hook, which the reader can pass as a plain callable pair.
+   * Static hook, callable in its pair form.
    */
   #[BeforeNodeCreate]
   public static function beforeNode(BeforeNodeCreateScope $scope): void {
@@ -39,7 +39,7 @@ class HookedContext implements Context {
   }
 
   /**
-   * Method carrying two entity hooks at once.
+   * Method carrying 2 entity hooks at once.
    */
   #[BeforeNodeCreate]
   #[AfterNodeCreate]

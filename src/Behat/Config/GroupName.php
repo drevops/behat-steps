@@ -7,14 +7,16 @@ namespace DrevOps\BehatSteps\Behat\Config;
 /**
  * Converts between an option group name and the names it derives from.
  *
- * A group is named after the trait that declares it, in snake case, and that
- * trait declares its options in a method carrying the same name in camel case.
- * The runtime and the documentation generator both walk that mapping, so both
- * go through here and cannot disagree on it.
+ * A group is named after the trait that declares it, in snake case. That
+ * trait declares its options in a method carrying the same name in camel
+ * case.
  *
- * Every conversion runs towards the group name, never back to the trait name:
- * a run of capitals reads as one word, so 'APIClientTrait' and 'ApiClientTrait'
- * both give 'api_client' and the group alone cannot say which was written.
+ * The runtime and the documentation generator both walk that mapping, so
+ * both go through here and cannot disagree on it.
+ *
+ * Every conversion runs towards the group name, never back to the trait name.
+ * A run of capitals reads as 1 word, so 'APIClientTrait' and 'ApiClientTrait'
+ * both give 'api_client', and the group alone does not identify the spelling.
  */
 final class GroupName {
 
@@ -31,8 +33,8 @@ final class GroupName {
   /**
    * Converts a camel case method prefix to its group name.
    *
-   * A run of capitals is one word, so the group a trait name derives to is the
-   * group its method prefix derives to: 'APIClient' and 'apiClient' both give
+   * A run of capitals is 1 word, so the group a trait name derives to is the
+   * group its method prefix derives to. 'APIClient' and 'apiClient' both give
    * 'api_client'.
    *
    * @param string $prefix

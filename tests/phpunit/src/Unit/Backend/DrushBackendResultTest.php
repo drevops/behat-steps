@@ -41,9 +41,6 @@ class DrushBackendResultTest extends TestCase {
     $this->assertSame($error_output, $result->errorOutput);
   }
 
-  /**
-   * Data provider for 'testDrushResultExposesValues()'.
-   */
   public static function dataProviderDrushResultExposesValues(): \Iterator {
     yield 'success with stdout' => [0, 'the output', ''];
     yield 'failure with stderr' => [1, '', 'boom'];
@@ -75,18 +72,12 @@ class DrushBackendResultTest extends TestCase {
     $this->assertSame($error_output, $result->errorOutput);
   }
 
-  /**
-   * Data provider for 'testDrushResultMapsProcess()'.
-   */
   public static function dataProviderDrushResultMapsProcess(): \Iterator {
     yield 'success' => [0, 'stdout text', '', 0];
     yield 'failure with stderr' => [2, '', 'stderr text', 2];
     yield 'signalled process maps null exit to one' => [NULL, '', '', 1];
   }
 
-  /**
-   * Tests that 'drush()' throws and carries stderr when the command fails.
-   */
   public function testDrushThrowsWithErrorOutputOnFailure(): void {
     $backend = new ProcessStubDrushBackend('alias');
     $backend->stubProcess = $this->mockProcess(2, '', 'the failure reason');
@@ -115,9 +106,6 @@ class DrushBackendResultTest extends TestCase {
     $this->assertSame($expected, $backend->drush('status'));
   }
 
-  /**
-   * Data provider for 'testDrushStdoutElseStderrFallback()'.
-   */
   public static function dataProviderDrushStdoutElseStderrFallback(): \Iterator {
     yield 'stdout present' => ['hello', 'ignored stderr', 'hello'];
     yield 'empty stdout falls back to stderr' => ['', 'stderr fallback', 'stderr fallback'];

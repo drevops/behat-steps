@@ -20,10 +20,12 @@ use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 /**
  * Automatically detect JavaScript errors during test execution.
  *
- * - Collects JavaScript errors from `window.onerror` and `console.error`.
+ * - Collects JavaScript errors from `window.onerror`, `unhandledrejection`
+ *   and `console.error`.
  * - Automatically asserts no errors at end of scenarios with `@javascript` tag.
- * - Errors collected only when URL changes (navigation occurs).
- * - Use `@js-errors` tag to bypass error checking when errors are expected.
+ * - Collects errors after every step and re-injects the collector when the
+ *   URL changes.
+ * - The `@js-errors` tag bypasses error checking when errors are expected.
  *
  * Skip processing with tags: `@behat-steps-skip:JavascriptTrait`
  *
@@ -140,8 +142,6 @@ trait JavascriptTrait {
       return;
     }
 
-    // Collection runs through the Mink script API, which is the same for every
-    // browser driver, so any JavaScript-capable one qualifies.
     // @codeCoverageIgnoreStart
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
@@ -176,8 +176,6 @@ trait JavascriptTrait {
       return;
     }
 
-    // Collection runs through the Mink script API, which is the same for every
-    // browser driver, so any JavaScript-capable one qualifies.
     // @codeCoverageIgnoreStart
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
@@ -201,8 +199,8 @@ trait JavascriptTrait {
       return;
     }
 
-    // Asserted outside the collection block above so the blanket catch cannot
-    // swallow the failure.
+    // The assertion runs outside the try block above, so the blanket catch
+    // cannot swallow the failure.
     $this->javascriptAsserted = TRUE;
     $this->javascriptAssertErrorsNotExist();
   }
@@ -294,7 +292,6 @@ JS;
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
-      // Script evaluation can throw.
     }
     // @codeCoverageIgnoreEnd
   }

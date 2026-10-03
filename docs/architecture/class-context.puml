@@ -213,7 +213,7 @@ package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
     +entityLifecycleLanguageCreate(stub) : EntityStubInterface|false
     +entityLifecycleRegister(entity) : void
     --
-    +entityLifecycleCleanAll(scope) : void
+    +entityLifecycleAfterScenario(scope) : void
     --
     #entityLifecycleDispatchHooks(scopeClass, stub) : void
   }
@@ -229,7 +229,7 @@ package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
   }
 
   class StaticCacheTrait <<trait>> {
-    +staticCacheClear(scope) : void
+    +staticCacheAfterScenario(scope) : void
   }
 
   class FixtureFileTrait <<trait>> {

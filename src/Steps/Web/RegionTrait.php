@@ -319,7 +319,7 @@ trait RegionTrait {
     $actual = $this->getSession()->getDriver()->evaluateScript(sprintf('window.getComputedStyle(document.evaluate(%s, document, null, 9, null).singleNodeValue).getPropertyValue(%s);', json_encode($element->getXpath()), json_encode($property)));
 
     if ($actual !== $value) {
-      throw new ExpectationException(sprintf('The "%s" element with the text "%s" in the "%s" region has the CSS property "%s" with the value "%s", but "%s" was expected.', $selector, $text, $region, $property, is_scalar($actual) ? (string) $actual : gettype($actual), $value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The "%s" element with the text "%s" in the "%s" region has the CSS property "%s" with the value "%s", but "%s" was expected.', $selector, $text, $region, $property, is_scalar($actual) ? (string) $actual : get_debug_type($actual), $value), $this->getSession()->getDriver());
     }
   }
 

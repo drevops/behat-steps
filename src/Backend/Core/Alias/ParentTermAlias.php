@@ -53,7 +53,7 @@ class ParentTermAlias implements PreCreateAliasInterface {
       }
 
       if (count($tids) > 1) {
-        throw new CreationAliasResolutionException(sprintf("Cannot resolve parent term '%s' in vocabulary '%s' because multiple terms share that name.", $parent_name, $vid));
+        throw new CreationAliasResolutionException(sprintf('Cannot resolve parent term "%s" in vocabulary "%s" because multiple terms share that name.', $parent_name, $vid));
       }
 
       return reset($tids);
@@ -105,17 +105,17 @@ class ParentTermAlias implements PreCreateAliasInterface {
     $parent_name = (string) $parent_name;
 
     if ($vid === '') {
-      throw new CreationAliasResolutionException(sprintf("Cannot resolve parent term '%s' because the stub has no vocabulary.", $parent_name));
+      throw new CreationAliasResolutionException(sprintf('Cannot resolve parent term "%s" because the stub has no vocabulary.', $parent_name));
     }
 
     $tid = ($this->parentLookup)($parent_name, $vid);
 
     if ($tid === NULL) {
-      throw new CreationAliasResolutionException(sprintf("Cannot create term because parent term '%s' does not exist in vocabulary '%s'.", $parent_name, $vid));
+      throw new CreationAliasResolutionException(sprintf('Cannot create term because parent term "%s" does not exist in vocabulary "%s".', $parent_name, $vid));
     }
 
     if (!is_numeric($tid) || (int) $tid <= 0) {
-      throw new CreationAliasResolutionException(sprintf("Cannot resolve parent term '%s' in vocabulary '%s' because the lookup returned an invalid tid.", $parent_name, $vid));
+      throw new CreationAliasResolutionException(sprintf('Cannot resolve parent term "%s" in vocabulary "%s" because the lookup returned an invalid tid.', $parent_name, $vid));
     }
 
     // The downstream entity-reference handler treats an integer as a

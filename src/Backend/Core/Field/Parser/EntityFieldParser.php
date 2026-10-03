@@ -12,7 +12,7 @@ use DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception\ParseException;
  * Entity-field parser.
  *
  * Implements a syntax with a single uniform escape mechanism (double
- * quotes) for compound values. Cells fall into two modes detected by the
+ * quotes) for compound values. Cells fall into 2 modes detected by the
  * value form, not by the spacing of separators:
  *
  *   Scalar mode (no top-level 'key:"...' or 'key:[...]' pattern):
@@ -22,7 +22,7 @@ use DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception\ParseException;
  *       at the start of an item, where it begins a quoted string.
  *
  *   Compound mode (top-level 'key:"...' or 'key:[...]' pattern present):
- *     - One or more 'key: value' columns separated by ','.
+ *     - 1 or more 'key: value' columns separated by ','.
  *     - Multi-value compound: records separated by ';'.
  *     - Each column value MUST be a quoted string ('"..."') or token
  *       ('[name:value]'). Bare values are a parse error.
@@ -46,7 +46,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
   protected array $ignoredProperties = [];
 
   /**
-   * Constructs the parser for one entity-type / bundle / classifier pairing.
+   * Constructs the parser for an entity-type / bundle / classifier pairing.
    *
    * @param string $entityType
    *   The entity type ID.
@@ -55,8 +55,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
    * @param string|null $bundle
    *   The bundle for the stub being parsed, or NULL for entity types
    *   without bundles. When provided, bundle-scoped fields (F6-F9) are
-   *   accepted as known fields, and their values are passed to the entity
-   *   unchanged for the bundle's field item-list class to handle at save.
+   *   accepted as known fields and their values are passed through unchanged.
    */
   public function __construct(
     protected readonly string $entityType,
@@ -94,8 +93,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
       elseif (str_contains(substr($field, 1), ':')) {
         [$multicolumn_field, $multicolumn_column] = explode(':', $field);
       }
-      elseif (empty($multicolumn_field)) {
-        throw new \RuntimeException('Field name missing for ' . $field);
+      elseif ($multicolumn_field === '') {
+        throw new \RuntimeException(sprintf('Field name missing for "%s".', $field));
       }
       else {
         $multicolumn_column = substr($field, 1);
@@ -126,12 +125,11 @@ class EntityFieldParser implements EntityFieldParserInterface {
         }
       }
       else {
-        // The classifier splits base fields across F1-F4 (standard, computed
-        // read-only, computed writable, custom storage), so all four
-        // predicates are checked and a computed or custom-storage base field
-        // like 'moderation_state' is not flagged unknown. When the bundle is
-        // known, F6-F9 (bundle-scoped fields) count as known too, so fields
-        // contributed via 'hook_entity_bundle_field_info()' are recognised.
+        // The classifier splits base fields across F1-F4, so all 4 predicates
+        // are checked and a computed or custom-storage base field like
+        // 'moderation_state' is known. With a bundle, F6-F9 (bundle-scoped
+        // fields) are known too, so a field contributed via
+        // 'hook_entity_bundle_field_info()' is recognised.
         $is_known = $this->fieldClassifier->fieldIsBaseStandard($this->entityType, $field_name)
           || $this->fieldClassifier->fieldIsBaseComputedReadOnly($this->entityType, $field_name)
           || $this->fieldClassifier->fieldIsBaseComputedWritable($this->entityType, $field_name)
@@ -147,7 +145,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
           );
 
         if (!$is_known && !in_array($field_name, $this->ignoredProperties, TRUE)) {
-          throw new \RuntimeException(sprintf('Field "%s" does not exist on entity type "%s".', $field_name, $this->entityType));
+          throw new \RuntimeException(sprintf('The field "%s" does not exist on entity type "%s".', $field_name, $this->entityType));
         }
 
         $parsed[$field] = $field_value;
@@ -197,9 +195,9 @@ class EntityFieldParser implements EntityFieldParserInterface {
    *
    * Compound mode is detected by the presence of a top-level
    * 'key:"...' or 'key:[...]' pattern - i.e. an identifier, optional
-   * whitespace, ':', optional whitespace, then '"' or '['. The scan
-   * respects quoted strings and bracketed tokens, so an embedded pattern
-   * inside a quoted scalar does not trigger compound mode.
+   * whitespace, ':', optional whitespace, then '"' or '['. The scan skips
+   * quoted strings and bracketed tokens, so an embedded pattern inside a
+   * quoted scalar does not trigger compound mode.
    */
   protected function detectCompoundMode(string $cell): bool {
     $length = strlen($cell);
@@ -218,8 +216,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
         continue;
       }
 
-      if (preg_match('/[a-z_][a-z0-9_]*/A', $cell, $match, 0, $i) === 1) {
-        $j = $i + strlen($match[0]);
+      if (preg_match('/[a-z_][a-z0-9_]*/A', $cell, $matches, 0, $i) === 1) {
+        $j = $i + strlen($matches[0]);
 
         while ($j < $length && ($cell[$j] === ' ' || $cell[$j] === "\t")) {
           $j++;
@@ -237,7 +235,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
           }
         }
 
-        $i += strlen($match[0]);
+        $i += strlen($matches[0]);
         continue;
       }
 
@@ -296,10 +294,9 @@ class EntityFieldParser implements EntityFieldParserInterface {
       else {
         $start = $i;
 
-        // '"' is only structural at the start of an item (handled in the
-        // branch above). Inside an unquoted item it can be any literal
-        // character (e.g. an HTML attribute value), so the stop set is the
-        // list separator ',' and the compound-record separator ';' only.
+        // '"' is only structural at the start of an item. Inside an unquoted
+        // item it is a literal character (e.g. in an HTML attribute value),
+        // so the stop set is ',' and ';' only.
         while ($i < $length && $cell[$i] !== ',' && $cell[$i] !== ';') {
           $i++;
         }
@@ -328,7 +325,6 @@ class EntityFieldParser implements EntityFieldParserInterface {
         break;
       }
 
-      // $cell[$i] is now ','
       $i++;
 
       if ($i >= $length) {
@@ -381,7 +377,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
   }
 
   /**
-   * Parses one compound record (','-separated columns) into a key/value map.
+   * Parses 1 compound record (','-separated columns) into a key/value map.
    *
    * @return array<string, string>
    *   The parsed columns keyed by column name.
@@ -419,13 +415,13 @@ class EntityFieldParser implements EntityFieldParserInterface {
   }
 
   /**
-   * Parses one 'key: value' column.
+   * Parses 1 'key: value' column.
    *
    * @return array{0: string, 1: string}
    *   [$key, $value]
    */
   protected function parseColumn(string $column, string $cell, int $base_offset): array {
-    if (preg_match('/^([a-z_][a-z0-9_]*)\s*:\s*(.*)$/s', $column, $match) !== 1) {
+    if (preg_match('/^([a-z_][a-z0-9_]*)\s*:\s*(.*)$/s', $column, $matches) !== 1) {
       throw new ParseException(
         'invalid_column',
         $base_offset,
@@ -435,8 +431,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
       );
     }
 
-    $key = $match[1];
-    $value_raw_with_ws = $match[2];
+    $key = $matches[1];
+    $value_raw_with_ws = $matches[2];
     $value_raw = trim($value_raw_with_ws);
     // The value position inside $cell: column start + length consumed up to
     // the trimmed value's first character.
@@ -528,8 +524,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
   /**
    * Advances past a '"..."' quoted string, returning the index after the close.
    *
-   * Matches the same escape grammar as 'readQuotedString()'. If the string
-   * is unterminated returns the cell length.
+   * Matches the same escape grammar as 'readQuotedString()'. For an
+   * unterminated string the return value is the cell length.
    */
   protected function skipQuotedString(string $cell, int $i): int {
     $length = strlen($cell);
@@ -554,7 +550,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
   /**
    * Advances past a '[...]' token, returning the index after the close.
    *
-   * If the token is unterminated returns the cell length.
+   * For an unterminated token the return value is the cell length.
    */
   protected function skipToken(string $cell, int $i): int {
     $length = strlen($cell);
@@ -571,9 +567,11 @@ class EntityFieldParser implements EntityFieldParserInterface {
    * Reads a '"..."' quoted string starting at the current offset.
    *
    * Advances $offset past the closing quote. Decodes the escapes \\, \",
-   * \n, \t, \r. Any other backslash sequence is a parse error. When called
-   * for cell-level diagnostics, $error_cell and $error_base_offset are used
-   * to report errors against the original cell rather than the fragment.
+   * \n, \t, \r; any other backslash sequence is a parse error.
+   *
+   * When called for cell-level diagnostics, $error_cell and
+   * $error_base_offset are used to report errors against the original cell
+   * rather than the fragment.
    */
   protected function readQuotedString(string $fragment, int &$offset, ?string $error_cell = NULL, int $error_base_offset = 0): string {
     $error_cell ??= $fragment;
@@ -639,9 +637,9 @@ class EntityFieldParser implements EntityFieldParserInterface {
    * Reads a '[name:value]' token starting at the current offset.
    *
    * Advances $offset past the closing bracket and returns the verbatim
-   * '[...]' substring (downstream field handlers expand the token). When
-   * called for cell-level diagnostics, $error_cell and $error_base_offset
-   * are used to report errors against the original cell.
+   * '[...]' substring, which becomes the column value unchanged. When called
+   * for cell-level diagnostics, $error_cell and $error_base_offset are used
+   * to report errors against the original cell.
    */
   protected function readToken(string $fragment, int &$offset, ?string $error_cell = NULL, int $error_base_offset = 0): string {
     $error_cell ??= $fragment;

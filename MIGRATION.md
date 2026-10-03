@@ -407,8 +407,8 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 
 | Method | Before | After |
 | --- | --- | --- |
-| `ElementTrait::elementFollowLinkByIndex()` | `$text` | `$link` |
-| `ElementTrait::elementPressButtonByIndex()` | `$label` | `$button` |
+| `ElementTrait::elementFollowLinkWithIndex()` | `$text` | `$link` |
+| `ElementTrait::elementPressButtonWithIndex()` | `$label` | `$button` |
 
 `DateTrait` expands `[relative:...]` tokens in `:partial_value` arguments as well as in `:value`, `:datetime` and `:expected_value` ones. The region, row and command output assertions now take `:value`, so a token in their argument is expanded rather than compared as written.
 
@@ -936,11 +936,18 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `Given I wait for AJAX to finish` | `When I wait for AJAX to finish` |
 | `When (I )break` | dropped; use a debugger or `When I print last response` (Mink) |
 
+### Metatag
+
+| Before | After |
+| --- | --- |
+| Then the meta robots should include :directive | Then the meta robots should contain :directive |
+| Then the meta robots should not include :directive | Then the meta robots should not contain :directive |
+
 Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchanged: `Steps\Web\RandomTrait` and `Steps\Web\MappingTrait` carry them, and a context composes the trait instead of registering `RandomContext` or `MappingContext`.
 
 ## Unified entity cleanup
 
-Every entity a creation step or the backend creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleCleanAll` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+Every entity a creation step or the backend creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleAfterScenario` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
 
 An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityLifecycleRegister($entity)`. Without that call the entity survives the scenario.
 
@@ -1023,9 +1030,9 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 
 | Helper | Holds | Composed by |
 | --- | --- | --- |
-| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()`, `entityLifecycleTermCreate()`, `entityLifecycleCreate()`, `entityLifecycleLanguageCreate()`, `entityLifecycleRegister()`, `entityLifecycleParseFields()`, `entityLifecycleCleanAll()`, `entityLifecycleAlterNodeParameters()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
+| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()`, `entityLifecycleTermCreate()`, `entityLifecycleCreate()`, `entityLifecycleLanguageCreate()`, `entityLifecycleRegister()`, `entityLifecycleParseFields()`, `entityLifecycleAfterScenario()`, `entityLifecycleBeforeNodeCreate()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
 | `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authIsLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
-| `Helper\Drupal\StaticCacheTrait` | `staticCacheClear()` | `Steps\Drupal\CacheTrait` |
+| `Helper\Drupal\StaticCacheTrait` | `staticCacheAfterScenario()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
 | `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 9 step traits |
 
@@ -1048,8 +1055,8 @@ A call or an override in a consumer context is renamed:
 | `languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleLanguageCreate()` |
 | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
 | `parseEntityFields()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleParseFields()` |
-| `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCleanAll()` |
-| `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAlterNodeParameters()` |
+| `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAfterScenario()` |
+| `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleBeforeNodeCreate()` |
 | `userCreate()` | `Helper\Drupal\AuthTrait::authUserCreate()` |
 | `login()` | `Helper\Drupal\AuthTrait::authLogin()` |
 | `logout()` | `Helper\Drupal\AuthTrait::authLogout()` |
@@ -1058,7 +1065,7 @@ A call or an override in a consumer context is renamed:
 | `setUserManager()` | `Helper\Drupal\AuthTrait::authSetUserRegistry()` |
 | `cleanUsers()` | `Helper\Drupal\AuthTrait::authCleanUsers()` |
 | `cleanRoles()` | `Helper\Drupal\AuthTrait::authCleanRoles()` |
-| `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheClear()` |
+| `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheAfterScenario()` |
 
 Three of those names were also skip tags. A skip tag names a trait rather than a method, so `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles` both become `@behat-steps-skip:AuthTrait`.
 
@@ -1225,6 +1232,10 @@ A scenario that asserted a falsy parameter away with `Then the current URL shoul
 Then the current URL should not have the query parameter "filter" with the value "recent"
 ```
 
+## A value of `0` is not empty
+
+A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other: `Given the password for the user :name is "0"` sets the password instead of failing with `Password must not be empty.`, an attribute whose value is `0` counts as present for the `the element :selector with the attribute :attribute ...` steps, an iframe named `0` is switched to by name, a WYSIWYG field with the id `0` is filled through its id, and `fileCreateEntity()` honours a destination URI of `0`. A `drush` backend configured with an alias or root path of `0` is likewise read as configured.
+
 ## Unified assertion exceptions
 
 Assertion steps used to throw whatever their trait happened to reach for: `ExpectationException` in most places, plain `\Exception` in 8 traits, `\RuntimeException` in `XmlTrait`'s format check, and `\InvalidArgumentException` in 2 select-option steps. The type is part of the contract - consumers catch on it - so it now follows one rule.
@@ -1275,7 +1286,7 @@ If your project catches an exception from one of these steps, update the type:
 | --- | --- | --- |
 | `the response should be in XML format` | `Failed to load XML. Errors: ...` | `The response is not valid XML: ...` |
 | `the option :option should exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
-| `the option :option should not exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but should not exist.` |
+| `the option :option should not exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but it should not exist.` |
 | `I unselect the option :option from the select :selector` | `The option "..." was not found in the select "...".` | `Option in the select "..." with value\|text "..." not found.` |
 | `the option :option should not be selected within the select element :selector` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
 | `I fill in the multi-value field :field with the following values:` | `Could not locate input row N for multi-value field "...".` | `Input row of the multi-value field "..." with index "N" not found.` |
@@ -1302,6 +1313,41 @@ The same rule now covers the backend layer and the Behat services under `src/Beh
 `CreationAliasResolutionException` is no longer a `\LogicException`, so a `catch (\InvalidArgumentException)` or `catch (\LogicException)` no longer catches it; catch the class itself.
 
 Behat reports every one of these as a failed step either way, so a scenario that simply runs to a failure behaves the same. Only code that catches a specific type, or asserts on the message text, needs changing.
+
+## Failure messages read one way
+
+A failure message quotes the values it names in double quotes, ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
+
+| Trait | Before | After |
+| --- | --- | --- |
+| Drupal\BlockTrait | The block "..." exists but should not. | The block "..." exists, but it should not. |
+| Drupal\BlockTrait | Block "..." is in region "..." but should not be. | Block "..." is in region "...", but it should not be. |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which contains "..." but should not. | The config "..." key "..." has the ... "...", which contains "...", but it should not. |
+| Drupal\FileTrait | File contents "..." contains "...", but should not. | File contents "..." contains "...", but it should not. |
+| LinkTrait | The link href "..." matches the specified href "..." but should not. | The link href "..." matches the specified href "...", but it should not. |
+| LinkTrait | The link with the title "..." exists, but should not. | The link with the title "..." exists, but it should not. |
+| ElementTrait | Element defined by "..." selector is visible on the page, but should not be. | Element defined by "..." selector is visible on the page, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but should not be. | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport, but should not be. | Element(s) defined by "..." selector is displayed within a viewport, but it should not be. |
+| FieldTrait | The field "..." is empty, but should not be. | The field "..." is empty, but it should not be. |
+| FieldTrait | The field "..." is marked as required, but should not be. | The field "..." is marked as required, but it should not be. |
+| FieldTrait | The option "..." was selected in the select "..." on the page ..., but should not be. | The option "..." was selected in the select "..." on the page ..., but it should not be. |
+| FieldTrait | The radio button "..." is selected, but should not be. | The radio button "..." is selected, but it should not be. |
+| FileDownloadTrait | Found file partially named "..." in archive but should not. | Found file partially named "..." in archive, but it should not. |
+| ResponseTrait | The response contains the header "...", but should not. | The response contains the header "...", but it should not. |
+| PathTrait | The parameter "..." is in the URL but should not be. | The parameter "..." is in the URL, but it should not be. |
+| PathTrait | The parameter "..." with value "..." is in the URL but should not be. | The parameter "..." with value "..." is in the URL, but it should not be. |
+| MetatagTrait | The robots meta tag does not include the "..." directive. Found: .... | The robots meta tag does not contain the "..." directive. Found: .... |
+| MetatagTrait | The robots meta tag includes the "..." directive, but it should not. | The robots meta tag contains the "..." directive, but it should not. |
+| XmlTrait | Failed to serialise the response for DTD validation. | Failed to serialize the response for DTD validation. |
+| JsonTrait | The JSON response must decode to an array or object, but got integer. (also `boolean`, `double`, `NULL`) | The JSON response must decode to an array or object, but got int. (also `bool`, `float`, `null`) |
+| Drupal\ContentTrait | Content type "..." does not exist. | The content type "..." does not exist. |
+| Drupal\ContentBlockTrait | Content block type "..." does not exist. | The content block type "..." does not exist. |
+| Drupal\UserTrait | User with name "..." does not exist. | The user "..." does not exist. |
+| Drupal\MediaTrait | Cannot create media because provided bundle '...' does not exist. | Cannot create media because provided bundle "..." does not exist. |
+| ResponsiveTrait | Breakpoint '...' not found. Available breakpoints: ... | Breakpoint "..." not found. Available breakpoints: .... |
+| ResponsiveTrait | Invalid breakpoint format for '...': '...'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080) | Invalid breakpoint format for "...": "...". Expected format: WIDTHxHEIGHT (e.g., 1920x1080). |
+| ResponsiveTrait | Invalid breakpoint format: '...'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080) | Invalid breakpoint format: "...". Expected format: WIDTHxHEIGHT (e.g., 1920x1080). |
 
 ## Tightened public surface
 
@@ -1363,12 +1409,12 @@ Hook methods used to come in 3 shapes: taking and using the scope, taking and ig
 
 | Hook | New signature |
 | --- | --- |
-| `AccessibilityTrait::accessibilityAggregateRender()` | `(AfterSuiteScope $scope)` |
+| `AccessibilityTrait::accessibilityAfterSuite()` | `(AfterSuiteScope $scope)` |
 | `AccessibilityTrait::accessibilityAggregateReset()` | `(BeforeSuiteScope $scope)` |
 | `AccessibilityTrait::accessibilityCaptureBaseDir()` | `(BeforeSuiteScope $scope)` |
 | `CommandTrait::commandAfterScenario()` | `(AfterScenarioScope $scope)` |
 | `CommandTrait::commandBeforeScenario()` | `(BeforeScenarioScope $scope)` |
-| `Drupal\BigPipeTrait::bigPipeWaitBeforeStep()` | `(BeforeStepScope $scope)` |
+| `Drupal\BigPipeTrait::bigPipeBeforeStep()` | `(BeforeStepScope $scope)` |
 | `JsonTrait::jsonAfterScenario()` | `(AfterScenarioScope $scope)` |
 | `JsonTrait::jsonBeforeScenario()` | `(BeforeScenarioScope $scope)` |
 | `XmlTrait::xmlAfterScenario()` | `(AfterScenarioScope $scope)` |
@@ -1561,6 +1607,21 @@ The subject is what the step asserts about. `ElementTrait`'s attribute steps ass
 
 It still asserts that an email went to the address and that no collected email's body contains the text.
 
+### A qualifier on an action is `With`
+
+`By` is the lookup spelling: `Find`, `Get` and `Exists` methods name the key they search by, as `blockFindByLabel()` and `userExistsByMail()` do. An assertion or an action that narrows its target reads `With`, as its step text does, so the 8 names below join `mediaAssertExistsWithName()` and `contentVisitEditPageWithTitle()`. Step text is unchanged.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\UserTrait` | `userAssertExistsByMail()` | `userAssertExistsWithMail()` |
+| `Drupal\UserTrait` | `userAssertNotExistsByMail()` | `userAssertNotExistsWithMail()` |
+| `Drupal\TaxonomyTrait` | `taxonomyAssertTermExistsByName()` | `taxonomyAssertTermExistsWithName()` |
+| `Drupal\TaxonomyTrait` | `taxonomyAssertTermNotExistsByName()` | `taxonomyAssertTermNotExistsWithName()` |
+| `Drupal\ContentTrait` | `contentRebuildAccessGrantsByTitle()` | `contentRebuildAccessGrantsWithTitle()` |
+| `ElementTrait` | `elementClickByIndex()` | `elementClickWithIndex()` |
+| `ElementTrait` | `elementFollowLinkByIndex()` | `elementFollowLinkWithIndex()` |
+| `ElementTrait` | `elementPressButtonByIndex()` | `elementPressButtonWithIndex()` |
+
 ### `Has` names something the subject holds
 
 `Has` named something a subject holds, such as a user's roles, and also stood in for a comparison: `stateAssertHasValue()` checks that a state value equals the expected one. A compared value now reads `Equals` or `Contains`, and `Has` stays for what a subject holds, as in `userAssertHasRoles()` and `elementAssertHasKeyboardFocus()`.
@@ -1587,7 +1648,7 @@ It still asserts that an email went to the address and that no collected email's
 | `MetatagTrait` | `metatagAssertRobotsNotIncludes()` | `metatagAssertRobotsNotContains()` |
 | `MetatagTrait` | `metatagAssertMetaSetPresent()` | `metatagAssertMetaSetExists()` |
 
-The step text still reads `the meta robots should include :directive`.
+The step text follows the method: `the meta robots should include :directive` is `the meta robots should contain :directive`, and `should not include` is `should not contain`.
 
 ### Only an assertion is named `Assert`
 
@@ -1603,6 +1664,29 @@ A method that fails with an assertion exception is named as an assertion, whethe
 | `CommandTrait` | `commandAssertNumeric()` (protected) | `commandParseNumeric()` |
 | `CookieTrait` | `cookieExists()` | `cookieAssertExists()` |
 | `CookieTrait` | `cookieNotExists()` | `cookieAssertNotExists()` |
+
+### A hook is named for its event
+
+A hook method reads `<prefix><Event>`, so `configBeforeScenario()` and `contentBeforeNodeCreate()` already told the reader when they run. The hooks that were named for what they do take the same shape. A skip tag names a trait, not a hook, so no tag changes.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| Drupal\TimeTrait | timeCleanup() | timeAfterScenario() |
+| Drupal\WatchdogTrait | watchdogSetScenario() | watchdogBeforeScenario() |
+| Drupal\BigPipeTrait | bigPipeWaitBeforeStep() | bigPipeBeforeStep() |
+| AccessibilityTrait | accessibilitySetupScenario() | accessibilityBeforeScenario() |
+| AccessibilityTrait | accessibilityAutoAssess() | accessibilityAfterStep() |
+| AccessibilityTrait | accessibilityFinalizeScenario() | accessibilityAfterScenario() |
+| AccessibilityTrait | accessibilityAggregateRender() | accessibilityAfterSuite() |
+
+### A bundle parameter is named after its entity type
+
+A helper that takes a bundle names the parameter after the entity type, as the step placeholders do. 2 `Drupal\ContentBlockTrait` helpers took `$type`; a call that passes the argument by name renames it.
+
+| Method | Before | After |
+| --- | --- | --- |
+| `contentBlockCreateSingle()` | `string $type, array $values` | `string $content_block_type, array $values` |
+| `contentBlockLoadMultiple()` | `string $type, array $conditions = []` | `string $content_block_type, array $conditions = []` |
 
 ## A class is named for the role it plays
 
@@ -1722,7 +1806,7 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 ### Registering an adapter for another browser driver
 
 ```php
-$this->getBrowserResolver()->registerAdapter(AcmeDriverAdapter::class);
+$this->getBrowserCapabilityResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
 An adapter extends `BrowserAdapterBase`, implements the capability interfaces its browser driver can honour, and answers `supports()` for the browser driver it speaks for. A registered adapter is offered each browser driver ahead of the shipped ones.

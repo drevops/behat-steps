@@ -12,12 +12,14 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  *
  * A value is taken from the first of these that sets it: the scenario's tags,
  * the feature's tags, the context's 'config' argument, the extension's 'steps'
- * section, the declaration's own default. The configuration layers settle when
- * this object is built; the tag layers are read per option, because the tags
- * belong to whichever scenario is running.
+ * section, the declaration's own default.
  *
- * It holds no Behat class, reflects over nothing and knows no context beyond
- * the class name it names in a failure message.
+ * The configuration layers settle when this object is built. The tag layers
+ * are read per option, because the tags belong to whichever scenario is
+ * running.
+ *
+ * It holds no Behat class, reflects over nothing and references no context
+ * beyond the class name it names in a failure message.
  */
 class TraitOptionResolver implements TraitOptionResolverInterface {
 
@@ -35,11 +37,11 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
    *   The context whose traits declared the options, for failure messages.
    * @param array<string, array<string, \DrevOps\BehatSteps\Behat\Config\Option>> $declarations
    *   Declared options, keyed by group name and then by option name.
-   * @param array<array-key, mixed> $steps
-   *   The extension's 'steps' section, read permissively.
    * @param array<array-key, mixed> $config
    *   The context's 'config' argument, read strictly.
-   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface $scenarioTags
+   * @param array<array-key, mixed> $steps
+   *   The extension's 'steps' section, read permissively.
+   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface $scenarioTagRegistry
    *   The tags the running scenario carries.
    * @param \DrevOps\BehatSteps\Behat\Config\TagOverrides $tagOverrides
    *   Applies the tag layers of one option.
@@ -52,9 +54,9 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
   public function __construct(
     protected readonly string $contextClass,
     protected readonly array $declarations,
-    array $steps,
     array $config,
-    protected readonly ScenarioTagRegistryInterface $scenarioTags,
+    array $steps,
+    protected readonly ScenarioTagRegistryInterface $scenarioTagRegistry,
     protected readonly TagOverrides $tagOverrides,
   ) {
     $resolved = $this->defaults();
@@ -78,7 +80,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
       throw new \RuntimeException(sprintf('No trait in %s declares the option "%s.%s". Declared options: %s.', $this->contextClass, $group, $key, $this->optionList()));
     }
 
-    return $this->tagOverrides->apply($group, $this->declarations[$group][$key], $this->resolved[$group][$key], $this->scenarioTags->getTags());
+    return $this->tagOverrides->apply($group, $this->declarations[$group][$key], $this->resolved[$group][$key], $this->scenarioTagRegistry->getTags());
   }
 
   /**

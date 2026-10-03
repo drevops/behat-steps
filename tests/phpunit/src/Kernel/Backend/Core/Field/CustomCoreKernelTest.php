@@ -17,10 +17,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for consumer-supplied Core and its bundled field handlers.
  *
- * Exercises the two extension seams advertised in the README against a full
- * Drupal kernel. The test replaces 'Core' with 'ConsumerCore' - a fixture
- * living outside the 'DrevOps\BehatSteps\Backend' namespace - and proves that
- * its 'Field/' directory scan contributes handlers that actually run during
+ * Exercises the 2 extension seams documented in the README against a full
+ * Drupal kernel. The test replaces 'Core' with 'ConsumerCore', a fixture
+ * outside the 'DrevOps\BehatSteps\Backend' namespace, and proves that its
+ * 'Field/' directory scan contributes handlers that run during
  * 'entityCreate':
  *
  *  - 'ConsumerProject\Backend\Field\TextLongHandler' takes 'text_long' over
@@ -60,9 +60,9 @@ class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests that the consumer override replaces the library's 'text_long'.
    *
-   * Input differs from the handler's marker so the assertion only passes
-   * when the consumer handler actually ran. A pass-through handler would
-   * leave the raw input in storage and fail the comparison.
+   * The input differs from the handler's marker, so the assertion passes only
+   * when the consumer handler ran. A pass-through handler would leave the raw
+   * input in storage and fail the comparison.
    */
   public function testConsumerCoreOverridesLibraryHandler(): void {
     $this->attachField('field_body', 'text_long');
@@ -88,10 +88,11 @@ class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
    * Tests that the consumer Core registers handlers for new field types.
    *
    * 'string_long' is a Drupal-core field type; the library does not ship a
-   * dedicated handler for it. Without 'ConsumerCore', the lookup would fall
-   * through to 'DefaultHandler' and store the raw input verbatim. The
-   * fixture adds a handler that rewrites 'value', and this test proves the
-   * rewritten value is what lands in storage.
+   * dedicated handler for it. Without 'ConsumerCore', the lookup falls through
+   * to 'DefaultHandler' and stores the raw input verbatim.
+   *
+   * The fixture adds a handler that rewrites 'value', and this test proves the
+   * rewritten value reaches storage.
    */
   public function testConsumerCoreAddsHandlerForNewFieldType(): void {
     $this->attachField('field_summary', 'string_long');

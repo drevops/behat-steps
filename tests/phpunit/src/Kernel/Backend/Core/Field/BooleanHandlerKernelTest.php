@@ -63,9 +63,6 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertFieldRoundTripViaBackend('field_flag', ['Published']);
   }
 
-  /**
-   * Tests the field's configured off_label resolves to 0.
-   */
   public function testFieldOffLabelResolvesToFalse(): void {
     $this->attachField('field_flag', 'boolean', [], [
       'on_label' => 'Published',
@@ -75,9 +72,6 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertFieldRoundTripViaBackend('field_flag', ['Draft']);
   }
 
-  /**
-   * Tests an unrecognised value raises a descriptive exception.
-   */
   public function testUnrecognizedValueThrows(): void {
     $this->attachField('field_flag', 'boolean');
 

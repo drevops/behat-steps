@@ -103,9 +103,6 @@ class DateTraitTest extends UnitTestCase {
     $this->testObject::dateRelativeProcessValue('[relative:-1 day# ]');
   }
 
-  /**
-   * Tests that a skipped scenario passes a token through untouched.
-   */
   public function testSkippedScenarioLeavesTokensUntouched(): void {
     $this->testObject->dateBeforeScenario($this->createBeforeScenarioScope(['behat-steps-skip:DateTrait']));
 
@@ -115,9 +112,6 @@ class DateTraitTest extends UnitTestCase {
     $this->assertSame([['created'], ['[relative:-1 day#Y-m-d]']], $this->testObject->dateRelativeTransformTable($table)->getRows());
   }
 
-  /**
-   * Tests that an unskipped scenario resolves tokens.
-   */
   public function testUnskippedScenarioResolvesTokens(): void {
     $this->testObject->dateBeforeScenario($this->createBeforeScenarioScope());
 
@@ -139,7 +133,7 @@ class DateTraitTestImplementation extends WebRawContext {
   use DateTrait;
 
   /**
-   * The clock this implementation pins: May 5, 2024 12:00:00 UTC.
+   * The clock this implementation pins: May 5, 2024 16:00:00 UTC.
    */
   public const CLOCK = 1714924800;
 

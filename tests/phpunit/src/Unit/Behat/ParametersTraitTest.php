@@ -64,8 +64,8 @@ class ParametersTraitTest extends TestCase {
   }
 
   public static function dataProviderUnknownNameThrows(): \Iterator {
-    yield 'text' => ['getDrupalText', 'log_in', 'No such Drupal string: log_in'];
-    yield 'selector' => ['getDrupalSelector', 'login_form_selector', 'No such selector configured: login_form_selector'];
+    yield 'text' => ['getDrupalText', 'log_in', 'No such Drupal string: log_in.'];
+    yield 'selector' => ['getDrupalSelector', 'login_form_selector', 'No such selector configured: login_form_selector.'];
   }
 
   /**

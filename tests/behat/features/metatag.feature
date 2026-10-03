@@ -105,15 +105,15 @@ Feature: Check that MetatagTrait works
     Given the user is anonymous
     When I visit "http://cli:8888/metatags_seo.html"
     Then the page should be indexable
-    And the meta robots should include "index"
-    And the meta robots should not include "noindex"
+    And the meta robots should contain "index"
+    And the meta robots should not contain "noindex"
 
   @phpserver
   Scenario: Assert a non-indexable page via the robots meta tag
     Given the user is anonymous
     When I visit "http://cli:8888/metatags_noindex.html"
     Then the page should not be indexable
-    And the meta robots should include "noindex"
+    And the meta robots should contain "noindex"
 
   Scenario: Assert a non-indexable page via the X-Robots-Tag header
     When I visit "/mysite_core/test-robots-header"
@@ -244,31 +244,31 @@ Feature: Check that MetatagTrait works
       """
 
   @trait:MetatagTrait
-  Scenario: Assert that "Then the meta robots should include" fails when the directive is missing
+  Scenario: Assert that "Then the meta robots should contain" fails when the directive is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/metatags_seo.html"
-      Then the meta robots should include "noindex"
+      Then the meta robots should contain "noindex"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The robots meta tag does not include the "noindex" directive. Found: index, follow.
+      The robots meta tag does not contain the "noindex" directive. Found: index, follow.
       """
 
   @trait:MetatagTrait
-  Scenario: Assert that "Then the meta robots should not include" fails when the directive is present
+  Scenario: Assert that "Then the meta robots should not contain" fails when the directive is present
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/metatags_noindex.html"
-      Then the meta robots should not include "noindex"
+      Then the meta robots should not contain "noindex"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The robots meta tag includes the "noindex" directive, but it should not.
+      The robots meta tag contains the "noindex" directive, but it should not.
       """
 
   @trait:MetatagTrait

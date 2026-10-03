@@ -267,7 +267,7 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     if (str_contains($file_content, $content)) {
-      throw new ExpectationException(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('File contents "%s" contains "%s", but it should not.', $file_content, $content), $this->getSession()->getDriver());
     }
   }
 
@@ -325,7 +325,7 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     $destination = 'public://' . basename($path);
-    if (!empty($uri)) {
+    if ($uri !== NULL && $uri !== '') {
       $destination = $uri;
       $directory = dirname($destination);
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);

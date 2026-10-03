@@ -9,7 +9,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 
 /**
- * Trait carrying one method per case the step discovery distinguishes.
+ * Trait carrying 1 method per case the step discovery distinguishes.
  */
 trait StepCoverageTrait {
 
@@ -21,7 +21,7 @@ trait StepCoverageTrait {
   }
 
   /**
-   * Method carrying two When steps at once.
+   * Method carrying 2 When steps at once.
    */
   #[When('I open the fixture')]
   #[When('I visit the fixture')]

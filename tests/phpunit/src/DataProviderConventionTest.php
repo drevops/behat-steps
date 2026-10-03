@@ -13,7 +13,9 @@ use PHPUnit\Framework\TestCase;
  *
  * A provider is named after the test it serves, declared after that test, and
  * declares the return type its body produces. Which of the 2 forms a class
- * uses is left to the class. CONTRIBUTING.md states the rules.
+ * uses is left to the class.
+ *
+ * CONTRIBUTING.md states the rules.
  */
 #[CoversNothing]
 class DataProviderConventionTest extends UnitTestCase {

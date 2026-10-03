@@ -53,7 +53,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
     $resolved = realpath($drupal_root);
 
     if ($resolved === FALSE) {
-      throw new BootstrapException(sprintf('No Drupal installation found at %s', $drupal_root));
+      throw new BootstrapException(sprintf('No Drupal installation found at %s.', $drupal_root));
     }
 
     $this->drupalRoot = $resolved;
@@ -99,12 +99,13 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * Sets the core from the current version.
    *
-   * Walks from the detected Drupal version down to the default Core class,
-   * using the first class that exists in the lookup chain:
-   * DrevOps\BehatSteps\Backend\Core{N}\Core → ... → DrevOps\BehatSteps\Backend\Core\Core.
+   * Uses the first class that exists in the lookup chain:
+   * 'DrevOps\BehatSteps\Backend\Core{N}\Core' for each major version from
+   * the detected one downwards, then 'DrevOps\BehatSteps\Backend\Core\Core'.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   Thrown when no Core implementation is found for the detected version.
+   *   When a version-specific Core class exists but does not implement
+   *   'CoreInterface'.
    */
   public function setCoreFromVersion(): void {
     $version = $this->getDrupalVersion();
@@ -122,7 +123,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
       $core = new $class($this->drupalRoot, $this->uri);
 
       if (!$core instanceof CoreInterface) {
-        throw new BootstrapException(sprintf('%s must implement %s', $class, CoreInterface::class));
+        throw new BootstrapException(sprintf('%s must implement %s.', $class, CoreInterface::class));
       }
 
       $this->core = $core;

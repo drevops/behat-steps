@@ -22,7 +22,7 @@ class TraitOptionResolverTest extends UnitTestCase {
   /**
    * Context class the failure messages name.
    */
-  protected const CONTEXT = 'Acme\Tests\SampleContext';
+  protected const CONTEXT = 'Acme\\Tests\\SampleContext';
 
   public function testEveryOptionStartsAtItsDeclaredDefault(): void {
     $resolver = $this->createResolver();
@@ -172,11 +172,11 @@ class TraitOptionResolverTest extends UnitTestCase {
     $this->expectException(InvalidConfigurationException::class);
     $this->expectExceptionMessage('Unknown option group "sample" for context "' . self::CONTEXT . '". This context accepts: nothing.');
 
-    new TraitOptionResolver(self::CONTEXT, [], [], ['sample' => ['enabled' => FALSE]], new ScenarioTagRegistry(), new TagOverrides());
+    new TraitOptionResolver(self::CONTEXT, [], ['sample' => ['enabled' => FALSE]], [], new ScenarioTagRegistry(), new TagOverrides());
   }
 
   /**
-   * Tests that the steps section tolerates what a context cannot serve.
+   * Tests that the steps section may hold entries a context does not declare.
    *
    * @param array<string, mixed> $steps
    *   The extension's steps section.
@@ -263,7 +263,7 @@ class TraitOptionResolverTest extends UnitTestCase {
     $registry = new ScenarioTagRegistry();
     $registry->setTags($tags);
 
-    return new TraitOptionResolver(self::CONTEXT, self::declarations(), $steps, $config, $registry, new TagOverrides());
+    return new TraitOptionResolver(self::CONTEXT, self::declarations(), $config, $steps, $registry, new TagOverrides());
   }
 
   /**

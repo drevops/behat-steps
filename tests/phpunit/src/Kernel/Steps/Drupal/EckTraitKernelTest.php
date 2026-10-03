@@ -43,9 +43,6 @@ class EckTraitKernelTest extends StepTraitKernelTestBase {
     $bundle_storage->create(['type' => 'company', 'name' => 'Company'])->save();
   }
 
-  /**
-   * Tests that the matching entities of the bundle are loaded, keyed by ID.
-   */
   public function testLoadMultipleLoadsTheMatchingEntities(): void {
     $first = $this->createEntity('person', 'Shared');
     $second = $this->createEntity('person', 'Shared');
@@ -57,9 +54,6 @@ class EckTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertLoadedSet([$first, $second], $entities, ContentEntityInterface::class);
   }
 
-  /**
-   * Tests that an empty array is returned when no entity matches.
-   */
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
     $this->createEntity('company', 'Shared');
 

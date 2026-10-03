@@ -21,12 +21,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests field handler resolution against the registry.
- *
- * Core's constructor calls 'registerDefaultFieldHandlers()' to populate
- * built-in handlers, and consumers override via 'registerFieldHandler()'.
- * These tests cover the three tiers: default (constructor-registered),
- * consumer override, and fallback to 'DefaultHandler' for unknown field
- * types.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -49,9 +43,6 @@ class CoreFieldHandlerLookupTest extends TestCase {
     parent::tearDown();
   }
 
-  /**
-   * Tests that the constructor pre-registers the project's built-in handlers.
-   */
   public function testConstructorRegistersBuiltInHandlers(): void {
     $core = new FieldTypeMapCore(__DIR__, 'default', ['field_address' => 'address']);
 
@@ -60,9 +51,6 @@ class CoreFieldHandlerLookupTest extends TestCase {
     $this->assertInstanceOf(AddressHandler::class, $handler);
   }
 
-  /**
-   * Tests that a consumer registration wins over the built-in handler.
-   */
   public function testConsumerRegistrationOverridesBuiltIn(): void {
     $core = new FieldTypeMapCore(__DIR__, 'default', ['field_address' => 'address']);
     $core->registerFieldHandler('address', CustomFieldHandler::class);
@@ -72,9 +60,6 @@ class CoreFieldHandlerLookupTest extends TestCase {
     $this->assertInstanceOf(CustomFieldHandler::class, $handler);
   }
 
-  /**
-   * Tests that unknown field types fall back to 'DefaultHandler'.
-   */
   public function testUnknownFieldTypeFallsBackToDefaultHandler(): void {
     $core = new FieldTypeMapCore(__DIR__, 'default', ['field_x' => 'nonexistent_type']);
 
@@ -131,10 +116,10 @@ class CoreFieldHandlerLookupTest extends TestCase {
   /**
    * Sets up a minimal Drupal container satisfying AbstractHandler construction.
    *
-   * AbstractHandler's constructor pulls the entity field manager and the
-   * entity type manager off '\Drupal'; tests instantiate handlers via the
-   * registry, so both services must resolve. Storage and field definitions
-   * are stubbed loosely because no test depends on their shape.
+   * AbstractHandler's constructor reads the entity field manager and the
+   * entity type manager from '\Drupal'; tests instantiate handlers through
+   * the registry, so both services must resolve. Storage and field
+   * definitions are stubbed loosely because no test depends on their shape.
    */
   protected function setUpDrupalContainer(): void {
     $field_definition = $this->createMock(FieldDefinitionInterface::class);
@@ -142,8 +127,8 @@ class CoreFieldHandlerLookupTest extends TestCase {
 
     $storage_definition = $this->createMock(FieldStorageDefinitionInterface::class);
     $storage_definition->method('getType')->willReturn('string');
-    // Consulted by Core's classifier gate when a field type falls back to
-    // DefaultHandler; a plain scalar (no properties) keeps the field
+    // Core's classifier gate reads the property definitions when a field type
+    // falls back to 'DefaultHandler'; a scalar with no properties stays
     // default-expandable.
     $storage_definition->method('getPropertyDefinitions')->willReturn([]);
 
@@ -207,7 +192,7 @@ class FieldTypeMapCore extends Core {
 }
 
 /**
- * Test handler used to verify consumer registrations win over defaults.
+ * Test handler used to verify consumer registrations override defaults.
  */
 class CustomFieldHandler extends AbstractHandler {
 

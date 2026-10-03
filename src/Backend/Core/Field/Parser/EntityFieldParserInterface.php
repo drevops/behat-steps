@@ -8,17 +8,17 @@ namespace DrevOps\BehatSteps\Backend\Core\Field\Parser;
  * Contract for entity-field value parsers.
  *
  * Implementations transform a raw map of field-name to cell-text pairs (as
- * returned by 'EntityStubInterface::getValues()') into a final map suitable
- * for handing back to 'EntityStubInterface::setValues()'. Each implementation
- * owns all syntactic concerns (CSV multi-value splitting, compound column
- * splitting, inline named-column interpretation, 'field:column' / ':column'
- * multicolumn-header merging) and all field-type semantics (configurable vs
- * base vs ignored vs unknown).
+ * returned by 'EntityStubInterface::getValues()') into a final map for
+ * 'EntityStubInterface::setValues()'. Each implementation owns all syntactic
+ * concerns (CSV multi-value splitting, compound column splitting, inline
+ * named-column interpretation, 'field:column' / ':column' multicolumn-header
+ * merging) and all field-type semantics (configurable vs base vs ignored vs
+ * unknown).
  *
- * Heavier dependencies needed for those decisions (entity type, classifier)
- * are constructor-injected. Per-call configuration that may vary between
- * stubs (e.g. the list of ignored property names) is set via fluent setters
- * before 'parse()' is called.
+ * Dependencies those decisions require (entity type, classifier) are
+ * constructor-injected. Per-call configuration that may vary between stubs
+ * (e.g. the list of ignored property names) is set via fluent setters before
+ * 'parse()' is called.
  */
 interface EntityFieldParserInterface {
 
@@ -40,8 +40,7 @@ interface EntityFieldParserInterface {
    * Sets property names accepted without field-type validation.
    *
    * Backend-level creation hints on the stub (e.g. 'author', 'role',
-   * 'vocabulary_machine_name') are not real Drupal fields; the backend's
-   * create methods consume them.
+   * 'vocabulary_machine_name') are not Drupal fields.
    *
    * @param string[] $properties
    *   Property names to accept without validation.

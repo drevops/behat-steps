@@ -75,7 +75,7 @@ Feature: Check that BlockTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The block "[TEST] User Account Menu" exists but should not.
+      The block "[TEST] User Account Menu" exists, but it should not.
       """
 
   @trait:Drupal\BlockTrait
@@ -137,7 +137,7 @@ Feature: Check that BlockTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Block "[TEST] User Account Menu" is in region "content" but should not be
+      Block "[TEST] User Account Menu" is in region "content", but it should not be
       """
 
   @trait:Drupal\BlockTrait

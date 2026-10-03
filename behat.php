@@ -32,7 +32,7 @@ $suite = (new Suite('default'))
   ]);
 
 $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
-  // Disable the Gherkin cache during development.
+  // The Gherkin cache is disabled during development.
   ->withGherkinOptions((new GherkinOptions(['cache' => '']))->withFilter(new TagFilter('~@skipped')))
   ->withSuite($suite)
   ->withExtension(new Extension(MinkExtension::class, [
@@ -95,10 +95,10 @@ if (class_exists(CodeCoverageExtension::class)) {
   ]));
 }
 
-// Drives headless Chrome directly over the DevTools Protocol, with no Selenium
-// server. Run with "behat -p chrome_headless". It inherits the "default"
+// The "chrome_headless" profile drives headless Chrome directly over the
+// DevTools Protocol, with no Selenium server. It inherits the "default"
 // profile and swaps only the JavaScript session to "chrome", a session on the
-// driver that ChromeExtension registers.
+// driver that ChromeExtension registers. Run with "behat -p chrome_headless".
 $chrome_headless = (new Profile('chrome_headless'))
   ->withExtension(new Extension(ChromeExtension::class))
   ->withExtension(new Extension(MinkExtension::class, ['javascript_session' => 'chrome', 'sessions' => ['chrome' => ['chrome' => ['api_url' => 'http://chrome_headless:9222']]]]));

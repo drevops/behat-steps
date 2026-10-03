@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel tests for the block capability methods on Core.
  *
- * Covers all four methods of 'BlockCapabilityInterface':
+ * Covers all 4 methods of 'BlockCapabilityInterface':
  *  - 'blockPlace()' / 'blockDelete()' round-trip a 'block' config entity
  *    (placement in a region of a theme).
  *  - 'blockContentCreate()' / 'blockContentDelete()' round-trip a
@@ -86,9 +86,6 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->assertNull(Block::load('test_powered_by'));
   }
 
-  /**
-   * Tests that 'blockPlace()' auto-generates an id when the stub omits it.
-   */
   public function testBlockPlaceGeneratesIdWhenAbsent(): void {
     $stub = new EntityStub('block', NULL, [
       'plugin' => 'system_powered_by_block',
@@ -105,9 +102,6 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->assertNotNull(Block::load($placement->id()));
   }
 
-  /**
-   * Tests that 'blockDelete()' uses the saved-entity slot when present.
-   */
   public function testBlockDeleteUsesSavedEntity(): void {
     $stub = new EntityStub('block', NULL, [
       'id' => 'test_via_entity',
@@ -122,9 +116,6 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->assertNull(Block::load('test_via_entity'));
   }
 
-  /**
-   * Tests that 'blockDelete()' fails loudly when the stub has no id.
-   */
   public function testBlockDeleteRequiresIdOnStub(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/id/');
@@ -132,9 +123,6 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->core->blockDelete(new EntityStub('block', NULL, ['plugin' => 'system_powered_by_block']));
   }
 
-  /**
-   * Tests that 'blockContentCreate()' creates a content-block entity.
-   */
   public function testBlockContentCreateAndDeleteRoundTrip(): void {
     BlockContentType::create(['id' => 'basic', 'label' => 'Basic'])->save();
 

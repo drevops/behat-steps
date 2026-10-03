@@ -4,12 +4,10 @@
  * @file
  * Rector configuration.
  *
- * Rector automatically refactors PHP code to:
- * - Upgrade deprecated Drupal APIs
- * - Modernize PHP syntax to leverage new language features
- * - Improve code quality and maintainability
+ * Rector rewrites the sources to PHP 8.3 syntax and to Behat's step, hook and
+ * transformation attributes. It also applies the code quality, coding style,
+ * dead code, naming, privatization and type declaration sets.
  *
- * @see https://github.com/palantirnet/drupal-rector
  * @see https://getrector.com/documentation
  * @see https://getrector.com/documentation/set-lists
  */
@@ -44,7 +42,6 @@ return RectorConfig::configure()
     '/app/tests/phpunit/src',
   ])
   ->withSkip([
-    // Specific rules to skip based on project coding standards.
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
     InlineArrayReturnAssignRector::class,
@@ -58,23 +55,19 @@ return RectorConfig::configure()
     RemoveAlwaysTrueIfConditionRector::class,
     RenameForeachValueVariableToMatchExprVariableRector::class,
     // Renames a loop value after the call's return type, which names a row
-    // after the statement it came from and reads as camelCase where the
-    // coding standard wants snake_case.
+    // after the statement it came from. The result is camelCase where the
+    // coding standard requires snake_case.
     RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
     RenameParamToMatchTypeRector::class,
     RenameVariableToMatchMethodCallReturnTypeRector::class,
     RenameVariableToMatchNewTypeRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
-    // Directories to skip.
     '*/vendor/*',
     '*/node_modules/*',
     __DIR__ . '/tests/behat/bootstrap/BehatCliContext.php',
   ])
-  // PHP version upgrade sets - modernizes syntax to PHP 8.3.
-  // Includes all rules from PHP 5.3 through 8.3.
   ->withPhpSets(php83: TRUE)
   ->withAttributesSets(behat: TRUE)
-  // Code quality improvement sets.
   ->withPreparedSets(
     codeQuality: TRUE,
     codingStyle: TRUE,
@@ -83,12 +76,11 @@ return RectorConfig::configure()
     privatization: TRUE,
     typeDeclarations: TRUE,
   )
-  // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,
   ])
   // The fixture site owns the Drupal classes the analysed code references, so
-  // its autoloader has to be loaded rather than only scanned: resolving a
+  // its autoloader has to be loaded rather than only scanned. Resolving a
   // parent class such as 'KernelTestBase' needs the class, not its file.
   ->withBootstrapFiles([
     '/app/build/web/autoload.php',
@@ -101,7 +93,6 @@ return RectorConfig::configure()
     '/app/build/web/themes',
     '/app/build/web/profiles',
   ])
-  // Drupal file extensions.
   ->withFileExtensions([
     'php',
     'module',
@@ -111,5 +102,4 @@ return RectorConfig::configure()
     'inc',
     'engine',
   ])
-  // Import configuration.
   ->withImportNames(importNames: FALSE, importDocBlockNames: FALSE);

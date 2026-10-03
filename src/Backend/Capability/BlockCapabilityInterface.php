@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 /**
  * Capability: place blocks and create content blocks.
  *
- * Groups the two distinct block operations a backend typically needs during
+ * Groups the 2 distinct block operations a backend typically needs during
  * scenario setup:
  *
  *  - Placing a block in a region - the 'block' config entity.

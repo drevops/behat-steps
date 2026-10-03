@@ -55,8 +55,8 @@ const PROVISION_DB_URL = 'mysql://drupal:drupal@mariadb/drupal';
 /**
  * The Drupal major the fixture installs from prerelease.
  *
- * No contrib release declares it, so the solve needs relaxing before it
- * resolves, and its "drupal/core-dev" is the first to bring PHPUnit 12.
+ * No contrib release declares it, so the solve resolves only once relaxed.
+ * Its "drupal/core-dev" is also the first to require PHPUnit 12.
  */
 const PROVISION_DRUPAL_NEXT_MAJOR = 12;
 
@@ -82,9 +82,11 @@ const PROVISION_TEST_RUNNER_PACKAGES = [
  * Drupal's own test namespaces, and the docroot path each maps to.
  *
  * Drupal registers them from its PHPUnit bootstrap rather than from a
- * Composer entry, so a tool that loads only the autoloader cannot resolve a
- * class such as KernelTestBase. The list is maintained by hand: the merge
- * runs before the install, so the docroot cannot be scanned for it.
+ * Composer entry. A tool that loads only the autoloader therefore cannot
+ * resolve a class such as KernelTestBase.
+ *
+ * The list is maintained by hand: the merge runs before the install, so the
+ * docroot cannot be scanned for it.
  */
 const PROVISION_DRUPAL_TEST_NAMESPACES = [
   'BuildTests',
@@ -105,8 +107,8 @@ const PROVISION_DRUPAL_TEST_NAMESPACE_ROOT = 'web/core/tests/Drupal/';
  * A content type only the fixture defines.
  *
  * "drush cim" can enable the modules, abort on a fatal raised while it
- * creates config entities, and still exit 0, so the import is confirmed
- * against an entity that core does not ship.
+ * creates config entities, and still exit 0. The import is therefore
+ * confirmed against an entity that core does not ship.
  */
 const PROVISION_FIXTURE_CONTENT_TYPE = 'landing_page';
 
@@ -198,10 +200,10 @@ function provision(): void {
   }
 
   if (provision_is_lenient($drupal_version)) {
-    // A plugin only shapes a solve that it is already installed for, and the
-    // fixture has no solution until this one relaxes the contrib core
-    // constraints. Composer loads globally installed plugins for local
-    // projects, so installing it outside the build breaks that circle.
+    // A plugin takes part in a solve only once installed, and the fixture has
+    // no solution until this one relaxes the contrib core constraints.
+    // Composer loads globally installed plugins for local projects, so a
+    // global install breaks the circular dependency.
     echo '  > Installing the Composer plugin that relaxes contrib core constraints.' . PHP_EOL;
     $constraint = provision_lenient_constraint($fixture_dir . '/composer.json');
     provision_run('composer global config --no-interaction allow-plugins.' . PROVISION_LENIENT_PLUGIN . ' true');
@@ -259,14 +261,15 @@ function provision(): void {
 /**
  * Applies the package's own patches through Composer Patches.
  *
- * A patch declared in composer.json is read by the Composer Patches
- * "Dependencies" resolver in every project that requires this package, which
- * resolves the path against that project's own root. The declaration is
- * written here, over the package's own composer.json, and reverted once
- * Composer has applied it.
+ * The Composer Patches "Dependencies" resolver reads a patch declared in
+ * composer.json in every project that requires this package. It resolves the
+ * path against that project's own root.
+ *
+ * The declaration is therefore written here, over the package's own
+ * composer.json, and reverted once Composer has applied it.
  *
  * The patches apply to this package's own vendor directory, not to the
- * fixture site: "ahoy lint" runs the root vendor/bin/phpstan, and
+ * fixture site. "ahoy lint" runs the root vendor/bin/phpstan, and
  * mglaman/phpstan-drupal reads DRUPAL_ROOT and DRUPAL_VENDOR_ROOT only once
  * patched.
  *
@@ -284,9 +287,8 @@ function provision_apply_patches(): void {
 
   echo "  > Applying the package's own patches through Composer Patches." . PHP_EOL;
 
-  // The bytes restored in the finally are the bytes that were decoded, so a
-  // read that returned nothing cannot reach the restore and truncate the
-  // package's own manifest.
+  // The finally writes $original back, so a read that returned FALSE is
+  // rejected here rather than written over the package's own manifest.
   $composer_file = PROVISION_PACKAGE_ROOT . '/composer.json';
   $original = file_get_contents($composer_file);
 
@@ -304,9 +306,9 @@ function provision_apply_patches(): void {
       echo sprintf('    %s: %d patch(es)%s', $package, count($entries), PHP_EOL);
     }
 
-    // "install" applies a patch only while it installs the package the patch
-    // belongs to, and the dependencies are in place by now, so the packages
-    // carrying one are re-fetched and re-patched explicitly.
+    // "install" applies a patch only while installing the patched package,
+    // and the dependencies are already in place. The patched packages are
+    // therefore re-fetched and re-patched explicitly.
     $composer = 'composer --working-dir=' . PROVISION_PACKAGE_ROOT . ' --ansi --no-interaction ';
     provision_run($composer . 'patches-relock', ['COMPOSER_MEMORY_LIMIT' => '-1']);
     provision_run($composer . 'patches-repatch', ['COMPOSER_MEMORY_LIMIT' => '-1']);
@@ -321,9 +323,9 @@ function provision_apply_patches(): void {
 /**
  * Maps the patch files under a directory to the packages they apply to.
  *
- * A patch file lives at "patches/<vendor>/<package>/<name>.patch", so the
- * package it applies to is its own directory and the set is iterated rather
- * than listed.
+ * A patch file sits at "patches/<vendor>/<package>/<name>.patch", so its
+ * directory names the package it applies to. The set is iterated rather than
+ * listed.
  *
  * @param string $directory
  *   Absolute path to the directory holding the patches.
@@ -468,10 +470,10 @@ function provision_write_auth(string $token, string $file): void {
     return;
   }
 
-  // The file holds a credential. A umask denies every other user from the
-  // moment the file is created, where a chmod() after the write would leave
-  // the token readable in between. The build directory was emptied above, so
-  // the file cannot already exist with a mode of its own.
+  // A umask denies every other user from the moment the file is created,
+  // where a chmod() after the write would leave the token readable in
+  // between. The build directory was emptied above, so the file cannot
+  // already exist with a mode of its own.
   $umask = umask(0077);
 
   try {
@@ -483,7 +485,7 @@ function provision_write_auth(string $token, string $file): void {
 }
 
 /**
- * Writes a file, reporting a write that did not land.
+ * Writes a file, reporting a write that failed.
  *
  * Every write the script makes goes through here.
  *
@@ -636,9 +638,9 @@ function provision_widen_contrib(string $directory, string $major): int {
  * Admits a Drupal major into an extension's core version requirement.
  *
  * Composer installs the contrib code, but Drupal reads
- * core_version_requirement from each extension and refuses to enable one
- * that excludes the running major. No contrib release declares Drupal 12, so
- * the fixture widens what it received.
+ * core_version_requirement from each extension and does not enable one that
+ * excludes the running major. No contrib release declares Drupal 12, so the
+ * fixture widens what it received.
  *
  * @param string $text
  *   The contents of an info file.
@@ -669,8 +671,8 @@ function provision_widen_core_requirement(string $text, string $major): string {
 /**
  * Appends the fixture config overrides to a settings file.
  *
- * Drupal leaves the installed settings.php read-only, so the write is opened
- * and closed around.
+ * Drupal leaves the installed settings.php read-only, so the file is made
+ * writable for the write and read-only again after it.
  *
  * @param string $file
  *   Absolute path to the settings file.
@@ -769,10 +771,10 @@ function provision_write_merged_composer(string $package_file, string $fixture_f
 /**
  * Merges the package's Composer configuration into the fixture's.
  *
- * The fixture site exercises every trait at once, so what a consumer opts
- * into package by package is all required here: the package's own runtime
- * requirements, the "require-dev" entries that back a "suggest" entry, and
- * the packages that run the test suites.
+ * The fixture site exercises every trait at once, so everything a consumer
+ * opts into package by package is required here. This covers the package's
+ * own runtime requirements, the "require-dev" entries that back a "suggest"
+ * entry, and the packages that run the test suites.
  *
  * @param array<array-key, mixed> $package
  *   Decoded contents of the package's composer.json.
@@ -808,9 +810,9 @@ function provision_merge_composer(array $package, array $fixture): array {
 
   $merged = array_replace_recursive($filtered, $fixture);
 
-  // A package named in both sections resolves to the lower of the 2
-  // constraints under "--prefer-lowest", which can fall outside the range the
-  // fixture pins, so the fixture constraint is the one that survives.
+  // Under "--prefer-lowest", a package in both sections resolves to the lower
+  // constraint, which can fall outside the range the fixture pins. The
+  // fixture constraint is therefore kept.
   $merged['require-dev'] = array_diff_key(provision_section($merged, 'require-dev'), provision_section($merged, 'require'));
 
   return $merged;
@@ -819,7 +821,7 @@ function provision_merge_composer(array $package, array $fixture): array {
 /**
  * Prefixes every PSR-4 path of an autoload section with "../".
  *
- * The build sits one level below the package root, so a path the package
+ * The build sits 1 level below the package root, so a path the package
  * declares relative to itself only resolves from the build with the prefix.
  * A namespace may map to a list of directories rather than to one.
  *

@@ -28,9 +28,9 @@ trait BehatCliTrait {
    * @var array<int, string>
    */
   protected const BEHAT_CLI_BASELINE_TRAITS = [
-    'Web\PathTrait',
-    'Drupal\ContentTrait',
-    'Drupal\UserTrait',
+    'Web\\PathTrait',
+    'Drupal\\ContentTrait',
+    'Drupal\\UserTrait',
   ];
 
   /**
@@ -38,7 +38,7 @@ trait BehatCliTrait {
    *
    * @var array<int, string>
    */
-  protected const BEHAT_CLI_INHERENT_TRAITS = ['Helper\Drupal\AuthTrait', 'Helper\Drupal\StaticCacheTrait'];
+  protected const BEHAT_CLI_INHERENT_TRAITS = ['Helper\\Drupal\\AuthTrait', 'Helper\\Drupal\\StaticCacheTrait'];
 
   /**
    * Message selectors every generated configuration declares.
@@ -124,19 +124,16 @@ trait BehatCliTrait {
     ];
 
     // Navigation and session steps appear in nearly every generated scenario
-    // as setup for the trait under test, so the baseline carries them. A
-    // baseline trait that is itself under test is composed once.
+    // as setup for the trait under test, so the baseline carries them.
     $qualified_traits = [];
 
     foreach (array_merge(static::BEHAT_CLI_BASELINE_TRAITS, $traits) as $trait) {
-      // A tag names the trait's context and short name, as in
-      // 'Drupal\ModuleTrait'. A tag with no context names a web trait.
       $qualified_traits[] = str_contains((string) $trait, '\\') ? $trait : 'Web\\' . $trait;
     }
 
     foreach (array_diff(array_unique($qualified_traits), static::BEHAT_CLI_INHERENT_TRAITS) as $qualified) {
-      // Two contexts can hold the same short name, so each import carries a
-      // context-qualified alias and one tag can name both.
+      // 2 contexts can hold the same short name, so each import carries a
+      // context-qualified alias and 1 tag can name both.
       $alias = str_replace('\\', '_', (string) $qualified);
       // A 'Helper\' tag names a trait outside the vocabulary subtree.
       $root = str_starts_with((string) $qualified, 'Helper\\') ? 'DrevOps\\BehatSteps\\' : 'DrevOps\\BehatSteps\\Steps\\';
@@ -212,8 +209,8 @@ EOL;
     $content = strtr((string) $content, ["'''" => '"""']);
 
     $content_lines = explode(PHP_EOL, $content);
-    foreach ($content_lines as $k => $content_line) {
-      $content_lines[$k] = str_repeat(' ', 4) . trim($content_line);
+    foreach ($content_lines as $key => $content_line) {
+      $content_lines[$key] = str_repeat(' ', 4) . trim($content_line);
     }
     $content = implode(PHP_EOL, $content_lines);
 
@@ -400,9 +397,9 @@ EOL;
     // and an AssertionException where it is not. A non-assertion failure is
     // a \RuntimeException.
     $output = $this->getOutput();
-    $has_valid_exception = str_contains((string) $output, ' (Behat\Mink\Exception\ExpectationException)')
-      || str_contains((string) $output, ' (Behat\Mink\Exception\ElementNotFoundException)')
-      || str_contains((string) $output, ' (DrevOps\BehatSteps\Exception\AssertionException)');
+    $has_valid_exception = str_contains((string) $output, ' (Behat\\Mink\\Exception\\ExpectationException)')
+      || str_contains((string) $output, ' (Behat\\Mink\\Exception\\ElementNotFoundException)')
+      || str_contains((string) $output, ' (DrevOps\\BehatSteps\\Exception\\AssertionException)');
     if (!$has_valid_exception) {
       throw new \RuntimeException('The output does not contain an assertion exception string as expected.');
     }
@@ -414,8 +411,7 @@ EOL;
   #[Then('it should fail with an exception:')]
   public function behatCliAssertFailWithException(PyStringNode $message): void {
     $this->itShouldPassOrFailWith('fail', $message);
-    // A non-assertion failure is a \RuntimeException. An assertion failure
-    // is an assertion exception.
+    // A non-assertion failure is a \RuntimeException.
     if (!str_contains($this->getOutput(), ' (RuntimeException)')) {
       throw new \RuntimeException('The output does not contain an "(RuntimeException)" string as expected.');
     }
@@ -441,7 +437,7 @@ EOL;
   #[Then('the output should not contain:')]
   public function theOutputShouldNotContain(PyStringNode $text): void {
     if (str_contains($this->getOutput(), $this->getExpectedOutput($text))) {
-      throw new \RuntimeException(sprintf('Output contains "%s" but should not.', $this->getExpectedOutput($text)));
+      throw new \RuntimeException(sprintf('Output contains "%s", but it should not.', $this->getExpectedOutput($text)));
     }
   }
 

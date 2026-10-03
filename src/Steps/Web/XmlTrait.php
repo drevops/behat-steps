@@ -550,8 +550,8 @@ trait XmlTrait {
    * Assert that the response is a valid RSS 2.0 feed.
    *
    * Checks the required RSS 2.0 structure: an `rss` root with a `version` of
-   * `2.0`, a single `channel` with `title`, `link` and `description`, and an
-   * `item` with at least a `title` or a `description`.
+   * `2.0` and a single `channel` with `title`, `link` and `description`. Each
+   * `item` present has a `title` or a `description`.
    *
    * @code
    * Then the response should be a valid RSS feed
@@ -565,9 +565,9 @@ trait XmlTrait {
   /**
    * Assert that the response is a valid Atom feed.
    *
-   * Checks the required Atom structure: a `feed` root in the Atom namespace
-   * with `id`, `title` and `updated`, and each `entry` with `id`, `title`
-   * and `updated`.
+   * Checks the required Atom structure. The `feed` root is in the Atom
+   * namespace with `id`, `title` and `updated`, and each `entry` has `id`,
+   * `title` and `updated`.
    *
    * @code
    * Then the response should be a valid Atom feed
@@ -589,7 +589,7 @@ trait XmlTrait {
   }
 
   /**
-   * Parse XML content without disturbing the cached document.
+   * Parse XML content without altering the cached document.
    *
    * @param string $content
    *   The XML content to parse.
@@ -633,7 +633,7 @@ trait XmlTrait {
 
     $namespaces = $this->xmlExtractNamespaces();
     foreach ($namespaces as $prefix => $uri) {
-      if (is_string($prefix) && !empty($prefix)) {
+      if (is_string($prefix) && $prefix !== '') {
         $this->xmlXpath->registerNamespace($prefix, $uri);
       }
     }
@@ -786,12 +786,11 @@ trait XmlTrait {
    * Validate the response against a DTD.
    *
    * The DTD is embedded as an internal subset and the response is reloaded
-   * with validation enabled, so a DTD from a file and an inline DTD share this
-   * code path.
+   * with validation enabled.
    *
    * External references are not resolved during validation, so a `SYSTEM`
-   * entity declared in the DTD is loaded from neither a local path nor the
-   * network. Validation fails with a resolver error if a DTD references one.
+   * entity in the DTD is loaded from neither a local path nor the network.
+   * Validation fails with a resolver error if a DTD references one.
    *
    * DTDs are namespace-unaware, so a namespaced response is validated verbatim
    * and its `xmlns` attributes must be declared in the DTD. This matches
@@ -813,7 +812,7 @@ trait XmlTrait {
     $body = $this->xmlDocument->saveXML($root);
     if ($body === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException('Failed to serialise the response for DTD validation.');
+      throw new \RuntimeException('Failed to serialize the response for DTD validation.');
       // @codeCoverageIgnoreEnd
     }
 
@@ -822,10 +821,9 @@ trait XmlTrait {
     $document = new \DOMDocument();
     libxml_clear_errors();
 
-    // A SYSTEM entity declared in the DTD is dereferenced while validating.
-    // The loader returns NULL for every external reference, so validation can
-    // neither read a local path nor reach the network. LIBXML_NONET is passed
-    // as well, but on its own it blocks only the network half.
+    // A SYSTEM entity declared in the DTD is dereferenced while validating, so
+    // the loader returns NULL for every external reference. LIBXML_NONET is
+    // passed as well, but on its own it blocks only the network half.
     $previous_loader = function_exists('libxml_get_external_entity_loader') ? libxml_get_external_entity_loader() : NULL;
     libxml_set_external_entity_loader(static fn(): null => NULL);
 

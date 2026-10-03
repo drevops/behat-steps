@@ -52,7 +52,6 @@ class EntityReferenceHandlerEdgeCasesKernelTest extends FieldHandlerKernelTestBa
     Vocabulary::create(['vid' => 'tags', 'name' => 'Tags'])->save();
     Vocabulary::create(['vid' => 'categories', 'name' => 'Categories'])->save();
 
-    // Matching term in the allowed bundle.
     Term::create(['name' => 'drupal', 'vid' => 'tags'])->save();
     // Same-named term in a disallowed bundle should be ignored by the query.
     Term::create(['name' => 'drupal', 'vid' => 'categories'])->save();

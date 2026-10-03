@@ -33,7 +33,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class BrowserCapabilityResolverTest extends UnitTestCase {
 
   /**
-   * Tests that each driver resolves to the adapter speaking for it.
+   * Tests that each driver resolves to the adapter that supports it.
    *
    * @param class-string<\Behat\Mink\Driver\DriverInterface> $driver_class
    *   The browser driver class to mock.
@@ -49,9 +49,6 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     $this->assertInstanceOf($expected, (new BrowserCapabilityResolver())->resolve($driver, CookieCapabilityInterface::class));
   }
 
-  /**
-   * Data provider for testAdapterForDriver().
-   */
   public static function dataProviderAdapterForDriver(): \Iterator {
     yield 'browserkit' => [BrowserKitDriver::class, BrowserKitAdapter::class];
     yield 'selenium2' => [Selenium2Driver::class, Selenium2Adapter::class];
@@ -86,12 +83,9 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     $this->assertSame($expected, $actual);
   }
 
-  /**
-   * Data provider for testDeclaredCapabilities().
-   */
   public static function dataProviderDeclaredCapabilities(): \Iterator {
-    // A BrowserKit driver is an HTTP client rather than a browser: it carries
-    // cookies, lends its client and sets headers, but runs no script.
+    // A BrowserKit driver is an HTTP client, not a browser: it carries
+    // cookies, exposes its client and sets headers, but runs no script.
     yield 'browserkit' => [
       BrowserKitDriver::class,
       [CookieCapabilityInterface::class, HttpClientCapabilityInterface::class, RequestHeaderCapabilityInterface::class],
@@ -123,7 +117,7 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
   }
 
   /**
-   * Tests that a driver providing one capability still refuses another.
+   * Tests that a driver providing 1 capability fails to resolve another.
    */
   public function testResolveRefusesCapabilityTheDriverLacks(): void {
     $driver = $this->createMock(BrowserKitDriver::class);
@@ -135,9 +129,6 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     $resolver->resolve($driver, JavascriptCapabilityInterface::class);
   }
 
-  /**
-   * Tests that a registered adapter outranks the shipped ones.
-   */
   public function testRegisteredAdapterTakesPrecedence(): void {
     $driver = $this->createMock(BrowserKitDriver::class);
     $resolver = new BrowserCapabilityResolver();
@@ -150,9 +141,6 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     $this->assertTrue($resolver->has($driver, JavascriptCapabilityInterface::class), 'A registered adapter supplies a capability the shipped one lacks.');
   }
 
-  /**
-   * Tests that the adapter for a driver is built once and reused.
-   */
   public function testAdapterIsReusedForTheSameDriver(): void {
     $driver = $this->createMock(BrowserKitDriver::class);
     $resolver = new BrowserCapabilityResolver();
@@ -166,8 +154,8 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
   /**
    * Tests that the Selenium driver still declares the methods Syn needs.
    *
-   * The adapter reaches these through reflection because the driver exposes no
-   * public equivalent, so an upstream rename has to fail here rather than in a
+   * The adapter reaches these through reflection because the driver exposes
+   * no public equivalent. An upstream rename has to fail here, not in a
    * scenario.
    */
   public function testSeleniumStillDeclaresTheReflectedMethods(): void {
@@ -183,11 +171,9 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
   /**
    * Skips the test when the browser driver package is not installed.
    *
-   * Both JavaScript drivers are suggested rather than required, and the Chrome
-   * extension pins Behat 3, so a Behat 4 install resolves without it. An
-   * adapter still loads and reports FALSE for a driver class that is absent,
-   * which is what keeps the resolver working; only a test naming the class
-   * directly needs the package present.
+   * An adapter still loads and its supports() reports FALSE for a driver
+   * class that is absent, so the resolver works without the package. Only a
+   * test naming the class directly needs the package present.
    *
    * @param string $driver_class
    *   The browser driver class the test mocks.

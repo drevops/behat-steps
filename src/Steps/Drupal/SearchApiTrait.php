@@ -12,10 +12,11 @@ use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\node\Entity\Node;
 
 /**
- * Assert Drupal Search API with index and query operations.
+ * Run Drupal Search API indexing and cron hooks.
  *
- * - Add content to an index
+ * - Add content to an index.
  * - Run indexing for a specific number of items.
+ * - Run the Search API and Search API Solr cron hooks.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */

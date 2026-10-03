@@ -70,11 +70,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Registered field handler classes, keyed by field type id.
    *
-   * Populated at construction with the project's built-in handlers and
-   * extended at runtime via 'registerFieldHandler()'. Lookup in
-   * 'getFieldHandler()' consults this map first, falling back to
-   * 'DefaultHandler' when a field type has no registered class.
-   *
    * @var array<string, class-string<FieldHandlerInterface>>
    */
   protected array $fieldHandlers = [];
@@ -102,7 +97,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @param string $drupal_root
    *   The absolute path to the Drupal root directory.
    * @param string $uri
-   *   URI that is accessing Drupal. Defaults to 'default'.
+   *   The URI used to access Drupal. Defaults to 'default'.
    * @param \Drupal\Component\Utility\Random|null $random
    *   Optional random-value generator.
    */
@@ -339,12 +334,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $entity_type = $stub->getEntityType();
     $definition = $this->loadEntityTypeDefinition($entity_type);
 
-    // The id key and bundle key identify the record itself and must not pass
-    // through the handler pipeline. On 'commerce_product' the bundle key
-    // 'type' is also a base entity_reference field. Expanding it would
-    // resolve the bundle machine name through EntityReferenceHandler and
-    // overwrite the scalar with ['target_id' => ...], corrupting every
-    // subsequent bundle lookup for the same stub.
+    // The id key and bundle key identify the record, so neither enters the
+    // handler pipeline. On 'commerce_product' the bundle key 'type' is also
+    // a base entity_reference field, and EntityReferenceHandler would
+    // replace the scalar with ['target_id' => ...], corrupting the stub's
+    // later bundle lookups.
     $skip = array_filter([$definition->getKey('id'), $definition->getKey('bundle')]);
 
     $bundle = $this->resolveBundle($stub);
@@ -368,9 +362,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Resolves the bundle for an entity stub.
    *
-   * Consults the entity type's bundle key in the values bag first, then the
-   * typed 'bundle' constructor argument, then falls back to the entity type
-   * id (single-bundle entities like 'user' use the type id as their bundle).
+   * Reads the entity type's bundle key from the values bag first, then the
+   * typed 'bundle' constructor argument, then the entity type id.
+   * Single-bundle entities like 'user' use the type id as their bundle.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub.
@@ -748,7 +742,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $drupal_base_url = parse_url($this->uri);
 
       if ($drupal_base_url === FALSE) {
-        throw new BootstrapException(sprintf('Cannot parse the site URI %s', $this->uri));
+        throw new BootstrapException(sprintf('Cannot parse the site URI %s.', $this->uri));
       }
 
       $drupal_base_url += [
@@ -780,7 +774,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $conf_path = DrupalKernel::findSitePath(Request::createFromGlobals());
     $conf_file = $this->drupalRoot . sprintf('/%s/settings.php', $conf_path);
     if (!file_exists($conf_file)) {
-      throw new BootstrapException(sprintf('Could not find a Drupal settings.php file at "%s"', $conf_file));
+      throw new BootstrapException(sprintf('Could not find a Drupal settings.php file at "%s".', $conf_file));
     }
     $drushrc_file = $this->drupalRoot . sprintf('/%s/drushrc.php', $conf_path);
     if (file_exists($drushrc_file)) {
@@ -801,7 +795,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     if (Vocabulary::load($vocabulary) === NULL) {
-      throw new \RuntimeException(sprintf("Cannot create term because vocabulary '%s' does not exist.", $vocabulary));
+      throw new \RuntimeException(sprintf('Cannot create term because vocabulary "%s" does not exist.', $vocabulary));
     }
 
     $stub->setValue('vid', $vocabulary);
@@ -1099,7 +1093,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function stateExists(string $name): bool {
     // The state service reads a stored NULL and an absent key alike, so the
-    // backing key-value store answers this instead.
+    // backing key-value store is queried instead.
     return \Drupal::keyValue('state')->has($name);
   }
 
@@ -1118,7 +1112,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $id_key = $definition->getKey('id');
 
     if (!is_string($id_key)) {
-      throw new \RuntimeException(sprintf("Cannot create an entity of type '%s' because it declares no id key.", $entity_type));
+      throw new \RuntimeException(sprintf('Cannot create an entity of type "%s" because it declares no id key.', $entity_type));
     }
 
     // storage->create() reads the bundle under the entity type's own bundle
@@ -1133,7 +1127,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $bundles = $bundle_info->getBundleInfo($entity_type);
 
       if (!array_key_exists((string) $stub->getValue($bundle_key), $bundles)) {
-        throw new \RuntimeException(sprintf("Cannot create entity because provided bundle '%s' does not exist.", $stub->getValue($bundle_key)));
+        throw new \RuntimeException(sprintf('Cannot create entity because provided bundle "%s" does not exist.', $stub->getValue($bundle_key)));
       }
     }
 

@@ -32,8 +32,6 @@ trait IframeTrait {
    */
   #[When('I switch to the iframe with the selector :selector')]
   public function iframeSwitchTo(string $selector): void {
-    // Switching frames and naming an unnamed one both need a real browser, so
-    // a browser driver that runs no JavaScript fails naming the capability.
     $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
     $iframe = $this->getSession()->getPage()->find('css', $selector);
@@ -44,7 +42,7 @@ trait IframeTrait {
 
     $iframe_name = $iframe->getAttribute('name');
 
-    if (empty($iframe_name)) {
+    if ($iframe_name === NULL || $iframe_name === '') {
       $this->getSession()->executeScript(
         "(function(){
           var iframes = document.querySelectorAll('iframe');

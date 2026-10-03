@@ -121,9 +121,9 @@ class MemberOrderTest extends UnitTestCase {
 
     $members = [];
 
-    // A composition is read from the source rather than from
-    // ReflectionClass::getTraitNames(), which reports the composed trait's
-    // real name and so cannot be matched against an aliased import.
+    // ReflectionClass::getTraitNames() reports the composed trait's real
+    // name, so it cannot be matched against an aliased import. The
+    // composition is read from the source instead.
     foreach ($lines as $index => $line) {
       if (preg_match('/^\s+use\s+([A-Za-z\\\\][\w\\\\]*)\s*;/', $line, $matches) === 1) {
         $members[] = ['name' => 'use ' . $matches[1], 'group' => static::GROUP_COMPOSITION, 'line' => $index + 1];

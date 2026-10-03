@@ -13,8 +13,8 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
 /**
  * Verify link elements with attribute and content assertions.
  *
- * - Find links by title, URL, text content, and class attributes.
- * - Test link existence, visibility, and destination accuracy.
+ * - Find links by title, or by text and href, optionally within an element.
+ * - Assert link existence and href match.
  * - Assert absolute and relative link paths.
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
@@ -45,7 +45,7 @@ trait LinkTrait {
   /**
    * Assert a link with a href exists.
    *
-   * Note that simplified wildcard is supported in "href".
+   * A simplified wildcard is supported in "href".
    *
    * @code
    * Then the link "About us" with the href "/about-us" should exist
@@ -60,7 +60,7 @@ trait LinkTrait {
   /**
    * Assert link with a href exists within an element.
    *
-   * Note that simplified wildcard is supported in "href".
+   * A simplified wildcard is supported in "href".
    *
    * @code
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
@@ -89,7 +89,7 @@ trait LinkTrait {
 
     $pattern = '/' . preg_quote($href, '/') . '/';
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
-    if (!preg_match($pattern, (string) $link_element->getAttribute('href'))) {
+    if (preg_match($pattern, (string) $link_element->getAttribute('href')) !== 1) {
       throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s".', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
@@ -97,7 +97,7 @@ trait LinkTrait {
   /**
    * Assert link with a href does not exist.
    *
-   * Note that simplified wildcard is supported in "href".
+   * A simplified wildcard is supported in "href".
    *
    * @code
    * Then the link "About us" with the href "/about-us" should not exist
@@ -112,7 +112,7 @@ trait LinkTrait {
   /**
    * Assert link with a href does not exist within an element.
    *
-   * Note that simplified wildcard is supported in "href".
+   * A simplified wildcard is supported in "href".
    *
    * @code
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
@@ -144,8 +144,8 @@ trait LinkTrait {
 
     $pattern = '/' . preg_quote($href, '/') . '/';
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
-    if (preg_match($pattern, (string) $link_element->getAttribute('href'))) {
-      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s" but should not.', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
+    if (preg_match($pattern, (string) $link_element->getAttribute('href')) === 1) {
+      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s", but it should not.', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
 
@@ -181,7 +181,7 @@ trait LinkTrait {
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
     if ($element) {
-      throw new ExpectationException(sprintf('The link with the title "%s" exists, but should not.', $title), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link with the title "%s" exists, but it should not.', $title), $this->getSession()->getDriver());
     }
   }
 

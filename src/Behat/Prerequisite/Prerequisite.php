@@ -7,10 +7,11 @@ namespace DrevOps\BehatSteps\Behat\Prerequisite;
 /**
  * One prerequisite a trait declares.
  *
- * A prerequisite is stated through a backend capability: a backend in the
- * scenario's list provides the capability, and for a check, that backend passes
- * the check. A trait returns its prerequisites from a '<prefix>Prerequisites()'
- * method.
+ * A prerequisite is stated through a backend capability. A backend in the
+ * scenario's list provides the capability, and for a check, that backend
+ * passes the check.
+ *
+ * A trait returns its prerequisites from a '<prefix>Prerequisites()' method.
  *
  * @see \DrevOps\BehatSteps\Behat\Prerequisite\PrerequisiteReader
  */
@@ -110,7 +111,7 @@ final readonly class Prerequisite {
    * Declares a check a backend providing a capability passes.
    *
    * The capability is the type of the closure's only parameter, so it cannot
-   * drift from what the closure calls.
+   * differ from what the closure calls.
    *
    * @param \Closure $check
    *   A static closure taking the backend, typed to the capability interface it

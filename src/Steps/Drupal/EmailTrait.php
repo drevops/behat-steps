@@ -92,8 +92,8 @@ trait EmailTrait {
       return;
     }
 
-    // The step can enable the system without the '@email' tag, so the enabled
-    // handler types decide the teardown.
+    // The step can enable the system without the '@email' tag, so the teardown
+    // checks the enabled handler types instead.
     if ($this->emailHandlerTypes === []) {
       return;
     }
@@ -178,8 +178,8 @@ trait EmailTrait {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $body = $message['params']['body'] ?? NULL;
 
-      // A handler that puts a structure in 'params.body' leaves the rendered
-      // text in 'body', so fall through rather than skipping the message.
+      // A handler that stores a structure in 'params.body' leaves the rendered
+      // text in 'body', so 'body' is read in that case.
       if (!is_string($body)) {
         $body = $message['body'] ?? '';
       }
@@ -252,10 +252,10 @@ trait EmailTrait {
   /**
    * Enable the test email system.
    *
-   * Collects with the handler types the scenario's `@email:TYPE` tags name, or
-   * with the `default` handler when none do. The system is disabled again once
-   * the scenario finishes, unless `@behat-steps-skip:EmailTrait` switches the
-   * trait's hooks off.
+   * Collects with the handler types named by the scenario's `@email:TYPE` tags,
+   * or with the `default` handler when none are named. The system is disabled
+   * again once the scenario finishes, unless `@behat-steps-skip:EmailTrait`
+   * switches the trait's hooks off.
    *
    * @code
    * When I enable the test email system
@@ -275,8 +275,7 @@ trait EmailTrait {
       $this->emailSetMailSystemDefault($type, 'test_mail_collector');
     }
 
-    // Clearing here lets this step definition be reused to clear existing
-    // mail.
+    // Clearing on enable lets this step also reset existing mail.
     $this->emailClearTestQueue(TRUE);
   }
 

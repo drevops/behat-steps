@@ -18,12 +18,12 @@ class ArgumentsExposingDrushBackend extends DrushBackend {
    * Public wrapper over the protected static parser.
    *
    * @param array<string, string|bool|null> $arguments
-   *   Argument map to serialise.
+   *   Argument map to serialize.
    *
    * @return array<int, string>
    *   The argv entries produced by 'parseArguments()'.
    */
-  public static function expose(array $arguments): array {
+  public static function callParseArguments(array $arguments): array {
     return self::parseArguments($arguments);
   }
 

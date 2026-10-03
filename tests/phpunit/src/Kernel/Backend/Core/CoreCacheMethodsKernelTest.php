@@ -41,9 +41,6 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests that 'cacheClear()' dispatches without error.
-   */
   public function testCacheClearDispatches(): void {
     // Populate a cache entry so the clear has something to flush.
     \Drupal::cache()->set('drupal_backend_test:sentinel', 'value');
@@ -54,9 +51,6 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
     $this->assertFalse(\Drupal::cache()->get('drupal_backend_test:sentinel'));
   }
 
-  /**
-   * Tests that 'cacheClearStatic()' resets Drupal's static caches.
-   */
   public function testCacheClearStaticResetsStatics(): void {
     $counter = &drupal_static('drupal_backend_test_counter');
     $counter = 7;
@@ -67,9 +61,6 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
     $this->assertNull(drupal_static('drupal_backend_test_counter'));
   }
 
-  /**
-   * Tests that 'cacheClearStatic()' empties the memory cache bin.
-   */
   public function testCacheClearStaticEmptiesTheMemoryBin(): void {
     \Drupal::cache('memory')->set('drupal_backend_test:memory', 'value');
     $this->assertNotFalse(\Drupal::cache('memory')->get('drupal_backend_test:memory'));
@@ -79,9 +70,6 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
     $this->assertFalse(\Drupal::cache('memory')->get('drupal_backend_test:memory'));
   }
 
-  /**
-   * Tests that 'getExtensionPathList()' includes the enabled system module.
-   */
   public function testGetExtensionPathListIncludesEnabledModules(): void {
     $paths = $this->core->getExtensionPathList();
 
@@ -92,9 +80,6 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
     );
   }
 
-  /**
-   * Tests that 'getRandom()' returns the random generator.
-   */
   public function testGetRandomReturnsInjectedGenerator(): void {
     $random = new Random();
     $core = new Core($this->root, 'default', $random);

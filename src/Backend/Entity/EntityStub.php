@@ -7,9 +7,10 @@ namespace DrevOps\BehatSteps\Backend\Entity;
 /**
  * Typed envelope for creating, tracking, and cleaning up a Drupal entity.
  *
- * Mirrors Drupal Core's own 'Entity::create($type, $values)' shape - one
- * final class, no subclasses, with the entity type and bundle pinned at
- * construction time and a mutable values bag plus a saved-entity slot.
+ * Like Drupal Core's 'getStorage($type)->create($values)', which creates an
+ * entity of any type from 1 call, the stub is 1 final class with no
+ * subclasses. The entity type and bundle are pinned at construction time;
+ * the values bag and the saved-entity slot are mutable.
  */
 final class EntityStub implements EntityStubInterface {
 

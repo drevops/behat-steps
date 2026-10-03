@@ -44,9 +44,9 @@ use Drupal\workflows\Entity\Workflow;
  */
 trait ContentTrait {
 
-  use QueryTrait;
   use EntityLifecycleTrait;
   use FixtureFileTrait;
+  use QueryTrait;
   use TableTransposeTrait;
 
   /**
@@ -241,7 +241,7 @@ trait ContentTrait {
    * @endcode
    */
   #[When('I rebuild the access grants for the :content_type content with the title :title')]
-  public function contentRebuildAccessGrantsByTitle(string $content_type, string $title): void {
+  public function contentRebuildAccessGrantsWithTitle(string $content_type, string $title): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $node = $this->contentGetNodeByTitle($content_type, $title);
@@ -401,7 +401,7 @@ trait ContentTrait {
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 
     if (!$content_type_entity) {
-      throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
+      throw new \RuntimeException(sprintf('The content type "%s" does not exist.', $content_type));
     }
 
     $nids = $this->queryNodeIds($content_type, [

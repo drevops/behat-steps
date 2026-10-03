@@ -15,10 +15,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test asserting a consumer-registered handler wins end-to-end.
  *
- * The unit tests cover registry semantics in isolation. This test proves
- * that a class registered via 'Core::registerFieldHandler()' is the one
- * instantiated when 'entityCreate()' expands a field. The stored value is
- * observed to differ from what the fallback handler would produce.
+ * This test proves that a class registered via 'Core::registerFieldHandler()'
+ * is the one instantiated when 'entityCreate()' expands a field. The stored
+ * value is observed to differ from what the fallback handler would produce.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -54,11 +53,10 @@ class FieldHandlerRegistryKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests that a consumer-registered handler replaces the fallback.
    *
-   * The input value is deliberately distinct from the handler's marker so
-   * the assertion can only pass when the consumer handler actually ran.
-   * 'DefaultHandler', which serves 'text_with_summary' when nothing is
-   * registered, would leave the raw input in storage and the comparison
-   * against 'MARKER' would fail.
+   * The input value differs from the handler's marker, so the assertion
+   * passes only when the consumer handler ran. 'DefaultHandler', which serves
+   * 'text_with_summary' when nothing is registered, would leave the raw input
+   * in storage and fail the comparison against 'MARKER'.
    */
   public function testConsumerRegisteredHandlerWinsOverFallback(): void {
     $this->core->registerFieldHandler('text_with_summary', MarkerTextWithSummaryHandler::class);
@@ -86,9 +84,9 @@ class FieldHandlerRegistryKernelTest extends FieldHandlerKernelTestBase {
 /**
  * Test-only handler that emits a deterministic marker value.
  *
- * Extends 'AbstractHandler' directly so its class lineage does not include
- * 'DefaultHandler', which proves the registry is the resolution path rather
- * than a class-name convention.
+ * Extends 'AbstractHandler' directly so its lineage excludes 'DefaultHandler'.
+ * A resolution to this class can then only come from the registry, not from a
+ * class-name convention.
  */
 class MarkerTextWithSummaryHandler extends AbstractHandler {
 

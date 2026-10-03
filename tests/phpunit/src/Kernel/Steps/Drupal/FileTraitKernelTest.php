@@ -36,9 +36,6 @@ class FileTraitKernelTest extends StepTraitKernelTestBase {
     $this->installEntitySchema('file');
   }
 
-  /**
-   * Tests that the matching files are loaded, keyed by ID.
-   */
   public function testLoadMultipleLoadsTheMatchingFiles(): void {
     $first = $this->createFile('public://first/shared.txt');
     $second = $this->createFile('public://second/shared.txt');
@@ -49,9 +46,6 @@ class FileTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertLoadedSet([$first, $second], $files, FileInterface::class);
   }
 
-  /**
-   * Tests that an empty array is returned when no file matches.
-   */
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
     $this->createFile('public://other.txt');
 

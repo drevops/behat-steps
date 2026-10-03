@@ -38,7 +38,7 @@ Feature: Check that ResponseTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The response contains the header "Content-Type", but should not.
+      The response contains the header "Content-Type", but it should not.
       """
 
   @phpserver

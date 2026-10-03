@@ -155,7 +155,7 @@ trait ContentBlockTrait {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($content_block_type);
 
     if (!$block_content_type instanceof BlockContentTypeInterface) {
-      throw new ExpectationException(sprintf('Content block type "%s" does not exist.', $content_block_type), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The content block type "%s" does not exist.', $content_block_type), $this->getSession()->getDriver());
     }
   }
 
@@ -165,7 +165,7 @@ trait ContentBlockTrait {
    * Created entities are registered with the shared entity registry so that
    * they are removed at the end of the scenario.
    *
-   * @param string $type
+   * @param string $content_block_type
    *   The machine name of the block content type.
    * @param array<string> $values
    *   Associative array of field values for the content block entity.
@@ -180,11 +180,11 @@ trait ContentBlockTrait {
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be saved.
    */
-  public function contentBlockCreateSingle(string $type, array $values): BlockContent {
+  public function contentBlockCreateSingle(string $content_block_type, array $values): BlockContent {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $values['type'] = $type;
-    $stub = new EntityStub('block_content', $type, $values);
+    $values['type'] = $content_block_type;
+    $stub = new EntityStub('block_content', $content_block_type, $values);
     $this->entityLifecycleParseFields($stub);
 
     /** @var \Drupal\block_content\Entity\BlockContent $entity */
@@ -199,7 +199,7 @@ trait ContentBlockTrait {
   /**
    * Load multiple content blocks with specified type and conditions.
    *
-   * @param string $type
+   * @param string $content_block_type
    *   The block content type.
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
@@ -208,8 +208,8 @@ trait ContentBlockTrait {
    *   The matching content blocks keyed by ID, or an empty array when none
    *   match.
    */
-  public function contentBlockLoadMultiple(string $type, array $conditions = []): array {
-    $ids = $this->queryEntityIds('block_content', $conditions, $type);
+  public function contentBlockLoadMultiple(string $content_block_type, array $conditions = []): array {
+    $ids = $this->queryEntityIds('block_content', $conditions, $content_block_type);
 
     return $ids ? BlockContent::loadMultiple($ids) : [];
   }

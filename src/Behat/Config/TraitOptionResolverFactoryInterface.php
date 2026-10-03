@@ -7,9 +7,10 @@ namespace DrevOps\BehatSteps\Behat\Config;
 /**
  * Interface for classes that build a context's option resolver.
  *
- * A resolver depends on the context class that declared the options and on the
- * 'config' argument that context was given, so it cannot be a container
- * service. Registering another implementation of this interface under
+ * A resolver depends on the context class that declared the options and on
+ * that context's 'config' argument, so it cannot be a container service.
+ *
+ * Registering another implementation of this interface under
  * 'behat_steps.config.resolver_factory' replaces option resolution for every
  * context at once.
  */

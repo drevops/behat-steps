@@ -17,9 +17,11 @@ use PHPUnit\Framework\TestCase;
 /**
  * Exercises every 'DrushBackend' public method to guarantee line coverage.
  *
- * Each test replaces the 'drush()' method with a recorder and verifies the
- * expected Drush command is invoked at least once. The actual Drush binary is
- * never executed here; end-to-end behaviour is covered separately.
+ * Most tests replace 'drush()' with a recorder and assert on the commands it
+ * records. The rest run a system binary such as 'echo' through the real
+ * 'drush()', or cover 'resolveProjectDrush()' and 'parseArguments()'. The
+ * actual Drush binary is never executed here; end-to-end behaviour is covered
+ * separately.
  */
 #[CoversClass(DrushBackend::class)]
 #[Group('backends')]
@@ -42,9 +44,6 @@ class DrushBackendMethodsTest extends TestCase {
     }
   }
 
-  /**
-   * Tests that 'bootstrap()' flips the bootstrapped flag.
-   */
   public function testBootstrapMarksAsBootstrapped(): void {
     $backend = $this->createBackend();
 
@@ -53,18 +52,12 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertTrue($backend->isBootstrapped());
   }
 
-  /**
-   * Tests that 'getRandom()' returns the random generator.
-   */
   public function testGetRandomReturnsGenerator(): void {
     $backend = $this->createBackend();
 
     $this->assertInstanceOf(Random::class, $backend->getRandom());
   }
 
-  /**
-   * Tests that 'setArguments()' and 'getArguments()' are symmetrical.
-   */
   public function testArgumentsRoundTrip(): void {
     $backend = $this->createBackend();
     $backend->setArguments('--uri=http://example.com');
@@ -72,9 +65,6 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertSame('--uri=http://example.com', $backend->getArguments());
   }
 
-  /**
-   * Tests that 'processBatch()' is a no-op.
-   */
   public function testProcessBatchIsNoop(): void {
     $backend = $this->createBackend();
     $backend->processBatch();
@@ -82,9 +72,6 @@ class DrushBackendMethodsTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
-  /**
-   * Tests 'cacheClear()' rebuilds the cache.
-   */
   public function testCacheClearRebuilds(): void {
     $backend = $this->createBackend();
 
@@ -95,9 +82,6 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertContains('cache:rebuild', $commands);
   }
 
-  /**
-   * Tests that 'cacheClearStatic()' is a no-op.
-   */
   public function testCacheClearStaticIsNoop(): void {
     $backend = $this->createBackend();
     $backend->cacheClearStatic();
@@ -105,9 +89,6 @@ class DrushBackendMethodsTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
-  /**
-   * Tests that '__call()' forwards unknown methods through 'drush()'.
-   */
   public function testMagicCallForwardsToDrush(): void {
     $backend = $this->createBackend();
     $backend->drushResponse = 'magic-output';
@@ -119,9 +100,6 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertSame('status', $backend->invocations[0]['command']);
   }
 
-  /**
-   * Tests 'userCreate()' applies roles when the user object declares them.
-   */
   public function testUserCreateWithRolesInvokesRoleAssignment(): void {
     $backend = $this->createBackend();
     $backend->drushResponse = "User ID   :   7\nUser name :   bob\n";
@@ -140,9 +118,6 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertSame(2, array_count_values($commands)['user-add-role'] ?? 0);
   }
 
-  /**
-   * Tests 'userCreate()' rejects a response carrying no user id.
-   */
   public function testUserCreateThrowsWhenDrushReportsNoUserId(): void {
     $backend = $this->createBackend();
     $backend->drushResponse = "Nothing resembling a user id.\n";
@@ -154,7 +129,7 @@ class DrushBackendMethodsTest extends TestCase {
     ]);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches("/did not report a user id after creating 'bob'/");
+    $this->expectExceptionMessageMatches('/did not report a user id after creating "bob"/');
 
     $backend->userCreate($user);
   }
@@ -173,7 +148,7 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
-   * Tests that 'drush()' actually spawns the configured binary.
+   * Tests that 'drush()' spawns the configured binary.
    *
    * Uses 'echo' as the binary so the test runs deterministically without
    * requiring a real Drush install. Echo prints the assembled command back on
@@ -194,9 +169,6 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertStringContainsString('version', $result);
   }
 
-  /**
-   * Tests that 'drush()' always emits the '--no-ansi' flag.
-   */
   public function testDrushAlwaysEmitsNoAnsiFlag(): void {
     $echo = $this->resolveSystemBinary('echo');
     if ($echo === NULL) {
@@ -211,7 +183,7 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
-   * Tests that 'resolveProjectDrush()' picks up COMPOSER_BIN_DIR first.
+   * Tests that 'resolveProjectDrush()' prefers 'COMPOSER_BIN_DIR'.
    */
   public function testResolveProjectDrushPrefersComposerBin(): void {
     $temp_dir = self::TEMP_ROOT . '/drush-backend-test-' . uniqid();
@@ -231,9 +203,6 @@ class DrushBackendMethodsTest extends TestCase {
     }
   }
 
-  /**
-   * Tests that 'resolveProjectDrush()' falls back to 'vendor/bin/drush'.
-   */
   public function testResolveProjectDrushFallsBackToVendorBin(): void {
     $temp_dir = self::TEMP_ROOT . '/drush-backend-cwd-' . uniqid();
     mkdir($temp_dir . '/vendor/bin', 0777, TRUE);
@@ -275,20 +244,7 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
-   * Returns the first executable location for a system utility, or NULL.
-   */
-  protected function resolveSystemBinary(string $name): ?string {
-    foreach (['/bin/' . $name, '/usr/bin/' . $name] as $candidate) {
-      if (is_executable($candidate)) {
-        return $candidate;
-      }
-    }
-
-    return NULL;
-  }
-
-  /**
-   * Tests 'parseArguments()' serialises boolean and value options.
+   * Tests 'parseArguments()' serializes boolean and value options.
    *
    * @param array<string, string|bool|null> $options
    *   Options passed to 'parseArguments()'.
@@ -297,7 +253,16 @@ class DrushBackendMethodsTest extends TestCase {
    */
   #[DataProvider('dataProviderParseArguments')]
   public function testParseArguments(array $options, array $expected): void {
-    $this->assertSame($expected, ArgumentsExposingDrushBackend::expose($options));
+    $this->assertSame($expected, ArgumentsExposingDrushBackend::callParseArguments($options));
+  }
+
+  public static function dataProviderParseArguments(): \Iterator {
+    yield 'empty' => [[], []];
+    yield 'single flag' => [['yes' => NULL], ['--yes']];
+    yield 'single valued option' => [['format' => 'json'], ['--format=json']];
+    yield 'flag and valued' => [['yes' => NULL, 'format' => 'json'], ['--yes', '--format=json']];
+    yield 'multiple valued' => [['format' => 'json', 'root' => '/var/www'], ['--format=json', '--root=/var/www']];
+    yield 'value carrying shell syntax stays one argument' => [['name' => '$(id)'], ['--name=$(id)']];
   }
 
   /**
@@ -311,29 +276,14 @@ class DrushBackendMethodsTest extends TestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid Drush option name: ' . $name);
 
-    ArgumentsExposingDrushBackend::expose([$name => 'value']);
+    ArgumentsExposingDrushBackend::callParseArguments([$name => 'value']);
   }
 
-  /**
-   * Data provider for 'testParseArgumentsRejectsName()'.
-   */
   public static function dataProviderParseArgumentsRejectsName(): \Iterator {
     yield 'space' => ['two words'];
     yield 'leading dash' => ['-format'];
     yield 'equals sign' => ['format=json'];
     yield 'slash' => ['some/path'];
-  }
-
-  /**
-   * Data provider for 'testParseArguments()'.
-   */
-  public static function dataProviderParseArguments(): \Iterator {
-    yield 'empty' => [[], []];
-    yield 'single flag' => [['yes' => NULL], ['--yes']];
-    yield 'single valued option' => [['format' => 'json'], ['--format=json']];
-    yield 'flag and valued' => [['yes' => NULL, 'format' => 'json'], ['--yes', '--format=json']];
-    yield 'multiple valued' => [['format' => 'json', 'root' => '/var/www'], ['--format=json', '--root=/var/www']];
-    yield 'value carrying shell syntax stays one argument' => [['name' => '$(id)'], ['--name=$(id)']];
   }
 
   /**
@@ -363,11 +313,43 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
-   * Tests that a config write hands Drush a format it actually parses.
+   * Data provider: method -> args -> first-expected-drush-command.
+   */
+  public static function dataProviderInvokesDrush(): \Iterator {
+    $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
+
+    yield 'userCreate' => ['userCreate', [$user], 'user-create', "User ID   :   9\n"];
+    yield 'userDelete' => ['userDelete', [$user], 'user-cancel'];
+    yield 'userAddRole' => ['userAddRole', [$user, 'admin'], 'user-add-role'];
+    yield 'cronRun' => ['cronRun', [], 'cron'];
+    yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm-enable'];
+    yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm-uninstall'];
+    yield 'configGet' => ['configGet', ['system.site', 'name'], 'config:get', '"Example"'];
+    yield 'configGetOriginal' => ['configGetOriginal', ['system.site'], 'config:get', '{}'];
+    yield 'configSet' => ['configSet', ['system.site', 'name', 'v'], 'config:set'];
+    yield 'configExists' => ['configExists', ['system.site'], 'config:get', '{}'];
+    yield 'configGetData' => ['configGetData', ['system.site'], 'config:get', '{"name":"Example"}'];
+    yield 'configSetData' => ['configSetData', ['system.site', ['name' => 'Example']], 'config:get', '{"name":"Old"}'];
+    yield 'configDelete' => ['configDelete', ['system.site'], 'config:get', '{}'];
+    yield 'stateGet' => ['stateGet', ['my.key'], 'state:get', '{"my.key":"v"}'];
+    yield 'stateSet' => ['stateSet', ['my.key', 'v'], 'state:set'];
+    yield 'stateDelete' => ['stateDelete', ['my.key'], 'state:delete'];
+    yield 'stateExists' => ['stateExists', ['my.key'], 'state:get', '{"my.key":"v"}'];
+    yield 'moduleIsEnabled' => ['moduleIsEnabled', ['dblog'], 'pm:list', '{"dblog":{"status":"Enabled"}}'];
+    yield 'moduleIsPresent' => ['moduleIsPresent', ['dblog'], 'pm:list', '{"dblog":{"status":"Disabled"}}'];
+    yield 'roleCreate no permissions' => ['roleCreate', [[]], 'role:create'];
+    yield 'roleCreate with permissions' => ['roleCreate', [['access content']], 'role:create'];
+    yield 'roleCreate with explicit id' => ['roleCreate', [[], 'editor'], 'role:create'];
+    yield 'roleCreate with id and label' => ['roleCreate', [['access content'], 'editor', 'Editor'], 'role:create'];
+    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete'];
+  }
+
+  /**
+   * Tests that a config write requests an input format Drush parses.
    *
-   * 'config:set' parses its value only under '--input-format=yaml'; any other
-   * value is stored verbatim, so a JSON payload would land as its own encoding
-   * rather than as the value it encodes.
+   * 'config:set' parses its value only under '--input-format=yaml'; under any
+   * other format the value is stored verbatim, so a JSON payload would be
+   * stored as its own encoding, not as the value it encodes.
    */
   public function testConfigSetRequestsParsedInputFormat(): void {
     $backend = $this->createBackend();
@@ -413,9 +395,6 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertSame($expected, $backend->{$method}(...$args));
   }
 
-  /**
-   * Data provider for testUnwrapsEnvelope().
-   */
   public static function dataProviderUnwrapsEnvelope(): \Iterator {
     yield 'config key read unwraps the name:key entry' => [
       'configGet',
@@ -468,7 +447,8 @@ class DrushBackendMethodsTest extends TestCase {
    * Tests that a module lookup matches the machine name exactly.
    *
    * The 'pm:list' filter matches any substring of a name, so a listing that
-   * only holds a longer neighbour must not report the module as present.
+   * only holds a module with a longer name must not report the module as
+   * present.
    */
   public function testModuleLookupMatchesTheExactName(): void {
     $backend = $this->createBackend();
@@ -484,7 +464,7 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
-   * Tests that a failed write puts the configuration object back.
+   * Tests that a failed write restores the configuration object.
    *
    * The delete and the write are separate commands, so a write that fails
    * after the delete would otherwise leave the object missing instead of
@@ -493,7 +473,6 @@ class DrushBackendMethodsTest extends TestCase {
   public function testConfigSetDataRestoresTheObjectWhenTheWriteFails(): void {
     $backend = $this->createBackend();
     $backend->drushResponse = '{"name":"Original"}';
-    // Fail the first 'config:set' and let the restoring one through.
     $backend->drushFailures['config:set'] = 1;
 
     try {
@@ -526,10 +505,10 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
-   * Tests that an object holding nothing is written without being deleted.
+   * Tests that an empty object is written without being deleted.
    *
    * Deleting it would drop no key and leave nothing to restore from, because
-   * 'config:set' refuses to write an empty object back.
+   * 'config:set' rejects an empty object.
    */
   public function testConfigSetDataKeepsAnEmptyObjectInPlace(): void {
     $backend = $this->createBackend();
@@ -544,35 +523,16 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
-   * Data provider: method -> args -> first-expected-drush-command.
+   * Returns the first executable location for a system utility, or NULL.
    */
-  public static function dataProviderInvokesDrush(): \Iterator {
-    $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
+  protected function resolveSystemBinary(string $name): ?string {
+    foreach (['/bin/' . $name, '/usr/bin/' . $name] as $candidate) {
+      if (is_executable($candidate)) {
+        return $candidate;
+      }
+    }
 
-    yield 'userCreate' => ['userCreate', [$user], 'user-create', "User ID   :   9\n"];
-    yield 'userDelete' => ['userDelete', [$user], 'user-cancel'];
-    yield 'userAddRole' => ['userAddRole', [$user, 'admin'], 'user-add-role'];
-    yield 'cronRun' => ['cronRun', [], 'cron'];
-    yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm-enable'];
-    yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm-uninstall'];
-    yield 'configGet' => ['configGet', ['system.site', 'name'], 'config:get', '"Example"'];
-    yield 'configGetOriginal' => ['configGetOriginal', ['system.site'], 'config:get', '{}'];
-    yield 'configSet' => ['configSet', ['system.site', 'name', 'v'], 'config:set'];
-    yield 'configExists' => ['configExists', ['system.site'], 'config:get', '{}'];
-    yield 'configGetData' => ['configGetData', ['system.site'], 'config:get', '{"name":"Example"}'];
-    yield 'configSetData' => ['configSetData', ['system.site', ['name' => 'Example']], 'config:get', '{"name":"Old"}'];
-    yield 'configDelete' => ['configDelete', ['system.site'], 'config:get', '{}'];
-    yield 'stateGet' => ['stateGet', ['my.key'], 'state:get', '{"my.key":"v"}'];
-    yield 'stateSet' => ['stateSet', ['my.key', 'v'], 'state:set'];
-    yield 'stateDelete' => ['stateDelete', ['my.key'], 'state:delete'];
-    yield 'stateExists' => ['stateExists', ['my.key'], 'state:get', '{"my.key":"v"}'];
-    yield 'moduleIsEnabled' => ['moduleIsEnabled', ['dblog'], 'pm:list', '{"dblog":{"status":"Enabled"}}'];
-    yield 'moduleIsPresent' => ['moduleIsPresent', ['dblog'], 'pm:list', '{"dblog":{"status":"Disabled"}}'];
-    yield 'roleCreate no permissions' => ['roleCreate', [[]], 'role:create'];
-    yield 'roleCreate with permissions' => ['roleCreate', [['access content']], 'role:create'];
-    yield 'roleCreate with explicit id' => ['roleCreate', [[], 'editor'], 'role:create'];
-    yield 'roleCreate with id and label' => ['roleCreate', [['access content'], 'editor', 'Editor'], 'role:create'];
-    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete'];
+    return NULL;
   }
 
   /**

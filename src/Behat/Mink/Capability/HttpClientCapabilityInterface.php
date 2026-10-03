@@ -7,10 +7,10 @@ namespace DrevOps\BehatSteps\Behat\Mink\Capability;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 
 /**
- * Capability: lend out the browser the Mink session drives.
+ * Capability: expose the browser the Mink session drives.
  *
  * A request sent through that browser becomes the page the session holds. A
- * browser driver speaking to a real browser has no such browser in PHP, so
+ * browser driver controlling a real browser has no such browser in PHP, so
  * only a browser driver that is itself an HTTP client provides this.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\WebRawContext::httpPageClient()

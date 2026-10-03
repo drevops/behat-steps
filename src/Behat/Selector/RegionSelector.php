@@ -19,7 +19,7 @@ class RegionSelector implements SelectorInterface {
    * Constructs a RegionSelector.
    *
    * @param \Behat\Mink\Selector\CssSelector $cssSelector
-   *   The CSS selector that performs the actual CSS-to-XPath translation.
+   *   The CSS selector that translates CSS to XPath.
    * @param array<string, string> $regions
    *   Map of region names to CSS selectors, sourced from the extension's
    *   'regions' configuration.
@@ -45,7 +45,7 @@ class RegionSelector implements SelectorInterface {
   // phpcs:ignore Drupal.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
   public function translateToXPath($locator): string {
     if (!is_string($locator) || !isset($this->regions[$locator])) {
-      throw new \RuntimeException(sprintf('The "%s" region isn\'t configured!', is_string($locator) ? $locator : gettype($locator)));
+      throw new \RuntimeException(sprintf('The "%s" region is not configured.', is_string($locator) ? $locator : get_debug_type($locator)));
     }
 
     return $this->cssSelector->translateToXPath($this->regions[$locator]);

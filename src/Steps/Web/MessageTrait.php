@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Web;
 
 use Behat\Gherkin\Node\TableNode;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Behat\Config\Option;
@@ -15,10 +16,10 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * - Match a single message by substring, per message type.
  * - Match a table of messages in one step.
  *
- * Each message type resolves to a CSS selector configured under the
- * `selectors: messages:` map in the extension configuration, keyed `default`,
- * `error`, `success` and `warning`. A message matches when the text of any
- * element found by that selector contains the expected string.
+ * Each message type resolves to a CSS selector from the `message.selectors`
+ * option, keyed `default`, `error`, `success` and `warning`. A message
+ * matches when the text of any element found by that selector contains the
+ * expected string.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -219,15 +220,16 @@ trait MessageTrait {
    * @param string $type
    *   The message type: 'default', 'error', 'success' or 'warning'.
    *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the page renders no message of that type.
    * @throws \Behat\Mink\Exception\ExpectationException
-   *   When the page renders no message of that type, or none containing the
-   *   expected text.
+   *   When no message of that type contains the expected text.
    */
   public function messageAssertExistsOfType(string $message, string $type): void {
     $elements = $this->getSession()->getPage()->findAll('css', $this->messageGetSelector($type));
 
     if ($elements === []) {
-      throw new ExpectationException(sprintf('The page "%s" does not contain any "%s" messages.', $this->getSession()->getCurrentUrl(), $type), $this->getSession()->getDriver());
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('%s message', $type), 'css', $this->messageGetSelector($type));
     }
 
     foreach ($elements as $element) {
