@@ -476,7 +476,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public static function dataProviderCleanupOptOut(): \Iterator {
     yield 'empty value still cleans up' => ['', TRUE];
-    yield 'unrecognised value still cleans up' => ['maybe', TRUE];
+    yield 'unrecognized value still cleans up' => ['maybe', TRUE];
     yield 'zero still cleans up' => ['0', TRUE];
     yield 'one disables cleanup' => ['1', FALSE];
     yield 'true disables cleanup' => ['TRUE', FALSE];

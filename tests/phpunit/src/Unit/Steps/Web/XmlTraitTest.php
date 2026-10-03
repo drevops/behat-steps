@@ -30,7 +30,7 @@ class XmlTraitTest extends UnitTestCase {
   }
 
   public function testPrintLastResponseThrowsWhenSaveFails(): void {
-    $this->testObject->testSetDocument(new UnserialisableDomDocument(), '<root/>');
+    $this->testObject->testSetDocument(new UnserializableDomDocument(), '<root/>');
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Failed to format the XML response.');
@@ -68,7 +68,7 @@ class XmlTraitTestImplementation extends RawMinkContext {
 /**
  * A document whose saveXML() always fails.
  */
-class UnserialisableDomDocument extends \DOMDocument {
+class UnserializableDomDocument extends \DOMDocument {
 
   /**
    * {@inheritdoc}

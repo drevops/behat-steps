@@ -114,13 +114,13 @@ class FileHandlerTest extends FileBackedHandlerTestBase {
       NULL,
     ];
 
-    yield 'NULL target_id rejected by normalise' => [
+    yield 'NULL target_id rejected by normalize' => [
       [['target_id' => NULL]],
       NULL,
       \RuntimeException::class,
       'File field "target_id" must not be NULL or empty.',
     ];
-    yield 'empty target_id rejected by normalise' => [
+    yield 'empty target_id rejected by normalize' => [
       [['target_id' => '']],
       NULL,
       \RuntimeException::class,
