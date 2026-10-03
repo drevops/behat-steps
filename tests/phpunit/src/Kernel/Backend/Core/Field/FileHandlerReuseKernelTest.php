@@ -65,7 +65,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
     $this->core->entityCreate($stub);
 
-    $this->assertEquals($existing->id(), $this->loadFieldTargetId($stub->getValue('id'), 'field_attachment'));
+    $this->assertSame((int) $existing->id(), (int) $this->loadFieldTargetId($stub->getValue('id'), 'field_attachment'));
     $this->assertSame(1, $this->fileEntityCount(), 'A second managed file was created instead of reusing the existing one.');
   }
 
@@ -84,7 +84,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
     $this->core->entityCreate($stub);
 
-    $this->assertEquals($existing->id(), $this->loadFieldTargetId($stub->getValue('id'), 'field_attachment'));
+    $this->assertSame((int) $existing->id(), (int) $this->loadFieldTargetId($stub->getValue('id'), 'field_attachment'));
     $this->assertSame(1, $this->fileEntityCount());
   }
 
