@@ -217,39 +217,39 @@ trait MetatagTrait {
   }
 
   /**
-   * Assert the robots meta tag includes a directive.
+   * Assert the robots meta tag contains a directive.
    *
    * Directives are matched as whole, case-insensitive tokens, so a request for
    * "follow" never matches a "nofollow" directive.
    *
    * @code
-   * Then the meta robots should include "noindex"
-   * Then the meta robots should include "nofollow"
+   * Then the meta robots should contain "noindex"
+   * Then the meta robots should contain "nofollow"
    * @endcode
    */
-  #[Then('the meta robots should include :directive')]
+  #[Then('the meta robots should contain :directive')]
   public function metatagAssertRobotsContains(string $directive): void {
     $directives = $this->metatagGetRobotsDirectives();
 
     if (!in_array(strtolower(trim($directive)), $directives, TRUE)) {
-      throw new ExpectationException(sprintf('The robots meta tag does not include the "%s" directive. Found: %s.', $directive, $directives === [] ? '(none)' : implode(', ', $directives)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The robots meta tag does not contain the "%s" directive. Found: %s.', $directive, $directives === [] ? '(none)' : implode(', ', $directives)), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert the robots meta tag does not include a directive.
+   * Assert the robots meta tag does not contain a directive.
    *
    * @code
-   * Then the meta robots should not include "noindex"
-   * Then the meta robots should not include "nofollow"
+   * Then the meta robots should not contain "noindex"
+   * Then the meta robots should not contain "nofollow"
    * @endcode
    */
-  #[Then('the meta robots should not include :directive')]
+  #[Then('the meta robots should not contain :directive')]
   public function metatagAssertRobotsNotContains(string $directive): void {
     $directives = $this->metatagGetRobotsDirectives();
 
     if (in_array(strtolower(trim($directive)), $directives, TRUE)) {
-      throw new ExpectationException(sprintf('The robots meta tag includes the "%s" directive, but it should not.', $directive), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The robots meta tag contains the "%s" directive, but it should not.', $directive), $this->getSession()->getDriver());
     }
   }
 

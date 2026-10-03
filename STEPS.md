@@ -2832,30 +2832,30 @@ Then the page should not be indexable
 </details>
 
 <details>
-  <summary><code>@Then the meta robots should include :directive</code></summary>
+  <summary><code>@Then the meta robots should contain :directive</code></summary>
 
 <br/>
-Assert the robots meta tag includes a directive
+Assert the robots meta tag contains a directive
 <br/><br/>
 
 ```gherkin
-Then the meta robots should include "noindex"
-Then the meta robots should include "nofollow"
+Then the meta robots should contain "noindex"
+Then the meta robots should contain "nofollow"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the meta robots should not include :directive</code></summary>
+  <summary><code>@Then the meta robots should not contain :directive</code></summary>
 
 <br/>
-Assert the robots meta tag does not include a directive
+Assert the robots meta tag does not contain a directive
 <br/><br/>
 
 ```gherkin
-Then the meta robots should not include "noindex"
-Then the meta robots should not include "nofollow"
+Then the meta robots should not contain "noindex"
+Then the meta robots should not contain "nofollow"
 
 ```
 

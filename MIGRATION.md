@@ -936,6 +936,13 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `Given I wait for AJAX to finish` | `When I wait for AJAX to finish` |
 | `When (I )break` | dropped; use a debugger or `When I print last response` (Mink) |
 
+### Metatag
+
+| Before | After |
+| --- | --- |
+| Then the meta robots should include :directive | Then the meta robots should contain :directive |
+| Then the meta robots should not include :directive | Then the meta robots should not contain :directive |
+
 Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchanged: `Steps\Web\RandomTrait` and `Steps\Web\MappingTrait` carry them, and a context composes the trait instead of registering `RandomContext` or `MappingContext`.
 
 ## Unified entity cleanup
@@ -1330,6 +1337,8 @@ A failure message quotes the values it names in double quotes, ends with a perio
 | ResponseTrait | The response contains the header "...", but should not. | The response contains the header "...", but it should not. |
 | PathTrait | The parameter "..." is in the URL but should not be. | The parameter "..." is in the URL, but it should not be. |
 | PathTrait | The parameter "..." with value "..." is in the URL but should not be. | The parameter "..." with value "..." is in the URL, but it should not be. |
+| MetatagTrait | The robots meta tag does not include the "..." directive. Found: .... | The robots meta tag does not contain the "..." directive. Found: .... |
+| MetatagTrait | The robots meta tag includes the "..." directive, but it should not. | The robots meta tag contains the "..." directive, but it should not. |
 | XmlTrait | Failed to serialise the response for DTD validation. | Failed to serialize the response for DTD validation. |
 | JsonTrait | The JSON response must decode to an array or object, but got integer. (also `boolean`, `double`, `NULL`) | The JSON response must decode to an array or object, but got int. (also `bool`, `float`, `null`) |
 | Drupal\ContentTrait | Content type "..." does not exist. | The content type "..." does not exist. |
@@ -1639,7 +1648,7 @@ It still asserts that an email went to the address and that no collected email's
 | `MetatagTrait` | `metatagAssertRobotsNotIncludes()` | `metatagAssertRobotsNotContains()` |
 | `MetatagTrait` | `metatagAssertMetaSetPresent()` | `metatagAssertMetaSetExists()` |
 
-The step text still reads `the meta robots should include :directive`.
+The step text follows the method: `the meta robots should include :directive` is `the meta robots should contain :directive`, and `should not include` is `should not contain`.
 
 ### Only an assertion is named `Assert`
 
