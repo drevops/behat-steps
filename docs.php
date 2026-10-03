@@ -295,7 +295,7 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
 
       // @codeCoverageIgnoreStart
       if (!$trait_file_path) {
-        throw new \Exception(sprintf('Trait %s does not have a file path', $trait_name));
+        throw new \RuntimeException(sprintf('Trait %s does not have a file path', $trait_name));
       }
       // @codeCoverageIgnoreEnd
       $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY . DIRECTORY_SEPARATOR, '', $trait_file_path);
@@ -306,7 +306,7 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
   }
 
   if (!empty($traits_files)) {
-    throw new \Exception(sprintf('The following traits were not found in the class: %s', implode(', ', $traits_files)));
+    throw new \RuntimeException(sprintf('The following traits were not found in the class: %s', implode(', ', $traits_files)));
   }
 
   uksort($collected, strcasecmp(...));
@@ -519,7 +519,7 @@ function extract_trait_prerequisites(string $class_name, string $trait): array {
  */
 function parse_class_comment(string $trait_name, string $comment): array {
   if (empty($comment)) {
-    throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+    throw new \RuntimeException(sprintf('Class comment for %s is empty', $trait_name));
   }
 
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
@@ -564,22 +564,22 @@ function parse_class_comment(string $trait_name, string $comment): array {
 
   // @codeCoverageIgnoreStart
   if (empty($lines)) {
-    throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+    throw new \RuntimeException(sprintf('Class comment for %s is empty', $trait_name));
   }
   // @codeCoverageIgnoreEnd
   $description = $lines[0];
   if (empty($description)) {
-    throw new \Exception(sprintf('Class comment for %s is empty', $trait_name));
+    throw new \RuntimeException(sprintf('Class comment for %s is empty', $trait_name));
   }
 
   if (str_starts_with($description, 'Trait ')) {
-    throw new \Exception(sprintf('Class comment should have a descriptive content for %s', $trait_name));
+    throw new \RuntimeException(sprintf('Class comment should have a descriptive content for %s', $trait_name));
   }
 
   $full_description = implode(PHP_EOL, $lines);
 
   if (substr_count($full_description, '`') % 2 !== 0) {
-    throw new \Exception(sprintf('Class inline code block is not closed for %s', $trait_name));
+    throw new \RuntimeException(sprintf('Class inline code block is not closed for %s', $trait_name));
   }
 
   return [
@@ -645,7 +645,7 @@ function parse_method_comment(string $comment): ?array {
   }
 
   if ($example_start) {
-    throw new \Exception('Example not closed');
+    throw new \RuntimeException('Example not closed');
   }
 
   $return['description'] = trim($return['description']);
@@ -1260,7 +1260,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
 
     if (!file_exists($src_file_path)) {
-      throw new \Exception(sprintf('Source file %s does not exist', $src_file_path));
+      throw new \RuntimeException(sprintf('Source file %s does not exist', $src_file_path));
     }
 
     $example_name = camel_to_snake(str_replace('Trait', '', $trait));
@@ -1273,7 +1273,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
 
     // @codeCoverageIgnoreStart
     if (!file_exists($example_file_path)) {
-      throw new \Exception(sprintf('Example file %s does not exist', $example_file_path));
+      throw new \RuntimeException(sprintf('Example file %s does not exist', $example_file_path));
     }
     // @codeCoverageIgnoreEnd
     // @phpstan-ignore-next-line
@@ -1449,7 +1449,7 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
 
     $src_file = (string) $class_info['source'];
     if (!file_exists($base_path . DIRECTORY_SEPARATOR . $src_file)) {
-      throw new \Exception(sprintf('Source file %s does not exist', $base_path . DIRECTORY_SEPARATOR . $src_file));
+      throw new \RuntimeException(sprintf('Source file %s does not exist', $base_path . DIRECTORY_SEPARATOR . $src_file));
     }
 
     $steps_anchor = $class_info['steps_anchor'] ?? NULL;
@@ -2246,15 +2246,15 @@ function camel_to_snake(string $string, string $separator = '_'): string {
  */
 function replace_content(string $haystack, string $start, string $end, string $replacement): string {
   if (!str_contains($haystack, $start)) {
-    throw new \Exception('Start not found in the haystack');
+    throw new \RuntimeException('Start not found in the haystack');
   }
 
   if (!str_contains($haystack, $end)) {
-    throw new \Exception('End not found in the haystack');
+    throw new \RuntimeException('End not found in the haystack');
   }
 
   if (strpos($haystack, $start) > strpos($haystack, $end)) {
-    throw new \Exception('Start is after the end');
+    throw new \RuntimeException('Start is after the end');
   }
 
   $pattern = '/' . preg_quote($start, '/') . '.*?' . preg_quote($end, '/') . '/s';

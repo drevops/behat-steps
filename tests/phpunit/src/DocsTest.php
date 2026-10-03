@@ -103,7 +103,7 @@ class DocsTest extends UnitTestCase {
   #[DataProvider('dataProviderParseMethodComment')]
   public function testParseMethodComment(string $comment, ?array $expected, ?string $exception = NULL): void {
     if ($exception) {
-      $this->expectException(\Exception::class);
+      $this->expectException(\RuntimeException::class);
       $this->expectExceptionMessage($exception);
     }
 
@@ -433,7 +433,7 @@ EOD,
   #[DataProvider('dataProviderRenderInfo')]
   public function testRenderInfo(array $info, string $expected, ?string $exception = NULL): void {
     if ($exception) {
-      $this->expectException(\Exception::class);
+      $this->expectException(\RuntimeException::class);
       $exception = str_replace('@tmp', static::$tmp, $exception);
       $this->expectExceptionMessage($exception);
     }
@@ -1922,7 +1922,7 @@ EOD,
     ?string $exception = NULL,
   ): void {
     if ($exception) {
-      $this->expectException(\Exception::class);
+      $this->expectException(\RuntimeException::class);
       $this->expectExceptionMessage($exception);
     }
 
@@ -2203,7 +2203,7 @@ EOD,
    * Tests that extract_info() rejects a trait file no class composes.
    */
   public function testExtractInfoMissingTrait(): void {
-    $this->expectException(\Exception::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/The following traits were not found in the class/');
 
     $paths = $this->setupTestEnvironment();
@@ -2271,7 +2271,7 @@ EOD,
   #[DataProvider('dataProviderParseClassComment')]
   public function testParseClassComment(string $trait_name, string $comment, array $expected, ?string $exception = NULL): void {
     if ($exception) {
-      $this->expectException(\Exception::class);
+      $this->expectException(\RuntimeException::class);
       $this->expectExceptionMessage($exception);
     }
 
@@ -2648,7 +2648,7 @@ EOD,
    * filtering, so extract_info() throws.
    */
   public function testExtractInfoEmptyClassComment(): void {
-    $this->expectException(\Exception::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Class comment for EmptyCommentTrait is empty');
 
     $trait_name = 'EmptyCommentTrait';
@@ -3224,7 +3224,7 @@ EOD,
   }
 
   public function testRenderHelpersThrowsOnMissingSource(): void {
-    $this->expectException(\Exception::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Source file');
 
     render_helpers([
