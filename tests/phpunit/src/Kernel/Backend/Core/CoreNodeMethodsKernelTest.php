@@ -104,7 +104,7 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
 
   public function testNodeCreateRejectsUnknownAuthor(): void {
     $this->expectException(CreationAliasResolutionException::class);
-    $this->expectExceptionMessageMatches("/user 'auther'.*does not exist/");
+    $this->expectExceptionMessageMatches('/user "auther".*does not exist/');
 
     $this->core->nodeCreate(new EntityStub('node', 'article', [
       'title' => 'Hello',
