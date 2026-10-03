@@ -65,7 +65,7 @@ class FixtureFileTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderLooksLikeCompoundCell')]
   public function testLooksLikeCompoundCell(string $value, bool $expected): void {
-    $this->assertSame($expected, $this->testObject->callHelperLooksLikeCompoundCell($value));
+    $this->assertSame($expected, $this->testObject->callLooksLikeCompoundCell($value));
   }
 
   public static function dataProviderLooksLikeCompoundCell(): array {
@@ -92,7 +92,7 @@ class FixtureFileTraitTest extends UnitTestCase {
     $this->testObject->managedBasenames = $existing_managed_basenames;
 
     $expected = str_replace('{FIXTURES}', $this->fixturesPath, $expected_template);
-    $actual = $this->testObject->callHelperExpandCompoundCellFixtures($value, $this->fixturesPath);
+    $actual = $this->testObject->callExpandCompoundCell($value, $this->fixturesPath);
 
     $this->assertSame($expected, $actual);
   }
@@ -184,7 +184,7 @@ class FixtureFileTraitTest extends UnitTestCase {
 
     $stub = new EntityStub('node', 'article', $stub_values);
 
-    $this->testObject->callHelperExpandEntityFieldsFixtures('node', $stub);
+    $this->testObject->callExpandEntityFields('node', $stub);
 
     $this->assertSame($expected_factory($this->fixturesPath), $stub->getValues());
   }
@@ -327,7 +327,7 @@ class FixtureFileTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'article', ['field_file' => 'document.pdf']);
 
     $this->testObject->minkFilesPath = '';
-    $this->testObject->callHelperExpandEntityFieldsFixtures('node', $stub);
+    $this->testObject->callExpandEntityFields('node', $stub);
 
     $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
   }
@@ -336,7 +336,7 @@ class FixtureFileTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'article', ['field_file' => 'document.pdf']);
 
     $this->testObject->minkFilesPath = $this->fixturesPath . 'no-such-directory';
-    $this->testObject->callHelperExpandEntityFieldsFixtures('node', $stub);
+    $this->testObject->callExpandEntityFields('node', $stub);
 
     $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
   }
@@ -348,7 +348,7 @@ class FixtureFileTraitTest extends UnitTestCase {
 
     $this->testObject->backend = $this->createStub(BackendInterface::class);
     $this->testObject->minkFilesPath = rtrim($this->fixturesPath, DIRECTORY_SEPARATOR);
-    $this->testObject->callHelperExpandEntityFieldsFixtures('node', $stub);
+    $this->testObject->callExpandEntityFields('node', $stub);
 
     $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
   }
@@ -383,15 +383,15 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
    */
   public ?BackendInterface $backend = NULL;
 
-  public function callHelperLooksLikeCompoundCell(string $value): bool {
+  public function callLooksLikeCompoundCell(string $value): bool {
     return $this->fixtureFileLooksLikeCompoundCell($value);
   }
 
-  public function callHelperExpandCompoundCellFixtures(string $value, string $fixture_path): string {
+  public function callExpandCompoundCell(string $value, string $fixture_path): string {
     return $this->fixtureFileExpandCompoundCell($value, $fixture_path);
   }
 
-  public function callHelperExpandEntityFieldsFixtures(string $entity_type, EntityStubInterface $stub): void {
+  public function callExpandEntityFields(string $entity_type, EntityStubInterface $stub): void {
     $this->fixtureFileExpandEntityFields($entity_type, $stub);
   }
 

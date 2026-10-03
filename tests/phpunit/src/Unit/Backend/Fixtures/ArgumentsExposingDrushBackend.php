@@ -23,7 +23,7 @@ class ArgumentsExposingDrushBackend extends DrushBackend {
    * @return array<int, string>
    *   The argv entries produced by 'parseArguments()'.
    */
-  public static function expose(array $arguments): array {
+  public static function callParseArguments(array $arguments): array {
     return self::parseArguments($arguments);
   }
 

@@ -18,7 +18,7 @@ class EmailTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderExtractLinks')]
   public function testExtractLinks(string $input, array $expected): void {
-    $result = EmailTraitTestImplementation::callEmailExtractLinks($input);
+    $result = EmailTraitTestImplementation::callExtractLinks($input);
     $this->assertSame($expected, $result);
   }
 
@@ -103,7 +103,7 @@ class EmailTraitTestImplementation extends WebRawContext {
    * @return array<int, string>
    *   Array of extracted links.
    */
-  public static function callEmailExtractLinks(string $string): array {
+  public static function callExtractLinks(string $string): array {
     return static::emailExtractLinks($string);
   }
 

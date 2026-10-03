@@ -297,7 +297,7 @@ class DrushBackendMethodsTest extends TestCase {
    */
   #[DataProvider('dataProviderParseArguments')]
   public function testParseArguments(array $options, array $expected): void {
-    $this->assertSame($expected, ArgumentsExposingDrushBackend::expose($options));
+    $this->assertSame($expected, ArgumentsExposingDrushBackend::callParseArguments($options));
   }
 
   /**
@@ -311,7 +311,7 @@ class DrushBackendMethodsTest extends TestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid Drush option name: ' . $name);
 
-    ArgumentsExposingDrushBackend::expose([$name => 'value']);
+    ArgumentsExposingDrushBackend::callParseArguments([$name => 'value']);
   }
 
   /**
