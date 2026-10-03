@@ -1604,6 +1604,15 @@ A method that fails with an assertion exception is named as an assertion, whethe
 | `CookieTrait` | `cookieExists()` | `cookieAssertExists()` |
 | `CookieTrait` | `cookieNotExists()` | `cookieAssertNotExists()` |
 
+### A bundle parameter is named after its entity type
+
+A helper that takes a bundle names the parameter after the entity type, as the step placeholders do. 2 `Drupal\ContentBlockTrait` helpers took `$type`; a call that passes the argument by name renames it.
+
+| Method | Before | After |
+| --- | --- | --- |
+| `contentBlockCreateSingle()` | `string $type, array $values` | `string $content_block_type, array $values` |
+| `contentBlockLoadMultiple()` | `string $type, array $conditions = []` | `string $content_block_type, array $conditions = []` |
+
 ## A class is named for the role it plays
 
 5 classes under `Behat\Manager` shared a `Manager` suffix while playing 3 different roles, so nothing in a name told a lookup table apart from a service that acts. The suffix is replaced by a 2-part rule: a `*Registry` holds things and looks them up, and anything that performs an action takes an agent noun.

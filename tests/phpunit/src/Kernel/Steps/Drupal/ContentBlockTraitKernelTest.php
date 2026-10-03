@@ -61,8 +61,8 @@ class ContentBlockTraitKernelTest extends StepTraitKernelTestBase {
   /**
    * Creates and saves a content block.
    */
-  protected function createContentBlock(string $type, string $info): BlockContentInterface {
-    $content_block = BlockContent::create(['type' => $type, 'info' => $info]);
+  protected function createContentBlock(string $content_block_type, string $info): BlockContentInterface {
+    $content_block = BlockContent::create(['type' => $content_block_type, 'info' => $info]);
     $content_block->save();
 
     return $content_block;

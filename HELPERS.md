@@ -1375,7 +1375,7 @@ Read a stored configuration value, ignoring runtime overrides
 > Manage Drupal content blocks.
 
 <details>
-  <summary><code>public function contentBlockCreateSingle(string $type, array $values): BlockContent</code></summary>
+  <summary><code>public function contentBlockCreateSingle(string $content_block_type, array $values): BlockContent</code></summary>
 
 <br/>
 Create a block content entity with the specified type and field values
@@ -1384,7 +1384,7 @@ Create a block content entity with the specified type and field values
 </details>
 
 <details>
-  <summary><code>public function contentBlockLoadMultiple(string $type, array $conditions = []): array</code></summary>
+  <summary><code>public function contentBlockLoadMultiple(string $content_block_type, array $conditions = []): array</code></summary>
 
 <br/>
 Load multiple content blocks with specified type and conditions
