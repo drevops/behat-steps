@@ -71,7 +71,7 @@ class EntityReferenceHandler extends AbstractHandler {
    * Resolves a lookup value to the id of an entity the field may target.
    *
    * @param mixed $lookup
-   *   An entity label, or an entity id Drupal serialised as a string.
+   *   An entity label, or an entity id Drupal serialized as a string.
    * @param \DrevOps\BehatSteps\Backend\Core\Field\ReferenceTarget $target
    *   The entity-type facts to resolve against.
    *
@@ -86,7 +86,7 @@ class EntityReferenceHandler extends AbstractHandler {
     $query->accessCheck(FALSE);
 
     if ($target->labelKey) {
-      // A numeric-string lookup is ambiguous: an entity id Drupal serialised
+      // A numeric-string lookup is ambiguous: an entity id Drupal serialized
       // as a string, or a label made of digits. An OR-group matches either,
       // and the first match is returned.
       $is_numeric_id = is_string($lookup) && ctype_digit($lookup);

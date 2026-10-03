@@ -1330,6 +1330,7 @@ A failure message quotes the values it names in double quotes, ends with a perio
 | ResponseTrait | The response contains the header "...", but should not. | The response contains the header "...", but it should not. |
 | PathTrait | The parameter "..." is in the URL but should not be. | The parameter "..." is in the URL, but it should not be. |
 | PathTrait | The parameter "..." with value "..." is in the URL but should not be. | The parameter "..." with value "..." is in the URL, but it should not be. |
+| XmlTrait | Failed to serialise the response for DTD validation. | Failed to serialize the response for DTD validation. |
 
 ## Tightened public surface
 

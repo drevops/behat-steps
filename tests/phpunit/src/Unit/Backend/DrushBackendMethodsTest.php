@@ -244,7 +244,7 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
-   * Tests 'parseArguments()' serialises boolean and value options.
+   * Tests 'parseArguments()' serializes boolean and value options.
    *
    * @param array<string, string|bool|null> $options
    *   Options passed to 'parseArguments()'.

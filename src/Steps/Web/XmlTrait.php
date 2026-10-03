@@ -812,7 +812,7 @@ trait XmlTrait {
     $body = $this->xmlDocument->saveXML($root);
     if ($body === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException('Failed to serialise the response for DTD validation.');
+      throw new \RuntimeException('Failed to serialize the response for DTD validation.');
       // @codeCoverageIgnoreEnd
     }
 

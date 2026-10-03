@@ -2476,7 +2476,7 @@ Then the link "Return to site content" should not be an absolute link
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
 | `mapping.enabled` | boolean | `TRUE` | `@behat-steps-skip:MappingTrait` | Replace `{{ Key }}` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched. |
-| `mapping.groups` | map | `[]` | - | Named value mappings grouped for organisation. Group names take no part in the lookup, so a key must be unique across all groups. |
+| `mapping.groups` | map | `[]` | - | Named value mappings grouped for organization. Group names take no part in the lookup, so a key must be unique across all groups. |
 
 ## MessageTrait
 

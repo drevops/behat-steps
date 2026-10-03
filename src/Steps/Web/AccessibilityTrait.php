@@ -1065,7 +1065,7 @@ HTML;
    *
    * Violations are gated by the scenario's effective threshold, exactly as
    * the pass/fail gate is: only violations meeting the threshold are
-   * serialised as `<failure>` cases. An advisory run (threshold `never`)
+   * serialized as `<failure>` cases. An advisory run (threshold `never`)
    * therefore writes a report with 0 failures instead of one that fails
    * a JUnit-consuming CI check.
    *
