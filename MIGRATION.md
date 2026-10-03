@@ -1331,6 +1331,7 @@ A failure message quotes the values it names in double quotes, ends with a perio
 | PathTrait | The parameter "..." is in the URL but should not be. | The parameter "..." is in the URL, but it should not be. |
 | PathTrait | The parameter "..." with value "..." is in the URL but should not be. | The parameter "..." with value "..." is in the URL, but it should not be. |
 | XmlTrait | Failed to serialise the response for DTD validation. | Failed to serialize the response for DTD validation. |
+| JsonTrait | The JSON response must decode to an array or object, but got integer. (also `boolean`, `double`, `NULL`) | The JSON response must decode to an array or object, but got int. (also `bool`, `float`, `null`) |
 
 ## Tightened public surface
 

@@ -476,7 +476,7 @@ trait JsonTrait {
     }
 
     if (!is_array($data)) {
-      throw new \RuntimeException(sprintf('The JSON response must decode to an array or object, but got %s.', gettype($data)));
+      throw new \RuntimeException(sprintf('The JSON response must decode to an array or object, but got %s.', get_debug_type($data)));
     }
 
     return $data;
