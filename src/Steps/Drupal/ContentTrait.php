@@ -44,9 +44,9 @@ use Drupal\workflows\Entity\Workflow;
  */
 trait ContentTrait {
 
-  use QueryTrait;
   use EntityLifecycleTrait;
   use FixtureFileTrait;
+  use QueryTrait;
   use TableTransposeTrait;
 
   /**

@@ -27,8 +27,8 @@ use Drupal\Core\Entity\EntityInterface;
  */
 trait EckTrait {
 
-  use QueryTrait;
   use EntityLifecycleTrait;
+  use QueryTrait;
 
   /**
    * Create eck entities.
