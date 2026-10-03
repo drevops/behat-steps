@@ -91,11 +91,11 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
       NULL,
     ];
 
-    yield 'mixed numeric and named keys rejected' => [
+    yield 'mixed positional and named keys rejected' => [
       [['John', 'family' => 'Smith']],
       NULL,
       \RuntimeException::class,
-      'Cannot mix numeric and named keys in the same name value',
+      'Cannot mix positional and named keys in the same name value',
     ];
     yield 'unknown sub-field key rejected' => [
       [['nickname' => 'Johnny']],
@@ -107,13 +107,13 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
       42,
       NULL,
       \RuntimeException::class,
-      'Name field value must be a string or an array, got int.',
+      'Name field value must be a string or an array. Got int.',
     ];
     yield 'non-string non-array delta rejected' => [
       ['Doe, John', 42],
       NULL,
       \RuntimeException::class,
-      'Name field delta 1 must be a string or an array, got int.',
+      'Name field delta 1 must be a string or an array. Got int.',
     ];
   }
 
