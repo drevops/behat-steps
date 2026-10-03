@@ -172,7 +172,7 @@ class TraitOptionResolverTest extends UnitTestCase {
     $this->expectException(InvalidConfigurationException::class);
     $this->expectExceptionMessage('Unknown option group "sample" for context "' . self::CONTEXT . '". This context accepts: nothing.');
 
-    new TraitOptionResolver(self::CONTEXT, [], [], ['sample' => ['enabled' => FALSE]], new ScenarioTagRegistry(), new TagOverrides());
+    new TraitOptionResolver(self::CONTEXT, [], ['sample' => ['enabled' => FALSE]], [], new ScenarioTagRegistry(), new TagOverrides());
   }
 
   /**
@@ -263,7 +263,7 @@ class TraitOptionResolverTest extends UnitTestCase {
     $registry = new ScenarioTagRegistry();
     $registry->setTags($tags);
 
-    return new TraitOptionResolver(self::CONTEXT, self::declarations(), $steps, $config, $registry, new TagOverrides());
+    return new TraitOptionResolver(self::CONTEXT, self::declarations(), $config, $steps, $registry, new TagOverrides());
   }
 
   /**

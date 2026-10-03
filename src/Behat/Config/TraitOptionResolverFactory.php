@@ -50,7 +50,7 @@ class TraitOptionResolverFactory implements TraitOptionResolverFactoryInterface 
    * {@inheritdoc}
    */
   public function create(string $context_class, array $config, array $steps): TraitOptionResolverInterface {
-    return new TraitOptionResolver($context_class, $this->reader->read($context_class), $steps, $config, $this->scenarioTags, $this->tagOverrides);
+    return new TraitOptionResolver($context_class, $this->reader->read($context_class), $config, $steps, $this->scenarioTags, $this->tagOverrides);
   }
 
 }

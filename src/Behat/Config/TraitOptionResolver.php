@@ -37,10 +37,10 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
    *   The context whose traits declared the options, for failure messages.
    * @param array<string, array<string, \DrevOps\BehatSteps\Behat\Config\Option>> $declarations
    *   Declared options, keyed by group name and then by option name.
-   * @param array<array-key, mixed> $steps
-   *   The extension's 'steps' section, read permissively.
    * @param array<array-key, mixed> $config
    *   The context's 'config' argument, read strictly.
+   * @param array<array-key, mixed> $steps
+   *   The extension's 'steps' section, read permissively.
    * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface $scenarioTags
    *   The tags the running scenario carries.
    * @param \DrevOps\BehatSteps\Behat\Config\TagOverrides $tagOverrides
@@ -54,8 +54,8 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
   public function __construct(
     protected readonly string $contextClass,
     protected readonly array $declarations,
-    array $steps,
     array $config,
+    array $steps,
     protected readonly ScenarioTagRegistryInterface $scenarioTags,
     protected readonly TagOverrides $tagOverrides,
   ) {
