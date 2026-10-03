@@ -24,7 +24,7 @@ class ParentTermAliasTest extends TestCase {
    * Tests metadata accessors.
    */
   public function testMetadataAccessors(): void {
-    $alias = new ParentTermAlias(static fn (): ?int => NULL);
+    $alias = new ParentTermAlias(static fn(): ?int => NULL);
 
     $this->assertInstanceOf(PreCreateAliasInterface::class, $alias);
     $this->assertSame('parent', $alias->getName());
@@ -36,7 +36,7 @@ class ParentTermAliasTest extends TestCase {
    * Tests that a resolved parent term replaces the value in place.
    */
   public function testApplyToStubResolvesParent(): void {
-    $alias = new ParentTermAlias(static fn (string $name, string $vid): int => $name === 'Frameworks' && $vid === 'tags' ? 99 : 0);
+    $alias = new ParentTermAlias(static fn(string $name, string $vid): int => $name === 'Frameworks' && $vid === 'tags' ? 99 : 0);
 
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'Symfony', 'parent' => 'Frameworks']);
 
@@ -68,7 +68,7 @@ class ParentTermAliasTest extends TestCase {
    * Tests that unresolved parents throw and the value is left alone.
    */
   public function testApplyToStubThrowsOnUnknownParent(): void {
-    $alias = new ParentTermAlias(static fn (): ?int => NULL);
+    $alias = new ParentTermAlias(static fn(): ?int => NULL);
 
     $stub = new EntityStub('taxonomy_term', 'tags', ['parent' => 'Nope']);
 
@@ -90,7 +90,7 @@ class ParentTermAliasTest extends TestCase {
    * bundle or 'vid' to scope the term lookup.
    */
   public function testApplyToStubThrowsOnMissingVocabulary(): void {
-    $alias = new ParentTermAlias(static fn (): int => 1);
+    $alias = new ParentTermAlias(static fn(): int => 1);
 
     $stub = new EntityStub('taxonomy_term', NULL, ['parent' => 'Frameworks']);
 
