@@ -301,6 +301,18 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
+   * Data provider for 'testParseArguments()'.
+   */
+  public static function dataProviderParseArguments(): \Iterator {
+    yield 'empty' => [[], []];
+    yield 'single flag' => [['yes' => NULL], ['--yes']];
+    yield 'single valued option' => [['format' => 'json'], ['--format=json']];
+    yield 'flag and valued' => [['yes' => NULL, 'format' => 'json'], ['--yes', '--format=json']];
+    yield 'multiple valued' => [['format' => 'json', 'root' => '/var/www'], ['--format=json', '--root=/var/www']];
+    yield 'value carrying shell syntax stays one argument' => [['name' => '$(id)'], ['--name=$(id)']];
+  }
+
+  /**
    * Tests 'parseArguments()' rejects an option name that is not a bare name.
    *
    * @param string $name
@@ -322,18 +334,6 @@ class DrushBackendMethodsTest extends TestCase {
     yield 'leading dash' => ['-format'];
     yield 'equals sign' => ['format=json'];
     yield 'slash' => ['some/path'];
-  }
-
-  /**
-   * Data provider for 'testParseArguments()'.
-   */
-  public static function dataProviderParseArguments(): \Iterator {
-    yield 'empty' => [[], []];
-    yield 'single flag' => [['yes' => NULL], ['--yes']];
-    yield 'single valued option' => [['format' => 'json'], ['--format=json']];
-    yield 'flag and valued' => [['yes' => NULL, 'format' => 'json'], ['--yes', '--format=json']];
-    yield 'multiple valued' => [['format' => 'json', 'root' => '/var/www'], ['--format=json', '--root=/var/www']];
-    yield 'value carrying shell syntax stays one argument' => [['name' => '$(id)'], ['--name=$(id)']];
   }
 
   /**
@@ -360,6 +360,38 @@ class DrushBackendMethodsTest extends TestCase {
     if ($expected_command !== NULL) {
       $this->assertSame($expected_command, $backend->invocations[0]['command']);
     }
+  }
+
+  /**
+   * Data provider: method -> args -> first-expected-drush-command.
+   */
+  public static function dataProviderInvokesDrush(): \Iterator {
+    $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
+
+    yield 'userCreate' => ['userCreate', [$user], 'user-create', "User ID   :   9\n"];
+    yield 'userDelete' => ['userDelete', [$user], 'user-cancel'];
+    yield 'userAddRole' => ['userAddRole', [$user, 'admin'], 'user-add-role'];
+    yield 'cronRun' => ['cronRun', [], 'cron'];
+    yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm-enable'];
+    yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm-uninstall'];
+    yield 'configGet' => ['configGet', ['system.site', 'name'], 'config:get', '"Example"'];
+    yield 'configGetOriginal' => ['configGetOriginal', ['system.site'], 'config:get', '{}'];
+    yield 'configSet' => ['configSet', ['system.site', 'name', 'v'], 'config:set'];
+    yield 'configExists' => ['configExists', ['system.site'], 'config:get', '{}'];
+    yield 'configGetData' => ['configGetData', ['system.site'], 'config:get', '{"name":"Example"}'];
+    yield 'configSetData' => ['configSetData', ['system.site', ['name' => 'Example']], 'config:get', '{"name":"Old"}'];
+    yield 'configDelete' => ['configDelete', ['system.site'], 'config:get', '{}'];
+    yield 'stateGet' => ['stateGet', ['my.key'], 'state:get', '{"my.key":"v"}'];
+    yield 'stateSet' => ['stateSet', ['my.key', 'v'], 'state:set'];
+    yield 'stateDelete' => ['stateDelete', ['my.key'], 'state:delete'];
+    yield 'stateExists' => ['stateExists', ['my.key'], 'state:get', '{"my.key":"v"}'];
+    yield 'moduleIsEnabled' => ['moduleIsEnabled', ['dblog'], 'pm:list', '{"dblog":{"status":"Enabled"}}'];
+    yield 'moduleIsPresent' => ['moduleIsPresent', ['dblog'], 'pm:list', '{"dblog":{"status":"Disabled"}}'];
+    yield 'roleCreate no permissions' => ['roleCreate', [[]], 'role:create'];
+    yield 'roleCreate with permissions' => ['roleCreate', [['access content']], 'role:create'];
+    yield 'roleCreate with explicit id' => ['roleCreate', [[], 'editor'], 'role:create'];
+    yield 'roleCreate with id and label' => ['roleCreate', [['access content'], 'editor', 'Editor'], 'role:create'];
+    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete'];
   }
 
   /**
@@ -541,38 +573,6 @@ class DrushBackendMethodsTest extends TestCase {
 
     $this->assertNotContains('config:delete', $commands);
     $this->assertSame('config:set', end($commands));
-  }
-
-  /**
-   * Data provider: method -> args -> first-expected-drush-command.
-   */
-  public static function dataProviderInvokesDrush(): \Iterator {
-    $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
-
-    yield 'userCreate' => ['userCreate', [$user], 'user-create', "User ID   :   9\n"];
-    yield 'userDelete' => ['userDelete', [$user], 'user-cancel'];
-    yield 'userAddRole' => ['userAddRole', [$user, 'admin'], 'user-add-role'];
-    yield 'cronRun' => ['cronRun', [], 'cron'];
-    yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm-enable'];
-    yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm-uninstall'];
-    yield 'configGet' => ['configGet', ['system.site', 'name'], 'config:get', '"Example"'];
-    yield 'configGetOriginal' => ['configGetOriginal', ['system.site'], 'config:get', '{}'];
-    yield 'configSet' => ['configSet', ['system.site', 'name', 'v'], 'config:set'];
-    yield 'configExists' => ['configExists', ['system.site'], 'config:get', '{}'];
-    yield 'configGetData' => ['configGetData', ['system.site'], 'config:get', '{"name":"Example"}'];
-    yield 'configSetData' => ['configSetData', ['system.site', ['name' => 'Example']], 'config:get', '{"name":"Old"}'];
-    yield 'configDelete' => ['configDelete', ['system.site'], 'config:get', '{}'];
-    yield 'stateGet' => ['stateGet', ['my.key'], 'state:get', '{"my.key":"v"}'];
-    yield 'stateSet' => ['stateSet', ['my.key', 'v'], 'state:set'];
-    yield 'stateDelete' => ['stateDelete', ['my.key'], 'state:delete'];
-    yield 'stateExists' => ['stateExists', ['my.key'], 'state:get', '{"my.key":"v"}'];
-    yield 'moduleIsEnabled' => ['moduleIsEnabled', ['dblog'], 'pm:list', '{"dblog":{"status":"Enabled"}}'];
-    yield 'moduleIsPresent' => ['moduleIsPresent', ['dblog'], 'pm:list', '{"dblog":{"status":"Disabled"}}'];
-    yield 'roleCreate no permissions' => ['roleCreate', [[]], 'role:create'];
-    yield 'roleCreate with permissions' => ['roleCreate', [['access content']], 'role:create'];
-    yield 'roleCreate with explicit id' => ['roleCreate', [[], 'editor'], 'role:create'];
-    yield 'roleCreate with id and label' => ['roleCreate', [['access content'], 'editor', 'Editor'], 'role:create'];
-    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete'];
   }
 
   /**
