@@ -1335,6 +1335,10 @@ A failure message quotes the values it names in double quotes, ends with a perio
 | Drupal\ContentTrait | Content type "..." does not exist. | The content type "..." does not exist. |
 | Drupal\ContentBlockTrait | Content block type "..." does not exist. | The content block type "..." does not exist. |
 | Drupal\UserTrait | User with name "..." does not exist. | The user "..." does not exist. |
+| Drupal\MediaTrait | Cannot create media because provided bundle '...' does not exist. | Cannot create media because provided bundle "..." does not exist. |
+| ResponsiveTrait | Breakpoint '...' not found. Available breakpoints: ... | Breakpoint "..." not found. Available breakpoints: ... |
+| ResponsiveTrait | Invalid breakpoint format for '...': '...'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080) | Invalid breakpoint format for "...": "...". Expected format: WIDTHxHEIGHT (e.g., 1920x1080) |
+| ResponsiveTrait | Invalid breakpoint format: '...'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080) | Invalid breakpoint format: "...". Expected format: WIDTHxHEIGHT (e.g., 1920x1080) |
 
 ## Tightened public surface
 

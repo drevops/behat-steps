@@ -129,7 +129,7 @@ class DrushBackendMethodsTest extends TestCase {
     ]);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches("/did not report a user id after creating 'bob'/");
+    $this->expectExceptionMessageMatches('/did not report a user id after creating "bob"/');
 
     $backend->userCreate($user);
   }

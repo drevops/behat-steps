@@ -74,8 +74,8 @@ class ParentTermAliasTest extends TestCase {
       $this->fail('Expected CreationAliasResolutionException.');
     }
     catch (CreationAliasResolutionException $e) {
-      $this->assertStringContainsString("'Nope'", $e->getMessage());
-      $this->assertStringContainsString("'tags'", $e->getMessage());
+      $this->assertStringContainsString('"Nope"', $e->getMessage());
+      $this->assertStringContainsString('"tags"', $e->getMessage());
       $this->assertSame('Nope', $stub->getValue('parent'));
     }
   }
@@ -96,7 +96,7 @@ class ParentTermAliasTest extends TestCase {
       $this->fail('Expected CreationAliasResolutionException.');
     }
     catch (CreationAliasResolutionException $e) {
-      $this->assertStringContainsString("'Frameworks'", $e->getMessage());
+      $this->assertStringContainsString('"Frameworks"', $e->getMessage());
       $this->assertStringContainsString('no vocabulary', $e->getMessage());
       $this->assertSame('Frameworks', $stub->getValue('parent'));
     }

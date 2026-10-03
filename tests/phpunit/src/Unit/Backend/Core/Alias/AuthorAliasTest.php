@@ -58,7 +58,7 @@ class AuthorAliasTest extends TestCase {
       $this->fail('Expected CreationAliasResolutionException.');
     }
     catch (CreationAliasResolutionException $e) {
-      $this->assertStringContainsString("'auther'", $e->getMessage());
+      $this->assertStringContainsString('"auther"', $e->getMessage());
       $this->assertTrue($stub->hasValue('author'), 'Stub must still carry the alias when resolution fails.');
       $this->assertFalse($stub->hasValue('uid'), 'No uid should be written when resolution fails.');
     }

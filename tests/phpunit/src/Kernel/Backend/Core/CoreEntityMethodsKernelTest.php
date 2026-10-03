@@ -200,7 +200,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $stub = new EntityStub('entity_test', 'not_a_real_bundle', ['name' => 'orphan']);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches("/Cannot create entity because provided bundle 'not_a_real_bundle' does not exist/");
+    $this->expectExceptionMessageMatches('/Cannot create entity because provided bundle "not_a_real_bundle" does not exist/');
 
     $this->core->entityCreate($stub);
   }

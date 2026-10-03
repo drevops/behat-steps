@@ -461,7 +461,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $uid = $this->parseUserId($result);
 
     if (!$uid) {
-      throw new \RuntimeException(sprintf("Drush did not report a user id after creating '%s'. Output: %s", $stub->getValue('name'), $result));
+      throw new \RuntimeException(sprintf('Drush did not report a user id after creating "%s". Output: %s', $stub->getValue('name'), $result));
     }
 
     $stub->setValue('uid', $uid);
@@ -583,7 +583,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $result = $this->drushResult($command, $arguments, $options);
 
     if ($result->exitCode !== 0) {
-      throw new \RuntimeException(sprintf("Drush command '%s' exited with code %d. %s", $command, $result->exitCode, $result->errorOutput));
+      throw new \RuntimeException(sprintf('Drush command "%s" exited with code %d. %s', $command, $result->exitCode, $result->errorOutput));
     }
 
     // Some Drush commands write to stderr instead of stdout.

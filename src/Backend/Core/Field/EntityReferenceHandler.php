@@ -52,7 +52,7 @@ class EntityReferenceHandler extends AbstractHandler {
     $id_key = $definition->getKey('id');
 
     if (!is_string($id_key)) {
-      throw new \RuntimeException(sprintf("Cannot resolve a reference to '%s' because it declares no id key.", $entity_type_id));
+      throw new \RuntimeException(sprintf('Cannot resolve a reference to "%s" because it declares no id key.', $entity_type_id));
     }
 
     // User entities return FALSE for getKey('label'), so 'name' is used
@@ -110,7 +110,7 @@ class EntityReferenceHandler extends AbstractHandler {
     $entities = $query->execute();
 
     if (!$entities) {
-      throw new \RuntimeException(sprintf("No entity '%s' of type '%s' exists.", $lookup, $target->entityTypeId));
+      throw new \RuntimeException(sprintf('No entity "%s" of type "%s" exists.', $lookup, $target->entityTypeId));
     }
 
     return array_shift($entities);

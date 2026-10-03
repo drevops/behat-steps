@@ -97,7 +97,7 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
 
   public function testTermCreateRejectsUnknownVocabulary(): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches("/vocabulary 'ghosts' does not exist/");
+    $this->expectExceptionMessageMatches('/vocabulary "ghosts" does not exist/');
 
     $this->core->termCreate(new EntityStub('taxonomy_term', 'ghosts', [
       'name' => 'Casper',
@@ -106,7 +106,7 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
 
   public function testTermCreateRejectsUnknownParent(): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches("/parent term 'Missing' does not exist in vocabulary 'tags'/");
+    $this->expectExceptionMessageMatches('/parent term "Missing" does not exist in vocabulary "tags"/');
 
     $this->core->termCreate(new EntityStub('taxonomy_term', 'tags', [
       'name' => 'Orphaned',

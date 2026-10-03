@@ -795,7 +795,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     if (Vocabulary::load($vocabulary) === NULL) {
-      throw new \RuntimeException(sprintf("Cannot create term because vocabulary '%s' does not exist.", $vocabulary));
+      throw new \RuntimeException(sprintf('Cannot create term because vocabulary "%s" does not exist.', $vocabulary));
     }
 
     $stub->setValue('vid', $vocabulary);
@@ -1112,7 +1112,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $id_key = $definition->getKey('id');
 
     if (!is_string($id_key)) {
-      throw new \RuntimeException(sprintf("Cannot create an entity of type '%s' because it declares no id key.", $entity_type));
+      throw new \RuntimeException(sprintf('Cannot create an entity of type "%s" because it declares no id key.', $entity_type));
     }
 
     // storage->create() reads the bundle under the entity type's own bundle
@@ -1127,7 +1127,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $bundles = $bundle_info->getBundleInfo($entity_type);
 
       if (!array_key_exists((string) $stub->getValue($bundle_key), $bundles)) {
-        throw new \RuntimeException(sprintf("Cannot create entity because provided bundle '%s' does not exist.", $stub->getValue($bundle_key)));
+        throw new \RuntimeException(sprintf('Cannot create entity because provided bundle "%s" does not exist.', $stub->getValue($bundle_key)));
       }
     }
 

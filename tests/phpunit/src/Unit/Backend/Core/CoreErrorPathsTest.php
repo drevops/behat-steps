@@ -101,7 +101,7 @@ class CoreErrorPathsTest extends TestCase {
     $this->setUpEntityTypeManager('widget', FALSE);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches("/Cannot create an entity of type 'widget' because it declares no id key/");
+    $this->expectExceptionMessageMatches('/Cannot create an entity of type "widget" because it declares no id key/');
 
     $core->entityCreate(new EntityStub('widget'));
   }

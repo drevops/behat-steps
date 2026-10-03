@@ -104,7 +104,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
 
     if (!$this->loggedIn()) {
       $role = $user->getValue('role');
-      $message = $role !== NULL ? sprintf("Unable to determine if logged in because '%s' ('log_out') link cannot be found for user '%s' with role '%s'", $this->getDrupalText('log_out'), $name, $role) : sprintf("Unable to determine if logged in because '%s' ('log_out') link cannot be found for user '%s'", $this->getDrupalText('log_out'), $name);
+      $message = $role !== NULL ? sprintf("Unable to determine if logged in because \"%s\" ('log_out') link cannot be found for user \"%s\" with role \"%s\"", $this->getDrupalText('log_out'), $name, $role) : sprintf("Unable to determine if logged in because \"%s\" ('log_out') link cannot be found for user \"%s\"", $this->getDrupalText('log_out'), $name);
       throw new ExpectationException($message, $session->getDriver());
     }
 

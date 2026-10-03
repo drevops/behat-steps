@@ -82,17 +82,17 @@ class AuthorAlias implements PreCreateAliasInterface {
     $user = ($this->userLookup)($name);
 
     if ($user === NULL) {
-      throw new CreationAliasResolutionException(sprintf("Cannot create node because user '%s', referenced via the 'author' creation alias, does not exist.", $name));
+      throw new CreationAliasResolutionException(sprintf("Cannot create node because user \"%s\", referenced via the 'author' creation alias, does not exist.", $name));
     }
 
     if (!method_exists($user, 'id')) {
-      throw new CreationAliasResolutionException(sprintf("Cannot create node because the 'author' lookup returned an object without an 'id()' method while resolving '%s'.", $name));
+      throw new CreationAliasResolutionException(sprintf("Cannot create node because the 'author' lookup returned an object without an 'id()' method while resolving \"%s\".", $name));
     }
 
     $resolved_uid = $user->id();
 
     if (!is_numeric($resolved_uid) || (int) $resolved_uid <= 0) {
-      throw new CreationAliasResolutionException(sprintf("Cannot create node because the user resolved from 'author' = '%s' has an invalid id.", $name));
+      throw new CreationAliasResolutionException(sprintf("Cannot create node because the user resolved from 'author' = \"%s\" has an invalid id.", $name));
     }
 
     // The downstream entity-reference handler treats an integer as a

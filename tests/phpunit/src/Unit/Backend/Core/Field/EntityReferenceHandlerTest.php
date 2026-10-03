@@ -125,7 +125,7 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
       ['nobody'],
       NULL,
       \RuntimeException::class,
-      "No entity 'nobody' of type 'user' exists.",
+      'No entity "nobody" of type "user" exists.',
     ];
     yield 'mixed positional and named keys rejected' => [
       ['alice', 'extra' => 'oops'],

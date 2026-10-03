@@ -51,7 +51,7 @@ class RecordingDrushBackend extends DrushBackend {
     if (($this->drushFailures[$command] ?? 0) > 0) {
       $this->drushFailures[$command]--;
 
-      throw new \RuntimeException(sprintf("Drush command '%s' exited with code 1.", $command));
+      throw new \RuntimeException(sprintf('Drush command "%s" exited with code 1.', $command));
     }
 
     return $this->drushResponse;
