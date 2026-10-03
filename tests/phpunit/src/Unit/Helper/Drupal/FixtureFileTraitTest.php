@@ -410,10 +410,10 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
       throw new \RuntimeException('Set the backend double before the helper reaches it.');
     }
 
-    $manager = new BackendRegistry(['drupal' => $this->backend]);
-    $manager->setScenarioBackends(['drupal' => 'drupal']);
+    $backend_registry = new BackendRegistry(['drupal' => $this->backend]);
+    $backend_registry->setScenarioBackends(['drupal' => 'drupal']);
 
-    return $manager;
+    return $backend_registry;
   }
 
   /**

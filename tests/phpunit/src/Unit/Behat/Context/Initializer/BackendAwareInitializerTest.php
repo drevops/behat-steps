@@ -64,7 +64,7 @@ class BackendAwareInitializerTest extends UnitTestCase {
     $initializer->initializeContext($context);
   }
 
-  public function testUserAwareContextReceivesTheUserAndLoginManagers(): void {
+  public function testUserAwareContextReceivesTheUserRegistryAndAuthenticator(): void {
     $user_registry = $this->createMock(UserRegistryInterface::class);
     $authenticator = $this->createMock(AuthenticatorInterface::class);
 

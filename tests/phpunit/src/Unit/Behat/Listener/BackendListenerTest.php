@@ -241,7 +241,7 @@ class BackendListenerTest extends TestCase {
     yield 'naming no backend' => [[], ['driver:'], 'The "@driver:" tag moved to "@backend:".'];
   }
 
-  public function testTheEnvironmentIsHandedToTheManager(): void {
+  public function testTheEnvironmentIsHandedToTheRegistry(): void {
     $event = $this->createEvent([], []);
 
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
