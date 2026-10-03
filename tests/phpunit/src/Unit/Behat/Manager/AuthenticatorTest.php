@@ -153,11 +153,11 @@ class AuthenticatorTest extends TestCase {
   public static function dataProviderLogInThrowsWhenNotLoggedIn(): \Iterator {
     yield 'user without role' => [
       new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']),
-      "Unable to determine if logged in because \"Log out\" ('log_out') link cannot be found for user \"admin\"",
+      "Unable to determine if logged in because \"Log out\" ('log_out') link cannot be found for user \"admin\".",
     ];
     yield 'user with role' => [
       new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass', 'role' => 'administrator']),
-      "Unable to determine if logged in because \"Log out\" ('log_out') link cannot be found for user \"admin\" with role \"administrator\"",
+      "Unable to determine if logged in because \"Log out\" ('log_out') link cannot be found for user \"admin\" with role \"administrator\".",
     ];
   }
 

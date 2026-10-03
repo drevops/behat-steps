@@ -126,7 +126,7 @@ trait MappingTrait {
     $mappings = $this->mappingGetFlattened();
 
     if (!isset($mappings[$name])) {
-      throw new \RuntimeException(sprintf('No such mapping: %s', $name));
+      throw new \RuntimeException(sprintf('No such mapping: %s.', $name));
     }
 
     return $mappings[$name];

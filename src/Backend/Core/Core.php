@@ -742,7 +742,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $drupal_base_url = parse_url($this->uri);
 
       if ($drupal_base_url === FALSE) {
-        throw new BootstrapException(sprintf('Cannot parse the site URI %s', $this->uri));
+        throw new BootstrapException(sprintf('Cannot parse the site URI %s.', $this->uri));
       }
 
       $drupal_base_url += [
@@ -774,7 +774,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $conf_path = DrupalKernel::findSitePath(Request::createFromGlobals());
     $conf_file = $this->drupalRoot . sprintf('/%s/settings.php', $conf_path);
     if (!file_exists($conf_file)) {
-      throw new BootstrapException(sprintf('Could not find a Drupal settings.php file at "%s"', $conf_file));
+      throw new BootstrapException(sprintf('Could not find a Drupal settings.php file at "%s".', $conf_file));
     }
     $drushrc_file = $this->drupalRoot . sprintf('/%s/drushrc.php', $conf_path);
     if (file_exists($drushrc_file)) {

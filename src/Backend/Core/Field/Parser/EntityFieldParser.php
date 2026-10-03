@@ -94,7 +94,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
         [$multicolumn_field, $multicolumn_column] = explode(':', $field);
       }
       elseif ($multicolumn_field === '') {
-        throw new \RuntimeException('Field name missing for ' . $field);
+        throw new \RuntimeException(sprintf('Field name missing for "%s".', $field));
       }
       else {
         $multicolumn_column = substr($field, 1);

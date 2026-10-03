@@ -74,52 +74,52 @@ class ResponsiveTraitTest extends UnitTestCase {
       'invalid - missing height' => [
         '1920',
         [],
-        'Invalid breakpoint format: "1920". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "1920". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid - missing width' => [
         'x1080',
         [],
-        'Invalid breakpoint format: "x1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "x1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid - non-numeric width' => [
         'abcx1080',
         [],
-        'Invalid breakpoint format: "abcx1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "abcx1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid - non-numeric height' => [
         '1920xabc',
         [],
-        'Invalid breakpoint format: "1920xabc". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "1920xabc". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid - empty string' => [
         '',
         [],
-        'Invalid breakpoint format: "". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid - only x' => [
         'x',
         [],
-        'Invalid breakpoint format: "x". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "x". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid - with spaces' => [
         '1920 x 1080',
         [],
-        'Invalid breakpoint format: "1920 x 1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "1920 x 1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid - negative width' => [
         '-1920x1080',
         [],
-        'Invalid breakpoint format: "-1920x1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "-1920x1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid - negative height' => [
         '1920x-1080',
         [],
-        'Invalid breakpoint format: "1920x-1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "1920x-1080". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid - float dimensions' => [
         '1920.5x1080.5',
         [],
-        'Invalid breakpoint format: "1920.5x1080.5". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format: "1920.5x1080.5". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
     ];
   }
@@ -291,18 +291,18 @@ class ResponsiveTraitTest extends UnitTestCase {
       ],
       'invalid format - missing height' => [
         ['bad_format' => '1920'],
-        'Invalid breakpoint format for "bad_format": "1920". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format for "bad_format": "1920". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'invalid format - non-numeric' => [
         ['bad_format' => 'widthxheight'],
-        'Invalid breakpoint format for "bad_format": "widthxheight". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format for "bad_format": "widthxheight". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
       'mixed valid and invalid' => [
         [
           'valid' => '1920x1080',
           'invalid' => '1920',
         ],
-        'Invalid breakpoint format for "invalid": "1920". Expected format: WIDTHxHEIGHT (e.g., 1920x1080)',
+        'Invalid breakpoint format for "invalid": "1920". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).',
       ],
     ];
   }

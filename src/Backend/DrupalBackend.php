@@ -53,7 +53,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
     $resolved = realpath($drupal_root);
 
     if ($resolved === FALSE) {
-      throw new BootstrapException(sprintf('No Drupal installation found at %s', $drupal_root));
+      throw new BootstrapException(sprintf('No Drupal installation found at %s.', $drupal_root));
     }
 
     $this->drupalRoot = $resolved;
@@ -123,7 +123,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
       $core = new $class($this->drupalRoot, $this->uri);
 
       if (!$core instanceof CoreInterface) {
-        throw new BootstrapException(sprintf('%s must implement %s', $class, CoreInterface::class));
+        throw new BootstrapException(sprintf('%s must implement %s.', $class, CoreInterface::class));
       }
 
       $this->core = $core;

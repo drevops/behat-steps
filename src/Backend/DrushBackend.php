@@ -80,7 +80,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       $resolved = realpath($root_path);
 
       if ($resolved === FALSE) {
-        throw new BootstrapException(sprintf('No Drupal installation found at %s', $root_path));
+        throw new BootstrapException(sprintf('No Drupal installation found at %s.', $root_path));
       }
 
       $this->root = $resolved;
