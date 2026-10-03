@@ -338,15 +338,15 @@ function collect_helper_traits(string $base_path = __DIR__): array {
     return $collected;
   }
 
-  foreach (scandir($helpers_path) ?: [] as $half) {
-    $half_path = $helpers_path . DIRECTORY_SEPARATOR . $half;
+  foreach (scandir($helpers_path) ?: [] as $context) {
+    $context_path = $helpers_path . DIRECTORY_SEPARATOR . $context;
 
-    if ($half === '.' || $half === '..' || !is_dir($half_path)) {
+    if ($context === '.' || $context === '..' || !is_dir($context_path)) {
       continue;
     }
 
-    foreach (scandir($half_path) ?: [] as $file) {
-      $file_path = $half_path . DIRECTORY_SEPARATOR . $file;
+    foreach (scandir($context_path) ?: [] as $file) {
+      $file_path = $context_path . DIRECTORY_SEPARATOR . $file;
 
       if (!is_file($file_path) || !file_declares_trait($file_path)) {
         continue;
@@ -354,9 +354,9 @@ function collect_helper_traits(string $base_path = __DIR__): array {
 
       $short_name = basename($file, '.php');
       /** @var class-string $trait_name */
-      $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $half . '\\' . $short_name;
+      $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $context . '\\' . $short_name;
 
-      $collected[$short_name] = ['reflection' => new \ReflectionClass($trait_name), 'context' => $half];
+      $collected[$short_name] = ['reflection' => new \ReflectionClass($trait_name), 'context' => $context];
     }
   }
 
@@ -1000,19 +1000,19 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
 
   foreach (collect_helper_traits($base_path) as $trait_name => $collected) {
     $trait = $collected['reflection'];
-    $half = $collected['context'];
+    $context = $collected['context'];
     $helpers = collect_helper_methods($trait, NULL, NULL, helper_trait_contracts($trait, $class_names));
     // @codeCoverageIgnoreStart
     if ($helpers === []) {
       continue;
     }
     // @codeCoverageIgnoreEnd
-    $name_contextual = ($half !== DEFAULT_CONTEXT ? $half . '\\' : '') . $trait_name;
+    $name_contextual = ($context !== DEFAULT_CONTEXT ? $context . '\\' : '') . $trait_name;
     $class_info = [
       'name' => $trait_name,
       'name_contextual' => $name_contextual,
-      'context' => $half,
-      'source' => sprintf('%s/%s/%s.php', HELPERS_DIRECTORY, $half, $trait_name),
+      'context' => $context,
+      'source' => sprintf('%s/%s/%s.php', HELPERS_DIRECTORY, $context, $trait_name),
       'steps_anchor' => NULL,
       'helpers' => $helpers,
     ];
