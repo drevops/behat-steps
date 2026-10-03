@@ -1332,6 +1332,9 @@ A failure message quotes the values it names in double quotes, ends with a perio
 | PathTrait | The parameter "..." with value "..." is in the URL but should not be. | The parameter "..." with value "..." is in the URL, but it should not be. |
 | XmlTrait | Failed to serialise the response for DTD validation. | Failed to serialize the response for DTD validation. |
 | JsonTrait | The JSON response must decode to an array or object, but got integer. (also `boolean`, `double`, `NULL`) | The JSON response must decode to an array or object, but got int. (also `bool`, `float`, `null`) |
+| Drupal\ContentTrait | Content type "..." does not exist. | The content type "..." does not exist. |
+| Drupal\ContentBlockTrait | Content block type "..." does not exist. | The content block type "..." does not exist. |
+| Drupal\UserTrait | User with name "..." does not exist. | The user "..." does not exist. |
 
 ## Tightened public surface
 

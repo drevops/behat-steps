@@ -145,7 +145,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
           );
 
         if (!$is_known && !in_array($field_name, $this->ignoredProperties, TRUE)) {
-          throw new \RuntimeException(sprintf('Field "%s" does not exist on entity type "%s".', $field_name, $this->entityType));
+          throw new \RuntimeException(sprintf('The field "%s" does not exist on entity type "%s".', $field_name, $this->entityType));
         }
 
         $parsed[$field] = $field_value;

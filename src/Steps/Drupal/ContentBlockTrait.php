@@ -155,7 +155,7 @@ trait ContentBlockTrait {
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($content_block_type);
 
     if (!$block_content_type instanceof BlockContentTypeInterface) {
-      throw new ExpectationException(sprintf('Content block type "%s" does not exist.', $content_block_type), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The content block type "%s" does not exist.', $content_block_type), $this->getSession()->getDriver());
     }
   }
 

@@ -705,7 +705,7 @@ trait UserTrait {
     $users = $this->userLoadMultiple(['name' => $name]);
 
     if (empty($users)) {
-      throw new \RuntimeException(sprintf('User with name "%s" does not exist.', $name));
+      throw new \RuntimeException(sprintf('The user "%s" does not exist.', $name));
     }
 
     return reset($users);

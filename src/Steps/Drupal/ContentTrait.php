@@ -401,7 +401,7 @@ trait ContentTrait {
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
 
     if (!$content_type_entity) {
-      throw new \RuntimeException(sprintf('Content type "%s" does not exist.', $content_type));
+      throw new \RuntimeException(sprintf('The content type "%s" does not exist.', $content_type));
     }
 
     $nids = $this->queryNodeIds($content_type, [
