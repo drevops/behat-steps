@@ -44,7 +44,7 @@ trait ResponseTrait {
     $header = $this->getSession()->getResponseHeader($name);
 
     if ($header) {
-      throw new ExpectationException(sprintf('The response contains the header "%s", but should not.', $name), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The response contains the header "%s", but it should not.', $name), $this->getSession()->getDriver());
     }
   }
 

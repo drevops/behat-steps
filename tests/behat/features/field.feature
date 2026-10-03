@@ -81,7 +81,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The field "field1" is empty, but should not be.
+      The field "field1" is empty, but it should not be.
       """
 
   @phpserver
@@ -240,7 +240,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The field "username" is marked as required, but should not be.
+      The field "username" is marked as required, but it should not be.
       """
 
   Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected
@@ -328,7 +328,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
-      The option "UTC" was found in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not exist.
+      The option "UTC" was found in the select "date_default_timezone" on the page /admin/config/regional/settings, but it should not exist.
       """
 
   @trait:FieldTrait
@@ -373,7 +373,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
-      The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but should not be.
+      The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but it should not be.
       """
 
   @trait:FieldTrait
@@ -544,7 +544,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The radio button "Option 2 (selected)" is selected, but should not be.
+      The radio button "Option 2 (selected)" is selected, but it should not be.
       """
 
   @javascript @phpserver

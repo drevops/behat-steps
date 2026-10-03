@@ -1162,7 +1162,7 @@ EOD,
             ],
           ],
         ],
-        ['  TestTrait::testAssertShouldMethod - Assert method contains "Should" but should not.' . PHP_EOL],
+        ['  TestTrait::testAssertShouldMethod - Assert method contains "Should", but it should not.' . PHP_EOL],
       ],
       'then without should in step' => [
         [

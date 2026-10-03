@@ -437,7 +437,7 @@ EOL;
   #[Then('the output should not contain:')]
   public function theOutputShouldNotContain(PyStringNode $text): void {
     if (str_contains($this->getOutput(), $this->getExpectedOutput($text))) {
-      throw new \RuntimeException(sprintf('Output contains "%s" but should not.', $this->getExpectedOutput($text)));
+      throw new \RuntimeException(sprintf('Output contains "%s", but it should not.', $this->getExpectedOutput($text)));
     }
   }
 

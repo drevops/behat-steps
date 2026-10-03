@@ -88,7 +88,7 @@ trait FeatureContextTrait {
     $cookies = $this->testGetAllCookies();
 
     if (isset($cookies[$name])) {
-      throw new \Exception(sprintf('Cookie "%s" exists but should not.', $name));
+      throw new \Exception(sprintf('Cookie "%s" exists, but it should not.', $name));
     }
   }
 
@@ -264,7 +264,7 @@ trait FeatureContextTrait {
     $user = reset($users);
 
     if ($user) {
-      throw new \Exception(sprintf('User "%s" exists in DB, but should not.', $name));
+      throw new \Exception(sprintf('User "%s" exists in DB, but it should not.', $name));
     }
 
     try {

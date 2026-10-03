@@ -236,7 +236,7 @@ Feature: Check that ConfigTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", which contains "example" but should not.
+      The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", which contains "example", but it should not.
       """
 
   @trait:Drupal\ConfigTrait

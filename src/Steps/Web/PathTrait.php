@@ -185,7 +185,7 @@ trait PathTrait {
     $query = $this->pathGetCurrentUrlQuery();
 
     if (array_key_exists($name, $query)) {
-      throw new ExpectationException(sprintf('The parameter "%s" is in the URL but should not be.', $name), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The parameter "%s" is in the URL, but it should not be.', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -207,7 +207,7 @@ trait PathTrait {
     }
 
     if ($query[$name] === $value) {
-      throw new ExpectationException(sprintf('The parameter "%s" with value "%s" is in the URL but should not be.', $name, $value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The parameter "%s" with value "%s" is in the URL, but it should not be.', $name, $value), $this->getSession()->getDriver());
     }
   }
 

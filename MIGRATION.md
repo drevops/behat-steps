@@ -1279,7 +1279,7 @@ If your project catches an exception from one of these steps, update the type:
 | --- | --- | --- |
 | `the response should be in XML format` | `Failed to load XML. Errors: ...` | `The response is not valid XML: ...` |
 | `the option :option should exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
-| `the option :option should not exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but should not exist.` |
+| `the option :option should not exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but it should not exist.` |
 | `I unselect the option :option from the select :selector` | `The option "..." was not found in the select "...".` | `Option in the select "..." with value\|text "..." not found.` |
 | `the option :option should not be selected within the select element :selector` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
 | `I fill in the multi-value field :field with the following values:` | `Could not locate input row N for multi-value field "...".` | `Input row of the multi-value field "..." with index "N" not found.` |
@@ -1306,6 +1306,30 @@ The same rule now covers the backend layer and the Behat services under `src/Beh
 `CreationAliasResolutionException` is no longer a `\LogicException`, so a `catch (\InvalidArgumentException)` or `catch (\LogicException)` no longer catches it; catch the class itself.
 
 Behat reports every one of these as a failed step either way, so a scenario that simply runs to a failure behaves the same. Only code that catches a specific type, or asserts on the message text, needs changing.
+
+## Failure messages read one way
+
+A failure message quotes the values it names in double quotes, ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
+
+| Trait | Before | After |
+| --- | --- | --- |
+| Drupal\BlockTrait | The block "..." exists but should not. | The block "..." exists, but it should not. |
+| Drupal\BlockTrait | Block "..." is in region "..." but should not be. | Block "..." is in region "...", but it should not be. |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which contains "..." but should not. | The config "..." key "..." has the ... "...", which contains "...", but it should not. |
+| Drupal\FileTrait | File contents "..." contains "...", but should not. | File contents "..." contains "...", but it should not. |
+| LinkTrait | The link href "..." matches the specified href "..." but should not. | The link href "..." matches the specified href "...", but it should not. |
+| LinkTrait | The link with the title "..." exists, but should not. | The link with the title "..." exists, but it should not. |
+| ElementTrait | Element defined by "..." selector is visible on the page, but should not be. | Element defined by "..." selector is visible on the page, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but should not be. | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport, but should not be. | Element(s) defined by "..." selector is displayed within a viewport, but it should not be. |
+| FieldTrait | The field "..." is empty, but should not be. | The field "..." is empty, but it should not be. |
+| FieldTrait | The field "..." is marked as required, but should not be. | The field "..." is marked as required, but it should not be. |
+| FieldTrait | The option "..." was selected in the select "..." on the page ..., but should not be. | The option "..." was selected in the select "..." on the page ..., but it should not be. |
+| FieldTrait | The radio button "..." is selected, but should not be. | The radio button "..." is selected, but it should not be. |
+| FileDownloadTrait | Found file partially named "..." in archive but should not. | Found file partially named "..." in archive, but it should not. |
+| ResponseTrait | The response contains the header "...", but should not. | The response contains the header "...", but it should not. |
+| PathTrait | The parameter "..." is in the URL but should not be. | The parameter "..." is in the URL, but it should not be. |
+| PathTrait | The parameter "..." with value "..." is in the URL but should not be. | The parameter "..." with value "..." is in the URL, but it should not be. |
 
 ## Tightened public surface
 

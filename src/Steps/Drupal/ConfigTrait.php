@@ -363,7 +363,7 @@ trait ConfigTrait {
     }
 
     if ($contains) {
-      throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which contains "%s" but should not.', $name, $key, $descriptor, $actual_string, $expected));
+      throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which contains "%s", but it should not.', $name, $key, $descriptor, $actual_string, $expected));
     }
   }
 

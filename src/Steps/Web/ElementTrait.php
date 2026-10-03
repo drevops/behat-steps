@@ -662,7 +662,7 @@ trait ElementTrait {
 
     foreach ($elements as $element) {
       if ($element->isVisible()) {
-        throw new ExpectationException(sprintf('Element defined by "%s" selector is visible on the page, but should not be.', $selector), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('Element defined by "%s" selector is visible on the page, but it should not be.', $selector), $this->getSession()->getDriver());
       }
     }
   }
@@ -708,7 +708,7 @@ trait ElementTrait {
   #[Then('the element :selector should not be displayed within a viewport with a top offset of :offset pixels')]
   public function elementAssertNotVisuallyVisibleWithOffset(string $selector, int $offset): void {
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but should not be.', $selector, $offset), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but it should not be.', $selector, $offset), $this->getSession()->getDriver());
     }
   }
 
@@ -727,7 +727,7 @@ trait ElementTrait {
   #[Then('the element :selector should not be displayed within a viewport')]
   public function elementAssertNotVisuallyVisible(string $selector, int $offset = 0): void {
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but should not be.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but it should not be.', $selector), $this->getSession()->getDriver());
     }
   }
 

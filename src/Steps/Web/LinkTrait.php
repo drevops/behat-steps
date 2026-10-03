@@ -145,7 +145,7 @@ trait LinkTrait {
     $pattern = '/' . preg_quote($href, '/') . '/';
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
     if (preg_match($pattern, (string) $link_element->getAttribute('href')) === 1) {
-      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s" but should not.', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s", but it should not.', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
 
@@ -181,7 +181,7 @@ trait LinkTrait {
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
 
     if ($element) {
-      throw new ExpectationException(sprintf('The link with the title "%s" exists, but should not.', $title), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link with the title "%s" exists, but it should not.', $title), $this->getSession()->getDriver());
     }
   }
 

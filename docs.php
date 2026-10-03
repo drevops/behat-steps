@@ -1585,7 +1585,7 @@ function validate(array $info): array {
         }
 
         if (str_contains((string) $method['name'], 'Should')) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Assert method contains "Should" but should not.');
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Assert method contains "Should", but it should not.');
         }
 
         if (!str_contains($step, ' should ')) {

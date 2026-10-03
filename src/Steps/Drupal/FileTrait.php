@@ -267,7 +267,7 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     if (str_contains($file_content, $content)) {
-      throw new ExpectationException(sprintf('File contents "%s" contains "%s", but should not.', $file_content, $content), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('File contents "%s" contains "%s", but it should not.', $file_content, $content), $this->getSession()->getDriver());
     }
   }
 
