@@ -374,7 +374,7 @@ trait CommandTrait {
    *   When the value is not an integer.
    */
   protected function commandParseInteger(string $value, string $label): int {
-    if (!preg_match('/^-?\d+$/', $value)) {
+    if (preg_match('/^-?\d+$/', $value) !== 1) {
       throw new \RuntimeException(sprintf('The %s must be an integer, but got "%s".', $label, $value));
     }
 

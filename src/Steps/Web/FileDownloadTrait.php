@@ -143,7 +143,7 @@ trait FileDownloadTrait {
     if (is_array($lines)) {
       foreach ($lines as $line) {
         if ($this->fileDownloadIsRegex($string)) {
-          if (preg_match($string, $line)) {
+          if (preg_match($string, $line) === 1) {
             return;
           }
         }
@@ -474,7 +474,7 @@ trait FileDownloadTrait {
    */
   protected function fileDownloadIsRegex(string $string): bool {
     $string = trim($string);
-    return (bool) preg_match('/^\/.+\/[imsxADSUXJun]*$/', $string);
+    return preg_match('/^\/.+\/[imsxADSUXJun]*$/', $string) === 1;
   }
 
   /**

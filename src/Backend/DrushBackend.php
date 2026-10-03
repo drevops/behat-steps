@@ -661,11 +661,11 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * data row.
    */
   protected function parseUserId(string $info): ?int {
-    if (preg_match('/User ID\s+:\s+(\d+)/', $info, $matches)) {
+    if (preg_match('/User ID\s+:\s+(\d+)/', $info, $matches) === 1) {
       return (int) $matches[1];
     }
 
-    if (preg_match('/User ID/', $info)) {
+    if (preg_match('/User ID/', $info) === 1) {
       $lines = explode("\n", trim($info));
 
       foreach ($lines as $line) {
@@ -679,7 +679,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
           continue;
         }
 
-        if (preg_match('/^\s*(\d+)\s/', $line, $matches)) {
+        if (preg_match('/^\s*(\d+)\s/', $line, $matches) === 1) {
           return (int) $matches[1];
         }
       }
