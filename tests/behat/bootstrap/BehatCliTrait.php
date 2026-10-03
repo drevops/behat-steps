@@ -28,9 +28,9 @@ trait BehatCliTrait {
    * @var array<int, string>
    */
   protected const BEHAT_CLI_BASELINE_TRAITS = [
-    'Web\PathTrait',
-    'Drupal\ContentTrait',
-    'Drupal\UserTrait',
+    'Web\\PathTrait',
+    'Drupal\\ContentTrait',
+    'Drupal\\UserTrait',
   ];
 
   /**
@@ -38,7 +38,7 @@ trait BehatCliTrait {
    *
    * @var array<int, string>
    */
-  protected const BEHAT_CLI_INHERENT_TRAITS = ['Helper\Drupal\AuthTrait', 'Helper\Drupal\StaticCacheTrait'];
+  protected const BEHAT_CLI_INHERENT_TRAITS = ['Helper\\Drupal\\AuthTrait', 'Helper\\Drupal\\StaticCacheTrait'];
 
   /**
    * Message selectors every generated configuration declares.
@@ -400,9 +400,9 @@ EOL;
     // and an AssertionException where it is not. A non-assertion failure is
     // a \RuntimeException.
     $output = $this->getOutput();
-    $has_valid_exception = str_contains((string) $output, ' (Behat\Mink\Exception\ExpectationException)')
-      || str_contains((string) $output, ' (Behat\Mink\Exception\ElementNotFoundException)')
-      || str_contains((string) $output, ' (DrevOps\BehatSteps\Exception\AssertionException)');
+    $has_valid_exception = str_contains((string) $output, ' (Behat\\Mink\\Exception\\ExpectationException)')
+      || str_contains((string) $output, ' (Behat\\Mink\\Exception\\ElementNotFoundException)')
+      || str_contains((string) $output, ' (DrevOps\\BehatSteps\\Exception\\AssertionException)');
     if (!$has_valid_exception) {
       throw new \RuntimeException('The output does not contain an assertion exception string as expected.');
     }

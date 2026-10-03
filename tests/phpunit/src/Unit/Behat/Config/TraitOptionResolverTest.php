@@ -22,7 +22,7 @@ class TraitOptionResolverTest extends UnitTestCase {
   /**
    * Context class the failure messages name.
    */
-  protected const CONTEXT = 'Acme\Tests\SampleContext';
+  protected const CONTEXT = 'Acme\\Tests\\SampleContext';
 
   public function testEveryOptionStartsAtItsDeclaredDefault(): void {
     $resolver = $this->createResolver();

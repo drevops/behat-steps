@@ -149,7 +149,7 @@ class OptionDeclarationsTest extends UnitTestCase {
 
     for ($class = new \ReflectionClass(DrupalContext::class); $class instanceof \ReflectionClass; $class = $class->getParentClass()) {
       foreach ($class->getTraits() as $trait) {
-        if (str_starts_with($trait->getName(), 'DrevOps\BehatSteps\Steps\\') && self::schemaMethods($trait->getName()) !== []) {
+        if (str_starts_with($trait->getName(), 'DrevOps\\BehatSteps\\Steps\\') && self::schemaMethods($trait->getName()) !== []) {
           $traits[] = $trait->getName();
         }
       }

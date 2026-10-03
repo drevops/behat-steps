@@ -76,7 +76,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
         continue;
       }
 
-      $trait = 'DrevOps\BehatSteps\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
+      $trait = 'DrevOps\\BehatSteps\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
 
       if (!trait_exists($trait)) {
         continue;

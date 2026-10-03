@@ -30,21 +30,21 @@ class SkipGuardTest extends UnitTestCase {
    * Scenario hooks that carry no skip guard, and why.
    */
   protected const UNGUARDED_HOOKS = [
-    'Helper\Drupal\StaticCacheTrait::staticCacheClear' => 'Clears the static caches the scenario filled.',
-    'Steps\Drupal\ConfigTrait::configBeforeScenario' => 'Clears the snapshot registry.',
-    'Steps\Drupal\StateTrait::stateBeforeScenario' => 'Clears the snapshot registry.',
-    'Steps\Drupal\WatchdogTrait::watchdogAfterScenario' => 'Checks only a scenario whose start time watchdogSetScenario() set behind its guard.',
-    'Steps\Web\AccessibilityTrait::accessibilityFinalizeScenario' => 'Reads the flag accessibilitySetupScenario() sets behind its guard.',
-    'Steps\Web\CommandTrait::commandAfterScenario' => 'Clears the captured command output.',
-    'Steps\Web\CommandTrait::commandBeforeScenario' => 'Clears the captured command output.',
-    'Steps\Web\FieldTrait::fieldAfterScenario' => 'Clears the form validation registry.',
-    'Steps\Web\JavascriptTrait::javascriptAfterScenario' => 'Reads the flag javascriptBeforeScenario() sets behind its guard.',
-    'Steps\Web\JsonTrait::jsonAfterScenario' => 'Clears the decoded JSON.',
-    'Steps\Web\JsonTrait::jsonBeforeScenario' => 'Clears the decoded JSON.',
-    'Steps\Web\RandomTrait::randomAfterScenario' => 'Clears the resolved token values.',
-    'Steps\Web\ResponsiveTrait::responsiveBeforeScenario' => 'Acts only on a "@breakpoint:" tag on the scenario or its feature.',
-    'Steps\Web\XmlTrait::xmlAfterScenario' => 'Clears the loaded XML document.',
-    'Steps\Web\XmlTrait::xmlBeforeScenario' => 'Clears the loaded XML document and the libxml error buffer.',
+    'Helper\\Drupal\\StaticCacheTrait::staticCacheClear' => 'Clears the static caches the scenario filled.',
+    'Steps\\Drupal\\ConfigTrait::configBeforeScenario' => 'Clears the snapshot registry.',
+    'Steps\\Drupal\\StateTrait::stateBeforeScenario' => 'Clears the snapshot registry.',
+    'Steps\\Drupal\\WatchdogTrait::watchdogAfterScenario' => 'Checks only a scenario whose start time watchdogSetScenario() set behind its guard.',
+    'Steps\\Web\\AccessibilityTrait::accessibilityFinalizeScenario' => 'Reads the flag accessibilitySetupScenario() sets behind its guard.',
+    'Steps\\Web\\CommandTrait::commandAfterScenario' => 'Clears the captured command output.',
+    'Steps\\Web\\CommandTrait::commandBeforeScenario' => 'Clears the captured command output.',
+    'Steps\\Web\\FieldTrait::fieldAfterScenario' => 'Clears the form validation registry.',
+    'Steps\\Web\\JavascriptTrait::javascriptAfterScenario' => 'Reads the flag javascriptBeforeScenario() sets behind its guard.',
+    'Steps\\Web\\JsonTrait::jsonAfterScenario' => 'Clears the decoded JSON.',
+    'Steps\\Web\\JsonTrait::jsonBeforeScenario' => 'Clears the decoded JSON.',
+    'Steps\\Web\\RandomTrait::randomAfterScenario' => 'Clears the resolved token values.',
+    'Steps\\Web\\ResponsiveTrait::responsiveBeforeScenario' => 'Acts only on a "@breakpoint:" tag on the scenario or its feature.',
+    'Steps\\Web\\XmlTrait::xmlAfterScenario' => 'Clears the loaded XML document.',
+    'Steps\\Web\\XmlTrait::xmlBeforeScenario' => 'Clears the loaded XML document and the libxml error buffer.',
   ];
 
   /**
@@ -149,7 +149,7 @@ class SkipGuardTest extends UnitTestCase {
    * Label a hook by its trait, relative to the library namespace, and method.
    */
   protected static function hookLabel(string $trait, string $method): string {
-    return substr($trait, strlen('DrevOps\BehatSteps\\')) . '::' . $method;
+    return substr($trait, strlen('DrevOps\\BehatSteps\\')) . '::' . $method;
   }
 
   /**

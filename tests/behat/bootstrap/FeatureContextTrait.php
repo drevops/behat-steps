@@ -170,7 +170,7 @@ trait FeatureContextTrait {
    */
   #[Then('the :capability capability should resolve to the :expected backend')]
   public function testAssertCapabilityResolvesTo(string $capability, string $expected): void {
-    $interface = sprintf('DrevOps\BehatSteps\Backend\Capability\%sCapabilityInterface', $capability);
+    $interface = sprintf('DrevOps\\BehatSteps\\Backend\\Capability\\%sCapabilityInterface', $capability);
 
     if (!interface_exists($interface)) {
       throw new \RuntimeException(sprintf('There is no "%s" capability interface.', $capability));
