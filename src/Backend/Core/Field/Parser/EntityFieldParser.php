@@ -218,8 +218,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
         continue;
       }
 
-      if (preg_match('/[a-z_][a-z0-9_]*/A', $cell, $match, 0, $i) === 1) {
-        $j = $i + strlen($match[0]);
+      if (preg_match('/[a-z_][a-z0-9_]*/A', $cell, $matches, 0, $i) === 1) {
+        $j = $i + strlen($matches[0]);
 
         while ($j < $length && ($cell[$j] === ' ' || $cell[$j] === "\t")) {
           $j++;
@@ -237,7 +237,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
           }
         }
 
-        $i += strlen($match[0]);
+        $i += strlen($matches[0]);
         continue;
       }
 
@@ -425,7 +425,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
    *   [$key, $value]
    */
   protected function parseColumn(string $column, string $cell, int $base_offset): array {
-    if (preg_match('/^([a-z_][a-z0-9_]*)\s*:\s*(.*)$/s', $column, $match) !== 1) {
+    if (preg_match('/^([a-z_][a-z0-9_]*)\s*:\s*(.*)$/s', $column, $matches) !== 1) {
       throw new ParseException(
         'invalid_column',
         $base_offset,
@@ -435,8 +435,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
       );
     }
 
-    $key = $match[1];
-    $value_raw_with_ws = $match[2];
+    $key = $matches[1];
+    $value_raw_with_ws = $matches[2];
     $value_raw = trim($value_raw_with_ws);
     // The value position inside $cell: column start + length consumed up to
     // the trimmed value's first character.

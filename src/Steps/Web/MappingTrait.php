@@ -105,7 +105,7 @@ trait MappingTrait {
    *   The string with every token replaced by its mapped value.
    */
   public function mappingSubstitute(string $value): string {
-    $result = preg_replace_callback(self::MAPPING_TOKEN_REGEX, fn(array $match): string => $this->mappingGetValue(trim($match[1])), $value);
+    $result = preg_replace_callback(self::MAPPING_TOKEN_REGEX, fn(array $matches): string => $this->mappingGetValue(trim($matches[1])), $value);
 
     return $result ?? $value;
   }
