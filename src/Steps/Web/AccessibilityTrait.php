@@ -108,7 +108,7 @@ trait AccessibilityTrait {
    * Populated as each scenario finalizes and consumed once by the static
    * `@AfterSuite` renderer. URLs are stored already formatted for display.
    *
-   * @var array<int, array{feature: string, scenario: string, threshold: string, failOnIncomplete: bool, impacts: array<int, string>, results: array<int, array{url: string, rules: string, result: array<string, mixed>}>}>
+   * @var array<int, array{feature: string, scenario: string, threshold: string, fail_on_incomplete: bool, impacts: array<int, string>, results: array<int, array{url: string, rules: string, result: array<string, mixed>}>}>
    */
   protected static array $accessibilityAggregate = [];
 
@@ -1165,7 +1165,7 @@ HTML;
       'feature' => $this->accessibilityFeatureName,
       'scenario' => $this->accessibilityScenarioName,
       'threshold' => $this->accessibilityEffectiveThreshold(),
-      'failOnIncomplete' => $this->accessibilityEffectiveFailOnIncomplete(),
+      'fail_on_incomplete' => $this->accessibilityEffectiveFailOnIncomplete(),
       // The suite renderer is static and cannot call an override, so the
       // impact list the scenario was gated under is stored with its results.
       'impacts' => $this->accessibilityGetImpacts(),
@@ -1401,7 +1401,7 @@ HTML;
         'feature' => (string) ($entry['feature'] ?? ''),
         'scenario' => (string) ($entry['scenario'] ?? ''),
         'threshold' => (string) ($entry['threshold'] ?? ''),
-        'failOnIncomplete' => (bool) ($entry['failOnIncomplete'] ?? FALSE),
+        'fail_on_incomplete' => (bool) ($entry['fail_on_incomplete'] ?? FALSE),
         'pages' => $detail,
       ];
     }
@@ -1536,7 +1536,7 @@ HTML;
       foreach ($scenario['pages'] ?? [] as $page) {
         $sections[] = sprintf('<div class="page-detail"><h4>%s</h4><p class="meta">Rules: <code>%s</code> &middot; %d violations &middot; %d incomplete &middot; %d passes</p>%s%s</div>', htmlspecialchars((string) ($page['url'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($page['rules'] ?? ''), ENT_QUOTES), (int) ($page['violation_count'] ?? 0), (int) ($page['incomplete_count'] ?? 0), (int) ($page['passes_count'] ?? 0), $issue_list('Violations', 'violation', $page['violations'] ?? []), $issue_list('Incomplete (needs human review)', 'incomplete', $page['incomplete'] ?? []));
       }
-      $detail[] = sprintf('<div class="scenario"><h3>%s <span class="muted">%s</span></h3><p class="meta">threshold: <code>%s</code> &middot; fail on incomplete: <code>%s</code></p>%s</div>', htmlspecialchars((string) ($scenario['scenario'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($scenario['feature'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($scenario['threshold'] ?? ''), ENT_QUOTES), ($scenario['failOnIncomplete'] ?? FALSE) ? 'yes' : 'no', implode('', $sections));
+      $detail[] = sprintf('<div class="scenario"><h3>%s <span class="muted">%s</span></h3><p class="meta">threshold: <code>%s</code> &middot; fail on incomplete: <code>%s</code></p>%s</div>', htmlspecialchars((string) ($scenario['scenario'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($scenario['feature'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($scenario['threshold'] ?? ''), ENT_QUOTES), ($scenario['fail_on_incomplete'] ?? FALSE) ? 'yes' : 'no', implode('', $sections));
     }
     $scenarios_section = '<section><h2>Per-scenario detail</h2><p class="meta">Every page each scenario assessed, in order, with its full findings embedded.</p>' . implode('', $detail) . '</section>';
 

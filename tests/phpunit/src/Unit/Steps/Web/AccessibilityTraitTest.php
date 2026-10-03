@@ -382,7 +382,7 @@ class AccessibilityTraitTest extends UnitTestCase {
         'feature' => 'Homepage',
         'scenario' => 'Home page',
         'threshold' => 'any',
-        'failOnIncomplete' => FALSE,
+        'fail_on_incomplete' => FALSE,
         'results' => [
           [
             'url' => '/',
@@ -421,7 +421,7 @@ class AccessibilityTraitTest extends UnitTestCase {
           'feature' => 'Home',
           'scenario' => 'Home page',
           'threshold' => 'any',
-          'failOnIncomplete' => FALSE,
+          'fail_on_incomplete' => FALSE,
           'pages' => [
             ['url' => '/', 'rules' => 'wcag2a', 'violation_count' => 1, 'incomplete_count' => 0, 'passes_count' => 1, 'violations' => [['impact' => 'critical', 'id' => 'image-alt', 'help' => 'Images need alt text', 'helpUrl' => 'https://example.com/image-alt', 'nodes' => [['target' => 'img.logo', 'html' => '<img>']]]], 'incomplete' => []],
           ],
@@ -477,7 +477,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertSame('My feature', $aggregate[0]['feature']);
     $this->assertSame('My scenario', $aggregate[0]['scenario']);
     $this->assertSame('any', $aggregate[0]['threshold']);
-    $this->assertFalse($aggregate[0]['failOnIncomplete']);
+    $this->assertFalse($aggregate[0]['fail_on_incomplete']);
     $this->assertSame('/captured/dir', AccessibilityTraitTestImplementation::testGetAggregateReportDir());
   }
 
@@ -609,7 +609,7 @@ class AccessibilityTraitTest extends UnitTestCase {
         'feature' => 'Homepage',
         'scenario' => 'Home page',
         'threshold' => 'any',
-        'failOnIncomplete' => FALSE,
+        'fail_on_incomplete' => FALSE,
         'results' => [
           [
             'url' => '/',
@@ -626,7 +626,7 @@ class AccessibilityTraitTest extends UnitTestCase {
         'feature' => 'Contact',
         'scenario' => 'Contact page',
         'threshold' => 'critical',
-        'failOnIncomplete' => TRUE,
+        'fail_on_incomplete' => TRUE,
         'results' => [
           [
             'url' => '/',
@@ -668,7 +668,7 @@ class AccessibilityTraitTest extends UnitTestCase {
         'feature' => 'Homepage',
         'scenario' => 'Clean home',
         'threshold' => 'any',
-        'failOnIncomplete' => FALSE,
+        'fail_on_incomplete' => FALSE,
         'results' => [
           [
             'url' => '/',
