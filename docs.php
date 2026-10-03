@@ -1255,8 +1255,8 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
 
   $index_rows = [];
 
-  foreach ($info as $trait => $trait_info) {
-    $context = $trait_info['context'];
+  foreach ($info as $trait => $class_info) {
+    $context = $class_info['context'];
     // @phpstan-ignore-next-line
     $src_file = sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait);
     $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
@@ -1281,13 +1281,13 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     // @phpstan-ignore-next-line
     $content_output[$context] ??= '';
     // @phpstan-ignore-next-line
-    $content_output[$context] .= sprintf('## %s', $trait_info['name_contextual']) . PHP_EOL . PHP_EOL;
+    $content_output[$context] .= sprintf('## %s', $class_info['name_contextual']) . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
     $content_output[$context] .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
 
     $description_full = '';
     // @phpstan-ignore-next-line
-    $lines = explode(PHP_EOL, $trait_info['description_full']);
+    $lines = explode(PHP_EOL, $class_info['description_full']);
     $was_list = FALSE;
     $in_code_block = FALSE;
     $code_block = '';
@@ -1339,23 +1339,23 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     // @phpstan-ignore-next-line
     $content_output[$context] .= $description_full . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
-    $content_output[$context] .= render_trait_prerequisites($trait_info['prerequisites'] ?? []);
+    $content_output[$context] .= render_trait_prerequisites($class_info['prerequisites'] ?? []);
     // @phpstan-ignore-next-line
-    $content_output[$context] .= render_trait_options($trait, $trait_info['options'] ?? []);
+    $content_output[$context] .= render_trait_options($trait, $class_info['options'] ?? []);
     // @phpstan-ignore-next-line
-    $index_rows_path = '#' . heading_anchor((string) $trait_info['name_contextual']);
+    $index_rows_path = '#' . heading_anchor((string) $class_info['name_contextual']);
     if ($path_for_links) {
       $index_rows_path = $path_for_links . $index_rows_path;
     }
     // @phpstan-ignore-next-line
     $index_rows[$context][] = [
       // @phpstan-ignore-next-line
-      sprintf('[%s](%s)', $trait_info['name_contextual'], $index_rows_path),
-      $trait_info['description'],
+      sprintf('[%s](%s)', $class_info['name_contextual'], $index_rows_path),
+      $class_info['description'],
     ];
 
     // @phpstan-ignore-next-line
-    foreach ($trait_info['methods'] as $method) {
+    foreach ($class_info['methods'] as $method) {
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
@@ -1443,18 +1443,18 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
   $content_output = [];
   $index_rows = [];
 
-  foreach ($info as $trait_info) {
-    $context = (string) $trait_info['context'];
-    $name_contextual = (string) $trait_info['name_contextual'];
+  foreach ($info as $class_info) {
+    $context = (string) $class_info['context'];
+    $name_contextual = (string) $class_info['name_contextual'];
     $anchor = heading_anchor($name_contextual);
-    $helpers = is_array($trait_info['helpers']) ? $trait_info['helpers'] : [];
+    $helpers = is_array($class_info['helpers']) ? $class_info['helpers'] : [];
 
-    $src_file = (string) $trait_info['source'];
+    $src_file = (string) $class_info['source'];
     if (!file_exists($base_path . DIRECTORY_SEPARATOR . $src_file)) {
       throw new \Exception(sprintf('Source file %s does not exist', $base_path . DIRECTORY_SEPARATOR . $src_file));
     }
 
-    $steps_anchor = $trait_info['steps_anchor'] ?? NULL;
+    $steps_anchor = $class_info['steps_anchor'] ?? NULL;
     $links = sprintf('[Source](%s)', $src_file);
     if (is_string($steps_anchor)) {
       $links .= sprintf(', [Steps](STEPS.md#%s)', $steps_anchor);
@@ -1463,7 +1463,7 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     $content_output[$context] ??= '';
     $content_output[$context] .= sprintf('## %s', $name_contextual) . PHP_EOL . PHP_EOL;
     $content_output[$context] .= $links . PHP_EOL . PHP_EOL;
-    $content_output[$context] .= '> ' . $trait_info['description'] . PHP_EOL . PHP_EOL;
+    $content_output[$context] .= '> ' . $class_info['description'] . PHP_EOL . PHP_EOL;
 
     foreach ($helpers as $helper) {
       $example = (string) $helper['example'];
@@ -1484,7 +1484,7 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     $index_rows[$context][] = [
       sprintf('[%s](#%s)', $name_contextual, $anchor),
       (string) count($helpers),
-      (string) $trait_info['description'],
+      (string) $class_info['description'],
     ];
   }
 
@@ -1518,10 +1518,10 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
 function validate_helpers(array $info): array {
   $errors = [];
 
-  foreach ($info as $trait_info) {
-    $class_name = is_string($trait_info['name'] ?? NULL) ? $trait_info['name'] : '';
+  foreach ($info as $class_info) {
+    $class_name = is_string($class_info['name'] ?? NULL) ? $class_info['name'] : '';
 
-    foreach ((is_array($trait_info['helpers'] ?? NULL) ? $trait_info['helpers'] : []) as $helper) {
+    foreach ((is_array($class_info['helpers'] ?? NULL) ? $class_info['helpers'] : []) as $helper) {
       $name = is_string($helper['name'] ?? NULL) ? $helper['name'] : '';
       $description = is_string($helper['description'] ?? NULL) ? $helper['description'] : '';
 
@@ -2158,18 +2158,18 @@ function validate_tags(array $info, string $base_path = __DIR__): array {
   $registry = tag_registry();
   $errors = [];
 
-  foreach ($info as $trait => $trait_info) {
-    if (!is_array($trait_info)) {
+  foreach ($info as $trait => $class_info) {
+    if (!is_array($class_info)) {
       continue;
     }
 
-    $label = is_string($trait_info['name'] ?? NULL) ? $trait_info['name'] : (string) $trait;
+    $label = is_string($class_info['name'] ?? NULL) ? $class_info['name'] : (string) $trait;
 
     $texts = [];
-    if (is_string($trait_info['description_full'] ?? NULL)) {
-      $texts[] = $trait_info['description_full'];
+    if (is_string($class_info['description_full'] ?? NULL)) {
+      $texts[] = $class_info['description_full'];
     }
-    foreach ((is_array($trait_info['methods'] ?? NULL) ? $trait_info['methods'] : []) as $method) {
+    foreach ((is_array($class_info['methods'] ?? NULL) ? $class_info['methods'] : []) as $method) {
       if (is_array($method) && is_string($method['example'] ?? NULL)) {
         $texts[] = $method['example'];
       }
