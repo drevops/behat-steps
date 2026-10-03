@@ -56,7 +56,6 @@ class DiagnosticsTraitTest extends UnitTestCase {
     $block = $this->testObject->buildBlock();
 
     $this->assertStringNotContainsString($absent_label, $block);
-    // The block is still produced from the remaining fields.
     $this->assertStringContainsString('--- Failure diagnostics ---', $block);
   }
 

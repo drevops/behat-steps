@@ -12,12 +12,14 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  *
  * A value is taken from the first of these that sets it: the scenario's tags,
  * the feature's tags, the context's 'config' argument, the extension's 'steps'
- * section, the declaration's own default. The configuration layers settle when
- * this object is built; the tag layers are read per option, because the tags
- * belong to whichever scenario is running.
+ * section, the declaration's own default.
  *
- * It holds no Behat class, reflects over nothing and knows no context beyond
- * the class name it names in a failure message.
+ * The configuration layers settle when this object is built. The tag layers
+ * are read per option, because the tags belong to whichever scenario is
+ * running.
+ *
+ * It holds no Behat class, reflects over nothing and references no context
+ * beyond the class name it names in a failure message.
  */
 class TraitOptionResolver implements TraitOptionResolverInterface {
 

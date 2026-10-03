@@ -25,7 +25,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
 
   /**
-   * Label -> id lookup the entity query stub returns matches against.
+   * Label-to-id index the entity query stub returns matches from.
    *
    * @var array<string, int>
    */

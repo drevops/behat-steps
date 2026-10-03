@@ -40,9 +40,6 @@ class CoreConfigMethodsKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests configSet writes and configGet reads the same value back.
-   */
   public function testConfigSetAndGetRoundTrip(): void {
     $this->core->configSet('system.site', 'name', 'DrupalBackend Test Site');
 

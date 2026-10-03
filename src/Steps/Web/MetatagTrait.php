@@ -131,9 +131,9 @@ trait MetatagTrait {
   /**
    * Assert the canonical URL equals a value.
    *
-   * Both the actual and expected URLs are resolved to absolute form against
-   * the Mink base URL, so a relative expected value matches an absolute
-   * canonical href for the same page.
+   * The actual and expected URLs are both resolved to absolute form against
+   * the Mink base URL. A relative expected value therefore matches an
+   * absolute canonical href for the same page.
    *
    * @code
    * Then the canonical URL should be "https://example.com/about"
@@ -256,7 +256,7 @@ trait MetatagTrait {
   /**
    * Assert hreflang alternates are valid.
    *
-   * Checks, without fetching any alternate page, that at least one hreflang
+   * Checks, without fetching any alternate page, that at least 1 hreflang
    * alternate exists and that a self-referencing alternate for the current
    * URL is present. Every hreflang value must be a well-formed language code
    * (or "x-default").
@@ -526,7 +526,7 @@ trait MetatagTrait {
    * Fetch a URL through the detached client, leaving the page untouched.
    *
    * The request carries the scenario's cookies and headers, so an alternate
-   * page behind a login or basic auth is fetched as the scenario sees it.
+   * page behind a login or basic auth is fetched with the scenario's access.
    *
    * @param string $url
    *   The absolute URL to fetch.

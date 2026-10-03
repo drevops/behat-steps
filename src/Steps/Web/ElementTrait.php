@@ -116,7 +116,7 @@ trait ElementTrait {
   }
 
   /**
-   * When I trigger the JS event :event on the element :selector.
+   * Trigger a JS event on the element defined by the selector.
    *
    * @code
    * When I trigger the JS event "click" on the element "#submit-button"
@@ -369,9 +369,10 @@ trait ElementTrait {
    * Assert an element has a computed CSS property with a value.
    *
    * The value is compared against the value computed by the browser, not
-   * against the value written in the stylesheet: `color: red` computes to
-   * `rgb(255, 0, 0)` and `margin: 1em` computes to a pixel length. The
-   * property name is accepted in either `background-color` or
+   * against the value written in the stylesheet. `color: red` computes to
+   * `rgb(255, 0, 0)` and `margin: 1em` computes to a pixel length.
+   *
+   * The property name is accepted in either `background-color` or
    * `backgroundColor` form; CSS custom properties are used verbatim. The
    * assertion applies to the first element matching the selector.
    *
@@ -434,16 +435,16 @@ trait ElementTrait {
   /**
    * Assert that one element stacks above another.
    *
-   * Compares the effective paint order rather than the `z-index` property:
-   * a `z-index` read from an element is only meaningful within its own
-   * stacking context, so a child of a stacking-context-forming ancestor can
-   * carry a high `z-index` and still paint below an element with a lower one.
+   * Compares the effective paint order rather than the `z-index` property,
+   * because a `z-index` is only meaningful within its own stacking context.
+   * A child of a stacking-context-forming ancestor can carry a high `z-index`
+   * and still paint below an element with a lower one.
    *
    * The comparison walks the stacking context chain of both elements, finds
-   * the context they share, and compares the two participants that branch off
-   * it, using document order to break a tie. Painting order within a single
-   * stacking context (floats, inline content and positioned descendants) is
-   * not modelled.
+   * the context they share, and compares the 2 participants that branch off
+   * it. Document order breaks a tie; painting order within a single stacking
+   * context (floats, inline content and positioned descendants) is not
+   * modelled.
    *
    * @code
    * Then the element "#modal" should stack above the element "#page-header"
@@ -471,7 +472,7 @@ trait ElementTrait {
   }
 
   /**
-   * Assert the element :selector should be at the top of the viewport.
+   * Assert that the element is at the top of the viewport.
    *
    * @code
    * Then the element "#header" should be at the top of the viewport
@@ -486,7 +487,7 @@ trait ElementTrait {
   }
 
   /**
-   * Assert the element :selector should be centered in the viewport.
+   * Assert that the element is centered in the viewport.
    *
    * Checks that the vertical center of the element is within the middle third
    * of the viewport.
@@ -506,9 +507,10 @@ trait ElementTrait {
   /**
    * Assert that an element is pinned to the top of the viewport.
    *
-   * The element's top edge has to sit within 2 pixels of the viewport top,
-   * which absorbs the sub-pixel offsets that normal rendering produces. Use
-   * the step with an explicit tolerance for layouts that need a larger one.
+   * The element's top edge must be within 2 pixels of the viewport top; the
+   * tolerance covers the sub-pixel offsets that normal rendering produces.
+   * Use the step with an explicit tolerance for layouts that require a
+   * larger one.
    *
    * This asserts where the element currently renders, so scroll the page
    * first to tell a pinned element apart from one that starts at the top of
@@ -984,10 +986,10 @@ trait ElementTrait {
    *   The CSS selector of the second element.
    *
    * @return string
-   *   A pipe-delimited string of the order (`1` when the first element stacks
-   *   above the second one, `-1` when it stacks below it, `0` when both
-   *   selectors match the same element), the effective z-index of each
-   *   compared participant, and the basis of the comparison.
+   *   A pipe-delimited string of the order, the effective z-index of each
+   *   compared participant, and the basis of the comparison. The order is `1`
+   *   when the first element stacks above the second one, `-1` when it stacks
+   *   below it, and `0` when both selectors match the same element.
    */
   protected function elementResolveStackingOrder(string $selector1, string $selector2): string {
     $selector1_js = json_encode($selector1, JSON_UNESCAPED_SLASHES);
@@ -1136,7 +1138,7 @@ JS;
     $script = 'var rect = {{ELEMENT}}.getBoundingClientRect(); return rect.top + "|" + rect.height;';
     [$top, $height] = explode('|', (string) $this->elementExecuteJs($selector, $script), 2);
 
-    // An element that is not rendered reports a zero-sized box at the origin,
+    // An element that is not rendered reports a 0 by 0 box at the origin,
     // which would otherwise read as pinned.
     if ((float) $height <= 0) {
       if ($is_inverted) {

@@ -46,9 +46,6 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->installEntitySchema('taxonomy_term');
   }
 
-  /**
-   * Tests round-trip for an entity_reference field targeting users by name.
-   */
   public function testUserReferenceByNameRoundTrip(): void {
     $this->attachField('field_owner', 'entity_reference', [
       'target_type' => 'user',
@@ -62,9 +59,6 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertFieldRoundTripViaBackend('field_owner', ['alice']);
   }
 
-  /**
-   * Tests round-trip when the value is already a numeric id.
-   */
   public function testUserReferenceByIdRoundTrip(): void {
     $this->attachField('field_owner', 'entity_reference', [
       'target_type' => 'user',
@@ -81,9 +75,11 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
    *
    * A delta may use the field-item shape of file, image or
    * entity_reference_revisions values, e.g. '['target_id' => 'alice',
-   * 'display' => 1]'. The handler treats the main property value as the
-   * lookup label and resolves it to an id. The original array shape is
-   * preserved so any extra item properties round-trip through to storage.
+   * 'display' => 1]'.
+   *
+   * The handler treats the main property value as the lookup label and
+   * resolves it to an id. The original array shape is preserved so any extra
+   * item properties round-trip through to storage.
    */
   public function testUserReferenceResolvesAssociativeArrayDelta(): void {
     $this->attachField('field_owner', 'entity_reference', [
@@ -95,12 +91,9 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertFieldRoundTripViaBackend('field_owner', [['target_id' => 'alice']]);
   }
 
-  /**
-   * Tests round-trip when deltas mix scalar labels and associative arrays.
-   */
   public function testUserReferenceResolvesMixedScalarAndAssociativeDeltas(): void {
-    // Needs an unlimited-cardinality field to store two deltas; attachField()
-    // always creates a single-value field, so configure the storage inline.
+    // Needs an unlimited-cardinality field to store 2 deltas; attachField()
+    // always creates a single-value field, so the storage is configured inline.
     FieldStorageConfig::create([
       'field_name' => 'field_owners',
       'entity_type' => self::ENTITY_TYPE,
@@ -128,9 +121,7 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
    *
    * Taxonomy terms are referenced through 'entity_reference' with
    * 'target_type = taxonomy_term', so the backend routes through
-   * EntityReferenceHandler. Covered here alongside the other
-   * EntityReferenceHandler targets rather than in its own suite because it is
-   * the same handler exercising a different 'target_type'.
+   * EntityReferenceHandler.
    */
   public function testTaxonomyTermReferenceByNameRoundTrip(): void {
     Vocabulary::create(['vid' => 'tags', 'name' => 'Tags'])->save();

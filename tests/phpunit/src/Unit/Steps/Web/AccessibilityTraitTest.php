@@ -201,8 +201,8 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testGetReportDirUsesCapturedBaseDir(): void {
     AccessibilityTraitTestImplementation::testSetBaseDir('/sentinel/base');
 
-    // Changing directory proves the report directory anchors to the captured
-    // base rather than the live working directory.
+    // Changing directory proves the report directory is built from the
+    // captured base rather than the live working directory.
     $original = getcwd();
     chdir(static::locationsTmp());
 
@@ -288,9 +288,9 @@ class AccessibilityTraitTest extends UnitTestCase {
     $button_name = strpos($html, '<span class="rule-id">button-name</span>');
     $color_contrast = strpos($html, '<span class="rule-id">color-contrast</span>');
 
-    // Both critical rules precede the serious one, and within the critical
-    // group the rule with more affected elements (image-alt: 2) precedes the
-    // one with fewer (button-name: 1).
+    // Both critical rules precede the serious one. Within the critical group,
+    // the rule with more affected elements (image-alt: 2) precedes the one
+    // with fewer (button-name: 1).
     $this->assertNotFalse($image_alt);
     $this->assertNotFalse($button_name);
     $this->assertNotFalse($color_contrast);
@@ -365,7 +365,6 @@ class AccessibilityTraitTest extends UnitTestCase {
     $name = AccessibilityTraitTestImplementation::testAggregateFilename(1750000000);
 
     $this->assertMatchesRegularExpression('/^accessibility_report_\d{8}_\d{6}\.html$/', $name);
-    // A different timestamp yields a different filename.
     $this->assertNotSame($name, AccessibilityTraitTestImplementation::testAggregateFilename(1750086400));
   }
 
@@ -488,13 +487,11 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $doc = simplexml_load_string($xml);
     $this->assertInstanceOf(\SimpleXMLElement::class, $doc, 'The rendered report is well-formed XML.');
-    // Only violations meeting the effective threshold become <failure> cases.
     $this->assertCount($expected_failures, $doc->xpath('//failure') ?: []);
     // Every emitted testcase is counted, so tests stays 5 (3 violations + 2
     // passes) whether a violation is a failure or advisory.
     $this->assertCount(5, $doc->xpath('//testcase') ?: []);
     $this->assertSame('5', (string) $doc['tests']);
-    // The file-level and suite-level failure counts agree.
     $this->assertSame((string) $expected_failures, (string) $doc['failures']);
     $this->assertSame((string) $expected_failures, (string) $doc->testsuite['failures']);
   }
@@ -515,7 +512,6 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $doc = simplexml_load_string($xml);
     $this->assertInstanceOf(\SimpleXMLElement::class, $doc);
-    // Advisory mode serialises no violation as a failure.
     $this->assertCount(0, $doc->xpath('//failure') ?: []);
     $this->assertStringNotContainsString('<failure', $xml);
     // Every finding stays visible as a passing testcase with <system-out>.
@@ -543,8 +539,8 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $doc = simplexml_load_string($xml);
     $this->assertInstanceOf(\SimpleXMLElement::class, $doc);
-    // One <failure> per affected node (2), plus three passing testcases: tests
-    // and failures count actual emitted <testcase> elements, not violations.
+    // 1 <failure> per affected node (2), plus 3 passing testcases: tests and
+    // failures count actual emitted <testcase> elements, not violations.
     $this->assertCount(2, $doc->xpath('//failure') ?: []);
     $this->assertCount(5, $doc->xpath('//testcase') ?: []);
     $this->assertSame('5', (string) $doc['tests']);
@@ -564,7 +560,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   /**
-   * Builds a representative accumulator with two scenarios, a shared URL, a blank tab, and mixed-impact findings.
+   * Builds a representative accumulator with 2 scenarios, a shared URL, a blank tab, and mixed-impact findings.
    *
    * @return array<int, array<string, mixed>>
    *   Sample aggregate data in the shape produced by accessibilityAggregateCapture().
@@ -720,11 +716,11 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   /**
-   * Builds a scenario result with one violation per impact plus two passes.
+   * Builds a scenario result with 1 violation per impact plus 2 passes.
    *
    * @return array<int, array{url: string, rules: string, result: array<string, mixed>}>
-   *   A single-page result: critical, serious and moderate violations (one
-   *   affected node each) alongside two passing rules.
+   *   A single-page result: critical, serious and moderate violations (1
+   *   affected node each) alongside 2 passing rules.
    */
   protected static function createJunitResults(): array {
     return [

@@ -54,9 +54,8 @@ abstract class AbstractHandler implements FieldHandlerInterface {
     $entity_field_manager = \Drupal::service('entity_field.manager');
     $storage_definitions = $entity_field_manager->getFieldStorageDefinitions($entity_type);
 
-    // Bundle precedence is bundle key value, then typed bundle, then entity
-    // type (single-bundle entities like 'user' use the entity type as the
-    // bundle).
+    // A single-bundle entity type such as 'user' uses the entity type as its
+    // bundle, so the entity type is the fallback.
     $bundle_key = \Drupal::entityTypeManager()->getDefinition($entity_type)->getKey('bundle');
     $bundle = $entity_type;
 
@@ -91,7 +90,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * Recognised input shapes:
    *   - Bare scalar -> wrapped as a single record using the main property.
    *   - List of scalars -> each wrapped as a record.
-   *   - Single keyed record -> wrapped in a one-element list.
+   *   - Single keyed record -> wrapped in a 1-element list.
    *   - List of records -> returned unchanged.
    *   - Mixed list of scalars and records -> scalars wrapped, records kept.
    *
@@ -119,8 +118,8 @@ abstract class AbstractHandler implements FieldHandlerInterface {
     }
 
     // '['foo.jpg', 'alt' => 'A']' is ambiguous: 'foo.jpg' could be the main
-    // value with 'alt' as an extra, or two separate deltas with one of them
-    // named. The mixed shape is rejected.
+    // value with 'alt' as an extra, or 2 separate deltas with 1 of them
+    // named.
     $has_int_key = FALSE;
     $has_string_key = FALSE;
 
@@ -152,9 +151,8 @@ abstract class AbstractHandler implements FieldHandlerInterface {
     }
 
     // A record without the main property is almost always a caller mistake:
-    // the path, value or uri is missing and only extras like 'alt' or
-    // 'format' remain. Rejecting it here stops a handler dispatching on
-    // missing data.
+    // only extras like 'alt' or 'format' remain. Rejecting it here stops a
+    // handler dispatching on missing data.
     foreach ($records as $record) {
       if (!array_key_exists($this->mainProperty, $record)) {
         throw new \RuntimeException(sprintf(

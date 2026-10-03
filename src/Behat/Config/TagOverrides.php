@@ -39,8 +39,6 @@ class TagOverrides {
    *   The value, replaced by whatever the last matching tag sets.
    */
   public function apply(string $group, Option $option, mixed $value, array $tags): mixed {
-    // An 'enabled' option is also switched off by the library's one skip tag,
-    // named after the trait the group belongs to.
     $switchable = $option->name === Option::ENABLED;
 
     if ($tags === [] || ($option->tags === [] && !$switchable)) {
@@ -66,9 +64,11 @@ class TagOverrides {
    * Whether a skip tag names the trait that owns a group.
    *
    * The tag carries the trait's own name, which a group name cannot be
-   * converted back into: a run of capitals reads as one word, so 'APIClient'
-   * and 'ApiClient' both give 'api_client'. The tag is read forwards instead,
-   * and any spelling of the trait that derives the group matches it.
+   * converted back into. A run of capitals reads as 1 word, so 'APIClient'
+   * and 'ApiClient' both give 'api_client'.
+   *
+   * The tag is read forwards instead, and any spelling of the trait that
+   * derives the group matches it.
    *
    * @param string $tag
    *   A tag the scenario or its feature carries, without a leading '@'.

@@ -227,9 +227,6 @@ class AbstractHandlerNormalizeTest extends TestCase {
     yield 'positional pair is a single record' => [['start', 'end'], FALSE];
     yield 'keyed array is a single record' => [['value' => 'start'], FALSE];
     yield 'mixed list leading with a scalar is a single record' => [['start', ['value' => 1]], FALSE];
-    // A list with no element 0 exists only as the empty array, which every
-    // caller rejects earlier; the guard keeps the helper safe for a caller
-    // that does not.
     yield 'empty array is a single record' => [[], FALSE];
   }
 
@@ -247,9 +244,9 @@ class AbstractHandlerNormalizeTest extends TestCase {
   /**
    * Creates an AbstractHandler subclass with the main property injected.
    *
-   * Bypasses the constructor (which requires a full Drupal entity bootstrap)
-   * and sets 'mainProperty' directly via reflection - 'normalize()' only
-   * needs that one value.
+   * The constructor requires a full Drupal entity bootstrap, so it is
+   * bypassed. 'normalize()' needs only 'mainProperty', so only that value is
+   * set directly via reflection.
    */
   protected function createHandler(string $main_property): AbstractHandler {
     $handler = (new \ReflectionClass(NormalizeTestHandler::class))->newInstanceWithoutConstructor();

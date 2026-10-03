@@ -21,7 +21,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * Manage Drupal taxonomy terms with vocabulary organization.
  *
  * - Create term vocabulary structures using field values.
- * - Navigate to term pages
+ * - Navigate to term pages.
  * - Verify vocabulary configurations.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
@@ -184,7 +184,7 @@ trait TaxonomyTrait {
   }
 
   /**
-   * Assert that a taxonomy term exist by name.
+   * Assert that a taxonomy term exists by name.
    *
    * @code
    * Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist

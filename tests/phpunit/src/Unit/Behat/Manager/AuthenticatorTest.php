@@ -516,8 +516,8 @@ class AuthenticatorTest extends TestCase {
     $page->method('has')->willReturnCallback(function (string $selector, string $locator) use (&$call_count): bool {
       if ($locator === 'body.logged-in') {
         $call_count++;
-        // First two calls return FALSE (during wait loop and loggedIn check),
-        // then return TRUE.
+        // The first 2 calls return FALSE (during the wait loop and the
+        // loggedIn() check), then TRUE.
         return $call_count > 2;
       }
       return FALSE;
@@ -609,7 +609,6 @@ class AuthenticatorTest extends TestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/1');
 
-    // No login_wait is configured.
     $authenticator = $this->createAuthenticator($session);
 
     $this->expectException(\Exception::class);

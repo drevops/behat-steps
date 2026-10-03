@@ -92,9 +92,8 @@ trait KeyboardTrait {
    *   If method is used for invalid browser driver.
    */
   protected function keyboardPressKeyOnElementSingle(string $char, ?string $selector): void {
-    // Resolved before the key map is built so a browser driver that cannot
-    // dispatch a key event fails naming the capability rather than the ones
-    // that have it.
+    // Resolve the capability before the key map is built, so a browser
+    // driver that cannot dispatch a key event fails naming the capability.
     $keyboard = $this->browserDriverFor(KeyboardCapabilityInterface::class);
 
     $keys = [
@@ -133,13 +132,13 @@ trait KeyboardTrait {
         throw new \RuntimeException(sprintf('Unsupported key "%s" provided.', $char));
       }
 
-      // Syn, the JS library that provides synthetic events, can tab only
-      // from an element that can receive focus. A tab press with no
-      // selector therefore targets a visually hidden, screen-reader
-      // compatible anchor injected as the first element inside <body>.
-      // Triggering the key on the anchor moves focus to the first element
-      // in the tab order without focusing the anchor itself.
+      // Syn, the synthetic-events JS library, can tab only from a focusable
+      // element, so a tab press with no selector targets an injected anchor.
       if ($selector === NULL && $char === 'tab') {
+        // The anchor is visually hidden, screen-reader compatible and the
+        // first element inside <body>. Triggering the key on it moves focus
+        // to the first element in the tab order without focusing the anchor
+        // itself.
         $selector = '#injected-focusable';
 
         $script = <<<JS
@@ -155,9 +154,6 @@ trait KeyboardTrait {
       $char = $keys[strtolower($char)];
     }
 
-    // With no selector the key is sent to the currently focused element.
-    // A call with a selector focuses and types; later calls without one
-    // continue typing in the same element.
     if ($selector === NULL) {
       $script = <<<'JS'
         (function() {

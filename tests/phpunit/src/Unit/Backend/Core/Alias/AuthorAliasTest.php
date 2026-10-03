@@ -21,9 +21,6 @@ use PHPUnit\Framework\TestCase;
 #[Group('aliases')]
 class AuthorAliasTest extends TestCase {
 
-  /**
-   * Tests metadata accessors.
-   */
   public function testMetadataAccessors(): void {
     $alias = new AuthorAlias(static fn(): ?object => NULL);
 

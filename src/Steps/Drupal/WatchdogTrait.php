@@ -125,7 +125,7 @@ trait WatchdogTrait {
   }
 
   /**
-   * Check for errors that the last step could not have seen.
+   * Check for errors the last-step check could not have read.
    *
    * A scenario whose earlier step failed never ran its last step, so nothing
    * was checked at step scope. A scenario that passed may still log an error
@@ -178,8 +178,8 @@ trait WatchdogTrait {
   /**
    * Read the errors logged since the scenario started, and clear them.
    *
-   * Read entries are deleted so a later check in the same scenario sees only
-   * new ones.
+   * Read entries are deleted so a later check in the same scenario returns
+   * only new ones.
    *
    * @return array<int, string>
    *   Rendered entries at or above the severity threshold, keyed by their
@@ -206,7 +206,7 @@ trait WatchdogTrait {
       define('WATCHDOG_WARNING', 4);
     }
 
-    // Remove entries less severe than a warning.
+    // Entries less severe than a warning are removed.
     foreach ($entries as $key => $error) {
       if ($error->severity > WATCHDOG_WARNING) {
         unset($entries[$key]);

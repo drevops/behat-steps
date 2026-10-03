@@ -11,8 +11,8 @@ use DrevOps\BehatSteps\Behat\MinkAwareTrait;
 /**
  * Applies webserver-level HTTP Basic authentication to the Mink session.
  *
- * This is not user authentication. It carries no user, reads no site
- * configuration and needs only the Mink session and the configured base URL,
+ * This is not user authentication: it carries no user and reads no site
+ * configuration. It needs only the Mink session and the configured base URL,
  * so a suite for a site behind basic auth uses it without any Drupal site.
  */
 class BasicAuthenticator implements BasicAuthenticatorInterface {
@@ -69,9 +69,9 @@ class BasicAuthenticator implements BasicAuthenticatorInterface {
     $pass = parse_url($base_url, PHP_URL_PASS);
 
     return [
-      // Userinfo is RFC 3986 encoded, where '+' is a literal plus and spaces
-      // are '%20', so decode with rawurldecode() rather than urldecode()
-      // (which would turn a literal '+' into a space).
+      // Userinfo is RFC 3986 encoded, where '+' is a literal plus and a space
+      // is '%20'. 'urldecode()' would turn a literal '+' into a space, so
+      // 'rawurldecode()' is used.
       'username' => rawurldecode($name),
       'password' => is_string($pass) ? rawurldecode($pass) : '',
     ];

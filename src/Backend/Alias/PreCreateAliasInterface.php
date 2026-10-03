@@ -11,7 +11,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  *
  * Implementations resolve the alias value, write any derived real-field
  * values back onto the stub, and remove the alias's own key from the
- * stub so the values bag passed to Drupal's entity factory contains
+ * stub. The values bag passed to Drupal's entity factory then contains
  * only real fields.
  */
 interface PreCreateAliasInterface extends CreationAliasInterface {
@@ -19,10 +19,10 @@ interface PreCreateAliasInterface extends CreationAliasInterface {
   /**
    * Resolves the alias value and mutates the stub in place.
    *
-   * Implementations MUST remove the alias's own value from the stub
-   * (via 'EntityStubInterface::removeValue()') once resolution succeeds,
-   * unless they intentionally overwrite the same key with the resolved
-   * representation (e.g. swapping a term name for a tid).
+   * Implementations MUST remove the alias's own value from the stub via
+   * 'EntityStubInterface::removeValue()' once resolution succeeds. The
+   * exception is an alias that deliberately overwrites the same key with
+   * the resolved representation, such as a term name swapped for a tid.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub being prepared for creation. Must already carry a value

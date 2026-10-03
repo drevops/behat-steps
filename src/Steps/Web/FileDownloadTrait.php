@@ -317,7 +317,6 @@ trait FileDownloadTrait {
       throw new \RuntimeException('Downloaded file information does not have content type data.');
     }
     // @codeCoverageIgnoreEnd
-    // A ".zip" file name is exempt from the content-type check.
     $file_name = $this->fileDownloadDownloadedFileInfo['file_name'] ?? '';
     $has_zip_extension = str_ends_with(strtolower($file_name), '.zip');
 
@@ -346,9 +345,8 @@ trait FileDownloadTrait {
   /**
    * Download file.
    *
-   * The request goes through the detached client, so it carries the
-   * scenario's cookies and headers and leaves the page the session holds
-   * untouched.
+   * The detached client sends the request, so it carries the scenario's
+   * cookies and headers. The page the session holds is left untouched.
    *
    * @param string $url
    *   URL to download file from.

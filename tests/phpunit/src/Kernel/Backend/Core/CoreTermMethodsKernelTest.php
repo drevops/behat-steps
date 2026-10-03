@@ -82,18 +82,12 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
     $this->assertNull(Term::load($result->getValue('tid')));
   }
 
-  /**
-   * Tests that termDelete returns FALSE for a non-existent term.
-   */
   public function testTermDeleteReturnsFalseForMissingTerm(): void {
     $missing = new EntityStub('taxonomy_term', 'tags', ['tid' => 99999]);
 
     $this->assertFalse($this->core->termDelete($missing));
   }
 
-  /**
-   * Tests that termCreate rejects a stub missing the vocabulary.
-   */
   public function testTermCreateRejectsMissingVocabularyProperty(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches("/vocabulary is missing/");
@@ -101,9 +95,6 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
     $this->core->termCreate(new EntityStub('taxonomy_term', NULL, ['name' => 'Orphan']));
   }
 
-  /**
-   * Tests that termCreate rejects an unknown vocabulary.
-   */
   public function testTermCreateRejectsUnknownVocabulary(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches("/vocabulary 'ghosts' does not exist/");
@@ -113,9 +104,6 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
     ]));
   }
 
-  /**
-   * Tests that termCreate rejects a parent term that does not exist.
-   */
   public function testTermCreateRejectsUnknownParent(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches("/parent term 'Missing' does not exist in vocabulary 'tags'/");
@@ -129,8 +117,8 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
   /**
    * Tests that 'vocabulary_machine_name' on a stub selects the vocabulary.
    *
-   * Existing happy-path coverage relies on the bundle constructor arg; this
-   * test pins the alternative path that uses the alias as a stub value.
+   * The happy-path test passes the vocabulary as the bundle constructor
+   * argument; this test passes it as the 'vocabulary_machine_name' stub value.
    */
   public function testTermCreateWithVocabularyMachineNameAlias(): void {
     $stub = new EntityStub('taxonomy_term', NULL, [

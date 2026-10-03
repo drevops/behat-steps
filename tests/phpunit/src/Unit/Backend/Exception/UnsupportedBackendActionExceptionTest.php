@@ -29,9 +29,6 @@ class UnsupportedBackendActionExceptionTest extends TestCase {
     $this->assertSame(sprintf('Action %s is not supported.', $backend_class), $exception->getMessage());
   }
 
-  /**
-   * Tests that the backend is accessible via getBackend().
-   */
   public function testGetBackendReturnsConstructorArgument(): void {
     $backend = $this->createMock(BackendInterface::class);
 
@@ -40,9 +37,6 @@ class UnsupportedBackendActionExceptionTest extends TestCase {
     $this->assertSame($backend, $exception->getBackend());
   }
 
-  /**
-   * Tests that code and previous exception are propagated to the parent.
-   */
   public function testCodeAndPreviousArePropagated(): void {
     $backend = $this->createMock(BackendInterface::class);
     $previous = new \RuntimeException('root cause');

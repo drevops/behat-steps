@@ -23,9 +23,8 @@ class EntityReferenceHandler extends AbstractHandler {
 
       $lookup = $record[$this->mainProperty];
 
-      // Already-resolved integer ids (caller-supplied or alias-resolved)
-      // bypass the entity-storage round-trip; only string labels still
-      // need a lookup.
+      // An integer id is already resolved; only a string lookup requires an
+      // entity query.
       if (is_int($lookup)) {
         $resolved[] = $record;
         continue;
@@ -87,10 +86,9 @@ class EntityReferenceHandler extends AbstractHandler {
     $query->accessCheck(FALSE);
 
     if ($target->labelKey) {
-      // A numeric-string lookup is ambiguous: the caller may be passing an
-      // entity id that Drupal serialised as a string, or a label that
-      // happens to be digits. An OR-group matches either side, and the
-      // entity layer's first hit wins.
+      // A numeric-string lookup is ambiguous: an entity id Drupal serialised
+      // as a string, or a label made of digits. An OR-group matches either,
+      // and the first match is returned.
       $is_numeric_id = is_string($lookup) && ctype_digit($lookup);
       $or = $query->orConditionGroup();
 

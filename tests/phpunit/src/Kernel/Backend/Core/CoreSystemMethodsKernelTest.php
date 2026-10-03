@@ -73,9 +73,6 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $this->assertFalse(\Drupal::moduleHandler()->moduleExists('syslog'), 'moduleUninstall disabled syslog.');
   }
 
-  /**
-   * Tests that getModuleList exposes enabled modules.
-   */
   public function testGetModuleListIncludesEnabledModules(): void {
     $modules = $this->core->getModuleList();
 
@@ -101,9 +98,6 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $this->assertNull(ConfigurableLanguage::load('fr'));
   }
 
-  /**
-   * Tests that languageCreate returns FALSE when the language already exists.
-   */
   public function testLanguageCreateReturnsFalseWhenLanguageExists(): void {
     $this->core->languageCreate(new EntityStub('language', NULL, ['langcode' => 'fr']));
 
@@ -112,9 +106,6 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $this->assertFalse($second);
   }
 
-  /**
-   * Tests that 'languageDelete()' throws when the language does not exist.
-   */
   public function testLanguageDeleteThrowsWhenLanguageMissing(): void {
     $this->assertNull(ConfigurableLanguage::load('fr'));
 

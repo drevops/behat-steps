@@ -19,9 +19,6 @@ use PHPUnit\Framework\TestCase;
 #[Group('aliases')]
 class VocabularyMachineNameAliasTest extends TestCase {
 
-  /**
-   * Tests metadata accessors.
-   */
   public function testMetadataAccessors(): void {
     $alias = new VocabularyMachineNameAlias();
 

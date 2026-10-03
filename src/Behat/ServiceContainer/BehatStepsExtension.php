@@ -278,9 +278,8 @@ class BehatStepsExtension implements ExtensionInterface {
 
     $regions = $config['regions'] ?? [];
 
-    // Mirror the map into the config so the 'behat_steps.parameters' and
-    // 'behat_steps.regions' container parameters always expose the same value,
-    // even when the optional 'regions' key was omitted from the configuration.
+    // Mirror the map into the config so 'behat_steps.parameters' and
+    // 'behat_steps.regions' expose the same value when 'regions' is omitted.
     $config['regions'] = $regions;
 
     $container->setParameter('behat_steps.parameters', $config);
@@ -416,7 +415,7 @@ class BehatStepsExtension implements ExtensionInterface {
       return $candidate;
     }
 
-    // Probe the parent directory, which covers a working directory one level
+    // Probe the parent directory, which covers a working directory 1 level
     // deep such as a Drupal root inside a project.
     $candidate = dirname($cwd) . '/' . $binary;
     if (file_exists($candidate)) {
@@ -477,9 +476,9 @@ class BehatStepsExtension implements ExtensionInterface {
     foreach ($backends as $tag => $name) {
       $tag = $this->validateBackendEntry($tag, $name, $registered);
 
-      // Resolution lowercases a name, so two entries differing only by case
-      // would collapse into one and the later would silently take the
-      // earlier's place in the order.
+      // Resolution lowercases a name, so 2 entries differing only by case
+      // would collapse into 1 and the later would silently replace the
+      // earlier in the order.
       if (isset($seen[$tag])) {
         throw new InvalidConfigurationException(sprintf('The "backends" list under "%s" names "%s" twice. A name is matched without regard to case, so it may appear only once.', self::CONFIG_KEY, $tag));
       }
@@ -513,8 +512,8 @@ class BehatStepsExtension implements ExtensionInterface {
     $tag = strtolower(is_int($tag) ? $name : $tag);
 
     // A tag name is typed into a feature file after '@backend:', so it cannot
-    // carry whitespace or a second colon. '\z' rather than '$', which would
-    // also match before a trailing newline and let one through.
+    // carry whitespace or a second colon. '$' would also match before a
+    // trailing newline, so the pattern ends in '\z'.
     if (preg_match('/^[a-z0-9_-]+\z/', $tag) !== 1) {
       throw new InvalidConfigurationException(sprintf('The "backends" list under "%s" names a backend "%s". A backend name may hold only letters, digits, "_" and "-", so that "@backend:%s" is a valid tag.', self::CONFIG_KEY, $tag, $tag));
     }
@@ -549,8 +548,8 @@ class BehatStepsExtension implements ExtensionInterface {
    * Switches to the custom class generator.
    *
    * Behat collects generators by tag before an activated extension's
-   * 'process()' runs, and it collects them as references to a service id, so
-   * replacing the definition behind that id swaps the class in place.
+   * 'process()' runs, as references to a service id. Replacing the definition
+   * behind that id swaps the class in place.
    */
   protected function processClassGenerator(ContainerBuilder $container): void {
     $definition = new Definition(ClassGenerator::class);

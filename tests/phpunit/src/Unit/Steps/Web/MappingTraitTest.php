@@ -105,9 +105,6 @@ class MappingTraitTest extends UnitTestCase {
     $this->testObject->mappingTransformValue('{{ Home }}');
   }
 
-  /**
-   * Tests that a skipped scenario passes a token through untouched.
-   */
   public function testSkippedScenarioLeavesTokensUntouched(): void {
     $this->testObject->mappingBeforeScenario($this->createBeforeScenarioScope(['behat-steps-skip:MappingTrait']));
 
@@ -117,9 +114,6 @@ class MappingTraitTest extends UnitTestCase {
     $this->assertSame([['path'], ['{{ User Login }}']], $this->testObject->mappingTransformTable($table)->getRows());
   }
 
-  /**
-   * Tests that an unskipped scenario resolves tokens.
-   */
   public function testUnskippedScenarioResolvesTokens(): void {
     $this->testObject->mappingBeforeScenario($this->createBeforeScenarioScope());
 

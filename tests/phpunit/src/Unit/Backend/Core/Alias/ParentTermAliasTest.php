@@ -20,9 +20,6 @@ use PHPUnit\Framework\TestCase;
 #[Group('aliases')]
 class ParentTermAliasTest extends TestCase {
 
-  /**
-   * Tests metadata accessors.
-   */
   public function testMetadataAccessors(): void {
     $alias = new ParentTermAlias(static fn(): ?int => NULL);
 

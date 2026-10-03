@@ -48,7 +48,7 @@ class RandomTraitTest extends UnitTestCase {
     $this->assertNotSame('[?title]', $resolved);
     $this->assertSame(10, strlen($resolved));
 
-    // One value per token for the whole scenario, so the table cell holds the
+    // 1 value per token for the whole scenario, so the table cell holds the
     // same string the scalar argument resolved to.
     $table = new TableNode([['title'], ['[?title]']]);
     $this->assertSame([['title'], [$resolved]], $this->testObject->randomTransformTable($table)->getRows());

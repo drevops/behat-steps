@@ -11,15 +11,16 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
  *
  * 'FieldClassifierInterface' answers the pipeline-entry (F-row) question from
  * a field's origin and storage profile. This interface answers the orthogonal
- * value-shape question the README calls a "handler-selection input": whether
- * a field's stored value is a plain scalar the default handler can relay, or
- * a shape that needs a dedicated handler.
+ * value-shape question the README calls a "handler-selection input".
  *
- * Both predicates read only the storage definition's stored (non-computed)
- * property definitions and enumerate no field-type or data-type strings. A
- * datetime, boolean, or list column is therefore neither an entity reference
- * nor complex: it is a plain scalar the default relays, and value translation
- * for it belongs in a dedicated handler.
+ * A stored value is either a plain scalar the default handler can relay or a
+ * shape that requires a dedicated handler. Both predicates read only the
+ * storage definition's stored (non-computed) property definitions and
+ * enumerate no field-type or data-type strings.
+ *
+ * A datetime, boolean, or list column is therefore neither an entity
+ * reference nor complex: it is a plain scalar the default relays. Value
+ * translation for such a column belongs in a dedicated handler.
  *
  * See 'src/Backend/Core/Field/README.md' for the value-shape axis and how
  * 'Core' consumes it during handler selection.
@@ -33,9 +34,7 @@ interface FieldShapeClassifierInterface {
    *   The field storage definition to inspect.
    *
    * @return bool
-   *   TRUE when a non-computed property is a 'DataReferenceTargetDefinition' -
-   *   the caller supplies a label, path, or name a dedicated handler must
-   *   resolve to an id the author cannot know.
+   *   TRUE when a non-computed property is a 'DataReferenceTargetDefinition'.
    */
   public function fieldIsEntityReference(FieldStorageDefinitionInterface $storage): bool;
 
@@ -47,8 +46,7 @@ interface FieldShapeClassifierInterface {
    *
    * @return bool
    *   TRUE when a non-computed property is a 'ComplexDataDefinitionInterface'
-   *   (e.g. a map) or a 'ListDataDefinitionInterface' - there is no single
-   *   scalar shape for the default handler to relay.
+   *   (e.g. a map) or a 'ListDataDefinitionInterface'.
    */
   public function fieldIsComplexValue(FieldStorageDefinitionInterface $storage): bool;
 

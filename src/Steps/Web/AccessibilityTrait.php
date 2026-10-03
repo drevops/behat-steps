@@ -37,19 +37,21 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  * - `@behat-steps-skip:AccessibilityTrait`    Opt the scenario or feature out entirely.
  *
  * Tool-agnostic. Any engine that runs inside the existing Mink session can
- * be plugged in by overriding `accessibilityRunEngine()` (perform the
- * assessment, return raw results) and `accessibilityNormalizeResults()`
- * (remap raw output into the canonical shape the rest of the trait expects).
+ * be plugged in by overriding `accessibilityRunEngine()` and
+ * `accessibilityNormalizeResults()`. The first performs the assessment and
+ * returns raw results; the second remaps raw output into the canonical shape
+ * the rest of the trait reads.
  *
  * Reporting. Each scenario writes its own HTML and JUnit report. After the
  * whole suite, a single cross-page `accessibility_report_<timestamp>.html`
  * (timestamp `YYYYMMDD_HHMMSS`) is written to the same directory,
- * de-duplicating every assessed page and rolling violations up by rule. One
- * file is written per run, so a run never overwrites a previous one. The
+ * de-duplicating every assessed page and rolling violations up by rule.
+ *
+ * 1 file is written per run, so a run never overwrites a previous one. The
  * aggregate accumulates in process-global state, so under parallel Behat each
  * process writes its own report.
  *
- * Console output. A one-line per-page summary can be printed to the console
+ * Console output. A 1-line per-page summary can be printed to the console
  * as pages are assessed. Printing is off by default; set the
  * `BEHAT_ACCESSIBILITY_PRINT` environment variable to a non-empty value other
  * than `0`, or override `accessibilityGetPrintCli()`, to enable it.
@@ -90,12 +92,13 @@ trait AccessibilityTrait {
   /**
    * Working directory captured before any test bootstrap can chdir().
    *
-   * The default report directory anchors to this rather than a live
-   * `getcwd()` call. A Drupal bootstrap chdir()s to the docroot, so a live
-   * `getcwd()` would resolve the report directory outside the path-anchored
-   * location used by the rest of the run. Captured once at `@BeforeSuite`,
-   * before the first scenario, so it records the directory the run was
-   * launched from.
+   * The default report directory is resolved against this value rather than
+   * a live `getcwd()` call. A Drupal bootstrap chdir()s to the docroot, so a
+   * live `getcwd()` would resolve the report directory away from the rest of
+   * the run's paths.
+   *
+   * The value is captured once at `@BeforeSuite`, before the first scenario,
+   * so it records the directory the run was launched from.
    */
   protected static ?string $accessibilityBaseDir = NULL;
 
@@ -173,9 +176,6 @@ trait AccessibilityTrait {
   public static function accessibilityCaptureBaseDir(BeforeSuiteScope $scope): void {
     if (self::$accessibilityBaseDir === NULL) {
       $cwd = getcwd();
-      // Leave the base unset when getcwd() fails so
-      // accessibilityGetReportDir() retries it later rather than locking in
-      // an empty, root-relative base.
       if ($cwd !== FALSE) {
         self::$accessibilityBaseDir = $cwd;
       }
@@ -253,10 +253,10 @@ trait AccessibilityTrait {
       $this->accessibilityAssess($this->accessibilityGetDefaultRules());
     }
 
-    // A failed step has already failed the scenario, so gating on top of it
-    // would report a violation found on a page the step left incomplete. The
-    // gate is applied whether or not this step assessed a new page, because a
-    // last step that navigates nowhere still ends the scenario.
+    // A failed step has already failed the scenario, so gating it as well
+    // would report a violation from a page the step left incomplete. The gate
+    // runs whether or not this step assessed a new page, because a last step
+    // that does not navigate still ends the scenario.
     if (!$scope->getTestResult()->isPassed() || !$this->lastStepReached($scope)) {
       return;
     }
@@ -268,10 +268,10 @@ trait AccessibilityTrait {
   /**
    * Write the scenario reports, feed the suite aggregate, then gate if needed.
    *
-   * A step that fails on its own skips every step after it, including the one
-   * that would have applied the gate, so the gate is applied here instead. The
-   * scenario has already failed by then, so it cannot mask a passing scenario
-   * from the rerun cache.
+   * A failing step skips every step after it, including the one that applies
+   * the gate, so the gate is applied here instead. The scenario has already
+   * failed by then, so it cannot mask a passing scenario from the rerun
+   * cache.
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   If a violation at or above the threshold was collected.
@@ -391,11 +391,11 @@ trait AccessibilityTrait {
    * Return the JavaScript source to inject into the page.
    *
    * Default: fetched once per process from accessibilityGetCdnUrl(). Override
-   * to ship the engine script from a vendored package or asset path.
+   * to return the engine script from a vendored package or asset path.
    *
    * A read is bounded by accessibilityGetFetchTimeout() and retried up to
-   * accessibilityGetFetchAttempts() times, so a stalled or throttled source
-   * costs a bounded wait per attempt instead of blocking until PHP's own
+   * accessibilityGetFetchAttempts() times. A stalled or throttled source
+   * blocks for at most the timeout per attempt, not until PHP's own
    * default_socket_timeout expires.
    */
   public function accessibilityGetJs(): string {
@@ -435,8 +435,10 @@ trait AccessibilityTrait {
    * Default: a single read bounded by the given timeout, returning FALSE
    * when the read fails. An HTTP or HTTPS location is fetched through the
    * bare client, which carries no scenario state; any other location is read
-   * as a local file. Override to fetch through a different HTTP client;
-   * accessibilityGetJs() supplies the retries around it.
+   * as a local file.
+   *
+   * Override to fetch through a different HTTP client; accessibilityGetJs()
+   * supplies the retries around it.
    *
    * @param string $url
    *   Location the engine source is read from.
@@ -498,8 +500,9 @@ trait AccessibilityTrait {
    *
    * A relative `report_dir` is resolved against the directory the run was
    * launched from. That base is captured at `@BeforeSuite`, so it is stable
-   * even after a Drupal bootstrap chdir()s to the docroot. When the suite hook
-   * has not run, the live working directory is used.
+   * even after a Drupal bootstrap chdir()s to the docroot.
+   *
+   * When the suite hook has not run, the live working directory is used.
    */
   public function accessibilityGetReportDir(): string {
     $directory = $this->getOptionString('accessibility', 'report_dir');
@@ -519,7 +522,9 @@ trait AccessibilityTrait {
    * The trait recognises this exact tag plus value variants
    * (`<tag>:critical`, `<tag>:serious`, `<tag>:moderate`, `<tag>:minor`,
    * `<tag>:warning`, `<tag>:strict`, `<tag>:any`) for per-scenario gate
-   * configuration. Default: `accessibility`. Override to shorten.
+   * configuration.
+   *
+   * Default: `accessibility`. Override to shorten.
    */
   public function accessibilityGetAutoTag(): string {
     return $this->getOptionString('accessibility', 'auto_tag');
@@ -555,7 +560,7 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Return TRUE to print a one-line per-page summary to the console.
+   * Return TRUE to print a 1-line per-page summary to the console.
    *
    * Default: enabled only when the `BEHAT_ACCESSIBILITY_PRINT` environment
    * variable is set to a non-empty value other than `0`. Override to
@@ -570,7 +575,7 @@ trait AccessibilityTrait {
   /**
    * Return the canonical impact levels in descending severity order.
    *
-   * Default: the four `ACCESSIBILITY_IMPACT_*` constants on this trait.
+   * Default: the 4 `ACCESSIBILITY_IMPACT_*` constants on this trait.
    * Engines with a different severity vocabulary map to these constants
    * inside `accessibilityNormalizeResults()`.
    *
@@ -601,9 +606,11 @@ trait AccessibilityTrait {
    *
    * Default: injects `accessibilityGetJs()`, runs the engine with the
    * given rule identifier, returns the engine's native output. Override
-   * to call a different engine. The return value is fed to
-   * `accessibilityNormalizeResults()` before any other trait logic touches
-   * it, so the raw shape does not have to match the canonical shape.
+   * to call a different engine.
+   *
+   * The return value is passed to `accessibilityNormalizeResults()` before
+   * any other trait method reads it, so the raw shape does not have to match
+   * the canonical shape.
    *
    * @param string $rules
    *   Engine-specific rule identifier.
@@ -623,10 +630,9 @@ trait AccessibilityTrait {
     ));
 
     $session->wait(30000, 'window.__accessibilityResults !== null');
-    // Serialize to a JSON string in the browser rather than returning the raw
-    // object: the result graph is large and nested, and some browser drivers
-    // (e.g. chrome-mink) cannot walk every property when marshalling a live
-    // object.
+    // Serialize to a JSON string in the browser. The result graph is large
+    // and nested, and some browser drivers (e.g. chrome-mink) cannot walk
+    // every property when marshalling a live object.
     $results = json_decode((string) $session->evaluateScript('return JSON.stringify(window.__accessibilityResults);'), TRUE);
 
     if (!is_array($results)) {
@@ -647,14 +653,13 @@ trait AccessibilityTrait {
    * `['violations' => [...], 'incomplete' => [...], 'passes' => [...]]`
    *
    * Default: maps each finding into the canonical fields explicitly. The
-   * default engine's native shape happens to share field names with the
-   * canonical shape, so this default mostly copies values straight across.
-   * Each field is still named at the call site, so the method also serves
-   * as a template for overrides.
+   * default engine's native shape shares field names with the canonical
+   * shape, so this default mostly copies values straight across.
    *
-   * Override when wiring a different engine to map its native output (e.g.
-   * pa11y's `issues[]`, Lighthouse's `audits`) into the canonical
-   * structure.
+   * Each field is still named individually, so the method also serves as a
+   * template for overrides. Override when wiring a different engine to map
+   * its native output (e.g. pa11y's `issues[]`, Lighthouse's `audits`) into
+   * the canonical structure.
    *
    * @param array<string, mixed> $raw
    *   Raw result from `accessibilityRunEngine()`.
@@ -883,14 +888,14 @@ trait AccessibilityTrait {
    *
    * Default: strip the configured Mink `base_url` prefix so reports show the
    * page path (`/contact`) rather than the internal host and port
-   * (`http://nginx:8080/contact`). The absolute form is noise and makes
-   * reports non-portable. The base URL itself maps to `/` and the query
-   * string is kept.
+   * (`http://nginx:8080/contact`). The absolute form adds no information and
+   * makes reports non-portable.
    *
-   * Only the known `base_url` is stripped: a genuinely cross-origin URL
-   * captured during assessment stays absolute, so it remains
-   * distinguishable. Override to keep the absolute URL or to format it
-   * differently.
+   * The base URL itself maps to `/` and the query string is kept. Only the
+   * known `base_url` is stripped: a cross-origin URL captured during
+   * assessment stays absolute, so it remains distinguishable.
+   *
+   * Override to keep the absolute URL or to format it differently.
    */
   protected function accessibilityFormatUrl(string $url): string {
     $base = rtrim((string) $this->getMinkParameter('base_url'), '/');
@@ -925,8 +930,8 @@ trait AccessibilityTrait {
   /**
    * Render the scenario-level HTML report from collected results.
    *
-   * Composes the page wrapper around the per-URL section markup. The two
-   * pieces are split so consumers can rebrand the page without touching
+   * Composes the page wrapper around the per-URL section markup. The 2
+   * pieces are split so consumers can rebrand the page without changing
    * the section logic.
    */
   protected function accessibilityRenderHtml(): string {
@@ -938,8 +943,8 @@ trait AccessibilityTrait {
    *
    * Default: a self-contained HTML document with the trait's built-in
    * styles. Override to brand the report (custom doctype, header/footer,
-   * external stylesheet, project logo, etc.) without having to rebuild
-   * the section markup - the caller already supplies it as `$sections`.
+   * external stylesheet, project logo, etc.) without rebuilding the section
+   * markup, which `$sections` already holds.
    *
    * @param string $sections
    *   Pre-rendered per-URL section markup from
@@ -988,7 +993,7 @@ HTML;
   }
 
   /**
-   * Render the per-URL section markup (one `<section>` per visited URL).
+   * Render the per-URL section markup (1 `<section>` per visited URL).
    *
    * Returns only the inner content that the page wrapper embeds. Override
    * to change how each section renders (rare); for branding the
@@ -1061,7 +1066,7 @@ HTML;
    * Violations are gated by the scenario's effective threshold, exactly as
    * the pass/fail gate is: only violations meeting the threshold are
    * serialised as `<failure>` cases. An advisory run (threshold `never`)
-   * therefore writes a report with zero failures instead of one that fails
+   * therefore writes a report with 0 failures instead of one that fails
    * a JUnit-consuming CI check.
    *
    * Violations below the threshold are recorded as passing cases carrying
@@ -1133,9 +1138,9 @@ HTML;
   /**
    * Record the scenario's formatted results for the suite-level aggregate.
    *
-   * URLs are formatted here, in the instance phase, so the static renderer can
-   * reuse the one `accessibilityFormatUrl()` helper (and any consumer override
-   * of it) without an instance to call it on.
+   * The static renderer has no instance to call `accessibilityFormatUrl()`
+   * or a consumer override of it on, so URLs are formatted in the instance
+   * phase.
    *
    * @param string $dir
    *   The resolved per-scenario report directory, captured for the static
@@ -1166,12 +1171,14 @@ HTML;
   }
 
   /**
-   * Write the aggregate report when at least one scenario produced results.
+   * Write the aggregate report when at least 1 scenario produced results.
    *
-   * One timestamped file is written per suite run, so a run never overwrites a
-   * previous one. The same timestamp drives the filename and the in-page
-   * "generated" line; it is resolved here so the render methods stay
-   * deterministic for tests.
+   * 1 timestamped file is written per suite run, so a run never overwrites a
+   * previous one.
+   *
+   * The same timestamp is used for the filename and the in-page "generated"
+   * line. It is resolved here so the render methods stay deterministic for
+   * tests.
    */
   protected static function accessibilityWriteAggregateReport(): void {
     if (self::$accessibilityAggregate === []) {
@@ -1208,7 +1215,7 @@ HTML;
    *   The accumulated per-scenario results.
    *
    * @return array<string, array<string, mixed>>
-   *   One entry per unique URL, in first-seen order, each holding its
+   *   1 entry per unique URL, in first-seen order, each holding its
    *   violations, incomplete and passes counts, and visiting scenarios.
    */
   protected static function accessibilityAggregatePages(array $aggregate): array {
@@ -1317,12 +1324,11 @@ HTML;
   }
 
   /**
-   * Assemble every value the renderer needs into one data array.
+   * Assemble every value the renderer reads into 1 data array.
    *
-   * All calculation happens here and in the methods it calls -
-   * de-duplication, severity tallies, sorting, counting, and target
-   * flattening - so the single renderer only has to turn ready values into
-   * markup.
+   * De-duplication, severity tallies, sorting, counting, and target
+   * flattening all happen here and in the methods it calls. The single
+   * renderer only turns ready values into markup.
    *
    * @param array<int, array<string, mixed>> $aggregate
    *   The accumulated per-scenario results.
@@ -1444,10 +1450,12 @@ HTML;
   /**
    * Render the entire aggregate report from prepared data.
    *
-   * This is the single rendering entry point. Every value it needs is already
-   * computed in `$data` by accessibilityAggregateData(), so a consumer can
-   * override this one method to completely restyle the report - markup, CSS,
-   * and layout - without touching any of the aggregation logic.
+   * This is the single rendering entry point. Every value it reads is already
+   * computed in `$data` by accessibilityAggregateData().
+   *
+   * A consumer can therefore override this method alone to completely
+   * restyle the report - markup, CSS, and layout - without changing any of
+   * the aggregation logic.
    *
    * @param array<string, mixed> $data
    *   Render-ready data from accessibilityAggregateData().

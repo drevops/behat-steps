@@ -99,9 +99,9 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * Sets the core from the current version.
    *
-   * Walks from the detected Drupal version down to the default Core class,
-   * using the first class that exists in the lookup chain:
-   * DrevOps\BehatSteps\Backend\Core{N}\Core → ... → DrevOps\BehatSteps\Backend\Core\Core.
+   * Uses the first class that exists in the lookup chain:
+   * 'DrevOps\BehatSteps\Backend\Core{N}\Core' for each major version from
+   * the detected one downwards, then 'DrevOps\BehatSteps\Backend\Core\Core'.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
    *   Thrown when no Core implementation is found for the detected version.

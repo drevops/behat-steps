@@ -97,7 +97,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   }
 
   /**
-   * Populates the creation-alias registry with aliases this backend ships.
+   * Populates the creation-alias registry with the backend's default aliases.
    *
    * A subclass that adds custom aliases should override this method and
    * call 'parent::registerDefaultCreationAliases()' first.
@@ -138,7 +138,6 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function cacheClear(?string $type = 'all'): void {
-    // Drush-only cache clear does not need a full rebuild.
     if ($type === 'drush') {
       $this->drush('cache-clear', ['drush'], []);
       return;
@@ -187,8 +186,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function configExists(string $name): bool {
-    // 'config:get' refuses an object that does not exist, so its exit code
-    // answers this without a second command.
+    // 'config:get' exits non-zero for an object that does not exist, so the
+    // exit code indicates existence without a second command.
     return $this->drushResult('config:get', [$name], ['format' => 'json'])->exitCode === 0;
   }
 
@@ -205,16 +204,15 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function configSetData(string $name, array $data): void {
-    // 'config:set' assigns only the keys it is handed and Drush exposes no
-    // whole-object replace, so the object is deleted first to drop the keys
-    // the new data does not carry. The delete and the write are 2 commands,
-    // so the object is read first and put back when the write fails, rather
-    // than being left missing.
+    // Drush exposes no whole-object replace and 'config:set' assigns only the
+    // given keys, so the object is deleted first to drop its other keys. The
+    // delete and the write are 2 commands, so the previous data is read first
+    // and restored when the write fails.
     $previous = $this->configGetData($name);
 
-    // An object holding nothing has no keys to drop, and 'config:set' refuses
-    // to write an empty object back, so deleting one would leave nothing to
-    // restore from if the write then failed.
+    // An empty object has no keys to drop. 'config:set' rejects an empty
+    // object, so deleting one would leave nothing to restore when the write
+    // fails.
     if ($previous !== []) {
       $this->configDelete($name);
     }
@@ -235,7 +233,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       // @codeCoverageIgnoreStart
       catch (\RuntimeException) {
         // Restoring failed as well. The write failure below is the error
-        // worth reporting, so this one is not allowed to replace it.
+        // reported, so the restore failure is discarded.
       }
       // @codeCoverageIgnoreEnd
       throw $e;
@@ -264,7 +262,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function configDelete(string $name): void {
-    // 'config:delete' refuses an object that does not exist, while Drupal's
+    // 'config:delete' fails on an object that does not exist, while Drupal's
     // own config API treats deleting one as a no-op.
     if (!$this->configExists($name)) {
       return;
@@ -297,8 +295,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $arguments = $key !== '' ? [$name, $key] : [$name];
     $result = $this->drushResult('config:get', $arguments, $options);
 
-    // A missing object is an error to Drush and an absent value to Drupal's
-    // config API; the API's answer is the one the capability promises.
+    // A missing object is an error to Drush but an absent value to Drupal's
+    // config API, and the capability contract matches the API.
     if ($result->exitCode !== 0) {
       return NULL;
     }
@@ -306,8 +304,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $decoded = json_decode(trim($result->output), TRUE);
     $envelope_key = $name . ':' . $key;
 
-    // Asked for a single key, 'config:get' answers with a 1-entry map keyed
-    // '<name>:<key>' rather than the bare value.
+    // For a single key, 'config:get' returns a 1-entry map keyed
+    // '<name>:<key>' instead of the bare value.
     if ($key !== '' && is_array($decoded) && array_key_exists($envelope_key, $decoded)) {
       return $decoded[$envelope_key];
     }
@@ -327,7 +325,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
     $decoded = json_decode(trim($result->output), TRUE);
 
-    // 'state:get' answers with a 1-entry map keyed by the state key.
+    // 'state:get' returns a 1-entry map keyed by the state key.
     if (is_array($decoded) && array_key_exists($name, $decoded)) {
       return $decoded[$name];
     }
@@ -355,8 +353,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    *
-   * Drush exposes no existence check over the state key-value store, so a key
-   * holding NULL reads the same as an absent one on this backend.
+   * Drush exposes no existence check over the state key-value store. A key
+   * holding NULL therefore reads the same as an absent one on this backend.
    */
   public function stateExists(string $name): bool {
     return $this->stateGet($name) !== NULL;
@@ -463,8 +461,6 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $uid = $this->parseUserId($result);
 
     if (!$uid) {
-      // Without an id the account cannot be referenced again, so post-create
-      // aliases such as roles would silently never be applied.
       throw new \RuntimeException(sprintf("Drush did not report a user id after creating '%s'. Output: %s", $stub->getValue('name'), $result));
     }
 

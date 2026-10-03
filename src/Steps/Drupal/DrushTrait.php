@@ -16,9 +16,9 @@ use DrevOps\BehatSteps\Backend\Capability\DrushCapabilityInterface;
  * - Run a command that is expected to fail and keep its output.
  * - Assert the last command's output by substring or regular expression.
  *
- * Steps resolve the backend that can run Drush commands rather than the one at
- * the front of the scenario's order, so they work in a scenario driven by any
- * other backend as long as the suite lists a Drush-capable one.
+ * Steps resolve the backend that can run Drush commands, not the first one in
+ * the scenario's order. They work in a scenario driven by any other backend
+ * as long as the suite lists a Drush-capable one.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -137,8 +137,8 @@ trait DrushTrait {
     $output = $this->drushReadOutput();
     $result = @preg_match($pattern, $output);
 
-    // A malformed pattern also returns FALSE, so it is reported apart from an
-    // output that did not match.
+    // 'preg_match()' returns FALSE for a malformed pattern, so that case is
+    // reported apart from an output that did not match.
     if ($result === FALSE) {
       throw new \RuntimeException(sprintf('"%s" is not a valid regular expression: %s.', $pattern, preg_last_error_msg()));
     }
@@ -187,8 +187,8 @@ trait DrushTrait {
     $args = $arguments === NULL ? [] : [$this->drushFixArgument($arguments)];
     $result = $this->drushGetBackend()->drushResult($command, $args);
 
-    // Prefer stdout and fall back to stderr. The success path returns whatever
-    // the command wrote, and the failure path matches it.
+    // The success path returns the command's output, so the failure path keeps
+    // stdout and falls back to stderr when it is empty.
     $output = $result->output === '' ? $result->errorOutput : $result->output;
     $this->drushOutput = $output;
 

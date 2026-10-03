@@ -41,9 +41,6 @@ class TaxonomyTraitKernelTest extends StepTraitKernelTestBase {
     Vocabulary::create(['vid' => 'topics', 'name' => 'Topics'])->save();
   }
 
-  /**
-   * Tests that the matching terms of the vocabulary are loaded, keyed by ID.
-   */
   public function testLoadMultipleLoadsTheMatchingTerms(): void {
     $first = $this->createTerm('tags', 'Shared');
     $second = $this->createTerm('tags', 'Shared');
@@ -75,9 +72,6 @@ class TaxonomyTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertLoadedSet([$first, $second], $terms, TermInterface::class);
   }
 
-  /**
-   * Tests that an empty array is returned when no term matches.
-   */
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
     $this->createTerm('topics', 'Shared');
 

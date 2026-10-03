@@ -27,9 +27,6 @@ use PHPUnit\Framework\TestCase;
 #[Group('drupal')]
 class DrupalBackendDelegationTest extends TestCase {
 
-  /**
-   * Tests that 'getCore()' returns the injected core instance.
-   */
   public function testGetCoreReturnsInjectedCore(): void {
     $core = $this->createMock(CoreInterface::class);
     $backend = $this->createBackendWithCore($core);
@@ -37,9 +34,6 @@ class DrupalBackendDelegationTest extends TestCase {
     $this->assertSame($core, $backend->getCore());
   }
 
-  /**
-   * Tests that 'getRandom()' delegates to the core.
-   */
   public function testGetRandomDelegatesToCore(): void {
     $random = new Random();
     $core = $this->createMock(CoreInterface::class);
@@ -67,9 +61,6 @@ class DrupalBackendDelegationTest extends TestCase {
 
   /**
    * Tests that 'setCore()' assigns the injected instance verbatim.
-   *
-   * The class name and namespace of the injected core are not inspected -
-   * any implementation of 'CoreInterface' is accepted.
    */
   public function testSetCoreAssignsInjectedInstance(): void {
     $backend = $this->createBackendWithCore($this->createMock(CoreInterface::class));
@@ -80,9 +71,6 @@ class DrupalBackendDelegationTest extends TestCase {
     $this->assertSame($custom, $backend->getCore());
   }
 
-  /**
-   * Tests that 'login()' delegates to an auth-capable core.
-   */
   public function testLoginDelegatesToAuthCapableCore(): void {
     $stub = new EntityStub('user');
     $core = $this->createMock(AuthCapableCoreInterface::class);
@@ -93,9 +81,6 @@ class DrupalBackendDelegationTest extends TestCase {
     $backend->login($stub);
   }
 
-  /**
-   * Tests that 'logout()' delegates to an auth-capable core.
-   */
   public function testLogoutDelegatesToAuthCapableCore(): void {
     $core = $this->createMock(AuthCapableCoreInterface::class);
     $core->expects($this->once())->method('logout');
@@ -105,9 +90,6 @@ class DrupalBackendDelegationTest extends TestCase {
     $backend->logout();
   }
 
-  /**
-   * Tests that 'login()' throws when the core does not support auth.
-   */
   public function testLoginThrowsWithNonAuthCore(): void {
     $backend = $this->createBackendWithCore($this->createMock(CoreInterface::class));
 
@@ -117,9 +99,6 @@ class DrupalBackendDelegationTest extends TestCase {
     $backend->login(new EntityStub('user'));
   }
 
-  /**
-   * Tests that 'logout()' throws when the core does not support auth.
-   */
   public function testLogoutThrowsWithNonAuthCore(): void {
     $backend = $this->createBackendWithCore($this->createMock(CoreInterface::class));
 
@@ -130,15 +109,15 @@ class DrupalBackendDelegationTest extends TestCase {
   }
 
   /**
- * Tests that every delegating method forwards to the matching core method.
- *
- * @param string $backend_method
- *   The 'DrupalBackend' method to invoke.
- * @param array<int, mixed> $args
- *   Positional arguments.
- * @param string $core_method
- *   The expected core method to be invoked with the same args.
- */
+   * Tests that every delegating method forwards to the matching core method.
+   *
+   * @param string $backend_method
+   *   The 'DrupalBackend' method to invoke.
+   * @param array<int, mixed> $args
+   *   Positional arguments.
+   * @param string $core_method
+   *   The expected core method to be invoked with the same args.
+   */
   #[DataProvider('dataProviderForwardsToCore')]
   public function testForwardsToCore(string $backend_method, array $args, string $core_method): void {
     $core = $this->createMock(CoreInterface::class);

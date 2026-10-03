@@ -19,7 +19,7 @@ class HttpIdentity {
    * Constructs an HttpIdentity object.
    *
    * @param array<string, string> $cookies
-   *   Cookie values keyed by name, in the form they travel on the wire.
+   *   Cookie values keyed by name, in wire form.
    * @param string $cookieUrl
    *   The URL the cookies were read for. They are sent to its host and that
    *   host's subdomains only.

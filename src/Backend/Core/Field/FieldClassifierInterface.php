@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Backend\Core\Field;
 
 /**
- * Classifies Drupal fields into the nine mutually exclusive F-row categories.
+ * Classifies Drupal fields into the 9 mutually exclusive F-row categories.
  *
- * Each predicate answers "is this field in F{N}?" for one row of the truth
+ * Each predicate answers "is this field in F{N}?" for 1 row of the truth
  * table, based only on the field's declaration and storage profile. The
  * classifier does not decide what is done with a classification; that
  * decision belongs to the consumer.

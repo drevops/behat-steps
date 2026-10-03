@@ -7,10 +7,6 @@ namespace DrevOps\BehatSteps\Behat\Manager;
 /**
  * Holds the tags the running scenario carries.
  *
- * 'BackendListener' fills it on 'ScenarioTested::BEFORE', which Behat
- * dispatches before the first 'BeforeScenario' hook, so every option read
- * within the scenario sees the same tags.
- *
  * @see \DrevOps\BehatSteps\Behat\Listener\BackendListener
  */
 class ScenarioTagRegistry implements ScenarioTagRegistryInterface {

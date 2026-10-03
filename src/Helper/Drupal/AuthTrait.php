@@ -54,9 +54,9 @@ trait AuthTrait {
   /**
    * Removes any created users.
    *
-   * The early-return guard also skips the logout below, because
    * 'BEHAT_STEPS_DISABLE_CLEANUP' leaves the failing scenario's state intact,
-   * session included. Later scenarios in the same run inherit that login.
+   * session included, so the early-return guard skips the logout as well.
+   * Later scenarios in the same run inherit that login.
    */
   #[AfterScenario]
   public function authCleanUsers(AfterScenarioScope $scope): void {
@@ -82,9 +82,9 @@ trait AuthTrait {
       $user_registry->clearUsers();
     }
 
-    // Reset auth state even when the scenario created no users: a scenario
-    // may log in as a pre-existing user without calling userCreate(), leaving
-    // stale session state for the next scenario.
+    // A scenario can log in as a pre-existing user without calling
+    // userCreate(), so the auth state is reset even when it created no users.
+    // Otherwise the next scenario starts with stale session state.
     if ($this->authGetAuthenticator() instanceof FastLogoutInterface) {
       $this->authLogout(TRUE);
     }
@@ -178,8 +178,8 @@ trait AuthTrait {
     $backend->userCreate($stub);
     $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
-    // Register before the post-create hooks run: a hook that throws still
-    // leaves the user behind, and cleanup removes only registered stubs.
+    // Cleanup removes only registered stubs. A post-create hook that throws
+    // leaves the saved user in place, so the stub is registered first.
     $this->authGetUserRegistry()->addUser($stub);
 
     $this->entityLifecycleDispatchHooks(AfterUserCreateScope::class, $stub);

@@ -31,43 +31,28 @@ use PHPUnit\Framework\TestCase;
 #[Group('blackbox')]
 class BlackboxBackendTest extends TestCase {
 
-  /**
-   * Tests that BlackboxBackend satisfies its declared interfaces.
-   */
   public function testImplementsExpectedInterfaces(): void {
     $backend = new BlackboxBackend();
     $this->assertInstanceOf(BlackboxBackendInterface::class, $backend);
     $this->assertInstanceOf(BackendInterface::class, $backend);
   }
 
-  /**
-   * Tests that 'isBootstrapped()' returns TRUE.
-   */
   public function testIsBootstrappedReturnsTrue(): void {
     $backend = new BlackboxBackend();
     $this->assertTrue($backend->isBootstrapped());
   }
 
-  /**
-   * Tests that bootstrap() is a no-op.
-   */
   public function testBootstrapIsNoop(): void {
     $backend = new BlackboxBackend();
     $backend->bootstrap();
     $this->addToAssertionCount(1);
   }
 
-  /**
-   * Tests that getRandom() returns a usable generator.
-   */
   public function testGetRandomReturnsInstance(): void {
     $backend = new BlackboxBackend();
     $this->assertInstanceOf(Random::class, $backend->getRandom());
   }
 
-  /**
-   * Tests that an injected random generator is returned as-is.
-   */
   public function testGetRandomReturnsInjectedInstance(): void {
     $random = new Random();
     $backend = new BlackboxBackend($random);
@@ -75,11 +60,11 @@ class BlackboxBackendTest extends TestCase {
   }
 
   /**
- * Tests that BlackboxBackend does not claim unsupported capabilities.
- *
- * @param string $capability_class
- *   The fully qualified capability interface name.
- */
+   * Tests that BlackboxBackend does not claim unsupported capabilities.
+   *
+   * @param string $capability_class
+   *   The fully qualified capability interface name.
+   */
   #[DataProvider('dataProviderDoesNotImplementCapability')]
   public function testDoesNotImplementCapability(string $capability_class): void {
     $this->assertNotContains($capability_class, (array) class_implements(BlackboxBackend::class), sprintf(

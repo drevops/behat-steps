@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests the classifier against all nine F-row categories.
+ * Tests the classifier against all 9 F-row categories.
  */
 #[CoversClass(FieldClassifier::class)]
 #[Group('core')]
@@ -130,7 +130,7 @@ class FieldClassifierTest extends TestCase {
   }
 
   /**
-   * Builds an entity-field-manager fixture with one field per F-row.
+   * Builds an entity-field-manager fixture with 1 field per F-row.
    */
   protected function entityFieldManager(): EntityFieldManagerInterface {
     // Storage stubs for the hasCustomStorage() chain on base definitions.

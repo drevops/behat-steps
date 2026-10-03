@@ -32,9 +32,6 @@ class AddressHandlerKernelTest extends FieldHandlerKernelTestBase {
     'address',
   ];
 
-  /**
-   * Tests round-trip for an address field with associative input.
-   */
   public function testAddressAssociativeRoundTrip(): void {
     $this->attachAddressField();
 
@@ -54,9 +51,9 @@ class AddressHandlerKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests numeric-indexed input with country_code defaulted from field config.
    *
-   * Exercises AddressHandler's positional-to-keyed normalisation and its
-   * fallback where an omitted country_code falls back to the first entry in
-   * the field's available_countries list.
+   * Exercises AddressHandler's positional-to-keyed normalisation and the
+   * fallback that fills an omitted country_code from the first entry in the
+   * field's available_countries list.
    */
   public function testAddressNumericInputFallsBackToAvailableCountry(): void {
     $this->attachAddressField();

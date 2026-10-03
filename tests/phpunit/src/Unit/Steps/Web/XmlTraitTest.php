@@ -48,7 +48,7 @@ class XmlTraitTestImplementation extends RawMinkContext {
   use XmlTrait;
 
   /**
-   * Install a document as the one loaded for the test content.
+   * Installs a document as the one loaded for the test content.
    *
    * Content and document set together make xmlEnsureDocument() keep the
    * document instead of loading the content.

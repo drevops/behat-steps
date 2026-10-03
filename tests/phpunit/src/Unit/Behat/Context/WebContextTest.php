@@ -14,7 +14,7 @@ use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * Tests the guard against a suite registering two web vocabularies.
+ * Tests the guard against a suite registering 2 web vocabularies.
  */
 #[CoversClass(WebContext::class)]
 class WebContextTest extends UnitTestCase {

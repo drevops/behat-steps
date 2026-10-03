@@ -23,10 +23,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *   1. Call attachField() to declare the field under test.
  *   2. Call assertFieldRoundTripViaBackend() with the input value.
  *
- * The round-trip assertion compares the backend-mutated EntityStub (which
- * holds whatever the handler emitted from expand()) against the reloaded
- * entity. No assertions are made against expect-specific expand() values;
- * that coverage belongs in per-handler unit tests.
+ * The round-trip assertion compares the backend-mutated EntityStub, which
+ * holds the handler's expand() output, against the reloaded entity. It does
+ * not assert specific expand() values; that coverage belongs in the
+ * per-handler unit tests.
  */
 #[RunTestsInSeparateProcesses]
 abstract class FieldHandlerKernelTestBase extends KernelTestBase {
@@ -120,9 +120,11 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
    * asserts the reloaded entity holds the same data.
    *
    * For single-property scalar values, the assertion compares against the
-   * main field column. For multi-property arrays (e.g. link.uri / link.title),
-   * the assertion compares only the keys the test set, ignoring computed or
-   * defaulted columns that the storage layer may populate.
+   * main field column.
+   *
+   * For multi-property arrays (e.g. link.uri / link.title), the assertion
+   * compares only the keys the test set. Computed or defaulted columns that
+   * the storage layer may populate are ignored.
    *
    * @param string $field_name
    *   The field to round-trip.
@@ -145,7 +147,7 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
 
     // Some handlers (e.g. ImageHandler) emit a flat associative array as
     // single-delta shorthand rather than a list of deltas. Normalise that
-    // shape into a one-element list so the iteration below is uniform.
+    // shape into a 1-element list so the iteration below is uniform.
     $expanded = $stub->getValue($field_name);
     $deltas = is_array($expanded) && !array_is_list($expanded)
       ? [$expanded]

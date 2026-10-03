@@ -10,11 +10,12 @@ use DrevOps\BehatSteps\Backend\BackendInterface;
 /**
  * Holds the backends registered with a suite and resolves one by name.
  *
- * Two name spaces meet here. A backend is registered under the name the
+ * 2 kinds of name apply. A backend is registered under the name the
  * extension builds it with ('drupal', 'drush', 'blackbox'), and a suite maps
- * a Gherkin-facing tag name onto one of those. 'getBackend()' takes the tag
- * name, because that is the name a test author writes; 'registerBackend()'
- * takes the registered name.
+ * a Gherkin-facing tag name onto one of those.
+ *
+ * 'getBackend()' takes the tag name, because that is the name a test author
+ * writes; 'registerBackend()' takes the registered name.
  */
 interface BackendRegistryInterface {
 
@@ -39,9 +40,9 @@ interface BackendRegistryInterface {
   /**
    * Sets the backend order the current scenario resolves against.
    *
-   * Resolution walks this order, so the first entry wins any capability it
-   * provides. Setting the order also clears the record of which backends the
-   * previous scenario resolved.
+   * Resolution walks this order, so the first entry providing a capability
+   * resolves it. Setting the order also clears the record of which backends
+   * the previous scenario resolved.
    *
    * @param array<string, string> $backends
    *   Ordered map of tag name to registered backend name.
@@ -95,7 +96,7 @@ interface BackendRegistryInterface {
   /**
    * Determines whether any backend in the scenario's order has a capability.
    *
-   * Bootstraps nothing, so a hook can call it before a scenario has used the
+   * Bootstraps nothing, so it is safe to call before a scenario has used the
    * site.
    *
    * @param class-string $capability
@@ -106,9 +107,8 @@ interface BackendRegistryInterface {
   /**
    * Returns a backend with the capability that this scenario already resolved.
    *
-   * Reports whether a step in this scenario resolved the capability, which is
-   * narrower than 'hasCapability()': a suite may list a cache-capable backend
-   * that no step in this scenario resolved.
+   * This is narrower than 'hasCapability()': a suite may list a cache-capable
+   * backend that no step in this scenario resolved.
    *
    * @param class-string<T> $capability
    *   The capability interface to look for.

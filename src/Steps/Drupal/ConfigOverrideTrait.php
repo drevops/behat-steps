@@ -112,9 +112,8 @@ trait ConfigOverrideTrait {
   #[BeforeStep]
   public function configOverrideBeforeStep(BeforeStepScope $scope): void {
     if ($this->configOverrideDisabledNames === []) {
-      // Nothing to propagate. The process-level signal persists beyond the
-      // scenario that set it, so it is cleared here along with the browser
-      // driver's header.
+      // The process-level signal persists beyond the scenario that set it, so
+      // it is cleared here along with the browser driver's header.
       $this->configOverrideClearSignal();
       $this->configOverrideClearBrowserDriverHeader();
 

@@ -124,19 +124,16 @@ trait BehatCliTrait {
     ];
 
     // Navigation and session steps appear in nearly every generated scenario
-    // as setup for the trait under test, so the baseline carries them. A
-    // baseline trait that is itself under test is composed once.
+    // as setup for the trait under test, so the baseline carries them.
     $qualified_traits = [];
 
     foreach (array_merge(static::BEHAT_CLI_BASELINE_TRAITS, $traits) as $trait) {
-      // A tag names the trait's context and short name, as in
-      // 'Drupal\ModuleTrait'. A tag with no context names a web trait.
       $qualified_traits[] = str_contains((string) $trait, '\\') ? $trait : 'Web\\' . $trait;
     }
 
     foreach (array_diff(array_unique($qualified_traits), static::BEHAT_CLI_INHERENT_TRAITS) as $qualified) {
-      // Two contexts can hold the same short name, so each import carries a
-      // context-qualified alias and one tag can name both.
+      // 2 contexts can hold the same short name, so each import carries a
+      // context-qualified alias and 1 tag can name both.
       $alias = str_replace('\\', '_', (string) $qualified);
       // A 'Helper\' tag names a trait outside the vocabulary subtree.
       $root = str_starts_with((string) $qualified, 'Helper\\') ? 'DrevOps\\BehatSteps\\' : 'DrevOps\\BehatSteps\\Steps\\';
@@ -414,8 +411,7 @@ EOL;
   #[Then('it should fail with an exception:')]
   public function behatCliAssertFailWithException(PyStringNode $message): void {
     $this->itShouldPassOrFailWith('fail', $message);
-    // A non-assertion failure is a \RuntimeException. An assertion failure
-    // is an assertion exception.
+    // A non-assertion failure is a \RuntimeException.
     if (!str_contains($this->getOutput(), ' (RuntimeException)')) {
       throw new \RuntimeException('The output does not contain an "(RuntimeException)" string as expected.');
     }

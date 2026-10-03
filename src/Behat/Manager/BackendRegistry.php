@@ -28,7 +28,7 @@ class BackendRegistry implements BackendRegistryInterface {
   protected array $scenarioBackends = [];
 
   /**
-   * Backends handed out during the current scenario.
+   * Backends resolved during the current scenario.
    *
    * @var array<int, \DrevOps\BehatSteps\Backend\BackendInterface>
    */

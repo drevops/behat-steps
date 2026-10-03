@@ -40,15 +40,15 @@ use Symfony\Component\HttpClient\HttpClient;
  * Provides backend access, authentication delegation, option resolution,
  * prerequisite checks and the hook dispatcher, and composes 3 of the web
  * helper traits. It registers no step definitions and references no Drupal
- * class beyond 'Random', which a layer lint holds.
+ * class beyond 'Random'.
  *
- * Extend this to compose a context out of a chosen set of traits; extend
- * 'WebContext' instead to get the whole web vocabulary, or 'DrupalContext'
- * to get the Drupal vocabulary on top of it.
+ * A context composed out of a chosen set of traits extends this class.
+ * 'WebContext' adds the whole web vocabulary, and 'DrupalContext' adds the
+ * Drupal vocabulary on top of that.
  *
  * The helper traits it composes are on '$this' for a consuming project's own
- * step definitions, and composing one again in a step trait shares the same
- * state rather than duplicating it.
+ * step definitions. A step trait that composes one of them again shares the
+ * same state.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\WebContext
  * @see \DrevOps\BehatSteps\Behat\Context\DrupalContext
@@ -110,9 +110,9 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    *   does not match the type its declaration defaults to.
    */
   public function __construct(protected array $config = []) {
-    // Resolved here rather than on first read, so a typo fails while Behat
-    // builds the context instead of at the step that would have read it. The
-    // extension's 'steps' section arrives later, through 'setParameters()'.
+    // Built here so a mistyped option fails while Behat builds the context,
+    // before any step reads it. The extension's 'steps' section arrives later,
+    // through 'setParameters()'.
     $this->optionResolver = $this->buildOptionResolver();
   }
 
@@ -227,8 +227,8 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * Returns a one-off browser that carries no scenario state.
    *
    * It applies the connection options the site's 'browserkit_http' session
-   * declares, and nothing from the scenario, so it suits requests that are
-   * not the visitor's own, such as fetching a script from a CDN.
+   * declares, and nothing from the scenario. It suits requests that are not
+   * the visitor's own, such as fetching a script from a CDN.
    *
    * @param array<string, mixed> $options
    *   Symfony HttpClient options for this browser, such as a 'timeout'.
@@ -305,8 +305,8 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * Returns the highest-priority backend providing the given capability.
    *
    * A step names the capability it needs and never a backend, so the shipped
-   * vocabulary stays portable: a project that registers its own backend gets
-   * the step working as soon as that backend implements the interface.
+   * vocabulary stays portable. A backend a project registers serves the step
+   * as soon as it implements the interface.
    *
    * @param class-string<T> $capability
    *   The capability interface the caller needs.
@@ -327,14 +327,14 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * Returns the adapter providing a browser capability for this session.
    *
    * The browser half of the vocabulary resolves its capabilities separately
-   * from the Drupal half: a Mink session runs exactly 1 browser driver, so
+   * from the Drupal half. A Mink session runs exactly 1 browser driver, so
    * there is no ordered list to walk and nothing to bootstrap.
    *
    * @param class-string<T> $capability
    *   The browser capability interface the caller needs.
    *
    * @return T
-   *   The adapter speaking for the session's browser driver.
+   *   The adapter for the session's browser driver.
    *
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   When the session's browser driver does not provide the capability.
@@ -348,7 +348,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
   /**
    * Whether this session's browser driver provides a browser capability.
    *
-   * A step that degrades gracefully without the capability asks this; a step
+   * A step that degrades gracefully without the capability calls this; a step
    * that cannot proceed without it calls 'browserDriverFor()'.
    *
    * @param class-string $capability
@@ -498,8 +498,10 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    *
    * 'BEHAT_STEPS_DISABLE_CLEANUP' set to '1', 'true', 'yes' or 'on'
    * (case-insensitive) skips the AfterScenario teardown of entities, users
-   * and roles, so the state a failing scenario leaves behind can be
-   * inspected. The variable is not intended for CI runs.
+   * and roles. The state a failing scenario leaves behind can then be
+   * inspected.
+   *
+   * The variable is not intended for CI runs.
    */
   protected function shouldCleanup(): bool {
     $env = getenv('BEHAT_STEPS_DISABLE_CLEANUP');
@@ -519,8 +521,8 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * together, so the tag works on either line.
    *
    * A trait that declares an 'enabled' option is also switched off by that
-   * option, so a project turns the trait off for the whole profile or for one
-   * context instead of tagging every feature file.
+   * option. Through the option, a project turns the trait off for the whole
+   * profile or for 1 context instead of tagging every feature file.
    *
    * @param string $trait
    *   The trait the hook belongs to, fully qualified or short. A hook passes
@@ -548,8 +550,8 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * Returns a backend providing a capability, reusing one already reached.
    *
    * A read-only query such as a module check returns the same result through
-   * any backend, so a backend the scenario already reached is returned before
-   * the first one in the list, and no second backend starts.
+   * any backend. A backend the scenario already reached is then returned
+   * before the first one in the list, so no second backend starts.
    *
    * @param class-string<T> $capability
    *   The capability interface the caller needs.
@@ -571,10 +573,12 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
   /**
    * Asserts that the prerequisites a trait declares hold.
    *
-   * A trait declares them in a '<prefix>Prerequisites()' method, each naming a
-   * capability a backend in the scenario's list provides and, optionally, a
-   * check that backend passes. A backend the scenario already reached answers
-   * before the first one in the list, so checking never starts a second one.
+   * A trait declares them in a '<prefix>Prerequisites()' method. Each names
+   * a capability a backend in the scenario's list provides and, optionally,
+   * a check that backend passes.
+   *
+   * A backend the scenario already reached is used before the first one in
+   * the list, so checking never starts a second one.
    *
    * @param string $trait
    *   The trait whose prerequisites to assert. A hook or a step passes
@@ -596,8 +600,8 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
   /**
    * Determines whether the prerequisites a trait declares hold.
    *
-   * A teardown asks this instead of asserting, so an unmet prerequisite never
-   * replaces a failure the scenario has already recorded.
+   * A teardown calls this instead of asserting, so an unmet prerequisite
+   * never replaces a failure the scenario has already recorded.
    *
    * @param string $trait
    *   The trait whose prerequisites to check. A hook passes '__TRAIT__'.

@@ -87,9 +87,10 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    *
    * 'name' is a base field on the user entity type. Base fields are not
    * registered field storage configs, so the handler pipeline reaches them
-   * only through auto-detection. DefaultHandler then wraps the scalar value
-   * into the array form the field API expects, which is observable on the
-   * stub after create.
+   * only through auto-detection.
+   *
+   * DefaultHandler wraps the scalar value into the array form the field API
+   * expects, so the stub holds that array after create.
    */
   public function testEntityCreateAutoExpandsBaseFieldsSetOnStub(): void {
     $stub = new EntityStub('user', NULL, [
@@ -103,9 +104,6 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $this->assertSame([['value' => 'uma']], $stub->getValue('name'), 'base field "name" was routed through the handler pipeline.');
   }
 
-  /**
-   * Tests 'entityDelete()' rejects a stub missing the resolved id key.
-   */
   public function testEntityDeleteRejectsStubMissingIdKey(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/stub without the id key "uid" set/');
@@ -118,8 +116,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    *
    * 'user.roles' is a base entity_reference field targeting the user_role
    * config entity type. A stub sets it by label or id, and the backend must
-   * resolve and attach the reference. This test pins the end-to-end
-   * round-trip: stub -> backend -> storage -> reload -> assertion.
+   * resolve and attach the reference.
    */
   public function testEntityCreateExpandsBaseEntityReferenceFieldOnStub(): void {
     Role::create(['id' => 'editor', 'label' => 'Editor'])->save();
@@ -138,9 +135,6 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $this->assertContains('editor', $account->getRoles(), 'entityCreate routed user.roles through EntityReferenceHandler for base-field expansion.');
   }
 
-  /**
-   * Tests 'entityDelete()' uses the saved-entity slot when present.
-   */
   public function testEntityDeleteUsesSavedEntity(): void {
     $entity = User::create([
       'name' => 'taylor',
@@ -178,9 +172,9 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    * Tests 'entityCreate()' rejects an unknown entity type with a clear message.
    *
    * Drupal's 'EntityTypeManager::getDefinition()' raises a
-   * 'PluginNotFoundException' with plugin-system vocabulary that does not
-   * describe what a scenario author actually did wrong. The backend wraps it
-   * as a 'RuntimeException' that names the offending entity type.
+   * 'PluginNotFoundException' whose message uses plugin-system terms and does
+   * not describe the scenario author's mistake. The backend wraps it as a
+   * 'RuntimeException' that names the offending entity type.
    */
   public function testEntityCreateRejectsUnknownEntityType(): void {
     $this->expectException(\RuntimeException::class);
@@ -189,9 +183,6 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $this->core->entityCreate(new EntityStub('nonexistent_type', NULL, ['name' => 'foo']));
   }
 
-  /**
-   * Tests 'entityDelete()' rejects an unknown entity type with a clear message.
-   */
   public function testEntityDeleteRejectsUnknownEntityType(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/Unknown entity type "nonexistent_type"/');

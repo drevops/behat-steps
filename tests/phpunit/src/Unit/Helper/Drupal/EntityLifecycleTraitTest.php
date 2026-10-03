@@ -730,7 +730,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    * Builds an initialized context over the given backend.
    *
    * @param \DrevOps\BehatSteps\Backend\BackendInterface $backend
-   *   The backend the registry hands out.
+   *   The backend the registry returns.
    * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface|null $user_registry
    *   The user registry, when the test inspects it.
    * @param \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface|null $authenticator
@@ -740,9 +740,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    */
   protected function createContext(BackendInterface $backend, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): TestableRawContext {
     $environment = $this->createMock(Environment::class);
-    // A real environment binds a callee to the context instance it holds. The
-    // fixture hooks are static, so the callee's own callable is enough for
-    // the dispatcher to invoke them.
+    // The fixture hooks are static, so the callee's own callable is enough
+    // for the dispatcher to invoke them.
     $environment->method('bindCallee')->willReturnCallback(static fn(Callee $callee): mixed => $callee->getCallable());
 
     $backend_registry = new BackendRegistry(['test' => $backend]);

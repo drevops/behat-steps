@@ -30,9 +30,6 @@ class CoreErrorPathsTest extends TestCase {
     parent::tearDown();
   }
 
-  /**
-   * Tests that the constructor throws when the root path cannot be resolved.
-   */
   public function testConstructorThrowsWhenRootUnresolvable(): void {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessageMatches('/Could not resolve Drupal root/');
@@ -55,9 +52,6 @@ class CoreErrorPathsTest extends TestCase {
     $core->entityCreate(new EntityStub(''));
   }
 
-  /**
-   * Tests that 'resolveUid()' throws when the stub carries no user id.
-   */
   public function testResolveUidThrowsWhenStubHasNoId(): void {
     $core = $this->createCore();
     $reflection = new \ReflectionMethod($core, 'resolveUid');
@@ -89,9 +83,6 @@ class CoreErrorPathsTest extends TestCase {
     $core->{$method}(new EntityStub('language', NULL, $values));
   }
 
-  /**
-   * Data provider for 'testLanguageMethodsRejectMissingLangcode()'.
-   */
   public static function dataProviderLanguageMethodsRejectMissingLangcode(): \Iterator {
     yield 'create without langcode' => ['languageCreate', []];
     yield 'create with empty langcode' => ['languageCreate', ['langcode' => '']];
@@ -132,9 +123,6 @@ class CoreErrorPathsTest extends TestCase {
     $core->entityDelete(new EntityStub('widget', NULL, ['id' => $id]));
   }
 
-  /**
-   * Data provider for 'testEntityDeleteRejectsEmptyId()'.
-   */
   public static function dataProviderEntityDeleteRejectsEmptyId(): \Iterator {
     yield 'empty string' => [''];
     yield 'null' => [NULL];
@@ -142,7 +130,7 @@ class CoreErrorPathsTest extends TestCase {
   }
 
   /**
-   * Helper to build a Core instance pointed at a valid path.
+   * Builds a 'Core' instance pointed at a valid path.
    *
    * None of the error paths under test reach the filesystem, so any existing
    * directory serves as the root.

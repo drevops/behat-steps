@@ -176,7 +176,7 @@ class TraitOptionResolverTest extends UnitTestCase {
   }
 
   /**
-   * Tests that the steps section tolerates what a context cannot serve.
+   * Tests that the steps section may hold entries a context does not declare.
    *
    * @param array<string, mixed> $steps
    *   The extension's steps section.

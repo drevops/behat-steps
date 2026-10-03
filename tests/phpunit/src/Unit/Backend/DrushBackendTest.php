@@ -67,8 +67,8 @@ class DrushBackendTest extends TestCase {
   }
 
   /**
-   * Tests 'parseUserId()' correctly extracts UID from drush output.
- */
+   * Tests that 'parseUserId()' extracts the UID from Drush output.
+   */
   #[DataProvider('dataProviderParseUserId')]
   public function testParseUserId(string $drush_output, ?int $expected): void {
     $backend = new TestDrushBackend('alias');
@@ -76,9 +76,6 @@ class DrushBackendTest extends TestCase {
     $this->assertSame($expected, $result);
   }
 
-  /**
-   * Data provider for testParseUserId().
-   */
   public static function dataProviderParseUserId(): \Iterator {
     yield 'legacy key-value format' => [
       "User ID   :   550895\nUser name :   test\n",

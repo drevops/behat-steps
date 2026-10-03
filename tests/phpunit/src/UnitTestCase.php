@@ -35,11 +35,12 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   /**
    * Indicates whether a path under `src/` holds a trait a context composes.
    *
-   * The conventions the discovery-driven tests hold describe the traits this
-   * library names itself and flattens into a consuming context: the step
-   * vocabulary under `Steps/` and the helpers under `Helper/`. The traits
-   * under `Behat/` carry the names the framework interfaces dictate, and the
-   * backend layer is library code with its own shapes.
+   * The discovery-driven tests hold conventions for the traits this library
+   * names itself and flattens into a consuming context. Those are the step
+   * vocabulary under `Steps/` and the helpers under `Helper/`.
+   *
+   * The traits under `Behat/` carry the names the framework interfaces
+   * dictate, and the backend layer is library code with its own shapes.
    *
    * @param string $relative_path
    *   A path relative to `src/`.

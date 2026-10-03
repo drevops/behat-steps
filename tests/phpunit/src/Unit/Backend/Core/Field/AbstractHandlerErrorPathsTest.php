@@ -34,9 +34,6 @@ class AbstractHandlerErrorPathsTest extends TestCase {
     new DefaultHandler(new EntityStub(''), '', 'field_any');
   }
 
-  /**
-   * Tests that 'normalize()' rejects a handler without a main property.
-   */
   public function testNormalizeRejectsMissingMainProperty(): void {
     $handler = (new \ReflectionClass(DefaultHandler::class))->newInstanceWithoutConstructor();
 

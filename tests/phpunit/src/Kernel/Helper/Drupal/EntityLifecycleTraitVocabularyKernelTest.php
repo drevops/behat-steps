@@ -59,16 +59,10 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     $this->context->setDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
   }
 
-  /**
-   * Tests that a machine name is returned untouched.
-   */
   public function testMachineNameResolvesToItself(): void {
     $this->assertSame('tags', $this->context->callResolveVocabularyMachineName('tags'));
   }
 
-  /**
-   * Tests that a human label resolves to the vocabulary's machine name.
-   */
   public function testLabelResolvesToItsMachineName(): void {
     $this->assertSame('tags', $this->context->callResolveVocabularyMachineName('Tags'));
   }
@@ -80,9 +74,6 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     $this->assertSame('Unknown', $this->context->callResolveVocabularyMachineName('Unknown'));
   }
 
-  /**
-   * Tests that term creation resolves the label before calling the backend.
-   */
   public function testTermCreationResolvesTheVocabularyLabel(): void {
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
 
@@ -100,9 +91,6 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     $this->assertSame('tags', $stub->getValue('vocabulary_machine_name'));
   }
 
-  /**
-   * Tests that a backend without Drupal receives the identifier as given.
-   */
   public function testTermCreationLeavesLabelForNonDrupalBackend(): void {
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
 

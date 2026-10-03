@@ -70,11 +70,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Registered field handler classes, keyed by field type id.
    *
-   * Populated at construction with the project's built-in handlers and
-   * extended at runtime via 'registerFieldHandler()'. Lookup in
-   * 'getFieldHandler()' consults this map first, falling back to
-   * 'DefaultHandler' when a field type has no registered class.
-   *
    * @var array<string, class-string<FieldHandlerInterface>>
    */
   protected array $fieldHandlers = [];
@@ -102,7 +97,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * @param string $drupal_root
    *   The absolute path to the Drupal root directory.
    * @param string $uri
-   *   URI that is accessing Drupal. Defaults to 'default'.
+   *   The URI used to access Drupal. Defaults to 'default'.
    * @param \Drupal\Component\Utility\Random|null $random
    *   Optional random-value generator.
    */
@@ -339,12 +334,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $entity_type = $stub->getEntityType();
     $definition = $this->loadEntityTypeDefinition($entity_type);
 
-    // The id key and bundle key identify the record itself and must not pass
-    // through the handler pipeline. On 'commerce_product' the bundle key
-    // 'type' is also a base entity_reference field. Expanding it would
-    // resolve the bundle machine name through EntityReferenceHandler and
-    // overwrite the scalar with ['target_id' => ...], corrupting every
-    // subsequent bundle lookup for the same stub.
+    // The id key and bundle key identify the record, so neither enters the
+    // handler pipeline. On 'commerce_product' the bundle key 'type' is also
+    // a base entity_reference field, and EntityReferenceHandler would
+    // replace the scalar with ['target_id' => ...], corrupting the stub's
+    // later bundle lookups.
     $skip = array_filter([$definition->getKey('id'), $definition->getKey('bundle')]);
 
     $bundle = $this->resolveBundle($stub);
@@ -368,9 +362,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Resolves the bundle for an entity stub.
    *
-   * Consults the entity type's bundle key in the values bag first, then the
-   * typed 'bundle' constructor argument, then falls back to the entity type
-   * id (single-bundle entities like 'user' use the type id as their bundle).
+   * Reads the entity type's bundle key from the values bag first, then the
+   * typed 'bundle' constructor argument, then the entity type id.
+   * Single-bundle entities like 'user' use the type id as their bundle.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub.
@@ -1099,7 +1093,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function stateExists(string $name): bool {
     // The state service reads a stored NULL and an absent key alike, so the
-    // backing key-value store answers this instead.
+    // backing key-value store is queried instead.
     return \Drupal::keyValue('state')->has($name);
   }
 

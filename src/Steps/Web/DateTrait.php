@@ -27,10 +27,12 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * - `[relative:-1 day]` converted to `1893456000`
  * - `[relative:-1 day#Y-m-d]` converted to `2017-11-5`
  *
- * `dateRelativeProcessValue()` is public API. It and its helpers are static so
- * a token resolves without a context instance. Late static binding routes the
- * resolution through a `dateGetNow()` override in the composing context,
- * which is the supported seam for pinning the clock.
+ * `dateRelativeProcessValue()` is public API. It and its helpers are static,
+ * so a token resolves without a context instance.
+ *
+ * Late static binding routes the resolution through a `dateGetNow()` override
+ * in the composing context. That override is the supported way to hold the
+ * current time constant.
  *
  * Skip processing with tag: `@behat-steps-skip:DateTrait`.
  *
@@ -112,9 +114,9 @@ trait DateTrait {
    *   | test article | [relative:-1 day] |
    * @endcode
    *
-   * @note A formatted return value can land on a different day than the
-   * scenario expects when the offset crosses midnight, because an absent
-   * 'now' resolves to the current minute rather than a fixed time of day.
+   * @note An absent `$now` resolves to the current minute, not a fixed time of
+   * day. A formatted return value whose offset crosses midnight can then fall
+   * on a different day than the scenario expects.
    */
   public static function dateRelativeProcessValue(string $value, ?int $now = NULL): string {
     if (!static::dateRelativeStringHasToken($value)) {

@@ -59,9 +59,9 @@ abstract class FieldHandlerUnitTestBase extends TestCase {
       }
     }
 
-    // Only suppress PHP warnings on rows that expect an exception (e.g.
-    // 'file_get_contents()' raises a warning before the handler throws);
-    // success-path rows must not silently swallow unexpected warnings.
+    // Suppress PHP warnings only on rows that expect an exception, where
+    // 'file_get_contents()' can raise a warning before the handler throws. A
+    // success-path row must not suppress an unexpected warning.
     $result = $exception !== NULL
       ? @$handler->expand($input)
       : $handler->expand($input);

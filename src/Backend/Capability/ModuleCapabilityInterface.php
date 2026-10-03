@@ -36,8 +36,8 @@ interface ModuleCapabilityInterface {
   /**
    * Whether a module's code is present, installed or not.
    *
-   * Distinguishes a module that is merely disabled from one the site cannot
-   * install because its code is absent.
+   * Distinguishes a disabled module from one the site cannot install because
+   * its code is absent.
    *
    * @param string $module_name
    *   The module machine name.

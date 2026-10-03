@@ -57,9 +57,10 @@ trait WaitTrait {
   /**
    * Wait for AJAX before a step that navigates or submits.
    *
-   * The after-step wait fires only on steps matching the same pattern. AJAX
-   * from a non-matching step, such as a select or keystroke bound to a Drupal
-   * behaviour, is still in flight at the next click. This hook settles it.
+   * The after-step wait fires only on steps matching the pattern, so AJAX
+   * from a non-matching step is still in flight at the next click. A select
+   * or keystroke bound to a Drupal behaviour is one such step, so this hook
+   * settles the AJAX first.
    */
   #[BeforeStep]
   public function waitBeforeStep(BeforeStepScope $scope): void {

@@ -36,9 +36,6 @@ class UserTraitKernelTest extends StepTraitKernelTestBase {
     $this->installEntitySchema('user');
   }
 
-  /**
-   * Tests that the matching users are loaded, keyed by ID.
-   */
   public function testLoadMultipleLoadsTheMatchingUsers(): void {
     $first = $this->createUser('first', 1);
     $second = $this->createUser('second', 1);
@@ -49,18 +46,12 @@ class UserTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertLoadedSet([$first, $second], $users, UserInterface::class);
   }
 
-  /**
-   * Tests that an empty array is returned when no user matches.
-   */
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
     $this->createUser('first', 1);
 
     $this->assertSame([], $this->context->userLoadMultiple(['name' => 'missing']));
   }
 
-  /**
-   * Tests that a created role carries the permissions it was given.
-   */
   public function testCreateRoleGrantsThePermissions(): void {
     $this->context->userCreateRole('Editor', 'access user profiles, change own username');
 

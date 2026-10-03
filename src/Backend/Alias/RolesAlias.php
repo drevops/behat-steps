@@ -60,8 +60,8 @@ class RolesAlias implements PostCreateAliasInterface {
 
     foreach ($roles as $role) {
       // EntityReferenceHandler expands 'roles' into records like
-      // '['target_id' => 'editor']'. Unwrap that here so the alias can
-      // operate on the same role name the caller supplied originally.
+      // ['target_id' => 'editor'], so the record is unwrapped back to the
+      // role name the caller supplied.
       if (is_array($role) && array_key_exists('target_id', $role)) {
         $role = $role['target_id'];
       }

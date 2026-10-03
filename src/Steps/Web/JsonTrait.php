@@ -339,7 +339,7 @@ trait JsonTrait {
    * Assert that the array or object at a JSONPath has a number of elements.
    *
    * The path must resolve to a single array or object; its elements are then
-   * counted. Use a container path such as `$.items` rather than `$.items[*]`.
+   * counted. A container path such as `$.items` is required, not `$.items[*]`.
    *
    * @code
    * Then the JSON path "$.items" should have "3" elements

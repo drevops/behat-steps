@@ -10,8 +10,8 @@
  * Where coverage_root_path is the optional path to the coverage root directory.
  * Defaults to '/app/.logs/coverage'.
  *
- * This will also generate Cobertura and HTML reports from the merged coverage
- * data.
+ * The script also generates Cobertura and HTML reports from the merged
+ * coverage data.
  */
 
 declare(strict_types=1);
@@ -20,9 +20,9 @@ use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Report\Cobertura;
 use SebastianBergmann\CodeCoverage\Report\Html\Facade;
 
-// The coverage files are serialised by the fixture site's php-code-coverage,
-// and only unserialise against that same installation, so the fixture's
-// autoloader is preferred over the project's own.
+// The fixture site's php-code-coverage serialised the coverage files, and
+// they unserialise only against that installation. The fixture's autoloader
+// is therefore preferred over the project's own.
 $autoloader = __DIR__ . '/../build/vendor/autoload.php';
 if (!file_exists($autoloader)) {
   $autoloader = __DIR__ . '/../vendor/autoload.php';

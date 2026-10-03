@@ -101,7 +101,6 @@ trait FeatureContextTrait {
 
     $driver = $session->getDriver();
 
-    // WebDriver-based drivers like Selenium2Driver.
     if (method_exists($driver, 'getWebDriverSession')) {
       $driver->getWebDriverSession()->setCookie([
         'name' => $name,
@@ -110,17 +109,16 @@ trait FeatureContextTrait {
       ]);
     }
 
-    // BrowserKit-based drivers like GoutteDriver.
     if (method_exists($driver, 'getClient')) {
       $cookie_jar = $driver->getClient()->getCookieJar();
       $cookie = new Cookie($name, rawurlencode($value));
       $cookie_jar->set($cookie);
     }
 
-    // CDP-based drivers like the Chrome (chrome-mink) driver. Their own
-    // setCookie() binds the cookie to the configured base URL, so a page served
-    // from another origin never receives it. Writing through the document keeps
-    // the cookie on the origin the scenario is on.
+    // A CDP-based driver like Chrome (chrome-mink) binds setCookie() cookies
+    // to the configured base URL, so pages on another origin never receive
+    // them. Writing through the document keeps the cookie on the origin the
+    // scenario is on.
     if (method_exists($driver, 'getCookies')) {
       $driver->evaluateScript(sprintf('document.cookie = %s;', json_encode($name . '=' . rawurlencode($value) . '; path=/')));
     }
@@ -199,8 +197,6 @@ trait FeatureContextTrait {
         $cookie_list[$cookie['name']] = $cookie['value'];
       }
     }
-
-    // CDP-based drivers like the Chrome (chrome-mink) driver.
     elseif (method_exists($driver, 'getCookies')) {
       foreach ($driver->getCookies() as $cookie) {
         $cookie_list[$cookie['name']] = rawurldecode((string) $cookie['value']);

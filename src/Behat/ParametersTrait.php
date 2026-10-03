@@ -13,9 +13,11 @@ namespace DrevOps\BehatSteps\Behat;
  *
  * Any context reads parameters, text and selectors through this trait, whether
  * or not it extends 'WebRawContext'. A context implements
- * 'ParametersAwareInterface' and composes this trait; 'BackendAwareInitializer'
- * then injects the parameter array through 'setParameters()' before any
- * scenario runs. No backend bootstrap is required.
+ * 'ParametersAwareInterface' and composes this trait.
+ *
+ * 'BackendAwareInitializer' then injects the parameter array through
+ * 'setParameters()' before any scenario runs. No backend bootstrap is
+ * required.
  *
  * @see \DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension
  */
@@ -65,7 +67,7 @@ trait ParametersTrait {
    *   The text value.
    *
    * @throws \RuntimeException
-   *   Thrown when the text is not present in the list of parameters.
+   *   When the text is not present in the list of parameters.
    */
   public function getDrupalText(string $name): string {
     $text = $this->getParameter('text');
@@ -86,7 +88,7 @@ trait ParametersTrait {
    *   The CSS selector.
    *
    * @throws \RuntimeException
-   *   Thrown when the selector is not present in the list of parameters.
+   *   When the selector is not present in the list of parameters.
    */
   public function getDrupalSelector(string $name): string {
     $selectors = $this->getParameter('selectors');

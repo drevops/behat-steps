@@ -19,11 +19,9 @@ class CorePermissionsTest extends TestCase {
   /**
    * Tests that human-readable titles are converted to machine names.
    *
-   * Drupal returns permission titles as TranslatableMarkup objects. Strict
-   * comparison against plain string labels would never match, so the backend
-   * must cast the title to string before lookup. This guards against
-   * regressions where automated refactoring flips the comparison to strict
-   * mode without adding the cast.
+   * Drupal returns permission titles as TranslatableMarkup objects. A strict
+   * comparison against a plain string label never matches, so the backend
+   * casts the title to string before the lookup.
    */
   public function testConvertPermissionsMapsStringableTitlesToMachineNames(): void {
     $core = new TestPermissionsCore(__DIR__, 'default');
@@ -42,9 +40,6 @@ class CorePermissionsTest extends TestCase {
     $this->assertSame(['administer content types', 'administer users'], $permissions);
   }
 
-  /**
-   * Tests that titles already in machine name form are left unchanged.
-   */
   public function testConvertPermissionsLeavesMachineNamesAlone(): void {
     $core = new TestPermissionsCore(__DIR__, 'default');
     $core->setPermissions([
@@ -59,9 +54,6 @@ class CorePermissionsTest extends TestCase {
     $this->assertSame(['administer users'], $permissions);
   }
 
-  /**
-   * Tests that 'checkPermissions()' passes for valid machine names.
-   */
   public function testCheckPermissionsAcceptsValidMachineNames(): void {
     $core = new TestPermissionsCore(__DIR__, 'default');
     $core->setPermissions([
@@ -75,9 +67,6 @@ class CorePermissionsTest extends TestCase {
     $this->assertSame(['administer users', 'access content'], $permissions);
   }
 
-  /**
-   * Tests that 'checkPermissions()' throws for unknown machine names.
-   */
   public function testCheckPermissionsThrowsForUnknownPermission(): void {
     $core = new TestPermissionsCore(__DIR__, 'default');
     $core->setPermissions([
@@ -126,9 +115,6 @@ class CorePermissionsTest extends TestCase {
 
       public function __construct(protected string $label) {}
 
-      /**
-       * Renders the stringable into its label.
-       */
       public function __toString(): string {
         return $this->label;
       }

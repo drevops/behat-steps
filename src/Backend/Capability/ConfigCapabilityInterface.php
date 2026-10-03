@@ -73,7 +73,7 @@ interface ConfigCapabilityInterface {
    * Replaces every stored value of a configuration object.
    *
    * Keys absent from the given data are dropped, so restoring a snapshot
-   * removes the keys a scenario added.
+   * removes the keys added since it was taken.
    *
    * @param string $name
    *   The configuration object name.

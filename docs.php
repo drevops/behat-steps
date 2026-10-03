@@ -264,8 +264,8 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
     sort($traits_files);
   }
 
-  // The scan above is consumed as each trait is found, so the membership test
-  // below reads a copy taken before that.
+  // Entries are removed from $traits_files as each trait is found, so the
+  // membership test below reads a copy taken first.
   $vocabulary = $traits_files;
   $collected = [];
 
@@ -523,7 +523,7 @@ function parse_class_comment(string $trait_name, string $comment): array {
 
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
   $lines = explode(PHP_EOL, (string) $comment);
-  // Strips the docblock asterisk and at most one space, so any further
+  // Strips the docblock asterisk and at most 1 space, so any further
   // indentation is preserved.
   $lines = array_map(static fn(string $line): string => preg_replace('/^\s*\* ?/', '', $line), $lines);
 
@@ -534,7 +534,6 @@ function parse_class_comment(string $trait_name, string $comment): array {
     array_pop($lines);
   }
 
-  // Lines are trimmed except inside @code blocks, where indentation is kept.
   $in_code_block = FALSE;
   $lines = array_map(static function (string $line) use (&$in_code_block): string {
     if (str_starts_with(trim($line), '@code')) {
@@ -651,8 +650,6 @@ function parse_method_comment(string $comment): ?array {
   $return['description'] = trim($return['description']);
 
   if (!empty($return['example'])) {
-    // Indentation is removed from the example, with the first line as the
-    // reference.
     $lines = explode(PHP_EOL, $return['example']);
     $first_line = '';
     foreach ($lines as $line) {
@@ -736,7 +733,7 @@ function method_is_registered(\ReflectionMethod $method): bool {
 }
 
 /**
- * Check whether a docblock withdraws the member from the published API.
+ * Check whether a docblock excludes the member from the published API.
  *
  * @param string $comment
  *   The docblock comment.
@@ -1050,7 +1047,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
 }
 
 /**
- * List the contracts a helper trait answers to.
+ * List the contracts the classes composing a helper trait declare.
  *
  * A trait cannot implement an interface, so the class composing it declares
  * the contract instead. A trait method carrying '{@inheritdoc}' is documented
@@ -1114,8 +1111,8 @@ function composes_trait(\ReflectionClass $reflection, string $trait_name): bool 
  * Collect the toolbox methods a class or trait contributes.
  *
  * Visibility is the marker: a public method that Behat does not register is
- * the toolbox, and a protected one is an implementation detail carrying no
- * promise to a consuming project.
+ * part of the toolbox. A protected method is an implementation detail with
+ * no contract to a consuming project.
  *
  * @param \ReflectionClass<object> $reflection
  *   The class or trait reflection.
@@ -1702,7 +1699,6 @@ function validate_step_patterns(array $info): array {
     }
   }
 
-  // Every documented step text is collected once, with the step that owns it.
   $examples = [];
   foreach ($steps as $step) {
     foreach ($step['examples'] as $example) {

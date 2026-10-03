@@ -18,9 +18,9 @@ use DrevOps\BehatSteps\Behat\ParametersTrait;
 /**
  * Logs a user in and out of the site under test.
  *
- * Takes a basic-auth applier rather than applying basic auth itself: a
- * session reset drops request headers, so the credentials are reapplied
- * afterwards, and that is the only overlap between the two concerns.
+ * Takes a basic-auth applier instead of applying basic auth itself. A session
+ * reset drops request headers, so the credentials are reapplied afterwards;
+ * that is the only overlap between the 2 concerns.
  */
 class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
 
@@ -149,8 +149,6 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
       return FALSE;
     }
 
-    // 'getPage()' is declared non-nullable, but a stubbed session can return
-    // NULL, so this guard is not dead code.
     $page = $session->getPage();
     if ($page === NULL) {
       return FALSE;
@@ -177,9 +175,8 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
     }
 
     // As a last resort, a logout link means a user is logged in. A theme that
-    // defers header navigation (Critical CSS or a late JS render) may not
-    // have added the link yet. Poll for it within the 'login_wait' window
-    // that 'logIn()' also uses after submit.
+    // defers header navigation (Critical CSS or a late JS render) may add the
+    // link late, so the poll reuses the 'login_wait' window of 'logIn()'.
     $session->visit($this->locatePath('/'));
     $login_wait = (int) $this->getParameter('login_wait');
     if ($login_wait > 0) {
@@ -251,7 +248,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
    */
   protected function backendLogout(): void {
     // Only a backend the scenario already reached can hold a backend session,
-    // and resolving one here would bootstrap it: teardown logs every scenario
+    // and resolving one here would bootstrap it. Teardown logs every scenario
     // out, so asking for the capability would boot Drupal for all of them.
     $this->backendRegistry->getResolvedBackendFor(AuthenticationCapabilityInterface::class)?->logout();
   }

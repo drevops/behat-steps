@@ -14,9 +14,9 @@ use DrevOps\BehatSteps\Behat\Config\Option;
 /**
  * Append on-failure diagnostics to the failure message of any failed step.
  *
- * When a step fails, the exception message alone is often not enough to
- * diagnose a red CI run. This trait hooks every step and, only when the step
- * failed, appends a compact diagnostics block to the failure message:
+ * The exception message of a failed step is often not enough to diagnose a
+ * CI failure. This trait hooks every step and, only when the step failed,
+ * appends a compact diagnostics block to the failure message:
  *
  * - `URL` - the current page URL.
  * - `HTTP status` - the last response status code.
@@ -210,7 +210,7 @@ trait DiagnosticsTrait {
   /**
    * Return collected JavaScript console error messages.
    *
-   * Two sources are merged and de-duplicated: the `JavascriptTrait` registry
+   * 2 sources are merged and de-duplicated: the `JavascriptTrait` registry
    * when the context also uses it, and the live browser buffer its collector
    * populates. The registry is detected at runtime, so there is no hard
    * dependency on that trait. Both are best-effort and yield nothing under a

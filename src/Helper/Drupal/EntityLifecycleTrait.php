@@ -42,7 +42,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
 trait EntityLifecycleTrait {
 
   /**
-   * The tag that keeps the entities of the type it names after the scenario.
+   * The tag that names an entity type excluded from cleanup.
    */
   protected const ENTITY_LIFECYCLE_CLEANUP_SKIP_TAG = 'behat-steps-entity-cleanup-skip';
 
@@ -66,9 +66,8 @@ trait EntityLifecycleTrait {
   public static function entityLifecycleAlterNodeParameters(BeforeNodeCreateScope $scope): void {
     $stub = $scope->getStub();
 
-    // A backend that writes the node over the command line takes the values as
-    // written, so string dates are converted only for a backend that saves them
-    // through Drupal's own storage.
+    // A command-line backend takes the values as written, so string dates are
+    // converted only for a backend that saves through Drupal's own storage.
     $context = $scope->getContext();
 
     if (!$context instanceof BackendAwareInterface) {
@@ -109,7 +108,7 @@ trait EntityLifecycleTrait {
    * node referencing a term is deleted before the entity it references.
    *
    * '@behat-steps-skip:EntityLifecycleTrait' skips the whole pass, and
-   * '@behat-steps-entity-cleanup-skip:<entity_type_id>' skips one entity
+   * '@behat-steps-entity-cleanup-skip:<entity_type_id>' skips 1 entity
    * type.
    */
   #[AfterScenario]
@@ -394,8 +393,6 @@ trait EntityLifecycleTrait {
     $scope = new $scope_class($environment, $this, $stub);
     $call_results = $this->dispatcher->dispatchScopeHooks($scope);
 
-    // The dispatcher collects exceptions rather than raising them, so the
-    // first one is rethrown here.
     foreach ($call_results as $call_result) {
       $exception = $call_result->getException();
 
@@ -452,7 +449,7 @@ trait EntityLifecycleTrait {
    *
    * Accepts either the machine name (returned as-is) or the human label
    * (looked up via the vocabulary storage). Falls back to the original value
-   * when no label matches, leaving the backend to surface a not-found error.
+   * when no label matches, so the backend reports a not-found error.
    */
   protected function entityLifecycleResolveVocabularyMachineName(string $identifier): string {
     $this->backendFor(CoreCapabilityInterface::class);
@@ -473,10 +470,10 @@ trait EntityLifecycleTrait {
   /**
    * Captures the scalar values on an entity stub.
    *
-   * The backend runs base fields through the field-handler pipeline during
-   * create, which casts scalar values such as 'title', 'name', 'mail' or
-   * 'pass' to single-element arrays. Downstream code expects scalars, so the
-   * values are captured before the backend call and restored after it.
+   * During create, the backend's field-handler pipeline casts scalar
+   * base-field values such as 'title', 'name', 'mail' or 'pass' to
+   * single-element arrays. Downstream code expects scalars, so the values are
+   * captured before the backend call and restored after it.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub to inspect.

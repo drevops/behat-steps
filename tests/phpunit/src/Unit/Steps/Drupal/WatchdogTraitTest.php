@@ -60,7 +60,7 @@ class WatchdogTraitTest extends UnitTestCase {
   /**
    * Tests that an opted-out scenario calls nothing on any backend.
    *
-   * Whether dblog is enabled is never asked, so an opted-out scenario runs
+   * Whether dblog is enabled is never queried, so an opted-out scenario runs
    * the same with or without it.
    *
    * @param array<string, mixed> $steps

@@ -12,13 +12,14 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel round-trip test for DateRecurHandler via the Core backend.
  *
- * The 'date_recur' field type (provided by drupal/date_recur) stores five
+ * The 'date_recur' field type (provided by drupal/date_recur) stores 5
  * columns ('value', 'end_value', 'rrule', 'timezone', 'infinite'), which
  * DefaultHandler cannot marshal. This test proves the backend resolves
  * DateRecurHandler for type 'date_recur' and that the multi-column storage
- * accepts what the handler emits. The 'infinite' column is derived from the
- * rrule by the field type's preSave(), so it is left out of the asserted
- * round-trip.
+ * accepts what the handler emits.
+ *
+ * The 'infinite' column is derived from the rrule by the field type's
+ * preSave(), so it is left out of the asserted round-trip.
  */
 #[CoversClass(DateRecurHandler::class)]
 #[Group('fields')]

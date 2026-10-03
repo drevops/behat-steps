@@ -45,7 +45,7 @@ trait LinkTrait {
   /**
    * Assert a link with a href exists.
    *
-   * Note that simplified wildcard is supported in "href".
+   * A simplified wildcard is supported in "href".
    *
    * @code
    * Then the link "About us" with the href "/about-us" should exist
@@ -60,7 +60,7 @@ trait LinkTrait {
   /**
    * Assert link with a href exists within an element.
    *
-   * Note that simplified wildcard is supported in "href".
+   * A simplified wildcard is supported in "href".
    *
    * @code
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
@@ -97,7 +97,7 @@ trait LinkTrait {
   /**
    * Assert link with a href does not exist.
    *
-   * Note that simplified wildcard is supported in "href".
+   * A simplified wildcard is supported in "href".
    *
    * @code
    * Then the link "About us" with the href "/about-us" should not exist
@@ -112,7 +112,7 @@ trait LinkTrait {
   /**
    * Assert link with a href does not exist within an element.
    *
-   * Note that simplified wildcard is supported in "href".
+   * A simplified wildcard is supported in "href".
    *
    * @code
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist

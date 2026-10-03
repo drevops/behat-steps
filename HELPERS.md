@@ -29,7 +29,7 @@
 | [WaitTrait](#waittrait) | 1 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 6 | Assert XML responses with element and attribute checks. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
-| [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as one set of values per entity. |
+| [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
 
 ### Index of Drupal helpers
 
@@ -180,7 +180,7 @@ Return the JavaScript source to inject into the page
   <summary><code>public function accessibilityGetPrintCli(): bool</code></summary>
 
 <br/>
-Return TRUE to print a one-line per-page summary to the console
+Return TRUE to print a 1-line per-page summary to the console
 <br/><br/>
 
 </details>
@@ -1188,7 +1188,7 @@ Return the configured AJAX timeout, in seconds
   <summary><code>public function xmlParse(string $content): array</code></summary>
 
 <br/>
-Parse XML content without disturbing the cached document
+Parse XML content without altering the cached document
 <br/><br/>
 
 </details>
@@ -1261,7 +1261,7 @@ $this->requestHeadersSet('X-Acme-Token', 'secret');
 
 [Source](src/Helper/Web/TableTransposeTrait.php)
 
-> Reads a vertical Gherkin table as one set of values per entity.
+> Reads a vertical Gherkin table as 1 set of values per entity.
 
 <details>
   <summary><code>public function tableTransposeHorizontal(array $entities): TableNode</code></summary>

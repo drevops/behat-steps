@@ -307,7 +307,7 @@ trait ResponsiveTrait {
    *   The breakpoint name, or NULL when the node carries no @breakpoint tag.
    *
    * @throws \RuntimeException
-   *   If the node carries more than one.
+   *   If the node carries more than 1.
    */
   protected function responsiveFindTagBreakpoint(TaggedNodeInterface $node, string $node_type): ?string {
     $breakpoints = Tag::values($node, self::RESPONSIVE_BREAKPOINT_TAG);
@@ -396,8 +396,7 @@ trait ResponsiveTrait {
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
-      // A browser driver without resize support throws; the exception is
-      // ignored.
+      // A browser driver without resize support throws.
     }
     // @codeCoverageIgnoreEnd
   }

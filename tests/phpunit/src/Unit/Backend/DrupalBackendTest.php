@@ -51,11 +51,11 @@ class DrupalBackendTest extends TestCase {
   }
 
   /**
- * Tests that DrupalBackend advertises every capability.
- *
- * @param string $capability_class
- *   The capability interface name.
- */
+   * Tests that DrupalBackend advertises every capability.
+   *
+   * @param string $capability_class
+   *   The capability interface name.
+   */
   #[DataProvider('dataProviderImplementsCapability')]
   public function testImplementsCapability(string $capability_class): void {
     $this->assertTrue(is_subclass_of(DrupalBackend::class, $capability_class), sprintf(
@@ -82,9 +82,6 @@ class DrupalBackendTest extends TestCase {
 
   /**
    * Tests that 'detectMajorVersion()' rejects an unparseable version string.
-   *
-   * Uses a fixture subclass to inject a non-numeric version value without
-   * touching the real '\Drupal::VERSION' constant.
    */
   public function testDetectMajorVersionRejectsNonNumeric(): void {
     $this->expectException(BootstrapException::class);
@@ -94,9 +91,6 @@ class DrupalBackendTest extends TestCase {
     new FakeVersionDrupalBackend(self::DRUPAL_ROOT, 'default');
   }
 
-  /**
-   * Tests that 'detectMajorVersion()' rejects pre-11 versions.
-   */
   public function testDetectMajorVersionRejectsPre11(): void {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessageMatches('/Unsupported Drupal core version/');
@@ -141,9 +135,6 @@ class DrupalBackendTest extends TestCase {
     }
   }
 
-  /**
-   * Data provider for 'testDetectMajorVersionRejectsPartialRoot()'.
-   */
   public static function dataProviderDetectMajorVersionRejectsPartialRoot(): \Iterator {
     yield 'bootstrap include missing' => ['/autoload.php', '/core/includes/bootstrap.inc'];
     yield 'autoloader missing' => ['/core/includes/bootstrap.inc', '/autoload.php'];

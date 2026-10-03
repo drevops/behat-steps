@@ -40,8 +40,8 @@ $profile = (new Profile('default'))
     ],
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
-    // Both the allow-list and the precedence order: a step resolves the first
-    // backend here that provides the capability the step needs.
+    // The list is both the allow-list and the precedence order: a step
+    // resolves the first backend here that provides the capability it needs.
     'backends' => ['drupal', 'drush', 'blackbox'],
     'login_field' => 'name',
     'login_wait' => 0,

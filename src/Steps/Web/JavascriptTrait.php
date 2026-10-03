@@ -140,8 +140,6 @@ trait JavascriptTrait {
       return;
     }
 
-    // Collection runs through the Mink script API, which is the same for every
-    // browser driver, so any JavaScript-capable one qualifies.
     // @codeCoverageIgnoreStart
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
@@ -176,8 +174,6 @@ trait JavascriptTrait {
       return;
     }
 
-    // Collection runs through the Mink script API, which is the same for every
-    // browser driver, so any JavaScript-capable one qualifies.
     // @codeCoverageIgnoreStart
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
@@ -201,8 +197,8 @@ trait JavascriptTrait {
       return;
     }
 
-    // Asserted outside the collection block above so the blanket catch cannot
-    // swallow the failure.
+    // The assertion runs outside the try block above, so the blanket catch
+    // cannot swallow the failure.
     $this->javascriptAsserted = TRUE;
     $this->javascriptAssertErrorsNotExist();
   }
@@ -294,7 +290,6 @@ JS;
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
-      // Script evaluation can throw.
     }
     // @codeCoverageIgnoreEnd
   }

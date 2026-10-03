@@ -41,9 +41,8 @@ class HookAttributeReaderTest extends TestCase {
     $this->assertCount(1, $callees);
     $this->assertInstanceOf(AfterNodeCreate::class, $callees[0]);
 
-    // Behat 3 takes the '[class, method]' pair and Behat 4 wraps an instance
-    // method in a late-bound callable. The assertion targets the method the
-    // callee resolves to, not the shape it is carried in.
+    // The assertion targets the method the callee resolves to, not the shape
+    // of its callable.
     $reflection = $callees[0]->getReflection();
 
     $this->assertInstanceOf(\ReflectionMethod::class, $reflection);

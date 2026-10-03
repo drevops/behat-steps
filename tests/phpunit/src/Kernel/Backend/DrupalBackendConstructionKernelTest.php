@@ -54,9 +54,6 @@ class DrupalBackendConstructionKernelTest extends KernelTestBase {
     new DrupalBackend('/nonexistent/path/that/will/never/exist', 'default');
   }
 
-  /**
-   * Tests 'setCoreFromVersion()' picks the default Core.
-   */
   public function testSetCoreFromVersionSelectsDefaultCore(): void {
     $backend = new DrupalBackend($this->root, 'default');
     $backend->setCoreFromVersion();

@@ -11,17 +11,17 @@ use DrevOps\BehatSteps\Behat\Mink\Adapter\ChromeAdapter;
 use DrevOps\BehatSteps\Behat\Mink\Adapter\Selenium2Adapter;
 
 /**
- * Answers what a session's browser driver can do.
+ * Resolves the capabilities of a session's browser driver.
  *
  * Mirrors 'BackendRegistry::getBackendFor()' on the Drupal side: a step names
- * the capability it needs and never a browser driver, so a project
- * registering its own browser driver gets the shipped steps working as soon
- * as it registers an adapter declaring that capability.
+ * the capability it needs and never a browser driver. A project registering
+ * its own browser driver therefore runs the shipped steps as soon as it
+ * registers an adapter declaring that capability.
  */
 class BrowserCapabilityResolver {
 
   /**
-   * Adapter classes, in the order they are offered a browser driver.
+   * Adapter classes, in the order they are tried for a browser driver.
    *
    * @var array<int, class-string<\DrevOps\BehatSteps\Behat\Mink\BrowserAdapterInterface>>
    */
@@ -32,7 +32,7 @@ class BrowserCapabilityResolver {
   ];
 
   /**
-   * Adapters already built, keyed by the browser driver they speak for.
+   * Adapters already built, keyed by the browser driver they wrap.
    *
    * Keyed by the object rather than its id, because PHP reuses an object id
    * once the object it belonged to is collected.
@@ -52,7 +52,7 @@ class BrowserCapabilityResolver {
    * Registers an adapter class ahead of the shipped ones.
    *
    * @param class-string<\DrevOps\BehatSteps\Behat\Mink\BrowserAdapterInterface> $adapter
-   *   The adapter class to offer a browser driver first.
+   *   The adapter class to try first for a browser driver.
    */
   public function registerAdapter(string $adapter): void {
     array_unshift($this->adapters, $adapter);
@@ -89,8 +89,8 @@ class BrowserCapabilityResolver {
    * Whether the given browser driver provides a capability.
    *
    * Pairs with 'resolve()' the way 'BackendRegistryInterface::hasCapability()'
-   * pairs with 'getBackendFor()': a step that degrades gracefully asks this,
-   * and a step that cannot proceed without the capability calls 'resolve()'.
+   * pairs with 'getBackendFor()': this fits a capability the caller can do
+   * without, and 'resolve()' one it cannot.
    *
    * @param \Behat\Mink\Driver\DriverInterface $driver
    *   The browser driver the session is running.
@@ -102,7 +102,7 @@ class BrowserCapabilityResolver {
   }
 
   /**
-   * Returns the adapter speaking for a browser driver, or NULL when none does.
+   * Returns the adapter for a browser driver, or NULL when none supports it.
    *
    * @param \Behat\Mink\Driver\DriverInterface $driver
    *   The browser driver the session is running.

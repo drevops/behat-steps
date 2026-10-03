@@ -17,9 +17,6 @@ use PHPUnit\Framework\TestCase;
 #[Group('entity')]
 class EntityStubTest extends TestCase {
 
-  /**
-   * Tests that the constructor pins entity type and bundle.
-   */
   public function testConstructorPinsTypeAndBundle(): void {
     $stub = new EntityStub('node', 'article');
 
@@ -27,9 +24,6 @@ class EntityStubTest extends TestCase {
     $this->assertSame('article', $stub->getBundle());
   }
 
-  /**
-   * Tests that the constructor accepts an initial values bag.
-   */
   public function testConstructorAcceptsInitialValues(): void {
     $stub = new EntityStub('node', 'article', ['title' => 'Hello']);
 
@@ -47,9 +41,6 @@ class EntityStubTest extends TestCase {
     $this->assertNull($stub->getBundle());
   }
 
-  /**
-   * Tests that 'getValue()' returns the supplied default for unset keys.
-   */
   public function testGetValueReturnsDefaultWhenAbsent(): void {
     $stub = new EntityStub('node', 'article');
 
@@ -57,9 +48,6 @@ class EntityStubTest extends TestCase {
     $this->assertSame('fallback', $stub->getValue('title', 'fallback'));
   }
 
-  /**
-   * Tests that 'setValue()' returns $this for chaining.
-   */
   public function testSetValueIsChainable(): void {
     $stub = new EntityStub('node', 'article');
 
@@ -72,10 +60,6 @@ class EntityStubTest extends TestCase {
 
   /**
    * Tests that 'hasValue()' is true even when the stored value is NULL.
-   *
-   * Pinned alongside the 'getValue()' assertion so a regression that replaces
-   * 'array_key_exists()' with the null-coalescing operator surfaces here
-   * rather than downstream.
    */
   public function testHasValueDistinguishesNullFromAbsent(): void {
     $stub = new EntityStub('node', 'article');
@@ -87,9 +71,6 @@ class EntityStubTest extends TestCase {
     $this->assertSame('fallback', $stub->getValue('promote', 'fallback'), 'Unset key falls back to the supplied default.');
   }
 
-  /**
-   * Tests that 'removeValue()' deletes a key from the bag.
-   */
   public function testRemoveValueDeletesKey(): void {
     $stub = new EntityStub('node', 'article', ['title' => 'Hello']);
 
@@ -99,9 +80,6 @@ class EntityStubTest extends TestCase {
     $this->assertSame([], $stub->getValues());
   }
 
-  /**
-   * Tests that 'setValues()' replaces the bag wholesale.
-   */
   public function testSetValuesReplacesBag(): void {
     $stub = new EntityStub('node', 'article', ['title' => 'Old']);
 
@@ -111,9 +89,6 @@ class EntityStubTest extends TestCase {
     $this->assertSame(1, $stub->getValue('promote'));
   }
 
-  /**
-   * Tests that 'isSaved()' flips after 'markSaved()'.
-   */
   public function testIsSavedFlipsAfterMarkSaved(): void {
     $stub = new EntityStub('node', 'article');
 
@@ -124,9 +99,6 @@ class EntityStubTest extends TestCase {
     $this->assertTrue($stub->isSaved());
   }
 
-  /**
-   * Tests that 'getSavedEntity()' returns the supplied entity.
-   */
   public function testGetSavedEntityReturnsAttachedObject(): void {
     $entity = (object) ['id' => 7];
     $stub = new EntityStub('node', 'article');
@@ -135,9 +107,6 @@ class EntityStubTest extends TestCase {
     $this->assertSame($entity, $stub->getSavedEntity());
   }
 
-  /**
-   * Tests that 'getSavedEntity()' throws on an unsaved stub.
-   */
   public function testGetSavedEntityThrowsWhenUnsaved(): void {
     $stub = new EntityStub('node', 'article');
 
@@ -168,18 +137,12 @@ class EntityStubTest extends TestCase {
     $this->assertSame(42, $stub->getId());
   }
 
-  /**
-   * Tests that 'getId()' returns NULL when the stub is not saved.
-   */
   public function testGetIdReturnsNullWhenUnsaved(): void {
     $stub = new EntityStub('node', 'article');
 
     $this->assertNull($stub->getId());
   }
 
-  /**
-   * Tests that 'getId()' returns NULL when the saved entity has no 'id()'.
-   */
   public function testGetIdReturnsNullWhenSavedEntityHasNoIdMethod(): void {
     $stub = new EntityStub('node', 'article');
     $stub->markSaved((object) ['identifier' => 'x']);
@@ -187,9 +150,6 @@ class EntityStubTest extends TestCase {
     $this->assertNull($stub->getId());
   }
 
-  /**
-   * Tests that the bundle key defaults to 'type' and is mutable.
-   */
   public function testBundleKeyDefaultsToTypeAndIsMutable(): void {
     $stub = new EntityStub('taxonomy_term', 'tags');
 
@@ -202,9 +162,6 @@ class EntityStubTest extends TestCase {
     $this->assertSame('vid', $stub->getBundleKey());
   }
 
-  /**
-   * Tests that the stub implements the documented interface.
-   */
   public function testImplementsInterface(): void {
     $this->assertInstanceOf(EntityStubInterface::class, new EntityStub('node'));
   }

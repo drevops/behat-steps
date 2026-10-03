@@ -10,12 +10,12 @@ use Behat\Mink\Element\TraversableElement;
 /**
  * Document element that reads page text the way a browser renders it.
  *
- * Registered as a 'class_alias' over Mink's own 'DocumentElement', so it must
- * extend 'TraversableElement' rather than that class: the alias is installed
- * before the Mink class is autoloaded.
+ * Registered as a 'class_alias' over Mink's own 'DocumentElement'. The alias
+ * is installed before the Mink class is autoloaded, so this class extends
+ * 'TraversableElement' and not the class it replaces.
  *
- * Under BrowserKit, Mink reads the text of the '//html' node, which counts the
- * contents of '<head>' and Drupal's settings JSON as page text, and throws
+ * Under BrowserKit, Mink reads the text of the '//html' node, so the contents
+ * of '<head>' and Drupal's settings JSON count as page text. It also throws
  * outright on a response that is not HTML.
  *
  * @see https://github.com/minkphp/MinkBrowserKitDriver/issues/153

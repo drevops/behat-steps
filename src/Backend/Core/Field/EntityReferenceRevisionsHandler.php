@@ -10,8 +10,8 @@ use Drupal\Core\Entity\RevisionableInterface;
 /**
  * Field handler for 'entity_reference_revisions' fields (Paragraphs et al).
  *
- * A revision reference resolves its target the same way a plain entity
- * reference does, then records the target's revision id beside the id.
+ * The handler resolves the target as 'EntityReferenceHandler' does, then
+ * records the target's revision id beside the id.
  */
 class EntityReferenceRevisionsHandler extends EntityReferenceHandler {
 

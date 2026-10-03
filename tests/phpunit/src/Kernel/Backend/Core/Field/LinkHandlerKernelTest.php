@@ -13,8 +13,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel round-trip test for link fields via the Core backend.
  *
  * Link is a multi-property field (uri, title, options). This test verifies
- * the base class helper handles associative-array deltas correctly and that
- * LinkHandler's output - including the enforced empty 'options' array -
+ * that the base helper handles associative-array deltas and that
+ * LinkHandler's output, including the enforced empty 'options' array,
  * round-trips through real storage.
  */
 #[CoversClass(LinkHandler::class)]
@@ -32,9 +32,6 @@ class LinkHandlerKernelTest extends FieldHandlerKernelTestBase {
     'link',
   ];
 
-  /**
-   * Tests round-trip for a link with both uri and title.
-   */
   public function testLinkWithTitleRoundTrip(): void {
     $this->attachField('field_homepage', 'link');
 
@@ -48,8 +45,8 @@ class LinkHandlerKernelTest extends FieldHandlerKernelTestBase {
    *
    * LinkHandler converts a bare string into ['uri' => $string] during expand,
    * so the backend-mutated stub holds an array after entityCreate. The base
-   * assertion compares that mutated array against the stored field - which
-   * proves the scalar-to-array normalization reached storage intact.
+   * assertion compares that array against the stored field and so checks
+   * that the scalar-to-array normalization reached storage intact.
    */
   public function testUriOnlyStringRoundTrip(): void {
     $this->attachField('field_homepage', 'link');

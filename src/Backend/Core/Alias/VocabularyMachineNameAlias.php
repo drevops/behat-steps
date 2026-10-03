@@ -12,9 +12,10 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  *
  * The typed bundle constructor argument and an explicit 'vid' value
  * both take priority over this alias. When neither is present the
- * alias value is copied to 'vid'. The alias key is always removed once
- * handled. The alias does not validate vocabulary existence - the
- * create method does that after all pre-create aliases have run.
+ * alias value is copied to 'vid'.
+ *
+ * The alias key is always removed once handled. The alias does not
+ * validate vocabulary existence.
  */
 class VocabularyMachineNameAlias implements PreCreateAliasInterface {
 

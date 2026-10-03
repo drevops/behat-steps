@@ -17,11 +17,11 @@ use Drupal\Component\Utility\Random;
  * Replace random-value tokens in step arguments and table cells.
  *
  * - Resolve `[?<name>:<type>[,<args>]]` tokens to generated values.
- * - Return one value per token for the whole scenario.
+ * - Return 1 value per token for the whole scenario.
  *
  * Built-in types are `string`, `name`, `machine_name`, `int`, `email` and
  * `uuid`. The default is `string` with length `10`, so `[?title]`,
- * `[?title:string]` and `[?title:string,10]` share one value.
+ * `[?title:string]` and `[?title:string,10]` share 1 value.
  *
  * Operates on Gherkin text alone: no Mink session and no backend, so the trait
  * works in any suite.
@@ -35,21 +35,21 @@ trait RandomTrait {
   protected const RANDOM_BRACKET_REGEX = '#(\[\?[a-z0-9_]+(?::[^\]]+)?\])#i';
 
   /**
-   * Token literal as it appears in the feature file -> canonical cache key.
+   * Maps each token literal in the feature file to its canonical cache key.
    *
-   * Parsing memo so the same literal does not get re-parsed on every
-   * transform invocation.
+   * The map caches the parsed key, so the same literal is not re-parsed on
+   * every transform invocation.
    *
    * @var array<string, string>
    */
   protected array $randomLiterals = [];
 
   /**
-   * Canonical cache key -> generated value.
+   * Maps each canonical cache key to its generated value.
    *
-   * Canonical key is 'name:type:arg1,arg2,...' with defaults applied,
-   * so '[?title]', '[?title:string]' and '[?title:string,10]' collapse
-   * to the same key.
+   * The canonical key is 'name:type:arg1,arg2,...' with defaults applied,
+   * so '[?title]', '[?title:string]' and '[?title:string,10]' share the
+   * same key.
    *
    * @var array<string, string|int>
    */
@@ -69,16 +69,13 @@ trait RandomTrait {
    * Pre-resolves every token literal found in the current scenario.
    *
    * Every literal is cached before the first step runs, so repeated token
-   * literals stay stable. This holds even when the first occurrence is inside
-   * a step argument that Behat dispatches before the rest are visited.
+   * literals stay stable.
    */
   #[BeforeScenario]
   public function randomBeforeScenario(BeforeScenarioScope $scope): void {
     $this->randomValues = [];
     $this->randomLiterals = [];
 
-    // A transform receives no scope, so the decision is made here and the
-    // transforms read the result.
     $this->randomEnabled = !$this->skipTag(__TRAIT__, $scope);
 
     if (!$this->randomEnabled) {
@@ -244,7 +241,7 @@ trait RandomTrait {
   }
 
   /**
-   * Validates length-style args (one optional non-negative integer).
+   * Validates length-style args (1 optional non-negative integer).
    *
    * @param string $type
    *   The generator type, used for error messages.
@@ -271,7 +268,7 @@ trait RandomTrait {
   }
 
   /**
-   * Validates 'int' args (zero args for full range, or two integer bounds).
+   * Validates 'int' args (0 args for full range, or 2 integer bounds).
    *
    * @param list<string> $args
    *   Raw args parsed from the token literal.
@@ -320,7 +317,7 @@ trait RandomTrait {
    * Dispatches to the type-specific generator.
    *
    * 'randomNormalizeArgs()' has already validated the args, so the casts are
-   * safe and not a fallback.
+   * safe.
    *
    * @param string $type
    *   The generator type extracted from the token.

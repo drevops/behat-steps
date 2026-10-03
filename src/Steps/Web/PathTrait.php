@@ -34,8 +34,8 @@ trait PathTrait {
   public function pathSetBasicAuth(string $username, string $password): void {
     $this->getSession()->setBasicAuth($username, $password);
 
-    // The browser driver keeps the credentials to itself, so the requests the
-    // library sends outside the session read them from the header bag.
+    // The browser driver does not expose the credentials, so requests the
+    // library sends outside the session read them from `$requestHeaders`.
     $this->requestHeadersSet('Authorization', 'Basic ' . base64_encode($username . ':' . $password));
   }
 

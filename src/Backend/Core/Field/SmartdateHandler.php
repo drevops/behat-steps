@@ -17,8 +17,8 @@ class SmartdateHandler extends AbstractHandler {
       return [];
     }
 
-    // A bare scalar is the start of a single delta; wrapping it here lets the
-    // positional branch below read it as '[start]'.
+    // A bare scalar is the start of a single delta, so it becomes the
+    // positional record '[start]'.
     if (!is_array($values)) {
       $values = [$values];
     }

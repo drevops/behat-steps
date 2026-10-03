@@ -14,8 +14,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests creation-alias discovery on 'DrushBackend'.
- *
- * Drush owns 'RolesAlias' (post-create) and nothing else by default.
  */
 #[CoversClass(DrushBackend::class)]
 #[Group('backends')]
@@ -30,9 +28,6 @@ class DrushBackendCreationAliasesTest extends TestCase {
     $this->assertContains(CreationAliasCapabilityInterface::class, (array) class_implements(DrushBackend::class));
   }
 
-  /**
-   * Tests that 'roles' is registered for the user entity type.
-   */
   public function testRolesAliasRegisteredForUser(): void {
     $backend = new DrushBackend('test-alias');
 
@@ -52,18 +47,12 @@ class DrushBackendCreationAliasesTest extends TestCase {
     $this->assertSame([], $backend->getCreationAliases('taxonomy_term'));
   }
 
-  /**
-   * Tests that 'getCreationAliases()' returns '[]' for unknown entity types.
-   */
   public function testGetCreationAliasesReturnsEmptyForUnknown(): void {
     $backend = new DrushBackend('test-alias');
 
     $this->assertSame([], $backend->getCreationAliases('unknown_type'));
   }
 
-  /**
-   * Tests that re-registering an alias replaces the previous instance.
-   */
   public function testRegisterCreationAliasReplacesByName(): void {
     $backend = new DrushBackend('test-alias');
 

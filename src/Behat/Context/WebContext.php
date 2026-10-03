@@ -44,7 +44,7 @@ use DrevOps\BehatSteps\Steps\Web\XmlTrait;
  * 'WebRawContext' plus every trait under 'Steps\Web'.
  *
  * A trait that can fail a scenario on a check the scenario did not ask for
- * carries an 'enabled' option, so a project switches it off through
+ * carries an 'enabled' option. A project switches it off through
  * configuration rather than by composing its own context.
  *
  * A Drupal suite extends 'DrupalContext', which extends this class, so it
@@ -87,12 +87,12 @@ class WebContext extends WebRawContext {
   /**
    * Rejects a suite that registers this context and a subclass of it.
    *
-   * Both register the same 28 web traits, and Behat reports that as a
+   * Both register the same 28 web traits. Behat reports that as a
    * 'RedundantStepException' naming whichever step text it reached first,
    * which says nothing about the cause.
    *
    * @throws \RuntimeException
-   *   When the suite registers two contexts that both carry this class.
+   *   When the suite registers 2 contexts that both carry this class.
    */
   #[BeforeSuite]
   public static function assertOneContext(BeforeSuiteScope $scope): void {

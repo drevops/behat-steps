@@ -6,9 +6,10 @@
  *
  * A trait's directory determines its kind: 'src/Steps' holds the step
  * vocabulary and 'src/Helper' holds the plumbing shared by step traits. Each
- * is split into a 'Web' and a 'Drupal' half. This script reads both trees and
- * fails when a step trait composes another step trait, or when a helper trait
- * registers Gherkin.
+ * is split into a 'Web' and a 'Drupal' half.
+ *
+ * This script reads both trees and fails when a step trait composes another
+ * step trait, or when a helper trait registers Gherkin.
  *
  * A helper may register a hook: the trait that owns a teardown carries the
  * hook that runs it.

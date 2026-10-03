@@ -76,13 +76,10 @@ trait FixtureFileTrait {
       // Parsed shapes produced by 'EntityFieldParser' or the legacy parser:
       // - scalar: 'foo.jpg' (treated as single-value)
       // - scalar list: ['foo.jpg', 'bar.jpg'] (multi-value)
-      // - keyed record: ['target_id' => 'foo.jpg', 'alt' => 'A'] (single compound)
-      // - list of records: [['target_id' => 'foo.jpg', 'alt' => 'A'], ...] (multi-value compound)
-      //
-      // Numerically-indexed arrays (lists) are iterated element-by-element so
-      // every delta is resolved. Keyed records and bare scalars are wrapped
-      // in a single-element list, processed once, and unwrapped when written
-      // back to the stub.
+      // - keyed record: ['target_id' => 'foo.jpg', 'alt' => 'A']
+      //   (single compound)
+      // - list of records: [['target_id' => 'foo.jpg', 'alt' => 'A'], ...]
+      //   (multi-value compound)
       $is_list = is_array($value) && array_is_list($value);
       $records = $is_list ? $value : [$value];
       $mutated = FALSE;

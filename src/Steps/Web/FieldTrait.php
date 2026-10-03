@@ -29,7 +29,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * - Assert field existence, state, and selected options.
  * - Support for specialized widgets like color pickers and rich text editors.
  * - Disable browser validation for forms with deferred execution.
- * - Use @disable-form-validation tag to automatically disable validation for all forms.
+ * - The @disable-form-validation tag disables validation for all forms.
  *
  * Skip processing with tag: `@behat-steps-skip:FieldTrait`
  *
@@ -141,9 +141,9 @@ trait FieldTrait {
   /**
    * Fill in a multi-value field widget with a list of values.
    *
-   * Locates the field wrapper by label, counts existing rows, clicks
-   * "Add another item" as many times as needed (waiting for AJAX between
-   * clicks), and fills each row in order.
+   * Locates the field wrapper by label and counts existing rows. "Add another
+   * item" is clicked as many times as needed, waiting for AJAX between clicks,
+   * and each row is filled in order.
    *
    * Requires a JavaScript-capable browser driver because the "Add another
    * item" button relies on AJAX.
@@ -306,14 +306,12 @@ JS;
 
     $parent_element = $element->getParent();
 
-    // Support CKEditor 4.
     $is_ckeditor_4 = !empty($driver->find($parent_element->getXpath() . "/div[contains(@class,'cke')]"));
     if ($is_ckeditor_4) {
       $script = <<<JS
         CKEDITOR.instances[{$element_id_js}].setData({$value_js});
 JS;
     }
-    // Support CKEditor 5.
     else {
       $script = <<<JS
         (function() {
@@ -489,8 +487,8 @@ JS;
   /**
    * Fill in a field identified by CSS selector.
    *
-   * Use this when the field cannot be reliably located by label, id, or name
-   * (e.g., dynamically generated fields in Paragraphs or Layout Builder).
+   * This step suits a field that cannot be reliably located by label, id, or
+   * name (e.g., dynamically generated fields in Paragraphs or Layout Builder).
    *
    * @code
    * When I fill in the field ".field--name-body textarea" with the value "Hello world"
@@ -511,7 +509,7 @@ JS;
   /**
    * Fill in datetime field with date and optionally time.
    *
-   * Leave time empty if not needed.
+   * An empty time is ignored.
    *
    * @code
    * When I fill in the datetime field "Event date" with the date "2024-01-15" and the time "14:30:00"
@@ -553,7 +551,7 @@ JS;
   /**
    * Fill in start datetime field with date and optionally time.
    *
-   * For date range fields. Leave time empty if not needed.
+   * Applies to date range fields. An empty time is ignored.
    *
    * @code
    * When I fill in the start datetime field "Event period" with the date "2024-01-15" and the time "14:30:00"
@@ -571,7 +569,7 @@ JS;
   /**
    * Fill in end datetime field with date and optionally time.
    *
-   * For date range fields. Leave time empty if not needed.
+   * Applies to date range fields. An empty time is ignored.
    *
    * @code
    * When I fill in the end datetime field "Event period" with the date "2024-01-20" and the time "18:00:00"
@@ -688,10 +686,11 @@ JS;
   /**
    * Assert that a field is marked as required.
    *
-   * Checks the `required_marker_selectors` option against the field, then the
-   * associated label, then a `*` character in the label text, then any
-   * descendant of the label matching a selector. The default selectors are
-   * `.form-required` and `[required]`.
+   * Checks the `required_marker_selectors` option against the field, then
+   * against the associated label. Next, a `*` character in the label text is
+   * checked, then any descendant of the label matching a selector.
+   *
+   * The default selectors are `.form-required` and `[required]`.
    *
    * @code
    * Then the field "Email" should be required
@@ -924,7 +923,7 @@ JS;
    * CSS selectors that indicate a required-field marker.
    *
    * A single-class selector such as `.form-required` and a bare-attribute
-   * selector such as `[required]` are read off the field and its label; any
+   * selector such as `[required]` are read off the field and its label. Any
    * other selector is matched against the label's subtree.
    *
    * @return array<int, string>
@@ -937,9 +936,9 @@ JS;
   /**
    * Check if a given field element is marked as required.
    *
-   * Checks the configured marker selectors against the field, then the
-   * associated label, then a `*` character in the label text, then any
-   * descendant of the label matching a selector.
+   * Checks the configured marker selectors against the field, then against
+   * the associated label. Next, a `*` character in the label text is checked,
+   * then any descendant of the label matching a selector.
    */
   public function fieldIsMarkedRequired(NodeElement $field_element): bool {
     $selectors = $this->fieldGetRequiredMarkerSelectors();
@@ -981,8 +980,8 @@ JS;
    * Check whether an element itself carries one of the marker selectors.
    *
    * Mink can search within an element but cannot test the element against a
-   * selector, so the two selector shapes the markers use are read off the
-   * element directly.
+   * selector. The 2 selector shapes the markers use are read off the element
+   * directly instead.
    *
    * @param \Behat\Mink\Element\NodeElement $element
    *   The element to test.
@@ -1007,7 +1006,7 @@ JS;
   }
 
   /**
-   * The path of the current page, as used in failure messages.
+   * The path of the current page.
    *
    * @return string
    *   The path component of the current URL.
@@ -1035,7 +1034,7 @@ JS;
   /**
    * Disable browser validation for forms.
    *
-   * Silently handles cases where forms don't exist yet (deferred execution).
+   * A selector that matches no form raises no error.
    *
    * @param string|null $selector
    *   The CSS selector for form(s). If NULL, disables all forms on page.

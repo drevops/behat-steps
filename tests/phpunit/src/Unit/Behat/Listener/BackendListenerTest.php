@@ -136,12 +136,6 @@ class BackendListenerTest extends TestCase {
     ];
   }
 
-  /**
-   * Tests that an example's outline tags and table tags rank together.
-   *
-   * Gherkin merges the outline's tags and the 'Examples:' table's tags into the
-   * example's own list, outline first.
-   */
   public function testExampleRanksOutlineAndTableTagsTogether(): void {
     $table = new ExampleTableNode([1 => ['name'], 2 => ['value']], 'Examples', ['backend:drush']);
     $outline = new OutlineNode('Outline', ['backend:blackbox'], [], $table, 'Scenario Outline', 2);
@@ -262,9 +256,6 @@ class BackendListenerTest extends TestCase {
     $this->assertSame(['api', 'javascript', 'error'], $this->scenarioTags->getTags());
   }
 
-  /**
-   * Tests that each scenario replaces the tags of the one before it.
-   */
   public function testTheTagsOfOneScenarioDoNotLeakIntoTheNext(): void {
     $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTags, self::BACKENDS);
 

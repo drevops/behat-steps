@@ -21,7 +21,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * declared in does not take part in the lookup.
  *
  * The transform matches the token's braces rather than a placeholder name, so
- * one map covers every string argument without the step opting in.
+ * 1 map covers every string argument without the step opting in.
  *
  * Operates on Gherkin text alone: no Mink session and no backend, so the trait
  * works in any suite.
@@ -33,7 +33,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
 trait MappingTrait {
 
   /**
-   * Matches one `{{ Key }}` token, capturing the still-untrimmed key.
+   * Matches 1 `{{ Key }}` token, capturing the still-untrimmed key.
    */
   protected const MAPPING_TOKEN_REGEX = '#\{\{(.+?)\}\}#';
 
@@ -136,7 +136,7 @@ trait MappingTrait {
    * Flattens the configured groups into a single key to value map.
    *
    * A group is a way to organise the configuration and takes no part in the
-   * lookup, so a key appearing in two groups would make its bare-key token
+   * lookup, so a key appearing in 2 groups would make its bare-key token
    * ambiguous.
    *
    * @return array<string, string>

@@ -19,7 +19,7 @@ class RegionSelector implements SelectorInterface {
    * Constructs a RegionSelector.
    *
    * @param \Behat\Mink\Selector\CssSelector $cssSelector
-   *   The CSS selector that performs the actual CSS-to-XPath translation.
+   *   The CSS selector that translates CSS to XPath.
    * @param array<string, string> $regions
    *   Map of region names to CSS selectors, sourced from the extension's
    *   'regions' configuration.

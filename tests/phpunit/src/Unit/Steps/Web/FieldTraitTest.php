@@ -63,7 +63,7 @@ class FieldTraitTest extends UnitTestCase {
   }
 
   public function testFillMultiValueRequiresJavascriptDriver(): void {
-    // No adapter speaks for a bare driver mock, so the step resolves no
+    // No adapter supports a bare driver mock, so the step resolves no
     // JavaScript capability.
     $this->expectException(UnsupportedDriverActionException::class);
     $this->expectExceptionMessage(sprintf('No browser capability "%s" is available', JavascriptCapabilityInterface::class));
@@ -74,8 +74,8 @@ class FieldTraitTest extends UnitTestCase {
   public function testFillMultiValueThrowsWhenInputRowIsMissing(): void {
     $this->testObject->getBrowserResolver()->registerAdapter(AnyDriverAdapter::class);
 
-    // Zero existing inputs count as one row, so no "Add another item" click
-    // is attempted and the first value has no input to fill.
+    // 0 existing inputs count as 1 row, so no "Add another item" click is
+    // attempted. The first value then has no input to fill.
     $wrapper = $this->createMock(NodeElement::class);
     $wrapper->method('findAll')->willReturn([]);
     $this->page->method('find')->willReturn($wrapper);

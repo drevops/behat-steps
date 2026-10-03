@@ -145,7 +145,7 @@ class ContextConfigTest extends UnitTestCase {
     yield 'a hook tag does not skip the hook' => ['SampleTrait', ['behat-steps-skip:sampleBeforeScenario'], [], FALSE];
     yield 'another trait tag does not skip the hook' => ['SampleTrait', ['behat-steps-skip:SampleExtraTrait'], [], FALSE];
 
-    // 'SampleExtraTrait' starts with 'Sample', and each trait keeps to its own
+    // 'SampleExtraTrait' starts with 'Sample', and each trait maps to its own
     // group in both directions.
     yield 'a disabled group skips its own trait' => ['SampleExtraTrait', [], ['sample_extra' => ['enabled' => FALSE]], TRUE];
     yield 'a disabled group leaves a trait extending its name running' => ['SampleExtraTrait', [], ['sample' => ['enabled' => FALSE]], FALSE];

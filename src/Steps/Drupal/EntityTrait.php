@@ -19,7 +19,7 @@ use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
  * created here are removed after the scenario along with every other entity
  * the scenario created.
  *
- * Skip cleanup for one type with tag:
+ * Skip cleanup for 1 type with tag:
  * `@behat-steps-entity-cleanup-skip:commerce_product`.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
