@@ -368,15 +368,15 @@ trait AccessibilityTrait {
     $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
     $messages = [];
 
-    foreach ($this->accessibilityResults as $r) {
-      $display_url = $this->accessibilityFormatUrl((string) $r['url']);
+    foreach ($this->accessibilityResults as $result) {
+      $display_url = $this->accessibilityFormatUrl((string) $result['url']);
 
-      foreach ($this->accessibilityFilterViolations($r['result']['violations'] ?? [], $threshold) as $v) {
-        $messages[] = sprintf('  violation [%s] %s on %s', $v['impact'] ?? 'unknown', $v['id'] ?? '', $display_url);
+      foreach ($this->accessibilityFilterViolations($result['result']['violations'] ?? [], $threshold) as $violation) {
+        $messages[] = sprintf('  violation [%s] %s on %s', $violation['impact'] ?? 'unknown', $violation['id'] ?? '', $display_url);
       }
       if ($check_incomplete) {
-        foreach ($r['result']['incomplete'] ?? [] as $i) {
-          $messages[] = sprintf('  incomplete [%s] %s on %s', $i['impact'] ?? 'unknown', $i['id'] ?? '', $display_url);
+        foreach ($result['result']['incomplete'] ?? [] as $issue) {
+          $messages[] = sprintf('  incomplete [%s] %s on %s', $issue['impact'] ?? 'unknown', $issue['id'] ?? '', $display_url);
         }
       }
     }
@@ -783,11 +783,11 @@ trait AccessibilityTrait {
     }
 
     $filtered = [];
-    foreach ($violations as $v) {
-      $impact = strtolower((string) ($v['impact'] ?? ''));
+    foreach ($violations as $violation) {
+      $impact = strtolower((string) ($violation['impact'] ?? ''));
       $pos = array_search($impact, $impacts, TRUE);
       if ($pos !== FALSE && $pos <= $threshold_pos) {
-        $filtered[] = $v;
+        $filtered[] = $violation;
       }
     }
 
@@ -845,10 +845,10 @@ trait AccessibilityTrait {
       sprintf('Accessibility gate failed on %s (rules: %s, threshold: %s, fail_on_incomplete: %s):', $this->accessibilityFormatUrl($url), $rules, $threshold, $check_incomplete ? 'yes' : 'no'),
     ];
 
-    foreach ($violations as $v) {
-      $lines[] = sprintf('  violation [%s] %s - %s', $v['impact'] ?? 'unknown', $v['id'], $v['help']);
-      $lines[] = sprintf('    %s', $v['helpUrl']);
-      foreach ($v['nodes'] ?? [] as $node) {
+    foreach ($violations as $violation) {
+      $lines[] = sprintf('  violation [%s] %s - %s', $violation['impact'] ?? 'unknown', $violation['id'], $violation['help']);
+      $lines[] = sprintf('    %s', $violation['helpUrl']);
+      foreach ($violation['nodes'] ?? [] as $node) {
         $lines[] = sprintf('    -> %s', static::accessibilityStringifyTarget($node['target'] ?? []));
         $html = trim((string) ($node['html'] ?? ''));
         if ($html !== '') {
@@ -857,10 +857,10 @@ trait AccessibilityTrait {
       }
     }
 
-    foreach ($incomplete as $i) {
-      $lines[] = sprintf('  incomplete [%s] %s - %s', $i['impact'] ?? 'unknown', $i['id'], $i['help']);
-      $lines[] = sprintf('    %s', $i['helpUrl']);
-      foreach ($i['nodes'] ?? [] as $node) {
+    foreach ($incomplete as $issue) {
+      $lines[] = sprintf('  incomplete [%s] %s - %s', $issue['impact'] ?? 'unknown', $issue['id'], $issue['help']);
+      $lines[] = sprintf('    %s', $issue['helpUrl']);
+      foreach ($issue['nodes'] ?? [] as $node) {
         $lines[] = sprintf('    -> %s', static::accessibilityStringifyTarget($node['target'] ?? []));
       }
     }
@@ -997,12 +997,12 @@ HTML;
   protected function accessibilityRenderHtmlSections(): string {
     $body_sections = [];
 
-    foreach ($this->accessibilityResults as $r) {
-      $url = htmlspecialchars($this->accessibilityFormatUrl((string) $r['url']), ENT_QUOTES);
-      $rules = htmlspecialchars((string) $r['rules'], ENT_QUOTES);
-      $violations = $r['result']['violations'] ?? [];
-      $incomplete = $r['result']['incomplete'] ?? [];
-      $passes_count = count($r['result']['passes'] ?? []);
+    foreach ($this->accessibilityResults as $result) {
+      $url = htmlspecialchars($this->accessibilityFormatUrl((string) $result['url']), ENT_QUOTES);
+      $rules = htmlspecialchars((string) $result['rules'], ENT_QUOTES);
+      $violations = $result['result']['violations'] ?? [];
+      $incomplete = $result['result']['incomplete'] ?? [];
+      $passes_count = count($result['result']['passes'] ?? []);
 
       $section = sprintf('<section class="page"><h2>%s</h2><p class="meta">Rules: <code>%s</code> &middot; %d violations &middot; %d incomplete &middot; %d passes</p>', $url, $rules, count($violations), count($incomplete), $passes_count);
 
@@ -1075,23 +1075,23 @@ HTML;
     $total_tests = 0;
     $total_failures = 0;
 
-    foreach ($this->accessibilityResults as $r) {
-      $url = $this->accessibilityFormatUrl((string) $r['url']);
-      $violations = $r['result']['violations'] ?? [];
-      $passes = $r['result']['passes'] ?? [];
+    foreach ($this->accessibilityResults as $result) {
+      $url = $this->accessibilityFormatUrl((string) $result['url']);
+      $violations = $result['result']['violations'] ?? [];
+      $passes = $result['result']['passes'] ?? [];
 
       $cases_xml = '';
       $tests = 0;
       $failures = 0;
 
-      foreach ($violations as $v) {
-        $failing = $this->accessibilityFilterViolations([$v], $threshold) !== [];
-        $rule_id = (string) ($v['id'] ?? 'unknown');
-        $impact = (string) ($v['impact'] ?? 'unknown');
-        $help = (string) ($v['help'] ?? '');
-        $help_url = (string) ($v['helpUrl'] ?? '');
+      foreach ($violations as $violation) {
+        $failing = $this->accessibilityFilterViolations([$violation], $threshold) !== [];
+        $rule_id = (string) ($violation['id'] ?? 'unknown');
+        $impact = (string) ($violation['impact'] ?? 'unknown');
+        $help = (string) ($violation['help'] ?? '');
+        $help_url = (string) ($violation['helpUrl'] ?? '');
 
-        foreach ($v['nodes'] ?? [] as $node) {
+        foreach ($violation['nodes'] ?? [] as $node) {
           $target = static::accessibilityStringifyTarget($node['target'] ?? []);
           $html = trim((string) ($node['html'] ?? ''));
           $details = sprintf("URL: %s\nRule: %s\nTarget: %s\nHTML: %s\nDocs: %s", $url, $rule_id, $target, $html, $help_url);
@@ -1109,8 +1109,8 @@ HTML;
         }
       }
 
-      foreach ($passes as $p) {
-        $rule_id = (string) ($p['id'] ?? 'unknown');
+      foreach ($passes as $pass) {
+        $rule_id = (string) ($pass['id'] ?? 'unknown');
         $tests++;
         $cases_xml .= sprintf('<testcase classname="accessibility.%s" name="%s passed"/>', htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES), htmlspecialchars($rule_id, ENT_XML1 | ENT_QUOTES));
       }

@@ -212,8 +212,8 @@ EOL;
     $content = strtr((string) $content, ["'''" => '"""']);
 
     $content_lines = explode(PHP_EOL, $content);
-    foreach ($content_lines as $k => $content_line) {
-      $content_lines[$k] = str_repeat(' ', 4) . trim($content_line);
+    foreach ($content_lines as $key => $content_line) {
+      $content_lines[$key] = str_repeat(' ', 4) . trim($content_line);
     }
     $content = implode(PHP_EOL, $content_lines);
 

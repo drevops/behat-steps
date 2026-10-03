@@ -207,9 +207,9 @@ trait WatchdogTrait {
     }
 
     // Remove entries less severe than a warning.
-    foreach ($entries as $k => $error) {
+    foreach ($entries as $key => $error) {
       if ($error->severity > WATCHDOG_WARNING) {
-        unset($entries[$k]);
+        unset($entries[$key]);
         continue;
       }
       $error->variables = unserialize($error->variables);
