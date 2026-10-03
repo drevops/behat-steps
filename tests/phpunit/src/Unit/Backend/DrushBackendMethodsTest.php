@@ -275,19 +275,6 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   /**
-   * Returns the first executable location for a system utility, or NULL.
-   */
-  protected function resolveSystemBinary(string $name): ?string {
-    foreach (['/bin/' . $name, '/usr/bin/' . $name] as $candidate) {
-      if (is_executable($candidate)) {
-        return $candidate;
-      }
-    }
-
-    return NULL;
-  }
-
-  /**
    * Tests 'parseArguments()' serialises boolean and value options.
    *
    * @param array<string, string|bool|null> $options
@@ -573,6 +560,19 @@ class DrushBackendMethodsTest extends TestCase {
 
     $this->assertNotContains('config:delete', $commands);
     $this->assertSame('config:set', end($commands));
+  }
+
+  /**
+   * Returns the first executable location for a system utility, or NULL.
+   */
+  protected function resolveSystemBinary(string $name): ?string {
+    foreach (['/bin/' . $name, '/usr/bin/' . $name] as $candidate) {
+      if (is_executable($candidate)) {
+        return $candidate;
+      }
+    }
+
+    return NULL;
   }
 
   /**

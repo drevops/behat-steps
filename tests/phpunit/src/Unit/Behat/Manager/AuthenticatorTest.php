@@ -486,38 +486,6 @@ class AuthenticatorTest extends TestCase {
     $this->assertSame($link, $authenticator->getLogoutElement());
   }
 
-  protected function createSessionMock(?DocumentElement $page = NULL): Session {
-    $session = $this->createMock(Session::class);
-    $session->method('getPage')->willReturn($page ?? $this->createMock(DocumentElement::class));
-    $session->method('getDriver')->willReturn($this->createMock(DriverInterface::class));
-    return $session;
-  }
-
-  /**
-   * Creates a mock for the AuthenticationCapability and BackendInterface.
-   *
-   * @return \DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
-   *   The mocked backend.
-   */
-  protected function createAuthBackendMock(): AuthenticationCapabilityInterface&BackendInterface&MockObject {
-    /** @var \DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
-    $backend = $this->createMockForIntersectionOfInterfaces([
-      AuthenticationCapabilityInterface::class,
-      BackendInterface::class,
-    ]);
-    $backend->method('isBootstrapped')->willReturn(TRUE);
-    return $backend;
-  }
-
-  protected function createBackendRegistryMock(): BackendRegistryInterface {
-    $backend = $this->createMock(BackendInterface::class);
-    $backend->method('isBootstrapped')->willReturn(TRUE);
-    $backend_registry = $this->createMock(BackendRegistryInterface::class);
-    $backend_registry->method('hasCapability')->willReturn(FALSE);
-    $backend_registry->method('getBackend')->willReturn($backend);
-    return $backend_registry;
-  }
-
   public function testLogInSkipsWaitWhenLoginWaitIsZero(): void {
     $submit = $this->createMock(NodeElement::class);
 
@@ -710,6 +678,38 @@ class AuthenticatorTest extends TestCase {
     $authenticator = $this->createAuthenticator($session, $user_registry, NULL, $params);
     $authenticator->logOut();
     $this->assertFalse($user_registry->getCurrentUser());
+  }
+
+  protected function createSessionMock(?DocumentElement $page = NULL): Session {
+    $session = $this->createMock(Session::class);
+    $session->method('getPage')->willReturn($page ?? $this->createMock(DocumentElement::class));
+    $session->method('getDriver')->willReturn($this->createMock(DriverInterface::class));
+    return $session;
+  }
+
+  /**
+   * Creates a mock for the AuthenticationCapability and BackendInterface.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
+   *   The mocked backend.
+   */
+  protected function createAuthBackendMock(): AuthenticationCapabilityInterface&BackendInterface&MockObject {
+    /** @var \DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    $backend = $this->createMockForIntersectionOfInterfaces([
+      AuthenticationCapabilityInterface::class,
+      BackendInterface::class,
+    ]);
+    $backend->method('isBootstrapped')->willReturn(TRUE);
+    return $backend;
+  }
+
+  protected function createBackendRegistryMock(): BackendRegistryInterface {
+    $backend = $this->createMock(BackendInterface::class);
+    $backend->method('isBootstrapped')->willReturn(TRUE);
+    $backend_registry = $this->createMock(BackendRegistryInterface::class);
+    $backend_registry->method('hasCapability')->willReturn(FALSE);
+    $backend_registry->method('getBackend')->willReturn($backend);
+    return $backend_registry;
   }
 
   /**
