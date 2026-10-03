@@ -67,6 +67,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   protected ?string $envBackup;
 
   protected function setUp(): void {
+    parent::setUp();
+
     $existing = getenv('BEHAT_STEPS_DISABLE_CLEANUP');
     $this->envBackup = $existing === FALSE ? NULL : $existing;
     putenv('BEHAT_STEPS_DISABLE_CLEANUP');
@@ -79,6 +81,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     else {
       putenv('BEHAT_STEPS_DISABLE_CLEANUP=' . $this->envBackup);
     }
+
+    parent::tearDown();
   }
 
   public function testImplementsUserAwareInterface(): void {
