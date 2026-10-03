@@ -508,7 +508,7 @@ trait UserTrait {
    * @endcode
    */
   #[Then('the user with the email :mail should exist')]
-  public function userAssertExistsByMail(string $mail): void {
+  public function userAssertExistsWithMail(string $mail): void {
     if (!$this->userExistsByMail($mail)) {
       throw new ExpectationException(sprintf('User with email "%s" is expected to exist, but they do not.', $mail), $this->getSession()->getDriver());
     }
@@ -524,7 +524,7 @@ trait UserTrait {
    * @endcode
    */
   #[Then('the user with the email :mail should not exist')]
-  public function userAssertNotExistsByMail(string $mail): void {
+  public function userAssertNotExistsWithMail(string $mail): void {
     if ($this->userExistsByMail($mail)) {
       throw new ExpectationException(sprintf('User with email "%s" is expected to not exist, but they do.', $mail), $this->getSession()->getDriver());
     }

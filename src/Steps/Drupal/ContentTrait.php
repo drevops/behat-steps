@@ -241,7 +241,7 @@ trait ContentTrait {
    * @endcode
    */
   #[When('I rebuild the access grants for the :content_type content with the title :title')]
-  public function contentRebuildAccessGrantsByTitle(string $content_type, string $title): void {
+  public function contentRebuildAccessGrantsWithTitle(string $content_type, string $title): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $node = $this->contentGetNodeByTitle($content_type, $title);

@@ -407,8 +407,8 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 
 | Method | Before | After |
 | --- | --- | --- |
-| `ElementTrait::elementFollowLinkByIndex()` | `$text` | `$link` |
-| `ElementTrait::elementPressButtonByIndex()` | `$label` | `$button` |
+| `ElementTrait::elementFollowLinkWithIndex()` | `$text` | `$link` |
+| `ElementTrait::elementPressButtonWithIndex()` | `$label` | `$button` |
 
 `DateTrait` expands `[relative:...]` tokens in `:partial_value` arguments as well as in `:value`, `:datetime` and `:expected_value` ones. The region, row and command output assertions now take `:value`, so a token in their argument is expanded rather than compared as written.
 
@@ -1597,6 +1597,21 @@ The subject is what the step asserts about. `ElementTrait`'s attribute steps ass
 | `emailAssertMessageSentToAddressWithContentNotContaining()` | `emailAssertMessageSentToAddressNotContains()` |
 
 It still asserts that an email went to the address and that no collected email's body contains the text.
+
+### A qualifier on an action is `With`
+
+`By` is the lookup spelling: `Find`, `Get` and `Exists` methods name the key they search by, as `blockFindByLabel()` and `userExistsByMail()` do. An assertion or an action that narrows its target reads `With`, as its step text does, so the 8 names below join `mediaAssertExistsWithName()` and `contentVisitEditPageWithTitle()`. Step text is unchanged.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\UserTrait` | `userAssertExistsByMail()` | `userAssertExistsWithMail()` |
+| `Drupal\UserTrait` | `userAssertNotExistsByMail()` | `userAssertNotExistsWithMail()` |
+| `Drupal\TaxonomyTrait` | `taxonomyAssertTermExistsByName()` | `taxonomyAssertTermExistsWithName()` |
+| `Drupal\TaxonomyTrait` | `taxonomyAssertTermNotExistsByName()` | `taxonomyAssertTermNotExistsWithName()` |
+| `Drupal\ContentTrait` | `contentRebuildAccessGrantsByTitle()` | `contentRebuildAccessGrantsWithTitle()` |
+| `ElementTrait` | `elementClickByIndex()` | `elementClickWithIndex()` |
+| `ElementTrait` | `elementFollowLinkByIndex()` | `elementFollowLinkWithIndex()` |
+| `ElementTrait` | `elementPressButtonByIndex()` | `elementPressButtonWithIndex()` |
 
 ### `Has` names something the subject holds
 

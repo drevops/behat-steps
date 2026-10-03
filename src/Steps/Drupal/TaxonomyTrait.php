@@ -191,7 +191,7 @@ trait TaxonomyTrait {
    * @endcode
    */
   #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should exist')]
-  public function taxonomyAssertTermExistsByName(string $term_name, string $vocabulary): void {
+  public function taxonomyAssertTermExistsWithName(string $term_name, string $vocabulary): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
@@ -217,7 +217,7 @@ trait TaxonomyTrait {
    * @endcode
    */
   #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should not exist')]
-  public function taxonomyAssertTermNotExistsByName(string $term_name, string $vocabulary): void {
+  public function taxonomyAssertTermNotExistsWithName(string $term_name, string $vocabulary): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);

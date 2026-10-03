@@ -84,7 +84,7 @@ trait ElementTrait {
    * @javascript
    */
   #[When('I click on the element :selector with the index :index')]
-  public function elementClickByIndex(string $selector, int $index): void {
+  public function elementClickWithIndex(string $selector, int $index): void {
     $elements = $this->getSession()->getPage()->findAll('css', $selector);
     $this->elementGetNth($elements, $index, sprintf('element matching "%s"', $selector))->click();
   }
@@ -97,7 +97,7 @@ trait ElementTrait {
    * @endcode
    */
   #[When('I follow the link :link with the index :index')]
-  public function elementFollowLinkByIndex(string $link, int $index): void {
+  public function elementFollowLinkWithIndex(string $link, int $index): void {
     $elements = $this->getSession()->getPage()->findAll('named', ['link', $link]);
     $this->elementGetNth($elements, $index, sprintf('link "%s"', $link))->click();
   }
@@ -110,7 +110,7 @@ trait ElementTrait {
    * @endcode
    */
   #[When('I press the button :button with the index :index')]
-  public function elementPressButtonByIndex(string $button, int $index): void {
+  public function elementPressButtonWithIndex(string $button, int $index): void {
     $elements = $this->getSession()->getPage()->findAll('named', ['button', $button]);
     $this->elementGetNth($elements, $index, sprintf('button "%s"', $button))->press();
   }
