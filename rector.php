@@ -4,12 +4,10 @@
  * @file
  * Rector configuration.
  *
- * Rector automatically refactors PHP code to:
- * - Upgrade deprecated Drupal APIs
- * - Modernize PHP syntax to leverage new language features
- * - Improve code quality and maintainability
+ * Rector rewrites the sources to PHP 8.3 syntax and to Behat's step, hook and
+ * transformation attributes. It also applies the code quality, coding style,
+ * dead code, naming, privatization and type declaration sets.
  *
- * @see https://github.com/palantirnet/drupal-rector
  * @see https://getrector.com/documentation
  * @see https://getrector.com/documentation/set-lists
  */

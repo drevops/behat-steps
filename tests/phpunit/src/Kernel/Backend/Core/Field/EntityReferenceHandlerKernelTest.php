@@ -18,8 +18,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel round-trip test for EntityReferenceHandler via the Core backend.
  *
  * The handler resolves human-readable labels (user names, node titles, etc.)
- * to entity ids. This test exercises the label-to-id lookup against a real
- * user, then verifies the stored target_id round-trips.
+ * to entity ids. The tests exercise the label-to-id lookup against a real
+ * user and a real taxonomy term, then verify the stored target_id
+ * round-trips.
  */
 #[CoversClass(EntityReferenceHandler::class)]
 #[Group('fields')]

@@ -23,7 +23,10 @@ interface ConfigCapabilityInterface {
   public function configGet(string $name, string $key = ''): mixed;
 
   /**
-   * Returns the original (on-disk) configuration value.
+   * Returns a configuration value with overrides not applied.
+   *
+   * Module and 'settings.php' overrides are left out, so the result is the
+   * stored value a write replaces.
    *
    * @param string $name
    *   The configuration object name.
@@ -31,7 +34,7 @@ interface ConfigCapabilityInterface {
    *   The key within the configuration object. Empty for the whole object.
    *
    * @return mixed
-   *   The original configuration value, or NULL if not set.
+   *   The stored configuration value, or NULL if not set.
    */
   public function configGetOriginal(string $name, string $key = ''): mixed;
 

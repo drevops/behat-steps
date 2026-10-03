@@ -15,10 +15,10 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * - Match a single message by substring, per message type.
  * - Match a table of messages in one step.
  *
- * Each message type resolves to a CSS selector configured under the
- * `selectors: messages:` map in the extension configuration, keyed `default`,
- * `error`, `success` and `warning`. A message matches when the text of any
- * element found by that selector contains the expected string.
+ * Each message type resolves to a CSS selector from the `message.selectors`
+ * option, keyed `default`, `error`, `success` and `warning`. A message
+ * matches when the text of any element found by that selector contains the
+ * expected string.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */

@@ -16,7 +16,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * Interact with HTML table elements and assert their content.
  *
  * - Assert table row and column counts.
- * - Assert table column headers in thead.
+ * - Assert table column headers.
  * - Assert table empty and non-empty states.
  * - Assert table sort order by column.
  * - Assert text values present in a specific table row.
@@ -64,7 +64,7 @@ trait TableTrait {
   }
 
   /**
-   * Assert that a table has the expected number of rows in its tbody.
+   * Assert that a table has the expected number of body rows.
    *
    * @code
    * Then the table ".mytable" should have 5 rows
@@ -121,7 +121,7 @@ trait TableTrait {
   }
 
   /**
-   * Assert that a table is empty (has no rows in tbody).
+   * Assert that a table is empty (has no body rows).
    *
    * @code
    * Then the table ".mytable" should be empty
@@ -138,7 +138,7 @@ trait TableTrait {
   }
 
   /**
-   * Assert that a table is not empty (has rows in tbody).
+   * Assert that a table is not empty (has body rows).
    *
    * @code
    * Then the table ".mytable" should not be empty

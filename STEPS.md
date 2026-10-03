@@ -17,7 +17,7 @@
 | [IframeTrait](#iframetrait) | Switch between iframes and the root document. |
 | [JavascriptTrait](#javascripttrait) | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | Assert JSON responses with path and schema checks. |
-| [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
+| [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in the browser. |
 | [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
 | [MappingTrait](#mappingtrait) | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | Assert status, error, warning and success messages rendered on the page. |
@@ -26,7 +26,7 @@
 | [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
 | [RandomTrait](#randomtrait) | Replace random-value tokens in step arguments and table cells. |
 | [RegionTrait](#regiontrait) | Interact with and assert against named page regions. |
-| [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
+| [ResponseTrait](#responsetrait) | Verify HTTP response headers. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
 | [RestTrait](#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](#tabletrait) | Interact with HTML table elements and assert their content. |
@@ -53,12 +53,12 @@
 | [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\LanguageTrait](#drupallanguagetrait) | Create the languages a scenario needs. |
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
-| [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menus and menu links. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | Manage and assert Drupal queue state. |
 | [Drupal\RedirectTrait](#drupalredirecttrait) | Manage Drupal redirect entities provided by the contrib `redirect` module. |
-| [Drupal\SearchApiTrait](#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
+| [Drupal\SearchApiTrait](#drupalsearchapitrait) | Run Drupal Search API indexing and cron hooks. |
 | [Drupal\StateTrait](#drupalstatetrait) | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
@@ -349,8 +349,8 @@ Then the command should complete in more than 1 second
 
 >  Verify and inspect browser cookies.
 >  - Assert cookie existence and values with exact or partial matching.
->  - Support both WebDriver and BrowserKit browser drivers for test
->  compatibility.
+>  - Read cookies through whichever browser driver provides the cookie
+>  capability.
 
 
 <details>
@@ -539,7 +539,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  
 >  Examples:
 >  - `[relative:-1 day]` converted to `1893456000`
->  - `[relative:-1 day#Y-m-d]` converted to `2017-11-5`
+>  - `[relative:-1 day#Y-m-d]` converted to `2017-11-05`
 >  
 >  `dateRelativeProcessValue()` is public API. It and its helpers are static,
 >  so a token resolves without a context instance.
@@ -778,7 +778,7 @@ When I trigger the JS event "click" on the element "#submit-button"
   <summary><code>@When I scroll to the element :selector</code></summary>
 
 <br/>
-Scroll to an element with ID
+Scroll to the element matching a CSS selector
 <br/><br/>
 
 ```gherkin
@@ -934,7 +934,7 @@ Then the element "#main-content" with the attribute "class" and a value containi
   <summary><code>@Then the element :selector with the attribute :attribute and the value :value should not exist</code></summary>
 
 <br/>
-Assert an element with selector and attribute with a value exists
+Assert an element with selector and attribute with a value does not exist
 <br/><br/>
 
 ```gherkin
@@ -1725,7 +1725,7 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 
 >  Test file download functionality with content verification.
 >  - Download files through links and URLs with session cookie handling.
->  - Verify file names, content, and extracted archives.
+>  - Verify file names, content, and zip archive entries.
 >  - Set up download directories and handle file cleanup.
 >  
 >  Skip processing with tag: `@behat-steps-skip:FileDownloadTrait`.
@@ -1911,10 +1911,12 @@ When I switch to the root document
 [Source](src/Steps/Web/JavascriptTrait.php), [Example](tests/behat/features/javascript.feature)
 
 >  Automatically detect JavaScript errors during test execution.
->  - Collects JavaScript errors from `window.onerror` and `console.error`.
+>  - Collects JavaScript errors from `window.onerror`, `unhandledrejection`
+>  and `console.error`.
 >  - Automatically asserts no errors at end of scenarios with `@javascript` tag.
->  - Errors collected only when URL changes (navigation occurs).
->  - Use `@js-errors` tag to bypass error checking when errors are expected.
+>  - Collects errors after every step and re-injects the collector when the
+>  URL changes.
+>  - The `@js-errors` tag bypasses error checking when errors are expected.
 >  
 >  Skip processing with tags: `@behat-steps-skip:JavascriptTrait`
 >  <br/><br/>
@@ -2244,10 +2246,10 @@ Then the response should match the JSON schema in the file "json_schema.json"
 
 [Source](src/Steps/Web/KeyboardTrait.php), [Example](tests/behat/features/keyboard.feature)
 
->  Simulate keyboard interactions in Drupal browser testing.
->  - Trigger key press events including special keys and key combinations.
->  - Assert keyboard navigation and shortcut functionality.
->  - Support for targeted key presses on specific page elements.
+>  Simulate keyboard interactions in the browser.
+>  - Trigger key press events, including named special keys.
+>  - Press a string of characters 1 key at a time.
+>  - Target a key press at a page element or at the focused element.
 
 
 <details>
@@ -2313,8 +2315,8 @@ When I press the keys "abc" on the element "#edit-title"
 [Source](src/Steps/Web/LinkTrait.php), [Example](tests/behat/features/link.feature)
 
 >  Verify link elements with attribute and content assertions.
->  - Find links by title, URL, text content, and class attributes.
->  - Test link existence, visibility, and destination accuracy.
+>  - Find links by title, or by text and href, optionally within an element.
+>  - Assert link existence and href match.
 >  - Assert absolute and relative link paths.
 
 
@@ -2484,10 +2486,10 @@ Then the link "Return to site content" should not be an absolute link
 >  - Match a single message by substring, per message type.
 >  - Match a table of messages in one step.
 >  
->  Each message type resolves to a CSS selector configured under the
->  `selectors: messages:` map in the extension configuration, keyed `default`,
->  `error`, `success` and `warning`. A message matches when the text of any
->  element found by that selector contains the expected string.
+>  Each message type resolves to a CSS selector from the `message.selectors`
+>  option, keyed `default`, `error`, `success` and `warning`. A message
+>  matches when the text of any element found by that selector contains the
+>  expected string.
 
 
 ### Options
@@ -3533,7 +3535,7 @@ Then the element "span" with the text "New" in the region "content" should have 
 
 [Source](src/Steps/Web/ResponseTrait.php), [Example](tests/behat/features/response.feature)
 
->  Verify HTTP responses with status code and header checks.
+>  Verify HTTP response headers.
 >  - Assert HTTP header presence and values.
 
 
@@ -3816,7 +3818,7 @@ Then the REST response should contain "success"
 
 >  Interact with HTML table elements and assert their content.
 >  - Assert table row and column counts.
->  - Assert table column headers in thead.
+>  - Assert table column headers.
 >  - Assert table empty and non-empty states.
 >  - Assert table sort order by column.
 >  - Assert text values present in a specific table row.
@@ -3863,7 +3865,7 @@ When I press the button "Remove" in the row "Article title"
   <summary><code>@Then the table :selector should have :count row(s)</code></summary>
 
 <br/>
-Assert that a table has the expected number of rows in its tbody
+Assert that a table has the expected number of body rows
 <br/><br/>
 
 ```gherkin
@@ -3908,7 +3910,7 @@ Then the table ".mytable" should contain the following columns:
   <summary><code>@Then the table :selector should be empty</code></summary>
 
 <br/>
-Assert that a table is empty (has no rows in tbody)
+Assert that a table is empty (has no body rows)
 <br/><br/>
 
 ```gherkin
@@ -3922,7 +3924,7 @@ Then the table ".mytable" should be empty
   <summary><code>@Then the table :selector should not be empty</code></summary>
 
 <br/>
-Assert that a table is not empty (has rows in tbody)
+Assert that a table is not empty (has body rows)
 <br/><br/>
 
 ```gherkin
@@ -4045,9 +4047,9 @@ Then the link "Delete" should not exist in the row "Article title"
 >  - Wait for jQuery and Drupal AJAX activity to settle, on demand or around
 >  every step that navigates or submits.
 >  <br/><br/>
->  Mink's own AJAX wait watches `jQuery.active` alone, while Drupal renders many
->  updates through `Drupal.ajax`. An assertion following a click can read the
->  page before the update applies, so the wait here watches both.
+>  A wait on `jQuery.active` alone misses the updates Drupal renders through
+>  `Drupal.ajax`, so an assertion following a click can read the page before
+>  the update applies. The wait here watches both.
 >  <br/><br/>
 >  Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
 
@@ -4882,16 +4884,20 @@ When I run cron
 >  runtime. They cannot be disabled from the Behat process because tests run
 >  in a separate process from the system under test (SUT).
 >  <br/><br/>
->  This trait signals the SUT - through a request header, a `$_SERVER` entry
->  and an environment variable - that specific config objects should be read
->  from their original (unoverridden) values. The SUT is responsible for
->  reading that signal and calling `ImmutableConfig::getOriginal()` instead of
->  `ImmutableConfig::get()` for the listed config names.
+>  This trait signals the SUT that specific config objects should be read
+>  from their original (unoverridden) values. The signal is a request header,
+>  a `$_SERVER` entry and an environment variable.
+>  <br/><br/>
+>  The SUT is responsible for reading that signal and calling
+>  `ImmutableConfig::getOriginal()` instead of `ImmutableConfig::get()` for
+>  the listed config names.
 >  <br/><br/>
 >  Activated by adding `@disable-config-override:CONFIG_NAME` tags to a
 >  feature or scenario. Multiple tags are combined into a comma-separated
->  list. Runs on every step because some steps reset headers set earlier in
->  the scenario.
+>  list.
+>  <br/><br/>
+>  The signal is applied before every step because some steps reset headers
+>  set earlier in the scenario.
 >  <br/><br/>
 >  Limitations:
 >  - The request header reaches the SUT only on a browser driver providing
@@ -4913,9 +4919,9 @@ When I run cron
 >  ```
 >  <br/><br/>
 >  The signal is also written to the request-header bag, so a trait that
->  issues its own HTTP requests - `RestTrait` - carries it too. The bag is
->  per context, so that reaches `RestTrait` only where one context composes
->  both; the shipped `WebContext` and `DrupalContext` are separate objects.
+>  issues its own HTTP requests - `RestTrait` - carries it too. The bag is a
+>  property of the context object, so the signal reaches `RestTrait` when the
+>  same context composes both traits, as the shipped `DrupalContext` does.
 >  <br/><br/>
 >  Example:
 >  ```
@@ -4944,13 +4950,12 @@ When I run cron
 >  object's key holds, or contains, an expected value. Nested keys are
 >  addressable with dotted notation (for example `page.front`).
 >  <br/><br/>
->  Two families of assertions read the value differently:
->  - The default steps read the STORED value via editable configuration,
->  ignoring `settings.php` overrides. This is symmetric with the set steps
->  and is what most setup-and-assert scenarios need.
->  - The `effective` steps read the value through the config factory with
->  module and `settings.php` overrides applied - the value the running site
->  actually uses.
+>  2 families of assertions read the value differently:
+>  - The default steps read the stored value, with module and `settings.php`
+>  overrides left unapplied. This is symmetric with the set steps and is
+>  what most setup-and-assert scenarios need.
+>  - The `effective` steps read the value with module and `settings.php`
+>  overrides applied: the value the running site uses.
 >  <br/><br/>
 >  Values are compared by their stringified form, so `true`, `42` and JSON
 >  arrays written in a step match their typed configuration counterparts. The
@@ -4958,8 +4963,8 @@ When I run cron
 >  array values, searched recursively.
 >  <br/><br/>
 >  Configuration objects touched by the set steps are snapshotted on first
->  write and restored after the scenario: an existing object is reset to its
->  original data and an object that did not exist is deleted. Skip the revert
+>  write and restored after the scenario. An existing object is reset to its
+>  original data, and an object that did not exist is deleted. Skip the revert
 >  with `@behat-steps-skip:ConfigTrait`.
 >  <br/><br/>
 >  ```
@@ -5485,7 +5490,7 @@ Then the "page" content with the title "Test page" should not be published
   <summary><code>@When I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:</code></summary>
 
 <br/>
-Save order of the Draggable Order items
+Save the order of the Draggable Views items
 <br/><br/>
 
 ```gherkin
@@ -6507,7 +6512,7 @@ Then the "image" media with the name "Test media image" should not exist
 
 [Source](src/Steps/Drupal/MenuTrait.php), [Example](tests/behat/features/drupal_menu.feature)
 
->  Manage Drupal menu systems and menu link rendering.
+>  Manage Drupal menus and menu links.
 >  - Create and remove menus by label.
 >  - Create and remove menu links, including parent-child hierarchies.
 >  - Created menus and menu links are automatically removed at the end of the scenario.
@@ -6959,9 +6964,10 @@ Then the following redirects should not exist:
 
 [Source](src/Steps/Drupal/SearchApiTrait.php), [Example](tests/behat/features/drupal_search_api.feature)
 
->  Assert Drupal Search API with index and query operations.
->  - Add content to an index
+>  Run Drupal Search API indexing and cron hooks.
+>  - Add content to an index.
 >  - Run indexing for a specific number of items.
+>  - Run the Search API and Search API Solr cron hooks.
 
 
 ### Prerequisites

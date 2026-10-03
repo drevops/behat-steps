@@ -34,11 +34,11 @@ interface CreationAliasInterface {
   /**
    * Returns a human-readable description of what this alias does.
    *
-   * Should describe the input shape, the resolution behaviour, and the
-   * resulting effect on the created entity in a single sentence.
+   * Covers the input shape, the resolution behaviour and the resulting effect
+   * on the created entity in a few short sentences.
    *
    * @return string
-   *   A single-sentence description of the alias's behaviour.
+   *   A short prose description of the alias's behaviour.
    */
   public function getDescription(): string;
 

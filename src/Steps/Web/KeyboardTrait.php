@@ -9,11 +9,11 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Mink\Capability\KeyboardCapabilityInterface;
 
 /**
- * Simulate keyboard interactions in Drupal browser testing.
+ * Simulate keyboard interactions in the browser.
  *
- * - Trigger key press events including special keys and key combinations.
- * - Assert keyboard navigation and shortcut functionality.
- * - Support for targeted key presses on specific page elements.
+ * - Trigger key press events, including named special keys.
+ * - Press a string of characters 1 key at a time.
+ * - Target a key press at a page element or at the focused element.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */

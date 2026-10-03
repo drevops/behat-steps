@@ -13,8 +13,8 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
 /**
  * Verify link elements with attribute and content assertions.
  *
- * - Find links by title, URL, text content, and class attributes.
- * - Test link existence, visibility, and destination accuracy.
+ * - Find links by title, or by text and href, optionally within an element.
+ * - Assert link existence and href match.
  * - Assert absolute and relative link paths.
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext

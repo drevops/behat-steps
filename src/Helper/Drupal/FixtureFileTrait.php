@@ -60,8 +60,8 @@ trait FixtureFileTrait {
         continue;
       }
 
-      // A stub not yet parsed by 'entityParseFields()' still holds the raw
-      // compound cell as written in the Behat table
+      // A stub not yet parsed by 'entityLifecycleParseFields()' still holds
+      // the raw compound cell as written in the Behat table
       // (e.g. 'target_id:"foo.jpg", alt:"A"').
       if (is_string($value) && $this->fixtureFileLooksLikeCompoundCell($value)) {
         $rewritten = $this->fixtureFileExpandCompoundCell($value, $fixture_path);
@@ -73,7 +73,7 @@ trait FixtureFileTrait {
         continue;
       }
 
-      // Parsed shapes produced by 'EntityFieldParser' or the legacy parser:
+      // The remaining shapes a stub value takes:
       // - scalar: 'foo.jpg' (treated as single-value)
       // - scalar list: ['foo.jpg', 'bar.jpg'] (multi-value)
       // - keyed record: ['target_id' => 'foo.jpg', 'alt' => 'A']

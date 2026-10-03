@@ -17,7 +17,8 @@
  * and that every environment variable the source reads is documented.
  *
  * Run with --fail-on-change to fail if the documentation is not up to date.
- * Run with --path=path/to/dir to specify a custom path for the output file.
+ * Run with --path=path/to/dir to use another repository root: the autoloader,
+ * the sources and the written documents all resolve under it.
  */
 
 declare(strict_types=1);
@@ -1240,7 +1241,7 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
  * Convert info to content.
  *
  * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
- *   Array of info items with 'name', 'from', and 'to' keys.
+ *   The extracted trait info from extract_info().
  * @param string $base_path
  *   Base path for the repository.
  *
@@ -1535,7 +1536,7 @@ function validate_helpers(array $info): array {
  * Validate the info.
  *
  * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
- *   Array of info items with 'name', 'from', and 'to' keys.
+ *   The extracted trait info from extract_info().
  *
  * @return array<string>
  *   Array of errors.

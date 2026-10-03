@@ -93,7 +93,11 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
   protected ?TraitOptionResolverFactoryInterface $optionResolverFactory = NULL;
 
   /**
-   * Resolves the options this context's traits declare, NULL until first read.
+   * Resolves the options this context's traits declare.
+   *
+   * Built by the constructor, then NULL between a 'setParameters()' or
+   * 'setOptionResolverFactory()' call and the next 'getOptionResolver()'
+   * call, which rebuilds it.
    */
   protected ?TraitOptionResolverInterface $optionResolver = NULL;
 

@@ -402,7 +402,7 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
   /**
    * {@inheritdoc}
    *
-   * Serves the stubbed backend from a one-backend manager, so the helper
+   * Serves the stubbed backend from a single-backend registry, so the helper
    * resolves through the same capability walk it uses in a run.
    */
   public function getBackendRegistry(): BackendRegistryInterface {

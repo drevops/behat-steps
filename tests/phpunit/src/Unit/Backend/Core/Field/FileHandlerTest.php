@@ -29,7 +29,7 @@ class FileHandlerTest extends FileBackedHandlerTestBase {
   protected const UPLOADED_FILE_ID = 42;
 
   /**
-   * Storage stub maps these public-scheme URIs to file ids for the reuse path.
+   * Storage stub maps these URIs to file ids for the reuse path.
    *
    * @var array<string, int>
    */

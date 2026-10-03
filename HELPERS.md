@@ -48,7 +48,7 @@
 | [Drupal\EntityTrait](#drupalentitytrait) | 6 | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](#drupalfiletrait) | 3 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 4 | Manage Drupal media entities with type-specific field handling. |
-| [Drupal\MenuTrait](#drupalmenutrait) | 2 | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\MenuTrait](#drupalmenutrait) | 2 | Manage Drupal menus and menu links. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | 4 | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | 2 | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | 2 | Manage and assert Drupal queue state. |
@@ -918,7 +918,7 @@ Generates an integer in '[min, max]' inclusive
   <summary><code>public function randomGenerateMachineName(int $length): string</code></summary>
 
 <br/>
-Generates a Drupal-shaped machine name (lowercase + underscores)
+Generates a lowercase alphanumeric machine name starting with a letter
 <br/><br/>
 
 </details>
@@ -1669,7 +1669,7 @@ Visit the action page of the media with a specified name
 
 [Source](src/Steps/Drupal/MenuTrait.php), [Steps](STEPS.md#drupalmenutrait)
 
-> Manage Drupal menu systems and menu link rendering.
+> Manage Drupal menus and menu links.
 
 <details>
   <summary><code>public function menuFindByLabel(string $label): ?MenuInterface</code></summary>

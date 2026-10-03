@@ -76,8 +76,8 @@ class BackendAwareInitializer implements ContextInitializer {
     $context->setBasicAuthenticator($this->basicAuthenticator);
     $context->setHttpClientFactory($this->httpClientFactory);
 
-    // Set last: it rebuilds the resolver, so the parameters set above are the
-    // ones the rebuild reads its 'steps' section from.
+    // Set last: a context that rebuilds its resolver in this call reads the
+    // 'steps' section from the parameters set above.
     $context->setOptionResolverFactory($this->optionResolverFactory);
   }
 

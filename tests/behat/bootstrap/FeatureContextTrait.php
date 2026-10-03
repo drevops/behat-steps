@@ -513,7 +513,7 @@ trait FeatureContextTrait {
   }
 
   /**
-   * Test transposeVerticalTable method.
+   * Tests the 'tableTransposeVertical()' helper.
    */
   #[When('I call transposeVerticalTable with:')]
   public function testCallTableTransposeVertical(TableNode $table): void {

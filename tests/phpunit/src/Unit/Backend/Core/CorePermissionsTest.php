@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests permission label and machine name conversion in the Drupal 8+ backend.
+ * Tests permission label and machine name conversion in the Core backend.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

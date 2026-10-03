@@ -550,8 +550,8 @@ trait XmlTrait {
    * Assert that the response is a valid RSS 2.0 feed.
    *
    * Checks the required RSS 2.0 structure: an `rss` root with a `version` of
-   * `2.0`, a single `channel` with `title`, `link` and `description`, and an
-   * `item` with at least a `title` or a `description`.
+   * `2.0` and a single `channel` with `title`, `link` and `description`. Each
+   * `item` present has a `title` or a `description`.
    *
    * @code
    * Then the response should be a valid RSS feed

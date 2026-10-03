@@ -574,7 +574,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   Options to pass to Drush.
    *
    * @return string
-   *   The command's stdout, or its stderr when stdout is empty.
+   *   The command's stdout, or its stderr when stdout is empty or '0'.
    *
    * @throws \RuntimeException
    *   When the command exits with a non-zero status.

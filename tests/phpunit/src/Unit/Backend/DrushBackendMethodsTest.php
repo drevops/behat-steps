@@ -17,9 +17,11 @@ use PHPUnit\Framework\TestCase;
 /**
  * Exercises every 'DrushBackend' public method to guarantee line coverage.
  *
- * Each test replaces the 'drush()' method with a recorder and verifies the
- * expected Drush command is invoked at least once. The actual Drush binary is
- * never executed here; end-to-end behaviour is covered separately.
+ * Most tests replace 'drush()' with a recorder and assert on the commands it
+ * records. The rest run a system binary such as 'echo' through the real
+ * 'drush()', or cover 'resolveProjectDrush()' and 'parseArguments()'. The
+ * actual Drush binary is never executed here; end-to-end behaviour is covered
+ * separately.
  */
 #[CoversClass(DrushBackend::class)]
 #[Group('backends')]

@@ -354,7 +354,7 @@ trait RandomTrait {
   }
 
   /**
-   * Generates a Drupal-shaped machine name (lowercase + underscores).
+   * Generates a lowercase alphanumeric machine name starting with a letter.
    */
   public function randomGenerateMachineName(int $length): string {
     return $this->randomGetGenerator()->machineName(max(1, $length));

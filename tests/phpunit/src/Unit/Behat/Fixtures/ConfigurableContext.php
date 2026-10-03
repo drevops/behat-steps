@@ -8,7 +8,7 @@ use Behat\Behat\Hook\Scope\ScenarioScope;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
- * Context composing two traits that declare options.
+ * Context composing 3 traits that declare options.
  */
 class ConfigurableContext extends WebRawContext {
 

@@ -104,7 +104,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    * the detected one downwards, then 'DrevOps\BehatSteps\Backend\Core\Core'.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   Thrown when no Core implementation is found for the detected version.
+   *   When a version-specific Core class exists but does not implement
+   *   'CoreInterface'.
    */
   public function setCoreFromVersion(): void {
     $version = $this->getDrupalVersion();

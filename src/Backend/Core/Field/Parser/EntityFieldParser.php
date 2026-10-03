@@ -637,9 +637,9 @@ class EntityFieldParser implements EntityFieldParserInterface {
    * Reads a '[name:value]' token starting at the current offset.
    *
    * Advances $offset past the closing bracket and returns the verbatim
-   * '[...]' substring (downstream field handlers expand the token). When
-   * called for cell-level diagnostics, $error_cell and $error_base_offset
-   * are used to report errors against the original cell.
+   * '[...]' substring, which becomes the column value unchanged. When called
+   * for cell-level diagnostics, $error_cell and $error_base_offset are used
+   * to report errors against the original cell.
    */
   protected function readToken(string $fragment, int &$offset, ?string $error_cell = NULL, int $error_base_offset = 0): string {
     $error_cell ??= $fragment;

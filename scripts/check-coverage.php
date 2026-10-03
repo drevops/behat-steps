@@ -9,8 +9,9 @@
  *
  * Where:
  * - TraitName: The name of the trait to check (e.g., "ElementTrait")
- * - coverage_file_path: Optional path to the cobertura.xml file.
- *   Defaults to '/app/.logs/coverage/behat_cli/cobertura.xml'.
+ * - coverage_file_path: Optional path to the cobertura.xml file. Defaults to
+ *   '.logs/coverage/behat_cli/cobertura.xml', read from '/app' when the file
+ *   exists there and from the repository root otherwise.
  *
  * Examples:
  * php check-coverage.php ElementTrait

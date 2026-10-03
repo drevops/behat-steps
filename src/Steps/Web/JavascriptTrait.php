@@ -20,10 +20,12 @@ use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 /**
  * Automatically detect JavaScript errors during test execution.
  *
- * - Collects JavaScript errors from `window.onerror` and `console.error`.
+ * - Collects JavaScript errors from `window.onerror`, `unhandledrejection`
+ *   and `console.error`.
  * - Automatically asserts no errors at end of scenarios with `@javascript` tag.
- * - Errors collected only when URL changes (navigation occurs).
- * - Use `@js-errors` tag to bypass error checking when errors are expected.
+ * - Collects errors after every step and re-injects the collector when the
+ *   URL changes.
+ * - The `@js-errors` tag bypasses error checking when errors are expected.
  *
  * Skip processing with tags: `@behat-steps-skip:JavascriptTrait`
  *

@@ -168,10 +168,12 @@ trait StateTrait {
   /**
    * Read a state value, distinguishing stored NULL from a missing key.
    *
-   * Uses the underlying key/value store's `has()` so that a legitimately
-   * stored NULL is reported as existing. `\Drupal::state()->get()` cannot
-   * distinguish the two cases because it applies the `??` operator to
-   * the loaded value and returns the default for NULL.
+   * Existence is read through the backend's `stateExists()`, not from a NULL
+   * check on the value. A backend that can tell a stored NULL from an absent
+   * key then reports it as existing.
+   *
+   * `\Drupal::state()->get()` cannot tell the 2 cases apart: it applies the
+   * `??` operator to the loaded value and returns the default for NULL.
    *
    * @param string $name
    *   The state key name.

@@ -38,10 +38,9 @@ class BrowserKitAdapter extends BrowserAdapterBase implements CookieCapabilityIn
     $jar = $driver->getClient()->getCookieJar();
 
     // The value list holds 1 entry per name, already resolved for the current
-    // URL by domain, path and secure flag. The cookie objects supply the
-    // remaining properties, and 'all()' flattens every domain and path
-    // together, so several objects can share a name: the one carrying the
-    // resolved value is the one that belongs to this URL.
+    // URL by domain, path and secure flag. 'all()' flattens every domain and
+    // path together, so several objects can share a name: the one carrying
+    // the resolved value is the one that belongs to this URL.
     $resolved = $jar->allValues($driver->getCurrentUrl(), TRUE);
     $cookies = [];
 

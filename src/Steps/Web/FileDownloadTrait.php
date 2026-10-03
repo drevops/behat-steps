@@ -24,7 +24,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  * Test file download functionality with content verification.
  *
  * - Download files through links and URLs with session cookie handling.
- * - Verify file names, content, and extracted archives.
+ * - Verify file names, content, and zip archive entries.
  * - Set up download directories and handle file cleanup.
  *
  * Skip processing with tag: `@behat-steps-skip:FileDownloadTrait`.

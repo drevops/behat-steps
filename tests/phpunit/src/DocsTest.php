@@ -2200,7 +2200,7 @@ EOD,
   }
 
   /**
-   * Test extract_info with missing trait file.
+   * Tests that extract_info() rejects a trait file no class composes.
    */
   public function testExtractInfoMissingTrait(): void {
     $this->expectException(\Exception::class);

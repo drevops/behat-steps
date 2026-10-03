@@ -81,7 +81,7 @@ trait TableTransposeTrait {
    * Convert vertical format entities to horizontal TableNode.
    *
    * @param array<int, array<string, string>> $entities
-   *   Array of entity data arrays from transposeVerticalTable().
+   *   Array of entity data arrays from tableTransposeVertical().
    *
    * @return \Behat\Gherkin\Node\TableNode
    *   TableNode in horizontal format (first row is headers, subsequent rows

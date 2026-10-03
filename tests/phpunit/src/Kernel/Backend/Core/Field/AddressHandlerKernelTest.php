@@ -15,7 +15,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Address is a multi-property field supplied by the 'drupal/address' contrib
  * module. The handler normalises input (scalar first name, numeric-indexed
  * array, or associative array) against the visible sub-field list configured
- * on the field. This test exercises the associative path.
+ * on the field. The tests exercise the associative and numeric-indexed
+ * paths.
  */
 #[CoversClass(AddressHandler::class)]
 #[Group('fields')]

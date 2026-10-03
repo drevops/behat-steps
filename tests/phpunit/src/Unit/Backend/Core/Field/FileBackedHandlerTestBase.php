@@ -50,7 +50,7 @@ abstract class FileBackedHandlerTestBase extends FieldHandlerUnitTestBase {
   }
 
   /**
-   * Builds a file.repository stub returning a fresh File on writeData().
+   * Builds a file.repository stub returning the same File on every write.
    */
   protected function createFileRepository(int $upload_id): object {
     $file = self::createFakeFile($upload_id);

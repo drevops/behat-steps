@@ -20,16 +20,20 @@ use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
  * runtime. They cannot be disabled from the Behat process because tests run
  * in a separate process from the system under test (SUT).
  *
- * This trait signals the SUT - through a request header, a `$_SERVER` entry
- * and an environment variable - that specific config objects should be read
- * from their original (unoverridden) values. The SUT is responsible for
- * reading that signal and calling `ImmutableConfig::getOriginal()` instead of
- * `ImmutableConfig::get()` for the listed config names.
+ * This trait signals the SUT that specific config objects should be read
+ * from their original (unoverridden) values. The signal is a request header,
+ * a `$_SERVER` entry and an environment variable.
+ *
+ * The SUT is responsible for reading that signal and calling
+ * `ImmutableConfig::getOriginal()` instead of `ImmutableConfig::get()` for
+ * the listed config names.
  *
  * Activated by adding `@disable-config-override:CONFIG_NAME` tags to a
  * feature or scenario. Multiple tags are combined into a comma-separated
- * list. Runs on every step because some steps reset headers set earlier in
- * the scenario.
+ * list.
+ *
+ * The signal is applied before every step because some steps reset headers
+ * set earlier in the scenario.
  *
  * Limitations:
  * - The request header reaches the SUT only on a browser driver providing
@@ -51,9 +55,9 @@ use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
  *   @endcode
  *
  * The signal is also written to the request-header bag, so a trait that
- * issues its own HTTP requests - `RestTrait` - carries it too. The bag is
- * per context, so that reaches `RestTrait` only where one context composes
- * both; the shipped `WebContext` and `DrupalContext` are separate objects.
+ * issues its own HTTP requests - `RestTrait` - carries it too. The bag is a
+ * property of the context object, so the signal reaches `RestTrait` when the
+ * same context composes both traits, as the shipped `DrupalContext` does.
  *
  * Example:
  * @code

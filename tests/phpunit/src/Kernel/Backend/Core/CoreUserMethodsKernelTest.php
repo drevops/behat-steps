@@ -17,15 +17,12 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for user-related methods on Core.
  *
- * The whole lifecycle runs inside one test method: KernelTestBase's setUp
- * runs per-method and costs roughly a second of bootstrap. Bundling closely
+ * The whole lifecycle runs inside 1 test method: KernelTestBase's setUp()
+ * runs per method and costs about 1 second of bootstrap. Bundling closely
  * related assertions keeps CI time down without sacrificing coverage.
  *
  * A method is split out only when a scenario needs its own clean state, such
  * as a failure path that leaves the container dirty.
- *
- * To actually run this test, see the bootstrap/env notes in
- * DatetimeHandlerKernelTest.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

@@ -108,7 +108,7 @@ trait AccessibilityTrait {
    * Populated as each scenario finalizes and consumed once by the static
    * `@AfterSuite` renderer. URLs are stored already formatted for display.
    *
-   * @var array<int, array{feature: string, scenario: string, threshold: string, failOnIncomplete: bool, results: array<int, array{url: string, rules: string, result: array<string, mixed>}>}>
+   * @var array<int, array{feature: string, scenario: string, threshold: string, failOnIncomplete: bool, impacts: array<int, string>, results: array<int, array{url: string, rules: string, result: array<string, mixed>}>}>
    */
   protected static array $accessibilityAggregate = [];
 
@@ -1071,8 +1071,11 @@ HTML;
    *
    * Violations below the threshold are recorded as passing cases carrying
    * the finding in `<system-out>`, so they stay visible without failing the
-   * report. The `tests` and `failures` counts reflect the actual emitted
-   * `<testcase>` elements, one per affected node.
+   * report.
+   *
+   * A violation emits 1 `<testcase>` per affected node and a passed rule
+   * emits 1 `<testcase>` with no node. `tests` counts every case and
+   * `failures` counts the cases carrying a `<failure>`.
    */
   protected function accessibilityRenderJunit(): string {
     $threshold = $this->accessibilityEffectiveThreshold();

@@ -23,7 +23,7 @@ class AbstractHandlerNormalizeTest extends TestCase {
    * @param mixed $input
    *   The loose input to feed to normalize().
    * @param string $main_property
-   *   The field's main property name (returned by the mocked fieldInfo).
+   *   The field's main property name injected into the handler.
    * @param array<int, array<string, mixed>>|null $expected
    *   The expected canonical list of records, or NULL when an exception is
    *   expected.

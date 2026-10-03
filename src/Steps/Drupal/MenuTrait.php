@@ -15,7 +15,7 @@ use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
 
 /**
- * Manage Drupal menu systems and menu link rendering.
+ * Manage Drupal menus and menu links.
  *
  * - Create and remove menus by label.
  * - Create and remove menu links, including parent-child hierarchies.

@@ -171,12 +171,11 @@ trait FieldTrait {
 
     $page = $this->getSession()->getPage();
 
-    // Drupal multi-value widgets wrap the field rows (a table) and the
-    // "Add another item" button in an outer container identified by
-    // `data-drupal-selector="edit-<field>-wrapper"`. The title can appear
-    // in a nested <label>, <h4>, <legend>, <caption>, or plain text
-    // element. Match the title first, then walk up to the outermost edit-
-    // wrapper so that the Add-more button is included.
+    // A Drupal multi-value widget wraps its rows and "Add another item" button
+    // in a container with `data-drupal-selector="edit-<field>-wrapper"`, and
+    // its title can be a nested <label>, <h4>, <legend>, <caption> or plain
+    // text element. The XPath matches the title, then its nearest `-wrapper`
+    // ancestor, which holds both the rows and the button.
     $literal = $this->fieldXpathLiteral($field);
     $title_xpath = sprintf('//*[not(self::input or self::select or self::textarea) and (normalize-space(text())=%s or normalize-space(.)=%s)]', $literal, $literal);
     $wrapper_xpath = $title_xpath . '/ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]';
@@ -909,8 +908,9 @@ JS;
   /**
    * CSS selectors for the "Add another item" button.
    *
-   * Returned selectors are tried in order. Override in a subclass to
-   * customise the selectors for custom themes or widget implementations.
+   * Returned selectors are tried in order. They come from the
+   * `field.add_more_button_selectors` option, so a custom theme or widget
+   * implementation sets its own there.
    *
    * @return array<int, string>
    *   CSS selectors to probe for the add-another-item button.

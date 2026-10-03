@@ -129,11 +129,11 @@ trait ElementTrait {
   }
 
   /**
-   * Scroll to an element with ID.
+   * Scroll to the element matching a CSS selector.
    *
-   * By default, scrolls the element to the center of the viewport. Override
-   * the elementGetScrollIntoViewCenter() method to return FALSE to use the
-   * behavior that aligns the element to the top of the viewport.
+   * The element is scrolled to the center of the viewport by default. An
+   * elementGetScrollIntoViewCenter() override returning FALSE aligns it to
+   * the top of the viewport instead.
    *
    * @code
    * When I scroll to the element "#footer"
@@ -342,7 +342,7 @@ trait ElementTrait {
   }
 
   /**
-   * Assert an element with selector and attribute with a value exists.
+   * Assert an element with selector and attribute with a value does not exist.
    *
    * @code
    * Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist

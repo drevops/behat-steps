@@ -8,7 +8,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 
 /**
- * Verify HTTP responses with status code and header checks.
+ * Verify HTTP response headers.
  *
  * - Assert HTTP header presence and values.
  *

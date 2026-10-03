@@ -496,7 +496,6 @@ class AuthenticatorTest extends TestCase {
     $session = $this->createSessionMock($page);
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
-    // getCurrentUrl should never be called for wait purposes when disabled.
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/login');
 
@@ -712,7 +711,7 @@ class AuthenticatorTest extends TestCase {
   }
 
   /**
-   * Creates a Authenticator with optional overrides.
+   * Creates an Authenticator with optional overrides.
    *
    * @param \Behat\Mink\Session|null $session
    *   Optional Mink session override.
@@ -721,7 +720,7 @@ class AuthenticatorTest extends TestCase {
    * @param \DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface|null $backend_registry
    *   Optional backend registry override.
    * @param array<string, mixed>|null $parameters
-   *   Optional Drupal parameters override.
+   *   Optional extension parameters override.
    */
   protected function createAuthenticator(?Session $session = NULL, ?UserRegistryInterface $user_registry = NULL, ?BackendRegistryInterface $backend_registry = NULL, ?array $parameters = NULL): Authenticator {
     $session ??= $this->createSessionMock();

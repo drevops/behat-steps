@@ -133,7 +133,7 @@ class DateTraitTestImplementation extends WebRawContext {
   use DateTrait;
 
   /**
-   * The clock this implementation pins: May 5, 2024 12:00:00 UTC.
+   * The clock this implementation pins: May 5, 2024 16:00:00 UTC.
    */
   public const CLOCK = 1714924800;
 

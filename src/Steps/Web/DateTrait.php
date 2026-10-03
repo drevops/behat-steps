@@ -25,7 +25,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  *
  * Examples:
  * - `[relative:-1 day]` converted to `1893456000`
- * - `[relative:-1 day#Y-m-d]` converted to `2017-11-5`
+ * - `[relative:-1 day#Y-m-d]` converted to `2017-11-05`
  *
  * `dateRelativeProcessValue()` is public API. It and its helpers are static,
  * so a token resolves without a context instance.
@@ -106,7 +106,7 @@ trait DateTrait {
    *
    * Examples:
    * [relative:-1 day] would be converted to 1893456000
-   * [relative:-1 day#Y-m-d] would be converted to 2017-11-5
+   * [relative:-1 day#Y-m-d] would be converted to 2017-11-05
    *
    * @code
    * Given the following "article" content:
@@ -123,8 +123,8 @@ trait DateTrait {
       return $value;
     }
 
-    // An absent `now` truncates to the current minute, so every assertion in
-    // a long-running scenario resolves against the same base timestamp.
+    // An absent `now` truncates to the current minute, so tokens resolved
+    // within the same minute share a base timestamp.
     $now = $now ?: strtotime(date('Y-m-d H:i:00', static::dateGetNow()));
     $now = $now ?: NULL;
 

@@ -25,10 +25,10 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests that DrupalBackend declares the full capability surface.
+ * Tests DrupalBackend's capability surface and 'detectMajorVersion()'.
  *
- * Class-level conformance only; runtime behaviour requires a real Drupal
- * bootstrap and is exercised by the Kernel test suite.
+ * Behaviour past construction requires a real Drupal bootstrap and is
+ * exercised by the Kernel test suite.
  */
 #[CoversClass(DrupalBackend::class)]
 #[Group('backends')]
@@ -36,7 +36,7 @@ use PHPUnit\Framework\TestCase;
 class DrupalBackendTest extends TestCase {
 
   /**
-   * A directory carrying the entry file 'detectMajorVersion()' requires.
+   * A directory carrying both entry files 'detectMajorVersion()' requires.
    */
   protected const DRUPAL_ROOT = __DIR__ . '/../../../fixtures/backend/drupal-root';
 
