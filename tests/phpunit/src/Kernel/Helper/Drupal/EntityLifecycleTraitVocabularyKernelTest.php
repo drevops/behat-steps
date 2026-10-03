@@ -56,7 +56,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     $this->context = new TestableRawContext();
     $this->context->setBackendRegistry($this->createBackendRegistry($this->createInProcessBackend()));
-    $this->context->setDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
+    $this->context->setHookDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
   }
 
   public function testMachineNameResolvesToItself(): void {

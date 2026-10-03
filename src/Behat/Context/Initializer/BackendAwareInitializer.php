@@ -72,7 +72,7 @@ class BackendAwareInitializer implements ContextInitializer {
     }
 
     $context->setBackendRegistry($this->backendRegistry);
-    $context->setDispatcher($this->hookDispatcher);
+    $context->setHookDispatcher($this->hookDispatcher);
     $context->setBasicAuthenticator($this->basicAuthenticator);
     $context->setHttpClientFactory($this->httpClientFactory);
 

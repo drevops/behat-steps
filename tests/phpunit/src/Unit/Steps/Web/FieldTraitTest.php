@@ -72,7 +72,7 @@ class FieldTraitTest extends UnitTestCase {
   }
 
   public function testFillMultiValueThrowsWhenInputRowIsMissing(): void {
-    $this->testObject->getBrowserResolver()->registerAdapter(AnyDriverAdapter::class);
+    $this->testObject->getBrowserCapabilityResolver()->registerAdapter(AnyDriverAdapter::class);
 
     // 0 existing inputs count as 1 row, so no "Add another item" click is
     // attempted. The first value then has no input to fill.

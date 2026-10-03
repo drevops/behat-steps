@@ -259,7 +259,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
     $context = new TestableRawContext();
     $context->setBackendRegistry($backend_registry);
-    $context->setDispatcher($this->createHookDispatcher());
+    $context->setHookDispatcher($this->createHookDispatcher());
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Hooks can be dispatched only once a scenario has started.');
@@ -754,7 +754,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
     $context = new TestableRawContext();
     $context->setBackendRegistry($backend_registry);
-    $context->setDispatcher($dispatcher ?? $this->createHookDispatcher());
+    $context->setHookDispatcher($dispatcher ?? $this->createHookDispatcher());
     $context->authSetUserRegistry($user_registry ?? new UserRegistry());
     $context->authSetAuthenticator($authenticator ?? $this->createMock(AuthenticatorInterface::class));
 

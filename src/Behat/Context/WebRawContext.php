@@ -70,12 +70,12 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
   /**
    * Resolves what the session's browser driver can do.
    */
-  protected ?BrowserCapabilityResolver $browserResolver = NULL;
+  protected ?BrowserCapabilityResolver $browserCapabilityResolver = NULL;
 
   /**
    * Hook dispatcher.
    */
-  protected ?HookDispatcher $dispatcher = NULL;
+  protected ?HookDispatcher $hookDispatcher = NULL;
 
   /**
    * Applies webserver-level basic auth to the session.
@@ -150,8 +150,8 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
   /**
    * {@inheritdoc}
    */
-  public function setDispatcher(HookDispatcher $dispatcher): void {
-    $this->dispatcher = $dispatcher;
+  public function setHookDispatcher(HookDispatcher $hook_dispatcher): void {
+    $this->hookDispatcher = $hook_dispatcher;
   }
 
   /**
@@ -346,7 +346,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * @template T of object
    */
   public function browserDriverFor(string $capability): object {
-    return $this->getBrowserResolver()->resolve($this->getSession()->getDriver(), $capability);
+    return $this->getBrowserCapabilityResolver()->resolve($this->getSession()->getDriver(), $capability);
   }
 
   /**
@@ -359,16 +359,16 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    *   The browser capability interface to look for.
    */
   public function browserDriverHas(string $capability): bool {
-    return $this->getBrowserResolver()->has($this->getSession()->getDriver(), $capability);
+    return $this->getBrowserCapabilityResolver()->has($this->getSession()->getDriver(), $capability);
   }
 
   /**
    * Returns the browser capability resolver, creating it on first use.
    */
-  public function getBrowserResolver(): BrowserCapabilityResolver {
-    $this->browserResolver ??= new BrowserCapabilityResolver();
+  public function getBrowserCapabilityResolver(): BrowserCapabilityResolver {
+    $this->browserCapabilityResolver ??= new BrowserCapabilityResolver();
 
-    return $this->browserResolver;
+    return $this->browserCapabilityResolver;
   }
 
   /**

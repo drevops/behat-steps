@@ -300,7 +300,7 @@ public function process(ContainerBuilder $container): void {
 **Register a browser adapter** that implements `HttpClientCapabilityInterface` to give another browser driver a page client:
 
 ```php
-$this->getBrowserResolver()->registerAdapter(AcmeDriverAdapter::class);
+$this->getBrowserCapabilityResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
 [Capabilities of the browser driver](../MIGRATION.md#capabilities-of-the-browser-driver) covers writing the adapter itself.

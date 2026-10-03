@@ -41,7 +41,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
    *   The context's 'config' argument, read strictly.
    * @param array<array-key, mixed> $steps
    *   The extension's 'steps' section, read permissively.
-   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface $scenarioTags
+   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface $scenarioTagRegistry
    *   The tags the running scenario carries.
    * @param \DrevOps\BehatSteps\Behat\Config\TagOverrides $tagOverrides
    *   Applies the tag layers of one option.
@@ -56,7 +56,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
     protected readonly array $declarations,
     array $config,
     array $steps,
-    protected readonly ScenarioTagRegistryInterface $scenarioTags,
+    protected readonly ScenarioTagRegistryInterface $scenarioTagRegistry,
     protected readonly TagOverrides $tagOverrides,
   ) {
     $resolved = $this->defaults();
@@ -80,7 +80,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
       throw new \RuntimeException(sprintf('No trait in %s declares the option "%s.%s". Declared options: %s.', $this->contextClass, $group, $key, $this->optionList()));
     }
 
-    return $this->tagOverrides->apply($group, $this->declarations[$group][$key], $this->resolved[$group][$key], $this->scenarioTags->getTags());
+    return $this->tagOverrides->apply($group, $this->declarations[$group][$key], $this->resolved[$group][$key], $this->scenarioTagRegistry->getTags());
   }
 
   /**

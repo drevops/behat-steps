@@ -18,12 +18,12 @@ class TraitOptionResolverFactory implements TraitOptionResolverFactoryInterface 
   /**
    * Reads the option declarations of a context class.
    */
-  protected ConfigSchemaReader $reader;
+  protected ConfigSchemaReader $configSchemaReader;
 
   /**
    * Holds the tags the running scenario carries.
    */
-  protected ScenarioTagRegistryInterface $scenarioTags;
+  protected ScenarioTagRegistryInterface $scenarioTagRegistry;
 
   /**
    * Applies the tag layers of one option.
@@ -33,16 +33,16 @@ class TraitOptionResolverFactory implements TraitOptionResolverFactoryInterface 
   /**
    * Constructs a TraitOptionResolverFactory.
    *
-   * @param \DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader|null $reader
+   * @param \DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader|null $config_schema_reader
    *   Reads the option declarations of a context class.
-   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface|null $scenario_tags
+   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface|null $scenario_tag_registry
    *   Holds the tags the running scenario carries.
    * @param \DrevOps\BehatSteps\Behat\Config\TagOverrides|null $tag_overrides
    *   Applies the tag layers of one option.
    */
-  public function __construct(?ConfigSchemaReader $reader = NULL, ?ScenarioTagRegistryInterface $scenario_tags = NULL, ?TagOverrides $tag_overrides = NULL) {
-    $this->reader = $reader ?? new ConfigSchemaReader();
-    $this->scenarioTags = $scenario_tags ?? new ScenarioTagRegistry();
+  public function __construct(?ConfigSchemaReader $config_schema_reader = NULL, ?ScenarioTagRegistryInterface $scenario_tag_registry = NULL, ?TagOverrides $tag_overrides = NULL) {
+    $this->configSchemaReader = $config_schema_reader ?? new ConfigSchemaReader();
+    $this->scenarioTagRegistry = $scenario_tag_registry ?? new ScenarioTagRegistry();
     $this->tagOverrides = $tag_overrides ?? new TagOverrides();
   }
 
@@ -50,7 +50,7 @@ class TraitOptionResolverFactory implements TraitOptionResolverFactoryInterface 
    * {@inheritdoc}
    */
   public function create(string $context_class, array $config, array $steps): TraitOptionResolverInterface {
-    return new TraitOptionResolver($context_class, $this->reader->read($context_class), $config, $steps, $this->scenarioTags, $this->tagOverrides);
+    return new TraitOptionResolver($context_class, $this->configSchemaReader->read($context_class), $config, $steps, $this->scenarioTagRegistry, $this->tagOverrides);
   }
 
 }

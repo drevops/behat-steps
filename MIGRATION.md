@@ -1731,7 +1731,7 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 ### Registering an adapter for another browser driver
 
 ```php
-$this->getBrowserResolver()->registerAdapter(AcmeDriverAdapter::class);
+$this->getBrowserCapabilityResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
 An adapter extends `BrowserAdapterBase`, implements the capability interfaces its browser driver can honour, and answers `supports()` for the browser driver it speaks for. A registered adapter is offered each browser driver ahead of the shipped ones.

@@ -380,7 +380,7 @@ trait EntityLifecycleTrait {
    *   When the context has not been initialized by Behat.
    */
   protected function entityLifecycleDispatchHooks(string $scope_class, EntityStubInterface $stub): void {
-    if (!$this->dispatcher instanceof HookDispatcher) {
+    if (!$this->hookDispatcher instanceof HookDispatcher) {
       throw new \RuntimeException('The hook dispatcher is available only after Behat has initialized the context.');
     }
 
@@ -391,7 +391,7 @@ trait EntityLifecycleTrait {
     }
 
     $scope = new $scope_class($environment, $this, $stub);
-    $call_results = $this->dispatcher->dispatchScopeHooks($scope);
+    $call_results = $this->hookDispatcher->dispatchScopeHooks($scope);
 
     foreach ($call_results as $call_result) {
       $exception = $call_result->getException();

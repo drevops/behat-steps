@@ -2251,7 +2251,7 @@ Returns the basic authenticator
 </details>
 
 <details>
-  <summary><code>public function getBrowserResolver(): BrowserCapabilityResolver</code></summary>
+  <summary><code>public function getBrowserCapabilityResolver(): BrowserCapabilityResolver</code></summary>
 
 <br/>
 Returns the browser capability resolver, creating it on first use
