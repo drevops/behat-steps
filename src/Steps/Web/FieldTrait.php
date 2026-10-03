@@ -296,7 +296,7 @@ JS;
     $driver = $this->getSession()->getDriver();
 
     $element_id = $element->getAttribute('id');
-    if (empty($element_id)) {
+    if ($element_id === NULL || $element_id === '') {
       throw new \RuntimeException('WYSIWYG field must have an ID attribute.');
     }
 

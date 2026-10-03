@@ -69,11 +69,11 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   Thrown when a required parameter is missing.
    */
   public function __construct(?string $alias = NULL, ?string $root_path = NULL, string $binary = 'drush', ?Random $random = NULL) {
-    if (empty($alias) && empty($root_path)) {
+    if (($alias === NULL || $alias === '') && ($root_path === NULL || $root_path === '')) {
       throw new BootstrapException('A drush alias or root path is required.');
     }
 
-    if (!empty($alias)) {
+    if ($alias !== NULL && $alias !== '') {
       $this->alias = ltrim($alias, '@');
     }
     else {

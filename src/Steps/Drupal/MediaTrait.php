@@ -303,7 +303,7 @@ trait MediaTrait {
     $bundle = $stub->getBundle();
 
     // @codeCoverageIgnoreStart
-    if (empty($bundle)) {
+    if ($bundle === NULL || $bundle === '') {
       throw new \RuntimeException('Cannot create media because it is missing the required bundle.');
     }
 

@@ -1225,6 +1225,10 @@ A scenario that asserted a falsy parameter away with `Then the current URL shoul
 Then the current URL should not have the query parameter "filter" with the value "recent"
 ```
 
+## A value of `0` is not empty
+
+A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other: `Given the password for the user :name is "0"` sets the password instead of failing with `Password must not be empty.`, an attribute whose value is `0` counts as present for the `the element :selector with the attribute :attribute ...` steps, an iframe named `0` is switched to by name, a WYSIWYG field with the id `0` is filled through its id, and `fileCreateEntity()` honours a destination URI of `0`. A `drush` backend configured with an alias or root path of `0` is likewise read as configured.
+
 ## Unified assertion exceptions
 
 Assertion steps used to throw whatever their trait happened to reach for: `ExpectationException` in most places, plain `\Exception` in 8 traits, `\RuntimeException` in `XmlTrait`'s format check, and `\InvalidArgumentException` in 2 select-option steps. The type is part of the contract - consumers catch on it - so it now follows one rule.

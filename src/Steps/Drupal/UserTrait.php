@@ -160,7 +160,7 @@ trait UserTrait {
    */
   #[Given('the password for the user :name is :password')]
   public function userSetPassword(string $name, string $password): void {
-    if (empty($password)) {
+    if ($password === '') {
       throw new \RuntimeException('Password must not be empty.');
     }
 

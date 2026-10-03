@@ -83,7 +83,7 @@ trait PathTrait {
     $current_path = $this->getSession()->getCurrentUrl();
 
     // @codeCoverageIgnoreStart
-    if (empty($current_path)) {
+    if ($current_path === '') {
       throw new \RuntimeException('Current path is empty.');
     }
     // @codeCoverageIgnoreEnd
@@ -118,7 +118,7 @@ trait PathTrait {
     $current_path = $this->getSession()->getCurrentUrl();
 
     // @codeCoverageIgnoreStart
-    if (empty($current_path)) {
+    if ($current_path === '') {
       throw new \RuntimeException('Current path is empty.');
     }
     // @codeCoverageIgnoreEnd

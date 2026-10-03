@@ -828,7 +828,7 @@ trait ElementTrait {
     $attribute_value_found = FALSE;
     foreach ($elements as $element) {
       $attribute_value = (string) $element->getAttribute($attribute);
-      if (!empty($attribute_value)) {
+      if ($attribute_value !== '') {
         $attribute_found = TRUE;
         if ($is_exact) {
           if ($attribute_value === (string) $value) {

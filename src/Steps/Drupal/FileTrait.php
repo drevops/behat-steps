@@ -325,7 +325,7 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     $destination = 'public://' . basename($path);
-    if (!empty($uri)) {
+    if ($uri !== NULL && $uri !== '') {
       $destination = $uri;
       $directory = dirname($destination);
       $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);

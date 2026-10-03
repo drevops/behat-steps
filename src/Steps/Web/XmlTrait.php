@@ -633,7 +633,7 @@ trait XmlTrait {
 
     $namespaces = $this->xmlExtractNamespaces();
     foreach ($namespaces as $prefix => $uri) {
-      if (is_string($prefix) && !empty($prefix)) {
+      if (is_string($prefix) && $prefix !== '') {
         $this->xmlXpath->registerNamespace($prefix, $uri);
       }
     }
