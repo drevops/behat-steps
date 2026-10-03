@@ -63,7 +63,7 @@ trait EntityLifecycleTrait {
    *   When a timestamp value cannot be read as a date.
    */
   #[BeforeNodeCreate]
-  public static function entityLifecycleAlterNodeParameters(BeforeNodeCreateScope $scope): void {
+  public static function entityLifecycleBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
     $stub = $scope->getStub();
 
     // A command-line backend takes the values as written, so string dates are
@@ -112,7 +112,7 @@ trait EntityLifecycleTrait {
    * type.
    */
   #[AfterScenario]
-  public function entityLifecycleCleanAll(AfterScenarioScope $scope): void {
+  public function entityLifecycleAfterScenario(AfterScenarioScope $scope): void {
     if (!$this->shouldCleanup() || $this->skipTag(__TRAIT__, $scope)) {
       return;
     }
@@ -214,7 +214,7 @@ trait EntityLifecycleTrait {
   /**
    * Creates an entity of a type that has no dedicated method.
    *
-   * The stub is added to 'createdStubs', so 'entityLifecycleCleanAll()'
+   * The stub is added to 'createdStubs', so 'entityLifecycleAfterScenario()'
    * removes it after the scenario through the backend's 'entityDelete()'
    * fallback.
    *

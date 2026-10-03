@@ -30,11 +30,11 @@ class SkipGuardTest extends UnitTestCase {
    * Scenario hooks that carry no skip guard, and why.
    */
   protected const UNGUARDED_HOOKS = [
-    'Helper\\Drupal\\StaticCacheTrait::staticCacheClear' => 'Clears the static caches the scenario filled.',
+    'Helper\\Drupal\\StaticCacheTrait::staticCacheAfterScenario' => 'Clears the static caches the scenario filled.',
     'Steps\\Drupal\\ConfigTrait::configBeforeScenario' => 'Clears the snapshot registry.',
     'Steps\\Drupal\\StateTrait::stateBeforeScenario' => 'Clears the snapshot registry.',
-    'Steps\\Drupal\\WatchdogTrait::watchdogAfterScenario' => 'Checks only a scenario whose start time watchdogSetScenario() set behind its guard.',
-    'Steps\\Web\\AccessibilityTrait::accessibilityFinalizeScenario' => 'Reads the flag accessibilitySetupScenario() sets behind its guard.',
+    'Steps\\Drupal\\WatchdogTrait::watchdogAfterScenario' => 'Checks only a scenario whose start time watchdogBeforeScenario() set behind its guard.',
+    'Steps\\Web\\AccessibilityTrait::accessibilityAfterScenario' => 'Reads the flag accessibilityBeforeScenario() sets behind its guard.',
     'Steps\\Web\\CommandTrait::commandAfterScenario' => 'Clears the captured command output.',
     'Steps\\Web\\CommandTrait::commandBeforeScenario' => 'Clears the captured command output.',
     'Steps\\Web\\FieldTrait::fieldAfterScenario' => 'Clears the form validation registry.',

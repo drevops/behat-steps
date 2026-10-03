@@ -289,7 +289,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setCreatedStubs([$term, $node, $block]);
 
-    $context->entityLifecycleCleanAll($this->createAfterScenarioScope());
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
 
     $this->assertSame(['entity', 'node', 'term'], $deleted);
     $this->assertSame([], $context->getCreatedStubs());
@@ -310,7 +310,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub($entity_type, NULL, ['langcode' => 'fr'])]);
 
-    $context->entityLifecycleCleanAll($this->createAfterScenarioScope());
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
   }
 
   public static function dataProviderLanguageIsRemovedThroughLanguageCapability(): \Iterator {
@@ -326,7 +326,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('node', 'page'), new EntityStub('language', NULL, ['langcode' => 'fr'])]);
 
-    $context->entityLifecycleCleanAll($this->createAfterScenarioScope());
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -338,7 +338,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('language', NULL, ['langcode' => 'fr'])]);
 
-    $context->entityLifecycleCleanAll($this->createAfterScenarioScope());
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -347,7 +347,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(BackendInterface::class));
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->entityLifecycleCleanAll($this->createAfterScenarioScope());
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -356,7 +356,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend = $this->createContentBackend();
     $backend->expects($this->never())->method('entityDelete');
 
-    $this->createContext($backend)->entityLifecycleCleanAll($this->createAfterScenarioScope());
+    $this->createContext($backend)->entityLifecycleAfterScenario($this->createAfterScenarioScope());
   }
 
   public function testCreatedUsersAreDeletedAndTheBatchIsDrained(): void {
@@ -441,20 +441,20 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->backendFor(CacheCapabilityInterface::class);
 
-    $context->staticCacheClear($this->createAfterScenarioScope());
+    $context->staticCacheAfterScenario($this->createAfterScenarioScope());
   }
 
   public function testStaticCachesAreSkippedOnBackendTheScenarioNeverReached(): void {
     $backend = $this->createBackend([CacheCapabilityInterface::class]);
     $backend->expects($this->never())->method('cacheClearStatic');
 
-    $this->createContext($backend)->staticCacheClear($this->createAfterScenarioScope());
+    $this->createContext($backend)->staticCacheAfterScenario($this->createAfterScenarioScope());
   }
 
   public function testStaticCachesAreSkippedOnAnIncapableBackend(): void {
     $this->expectNotToPerformAssertions();
 
-    $this->createContext($this->createMock(BackendInterface::class))->staticCacheClear($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(BackendInterface::class))->staticCacheAfterScenario($this->createAfterScenarioScope());
   }
 
   /**
@@ -475,7 +475,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->entityLifecycleCleanAll($this->createAfterScenarioScope());
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
   }
 
   public static function dataProviderCleanupOptOut(): \Iterator {
@@ -524,7 +524,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->entityLifecycleCleanAll($this->createAfterScenarioScope($scenario_tags, $feature_tags));
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope($scenario_tags, $feature_tags));
 
     $this->assertCount(1, $context->getCreatedStubs());
   }
@@ -541,7 +541,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
 
-    $context->entityLifecycleCleanAll($this->createAfterScenarioScope(['behat-steps-skip:AuthTrait']));
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope(['behat-steps-skip:AuthTrait']));
 
     $this->assertSame([], $context->getCreatedStubs());
   }
@@ -604,7 +604,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('taxonomy_term', 'tags'), new EntityStub('node', 'page')]);
 
-    $context->entityLifecycleCleanAll($this->createAfterScenarioScope(['behat-steps-entity-cleanup-skip:node']));
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope(['behat-steps-entity-cleanup-skip:node']));
 
     $this->assertSame(['term'], $deleted);
   }
@@ -613,7 +613,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025 UTC']);
     $context = $this->createContext($this->createDrupalContentBackend());
 
-    TestableRawContext::entityLifecycleAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame(strtotime('1 January 2025 UTC'), $stub->getValue('created'));
   }
@@ -629,7 +629,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => $value]);
     $context = $this->createContext($this->createDrupalContentBackend());
 
-    TestableRawContext::entityLifecycleAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame($value, $stub->getValue('created'));
   }
@@ -647,14 +647,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to read the "created" value "not a date at all" as a date.');
 
-    TestableRawContext::entityLifecycleAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
   }
 
   public function testTimestampConversionIsSkippedForForeignContext(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $scope = new BeforeNodeCreateScope($this->createMock(Environment::class), $this->createMock(Context::class), $stub);
 
-    TestableRawContext::entityLifecycleAlterNodeParameters($scope);
+    TestableRawContext::entityLifecycleBeforeNodeCreate($scope);
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -663,7 +663,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createMock(BackendInterface::class));
 
-    TestableRawContext::entityLifecycleAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -672,7 +672,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createContentBackend());
 
-    TestableRawContext::entityLifecycleAlterNodeParameters(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }

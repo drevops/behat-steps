@@ -102,7 +102,7 @@ trait BigPipeTrait {
    * rather than set once for the scenario.
    */
   #[BeforeStep]
-  public function bigPipeWaitBeforeStep(BeforeStepScope $scope): void {
+  public function bigPipeBeforeStep(BeforeStepScope $scope): void {
     $this->bigPipeApplyServerRenderCookie();
 
     if (!$this->bigPipeAutoWaitEnabled) {

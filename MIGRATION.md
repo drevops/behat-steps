@@ -947,7 +947,7 @@ Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchan
 
 ## Unified entity cleanup
 
-Every entity a creation step or the backend creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleCleanAll` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+Every entity a creation step or the backend creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleAfterScenario` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
 
 An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityLifecycleRegister($entity)`. Without that call the entity survives the scenario.
 
@@ -1030,9 +1030,9 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 
 | Helper | Holds | Composed by |
 | --- | --- | --- |
-| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()`, `entityLifecycleTermCreate()`, `entityLifecycleCreate()`, `entityLifecycleLanguageCreate()`, `entityLifecycleRegister()`, `entityLifecycleParseFields()`, `entityLifecycleCleanAll()`, `entityLifecycleAlterNodeParameters()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
+| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()`, `entityLifecycleTermCreate()`, `entityLifecycleCreate()`, `entityLifecycleLanguageCreate()`, `entityLifecycleRegister()`, `entityLifecycleParseFields()`, `entityLifecycleAfterScenario()`, `entityLifecycleBeforeNodeCreate()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
 | `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authIsLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
-| `Helper\Drupal\StaticCacheTrait` | `staticCacheClear()` | `Steps\Drupal\CacheTrait` |
+| `Helper\Drupal\StaticCacheTrait` | `staticCacheAfterScenario()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
 | `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 9 step traits |
 
@@ -1055,8 +1055,8 @@ A call or an override in a consumer context is renamed:
 | `languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleLanguageCreate()` |
 | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
 | `parseEntityFields()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleParseFields()` |
-| `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCleanAll()` |
-| `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAlterNodeParameters()` |
+| `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAfterScenario()` |
+| `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleBeforeNodeCreate()` |
 | `userCreate()` | `Helper\Drupal\AuthTrait::authUserCreate()` |
 | `login()` | `Helper\Drupal\AuthTrait::authLogin()` |
 | `logout()` | `Helper\Drupal\AuthTrait::authLogout()` |
@@ -1065,7 +1065,7 @@ A call or an override in a consumer context is renamed:
 | `setUserManager()` | `Helper\Drupal\AuthTrait::authSetUserRegistry()` |
 | `cleanUsers()` | `Helper\Drupal\AuthTrait::authCleanUsers()` |
 | `cleanRoles()` | `Helper\Drupal\AuthTrait::authCleanRoles()` |
-| `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheClear()` |
+| `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheAfterScenario()` |
 
 Three of those names were also skip tags. A skip tag names a trait rather than a method, so `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles` both become `@behat-steps-skip:AuthTrait`.
 
@@ -1409,12 +1409,12 @@ Hook methods used to come in 3 shapes: taking and using the scope, taking and ig
 
 | Hook | New signature |
 | --- | --- |
-| `AccessibilityTrait::accessibilityAggregateRender()` | `(AfterSuiteScope $scope)` |
+| `AccessibilityTrait::accessibilityAfterSuite()` | `(AfterSuiteScope $scope)` |
 | `AccessibilityTrait::accessibilityAggregateReset()` | `(BeforeSuiteScope $scope)` |
 | `AccessibilityTrait::accessibilityCaptureBaseDir()` | `(BeforeSuiteScope $scope)` |
 | `CommandTrait::commandAfterScenario()` | `(AfterScenarioScope $scope)` |
 | `CommandTrait::commandBeforeScenario()` | `(BeforeScenarioScope $scope)` |
-| `Drupal\BigPipeTrait::bigPipeWaitBeforeStep()` | `(BeforeStepScope $scope)` |
+| `Drupal\BigPipeTrait::bigPipeBeforeStep()` | `(BeforeStepScope $scope)` |
 | `JsonTrait::jsonAfterScenario()` | `(AfterScenarioScope $scope)` |
 | `JsonTrait::jsonBeforeScenario()` | `(BeforeScenarioScope $scope)` |
 | `XmlTrait::xmlAfterScenario()` | `(AfterScenarioScope $scope)` |
@@ -1664,6 +1664,20 @@ A method that fails with an assertion exception is named as an assertion, whethe
 | `CommandTrait` | `commandAssertNumeric()` (protected) | `commandParseNumeric()` |
 | `CookieTrait` | `cookieExists()` | `cookieAssertExists()` |
 | `CookieTrait` | `cookieNotExists()` | `cookieAssertNotExists()` |
+
+### A hook is named for its event
+
+A hook method reads `<prefix><Event>`, so `configBeforeScenario()` and `contentBeforeNodeCreate()` already told the reader when they run. The hooks that were named for what they do take the same shape. A skip tag names a trait, not a hook, so no tag changes.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| Drupal\TimeTrait | timeCleanup() | timeAfterScenario() |
+| Drupal\WatchdogTrait | watchdogSetScenario() | watchdogBeforeScenario() |
+| Drupal\BigPipeTrait | bigPipeWaitBeforeStep() | bigPipeBeforeStep() |
+| AccessibilityTrait | accessibilitySetupScenario() | accessibilityBeforeScenario() |
+| AccessibilityTrait | accessibilityAutoAssess() | accessibilityAfterStep() |
+| AccessibilityTrait | accessibilityFinalizeScenario() | accessibilityAfterScenario() |
+| AccessibilityTrait | accessibilityAggregateRender() | accessibilityAfterSuite() |
 
 ### A bundle parameter is named after its entity type
 

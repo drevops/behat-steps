@@ -198,7 +198,7 @@ trait AccessibilityTrait {
    * Initialize accessibility state for the scenario.
    */
   #[BeforeScenario]
-  public function accessibilitySetupScenario(BeforeScenarioScope $scope): void {
+  public function accessibilityBeforeScenario(BeforeScenarioScope $scope): void {
     $this->accessibilityResults = [];
     $this->accessibilityAutoMode = FALSE;
     $this->accessibilityLastCheckedUrl = '';
@@ -229,7 +229,7 @@ trait AccessibilityTrait {
    * visited in the report before the gate is applied.
    */
   #[AfterStep]
-  public function accessibilityAutoAssess(AfterStepScope $scope): void {
+  public function accessibilityAfterStep(AfterStepScope $scope): void {
     if ($this->accessibilitySkip) {
       return;
     }
@@ -277,7 +277,7 @@ trait AccessibilityTrait {
    *   If a violation at or above the threshold was collected.
    */
   #[AfterScenario]
-  public function accessibilityFinalizeScenario(AfterScenarioScope $scope): void {
+  public function accessibilityAfterScenario(AfterScenarioScope $scope): void {
     if ($this->accessibilitySkip) {
       return;
     }
@@ -307,7 +307,7 @@ trait AccessibilityTrait {
    * Render the single cross-page report after the whole suite has run.
    */
   #[AfterSuite]
-  public static function accessibilityAggregateRender(AfterSuiteScope $scope): void {
+  public static function accessibilityAfterSuite(AfterSuiteScope $scope): void {
     static::accessibilityWriteAggregateReport();
   }
 

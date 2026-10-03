@@ -36,7 +36,7 @@ trait TimeTrait {
    * Cleans up testing.time state after each scenario.
    */
   #[AfterScenario]
-  public function timeCleanup(AfterScenarioScope $scope): void {
+  public function timeAfterScenario(AfterScenarioScope $scope): void {
     // A scenario that never set the time has nothing to clean up, and
     // resolving a backend would fail a suite that lists none reaching Drupal.
     if (!$this->timeWasSet || $this->skipTag(__TRAIT__, $scope)) {

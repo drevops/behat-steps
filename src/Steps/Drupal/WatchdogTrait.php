@@ -81,7 +81,7 @@ trait WatchdogTrait {
    * Store the scenario identity, tracked message types and start time.
    */
   #[BeforeScenario]
-  public function watchdogSetScenario(BeforeScenarioScope $scope): void {
+  public function watchdogBeforeScenario(BeforeScenarioScope $scope): void {
     if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }

@@ -356,7 +356,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($dir);
 
-    AccessibilityTraitTestImplementation::accessibilityAggregateRender($this->createAfterSuiteScope());
+    AccessibilityTraitTestImplementation::accessibilityAfterSuite($this->createAfterSuiteScope());
 
     $this->assertNotEmpty(glob($dir . '/accessibility_report_*.html') ?: []);
   }
@@ -690,14 +690,14 @@ class AccessibilityTraitTest extends UnitTestCase {
    * @param array{bool, string|null, bool|null} $expected
    *   Automatic mode, the threshold override and the incomplete-fail override.
    */
-  #[DataProvider('dataProviderSetupScenarioResolvesTags')]
-  public function testSetupScenarioResolvesTags(array $scenario_tags, array $feature_tags, array $expected): void {
-    $this->testObject->accessibilitySetupScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+  #[DataProvider('dataProviderBeforeScenarioResolvesTags')]
+  public function testBeforeScenarioResolvesTags(array $scenario_tags, array $feature_tags, array $expected): void {
+    $this->testObject->accessibilityBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
 
     $this->assertSame($expected, $this->testObject->testGetTagState());
   }
 
-  public static function dataProviderSetupScenarioResolvesTags(): array {
+  public static function dataProviderBeforeScenarioResolvesTags(): array {
     return [
       'no tags' => [[], [], [FALSE, NULL, NULL]],
       'the bare tag on the scenario' => [['accessibility'], [], [TRUE, NULL, NULL]],
