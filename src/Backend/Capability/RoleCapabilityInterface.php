@@ -28,7 +28,7 @@ interface RoleCapabilityInterface {
    *   backend that holds the role object attaches it and flags the stub as
    *   saved.
    */
-  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface;
+  public function createRole(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface;
 
   /**
    * Deletes a role.
@@ -38,6 +38,6 @@ interface RoleCapabilityInterface {
    * @param string $role_name
    *   The role machine name to delete.
    */
-  public function roleDelete(string $role_name): void;
+  public function deleteRole(string $role_name): void;
 
 }

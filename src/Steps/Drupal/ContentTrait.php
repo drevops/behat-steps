@@ -86,7 +86,7 @@ trait ContentTrait {
    * @endcode
    */
   #[Given('the following :content_type content does not exist:')]
-  public function contentDelete(string $content_type, TableNode $table): void {
+  public function contentDeleteMultiple(string $content_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $node_hash) {
@@ -117,10 +117,10 @@ trait ContentTrait {
    * @endcode
    */
   #[Given('the following :content_type content with fields exist:')]
-  public function contentCreateWithFields(string $content_type, TableNode $table): void {
+  public function contentCreateMultipleWithFields(string $content_type, TableNode $table): void {
     $entities = $this->tableTransposeVertical($table);
     $horizontal_table = $this->tableTransposeHorizontal($entities);
-    $this->contentCreate($content_type, $horizontal_table);
+    $this->contentCreateMultiple($content_type, $horizontal_table);
   }
 
   /**
@@ -136,9 +136,9 @@ trait ContentTrait {
    * @endcode
    */
   #[Given('the following :content_type content exist:')]
-  public function contentCreate(string $content_type, TableNode $table): void {
+  public function contentCreateMultiple(string $content_type, TableNode $table): void {
     foreach ($table->getHash() as $values) {
-      $this->entityLifecycleNodeCreate(new EntityStub('node', $content_type, $values));
+      $this->entityLifecycleCreateNode(new EntityStub('node', $content_type, $values));
     }
   }
 

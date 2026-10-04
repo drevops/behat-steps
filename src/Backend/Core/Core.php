@@ -456,7 +456,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function nodeCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function createNode(EntityStubInterface $stub): EntityStubInterface {
     $type = $stub->getBundle() ?? $stub->getValue('type');
 
     if (empty($type)) {
@@ -495,7 +495,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function nodeDelete(EntityStubInterface $stub): void {
+  public function deleteNode(EntityStubInterface $stub): void {
     $node = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 
     if (!$node instanceof NodeInterface) {
@@ -519,7 +519,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function userCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function createUser(EntityStubInterface $stub): EntityStubInterface {
     if (!$stub->hasValue('status')) {
       $stub->setValue('status', 1);
     }
@@ -541,7 +541,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
+  public function createRole(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
     $rid = $id ?? strtolower($this->random->name(8, TRUE));
     $role_label = $label ?? ($id ?? trim($this->random->name(8, TRUE)));
 
@@ -568,7 +568,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function roleDelete(string $role_name): void {
+  public function deleteRole(string $role_name): void {
     $role = Role::load($role_name);
 
     if ($role) {
@@ -643,7 +643,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function userDelete(EntityStubInterface $stub): void {
+  public function deleteUser(EntityStubInterface $stub): void {
     $uid = (int) $this->resolveUid($stub);
 
     if (!User::load($uid) instanceof User) {
@@ -669,7 +669,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function userAddRole(EntityStubInterface $stub, string $role): void {
+  public function addUserRole(EntityStubInterface $stub, string $role): void {
     // Both machine and human role names are accepted.
     $query = \Drupal::entityQuery('user_role');
     $conditions = $query->orConditionGroup()
@@ -690,7 +690,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Resolves the user id from a stub.
    *
    * Prefers the saved-entity slot - that is the only authoritative source
-   * after 'userCreate()' - then falls back to a 'uid' value the caller may
+   * after 'createUser()' - then falls back to a 'uid' value the caller may
    * have populated manually.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
@@ -794,7 +794,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function termCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function createTerm(EntityStubInterface $stub): EntityStubInterface {
     $this->applyPreCreateAliases($stub, 'taxonomy_term');
 
     $vocabulary = $stub->getBundle() ?? $stub->getValue('vid');
@@ -824,7 +824,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function termDelete(EntityStubInterface $stub): void {
+  public function deleteTerm(EntityStubInterface $stub): void {
     $term = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 
     if (!$term instanceof TermInterface) {
@@ -839,7 +839,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function blockPlace(EntityStubInterface $stub): EntityStubInterface {
+  public function placeBlock(EntityStubInterface $stub): EntityStubInterface {
     // Block config entities require an id, so one is generated when the
     // caller did not supply it.
     if (!$stub->hasValue('id') || $stub->getValue('id') === '') {
@@ -856,7 +856,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function blockDelete(EntityStubInterface $stub): void {
+  public function deleteBlock(EntityStubInterface $stub): void {
     $entity = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 
     if (!$entity instanceof EntityInterface) {
@@ -877,15 +877,15 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function blockContentCreate(EntityStubInterface $stub): EntityStubInterface {
-    return $this->entityCreate($stub);
+  public function createBlockContent(EntityStubInterface $stub): EntityStubInterface {
+    return $this->createEntity($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function blockContentDelete(EntityStubInterface $stub): void {
-    $this->entityDelete($stub);
+  public function deleteBlockContent(EntityStubInterface $stub): void {
+    $this->deleteEntity($stub);
   }
 
   /**
@@ -959,7 +959,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function languageCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function createLanguage(EntityStubInterface $stub): EntityStubInterface {
     $langcode = $this->resolveLangcode($stub);
 
     if (ConfigurableLanguage::load($langcode)) {
@@ -976,7 +976,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function languageDelete(EntityStubInterface $stub): void {
+  public function deleteLanguage(EntityStubInterface $stub): void {
     $configurable_language = ConfigurableLanguage::load($this->resolveLangcode($stub));
 
     if ($configurable_language instanceof ConfigurableLanguage) {
@@ -1102,7 +1102,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function entityCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function createEntity(EntityStubInterface $stub): EntityStubInterface {
     $entity_type = $stub->getEntityType();
 
     if ($entity_type === '') {
@@ -1139,7 +1139,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     // The id is stored under the entity type's own id key ('uid' for user,
     // 'nid' for node, 'tid' for term, 'id' for entity_test and others), so
-    // the stub round-trips through entityDelete().
+    // the stub round-trips through deleteEntity().
     $stub->setValue($id_key, $created_entity->id());
     $stub->markSaved($created_entity);
 
@@ -1149,7 +1149,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function entityDelete(EntityStubInterface $stub): void {
+  public function deleteEntity(EntityStubInterface $stub): void {
     $entity_type = $stub->getEntityType();
     $entity = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 

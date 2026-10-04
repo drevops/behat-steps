@@ -253,7 +253,7 @@ No shipped step matches those lines. You write them yourself, over the same help
 ```php
 #[When('I publish a page titled :title')]
 public function publishPage(string $title): void {
-  $this->entityLifecycleNodeCreate(new EntityStub('node', 'page', ['title' => $title, 'moderation_state' => 'published']));
+  $this->entityLifecycleCreateNode(new EntityStub('node', 'page', ['title' => $title, 'moderation_state' => 'published']));
 }
 ```
 

@@ -273,71 +273,71 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function nodeCreate(EntityStubInterface $stub): EntityStubInterface {
-    return $this->getCore()->nodeCreate($stub);
+  public function createNode(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->createNode($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function nodeDelete(EntityStubInterface $stub): void {
-    $this->getCore()->nodeDelete($stub);
+  public function deleteNode(EntityStubInterface $stub): void {
+    $this->getCore()->deleteNode($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function termCreate(EntityStubInterface $stub): EntityStubInterface {
-    return $this->getCore()->termCreate($stub);
+  public function createTerm(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->createTerm($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function termDelete(EntityStubInterface $stub): void {
-    $this->getCore()->termDelete($stub);
+  public function deleteTerm(EntityStubInterface $stub): void {
+    $this->getCore()->deleteTerm($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function entityCreate(EntityStubInterface $stub): EntityStubInterface {
-    return $this->getCore()->entityCreate($stub);
+  public function createEntity(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->createEntity($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function entityDelete(EntityStubInterface $stub): void {
-    $this->getCore()->entityDelete($stub);
+  public function deleteEntity(EntityStubInterface $stub): void {
+    $this->getCore()->deleteEntity($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function blockPlace(EntityStubInterface $stub): EntityStubInterface {
-    return $this->getCore()->blockPlace($stub);
+  public function placeBlock(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->placeBlock($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function blockDelete(EntityStubInterface $stub): void {
-    $this->getCore()->blockDelete($stub);
+  public function deleteBlock(EntityStubInterface $stub): void {
+    $this->getCore()->deleteBlock($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function blockContentCreate(EntityStubInterface $stub): EntityStubInterface {
-    return $this->getCore()->blockContentCreate($stub);
+  public function createBlockContent(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->createBlockContent($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function blockContentDelete(EntityStubInterface $stub): void {
-    $this->getCore()->blockContentDelete($stub);
+  public function deleteBlockContent(EntityStubInterface $stub): void {
+    $this->getCore()->deleteBlockContent($stub);
   }
 
   /**
@@ -350,15 +350,15 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function languageCreate(EntityStubInterface $stub): EntityStubInterface {
-    return $this->getCore()->languageCreate($stub);
+  public function createLanguage(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->createLanguage($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function languageDelete(EntityStubInterface $stub): void {
-    $this->getCore()->languageDelete($stub);
+  public function deleteLanguage(EntityStubInterface $stub): void {
+    $this->getCore()->deleteLanguage($stub);
   }
 
   /**
@@ -427,36 +427,36 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
-    return $this->getCore()->roleCreate($permissions, $id, $label);
+  public function createRole(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
+    return $this->getCore()->createRole($permissions, $id, $label);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function roleDelete(string $role_name): void {
-    $this->getCore()->roleDelete($role_name);
+  public function deleteRole(string $role_name): void {
+    $this->getCore()->deleteRole($role_name);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function userCreate(EntityStubInterface $stub): EntityStubInterface {
-    return $this->getCore()->userCreate($stub);
+  public function createUser(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->createUser($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function userDelete(EntityStubInterface $stub): void {
-    $this->getCore()->userDelete($stub);
+  public function deleteUser(EntityStubInterface $stub): void {
+    $this->getCore()->deleteUser($stub);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function userAddRole(EntityStubInterface $stub, string $role): void {
-    $this->getCore()->userAddRole($stub, $role);
+  public function addUserRole(EntityStubInterface $stub, string $role): void {
+    $this->getCore()->addUserRole($stub, $role);
   }
 
   /**

@@ -99,31 +99,31 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   public function testNodeCreationDelegatesAndTracksTheStub(): void {
     $backend = $this->createContentBackend();
     $stub = new EntityStub('node', 'page', ['title' => 'A title']);
-    $backend->expects($this->once())->method('nodeCreate')->with($stub)->willReturn($stub);
+    $backend->expects($this->once())->method('createNode')->with($stub)->willReturn($stub);
 
     $context = $this->createContext($backend);
 
-    $this->assertSame($stub, $context->entityLifecycleNodeCreate($stub));
+    $this->assertSame($stub, $context->entityLifecycleCreateNode($stub));
     $this->assertSame([$stub], $context->getCreatedStubs());
   }
 
   public function testTermCreationDelegatesAndTracksTheStub(): void {
     $backend = $this->createContentBackend();
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term']);
-    $backend->expects($this->once())->method('termCreate')->with($stub)->willReturn($stub);
+    $backend->expects($this->once())->method('createTerm')->with($stub)->willReturn($stub);
 
     $context = $this->createContext($backend);
 
-    $this->assertSame($stub, $context->entityLifecycleTermCreate($stub));
+    $this->assertSame($stub, $context->entityLifecycleCreateTerm($stub));
     $this->assertSame([$stub], $context->getCreatedStubs());
   }
 
   public function testAnEmptyTermParentIsDropped(): void {
     $backend = $this->createContentBackend();
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'parent' => '']);
-    $backend->method('termCreate')->willReturn($stub);
+    $backend->method('createTerm')->willReturn($stub);
 
-    $this->createContext($backend)->entityLifecycleTermCreate($stub);
+    $this->createContext($backend)->entityLifecycleCreateTerm($stub);
 
     $this->assertFalse($stub->hasValue('parent'));
   }
@@ -131,9 +131,9 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   public function testNamedTermParentIsKept(): void {
     $backend = $this->createContentBackend();
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'parent' => 'Another term']);
-    $backend->method('termCreate')->willReturn($stub);
+    $backend->method('createTerm')->willReturn($stub);
 
-    $this->createContext($backend)->entityLifecycleTermCreate($stub);
+    $this->createContext($backend)->entityLifecycleCreateTerm($stub);
 
     $this->assertSame('Another term', $stub->getValue('parent'));
   }
@@ -141,7 +141,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   public function testGenericEntityCreationDelegatesAndTracksTheStub(): void {
     $backend = $this->createContentBackend();
     $stub = new EntityStub('block_content', 'basic', ['info' => 'A block']);
-    $backend->expects($this->once())->method('entityCreate')->with($stub)->willReturn($stub);
+    $backend->expects($this->once())->method('createEntity')->with($stub)->willReturn($stub);
 
     $context = $this->createContext($backend);
 
@@ -153,14 +153,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['title' => 'A title']);
 
     $backend = $this->createContentBackend();
-    $backend->method('nodeCreate')->willReturnCallback(static function (EntityStub $stub): EntityStub {
+    $backend->method('createNode')->willReturnCallback(static function (EntityStub $stub): EntityStub {
       // The backend expands base fields into the storage shape.
       $stub->setValue('title', [['value' => 'A title']]);
 
       return $stub;
     });
 
-    $this->createContext($backend)->entityLifecycleNodeCreate($stub);
+    $this->createContext($backend)->entityLifecycleCreateNode($stub);
 
     $this->assertSame('A title', $stub->getValue('title'));
   }
@@ -168,34 +168,34 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   public function testUserCreationRegistersTheUser(): void {
     $backend = $this->createBackend([UserCapabilityInterface::class]);
     $stub = new EntityStub('user', NULL, ['name' => 'alice']);
-    $backend->expects($this->once())->method('userCreate')->with($stub);
+    $backend->expects($this->once())->method('createUser')->with($stub);
 
     $user_registry = new UserRegistry();
     $context = $this->createContext($backend, $user_registry);
 
-    $this->assertSame($stub, $context->authUserCreate($stub));
+    $this->assertSame($stub, $context->authCreateUser($stub));
     $this->assertSame($stub, $user_registry->getUser('alice'));
   }
 
   public function testLanguageCreationTracksTheSavedStub(): void {
     $backend = $this->createBackend([LanguageCapabilityInterface::class]);
     $stub = (new EntityStub('language', NULL, ['langcode' => 'fr']))->markSaved(new \stdClass());
-    $backend->method('languageCreate')->willReturn($stub);
+    $backend->method('createLanguage')->willReturn($stub);
 
     $context = $this->createContext($backend);
 
-    $this->assertSame($stub, $context->entityLifecycleLanguageCreate($stub));
+    $this->assertSame($stub, $context->entityLifecycleCreateLanguage($stub));
     $this->assertSame([$stub], $context->getCreatedStubs());
   }
 
   public function testAnExistingLanguageIsNotTracked(): void {
     $backend = $this->createBackend([LanguageCapabilityInterface::class]);
     $stub = new EntityStub('language', NULL, ['langcode' => 'fr']);
-    $backend->method('languageCreate')->willReturn($stub);
+    $backend->method('createLanguage')->willReturn($stub);
 
     $context = $this->createContext($backend);
 
-    $this->assertSame($stub, $context->entityLifecycleLanguageCreate($stub));
+    $this->assertSame($stub, $context->entityLifecycleCreateLanguage($stub));
     $this->assertSame([], $context->getCreatedStubs());
   }
 
@@ -220,11 +220,11 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderCreationRefusesIncapableBackend(): \Iterator {
-    yield 'node' => ['entityLifecycleNodeCreate', new EntityStub('node'), ContentCapabilityInterface::class];
-    yield 'term' => ['entityLifecycleTermCreate', new EntityStub('taxonomy_term'), ContentCapabilityInterface::class];
+    yield 'node' => ['entityLifecycleCreateNode', new EntityStub('node'), ContentCapabilityInterface::class];
+    yield 'term' => ['entityLifecycleCreateTerm', new EntityStub('taxonomy_term'), ContentCapabilityInterface::class];
     yield 'entity' => ['entityLifecycleCreate', new EntityStub('block_content'), ContentCapabilityInterface::class];
-    yield 'user' => ['authUserCreate', new EntityStub('user'), UserCapabilityInterface::class];
-    yield 'language' => ['entityLifecycleLanguageCreate', new EntityStub('language'), LanguageCapabilityInterface::class];
+    yield 'user' => ['authCreateUser', new EntityStub('user'), UserCapabilityInterface::class];
+    yield 'language' => ['entityLifecycleCreateLanguage', new EntityStub('language'), LanguageCapabilityInterface::class];
   }
 
   public function testHookExceptionSurfacesFromDispatcher(): void {
@@ -241,7 +241,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The hook failed.');
 
-    $context->entityLifecycleNodeCreate(new EntityStub('node', 'page', ['title' => 'A title']));
+    $context->entityLifecycleCreateNode(new EntityStub('node', 'page', ['title' => 'A title']));
   }
 
   public function testHooksCannotBeDispatchedBeforeInitialization(): void {
@@ -275,13 +275,13 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
     $deleted = [];
     $backend = $this->createContentBackend();
-    $backend->method('nodeDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
+    $backend->method('deleteNode')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'node';
     });
-    $backend->method('termDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
+    $backend->method('deleteTerm')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'term';
     });
-    $backend->method('entityDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
+    $backend->method('deleteEntity')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'entity';
     });
 
@@ -303,8 +303,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   #[DataProvider('dataProviderLanguageIsRemovedThroughLanguageCapability')]
   public function testLanguageIsRemovedThroughLanguageCapability(string $entity_type): void {
     $backend = $this->createBackend([LanguageCapabilityInterface::class, ContentCapabilityInterface::class]);
-    $backend->expects($this->once())->method('languageDelete');
-    $backend->expects($this->never())->method('entityDelete');
+    $backend->expects($this->once())->method('deleteLanguage');
+    $backend->expects($this->never())->method('deleteEntity');
 
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub($entity_type, NULL, ['langcode' => 'fr'])]);
@@ -317,9 +317,9 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     yield 'configurable_language' => ['configurable_language'];
   }
 
-  public function testLanguageDeleteFailureSurfaces(): void {
+  public function testDeleteLanguageFailureSurfaces(): void {
     $backend = $this->createBackend([LanguageCapabilityInterface::class]);
-    $backend->expects($this->once())->method('languageDelete')->willThrowException(new \RuntimeException('Cannot operate on a language without a non-empty "langcode" value.'));
+    $backend->expects($this->once())->method('deleteLanguage')->willThrowException(new \RuntimeException('Cannot operate on a language without a non-empty "langcode" value.'));
 
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('language')]);
@@ -332,7 +332,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testLanguageIsLeftBehindByIncapableBackend(): void {
     $backend = $this->createContentBackend();
-    $backend->expects($this->never())->method('entityDelete');
+    $backend->expects($this->never())->method('deleteEntity');
 
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('language', NULL, ['langcode' => 'fr'])]);
@@ -353,14 +353,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testNothingIsDeletedWhenNoEntityWasCreated(): void {
     $backend = $this->createContentBackend();
-    $backend->expects($this->never())->method('entityDelete');
+    $backend->expects($this->never())->method('deleteEntity');
 
     $this->createContext($backend)->entityLifecycleAfterScenario($this->createAfterScenarioScope());
   }
 
   public function testCreatedUsersAreDeletedAndTheBatchIsDrained(): void {
     $backend = $this->createBackend([UserCapabilityInterface::class, BatchCapabilityInterface::class]);
-    $backend->expects($this->once())->method('userDelete');
+    $backend->expects($this->once())->method('deleteUser');
     $backend->expects($this->once())->method('processBatch');
 
     $user_registry = new UserRegistry();
@@ -407,7 +407,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testCreatedRolesAreDeleted(): void {
     $backend = $this->createBackend([RoleCapabilityInterface::class]);
-    $backend->expects($this->exactly(2))->method('roleDelete');
+    $backend->expects($this->exactly(2))->method('deleteRole');
 
     $context = $this->createContext($backend);
     $context->setRoles(['editor', 'reviewer']);
@@ -428,7 +428,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testNoRoleIsDeletedWhenNoneWasCreated(): void {
     $backend = $this->createBackend([RoleCapabilityInterface::class]);
-    $backend->expects($this->never())->method('roleDelete');
+    $backend->expects($this->never())->method('deleteRole');
 
     $this->createContext($backend)->authAfterScenario($this->createAfterScenarioScope());
   }
@@ -437,10 +437,10 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $deleted = [];
 
     $backend = $this->createBackend([UserCapabilityInterface::class, RoleCapabilityInterface::class]);
-    $backend->method('userDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
+    $backend->method('deleteUser')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'user';
     });
-    $backend->method('roleDelete')->willReturnCallback(static function (string $role_name) use (&$deleted): void {
+    $backend->method('deleteRole')->willReturnCallback(static function (string $role_name) use (&$deleted): void {
       $deleted[] = 'role';
     });
 
@@ -457,8 +457,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testRolesAreDeletedWhenUserCleanupFails(): void {
     $backend = $this->createBackend([UserCapabilityInterface::class, RoleCapabilityInterface::class]);
-    $backend->method('userDelete')->willThrowException(new \RuntimeException('The user could not be deleted.'));
-    $backend->expects($this->once())->method('roleDelete')->with('editor');
+    $backend->method('deleteUser')->willThrowException(new \RuntimeException('The user could not be deleted.'));
+    $backend->expects($this->once())->method('deleteRole')->with('editor');
 
     $user_registry = new UserRegistry();
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
@@ -476,8 +476,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $users_failure = new \RuntimeException('The user could not be deleted.');
 
     $backend = $this->createBackend([UserCapabilityInterface::class, RoleCapabilityInterface::class]);
-    $backend->method('userDelete')->willThrowException($users_failure);
-    $backend->method('roleDelete')->willThrowException(new \RuntimeException('The role could not be deleted.'));
+    $backend->method('deleteUser')->willThrowException($users_failure);
+    $backend->method('deleteRole')->willThrowException(new \RuntimeException('The role could not be deleted.'));
 
     $user_registry = new UserRegistry();
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
@@ -534,7 +534,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     putenv('BEHAT_STEPS_DISABLE_CLEANUP=' . $value);
 
     $backend = $this->createContentBackend();
-    $backend->expects($expected_cleanup ? $this->once() : $this->never())->method('nodeDelete');
+    $backend->expects($expected_cleanup ? $this->once() : $this->never())->method('deleteNode');
 
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
@@ -563,7 +563,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   #[DataProvider('dataProviderTheSkipTagDisablesEntityCleanup')]
   public function testTheSkipTagDisablesEntityCleanup(array $scenario_tags, array $feature_tags): void {
     $backend = $this->createContentBackend();
-    $backend->expects($this->never())->method('nodeDelete');
+    $backend->expects($this->never())->method('deleteNode');
 
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
@@ -580,7 +580,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testTheAuthSkipTagLeavesEntityCleanupRunning(): void {
     $backend = $this->createContentBackend();
-    $backend->expects($this->once())->method('nodeDelete');
+    $backend->expects($this->once())->method('deleteNode');
 
     $context = $this->createContext($backend);
     $context->setCreatedStubs([new EntityStub('node', 'page')]);
@@ -605,8 +605,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     putenv('BEHAT_STEPS_DISABLE_CLEANUP=' . $opt_out);
 
     $backend = $this->createBackend([UserCapabilityInterface::class, RoleCapabilityInterface::class]);
-    $backend->expects($this->never())->method('userDelete');
-    $backend->expects($this->never())->method('roleDelete');
+    $backend->expects($this->never())->method('deleteUser');
+    $backend->expects($this->never())->method('deleteRole');
 
     // The normal path calls 'fastLogout()' even for a scenario that created
     // no users, so the 'never()' expectation proves the early return ran.
@@ -634,7 +634,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testTheEntitySkipTagLeavesRoleCleanupRunning(): void {
     $backend = $this->createBackend([RoleCapabilityInterface::class]);
-    $backend->expects($this->once())->method('roleDelete');
+    $backend->expects($this->once())->method('deleteRole');
 
     $context = $this->createContext($backend);
     $context->setRoles(['editor']);
@@ -648,10 +648,10 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $deleted = [];
 
     $backend = $this->createContentBackend();
-    $backend->method('nodeDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
+    $backend->method('deleteNode')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'node';
     });
-    $backend->method('termDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
+    $backend->method('deleteTerm')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'term';
     });
 

@@ -67,7 +67,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
       ],
     ]);
 
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
     $stored = $this->loadFirstItem($stub->getValue('id'), 'field_photo');
     $this->assertSame((int) $existing->id(), (int) $stored->get('target_id')->getValue());
@@ -91,7 +91,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
       ],
     ]);
 
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
     $stored = $this->loadFirstItem($stub->getValue('id'), 'field_photo');
     $this->assertSame((int) $existing->id(), (int) $stored->get('target_id')->getValue());

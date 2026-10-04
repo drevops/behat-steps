@@ -30,7 +30,7 @@ class RolesAliasTest extends TestCase {
   }
 
   /**
-   * Tests that every entry in 'roles' triggers a 'userAddRole()' call.
+   * Tests that every entry in 'roles' triggers an 'addUserRole()' call.
    */
   public function testApplyAfterCreateAssignsEachRole(): void {
     $backend = new RecordingUserCapability();

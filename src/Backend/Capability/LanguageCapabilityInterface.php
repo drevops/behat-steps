@@ -25,7 +25,7 @@ interface LanguageCapabilityInterface {
    *   The same stub, flagged as saved with the language attached when this
    *   call created it.
    */
-  public function languageCreate(EntityStubInterface $stub): EntityStubInterface;
+  public function createLanguage(EntityStubInterface $stub): EntityStubInterface;
 
   /**
    * Deletes a language.
@@ -35,6 +35,6 @@ interface LanguageCapabilityInterface {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Language stub. Must carry a 'langcode' value.
    */
-  public function languageDelete(EntityStubInterface $stub): void;
+  public function deleteLanguage(EntityStubInterface $stub): void;
 
 }

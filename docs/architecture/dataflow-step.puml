@@ -91,7 +91,7 @@ else the step needs Drupal
   opt the step's trait declares prerequisites
     Trait -> Ctx: assertPrerequisites() for its own trait, the same\nchecks, run only when a scenario uses the step
   end
-  Trait -> Backend: the capability call, e.g. nodeCreate(stub)
+  Trait -> Backend: the capability call, e.g. createNode(stub)
   activate Backend
   Backend --> Trait: result
   deactivate Backend

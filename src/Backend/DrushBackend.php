@@ -427,7 +427,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
-  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
+  public function createRole(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
     $random = $this->getRandom();
     $rid = $id ?? strtolower($random->name(8, TRUE));
     $role_label = $label ?? ($id ?? trim($random->name(8, TRUE)));
@@ -444,14 +444,14 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
-  public function roleDelete(string $role_name): void {
+  public function deleteRole(string $role_name): void {
     $this->drushDelete('role:delete', [$role_name], [], fn(): bool => $this->configExists('user.role.' . $role_name));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function userCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function createUser(EntityStubInterface $stub): EntityStubInterface {
     $arguments = [(string) $stub->getValue('name')];
     $options = [
       'password' => (string) $stub->getValue('pass'),
@@ -478,7 +478,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
-  public function userDelete(EntityStubInterface $stub): void {
+  public function deleteUser(EntityStubInterface $stub): void {
     $name = (string) $stub->getValue('name');
     $uid = (string) $stub->getValue('uid');
 
@@ -526,7 +526,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
-  public function userAddRole(EntityStubInterface $stub, string $role): void {
+  public function addUserRole(EntityStubInterface $stub, string $role): void {
     $arguments = [
       $role,
       (string) $stub->getValue('name'),

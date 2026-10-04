@@ -178,10 +178,10 @@ which likewise allows subclasses to extend registration per version.
 
 ## Pipeline walk-through
 
-For reference, here is the complete flow when `entityCreate()` is called with
+For reference, here is the complete flow when `createEntity()` is called with
 a stub:
 
-1. `entityCreate($entity_type, $entity)` calls `expandEntityFields($entity_type, $entity)`.
+1. `createEntity($entity_type, $entity)` calls `expandEntityFields($entity_type, $entity)`.
 2. `expandEntityFields()` resolves the bundle from the stub and calls
    `getEntityFieldTypes($entity_type, $bundle)`.
 3. `getEntityFieldTypes()` iterates `getFieldStorageDefinitions()`,

@@ -21,7 +21,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Drupal kernel. The test replaces 'Core' with 'ConsumerCore', a fixture
  * outside the 'DrevOps\BehatSteps\Backend' namespace, and proves that its
  * 'Field/' directory scan contributes handlers that run during
- * 'entityCreate':
+ * 'createEntity':
  *
  *  - 'ConsumerProject\Backend\Field\TextLongHandler' takes 'text_long' over
  *    from 'DefaultHandler', which serves the type when nothing is registered.
@@ -74,7 +74,7 @@ class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
       ],
     ]);
 
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
     $field_body = $stub->getValue('field_body');
     $this->assertSame(ConsumerTextLongHandler::MARKER, $field_body[0]['value'], 'Consumer handler did not transform the field value during expand().');
@@ -102,7 +102,7 @@ class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
       'field_summary' => [['value' => 'raw input']],
     ]);
 
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
     $field_summary = $stub->getValue('field_summary');
     $this->assertSame(ConsumerStringLongHandler::MARKER, $field_summary[0]['value'], 'Consumer handler did not transform the field value during expand().');

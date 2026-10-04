@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Kernel test exercising 'entityCreate()' on a 'commerce_product' stub.
+ * Kernel test exercising 'createEntity()' on a 'commerce_product' stub.
  *
  * A stub sets 'commerce_product.variations', a base entity_reference field
  * targeting 'commerce_product_variation'. The backend must resolve each
@@ -23,7 +23,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversClass(Core::class)]
 #[Group('core')]
 #[RunTestsInSeparateProcesses]
-class CoreEntityCreateCommerceKernelTest extends KernelTestBase {
+class CoreCreateEntityCommerceKernelTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}
@@ -96,29 +96,29 @@ class CoreEntityCreateCommerceKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests 'entityCreate()' resolves 'commerce_product.variations'.
+   * Tests 'createEntity()' resolves 'commerce_product.variations'.
    */
-  public function testEntityCreateExpandsProductVariationsBaseField(): void {
+  public function testCreateEntityExpandsProductVariationsBaseField(): void {
     $variation_stub = new EntityStub('commerce_product_variation', 'default', [
       'sku' => 'SKU-001',
       'title' => 'Test variation',
     ]);
-    $this->core->entityCreate($variation_stub);
+    $this->core->createEntity($variation_stub);
 
     $this->assertNotEmpty(
       $variation_stub->getValue('variation_id'),
-      'entityCreate populated commerce_product_variation.variation_id on the stub.',
+      'createEntity populated commerce_product_variation.variation_id on the stub.',
     );
 
     $product_stub = new EntityStub('commerce_product', 'default', [
       'title' => 'Test product',
       'variations' => [$variation_stub->getValue('variation_id')],
     ]);
-    $this->core->entityCreate($product_stub);
+    $this->core->createEntity($product_stub);
 
     $this->assertNotEmpty(
       $product_stub->getValue('product_id'),
-      'entityCreate populated commerce_product.product_id on the stub.',
+      'createEntity populated commerce_product.product_id on the stub.',
     );
 
     $product = Product::load((int) $product_stub->getValue('product_id'));

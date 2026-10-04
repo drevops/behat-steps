@@ -18,9 +18,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel tests for the block capability methods on Core.
  *
  * Covers all 4 methods of 'BlockCapabilityInterface':
- *  - 'blockPlace()' / 'blockDelete()' round-trip a 'block' config entity
+ *  - 'placeBlock()' / 'deleteBlock()' round-trip a 'block' config entity
  *    (placement in a region of a theme).
- *  - 'blockContentCreate()' / 'blockContentDelete()' round-trip a
+ *  - 'createBlockContent()' / 'deleteBlockContent()' round-trip a
  *    'block_content' content entity (the reusable block body).
  */
 #[CoversClass(Core::class)]
@@ -58,9 +58,9 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests that 'blockPlace()' creates a placement in the given region.
+   * Tests that 'placeBlock()' creates a placement in the given region.
    */
-  public function testBlockPlaceAndDeleteRoundTrip(): void {
+  public function testPlaceBlockAndDeleteRoundTrip(): void {
     $stub = new EntityStub('block', NULL, [
       'id' => 'test_powered_by',
       'plugin' => 'system_powered_by_block',
@@ -70,7 +70,7 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
       'settings' => ['label' => 'Powered by', 'label_display' => 'visible'],
     ]);
 
-    $result = $this->core->blockPlace($stub);
+    $result = $this->core->placeBlock($stub);
 
     $this->assertSame($stub, $result);
     $this->assertTrue($result->isSaved());
@@ -82,48 +82,48 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->assertSame('stark', $reloaded->getTheme());
     $this->assertSame('system_powered_by_block', $reloaded->getPluginId());
 
-    $this->core->blockDelete($result);
+    $this->core->deleteBlock($result);
     $this->assertNull(Block::load('test_powered_by'));
   }
 
-  public function testBlockPlaceGeneratesIdWhenAbsent(): void {
+  public function testPlaceBlockGeneratesIdWhenAbsent(): void {
     $stub = new EntityStub('block', NULL, [
       'plugin' => 'system_powered_by_block',
       'theme' => 'stark',
       'region' => 'footer',
     ]);
 
-    $result = $this->core->blockPlace($stub);
+    $result = $this->core->placeBlock($stub);
 
     $this->assertTrue($result->isSaved());
     $placement = $result->getSavedEntity();
     $this->assertInstanceOf(Block::class, $placement);
-    $this->assertNotEmpty($placement->id(), 'blockPlace populated an id on the saved placement.');
+    $this->assertNotEmpty($placement->id(), 'placeBlock populated an id on the saved placement.');
     $this->assertNotNull(Block::load($placement->id()));
   }
 
-  public function testBlockDeleteUsesSavedEntity(): void {
+  public function testDeleteBlockUsesSavedEntity(): void {
     $stub = new EntityStub('block', NULL, [
       'id' => 'test_via_entity',
       'plugin' => 'system_powered_by_block',
       'theme' => 'stark',
       'region' => 'content',
     ]);
-    $this->core->blockPlace($stub);
+    $this->core->placeBlock($stub);
 
     $this->assertNotNull(Block::load('test_via_entity'));
-    $this->core->blockDelete($stub);
+    $this->core->deleteBlock($stub);
     $this->assertNull(Block::load('test_via_entity'));
   }
 
-  public function testBlockDeleteRequiresIdOnStub(): void {
+  public function testDeleteBlockRequiresIdOnStub(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/id/');
 
-    $this->core->blockDelete(new EntityStub('block', NULL, ['plugin' => 'system_powered_by_block']));
+    $this->core->deleteBlock(new EntityStub('block', NULL, ['plugin' => 'system_powered_by_block']));
   }
 
-  public function testBlockContentCreateAndDeleteRoundTrip(): void {
+  public function testCreateBlockContentAndDeleteRoundTrip(): void {
     BlockContentType::create(['id' => 'basic', 'label' => 'Basic'])->save();
 
     $stub = new EntityStub('block_content', 'basic', [
@@ -131,15 +131,15 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
       'reusable' => TRUE,
     ]);
 
-    $created = $this->core->blockContentCreate($stub);
+    $created = $this->core->createBlockContent($stub);
 
     $this->assertSame($stub, $created);
     $this->assertTrue($created->isSaved());
     $this->assertInstanceOf(BlockContent::class, $created->getSavedEntity());
-    $this->assertNotEmpty($stub->getValue('id'), 'blockContentCreate populated the id key on the stub.');
+    $this->assertNotEmpty($stub->getValue('id'), 'createBlockContent populated the id key on the stub.');
     $this->assertSame('backend-test content block', $created->getSavedEntity()->label());
 
-    $this->core->blockContentDelete($stub);
+    $this->core->deleteBlockContent($stub);
     $this->assertNull(BlockContent::load((int) $stub->getValue('id')));
   }
 

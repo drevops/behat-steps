@@ -115,7 +115,7 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
   /**
    * Drives entity creation through the backend and asserts field round-trip.
    *
-   * Core::entityCreate mutates the passed stub so its values reflect whatever
+   * Core::createEntity mutates the passed stub so its values reflect whatever
    * the handler emitted. This method iterates those post-expansion values and
    * asserts the reloaded entity holds the same data.
    *
@@ -138,7 +138,7 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
       $field_name => $values,
     ]);
 
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
     $reloaded = \Drupal::entityTypeManager()
       ->getStorage(self::ENTITY_TYPE)

@@ -60,7 +60,7 @@ trait UserTrait {
    * @endcode
    */
   #[Given('the following users do not exist:')]
-  public function userDelete(TableNode $table): void {
+  public function userDeleteMultiple(TableNode $table): void {
     foreach ($table->getHash() as $user_hash) {
       $users = [];
 
@@ -95,7 +95,7 @@ trait UserTrait {
    * @endcode
    */
   #[Given('the following users with fields exist:')]
-  public function userCreateWithFields(TableNode $table): void {
+  public function userCreateMultipleWithFields(TableNode $table): void {
     $entities = $this->tableTransposeVertical($table);
     $horizontal_table = $this->tableTransposeHorizontal($entities);
     $this->userCreateMultiple($horizontal_table);
@@ -133,7 +133,7 @@ trait UserTrait {
       }
 
       $stub = new EntityStub('user', NULL, $values);
-      $this->authUserCreate($stub);
+      $this->authCreateUser($stub);
 
       $this->userAssignRoles($backend, $stub, $roles);
     }
@@ -269,7 +269,7 @@ trait UserTrait {
    * @endcode
    */
   #[Given('the following roles exist:')]
-  public function userCreateRoles(TableNode $table): void {
+  public function userCreateRoleMultiple(TableNode $table): void {
     foreach ($table->getHash() as $hash) {
       if (!isset($hash['name'])) {
         throw new \RuntimeException('Missing required column "name".');
@@ -322,14 +322,14 @@ trait UserTrait {
    */
   #[When('I log in as a user with the permission(s) :permissions')]
   public function userLoginWithPermissions(string $permissions): void {
-    $role = $this->backendFor(RoleCapabilityInterface::class)->roleCreate(array_filter(array_map(trim(...), explode(',', $permissions))));
+    $role = $this->backendFor(RoleCapabilityInterface::class)->createRole(array_filter(array_map(trim(...), explode(',', $permissions))));
     $role_id = (string) $role->getValue('id');
     $this->roles[] = $role_id;
 
     $stub = $this->userBuildStub();
-    $this->authUserCreate($stub);
+    $this->authCreateUser($stub);
 
-    $this->backendFor(UserCapabilityInterface::class)->userAddRole($stub, $role_id);
+    $this->backendFor(UserCapabilityInterface::class)->addUserRole($stub, $role_id);
 
     $this->authLogin($stub);
   }
@@ -578,7 +578,7 @@ trait UserTrait {
     $backend = $this->backendFor(UserCapabilityInterface::class);
 
     $stub = $this->userBuildStub($extra_fields);
-    $this->authUserCreate($stub);
+    $this->authCreateUser($stub);
 
     $this->userAssignRoles($backend, $stub, $roles);
 
@@ -604,7 +604,7 @@ trait UserTrait {
         continue;
       }
 
-      $backend->userAddRole($stub, $role);
+      $backend->addUserRole($stub, $role);
     }
   }
 

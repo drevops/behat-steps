@@ -62,7 +62,7 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
       'name' => 'pinned',
       'field_author' => ['Doe, Jane'],
     ]);
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
     $values = EntityTest::load($stub->getValue('id'))->get('field_author')->getValue();
     $this->assertSame('Jane', $values[0]['given']);
     $this->assertSame('Doe', $values[0]['family']);
@@ -90,7 +90,7 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
       'name' => 'pinned',
       'field_author' => [['Dr', 'Jane', 'Doe']],
     ]);
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
     $values = EntityTest::load($stub->getValue('id'))->get('field_author')->getValue();
     $this->assertSame('Dr', $values[0]['title']);
     $this->assertSame('Jane', $values[0]['given']);

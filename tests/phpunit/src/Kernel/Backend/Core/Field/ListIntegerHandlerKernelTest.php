@@ -50,7 +50,7 @@ class ListIntegerHandlerKernelTest extends FieldHandlerKernelTestBase {
       'name' => 'pinned',
       'field_priority' => ['Medium'],
     ]);
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
     $reloaded = EntityTest::load($stub->getValue('id'));
     $this->assertSame('2', $reloaded->get('field_priority')->value);
   }

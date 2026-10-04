@@ -41,7 +41,7 @@ trait WebformTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $webforms = $this->webformLoadAll($title);
+    $webforms = $this->webformLoadMultiple($title);
 
     foreach ($webforms as $webform) {
       $webform->delete();
@@ -66,7 +66,7 @@ trait WebformTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $templates = $this->webformLoadTemplates($template);
+    $templates = $this->webformLoadTemplateMultiple($template);
 
     if (empty($templates)) {
       throw new \RuntimeException(sprintf('No webform template matching "%s" was found.', $template));
@@ -93,8 +93,8 @@ trait WebformTrait {
    * @return \Drupal\webform\WebformInterface[]
    *   An array of matching webform template entities.
    */
-  public function webformLoadTemplates(string $title): array {
-    $webforms = $this->webformLoadAll($title);
+  public function webformLoadTemplateMultiple(string $title): array {
+    $webforms = $this->webformLoadMultiple($title);
 
     return array_filter($webforms, static fn($webform): bool => $webform->isTemplate());
   }
@@ -108,7 +108,7 @@ trait WebformTrait {
    * @return \Drupal\webform\WebformInterface[]
    *   An array of matching webform entities.
    */
-  public function webformLoadAll(string $title): array {
+  public function webformLoadMultiple(string $title): array {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);

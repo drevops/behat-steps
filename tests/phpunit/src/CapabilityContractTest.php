@@ -36,7 +36,7 @@ class CapabilityContractTest extends UnitTestCase {
   }
 
   public static function dataProviderCreateReturnsStub(): \Iterator {
-    yield from static::capabilityMethods('/(?:Create|Place)$/');
+    yield from static::capabilityMethods('/^(?:create|place)[A-Z]/');
   }
 
   /**
@@ -57,7 +57,9 @@ class CapabilityContractTest extends UnitTestCase {
   }
 
   public static function dataProviderDeleteReturnsVoid(): \Iterator {
-    yield from static::capabilityMethods('/Delete$/');
+    // An entity delete opens with its verb, while the config and state
+    // deletes keep their subsystem prefix: 'deleteNode()', 'configDelete()'.
+    yield from static::capabilityMethods('/^delete[A-Z]|Delete$/');
   }
 
   /**

@@ -44,7 +44,7 @@ class LinkHandlerKernelTest extends FieldHandlerKernelTestBase {
    * Tests round-trip when the handler is given a URI-only string.
    *
    * LinkHandler converts a bare string into ['uri' => $string] during expand,
-   * so the backend-mutated stub holds an array after entityCreate. The base
+   * so the backend-mutated stub holds an array after createEntity. The base
    * assertion compares that array against the stored field and so checks
    * that the scalar-to-array normalization reached storage intact.
    */

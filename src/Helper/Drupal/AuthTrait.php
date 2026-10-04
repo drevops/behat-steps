@@ -100,7 +100,7 @@ trait AuthTrait {
       $backend = $this->backendFor(UserCapabilityInterface::class);
 
       foreach ($user_registry->getUsers() as $user) {
-        $backend->userDelete($user);
+        $backend->deleteUser($user);
       }
 
       if ($backend instanceof BatchCapabilityInterface) {
@@ -111,7 +111,8 @@ trait AuthTrait {
     }
 
     // A scenario can log in as a pre-existing user without calling
-    // userCreate(), so the auth state is reset even when it created no users.
+    // authCreateUser(), so the auth state is reset even when it created no
+    // users.
     // Otherwise the next scenario starts with stale session state.
     if ($this->authGetAuthenticator() instanceof FastLogoutInterface) {
       $this->authLogout(TRUE);
@@ -136,7 +137,7 @@ trait AuthTrait {
     $backend = $this->backendFor(RoleCapabilityInterface::class);
 
     foreach ($this->roles as $role) {
-      $backend->roleDelete($role);
+      $backend->deleteRole($role);
     }
 
     $this->roles = [];
@@ -190,7 +191,7 @@ trait AuthTrait {
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
    *   When no backend in the scenario's order can create users.
    */
-  public function authUserCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function authCreateUser(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeUserCreateScope::class, $stub);
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
@@ -198,7 +199,7 @@ trait AuthTrait {
     $this->entityLifecycleParseCreatedFields($stub, $backend, ['role']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
-    $backend->userCreate($stub);
+    $backend->createUser($stub);
     $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Cleanup removes only registered stubs. A post-create hook that throws

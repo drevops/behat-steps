@@ -28,7 +28,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[Group('core')]
 #[Group('fields')]
 #[RunTestsInSeparateProcesses]
-class CoreEntityCreateModerationStateKernelTest extends KernelTestBase {
+class CoreCreateEntityModerationStateKernelTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}
@@ -95,15 +95,15 @@ class CoreEntityCreateModerationStateKernelTest extends KernelTestBase {
   /**
    * Tests that 'moderation_state' on a stub is captured at save.
    */
-  public function testEntityCreatePassesModerationStateThrough(): void {
+  public function testCreateEntityPassesModerationStateThrough(): void {
     $stub = new EntityStub('node', 'article', [
       'title' => 'Draft article',
       'moderation_state' => 'draft',
     ]);
 
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
-    $this->assertNotEmpty($stub->getValue('nid'), 'entityCreate populated node nid on the stub.');
+    $this->assertNotEmpty($stub->getValue('nid'), 'createEntity populated node nid on the stub.');
 
     $node = Node::load((int) $stub->getValue('nid'));
     $this->assertInstanceOf(Node::class, $node);

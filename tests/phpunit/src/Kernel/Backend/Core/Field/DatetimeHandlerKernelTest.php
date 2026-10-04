@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel round-trip test for datetime fields via the Core backend.
  *
- * Core::entityCreate resolves DatetimeHandler through its lookup chain, real
+ * Core::createEntity resolves DatetimeHandler through its lookup chain, real
  * datetime field storage accepts the handler's output, and the stored value
  * round-trips unchanged.
  */
@@ -69,7 +69,7 @@ class DatetimeHandlerKernelTest extends FieldHandlerKernelTestBase {
       'name' => 'relative-date',
       'field_seen' => [['value' => 'relative:2026-01-02 03:04:05']],
     ]);
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
     // The 'relative:' prefix is stripped before parsing, so the stored value
     // equals the one a plain timestamp produces.

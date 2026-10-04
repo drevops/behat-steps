@@ -65,12 +65,12 @@ trait MediaTrait {
    * @endcode
    */
   #[Given('the following :media_type media exist:')]
-  public function mediaCreate(string $media_type, TableNode $table): void {
-    $this->mediaDelete($media_type, $table);
+  public function mediaCreateMultiple(string $media_type, TableNode $table): void {
+    $this->mediaDeleteMultiple($media_type, $table);
 
     foreach ($table->getHash() as $media_hash) {
       $stub = new EntityStub('media', $media_type, $media_hash);
-      $this->mediaCreateSingle($stub);
+      $this->mediaCreate($stub);
     }
   }
 
@@ -92,15 +92,15 @@ trait MediaTrait {
    * @endcode
    */
   #[Given('the following :media_type media with fields exist:')]
-  public function mediaCreateWithFields(string $media_type, TableNode $table): void {
+  public function mediaCreateMultipleWithFields(string $media_type, TableNode $table): void {
     $entities = $this->tableTransposeVertical($table);
     $horizontal_table = $this->tableTransposeHorizontal($entities);
 
-    $this->mediaDelete($media_type, $horizontal_table);
+    $this->mediaDeleteMultiple($media_type, $horizontal_table);
 
     foreach ($entities as $entity_data) {
       $stub = new EntityStub('media', $media_type, $entity_data);
-      $this->mediaCreateSingle($stub);
+      $this->mediaCreate($stub);
     }
   }
 
@@ -115,7 +115,7 @@ trait MediaTrait {
    * @endcode
    */
   #[Given('the following :media_type media do not exist:')]
-  public function mediaDelete(string $media_type, TableNode $table): void {
+  public function mediaDeleteMultiple(string $media_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $storage = \Drupal::entityTypeManager()->getStorage('media');
@@ -280,7 +280,7 @@ trait MediaTrait {
    * @return \Drupal\media\MediaInterface
    *   The created media item.
    */
-  public function mediaCreateSingle(EntityStubInterface $stub): MediaInterface {
+  public function mediaCreate(EntityStubInterface $stub): MediaInterface {
     $this->entityLifecycleParseFields($stub);
     $entity = $this->mediaCreateEntity($stub);
     $this->entityLifecycleRegister($entity);

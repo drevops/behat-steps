@@ -18,7 +18,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for node-related methods on Core via the backend.
  *
- * Exercises Core::nodeCreate and Core::nodeDelete end-to-end: bundle
+ * Exercises Core::createNode and Core::deleteNode end-to-end: bundle
  * validation, the optional 'author' to 'uid' remapping, expandEntityFields
  * (a no-op here, with no fields attached), save, and delete.
  */
@@ -74,39 +74,39 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
       'author' => 'article_author',
     ]);
 
-    $result = $this->core->nodeCreate($stub);
+    $result = $this->core->createNode($stub);
 
-    $this->assertSame($stub, $result, 'nodeCreate returns the same stub.');
-    $this->assertNotEmpty($result->getValue('nid'), 'nodeCreate populated nid.');
-    $this->assertTrue($result->isSaved(), 'nodeCreate marked the stub saved.');
+    $this->assertSame($stub, $result, 'createNode returns the same stub.');
+    $this->assertNotEmpty($result->getValue('nid'), 'createNode populated nid.');
+    $this->assertTrue($result->isSaved(), 'createNode marked the stub saved.');
     $node = Node::load($result->getValue('nid'));
     $this->assertInstanceOf(Node::class, $node);
     $this->assertSame('Hello world', $node->getTitle());
     $this->assertSame((int) $author->id(), (int) $node->getOwnerId(), 'author mapped to uid.');
 
-    $this->core->nodeDelete($result);
+    $this->core->deleteNode($result);
     $this->assertNull(Node::load($result->getValue('nid')));
   }
 
-  public function testNodeCreateRejectsUnknownBundle(): void {
+  public function testCreateNodeRejectsUnknownBundle(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot create content because provided content type bogus does not exist.');
 
-    $this->core->nodeCreate(new EntityStub('node', 'bogus', ['title' => 'Nope']));
+    $this->core->createNode(new EntityStub('node', 'bogus', ['title' => 'Nope']));
   }
 
-  public function testNodeCreateRejectsMissingType(): void {
+  public function testCreateNodeRejectsMissingType(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage("Cannot create content because it is missing the required property 'type'.");
 
-    $this->core->nodeCreate(new EntityStub('node', NULL, ['title' => 'Nope']));
+    $this->core->createNode(new EntityStub('node', NULL, ['title' => 'Nope']));
   }
 
-  public function testNodeCreateRejectsUnknownAuthor(): void {
+  public function testCreateNodeRejectsUnknownAuthor(): void {
     $this->expectException(CreationAliasResolutionException::class);
     $this->expectExceptionMessageMatches('/user "auther".*does not exist/');
 
-    $this->core->nodeCreate(new EntityStub('node', 'article', [
+    $this->core->createNode(new EntityStub('node', 'article', [
       'title' => 'Hello',
       'author' => 'auther',
     ]));

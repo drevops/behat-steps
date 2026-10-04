@@ -80,7 +80,7 @@ Feature: Check that MediaTrait works
       Unable to find "document" media with the name "Non-existent media".
       """
 
-  Scenario: Assert that mediaCreate() deletes existing media before creating
+  Scenario: Assert that mediaCreateMultiple() deletes existing media before creating
     Given the following managed files exist:
       | path      |
       | image.png |
@@ -128,7 +128,7 @@ Feature: Check that MediaTrait works
     And I should see "[TEST] V-Image 2"
     And I should see "[TEST] V-Image 3"
 
-  Scenario: Assert that mediaCreateWithFields() deletes existing media before creating
+  Scenario: Assert that mediaCreateMultipleWithFields() deletes existing media before creating
     Given the following managed files exist:
       | path      |
       | image.png |

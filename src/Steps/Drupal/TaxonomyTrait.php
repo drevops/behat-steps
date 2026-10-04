@@ -50,10 +50,10 @@ trait TaxonomyTrait {
    * @endcode
    */
   #[Given('the following :vocabulary terms with fields exist:')]
-  public function taxonomyCreateWithFields(string $vocabulary, TableNode $table): void {
+  public function taxonomyCreateMultipleWithFields(string $vocabulary, TableNode $table): void {
     $entities = $this->tableTransposeVertical($table);
     $horizontal_table = $this->tableTransposeHorizontal($entities);
-    $this->taxonomyCreate($vocabulary, $horizontal_table);
+    $this->taxonomyCreateMultiple($vocabulary, $horizontal_table);
   }
 
   /**
@@ -69,10 +69,10 @@ trait TaxonomyTrait {
    * @endcode
    */
   #[Given('the following :vocabulary terms exist:')]
-  public function taxonomyCreate(string $vocabulary, TableNode $table): void {
+  public function taxonomyCreateMultiple(string $vocabulary, TableNode $table): void {
     foreach ($table->getHash() as $values) {
       $values['vocabulary_machine_name'] = $vocabulary;
-      $this->entityLifecycleTermCreate(new EntityStub('taxonomy_term', $vocabulary, $values));
+      $this->entityLifecycleCreateTerm(new EntityStub('taxonomy_term', $vocabulary, $values));
     }
   }
 
@@ -86,7 +86,7 @@ trait TaxonomyTrait {
    * @endcode
    */
   #[Given('the following :vocabulary terms do not exist:')]
-  public function taxonomyDeleteTerms(string $vocabulary, TableNode $terms_table): void {
+  public function taxonomyDeleteMultiple(string $vocabulary, TableNode $terms_table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);

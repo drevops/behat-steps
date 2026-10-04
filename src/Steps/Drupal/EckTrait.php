@@ -41,14 +41,17 @@ trait EckTrait {
    * @endcode
    */
   #[Given('the following eck :bundle :entity_type entities exist:')]
-  public function eckEntitiesCreate(string $bundle, string $entity_type, TableNode $table): void {
+  public function eckCreateMultiple(string $bundle, string $entity_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
     $filtered_table = TableNode::fromList($table->getColumn(0));
-    $this->eckDeleteEntities($bundle, $entity_type, $filtered_table);
-    $this->eckCreateEntities($entity_type, $bundle, $table);
+    $this->eckDeleteMultiple($bundle, $entity_type, $filtered_table);
+
+    foreach ($table->getHash() as $entity_hash) {
+      $this->eckCreate(new EntityStub($entity_type, $bundle, $entity_hash));
+    }
   }
 
   /**
@@ -61,7 +64,7 @@ trait EckTrait {
    * @endcode
    */
   #[Given('the following eck :bundle :entity_type entities do not exist:')]
-  public function eckDeleteEntities(string $bundle, string $entity_type, TableNode $table): void {
+  public function eckDeleteMultiple(string $bundle, string $entity_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
@@ -147,29 +150,12 @@ trait EckTrait {
   }
 
   /**
-   * Create custom content entities.
-   *
-   * @param string $entity_type
-   *   The content entity type.
-   * @param string $bundle
-   *   The content entity bundle.
-   * @param \Behat\Gherkin\Node\TableNode $table
-   *   The TableNode of entity data.
-   */
-  protected function eckCreateEntities(string $entity_type, string $bundle, TableNode $table): void {
-    foreach ($table->getHash() as $entity_hash) {
-      $stub = new EntityStub($entity_type, $bundle, $entity_hash);
-      $this->eckCreateEntity($stub);
-    }
-  }
-
-  /**
    * Create a single content entity.
    */
-  public function eckCreateEntity(EntityStub $stub): void {
+  public function eckCreate(EntityStub $stub): void {
     $this->entityLifecycleParseFields($stub);
 
-    $this->backendFor(ContentCapabilityInterface::class)->entityCreate($stub);
+    $this->backendFor(ContentCapabilityInterface::class)->createEntity($stub);
 
     $saved = $stub->getSavedEntity();
     if ($saved instanceof EntityInterface) {
