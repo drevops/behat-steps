@@ -163,12 +163,12 @@ A nested option is written as a section in the configuration and reads as a dott
 | `backends` | map | `[]` | Ordered list of the backends a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first backend here providing it answers. A bare entry names a registered backend; a "tag: backend" entry gives it a name of its own, so the same feature file runs against a different backend in another profile. Omit it to get every registered backend, in registration order.<br>- drupal<br>- api: acme-jsonapi<br>- blackbox |
 | `login_field` | string | `'name'` | User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property. |
 | `regions` | map | `[]` | Map of named regions to CSS selectors. Region steps such as 'I press the button :button in the region :region' resolve against this map.<br>My region: "#css-selector"<br>Content: "#main .region-content"<br>Right sidebar: "#sidebar-second" |
-| `text` | section | - | Text strings, such as Log out or the Username field can be altered in the Behat configuration if they vary from the default values.<br>login_url: "/user"<br>logout_url: "/user/logout"<br>logout_confirm_url: "/user/logout/confirm"<br>log_out: "Sign out"<br>log_in: "Sign in"<br>password_field: "Enter your password"<br>username_field: "Nickname" |
+| `text` | section | - | Text strings, such as Log out or the Username field can be altered in the Behat configuration if they vary from the default values.<br>login_url: "/user"<br>logout_url: "/user/logout"<br>logout_confirm_url: "/user/logout/confirm"<br>logout: "Sign out"<br>login: "Sign in"<br>password_field: "Enter your password"<br>username_field: "Nickname" |
 | `text.login_url` | string | `'/user'` | Path the login steps submit the login form on. |
 | `text.logout_url` | string | `'/user/logout'` | Path the logout steps request. |
 | `text.logout_confirm_url` | string | `'/user/logout/confirm'` | Path of the logout confirmation form, submitted when the site asks to confirm. |
-| `text.log_in` | string | `'Log in'` | Text of the login submit button. |
-| `text.log_out` | string | `'Log out'` | Text of the logout link. |
+| `text.login` | string | `'Log in'` | Text of the login submit button. |
+| `text.logout` | string | `'Log out'` | Text of the logout link. |
 | `text.password_field` | string | `'Password'` | Label of the password field on the login form. |
 | `text.username_field` | string | `'Username'` | Label of the username field on the login form. |
 | `login_wait` | integer | `0` | Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting. |

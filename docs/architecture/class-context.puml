@@ -86,9 +86,9 @@ package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
     +findCredentials() : array|null
   }
   interface AuthenticatorInterface {
-    +logIn(user) : void
-    +logOut() : void
-    +loggedIn() : bool
+    +login(user) : void
+    +logout() : void
+    +isLoggedIn() : bool
   }
   interface UserRegistryInterface {
     +getCurrentUser() : EntityStubInterface|false
