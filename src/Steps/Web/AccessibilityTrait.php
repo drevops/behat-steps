@@ -170,28 +170,12 @@ trait AccessibilityTrait {
   protected bool $accessibilityGated = FALSE;
 
   /**
-   * Capture the working directory once, before any scenario can chdir().
+   * Capture the working directory, then clear the suite-level aggregate.
    */
   #[BeforeSuite]
-  public static function accessibilityCaptureBaseDir(BeforeSuiteScope $scope): void {
-    if (self::$accessibilityBaseDir === NULL) {
-      $cwd = getcwd();
-      if ($cwd !== FALSE) {
-        self::$accessibilityBaseDir = $cwd;
-      }
-    }
-  }
-
-  /**
-   * Clear the suite-level aggregate state before the suite runs.
-   *
-   * The accumulator is process-global, so resetting at suite start stops a
-   * second suite in the same process from inheriting the first one's results.
-   */
-  #[BeforeSuite]
-  public static function accessibilityAggregateReset(BeforeSuiteScope $scope): void {
-    self::$accessibilityAggregate = [];
-    self::$accessibilityAggregateReportDir = NULL;
+  public static function accessibilityBeforeSuite(BeforeSuiteScope $scope): void {
+    static::accessibilityCaptureBaseDir();
+    static::accessibilityAggregateReset();
   }
 
   /**
@@ -514,6 +498,18 @@ trait AccessibilityTrait {
     $base = self::$accessibilityBaseDir ?? (getcwd() ?: '.');
 
     return $base . DIRECTORY_SEPARATOR . $directory;
+  }
+
+  /**
+   * Capture the working directory once, before any scenario can chdir().
+   */
+  protected static function accessibilityCaptureBaseDir(): void {
+    if (self::$accessibilityBaseDir === NULL) {
+      $cwd = getcwd();
+      if ($cwd !== FALSE) {
+        self::$accessibilityBaseDir = $cwd;
+      }
+    }
   }
 
   /**
@@ -1136,6 +1132,17 @@ HTML;
       $total_failures,
       $suites_xml
     );
+  }
+
+  /**
+   * Clear the suite-level aggregate state before the suite runs.
+   *
+   * The accumulator is process-global, so resetting at suite start stops a
+   * second suite in the same process from inheriting the first one's results.
+   */
+  protected static function accessibilityAggregateReset(): void {
+    self::$accessibilityAggregate = [];
+    self::$accessibilityAggregateReportDir = NULL;
   }
 
   /**
