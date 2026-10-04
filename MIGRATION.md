@@ -633,7 +633,7 @@ $profile
   ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => 'web']]));
 ```
 
-Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. `guzzle_request_options`, `ajax_timeout` and the 3 `*_driver` keys are the exceptions; see below and [Capability-based backend resolution](#capability-based-backend-resolution).
+Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. `guzzle_request_options`, `ajax_timeout`, the 3 `*_driver` keys and the `log_in` and `log_out` text keys are the exceptions; see below, [Capability-based backend resolution](#capability-based-backend-resolution) and [`Login` and `Logout`, not `LogIn` and `LogOut`](#login-and-logout-not-login-and-logout).
 
 `BehatStepsExtension` registers its own factory behind `browserkit_http` with whichever Mink extension the suite registers. The factory builds every `browserkit_http` session exactly as Mink does, on Mink's own `HttpBrowser`, and records the session's options for the requests steps send from PHP, which go through 1 shared Symfony HttpClient transport. Drupal's `DrupalTestBrowser` and Guzzle are no longer used, so `guzzle_request_options` gives way to Mink's own `http_client_parameters`, which takes [Symfony HttpClient options](https://symfony.com/doc/current/http_client.html):
 
@@ -1444,7 +1444,7 @@ No step shipped by this library declares `:expectedValue`, so the shipped vocabu
 
 ## One shape per naming idea
 
-Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize", 2 shapes for a consumer override point, 3 lookup verbs that didn't say what a lookup does when nothing matches, and assertions that put a qualifier ahead of their predicate, used `Has`, `Includes` or `Present` where the rules say `Equals`, `Contains` or `Exists`, or weren't named as assertions at all. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
+Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize" and 2 of "log in", 2 shapes for a consumer override point, 3 lookup verbs that didn't say what a lookup does when nothing matches, and assertions that put a qualifier ahead of their predicate, used `Has`, `Includes` or `Present` where the rules say `Equals`, `Contains` or `Exists`, or weren't named as assertions at all. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
 
 `CONTRIBUTING.md` states the settled conventions and `tests/phpunit/src/TraitMethodNamingTest.php` enforces them.
 
@@ -1512,6 +1512,27 @@ Two of the four header assertions were verb-first and two subject-first. The exi
 | --- | --- | --- |
 | `Drupal\StateTrait` | `stateNormaliseValue()` | `stateNormalizeValue()` |
 | `ElementTrait` | `elementNormaliseCssProperty()` | `elementNormalizeCssProperty()` |
+
+### `Login` and `Logout`, not `LogIn` and `LogOut`
+
+Logging in and out is spelled as 1 word in every name, as `authLogin()`, `FastLogoutInterface` and the `login_url` key already spelled it. Step text keeps the verb, so `When I log in as the user :name` is unchanged.
+
+| Where | Old | New |
+| --- | --- | --- |
+| `Behat\Manager\AuthenticatorInterface` | `logIn()` | `login()` |
+| `Behat\Manager\AuthenticatorInterface` | `logOut()` | `logout()` |
+| `Behat\Manager\AuthenticatorInterface` | `loggedIn()` | `isLoggedIn()` |
+| `Drupal\UserTrait` | `userCreateAndLogIn()` | `userCreateAndLogin()` |
+| `Drupal\UserTrait` | `userLogInAs()` | `userLoginAs()` |
+| `Drupal\UserTrait` | `userLogInWithPermissions()` | `userLoginWithPermissions()` |
+| `Drupal\UserTrait` | `userLogInWithRoles()` | `userLoginWithRoles()` |
+| `Drupal\UserTrait` | `userLogInWithRolesAndFields()` | `userLoginWithRolesAndFields()` |
+| `Drupal\UserTrait` | `userLogOut()` | `userLogout()` |
+| `Drupal\UserTrait` | `userLogOutSession()` | `userLogoutSession()` |
+| `BehatStepsExtension` | `text: log_in:` | `text: login:` |
+| `BehatStepsExtension` | `text: log_out:` | `text: logout:` |
+
+PHP matches method names without regard to case, so only 3 rows need an edit. A custom authenticator that declares `loggedIn()` fails to load until it declares `isLoggedIn()`, and a `log_in` or `log_out` key under `text` fails the container build with a message naming its replacement. The other rows change case only, so existing calls and overrides keep working.
 
 ### Consumer override points are `Get`-prefixed
 
