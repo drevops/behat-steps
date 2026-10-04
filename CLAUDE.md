@@ -89,6 +89,7 @@ ahoy copy-files
     `:media_type`, `:content_block_type`, `:vocabulary` - unless the step is
     deliberately entity-agnostic, where `:bundle` is correct
   - A partial match reads `:partial_<thing>`, as in `:partial_name`
+  - An email address is `:address` and a 1-based position is `:index`
 
 - **Articles and Word Order**:
   - Every noun takes an article, and `URL` is uppercase
@@ -99,7 +100,13 @@ ahoy copy-files
     (`the media type :media_type`)
   - Any other placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`, `a REST :method request`) also come first
   - A step never opens with a placeholder: `the :content_type content with the title :title should not exist`
-  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, and the names in `docs.php`'s `non_descriptive_placeholders()`
+  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, the names in `docs.php`'s `non_descriptive_placeholders()` and `placeholder_synonyms()`, the phrases in `rejected_step_phrases()`, and an `I visit` step that names no page or link
+
+- **Settled Wording**: each idea reads 1 way
+  - A step that opens a page reads `I visit the ... page` and names the page: `I visit the :content_type content edit page with the title :title`, never `I edit the ...`
+  - Its method opens with `Visit` and names the page as the step does: `contentVisitEditPageWithTitle()`, `userVisitProfileEditPage()`. `TraitMethodNamingTest` enforces it
+  - A click reads `I click on the ...`, the viewport is `the viewport`, and a `<select>` is `the select :selector`
+  - A second `with` qualifier on an action repeats `With` in the method name, in step-text order: `emailFollowLinkWithIndexWithSubjectContaining()`
 
 - **Given Steps**:
   - Define test prerequisites
@@ -149,7 +156,7 @@ In `@trait:` scenarios, `Then it should fail with an error:` asserts an assertio
 - Content block operations:
   - `the content block type "..." should exist`
   - `the following "..." content blocks exist:`
-  - `I edit the "..." content block with the description "..."`
+  - `I visit the "..." content block edit page with the description "..."`
 
 - Email testing:
   - `I enable the test email system`

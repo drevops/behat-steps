@@ -1199,56 +1199,56 @@ Then the element ".error-message" should not be displayed
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should be displayed within a viewport</code></summary>
+  <summary><code>@Then the element :selector should be displayed within the viewport</code></summary>
 
 <br/>
-Assert that element with specified CSS is displayed within a viewport
+Assert that element with specified CSS is displayed within the viewport
 <br/><br/>
 
 ```gherkin
-Then the element ".hero-banner" should be displayed within a viewport
+Then the element ".hero-banner" should be displayed within the viewport
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should be displayed within a viewport with a top offset of :offset pixels</code></summary>
+  <summary><code>@Then the element :selector should be displayed within the viewport with a top offset of :offset pixels</code></summary>
 
 <br/>
-Assert that element with specified CSS is displayed within a viewport with a top offset
+Assert that element with specified CSS is displayed within the viewport with a top offset
 <br/><br/>
 
 ```gherkin
-Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
+Then the element ".sticky-header" should be displayed within the viewport with a top offset of 50 pixels
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should not be displayed within a viewport with a top offset of :offset pixels</code></summary>
+  <summary><code>@Then the element :selector should not be displayed within the viewport with a top offset of :offset pixels</code></summary>
 
 <br/>
-Assert that element with specified CSS is not displayed within a viewport with a top offset
+Assert that element with specified CSS is not displayed within the viewport with a top offset
 <br/><br/>
 
 ```gherkin
-Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
+Then the element ".below-fold-content" should not be displayed within the viewport with a top offset of 0 pixels
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should not be displayed within a viewport</code></summary>
+  <summary><code>@Then the element :selector should not be displayed within the viewport</code></summary>
 
 <br/>
 Assert that element with specified CSS is visually hidden on page
 <br/><br/>
 
 ```gherkin
-Then the element ".visually-hidden" should not be displayed within a viewport
+Then the element ".visually-hidden" should not be displayed within the viewport
 
 ```
 
@@ -1634,56 +1634,56 @@ Then the color field "#edit-background-color" should have the value "#FF5733"
 </details>
 
 <details>
-  <summary><code>@Then the option :option should exist within the select element :selector</code></summary>
+  <summary><code>@Then the option :option should exist within the select :selector</code></summary>
 
 <br/>
 Assert that a select has an option
 <br/><br/>
 
 ```gherkin
-Then the option "Administrator" should exist within the select element "edit-roles"
+Then the option "Administrator" should exist within the select "edit-roles"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the option :option should not exist within the select element :selector</code></summary>
+  <summary><code>@Then the option :option should not exist within the select :selector</code></summary>
 
 <br/>
 Assert that a select does not have an option
 <br/><br/>
 
 ```gherkin
-Then the option "Guest" should not exist within the select element "edit-roles"
+Then the option "Guest" should not exist within the select "edit-roles"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the option :option should be selected within the select element :selector</code></summary>
+  <summary><code>@Then the option :option should be selected within the select :selector</code></summary>
 
 <br/>
 Assert that a select option is selected
 <br/><br/>
 
 ```gherkin
-Then the option "Administrator" should be selected within the select element "edit-roles"
+Then the option "Administrator" should be selected within the select "edit-roles"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the option :option should not be selected within the select element :selector</code></summary>
+  <summary><code>@Then the option :option should not be selected within the select :selector</code></summary>
 
 <br/>
 Assert that a select option is not selected
 <br/><br/>
 
 ```gherkin
-Then the option "Editor" should not be selected within the select element "edit-roles"
+Then the option "Editor" should not be selected within the select "edit-roles"
 
 ```
 
@@ -3252,14 +3252,14 @@ Then the current URL should not have the query parameter "filter" with the value
 
 
 <details>
-  <summary><code>@When I click the link :link in the region :region</code></summary>
+  <summary><code>@When I click on the link :link in the region :region</code></summary>
 
 <br/>
 Click a link within a region
 <br/><br/>
 
 ```gherkin
-When I click the link "Read more" in the region "content"
+When I click on the link "Read more" in the region "content"
 
 ```
 
@@ -3834,14 +3834,14 @@ Then the REST response should contain "success"
 | `table.body_row_selector` | string | `'tbody tr'` | - | CSS selector of a table body row, relative to the table. |
 
 <details>
-  <summary><code>@When I click the link :link in the row :row_text</code></summary>
+  <summary><code>@When I click on the link :link in the row :row_text</code></summary>
 
 <br/>
 Click a link within a row
 <br/><br/>
 
 ```gherkin
-When I click the link "Edit" in the row "Article title"
+When I click on the link "Edit" in the row "Article title"
 
 ```
 
@@ -5131,7 +5131,8 @@ Then the config "system.site" key "name" should not contain the effective value 
 
 >  Manage Drupal content blocks.
 >  - Define reusable custom block content with structured field data.
->  - Create, edit, and verify block_content entities by type and description.
+>  - Create and verify block_content entities by type and description, and
+>  visit their edit pages.
 >  - Created entities are automatically removed at the end of the scenario.
 
 
@@ -5186,14 +5187,14 @@ Given the following basic content blocks with fields exist:
 </details>
 
 <details>
-  <summary><code>@When I edit the :content_block_type content block with the description :description</code></summary>
+  <summary><code>@When I visit the :content_block_type content block edit page with the description :description</code></summary>
 
 <br/>
-Navigate to the edit page for a specified content block
+Visit the edit page of the content block with the specified description
 <br/><br/>
 
 ```gherkin
-When I edit the "basic" content block with the description "[TEST] Footer Block"
+When I visit the "basic" content block edit page with the description "[TEST] Footer Block"
 
 ```
 
@@ -5636,7 +5637,7 @@ Then the drush output should match the pattern "/Drupal [0-9]+/"
 
 >  Manage Drupal ECK entities with custom type and bundle creation.
 >  - Create structured ECK entities with defined field values.
->  - Visit and edit ECK entity pages.
+>  - Visit ECK entity pages and their edit pages.
 >  - Created entities are automatically removed at the end of the scenario.
 
 
@@ -5681,28 +5682,28 @@ Given the following eck "contact" "contact_type" entities do not exist:
 </details>
 
 <details>
-  <summary><code>@When I visit the eck :bundle :entity_type entity with the title :title</code></summary>
+  <summary><code>@When I visit the eck :bundle :entity_type entity page with the title :title</code></summary>
 
 <br/>
-Navigate to view entity page with specified type and title
+Visit the page of the eck entity with the specified type and title
 <br/><br/>
 
 ```gherkin
-When I visit the eck "contact" "contact_type" entity with the title "Test contact"
+When I visit the eck "contact" "contact_type" entity page with the title "Test contact"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I edit the eck :bundle :entity_type entity with the title :title</code></summary>
+  <summary><code>@When I visit the eck :bundle :entity_type entity edit page with the title :title</code></summary>
 
 <br/>
-Navigate to edit eck entity page with specified type and title
+Visit the edit page of the eck entity with the specified type and title
 <br/><br/>
 
 ```gherkin
-When I edit the eck "contact" "contact_type" entity with the title "Test contact"
+When I visit the eck "contact" "contact_type" entity edit page with the title "Test contact"
 
 ```
 
@@ -6397,28 +6398,28 @@ Given the following "image" media do not exist:
 </details>
 
 <details>
-  <summary><code>@When I edit the :media_type media with the name :name</code></summary>
+  <summary><code>@When I visit the :media_type media page with the name :name</code></summary>
 
 <br/>
-Navigate to edit media with specified type and name
+Visit the page of the media with the specified type and name
 <br/><br/>
 
 ```gherkin
-When I edit the "document" media with the name "Test document"
+When I visit the "image" media page with the name "Test media image"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I visit the :media_type media with the name :name</code></summary>
+  <summary><code>@When I visit the :media_type media edit page with the name :name</code></summary>
 
 <br/>
-Navigate to view page of media with specified type and name
+Visit the edit page of the media with the specified type and name
 <br/><br/>
 
 ```gherkin
-When I visit the "image" media with the name "Test media image"
+When I visit the "document" media edit page with the name "Test document"
 
 ```
 
@@ -6428,7 +6429,7 @@ When I visit the "image" media with the name "Test media image"
   <summary><code>@When I visit the :media_type media delete page with the name :name</code></summary>
 
 <br/>
-Navigate to delete page of media with specified type and name
+Visit the delete page of the media with the specified type and name
 <br/><br/>
 
 ```gherkin
@@ -6442,7 +6443,7 @@ When I visit the "image" media delete page with the name "Test media image"
   <summary><code>@When I visit the :media_type media revisions page with the name :name</code></summary>
 
 <br/>
-Navigate to revisions page of media with specified type and name
+Visit the revisions page of the media with the specified type and name
 <br/><br/>
 
 ```gherkin
@@ -7731,7 +7732,7 @@ Then the user "John" should not have the roles "administrator, editor" assigned
 </details>
 
 <details>
-  <summary><code>@Then the user with the email :mail should exist</code></summary>
+  <summary><code>@Then the user with the email :address should exist</code></summary>
 
 <br/>
 Assert that a user with an email address exists
@@ -7745,7 +7746,7 @@ Then the user with the email "alice@example.com" should exist
 </details>
 
 <details>
-  <summary><code>@Then the user with the email :mail should not exist</code></summary>
+  <summary><code>@Then the user with the email :address should not exist</code></summary>
 
 <br/>
 Assert that a user with an email address does not exist

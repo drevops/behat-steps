@@ -188,7 +188,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 
 | Before | After |
 | --- | --- |
-| `When I edit the :type content block with the description :description` | `When I edit the :content_block_type content block with the description :description` |
+| `When I edit the :type content block with the description :description` | `When I visit the :content_block_type content block edit page with the description :description` |
 | `Then the content block type :type should exist` | `Then the content block type :content_block_type should exist` |
 | `Given the following :type content blocks do not exist:` | `Given the following :content_block_type content blocks do not exist:` |
 | `Given the following :type content blocks exist:` | `Given the following :content_block_type content blocks exist:` |
@@ -255,10 +255,10 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | Before | After |
 | --- | --- |
 | `Given :media_type media type does not exist` | `Given the media type :media_type does not exist` |
-| `When I edit the media :media_type with the name :name` | `When I edit the :media_type media with the name :name` |
+| `When I edit the media :media_type with the name :name` | `When I visit the :media_type media edit page with the name :name` |
 | `When I visit the media :media_type delete page with the name :name` | `When I visit the :media_type media delete page with the name :name` |
 | `When I visit the media :media_type revisions page with the name :name` | `When I visit the :media_type media revisions page with the name :name` |
-| `When I visit the media :media_type with the name :name` | `When I visit the :media_type media with the name :name` |
+| `When I visit the media :media_type with the name :name` | `When I visit the :media_type media page with the name :name` |
 | `Then the :media_type media type should exist` | `Then the media type :media_type should exist` |
 | `Then the :media_type media type should not exist` | `Then the media type :media_type should not exist` |
 | `Given the following :bundle media with fields:` | `Given the following :media_type media with fields exist:` |
@@ -385,8 +385,8 @@ Placeholders name the value's role rather than its type, so `:number` became `:o
 
 | Before | After |
 | --- | --- |
-| `Then the element :selector should be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should be displayed within a viewport with a top offset of :offset pixels` |
-| `Then the element :selector should not be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should not be displayed within a viewport with a top offset of :offset pixels` |
+| `Then the element :selector should be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should be displayed within the viewport with a top offset of :offset pixels` |
+| `Then the element :selector should not be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should not be displayed within the viewport with a top offset of :offset pixels` |
 
 This also renames the `$number` argument of `ElementTrait::elementAssertVisuallyVisibleWithOffset()` and `ElementTrait::elementAssertNotVisuallyVisibleWithOffset()` to `$offset`, which matters only if you call either method with named arguments.
 
@@ -457,8 +457,8 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 
 | Before | After |
 | --- | --- |
-| `When I visit eck :bundle :entity_type entity with the title :title` | `When I visit the eck :bundle :entity_type entity with the title :title` |
-| `When I edit eck :bundle :entity_type entity with the title :title` | `When I edit the eck :bundle :entity_type entity with the title :title` |
+| `When I visit eck :bundle :entity_type entity with the title :title` | `When I visit the eck :bundle :entity_type entity page with the title :title` |
+| `When I edit eck :bundle :entity_type entity with the title :title` | `When I visit the eck :bundle :entity_type entity edit page with the title :title` |
 
 ### ElementTrait
 
@@ -563,6 +563,77 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 | `When I print last XML response` | `When I print the last XML response` |
 | `Then the XML attribute :attribute on element :element should exist` | `Then the XML attribute :attribute on the element :element should exist` |
 | `Then the XML attribute :attribute on element :element should not exist` | `Then the XML attribute :attribute on the element :element should not exist` |
+
+## One wording per step idea
+
+A handful of ideas still read 2 ways after the passes above. Most navigation steps said `I visit the ... page`, while 2 dropped `page` and 3 said `I edit the ...` although they only open the edit form. A click was `I click on` in some traits and `I click` in others, the viewport was both `the viewport` and `a viewport`, a `<select>` was both `the select` and `the select element`, and an email address was `:address` in one trait and `:mail` in another. Each idea now reads 1 way:
+
+- A step that opens a page reads `I visit the ... page` and names the page it opens.
+- A click reads `I click on the ...`.
+- The viewport is `the viewport`, and a `<select>` is `the select :selector`.
+- An email address is `:address` everywhere, and an email link's position reads `WithIndex` in the method names, as it already did in the step text.
+
+`ahoy lint-docs` and `TraitMethodNamingTest` reject the replaced forms, so they don't come back.
+
+The media, ECK and content block navigation steps and the 2 viewport offset steps were already renamed by a pass above, so their rows there carry the final text. `I click on the link :link in the region :region` and `I click on the link :link in the row :row_text` are new in v4, so only their [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary) rows change. The steps below changed in this pass alone.
+
+### ElementTrait
+
+| Before | After |
+| --- | --- |
+| `Then the element :selector should be displayed within a viewport` | `Then the element :selector should be displayed within the viewport` |
+| `Then the element :selector should not be displayed within a viewport` | `Then the element :selector should not be displayed within the viewport` |
+
+### FieldTrait
+
+| Before | After |
+| --- | --- |
+| `Then the option :option should exist within the select element :selector` | `Then the option :option should exist within the select :selector` |
+| `Then the option :option should not exist within the select element :selector` | `Then the option :option should not exist within the select :selector` |
+| `Then the option :option should be selected within the select element :selector` | `Then the option :option should be selected within the select :selector` |
+| `Then the option :option should not be selected within the select element :selector` | `Then the option :option should not be selected within the select :selector` |
+
+### Method names
+
+A method behind a navigation step opens with `Visit` and names the page the way its step does, and `Drupal\EmailTrait` names a link's position `WithIndex`, as `ElementTrait` already did. Rename any call or override in a consumer context:
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\ContentBlockTrait` | `contentBlockEditBlockContentWithDescription()` | `contentBlockVisitEditPageWithDescription()` |
+| `Drupal\ContentTrait` | `contentVisitViewWithTitle()` | `contentVisitPageWithTitle()` |
+| `Drupal\EckTrait` | `eckEditEntityWithTitle()` | `eckVisitEntityEditPageWithTitle()` |
+| `Drupal\EmailTrait` | `emailFollowLinkNumber()` | `emailFollowLinkWithIndex()` |
+| `Drupal\EmailTrait` | `emailFollowLinkNumberWithSubjectContaining()` | `emailFollowLinkWithIndexWithSubjectContaining()` |
+| `Drupal\MediaTrait` | `mediaEditWithName()` | `mediaVisitEditPageWithName()` |
+| `Drupal\MediaTrait` | `mediaVisitViewWithName()` | `mediaVisitPageWithName()` |
+| `Drupal\MediaTrait` | `mediaVisitDeleteWithName()` | `mediaVisitDeletePageWithName()` |
+| `Drupal\MediaTrait` | `mediaVisitRevisionsWithName()` | `mediaVisitRevisionsPageWithName()` |
+| `Drupal\UserTrait` | `userVisitProfile()` | `userVisitProfilePage()` |
+| `Drupal\UserTrait` | `userVisitOwnProfile()` | `userVisitOwnProfilePage()` |
+| `Drupal\UserTrait` | `userEditProfile()` | `userVisitProfileEditPage()` |
+| `Drupal\UserTrait` | `userEditOwnProfile()` | `userVisitOwnProfileEditPage()` |
+| `Drupal\UserTrait` | `userDeleteProfile()` | `userVisitProfileDeletePage()` |
+| `Drupal\UserTrait` | `userDeleteOwnProfile()` | `userVisitOwnProfileDeletePage()` |
+
+`userEditProfile()` and `userDeleteProfile()` never edited or deleted anything: like the rest of the table, they open a page. The protected helper behind the 2 email link steps is listed under [Only an assertion is named `Assert`](#only-an-assertion-is-named-assert).
+
+`the user with the email :address should exist` and its negative took `:mail`. Their step text is unchanged, so no feature file needs an edit, but the parameter behind the placeholder is renamed. That matters only to a context that overrides either method or calls it with named arguments:
+
+| Method | Before | After |
+| --- | --- | --- |
+| `UserTrait::userAssertExistsWithMail()` | `$mail` | `$address` |
+| `UserTrait::userAssertNotExistsWithMail()` | `$mail` | `$address` |
+
+### Failure messages
+
+| Trait | Before | After |
+| --- | --- | --- |
+| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport. | Element(s) defined by "..." selector is not displayed within the viewport. |
+| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport with a top offset of N pixels. | Element(s) defined by "..." selector is not displayed within the viewport with a top offset of N pixels. |
+| Drupal\EmailTrait | The link number must be a positive integer, but "..." was provided. | The link index must be a positive integer, but "..." was provided. |
+| Drupal\EmailTrait | The link with number N was not found among N links. | The link with the index N was not found among N links. |
+
+The 2 viewport messages that end in `, but it should not be.` also changed under [Failure messages read one way](#failure-messages-read-one-way), and their rows there carry the final text.
 
 ## Optional dependencies moved to `require-dev` and `suggest`
 
@@ -826,7 +897,7 @@ Every region step drops the optional `( region)` suffix and names the region las
 
 | Before | After |
 | --- | --- |
-| `When I follow/click :link in the :region( region)` | `When I click the link :link in the region :region` |
+| `When I follow/click :link in the :region( region)` | `When I click on the link :link in the region :region` |
 | `Given I press :button in the :region( region)` | `When I press the button :button in the region :region` |
 | `Given I fill in :field with :value in the :region( region)` | `When I fill in the field :field with the value :value in the region :region` |
 | `Given I fill in :value for :field in the :region( region)` | `When I fill in the field :field with the value :value in the region :region` |
@@ -877,7 +948,7 @@ The message tables lose their header row: each row is a message, with no `error 
 
 | Before | After |
 | --- | --- |
-| `Given I click :link in the :rowText row` | `When I click the link :link in the row :row_text` |
+| `Given I click :link in the :rowText row` | `When I click on the link :link in the row :row_text` |
 | `Given I press :button in the :rowText row` | `When I press the button :button in the row :row_text` |
 | `Then I should see the text :text in the :rowText row` | `Then the row :row_text should contain the value :value` |
 | `Then I should not see the text :text in the :rowText row` | `Then the row :row_text should not contain the value :value` |
@@ -1262,12 +1333,12 @@ If your project catches an exception from one of these steps, update the type:
 | `Drupal\RedirectTrait` (`the following redirects should (not) exist:`) | `\Exception` | `AssertionException` |
 | `MetatagTrait` (all `Then` steps) | `\Exception` | `ExpectationException`; `ElementNotFoundException` when the meta tag itself is missing; `\RuntimeException` when an hreflang alternate page returns an HTTP error |
 | `XmlTrait` (`the response should be in XML format`) | `\RuntimeException` | `ExpectationException` |
-| `FieldTrait` (`the option ... should (not) exist within the select element ...`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select or a missing option, `ExpectationException` for an option that exists but should not |
+| `FieldTrait` (`the option ... should (not) exist within the select ...`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select or a missing option, `ExpectationException` for an option that exists but should not |
 | `Drupal\CacheTrait` (`the page cache for the path(s) ... is empty`) | `\InvalidArgumentException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...`) | `\InvalidArgumentException` | `\RuntimeException` |
 | `TableTrait` (any table step, when the table or the row is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `ModalTrait` (`I close the modal`, `I click on the element ... in the modal`, `the modal should (not) contain ...`, when the close button, the content element or the target element is missing) | `ExpectationException` | `ElementNotFoundException` |
-| `FieldTrait` (`I unselect the option ... from the select ...` and `the option ... should not be selected within the select element ...`, when the option is missing; `I fill in the multi-value field ...`, when an input row is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `FieldTrait` (`I unselect the option ... from the select ...` and `the option ... should not be selected within the select ...`, when the option is missing; `I fill in the multi-value field ...`, when an input row is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `XmlTrait` (every `the XML element ...` and `the XML attribute ... on the element ...` step, when the element is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `JsonTrait` (an invalid JSONPath expression, an invalid regular expression, a count that is not an integer, a schema that is not JSON) | `ExpectationException` | `\RuntimeException` |
 | `TableTrait` (`the table ... should be sorted by the column ... in ... order`, with a direction other than `ascending` or `descending`) | `ExpectationException` | `\RuntimeException` |
@@ -1285,10 +1356,10 @@ If your project catches an exception from one of these steps, update the type:
 | Step | Was | Now |
 | --- | --- | --- |
 | `the response should be in XML format` | `Failed to load XML. Errors: ...` | `The response is not valid XML: ...` |
-| `the option :option should exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
-| `the option :option should not exist within the select element :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but it should not exist.` |
+| `the option :option should exist within the select :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
+| `the option :option should not exist within the select :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but it should not exist.` |
 | `I unselect the option :option from the select :selector` | `The option "..." was not found in the select "...".` | `Option in the select "..." with value\|text "..." not found.` |
-| `the option :option should not be selected within the select element :selector` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
+| `the option :option should not be selected within the select :selector` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
 | `I fill in the multi-value field :field with the following values:` | `Could not locate input row N for multi-value field "...".` | `Input row of the multi-value field "..." with index "N" not found.` |
 | every `the table ...` step, when the table is missing | `Table with selector "..." not found.` | `Table matching css "..." not found.` |
 | every `... the row ...` step, when the row is missing | `Table row containing text "..." not found.` | `Table row with text "..." not found.` |
@@ -1327,8 +1398,8 @@ A failure message quotes the values it names in double quotes, ends with a perio
 | LinkTrait | The link href "..." matches the specified href "..." but should not. | The link href "..." matches the specified href "...", but it should not. |
 | LinkTrait | The link with the title "..." exists, but should not. | The link with the title "..." exists, but it should not. |
 | ElementTrait | Element defined by "..." selector is visible on the page, but should not be. | Element defined by "..." selector is visible on the page, but it should not be. |
-| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but should not be. | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but it should not be. |
-| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport, but should not be. | Element(s) defined by "..." selector is displayed within a viewport, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but should not be. | Element(s) defined by "..." selector is displayed within the viewport with a top offset of N pixels, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport, but should not be. | Element(s) defined by "..." selector is displayed within the viewport, but it should not be. |
 | FieldTrait | The field "..." is empty, but should not be. | The field "..." is empty, but it should not be. |
 | FieldTrait | The field "..." is marked as required, but should not be. | The field "..." is marked as required, but it should not be. |
 | FieldTrait | The option "..." was selected in the select "..." on the page ..., but should not be. | The option "..." was selected in the select "..." on the page ..., but it should not be. |
@@ -1658,7 +1729,7 @@ A method that fails with an assertion exception is named as an assertion, whethe
 | --- | --- | --- |
 | `Drupal\ConfigTrait` | `configCompareContains()` (protected) | `configAssertContains()` |
 | `Drupal\ConfigTrait` | `configCompareEquals()` (protected) | `configAssertEquals()` |
-| `Drupal\EmailTrait` | `emailAssertLinkNumber()` (protected) | `emailParseLinkNumber()` |
+| `Drupal\EmailTrait` | `emailAssertLinkNumber()` (protected) | `emailParseLinkIndex()` |
 | `CommandTrait` | `commandAssertHasRun()` (protected) | `commandRequireRun()` |
 | `CommandTrait` | `commandAssertInteger()` (protected) | `commandParseInteger()` |
 | `CommandTrait` | `commandAssertNumeric()` (protected) | `commandParseNumeric()` |
@@ -1885,9 +1956,9 @@ The keys changed as well. An entity query keys a revisionable entity type by rev
 
 This affects the steps that look an entity up by name and, when several share that name, visit the one with the highest key. With duplicates, they now visit the most recently created match instead of the most recently revised one:
 
-- The 4 media steps `I edit the :media_type media with the name :name`, `I visit the :media_type media with the name :name`, `I visit the :media_type media delete page with the name :name` and `I visit the :media_type media revisions page with the name :name`, and the `mediaVisitActionPageWithName()` helper behind them.
+- The 4 media steps `I visit the :media_type media page with the name :name`, `I visit the :media_type media edit page with the name :name`, `I visit the :media_type media delete page with the name :name` and `I visit the :media_type media revisions page with the name :name`, and the `mediaVisitActionPageWithName()` helper behind them.
 - The 3 term steps `I visit the :vocabulary term page with the name :term_name`, `I visit the :vocabulary term edit page with the name :term_name` and `I visit the :vocabulary term delete page with the name :term_name`, and the `taxonomyVisitActionPageWithName()` helper behind them.
-- `I edit the :content_block_type content block with the description :description`.
+- `I visit the :content_block_type content block edit page with the description :description`.
 
 ## One skip tag per trait
 
