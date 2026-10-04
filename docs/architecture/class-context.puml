@@ -224,8 +224,10 @@ package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
     +authLogout(fast) : void
     +authIsLoggedIn() : bool
     --
-    +authCleanUsers(scope) : void
-    +authCleanRoles(scope) : void
+    +authAfterScenario(scope) : void
+    --
+    #authCleanUsers() : void
+    #authCleanRoles() : void
   }
 
   class StaticCacheTrait <<trait>> {

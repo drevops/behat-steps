@@ -111,7 +111,7 @@ Behat -> Ctx: AfterScenario
 activate Ctx
 Ctx -> Ctx: each hook asks skipTag() for its own trait,\nand returns on the trait's skip tag or enabled = FALSE
 Ctx -> Ctx: a teardown asks prerequisitesMet() and returns when\none does not hold, so it never replaces a recorded failure
-Ctx -> Ctx: EntityLifecycleTrait runs entityLifecycleAfterScenario,\nAuthTrait authCleanUsers and authCleanRoles
+Ctx -> Ctx: EntityLifecycleTrait runs entityLifecycleAfterScenario,\nAuthTrait authAfterScenario: users, then roles
 Ctx -> Backend: delete what the scenario created
 deactivate Ctx
 @enduml
