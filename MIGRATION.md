@@ -1140,7 +1140,7 @@ A call or an override in a consumer context is renamed:
 
 Three of those names were also skip tags. A skip tag names a trait rather than a method, so `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles` both become `@behat-steps-skip:AuthTrait`.
 
-`authCleanUsers()` and `authCleanRoles()` aren't hooks anymore, and they're protected. `authAfterScenario()` is the hook, and it runs them users first, removing the roles even when removing the users fails. An override of either drops its `@AfterScenario` annotation, or it runs twice.
+`authCleanUsers()` and `authCleanRoles()` take no parameters, aren't hooks, and are protected. `authAfterScenario()` is the hook, and it runs them users first, removing the roles even when removing the users fails. An override of either drops its `@AfterScenario` annotation or `#[AfterScenario]` attribute, or it runs twice.
 
 A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
 
@@ -1772,7 +1772,7 @@ A hook method reads `<prefix><Event>`, so `configBeforeScenario()` and `contentB
 | AccessibilityTrait | accessibilityFinalizeScenario() | accessibilityAfterScenario() |
 | AccessibilityTrait | accessibilityAggregateRender() | accessibilityAfterSuite() |
 
-`AccessibilityTrait` registered 2 `BeforeSuite` hooks, so neither could take the event's name. `accessibilityBeforeSuite()` is the hook now, and it runs `accessibilityCaptureBaseDir()` and then `accessibilityAggregateReset()`. Both keep their names and signatures but aren't hooks anymore, and they're protected, so an override drops its `@BeforeSuite` annotation, or it runs twice.
+`AccessibilityTrait` registered 2 `BeforeSuite` hooks, so neither could take the event's name. `accessibilityBeforeSuite()` is the hook now, and it runs `accessibilityCaptureBaseDir()` and then `accessibilityAggregateReset()`. Both keep their 3.x names and their parameterless signatures, but they aren't hooks anymore and they're protected. An override drops the `#[BeforeSuite]` attribute it copied from 3.x, or it runs twice.
 
 ### A bundle parameter is named after its entity type
 
