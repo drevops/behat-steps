@@ -34,8 +34,8 @@ class AuthenticatorTest extends TestCase {
 
   protected const EXTENSION_PARAMS = [
     'text' => [
-      'log_in' => 'Log in',
-      'log_out' => 'Log out',
+      'login' => 'Log in',
+      'logout' => 'Log out',
       'login_url' => '/user/login',
       'logout_url' => '/user/logout',
       'logout_confirm_url' => '/user/logout/confirm',
@@ -153,11 +153,11 @@ class AuthenticatorTest extends TestCase {
   public static function dataProviderLoginThrowsWhenNotLoggedIn(): \Iterator {
     yield 'user without role' => [
       new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']),
-      "Unable to determine if logged in because \"Log out\" ('log_out') link cannot be found for user \"admin\".",
+      "Unable to determine if logged in because \"Log out\" ('logout') link cannot be found for user \"admin\".",
     ];
     yield 'user with role' => [
       new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass', 'role' => 'administrator']),
-      "Unable to determine if logged in because \"Log out\" ('log_out') link cannot be found for user \"admin\" with role \"administrator\".",
+      "Unable to determine if logged in because \"Log out\" ('logout') link cannot be found for user \"admin\" with role \"administrator\".",
     ];
   }
 

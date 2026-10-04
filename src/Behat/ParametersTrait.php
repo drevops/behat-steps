@@ -60,7 +60,7 @@ trait ParametersTrait {
    * Returns a specific Drupal text value.
    *
    * @param string $name
-   *   Text value name, such as 'log_out', which corresponds to the default
+   *   Text value name, such as 'logout', which corresponds to the default
    *   'Log out' link text.
    *
    * @return string

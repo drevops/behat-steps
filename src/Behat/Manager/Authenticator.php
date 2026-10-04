@@ -104,7 +104,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
 
     if (!$this->isLoggedIn()) {
       $role = $user->getValue('role');
-      $message = $role !== NULL ? sprintf("Unable to determine if logged in because \"%s\" ('log_out') link cannot be found for user \"%s\" with role \"%s\".", $this->getDrupalText('log_out'), $name, $role) : sprintf("Unable to determine if logged in because \"%s\" ('log_out') link cannot be found for user \"%s\".", $this->getDrupalText('log_out'), $name);
+      $message = $role !== NULL ? sprintf("Unable to determine if logged in because \"%s\" ('logout') link cannot be found for user \"%s\" with role \"%s\".", $this->getDrupalText('logout'), $name, $role) : sprintf("Unable to determine if logged in because \"%s\" ('logout') link cannot be found for user \"%s\".", $this->getDrupalText('logout'), $name);
       throw new ExpectationException($message, $session->getDriver());
     }
 
@@ -217,21 +217,21 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
    * Returns the logout element from the page.
    */
   public function getLogoutElement(): ?NodeElement {
-    return $this->getSession()->getPage()->findLink($this->getDrupalText('log_out'));
+    return $this->getSession()->getPage()->findLink($this->getDrupalText('logout'));
   }
 
   /**
    * Returns the login element from the page.
    */
   protected function getLoginElement(DocumentElement $element): ?NodeElement {
-    return $element->findButton($this->getDrupalText('log_in'));
+    return $element->findButton($this->getDrupalText('login'));
   }
 
   /**
    * Returns the logout confirm element from the page.
    */
   protected function getLogoutConfirmElement(DocumentElement $element): ?NodeElement {
-    return $element->findButton($this->getDrupalText('log_out'));
+    return $element->findButton($this->getDrupalText('logout'));
   }
 
   /**

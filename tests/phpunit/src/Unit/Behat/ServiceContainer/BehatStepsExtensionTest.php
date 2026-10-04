@@ -387,8 +387,8 @@ class BehatStepsExtensionTest extends TestCase {
         'login_url' => '/user',
         'logout_url' => '/user/logout',
         'logout_confirm_url' => '/user/logout/confirm',
-        'log_in' => 'Log in',
-        'log_out' => 'Log out',
+        'login' => 'Log in',
+        'logout' => 'Log out',
         'password_field' => 'Password',
         'username_field' => 'Username',
       ],
@@ -407,6 +407,42 @@ class BehatStepsExtensionTest extends TestCase {
     $this->expectExceptionMessage('The "selectors: messages:" setting under "behat_steps" moved to "steps: message: selectors:". Move each severity selector across.');
 
     $this->load(['selectors' => ['messages' => ['error' => '.messages--error']]]);
+  }
+
+  /**
+   * Tests that a 'log_in' or 'log_out' text key fails, naming its replacement.
+   *
+   * @param array<string, mixed> $config
+   *   The extension configuration, before schema normalization.
+   * @param string $expected_message
+   *   The message the configuration is expected to fail with.
+   */
+  #[DataProvider('dataProviderRenamedTextKeysAreRejected')]
+  public function testRenamedTextKeysAreRejected(array $config, string $expected_message): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $this->load($config);
+  }
+
+  public static function dataProviderRenamedTextKeysAreRejected(): \Iterator {
+    $log_in = 'The "text: log_in:" setting under "behat_steps" moved to "text: login:". Rename the key; its value is unchanged.';
+    $log_out = 'The "text: log_out:" setting under "behat_steps" moved to "text: logout:". Rename the key; its value is unchanged.';
+
+    yield 'log_in' => [['text' => ['log_in' => 'Sign in']], $log_in];
+    yield 'log_out' => [['text' => ['log_out' => 'Sign out']], $log_out];
+    yield 'log_in with no value' => [['text' => ['log_in' => NULL]], $log_in];
+    yield 'log_out with no value' => [['text' => ['log_out' => NULL]], $log_out];
+    yield 'log_in beside login' => [['text' => ['login' => 'Sign in', 'log_in' => 'Sign in']], $log_in];
+    yield 'log_out beside logout' => [['text' => ['logout' => 'Sign out', 'log_out' => 'Sign out']], $log_out];
+    yield 'log-in spelled with a dash' => [['text' => ['log-in' => 'Sign in']], $log_in];
+  }
+
+  public function testTextTheTreeDoesNotDeclareIsKept(): void {
+    $parameters = $this->load(['text' => ['acme_greeting' => 'Hello']])->getParameter('behat_steps.parameters');
+
+    $this->assertIsArray($parameters);
+    $this->assertSame('Hello', $parameters['text']['acme_greeting']);
   }
 
   /**
