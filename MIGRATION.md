@@ -1102,7 +1102,7 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 | Helper | Holds | Composed by |
 | --- | --- | --- |
 | `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()`, `entityLifecycleTermCreate()`, `entityLifecycleCreate()`, `entityLifecycleLanguageCreate()`, `entityLifecycleRegister()`, `entityLifecycleParseFields()`, `entityLifecycleAfterScenario()`, `entityLifecycleBeforeNodeCreate()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
-| `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authIsLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authCleanUsers()`, `authCleanRoles()` | `Steps\Drupal\UserTrait` |
+| `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authIsLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authAfterScenario()` | `Steps\Drupal\UserTrait` |
 | `Helper\Drupal\StaticCacheTrait` | `staticCacheAfterScenario()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
 | `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 9 step traits |
@@ -1139,6 +1139,8 @@ A call or an override in a consumer context is renamed:
 | `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheAfterScenario()` |
 
 Three of those names were also skip tags. A skip tag names a trait rather than a method, so `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles` both become `@behat-steps-skip:AuthTrait`.
+
+`authCleanUsers()` and `authCleanRoles()` aren't hooks anymore, and they're protected. `authAfterScenario()` is the hook, and it runs them users first, removing the roles even when removing the users fails. An override of either drops its `@AfterScenario` annotation, or it runs twice.
 
 A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
 
@@ -1481,8 +1483,7 @@ Hook methods used to come in 3 shapes: taking and using the scope, taking and ig
 | Hook | New signature |
 | --- | --- |
 | `AccessibilityTrait::accessibilityAfterSuite()` | `(AfterSuiteScope $scope)` |
-| `AccessibilityTrait::accessibilityAggregateReset()` | `(BeforeSuiteScope $scope)` |
-| `AccessibilityTrait::accessibilityCaptureBaseDir()` | `(BeforeSuiteScope $scope)` |
+| `AccessibilityTrait::accessibilityBeforeSuite()` | `(BeforeSuiteScope $scope)` |
 | `CommandTrait::commandAfterScenario()` | `(AfterScenarioScope $scope)` |
 | `CommandTrait::commandBeforeScenario()` | `(BeforeScenarioScope $scope)` |
 | `Drupal\BigPipeTrait::bigPipeBeforeStep()` | `(BeforeStepScope $scope)` |
@@ -1770,6 +1771,8 @@ A hook method reads `<prefix><Event>`, so `configBeforeScenario()` and `contentB
 | AccessibilityTrait | accessibilityAutoAssess() | accessibilityAfterStep() |
 | AccessibilityTrait | accessibilityFinalizeScenario() | accessibilityAfterScenario() |
 | AccessibilityTrait | accessibilityAggregateRender() | accessibilityAfterSuite() |
+
+`AccessibilityTrait` registered 2 `BeforeSuite` hooks, so neither could take the event's name. `accessibilityBeforeSuite()` is the hook now, and it runs `accessibilityCaptureBaseDir()` and then `accessibilityAggregateReset()`. Both keep their names and signatures but aren't hooks anymore, and they're protected, so an override drops its `@BeforeSuite` annotation, or it runs twice.
 
 ### A bundle parameter is named after its entity type
 
