@@ -1544,6 +1544,8 @@ function validate_helpers(array $info): array {
 function validate(array $info): array {
   $errors = [];
   $non_descriptive_placeholders = non_descriptive_placeholders();
+  $placeholder_synonyms = placeholder_synonyms();
+  $rejected_step_phrases = rejected_step_phrases();
 
   foreach ($info as $class_info) {
     $class_name = is_string($class_info['name']) ? $class_info['name'] : '';
@@ -1606,6 +1608,10 @@ function validate(array $info): array {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Non-descriptive placeholder ":%s" in the step', $placeholder));
         }
 
+        if (isset($placeholder_synonyms[$placeholder])) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" in the step is a synonym of ":%s"', $placeholder, $placeholder_synonyms[$placeholder]));
+        }
+
         if (preg_match('/^[a-z][a-z0-9_]*$/', $placeholder) !== 1) {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" in the step is not snake_case', $placeholder));
         }
@@ -1613,6 +1619,18 @@ function validate(array $info): array {
 
       if (preg_match('/^@(?:Given|When|Then) :/', $step) === 1) {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Step starts with a placeholder but should start with the noun it names');
+      }
+
+      foreach ($rejected_step_phrases as $rejected => $replacement) {
+        if (str_contains($step, $rejected)) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Step reads "%s" but should read "%s"', trim($rejected), trim($replacement)));
+        }
+      }
+
+      // "I visit :path" opens whatever page its argument names, so only a step
+      // naming its destination in words is held to naming a page or a link.
+      if (preg_match('/^@When I visit (?!:)/', $step) === 1 && preg_match('/ (?:page|link)\b/', $step) !== 1) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Navigation step does not name the page it opens, as in "I visit the ... page"');
       }
 
       preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*) ([a-z]+)/', $step, $followed, PREG_SET_ORDER);
@@ -1795,6 +1813,41 @@ function non_descriptive_placeholders(): array {
     'string',
     'type',
     'var',
+  ];
+}
+
+/**
+ * Placeholder names that duplicate a concept another name already carries.
+ *
+ * One concept takes one placeholder name across every trait, so a step using
+ * a synonym is rejected in favor of the name the vocabulary uses.
+ *
+ * @return array<string, string>
+ *   Map of the rejected name to the name to use, both without the colon.
+ */
+function placeholder_synonyms(): array {
+  return [
+    'email' => 'address',
+    'link_number' => 'index',
+    'mail' => 'address',
+  ];
+}
+
+/**
+ * Phrases the step vocabulary replaced with 1 settled form.
+ *
+ * A step containing a key fails validation, and the error names the value as
+ * the phrase to write instead.
+ *
+ * @return array<string, string>
+ *   Map of the rejected phrase to the phrase that replaces it.
+ */
+function rejected_step_phrases(): array {
+  return [
+    'I click the ' => 'I click on the ',
+    'I edit the ' => 'I visit the ... edit page',
+    ' a viewport' => ' the viewport',
+    'the select element ' => 'the select ',
   ];
 }
 
