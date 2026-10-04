@@ -17,6 +17,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * A helper resolves 'CoreCapabilityInterface' before it reads Drupal, so the
  * context holds a backend double that reports itself bootstrapped. The helper
  * then reads the kernel this test booted.
+ *
+ * The double reports module state from that kernel, so a helper that asserts
+ * its prerequisites matches the modules the test enabled.
  */
 #[RunTestsInSeparateProcesses]
 abstract class StepTraitKernelTestBase extends KernelTestBase {
@@ -34,6 +37,7 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
 
     $backend = $this->createStub(DrupalBackendInterface::class);
     $backend->method('isBootstrapped')->willReturn(TRUE);
+    $backend->method('moduleIsEnabled')->willReturnCallback(static fn(string $module_name): bool => \Drupal::moduleHandler()->moduleExists($module_name));
 
     $backend_registry = new BackendRegistry(['test' => $backend]);
     $backend_registry->setScenarioBackends(['test' => 'test']);
@@ -53,17 +57,19 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
    *   The interface every entity in the set implements.
    */
   protected function assertLoadedSet(array $expected, array $actual, string $interface): void {
-    $expected_ids = array_map(static fn(EntityInterface $entity): int => (int) $entity->id(), $expected);
+    // IDs compare as strings, so a config entity keyed by its machine name
+    // reads the same way as a content entity keyed by an integer.
+    $expected_ids = array_map(static fn(EntityInterface $entity): string => (string) $entity->id(), $expected);
     sort($expected_ids);
 
-    $actual_ids = array_keys($actual);
+    $actual_ids = array_map(strval(...), array_keys($actual));
     sort($actual_ids);
 
     $this->assertSame($expected_ids, $actual_ids, 'The set holds only the matching entities.');
 
     foreach ($actual as $id => $entity) {
       $this->assertInstanceOf($interface, $entity);
-      $this->assertSame($id, (int) $entity->id(), 'Each entity is keyed by its own ID.');
+      $this->assertSame((string) $id, (string) $entity->id(), 'Each entity is keyed by its own ID.');
     }
   }
 

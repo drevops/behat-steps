@@ -90,8 +90,9 @@ trait WebformTrait {
    * @param string $title
    *   The title string to search for (CONTAINS match).
    *
-   * @return \Drupal\webform\WebformInterface[]
-   *   An array of matching webform template entities.
+   * @return array<string, \Drupal\webform\WebformInterface>
+   *   The matching webform templates keyed by ID, or an empty array when none
+   *   match.
    */
   public function webformLoadTemplateMultiple(string $title): array {
     $webforms = $this->webformLoadMultiple($title);
@@ -105,8 +106,8 @@ trait WebformTrait {
    * @param string $title
    *   The title string to search for (CONTAINS match).
    *
-   * @return \Drupal\webform\WebformInterface[]
-   *   An array of matching webform entities.
+   * @return array<string, \Drupal\webform\WebformInterface>
+   *   The matching webforms keyed by ID, or an empty array when none match.
    */
   public function webformLoadMultiple(string $title): array {
     $this->backendFor(CoreCapabilityInterface::class);
@@ -133,7 +134,7 @@ trait WebformTrait {
       return [];
     }
 
-    /** @var \Drupal\webform\WebformInterface[] $webforms */
+    /** @var array<string, \Drupal\webform\WebformInterface> $webforms */
     $webforms = $storage->loadMultiple($ids);
 
     return $webforms;
