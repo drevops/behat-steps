@@ -59,7 +59,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
   /**
    * {@inheritdoc}
    */
-  public function logIn(EntityStubInterface $user): void {
+  public function login(EntityStubInterface $user): void {
     $this->fastLogout();
 
     $session = $this->getSession();
@@ -102,7 +102,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
       }
     }
 
-    if (!$this->loggedIn()) {
+    if (!$this->isLoggedIn()) {
       $role = $user->getValue('role');
       $message = $role !== NULL ? sprintf("Unable to determine if logged in because \"%s\" ('log_out') link cannot be found for user \"%s\" with role \"%s\".", $this->getDrupalText('log_out'), $name, $role) : sprintf("Unable to determine if logged in because \"%s\" ('log_out') link cannot be found for user \"%s\".", $this->getDrupalText('log_out'), $name);
       throw new ExpectationException($message, $session->getDriver());
@@ -116,7 +116,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
   /**
    * {@inheritdoc}
    */
-  public function logOut(): void {
+  public function logout(): void {
     $session = $this->getSession();
 
     $logout_url = $this->locatePath($this->getDrupalText('logout_url'));
@@ -142,7 +142,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
   /**
    * {@inheritdoc}
    */
-  public function loggedIn(): bool {
+  public function isLoggedIn(): bool {
     $session = $this->getSession();
 
     if (!$session->isStarted()) {
@@ -176,7 +176,7 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
 
     // As a last resort, a logout link means a user is logged in. A theme that
     // defers header navigation (Critical CSS or a late JS render) may add the
-    // link late, so the poll reuses the 'login_wait' window of 'logIn()'.
+    // link late, so the poll reuses the 'login_wait' window of 'login()'.
     $session->visit($this->locatePath('/'));
     $login_wait = (int) $this->getParameter('login_wait');
     if ($login_wait > 0) {

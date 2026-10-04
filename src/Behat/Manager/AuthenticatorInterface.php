@@ -17,16 +17,16 @@ interface AuthenticatorInterface {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
    *   The user stub to log in.
    */
-  public function logIn(EntityStubInterface $user): void;
+  public function login(EntityStubInterface $user): void;
 
   /**
    * Logs the current user out.
    */
-  public function logOut(): void;
+  public function logout(): void;
 
   /**
    * Determines whether a user is already logged in for this session.
    */
-  public function loggedIn(): bool;
+  public function isLoggedIn(): bool;
 
 }
