@@ -19,8 +19,8 @@ class ConfigSchemaReader {
   /**
    * Declared options, keyed by context class name.
    *
-   * Reflection over every method of a context composing forty traits is too
-   * expensive to repeat per option read, and a class's declarations cannot
+   * Reflection over every method of a context composing 40 traits is too
+   * expensive to repeat per option read. A class's declarations cannot
    * change within a run.
    *
    * @var array<string, array<string, array<string, \DrevOps\BehatSteps\Behat\Config\Option>>>

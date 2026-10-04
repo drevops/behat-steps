@@ -48,9 +48,6 @@ class MediaTraitKernelTest extends StepTraitKernelTestBase {
     $this->createMediaType('test', ['id' => 'image']);
   }
 
-  /**
-   * Tests that the matching media of the type are loaded, keyed by ID.
-   */
   public function testLoadMultipleLoadsTheMatchingMedia(): void {
     $first = $this->createMedia('document', 'Shared');
     $second = $this->createMedia('document', 'Shared');
@@ -62,9 +59,6 @@ class MediaTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertLoadedSet([$first, $second], $media, MediaInterface::class);
   }
 
-  /**
-   * Tests that an empty array is returned when no media matches.
-   */
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
     $this->createMedia('image', 'Shared');
 

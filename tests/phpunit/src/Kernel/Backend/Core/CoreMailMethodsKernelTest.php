@@ -74,9 +74,6 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
     $this->assertSame([], $this->core->mailGet());
   }
 
-  /**
-   * Tests that 'mailSend()' carries attachments through to the collected mail.
-   */
   public function testMailSendCarriesAttachments(): void {
     $this->core->mailStartCollecting();
 
@@ -111,9 +108,6 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
 
   /**
    * Tests mail collection swaps mailsystem senders when the module is on.
-   *
-   * Exercises 'replaceMailSenders()', 'startCollectingSystemMail()', and
-   * 'stopCollectingSystemMail()'.
    */
   public function testMailCollectionRedirectsMailsystemSenders(): void {
     \Drupal::service('module_installer')->install(['mailsystem']);

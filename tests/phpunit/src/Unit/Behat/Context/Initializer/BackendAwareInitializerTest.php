@@ -55,7 +55,7 @@ class BackendAwareInitializerTest extends UnitTestCase {
     $context = $this->createMock(BackendAwareInterface::class);
     $context->expects($this->once())->method('setParameters')->with(self::PARAMETERS);
     $context->expects($this->once())->method('setBackendRegistry')->with($backend_registry);
-    $context->expects($this->once())->method('setDispatcher')->with($dispatcher);
+    $context->expects($this->once())->method('setHookDispatcher')->with($dispatcher);
     $context->expects($this->once())->method('setBasicAuthenticator')->with($basic_authenticator);
     $context->expects($this->once())->method('setHttpClientFactory')->with($http_client_factory);
     $context->expects($this->once())->method('setOptionResolverFactory')->with($resolver_factory);
@@ -64,7 +64,7 @@ class BackendAwareInitializerTest extends UnitTestCase {
     $initializer->initializeContext($context);
   }
 
-  public function testUserAwareContextReceivesTheUserAndLoginManagers(): void {
+  public function testUserAwareContextReceivesTheUserRegistryAndAuthenticator(): void {
     $user_registry = $this->createMock(UserRegistryInterface::class);
     $authenticator = $this->createMock(AuthenticatorInterface::class);
 

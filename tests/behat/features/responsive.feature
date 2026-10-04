@@ -70,7 +70,7 @@ Feature: Check that ResponsiveTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Breakpoint 'non_existent_breakpoint' not found
+      Breakpoint "non_existent_breakpoint" not found
       """
 
   @trait:ResponsiveTrait
@@ -85,7 +85,7 @@ Feature: Check that ResponsiveTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Breakpoint 'invalid_breakpoint_tag' not found
+      Breakpoint "invalid_breakpoint_tag" not found
       """
 
   @trait:ResponsiveTrait
@@ -181,7 +181,7 @@ Feature: Check that ResponsiveTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Invalid breakpoint format for 'invalid': '1920-1080'. Expected format: WIDTHxHEIGHT
+      Invalid breakpoint format for "invalid": "1920-1080". Expected format: WIDTHxHEIGHT
       """
 
   @trait:ResponsiveTrait
@@ -197,7 +197,7 @@ Feature: Check that ResponsiveTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Invalid breakpoint format for 'invalid': '1920xABC'. Expected format: WIDTHxHEIGHT
+      Invalid breakpoint format for "invalid": "1920xABC". Expected format: WIDTHxHEIGHT
       """
 
   @javascript @phpserver

@@ -9,8 +9,9 @@ namespace DrevOps\BehatSteps\Backend;
  *
  * Performs no backend operations. Implementations satisfy only the base
  * backend contract and MUST NOT implement any interface in the
- * 'DrevOps\BehatSteps\Backend\Capability' namespace, so 'instanceof
- * BlackboxBackendInterface' is a reliable negative-capability guarantee.
+ * 'DrevOps\BehatSteps\Backend\Capability' namespace. An 'instanceof
+ * BlackboxBackendInterface' check is therefore a reliable
+ * negative-capability guarantee.
  */
 interface BlackboxBackendInterface extends BackendInterface {
 

@@ -18,7 +18,7 @@ use PHPUnit\Framework\Attributes\Group;
 class NameHandlerTest extends FieldHandlerUnitTestBase {
 
   /**
-   * All six name components, all enabled (the module's default).
+   * All 6 name components, all enabled (the module's default).
    *
    * @var array<string, bool>
    */
@@ -91,11 +91,11 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
       NULL,
     ];
 
-    yield 'mixed numeric and named keys rejected' => [
+    yield 'mixed positional and named keys rejected' => [
       [['John', 'family' => 'Smith']],
       NULL,
       \RuntimeException::class,
-      'Cannot mix numeric and named keys in the same name value',
+      'Cannot mix positional and named keys in the same name value',
     ];
     yield 'unknown sub-field key rejected' => [
       [['nickname' => 'Johnny']],
@@ -107,19 +107,16 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
       42,
       NULL,
       \RuntimeException::class,
-      'Name field value must be a string or an array, got int.',
+      'Name field value must be a string or an array. Got int.',
     ];
     yield 'non-string non-array delta rejected' => [
       ['Doe, John', 42],
       NULL,
       \RuntimeException::class,
-      'Name field delta 1 must be a string or an array, got int.',
+      'Name field delta 1 must be a string or an array. Got int.',
     ];
   }
 
-  /**
-   * Tests that positional indices skip components disabled on the field.
-   */
   public function testNumericIndicesSkipDisabledComponents(): void {
     $handler = $this->createHandlerWithComponents([
       NameHandler::COMPONENT_TITLE => TRUE,
@@ -136,9 +133,6 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
     );
   }
 
-  /**
-   * Tests that excess positional indices throw.
-   */
   public function testTooManyNumericIndicesThrows(): void {
     $handler = $this->createHandlerWithComponents([
       NameHandler::COMPONENT_TITLE => FALSE,
@@ -155,9 +149,6 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
     $handler->expand([['John', 'Doe', 'Extra']]);
   }
 
-  /**
-   * Tests that a named key targeting a disabled component throws.
-   */
   public function testNamedKeyForDisabledComponentThrows(): void {
     $handler = $this->createHandlerWithComponents([
       NameHandler::COMPONENT_TITLE => FALSE,
@@ -174,9 +165,6 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
     $handler->expand([['given' => 'John', 'middle' => 'Q', 'family' => 'Doe']]);
   }
 
-  /**
-   * Tests that the shorthand throws when 'family' is disabled.
-   */
   public function testShorthandThrowsWhenFamilyDisabled(): void {
     $handler = $this->createHandlerWithComponents([
       NameHandler::COMPONENT_TITLE => TRUE,
@@ -193,9 +181,6 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
     $handler->expand('Doe, John');
   }
 
-  /**
-   * Tests that the shorthand throws when a given part is supplied but disabled.
-   */
   public function testShorthandThrowsWhenGivenPartSuppliedButDisabled(): void {
     $handler = $this->createHandlerWithComponents([
       NameHandler::COMPONENT_TITLE => FALSE,
@@ -212,9 +197,6 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
     $handler->expand('Doe, John');
   }
 
-  /**
-   * Tests the family-only shorthand when 'given' is disabled.
-   */
   public function testShorthandFamilyOnlyWhenGivenDisabled(): void {
     $handler = $this->createHandlerWithComponents([
       NameHandler::COMPONENT_TITLE => FALSE,

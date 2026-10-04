@@ -15,7 +15,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Address is a multi-property field supplied by the 'drupal/address' contrib
  * module. The handler normalises input (scalar first name, numeric-indexed
  * array, or associative array) against the visible sub-field list configured
- * on the field. This test exercises the associative path.
+ * on the field. The tests exercise the associative and numeric-indexed
+ * paths.
  */
 #[CoversClass(AddressHandler::class)]
 #[Group('fields')]
@@ -32,9 +33,6 @@ class AddressHandlerKernelTest extends FieldHandlerKernelTestBase {
     'address',
   ];
 
-  /**
-   * Tests round-trip for an address field with associative input.
-   */
   public function testAddressAssociativeRoundTrip(): void {
     $this->attachAddressField();
 
@@ -54,9 +52,9 @@ class AddressHandlerKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests numeric-indexed input with country_code defaulted from field config.
    *
-   * Exercises AddressHandler's positional-to-keyed normalisation and its
-   * fallback where an omitted country_code falls back to the first entry in
-   * the field's available_countries list.
+   * Exercises AddressHandler's positional-to-keyed normalisation and the
+   * fallback that fills an omitted country_code from the first entry in the
+   * field's available_countries list.
    */
   public function testAddressNumericInputFallsBackToAvailableCountry(): void {
     $this->attachAddressField();

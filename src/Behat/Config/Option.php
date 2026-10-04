@@ -9,9 +9,11 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 /**
  * One option a step trait declares.
  *
- * The declared default carries the option's type: a configured value is read
- * as that type, and a value that cannot be is an error naming both. A default
- * of NULL names no type, so anything configured against it passes through.
+ * The declared default carries the option's type. A configured value is read
+ * as that type, and a value that cannot be is an error naming both.
+ *
+ * A default of NULL names no type, so anything configured against it passes
+ * through.
  *
  * @see \DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader
  */
@@ -72,8 +74,8 @@ final readonly class Option {
     }
 
     // Every hook of the trait is switched on this one option, and the skip tag
-    // binds it to FALSE, so a declaration naming another type would fail at the
-    // hook that read it rather than here.
+    // binds it to FALSE. A declaration naming another type would fail at the
+    // hook that reads it rather than here.
     if ($name === self::ENABLED && !is_bool($default)) {
       throw new \RuntimeException(sprintf('The "%s" option switches its trait on and off, so it defaults to a boolean.', $name));
     }

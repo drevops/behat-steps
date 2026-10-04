@@ -29,9 +29,6 @@ class CoreLookupTest extends TestCase {
     );
   }
 
-  /**
-   * Tests that a version-specific Core class is preferred over the default.
-   */
   public function testLookupPicksVersionOverride(): void {
     $backend = $this->createBackendWithVersion(99);
     $backend->setCoreFromVersion();

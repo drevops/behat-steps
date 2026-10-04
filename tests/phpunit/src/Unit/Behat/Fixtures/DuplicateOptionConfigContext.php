@@ -16,7 +16,7 @@ class DuplicateOptionConfigContext extends WebRawContext {
    * Declares the same option name twice.
    *
    * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
-   *   Two options sharing a name.
+   *   2 options sharing a name.
    */
   protected function duplicateOptionConfigSchema(): array {
     return [

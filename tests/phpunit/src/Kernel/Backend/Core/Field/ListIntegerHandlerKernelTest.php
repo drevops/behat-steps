@@ -14,9 +14,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel round-trip test for ListIntegerHandler via the Core backend.
  *
- * ListIntegerHandler inherits ListHandlerBase, so the label-to-key translation
- * behaviour mirrors ListStringHandler; the difference is storage stores an
- * integer, not a string. This test verifies the integer key round-trips.
+ * ListIntegerHandler inherits ListHandlerBase, so its label-to-key
+ * translation matches ListStringHandler's; the difference is that storage
+ * holds an integer, not a string.
  */
 #[CoversClass(ListIntegerHandler::class)]
 #[Group('fields')]
@@ -33,9 +33,6 @@ class ListIntegerHandlerKernelTest extends FieldHandlerKernelTestBase {
     'options',
   ];
 
-  /**
-   * Tests that a label is translated to its integer key on round-trip.
-   */
   public function testLabelToIntegerKeyRoundTrip(): void {
     $this->attachField('field_priority', 'list_integer', [
       'allowed_values' => [
@@ -45,12 +42,10 @@ class ListIntegerHandlerKernelTest extends FieldHandlerKernelTestBase {
       ],
     ]);
 
-    // Pass the label; handler replaces with integer key 2.
     $this->assertFieldRoundTripViaBackend('field_priority', ['Medium']);
 
-    // Pin the translation explicitly so a regression where the handler stops
-    // converting labels to keys is caught even though the mutated-stub
-    // round-trip would otherwise pass.
+    // The mutated-stub round-trip passes even when the handler stops
+    // converting labels to keys, so the key is asserted explicitly.
     $stub = new EntityStub('entity_test', 'entity_test', [
       'name' => 'pinned',
       'field_priority' => ['Medium'],

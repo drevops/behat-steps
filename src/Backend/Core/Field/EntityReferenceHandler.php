@@ -23,9 +23,8 @@ class EntityReferenceHandler extends AbstractHandler {
 
       $lookup = $record[$this->mainProperty];
 
-      // Already-resolved integer ids (caller-supplied or alias-resolved)
-      // bypass the entity-storage round-trip; only string labels still
-      // need a lookup.
+      // An integer id is already resolved; only a string lookup requires an
+      // entity query.
       if (is_int($lookup)) {
         $resolved[] = $record;
         continue;
@@ -53,7 +52,7 @@ class EntityReferenceHandler extends AbstractHandler {
     $id_key = $definition->getKey('id');
 
     if (!is_string($id_key)) {
-      throw new \RuntimeException(sprintf("Cannot resolve a reference to '%s' because it declares no id key.", $entity_type_id));
+      throw new \RuntimeException(sprintf('Cannot resolve a reference to "%s" because it declares no id key.', $entity_type_id));
     }
 
     // User entities return FALSE for getKey('label'), so 'name' is used
@@ -72,7 +71,7 @@ class EntityReferenceHandler extends AbstractHandler {
    * Resolves a lookup value to the id of an entity the field may target.
    *
    * @param mixed $lookup
-   *   An entity label, or an entity id Drupal serialised as a string.
+   *   An entity label, or an entity id Drupal serialized as a string.
    * @param \DrevOps\BehatSteps\Backend\Core\Field\ReferenceTarget $target
    *   The entity-type facts to resolve against.
    *
@@ -87,10 +86,9 @@ class EntityReferenceHandler extends AbstractHandler {
     $query->accessCheck(FALSE);
 
     if ($target->labelKey) {
-      // A numeric-string lookup is ambiguous: the caller may be passing an
-      // entity id that Drupal serialised as a string, or a label that
-      // happens to be digits. An OR-group matches either side, and the
-      // entity layer's first hit wins.
+      // A numeric-string lookup is ambiguous: an entity id Drupal serialized
+      // as a string, or a label made of digits. An OR-group matches either,
+      // and the first match is returned.
       $is_numeric_id = is_string($lookup) && ctype_digit($lookup);
       $or = $query->orConditionGroup();
 
@@ -112,7 +110,7 @@ class EntityReferenceHandler extends AbstractHandler {
     $entities = $query->execute();
 
     if (!$entities) {
-      throw new \RuntimeException(sprintf("No entity '%s' of type '%s' exists.", $lookup, $target->entityTypeId));
+      throw new \RuntimeException(sprintf('No entity "%s" of type "%s" exists.', $lookup, $target->entityTypeId));
     }
 
     return array_shift($entities);

@@ -17,15 +17,12 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for user-related methods on Core.
  *
- * The whole lifecycle runs inside one test method: KernelTestBase's setUp
- * runs per-method and costs roughly a second of bootstrap. Bundling closely
+ * The whole lifecycle runs inside 1 test method: KernelTestBase's setUp()
+ * runs per method and costs about 1 second of bootstrap. Bundling closely
  * related assertions keeps CI time down without sacrificing coverage.
  *
  * A method is split out only when a scenario needs its own clean state, such
  * as a failure path that leaves the container dirty.
- *
- * To actually run this test, see the bootstrap/env notes in
- * DatetimeHandlerKernelTest.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -54,8 +51,8 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     parent::setUp();
 
     $this->installEntitySchema('user');
-    // users_data is used by user_cancel's batch callback; required for
-    // synchronous userDelete to complete without hitting a missing table.
+    // users_data is used by user_cancel's batch callback; without it a
+    // synchronous userDelete fails with a missing-table error.
     $this->installSchema('user', ['users_data']);
     $this->installConfig(['user']);
 
@@ -65,7 +62,7 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests the full user/role lifecycle in one bundled method.
+   * Tests the full user/role lifecycle in 1 bundled method.
    */
   public function testUserLifecycle(): void {
     $user_stub = new EntityStub('user', NULL, [
@@ -101,9 +98,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertNull(Role::load($role_id));
   }
 
-  /**
-   * Tests that 'userAddRole()' throws when the role name is unknown.
-   */
   public function testUserAddRoleThrowsOnUnknownRole(): void {
     $stub = new EntityStub('user', NULL, [
       'name' => 'ghost',
@@ -118,9 +112,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->core->userAddRole($stub, 'nonexistent-role');
   }
 
-  /**
-   * Tests that 'userAddRole()' throws when the stub's uid matches no account.
-   */
   public function testUserAddRoleThrowsOnUnknownUser(): void {
     $role_id = $this->core->roleCreate(['access user profiles']);
 
@@ -130,9 +121,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->core->userAddRole(new EntityStub('user', NULL, ['uid' => 999999]), $role_id);
   }
 
-  /**
-   * Tests that roleCreate rejects unknown permission strings.
-   */
   public function testRoleCreateRejectsUnknownPermission(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid permission "definitely not a real permission"');
@@ -141,7 +129,7 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests that clearing caches forgets the permission list read earlier.
+   * Tests that clearing caches discards the permission list read earlier.
    *
    * @param string $method
    *   The cache clearing method to call.
@@ -163,9 +151,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     yield 'every cache' => ['cacheClear'];
   }
 
-  /**
-   * Tests that installing a module forgets the permission list read earlier.
-   */
   public function testModuleInstallForgetsThePermissionList(): void {
     $this->core->roleCreate(['access user profiles']);
 
@@ -176,9 +161,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertTrue($role->hasPermission('administer blocks'));
   }
 
-  /**
-   * Tests that uninstalling a module forgets the permission list read earlier.
-   */
   public function testModuleUninstallForgetsThePermissionList(): void {
     $this->core->moduleInstall('block');
     $this->core->roleCreate(['access user profiles']);
@@ -191,9 +173,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->core->roleCreate(['administer blocks']);
   }
 
-  /**
-   * Tests 'roleCreate()' honours explicit id and label arguments.
-   */
   public function testRoleCreateAcceptsExplicitIdAndLabel(): void {
     $role_id = $this->core->roleCreate(['access user profiles'], 'editor', 'Editor');
 
@@ -204,9 +183,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertTrue($role->hasPermission('access user profiles'));
   }
 
-  /**
-   * Tests 'roleCreate()' falls back to the id as label when only id is given.
-   */
   public function testRoleCreateFallsBackToIdAsLabel(): void {
     $role_id = $this->core->roleCreate([], 'content_editor');
 
@@ -216,9 +192,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertSame('content_editor', $role->label());
   }
 
-  /**
-   * Tests that 'userCreate()' honours the 'roles' creation alias.
-   */
   public function testUserCreateAppliesRolesAlias(): void {
     $role_id = $this->core->roleCreate(['access user profiles'], 'editor');
 

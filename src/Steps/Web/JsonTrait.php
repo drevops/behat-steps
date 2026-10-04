@@ -339,7 +339,7 @@ trait JsonTrait {
    * Assert that the array or object at a JSONPath has a number of elements.
    *
    * The path must resolve to a single array or object; its elements are then
-   * counted. Use a container path such as `$.items` rather than `$.items[*]`.
+   * counted. A container path such as `$.items` is required, not `$.items[*]`.
    *
    * @code
    * Then the JSON path "$.items" should have "3" elements
@@ -476,7 +476,7 @@ trait JsonTrait {
     }
 
     if (!is_array($data)) {
-      throw new \RuntimeException(sprintf('The JSON response must decode to an array or object, but got %s.', gettype($data)));
+      throw new \RuntimeException(sprintf('The JSON response must decode to an array or object, but got %s.', get_debug_type($data)));
     }
 
     return $data;

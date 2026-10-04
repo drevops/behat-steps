@@ -62,7 +62,7 @@ class MetatagTraitTestImplementation extends WebRawContext {
   }
 
   /**
-   * The options the trait asked the detached browser for.
+   * The options the trait passed to httpDetachedClient().
    *
    * @var array<string, mixed>
    */

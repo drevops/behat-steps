@@ -17,7 +17,7 @@
 | [IframeTrait](#iframetrait) | Switch between iframes and the root document. |
 | [JavascriptTrait](#javascripttrait) | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | Assert JSON responses with path and schema checks. |
-| [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
+| [KeyboardTrait](#keyboardtrait) | Simulate keyboard interactions in the browser. |
 | [LinkTrait](#linktrait) | Verify link elements with attribute and content assertions. |
 | [MappingTrait](#mappingtrait) | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | Assert status, error, warning and success messages rendered on the page. |
@@ -26,7 +26,7 @@
 | [PathTrait](#pathtrait) | Navigate and verify paths with URL validation. |
 | [RandomTrait](#randomtrait) | Replace random-value tokens in step arguments and table cells. |
 | [RegionTrait](#regiontrait) | Interact with and assert against named page regions. |
-| [ResponseTrait](#responsetrait) | Verify HTTP responses with status code and header checks. |
+| [ResponseTrait](#responsetrait) | Verify HTTP response headers. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
 | [RestTrait](#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](#tabletrait) | Interact with HTML table elements and assert their content. |
@@ -53,12 +53,12 @@
 | [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\LanguageTrait](#drupallanguagetrait) | Create the languages a scenario needs. |
 | [Drupal\MediaTrait](#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
-| [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\MenuTrait](#drupalmenutrait) | Manage Drupal menus and menu links. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | Manage and assert Drupal queue state. |
 | [Drupal\RedirectTrait](#drupalredirecttrait) | Manage Drupal redirect entities provided by the contrib `redirect` module. |
-| [Drupal\SearchApiTrait](#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
+| [Drupal\SearchApiTrait](#drupalsearchapitrait) | Run Drupal Search API indexing and cron hooks. |
 | [Drupal\StateTrait](#drupalstatetrait) | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
@@ -88,19 +88,21 @@
 >  - `@behat-steps-skip:AccessibilityTrait`    Opt the scenario or feature out entirely.
 >  
 >  Tool-agnostic. Any engine that runs inside the existing Mink session can
->  be plugged in by overriding `accessibilityRunEngine()` (perform the
->  assessment, return raw results) and `accessibilityNormalizeResults()`
->  (remap raw output into the canonical shape the rest of the trait expects).
+>  be plugged in by overriding `accessibilityRunEngine()` and
+>  `accessibilityNormalizeResults()`. The first performs the assessment and
+>  returns raw results; the second remaps raw output into the canonical shape
+>  the rest of the trait reads.
 >  <br/><br/>
 >  Reporting. Each scenario writes its own HTML and JUnit report. After the
 >  whole suite, a single cross-page `accessibility_report_<timestamp>.html`
 >  (timestamp `YYYYMMDD_HHMMSS`) is written to the same directory,
->  de-duplicating every assessed page and rolling violations up by rule. One
->  file is written per run, so a run never overwrites a previous one. The
+>  de-duplicating every assessed page and rolling violations up by rule.
+>  <br/><br/>
+>  1 file is written per run, so a run never overwrites a previous one. The
 >  aggregate accumulates in process-global state, so under parallel Behat each
 >  process writes its own report.
 >  <br/><br/>
->  Console output. A one-line per-page summary can be printed to the console
+>  Console output. A 1-line per-page summary can be printed to the console
 >  as pages are assessed. Printing is off by default; set the
 >  `BEHAT_ACCESSIBILITY_PRINT` environment variable to a non-empty value other
 >  than `0`, or override `accessibilityGetPrintCli()`, to enable it.
@@ -181,7 +183,8 @@ Then the current page should pass accessibility checks for the tags "wcag2a"
 >  
 >  Commands run through the system shell with the privileges of the process
 >  that runs the tests. The command string is passed to the shell verbatim and
->  is subject to shell expansion, so never interpolate untrusted input into it.
+>  is subject to shell expansion, so untrusted input must never be
+>  interpolated into it.
 
 
 ### Options
@@ -346,8 +349,8 @@ Then the command should complete in more than 1 second
 
 >  Verify and inspect browser cookies.
 >  - Assert cookie existence and values with exact or partial matching.
->  - Support both WebDriver and BrowserKit browser drivers for test
->  compatibility.
+>  - Read cookies through whichever browser driver provides the cookie
+>  capability.
 
 
 <details>
@@ -536,12 +539,14 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  
 >  Examples:
 >  - `[relative:-1 day]` converted to `1893456000`
->  - `[relative:-1 day#Y-m-d]` converted to `2017-11-5`
+>  - `[relative:-1 day#Y-m-d]` converted to `2017-11-05`
 >  
->  `dateRelativeProcessValue()` is public API. It and its helpers are static so
->  a token resolves without a context instance. Late static binding routes the
->  resolution through a `dateGetNow()` override in the composing context,
->  which is the supported seam for pinning the clock.
+>  `dateRelativeProcessValue()` is public API. It and its helpers are static,
+>  so a token resolves without a context instance.
+>  <br/><br/>
+>  Late static binding routes the resolution through a `dateGetNow()` override
+>  in the composing context. That override is the supported way to hold the
+>  current time constant.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:DateTrait`.
 
@@ -558,9 +563,9 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 >  Append on-failure diagnostics to the failure message of any failed step.
 >  <br/><br/>
->  When a step fails, the exception message alone is often not enough to
->  diagnose a red CI run. This trait hooks every step and, only when the step
->  failed, appends a compact diagnostics block to the failure message:
+>  The exception message of a failed step is often not enough to diagnose a
+>  CI failure. This trait hooks every step and, only when the step failed,
+>  appends a compact diagnostics block to the failure message:
 >  - `URL` - the current page URL.
 >  - `HTTP status` - the last response status code.
 >  - `Browser driver` - the class of the browser driver behind the session.
@@ -608,15 +613,16 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 [Source](src/Steps/Web/DropzoneTrait.php), [Example](tests/behat/features/dropzone.feature)
 
 >  Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
->  - Drop one or more files on a CSS-selected target in a single native event.
+>  - Drop 1 or more files on a CSS-selected target in a single native event.
 >  - Fixture paths resolve against the Mink `files_path` parameter.
 >  - Works on any element that handles native `drop` events (Dropzone.js,
 >  custom drop targets, framework widgets).
 >  <br/><br/>
 >  Mink's `attachFile` writes each file to a hidden `<input type="file">`
 >  sequentially, so file A finishes uploading before file B starts. Real users
->  release multiple files together, which fires a single `drop` event whose
->  `dataTransfer.files` contains all of them and triggers concurrent uploads.
+>  release multiple files together, so a single `drop` event carries all of
+>  them in `dataTransfer.files` and triggers concurrent uploads.
+>  <br/><br/>
 >  Race conditions in dedup maps, status indicators, error handlers and
 >  server-side queues reproduce only under the multi-file path.
 >  <br/><br/>
@@ -641,7 +647,7 @@ When I drop the file "document.pdf" on the dropzone ".dropzone"
   <summary><code>@When I drop the following files on the dropzone :selector:</code></summary>
 
 <br/>
-Drop one or more files on the target element in a single native event
+Drop 1 or more files on the target element in a single native event
 <br/><br/>
 
 ```gherkin
@@ -758,7 +764,7 @@ When I press the button "Delete" with the index 2
   <summary><code>@When I trigger the JS event :event on the element :selector</code></summary>
 
 <br/>
-When I trigger the JS event :event on the element :selector
+Trigger a JS event on the element defined by the selector
 <br/><br/>
 
 ```gherkin
@@ -772,7 +778,7 @@ When I trigger the JS event "click" on the element "#submit-button"
   <summary><code>@When I scroll to the element :selector</code></summary>
 
 <br/>
-Scroll to an element with ID
+Scroll to the element matching a CSS selector
 <br/><br/>
 
 ```gherkin
@@ -928,7 +934,7 @@ Then the element "#main-content" with the attribute "class" and a value containi
   <summary><code>@Then the element :selector with the attribute :attribute and the value :value should not exist</code></summary>
 
 <br/>
-Assert an element with selector and attribute with a value exists
+Assert an element with selector and attribute with a value does not exist
 <br/><br/>
 
 ```gherkin
@@ -1040,7 +1046,7 @@ Then the element "#page-header" should stack below the element "#modal"
   <summary><code>@Then the element :selector should be at the top of the viewport</code></summary>
 
 <br/>
-Assert the element :selector should be at the top of the viewport
+Assert that the element is at the top of the viewport
 <br/><br/>
 
 ```gherkin
@@ -1054,7 +1060,7 @@ Then the element "#header" should be at the top of the viewport
   <summary><code>@Then the element :selector should be centered in the viewport</code></summary>
 
 <br/>
-Assert the element :selector should be centered in the viewport
+Assert that the element is centered in the viewport
 <br/><br/>
 
 ```gherkin
@@ -1271,7 +1277,7 @@ Then the element "#main-nav" should contain 3 elements matching ".menu-item"
 >  - Assert field existence, state, and selected options.
 >  - Support for specialized widgets like color pickers and rich text editors.
 >  - Disable browser validation for forms with deferred execution.
->  - Use @disable-form-validation tag to automatically disable validation for all forms.
+>  - The @disable-form-validation tag disables validation for all forms.
 >  
 >  Skip processing with tag: `@behat-steps-skip:FieldTrait`
 
@@ -1719,7 +1725,7 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 
 >  Test file download functionality with content verification.
 >  - Download files through links and URLs with session cookie handling.
->  - Verify file names, content, and extracted archives.
+>  - Verify file names, content, and zip archive entries.
 >  - Set up download directories and handle file cleanup.
 >  
 >  Skip processing with tag: `@behat-steps-skip:FileDownloadTrait`.
@@ -1905,10 +1911,12 @@ When I switch to the root document
 [Source](src/Steps/Web/JavascriptTrait.php), [Example](tests/behat/features/javascript.feature)
 
 >  Automatically detect JavaScript errors during test execution.
->  - Collects JavaScript errors from `window.onerror` and `console.error`.
+>  - Collects JavaScript errors from `window.onerror`, `unhandledrejection`
+>  and `console.error`.
 >  - Automatically asserts no errors at end of scenarios with `@javascript` tag.
->  - Errors collected only when URL changes (navigation occurs).
->  - Use `@js-errors` tag to bypass error checking when errors are expected.
+>  - Collects errors after every step and re-injects the collector when the
+>  URL changes.
+>  - The `@js-errors` tag bypasses error checking when errors are expected.
 >  
 >  Skip processing with tags: `@behat-steps-skip:JavascriptTrait`
 >  <br/><br/>
@@ -2238,10 +2246,10 @@ Then the response should match the JSON schema in the file "json_schema.json"
 
 [Source](src/Steps/Web/KeyboardTrait.php), [Example](tests/behat/features/keyboard.feature)
 
->  Simulate keyboard interactions in Drupal browser testing.
->  - Trigger key press events including special keys and key combinations.
->  - Assert keyboard navigation and shortcut functionality.
->  - Support for targeted key presses on specific page elements.
+>  Simulate keyboard interactions in the browser.
+>  - Trigger key press events, including named special keys.
+>  - Press a string of characters 1 key at a time.
+>  - Target a key press at a page element or at the focused element.
 
 
 <details>
@@ -2307,8 +2315,8 @@ When I press the keys "abc" on the element "#edit-title"
 [Source](src/Steps/Web/LinkTrait.php), [Example](tests/behat/features/link.feature)
 
 >  Verify link elements with attribute and content assertions.
->  - Find links by title, URL, text content, and class attributes.
->  - Test link existence, visibility, and destination accuracy.
+>  - Find links by title, or by text and href, optionally within an element.
+>  - Assert link existence and href match.
 >  - Assert absolute and relative link paths.
 
 
@@ -2455,7 +2463,7 @@ Then the link "Return to site content" should not be an absolute link
 >  declared in does not take part in the lookup.
 >  <br/><br/>
 >  The transform matches the token's braces rather than a placeholder name, so
->  one map covers every string argument without the step opting in.
+>  1 map covers every string argument without the step opting in.
 >  <br/><br/>
 >  Operates on Gherkin text alone: no Mink session and no backend, so the trait
 >  works in any suite.
@@ -2468,7 +2476,7 @@ Then the link "Return to site content" should not be an absolute link
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
 | `mapping.enabled` | boolean | `TRUE` | `@behat-steps-skip:MappingTrait` | Replace `{{ Key }}` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched. |
-| `mapping.groups` | map | `[]` | - | Named value mappings grouped for organisation. Group names take no part in the lookup, so a key must be unique across all groups. |
+| `mapping.groups` | map | `[]` | - | Named value mappings grouped for organization. Group names take no part in the lookup, so a key must be unique across all groups. |
 
 ## MessageTrait
 
@@ -2478,10 +2486,10 @@ Then the link "Return to site content" should not be an absolute link
 >  - Match a single message by substring, per message type.
 >  - Match a table of messages in one step.
 >  
->  Each message type resolves to a CSS selector configured under the
->  `selectors: messages:` map in the extension configuration, keyed `default`,
->  `error`, `success` and `warning`. A message matches when the text of any
->  element found by that selector contains the expected string.
+>  Each message type resolves to a CSS selector from the `message.selectors`
+>  option, keyed `default`, `error`, `success` and `warning`. A message
+>  matches when the text of any element found by that selector contains the
+>  expected string.
 
 
 ### Options
@@ -2824,30 +2832,30 @@ Then the page should not be indexable
 </details>
 
 <details>
-  <summary><code>@Then the meta robots should include :directive</code></summary>
+  <summary><code>@Then the meta robots should contain :directive</code></summary>
 
 <br/>
-Assert the robots meta tag includes a directive
+Assert the robots meta tag contains a directive
 <br/><br/>
 
 ```gherkin
-Then the meta robots should include "noindex"
-Then the meta robots should include "nofollow"
+Then the meta robots should contain "noindex"
+Then the meta robots should contain "nofollow"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the meta robots should not include :directive</code></summary>
+  <summary><code>@Then the meta robots should not contain :directive</code></summary>
 
 <br/>
-Assert the robots meta tag does not include a directive
+Assert the robots meta tag does not contain a directive
 <br/><br/>
 
 ```gherkin
-Then the meta robots should not include "noindex"
-Then the meta robots should not include "nofollow"
+Then the meta robots should not contain "noindex"
+Then the meta robots should not contain "nofollow"
 
 ```
 
@@ -3212,11 +3220,11 @@ Then the current URL should not have the query parameter "filter" with the value
 
 >  Replace random-value tokens in step arguments and table cells.
 >  - Resolve `[?<name>:<type>[,<args>]]` tokens to generated values.
->  - Return one value per token for the whole scenario.
+>  - Return 1 value per token for the whole scenario.
 >  
 >  Built-in types are `string`, `name`, `machine_name`, `int`, `email` and
 >  `uuid`. The default is `string` with length `10`, so `[?title]`,
->  `[?title:string]` and `[?title:string,10]` share one value.
+>  `[?title:string]` and `[?title:string,10]` share 1 value.
 >  <br/><br/>
 >  Operates on Gherkin text alone: no Mink session and no backend, so the trait
 >  works in any suite.
@@ -3527,7 +3535,7 @@ Then the element "span" with the text "New" in the region "content" should have 
 
 [Source](src/Steps/Web/ResponseTrait.php), [Example](tests/behat/features/response.feature)
 
->  Verify HTTP responses with status code and header checks.
+>  Verify HTTP response headers.
 >  - Assert HTTP header presence and values.
 
 
@@ -3810,7 +3818,7 @@ Then the REST response should contain "success"
 
 >  Interact with HTML table elements and assert their content.
 >  - Assert table row and column counts.
->  - Assert table column headers in thead.
+>  - Assert table column headers.
 >  - Assert table empty and non-empty states.
 >  - Assert table sort order by column.
 >  - Assert text values present in a specific table row.
@@ -3857,7 +3865,7 @@ When I press the button "Remove" in the row "Article title"
   <summary><code>@Then the table :selector should have :count row(s)</code></summary>
 
 <br/>
-Assert that a table has the expected number of rows in its tbody
+Assert that a table has the expected number of body rows
 <br/><br/>
 
 ```gherkin
@@ -3902,7 +3910,7 @@ Then the table ".mytable" should contain the following columns:
   <summary><code>@Then the table :selector should be empty</code></summary>
 
 <br/>
-Assert that a table is empty (has no rows in tbody)
+Assert that a table is empty (has no body rows)
 <br/><br/>
 
 ```gherkin
@@ -3916,7 +3924,7 @@ Then the table ".mytable" should be empty
   <summary><code>@Then the table :selector should not be empty</code></summary>
 
 <br/>
-Assert that a table is not empty (has rows in tbody)
+Assert that a table is not empty (has body rows)
 <br/><br/>
 
 ```gherkin
@@ -4039,9 +4047,9 @@ Then the link "Delete" should not exist in the row "Article title"
 >  - Wait for jQuery and Drupal AJAX activity to settle, on demand or around
 >  every step that navigates or submits.
 >  <br/><br/>
->  Mink's own AJAX wait watches `jQuery.active` alone, while Drupal renders many
->  updates through `Drupal.ajax`. An assertion following a click can read the
->  page before the update applies, so the wait here watches both.
+>  A wait on `jQuery.active` alone misses the updates Drupal renders through
+>  `Drupal.ajax`, so an assertion following a click can read the page before
+>  the update applies. The wait here watches both.
 >  <br/><br/>
 >  Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
 
@@ -4545,7 +4553,7 @@ Then the response should be a valid Atom feed
 [Source](src/Steps/Drupal/BatchTrait.php), [Example](tests/behat/features/drupal_batch.feature)
 
 >  Wait for Drupal's Batch API to finish.
->  - Poll the batch progress element until it leaves the page.
+>  - Poll the batch progress element until the page no longer contains it.
 >  
 >  A batch page reloads itself until the operation completes, so a following
 >  assertion would otherwise read the progress screen rather than the result.
@@ -4577,18 +4585,19 @@ When I wait for the batch job to finish
 >  replacements complete fails intermittently with "element not found".
 >  <br/><br/>
 >  With this trait included, every `@javascript` scenario waits before each
->  step until no BigPipe placeholder marker remains in the DOM, which removes
->  that race without an explicit step.
+>  step until no BigPipe placeholder marker remains in the DOM. The wait
+>  removes the race without an explicit step.
 >  <br/><br/>
 >  The wait is best-effort: on timeout the step still runs, so a placeholder
 >  that is never replaced fails the following assertion rather than the wait.
 >  <br/><br/>
 >  A browser driver that runs no JavaScript never replaces those placeholders,
 >  and does not follow the `http-equiv=refresh` fallback either. An
->  authenticated-user assertion on such a browser driver silently misses
->  whatever BigPipe deferred. A scenario tagged `@bigpipe` gets the
->  `big_pipe_nojs` cookie, which makes Drupal render the page in full
->  server-side.
+>  authenticated-user assertion on such a browser driver silently misses the
+>  content BigPipe deferred.
+>  <br/><br/>
+>  A scenario tagged `@bigpipe` gets the `big_pipe_nojs` cookie, so Drupal
+>  renders the page in full server-side.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
 >  <br/><br/>
@@ -4596,7 +4605,7 @@ When I wait for the batch job to finish
 >  - `@bigpipe` - render server-side on a browser driver without JavaScript.
 >  
 >  Set the `big_pipe.wait_timeout` option to change the maximum wait, or assign
->  `$bigPipeWaitTimeout` to override it for one scenario.
+>  `$bigPipeWaitTimeout` to override it for 1 scenario.
 
 
 ### Options
@@ -4875,16 +4884,20 @@ When I run cron
 >  runtime. They cannot be disabled from the Behat process because tests run
 >  in a separate process from the system under test (SUT).
 >  <br/><br/>
->  This trait signals the SUT - through a request header, a `$_SERVER` entry
->  and an environment variable - that specific config objects should be read
->  from their original (unoverridden) values. The SUT is responsible for
->  reading that signal and calling `ImmutableConfig::getOriginal()` instead of
->  `ImmutableConfig::get()` for the listed config names.
+>  This trait signals the SUT that specific config objects should be read
+>  from their original (unoverridden) values. The signal is a request header,
+>  a `$_SERVER` entry and an environment variable.
+>  <br/><br/>
+>  The SUT is responsible for reading that signal and calling
+>  `ImmutableConfig::getOriginal()` instead of `ImmutableConfig::get()` for
+>  the listed config names.
 >  <br/><br/>
 >  Activated by adding `@disable-config-override:CONFIG_NAME` tags to a
 >  feature or scenario. Multiple tags are combined into a comma-separated
->  list. Runs on every step because some steps reset headers set earlier in
->  the scenario.
+>  list.
+>  <br/><br/>
+>  The signal is applied before every step because some steps reset headers
+>  set earlier in the scenario.
 >  <br/><br/>
 >  Limitations:
 >  - The request header reaches the SUT only on a browser driver providing
@@ -4906,9 +4919,9 @@ When I run cron
 >  ```
 >  <br/><br/>
 >  The signal is also written to the request-header bag, so a trait that
->  issues its own HTTP requests - `RestTrait` - carries it too. The bag is
->  per context, so that reaches `RestTrait` only where one context composes
->  both; the shipped `WebContext` and `DrupalContext` are separate objects.
+>  issues its own HTTP requests - `RestTrait` - carries it too. The bag is a
+>  property of the context object, so the signal reaches `RestTrait` when the
+>  same context composes both traits, as the shipped `DrupalContext` does.
 >  <br/><br/>
 >  Example:
 >  ```
@@ -4937,13 +4950,12 @@ When I run cron
 >  object's key holds, or contains, an expected value. Nested keys are
 >  addressable with dotted notation (for example `page.front`).
 >  <br/><br/>
->  Two families of assertions read the value differently:
->  - The default steps read the STORED value via editable configuration,
->  ignoring `settings.php` overrides. This is symmetric with the set steps
->  and is what most setup-and-assert scenarios need.
->  - The `effective` steps read the value through the config factory with
->  module and `settings.php` overrides applied - the value the running site
->  actually uses.
+>  2 families of assertions read the value differently:
+>  - The default steps read the stored value, with module and `settings.php`
+>  overrides left unapplied. This is symmetric with the set steps and is
+>  what most setup-and-assert scenarios need.
+>  - The `effective` steps read the value with module and `settings.php`
+>  overrides applied: the value the running site uses.
 >  <br/><br/>
 >  Values are compared by their stringified form, so `true`, `42` and JSON
 >  arrays written in a step match their typed configuration counterparts. The
@@ -4951,8 +4963,8 @@ When I run cron
 >  array values, searched recursively.
 >  <br/><br/>
 >  Configuration objects touched by the set steps are snapshotted on first
->  write and restored after the scenario: an existing object is reset to its
->  original data and an object that did not exist is deleted. Skip the revert
+>  write and restored after the scenario. An existing object is reset to its
+>  original data, and an object that did not exist is deleted. Skip the revert
 >  with `@behat-steps-skip:ConfigTrait`.
 >  <br/><br/>
 >  ```
@@ -5478,7 +5490,7 @@ Then the "page" content with the title "Test page" should not be published
   <summary><code>@When I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:</code></summary>
 
 <br/>
-Save order of the Draggable Order items
+Save the order of the Draggable Views items
 <br/><br/>
 
 ```gherkin
@@ -5500,9 +5512,9 @@ When I save the draggable views items of the view "draggableviews_demo" and the 
 >  - Run a command that is expected to fail and keep its output.
 >  - Assert the last command's output by substring or regular expression.
 >  
->  Steps resolve the backend that can run Drush commands rather than the one at
->  the front of the scenario's order, so they work in a scenario driven by any
->  other backend as long as the suite lists a Drush-capable one.
+>  Steps resolve the backend that can run Drush commands, not the first one in
+>  the scenario's order. They work in a scenario driven by any other backend
+>  as long as the suite lists a Drush-capable one.
 
 
 <details>
@@ -6115,7 +6127,7 @@ Then the file "report.xlsx" should be attached to the email with a subject conta
 >  created here are removed after the scenario along with every other entity
 >  the scenario created.
 >  <br/><br/>
->  Skip cleanup for one type with tag:
+>  Skip cleanup for 1 type with tag:
 >  `@behat-steps-entity-cleanup-skip:commerce_product`.
 
 
@@ -6284,10 +6296,11 @@ Then an unmanaged file at the URI "public://config.txt" should not contain "debu
 >  - Add languages by their ISO code, skipping ones already installed.
 >  
 >  Languages created here are removed after the scenario along with every other
->  entity the scenario created. A scenario that also installs the 'language'
->  module leaves that removal to the module uninstall, with
->  '@behat-steps-entity-cleanup-skip:language', because the two teardown hooks
->  run in no guaranteed order.
+>  entity the scenario created.
+>  <br/><br/>
+>  The 2 teardown hooks run in no guaranteed order. A scenario that also
+>  installs the 'language' module therefore leaves that removal to the module
+>  uninstall, with '@behat-steps-entity-cleanup-skip:language'.
 
 
 <details>
@@ -6499,7 +6512,7 @@ Then the "image" media with the name "Test media image" should not exist
 
 [Source](src/Steps/Drupal/MenuTrait.php), [Example](tests/behat/features/drupal_menu.feature)
 
->  Manage Drupal menu systems and menu link rendering.
+>  Manage Drupal menus and menu links.
 >  - Create and remove menus by label.
 >  - Create and remove menu links, including parent-child hierarchies.
 >  - Created menus and menu links are automatically removed at the end of the scenario.
@@ -6866,7 +6879,7 @@ Then the queue "myqueue" should be empty
 [Source](src/Steps/Drupal/RedirectTrait.php), [Example](tests/behat/features/drupal_redirect.feature)
 
 >  Manage Drupal redirect entities provided by the contrib `redirect` module.
->  - Create one or more redirects from a table of source/destination/status.
+>  - Create 1 or more redirects from a table of source/destination/status.
 >  - Delete redirects by source path.
 >  - Assert that redirects do or do not exist for given source paths.
 >  - Created redirects are automatically removed at the end of the scenario.
@@ -6883,7 +6896,7 @@ Then the queue "myqueue" should be empty
   <summary><code>@Given the following redirects exist:</code></summary>
 
 <br/>
-Create one or more redirects
+Create 1 or more redirects
 <br/><br/>
 
 ```gherkin
@@ -6917,7 +6930,7 @@ Given the following redirects do not exist:
   <summary><code>@Then the following redirects should exist:</code></summary>
 
 <br/>
-Assert that one or more redirects exist
+Assert that 1 or more redirects exist
 <br/><br/>
 
 ```gherkin
@@ -6935,7 +6948,7 @@ Then the following redirects should exist:
   <summary><code>@Then the following redirects should not exist:</code></summary>
 
 <br/>
-Assert that no redirect exists for one or more source paths
+Assert that no redirect exists for 1 or more source paths
 <br/><br/>
 
 ```gherkin
@@ -6951,9 +6964,10 @@ Then the following redirects should not exist:
 
 [Source](src/Steps/Drupal/SearchApiTrait.php), [Example](tests/behat/features/drupal_search_api.feature)
 
->  Assert Drupal Search API with index and query operations.
->  - Add content to an index
+>  Run Drupal Search API indexing and cron hooks.
+>  - Add content to an index.
 >  - Run indexing for a specific number of items.
+>  - Run the Search API and Search API Solr cron hooks.
 
 
 ### Prerequisites
@@ -7120,7 +7134,7 @@ Then the state "my_module.launched" should not exist
 
 >  Manage Drupal taxonomy terms with vocabulary organization.
 >  - Create term vocabulary structures using field values.
->  - Navigate to term pages
+>  - Navigate to term pages.
 >  - Verify vocabulary configurations.
 
 
@@ -7246,7 +7260,7 @@ Then the vocabulary "topics" should not exist
   <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary should exist</code></summary>
 
 <br/>
-Assert that a taxonomy term exist by name
+Assert that a taxonomy term exists by name
 <br/><br/>
 
 ```gherkin

@@ -275,7 +275,7 @@ trait BlockTrait {
     $block = $this->blockFindByLabel($label);
 
     if (!empty($block)) {
-      throw new ExpectationException(sprintf('The block "%s" exists but should not.', $label), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The block "%s" exists, but it should not.', $label), $this->getSession()->getDriver());
     }
   }
 
@@ -329,7 +329,7 @@ trait BlockTrait {
     $actual_region = $block->getRegion();
 
     if ($actual_region === $region) {
-      throw new ExpectationException(sprintf('Block "%s" is in region "%s" but should not be.', $label, $region), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Block "%s" is in region "%s", but it should not be.', $label, $region), $this->getSession()->getDriver());
     }
   }
 

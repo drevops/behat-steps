@@ -15,10 +15,12 @@ use Behat\Gherkin\Node\TaggedNodeInterface;
  * 'TaggedNodeInterface::hasTag()' compares strictly. Every tag this library
  * reads goes through here, so a tag matches on both majors.
  *
- * 'has()', 'values()' and 'valueStates()' take a subject: a scenario scope or
- * event reads the scenario together with its feature, and a node reads that
- * node alone. A parametrized tag reads '@<name>:<value>', and a '!' before
- * the value switches it off, as in '@module:!help'.
+ * 'has()', 'values()' and 'valueStates()' take a subject. A scenario scope
+ * or event reads the scenario together with its feature, and a node reads
+ * that node alone.
+ *
+ * A parametrized tag reads '@<name>:<value>', and a '!' before the value
+ * switches it off, as in '@module:!help'.
  */
 final class Tag {
 

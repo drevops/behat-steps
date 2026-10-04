@@ -335,7 +335,7 @@ class WebRawContextTest extends UnitTestCase {
 
     $context = new WebRawContext();
     $context->setBackendRegistry($backend_registry);
-    $context->setDispatcher($this->createHookDispatcher());
+    $context->setHookDispatcher($this->createHookDispatcher());
     $context->setBasicAuthenticator($this->createMock(BasicAuthenticatorInterface::class));
 
     return $context;

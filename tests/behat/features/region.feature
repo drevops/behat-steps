@@ -85,5 +85,5 @@ Feature: Check that RegionTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The "nonexistent" region isn't configured!
+      The "nonexistent" region is not configured.
       """

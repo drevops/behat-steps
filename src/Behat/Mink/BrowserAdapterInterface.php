@@ -9,14 +9,14 @@ use Behat\Mink\Driver\DriverInterface;
 /**
  * Declares which capabilities a browser driver provides.
  *
- * Browser drivers ship from other packages, so one cannot implement the
+ * Browser drivers are defined in other packages, so one cannot implement the
  * capability interfaces itself. An adapter implements them on its behalf and
- * states which browser driver it speaks for.
+ * declares which browser driver it supports.
  */
 interface BrowserAdapterInterface {
 
   /**
-   * Whether this adapter speaks for the given browser driver.
+   * Whether this adapter supports the given browser driver.
    *
    * @param \Behat\Mink\Driver\DriverInterface $driver
    *   The browser driver a session is running.

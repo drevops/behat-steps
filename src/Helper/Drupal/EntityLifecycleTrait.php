@@ -42,7 +42,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
 trait EntityLifecycleTrait {
 
   /**
-   * The tag that keeps the entities of the type it names after the scenario.
+   * The tag that names an entity type excluded from cleanup.
    */
   protected const ENTITY_LIFECYCLE_CLEANUP_SKIP_TAG = 'behat-steps-entity-cleanup-skip';
 
@@ -63,12 +63,11 @@ trait EntityLifecycleTrait {
    *   When a timestamp value cannot be read as a date.
    */
   #[BeforeNodeCreate]
-  public static function entityLifecycleAlterNodeParameters(BeforeNodeCreateScope $scope): void {
+  public static function entityLifecycleBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
     $stub = $scope->getStub();
 
-    // A backend that writes the node over the command line takes the values as
-    // written, so string dates are converted only for a backend that saves them
-    // through Drupal's own storage.
+    // A command-line backend takes the values as written, so string dates are
+    // converted only for a backend that saves through Drupal's own storage.
     $context = $scope->getContext();
 
     if (!$context instanceof BackendAwareInterface) {
@@ -109,11 +108,11 @@ trait EntityLifecycleTrait {
    * node referencing a term is deleted before the entity it references.
    *
    * '@behat-steps-skip:EntityLifecycleTrait' skips the whole pass, and
-   * '@behat-steps-entity-cleanup-skip:<entity_type_id>' skips one entity
+   * '@behat-steps-entity-cleanup-skip:<entity_type_id>' skips 1 entity
    * type.
    */
   #[AfterScenario]
-  public function entityLifecycleCleanAll(AfterScenarioScope $scope): void {
+  public function entityLifecycleAfterScenario(AfterScenarioScope $scope): void {
     if (!$this->shouldCleanup() || $this->skipTag(__TRAIT__, $scope)) {
       return;
     }
@@ -215,7 +214,7 @@ trait EntityLifecycleTrait {
   /**
    * Creates an entity of a type that has no dedicated method.
    *
-   * The stub is added to 'createdStubs', so 'entityLifecycleCleanAll()'
+   * The stub is added to 'createdStubs', so 'entityLifecycleAfterScenario()'
    * removes it after the scenario through the backend's 'entityDelete()'
    * fallback.
    *
@@ -381,7 +380,7 @@ trait EntityLifecycleTrait {
    *   When the context has not been initialized by Behat.
    */
   protected function entityLifecycleDispatchHooks(string $scope_class, EntityStubInterface $stub): void {
-    if (!$this->dispatcher instanceof HookDispatcher) {
+    if (!$this->hookDispatcher instanceof HookDispatcher) {
       throw new \RuntimeException('The hook dispatcher is available only after Behat has initialized the context.');
     }
 
@@ -392,10 +391,8 @@ trait EntityLifecycleTrait {
     }
 
     $scope = new $scope_class($environment, $this, $stub);
-    $call_results = $this->dispatcher->dispatchScopeHooks($scope);
+    $call_results = $this->hookDispatcher->dispatchScopeHooks($scope);
 
-    // The dispatcher collects exceptions rather than raising them, so the
-    // first one is rethrown here.
     foreach ($call_results as $call_result) {
       $exception = $call_result->getException();
 
@@ -452,7 +449,7 @@ trait EntityLifecycleTrait {
    *
    * Accepts either the machine name (returned as-is) or the human label
    * (looked up via the vocabulary storage). Falls back to the original value
-   * when no label matches, leaving the backend to surface a not-found error.
+   * when no label matches, so the backend reports a not-found error.
    */
   protected function entityLifecycleResolveVocabularyMachineName(string $identifier): string {
     $this->backendFor(CoreCapabilityInterface::class);
@@ -473,10 +470,10 @@ trait EntityLifecycleTrait {
   /**
    * Captures the scalar values on an entity stub.
    *
-   * The backend runs base fields through the field-handler pipeline during
-   * create, which casts scalar values such as 'title', 'name', 'mail' or
-   * 'pass' to single-element arrays. Downstream code expects scalars, so the
-   * values are captured before the backend call and restored after it.
+   * During create, the backend's field-handler pipeline casts scalar
+   * base-field values such as 'title', 'name', 'mail' or 'pass' to
+   * single-element arrays. Downstream code expects scalars, so the values are
+   * captured before the backend call and restored after it.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub to inspect.

@@ -22,7 +22,7 @@ Feature: Check that ContentBlockTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Content block type "non_existent_type" does not exist.
+      The content block type "non_existent_type" does not exist.
       """
 
   Scenario: Create, manage, and verify content block entities

@@ -14,10 +14,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel round-trip test for datetime fields via the Core backend.
  *
- * Unit tests already cover DatetimeHandler::expand() math. This test adds
- * the integration proof: Core::entityCreate resolves DatetimeHandler through
- * its lookup chain, the handler's output is accepted by real datetime field
- * storage, and the stored value round-trips unchanged.
+ * Core::entityCreate resolves DatetimeHandler through its lookup chain, real
+ * datetime field storage accepts the handler's output, and the stored value
+ * round-trips unchanged.
  */
 #[CoversClass(DatetimeHandler::class)]
 #[Group('fields')]
@@ -49,9 +48,6 @@ class DatetimeHandlerKernelTest extends FieldHandlerKernelTestBase {
     ]);
   }
 
-  /**
-   * Tests round-trip for a date-only field.
-   */
   public function testDateOnlyRoundTrip(): void {
     $this->attachField('field_birthday', 'datetime', [
       'datetime_type' => DateTimeItem::DATETIME_TYPE_DATE,
@@ -75,8 +71,8 @@ class DatetimeHandlerKernelTest extends FieldHandlerKernelTestBase {
     ]);
     $this->core->entityCreate($stub);
 
-    // The 'relative:' prefix is stripped before parsing; the resulting value
-    // matches the same storage string the plain timestamp would have produced.
+    // The 'relative:' prefix is stripped before parsing, so the stored value
+    // equals the one a plain timestamp produces.
     $this->assertSame([['value' => '2026-01-02T03:04:05']], $stub->getValue('field_seen'));
   }
 

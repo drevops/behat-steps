@@ -13,10 +13,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel round-trip test for DefaultHandler via the Core backend.
  *
  * DefaultHandler is the fallback used for any field type without a dedicated
- * handler class. This test verifies the fallback resolves correctly and that
- * the passthrough output round-trips through real storage. The 'string' field
- * type has no DrupalBackend handler, so the lookup chain lands on
- * DefaultHandler.
+ * handler class. The 'string' field type has no DrupalBackend handler, so the
+ * lookup chain resolves to DefaultHandler.
  */
 #[CoversClass(DefaultHandler::class)]
 #[Group('fields')]
@@ -30,9 +28,6 @@ class DefaultHandlerKernelTest extends FieldHandlerKernelTestBase {
    */
   protected static $modules = self::BASE_MODULES;
 
-  /**
-   * Tests round-trip for a string field (no specific handler defined).
-   */
   public function testStringRoundTripViaDefaultHandler(): void {
     $this->attachField('field_note', 'string');
 

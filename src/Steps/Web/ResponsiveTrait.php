@@ -277,7 +277,7 @@ trait ResponsiveTrait {
 
     if (!isset($all_breakpoints[$breakpoint])) {
       $available = implode(', ', array_keys($all_breakpoints));
-      throw new \RuntimeException(sprintf("Breakpoint '%s' not found. Available breakpoints: %s", $breakpoint, $available));
+      throw new \RuntimeException(sprintf('Breakpoint "%s" not found. Available breakpoints: %s.', $breakpoint, $available));
     }
 
     return $all_breakpoints[$breakpoint];
@@ -307,7 +307,7 @@ trait ResponsiveTrait {
    *   The breakpoint name, or NULL when the node carries no @breakpoint tag.
    *
    * @throws \RuntimeException
-   *   If the node carries more than one.
+   *   If the node carries more than 1.
    */
   protected function responsiveFindTagBreakpoint(TaggedNodeInterface $node, string $node_type): ?string {
     $breakpoints = Tag::values($node, self::RESPONSIVE_BREAKPOINT_TAG);
@@ -336,12 +336,12 @@ trait ResponsiveTrait {
    *   If format is invalid.
    */
   protected function responsiveExtractDimensions(string $dimensions, ?string $breakpoint = NULL): array {
-    if (!preg_match('/^(\d+)x(\d+)$/i', $dimensions, $matches)) {
+    if (preg_match('/^(\d+)x(\d+)$/i', $dimensions, $matches) !== 1) {
       if ($breakpoint) {
-        throw new \RuntimeException(sprintf("Invalid breakpoint format for '%s': '%s'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080)", $breakpoint, $dimensions));
+        throw new \RuntimeException(sprintf('Invalid breakpoint format for "%s": "%s". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).', $breakpoint, $dimensions));
       }
 
-      throw new \RuntimeException(sprintf("Invalid breakpoint format: '%s'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080)", $dimensions));
+      throw new \RuntimeException(sprintf('Invalid breakpoint format: "%s". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).', $dimensions));
     }
 
     return [
@@ -396,8 +396,7 @@ trait ResponsiveTrait {
     }
     // @codeCoverageIgnoreStart
     catch (\Exception) {
-      // A browser driver without resize support throws; the exception is
-      // ignored.
+      // A browser driver without resize support throws.
     }
     // @codeCoverageIgnoreEnd
   }

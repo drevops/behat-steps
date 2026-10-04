@@ -41,7 +41,7 @@ class RegionSelectorTest extends TestCase {
   #[DataProvider('dataProviderUnknownRegionThrows')]
   public function testUnknownRegionThrows(string|array $locator): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage("region isn't configured!");
+    $this->expectExceptionMessage('region is not configured.');
 
     $this->createSelector()->translateToXPath($locator);
   }

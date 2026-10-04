@@ -104,7 +104,7 @@ trait UserTrait {
   /**
    * Create users from a table of field values.
    *
-   * Each row becomes one user; each column is a base property or a field. A
+   * Each row becomes 1 user; each column is a base property or a field. A
    * `roles` column takes a comma-separated list, assigned after the account is
    * saved. A row without a `pass` column gets a random password.
    *
@@ -160,7 +160,7 @@ trait UserTrait {
    */
   #[Given('the password for the user :name is :password')]
   public function userSetPassword(string $name, string $password): void {
-    if (empty($password)) {
+    if ($password === '') {
       throw new \RuntimeException('Password must not be empty.');
     }
 
@@ -508,7 +508,7 @@ trait UserTrait {
    * @endcode
    */
   #[Then('the user with the email :mail should exist')]
-  public function userAssertExistsByMail(string $mail): void {
+  public function userAssertExistsWithMail(string $mail): void {
     if (!$this->userExistsByMail($mail)) {
       throw new ExpectationException(sprintf('User with email "%s" is expected to exist, but they do not.', $mail), $this->getSession()->getDriver());
     }
@@ -524,7 +524,7 @@ trait UserTrait {
    * @endcode
    */
   #[Then('the user with the email :mail should not exist')]
-  public function userAssertNotExistsByMail(string $mail): void {
+  public function userAssertNotExistsWithMail(string $mail): void {
     if ($this->userExistsByMail($mail)) {
       throw new ExpectationException(sprintf('User with email "%s" is expected to not exist, but they do.', $mail), $this->getSession()->getDriver());
     }
@@ -566,7 +566,7 @@ trait UserTrait {
    * Create a user carrying the roles and extra fields, and log in as them.
    *
    * @param string $roles
-   *   One role, or several as a comma-separated list.
+   *   A single role, or several as a comma-separated list.
    * @param array<string, mixed> $extra_fields
    *   Additional values to set on the account.
    *
@@ -592,8 +592,8 @@ trait UserTrait {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The saved user stub.
    * @param string $roles
-   *   One role, or several as a comma-separated list. An empty string assigns
-   *   nothing.
+   *   A single role, or several as a comma-separated list. An empty string
+   *   assigns nothing.
    */
   public function userAssignRoles(UserCapabilityInterface $backend, EntityStubInterface $stub, string $roles): void {
     foreach (array_filter(array_map(trim(...), explode(',', $roles))) as $role) {
@@ -705,7 +705,7 @@ trait UserTrait {
     $users = $this->userLoadMultiple(['name' => $name]);
 
     if (empty($users)) {
-      throw new \RuntimeException(sprintf('User with name "%s" does not exist.', $name));
+      throw new \RuntimeException(sprintf('The user "%s" does not exist.', $name));
     }
 
     return reset($users);

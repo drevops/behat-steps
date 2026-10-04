@@ -38,14 +38,16 @@ use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
  * Zero-config context carrying the whole vocabulary a Drupal suite needs.
  *
  * Extending this context is enough to write features against a Drupal site
- * without writing any PHP: it is 'WebContext' plus every trait under
- * 'Steps\Drupal', so a Drupal project extends one class and gets all 57 step
- * traits. Each of those traits composes the helpers it needs, so the traits
- * that create entities also compose the entity teardown.
+ * without writing any PHP. It is 'WebContext' plus every trait under
+ * 'Steps\Drupal', so a Drupal project extends 1 class and gets all 57 step
+ * traits.
+ *
+ * Each of those traits composes the helpers it needs, so the traits that
+ * create entities also compose the entity teardown.
  *
  * A trait for a contrib module resolves nothing until one of its steps runs,
- * and then fails with a message naming the module, so composing all of them
- * costs a project nothing.
+ * and then fails with a message naming the module. Composing all of them
+ * therefore costs a project nothing.
  *
  * Registering this context beside 'WebContext' is fatal, because the 28 web
  * traits would register their steps twice. 'WebContext::assertOneContext()'

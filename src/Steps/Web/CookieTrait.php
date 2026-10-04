@@ -12,8 +12,8 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
  * Verify and inspect browser cookies.
  *
  * - Assert cookie existence and values with exact or partial matching.
- * - Support both WebDriver and BrowserKit browser drivers for test
- *   compatibility.
+ * - Read cookies through whichever browser driver provides the cookie
+ *   capability.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -271,8 +271,8 @@ trait CookieTrait {
   public function cookieGetAll(): array {
     $cookies = $this->browserDriverFor(CookieCapabilityInterface::class)->cookieGetAll();
 
-    // The capability reports wire-form values; an assertion compares against
-    // the value a step was written with.
+    // The capability returns URL-encoded values; a step compares against the
+    // literal written in the feature.
     foreach ($cookies as &$cookie) {
       $cookie['value'] = rawurldecode($cookie['value']);
     }

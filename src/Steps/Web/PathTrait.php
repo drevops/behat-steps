@@ -34,8 +34,8 @@ trait PathTrait {
   public function pathSetBasicAuth(string $username, string $password): void {
     $this->getSession()->setBasicAuth($username, $password);
 
-    // The browser driver keeps the credentials to itself, so the requests the
-    // library sends outside the session read them from the header bag.
+    // The browser driver does not expose the credentials, so requests the
+    // library sends outside the session read them from `$requestHeaders`.
     $this->requestHeadersSet('Authorization', 'Basic ' . base64_encode($username . ':' . $password));
   }
 
@@ -83,7 +83,7 @@ trait PathTrait {
     $current_path = $this->getSession()->getCurrentUrl();
 
     // @codeCoverageIgnoreStart
-    if (empty($current_path)) {
+    if ($current_path === '') {
       throw new \RuntimeException('Current path is empty.');
     }
     // @codeCoverageIgnoreEnd
@@ -118,7 +118,7 @@ trait PathTrait {
     $current_path = $this->getSession()->getCurrentUrl();
 
     // @codeCoverageIgnoreStart
-    if (empty($current_path)) {
+    if ($current_path === '') {
       throw new \RuntimeException('Current path is empty.');
     }
     // @codeCoverageIgnoreEnd
@@ -185,7 +185,7 @@ trait PathTrait {
     $query = $this->pathGetCurrentUrlQuery();
 
     if (array_key_exists($name, $query)) {
-      throw new ExpectationException(sprintf('The parameter "%s" is in the URL but should not be.', $name), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The parameter "%s" is in the URL, but it should not be.', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -207,7 +207,7 @@ trait PathTrait {
     }
 
     if ($query[$name] === $value) {
-      throw new ExpectationException(sprintf('The parameter "%s" with value "%s" is in the URL but should not be.', $name, $value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The parameter "%s" with value "%s" is in the URL, but it should not be.', $name, $value), $this->getSession()->getDriver());
     }
   }
 

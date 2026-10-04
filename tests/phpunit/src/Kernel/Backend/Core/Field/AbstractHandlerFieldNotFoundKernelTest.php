@@ -14,11 +14,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for AbstractHandler's field-not-found guard.
  *
- * 'Core::getFieldHandler()' already validates field existence before
- * instantiating a handler, so the guard is only reachable when a caller
- * constructs a handler directly (e.g. via custom Core subclasses). This test
- * exercises that direct-construction path against a real entity_field.manager
- * service.
+ * 'Core::getFieldHandler()' validates field existence before instantiating a
+ * handler, so the guard is reachable only when a caller constructs a handler
+ * directly (e.g. via custom Core subclasses). This test exercises that
+ * direct-construction path against a real entity_field.manager service.
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
@@ -32,9 +31,6 @@ class AbstractHandlerFieldNotFoundKernelTest extends FieldHandlerKernelTestBase 
    */
   protected static $modules = self::BASE_MODULES;
 
-  /**
-   * Tests that the constructor throws when the requested field does not exist.
-   */
   public function testConstructorThrowsOnUnknownField(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/does not exist on entity type "entity_test"/');

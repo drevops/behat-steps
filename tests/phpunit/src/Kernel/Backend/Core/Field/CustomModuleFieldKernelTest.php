@@ -13,17 +13,16 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test: a contrib module's custom field types through the real backend.
  *
- * The 'backend_field_test' fixture module ships two field types the backend has
+ * The 'backend_field_test' fixture module ships 2 field types the backend has
  * no handler for, standing in for any contrib module that introduces its own
  * field type. Both cases run against the real 'Core' with every built-in
- * handler registered - not a stripped-down subclass - so this proves the
- * classifier gate end to end:
+ * handler registered, so the classifier gate is exercised end to end:
  *
  *  - 'backend_test_scalar' (plain-scalar columns) is handled by
  *    'DefaultHandler' and round-trips through real storage intact.
- *  - 'backend_test_reference' (an entity-reference target column) is refused at
- *    handler resolution with the actionable "register a dedicated handler"
- *    exception, rather than persisting a bogus id.
+ *  - 'backend_test_reference' (an entity-reference target column) is refused
+ *    at handler resolution with the "register a dedicated handler" exception
+ *    instead of persisting an invalid id.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -52,9 +51,6 @@ class CustomModuleFieldKernelTest extends FieldHandlerKernelTestBase {
     ]);
   }
 
-  /**
-   * Tests a custom entity-reference field with no handler is refused.
-   */
   public function testReferenceFieldWithoutHandlerIsRejected(): void {
     $this->attachField('field_ref', 'backend_test_reference');
 

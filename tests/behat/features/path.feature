@@ -176,7 +176,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The parameter "status" with value "1" is in the URL but should not be
+      The parameter "status" with value "1" is in the URL, but it should not be
       """
 
   @trait:PathTrait
@@ -191,7 +191,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The parameter "status" is in the URL but should not be
+      The parameter "status" is in the URL, but it should not be
       """
 
   Scenario: Assert URL parameter with value doesn't exist when parameter is absent
@@ -223,7 +223,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The parameter "filter" is in the URL but should not be
+      The parameter "filter" is in the URL, but it should not be
       """
 
   @trait:PathTrait
@@ -238,7 +238,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The parameter "empty" is in the URL but should not be
+      The parameter "empty" is in the URL, but it should not be
       """
 
   @trait:PathTrait
@@ -253,7 +253,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The parameter "filter" with value "0" is in the URL but should not be
+      The parameter "filter" with value "0" is in the URL, but it should not be
       """
 
   @trait:PathTrait
@@ -268,7 +268,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The parameter "empty" with value "" is in the URL but should not be
+      The parameter "empty" with value "" is in the URL, but it should not be
       """
 
   Scenario: Assert "When I go back" navigates to the previous page

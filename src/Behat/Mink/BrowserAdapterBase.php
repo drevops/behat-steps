@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Behat\Mink;
 use Behat\Mink\Driver\DriverInterface;
 
 /**
- * Holds the browser driver an adapter speaks for.
+ * Holds the browser driver an adapter wraps.
  */
 abstract class BrowserAdapterBase implements BrowserAdapterInterface {
 

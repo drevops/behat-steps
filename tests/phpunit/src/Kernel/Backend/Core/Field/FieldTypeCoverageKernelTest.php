@@ -24,9 +24,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *   (c) documented in the SKIP map with a reason (computed, write-only, or
  *       otherwise not stub-expansion-compatible).
  *
- * If a type falls into none of these buckets the test fails with the type
- * name. The failure forces the contributor to add a handler, confirm
- * DefaultHandler is safe, or record a SKIP entry with a reason.
+ * A type in none of these categories fails the test with its name. The
+ * contributor then adds a handler, confirms DefaultHandler is safe, or
+ * records a SKIP entry with a reason.
  */
 #[CoversClass(Core::class)]
 #[Group('fields')]
@@ -72,9 +72,6 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
     'shape_required' => 'Test-only fixture field type shipped by entity_test; not present in production Drupal installs.',
   ];
 
-  /**
-   * Tests that every known field type has a coverage strategy.
-   */
   public function testEveryKnownFieldTypeIsHandledOrSkipped(): void {
     $definitions = \Drupal::service('plugin.manager.field.field_type')->getDefinitions();
 
@@ -134,9 +131,9 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
     }
     catch (\Throwable) {
       // Property construction fails for types that require settings not
-      // supplied here (e.g. entity_reference without target_type). Those are
-      // treated as unsafe: the classifier cannot reason about the properties,
-      // so the type needs a dedicated handler.
+      // supplied here (e.g. entity_reference without target_type). Those count
+      // as unsafe: the classifier cannot inspect the properties, so the type
+      // needs a dedicated handler.
       return FALSE;
     }
 
@@ -146,10 +143,9 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Guards against DefaultHandler being mistakenly matched as a "handler".
    *
-   * The handler registry never lists DefaultHandler explicitly (it is the
-   * fallback). If this assumption ever changes, isHandlerRegistered() above
-   * would falsely mark the DefaultHandler-safe types as "handled", hiding
-   * real gaps.
+   * The handler registry never lists DefaultHandler explicitly; it is the
+   * fallback. Were it registered, isHandlerRegistered() would mark every
+   * DefaultHandler-safe type as handled and hide real gaps.
    */
   public function testDefaultHandlerIsNotRegistered(): void {
     $property = new \ReflectionProperty(Core::class, 'fieldHandlers');

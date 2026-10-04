@@ -295,7 +295,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element defined by "#top" selector is visible on the page, but should not be.
+      Element defined by "#top" selector is visible on the page, but it should not be.
       """
 
   @javascript @phpserver
@@ -359,7 +359,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
+      Element(s) defined by "#top" selector is displayed within a viewport, but it should not be.
       """
 
   @phpserver
@@ -742,7 +742,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element defined by "#top" selector is visible on the page, but should not be.
+      Element defined by "#top" selector is visible on the page, but it should not be.
       """
 
   @trait:ElementTrait
@@ -784,7 +784,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is displayed within a viewport with a top offset of 0 pixels, but should not be.
+      Element(s) defined by "#top" selector is displayed within a viewport with a top offset of 0 pixels, but it should not be.
       """
 
   @trait:ElementTrait
@@ -798,7 +798,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is displayed within a viewport, but should not be.
+      Element(s) defined by "#top" selector is displayed within a viewport, but it should not be.
       """
 
   @javascript @phpserver

@@ -61,7 +61,7 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
   }
 
   /**
-   * Sorts options by key at every level, so key order never tells 2 apart.
+   * Sorts options by key at every level, so comparisons ignore key order.
    *
    * @param array<array-key, mixed> $options
    *   The options to sort.

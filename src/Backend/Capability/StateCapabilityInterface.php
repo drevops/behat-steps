@@ -41,9 +41,9 @@ interface StateCapabilityInterface {
   /**
    * Whether a state key is set.
    *
-   * A key holding NULL counts as set where the backend can tell the difference.
-   * A backend reading state through 'stateGet()' alone cannot, and says so on
-   * its own implementation.
+   * A key holding NULL counts as set where the backend can distinguish it
+   * from an absent key. A backend reading state through 'stateGet()' alone
+   * cannot, and documents this on its own implementation.
    *
    * @param string $name
    *   The state key.

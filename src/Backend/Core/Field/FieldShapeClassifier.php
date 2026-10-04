@@ -46,8 +46,8 @@ class FieldShapeClassifier implements FieldShapeClassifierInterface {
   /**
    * Yields a field's stored (non-computed) property definitions.
    *
-   * Computed properties are storage-derived, not author-supplied, so they never
-   * bear on whether the caller can express the field as a plain scalar.
+   * Computed properties are storage-derived, not author-supplied, so they do
+   * not affect the field's value shape.
    *
    * @param \Drupal\Core\Field\FieldStorageDefinitionInterface $storage
    *   The field storage definition to inspect.

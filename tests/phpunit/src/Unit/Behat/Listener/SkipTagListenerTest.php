@@ -73,7 +73,7 @@ class SkipTagListenerTest extends TestCase {
 
   public static function dataProviderInvalidSkipTags(): \Iterator {
     yield 'a hook method on the scenario' => [[], ['behat-steps-skip:emailAfterScenario'], 'behat-steps-skip:emailAfterScenario'];
-    yield 'a hook method on the feature' => [['behat-steps-skip:entityLifecycleCleanAll'], [], 'behat-steps-skip:entityLifecycleCleanAll'];
+    yield 'a hook method on the feature' => [['behat-steps-skip:entityLifecycleAfterScenario'], [], 'behat-steps-skip:entityLifecycleAfterScenario'];
     yield 'a hook method beside a valid tag' => [[], ['behat-steps-skip:EmailTrait', 'behat-steps-skip:watchdogAfterStep'], 'behat-steps-skip:watchdogAfterStep'];
     yield 'a hook method written with its leading "@"' => [[], ['@behat-steps-skip:authCleanUsers'], 'behat-steps-skip:authCleanUsers'];
     yield 'a trait without its suffix' => [[], ['behat-steps-skip:Email'], 'behat-steps-skip:Email'];

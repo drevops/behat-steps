@@ -4,10 +4,12 @@
  * @file
  * Layer dependency check.
  *
- * Two layers are guaranteed to run without a dependency loaded, and the
- * guarantee holds only while the layer references nothing from the
- * namespaces it excludes. This script reads every file of each layer and
- * fails on any code reference into those namespaces.
+ * 2 layers are guaranteed to run without a dependency loaded. The guarantee
+ * holds only while the layer references nothing from the namespaces it
+ * excludes.
+ *
+ * This script reads every file of each layer and fails on any code reference
+ * into those namespaces.
  *
  * Run with --path=path/to/repo to check a tree other than this repository.
  */
@@ -173,10 +175,11 @@ function layer_file_violations(string $file, array $forbidden_roots, array $allo
  * Reads the symbol a token refers to, if it refers to one.
  *
  * Qualified names cover imports, type declarations and inline references. A
- * single-quoted literal shaped like a qualified name is included too, because
- * a class name reached through a string skips the compiler but not the
- * autoloader. Comments and docblocks are not code, so a prose mention of
- * Behat is not a reference.
+ * single-quoted literal shaped like a qualified name is included too: the
+ * compiler does not resolve it, but the autoloader does.
+ *
+ * Comments and docblocks are not code, so a prose mention of Behat is not a
+ * reference.
  *
  * @param int $type
  *   The token type.

@@ -119,7 +119,7 @@ class StringTraitTestImplementation {
   }
 
   /**
-   * Split a comma-separated string.
+   * Splits a comma-separated string.
    *
    * @return array<int, string>
    *   The trimmed values.

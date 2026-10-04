@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * Extension under the 'mink' key that is not Mink's own.
  *
  * It accepts driver factories the way Mink's extension does and records each
- * one, so a test can tell whether a factory was registered with it.
+ * one.
  */
 class ForeignMinkExtension implements Extension {
 

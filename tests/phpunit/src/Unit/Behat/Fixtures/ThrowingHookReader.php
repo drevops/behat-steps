@@ -10,9 +10,6 @@ use DrevOps\BehatSteps\Behat\Hook\Call\BeforeNodeCreate;
 
 /**
  * Environment reader offering one hook whose callable throws.
- *
- * Lets a test drive the branch where the dispatcher collects an exception
- * instead of raising it.
  */
 class ThrowingHookReader implements EnvironmentReader {
 

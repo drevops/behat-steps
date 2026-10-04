@@ -1,7 +1,10 @@
 <?php
 
 /**
- * Reference configuration setting every option this package accepts.
+ * Reference configuration setting every option 'BehatStepsExtension' declares.
+ *
+ * The 'steps' node carries only the trait options a project almost always
+ * sets.
  *
  * The suite in this repository runs from 'behat.php'. That file takes
  * precedence, so Behat never loads this one here.
@@ -40,8 +43,8 @@ $profile = (new Profile('default'))
     ],
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
-    // Both the allow-list and the precedence order: a step resolves the first
-    // backend here that provides the capability the step needs.
+    // The list is both the allow-list and the precedence order: a step
+    // resolves the first backend here that provides the capability it needs.
     'backends' => ['drupal', 'drush', 'blackbox'],
     'login_field' => 'name',
     'login_wait' => 0,

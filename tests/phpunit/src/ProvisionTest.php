@@ -11,10 +11,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Tests the fixture site provisioning script.
  *
- * The provisioning sequence itself is exercised by the CI matrix, which
- * builds a real site on every leg. What is covered here is the logic that
- * shapes the build: the Composer merge, the paths it rebases, the patch map,
- * and the 2 rewrites that a Drupal 12 build depends on.
+ * The CI matrix builds a real site on every leg, so it exercises the
+ * provisioning sequence itself. This test covers the logic that shapes the
+ * build: the Composer merge, the paths it rebases, the patch map, and the 2
+ * rewrites that a Drupal 12 build depends on.
  */
 #[CoversFunction('provision_append_settings')]
 #[CoversFunction('provision_behat_packages')]
@@ -61,9 +61,6 @@ class ProvisionTest extends UnitTestCase {
     putenv('PROVISION_TEST_VARIABLE');
   }
 
-  /**
-   * Fixture rows for the environment fallback.
-   */
   public static function dataProviderEnvFallsBack(): array {
     return [
       'unset' => ['PROVISION_TEST_VARIABLE'],
@@ -71,9 +68,6 @@ class ProvisionTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Assert that a set variable wins over the default.
-   */
   public function testEnvReadsTheValue(): void {
     putenv('PROVISION_TEST_VARIABLE=10');
 
@@ -82,16 +76,10 @@ class ProvisionTest extends UnitTestCase {
     putenv('PROVISION_TEST_VARIABLE');
   }
 
-  /**
-   * Assert that a command without variables is left alone.
-   */
   public function testWithEnvLeavesTheCommandAlone(): void {
     $this->assertSame('composer install', provision_with_env('composer install', []));
   }
 
-  /**
-   * Assert that variables are prefixed and quoted.
-   */
   public function testWithEnvPrefixesTheAssignments(): void {
     $expected = "/usr/bin/env COMPOSER_MEMORY_LIMIT='-1' PHP_OPTIONS='-d sendmail_path=/bin/true' composer install";
     $env = ['COMPOSER_MEMORY_LIMIT' => '-1', 'PHP_OPTIONS' => '-d sendmail_path=/bin/true'];
@@ -99,9 +87,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, provision_with_env('composer install', $env));
   }
 
-  /**
-   * Assert that a section is read, and that a missing one reads as empty.
-   */
   public function testSectionReadsAnObjectOnly(): void {
     $config = ['require' => ['drupal/core' => '^11'], 'name' => 'drevops/fixture'];
 
@@ -110,18 +95,12 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame([], provision_section($config, 'name'));
   }
 
-  /**
-   * Assert that a JSON file is read and decoded.
-   */
   public function testReadJsonDecodesTheFile(): void {
     $file = $this->writeFixture('composer.json', '{"name": "drevops/fixture"}');
 
     $this->assertSame(['name' => 'drevops/fixture'], provision_read_json($file));
   }
 
-  /**
-   * Assert that a missing file is reported.
-   */
   public function testReadJsonReportsTheMissingFile(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to read');
@@ -129,9 +108,6 @@ class ProvisionTest extends UnitTestCase {
     provision_read_json(static::$tmp . '/absent.json');
   }
 
-  /**
-   * Assert that contents that are not an object are reported.
-   */
   public function testReadJsonReportsContentsThatAreNotAnObject(): void {
     $file = $this->writeFixture('broken.json', 'not json');
 
@@ -141,16 +117,10 @@ class ProvisionTest extends UnitTestCase {
     provision_read_json($file);
   }
 
-  /**
-   * Assert that contents already in hand are decoded without a second read.
-   */
   public function testDecodeJsonDecodesTheContents(): void {
     $this->assertSame(['name' => 'drevops/fixture'], provision_decode_json('{"name": "drevops/fixture"}', 'composer.json'));
   }
 
-  /**
-   * Assert that contents that do not decode name the file they came from.
-   */
   public function testDecodeJsonNamesTheFileItCannotDecode(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to decode /app/composer.json');
@@ -158,9 +128,6 @@ class ProvisionTest extends UnitTestCase {
     provision_decode_json('not json', '/app/composer.json');
   }
 
-  /**
-   * Assert that a write that did not land is reported.
-   */
   public function testWriteReportsTheFailedWrite(): void {
     UnwritableStream::register();
 
@@ -172,9 +139,6 @@ class ProvisionTest extends UnitTestCase {
     });
   }
 
-  /**
-   * Assert that a build without a token writes no auth file.
-   */
   public function testWriteAuthSkipsWithoutToken(): void {
     $file = static::$tmp . '/auth.json';
 
@@ -183,9 +147,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertFileDoesNotExist($file);
   }
 
-  /**
-   * Assert that the token is written, readable by its owner alone.
-   */
   public function testWriteAuthWritesTheTokenPrivately(): void {
     $file = static::$tmp . '/auth.json';
 
@@ -195,9 +156,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame(0600, fileperms($file) & 0777);
   }
 
-  /**
-   * Assert that the umask is restored when the write fails.
-   */
   public function testWriteAuthRestoresTheUmask(): void {
     UnwritableStream::register();
     $before = umask();
@@ -207,16 +165,13 @@ class ProvisionTest extends UnitTestCase {
         provision_write_auth('gh-token', UnwritableStream::path('auth.json'));
       }
       catch (\RuntimeException) {
-        // The restored umask is what is under test, not the report.
+        // The restored umask is under test, not the report.
       }
     });
 
     $this->assertSame($before, umask());
   }
 
-  /**
-   * Assert that each patch is keyed by the package its directory names.
-   */
   public function testPatchesAreKeyedByTheirDirectory(): void {
     $this->writeFixture('patches/mglaman/phpstan-drupal/custom-drupal-root.patch', 'diff');
     $this->writeFixture('patches/drupal/webform/fix-the-thing.patch', 'diff');
@@ -229,16 +184,10 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, provision_patches(static::$tmp . '/patches', static::$tmp));
   }
 
-  /**
-   * Assert that a tree holding no patch declares none.
-   */
   public function testPatchesReadsAnEmptyTreeAsNone(): void {
     $this->assertSame([], provision_patches(static::$tmp . '/absent', static::$tmp));
   }
 
-  /**
-   * Assert that a file that is not a patch is passed over.
-   */
   public function testPatchesSkipsFilesThatAreNotPatches(): void {
     $this->writeFixture('patches/mglaman/phpstan-drupal/README.md', 'not a patch');
 
@@ -260,9 +209,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, provision_behat_packages($behat, $drupal_version));
   }
 
-  /**
-   * Fixture rows for the Behat package removals.
-   */
   public static function dataProviderBehatPackagesListsTheRemovals(): array {
     return [
       'behat 3 removes nothing' => ['3', '11', []],
@@ -284,9 +230,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, provision_is_lenient($drupal_version));
   }
 
-  /**
-   * Fixture rows for the lenient majors.
-   */
   public static function dataProviderIsLenientFromTwelve(): array {
     return [
       'ten' => ['10', FALSE],
@@ -296,9 +239,6 @@ class ProvisionTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Assert that the plugin constraint is read from the fixture.
-   */
   public function testLenientConstraintReadsTheFixturePin(): void {
     $file = $this->writeFixture('d12/composer.json', '{"require": {"mglaman/composer-drupal-lenient": "^2.0"}}');
 
@@ -321,9 +261,6 @@ class ProvisionTest extends UnitTestCase {
     provision_lenient_constraint($file);
   }
 
-  /**
-   * Fixture rows for the missing lenient pin.
-   */
   public static function dataProviderLenientConstraintReportsTheMissingPin(): array {
     return [
       'no require section' => ['{"name": "drevops/fixture"}'],
@@ -348,9 +285,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, provision_install_command($deps, $behat));
   }
 
-  /**
-   * Fixture rows for the install command.
-   */
   public static function dataProviderInstallCommandNarrowsBehat(): array {
     return [
       'normal' => ['normal', '3', "composer update --with='behat/behat:^3'"],
@@ -371,9 +305,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, provision_widen_core_requirement($text, '12'));
   }
 
-  /**
-   * Fixture rows for the core version requirement rewrite.
-   */
   public static function dataProviderWidenCoreRequirementAdmitsTheMajor(): array {
     return [
       'bare constraint' => [
@@ -411,9 +342,6 @@ class ProvisionTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Assert that every extension of the tree is reached and counted.
-   */
   public function testWidenContribRewritesTheWholeTree(): void {
     $token = $this->writeFixture('contrib/token/token.info.yml', "core_version_requirement: ^11\n");
     $nested = $this->writeFixture('contrib/token/modules/token_extra/token_extra.info.yml', "core_version_requirement: ^11\n");
@@ -428,16 +356,10 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame('core_version_requirement: ^11', file_get_contents($readme));
   }
 
-  /**
-   * Assert that a build that installed no contrib widens nothing.
-   */
   public function testWidenContribReadsAnAbsentTreeAsNone(): void {
     $this->assertSame(0, provision_widen_contrib(static::$tmp . '/absent', '12'));
   }
 
-  /**
-   * Assert that the merge shapes the fixture's Composer configuration.
-   */
   public function testMergeComposerShapesTheFixture(): void {
     $merged = provision_merge_composer(static::package(), static::fixture());
 
@@ -456,27 +378,18 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected_require_dev, $merged['require-dev']);
   }
 
-  /**
-   * Assert that the PHP constraint does not reach the fixture.
-   */
   public function testMergeComposerDropsThePhpConstraint(): void {
     $merged = provision_merge_composer(static::package(), static::fixture());
 
     $this->assertArrayNotHasKey('php', $merged['require-dev']);
   }
 
-  /**
-   * Assert that a "require-dev" entry without a "suggest" entry is dropped.
-   */
   public function testMergeComposerDropsAnUnsuggestedDevPackage(): void {
     $merged = provision_merge_composer(static::package(), static::fixture());
 
     $this->assertArrayNotHasKey('phpstan/phpstan', $merged['require-dev']);
   }
 
-  /**
-   * Assert that the fixture's own "require" survives the merge.
-   */
   public function testMergeComposerKeepsTheFixtureRequire(): void {
     $merged = provision_merge_composer(static::package(), static::fixture());
 
@@ -497,9 +410,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertArrayNotHasKey('drupal/core-recommended', $merged['require-dev']);
   }
 
-  /**
-   * Assert that every autoload path is rebased on the package root.
-   */
   public function testMergeComposerRebasesTheAutoloadPaths(): void {
     $merged = provision_merge_composer(static::package(), static::fixture());
 
@@ -525,9 +435,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, array_slice($merged['autoload-dev']['psr-4'], 0, 3, TRUE));
   }
 
-  /**
-   * Assert that Drupal's own test namespaces resolve from the docroot.
-   */
   public function testMergeComposerRegistersTheDrupalTestNamespaces(): void {
     $merged = provision_merge_composer(static::package(), static::fixture());
 
@@ -544,9 +451,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, array_slice($merged['autoload-dev']['psr-4'], 3, NULL, TRUE));
   }
 
-  /**
-   * Assert that the fixture's own properties survive the merge.
-   */
   public function testMergeComposerKeepsTheFixtureProperties(): void {
     $merged = provision_merge_composer(static::package(), static::fixture());
 
@@ -554,18 +458,12 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame(['allow-plugins' => ['composer/installers' => TRUE]], $merged['config']);
   }
 
-  /**
-   * Assert that a section without PSR-4 entries is returned unchanged.
-   */
   public function testRebasePsr4LeavesTheClassmapAlone(): void {
     $autoload = ['classmap' => ['scripts/composer/']];
 
     $this->assertSame($autoload, provision_rebase_psr4($autoload));
   }
 
-  /**
-   * Assert that a namespace mapped to a list keeps its shape.
-   */
   public function testRebasePsr4RebasesEveryDirectoryOfList(): void {
     $autoload = ['psr-4' => ['DrevOps\\BehatSteps\\' => ['src/', 'lib/']]];
     $expected = ['psr-4' => ['DrevOps\\BehatSteps\\' => ['../src/', '../lib/']]];
@@ -573,9 +471,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, provision_rebase_psr4($autoload));
   }
 
-  /**
-   * Assert that a PSR-4 path that is not a string does not reach the build.
-   */
   public function testRebasePsr4ReadsNonPathValueAsEmpty(): void {
     $autoload = ['psr-4' => ['DrevOps\\BehatSteps\\' => 11]];
 
@@ -602,9 +497,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame($expected, $merged['autoload']['psr-4']);
   }
 
-  /**
-   * Assert that the merged configuration is written as pretty JSON.
-   */
   public function testWriteMergedComposerWritesTheResult(): void {
     $package_file = $this->writeFixture('package/composer.json', (string) json_encode(static::package()));
     $fixture_file = $this->writeFixture('build/composer.json', (string) json_encode(static::fixture()));
@@ -618,9 +510,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertStringNotContainsString('\/', $written);
   }
 
-  /**
-   * Assert that the config overrides are appended and the file closed again.
-   */
   public function testAppendSettingsAppendsTheOverrides(): void {
     $file = $this->writeFixture('settings.php', "<?php\n\n\$databases = [];\n");
     chmod($file, 0444);
@@ -635,9 +524,6 @@ class ProvisionTest extends UnitTestCase {
     $this->assertSame(0444, fileperms($file) & 0777);
   }
 
-  /**
-   * Assert that a settings file that is not there is reported.
-   */
   public function testAppendSettingsReportsTheMissingFile(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to open');

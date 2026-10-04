@@ -92,7 +92,7 @@ class LinkHandler extends AbstractHandler {
         'title' => $record['title'] ?? NULL,
         'uri' => $record['uri'] ?? NULL,
         'options' => [],
-      ], fn ($v): bool => $v !== NULL);
+      ], fn($v): bool => $v !== NULL);
 
       // UnroutedUrlAssembler::assemble() rejects a string 'options' value, so
       // query-string shorthand is parsed into an array.

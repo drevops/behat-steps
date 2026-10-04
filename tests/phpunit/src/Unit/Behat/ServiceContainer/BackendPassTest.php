@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\Reference;
 #[CoversClass(BackendPass::class)]
 class BackendPassTest extends TestCase {
 
-  public function testWithoutTheManagerNothingIsProcessed(): void {
+  public function testWithoutTheRegistryNothingIsProcessed(): void {
     $container = new ContainerBuilder();
     $container->setDefinition('behat_steps.backend.blackbox', (new Definition(BlackboxBackend::class))->addTag('behat_steps.backend', ['alias' => 'blackbox']));
 

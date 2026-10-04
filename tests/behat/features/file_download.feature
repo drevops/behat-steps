@@ -229,7 +229,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Found file partially named "example_audio" in archive but should not
+      Found file partially named "example_audio" in archive, but it should not
       """
 
   @trait:FileDownloadTrait

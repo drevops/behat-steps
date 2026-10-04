@@ -25,7 +25,7 @@ trait DraggableviewsTrait {
   use QueryTrait;
 
   /**
-   * Save order of the Draggable Order items.
+   * Save the order of the Draggable Views items.
    *
    * @code
    * When I save the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content in the following order:

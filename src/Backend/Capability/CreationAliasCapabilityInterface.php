@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Backend\Capability;
 
 /**
- * Capability: expose the entity creation aliases the backend understands.
+ * Capability: expose the backend's entity creation aliases.
  *
- * Creation aliases are ergonomic property names on entity stubs that
- * are not real Drupal fields - for example, 'author' on a node stub
- * that the backend translates to a 'uid' value during creation. This
- * capability lets consumers discover which aliases are accepted, for
+ * Creation aliases are convenience property names on entity stubs that are
+ * not real Drupal fields. An example is 'author' on a node stub, which the
+ * backend translates to a 'uid' value during creation.
+ *
+ * This capability lets consumers discover which aliases are accepted, for
  * what entity type, and how to document them.
  *
  * This interface is intentionally NOT extended by the composite backend

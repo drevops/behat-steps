@@ -16,7 +16,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests the backend registry the extension hands to every context.
+ * Tests the backend registry injected into backend-aware contexts.
  */
 #[CoversClass(BackendRegistry::class)]
 class BackendRegistryTest extends TestCase {

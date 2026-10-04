@@ -20,9 +20,6 @@ use PHPUnit\Framework\TestCase;
 #[Group('aliases')]
 class RolesAliasTest extends TestCase {
 
-  /**
-   * Tests metadata accessors.
-   */
   public function testMetadataAccessors(): void {
     $alias = new RolesAlias(new RecordingUserCapability());
 
@@ -79,9 +76,6 @@ class RolesAliasTest extends TestCase {
     yield 'boolean false' => [FALSE];
   }
 
-  /**
-   * Tests that an empty array is iterated zero times.
-   */
   public function testApplyAfterCreateNoOpsOnEmptyArray(): void {
     $backend = new RecordingUserCapability();
     $alias = new RolesAlias($backend);

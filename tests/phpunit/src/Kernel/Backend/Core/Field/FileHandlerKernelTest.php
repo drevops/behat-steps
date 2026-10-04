@@ -13,10 +13,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel round-trip test for FileHandler via the Core backend.
  *
- * FileHandler reads a source file from disk, writes it into public:// via the
- * file.repository service, saves a managed File entity, and emits a reference
- * payload (target_id, display, description). This kernel test runs the whole
- * chain against real storage and asserts the reference round-trips.
+ * FileHandler reads a source file from disk and writes it into public:// via
+ * the file.repository service. It then saves a managed File entity and emits
+ * a reference payload (target_id, display, description).
  */
 #[CoversClass(FileHandler::class)]
 #[Group('fields')]

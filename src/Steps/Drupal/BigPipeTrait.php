@@ -21,18 +21,19 @@ use DrevOps\BehatSteps\Behat\Tag;
  * replacements complete fails intermittently with "element not found".
  *
  * With this trait included, every `@javascript` scenario waits before each
- * step until no BigPipe placeholder marker remains in the DOM, which removes
- * that race without an explicit step.
+ * step until no BigPipe placeholder marker remains in the DOM. The wait
+ * removes the race without an explicit step.
  *
  * The wait is best-effort: on timeout the step still runs, so a placeholder
  * that is never replaced fails the following assertion rather than the wait.
  *
  * A browser driver that runs no JavaScript never replaces those placeholders,
  * and does not follow the `http-equiv=refresh` fallback either. An
- * authenticated-user assertion on such a browser driver silently misses
- * whatever BigPipe deferred. A scenario tagged `@bigpipe` gets the
- * `big_pipe_nojs` cookie, which makes Drupal render the page in full
- * server-side.
+ * authenticated-user assertion on such a browser driver silently misses the
+ * content BigPipe deferred.
+ *
+ * A scenario tagged `@bigpipe` gets the `big_pipe_nojs` cookie, so Drupal
+ * renders the page in full server-side.
  *
  * Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
  *
@@ -40,7 +41,7 @@ use DrevOps\BehatSteps\Behat\Tag;
  * - `@bigpipe` - render server-side on a browser driver without JavaScript.
  *
  * Set the `big_pipe.wait_timeout` option to change the maximum wait, or assign
- * `$bigPipeWaitTimeout` to override it for one scenario.
+ * `$bigPipeWaitTimeout` to override it for 1 scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -65,7 +66,7 @@ trait BigPipeTrait {
   protected bool $bigPipeAutoWaitEnabled = FALSE;
 
   /**
-   * Whether the scenario asked for server-side rendering.
+   * Whether server-side rendering is enabled for the scenario.
    */
   protected bool $bigPipeServerRenderEnabled = FALSE;
 
@@ -101,7 +102,7 @@ trait BigPipeTrait {
    * rather than set once for the scenario.
    */
   #[BeforeStep]
-  public function bigPipeWaitBeforeStep(BeforeStepScope $scope): void {
+  public function bigPipeBeforeStep(BeforeStepScope $scope): void {
     $this->bigPipeApplyServerRenderCookie();
 
     if (!$this->bigPipeAutoWaitEnabled) {
@@ -130,7 +131,7 @@ trait BigPipeTrait {
   }
 
   /**
-   * Set the no-JS cookie when the scenario asked for server-side rendering.
+   * Set the no-JS cookie for a scenario with server-side rendering enabled.
    *
    * A browser driver that runs JavaScript replaces the placeholders itself, so
    * the cookie is only for the ones that do not. 'setCookie()' is idempotent,
@@ -141,8 +142,6 @@ trait BigPipeTrait {
       return;
     }
 
-    // The probe runs once a scenario: a browser driver does not gain or lose
-    // script support between steps.
     $this->bigPipeJavascriptProbe ??= $this->bigPipeJavascriptIsSupported();
 
     if ($this->bigPipeJavascriptProbe === TRUE) {

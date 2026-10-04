@@ -36,8 +36,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * Visibility marks the API. A public method that Behat does not register is
  * the toolbox, published in HELPERS.md and covered by semantic versioning; a
- * protected one carries no guarantee. A method cannot be narrowed again
- * before the next major, so these tests hold the four conventions below.
+ * protected one carries no guarantee.
+ *
+ * A method cannot be narrowed again before the next major, so these tests
+ * hold the 4 conventions below.
  */
 #[CoversNothing]
 class PublicSurfaceTest extends UnitTestCase {
@@ -227,7 +229,7 @@ class PublicSurfaceTest extends UnitTestCase {
    * Return the names of properties a trait receives from composed traits.
    *
    * Reflection flattens a composed trait's members into the composing trait
-   * and reports the composing trait as their declaring class, so the origin is
+   * and reports the composing trait as their declaring class. The origin is
    * resolved by name against the composed traits instead.
    *
    * @param \ReflectionClass<object> $reflection

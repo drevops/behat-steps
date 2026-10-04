@@ -49,8 +49,8 @@ trait MinkAwareTrait {
    * Returns the Mink session.
    *
    * @param string|null $name
-   *   The name of the session to return. If omitted the active session will
-   *   be returned.
+   *   The name of the session to return. If omitted, the active session is
+   *   returned.
    */
   public function getSession(?string $name = NULL): Session {
     return $this->getMink()->getSession($name);
@@ -96,8 +96,8 @@ trait MinkAwareTrait {
    * Returns the Mink session assertion tool.
    *
    * @param string|null $name
-   *   The name of the session to return. If omitted the active session will
-   *   be returned.
+   *   The name of the session to return. If omitted, the active session is
+   *   returned.
    */
   public function assertSession(?string $name = NULL): WebAssert {
     return $this->getMink()->assertSession($name);
@@ -113,7 +113,8 @@ trait MinkAwareTrait {
   /**
    * Locates a URL, based on the provided path.
    *
-   * Override to provide a custom routing mechanism.
+   * A class composing this trait overrides this method to provide a custom
+   * routing mechanism.
    */
   public function locatePath(string $path): string {
     // Only a full 'http://' or 'https://' scheme makes the path absolute, so

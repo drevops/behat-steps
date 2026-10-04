@@ -25,9 +25,6 @@ class LintTraitsTest extends UnitTestCase {
     require_once __DIR__ . '/../../../scripts/lint-traits.php';
   }
 
-  /**
-   * Assert that every shipped trait composes what its directory allows.
-   */
   public function testShippedTraitsComposeWhatTheyMay(): void {
     $traits = traits_collect(dirname(__DIR__, 3));
 
@@ -35,9 +32,6 @@ class LintTraitsTest extends UnitTestCase {
     $this->assertSame([], traits_violations($traits));
   }
 
-  /**
-   * Assert that a trait's kind is read from its directory.
-   */
   public function testCollectReadsBothDirectories(): void {
     $this->writeFixture('src/Steps/Web/PathTrait.php', "<?php\n\ntrait PathTrait {}\n");
     $this->writeFixture('src/Steps/Web/README.md', 'not code');
@@ -51,9 +45,6 @@ class LintTraitsTest extends UnitTestCase {
     $this->assertSame('helper', $collected['StringTrait']['kind']);
   }
 
-  /**
-   * Assert that collection skips a missing directory and reads the rest.
-   */
   public function testCollectSkipsMissingDirectory(): void {
     $this->writeFixture('src/Helper/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
 
@@ -75,9 +66,6 @@ class LintTraitsTest extends UnitTestCase {
     $this->assertSame($expected, traits_file_facts($file));
   }
 
-  /**
-   * Fixture rows for the fact reader.
-   */
   public static function dataProviderFileFacts(): array {
     return [
       'bare trait' => [
@@ -136,9 +124,6 @@ class LintTraitsTest extends UnitTestCase {
     $this->assertSame($expected, traits_violations($traits));
   }
 
-  /**
-   * Fixture rows for the violation check.
-   */
   public static function dataProviderViolations(): array {
     $steps = ['kind' => 'steps', 'composed' => [], 'members' => []];
     $helper = ['kind' => 'helper', 'composed' => [], 'members' => []];

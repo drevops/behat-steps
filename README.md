@@ -71,7 +71,7 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 | [IframeTrait](STEPS.md#iframetrait) | Switch between iframes and the root document. |
 | [JavascriptTrait](STEPS.md#javascripttrait) | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](STEPS.md#jsontrait) | Assert JSON responses with path and schema checks. |
-| [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in Drupal browser testing. |
+| [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in the browser. |
 | [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
 | [MappingTrait](STEPS.md#mappingtrait) | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](STEPS.md#messagetrait) | Assert status, error, warning and success messages rendered on the page. |
@@ -80,7 +80,7 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 | [PathTrait](STEPS.md#pathtrait) | Navigate and verify paths with URL validation. |
 | [RandomTrait](STEPS.md#randomtrait) | Replace random-value tokens in step arguments and table cells. |
 | [RegionTrait](STEPS.md#regiontrait) | Interact with and assert against named page regions. |
-| [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP responses with status code and header checks. |
+| [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP response headers. |
 | [ResponsiveTrait](STEPS.md#responsivetrait) | Test responsive layouts with viewport control. |
 | [RestTrait](STEPS.md#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](STEPS.md#tabletrait) | Interact with HTML table elements and assert their content. |
@@ -107,12 +107,12 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 | [Drupal\FileTrait](STEPS.md#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\LanguageTrait](STEPS.md#drupallanguagetrait) | Create the languages a scenario needs. |
 | [Drupal\MediaTrait](STEPS.md#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
-| [Drupal\MenuTrait](STEPS.md#drupalmenutrait) | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\MenuTrait](STEPS.md#drupalmenutrait) | Manage Drupal menus and menu links. |
 | [Drupal\ModuleTrait](STEPS.md#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\ParagraphsTrait](STEPS.md#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](STEPS.md#drupalqueuetrait) | Manage and assert Drupal queue state. |
 | [Drupal\RedirectTrait](STEPS.md#drupalredirecttrait) | Manage Drupal redirect entities provided by the contrib `redirect` module. |
-| [Drupal\SearchApiTrait](STEPS.md#drupalsearchapitrait) | Assert Drupal Search API with index and query operations. |
+| [Drupal\SearchApiTrait](STEPS.md#drupalsearchapitrait) | Run Drupal Search API indexing and cron hooks. |
 | [Drupal\StateTrait](STEPS.md#drupalstatetrait) | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](STEPS.md#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](STEPS.md#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |

@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Backend\Drush;
 /**
  * Immutable result of a Drush command execution.
  *
- * Pairs the process exit code with its captured standard output and standard
- * error, mirroring the values a finished Symfony 'Process' exposes through
- * 'getExitCode()', 'getOutput()', and 'getErrorOutput()'.
+ * Pairs the process exit code with its captured standard output and
+ * standard error. They match the values a finished Symfony 'Process'
+ * exposes through 'getExitCode()', 'getOutput()', and 'getErrorOutput()'.
  */
 final readonly class DrushResult {
 
@@ -17,7 +17,7 @@ final readonly class DrushResult {
    * Constructs a DrushResult.
    *
    * @param int $exitCode
-   *   The command exit code. Zero indicates success.
+   *   The command exit code, 0 for success.
    * @param string $output
    *   The command's captured standard output.
    * @param string $errorOutput

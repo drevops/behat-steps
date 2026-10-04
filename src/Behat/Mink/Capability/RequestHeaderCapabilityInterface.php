@@ -8,7 +8,7 @@ namespace DrevOps\BehatSteps\Behat\Mink\Capability;
  * Capability: set a header the browser sends with each request.
  *
  * A WebDriver session cannot add request headers, so a browser driver that
- * speaks WebDriver does not provide this.
+ * uses WebDriver does not provide this.
  */
 interface RequestHeaderCapabilityInterface {
 

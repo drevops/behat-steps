@@ -85,9 +85,6 @@ class TestCore extends Core {
    */
   protected EntityFieldManagerInterface $entityFieldManager;
 
-  /**
-   * Sets the mock entity field manager.
-   */
   public function setEntityFieldManager(EntityFieldManagerInterface $entity_field_manager): void {
     $this->entityFieldManager = $entity_field_manager;
   }

@@ -120,9 +120,6 @@ class AddressHandlerTest extends FieldHandlerUnitTestBase {
     );
   }
 
-  /**
-   * Tests that excess numeric indices trigger an exception.
-   */
   public function testTooManyNumericIndicesThrows(): void {
     $handler = $this->createHandlerWithSettings([
       'additionalName' => ['override' => 'hidden'],

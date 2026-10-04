@@ -7,18 +7,18 @@ namespace DrevOps\BehatSteps\Helper\Web;
 use Behat\Gherkin\Node\TableNode;
 
 /**
- * Reads a vertical Gherkin table as one set of values per entity.
+ * Reads a vertical Gherkin table as 1 set of values per entity.
  *
- * A vertical table names a field per row and carries one column of values
- * per entity. It reads better than a wide horizontal table when an entity
- * has many fields.
+ * A vertical table names a field per row and carries 1 column of values per
+ * entity. It reads better than a wide horizontal table when an entity has
+ * many fields.
  */
 trait TableTransposeTrait {
 
   /**
    * Transpose a vertical table format (field/value columns) to entity arrays.
    *
-   * Supports both single and multiple entity creation:
+   * Supports both a single entity and multiple entities:
    *
    * Single entity (2 columns):
    *   | name  | John  |
@@ -81,7 +81,7 @@ trait TableTransposeTrait {
    * Convert vertical format entities to horizontal TableNode.
    *
    * @param array<int, array<string, string>> $entities
-   *   Array of entity data arrays from transposeVerticalTable().
+   *   Array of entity data arrays from tableTransposeVertical().
    *
    * @return \Behat\Gherkin\Node\TableNode
    *   TableNode in horizontal format (first row is headers, subsequent rows

@@ -29,7 +29,7 @@
 | [WaitTrait](#waittrait) | 1 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 6 | Assert XML responses with element and attribute checks. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
-| [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as one set of values per entity. |
+| [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
 
 ### Index of Drupal helpers
 
@@ -48,7 +48,7 @@
 | [Drupal\EntityTrait](#drupalentitytrait) | 6 | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](#drupalfiletrait) | 3 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 4 | Manage Drupal media entities with type-specific field handling. |
-| [Drupal\MenuTrait](#drupalmenutrait) | 2 | Manage Drupal menu systems and menu link rendering. |
+| [Drupal\MenuTrait](#drupalmenutrait) | 2 | Manage Drupal menus and menu links. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | 4 | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | 2 | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | 2 | Manage and assert Drupal queue state. |
@@ -180,7 +180,7 @@ Return the JavaScript source to inject into the page
   <summary><code>public function accessibilityGetPrintCli(): bool</code></summary>
 
 <br/>
-Return TRUE to print a one-line per-page summary to the console
+Return TRUE to print a 1-line per-page summary to the console
 <br/><br/>
 
 </details>
@@ -918,7 +918,7 @@ Generates an integer in '[min, max]' inclusive
   <summary><code>public function randomGenerateMachineName(int $length): string</code></summary>
 
 <br/>
-Generates a Drupal-shaped machine name (lowercase + underscores)
+Generates a lowercase alphanumeric machine name starting with a letter
 <br/><br/>
 
 </details>
@@ -1188,7 +1188,7 @@ Return the configured AJAX timeout, in seconds
   <summary><code>public function xmlParse(string $content): array</code></summary>
 
 <br/>
-Parse XML content without disturbing the cached document
+Parse XML content without altering the cached document
 <br/><br/>
 
 </details>
@@ -1261,7 +1261,7 @@ $this->requestHeadersSet('X-Acme-Token', 'secret');
 
 [Source](src/Helper/Web/TableTransposeTrait.php)
 
-> Reads a vertical Gherkin table as one set of values per entity.
+> Reads a vertical Gherkin table as 1 set of values per entity.
 
 <details>
   <summary><code>public function tableTransposeHorizontal(array $entities): TableNode</code></summary>
@@ -1375,7 +1375,7 @@ Read a stored configuration value, ignoring runtime overrides
 > Manage Drupal content blocks.
 
 <details>
-  <summary><code>public function contentBlockCreateSingle(string $type, array $values): BlockContent</code></summary>
+  <summary><code>public function contentBlockCreateSingle(string $content_block_type, array $values): BlockContent</code></summary>
 
 <br/>
 Create a block content entity with the specified type and field values
@@ -1384,7 +1384,7 @@ Create a block content entity with the specified type and field values
 </details>
 
 <details>
-  <summary><code>public function contentBlockLoadMultiple(string $type, array $conditions = []): array</code></summary>
+  <summary><code>public function contentBlockLoadMultiple(string $content_block_type, array $conditions = []): array</code></summary>
 
 <br/>
 Load multiple content blocks with specified type and conditions
@@ -1669,7 +1669,7 @@ Visit the action page of the media with a specified name
 
 [Source](src/Steps/Drupal/MenuTrait.php), [Steps](STEPS.md#drupalmenutrait)
 
-> Manage Drupal menu systems and menu link rendering.
+> Manage Drupal menus and menu links.
 
 <details>
   <summary><code>public function menuFindByLabel(string $label): ?MenuInterface</code></summary>
@@ -2251,7 +2251,7 @@ Returns the basic authenticator
 </details>
 
 <details>
-  <summary><code>public function getBrowserResolver(): BrowserCapabilityResolver</code></summary>
+  <summary><code>public function getBrowserCapabilityResolver(): BrowserCapabilityResolver</code></summary>
 
 <br/>
 Returns the browser capability resolver, creating it on first use

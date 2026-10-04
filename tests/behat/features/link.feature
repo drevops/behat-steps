@@ -87,7 +87,7 @@ Feature: Check that LinkTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The link with the title "Link title one" exists, but should not.
+      The link with the title "Link title one" exists, but it should not.
       """
 
   @trait:LinkTrait
@@ -147,7 +147,7 @@ Feature: Check that LinkTrait works
       """
 
   @trait:LinkTrait
-  Scenario: Assert that negative assertion fails when link href matches but should not
+  Scenario: Assert that negative assertion fails when link href matches, but it should not
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -157,7 +157,7 @@ Feature: Check that LinkTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The link href "https://www.example.com" matches the specified href "https://www.example.com" but should not
+      The link href "https://www.example.com" matches the specified href "https://www.example.com", but it should not
       """
 
   @trait:LinkTrait

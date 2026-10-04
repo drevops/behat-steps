@@ -93,7 +93,7 @@ Feature: Check that MessageTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The page "http://cli:8888/regions.html" does not contain any "warning" messages.
+      Warning message matching css ".messages.messages--warning" not found.
       """
 
   @trait:MessageTrait

@@ -12,10 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests that 'BlackboxBackend' lacks the creation-alias capability.
- *
- * The backend declares no capabilities, so it does not implement
- * 'CreationAliasCapabilityInterface'. Consumers must 'instanceof'-check
- * before calling 'getCreationAliases()'.
  */
 #[CoversClass(BlackboxBackend::class)]
 #[Group('backends')]
@@ -23,9 +19,6 @@ use PHPUnit\Framework\TestCase;
 #[Group('aliases')]
 class BlackboxBackendCreationAliasesTest extends TestCase {
 
-  /**
-   * Tests that BlackboxBackend does NOT implement the capability.
-   */
   public function testDoesNotImplementCreationAliasCapability(): void {
     $this->assertNotContains(CreationAliasCapabilityInterface::class, (array) class_implements(BlackboxBackend::class));
   }

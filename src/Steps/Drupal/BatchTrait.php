@@ -9,7 +9,7 @@ use Behat\Step\When;
 /**
  * Wait for Drupal's Batch API to finish.
  *
- * - Poll the batch progress element until it leaves the page.
+ * - Poll the batch progress element until the page no longer contains it.
  *
  * A batch page reloads itself until the operation completes, so a following
  * assertion would otherwise read the progress screen rather than the result.

@@ -19,9 +19,10 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests the DatetimeHandler field handler.
  *
- * Full date parsing exercises 'DrupalDateTime' which needs the
- * 'language_manager' service and a real Drupal container, so only the
- * empty/NULL early-return cases are asserted here.
+ * Full date parsing exercises 'DrupalDateTime', which needs the
+ * 'language_manager' service and a real Drupal container. Only the
+ * empty/NULL early-return cases and the shape rejections 'normalize()'
+ * raises before any date handling are asserted here.
  */
 #[CoversClass(DatetimeHandler::class)]
 #[Group('fields')]

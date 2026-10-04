@@ -17,8 +17,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests creation-alias discovery on 'DrupalBackend'.
  *
- * The backend delegates to its 'Core' instance; behaviour here pins the
- * delegation contract without booting Drupal.
+ * The backend delegates to its 'Core' instance; the tests pin the delegation
+ * contract without booting Drupal.
  */
 #[CoversClass(DrupalBackend::class)]
 #[Group('backends')]

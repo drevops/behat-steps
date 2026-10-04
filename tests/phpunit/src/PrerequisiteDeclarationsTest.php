@@ -23,7 +23,7 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
   /**
    * Namespace every capability a shipped trait declares belongs to.
    */
-  protected const CAPABILITY_NAMESPACE = 'DrevOps\BehatSteps\Backend\Capability\\';
+  protected const CAPABILITY_NAMESPACE = 'DrevOps\\BehatSteps\\Backend\\Capability\\';
 
   /**
    * The methods that evaluate a trait's prerequisites.

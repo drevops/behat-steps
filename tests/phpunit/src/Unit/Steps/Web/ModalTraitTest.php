@@ -54,7 +54,7 @@ class ModalTraitTest extends UnitTestCase {
 
   public function testCloseThrowsWhenVisibleModalHasNoCloseButton(): void {
     $modal = $this->createVisibleModal();
-    // One find() per close selector.
+    // 1 find() per close selector.
     $modal->expects($this->exactly(3))->method('find')->willReturn(NULL);
 
     $this->expectException(ElementNotFoundException::class);
@@ -66,7 +66,7 @@ class ModalTraitTest extends UnitTestCase {
   #[DataProvider('dataProviderAssertContainsThrowsWhenModalHasNoContentElement')]
   public function testAssertContainsThrowsWhenModalHasNoContentElement(string $method): void {
     $modal = $this->createVisibleModal();
-    // One find() per content selector.
+    // 1 find() per content selector.
     $modal->expects($this->exactly(3))->method('find')->willReturn(NULL);
 
     $this->expectException(ElementNotFoundException::class);
@@ -83,7 +83,7 @@ class ModalTraitTest extends UnitTestCase {
   }
 
   /**
-   * Put a visible modal on the page.
+   * Puts a visible modal on the page.
    *
    * A visible modal passes modalGetVisible(), so the failure under test is
    * the lookup inside the modal.

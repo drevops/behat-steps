@@ -24,9 +24,6 @@ class LintLayersTest extends UnitTestCase {
     require_once __DIR__ . '/../../../scripts/lint-layers.php';
   }
 
-  /**
-   * Assert that every shipped layer holds its rule.
-   */
   public function testShippedLayersAreClean(): void {
     $root = dirname(__DIR__, 3);
     $violations = [];
@@ -42,9 +39,6 @@ class LintLayersTest extends UnitTestCase {
     $this->assertSame([], $violations);
   }
 
-  /**
-   * Assert that only PHP files are collected, in path order.
-   */
   public function testFilesCollectsPhpFilesRecursively(): void {
     $this->writeFixture('Nested/Second.php', '<?php');
     $this->writeFixture('First.php', '<?php');
@@ -58,9 +52,6 @@ class LintLayersTest extends UnitTestCase {
     $this->assertSame($expected, layer_files(static::$tmp));
   }
 
-  /**
-   * Assert that a path naming one file collects that file alone.
-   */
   public function testFilesCollectsSingleFile(): void {
     $file = $this->writeFixture('Only.php', '<?php');
 
@@ -88,9 +79,10 @@ class LintLayersTest extends UnitTestCase {
    * Fixture rows for the violation scan.
    *
    * The classes named here do not exist. The scan reads tokens rather than
-   * resolving them. Static tooling rewrites an expected symbol that matches a
-   * real class to a '::class' constant, which drops the leading separator the
-   * scan reports.
+   * resolving them.
+   *
+   * Static tooling rewrites an expected symbol that matches a real class to
+   * a '::class' constant, which drops the leading separator the scan reports.
    */
   public static function dataProviderFileViolations(): array {
     return [

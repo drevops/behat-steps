@@ -34,12 +34,12 @@ class BackendListenerTest extends TestCase {
   /**
    * The registry the listener publishes the scenario's tags to.
    */
-  protected ScenarioTagRegistry $scenarioTags;
+  protected ScenarioTagRegistry $scenarioTagRegistry;
 
   protected function setUp(): void {
     parent::setUp();
 
-    $this->scenarioTags = new ScenarioTagRegistry();
+    $this->scenarioTagRegistry = new ScenarioTagRegistry();
   }
 
   public function testItSubscribesToScenariosAndExamples(): void {
@@ -64,7 +64,7 @@ class BackendListenerTest extends TestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->once())->method('setScenarioBackends')->with($this->identicalTo($expected));
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTags, self::BACKENDS);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, self::BACKENDS);
     $listener->prepareScenarioBackends($this->createEvent($feature_tags, $scenario_tags));
   }
 
@@ -136,12 +136,6 @@ class BackendListenerTest extends TestCase {
     ];
   }
 
-  /**
-   * Tests that an example's outline tags and table tags rank together.
-   *
-   * Gherkin merges the outline's tags and the 'Examples:' table's tags into the
-   * example's own list, outline first.
-   */
   public function testExampleRanksOutlineAndTableTagsTogether(): void {
     $table = new ExampleTableNode([1 => ['name'], 2 => ['value']], 'Examples', ['backend:drush']);
     $outline = new OutlineNode('Outline', ['backend:blackbox'], [], $table, 'Scenario Outline', 2);
@@ -151,7 +145,7 @@ class BackendListenerTest extends TestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->once())->method('setScenarioBackends')->with($this->identicalTo(['drush' => 'drush', 'blackbox' => 'blackbox', 'drupal' => 'drupal']));
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTags, self::BACKENDS);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, self::BACKENDS);
     $listener->prepareScenarioBackends($event);
   }
 
@@ -159,7 +153,7 @@ class BackendListenerTest extends TestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->once())->method('setScenarioBackends')->with($this->identicalTo(['api' => 'drupal', 'blackbox' => 'blackbox']));
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTags, ['blackbox', 'api' => 'drupal']);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, ['blackbox', 'api' => 'drupal']);
     $listener->prepareScenarioBackends($this->createEvent([], ['backend:api']));
   }
 
@@ -167,7 +161,7 @@ class BackendListenerTest extends TestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->once())->method('setScenarioBackends')->with($this->identicalTo(['api' => 'drupal', 'blackbox' => 'blackbox']));
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTags, ['API' => 'drupal', 'blackbox']);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, ['API' => 'drupal', 'blackbox']);
     $listener->prepareScenarioBackends($this->createEvent([], ['backend:API']));
   }
 
@@ -179,7 +173,7 @@ class BackendListenerTest extends TestCase {
     ]);
     $backend_registry->expects($this->once())->method('setScenarioBackends')->with($this->identicalTo(['blackbox' => 'blackbox', 'drupal' => 'drupal']));
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTags);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry);
     $listener->prepareScenarioBackends($this->createEvent([], []));
   }
 
@@ -195,7 +189,7 @@ class BackendListenerTest extends TestCase {
    */
   #[DataProvider('dataProviderTagNamingUnlistedBackendIsReported')]
   public function testTagNamingUnlistedBackendIsReported(array $feature_tags, array $scenario_tags, string $expected_tag): void {
-    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTags, self::BACKENDS);
+    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTagRegistry, self::BACKENDS);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage(sprintf('The "%s" tag names a backend that the configured backend list does not hold. Configured backends: drupal, drush, blackbox. The tag reorders that list; it never adds to it.', $expected_tag));
@@ -225,7 +219,7 @@ class BackendListenerTest extends TestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->never())->method('setScenarioBackends');
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTags, self::BACKENDS);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, self::BACKENDS);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage($expected_message);
@@ -241,13 +235,13 @@ class BackendListenerTest extends TestCase {
     yield 'naming no backend' => [[], ['driver:'], 'The "@driver:" tag moved to "@backend:".'];
   }
 
-  public function testTheEnvironmentIsHandedToTheManager(): void {
+  public function testTheEnvironmentIsHandedToTheRegistry(): void {
     $event = $this->createEvent([], []);
 
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->once())->method('setEnvironment')->with($event->getEnvironment());
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTags, self::BACKENDS);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, self::BACKENDS);
     $listener->prepareScenarioBackends($event);
   }
 
@@ -255,23 +249,20 @@ class BackendListenerTest extends TestCase {
    * Tests that the scenario's tags reach the registry, feature tags first.
    */
   public function testTheScenarioTagsArePublished(): void {
-    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTags, self::BACKENDS);
+    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTagRegistry, self::BACKENDS);
 
     $listener->prepareScenarioBackends($this->createEvent(['api'], ['javascript', 'error']));
 
-    $this->assertSame(['api', 'javascript', 'error'], $this->scenarioTags->getTags());
+    $this->assertSame(['api', 'javascript', 'error'], $this->scenarioTagRegistry->getTags());
   }
 
-  /**
-   * Tests that each scenario replaces the tags of the one before it.
-   */
   public function testTheTagsOfOneScenarioDoNotLeakIntoTheNext(): void {
-    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTags, self::BACKENDS);
+    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTagRegistry, self::BACKENDS);
 
     $listener->prepareScenarioBackends($this->createEvent([], ['error']));
     $listener->prepareScenarioBackends($this->createEvent([], []));
 
-    $this->assertSame([], $this->scenarioTags->getTags());
+    $this->assertSame([], $this->scenarioTagRegistry->getTags());
   }
 
   /**

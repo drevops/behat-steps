@@ -16,10 +16,11 @@ use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
  * - Add languages by their ISO code, skipping ones already installed.
  *
  * Languages created here are removed after the scenario along with every other
- * entity the scenario created. A scenario that also installs the 'language'
- * module leaves that removal to the module uninstall, with
- * '@behat-steps-entity-cleanup-skip:language', because the two teardown hooks
- * run in no guaranteed order.
+ * entity the scenario created.
+ *
+ * The 2 teardown hooks run in no guaranteed order. A scenario that also
+ * installs the 'language' module therefore leaves that removal to the module
+ * uninstall, with '@behat-steps-entity-cleanup-skip:language'.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */

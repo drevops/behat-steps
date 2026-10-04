@@ -160,7 +160,7 @@ class UnwritableStream {
    *   The stat record.
    */
   protected function record(): array {
-    // 0100000 marks a regular file, which is what is_file() looks for.
+    // 0100000 marks a regular file, which is_file() checks for.
     return ['mode' => 0100644, 'size' => strlen(static::$contents)];
   }
 

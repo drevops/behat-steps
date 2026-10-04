@@ -39,9 +39,6 @@ class ContextCompositionTest extends UnitTestCase {
    */
   protected const CHAIN = [WebRawContext::class, WebContext::class, DrupalContext::class];
 
-  /**
-   * Assert that each context extends the one above it.
-   */
   public function testTheChainIsLinear(): void {
     $parents = [];
 
@@ -120,9 +117,6 @@ class ContextCompositionTest extends UnitTestCase {
     $this->assertSame([], $repeated);
   }
 
-  /**
-   * Assert that the root context composes the web helpers and no step trait.
-   */
   public function testTheRootContextComposesTheWebHelpersOnly(): void {
     $expected = [LastStepTrait::class, RequestHeadersTrait::class, StringTrait::class];
     $composed = static::composedTraits(WebRawContext::class, 'Helper');
@@ -131,9 +125,6 @@ class ContextCompositionTest extends UnitTestCase {
     $this->assertSame([], static::composedTraits(WebRawContext::class, 'Steps'), sprintf('%s registers no steps of its own.', WebRawContext::class));
   }
 
-  /**
-   * Assert that the Drupal context declares the user-manager contract.
-   */
   public function testTheDrupalContextIsUserAware(): void {
     $this->assertContains(UserAwareInterface::class, class_implements(DrupalContext::class));
   }
@@ -218,8 +209,8 @@ class ContextCompositionTest extends UnitTestCase {
   /**
    * Assert that a helper trait composed twice holds one slot of state.
    *
-   * A step trait composes the helper it needs and the root context composes
-   * it too, so both read and write the same state rather than a copy each.
+   * A step trait and the root context compose the same helper, so they read
+   * and write the same state rather than a copy each.
    */
   public function testHelperComposedTwiceSharesItsState(): void {
     $context = new HelperStateSubject();

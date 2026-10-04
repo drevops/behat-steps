@@ -22,13 +22,12 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * object's key holds, or contains, an expected value. Nested keys are
  * addressable with dotted notation (for example `page.front`).
  *
- * Two families of assertions read the value differently:
- * - The default steps read the STORED value via editable configuration,
- *   ignoring `settings.php` overrides. This is symmetric with the set steps
- *   and is what most setup-and-assert scenarios need.
- * - The `effective` steps read the value through the config factory with
- *   module and `settings.php` overrides applied - the value the running site
- *   actually uses.
+ * 2 families of assertions read the value differently:
+ * - The default steps read the stored value, with module and `settings.php`
+ *   overrides left unapplied. This is symmetric with the set steps and is
+ *   what most setup-and-assert scenarios need.
+ * - The `effective` steps read the value with module and `settings.php`
+ *   overrides applied: the value the running site uses.
  *
  * Values are compared by their stringified form, so `true`, `42` and JSON
  * arrays written in a step match their typed configuration counterparts. The
@@ -36,8 +35,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * array values, searched recursively.
  *
  * Configuration objects touched by the set steps are snapshotted on first
- * write and restored after the scenario: an existing object is reset to its
- * original data and an object that did not exist is deleted. Skip the revert
+ * write and restored after the scenario. An existing object is reset to its
+ * original data, and an object that did not exist is deleted. Skip the revert
  * with `@behat-steps-skip:ConfigTrait`.
  *
  * @code
@@ -245,9 +244,6 @@ trait ConfigTrait {
   /**
    * Read a stored configuration value, ignoring runtime overrides.
    *
-   * Editable configuration objects never carry module or `settings.php`
-   * overrides, so reading through one yields the value as saved.
-   *
    * @param string $name
    *   The configuration object name.
    * @param string $key
@@ -367,7 +363,7 @@ trait ConfigTrait {
     }
 
     if ($contains) {
-      throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which contains "%s" but should not.', $name, $key, $descriptor, $actual_string, $expected));
+      throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which contains "%s", but it should not.', $name, $key, $descriptor, $actual_string, $expected));
     }
   }
 

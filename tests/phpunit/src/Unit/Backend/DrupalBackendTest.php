@@ -25,10 +25,10 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests that DrupalBackend declares the full capability surface.
+ * Tests DrupalBackend's capability surface and 'detectMajorVersion()'.
  *
- * Class-level conformance only; runtime behaviour requires a real Drupal
- * bootstrap and is exercised by the Kernel test suite.
+ * Behaviour past construction requires a real Drupal bootstrap and is
+ * exercised by the Kernel test suite.
  */
 #[CoversClass(DrupalBackend::class)]
 #[Group('backends')]
@@ -36,7 +36,7 @@ use PHPUnit\Framework\TestCase;
 class DrupalBackendTest extends TestCase {
 
   /**
-   * A directory carrying the entry file 'detectMajorVersion()' requires.
+   * A directory carrying both entry files 'detectMajorVersion()' requires.
    */
   protected const DRUPAL_ROOT = __DIR__ . '/../../../fixtures/backend/drupal-root';
 
@@ -51,11 +51,11 @@ class DrupalBackendTest extends TestCase {
   }
 
   /**
- * Tests that DrupalBackend advertises every capability.
- *
- * @param string $capability_class
- *   The capability interface name.
- */
+   * Tests that DrupalBackend advertises every capability.
+   *
+   * @param string $capability_class
+   *   The capability interface name.
+   */
   #[DataProvider('dataProviderImplementsCapability')]
   public function testImplementsCapability(string $capability_class): void {
     $this->assertTrue(is_subclass_of(DrupalBackend::class, $capability_class), sprintf(
@@ -82,9 +82,6 @@ class DrupalBackendTest extends TestCase {
 
   /**
    * Tests that 'detectMajorVersion()' rejects an unparseable version string.
-   *
-   * Uses a fixture subclass to inject a non-numeric version value without
-   * touching the real '\Drupal::VERSION' constant.
    */
   public function testDetectMajorVersionRejectsNonNumeric(): void {
     $this->expectException(BootstrapException::class);
@@ -94,9 +91,6 @@ class DrupalBackendTest extends TestCase {
     new FakeVersionDrupalBackend(self::DRUPAL_ROOT, 'default');
   }
 
-  /**
-   * Tests that 'detectMajorVersion()' rejects pre-11 versions.
-   */
   public function testDetectMajorVersionRejectsPre11(): void {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessageMatches('/Unsupported Drupal core version/');
@@ -141,9 +135,6 @@ class DrupalBackendTest extends TestCase {
     }
   }
 
-  /**
-   * Data provider for 'testDetectMajorVersionRejectsPartialRoot()'.
-   */
   public static function dataProviderDetectMajorVersionRejectsPartialRoot(): \Iterator {
     yield 'bootstrap include missing' => ['/autoload.php', '/core/includes/bootstrap.inc'];
     yield 'autoloader missing' => ['/core/includes/bootstrap.inc', '/autoload.php'];

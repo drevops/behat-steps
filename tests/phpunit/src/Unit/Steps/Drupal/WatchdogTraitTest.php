@@ -38,7 +38,7 @@ class WatchdogTraitTest extends UnitTestCase {
   public function testOptedInWithDblogArmsTheCheck(): void {
     $context = $this->createContext(['drupal' => $this->createDrupalBackend(TRUE)]);
 
-    $context->watchdogSetScenario($this->createBeforeScenarioScope());
+    $context->watchdogBeforeScenario($this->createBeforeScenarioScope());
 
     $this->assertTrue($context->isArmed());
   }
@@ -47,7 +47,7 @@ class WatchdogTraitTest extends UnitTestCase {
     $context = $this->createContext(['drupal' => $this->createDrupalBackend(FALSE)]);
 
     try {
-      $context->watchdogSetScenario($this->createBeforeScenarioScope());
+      $context->watchdogBeforeScenario($this->createBeforeScenarioScope());
       $this->fail('A site without dblog did not fail the scenario at its start.');
     }
     catch (\RuntimeException $exception) {
@@ -60,7 +60,7 @@ class WatchdogTraitTest extends UnitTestCase {
   /**
    * Tests that an opted-out scenario calls nothing on any backend.
    *
-   * Whether dblog is enabled is never asked, so an opted-out scenario runs
+   * Whether dblog is enabled is never queried, so an opted-out scenario runs
    * the same with or without it.
    *
    * @param array<string, mixed> $steps
@@ -76,7 +76,7 @@ class WatchdogTraitTest extends UnitTestCase {
     $context = $this->createContext(['drupal' => $drupal]);
     $context->setParameters(['steps' => $steps]);
 
-    $context->watchdogSetScenario($this->createBeforeScenarioScope($tags));
+    $context->watchdogBeforeScenario($this->createBeforeScenarioScope($tags));
     $context->watchdogAfterScenario($this->createAfterScenarioScope($tags));
 
     $this->assertFalse($context->isArmed());
@@ -103,7 +103,7 @@ class WatchdogTraitTest extends UnitTestCase {
     $this->expectException(UnsupportedBackendActionException::class);
     $this->expectExceptionMessage(sprintf('WatchdogTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: %s.', $listed) . static::SWITCH_OFF);
 
-    $context->watchdogSetScenario($this->createBeforeScenarioScope());
+    $context->watchdogBeforeScenario($this->createBeforeScenarioScope());
   }
 
   public static function dataProviderOptedInWithoutInProcessBackendFailsAtTheStart(): \Iterator {
@@ -123,7 +123,7 @@ class WatchdogTraitTest extends UnitTestCase {
     $feature = new FeatureNode('Feature', NULL, [], NULL, [$scenario], 'Feature', 'en', __DIR__ . '/feature.feature', 1);
     $environment = $this->createStub(Environment::class);
 
-    $context->watchdogSetScenario(new BeforeScenarioScope($environment, $feature, $scenario));
+    $context->watchdogBeforeScenario(new BeforeScenarioScope($environment, $feature, $scenario));
 
     try {
       $context->watchdogAfterStep(new AfterStepScope($environment, $feature, $step, $this->createStub(StepResult::class)));
@@ -147,16 +147,16 @@ class WatchdogTraitTest extends UnitTestCase {
    * @param list<string> $expected
    *   The message types expected to be tracked.
    */
-  #[DataProvider('dataProviderSetScenarioTracksMessageTypes')]
-  public function testSetScenarioTracksMessageTypes(array $scenario_tags, array $feature_tags, array $expected): void {
+  #[DataProvider('dataProviderBeforeScenarioTracksMessageTypes')]
+  public function testBeforeScenarioTracksMessageTypes(array $scenario_tags, array $feature_tags, array $expected): void {
     $context = $this->createContext(['drupal' => $this->createDrupalBackend(TRUE)]);
 
-    $context->watchdogSetScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+    $context->watchdogBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
 
     $this->assertSame($expected, array_values($context->getMessageTypes()));
   }
 
-  public static function dataProviderSetScenarioTracksMessageTypes(): \Iterator {
+  public static function dataProviderBeforeScenarioTracksMessageTypes(): \Iterator {
     yield 'no tags' => [[], [], ['php']];
     yield 'on the scenario' => [['watchdog:custom_type'], [], ['custom_type', 'php']];
     yield 'on the feature' => [[], ['watchdog:custom_type'], ['custom_type', 'php']];

@@ -22,7 +22,7 @@ trait StaticCacheTrait {
    * static cache, so no backend is resolved for a scenario that did not.
    */
   #[AfterScenario]
-  public function staticCacheClear(AfterScenarioScope $scope): void {
+  public function staticCacheAfterScenario(AfterScenarioScope $scope): void {
     $this->getBackendRegistry()->getResolvedBackendFor(CacheCapabilityInterface::class)?->cacheClearStatic();
   }
 
