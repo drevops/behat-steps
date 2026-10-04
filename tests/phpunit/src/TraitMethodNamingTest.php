@@ -377,6 +377,25 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that names spell logging in and out as `Login` and `Logout`.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderLoginSpelledAsNoun')]
+  public function testLoginSpelledAsNoun(string $trait, string $file): void {
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Log(?:In|Out)(?![a-z])/', $name) === 1));
+
+    $this->assertSame([], $violations, 'Spell it "Login" and "Logout", not "LogIn" and "LogOut": "userLoginAs", not "userLogInAs".');
+  }
+
+  public static function dataProviderLoginSpelledAsNoun(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Assert that a `Find` method declares a nullable return type.
    *
    * `Find` returns NULL when nothing matches, so a caller checks the result

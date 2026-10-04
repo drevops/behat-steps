@@ -147,7 +147,7 @@ trait UserTrait {
    * @endcode
    */
   #[Given('the user is anonymous')]
-  public function userLogOutSession(): void {
+  public function userLogoutSession(): void {
     $this->authLogout(TRUE);
   }
 
@@ -292,8 +292,8 @@ trait UserTrait {
    * @endcode
    */
   #[When('I log in as a user with the role(s) :roles')]
-  public function userLogInWithRoles(string $roles): void {
-    $this->userCreateAndLogIn($roles);
+  public function userLoginWithRoles(string $roles): void {
+    $this->userCreateAndLogin($roles);
   }
 
   /**
@@ -306,8 +306,8 @@ trait UserTrait {
    * @endcode
    */
   #[When('I log in as a user with the role(s) :roles and the following fields:')]
-  public function userLogInWithRolesAndFields(string $roles, TableNode $fields): void {
-    $this->userCreateAndLogIn($roles, $fields->getRowsHash());
+  public function userLoginWithRolesAndFields(string $roles, TableNode $fields): void {
+    $this->userCreateAndLogin($roles, $fields->getRowsHash());
   }
 
   /**
@@ -321,7 +321,7 @@ trait UserTrait {
    * @endcode
    */
   #[When('I log in as a user with the permission(s) :permissions')]
-  public function userLogInWithPermissions(string $permissions): void {
+  public function userLoginWithPermissions(string $permissions): void {
     $role = $this->backendFor(RoleCapabilityInterface::class)->roleCreate(array_filter(array_map(trim(...), explode(',', $permissions))));
     $this->roles[] = $role;
 
@@ -341,7 +341,7 @@ trait UserTrait {
    * @endcode
    */
   #[When('I log in as the user :name')]
-  public function userLogInAs(string $name): void {
+  public function userLoginAs(string $name): void {
     $this->authLogin($this->authGetUserRegistry()->getUser($name));
   }
 
@@ -353,7 +353,7 @@ trait UserTrait {
    * @endcode
    */
   #[When('I log out')]
-  public function userLogOut(): void {
+  public function userLogout(): void {
     $this->authLogout(TRUE);
   }
 
@@ -573,7 +573,7 @@ trait UserTrait {
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
    *   When no backend in the scenario's order can manage users.
    */
-  public function userCreateAndLogIn(string $roles, array $extra_fields = []): void {
+  public function userCreateAndLogin(string $roles, array $extra_fields = []): void {
     $backend = $this->backendFor(UserCapabilityInterface::class);
 
     $stub = $this->userBuildStub($extra_fields);

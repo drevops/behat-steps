@@ -120,6 +120,8 @@ A set of entities comes back loaded, never as bare IDs: every `<trait>LoadMultip
 
 `Normalize`, not `Normalise`, in method names and in prose.
 
+`Login` and `Logout`, not `LogIn` and `LogOut`, in method, interface and configuration key names alike: `authLogin()`, `FastLogoutInterface`, `login_url`. Step text and prose keep the verb, so a step reads `When I log in as the user :name`. `TraitMethodNamingTest` checks the trait methods, and review holds interfaces and configuration keys to the same spelling.
+
 ## Class naming conventions
 
 A class name states the role the class plays, so a reader can tell a lookup table apart from a service that acts without opening the file. Two shapes cover everything under `src/Behat`:
