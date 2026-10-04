@@ -129,8 +129,8 @@ trait EmailTrait {
    * @endcode
    */
   #[When('I follow the link with the index :index in the email with the subject :subject')]
-  public function emailFollowLinkNumber(string $index, string $subject): void {
-    $index = $this->emailParseLinkNumber($index);
+  public function emailFollowLinkWithIndex(string $index, string $subject): void {
+    $index = $this->emailParseLinkIndex($index);
 
     $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
 
@@ -156,7 +156,7 @@ trait EmailTrait {
     }
 
     if (count($links) < $index) {
-      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $index, count($links)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link with the index %s was not found among %s links.', $index, count($links)), $this->getSession()->getDriver());
     }
 
     $link = $links[$index - 1];
@@ -208,8 +208,8 @@ trait EmailTrait {
    * @endcode
    */
   #[When('I follow the link with the index :index in the email with a subject containing :partial_subject')]
-  public function emailFollowLinkNumberWithSubjectContaining(string $index, string $partial_subject): void {
-    $index = $this->emailParseLinkNumber($index);
+  public function emailFollowLinkWithIndexWithSubjectContaining(string $index, string $partial_subject): void {
+    $index = $this->emailParseLinkIndex($index);
 
     $message = NULL;
     foreach ($this->emailGetCollectedMessages() as $m) {
@@ -241,7 +241,7 @@ trait EmailTrait {
     }
 
     if (count($links) < $index) {
-      throw new ExpectationException(sprintf('The link with number %s was not found among %s links.', $index, count($links)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link with the index %s was not found among %s links.', $index, count($links)), $this->getSession()->getDriver());
     }
 
     $link = $links[$index - 1];
@@ -823,25 +823,25 @@ trait EmailTrait {
   }
 
   /**
-   * Parse a link number step argument into a positive integer.
+   * Parse a link index step argument into a positive integer.
    *
-   * Links are numbered from 1, so a number below 1 is rejected.
+   * Links are indexed from 1, so an index below 1 is rejected.
    *
-   * @param string $link_number
-   *   The link number as provided in the step.
+   * @param string $index
+   *   The link index as provided in the step.
    *
    * @return int
-   *   The link number as a positive integer.
+   *   The link index as a positive integer.
    *
    * @throws \RuntimeException
-   *   When the link number is not a positive integer.
+   *   When the link index is not a positive integer.
    */
-  protected function emailParseLinkNumber(string $link_number): int {
-    if (!ctype_digit(trim($link_number)) || (int) $link_number < 1) {
-      throw new \RuntimeException(sprintf('The link number must be a positive integer, but "%s" was provided.', $link_number));
+  protected function emailParseLinkIndex(string $index): int {
+    if (!ctype_digit(trim($index)) || (int) $index < 1) {
+      throw new \RuntimeException(sprintf('The link index must be a positive integer, but "%s" was provided.', $index));
     }
 
-    return (int) $link_number;
+    return (int) $index;
   }
 
   /**

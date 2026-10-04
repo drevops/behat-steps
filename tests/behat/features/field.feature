@@ -271,29 +271,29 @@ Feature: Check that FieldTrait works
   Scenario: Assert that a select has/has not an option
     When I log in as a user with the role "administrator"
     When I visit "/admin/config/regional/settings"
-    Then the option "AU" should exist within the select element "site_default_country"
-    And the option "DUMMY-COUNTRY" should not exist within the select element "site_default_country"
+    Then the option "AU" should exist within the select "site_default_country"
+    And the option "DUMMY-COUNTRY" should not exist within the select "site_default_country"
 
   Scenario: Assert that a select option is selected
     When I log in as a user with the role "administrator"
     When I visit "/admin/config/regional/settings"
-    Then the option "UTC" should exist within the select element "date_default_timezone"
-    And the option "UTC" should be selected within the select element "date_default_timezone"
+    Then the option "UTC" should exist within the select "date_default_timezone"
+    And the option "UTC" should be selected within the select "date_default_timezone"
 
   Scenario: Assert that a select option is not selected
     When I log in as a user with the role "administrator"
     When I visit "/admin/config/regional/settings"
-    Then the option "Australia/Sydney" should exist within the select element "date_default_timezone"
-    And the option "Australia/Sydney" should not be selected within the select element "date_default_timezone"
+    Then the option "Australia/Sydney" should exist within the select "date_default_timezone"
+    And the option "Australia/Sydney" should not be selected within the select "date_default_timezone"
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should exist within the select element :selector" for non-existent select
+  Scenario: Assert negative "the option :option should exist within the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "UTC" should exist within the select element "non_existent_select"
+      Then the option "UTC" should exist within the select "non_existent_select"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
@@ -302,13 +302,13 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should exist within the select element :selector" for non-existent option
+  Scenario: Assert negative "the option :option should exist within the select :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "INVALID_OPTION" should exist within the select element "date_default_timezone"
+      Then the option "INVALID_OPTION" should exist within the select "date_default_timezone"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -317,13 +317,13 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should not exist within the select element :selector" for existing option
+  Scenario: Assert negative "the option :option should not exist within the select :selector" for existing option
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "UTC" should not exist within the select element "date_default_timezone"
+      Then the option "UTC" should not exist within the select "date_default_timezone"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
@@ -332,13 +332,13 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-existent select
+  Scenario: Assert negative "the option :option should be selected within the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "UTC" should be selected within the select element "non_existent_select"
+      Then the option "UTC" should be selected within the select "non_existent_select"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
@@ -347,13 +347,13 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should not be selected within the select element :selector" for non-existent option
+  Scenario: Assert negative "the option :option should not be selected within the select :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "INVALID_OPTION" should not be selected within the select element "date_default_timezone"
+      Then the option "INVALID_OPTION" should not be selected within the select "date_default_timezone"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -362,13 +362,13 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should not be selected within the select element :selector" for selected option
+  Scenario: Assert negative "the option :option should not be selected within the select :selector" for selected option
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "UTC" should not be selected within the select element "date_default_timezone"
+      Then the option "UTC" should not be selected within the select "date_default_timezone"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
@@ -377,13 +377,13 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should not exist within the select element :selector" for non-existent select
+  Scenario: Assert negative "the option :option should not exist within the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "UTC" should not exist within the select element "non_existent_select"
+      Then the option "UTC" should not exist within the select "non_existent_select"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
@@ -392,13 +392,13 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-existent option
+  Scenario: Assert negative "the option :option should be selected within the select :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "INVALID_OPTION" should be selected within the select element "date_default_timezone"
+      Then the option "INVALID_OPTION" should be selected within the select "date_default_timezone"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -407,13 +407,13 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should be selected within the select element :selector" for non-selected option
+  Scenario: Assert negative "the option :option should be selected within the select :selector" for non-selected option
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "Australia/Sydney" should be selected within the select element "date_default_timezone"
+      Then the option "Australia/Sydney" should be selected within the select "date_default_timezone"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
@@ -422,13 +422,13 @@ Feature: Check that FieldTrait works
       """
 
   @trait:FieldTrait
-  Scenario: Assert negative "the option :option should not be selected within the select element :selector" for non-existent select
+  Scenario: Assert negative "the option :option should not be selected within the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
-      Then the option "UTC" should not be selected within the select element "non_existent_select"
+      Then the option "UTC" should not be selected within the select "non_existent_select"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
@@ -916,41 +916,41 @@ Feature: Check that FieldTrait works
     And I additionally select "Option A" from "Multi-select options"
     And I additionally select "Option B" from "Multi-select options"
     And I additionally select "Option C" from "Multi-select options"
-    Then the option "Option A" should be selected within the select element "Multi-select options"
-    And the option "Option B" should be selected within the select element "Multi-select options"
-    And the option "Option C" should be selected within the select element "Multi-select options"
+    Then the option "Option A" should be selected within the select "Multi-select options"
+    And the option "Option B" should be selected within the select "Multi-select options"
+    And the option "Option C" should be selected within the select "Multi-select options"
     When I unselect the option "Option B" from the select "Multi-select options"
-    Then the option "Option A" should be selected within the select element "Multi-select options"
-    And the option "Option B" should not be selected within the select element "Multi-select options"
-    And the option "Option C" should be selected within the select element "Multi-select options"
+    Then the option "Option A" should be selected within the select "Multi-select options"
+    And the option "Option B" should not be selected within the select "Multi-select options"
+    And the option "Option C" should be selected within the select "Multi-select options"
 
   @select @phpserver
   Scenario: Clear all selections from multi-select field
     When I visit "http://cli:8888/fields.html"
     And I additionally select "Option A" from "Multi-select options"
     And I additionally select "Option B" from "Multi-select options"
-    Then the option "Option A" should be selected within the select element "Multi-select options"
-    And the option "Option B" should be selected within the select element "Multi-select options"
+    Then the option "Option A" should be selected within the select "Multi-select options"
+    And the option "Option B" should be selected within the select "Multi-select options"
     When I clear the select "Multi-select options"
-    Then the option "Option A" should not be selected within the select element "Multi-select options"
-    And the option "Option B" should not be selected within the select element "Multi-select options"
-    And the option "Option C" should not be selected within the select element "Multi-select options"
+    Then the option "Option A" should not be selected within the select "Multi-select options"
+    And the option "Option B" should not be selected within the select "Multi-select options"
+    And the option "Option C" should not be selected within the select "Multi-select options"
 
   @select @phpserver
   Scenario: Clear single select field
     When I visit "http://cli:8888/fields.html"
     And I select "Choice 1" from "Single select field"
-    Then the option "Choice 1" should be selected within the select element "Single select field"
+    Then the option "Choice 1" should be selected within the select "Single select field"
     When I clear the select "Single select field"
-    Then the option "Choice 1" should not be selected within the select element "Single select field"
+    Then the option "Choice 1" should not be selected within the select "Single select field"
 
   @select @phpserver
   Scenario: Unselect option from single select field
     When I visit "http://cli:8888/fields.html"
     And I select "Choice 2" from "Single select field"
-    Then the option "Choice 2" should be selected within the select element "Single select field"
+    Then the option "Choice 2" should be selected within the select "Single select field"
     When I unselect the option "Choice 2" from the select "Single select field"
-    Then the option "Choice 2" should not be selected within the select element "Single select field"
+    Then the option "Choice 2" should not be selected within the select "Single select field"
 
   @trait:FieldTrait
   Scenario: Assert negative "When I unselect the option :option from the select :selector" for non-existent select

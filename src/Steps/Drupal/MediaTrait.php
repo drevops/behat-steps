@@ -126,50 +126,50 @@ trait MediaTrait {
   }
 
   /**
-   * Navigate to edit media with specified type and name.
+   * Visit the page of the media with the specified type and name.
    *
    * @code
-   * When I edit the "document" media with the name "Test document"
+   * When I visit the "image" media page with the name "Test media image"
    * @endcode
    */
-  #[When('I edit the :media_type media with the name :name')]
-  public function mediaEditWithName(string $media_type, string $name): void {
-    $this->mediaVisitActionPageWithName($media_type, $name, '/edit');
-  }
-
-  /**
-   * Navigate to view page of media with specified type and name.
-   *
-   * @code
-   * When I visit the "image" media with the name "Test media image"
-   * @endcode
-   */
-  #[When('I visit the :media_type media with the name :name')]
-  public function mediaVisitViewWithName(string $media_type, string $name): void {
+  #[When('I visit the :media_type media page with the name :name')]
+  public function mediaVisitPageWithName(string $media_type, string $name): void {
     $this->mediaVisitActionPageWithName($media_type, $name);
   }
 
   /**
-   * Navigate to delete page of media with specified type and name.
+   * Visit the edit page of the media with the specified type and name.
+   *
+   * @code
+   * When I visit the "document" media edit page with the name "Test document"
+   * @endcode
+   */
+  #[When('I visit the :media_type media edit page with the name :name')]
+  public function mediaVisitEditPageWithName(string $media_type, string $name): void {
+    $this->mediaVisitActionPageWithName($media_type, $name, '/edit');
+  }
+
+  /**
+   * Visit the delete page of the media with the specified type and name.
    *
    * @code
    * When I visit the "image" media delete page with the name "Test media image"
    * @endcode
    */
   #[When('I visit the :media_type media delete page with the name :name')]
-  public function mediaVisitDeleteWithName(string $media_type, string $name): void {
+  public function mediaVisitDeletePageWithName(string $media_type, string $name): void {
     $this->mediaVisitActionPageWithName($media_type, $name, '/delete');
   }
 
   /**
-   * Navigate to revisions page of media with specified type and name.
+   * Visit the revisions page of the media with the specified type and name.
    *
    * @code
    * When I visit the "image" media revisions page with the name "Test media image"
    * @endcode
    */
   #[When('I visit the :media_type media revisions page with the name :name')]
-  public function mediaVisitRevisionsWithName(string $media_type, string $name): void {
+  public function mediaVisitRevisionsPageWithName(string $media_type, string $name): void {
     $this->mediaVisitActionPageWithName($media_type, $name, '/revisions');
   }
 

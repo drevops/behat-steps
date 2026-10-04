@@ -668,47 +668,47 @@ trait ElementTrait {
   }
 
   /**
-   * Assert that element with specified CSS is displayed within a viewport.
+   * Assert that element with specified CSS is displayed within the viewport.
    *
    * @code
-   * Then the element ".hero-banner" should be displayed within a viewport
+   * Then the element ".hero-banner" should be displayed within the viewport
    * @endcode
    */
-  #[Then('the element :selector should be displayed within a viewport')]
+  #[Then('the element :selector should be displayed within the viewport')]
   public function elementAssertVisuallyVisible(string $selector): void {
     $this->elementAssertVisible($selector);
 
     if (!$this->elementIsVisuallyVisible($selector, 0)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within the viewport.', $selector), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert that element with specified CSS is displayed within a viewport with a top offset.
+   * Assert that element with specified CSS is displayed within the viewport with a top offset.
    *
    * @code
-   * Then the element ".sticky-header" should be displayed within a viewport with a top offset of 50 pixels
+   * Then the element ".sticky-header" should be displayed within the viewport with a top offset of 50 pixels
    * @endcode
    */
-  #[Then('the element :selector should be displayed within a viewport with a top offset of :offset pixels')]
+  #[Then('the element :selector should be displayed within the viewport with a top offset of :offset pixels')]
   public function elementAssertVisuallyVisibleWithOffset(string $selector, int $offset): void {
     $this->elementAssertVisible($selector);
     if (!$this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within a viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within the viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert that element with specified CSS is not displayed within a viewport with a top offset.
+   * Assert that element with specified CSS is not displayed within the viewport with a top offset.
    *
    * @code
-   * Then the element ".below-fold-content" should not be displayed within a viewport with a top offset of 0 pixels
+   * Then the element ".below-fold-content" should not be displayed within the viewport with a top offset of 0 pixels
    * @endcode
    */
-  #[Then('the element :selector should not be displayed within a viewport with a top offset of :offset pixels')]
+  #[Then('the element :selector should not be displayed within the viewport with a top offset of :offset pixels')]
   public function elementAssertNotVisuallyVisibleWithOffset(string $selector, int $offset): void {
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport with a top offset of %d pixels, but it should not be.', $selector, $offset), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within the viewport with a top offset of %d pixels, but it should not be.', $selector, $offset), $this->getSession()->getDriver());
     }
   }
 
@@ -721,13 +721,13 @@ trait ElementTrait {
    *   when one of the screen reader-only techniques is used).
    *
    * @code
-   * Then the element ".visually-hidden" should not be displayed within a viewport
+   * Then the element ".visually-hidden" should not be displayed within the viewport
    * @endcode
    */
-  #[Then('the element :selector should not be displayed within a viewport')]
+  #[Then('the element :selector should not be displayed within the viewport')]
   public function elementAssertNotVisuallyVisible(string $selector, int $offset = 0): void {
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within a viewport, but it should not be.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within the viewport, but it should not be.', $selector), $this->getSession()->getDriver());
     }
   }
 

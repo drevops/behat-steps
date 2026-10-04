@@ -14,19 +14,19 @@ Feature: Check that EckTrait works
       | title            | field_test_text | field_test_reference |
       | [TEST] ECK test1 | Test text field | T2                   |
 
-  Scenario: Assert "I visit the eck :bundle :entity_type entity with the title :title" works as expected
+  Scenario: Assert "I visit the eck :bundle :entity_type entity page with the title :title" works as expected
     When I log in as a user with the role "administrator"
-    When I visit the eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
+    When I visit the eck "test_bundle" "test_entity_type" entity page with the title "[TEST] ECK test1"
     Then I should see "[TEST] ECK test1"
     And I should see "T2"
 
   @trait:Drupal\EckTrait
-  Scenario: Assert navigate "I visit the eck :bundle :entity_type entity with the title :title" works as expected
+  Scenario: Assert navigate "I visit the eck :bundle :entity_type entity page with the title :title" works as expected
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
-      When I visit the eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
+      When I visit the eck "test_bundle" "test_entity_type" entity page with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -34,18 +34,18 @@ Feature: Check that EckTrait works
       Unable to find "test_entity_type" page "[TEST] ECK Entity non-existing"
       """
 
-  Scenario: Assert "When I edit the eck :bundle :entity_type entity with the title :title" works as expected
+  Scenario: Assert "When I visit the eck :bundle :entity_type entity edit page with the title :title" works as expected
     When I log in as a user with the role "administrator"
-    When I edit the eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK test1"
+    When I visit the eck "test_bundle" "test_entity_type" entity edit page with the title "[TEST] ECK test1"
     Then I should see "Edit test bundle [TEST] ECK test1"
 
   @trait:Drupal\EckTrait
-  Scenario: Assert negative "When I edit the eck :bundle :entity_type entity with the title :title" works as expected
+  Scenario: Assert negative "When I visit the eck :bundle :entity_type entity edit page with the title :title" works as expected
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
-      When I edit the eck "test_bundle" "test_entity_type" entity with the title "[TEST] ECK Entity non-existing"
+      When I visit the eck "test_bundle" "test_entity_type" entity edit page with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -59,7 +59,7 @@ Feature: Check that EckTrait works
       | title                   | field_test_text   |
       | [TEST] Skip Cleanup ECK | Skip cleanup test |
     And I log in as a user with the role "administrator"
-    When I visit the eck "test_bundle" "test_entity_type" entity with the title "[TEST] Skip Cleanup ECK"
+    When I visit the eck "test_bundle" "test_entity_type" entity page with the title "[TEST] Skip Cleanup ECK"
     Then I should see "[TEST] Skip Cleanup ECK"
     # ECK entity will not be auto-deleted due to skip tag
     # Manual cleanup
@@ -73,6 +73,6 @@ Feature: Check that EckTrait works
       | [TEST] Auto Cleanup ECK 1 | Auto cleanup test 1 |
       | [TEST] Auto Cleanup ECK 2 | Auto cleanup test 2 |
     And I log in as a user with the role "administrator"
-    When I visit the eck "test_bundle" "test_entity_type" entity with the title "[TEST] Auto Cleanup ECK 1"
+    When I visit the eck "test_bundle" "test_entity_type" entity page with the title "[TEST] Auto Cleanup ECK 1"
     Then I should see "[TEST] Auto Cleanup ECK 1"
     # ECK entities will be auto-deleted by the shared entity cleanup hook

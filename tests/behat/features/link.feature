@@ -49,7 +49,7 @@ Feature: Check that LinkTrait works
     And the link "Relative Link One" should not be an absolute link
 
   @trait:LinkTrait
-  Scenario: Assert that negative assertion for "I click the link with title :title" fails with an error
+  Scenario: Assert that negative assertion for "I click on the link with the title :title" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """

@@ -21,7 +21,8 @@ use Drupal\block_content\Entity\BlockContent;
  * Manage Drupal content blocks.
  *
  * - Define reusable custom block content with structured field data.
- * - Create, edit, and verify block_content entities by type and description.
+ * - Create and verify block_content entities by type and description, and
+ *   visit their edit pages.
  * - Created entities are automatically removed at the end of the scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
@@ -118,14 +119,14 @@ trait ContentBlockTrait {
   }
 
   /**
-   * Navigate to the edit page for a specified content block.
+   * Visit the edit page of the content block with the specified description.
    *
    * @code
-   * When I edit the "basic" content block with the description "[TEST] Footer Block"
+   * When I visit the "basic" content block edit page with the description "[TEST] Footer Block"
    * @endcode
    */
-  #[When('I edit the :content_block_type content block with the description :description')]
-  public function contentBlockEditBlockContentWithDescription(string $content_block_type, string $description): void {
+  #[When('I visit the :content_block_type content block edit page with the description :description')]
+  public function contentBlockVisitEditPageWithDescription(string $content_block_type, string $description): void {
     $content_blocks = $this->contentBlockLoadMultiple($content_block_type, [
       'info' => $description,
     ]);

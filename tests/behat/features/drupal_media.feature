@@ -31,7 +31,7 @@ Feature: Check that MediaTrait works
     And I should not see "Test media image2"
     And I should see "Test media document"
 
-  Scenario: Assert navigate to edit media with specified type and name
+  Scenario: Assert "When I visit the :media_type media edit page with the name :name" works
     Given the following managed files exist:
       | path         |
       | document.pdf |
@@ -39,7 +39,7 @@ Feature: Check that MediaTrait works
       | name                | field_media_document |
       | Test media document | document.pdf         |
     And I log in as a user with the role "administrator"
-    When I edit the "document" media with the name "Test media document"
+    When I visit the "document" media edit page with the name "Test media document"
     Then I should see "Edit Document Test media document"
 
   Scenario: Assert media file field resolves a fixture path in a subdirectory
@@ -47,7 +47,7 @@ Feature: Check that MediaTrait works
       | name                      | field_media_document |
       | Test subdirectory media   | subdir/document.pdf  |
     And I log in as a user with the role "administrator"
-    When I edit the "document" media with the name "Test subdirectory media"
+    When I visit the "document" media edit page with the name "Test subdirectory media"
     Then I should see "Edit Document Test subdirectory media"
     And the response should contain ".pdf"
 
@@ -67,12 +67,12 @@ Feature: Check that MediaTrait works
     Then I should not see "test_media_type"
 
   @trait:Drupal\MediaTrait
-  Scenario: Assert that negative assertion for "When I edit the :media_type media with the name :name" fails with an error
+  Scenario: Assert that negative assertion for "When I visit the :media_type media edit page with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
-      When I edit the "document" media with the name "Non-existent media"
+      When I visit the "document" media edit page with the name "Non-existent media"
       """
     When I run "behat --no-colors"
     Then it should fail with a "RuntimeException" exception:
@@ -145,7 +145,7 @@ Feature: Check that MediaTrait works
     Then I should see "[TEST] Duplicate vertical"
     And I should see 1 ".view-media td:contains('[TEST] Duplicate vertical')" elements
 
-  Scenario: Assert "When I visit the :media_type media with the name :name" works
+  Scenario: Assert "When I visit the :media_type media page with the name :name" works
     Given the following managed files exist:
       | path      |
       | image.png |
@@ -153,16 +153,16 @@ Feature: Check that MediaTrait works
       | name              | field_media_image |
       | Test media image  | image.png         |
     And I log in as a user with the role "administrator"
-    When I visit the "image" media with the name "Test media image"
+    When I visit the "image" media page with the name "Test media image"
     Then the response should contain "200"
 
   @trait:Drupal\MediaTrait
-  Scenario: Assert that negative assertion for "When I visit the :media_type media with the name :name" fails with an error
+  Scenario: Assert that negative assertion for "When I visit the :media_type media page with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
-      When I visit the "image" media with the name "Non-existent media"
+      When I visit the "image" media page with the name "Non-existent media"
       """
     When I run "behat --no-colors"
     Then it should fail with a "RuntimeException" exception:

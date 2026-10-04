@@ -43,9 +43,9 @@ Feature: Check that KeyboardTrait works
   Scenario: Assert step definition "When I press the key :char" succeeds as expected
     Given the user is anonymous
     When I visit "http://cli:8888/elements_relative.html"
-    Then the element "#sr-only-focusable" should not be displayed within a viewport
+    Then the element "#sr-only-focusable" should not be displayed within the viewport
     When I press the key "tab"
-    Then the element "#sr-only-focusable" should be displayed within a viewport
+    Then the element "#sr-only-focusable" should be displayed within the viewport
 
   @javascript @phpserver
   Scenario: Assert step definition "When I press the key :char on the element :selector" succeeds as expected with "tab" key

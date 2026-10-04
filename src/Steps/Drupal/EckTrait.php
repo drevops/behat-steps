@@ -20,7 +20,7 @@ use Drupal\Core\Entity\EntityInterface;
  * Manage Drupal ECK entities with custom type and bundle creation.
  *
  * - Create structured ECK entities with defined field values.
- * - Visit and edit ECK entity pages.
+ * - Visit ECK entity pages and their edit pages.
  * - Created entities are automatically removed at the end of the scenario.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
@@ -76,13 +76,13 @@ trait EckTrait {
   }
 
   /**
-   * Navigate to view entity page with specified type and title.
+   * Visit the page of the eck entity with the specified type and title.
    *
    * @code
-   * When I visit the eck "contact" "contact_type" entity with the title "Test contact"
+   * When I visit the eck "contact" "contact_type" entity page with the title "Test contact"
    * @endcode
    */
-  #[When('I visit the eck :bundle :entity_type entity with the title :title')]
+  #[When('I visit the eck :bundle :entity_type entity page with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -102,14 +102,14 @@ trait EckTrait {
   }
 
   /**
-   * Navigate to edit eck entity page with specified type and title.
+   * Visit the edit page of the eck entity with the specified type and title.
    *
    * @code
-   * When I edit the eck "contact" "contact_type" entity with the title "Test contact"
+   * When I visit the eck "contact" "contact_type" entity edit page with the title "Test contact"
    * @endcode
    */
-  #[When('I edit the eck :bundle :entity_type entity with the title :title')]
-  public function eckEditEntityWithTitle(string $bundle, string $entity_type, string $title): void {
+  #[When('I visit the eck :bundle :entity_type entity edit page with the title :title')]
+  public function eckVisitEntityEditPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);

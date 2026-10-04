@@ -31,10 +31,10 @@ trait TableTrait {
    * Click a link within a row.
    *
    * @code
-   * When I click the link "Edit" in the row "Article title"
+   * When I click on the link "Edit" in the row "Article title"
    * @endcode
    */
-  #[When('I click the link :link in the row :row_text')]
+  #[When('I click on the link :link in the row :row_text')]
   public function tableClickLinkInRow(string $link, string $row_text): void {
     $element = $this->tableGetRowByText($row_text)->findLink($link);
 
