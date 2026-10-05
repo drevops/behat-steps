@@ -101,7 +101,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderMethodsArePrefixed')]
   public function testMethodsArePrefixed(string $trait, string $file): void {
-    $reflection = new \ReflectionClass($trait);
+    $reflection = static::reflect($trait);
     $prefix = static::traitPrefix($reflection->getShortName());
 
     $violations = [];
@@ -136,7 +136,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderAssertionsOpenWithAssert')]
   public function testAssertionsOpenWithAssert(string $trait, string $file): void {
-    $prefix = static::traitPrefix((new \ReflectionClass($trait))->getShortName());
+    $prefix = static::traitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
     foreach (static::traitOwnMethods($trait, $file) as $method) {
@@ -314,7 +314,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderNavigationStepsOpenWithVisit')]
   public function testNavigationStepsOpenWithVisit(string $trait, string $file): void {
-    $prefix = static::traitPrefix((new \ReflectionClass($trait))->getShortName());
+    $prefix = static::traitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
     foreach (static::traitOwnMethods($trait, $file) as $method) {
@@ -587,7 +587,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderHooksAreNamedForTheirEvent')]
   public function testHooksAreNamedForTheirEvent(string $trait, string $file): void {
-    $prefix = static::traitPrefix((new \ReflectionClass($trait))->getShortName());
+    $prefix = static::traitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
     foreach (static::traitOwnMethods($trait, $file) as $method) {
@@ -738,7 +738,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    *   The methods.
    */
   protected static function traitOwnMethods(string $trait, string $file): array {
-    $methods = (new \ReflectionClass($trait))->getMethods();
+    $methods = static::reflect($trait)->getMethods();
 
     $own = [];
     foreach ($methods as $method) {
@@ -786,7 +786,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    *   The methods.
    */
   protected static function traitOwnMethodsWithVerb(string $trait, string $file, string $verb): array {
-    $prefix = static::traitPrefix((new \ReflectionClass($trait))->getShortName());
+    $prefix = static::traitPrefix(static::reflect($trait)->getShortName());
 
     $matched = [];
     foreach (static::traitOwnMethods($trait, $file) as $method) {

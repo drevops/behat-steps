@@ -66,15 +66,13 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testGetJsReadsSourceOnce(): void {
-    $path = static::locationsTmp() . '/axe-engine.js';
-    file_put_contents($path, 'ENGINE');
-    $this->testObject->engineUrl = $path;
+    $this->testObject->engineUrl = $this->writeFixture('axe-engine.js', 'ENGINE');
 
     $first = $this->testObject->testGetJs();
 
     // A second call is served from the process cache, so the source is read
     // only once even though the getter would return the same path.
-    file_put_contents($path, 'CHANGED');
+    $this->writeFixture('axe-engine.js', 'CHANGED');
     $second = $this->testObject->testGetJs();
 
     $this->assertSame('ENGINE', $first);
@@ -123,7 +121,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testGetJsRetriesThenFails(): void {
-    $this->testObject->engineUrl = static::locationsTmp() . '/absent-engine.js';
+    $this->testObject->engineUrl = static::$tmp . '/absent-engine.js';
     $this->testObject->engineAttempts = 2;
     $this->testObject->engineTimeout = 1;
 
@@ -134,9 +132,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testGetJsTreatsEmptySourceAsFailure(): void {
-    $path = static::locationsTmp() . '/empty-engine.js';
-    file_put_contents($path, '');
-    $this->testObject->engineUrl = $path;
+    $this->testObject->engineUrl = $this->writeFixture('empty-engine.js', '');
     $this->testObject->engineAttempts = 1;
 
     $this->expectException(\RuntimeException::class);
@@ -146,7 +142,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testGetJsClampsAttemptsToOne(): void {
-    $this->testObject->engineUrl = static::locationsTmp() . '/absent-engine.js';
+    $this->testObject->engineUrl = static::$tmp . '/absent-engine.js';
     $this->testObject->engineAttempts = 0;
 
     $this->expectException(\RuntimeException::class);
@@ -198,7 +194,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     // Changing directory proves the report directory is built from the
     // captured base rather than the live working directory.
     $original = getcwd();
-    chdir(static::locationsTmp());
+    chdir(static::$tmp);
 
     try {
       $this->assertSame('/sentinel/base/.logs/test_results/accessibility', $this->testObject->testGetReportDir());
@@ -332,7 +328,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testWriteAggregateReportWritesTimestampedFile(): void {
-    $directory = static::locationsTmp() . '/aggregate-report';
+    $directory = static::$tmp . '/aggregate-report';
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($directory);
 
@@ -346,7 +342,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testWriteAggregateReportDoesNothingWhenEmpty(): void {
-    $directory = static::locationsTmp() . '/aggregate-empty';
+    $directory = static::$tmp . '/aggregate-empty';
     AccessibilityTraitTestImplementation::testSetAggregate([]);
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($directory);
 
@@ -356,7 +352,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregateRenderHookWritesReport(): void {
-    $directory = static::locationsTmp() . '/aggregate-hook';
+    $directory = static::$tmp . '/aggregate-hook';
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($directory);
 

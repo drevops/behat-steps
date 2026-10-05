@@ -30,35 +30,9 @@ use Symfony\Component\HttpClient\HttpClient;
 class BehatStepsExtensionTest extends UnitTestCase {
 
   /**
-   * Directory holding the binaries the resolver probes for.
-   */
-  protected static string $fixtureDir;
-
-  /**
    * Working directory to restore after a test that changed it.
    */
   protected string $originalCwd;
-
-  public static function setUpBeforeClass(): void {
-    static::$fixtureDir = dirname(__DIR__, 6) . '/.artifacts/tmp/extension-binary-' . getmypid();
-
-    mkdir(static::$fixtureDir . '/project/vendor/bin', 0777, TRUE);
-    touch(static::$fixtureDir . '/project/vendor/bin/drush');
-    mkdir(static::$fixtureDir . '/project/web', 0777, TRUE);
-  }
-
-  public static function tearDownAfterClass(): void {
-    $iterator = new \RecursiveIteratorIterator(
-      new \RecursiveDirectoryIterator(static::$fixtureDir, \FilesystemIterator::SKIP_DOTS),
-      \RecursiveIteratorIterator::CHILD_FIRST
-    );
-
-    foreach ($iterator as $file) {
-      $file->isDir() ? rmdir($file->getPathname()) : unlink($file->getPathname());
-    }
-
-    rmdir(static::$fixtureDir);
-  }
 
   protected function setUp(): void {
     parent::setUp();
@@ -612,19 +586,21 @@ class BehatStepsExtensionTest extends UnitTestCase {
   }
 
   public function testBinaryPathResolvesFromWorkingDirectory(): void {
-    chdir(static::$fixtureDir . '/project');
+    $project = $this->createDrushProject();
+    chdir($project);
 
-    $this->assertSame(static::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
+    $this->assertSame($project . '/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
   }
 
   public function testBinaryPathResolvesFromParentDirectory(): void {
-    chdir(static::$fixtureDir . '/project/web');
+    $project = $this->createDrushProject();
+    chdir($project . '/web');
 
-    $this->assertSame(static::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
+    $this->assertSame($project . '/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
   }
 
   public function testUnresolvableBinaryPathIsReturnedAsIs(): void {
-    chdir(static::$fixtureDir);
+    chdir(static::$tmp);
 
     $this->assertSame('some/nonexistent/binary', BehatStepsExtension::resolveBinaryPath('some/nonexistent/binary'));
   }
@@ -700,6 +676,19 @@ class BehatStepsExtensionTest extends UnitTestCase {
     $this->assertIsArray($factories);
 
     return $factories;
+  }
+
+  /**
+   * Writes a project with a Drush binary and a web root below it.
+   *
+   * @return string
+   *   The project directory.
+   */
+  protected function createDrushProject(): string {
+    $this->writeFixture('project/vendor/bin/drush', '');
+    mkdir(static::$tmp . '/project/web');
+
+    return static::$tmp . '/project';
   }
 
 }

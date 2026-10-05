@@ -85,7 +85,7 @@ class OptionDeclarationsTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDeclarationsAreReadUnderTheTraitGroup')]
   public function testDeclarationsAreReadUnderTheTraitGroup(string $trait): void {
-    $short_name = (new \ReflectionClass($trait))->getShortName();
+    $short_name = static::reflect($trait)->getShortName();
     $method = ConfigSchemaReader::methodFor($short_name);
 
     $this->assertSame([$method], static::schemaMethods($trait), sprintf('%s declares its options in %s() and in no other method.', $short_name, $method));
@@ -112,14 +112,14 @@ class OptionDeclarationsTest extends UnitTestCase {
     $data = [];
 
     foreach (static::declaringTraits() as $trait) {
-      $data[(new \ReflectionClass($trait))->getShortName()] = [$trait];
+      $data[static::reflect($trait)->getShortName()] = [$trait];
     }
 
     return $data;
   }
 
   public function testEveryGroupTheRuntimeReadsBelongsToOneTrait(): void {
-    $groups = array_map(static fn(string $trait): string => GroupName::fromTraitName((new \ReflectionClass($trait))->getShortName()), static::declaringTraits());
+    $groups = array_map(static fn(string $trait): string => GroupName::fromTraitName(static::reflect($trait)->getShortName()), static::declaringTraits());
     sort($groups);
 
     $this->assertSame($groups, array_keys((new ConfigSchemaReader())->read(DrupalContext::class)));
@@ -170,7 +170,7 @@ class OptionDeclarationsTest extends UnitTestCase {
    *   The method names.
    */
   protected static function schemaMethods(string $trait): array {
-    $names = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), (new \ReflectionClass($trait))->getMethods());
+    $names = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), static::reflect($trait)->getMethods());
 
     return array_values(array_filter($names, static fn(string $name): bool => str_ends_with($name, ConfigSchemaReader::METHOD_SUFFIX)));
   }

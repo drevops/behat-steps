@@ -426,7 +426,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
 
     $steps = [];
 
-    foreach ((new \ReflectionClass($class))->getMethods() as $method) {
+    foreach (static::reflect($class)->getMethods() as $method) {
       $file = (string) $method->getFileName();
 
       if ($file === '' || !str_starts_with((string) realpath($file), $root . DIRECTORY_SEPARATOR)) {

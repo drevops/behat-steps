@@ -81,7 +81,7 @@ class CapabilityContractTest extends UnitTestCase {
         continue;
       }
 
-      foreach ((new \ReflectionClass($interface))->getMethods() as $method) {
+      foreach (static::reflect($interface)->getMethods() as $method) {
         if (preg_match($pattern, $method->getName()) === 1) {
           yield basename($file, '.php') . '::' . $method->getName() => [$interface, $method->getName()];
         }

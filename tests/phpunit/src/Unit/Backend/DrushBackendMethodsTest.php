@@ -28,22 +28,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('drush')]
 class DrushBackendMethodsTest extends UnitTestCase {
 
-  /**
-   * Directory the throwaway Drush binary layouts are built under.
-   */
-  protected const TEMP_ROOT = __DIR__ . '/../../../../../.artifacts/tmp';
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp(): void {
-    parent::setUp();
-
-    if (!is_dir(static::TEMP_ROOT)) {
-      mkdir(static::TEMP_ROOT, 0777, TRUE);
-    }
-  }
-
   public function testBootstrapMarksAsBootstrapped(): void {
     $backend = $this->createBackend();
 
@@ -319,31 +303,25 @@ class DrushBackendMethodsTest extends UnitTestCase {
    * Tests that 'resolveProjectDrush()' prefers 'COMPOSER_BIN_DIR'.
    */
   public function testResolveProjectDrushPrefersComposerBin(): void {
-    $temp_dir = static::TEMP_ROOT . '/drush-backend-test-' . uniqid();
-    mkdir($temp_dir, 0777, TRUE);
-    touch($temp_dir . '/drush');
+    $binary = $this->writeFixture('bin/drush', '');
     $original = getenv('COMPOSER_BIN_DIR');
-    putenv('COMPOSER_BIN_DIR=' . $temp_dir);
+    putenv('COMPOSER_BIN_DIR=' . dirname($binary));
 
     try {
       $backend = new DrushBackend('alias');
-      $this->assertSame($temp_dir . '/drush', $backend->binary);
+      $this->assertSame($binary, $backend->binary);
     }
     finally {
       putenv('COMPOSER_BIN_DIR' . ($original === FALSE ? '' : '=' . $original));
-      unlink($temp_dir . '/drush');
-      rmdir($temp_dir);
     }
   }
 
   public function testResolveProjectDrushFallsBackToVendorBin(): void {
-    $temp_dir = static::TEMP_ROOT . '/drush-backend-cwd-' . uniqid();
-    mkdir($temp_dir . '/vendor/bin', 0777, TRUE);
-    touch($temp_dir . '/vendor/bin/drush');
+    $this->writeFixture('vendor/bin/drush', '');
     $original_cwd = (string) getcwd();
     $original_composer = getenv('COMPOSER_BIN_DIR');
     putenv('COMPOSER_BIN_DIR');
-    chdir($temp_dir);
+    chdir(static::$tmp);
 
     try {
       $backend = new DrushBackend('alias');
@@ -354,10 +332,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
       if ($original_composer !== FALSE) {
         putenv('COMPOSER_BIN_DIR=' . $original_composer);
       }
-      unlink($temp_dir . '/vendor/bin/drush');
-      rmdir($temp_dir . '/vendor/bin');
-      rmdir($temp_dir . '/vendor');
-      rmdir($temp_dir);
     }
   }
 

@@ -115,7 +115,7 @@ class MemberOrderTest extends UnitTestCase {
    */
   protected static function orderedMembers(string $trait): array {
     /** @var class-string $trait */
-    $reflection = new \ReflectionClass($trait);
+    $reflection = static::reflect($trait);
     $file = (string) realpath((string) $reflection->getFileName());
     $lines = file($file) ?: [];
 

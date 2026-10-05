@@ -31,7 +31,7 @@ class DataProviderConventionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProvidersAreNamedAfterTheirTest')]
   public function testProvidersAreNamedAfterTheirTest(string $class): void {
-    $reflection = new \ReflectionClass($class);
+    $reflection = static::reflect($class);
 
     $violations = [];
 
@@ -63,7 +63,7 @@ class DataProviderConventionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProvidersAreDeclaredAfterTheirTest')]
   public function testProvidersAreDeclaredAfterTheirTest(string $class): void {
-    $reflection = new \ReflectionClass($class);
+    $reflection = static::reflect($class);
 
     $violations = [];
 
@@ -100,7 +100,7 @@ class DataProviderConventionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProviderReturnTypesMatchTheirBody')]
   public function testProviderReturnTypesMatchTheirBody(string $class): void {
-    $reflection = new \ReflectionClass($class);
+    $reflection = static::reflect($class);
 
     $violations = [];
 

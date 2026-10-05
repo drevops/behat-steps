@@ -92,17 +92,20 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   }
 
   /**
-   * Reflect a trait discovered by path.
+   * Reflect a class, interface or trait held in a variable.
    *
-   * @param string $trait
-   *   Fully qualified trait name.
+   * A name read from a file or a data provider is a plain string, so it is
+   * narrowed to a class string here.
+   *
+   * @param object|string $subject
+   *   An object, or the fully qualified name of a class, interface or trait.
    *
    * @return \ReflectionClass<object>
-   *   Reflection of the trait.
+   *   Reflection of the subject.
    */
-  protected static function reflect(string $trait): \ReflectionClass {
-    /** @var class-string $trait */
-    return new \ReflectionClass($trait);
+  protected static function reflect(object|string $subject): \ReflectionClass {
+    /** @var class-string|object $subject */
+    return new \ReflectionClass($subject);
   }
 
   /**

@@ -43,7 +43,7 @@ class ContextCompositionTest extends UnitTestCase {
     $parents = [];
 
     foreach (static::CHAIN as $class) {
-      $parent = (new \ReflectionClass($class))->getParentClass();
+      $parent = static::reflect($class)->getParentClass();
       $parents[$class] = $parent instanceof \ReflectionClass ? $parent->getName() : NULL;
     }
 
@@ -145,7 +145,7 @@ class ContextCompositionTest extends UnitTestCase {
 
     foreach (static::directoryTraits($directory) as $trait) {
       /** @var class-string $trait */
-      $reflection = new \ReflectionClass($trait);
+      $reflection = static::reflect($trait);
       $body = (string) file_get_contents((string) $reflection->getFileName());
       $composed = static::composedMembers($reflection);
 
@@ -179,7 +179,7 @@ class ContextCompositionTest extends UnitTestCase {
       /** @var class-string $trait */
       $trait = 'DrevOps\\BehatSteps\\Helper\\' . basename(dirname($file)) . '\\' . basename($file, '.php');
 
-      foreach ((new \ReflectionClass($trait))->getMethods() as $method) {
+      foreach (static::reflect($trait)->getMethods() as $method) {
         $owners[$method->getName()] = basename($file, '.php');
       }
     }
@@ -220,7 +220,7 @@ class ContextCompositionTest extends UnitTestCase {
 
     $this->assertSame(['X-A' => '1', 'X-B' => '2'], $context->readThroughTrait());
 
-    $properties = (new \ReflectionClass($context))->getProperties();
+    $properties = static::reflect($context)->getProperties();
     $slots = array_filter($properties, static fn(\ReflectionProperty $property): bool => $property->getName() === 'requestHeaders');
 
     $this->assertCount(1, $slots, 'A helper trait composed at both levels declares one property, not two.');
@@ -238,7 +238,7 @@ class ContextCompositionTest extends UnitTestCase {
 
     foreach (static::directoryTraits('Web') as $trait) {
       /** @var class-string $trait */
-      $comment = (string) (new \ReflectionClass($trait))->getDocComment();
+      $comment = (string) static::reflect($trait)->getDocComment();
 
       if (str_contains($comment, '@phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext')) {
         $annotated[] = $trait;
@@ -307,7 +307,7 @@ class ContextCompositionTest extends UnitTestCase {
    *   Fully qualified trait names, sorted.
    */
   protected static function composedTraits(string $class, ?string $directory = NULL): array {
-    $traits = (new \ReflectionClass($class))->getTraits();
+    $traits = static::reflect($class)->getTraits();
 
     if ($directory !== NULL) {
       $path = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR;

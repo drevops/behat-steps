@@ -74,7 +74,7 @@ class AttributeTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderAttributeTargetsRepeatableMethods')]
   public function testAttributeTargetsRepeatableMethods(string $attribute_class): void {
-    $attributes = (new \ReflectionClass($attribute_class))->getAttributes(\Attribute::class);
+    $attributes = static::reflect($attribute_class)->getAttributes(\Attribute::class);
 
     $this->assertCount(1, $attributes);
     $this->assertSame(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE, $attributes[0]->newInstance()->flags);
