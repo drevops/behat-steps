@@ -2931,7 +2931,7 @@ EOD,
       'standard api' => ['api', NULL],
       'standard javascript' => ['javascript', NULL],
       'standard wip' => ['wip', NULL],
-      'doc trait tag' => ['trait:AccessibilityTrait', NULL],
+      'doc trait tag' => ['test-trait:AccessibilityTrait', NULL],
       'unknown hyphen tag' => ['some-custom-tag', NULL],
       'docblock annotation' => ['code', NULL],
       // Violations: parametrized tags using a hyphen separator.

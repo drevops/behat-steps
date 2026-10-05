@@ -38,7 +38,7 @@ Feature: Ensure TestmodeTrait works.
     And I should see "[MYTEST] Article 7"
     And I save screenshot
 
-  @trait:Drupal\TestmodeTrait
+  @test-trait:Drupal\TestmodeTrait
   Scenario: Assert that the skip tag switches the TestmodeTrait hooks off
     Given some behat configuration
     And scenario steps tagged with "@testmode @behat-steps-skip:TestmodeTrait":
@@ -48,7 +48,7 @@ Feature: Ensure TestmodeTrait works.
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\TestmodeTrait
+  @test-trait:Drupal\TestmodeTrait
   Scenario: Assert that the @testmode tag on the feature applies to every scenario
     Given some behat configuration
     And a file named "features/stub.feature" with:

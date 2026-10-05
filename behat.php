@@ -33,7 +33,7 @@ $suite = (new Suite('default'))
 
 $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
   // The Gherkin cache is disabled during development.
-  ->withGherkinOptions((new GherkinOptions(['cache' => '']))->withFilter(new TagFilter('~@skipped')))
+  ->withGherkinOptions((new GherkinOptions(['cache' => '']))->withFilter(new TagFilter('~@test-skipped')))
   ->withSuite($suite)
   ->withExtension(new Extension(MinkExtension::class, [
     'base_url' => 'http://nginx:8080',

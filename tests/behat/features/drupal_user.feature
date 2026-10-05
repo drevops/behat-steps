@@ -38,7 +38,7 @@ Feature: Check that UserTrait works
     And the user with the email "AUTHENTICATED_USER@myexample.com" should exist
     And the user with the email "nobody@example.com" should not exist
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user with the email :mail should exist" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -51,7 +51,7 @@ Feature: Check that UserTrait works
       User with email "nobody@example.com" is expected to exist, but they do not.
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user with the email :mail should not exist" fails for existing user
     Given some behat configuration
     And scenario steps:
@@ -70,7 +70,7 @@ Feature: Check that UserTrait works
   Scenario: Assert "When the password for the user :name is :password" works
     Given the password for the user "authenticated_user" is "password123"
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When the password for the user :name is :password" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -83,7 +83,7 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When the password for the user :name is :password" fails for an existing user with an empty password
     Given some behat configuration
     And scenario steps:
@@ -102,7 +102,7 @@ Feature: Check that UserTrait works
     And the last access time for the user "authenticated_user" is "-10 years"
     And the last access time for the user "authenticated_user" is "[relative:-10 years]"
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When the last access time for the user :name is :datetime" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -115,7 +115,7 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When the last access time for the user :name is :datetime" fails for invalid datetime
     Given some behat configuration
     And scenario steps:
@@ -134,7 +134,7 @@ Feature: Check that UserTrait works
     Given the last login time for the user "authenticated_user" is "-10 years"
     Given the last login time for the user "authenticated_user" is "[relative:-10 years]"
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Given the last login time for the user :name is :datetime" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -147,7 +147,7 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Given the last login time for the user :name is :datetime" fails for invalid datetime
     Given some behat configuration
     And scenario steps:
@@ -165,7 +165,7 @@ Feature: Check that UserTrait works
     When I visit the profile page of the user "authenticated_user"
     Then the response status code should be 200
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When I visit the profile page of the user :name" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -194,7 +194,7 @@ Feature: Check that UserTrait works
     Then the response status code should be 200
     And I should see "[TEST] fields_user"
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When I visit my own user profile page" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
@@ -212,7 +212,7 @@ Feature: Check that UserTrait works
     When I visit the profile edit page of the user "authenticated_user"
     Then the response status code should be 200
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When I visit the profile edit page of the user :name" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -231,7 +231,7 @@ Feature: Check that UserTrait works
     When I visit my own user profile edit page
     Then the response status code should be 200
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When I visit my own user profile edit page" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
@@ -249,7 +249,7 @@ Feature: Check that UserTrait works
     When I visit the profile delete page of the user "authenticated_user"
     Then the response status code should be 200
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When I visit the profile delete page of the user :name" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -268,7 +268,7 @@ Feature: Check that UserTrait works
     When I visit my own user profile delete page
     Then the response status code should be 200
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When I visit my own user profile delete page" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
@@ -286,7 +286,7 @@ Feature: Check that UserTrait works
     When I visit the password reset link for the user "authenticated_user"
     Then the response status code should be 200
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When I visit the password reset link for the user :name" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -305,7 +305,7 @@ Feature: Check that UserTrait works
     When I visit my own password reset link
     Then the response status code should be 200
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "When I visit my own password reset link" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
@@ -327,7 +327,7 @@ Feature: Check that UserTrait works
     And the user "multiple_roles" should have the role "administrator, content_editor" assigned
     And the user "multiple_roles" should have the role "administrator,content_editor" assigned
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing single role
     Given some behat configuration
     And scenario steps:
@@ -344,7 +344,7 @@ Feature: Check that UserTrait works
       User "single_role" does not have role(s) "content_editor", but has roles "authenticated", "administrator".
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing multiple roles
     Given some behat configuration
     And scenario steps:
@@ -361,7 +361,7 @@ Feature: Check that UserTrait works
       User "single_role" does not have role(s) "administrator", "content_editor", but has roles "authenticated", "administrator".
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -382,7 +382,7 @@ Feature: Check that UserTrait works
     And the user "single_role" should not have the roles "content_editor, content_approver" assigned
     And the user "single_role" should not have the role "content_editor,content_approver" assigned
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for having a single role
     Given some behat configuration
     And scenario steps:
@@ -398,7 +398,7 @@ Feature: Check that UserTrait works
       User "single_role" should not have role(s) "administrator", but has "authenticated", "administrator".
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for missing multiple roles
     Given some behat configuration
     And scenario steps:
@@ -414,7 +414,7 @@ Feature: Check that UserTrait works
       User "single_role" should not have role(s) "administrator", "content_editor", but has "authenticated", "administrator", "content_editor", "content_approver".
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -430,7 +430,7 @@ Feature: Check that UserTrait works
   Scenario: Assert "Then the user :name should be blocked"
     Then the user "authenticated_user_blocked" should be blocked
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should be blocked" fails for non-blocked user
     Given some behat configuration
     And scenario steps:
@@ -443,7 +443,7 @@ Feature: Check that UserTrait works
       User "authenticated_user" is expected to be blocked, but they are not.
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should be blocked" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -459,7 +459,7 @@ Feature: Check that UserTrait works
   Scenario: Assert "Then the user :name should not be blocked"
     Then the user "authenticated_user" should not be blocked
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should not be blocked" fails for non-blocked user
     Given some behat configuration
     And scenario steps:
@@ -472,7 +472,7 @@ Feature: Check that UserTrait works
       User "authenticated_user_blocked" is expected to not be blocked, but they are.
       """
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should not be blocked" fails for non-existing user
     Given some behat configuration
     And scenario steps:
@@ -516,7 +516,7 @@ Feature: Check that UserTrait works
     And I visit "/admin/people/roles"
     Then I should see "Limited Editor"
 
-  @trait:Drupal\UserTrait
+  @test-trait:Drupal\UserTrait
   Scenario: Assert "Given the following roles exist:" fails when name column is missing
     Given some behat configuration
     And scenario steps:

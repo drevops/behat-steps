@@ -57,7 +57,7 @@ Feature: Check that ResponsiveTrait works
     And I set the viewport to the breakpoint "tablet_portrait"
     And I set the viewport to the breakpoint "desktop"
 
-  @trait:ResponsiveTrait
+  @test-trait:ResponsiveTrait
   Scenario: Invalid breakpoint should throw exception
     Given some behat configuration
     And scenario steps:
@@ -73,7 +73,7 @@ Feature: Check that ResponsiveTrait works
       Breakpoint "non_existent_breakpoint" not found
       """
 
-  @trait:ResponsiveTrait
+  @test-trait:ResponsiveTrait
   Scenario: Invalid breakpoint tag should throw exception
     Given some behat configuration
     And scenario steps:
@@ -88,7 +88,7 @@ Feature: Check that ResponsiveTrait works
       Breakpoint "invalid_breakpoint_tag" not found
       """
 
-  @trait:ResponsiveTrait
+  @test-trait:ResponsiveTrait
   Scenario: Missing @javascript tag with @breakpoint should throw exception
     Given some behat configuration
     And scenario steps:
@@ -103,7 +103,7 @@ Feature: Check that ResponsiveTrait works
       @breakpoint:mobile_portrait tag requires @javascript tag to resize viewport
       """
 
-  @trait:ResponsiveTrait
+  @test-trait:ResponsiveTrait
   Scenario: Multiple @breakpoint tags should throw exception
     Given some behat configuration
     And scenario steps:
@@ -118,7 +118,7 @@ Feature: Check that ResponsiveTrait works
       Only one @breakpoint tag is allowed per scenario. Found: @breakpoint:mobile_portrait, @breakpoint:desktop
       """
 
-  @trait:ResponsiveTrait
+  @test-trait:ResponsiveTrait
   Scenario: Multiple @breakpoint tags on the feature should throw exception
     Given some behat configuration
     And a file named "features/stub.feature" with:
@@ -135,7 +135,7 @@ Feature: Check that ResponsiveTrait works
       Only one @breakpoint tag is allowed per feature. Found: @breakpoint:mobile_portrait, @breakpoint:desktop
       """
 
-  @trait:ResponsiveTrait
+  @test-trait:ResponsiveTrait
   Scenario: A @breakpoint tag on the feature applies to every scenario and a scenario tag overrides it
     Given some behat configuration
     And a file named "features/stub.feature" with:
@@ -168,7 +168,7 @@ Feature: Check that ResponsiveTrait works
     And I set the viewport to the breakpoint "iphone_12"
     And I set the viewport to the breakpoint "4k_display"
 
-  @trait:ResponsiveTrait
+  @test-trait:ResponsiveTrait
   Scenario: Invalid custom breakpoint format should throw exception
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -184,7 +184,7 @@ Feature: Check that ResponsiveTrait works
       Invalid breakpoint format for "invalid": "1920-1080". Expected format: WIDTHxHEIGHT
       """
 
-  @trait:ResponsiveTrait
+  @test-trait:ResponsiveTrait
   Scenario: Invalid custom breakpoint format with letters should throw exception
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":

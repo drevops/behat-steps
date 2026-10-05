@@ -49,7 +49,7 @@ trait FeatureContextTrait {
    */
   #[BeforeScenario]
   public function testStopSessionsBeforeSubProcess(BeforeScenarioScope $scope): void {
-    $has_trait_tag = (bool) array_filter(Tag::on($scope->getScenario()), fn(string $tag): bool => str_starts_with($tag, 'trait:'));
+    $has_trait_tag = (bool) array_filter(Tag::on($scope->getScenario()), fn(string $tag): bool => str_starts_with($tag, 'test-trait:'));
 
     if ($has_trait_tag) {
       $this->getMink()->stopSessions();

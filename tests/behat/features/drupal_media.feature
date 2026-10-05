@@ -66,7 +66,7 @@ Feature: Check that MediaTrait works
     And I visit "/admin/structure/media"
     Then I should not see "test_media_type"
 
-  @trait:Drupal\MediaTrait
+  @test-trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "When I visit the :media_type media edit page with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -156,7 +156,7 @@ Feature: Check that MediaTrait works
     When I visit the "image" media page with the name "Test media image"
     Then the response should contain "200"
 
-  @trait:Drupal\MediaTrait
+  @test-trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "When I visit the :media_type media page with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -182,7 +182,7 @@ Feature: Check that MediaTrait works
     Then the response should contain "200"
     And I should see "Test media image"
 
-  @trait:Drupal\MediaTrait
+  @test-trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "When I visit the :media_type media delete page with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -207,7 +207,7 @@ Feature: Check that MediaTrait works
     When I visit the "image" media revisions page with the name "Test media image"
     Then the response should contain "200"
 
-  @trait:Drupal\MediaTrait
+  @test-trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "When I visit the :media_type media revisions page with the name :name" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -225,7 +225,7 @@ Feature: Check that MediaTrait works
     When I log in as a user with the role "administrator"
     Then the media type "image" should exist
 
-  @trait:Drupal\MediaTrait
+  @test-trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "Then the media type :media_type should exist" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -243,7 +243,7 @@ Feature: Check that MediaTrait works
     When I log in as a user with the role "administrator"
     Then the media type "nonexistent_type" should not exist
 
-  @trait:Drupal\MediaTrait
+  @test-trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "Then the media type :media_type should not exist" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -267,7 +267,7 @@ Feature: Check that MediaTrait works
     And I log in as a user with the role "administrator"
     Then the "image" media with the name "Test media image" should exist
 
-  @trait:Drupal\MediaTrait
+  @test-trait:Drupal\MediaTrait
   Scenario: Assert that negative assertion for "Then the :media_type media with the name :name should exist" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -285,7 +285,7 @@ Feature: Check that MediaTrait works
     When I log in as a user with the role "administrator"
     Then the "image" media with the name "Non-existent media" should not exist
 
-  @trait:Drupal\MediaTrait,Drupal\FileTrait
+  @test-trait:Drupal\MediaTrait,Drupal\FileTrait
   Scenario: Assert that negative assertion for "Then the :media_type media with the name :name should not exist" fails with an error
     Given the following managed files exist:
       | path      |

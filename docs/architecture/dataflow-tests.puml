@@ -41,7 +41,7 @@ activate Site
 Site --> Behat: page and entity state
 deactivate Site
 
-Behat -> Cli: scenario tagged @trait:SomeTrait
+Behat -> Cli: scenario tagged @test-trait:SomeTrait
 activate Cli
 Cli -> Cli: behatCliBeforeScenario reads the tag and writes a\nWebRawContext subclass composing only those traits
 Cli -> Sub: spawn behat in a temp directory

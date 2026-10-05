@@ -17,7 +17,7 @@ Feature: Check that TableTrait works
     When I visit "http://cli:8888/table.html"
     Then the table ".table-single" should have 1 row
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should have :count row(s)" fails when table not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -32,7 +32,7 @@ Feature: Check that TableTrait works
       Table matching css ".nonexistent" not found.
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should have :count row(s)" fails when row count does not match
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -61,7 +61,7 @@ Feature: Check that TableTrait works
     When I visit "http://cli:8888/table.html"
     Then the table ".table-desc" should have 2 columns
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should have :count column(s)" fails when column count does not match
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -87,7 +87,7 @@ Feature: Check that TableTrait works
       | Category |
       | Status   |
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should contain the following columns:" fails when column not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -111,7 +111,7 @@ Feature: Check that TableTrait works
     When I visit "http://cli:8888/table.html"
     Then the table ".table-empty" should be empty
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should be empty" fails when table has rows
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -132,7 +132,7 @@ Feature: Check that TableTrait works
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should not be empty
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should not be empty" fails when table is empty
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -161,7 +161,7 @@ Feature: Check that TableTrait works
     When I visit "http://cli:8888/table.html"
     Then the table ".table-desc" should be sorted by the column "Name" in "descending" order
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" fails with invalid direction
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -176,7 +176,7 @@ Feature: Check that TableTrait works
       Invalid sort direction "invalid". Use "ascending" or "descending".
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" fails when not sorted
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -191,7 +191,7 @@ Feature: Check that TableTrait works
       Expected table ".table-desc" to be sorted by "Name" in ascending order.
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" fails when column not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -217,7 +217,7 @@ Feature: Check that TableTrait works
       | Alpha item | Active   |
       | Beta item  | Inactive |
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the table :selector should contain the following rows:" fails when row not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -244,7 +244,7 @@ Feature: Check that TableTrait works
       | Type A  |
       | Active  |
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the row :row_text should contain the following:" fails when row not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -260,7 +260,7 @@ Feature: Check that TableTrait works
       Table row with text "NonExistent" not found.
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the row :row_text should contain the following:" fails when text not found in row
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -304,7 +304,7 @@ Feature: Check that TableTrait works
     Then the link "Edit" should exist in the row "Delta record"
     And the link "Edit" should not exist in the row "Zeta record"
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "When I click on the link :link in the row :row_text" fails when the row has no such link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -319,7 +319,7 @@ Feature: Check that TableTrait works
       Link in the row containing "Zeta record" with id|title|alt|text "Edit" not found.
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "When I press the button :button in the row :row_text" fails when the row has no such button
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -334,7 +334,7 @@ Feature: Check that TableTrait works
       Button in the row containing "Zeta record" with id|name|title|alt|value "Remove" not found.
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the row :row_text should contain the value :value" fails when no row has the text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -349,7 +349,7 @@ Feature: Check that TableTrait works
       Table row with text "Omega record" not found.
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the row :row_text should contain the value :value" fails when the row lacks the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -364,7 +364,7 @@ Feature: Check that TableTrait works
       The row containing "Delta record" does not contain the text "Published".
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the row :row_text should not contain the value :value" fails when the row has the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -379,7 +379,7 @@ Feature: Check that TableTrait works
       The row containing "Delta record" contains the text "Draft".
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the link :link should exist in the row :row_text" fails when the row has no such link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -394,7 +394,7 @@ Feature: Check that TableTrait works
       Link in the row containing "Zeta record" with id|title|alt|text "Edit" not found.
       """
 
-  @trait:TableTrait
+  @test-trait:TableTrait
   Scenario: Assert "Then the link :link should not exist in the row :row_text" fails when the row has the link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

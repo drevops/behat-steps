@@ -21,7 +21,7 @@ Feature: Check that IframeTrait works
     When I switch to the root document
     Then I should see "Content in the root document"
 
-  @trait:IframeTrait
+  @test-trait:IframeTrait
   Scenario: Assert that "When I switch to the iframe with the selector :selector" fails when iframe does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -36,7 +36,7 @@ Feature: Check that IframeTrait works
       Iframe matching css ".nonexistent-iframe" not found.
       """
 
-  @trait:IframeTrait
+  @test-trait:IframeTrait
   Scenario: Assert that switching iframes fails naming the capability on a driver that runs no JavaScript
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

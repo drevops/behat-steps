@@ -17,7 +17,7 @@ Feature: Check that CookieTrait works
     Then a cookie with the name "testname" should exist
     And a cookie with the name "testname" should exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with( the) name :name should exist" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -46,7 +46,7 @@ Feature: Check that CookieTrait works
     Then a cookie with the name "testname" and the value "testvalue" should exist
     And a cookie with the name "testname" and the value "testvalue" should exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with( the) name :name and value :value should exist" fails with an error for incorrect name
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -61,7 +61,7 @@ Feature: Check that CookieTrait works
       The cookie with name "testname" was not set.
       """
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with( the) name :name and value :value should exist" fails with an error for incorrect value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -90,7 +90,7 @@ Feature: Check that CookieTrait works
     Then a cookie with the name "testname" and a value containing "estva" should exist
     And a cookie with the name "testname" and a value containing "estva" should exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with the name :name and a value containing :partial_value should exist" fails with an error for incorrect name
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -105,7 +105,7 @@ Feature: Check that CookieTrait works
       The cookie with name "testname" was not set.
       """
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with the name :name and a value containing :partial_value should exist" fails with an error for incorrect value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -132,7 +132,7 @@ Feature: Check that CookieTrait works
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with a name containing "estna" should exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with a name containing :partial_name should exist" fails with an error for incorrect name
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -159,7 +159,7 @@ Feature: Check that CookieTrait works
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with a name containing "estna" and the value "testvalue" should exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with a name containing :partial_name and the value :value should exist" fails with an error for incorrect name
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -174,7 +174,7 @@ Feature: Check that CookieTrait works
       The cookie with name containing "estna" was not set.
       """
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with a name containing :partial_name and the value :value should exist" fails with an error for incorrect value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -201,7 +201,7 @@ Feature: Check that CookieTrait works
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with a name containing "estna" and a value containing "estval" should exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with a name containing :partial_name and a value containing :partial_value should exist" fails with an error for incorrect name
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -216,7 +216,7 @@ Feature: Check that CookieTrait works
       The cookie with name containing "estna" was not set.
       """
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with a name containing :partial_name and a value containing :partial_value should exist" fails with an error for incorrect value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -247,7 +247,7 @@ Feature: Check that CookieTrait works
     When I set a test cookie with name "othername" and value "othervalue"
     Then a cookie with the name "testname" should not exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with the name :name should not exist" fails with an error when the cookie exists
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -274,7 +274,7 @@ Feature: Check that CookieTrait works
     When I set a test cookie with name "testname" and value "othervalue"
     Then a cookie with the name "testname" and the value "testvalue" should not exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with the name :name and the value :value should not exist" fails with an error when the cookie exists with the specified value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -301,7 +301,7 @@ Feature: Check that CookieTrait works
     When I set a test cookie with name "testname" and value "othervalue"
     Then a cookie with the name "testname" and a value containing "testval" should not exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with the name :name and a value containing :partial_value should not exist" fails with an error when the cookie exists with a value containing the partial value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -328,7 +328,7 @@ Feature: Check that CookieTrait works
     When I set a test cookie with name "othername" and value "testvalue"
     Then a cookie with a name containing "testname" should not exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with a name containing :partial_name should not exist" fails with an error when the cookie exists with a name containing the partial name
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -355,7 +355,7 @@ Feature: Check that CookieTrait works
     When I set a test cookie with name "mytestname" and value "othervalue"
     Then a cookie with a name containing "testname" and the value "testvalue" should not exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with a name containing :partial_name and the value :value should not exist" fails with an error when the cookie exists with matching name and value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -382,7 +382,7 @@ Feature: Check that CookieTrait works
     When I set a test cookie with name "othername" and value "othervalue"
     Then a cookie with a name containing "testname" and a value containing "testval" should not exist
 
-  @trait:CookieTrait
+  @test-trait:CookieTrait
   Scenario: Assert that negative assertion for "a cookie with a name containing :partial_name and a value containing :partial_value should not exist" fails with an error when the cookie exists with matching partial name and value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

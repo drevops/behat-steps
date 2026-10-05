@@ -4,7 +4,7 @@ Feature: Check that trait configuration works
   I want to provide a declared option per trait, resolved from the extension and the context
   So that users can configure a trait once instead of tagging every feature file
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that a disabled trait reads nothing
     Given a configuration with the step options:
       """
@@ -21,7 +21,7 @@ Feature: Check that trait configuration works
     # there for this scenario's own check to find.
     And the watchdog is cleared
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that a trait that does not fail on errors still passes
     Given a configuration with the step options:
       """
@@ -35,7 +35,7 @@ Feature: Check that trait configuration works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that a context argument overrides the extension defaults
     Given a configuration with the step options:
       """
@@ -56,7 +56,7 @@ Feature: Check that trait configuration works
       PHP errors were logged to watchdog
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that a scenario tag overrides a context argument
     Given a context with the arguments:
       """
@@ -70,7 +70,7 @@ Feature: Check that trait configuration works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that an unknown option group names what the context accepts
     Given a context with the arguments:
       """
@@ -87,7 +87,7 @@ Feature: Check that trait configuration works
       Unknown option group "nonexistent" for context "FeatureContext".
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that an unknown option names what the group accepts
     Given a context with the arguments:
       """
@@ -104,7 +104,7 @@ Feature: Check that trait configuration works
       Unknown option "watchdog.nonexistent" for context "FeatureContext". The "watchdog" group accepts: enabled, fail_on_errors.
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that a value of the wrong type names the type it expects
     Given a context with the arguments:
       """
@@ -121,7 +121,7 @@ Feature: Check that trait configuration works
       The "watchdog.enabled" option expects a boolean, but a string was given.
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that a group naming a trait the context does not compose is ignored
     Given a configuration with the step options:
       """
@@ -135,7 +135,7 @@ Feature: Check that trait configuration works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Web\RandomTrait,Web\CommandTrait
+  @test-trait:Web\RandomTrait,Web\CommandTrait
   Scenario: Assert that a disabled transform passes its token through
     Given a configuration with the step options:
       """
@@ -150,7 +150,7 @@ Feature: Check that trait configuration works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Web\RandomTrait,Web\CommandTrait
+  @test-trait:Web\RandomTrait,Web\CommandTrait
   Scenario: Assert that an enabled transform replaces its token
     Given some behat configuration
     And scenario steps:
@@ -161,7 +161,7 @@ Feature: Check that trait configuration works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Web\CommandTrait
+  @test-trait:Web\CommandTrait
   Scenario: Assert that a configured option reaches the step that reads it
     Given a configuration with the step options:
       """

@@ -131,7 +131,7 @@ ahoy copy-files
 
 ## Exception Types
 
-Which exception a step throws is part of the public contract - consumers catch on it, and the `@trait:` harness asserts on it. Pick the type by what failed, never by what the surrounding code happens to use:
+Which exception a step throws is part of the public contract - consumers catch on it, and the `@test-trait:` harness asserts on it. Pick the type by what failed, never by what the surrounding code happens to use:
 
 | Failure | Throw |
 | --- | --- |
@@ -146,7 +146,7 @@ Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
 
 A trait without a Mink session is one that never calls `$this->getSession()` - `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\RedirectTrait`. Do not add a session to a trait just to reach `ExpectationException`.
 
-In `@trait:` scenarios, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
+In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
 
 ## Common Behat Step Patterns
 - Block assertions:
@@ -236,10 +236,10 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - A contrib module added to `d12/composer.json` is also added to its `extra.drupal-lenient.allowed-list`, together with any contrib module it pulls in transitively - most contrib has no Drupal 12 release, and the fixture installs it through `mglaman/composer-drupal-lenient`
 
 ### Test Organization and Tagging
-- Every registered step needs at least one scenario that runs it - `tests/phpunit/src/StepScenarioCoverageTest.php` fails `ahoy test-unit` on a step no scenario reaches. A step run inside a `@trait` scenario's nested run counts; a step only in a `@skipped` scenario does not
+- Every registered step needs at least one scenario that runs it - `tests/phpunit/src/StepScenarioCoverageTest.php` fails `ahoy test-unit` on a step no scenario reaches. A step run inside a `@test-trait` scenario's nested run counts; a step only in a `@test-skipped` scenario does not
 - Consolidate related tests into existing feature files rather than creating new ones
 - Use descriptive tags (e.g., `@datetime`) to allow selective test execution
-- Negative tests using `@trait:FieldTrait` should use simple navigation (e.g., `I go to "node/add/page"`)
+- Negative tests using `@test-trait:FieldTrait` should use simple navigation (e.g., `I go to "node/add/page"`)
 - Avoid using custom steps in negative tests that may not be available in BehatCLI context
 - Test-only tags - ones consumed by the test harness (the test contexts or the bootstrap traits) to configure a scenario, as opposed to the library's public tags registered in `docs.php`'s `tag_registry()` - must be prefixed with `test-` (e.g., `@test-bigpipe-timeout`) so they are clearly distinguishable from real library tags.
 
@@ -249,8 +249,8 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - Optional parameters should use empty string defaults, not PHP optional parameters
 - Always provide both imperative (content) and continuous (activeForm) task descriptions
 
-### Nested PyStrings in @trait Scenarios
-When writing @trait scenarios that test BehatCliContext functionality (tests that run Behat within Behat), nested PyStrings are required when the inner scenario steps themselves accept PyString arguments.
+### Nested PyStrings in @test-trait Scenarios
+When writing @test-trait scenarios that test BehatCliContext functionality (tests that run Behat within Behat), nested PyStrings are required when the inner scenario steps themselves accept PyString arguments.
 
 **Problem**: Standard escaped PyString delimiters `\"\"\"` don't work because:
 1. Gherkin parser captures the outer PyString as literal text including the escaped quotes
@@ -259,7 +259,7 @@ When writing @trait scenarios that test BehatCliContext functionality (tests tha
 
 **Solution**: Use **triple single quotes `'''`** for inner PyStrings:
 ```gherkin
-@trait:SomeTrait
+@test-trait:SomeTrait
 Scenario: Test error condition
   Given some behat configuration
   And scenario steps tagged with "@api @email":
@@ -286,12 +286,12 @@ Scenario: Test error condition
    - Example: EmailTrait shows 83.63%
 
 2. **`.logs/coverage/behat_cli/cobertura.xml`**
-   - Contains **MERGED coverage** (API tests + @trait subprocess tests)
+   - Contains **MERGED coverage** (API tests + @test-trait subprocess tests)
    - This is the **TRUE total coverage** to report
    - Example: EmailTrait shows 90.06% (correctly higher)
 
 **How it works**:
-- During test execution, @trait scenarios spawn subprocess Behat runs
+- During test execution, @test-trait scenarios spawn subprocess Behat runs
 - Each subprocess generates a coverage file in `.logs/coverage/behat_cli/phpcov/*.php`
 - After tests complete, `scripts/merge-coverage.php` merges all subprocess coverage with the main behat coverage
 - The merged result is written to `behat_cli/cobertura.xml`

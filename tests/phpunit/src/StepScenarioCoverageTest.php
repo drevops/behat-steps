@@ -64,7 +64,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
     $steps = static::registeredSteps(DrupalContext::class, $root . '/src');
 
     $this->assertNotEmpty($steps);
-    $this->assertSame([], static::unexercisedSteps($steps, $texts), 'Every registered step needs a scenario under tests/behat/features that runs it. A scenario the suite filters out, such as one tagged "@skipped", does not count.');
+    $this->assertSame([], static::unexercisedSteps($steps, $texts), 'Every registered step needs a scenario under tests/behat/features that runs it. A scenario the suite filters out, such as one tagged "@test-skipped", does not count.');
   }
 
   /**
@@ -79,7 +79,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
   public function testScenarioStepTexts(string $feature, array $expected): void {
     $file = $this->writeFixture('features/subject.feature', $feature);
 
-    $this->assertSame($expected, static::scenarioStepTexts([$file], new TagFilter('~@skipped')));
+    $this->assertSame($expected, static::scenarioStepTexts([$file], new TagFilter('~@test-skipped')));
   }
 
   public static function dataProviderScenarioStepTexts(): array {
@@ -131,7 +131,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
         Feature: Subject
           Background:
             Given the background step
-          @skipped
+          @test-skipped
           Scenario: Skipped
             When the scenario step
         FEATURE,
@@ -142,7 +142,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
         Feature: Subject
           Scenario: Kept
             Given the kept step
-          @skipped
+          @test-skipped
           Scenario: Skipped
             Given the skipped step
         FEATURE,
@@ -150,7 +150,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
       ],
       'a filtered feature is not collected' => [
         <<<'FEATURE'
-        @skipped
+        @test-skipped
         Feature: Subject
           Scenario: Skipped
             Given the skipped step
@@ -177,7 +177,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
             Examples:
               | value |
               | kept  |
-            @skipped
+            @test-skipped
             Examples:
               | value   |
               | skipped |
@@ -266,25 +266,25 @@ class StepScenarioCoverageTest extends UnitTestCase {
         <<<'FEATURE'
         Feature: Subject
           Scenario: Nested
-            Given scenario steps tagged with "@skipped":
+            Given scenario steps tagged with "@test-skipped":
               """
               Given the nested step
               """
             And a file named "features/nested.feature" with:
               """
               Feature: Nested
-                @skipped
+                @test-skipped
                 Scenario: Skipped
                   Given the nested feature step
               """
         FEATURE,
-        ['scenario steps tagged with "@skipped":', 'a file named "features/nested.feature" with:'],
+        ['scenario steps tagged with "@test-skipped":', 'a file named "features/nested.feature" with:'],
       ],
     ];
   }
 
   public function testScenarioStepTextsWithoutFilter(): void {
-    $file = $this->writeFixture('features/subject.feature', "Feature: Subject\n  @skipped\n  Scenario: Skipped\n    Given the skipped step\n");
+    $file = $this->writeFixture('features/subject.feature', "Feature: Subject\n  @test-skipped\n  Scenario: Skipped\n    Given the skipped step\n");
 
     $this->assertSame(['the skipped step'], static::scenarioStepTexts([$file], NULL));
   }
@@ -302,7 +302,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
   #[DataProvider('dataProviderSuiteFilter')]
   public function testSuiteFilter(string $config, array $expected, ?string $exception = NULL): void {
     $config_file = $this->writeFixture('behat.php', $config);
-    $feature_file = $this->writeFixture('features/subject.feature', "Feature: Subject\n  Scenario: Kept\n    Given the kept step\n  @skipped\n  Scenario: Skipped\n    Given the skipped step\n");
+    $feature_file = $this->writeFixture('features/subject.feature', "Feature: Subject\n  Scenario: Kept\n    Given the kept step\n  @test-skipped\n  Scenario: Skipped\n    Given the skipped step\n");
 
     if ($exception !== NULL) {
       $this->expectException(\RuntimeException::class);
@@ -321,7 +321,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
         use Behat\Config\Filter\TagFilter;
         use Behat\Config\GherkinOptions;
         use Behat\Config\Profile;
-        return (new Config())->withProfile((new Profile('default'))->withGherkinOptions((new GherkinOptions())->withFilter(new TagFilter('~@skipped'))));
+        return (new Config())->withProfile((new Profile('default'))->withGherkinOptions((new GherkinOptions())->withFilter(new TagFilter('~@test-skipped'))));
         PHP,
         ['the kept step'],
       ],

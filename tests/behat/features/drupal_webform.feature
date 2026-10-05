@@ -34,7 +34,7 @@ Feature: Check that WebformTrait works
     # Clean up the template.
     When the webform "Test template form" does not exist
 
-  @trait:Drupal\WebformTrait
+  @test-trait:Drupal\WebformTrait
   Scenario: Assert "@Given the webform :title exists from the template :template" fails for non-existing template
     Given some behat configuration
     And scenario steps:

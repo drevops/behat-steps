@@ -50,7 +50,7 @@ Feature: Check that FileDownloadTrait works
       admin-test
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that a download fails without the basic authentication its route requires
     Given some behat configuration
     And scenario steps tagged with "@download":
@@ -63,7 +63,7 @@ Feature: Check that FileDownloadTrait works
       returned HTTP status 401
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that regex content match fails properly
     Given some behat configuration
     And scenario steps tagged with "@download @phpserver":
@@ -99,7 +99,7 @@ Feature: Check that FileDownloadTrait works
     When I download the file from the URL "http://cli:8888/text.txt"
     Then the downloaded file name should contain "text"
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that negative assertion for "The downloaded file name should contain :name" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download @phpserver":
@@ -123,7 +123,7 @@ Feature: Check that FileDownloadTrait works
       | example_aud |
       | example_ima |
 
-  @trait:FileDownloadTrait,Drupal\ContentTrait
+  @test-trait:FileDownloadTrait,Drupal\ContentTrait
   Scenario: Assert that negative assertion for "the downloaded file should be a zip archive containing the following files partially named" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download":
@@ -150,7 +150,7 @@ Feature: Check that FileDownloadTrait works
       | example_text |
       | not_existing |
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that downloading from missing link fails with an error
     Given some behat configuration
     And scenario steps:
@@ -164,7 +164,7 @@ Feature: Check that FileDownloadTrait works
       Link with text "nonexistent_link" not found.
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that file name mismatch fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download @phpserver":
@@ -179,7 +179,7 @@ Feature: Check that FileDownloadTrait works
       Downloaded file "text.txt", but expected "wrong_name.txt"
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that file content not found fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download @phpserver":
@@ -197,7 +197,7 @@ Feature: Check that FileDownloadTrait works
       Unable to find a content line with searched string
       """
 
-  @trait:FileDownloadTrait,Drupal\ContentTrait
+  @test-trait:FileDownloadTrait,Drupal\ContentTrait
   Scenario: Assert that zip archive with missing files fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download":
@@ -215,7 +215,7 @@ Feature: Check that FileDownloadTrait works
       Unable to find file "nonexistent1.txt" in archive
       """
 
-  @trait:FileDownloadTrait,Drupal\ContentTrait
+  @test-trait:FileDownloadTrait,Drupal\ContentTrait
   Scenario: Assert that zip archive with found excluded files fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download":
@@ -232,7 +232,7 @@ Feature: Check that FileDownloadTrait works
       Found file partially named "example_audio" in archive, but it should not
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that the skip tag switches the FileDownloadTrait hooks off
     Given some behat configuration
     And scenario steps tagged with "@download @behat-steps-skip:FileDownloadTrait":
@@ -242,7 +242,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that the @download tag on the feature applies to every scenario
     Given some behat configuration
     And a file named "features/stub.feature" with:
@@ -264,7 +264,7 @@ Feature: Check that FileDownloadTrait works
       1 scenario (1 passed)
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that checking file name without download fails with an error
     Given some behat configuration
     And scenario steps:
@@ -278,7 +278,7 @@ Feature: Check that FileDownloadTrait works
       Downloaded file name content has no data.
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that checking file name contains without download fails with an error
     Given some behat configuration
     And scenario steps:
@@ -292,7 +292,7 @@ Feature: Check that FileDownloadTrait works
       Downloaded file name content has no data.
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that checking file content without download fails with an error
     Given some behat configuration
     And scenario steps:
@@ -309,7 +309,7 @@ Feature: Check that FileDownloadTrait works
       Downloaded file content has no data.
       """
 
-  @trait:FileDownloadTrait,Drupal\ContentTrait
+  @test-trait:FileDownloadTrait,Drupal\ContentTrait
   Scenario: Assert that invalid ZIP file fails with an error
     Given some behat configuration
     And the following managed files exist:
@@ -328,7 +328,7 @@ Feature: Check that FileDownloadTrait works
       Downloaded file is not a valid ZIP file.
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that ZIP assertion without download fails with an error
     Given some behat configuration
     And scenario steps:
@@ -343,7 +343,7 @@ Feature: Check that FileDownloadTrait works
       Downloaded file path data is not available.
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that ZIP assertion on non-ZIP file fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download @phpserver":
@@ -359,7 +359,7 @@ Feature: Check that FileDownloadTrait works
       Downloaded file does not have correct headers set for ZIP.
       """
 
-  @trait:FileDownloadTrait
+  @test-trait:FileDownloadTrait
   Scenario: Assert that downloading a URL returning an error status fails
     Given some behat configuration
     And scenario steps tagged with "@download @phpserver":

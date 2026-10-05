@@ -26,7 +26,7 @@ Feature: Check that FieldTrait works
     And I fill in the field "#field1" with the value "CSS filled value"
     Then the field "field1" should not be empty
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert that "When I fill in the field :selector with the value :value" fails when element does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -40,7 +40,7 @@ Feature: Check that FieldTrait works
       Field matching css "#nonexistent-field" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the :field field should be empty" for field with "0"
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -55,7 +55,7 @@ Feature: Check that FieldTrait works
       The field "field1" is not empty, but should be.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the :field field should be empty" for non-empty field
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -70,7 +70,7 @@ Feature: Check that FieldTrait works
       The field "field1" is not empty, but should be.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the :field field should not be empty" for empty field
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -134,7 +134,7 @@ Feature: Check that FieldTrait works
     When I fill in the color field "#edit-color-input" with the value "#ffffff"
     Then the color field "#edit-color-input" should have the value "#ffffff"
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert that negative assertion for "The field :field should exist" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -148,7 +148,7 @@ Feature: Check that FieldTrait works
       Form field with id|name|label|value "No existing field" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error for a label
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -162,7 +162,7 @@ Feature: Check that FieldTrait works
       A field "Field 1" appears on this page, but it should not.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert that negative assertion for "The field :field should not exist" fails with an error for an id
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -176,7 +176,7 @@ Feature: Check that FieldTrait works
       A field "field1" appears on this page, but it should not.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert that "the field :field should have enabled state" fails when it is disabled
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -190,7 +190,7 @@ Feature: Check that FieldTrait works
       A field "field3disabled" should not be disabled, but it is.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert that "the field :field should have disabled state" fails when it is not disabled
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -215,7 +215,7 @@ Feature: Check that FieldTrait works
     When I visit "http://cli:8888/fields.html"
     Then the field "field1" should not be required
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the field :field should be required" for a non-required field
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -229,7 +229,7 @@ Feature: Check that FieldTrait works
       The field "field1" is not marked as required, but should be.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the field :field should not be required" for a required field
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -286,7 +286,7 @@ Feature: Check that FieldTrait works
     Then the option "Australia/Sydney" should exist within the select "date_default_timezone"
     And the option "Australia/Sydney" should not be selected within the select "date_default_timezone"
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should exist within the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -301,7 +301,7 @@ Feature: Check that FieldTrait works
       Select with id|name|label "non_existent_select" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should exist within the select :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
@@ -316,7 +316,7 @@ Feature: Check that FieldTrait works
       Option in the select "date_default_timezone" with value|text "INVALID_OPTION" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should not exist within the select :selector" for existing option
     Given some behat configuration
     And scenario steps:
@@ -331,7 +331,7 @@ Feature: Check that FieldTrait works
       The option "UTC" was found in the select "date_default_timezone" on the page /admin/config/regional/settings, but it should not exist.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should be selected within the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -346,7 +346,7 @@ Feature: Check that FieldTrait works
       Select with id|name|label "non_existent_select" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should not be selected within the select :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
@@ -361,7 +361,7 @@ Feature: Check that FieldTrait works
       Option in the select "date_default_timezone" with value|text "INVALID_OPTION" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should not be selected within the select :selector" for selected option
     Given some behat configuration
     And scenario steps:
@@ -376,7 +376,7 @@ Feature: Check that FieldTrait works
       The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but it should not be.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should not exist within the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -391,7 +391,7 @@ Feature: Check that FieldTrait works
       Select with id|name|label "non_existent_select" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should be selected within the select :selector" for non-existent option
     Given some behat configuration
     And scenario steps:
@@ -406,7 +406,7 @@ Feature: Check that FieldTrait works
       Option in the select "date_default_timezone" with value|text "INVALID_OPTION" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should be selected within the select :selector" for non-selected option
     Given some behat configuration
     And scenario steps:
@@ -421,7 +421,7 @@ Feature: Check that FieldTrait works
       The option "Australia/Sydney" was not selected on the page /admin/config/regional/settings.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the option :option should not be selected within the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps:
@@ -477,7 +477,7 @@ Feature: Check that FieldTrait works
     Then the radio button "radio3" should be selected
     And the radio button "Option 2 (selected)" should not be selected
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "When I choose the radio button" for non-existent radio button
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -491,7 +491,7 @@ Feature: Check that FieldTrait works
       Radio button with id|name|label|value "Non-existent radio" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the radio button should be selected" for non-existent radio button
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -505,7 +505,7 @@ Feature: Check that FieldTrait works
       Radio button with id|name|label|value "Non-existent radio" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the radio button should not be selected" for non-existent radio button
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -519,7 +519,7 @@ Feature: Check that FieldTrait works
       Radio button with id|name|label|value "Non-existent radio" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the radio button should be selected" for unselected radio button
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -533,7 +533,7 @@ Feature: Check that FieldTrait works
       The radio button "Option 1" is not selected, but should be.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "the radio button should not be selected" for selected radio button
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -581,7 +581,7 @@ Feature: Check that FieldTrait works
     # Browser validation will catch the empty fields before form submission
     Then I should not see "Please fill in all required fields"
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Negative test for scenario-level behat-steps-skip tag
     Given some behat configuration
     And scenario steps tagged with "@javascript @behat-steps-skip:FieldTrait @phpserver":
@@ -660,7 +660,7 @@ Feature: Check that FieldTrait works
     # Without JavaScript, the tag should not throw an error
     Then the field "username" should exist
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert that the @disable-form-validation tag on the feature applies to every scenario
     Given some behat configuration
     And a file named "features/stub.feature" with:
@@ -679,7 +679,7 @@ Feature: Check that FieldTrait works
       1 scenario (1 passed)
       """
 
-  @datetime @skipped
+  @datetime @test-skipped
   Scenario: Fill datetime field with date and time
     Given the following page content exist:
       | title                     |
@@ -690,7 +690,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Datetime test page has been updated."
 
-  @datetime @skipped
+  @datetime @test-skipped
   Scenario: Fill datetime field using separate date and time steps
     Given the following page content exist:
       | title                          |
@@ -702,7 +702,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Datetime separate steps has been updated."
 
-  @datetime @skipped
+  @datetime @test-skipped
   Scenario: Fill date-only field
     Given the following page content exist:
       | title                      |
@@ -713,7 +713,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Date only test page has been updated."
 
-  @datetime @skipped
+  @datetime @test-skipped
   Scenario: Fill date-only field using date part step
     Given the following page content exist:
       | title                      |
@@ -724,7 +724,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Date part test page has been updated."
 
-  @datetime @skipped
+  @datetime @test-skipped
   Scenario: Fill daterange field with start and end dates
     Given the following page content exist:
       | title                      |
@@ -736,7 +736,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Daterange test page has been updated."
 
-  @datetime @skipped
+  @datetime @test-skipped
   Scenario: Fill daterange date-only field
     Given the following page content exist:
       | title                                |
@@ -748,7 +748,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "Page [TEST] Daterange date only test page has been updated."
 
-  @trait:FieldTrait @datetime
+  @test-trait:FieldTrait @datetime
   Scenario: Assert negative "fill in the datetime field" for non-existent field
     Given some behat configuration
     And scenario steps:
@@ -763,7 +763,7 @@ Feature: Check that FieldTrait works
       Datetime field with label "Non-existent field (value/date)" not found.
       """
 
-  @trait:FieldTrait @datetime
+  @test-trait:FieldTrait @datetime
   Scenario: Assert negative "fill in the date part of the datetime field" for non-existent field
     Given some behat configuration
     And scenario steps:
@@ -778,7 +778,7 @@ Feature: Check that FieldTrait works
       Datetime field with label "Non-existent field (value/date)" not found.
       """
 
-  @trait:FieldTrait @datetime
+  @test-trait:FieldTrait @datetime
   Scenario: Assert negative "fill in the time part of the datetime field" for non-existent field
     Given some behat configuration
     And scenario steps:
@@ -793,7 +793,7 @@ Feature: Check that FieldTrait works
       Datetime field with label "Non-existent field (value/time)" not found.
       """
 
-  @trait:FieldTrait @datetime
+  @test-trait:FieldTrait @datetime
   Scenario: Assert negative "fill in the start datetime field" for non-existent field
     Given some behat configuration
     And scenario steps:
@@ -808,7 +808,7 @@ Feature: Check that FieldTrait works
       Datetime field with label "Non-existent range (value/date)" not found.
       """
 
-  @trait:FieldTrait @datetime
+  @test-trait:FieldTrait @datetime
   Scenario: Assert negative "fill in the end datetime field" for non-existent field
     Given some behat configuration
     And scenario steps:
@@ -836,7 +836,7 @@ Feature: Check that FieldTrait works
     And I press "Save"
     Then I should see "[TEST] Multi-value tags"
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "fill in the multi-value field" for non-existent field
     Given some behat configuration
     And scenario steps tagged with "@javascript":
@@ -853,7 +853,7 @@ Feature: Check that FieldTrait works
       Multi-value field wrapper with label "Non-existent multi field" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative color field value assertion when values don't match
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -882,7 +882,7 @@ Feature: Check that FieldTrait works
     And I fill in the WYSIWYG field "Body" with the value "Updated CKEditor 4 body content"
     And I fill in the WYSIWYG field "Description" with the value "Updated CKEditor 4 description"
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative WYSIWYG field not found
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -896,7 +896,7 @@ Feature: Check that FieldTrait works
       Form field with id|name|label|value|placeholder "Non-existent WYSIWYG" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative WYSIWYG field without an ID
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -952,7 +952,7 @@ Feature: Check that FieldTrait works
     When I unselect the option "Choice 2" from the select "Single select field"
     Then the option "Choice 2" should not be selected within the select "Single select field"
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "When I unselect the option :option from the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -966,7 +966,7 @@ Feature: Check that FieldTrait works
       Select with id|name|label "Non-existent select" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "When I unselect the option :option from the select :selector" for non-existent option
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -980,7 +980,7 @@ Feature: Check that FieldTrait works
       Option in the select "Multi-select options" with value|text "Invalid Option" not found.
       """
 
-  @trait:FieldTrait
+  @test-trait:FieldTrait
   Scenario: Assert negative "When I clear the select :selector" for non-existent select
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

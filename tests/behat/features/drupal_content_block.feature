@@ -12,7 +12,7 @@ Feature: Check that ContentBlockTrait works
     And I visit "/admin/content/block"
     Then I should see "[TEST] Verify Block Content"
 
-  @trait:Drupal\ContentBlockTrait
+  @test-trait:Drupal\ContentBlockTrait
   Scenario: Verify content block type validation fails for non-existent type
     Given some behat configuration
     And scenario steps:
@@ -49,7 +49,7 @@ Feature: Check that ContentBlockTrait works
       | [TEST] Non-existent Block |
     Then I should not see "[TEST] Non-existent Block"
 
-  @skipped
+  @test-skipped
   Scenario: Edit a content block
     When I log in as a user with the role "administrator"
     And the content block type "basic" should exist
@@ -63,7 +63,7 @@ Feature: Check that ContentBlockTrait works
     And I press "Save"
     Then the success message "Basic block [TEST] Editable Block has been updated." should exist
 
-  @trait:Drupal\ContentBlockTrait
+  @test-trait:Drupal\ContentBlockTrait
   Scenario: Assert visiting the edit page of a non-existent content block fails
     Given some behat configuration
     And scenario steps:
@@ -92,7 +92,7 @@ Feature: Check that ContentBlockTrait works
     Then I should see "[TEST] Content Block"
     And I should see "[TEST] Body content"
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "the instance of block exists with the following configuration" fails for non-existent block
     Given some behat configuration
     And scenario steps:
@@ -109,7 +109,7 @@ Feature: Check that ContentBlockTrait works
       Could not create block with admin label "Non-existent Block"
       """
 
-  @skipped
+  @test-skipped
   Scenario: Edit content block with configuration
     Given the following "basic" content blocks exist:
       | info                  | body                  | status |
@@ -155,7 +155,6 @@ Feature: Check that ContentBlockTrait works
     And I go to "admin/content/block"
     Then I should not see "[TEST] Temporary Block"
 
-  @trait:Drupal\ContentBlockTrait
   Scenario: Assert that deleting a non-existent content block doesn't fail
     When I log in as a user with the role "administrator"
     And the content block type "basic" should exist

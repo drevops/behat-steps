@@ -9,7 +9,7 @@ Feature: Check that ElementTrait works
     When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and the value "ltr" should exist
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should exist" fails as expected when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -24,7 +24,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexisting-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should exist" fails as expected when the attribute does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -39,7 +39,7 @@ Feature: Check that ElementTrait works
       The "no-existing-attribute" attribute does not exist on the element "html".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -60,7 +60,7 @@ Feature: Check that ElementTrait works
     When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and a value containing "lt" should exist
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should exist" fails as expected when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -75,7 +75,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexisting-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should exist" fails as expected when the attribute is not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -90,7 +90,7 @@ Feature: Check that ElementTrait works
       The "no-existing-attribute" attribute does not exist on the element "html".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should exist" fails as expected when the attribute does not contain the partial value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -111,7 +111,7 @@ Feature: Check that ElementTrait works
     When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and the value "nonexistingvalue" should not exist
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should not exist" fails as expected when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -126,7 +126,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexisting-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should not exist" fails as expected when the attribute does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -141,7 +141,7 @@ Feature: Check that ElementTrait works
       The "no-existing-attribute" attribute does not exist on the element "html".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and the value :value should not exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -162,7 +162,7 @@ Feature: Check that ElementTrait works
     When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and a value containing "nonexistingvalue" should not exist
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist" fails as expected when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -177,7 +177,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexisting-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist" fails as expected when the attribute does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -192,7 +192,7 @@ Feature: Check that ElementTrait works
       The "no-existing-attribute" attribute does not exist on the element "html".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Negative assertion for "Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist" fails as expected when the attribute does not contain the exact value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -265,7 +265,7 @@ Feature: Check that ElementTrait works
     Then the element "#top" should be displayed
 
   # Here and below: skipped because of Behat hanging in the child process.
-  @trait:ElementTrait @skipped
+  @test-trait:ElementTrait @test-skipped
   Scenario: Assert step definition "Then the element :selector should be displayed" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -284,7 +284,7 @@ Feature: Check that ElementTrait works
     When I visit "http://cli:8888/elements_relative.html"
     Then the element "#hidden" should not be displayed
 
-  @trait:ElementTrait @skipped
+  @test-trait:ElementTrait @test-skipped
   Scenario: Assert step definition "Then the element :selector should not be displayed" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -308,7 +308,7 @@ Feature: Check that ElementTrait works
     Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed within the viewport with a top offset of 10 pixels
 
-  @javascript @phpserver @skipped
+  @javascript @phpserver @test-skipped
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport with a top offset of :offset pixels" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -332,7 +332,7 @@ Feature: Check that ElementTrait works
     And the element "#sr-only" should not be displayed within the viewport
     And the element "#sr-only-focusable" should not be displayed within the viewport
 
-  @trait:ElementTrait @skipped
+  @test-trait:ElementTrait @test-skipped
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -347,7 +347,7 @@ Feature: Check that ElementTrait works
       Element(s) defined by "#sr-only" selector is not displayed within the viewport.
       """
 
-  @trait:ElementTrait @skipped
+  @test-trait:ElementTrait @test-skipped
   Scenario: Assert step definition "Then the element :selector should not be displayed within the viewport" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -374,7 +374,7 @@ Feature: Check that ElementTrait works
     Then the heading "Nonexistent heading" should not exist
     And the heading "Basic" should not exist
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the heading :heading should exist" fails when no heading has the exact text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -388,7 +388,7 @@ Feature: Check that ElementTrait works
       Heading with text "Basic" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the heading :heading should not exist" fails when a heading has the text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -412,7 +412,7 @@ Feature: Check that ElementTrait works
     When I visit "http://cli:8888/elements.html"
     Then the element "body" should appear after the element "head"
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element order fails when first element is before second
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -426,7 +426,7 @@ Feature: Check that ElementTrait works
       Element "head" appears before "body".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert text order fails when first text is before second
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -440,7 +440,7 @@ Feature: Check that ElementTrait works
       Text "Welcome" appears before "Copyright 2024".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element order fails when first element is not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -454,7 +454,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element order fails when second element is not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -468,7 +468,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert text order fails when first text is not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -482,7 +482,7 @@ Feature: Check that ElementTrait works
       Text was not found: "NonExistentText123".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert text order fails when second text is not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -504,7 +504,7 @@ Feature: Check that ElementTrait works
     When I hover over the element "#hover-target"
     Then the element "#hover-reveal" should be displayed
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert that "When I hover over the element :selector" fails when element does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -526,7 +526,7 @@ Feature: Check that ElementTrait works
     And I focus on the element "#focus-input"
     Then the element "#focus-input" with the attribute "data-focused" and the value "true" should exist
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert that "When I focus on the element :selector" fails when element does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -562,7 +562,7 @@ Feature: Check that ElementTrait works
     When I visit "http://cli:8888/elements.html"
     Then the element "#focus-button-shadow" should have a visible focus outline
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should have keyboard focus" fails when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -577,7 +577,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should have keyboard focus" fails when a different element is focused
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -593,7 +593,7 @@ Feature: Check that ElementTrait works
       Expected element "#focus-button-outline" to have keyboard focus, but focus is on:
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should have keyboard focus" fails when no element is focused
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -608,7 +608,7 @@ Feature: Check that ElementTrait works
       Expected element "#focus-input" to have keyboard focus, but no element is focused.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should not have keyboard focus" fails when the element is focused
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -624,7 +624,7 @@ Feature: Check that ElementTrait works
       Expected element "#focus-input" to not have keyboard focus, but it does.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should have a visible focus outline" fails when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -639,7 +639,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should have a visible focus outline" fails when the element has no visible indicator
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -654,7 +654,7 @@ Feature: Check that ElementTrait works
       Expected element "#focus-button-no-outline" to have a visible focus outline, but outline-style is "none"
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should not have a visible focus outline" fails when the element has an outline
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -675,7 +675,7 @@ Feature: Check that ElementTrait works
     When I click on the element "#overlay-trigger"
     Then I should see an ".overlay-visible" element
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert click on element fails when element not found
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -689,7 +689,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert scroll to element not at top of viewport fails
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -703,7 +703,7 @@ Feature: Check that ElementTrait works
       Element with selector "#bottom" is not at the top of the viewport.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element visibility fails when element is not present
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -717,7 +717,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element visibility fails when no elements are visible
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -731,7 +731,7 @@ Feature: Check that ElementTrait works
       None of the elements defined by "#hidden" selector are visible on the page.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element not visible fails when element is visible
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -745,7 +745,7 @@ Feature: Check that ElementTrait works
       Element defined by "#top" selector is visible on the page, but it should not be.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element visually visible fails when not in viewport
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -759,7 +759,7 @@ Feature: Check that ElementTrait works
       Element(s) defined by "#sr-only" selector is not displayed within the viewport.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element visually visible with offset fails when not in viewport
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -773,7 +773,7 @@ Feature: Check that ElementTrait works
       Element(s) defined by "#top" selector is not displayed within the viewport with a top offset of 10000 pixels.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element not visually visible with offset fails when visible
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -787,7 +787,7 @@ Feature: Check that ElementTrait works
       Element(s) defined by "#top" selector is displayed within the viewport with a top offset of 0 pixels, but it should not be.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert element visually hidden fails when visible in viewport
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -824,7 +824,7 @@ Feature: Check that ElementTrait works
     When I visit "http://cli:8888/elements.html"
     Then the element "#nth-parent" should contain 3 elements matching ".nth-child"
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert index-based interaction fails when the index is below 1
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -838,7 +838,7 @@ Feature: Check that ElementTrait works
       The index must be 1 or greater, but "0" was given.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert index-based interaction fails when the index is out of range
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -852,7 +852,7 @@ Feature: Check that ElementTrait works
       Cannot use the element matching ".nth-child" at index 99: only 3 found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert index-based interaction fails when no element matches
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -866,7 +866,7 @@ Feature: Check that ElementTrait works
       Element matching ".does-not-exist" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails on a count mismatch
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -880,7 +880,7 @@ Feature: Check that ElementTrait works
       Expected the element "#nth-parent" to contain 5 element(s) matching ".nth-child", but found 3.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails when the parent is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -911,7 +911,7 @@ Feature: Check that ElementTrait works
     Then the element "#css-box" should have the CSS property "box-shadow" with a value containing "rgb(255, 0, 0)"
     And the element "#css-box" should not have the CSS property "box-shadow" with a value containing "inset"
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" fails when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -926,7 +926,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" fails when the property has no computed value
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -941,7 +941,7 @@ Feature: Check that ElementTrait works
       The CSS property "bogus-property" has no computed value on the element "#css-box".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" fails on a value mismatch
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -956,7 +956,7 @@ Feature: Check that ElementTrait works
       The CSS property "background-color" on the element "#css-box" has a computed value "rgb(0, 0, 255)", but it should have a value "rgb(255, 0, 0)".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should not have the CSS property :property with the value :value" fails when the value matches
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -971,7 +971,7 @@ Feature: Check that ElementTrait works
       The CSS property "background-color" on the element "#css-box" has a computed value "rgb(0, 0, 255)", but it should not.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should have the CSS property :property with a value containing :partial_value" fails when the value is not contained
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -986,7 +986,7 @@ Feature: Check that ElementTrait works
       but it should contain a value "inset".
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should not have the CSS property :property with a value containing :partial_value" fails when the value is contained
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1031,7 +1031,7 @@ Feature: Check that ElementTrait works
     And the element "#stack-behind" should stack below the element "#stack-parent"
     And the element "#stack-parent" should stack above the element "#stack-behind"
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the first element does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1046,7 +1046,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the second element does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1061,7 +1061,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when both selectors match the same element
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1076,7 +1076,7 @@ Feature: Check that ElementTrait works
       The selectors "#stack-low" and "#stack-low" match the same element.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the element stacks below
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1091,7 +1091,7 @@ Feature: Check that ElementTrait works
       Expected element "#stack-low" to stack above the element "#stack-high", but it stacks below it: their effective z-indexes are 1 and 5.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector1 should stack below the element :selector2" fails when the element stacks above
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1106,7 +1106,7 @@ Feature: Check that ElementTrait works
       Expected element "#stack-second" to stack below the element "#stack-first", but it stacks above it: both have an effective z-index of 0 and "#stack-first" comes earlier in the document.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the first element is nested in the second one
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1121,7 +1121,7 @@ Feature: Check that ElementTrait works
       Expected element "#stack-behind" to stack above the element "#stack-parent", but it stacks below it: "#stack-behind" sits inside the stacking context of "#stack-parent" with an effective z-index of -1.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector1 should stack above the element :selector2" fails when the second element is nested in the first one
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1151,7 +1151,7 @@ Feature: Check that ElementTrait works
     Then the element "#pinned-offset" should be pinned to the top of the viewport within 25 pixels
     And the element "#pinned-offset" should not be pinned to the top of the viewport
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should be pinned to the top of the viewport" fails when the element does not exist
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1166,7 +1166,7 @@ Feature: Check that ElementTrait works
       Element matching css "#nonexistent-element" not found.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should be pinned to the top of the viewport" fails when the element is not at the top
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1181,7 +1181,7 @@ Feature: Check that ElementTrait works
       Expected element "#not-pinned" to be pinned to the top of the viewport within 2 pixel(s), but its top edge is at
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should be pinned to the top of the viewport" fails when the element is not rendered
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1196,7 +1196,7 @@ Feature: Check that ElementTrait works
       Expected element "#pinned-hidden" to be pinned to the top of the viewport, but it is not rendered.
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should not be pinned to the top of the viewport" fails when the element is pinned
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -1211,7 +1211,7 @@ Feature: Check that ElementTrait works
       Expected element "#pinned-header" to not be pinned to the top of the viewport, but its top edge is at
       """
 
-  @trait:ElementTrait
+  @test-trait:ElementTrait
   Scenario: Assert "Then the element :selector should be pinned to the top of the viewport within :tolerance pixels" fails when the tolerance is negative
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":

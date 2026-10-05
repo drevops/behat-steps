@@ -85,7 +85,7 @@ Feature: Ensure Search API functionality works
     And I should see "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
     And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
-  @trait:Drupal\SearchApiTrait
+  @test-trait:Drupal\SearchApiTrait
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" fails when content not found
     Given some behat configuration
     And scenario steps:

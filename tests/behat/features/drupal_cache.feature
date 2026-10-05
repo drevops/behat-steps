@@ -31,7 +31,7 @@ Feature: Check that CacheTrait works
     And I go to "/admin/reports/dblog"
     Then I should see "Cron run completed."
 
-  @trait:Drupal\CacheTrait
+  @test-trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with an empty path fails
     Given some behat configuration
     And scenario steps:
@@ -45,7 +45,7 @@ Feature: Check that CacheTrait works
       The path must not be empty.
       """
 
-  @trait:Drupal\CacheTrait
+  @test-trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with a path missing a leading slash fails
     Given some behat configuration
     And scenario steps:
@@ -59,7 +59,7 @@ Feature: Check that CacheTrait works
       The path "about" must start with a leading slash.
       """
 
-  @trait:Drupal\CacheTrait
+  @test-trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with an empty pattern fails
     Given some behat configuration
     And scenario steps:
@@ -73,7 +73,7 @@ Feature: Check that CacheTrait works
       The path pattern must not be empty.
       """
 
-  @trait:Drupal\CacheTrait
+  @test-trait:Drupal\CacheTrait
   Scenario: Assert clearing the page cache with a pattern missing a leading slash fails
     Given some behat configuration
     And scenario steps:

@@ -93,7 +93,7 @@ Feature: Check that StateTrait works
   Scenario: Verify the Drush revert restored the seeded state value
     Then the state "behat_steps_test.drush_persistent" should have the value "seeded"
 
-  @trait:Drupal\StateTrait
+  @test-trait:Drupal\StateTrait
   Scenario: Assert negative assertion for "Then the state :name should have the value :value" fails when key is missing
     Given some behat configuration
     And scenario steps:
@@ -107,7 +107,7 @@ Feature: Check that StateTrait works
       The state "behat_steps_test.missing" does not exist, but it should have the value "1".
       """
 
-  @trait:Drupal\StateTrait
+  @test-trait:Drupal\StateTrait
   Scenario: Assert negative assertion for "Then the state :name should have the value :value" fails on value mismatch
     Given some behat configuration
     And scenario steps:
@@ -122,7 +122,7 @@ Feature: Check that StateTrait works
       The state "behat_steps_test.flag" has the value "1", but it should have the value "2".
       """
 
-  @trait:Drupal\StateTrait
+  @test-trait:Drupal\StateTrait
   Scenario: Assert negative assertion for "Then the state :name should not exist" fails for existing key
     Given some behat configuration
     And scenario steps:

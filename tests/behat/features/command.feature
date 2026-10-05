@@ -27,7 +27,7 @@ Feature: Check that CommandTrait works
     When I run the command "sleep 1"
     Then the command should complete in more than 0 seconds
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that "the command should succeed" fails when the command failed
     Given some behat configuration
     And scenario steps:
@@ -41,7 +41,7 @@ Feature: Check that CommandTrait works
       Expected the command to succeed, but it exited with code 1.
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that "the command should fail" fails when the command succeeded
     Given some behat configuration
     And scenario steps:
@@ -55,7 +55,7 @@ Feature: Check that CommandTrait works
       Expected the command to fail, but it exited with code 0.
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that "the command exit code should be" fails on a mismatch
     Given some behat configuration
     And scenario steps:
@@ -69,7 +69,7 @@ Feature: Check that CommandTrait works
       Expected the command to exit with code 3, but it exited with code 0.
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that "the command output should contain" fails when the text is absent
     Given some behat configuration
     And scenario steps:
@@ -83,7 +83,7 @@ Feature: Check that CommandTrait works
       Expected the command output to contain "goodbye", but it did not.
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that "the command output should not contain" fails when the text is present
     Given some behat configuration
     And scenario steps:
@@ -97,7 +97,7 @@ Feature: Check that CommandTrait works
       Expected the command output to not contain "hello", but it did.
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that "the command output should be" fails on a mismatch
     Given some behat configuration
     And scenario steps:
@@ -111,7 +111,7 @@ Feature: Check that CommandTrait works
       Expected the command output to be "goodbye", but got "hello".
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that "the command error output should contain" fails when the text is absent
     Given some behat configuration
     And scenario steps:
@@ -125,7 +125,7 @@ Feature: Check that CommandTrait works
       Expected the command error output to contain "missing", but it did not.
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that "the command should complete in less than" fails when the command is slower
     Given some behat configuration
     And scenario steps:
@@ -139,7 +139,7 @@ Feature: Check that CommandTrait works
       Expected the command to complete in less than 1 seconds, but it took
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that "the command should complete in more than" fails when the command is faster
     Given some behat configuration
     And scenario steps:
@@ -153,7 +153,7 @@ Feature: Check that CommandTrait works
       Expected the command to complete in more than 5 seconds, but it took
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that an assertion before any command fails with a runtime exception
     Given some behat configuration
     And scenario steps:
@@ -166,7 +166,7 @@ Feature: Check that CommandTrait works
       No command has been run. Run a command before asserting on its result.
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that a non-integer exit code argument fails with a runtime exception
     Given some behat configuration
     And scenario steps:
@@ -180,7 +180,7 @@ Feature: Check that CommandTrait works
       The expected exit code must be an integer, but got "three".
       """
 
-  @trait:CommandTrait
+  @test-trait:CommandTrait
   Scenario: Assert that a non-numeric duration argument fails with a runtime exception
     Given some behat configuration
     And scenario steps:

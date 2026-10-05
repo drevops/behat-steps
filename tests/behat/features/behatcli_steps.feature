@@ -4,7 +4,7 @@ Feature: Behat CLI context additional steps
   I want to provide tools to test CLI step functionality
   So that users can verify CLI testing capabilities work correctly
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Test fails with exception
     Given some behat configuration
     And scenario steps:
@@ -19,7 +19,7 @@ Feature: Behat CLI context additional steps
       Intentional error
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Test with additionally tagged scenario fails with exception
     Given some behat configuration
     And scenario steps tagged with "@tag1 @tag2":
@@ -38,7 +38,7 @@ Feature: Behat CLI context additional steps
       @tag1 @tag2
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Test fails
     Given some behat configuration
     And scenario steps:
@@ -49,7 +49,7 @@ Feature: Behat CLI context additional steps
     When I run "behat --no-colors"
     Then it should fail
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Test fails with message
     Given some behat configuration
     And scenario steps:
