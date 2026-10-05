@@ -42,10 +42,7 @@ class PrerequisiteReader {
    *   The method name, such as 'watchdogPrerequisites'.
    */
   public static function methodFor(string $trait): string {
-    $separator = strrpos($trait, '\\');
-    $name = $separator === FALSE ? $trait : substr($trait, $separator + 1);
-
-    return GroupName::toMethodPrefix(GroupName::fromTraitName($name)) . self::METHOD_SUFFIX;
+    return GroupName::toMethodPrefix(GroupName::fromTraitName($trait)) . self::METHOD_SUFFIX;
   }
 
   /**

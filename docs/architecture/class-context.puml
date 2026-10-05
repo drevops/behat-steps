@@ -130,6 +130,7 @@ package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
   }
 
   class ConfigSchemaReader {
+    {static} +methodFor(trait) : string
     +read(context_class) : array
     --
     the only piece that reflects

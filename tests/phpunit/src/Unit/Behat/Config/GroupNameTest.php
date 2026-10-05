@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Config;
 
 use DrevOps\BehatSteps\Behat\Config\GroupName;
+use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -40,7 +41,7 @@ class GroupNameTest extends UnitTestCase {
    * Tests that a trait name converts to its group name.
    *
    * @param string $trait_name
-   *   The short trait name.
+   *   The trait name, fully qualified or short.
    * @param string $group
    *   The group name it converts to.
    */
@@ -53,6 +54,7 @@ class GroupNameTest extends UnitTestCase {
     yield 'one word' => ['CacheTrait', 'cache'];
     yield 'two words' => ['BigPipeTrait', 'big_pipe'];
     yield 'three words' => ['FileDownloadExtraTrait', 'file_download_extra'];
+    yield 'fully qualified name' => [BigPipeTrait::class, 'big_pipe'];
   }
 
   public function testNameWithoutTheTraitSuffixIsReadAsIs(): void {
@@ -71,25 +73,6 @@ class GroupNameTest extends UnitTestCase {
     $this->assertSame('api_client', GroupName::fromTraitName('ApiClientTrait'));
     $this->assertSame('api_client', GroupName::fromMethodPrefix('apiClient'));
     $this->assertSame('http_cache', GroupName::fromMethodPrefix('HTTPCache'));
-  }
-
-  /**
-   * Tests that a trait name names the method it declares its options in.
-   *
-   * @param string $trait_name
-   *   The short trait name.
-   * @param string $method
-   *   The method name it converts to.
-   */
-  #[DataProvider('dataProviderSchemaMethod')]
-  public function testSchemaMethod(string $trait_name, string $method): void {
-    $this->assertSame($method, GroupName::schemaMethod($trait_name));
-  }
-
-  public static function dataProviderSchemaMethod(): \Iterator {
-    yield 'one word' => ['CacheTrait', 'cacheConfigSchema'];
-    yield 'two words' => ['BigPipeTrait', 'bigPipeConfigSchema'];
-    yield 'three words' => ['FileDownloadExtraTrait', 'fileDownloadExtraConfigSchema'];
   }
 
 }
