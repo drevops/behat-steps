@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\TestmodeTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;

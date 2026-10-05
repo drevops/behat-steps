@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
+namespace DrevOps\BehatSteps\Tests\Unit\Behat\Registry;
 
-use DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistry;
+use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistry;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 

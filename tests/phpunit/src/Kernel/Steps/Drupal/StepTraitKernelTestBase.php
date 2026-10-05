@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
 use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;

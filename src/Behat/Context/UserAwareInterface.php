@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Context;
 
 use Behat\Behat\Context\Context;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
+use DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 
 /**
  * Contract for a context that logs users in and tracks the ones it creates.

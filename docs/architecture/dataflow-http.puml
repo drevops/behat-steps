@@ -4,7 +4,7 @@
 ' src/Behat/ServiceContainer/config/services.yml,
 ' src/Behat/Mink/ServiceContainer/Driver/BrowserKitFactory.php,
 ' src/Behat/Http/HttpClientFactory.php, src/Behat/Context/WebRawContext.php,
-' src/Behat/Manager/BasicAuthenticator.php, src/Steps/Web/FileDownloadTrait.php,
+' src/Behat/Auth/BasicAuthenticator.php, src/Steps/Web/FileDownloadTrait.php,
 ' src/Steps/Web/MetatagTrait.php, src/Steps/Web/RestTrait.php,
 ' src/Steps/Web/AccessibilityTrait.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml

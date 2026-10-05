@@ -1,9 +1,9 @@
 parameters:
-  behat_steps.backend_registry.class: DrevOps\BehatSteps\Behat\Manager\BackendRegistry
-  behat_steps.authenticator.class: DrevOps\BehatSteps\Behat\Manager\Authenticator
-  behat_steps.basic_authenticator.class: DrevOps\BehatSteps\Behat\Manager\BasicAuthenticator
-  behat_steps.user_registry.class: DrevOps\BehatSteps\Behat\Manager\UserRegistry
-  behat_steps.scenario_tag_registry.class: DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistry
+  behat_steps.backend_registry.class: DrevOps\BehatSteps\Behat\Registry\BackendRegistry
+  behat_steps.authenticator.class: DrevOps\BehatSteps\Behat\Auth\Authenticator
+  behat_steps.basic_authenticator.class: DrevOps\BehatSteps\Behat\Auth\BasicAuthenticator
+  behat_steps.user_registry.class: DrevOps\BehatSteps\Behat\Registry\UserRegistry
+  behat_steps.scenario_tag_registry.class: DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistry
   behat_steps.config.schema_reader.class: DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader
   behat_steps.config.tag_overrides.class: DrevOps\BehatSteps\Behat\Config\TagOverrides
   behat_steps.config.resolver_factory.class: DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory

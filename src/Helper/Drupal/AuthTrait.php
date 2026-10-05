@@ -10,13 +10,13 @@ use DrevOps\BehatSteps\Backend\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterEntityCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\AfterUserCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeEntityCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeUserCreateScope;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 
 /**
  * Creates users and roles, logs them in, and removes them afterwards.

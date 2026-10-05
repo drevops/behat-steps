@@ -8,7 +8,7 @@ use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\ModuleTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;

@@ -8,8 +8,8 @@ use Behat\Behat\EventDispatcher\Event\BeforeScenarioTested;
 use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
 use Behat\Gherkin\Node\TaggedNodeInterface;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
-use DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistryInterface;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -34,9 +34,9 @@ class BackendListener implements EventSubscriberInterface {
   /**
    * Constructs a BackendListener.
    *
-   * @param \DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface $backendRegistry
+   * @param \DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface $backendRegistry
    *   The backend registry.
-   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface $scenarioTagRegistry
+   * @param \DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistryInterface $scenarioTagRegistry
    *   The registry option resolution reads the scenario's tags from.
    * @param array<array-key, string> $backends
    *   The configured backend list, as ordered pairs of tag name to registered

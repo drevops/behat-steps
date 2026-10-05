@@ -7,15 +7,15 @@ namespace DrevOps\BehatSteps\Behat\Context\Initializer;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Initializer\ContextInitializer;
 use Behat\Testwork\Hook\HookDispatcher;
+use DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Context\BackendAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 
 /**
  * Injects the backend registry and its collaborators into a context.
@@ -25,17 +25,17 @@ class BackendAwareInitializer implements ContextInitializer {
   /**
    * Constructs a BackendAwareInitializer object.
    *
-   * @param \DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface $backendRegistry
+   * @param \DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface $backendRegistry
    *   The backend registry.
    * @param array<string, mixed> $parameters
    *   Configuration parameters.
    * @param \Behat\Testwork\Hook\HookDispatcher $hookDispatcher
    *   The hook dispatcher.
-   * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface $basicAuthenticator
+   * @param \DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface $basicAuthenticator
    *   Applies webserver-level basic auth, which needs no Drupal site.
-   * @param \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface $authenticator
+   * @param \DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface $authenticator
    *   Logs a user in and out of the site under test.
-   * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface $userRegistry
+   * @param \DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface $userRegistry
    *   The user registry.
    * @param \DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface $optionResolverFactory
    *   Builds a context's option resolver out of the shared collaborators.

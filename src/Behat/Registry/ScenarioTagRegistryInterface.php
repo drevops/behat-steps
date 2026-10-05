@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Behat\Manager;
+namespace DrevOps\BehatSteps\Behat\Registry;
 
 /**
  * Interface for classes that hold the tags the running scenario carries.

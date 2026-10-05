@@ -6,12 +6,12 @@ namespace DrevOps\BehatSteps\Behat\Context;
 
 use Behat\Behat\Context\Context;
 use Behat\Testwork\Hook\HookDispatcher;
+use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverInterface;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
 
 /**
  * Contract for contexts wired to the backend registry and its collaborators.

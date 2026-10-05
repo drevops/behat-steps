@@ -3,8 +3,8 @@
 ' and 3 representative step traits, plus the exceptions a failing step throws.
 ' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
 ' DrupalContext.php, BackendAwareInterface.php, UserAwareInterface.php,
-' src/Behat/Config/, src/Behat/Prerequisite/, src/Behat/Manager/,
-' src/Behat/Listener/, src/Helper/Web/, src/Helper/Drupal/,
+' src/Behat/Config/, src/Behat/Prerequisite/, src/Behat/Registry/,
+' src/Behat/Auth/, src/Behat/Listener/, src/Helper/Web/, src/Helper/Drupal/,
 ' src/Steps/Web/PathTrait.php, src/Steps/Web/CommandTrait.php,
 ' src/Steps/Drupal/ContentTrait.php, src/Exception/AssertionException.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -74,21 +74,12 @@ package "Behat\\MinkExtension\\Context" #ECEFF1 {
 
 RawMinkContext <|-- WebRawContext
 
-package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Behat\\Registry" #F3E5F5 {
   interface BackendRegistryInterface {
     +getBackendFor(capability) : object
     +getResolvedBackendFor(capability) : object|null
     +hasCapability(capability) : bool
     +setScenarioBackends(backends) : void
-  }
-  interface BasicAuthenticatorInterface {
-    +applyBasicAuth() : void
-    +findCredentials() : array|null
-  }
-  interface AuthenticatorInterface {
-    +login(user) : void
-    +logout() : void
-    +isLoggedIn() : bool
   }
   interface UserRegistryInterface {
     +getCurrentUser() : EntityStubInterface|false
@@ -98,6 +89,18 @@ package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
   interface ScenarioTagRegistryInterface {
     +setTags(tags) : void
     +getTags() : array
+  }
+}
+
+package "DrevOps\\BehatSteps\\Behat\\Auth" #F3E5F5 {
+  interface BasicAuthenticatorInterface {
+    +applyBasicAuth() : void
+    +findCredentials() : array|null
+  }
+  interface AuthenticatorInterface {
+    +login(user) : void
+    +logout() : void
+    +isLoggedIn() : bool
   }
 }
 

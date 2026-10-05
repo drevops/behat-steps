@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
+namespace DrevOps\BehatSteps\Tests\Unit\Behat\Auth;
 
 use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticator;
+use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

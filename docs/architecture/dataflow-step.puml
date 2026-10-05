@@ -4,7 +4,7 @@
 ' src/Steps/Drupal/WatchdogTrait.php, src/Behat/Prerequisite/,
 ' src/Behat/Context/WebRawContext.php, WebContext.php,
 ' src/Helper/Drupal/EntityLifecycleTrait.php, src/Helper/Drupal/AuthTrait.php,
-' DrupalContext.php, src/Behat/Manager/BackendRegistry.php,
+' DrupalContext.php, src/Behat/Registry/BackendRegistry.php,
 ' src/Behat/Listener/SkipTagListener.php,
 ' src/Behat/Listener/BackendListener.php, src/Backend/DrupalBackend.php, behat.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml

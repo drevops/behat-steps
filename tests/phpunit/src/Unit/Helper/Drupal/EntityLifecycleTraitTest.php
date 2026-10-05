@@ -22,15 +22,15 @@ use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
-use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistry;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistry;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
@@ -381,7 +381,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public function testSessionIsResetWhenManagerSupportsFastLogout(): void {
-    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
+    /** @var \DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
     $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
     $authenticator->expects($this->once())->method('fastLogout');
 
@@ -610,7 +610,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
     // The normal path calls 'fastLogout()' even for a scenario that created
     // no users, so the 'never()' expectation proves the early return ran.
-    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
+    /** @var \DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
     $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
     $authenticator->expects($this->never())->method('fastLogout');
 
@@ -762,7 +762,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public function testFastLogoutIsUsedWhenAskedForAndSupported(): void {
-    /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
+    /** @var \DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
     $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
     $authenticator->expects($this->once())->method('fastLogout');
     $authenticator->expects($this->never())->method('logout');
@@ -789,9 +789,9 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    *
    * @param \DrevOps\BehatSteps\Backend\BackendInterface $backend
    *   The backend the registry returns.
-   * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface|null $user_registry
+   * @param \DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface|null $user_registry
    *   The user registry, when the test inspects it.
-   * @param \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface|null $authenticator
+   * @param \DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface|null $authenticator
    *   The authenticator, when the test inspects it.
    * @param \Behat\Testwork\Hook\HookDispatcher|null $dispatcher
    *   The hook dispatcher, when the test needs one that finds hooks.
