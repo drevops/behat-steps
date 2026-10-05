@@ -66,11 +66,11 @@ class BehatStepsExtensionTest extends UnitTestCase {
 
     $mink = $manager->getExtension('mink');
     $this->assertInstanceOf(MinkExtension::class, $mink);
-    $before = $this->minkDriverFactories($mink);
+    $before = $this->readMinkDriverFactories($mink);
 
     $manager->initializeExtensions();
 
-    $after = $this->minkDriverFactories($mink);
+    $after = $this->readMinkDriverFactories($mink);
     $this->assertNotInstanceOf(BrowserKitFactory::class, $before['browserkit_http']);
     $this->assertInstanceOf(BrowserKitFactory::class, $after['browserkit_http']);
     $this->assertSame(array_keys($before), array_keys($after));
@@ -671,7 +671,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * @return array<string, \Behat\MinkExtension\ServiceContainer\Driver\DriverFactory>
    *   The registered factories.
    */
-  protected function minkDriverFactories(MinkExtension $mink): array {
+  protected function readMinkDriverFactories(MinkExtension $mink): array {
     $factories = (new \ReflectionProperty(MinkExtension::class, 'driverFactories'))->getValue($mink);
     $this->assertIsArray($factories);
 

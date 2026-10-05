@@ -92,11 +92,11 @@ class PublicSurfaceTest extends UnitTestCase {
 
   #[DataProvider('dataProviderPublicMethodsAreDocumented')]
   public function testPublicMethodsAreDocumented(string $trait): void {
-    $methods = static::traitOwnMethods($trait);
+    $methods = static::collectTraitOwnMethods($trait);
     $violations = [];
 
     foreach ($methods as $method) {
-      if (!$method->isPublic() || static::methodBehatAttributes($method) !== []) {
+      if (!$method->isPublic() || static::readMethodBehatAttributes($method) !== []) {
         continue;
       }
 
@@ -116,11 +116,11 @@ class PublicSurfaceTest extends UnitTestCase {
 
   #[DataProvider('dataProviderHookMethodsDeclareTheirScope')]
   public function testHookMethodsDeclareTheirScope(string $trait): void {
-    $methods = static::traitOwnMethods($trait);
+    $methods = static::collectTraitOwnMethods($trait);
     $violations = [];
 
     foreach ($methods as $method) {
-      $attributes = static::methodBehatAttributes($method);
+      $attributes = static::readMethodBehatAttributes($method);
 
       foreach ($attributes as $attribute) {
         if (in_array($attribute, static::STEP_ATTRIBUTES, TRUE)) {
@@ -147,7 +147,7 @@ class PublicSurfaceTest extends UnitTestCase {
   #[DataProvider('dataProviderPropertiesDeclareNativeTypes')]
   public function testPropertiesDeclareNativeTypes(string $trait): void {
     $reflection = static::reflect($trait);
-    $composed = static::composedPropertyNames($reflection);
+    $composed = static::collectComposedPropertyNames($reflection);
     $properties = $reflection->getProperties();
     $violations = [];
 
@@ -171,8 +171,8 @@ class PublicSurfaceTest extends UnitTestCase {
   #[DataProvider('dataProviderConstantsDeclareVisibilityAndPrefix')]
   public function testConstantsDeclareVisibilityAndPrefix(string $trait): void {
     $reflection = static::reflect($trait);
-    $composed = static::composedConstantNames($reflection);
-    $prefix = static::traitConstantPrefix($trait);
+    $composed = static::collectComposedConstantNames($reflection);
+    $prefix = static::resolveTraitConstantPrefix($trait);
     $constants = $reflection->getReflectionConstants();
     $violations = [];
 
@@ -183,7 +183,7 @@ class PublicSurfaceTest extends UnitTestCase {
 
       $identifier = $trait . '::' . $constant->getName();
 
-      if (preg_match('/(^|\s)(public|protected|private)\s+const\s/', static::constantDeclaration($reflection, $constant->getName())) !== 1) {
+      if (preg_match('/(^|\s)(public|protected|private)\s+const\s/', static::readConstantDeclaration($reflection, $constant->getName())) !== 1) {
         $violations[] = $identifier . ' declares no visibility.';
       }
 
@@ -208,7 +208,7 @@ class PublicSurfaceTest extends UnitTestCase {
    * @return array<int, \ReflectionMethod>
    *   Methods declared by the trait, excluding those it composes.
    */
-  protected static function traitOwnMethods(string $trait): array {
+  protected static function collectTraitOwnMethods(string $trait): array {
     $reflection = static::reflect($trait);
     $used_traits = $reflection->getTraits();
     $own = $reflection->getMethods();
@@ -238,7 +238,7 @@ class PublicSurfaceTest extends UnitTestCase {
    * @return array<int, string>
    *   Property names that originate in a composed trait.
    */
-  protected static function composedPropertyNames(\ReflectionClass $reflection): array {
+  protected static function collectComposedPropertyNames(\ReflectionClass $reflection): array {
     $used_traits = $reflection->getTraits();
     $names = [];
 
@@ -262,7 +262,7 @@ class PublicSurfaceTest extends UnitTestCase {
    * @return array<int, string>
    *   Constant names that originate in a composed trait.
    */
-  protected static function composedConstantNames(\ReflectionClass $reflection): array {
+  protected static function collectComposedConstantNames(\ReflectionClass $reflection): array {
     $used_traits = $reflection->getTraits();
     $names = [];
 
@@ -289,7 +289,7 @@ class PublicSurfaceTest extends UnitTestCase {
    * @throws \RuntimeException
    *   If the method carries a hook attribute absent from HOOK_SCOPES.
    */
-  protected static function methodBehatAttributes(\ReflectionMethod $method): array {
+  protected static function readMethodBehatAttributes(\ReflectionMethod $method): array {
     $attributes = $method->getAttributes();
     $found = [];
 
@@ -320,7 +320,7 @@ class PublicSurfaceTest extends UnitTestCase {
    * @return string
    *   Upper snake case form of the trait name without its "Trait" suffix.
    */
-  protected static function traitConstantPrefix(string $trait): string {
+  protected static function resolveTraitConstantPrefix(string $trait): string {
     $short = (string) preg_replace('/Trait$/', '', static::reflect($trait)->getShortName());
 
     return strtoupper((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $short));
@@ -340,7 +340,7 @@ class PublicSurfaceTest extends UnitTestCase {
    * @return string
    *   The declaring line, or an empty string when it cannot be located.
    */
-  protected static function constantDeclaration(\ReflectionClass $reflection, string $name): string {
+  protected static function readConstantDeclaration(\ReflectionClass $reflection, string $name): string {
     $file = $reflection->getFileName();
 
     // @codeCoverageIgnoreStart

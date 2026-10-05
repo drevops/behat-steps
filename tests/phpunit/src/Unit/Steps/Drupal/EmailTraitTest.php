@@ -118,7 +118,7 @@ class EmailTraitTest extends UnitTestCase {
     yield 'partial, part in another case' => [static::MESSAGES, 'verification', TRUE, NULL];
     yield 'no collected emails' => [[], 'Account Verification', FALSE, NULL];
     yield 'email without a subject' => [[['params' => ['body' => 'No subject']]], 'Account Verification', TRUE, NULL];
-    yield 'subject held as markup' => [[['subject' => static::stringable('Account Verification')]], 'Account Verification', FALSE, 0];
+    yield 'subject held as markup' => [[['subject' => static::createStringable('Account Verification')]], 'Account Verification', FALSE, 0];
   }
 
   public function testGetMessageBySubject(): void {
@@ -237,7 +237,7 @@ class EmailTraitTest extends UnitTestCase {
   /**
    * Returns an anonymous Stringable that mimics a Drupal TranslatableMarkup.
    */
-  protected static function stringable(string $value): \Stringable {
+  protected static function createStringable(string $value): \Stringable {
     return new readonly class($value) {
 
       public function __construct(protected string $value) {}

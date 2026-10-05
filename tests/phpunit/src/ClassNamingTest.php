@@ -31,7 +31,7 @@ class ClassNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderClassIsNamedForItsRole')]
   public function testClassIsNamedForItsRole(string $class): void {
-    $this->assertSame([], static::genericNames($class), sprintf('%s is named against the convention in CONTRIBUTING.md.', $class));
+    $this->assertSame([], static::collectGenericNames($class), sprintf('%s is named against the convention in CONTRIBUTING.md.', $class));
   }
 
   public static function dataProviderClassIsNamedForItsRole(): array {
@@ -48,7 +48,7 @@ class ClassNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderGenericNamesAreDetected')]
   public function testGenericNamesAreDetected(string $class, array $expected): void {
-    $this->assertSame($expected, static::genericNames($class));
+    $this->assertSame($expected, static::collectGenericNames($class));
   }
 
   public static function dataProviderGenericNamesAreDetected(): array {
@@ -101,7 +101,7 @@ class ClassNamingTest extends UnitTestCase {
    * @return array<int, string>
    *   The generic names, in the order the class name holds them.
    */
-  protected static function genericNames(string $class): array {
+  protected static function collectGenericNames(string $class): array {
     return array_values(array_filter(explode('\\', $class), static::isGeneric(...)));
   }
 

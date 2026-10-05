@@ -117,7 +117,7 @@ class TraitOptionResolverTest extends UnitTestCase {
 
   public function testTheTagsAreReadOnEveryAccess(): void {
     $registry = new ScenarioTagRegistry();
-    $resolver = new TraitOptionResolver(static::CONTEXT, static::declarations(), [], [], $registry, new TagOverrides());
+    $resolver = new TraitOptionResolver(static::CONTEXT, static::declareOptions(), [], [], $registry, new TagOverrides());
 
     $this->assertTrue($resolver->bool('sample', 'enabled'));
 
@@ -263,7 +263,7 @@ class TraitOptionResolverTest extends UnitTestCase {
     $registry = new ScenarioTagRegistry();
     $registry->setTags($tags);
 
-    return new TraitOptionResolver(static::CONTEXT, static::declarations(), $config, $steps, $registry, new TagOverrides());
+    return new TraitOptionResolver(static::CONTEXT, static::declareOptions(), $config, $steps, $registry, new TagOverrides());
   }
 
   /**
@@ -272,7 +272,7 @@ class TraitOptionResolverTest extends UnitTestCase {
    * @return array<string, array<string, \DrevOps\BehatSteps\Behat\Config\Option>>
    *   Options keyed by group name and then by option name.
    */
-  protected static function declarations(): array {
+  protected static function declareOptions(): array {
     return [
       'other_sample' => [
         'selectors' => new Option('selectors', default: ['.one', '.two'], description: 'A map option.'),

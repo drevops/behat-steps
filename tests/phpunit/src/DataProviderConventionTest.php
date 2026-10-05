@@ -35,10 +35,10 @@ class DataProviderConventionTest extends UnitTestCase {
 
     $violations = [];
 
-    foreach (static::ownMethods($reflection) as $test) {
+    foreach (static::collectOwnMethods($reflection) as $test) {
       $expected = 'dataProvider' . substr($test->getName(), strlen('test'));
 
-      foreach (static::providerNames($test) as $name) {
+      foreach (static::readProviderNames($test) as $name) {
         if ($name !== $expected) {
           $violations[] = sprintf('%s() is served by %s(), not %s().', $test->getName(), $name, $expected);
         }
@@ -67,8 +67,8 @@ class DataProviderConventionTest extends UnitTestCase {
 
     $violations = [];
 
-    foreach (static::ownMethods($reflection) as $test) {
-      foreach (static::providerNames($test) as $name) {
+    foreach (static::collectOwnMethods($reflection) as $test) {
+      foreach (static::readProviderNames($test) as $name) {
         if (!$reflection->hasMethod($name)) {
           continue;
         }
@@ -104,13 +104,13 @@ class DataProviderConventionTest extends UnitTestCase {
 
     $violations = [];
 
-    foreach (static::ownMethods($reflection) as $provider) {
+    foreach (static::collectOwnMethods($reflection) as $provider) {
       if (!str_starts_with($provider->getName(), 'dataProvider') || $provider->isAbstract()) {
         continue;
       }
 
       $expected = $provider->isGenerator() ? \Iterator::class : 'array';
-      $declared = static::returnTypeName($provider);
+      $declared = static::readReturnTypeName($provider);
 
       if ($declared !== $expected) {
         $violations[] = sprintf('%s() %s but declares %s instead of %s.', $provider->getName(), $provider->isGenerator() ? 'is a generator' : 'is not a generator', $declared, $expected);
@@ -172,7 +172,7 @@ class DataProviderConventionTest extends UnitTestCase {
    * @return array<int, \ReflectionMethod>
    *   Methods declared by the class itself.
    */
-  protected static function ownMethods(\ReflectionClass $reflection): array {
+  protected static function collectOwnMethods(\ReflectionClass $reflection): array {
     return array_values(array_filter($reflection->getMethods(), static fn(\ReflectionMethod $method): bool => $method->getDeclaringClass()->getName() === $reflection->getName()));
   }
 
@@ -185,7 +185,7 @@ class DataProviderConventionTest extends UnitTestCase {
    * @return array<int, string>
    *   Provider method names, in declaration order.
    */
-  protected static function providerNames(\ReflectionMethod $test): array {
+  protected static function readProviderNames(\ReflectionMethod $test): array {
     $names = [];
 
     foreach ($test->getAttributes(DataProvider::class) as $attribute) {
@@ -204,7 +204,7 @@ class DataProviderConventionTest extends UnitTestCase {
    * @return string
    *   The type name, or `no return type` when none is declared.
    */
-  protected static function returnTypeName(\ReflectionMethod $method): string {
+  protected static function readReturnTypeName(\ReflectionMethod $method): string {
     $type = $method->getReturnType();
 
     if ($type === NULL) {

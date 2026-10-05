@@ -187,7 +187,7 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
    * A handler that uploads writes a new File, and the test asserts against the
    * most recent one rather than an id fixed in advance.
    */
-  protected function latestFileId(): int {
+  protected function getLatestFileId(): int {
     $ids = \Drupal::entityTypeManager()
       ->getStorage('file')
       ->getQuery()

@@ -29,7 +29,7 @@ class HttpClientFactoryTest extends UnitTestCase {
   protected array $requests = [];
 
   public function testTransportWithoutOptionsIsTheClient(): void {
-    $client = $this->recordingClient();
+    $client = $this->createRecordingClient();
 
     $this->assertSame($client, HttpClientFactory::createTransport([], 'http://example.com', $client));
   }
@@ -46,11 +46,11 @@ class HttpClientFactoryTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderTransportScopesOptionsToTheSite')]
   public function testTransportScopesOptionsToTheSite(string $base_url, string $url, bool $expected): void {
-    $transport = HttpClientFactory::createTransport(['headers' => ['X-Site' => 'yes']], $base_url, $this->recordingClient());
+    $transport = HttpClientFactory::createTransport(['headers' => ['X-Site' => 'yes']], $base_url, $this->createRecordingClient());
 
     $transport->request('GET', $url)->getContent();
 
-    $this->assertSame($expected ? 'yes' : NULL, $this->requestHeader(0, 'X-Site'));
+    $this->assertSame($expected ? 'yes' : NULL, $this->readRequestHeader(0, 'X-Site'));
   }
 
   public static function dataProviderTransportScopesOptionsToTheSite(): \Iterator {
@@ -67,15 +67,15 @@ class HttpClientFactoryTest extends UnitTestCase {
   }
 
   public function testTransportAppliesOptionsEverywhereWithoutSiteHost(): void {
-    $transport = HttpClientFactory::createTransport(['headers' => ['X-Site' => 'yes']], NULL, $this->recordingClient());
+    $transport = HttpClientFactory::createTransport(['headers' => ['X-Site' => 'yes']], NULL, $this->createRecordingClient());
 
     $transport->request('GET', 'https://cdn.example.org/engine.js')->getContent();
 
-    $this->assertSame('yes', $this->requestHeader(0, 'X-Site'));
+    $this->assertSame('yes', $this->readRequestHeader(0, 'X-Site'));
   }
 
   public function testBareBrowserCarriesTheSettingsAndNoState(): void {
-    $factory = new HttpClientFactory($this->recordingClient(), 'http://example.com');
+    $factory = new HttpClientFactory($this->createRecordingClient(), 'http://example.com');
 
     $browser = $factory->createBare(['timeout' => 7]);
     $browser->request('GET', 'http://example.com/file');
@@ -83,8 +83,8 @@ class HttpClientFactoryTest extends UnitTestCase {
     $this->assertInstanceOf(HttpBrowser::class, $browser);
     $this->assertSame('Response body', $browser->getInternalResponse()->getContent());
     $this->assertEqualsWithDelta(7.0, $this->requests[0]['options']['timeout'], 0.001);
-    $this->assertNull($this->requestHeader(0, 'Cookie'));
-    $this->assertNull($this->requestHeader(0, 'Authorization'));
+    $this->assertNull($this->readRequestHeader(0, 'Cookie'));
+    $this->assertNull($this->readRequestHeader(0, 'Authorization'));
   }
 
   /**
@@ -101,14 +101,14 @@ class HttpClientFactoryTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDetachedBrowserSendsTheIdentityToTheSite')]
   public function testDetachedBrowserSendsTheIdentityToTheSite(string $url, ?string $cookie, ?string $token, ?string $authorization): void {
-    $factory = new HttpClientFactory($this->recordingClient(), 'http://example.com');
+    $factory = new HttpClientFactory($this->createRecordingClient(), 'http://example.com');
     $identity = new HttpIdentity(['SESS' => 'abc'], 'http://example.com/page', ['X-Token' => 't1'], ['username' => 'bob', 'password' => 'pw']);
 
     $factory->createDetached($identity)->request('GET', $url);
 
-    $this->assertSame($cookie, $this->requestHeader(0, 'Cookie'));
-    $this->assertSame($token, $this->requestHeader(0, 'X-Token'));
-    $this->assertSame($authorization, $this->requestHeader(0, 'Authorization'));
+    $this->assertSame($cookie, $this->readRequestHeader(0, 'Cookie'));
+    $this->assertSame($token, $this->readRequestHeader(0, 'X-Token'));
+    $this->assertSame($authorization, $this->readRequestHeader(0, 'Authorization'));
   }
 
   public static function dataProviderDetachedBrowserSendsTheIdentityToTheSite(): \Iterator {
@@ -118,31 +118,31 @@ class HttpClientFactoryTest extends UnitTestCase {
   }
 
   public function testDetachedAuthorizationHeaderWinsOverCredentials(): void {
-    $factory = new HttpClientFactory($this->recordingClient(), 'http://example.com');
+    $factory = new HttpClientFactory($this->createRecordingClient(), 'http://example.com');
     $identity = new HttpIdentity([], '', ['Authorization' => 'Bearer t2'], ['username' => 'bob', 'password' => 'pw']);
 
     $factory->createDetached($identity)->request('GET', 'http://example.com/file');
 
-    $this->assertSame('Bearer t2', $this->requestHeader(0, 'Authorization'));
+    $this->assertSame('Bearer t2', $this->readRequestHeader(0, 'Authorization'));
   }
 
   public function testDetachedBrowserWithoutPageSendsNoCookies(): void {
-    $factory = new HttpClientFactory($this->recordingClient(), 'http://example.com');
+    $factory = new HttpClientFactory($this->createRecordingClient(), 'http://example.com');
 
     $factory->createDetached(new HttpIdentity(['SESS' => 'abc']))->request('GET', 'http://example.com/file');
 
-    $this->assertNull($this->requestHeader(0, 'Cookie'));
+    $this->assertNull($this->readRequestHeader(0, 'Cookie'));
   }
 
   public function testDetachedBrowserWithoutSiteHostSendsOnlyCookies(): void {
-    $factory = new HttpClientFactory($this->recordingClient());
+    $factory = new HttpClientFactory($this->createRecordingClient());
     $identity = new HttpIdentity(['SESS' => 'abc'], 'http://example.com/page', ['X-Token' => 't1'], ['username' => 'bob', 'password' => 'pw']);
 
     $factory->createDetached($identity, ['timeout' => 3])->request('GET', 'http://example.com/file');
 
-    $this->assertSame('SESS=abc', $this->requestHeader(0, 'Cookie'));
-    $this->assertNull($this->requestHeader(0, 'X-Token'));
-    $this->assertNull($this->requestHeader(0, 'Authorization'));
+    $this->assertSame('SESS=abc', $this->readRequestHeader(0, 'Cookie'));
+    $this->assertNull($this->readRequestHeader(0, 'X-Token'));
+    $this->assertNull($this->readRequestHeader(0, 'Authorization'));
     $this->assertEqualsWithDelta(3.0, $this->requests[0]['options']['timeout'], 0.001);
   }
 
@@ -158,7 +158,7 @@ class HttpClientFactoryTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderBrowserOptionsWinOverTheSiteOptions')]
   public function testBrowserOptionsWinOverTheSiteOptions(string $browser, string $url, ?string $site_header): void {
-    $transport = HttpClientFactory::createTransport(['timeout' => 30, 'headers' => ['X-Site' => 'yes', 'X-Shared' => 'site']], 'http://example.com', $this->recordingClient());
+    $transport = HttpClientFactory::createTransport(['timeout' => 30, 'headers' => ['X-Site' => 'yes', 'X-Shared' => 'site']], 'http://example.com', $this->createRecordingClient());
     $factory = new HttpClientFactory($transport, 'http://example.com');
     $options = ['timeout' => 7, 'headers' => ['X-Shared' => 'browser']];
 
@@ -166,8 +166,8 @@ class HttpClientFactoryTest extends UnitTestCase {
     $client->request('GET', $url);
 
     $this->assertEqualsWithDelta(7.0, $this->requests[0]['options']['timeout'], 0.001);
-    $this->assertSame('browser', $this->requestHeader(0, 'X-Shared'));
-    $this->assertSame($site_header, $this->requestHeader(0, 'X-Site'));
+    $this->assertSame('browser', $this->readRequestHeader(0, 'X-Shared'));
+    $this->assertSame($site_header, $this->readRequestHeader(0, 'X-Site'));
   }
 
   public static function dataProviderBrowserOptionsWinOverTheSiteOptions(): \Iterator {
@@ -178,7 +178,7 @@ class HttpClientFactoryTest extends UnitTestCase {
   }
 
   public function testWithTransportDecoratesEveryBrowserOfTheCopy(): void {
-    $transport = $this->recordingClient();
+    $transport = $this->createRecordingClient();
     $factory = new HttpClientFactory($transport, 'http://example.com');
     $received = NULL;
 
@@ -194,15 +194,15 @@ class HttpClientFactoryTest extends UnitTestCase {
 
     $this->assertSame($transport, $received);
     $this->assertNotSame($factory, $decorated);
-    $this->assertSame('yes', $this->requestHeader(0, 'X-Decorated'));
-    $this->assertSame('yes', $this->requestHeader(1, 'X-Decorated'));
-    $this->assertNull($this->requestHeader(2, 'X-Decorated'));
+    $this->assertSame('yes', $this->readRequestHeader(0, 'X-Decorated'));
+    $this->assertSame('yes', $this->readRequestHeader(1, 'X-Decorated'));
+    $this->assertNull($this->readRequestHeader(2, 'X-Decorated'));
   }
 
   /**
    * Returns a client that records each request and answers it.
    */
-  protected function recordingClient(): MockHttpClient {
+  protected function createRecordingClient(): MockHttpClient {
     return new MockHttpClient(function (string $method, string $url, array $options): MockResponse {
       $this->requests[] = ['url' => $url, 'options' => $options];
 
@@ -221,7 +221,7 @@ class HttpClientFactoryTest extends UnitTestCase {
    * @return string|null
    *   The header value, or NULL when the request carried no such header.
    */
-  protected function requestHeader(int $index, string $name): ?string {
+  protected function readRequestHeader(int $index, string $name): ?string {
     $lines = $this->requests[$index]['options']['normalized_headers'][strtolower($name)] ?? [];
 
     if (!is_array($lines) || !isset($lines[0]) || !is_string($lines[0])) {

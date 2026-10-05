@@ -66,7 +66,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
     $this->core->createEntity($stub);
 
     $this->assertSame((int) $existing->id(), (int) $this->loadFieldTargetId($stub->getValue('id'), 'field_attachment'));
-    $this->assertSame(1, $this->fileEntityCount(), 'A second managed file was created instead of reusing the existing one.');
+    $this->assertSame(1, $this->countFileEntities(), 'A second managed file was created instead of reusing the existing one.');
   }
 
   /**
@@ -85,7 +85,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
     $this->core->createEntity($stub);
 
     $this->assertSame((int) $existing->id(), (int) $this->loadFieldTargetId($stub->getValue('id'), 'field_attachment'));
-    $this->assertSame(1, $this->fileEntityCount());
+    $this->assertSame(1, $this->countFileEntities());
   }
 
   /**
@@ -119,7 +119,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Returns the total number of managed File entities currently in storage.
    */
-  protected function fileEntityCount(): int {
+  protected function countFileEntities(): int {
     return (int) \Drupal::entityTypeManager()
       ->getStorage('file')
       ->getQuery()

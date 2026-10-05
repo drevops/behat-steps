@@ -32,7 +32,7 @@ class UserRegistryTest extends UnitTestCase {
 
   public function testSetAndGetCurrentUser(): void {
     $registry = new UserRegistry();
-    $user = static::userStub(['name' => 'admin']);
+    $user = static::createUserStub(['name' => 'admin']);
 
     $registry->setCurrentUser($user);
 
@@ -41,7 +41,7 @@ class UserRegistryTest extends UnitTestCase {
 
   public function testSetCurrentUserToFalse(): void {
     $registry = new UserRegistry();
-    $registry->setCurrentUser(static::userStub(['name' => 'admin']));
+    $registry->setCurrentUser(static::createUserStub(['name' => 'admin']));
 
     $registry->setCurrentUser(FALSE);
 
@@ -50,7 +50,7 @@ class UserRegistryTest extends UnitTestCase {
 
   public function testAddAndGetUser(): void {
     $registry = new UserRegistry();
-    $user = static::userStub(['name' => 'editor']);
+    $user = static::createUserStub(['name' => 'editor']);
 
     $registry->addUser($user);
 
@@ -68,7 +68,7 @@ class UserRegistryTest extends UnitTestCase {
 
   public function testRemoveUser(): void {
     $registry = new UserRegistry();
-    $registry->addUser(static::userStub(['name' => 'editor']));
+    $registry->addUser(static::createUserStub(['name' => 'editor']));
 
     $registry->removeUser('editor');
 
@@ -78,8 +78,8 @@ class UserRegistryTest extends UnitTestCase {
 
   public function testGetUsersReturnsAll(): void {
     $registry = new UserRegistry();
-    $user_a = static::userStub(['name' => 'alice']);
-    $user_b = static::userStub(['name' => 'bob']);
+    $user_a = static::createUserStub(['name' => 'alice']);
+    $user_b = static::createUserStub(['name' => 'bob']);
     $registry->addUser($user_a);
     $registry->addUser($user_b);
 
@@ -98,8 +98,8 @@ class UserRegistryTest extends UnitTestCase {
 
   public function testClearUsers(): void {
     $registry = new UserRegistry();
-    $registry->setCurrentUser(static::userStub(['name' => 'admin']));
-    $registry->addUser(static::userStub(['name' => 'editor']));
+    $registry->setCurrentUser(static::createUserStub(['name' => 'admin']));
+    $registry->addUser(static::createUserStub(['name' => 'editor']));
 
     $registry->clearUsers();
 
@@ -127,8 +127,8 @@ class UserRegistryTest extends UnitTestCase {
 
   public static function dataProviderHasUsers(): \Iterator {
     yield 'no users' => [[], FALSE];
-    yield 'one user' => [[static::userStub(['name' => 'alice'])], TRUE];
-    yield 'multiple users' => [[static::userStub(['name' => 'alice']), static::userStub(['name' => 'bob'])], TRUE];
+    yield 'one user' => [[static::createUserStub(['name' => 'alice'])], TRUE];
+    yield 'multiple users' => [[static::createUserStub(['name' => 'alice']), static::createUserStub(['name' => 'bob'])], TRUE];
   }
 
   #[DataProvider('dataProviderCurrentUserIsAnonymous')]
@@ -141,7 +141,7 @@ class UserRegistryTest extends UnitTestCase {
 
   public static function dataProviderCurrentUserIsAnonymous(): \Iterator {
     yield 'false is anonymous' => [FALSE, TRUE];
-    yield 'user stub is not anonymous' => [static::userStub(['name' => 'admin']), FALSE];
+    yield 'user stub is not anonymous' => [static::createUserStub(['name' => 'admin']), FALSE];
   }
 
   #[DataProvider('dataProviderCurrentUserHasRole')]
@@ -154,15 +154,15 @@ class UserRegistryTest extends UnitTestCase {
 
   public static function dataProviderCurrentUserHasRole(): \Iterator {
     yield 'anonymous has no role' => [FALSE, 'admin', FALSE];
-    yield 'user without role property' => [static::userStub(['name' => 'alice']), 'editor', FALSE];
-    yield 'user with matching role' => [static::userStub(['name' => 'alice', 'role' => 'editor']), 'editor', TRUE];
-    yield 'user with non-matching role' => [static::userStub(['name' => 'alice', 'role' => 'editor']), 'admin', FALSE];
-    yield 'user with empty role' => [static::userStub(['name' => 'alice', 'role' => '']), 'editor', FALSE];
-    yield 'query is empty' => [static::userStub(['name' => 'alice', 'role' => 'editor']), '', FALSE];
-    yield 'one of several held roles' => [static::userStub(['name' => 'alice', 'role' => 'editor, reviewer']), 'reviewer', TRUE];
-    yield 'every queried role is held' => [static::userStub(['name' => 'alice', 'role' => 'editor, reviewer']), 'reviewer,editor', TRUE];
-    yield 'one queried role is missing' => [static::userStub(['name' => 'alice', 'role' => 'editor, reviewer']), 'editor, admin', FALSE];
-    yield 'whitespace around a role is ignored' => [static::userStub(['name' => 'alice', 'role' => ' editor ']), ' editor ', TRUE];
+    yield 'user without role property' => [static::createUserStub(['name' => 'alice']), 'editor', FALSE];
+    yield 'user with matching role' => [static::createUserStub(['name' => 'alice', 'role' => 'editor']), 'editor', TRUE];
+    yield 'user with non-matching role' => [static::createUserStub(['name' => 'alice', 'role' => 'editor']), 'admin', FALSE];
+    yield 'user with empty role' => [static::createUserStub(['name' => 'alice', 'role' => '']), 'editor', FALSE];
+    yield 'query is empty' => [static::createUserStub(['name' => 'alice', 'role' => 'editor']), '', FALSE];
+    yield 'one of several held roles' => [static::createUserStub(['name' => 'alice', 'role' => 'editor, reviewer']), 'reviewer', TRUE];
+    yield 'every queried role is held' => [static::createUserStub(['name' => 'alice', 'role' => 'editor, reviewer']), 'reviewer,editor', TRUE];
+    yield 'one queried role is missing' => [static::createUserStub(['name' => 'alice', 'role' => 'editor, reviewer']), 'editor, admin', FALSE];
+    yield 'whitespace around a role is ignored' => [static::createUserStub(['name' => 'alice', 'role' => ' editor ']), ' editor ', TRUE];
   }
 
   /**
@@ -171,7 +171,7 @@ class UserRegistryTest extends UnitTestCase {
    * @param array<string, mixed> $values
    *   The values to seed the stub with.
    */
-  protected static function userStub(array $values): EntityStubInterface {
+  protected static function createUserStub(array $values): EntityStubInterface {
     return new EntityStub('user', NULL, $values);
   }
 

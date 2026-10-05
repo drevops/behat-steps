@@ -36,7 +36,7 @@ class CapabilityContractTest extends UnitTestCase {
   }
 
   public static function dataProviderCreateReturnsStub(): \Iterator {
-    yield from static::capabilityMethods('/^(?:create|place)[A-Z]/');
+    yield from static::collectCapabilityMethods('/^(?:create|place)[A-Z]/');
   }
 
   /**
@@ -59,7 +59,7 @@ class CapabilityContractTest extends UnitTestCase {
   public static function dataProviderDeleteReturnsVoid(): \Iterator {
     // An entity delete opens with its verb, while the config and state
     // deletes keep their subsystem prefix: 'deleteNode()', 'configDelete()'.
-    yield from static::capabilityMethods('/^delete[A-Z]|Delete$/');
+    yield from static::collectCapabilityMethods('/^delete[A-Z]|Delete$/');
   }
 
   /**
@@ -71,7 +71,7 @@ class CapabilityContractTest extends UnitTestCase {
    * @return \Iterator<string, array{class-string, string}>
    *   Interface and method name pairs, keyed by 'Interface::method'.
    */
-  protected static function capabilityMethods(string $pattern): \Iterator {
+  protected static function collectCapabilityMethods(string $pattern): \Iterator {
     $files = glob(realpath(__DIR__ . '/../../../src/Backend/Capability') . '/*Interface.php') ?: [];
 
     foreach ($files as $file) {

@@ -59,7 +59,7 @@ class FileHandlerKernelTest extends FieldHandlerKernelTestBase {
 
     $this->assertFieldRoundTripViaBackend('field_attachment', [$fixture]);
 
-    $file_id = $this->latestFileId();
+    $file_id = $this->getLatestFileId();
     $this->assertInstanceOf(File::class, File::load($file_id));
   }
 

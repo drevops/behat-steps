@@ -102,10 +102,10 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderMethodsArePrefixed')]
   public function testMethodsArePrefixed(string $trait, string $file): void {
     $reflection = static::reflect($trait);
-    $prefix = static::traitPrefix($reflection->getShortName());
+    $prefix = static::deriveTraitPrefix($reflection->getShortName());
 
     $violations = [];
-    foreach (static::traitOwnMethodNames($trait, $file) as $name) {
+    foreach (static::collectTraitOwnMethodNames($trait, $file) as $name) {
       if (static::hasPrefix($name, $prefix)) {
         continue;
       }
@@ -136,12 +136,12 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderAssertionsOpenWithAssert')]
   public function testAssertionsOpenWithAssert(string $trait, string $file): void {
-    $prefix = static::traitPrefix(static::reflect($trait)->getShortName());
+    $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
-    foreach (static::traitOwnMethods($trait, $file) as $method) {
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       $name = $method->getName();
-      $is_assertion = $method->getAttributes(Then::class) !== [] || (!static::isRegistered($method) && str_starts_with(static::docblockSummary($method), 'Assert'));
+      $is_assertion = $method->getAttributes(Then::class) !== [] || (!static::isRegistered($method) && str_starts_with(static::readDocblockSummary($method), 'Assert'));
 
       if ((!$is_assertion && preg_match('/Assert(?![a-z])/', $name) !== 1) || str_starts_with($name, $prefix . 'Assert')) {
         continue;
@@ -167,7 +167,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderAssertionsNameWhatTheyAssert')]
   public function testAssertionsNameWhatTheyAssert(string $trait, string $file): void {
-    $violations = array_values(array_filter(static::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert(?:Not)?$/', $name) === 1));
+    $violations = array_values(array_filter(static::collectTraitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert(?:Not)?$/', $name) === 1));
 
     $this->assertSame([], $violations, 'Follow "Assert" with the subject or the predicate it asserts: "messageAssertExistsOfType", not "messageAssert".');
   }
@@ -191,8 +191,8 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderAssertionsFailWithAssertionException')]
   public function testAssertionsFailWithAssertionException(string $trait, string $file): void {
     $violations = [];
-    foreach (static::traitOwnMethods($trait, $file) as $method) {
-      $thrown = static::thrownExceptionNames($method);
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
+      $thrown = static::collectThrownExceptionNames($method);
 
       if (preg_match('/Assert(?![a-z])/', $method->getName()) !== 1 || $thrown === [] || array_intersect($thrown, static::ASSERTION_EXCEPTIONS) !== []) {
         continue;
@@ -223,7 +223,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderNegationSpelledNot')]
   public function testNegationSpelledNot(string $trait, string $file): void {
-    $violations = array_values(array_filter(static::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/(?:No|DoesNot|DoNot)[A-Z]/', $name) === 1));
+    $violations = array_values(array_filter(static::collectTraitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/(?:No|DoesNot|DoNot)[A-Z]/', $name) === 1));
 
     $this->assertSame([], $violations, 'Negate with a bare "Not" placed before the predicate: "userAssertNotHasRoles", not "userAssertHasNoRoles" or "userAssertDoesNotHaveRoles".');
   }
@@ -251,7 +251,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $predicates = implode('|', static::PREDICATES);
     $pattern = sprintf('/Assert(?:(?!%2$s)[A-Z][a-z0-9]*)*?(?:%1$s)(?=[A-Z])[A-Za-z0-9]*?(?:%2$s)(?![a-z])|Assert[A-Za-z0-9]*?Not(?:%1$s)(?=[A-Z])/', $qualifiers, $predicates);
 
-    $violations = array_values(array_filter(static::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match($pattern, $name) === 1));
+    $violations = array_values(array_filter(static::collectTraitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match($pattern, $name) === 1));
 
     $this->assertSame([], $violations, 'Place a qualifier after the predicate so "Not" sits directly after the subject: "cookieAssertNotExistsWithName", not "cookieAssertWithNameNotExists", and "tableAssertLinkNotExistsInRow", not "tableAssertLinkNotInRow".');
   }
@@ -274,7 +274,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderNegativeMirrorsPositive')]
   public function testNegativeMirrorsPositive(string $trait, string $file): void {
     $names = [];
-    foreach (static::traitOwnMethods($trait, $file) as $method) {
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       foreach ($method->getAttributes(Then::class) as $attribute) {
         $names[(string) $attribute->newInstance()->getPattern()] = $method->getName();
       }
@@ -284,7 +284,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     foreach ($names as $step => $name) {
       $positive = $names[preg_replace('/ should not /', ' should ', $step, 1)] ?? NULL;
 
-      if (!str_contains($step, ' should not ') || $positive === NULL || static::insertsNot($positive, $name)) {
+      if (!str_contains($step, ' should not ') || $positive === NULL || static::isNegatedName($positive, $name)) {
         continue;
       }
 
@@ -314,10 +314,10 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderNavigationStepsOpenWithVisit')]
   public function testNavigationStepsOpenWithVisit(string $trait, string $file): void {
-    $prefix = static::traitPrefix(static::reflect($trait)->getShortName());
+    $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
-    foreach (static::traitOwnMethods($trait, $file) as $method) {
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       foreach ($method->getAttributes(When::class) as $attribute) {
         $step = (string) $attribute->newInstance()->getPattern();
 
@@ -355,7 +355,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderAssertionsCarryNoCopula')]
   public function testAssertionsCarryNoCopula(string $trait, string $file): void {
-    $violations = array_values(array_filter(static::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Is[A-Z]/', $name) === 1));
+    $violations = array_values(array_filter(static::collectTraitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Is[A-Z]/', $name) === 1));
 
     $this->assertSame([], $violations, 'Drop the "Is" copula from assertion names: "elementAssertVisible" and "elementAssertNotVisible", not "elementAssertIsVisible" and "elementAssertIsNotVisible".');
   }
@@ -378,7 +378,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderHasNamesWhatSubjectHolds')]
   public function testHasNamesWhatSubjectHolds(string $trait, string $file): void {
-    $violations = array_values(array_filter(static::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Has(?:(?:Content|Value|Text)(?![a-z])|[A-Z][A-Za-z0-9]*?(?:With|Containing)(?=[A-Z]))/', $name) === 1));
+    $violations = array_values(array_filter(static::collectTraitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Has(?:(?:Content|Value|Text)(?![a-z])|[A-Z][A-Za-z0-9]*?(?:With|Containing)(?=[A-Z]))/', $name) === 1));
 
     $this->assertSame([], $violations, 'Keep "Has" for something the subject holds, and compare a value with "Equals" or "Contains": "stateAssertValueEquals", not "stateAssertHasValue", and "elementAssertCssPropertyEquals", not "elementAssertHasCssPropertyWithValue".');
   }
@@ -400,7 +400,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderPredicatesSpelledExistsAndContains')]
   public function testPredicatesSpelledExistsAndContains(string $trait, string $file): void {
-    $violations = array_values(array_filter(static::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*(?:Absent|Includes?|Including|Missing|Presence|Present)(?![a-z])/', $name) === 1));
+    $violations = array_values(array_filter(static::collectTraitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*(?:Absent|Includes?|Including|Missing|Presence|Present)(?![a-z])/', $name) === 1));
 
     $this->assertSame([], $violations, 'Spell existence "Exists" or "Exist" and containment "Contains": "metatagAssertRobotsContains", not "metatagAssertRobotsIncludes", and "metatagAssertMetaSetExists", not "metatagAssertMetaSetPresent".');
   }
@@ -419,7 +419,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderSpellingIsAmerican')]
   public function testSpellingIsAmerican(string $trait, string $file): void {
-    $violations = array_values(array_filter(static::traitOwnMethodNames($trait, $file), static fn(string $name): bool => stripos($name, 'normalise') !== FALSE));
+    $violations = array_values(array_filter(static::collectTraitOwnMethodNames($trait, $file), static fn(string $name): bool => stripos($name, 'normalise') !== FALSE));
 
     $this->assertSame([], $violations, 'Spell it "Normalize", not "Normalise".');
   }
@@ -438,7 +438,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderLoginSpelledAsNoun')]
   public function testLoginSpelledAsNoun(string $trait, string $file): void {
-    $violations = array_values(array_filter(static::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Log(?:In|Out)(?![a-z])/', $name) === 1));
+    $violations = array_values(array_filter(static::collectTraitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Log(?:In|Out)(?![a-z])/', $name) === 1));
 
     $this->assertSame([], $violations, 'Spell it "Login" and "Logout", not "LogIn" and "LogOut": "userLoginAs", not "userLogInAs".');
   }
@@ -461,7 +461,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderFindReturnsNullable')]
   public function testFindReturnsNullable(string $trait, string $file): void {
     $violations = [];
-    foreach (static::traitOwnMethodsWithVerb($trait, $file, 'Find') as $method) {
+    foreach (static::collectTraitOwnMethodsWithVerb($trait, $file, 'Find') as $method) {
       $type = $method->getReturnType();
 
       if ($type instanceof \ReflectionType && $type->allowsNull()) {
@@ -492,7 +492,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderGetNeverReturnsNull')]
   public function testGetNeverReturnsNull(string $trait, string $file): void {
     $violations = [];
-    foreach (static::traitOwnMethodsWithVerb($trait, $file, 'Get') as $method) {
+    foreach (static::collectTraitOwnMethodsWithVerb($trait, $file, 'Get') as $method) {
       $type = $method->getReturnType();
 
       if ($type instanceof \ReflectionType && (!$type->allowsNull() || ($type instanceof \ReflectionNamedType && $type->getName() === 'mixed'))) {
@@ -523,7 +523,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderLoadReturnsSet')]
   public function testLoadReturnsSet(string $trait, string $file): void {
     $violations = [];
-    foreach (static::traitOwnMethodsWithVerb($trait, $file, 'Load') as $method) {
+    foreach (static::collectTraitOwnMethodsWithVerb($trait, $file, 'Load') as $method) {
       $type = $method->getReturnType();
 
       if ($type instanceof \ReflectionNamedType && in_array($type->getName(), ['array', 'void'], TRUE) && !$type->allowsNull()) {
@@ -555,7 +555,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderHelpersCarryVerb')]
   public function testHelpersCarryVerb(string $trait, string $file): void {
     $violations = [];
-    foreach (static::traitOwnMethods($trait, $file) as $method) {
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       if (!$method->isPublic() || static::isRegistered($method)) {
         continue;
       }
@@ -587,10 +587,10 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderHooksAreNamedForTheirEvent')]
   public function testHooksAreNamedForTheirEvent(string $trait, string $file): void {
-    $prefix = static::traitPrefix(static::reflect($trait)->getShortName());
+    $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
-    foreach (static::traitOwnMethods($trait, $file) as $method) {
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       foreach ($method->getAttributes() as $attribute) {
         $name = $attribute->getName();
 
@@ -737,7 +737,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    * @return array<int, \ReflectionMethod>
    *   The methods.
    */
-  protected static function traitOwnMethods(string $trait, string $file): array {
+  protected static function collectTraitOwnMethods(string $trait, string $file): array {
     $methods = static::reflect($trait)->getMethods();
 
     $own = [];
@@ -765,8 +765,8 @@ class TraitMethodNamingTest extends UnitTestCase {
    * @return array<int, string>
    *   The method names.
    */
-  protected static function traitOwnMethodNames(string $trait, string $file): array {
-    return array_map(static fn(\ReflectionMethod $method): string => $method->getName(), static::traitOwnMethods($trait, $file));
+  protected static function collectTraitOwnMethodNames(string $trait, string $file): array {
+    return array_map(static fn(\ReflectionMethod $method): string => $method->getName(), static::collectTraitOwnMethods($trait, $file));
   }
 
   /**
@@ -785,11 +785,11 @@ class TraitMethodNamingTest extends UnitTestCase {
    * @return array<int, \ReflectionMethod>
    *   The methods.
    */
-  protected static function traitOwnMethodsWithVerb(string $trait, string $file, string $verb): array {
-    $prefix = static::traitPrefix(static::reflect($trait)->getShortName());
+  protected static function collectTraitOwnMethodsWithVerb(string $trait, string $file, string $verb): array {
+    $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $matched = [];
-    foreach (static::traitOwnMethods($trait, $file) as $method) {
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       $name = $method->getName();
 
       if (!static::hasPrefix($name, $prefix) || preg_match('/^' . $verb . '(?![a-z])/', substr($name, strlen($prefix))) !== 1) {
@@ -883,7 +883,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    * @return string
    *   The summary line, or an empty string when the method has no docblock.
    */
-  protected static function docblockSummary(\ReflectionMethod $method): string {
+  protected static function readDocblockSummary(\ReflectionMethod $method): string {
     foreach (explode("\n", (string) $method->getDocComment()) as $line) {
       $text = trim((string) preg_replace('#^\s*/?\*+/?#', '', $line));
 
@@ -905,7 +905,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    *   The class names after each 'throw new' in the method body, without
    *   their namespace.
    */
-  protected static function thrownExceptionNames(\ReflectionMethod $method): array {
+  protected static function collectThrownExceptionNames(\ReflectionMethod $method): array {
     $lines = explode("\n", (string) file_get_contents((string) $method->getFileName()));
     $body = implode("\n", array_slice($lines, (int) $method->getStartLine() - 1, (int) $method->getEndLine() - (int) $method->getStartLine() + 1));
 
@@ -917,7 +917,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Derive the method prefix a trait requires from its short name.
    */
-  protected static function traitPrefix(string $short_name): string {
+  protected static function deriveTraitPrefix(string $short_name): string {
     return lcfirst(substr($short_name, 0, -strlen('Trait')));
   }
 
@@ -938,7 +938,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Check that a negative name is the positive name with one `Not` added.
    */
-  protected static function insertsNot(string $positive, string $negative): bool {
+  protected static function isNegatedName(string $positive, string $negative): bool {
     $offset = 0;
 
     while (($position = strpos($negative, 'Not', $offset)) !== FALSE) {

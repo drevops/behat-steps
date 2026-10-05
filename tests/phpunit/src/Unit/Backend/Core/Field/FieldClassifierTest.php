@@ -26,7 +26,7 @@ class FieldClassifierTest extends UnitTestCase {
    * Tests F1 detection: standard-storage entity-type-wide base field.
    */
   public function testFieldIsBaseStandard(): void {
-    $classifier = new FieldClassifier($this->entityFieldManager());
+    $classifier = new FieldClassifier($this->createEntityFieldManager());
 
     $this->assertTrue($classifier->fieldIsBaseStandard('node', 'title'));
     $this->assertFalse($classifier->fieldIsBaseStandard('node', 'mod_readonly'));
@@ -40,7 +40,7 @@ class FieldClassifierTest extends UnitTestCase {
    * Tests F2 detection: computed read-only base field.
    */
   public function testFieldIsBaseComputedReadOnly(): void {
-    $classifier = new FieldClassifier($this->entityFieldManager());
+    $classifier = new FieldClassifier($this->createEntityFieldManager());
 
     $this->assertTrue($classifier->fieldIsBaseComputedReadOnly('node', 'mod_readonly'));
     $this->assertFalse($classifier->fieldIsBaseComputedReadOnly('node', 'title'));
@@ -51,7 +51,7 @@ class FieldClassifierTest extends UnitTestCase {
    * Tests F3 detection: computed writable base field.
    */
   public function testFieldIsBaseComputedWritable(): void {
-    $classifier = new FieldClassifier($this->entityFieldManager());
+    $classifier = new FieldClassifier($this->createEntityFieldManager());
 
     $this->assertTrue($classifier->fieldIsBaseComputedWritable('node', 'mod_writable'));
     $this->assertFalse($classifier->fieldIsBaseComputedWritable('node', 'mod_readonly'));
@@ -62,7 +62,7 @@ class FieldClassifierTest extends UnitTestCase {
    * Tests F4 detection: custom-storage base field.
    */
   public function testFieldIsBaseCustomStorage(): void {
-    $classifier = new FieldClassifier($this->entityFieldManager());
+    $classifier = new FieldClassifier($this->createEntityFieldManager());
 
     $this->assertTrue($classifier->fieldIsBaseCustomStorage('node', 'base_custom'));
     $this->assertFalse($classifier->fieldIsBaseCustomStorage('node', 'title'));
@@ -73,7 +73,7 @@ class FieldClassifierTest extends UnitTestCase {
    * Tests F5 detection: FieldStorageConfig configurable field.
    */
   public function testFieldIsConfigurable(): void {
-    $classifier = new FieldClassifier($this->entityFieldManager());
+    $classifier = new FieldClassifier($this->createEntityFieldManager());
 
     $this->assertTrue($classifier->fieldIsConfigurable('node', 'field_tags'));
     $this->assertFalse($classifier->fieldIsConfigurable('node', 'title'));
@@ -84,7 +84,7 @@ class FieldClassifierTest extends UnitTestCase {
    * Tests F6 detection: bundle-only computed read-only field.
    */
   public function testFieldIsBundleComputedReadOnly(): void {
-    $classifier = new FieldClassifier($this->entityFieldManager());
+    $classifier = new FieldClassifier($this->createEntityFieldManager());
 
     $this->assertTrue($classifier->fieldIsBundleComputedReadOnly('node', 'bundle_computed_ro', 'article'));
     $this->assertFalse($classifier->fieldIsBundleComputedReadOnly('node', 'bundle_computed_rw', 'article'));
@@ -96,7 +96,7 @@ class FieldClassifierTest extends UnitTestCase {
    * Tests F7 detection: bundle-only computed writable field.
    */
   public function testFieldIsBundleComputedWritable(): void {
-    $classifier = new FieldClassifier($this->entityFieldManager());
+    $classifier = new FieldClassifier($this->createEntityFieldManager());
 
     $this->assertTrue($classifier->fieldIsBundleComputedWritable('node', 'bundle_computed_rw', 'article'));
     $this->assertFalse($classifier->fieldIsBundleComputedWritable('node', 'bundle_computed_ro', 'article'));
@@ -108,7 +108,7 @@ class FieldClassifierTest extends UnitTestCase {
    * Tests F8 detection: bundle-only custom-storage field.
    */
   public function testFieldIsBundleCustomStorage(): void {
-    $classifier = new FieldClassifier($this->entityFieldManager());
+    $classifier = new FieldClassifier($this->createEntityFieldManager());
 
     $this->assertTrue($classifier->fieldIsBundleCustomStorage('node', 'bundle_custom', 'article'));
     $this->assertFalse($classifier->fieldIsBundleCustomStorage('node', 'bundle_computed_rw', 'article'));
@@ -120,7 +120,7 @@ class FieldClassifierTest extends UnitTestCase {
    * Tests F9 detection: storage-info hook + bundle-hook pair.
    */
   public function testFieldIsBundleStorageBacked(): void {
-    $classifier = new FieldClassifier($this->entityFieldManager());
+    $classifier = new FieldClassifier($this->createEntityFieldManager());
 
     $this->assertTrue($classifier->fieldIsBundleStorageBacked('node', 'bundle_storage_backed', 'article'));
     $this->assertFalse($classifier->fieldIsBundleStorageBacked('node', 'title', 'article'));
@@ -132,7 +132,7 @@ class FieldClassifierTest extends UnitTestCase {
   /**
    * Builds an entity-field-manager fixture with 1 field per F-row.
    */
-  protected function entityFieldManager(): EntityFieldManagerInterface {
+  protected function createEntityFieldManager(): EntityFieldManagerInterface {
     // Storage stubs for the hasCustomStorage() chain on base definitions.
     $storage_no_custom = $this->createMock(FieldStorageDefinitionInterface::class);
     $storage_no_custom->method('hasCustomStorage')->willReturn(FALSE);

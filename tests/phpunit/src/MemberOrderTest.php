@@ -74,7 +74,7 @@ class MemberOrderTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderMembersFollowDocumentedOrder')]
   public function testMembersFollowDocumentedOrder(string $trait): void {
-    $members = static::orderedMembers($trait);
+    $members = static::collectOrderedMembers($trait);
 
     $this->assertNotSame([], $members, sprintf('No members were resolved for %s.', $trait));
 
@@ -113,7 +113,7 @@ class MemberOrderTest extends UnitTestCase {
    * @return array<int, array{name: string, group: int}>
    *   Members ordered by the line declaring them.
    */
-  protected static function orderedMembers(string $trait): array {
+  protected static function collectOrderedMembers(string $trait): array {
     /** @var class-string $trait */
     $reflection = static::reflect($trait);
     $file = (string) realpath((string) $reflection->getFileName());
@@ -146,7 +146,7 @@ class MemberOrderTest extends UnitTestCase {
         continue;
       }
 
-      $members[] = ['name' => $method->getName() . '()', 'group' => static::methodGroup($method), 'line' => $method->getStartLine()];
+      $members[] = ['name' => $method->getName() . '()', 'group' => static::resolveMethodGroup($method), 'line' => $method->getStartLine()];
     }
 
     $found = array_values(array_filter($members, static fn(?array $member): bool => $member !== NULL));
@@ -186,7 +186,7 @@ class MemberOrderTest extends UnitTestCase {
    * Hook attributes are recognised by namespace so that this library's own
    * hook attributes count alongside Behat's.
    */
-  protected static function methodGroup(\ReflectionMethod $method): int {
+  protected static function resolveMethodGroup(\ReflectionMethod $method): int {
     $attributes = $method->getAttributes();
 
     foreach ($attributes as $attribute) {

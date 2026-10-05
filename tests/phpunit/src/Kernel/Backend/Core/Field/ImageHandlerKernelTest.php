@@ -70,7 +70,7 @@ class ImageHandlerKernelTest extends FieldHandlerKernelTestBase {
       ],
     ]);
 
-    $this->assertInstanceOf(File::class, File::load($this->latestFileId()));
+    $this->assertInstanceOf(File::class, File::load($this->getLatestFileId()));
   }
 
 }

@@ -22,7 +22,7 @@ class BehatDistConfigTest extends UnitTestCase {
   }
 
   public function testEveryExtensionOptionIsSet(): void {
-    $this->assertSame([], $this->uncoveredPaths(static::buildConfigTree(), static::extensionSettings(), ''));
+    $this->assertSame([], $this->collectUncoveredPaths(static::buildConfigTree(), static::readExtensionSettings(), ''));
   }
 
   /**
@@ -38,7 +38,7 @@ class BehatDistConfigTest extends UnitTestCase {
    * @return array<int, string>
    *   The paths that carry no value.
    */
-  protected function uncoveredPaths(ArrayNode $node, array $settings, string $prefix): array {
+  protected function collectUncoveredPaths(ArrayNode $node, array $settings, string $prefix): array {
     $paths = [];
 
     foreach ($node->getChildren() as $name => $child) {
@@ -51,7 +51,7 @@ class BehatDistConfigTest extends UnitTestCase {
       }
 
       if ($child instanceof ArrayNode && is_array($settings[$name])) {
-        $paths = array_merge($paths, $this->uncoveredPaths($child, $settings[$name], $path));
+        $paths = array_merge($paths, $this->collectUncoveredPaths($child, $settings[$name], $path));
       }
     }
 
@@ -64,7 +64,7 @@ class BehatDistConfigTest extends UnitTestCase {
    * @return array<string, mixed>
    *   The settings under the extension's key.
    */
-  protected static function extensionSettings(): array {
+  protected static function readExtensionSettings(): array {
     $settings = static::loadConfig()->toArray();
 
     foreach (['default', 'extensions', BehatStepsExtension::class] as $key) {

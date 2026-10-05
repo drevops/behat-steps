@@ -88,7 +88,7 @@ class OptionDeclarationsTest extends UnitTestCase {
     $short_name = static::reflect($trait)->getShortName();
     $method = ConfigSchemaReader::methodFor($short_name);
 
-    $this->assertSame([$method], static::schemaMethods($trait), sprintf('%s declares its options in %s() and in no other method.', $short_name, $method));
+    $this->assertSame([$method], static::listSchemaMethods($trait), sprintf('%s declares its options in %s() and in no other method.', $short_name, $method));
 
     // The reader caches a context class's declarations for the whole run, so
     // the method is invoked directly to execute it in this test.
@@ -111,7 +111,7 @@ class OptionDeclarationsTest extends UnitTestCase {
   public static function dataProviderDeclarationsAreReadUnderTheTraitGroup(): array {
     $data = [];
 
-    foreach (static::declaringTraits() as $trait) {
+    foreach (static::listDeclaringTraits() as $trait) {
       $data[static::reflect($trait)->getShortName()] = [$trait];
     }
 
@@ -119,7 +119,7 @@ class OptionDeclarationsTest extends UnitTestCase {
   }
 
   public function testEveryGroupTheRuntimeReadsBelongsToOneTrait(): void {
-    $groups = array_map(static fn(string $trait): string => GroupName::fromTraitName(static::reflect($trait)->getShortName()), static::declaringTraits());
+    $groups = array_map(static fn(string $trait): string => GroupName::fromTraitName(static::reflect($trait)->getShortName()), static::listDeclaringTraits());
     sort($groups);
 
     $this->assertSame($groups, array_keys((new ConfigSchemaReader())->read(DrupalContext::class)));
@@ -135,7 +135,7 @@ class OptionDeclarationsTest extends UnitTestCase {
     $targets = array_map(static fn(\ReflectionAttribute $attribute): mixed => $attribute->getArguments()[0], (new \ReflectionClass(static::class))->getAttributes(CoversTrait::class));
     sort($targets);
 
-    $this->assertSame(static::declaringTraits(), $targets, 'Add a #[CoversTrait] attribute for every trait that declares options, and remove the one for a trait that no longer does.');
+    $this->assertSame(static::listDeclaringTraits(), $targets, 'Add a #[CoversTrait] attribute for every trait that declares options, and remove the one for a trait that no longer does.');
   }
 
   /**
@@ -144,12 +144,12 @@ class OptionDeclarationsTest extends UnitTestCase {
    * @return array<int, class-string>
    *   Trait names, sorted.
    */
-  protected static function declaringTraits(): array {
+  protected static function listDeclaringTraits(): array {
     $traits = [];
 
     for ($class = new \ReflectionClass(DrupalContext::class); $class instanceof \ReflectionClass; $class = $class->getParentClass()) {
       foreach ($class->getTraits() as $trait) {
-        if (str_starts_with($trait->getName(), 'DrevOps\\BehatSteps\\Steps\\') && static::schemaMethods($trait->getName()) !== []) {
+        if (str_starts_with($trait->getName(), 'DrevOps\\BehatSteps\\Steps\\') && static::listSchemaMethods($trait->getName()) !== []) {
           $traits[] = $trait->getName();
         }
       }
@@ -169,7 +169,7 @@ class OptionDeclarationsTest extends UnitTestCase {
    * @return array<int, string>
    *   The method names.
    */
-  protected static function schemaMethods(string $trait): array {
+  protected static function listSchemaMethods(string $trait): array {
     $names = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), static::reflect($trait)->getMethods());
 
     return array_values(array_filter($names, static fn(string $name): bool => str_ends_with($name, ConfigSchemaReader::METHOD_SUFFIX)));

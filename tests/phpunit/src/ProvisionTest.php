@@ -134,7 +134,7 @@ class ProvisionTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to write');
 
-    $this->withoutWarnings(static function (): void {
+    $this->runWithoutWarnings(static function (): void {
       provision_write(UnwritableStream::path('composer.json'), 'contents');
     });
   }
@@ -160,7 +160,7 @@ class ProvisionTest extends UnitTestCase {
     UnwritableStream::register();
     $original_umask = umask();
 
-    $this->withoutWarnings(static function (): void {
+    $this->runWithoutWarnings(static function (): void {
       try {
         provision_write_auth('gh-token', UnwritableStream::path('auth.json'));
       }
@@ -361,7 +361,7 @@ class ProvisionTest extends UnitTestCase {
   }
 
   public function testMergeComposerShapesTheFixture(): void {
-    $merged = provision_merge_composer(static::package(), static::fixture());
+    $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());
 
     $expected_require_dev = [
       // The package's own runtime requirements, less the PHP constraint.
@@ -379,19 +379,19 @@ class ProvisionTest extends UnitTestCase {
   }
 
   public function testMergeComposerDropsThePhpConstraint(): void {
-    $merged = provision_merge_composer(static::package(), static::fixture());
+    $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());
 
     $this->assertArrayNotHasKey('php', $merged['require-dev']);
   }
 
   public function testMergeComposerDropsAnUnsuggestedDevPackage(): void {
-    $merged = provision_merge_composer(static::package(), static::fixture());
+    $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());
 
     $this->assertArrayNotHasKey('phpstan/phpstan', $merged['require-dev']);
   }
 
   public function testMergeComposerKeepsTheFixtureRequire(): void {
-    $merged = provision_merge_composer(static::package(), static::fixture());
+    $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());
 
     $this->assertSame(['drupal/core-recommended' => '^11.2'], $merged['require']);
   }
@@ -404,14 +404,14 @@ class ProvisionTest extends UnitTestCase {
    * fixture pins.
    */
   public function testMergeComposerDropsDevPackageTheFixturePins(): void {
-    $merged = provision_merge_composer(static::package(), static::fixture());
+    $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());
 
     $this->assertArrayHasKey('drupal/core-recommended', $merged['require']);
     $this->assertArrayNotHasKey('drupal/core-recommended', $merged['require-dev']);
   }
 
   public function testMergeComposerRebasesTheAutoloadPaths(): void {
-    $merged = provision_merge_composer(static::package(), static::fixture());
+    $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());
 
     $this->assertSame(['DrevOps\\BehatSteps\\' => '../src/'], $merged['autoload']['psr-4']);
     $this->assertSame(['scripts/composer/'], $merged['autoload']['classmap']);
@@ -424,7 +424,7 @@ class ProvisionTest extends UnitTestCase {
    * tests and their fixtures through these entries.
    */
   public function testMergeComposerRebasesThePackageTestNamespaces(): void {
-    $merged = provision_merge_composer(static::package(), static::fixture());
+    $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());
 
     $expected = [
       'DrevOps\\BehatSteps\\' => '../src/',
@@ -436,7 +436,7 @@ class ProvisionTest extends UnitTestCase {
   }
 
   public function testMergeComposerRegistersTheDrupalTestNamespaces(): void {
-    $merged = provision_merge_composer(static::package(), static::fixture());
+    $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());
 
     $expected = [
       'Drupal\\BuildTests\\' => 'web/core/tests/Drupal/BuildTests/',
@@ -452,7 +452,7 @@ class ProvisionTest extends UnitTestCase {
   }
 
   public function testMergeComposerKeepsTheFixtureProperties(): void {
-    $merged = provision_merge_composer(static::package(), static::fixture());
+    $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());
 
     $this->assertSame('drevops/fixture', $merged['name']);
     $this->assertSame(['allow-plugins' => ['composer/installers' => TRUE]], $merged['config']);
@@ -484,10 +484,10 @@ class ProvisionTest extends UnitTestCase {
    * prefixing them would push them outside it.
    */
   public function testMergeComposerLeavesTheFixturePsr4Alone(): void {
-    $fixture = static::fixture();
+    $fixture = static::buildFixtureConfig();
     $fixture['autoload'] = ['psr-4' => ['Fixture\\Site\\' => 'web/modules/custom/']];
 
-    $merged = provision_merge_composer(static::package(), $fixture);
+    $merged = provision_merge_composer(static::buildPackageConfig(), $fixture);
 
     $expected = [
       'DrevOps\\BehatSteps\\' => '../src/',
@@ -498,14 +498,14 @@ class ProvisionTest extends UnitTestCase {
   }
 
   public function testWriteMergedComposerWritesTheResult(): void {
-    $package_file = $this->writeFixture('package/composer.json', (string) json_encode(static::package()));
-    $fixture_file = $this->writeFixture('build/composer.json', (string) json_encode(static::fixture()));
+    $package_file = $this->writeFixture('package/composer.json', (string) json_encode(static::buildPackageConfig()));
+    $fixture_file = $this->writeFixture('build/composer.json', (string) json_encode(static::buildFixtureConfig()));
 
     provision_write_merged_composer($package_file, $fixture_file);
 
     $written = (string) file_get_contents($fixture_file);
 
-    $this->assertSame(provision_merge_composer(static::package(), static::fixture()), json_decode($written, TRUE));
+    $this->assertSame(provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig()), json_decode($written, TRUE));
     $this->assertStringContainsString('"../src/"', $written);
     $this->assertStringNotContainsString('\/', $written);
   }
@@ -540,7 +540,7 @@ class ProvisionTest extends UnitTestCase {
    * @param callable $callback
    *   The callback to run.
    */
-  protected function withoutWarnings(callable $callback): void {
+  protected function runWithoutWarnings(callable $callback): void {
     set_error_handler(static fn(): bool => TRUE);
 
     try {
@@ -555,7 +555,7 @@ class ProvisionTest extends UnitTestCase {
   /**
    * The package's Composer configuration, reduced to what the merge reads.
    */
-  protected static function package(): array {
+  protected static function buildPackageConfig(): array {
     return [
       'name' => 'drevops/behat-steps',
       'require' => [
@@ -587,7 +587,7 @@ class ProvisionTest extends UnitTestCase {
   /**
    * The fixture site's Composer configuration.
    */
-  protected static function fixture(): array {
+  protected static function buildFixtureConfig(): array {
     return [
       'name' => 'drevops/fixture',
       'require' => ['drupal/core-recommended' => '^11.2'],

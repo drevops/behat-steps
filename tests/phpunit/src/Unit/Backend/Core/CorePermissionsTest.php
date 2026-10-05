@@ -27,10 +27,10 @@ class CorePermissionsTest extends UnitTestCase {
     $core = new TestPermissionsCore(__DIR__, 'default');
     $core->setPermissions([
       'administer content types' => [
-        'title' => $this->stringable('Administer content types'),
+        'title' => $this->createStringable('Administer content types'),
       ],
       'administer users' => [
-        'title' => $this->stringable('Administer users'),
+        'title' => $this->createStringable('Administer users'),
       ],
     ]);
 
@@ -44,7 +44,7 @@ class CorePermissionsTest extends UnitTestCase {
     $core = new TestPermissionsCore(__DIR__, 'default');
     $core->setPermissions([
       'administer users' => [
-        'title' => $this->stringable('Administer users'),
+        'title' => $this->createStringable('Administer users'),
       ],
     ]);
 
@@ -110,7 +110,7 @@ class CorePermissionsTest extends UnitTestCase {
   /**
    * Returns an anonymous Stringable that mimics a Drupal TranslatableMarkup.
    */
-  protected function stringable(string $label): object {
+  protected function createStringable(string $label): object {
     return new readonly class($label) {
 
       public function __construct(protected string $label) {}

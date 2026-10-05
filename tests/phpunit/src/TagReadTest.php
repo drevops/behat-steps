@@ -41,10 +41,10 @@ class TagReadTest extends UnitTestCase {
   #[DataProvider('dataProviderTraitReadsTagsThroughReaders')]
   public function testTraitReadsTagsThroughReaders(string $trait): void {
     $violations = [];
-    $tokens = static::significantTokens((string) static::reflect($trait)->getFileName());
+    $tokens = static::readSignificantTokens((string) static::reflect($trait)->getFileName());
 
     foreach (array_keys($tokens) as $index) {
-      $method = static::tagMethodCalledAt($tokens, $index);
+      $method = static::findTagMethodCalledAt($tokens, $index);
 
       if ($method === NULL) {
         continue;
@@ -62,13 +62,13 @@ class TagReadTest extends UnitTestCase {
         continue;
       }
 
-      [$subject, $name] = static::callArguments($tokens, $index + 3) + [[], []];
+      [$subject, $name] = static::splitCallArguments($tokens, $index + 3) + [[], []];
 
-      if (static::callsAny($subject, static::NODE_GETTERS)) {
+      if (static::hasCallToAny($subject, static::NODE_GETTERS)) {
         $violations[] = sprintf('Line %d passes Tag::%s() a single node. Pass the scope, so a tag on the "Feature:" line applies to the scenario.', $line, $method);
       }
 
-      if (static::holdsStringLiteral($name)) {
+      if (static::hasStringLiteral($name)) {
         $violations[] = sprintf('Line %d passes Tag::%s() the tag as a string literal. Name the tag in a constant.', $line, $method);
       }
     }
@@ -91,7 +91,7 @@ class TagReadTest extends UnitTestCase {
    * @return string|null
    *   The method name, or NULL when the tokens there do not call 'Tag::'.
    */
-  protected static function tagMethodCalledAt(array $tokens, int $index): ?string {
+  protected static function findTagMethodCalledAt(array $tokens, int $index): ?string {
     $class = $tokens[$index];
     $separator = $tokens[$index + 1] ?? NULL;
     $method = $tokens[$index + 2] ?? NULL;
@@ -118,7 +118,7 @@ class TagReadTest extends UnitTestCase {
    * @return array<int, array<int, array{int, string, int}|string>>
    *   The tokens of each argument, in order.
    */
-  protected static function callArguments(array $tokens, int $open): array {
+  protected static function splitCallArguments(array $tokens, int $open): array {
     $arguments = [[]];
     $depth = 0;
     $count = count($tokens);
@@ -160,7 +160,7 @@ class TagReadTest extends UnitTestCase {
    * @param array<int, string> $methods
    *   The method names to look for.
    */
-  protected static function callsAny(array $argument, array $methods): bool {
+  protected static function hasCallToAny(array $argument, array $methods): bool {
     foreach ($argument as $token) {
       if (is_array($token) && $token[0] === T_STRING && in_array($token[1], $methods, TRUE)) {
         return TRUE;
@@ -176,7 +176,7 @@ class TagReadTest extends UnitTestCase {
    * @param array<int, array{int, string, int}|string> $argument
    *   The tokens of one argument.
    */
-  protected static function holdsStringLiteral(array $argument): bool {
+  protected static function hasStringLiteral(array $argument): bool {
     foreach ($argument as $token) {
       if (is_array($token) && in_array($token[0], [T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE], TRUE)) {
         return TRUE;

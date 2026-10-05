@@ -2167,7 +2167,7 @@ EOD,
     array $exclude,
     array $expected_trait_names,
   ): void {
-    $setup = $this->setupExtractInfoTest($trait_names);
+    $setup = $this->setUpExtractInfoTest($trait_names);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -2213,7 +2213,7 @@ EOD,
    *
    * @return array{base_path: string, steps_dir: string}
    */
-  protected function setupTestEnvironment(): array {
+  protected function setUpTestEnvironment(): array {
     $base_path = static::$tmp;
     $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
     mkdir($steps_dir, 0777, TRUE);
@@ -2263,8 +2263,8 @@ EOD,
    *
    * @return array{base_path: string, steps_dir: string, class_name: string}
    */
-  protected function setupExtractInfoTest(array $trait_names, ?string $context = NULL): array {
-    $paths = $this->setupTestEnvironment();
+  protected function setUpExtractInfoTest(array $trait_names, ?string $context = NULL): array {
+    $paths = $this->setUpTestEnvironment();
 
     if ($context && count($trait_names) === 1) {
       $target_file = $this->copyFixtureTrait($trait_names[0], $context);
@@ -2305,7 +2305,7 @@ EOD,
    */
   public function testExtractInfoMultipleMethods(): void {
     $trait_name = 'MultiMethodTrait';
-    $setup = $this->setupExtractInfoTest([$trait_name]);
+    $setup = $this->setUpExtractInfoTest([$trait_name]);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -2344,7 +2344,7 @@ EOD,
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/The following traits were not found in the class/');
 
-    $paths = $this->setupTestEnvironment();
+    $paths = $this->setUpTestEnvironment();
 
     // The copied fixture is not used by the class.
     $this->copyFixtureTrait('UnusedTrait');
@@ -2359,7 +2359,7 @@ EOD,
 
   public function testExtractInfoWithSubdirectory(): void {
     $trait_name = 'DrupalTrait';
-    $setup = $this->setupExtractInfoTest([$trait_name], 'Drupal');
+    $setup = $this->setUpExtractInfoTest([$trait_name], 'Drupal');
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -2372,7 +2372,7 @@ EOD,
 
   public function testExtractInfoNoMatchingMethods(): void {
     $trait_name = 'NoMatchTrait';
-    $setup = $this->setupExtractInfoTest([$trait_name]);
+    $setup = $this->setUpExtractInfoTest([$trait_name]);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -2790,7 +2790,7 @@ EOD,
     $this->expectExceptionMessage('Class comment for EmptyCommentTrait is empty');
 
     $trait_name = 'EmptyCommentTrait';
-    $setup = $this->setupExtractInfoTest([$trait_name]);
+    $setup = $this->setUpExtractInfoTest([$trait_name]);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3139,7 +3139,7 @@ EOD,
   }
 
   public function testExtractHelpers(): void {
-    $setup = $this->setupExtractInfoTest(['HelperSampleTrait']);
+    $setup = $this->setUpExtractInfoTest(['HelperSampleTrait']);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3162,7 +3162,7 @@ EOD,
   }
 
   public function testExtractHelpersResolvesContext(): void {
-    $setup = $this->setupExtractInfoTest(['HelperDrupalTrait'], 'Drupal');
+    $setup = $this->setUpExtractInfoTest(['HelperDrupalTrait'], 'Drupal');
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3179,7 +3179,7 @@ EOD,
   }
 
   public function testExtractHelpersSkipsTraitsWithoutHelpers(): void {
-    $setup = $this->setupExtractInfoTest(['SampleTrait']);
+    $setup = $this->setUpExtractInfoTest(['SampleTrait']);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3189,7 +3189,7 @@ EOD,
   }
 
   public function testExtractHelpersPublishesToolboxClasses(): void {
-    $setup = $this->setupExtractInfoTest(['HelperSampleTrait']);
+    $setup = $this->setUpExtractInfoTest(['HelperSampleTrait']);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3323,7 +3323,7 @@ EOD,
   }
 
   public function testValidateHelpersFromSource(): void {
-    $setup = $this->setupExtractInfoTest(['HelperNoSummaryTrait']);
+    $setup = $this->setUpExtractInfoTest(['HelperNoSummaryTrait']);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];

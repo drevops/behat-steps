@@ -66,13 +66,13 @@ class ContextCompositionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderContextComposesItsWholeDirectory')]
   public function testContextComposesItsWholeDirectory(string $directory, string $context): void {
-    $missing = array_values(array_diff(static::directoryTraits($directory), static::composedTraits($context)));
+    $missing = array_values(array_diff(static::listDirectoryTraits($directory), static::collectComposedTraits($context)));
 
     $this->assertSame([], $missing, sprintf('%s has to compose every trait under src/Steps/%s.', $context, $directory));
   }
 
   public static function dataProviderContextComposesItsWholeDirectory(): array {
-    return static::contextRows();
+    return static::listContextRows();
   }
 
   /**
@@ -85,13 +85,13 @@ class ContextCompositionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderContextComposesNothingElse')]
   public function testContextComposesNothingElse(string $directory, string $context): void {
-    $extra = array_values(array_diff(static::composedTraits($context, 'Steps'), static::directoryTraits($directory)));
+    $extra = array_values(array_diff(static::collectComposedTraits($context, 'Steps'), static::listDirectoryTraits($directory)));
 
     $this->assertSame([], $extra, sprintf('%s composes a trait from outside src/Steps/%s.', $context, $directory));
   }
 
   public static function dataProviderContextComposesNothingElse(): array {
-    return static::contextRows();
+    return static::listContextRows();
   }
 
   /**
@@ -105,7 +105,7 @@ class ContextCompositionTest extends UnitTestCase {
     $repeated = [];
 
     foreach (static::CHAIN as $class) {
-      foreach (static::composedTraits($class) as $trait) {
+      foreach (static::collectComposedTraits($class) as $trait) {
         if (in_array($trait, $seen, TRUE)) {
           $repeated[] = $trait;
         }
@@ -119,10 +119,10 @@ class ContextCompositionTest extends UnitTestCase {
 
   public function testTheRootContextComposesTheWebHelpersOnly(): void {
     $expected = [LastStepTrait::class, RequestHeadersTrait::class, StringTrait::class];
-    $composed = static::composedTraits(WebRawContext::class, 'Helper');
+    $composed = static::collectComposedTraits(WebRawContext::class, 'Helper');
 
     $this->assertSame($expected, $composed);
-    $this->assertSame([], static::composedTraits(WebRawContext::class, 'Steps'), sprintf('%s registers no steps of its own.', WebRawContext::class));
+    $this->assertSame([], static::collectComposedTraits(WebRawContext::class, 'Steps'), sprintf('%s registers no steps of its own.', WebRawContext::class));
   }
 
   public function testTheDrupalContextIsUserAware(): void {
@@ -140,14 +140,14 @@ class ContextCompositionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderStepTraitsComposeWhatTheyCall')]
   public function testStepTraitsComposeWhatTheyCall(string $directory): void {
-    $owners = static::helperMembers();
+    $owners = static::collectHelperMembers();
     $missing = [];
 
-    foreach (static::directoryTraits($directory) as $trait) {
+    foreach (static::listDirectoryTraits($directory) as $trait) {
       /** @var class-string $trait */
       $reflection = static::reflect($trait);
       $body = (string) file_get_contents((string) $reflection->getFileName());
-      $composed = static::composedMembers($reflection);
+      $composed = static::collectComposedMembers($reflection);
 
       foreach ($owners as $member => $owner) {
         $is_called = str_contains($body, '$this->' . $member . '(') || str_contains($body, 'static::' . $member . '(');
@@ -172,7 +172,7 @@ class ContextCompositionTest extends UnitTestCase {
    * @return array<string, string>
    *   Helper trait short name, keyed by member name.
    */
-  protected static function helperMembers(): array {
+  protected static function collectHelperMembers(): array {
     $owners = [];
 
     foreach (glob(dirname(__DIR__, 3) . '/src/Helper/*/*.php') ?: [] as $file) {
@@ -196,11 +196,11 @@ class ContextCompositionTest extends UnitTestCase {
    * @return array<int, string>
    *   Method names, including the trait's own.
    */
-  protected static function composedMembers(\ReflectionClass $reflection): array {
+  protected static function collectComposedMembers(\ReflectionClass $reflection): array {
     $members = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), $reflection->getMethods());
 
     foreach ($reflection->getTraits() as $composed) {
-      $members = array_merge($members, static::composedMembers($composed));
+      $members = array_merge($members, static::collectComposedMembers($composed));
     }
 
     return array_values(array_unique($members));
@@ -236,7 +236,7 @@ class ContextCompositionTest extends UnitTestCase {
   public function testTheBareMinkFixtureMatchesTheAnnotatedTraits(): void {
     $annotated = [];
 
-    foreach (static::directoryTraits('Web') as $trait) {
+    foreach (static::listDirectoryTraits('Web') as $trait) {
       /** @var class-string $trait */
       $comment = (string) static::reflect($trait)->getDocComment();
 
@@ -247,7 +247,7 @@ class ContextCompositionTest extends UnitTestCase {
 
     sort($annotated);
 
-    $composed = static::composedTraits(BareMinkContext::class);
+    $composed = static::collectComposedTraits(BareMinkContext::class);
     sort($composed);
 
     $this->assertSame($annotated, $composed);
@@ -259,7 +259,7 @@ class ContextCompositionTest extends UnitTestCase {
    * @return array<string, array{string, class-string}>
    *   Directory and context, keyed by directory.
    */
-  protected static function contextRows(): array {
+  protected static function listContextRows(): array {
     $rows = [];
 
     foreach (static::CONTEXTS as $directory => $context) {
@@ -278,7 +278,7 @@ class ContextCompositionTest extends UnitTestCase {
    * @return array<int, string>
    *   Fully qualified trait names, sorted.
    */
-  protected static function directoryTraits(string $directory): array {
+  protected static function listDirectoryTraits(string $directory): array {
     $path = dirname(__DIR__, 3) . '/src/Steps/' . $directory;
     $traits = [];
 
@@ -306,7 +306,7 @@ class ContextCompositionTest extends UnitTestCase {
    * @return array<int, string>
    *   Fully qualified trait names, sorted.
    */
-  protected static function composedTraits(string $class, ?string $directory = NULL): array {
+  protected static function collectComposedTraits(string $class, ?string $directory = NULL): array {
     $traits = static::reflect($class)->getTraits();
 
     if ($directory !== NULL) {
