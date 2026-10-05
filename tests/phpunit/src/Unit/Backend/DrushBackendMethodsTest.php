@@ -100,7 +100,7 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertSame('status', $backend->invocations[0]['command']);
   }
 
-  public function testUserCreateWithRolesInvokesRoleAssignment(): void {
+  public function testCreateUserWithRolesInvokesRoleAssignment(): void {
     $backend = $this->createBackend();
     $backend->drushResponse = "User ID   :   7\nUser name :   bob\n";
 
@@ -110,7 +110,7 @@ class DrushBackendMethodsTest extends TestCase {
       'mail' => 'bob@ex.co',
       'roles' => ['editor', 'reviewer'],
     ]);
-    $backend->userCreate($user);
+    $backend->createUser($user);
 
     $commands = array_column($backend->invocations, 'command');
     $this->assertSame('user-create', $commands[0]);
@@ -118,7 +118,7 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertSame(2, array_count_values($commands)['user-add-role'] ?? 0);
   }
 
-  public function testUserCreateThrowsWhenDrushReportsNoUserId(): void {
+  public function testCreateUserThrowsWhenDrushReportsNoUserId(): void {
     $backend = $this->createBackend();
     $backend->drushResponse = "Nothing resembling a user id.\n";
 
@@ -131,37 +131,37 @@ class DrushBackendMethodsTest extends TestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/did not report a user id after creating "bob"/');
 
-    $backend->userCreate($user);
+    $backend->createUser($user);
   }
 
-  public function testUserCreateReturnsTheStub(): void {
+  public function testCreateUserReturnsTheStub(): void {
     $backend = $this->createBackend();
     $backend->drushResponse = "User ID   :   7\n";
 
     $user = new EntityStub('user', NULL, ['name' => 'bob', 'pass' => 'pw', 'mail' => 'bob@ex.co']);
 
-    $this->assertSame($user, $backend->userCreate($user));
+    $this->assertSame($user, $backend->createUser($user));
     $this->assertSame(7, $user->getValue('uid'));
   }
 
   /**
-   * Tests that 'roleCreate()' returns a stub naming the role it created.
+   * Tests that 'createRole()' returns a stub naming the role it created.
    *
    * @param array<int, mixed> $args
-   *   Positional arguments for 'roleCreate()'.
+   *   Positional arguments for 'createRole()'.
    */
-  #[DataProvider('dataProviderRoleCreateReturnsTheRoleStub')]
-  public function testRoleCreateReturnsTheRoleStub(array $args): void {
+  #[DataProvider('dataProviderCreateRoleReturnsTheRoleStub')]
+  public function testCreateRoleReturnsTheRoleStub(array $args): void {
     $backend = $this->createBackend();
 
-    $role = $backend->roleCreate(...$args);
+    $role = $backend->createRole(...$args);
 
     $this->assertSame('user_role', $role->getEntityType());
     $this->assertFalse($role->isSaved());
     $this->assertSame(['id' => $backend->invocations[0]['arguments'][0], 'label' => $backend->invocations[0]['arguments'][1]], $role->getValues());
   }
 
-  public static function dataProviderRoleCreateReturnsTheRoleStub(): \Iterator {
+  public static function dataProviderCreateRoleReturnsTheRoleStub(): \Iterator {
     yield 'generated id and label' => [[[]]];
     yield 'explicit id' => [[[], 'editor']];
     yield 'explicit id and label' => [[['access content'], 'editor', 'Editor']];
@@ -187,8 +187,8 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   public static function dataProviderDeleteRunsOneCommandOnSuccess(): \Iterator {
-    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete'];
-    yield 'userDelete' => ['userDelete', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel'];
+    yield 'deleteRole' => ['deleteRole', ['editor'], 'role:delete'];
+    yield 'deleteUser' => ['deleteUser', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel'];
   }
 
   /**
@@ -215,8 +215,8 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   public static function dataProviderDeleteToleratesMissingTarget(): \Iterator {
-    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete', 'config:get'];
-    yield 'userDelete' => ['userDelete', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel', 'user:information'];
+    yield 'deleteRole' => ['deleteRole', ['editor'], 'role:delete', 'config:get'];
+    yield 'deleteUser' => ['deleteUser', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel', 'user:information'];
   }
 
   /**
@@ -241,16 +241,16 @@ class DrushBackendMethodsTest extends TestCase {
   }
 
   public static function dataProviderDeleteFailureSurfacesWhileTargetExists(): \Iterator {
-    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete'];
-    yield 'userDelete' => ['userDelete', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel'];
+    yield 'deleteRole' => ['deleteRole', ['editor'], 'role:delete'];
+    yield 'deleteUser' => ['deleteUser', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel'];
   }
 
-  public function testUserDeleteLooksUpNamelessStubByUid(): void {
+  public function testDeleteUserLooksUpNamelessStubByUid(): void {
     $backend = $this->createBackend();
     $backend->drushFailures = ['user-cancel' => 1];
     $backend->drushExitCode = 1;
 
-    $backend->userDelete(new EntityStub('user', NULL, ['uid' => 7]));
+    $backend->deleteUser(new EntityStub('user', NULL, ['uid' => 7]));
 
     $this->assertSame(['user-cancel', 'user:information'], array_column($backend->invocations, 'command'));
     $this->assertSame([[], []], array_column($backend->invocations, 'arguments'));
@@ -258,13 +258,13 @@ class DrushBackendMethodsTest extends TestCase {
     $this->assertSame(['uid' => '7'], $backend->invocations[1]['options']);
   }
 
-  public function testUserDeleteRejectsStubWithoutIdentifier(): void {
+  public function testDeleteUserRejectsStubWithoutIdentifier(): void {
     $backend = $this->createBackend();
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot delete a user from a stub without a "name" or "uid" value.');
 
-    $backend->userDelete(new EntityStub('user'));
+    $backend->deleteUser(new EntityStub('user'));
   }
 
   /**
@@ -451,9 +451,9 @@ class DrushBackendMethodsTest extends TestCase {
   public static function dataProviderInvokesDrush(): \Iterator {
     $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
 
-    yield 'userCreate' => ['userCreate', [$user], 'user-create', "User ID   :   9\n"];
-    yield 'userDelete' => ['userDelete', [$user], 'user-cancel'];
-    yield 'userAddRole' => ['userAddRole', [$user, 'admin'], 'user-add-role'];
+    yield 'createUser' => ['createUser', [$user], 'user-create', "User ID   :   9\n"];
+    yield 'deleteUser' => ['deleteUser', [$user], 'user-cancel'];
+    yield 'addUserRole' => ['addUserRole', [$user, 'admin'], 'user-add-role'];
     yield 'cronRun' => ['cronRun', [], 'cron'];
     yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm-enable'];
     yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm-uninstall'];
@@ -470,11 +470,11 @@ class DrushBackendMethodsTest extends TestCase {
     yield 'stateExists' => ['stateExists', ['my.key'], 'state:get', '{"my.key":"v"}'];
     yield 'moduleIsEnabled' => ['moduleIsEnabled', ['dblog'], 'pm:list', '{"dblog":{"status":"Enabled"}}'];
     yield 'moduleIsPresent' => ['moduleIsPresent', ['dblog'], 'pm:list', '{"dblog":{"status":"Disabled"}}'];
-    yield 'roleCreate no permissions' => ['roleCreate', [[]], 'role:create'];
-    yield 'roleCreate with permissions' => ['roleCreate', [['access content']], 'role:create'];
-    yield 'roleCreate with explicit id' => ['roleCreate', [[], 'editor'], 'role:create'];
-    yield 'roleCreate with id and label' => ['roleCreate', [['access content'], 'editor', 'Editor'], 'role:create'];
-    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete'];
+    yield 'createRole no permissions' => ['createRole', [[]], 'role:create'];
+    yield 'createRole with permissions' => ['createRole', [['access content']], 'role:create'];
+    yield 'createRole with explicit id' => ['createRole', [[], 'editor'], 'role:create'];
+    yield 'createRole with id and label' => ['createRole', [['access content'], 'editor', 'Editor'], 'role:create'];
+    yield 'deleteRole' => ['deleteRole', ['editor'], 'role:delete'];
   }
 
   /**

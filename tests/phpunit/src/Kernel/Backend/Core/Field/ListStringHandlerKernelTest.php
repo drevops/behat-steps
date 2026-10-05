@@ -49,7 +49,7 @@ class ListStringHandlerKernelTest extends FieldHandlerKernelTestBase {
       'name' => 'pinned',
       'field_status' => ['Active'],
     ]);
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
     $reloaded = EntityTest::load($stub->getValue('id'));
     $this->assertSame('active', $reloaded->get('field_status')->value);
   }

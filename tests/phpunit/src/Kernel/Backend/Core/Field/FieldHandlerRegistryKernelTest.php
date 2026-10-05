@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel test asserting a consumer-registered handler wins end-to-end.
  *
  * This test proves that a class registered via 'Core::registerFieldHandler()'
- * is the one instantiated when 'entityCreate()' expands a field. The stored
+ * is the one instantiated when 'createEntity()' expands a field. The stored
  * value is observed to differ from what the fallback handler would produce.
  */
 #[CoversClass(Core::class)]
@@ -69,7 +69,7 @@ class FieldHandlerRegistryKernelTest extends FieldHandlerKernelTestBase {
       ],
     ]);
 
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
     $field_body = $stub->getValue('field_body');
     $this->assertSame(MarkerTextWithSummaryHandler::MARKER, $field_body[0]['value'], 'Consumer handler did not transform the field value during expand().');

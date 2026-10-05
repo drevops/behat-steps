@@ -11,8 +11,8 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  * Recording test double for 'UserCapabilityInterface'.
  *
  * Records the roles assigned to a user so a test can assert them without
- * booting a real backend. 'userCreate()' returns the stub untouched and
- * 'userDelete()' does nothing; only 'userAddRole()' records.
+ * booting a real backend. 'createUser()' returns the stub untouched and
+ * 'deleteUser()' does nothing; only 'addUserRole()' records.
  */
 class RecordingUserCapability implements UserCapabilityInterface {
 
@@ -26,20 +26,20 @@ class RecordingUserCapability implements UserCapabilityInterface {
   /**
    * {@inheritdoc}
    */
-  public function userCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function createUser(EntityStubInterface $stub): EntityStubInterface {
     return $stub;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function userDelete(EntityStubInterface $stub): void {
+  public function deleteUser(EntityStubInterface $stub): void {
   }
 
   /**
    * {@inheritdoc}
    */
-  public function userAddRole(EntityStubInterface $stub, string $role): void {
+  public function addUserRole(EntityStubInterface $stub, string $role): void {
     $this->roles[] = $role;
   }
 

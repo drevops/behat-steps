@@ -38,7 +38,7 @@ trait MenuTrait {
    * @endcode
    */
   #[Given('the menu :menu_name does not exist')]
-  public function menuDeleteSingle(string $menu_name): void {
+  public function menuDelete(string $menu_name): void {
     $menu = $this->menuFindByLabel($menu_name);
     if ($menu instanceof MenuInterface) {
       $menu->delete();
@@ -56,7 +56,7 @@ trait MenuTrait {
    * @endcode
    */
   #[Given('the following menus exist:')]
-  public function menuCreate(TableNode $table): void {
+  public function menuCreateMultiple(TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $menu_hash) {
@@ -84,7 +84,7 @@ trait MenuTrait {
    * @endcode
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
-  public function menuLinksDelete(string $menu_name, TableNode $table): void {
+  public function menuDeleteLinkMultiple(string $menu_name, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
@@ -108,7 +108,7 @@ trait MenuTrait {
    * @endcode
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
-  public function menuLinksCreate(string $menu_name, TableNode $table): void {
+  public function menuCreateLinkMultiple(string $menu_name, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);

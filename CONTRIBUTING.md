@@ -64,9 +64,9 @@ Run `ahoy lint-docs` to validate the format of the steps.
 
 ## Method naming conventions
 
-Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, action, helper verb, hook, lookup and spelling conventions below.
+Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, action, helper verb, hook, lookup, word order, batch and spelling conventions below.
 
-`TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleNodeCreate()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Behat` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Backend` is composed into nothing.
+`TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleCreateNode()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Behat` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Backend` is composed into nothing.
 
 ### Assertions
 
@@ -135,9 +135,25 @@ A lookup's verb says what it does when nothing matches, so a caller knows whethe
 
 A trait that needs both contracts for one lookup declares the pair, and the `Get` calls the `Find`: `tableGetRowByText()` throws where `tableFindRowByText()` returns `NULL`. `Resolve` isn't a lookup verb. It derives a value from its input, as `restResolveUrl()` turns a relative URL into an absolute one.
 
-A set of entities comes back loaded, never as bare IDs: every `<trait>LoadMultiple()` returns the loaded entities keyed by entity ID, so reading 1 of them tells you what the rest return. When you only need the IDs, call `queryEntityIds()`, the query each `LoadMultiple()` runs before it loads.
+A set of entities comes back loaded, never as bare IDs: every `<trait>LoadMultiple()` returns the loaded entities keyed by entity ID, so reading 1 of them tells you what the rest return. When you only need the IDs, call `queryEntityIds()`, the query each `LoadMultiple()` that takes conditions runs before it loads. `webformLoadMultiple()` takes a partial title instead.
 
 `TraitMethodNamingTest` reads each declared return type: a `Find` must allow `NULL`, a `Get` must exclude it, and a `Load` must return `array` or `void`. A `Get` declaring `mixed`, such as `restGetClient()`, leaves the test no type to read, so review holds it to the same rule. The native type can't say what an array holds, so each `LoadMultiple()` has a kernel test under `tests/phpunit/src/Kernel/Steps/Drupal/` that pins its entities and keys instead.
+
+### The verb comes first
+
+A method that creates, deletes or changes an entity names the verb before the entity. In a trait the verb follows the prefix: `entityLifecycleCreateNode()`, `authCreateUser()` and `menuCreateLinkMultiple()`, never `entityLifecycleNodeCreate()`. A capability interface carries no prefix, so the verb opens the name: `createNode()`, `deleteTerm()`, `placeBlock()` and `addUserRole()`. A backend of your own implements those names as they stand.
+
+An entity-create hook is named for its event, so `BeforeNodeCreate` and `contentBeforeNodeCreate()` keep the event's word order.
+
+`TraitMethodNamingTest` holds `Create`, `Delete` and `Load` directly after a trait's prefix. It skips hooks and the `Visit` methods, whose object is a page, as in `contentVisitDeletePageWithTitle()`. `CapabilityMethodNamingTest` fails a capability method that carries `Create` anywhere but at the start, and a `create<Noun>()` with no `delete<Noun>()` on the same interface.
+
+### Several entities at once end in `Multiple`
+
+A method that creates, deletes or loads several entities at once ends in `Multiple`, the way Drupal's own `loadMultiple()` does: `contentCreateMultiple()` for `the following :content_type content exist:`, `taxonomyDeleteMultiple()` for `the following :vocabulary terms do not exist:`, and `userLoadMultiple()` for a set. A `With` qualifier still comes last, so the vertical-table step is `contentCreateMultipleWithFields()`.
+
+The method for 1 entity is the same name without the suffix, so nothing carries `Single`: `mediaCreate()` saves 1 media item, and `mediaCreateMultiple()` saves the rows of a table. The noun stays singular, so it's `userCreateRoleMultiple()`, not `userCreateRoles()`.
+
+`TraitMethodNamingTest` fails a `Create`, `Delete` or `Load` method that carries `Single`, a create or delete step over a `the following` table without `Multiple`, and a `Load` returning an array without it. A plural noun looks like any other word to the test, so review holds that half.
 
 ### Spelling
 
@@ -274,7 +290,7 @@ A step is only as portable as the backend behind it, so each trait falls into on
 
 A step names a capability and never a backend. `WebRawContext::backendFor()` walks the scenario's backend order, returns the first backend implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedBackendActionException` naming the capability and the order. The order itself comes from the `backends` list under `behat_steps` and the `@backend:NAME` tag, documented in [docs/configuration.md](docs/configuration.md#backend-resolution).
 
-Every create and delete on a capability interface follows 1 contract, so teardown code can delete whatever a scenario created without checking first. A create returns the stub, flagged as saved once the backend holds the created entity: `languageCreate()` leaves a language that already exists alone and returns the stub unsaved, and `roleCreate()`, which takes no stub, builds a `user_role` one. A delete returns `void` and does nothing when its target doesn't exist. A stub with no identifier at all still throws, since that's a malformed argument rather than a miss. [tests/phpunit/src/CapabilityContractTest.php](tests/phpunit/src/CapabilityContractTest.php) holds every create and delete to its return type, and the backend tests pin the miss.
+Every create and delete on a capability interface follows 1 contract, so teardown code can delete whatever a scenario created without checking first. A create returns the stub, flagged as saved once the backend holds the created entity: `createLanguage()` leaves a language that already exists alone and returns the stub unsaved, and `createRole()`, which takes no stub, builds a `user_role` one. A delete returns `void` and does nothing when its target doesn't exist. A stub with no identifier at all still throws, since that's a malformed argument rather than a miss. [tests/phpunit/src/CapabilityContractTest.php](tests/phpunit/src/CapabilityContractTest.php) holds every create and delete to its return type, and the backend tests pin the miss.
 
 ## Sending a request from a trait
 

@@ -38,18 +38,18 @@ class CoreErrorPathsTest extends TestCase {
   }
 
   /**
-   * Tests that 'entityCreate()' rejects an empty entity type before booting.
+   * Tests that 'createEntity()' rejects an empty entity type before booting.
    *
    * The throw happens before any 'Drupal::service()' call, so no kernel is
    * needed.
    */
-  public function testEntityCreateRejectsEmptyEntityType(): void {
+  public function testCreateEntityRejectsEmptyEntityType(): void {
     $core = $this->createCore();
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/You must specify an entity type/');
 
-    $core->entityCreate(new EntityStub(''));
+    $core->createEntity(new EntityStub(''));
   }
 
   public function testResolveUidThrowsWhenStubHasNoId(): void {
@@ -84,46 +84,46 @@ class CoreErrorPathsTest extends TestCase {
   }
 
   public static function dataProviderLanguageMethodsRejectMissingLangcode(): \Iterator {
-    yield 'create without langcode' => ['languageCreate', []];
-    yield 'create with empty langcode' => ['languageCreate', ['langcode' => '']];
-    yield 'delete without langcode' => ['languageDelete', []];
-    yield 'delete with non-string langcode' => ['languageDelete', ['langcode' => 123]];
+    yield 'create without langcode' => ['createLanguage', []];
+    yield 'create with empty langcode' => ['createLanguage', ['langcode' => '']];
+    yield 'delete without langcode' => ['deleteLanguage', []];
+    yield 'delete with non-string langcode' => ['deleteLanguage', ['langcode' => 123]];
   }
 
   /**
-   * Tests that 'entityCreate()' rejects an entity type declaring no id key.
+   * Tests that 'createEntity()' rejects an entity type declaring no id key.
    *
    * Drupal ships no entity type without an id key, so the definition is
    * mocked.
    */
-  public function testEntityCreateRejectsEntityTypeWithoutIdKey(): void {
+  public function testCreateEntityRejectsEntityTypeWithoutIdKey(): void {
     $core = $this->createCore();
     $this->setUpEntityTypeManager('widget', FALSE);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/Cannot create an entity of type "widget" because it declares no id key/');
 
-    $core->entityCreate(new EntityStub('widget'));
+    $core->createEntity(new EntityStub('widget'));
   }
 
   /**
-   * Tests that 'entityDelete()' rejects a stub whose id key holds no usable id.
+   * Tests that 'deleteEntity()' rejects a stub whose id key holds no usable id.
    *
    * @param mixed $id
    *   The value stored under the entity type's id key.
    */
-  #[DataProvider('dataProviderEntityDeleteRejectsEmptyId')]
-  public function testEntityDeleteRejectsEmptyId(mixed $id): void {
+  #[DataProvider('dataProviderDeleteEntityRejectsEmptyId')]
+  public function testDeleteEntityRejectsEmptyId(mixed $id): void {
     $core = $this->createCore();
     $this->setUpEntityTypeManager('widget', 'id');
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/Cannot delete an entity of type "widget" from a stub with an empty id key "id"/');
 
-    $core->entityDelete(new EntityStub('widget', NULL, ['id' => $id]));
+    $core->deleteEntity(new EntityStub('widget', NULL, ['id' => $id]));
   }
 
-  public static function dataProviderEntityDeleteRejectsEmptyId(): \Iterator {
+  public static function dataProviderDeleteEntityRejectsEmptyId(): \Iterator {
     yield 'empty string' => [''];
     yield 'null' => [NULL];
     yield 'array' => [[]];

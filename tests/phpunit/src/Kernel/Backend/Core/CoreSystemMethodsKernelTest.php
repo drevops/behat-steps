@@ -82,36 +82,36 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
   }
 
   /**
-   * Tests languageCreate with a fresh language and languageDelete removes it.
+   * Tests createLanguage with a fresh language and deleteLanguage removes it.
    */
   public function testLanguageLifecycle(): void {
     $this->assertNull(ConfigurableLanguage::load('fr'));
 
     $stub = new EntityStub('language', NULL, ['langcode' => 'fr']);
-    $this->assertSame($stub, $this->core->languageCreate($stub));
+    $this->assertSame($stub, $this->core->createLanguage($stub));
     $this->assertTrue($stub->isSaved());
     $this->assertInstanceOf(ConfigurableLanguage::class, ConfigurableLanguage::load('fr'));
 
-    $this->core->languageDelete($stub);
+    $this->core->deleteLanguage($stub);
     $this->assertNull(ConfigurableLanguage::load('fr'));
   }
 
-  public function testLanguageCreateLeavesAnExistingLanguageAlone(): void {
-    $this->core->languageCreate(new EntityStub('language', NULL, ['langcode' => 'fr']));
+  public function testCreateLanguageLeavesAnExistingLanguageAlone(): void {
+    $this->core->createLanguage(new EntityStub('language', NULL, ['langcode' => 'fr']));
     $existing = ConfigurableLanguage::load('fr');
     $this->assertInstanceOf(ConfigurableLanguage::class, $existing);
 
     $stub = new EntityStub('language', NULL, ['langcode' => 'fr']);
 
-    $this->assertSame($stub, $this->core->languageCreate($stub));
+    $this->assertSame($stub, $this->core->createLanguage($stub));
     $this->assertFalse($stub->isSaved());
     $this->assertSame($existing->uuid(), ConfigurableLanguage::load('fr')?->uuid());
   }
 
-  public function testLanguageDeleteToleratesMissingLanguage(): void {
+  public function testDeleteLanguageToleratesMissingLanguage(): void {
     $this->assertNull(ConfigurableLanguage::load('fr'));
 
-    $this->core->languageDelete(new EntityStub('language', NULL, ['langcode' => 'fr']));
+    $this->core->deleteLanguage(new EntityStub('language', NULL, ['langcode' => 'fr']));
 
     $this->assertNull(ConfigurableLanguage::load('fr'));
   }

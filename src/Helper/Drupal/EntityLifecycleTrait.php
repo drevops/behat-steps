@@ -143,7 +143,7 @@ trait EntityLifecycleTrait {
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    */
-  public function entityLifecycleNodeCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function entityLifecycleCreateNode(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeNodeCreateScope::class, $stub);
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
@@ -151,7 +151,7 @@ trait EntityLifecycleTrait {
     $this->entityLifecycleParseCreatedFields($stub, $backend, ['author']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
-    $backend->nodeCreate($stub);
+    $backend->createNode($stub);
     $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
@@ -173,7 +173,7 @@ trait EntityLifecycleTrait {
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
    */
-  public function entityLifecycleTermCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function entityLifecycleCreateTerm(EntityStubInterface $stub): EntityStubInterface {
     // The backend loads vocabularies by machine name only, so a human label is
     // resolved to one first. The backend reports a clearer failure than this
     // code could, so the resolution is best-effort.
@@ -198,7 +198,7 @@ trait EntityLifecycleTrait {
     $this->entityLifecycleParseCreatedFields($stub, $backend, ['vocabulary_machine_name']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
-    $backend->termCreate($stub);
+    $backend->createTerm($stub);
     $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hooks run: a hook that throws still
@@ -215,7 +215,7 @@ trait EntityLifecycleTrait {
    * Creates an entity of a type that has no dedicated method.
    *
    * The stub is added to 'createdStubs', so 'entityLifecycleAfterScenario()'
-   * removes it after the scenario through the backend's 'entityDelete()'
+   * removes it after the scenario through the backend's 'deleteEntity()'
    * fallback.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
@@ -231,7 +231,7 @@ trait EntityLifecycleTrait {
     $this->entityLifecycleParseCreatedFields($stub, $backend);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
-    $backend->entityCreate($stub);
+    $backend->createEntity($stub);
     $this->entityLifecycleRestoreScalarBaseFields($stub, $scalars);
 
     // Register before the post-create hook runs: a hook that throws still
@@ -256,10 +256,10 @@ trait EntityLifecycleTrait {
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
    *   When no backend in the scenario's order can manage languages.
    */
-  public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface {
+  public function entityLifecycleCreateLanguage(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeLanguageCreateScope::class, $stub);
 
-    $result = $this->backendFor(LanguageCapabilityInterface::class)->languageCreate($stub);
+    $result = $this->backendFor(LanguageCapabilityInterface::class)->createLanguage($stub);
 
     if (!$result->isSaved()) {
       return $result;
@@ -330,7 +330,7 @@ trait EntityLifecycleTrait {
 
     if (in_array($type, ['language', 'configurable_language'], TRUE)) {
       if ($registry->hasCapability(LanguageCapabilityInterface::class)) {
-        $this->backendFor(LanguageCapabilityInterface::class)->languageDelete($stub);
+        $this->backendFor(LanguageCapabilityInterface::class)->deleteLanguage($stub);
       }
 
       return;
@@ -343,9 +343,9 @@ trait EntityLifecycleTrait {
     $backend = $this->backendFor(ContentCapabilityInterface::class);
 
     match ($type) {
-      'node' => $backend->nodeDelete($stub),
-      'taxonomy_term' => $backend->termDelete($stub),
-      default => $backend->entityDelete($stub),
+      'node' => $backend->deleteNode($stub),
+      'taxonomy_term' => $backend->deleteTerm($stub),
+      default => $backend->deleteEntity($stub),
     };
   }
 

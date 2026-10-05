@@ -63,7 +63,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
       'field_attachment' => ['public://preexisting-uri.txt'],
     ]);
 
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
     $this->assertSame((int) $existing->id(), (int) $this->loadFieldTargetId($stub->getValue('id'), 'field_attachment'));
     $this->assertSame(1, $this->fileEntityCount(), 'A second managed file was created instead of reusing the existing one.');
@@ -82,7 +82,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
       'field_attachment' => ['preexisting-basename.txt'],
     ]);
 
-    $this->core->entityCreate($stub);
+    $this->core->createEntity($stub);
 
     $this->assertSame((int) $existing->id(), (int) $this->loadFieldTargetId($stub->getValue('id'), 'field_attachment'));
     $this->assertSame(1, $this->fileEntityCount());

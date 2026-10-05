@@ -16,8 +16,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for taxonomy term methods on Core via the backend.
  *
- * Exercises Core::termCreate (with optional parent lookup by name) and
- * Core::termDelete against real taxonomy_term storage.
+ * Exercises Core::createTerm (with optional parent lookup by name) and
+ * Core::deleteTerm against real taxonomy_term storage.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -68,7 +68,7 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
       'name' => 'Drupal',
       'parent' => 'Frameworks',
     ]);
-    $result = $this->core->termCreate($child_stub);
+    $result = $this->core->createTerm($child_stub);
 
     $this->assertSame($child_stub, $result);
     $this->assertNotEmpty($result->getValue('tid'));
@@ -78,39 +78,39 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
     $this->assertSame('Drupal', $child->getName());
     $this->assertSame((int) $parent->id(), (int) $child->get('parent')->target_id, 'parent name was resolved to tid.');
 
-    $this->core->termDelete($result);
+    $this->core->deleteTerm($result);
     $this->assertNull(Term::load($result->getValue('tid')));
   }
 
-  public function testTermDeleteToleratesMissingTerm(): void {
+  public function testDeleteTermToleratesMissingTerm(): void {
     $this->assertNull(Term::load(99999));
 
-    $this->core->termDelete(new EntityStub('taxonomy_term', 'tags', ['tid' => 99999]));
+    $this->core->deleteTerm(new EntityStub('taxonomy_term', 'tags', ['tid' => 99999]));
 
     $this->assertNull(Term::load(99999));
   }
 
-  public function testTermCreateRejectsMissingVocabularyProperty(): void {
+  public function testCreateTermRejectsMissingVocabularyProperty(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches("/vocabulary is missing/");
 
-    $this->core->termCreate(new EntityStub('taxonomy_term', NULL, ['name' => 'Orphan']));
+    $this->core->createTerm(new EntityStub('taxonomy_term', NULL, ['name' => 'Orphan']));
   }
 
-  public function testTermCreateRejectsUnknownVocabulary(): void {
+  public function testCreateTermRejectsUnknownVocabulary(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/vocabulary "ghosts" does not exist/');
 
-    $this->core->termCreate(new EntityStub('taxonomy_term', 'ghosts', [
+    $this->core->createTerm(new EntityStub('taxonomy_term', 'ghosts', [
       'name' => 'Casper',
     ]));
   }
 
-  public function testTermCreateRejectsUnknownParent(): void {
+  public function testCreateTermRejectsUnknownParent(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/parent term "Missing" does not exist in vocabulary "tags"/');
 
-    $this->core->termCreate(new EntityStub('taxonomy_term', 'tags', [
+    $this->core->createTerm(new EntityStub('taxonomy_term', 'tags', [
       'name' => 'Orphaned',
       'parent' => 'Missing',
     ]));
@@ -122,15 +122,15 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
    * The happy-path test passes the vocabulary as the bundle constructor
    * argument; this test passes it as the 'vocabulary_machine_name' stub value.
    */
-  public function testTermCreateWithVocabularyMachineNameAlias(): void {
+  public function testCreateTermWithVocabularyMachineNameAlias(): void {
     $stub = new EntityStub('taxonomy_term', NULL, [
       'name' => 'Drupal',
       'vocabulary_machine_name' => 'tags',
     ]);
 
-    $result = $this->core->termCreate($stub);
+    $result = $this->core->createTerm($stub);
 
-    $this->assertTrue($result->isSaved(), 'termCreate marked the stub saved.');
+    $this->assertTrue($result->isSaved(), 'createTerm marked the stub saved.');
     $this->assertFalse($result->hasValue('vocabulary_machine_name'), 'Alias removed after resolution.');
     $term = Term::load($result->getValue('tid'));
     $this->assertInstanceOf(Term::class, $term);

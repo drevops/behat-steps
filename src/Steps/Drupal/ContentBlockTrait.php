@@ -46,7 +46,7 @@ trait ContentBlockTrait {
    *   When the entity cannot be deleted.
    */
   #[Given('the following :content_block_type content blocks do not exist:')]
-  public function contentBlockDelete(string $content_block_type, TableNode $content_block_table): void {
+  public function contentBlockDeleteMultiple(string $content_block_type, TableNode $content_block_table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($content_block_table->getColumn(0) as $description) {
@@ -85,9 +85,9 @@ trait ContentBlockTrait {
    * @endcode
    */
   #[Given('the following :content_block_type content blocks exist:')]
-  public function contentBlockCreate(string $content_block_type, TableNode $content_block_table): void {
+  public function contentBlockCreateMultiple(string $content_block_type, TableNode $content_block_table): void {
     foreach ($content_block_table->getHash() as $hash) {
-      $this->contentBlockCreateSingle($content_block_type, $hash);
+      $this->contentBlockCreate($content_block_type, $hash);
     }
   }
 
@@ -110,11 +110,11 @@ trait ContentBlockTrait {
    * @endcode
    */
   #[Given('the following :content_block_type content blocks with fields exist:')]
-  public function contentBlockCreateWithFields(string $content_block_type, TableNode $table): void {
+  public function contentBlockCreateMultipleWithFields(string $content_block_type, TableNode $table): void {
     $entities = $this->tableTransposeVertical($table);
 
     foreach ($entities as $entity_data) {
-      $this->contentBlockCreateSingle($content_block_type, $entity_data);
+      $this->contentBlockCreate($content_block_type, $entity_data);
     }
   }
 
@@ -181,7 +181,7 @@ trait ContentBlockTrait {
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be saved.
    */
-  public function contentBlockCreateSingle(string $content_block_type, array $values): BlockContent {
+  public function contentBlockCreate(string $content_block_type, array $values): BlockContent {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $values['type'] = $content_block_type;

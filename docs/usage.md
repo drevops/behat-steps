@@ -94,7 +94,7 @@ class SpecContext extends WebRawContext {
 
   #[When('I publish a page titled :title')]
   public function publish(string $title): void {
-    $this->entityLifecycleNodeCreate(new EntityStub('node', 'page', ['title' => $title]));
+    $this->entityLifecycleCreateNode(new EntityStub('node', 'page', ['title' => $title]));
   }
 
 }

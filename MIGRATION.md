@@ -1103,8 +1103,8 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 
 | Helper | Holds | Composed by |
 | --- | --- | --- |
-| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()`, `entityLifecycleTermCreate()`, `entityLifecycleCreate()`, `entityLifecycleLanguageCreate()`, `entityLifecycleRegister()`, `entityLifecycleParseFields()`, `entityLifecycleAfterScenario()`, `entityLifecycleBeforeNodeCreate()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
-| `Helper\Drupal\AuthTrait` | `authUserCreate()`, `authLogin()`, `authLogout()`, `authIsLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authAfterScenario()` | `Steps\Drupal\UserTrait` |
+| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleCreateNode()`, `entityLifecycleCreateTerm()`, `entityLifecycleCreate()`, `entityLifecycleCreateLanguage()`, `entityLifecycleRegister()`, `entityLifecycleParseFields()`, `entityLifecycleAfterScenario()`, `entityLifecycleBeforeNodeCreate()` | the 13 step traits that create entities, and `UserTrait` through `AuthTrait` |
+| `Helper\Drupal\AuthTrait` | `authCreateUser()`, `authLogin()`, `authLogout()`, `authIsLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authAfterScenario()` | `Steps\Drupal\UserTrait` |
 | `Helper\Drupal\StaticCacheTrait` | `staticCacheAfterScenario()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
 | `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 9 step traits |
@@ -1122,15 +1122,15 @@ A call or an override in a consumer context is renamed:
 
 | Old `RawContext` member | New member |
 | --- | --- |
-| `nodeCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleNodeCreate()` |
-| `termCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleTermCreate()` |
+| `nodeCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateNode()` |
+| `termCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateTerm()` |
 | `entityCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreate()` |
-| `languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleLanguageCreate()` |
+| `languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateLanguage()` |
 | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
 | `parseEntityFields()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleParseFields()` |
 | `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAfterScenario()` |
 | `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleBeforeNodeCreate()` |
-| `userCreate()` | `Helper\Drupal\AuthTrait::authUserCreate()` |
+| `userCreate()` | `Helper\Drupal\AuthTrait::authCreateUser()` |
 | `login()` | `Helper\Drupal\AuthTrait::authLogin()` |
 | `logout()` | `Helper\Drupal\AuthTrait::authLogout()` |
 | `loggedIn()` | `Helper\Drupal\AuthTrait::authIsLoggedIn()` |
@@ -1554,9 +1554,9 @@ No step shipped by this library declares `:expectedValue`, so the shipped vocabu
 
 ## One shape per naming idea
 
-Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize" and 2 of "log in", 2 shapes for a consumer override point, 3 lookup verbs that didn't say what a lookup does when nothing matches, and assertions that put a qualifier ahead of their predicate, used `Has`, `Includes` or `Present` where the rules say `Equals`, `Contains` or `Exists`, or weren't named as assertions at all. They are trait members a consumer calls or overrides, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
+Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize" and 2 of "log in", 2 shapes for a consumer override point, 3 lookup verbs that didn't say what a lookup does when nothing matches, 2 word orders for a method that creates an entity, 3 shapes for a method acting on several entities, and assertions that put a qualifier ahead of their predicate, used `Has`, `Includes` or `Present` where the rules say `Equals`, `Contains` or `Exists`, or weren't named as assertions at all. They are members a consumer calls, overrides or implements, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
 
-`CONTRIBUTING.md` states the settled conventions and `tests/phpunit/src/TraitMethodNamingTest.php` enforces them.
+`CONTRIBUTING.md` states the settled conventions, and `tests/phpunit/src/TraitMethodNamingTest.php` and `tests/phpunit/src/CapabilityMethodNamingTest.php` enforce them.
 
 ### Negation is spelled `Not`, in one slot
 
@@ -1679,7 +1679,7 @@ Only the name changes. Each method keeps its body, its parameters, its return ty
 | `Drupal\EmailTrait` | `emailGetMailSystemDefault()` (protected) | `emailFindMailSystemDefault()` | returns `NULL` |
 | `Drupal\EmailTrait` | `emailGetMailSystemOriginal()` (protected) | `emailFindMailSystemOriginal()` | returns `NULL` |
 | `Drupal\UserTrait` | `userLoadByName()` | `userGetByName()` | throws `\RuntimeException` |
-| `Drupal\WebformTrait` | `webformTemplates()` | `webformLoadTemplates()` | returns an empty array |
+| `Drupal\WebformTrait` | `webformTemplates()` | `webformLoadTemplateMultiple()` | returns an empty array |
 | `CookieTrait` | `cookieGetByName()` | `cookieFindByName()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetDriverName()` | `diagnosticsFindBrowserDriverName()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetRerunCommand()` | `diagnosticsFindRerunCommand()` | returns `NULL` |
@@ -1818,8 +1818,92 @@ A helper that takes a bundle names the parameter after the entity type, as the s
 
 | Method | Before | After |
 | --- | --- | --- |
-| `contentBlockCreateSingle()` | `string $type, array $values` | `string $content_block_type, array $values` |
+| `contentBlockCreate()` | `string $type, array $values` | `string $content_block_type, array $values` |
 | `contentBlockLoadMultiple()` | `string $type, array $conditions = []` | `string $content_block_type, array $conditions = []` |
+
+`contentBlockCreate()` is the 1-entity helper that was `contentBlockCreateSingle()`, renamed under [A method acting on several entities ends in `Multiple`](#a-method-acting-on-several-entities-ends-in-multiple).
+
+### A create or delete method names the verb first
+
+A method that created an entity put the verb and the noun in either order. The step traits read verb-first, as `contentCreateWithFields()` did, while the entity lifecycle helper, `EckTrait` and every backend capability read noun-first, as `entityLifecycleNodeCreate()` and `nodeCreate()` did. The verb now comes first everywhere: a trait method puts it right after its prefix, and a capability method opens with it.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()` | `entityLifecycleCreateNode()` |
+| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleTermCreate()` | `entityLifecycleCreateTerm()` |
+| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleLanguageCreate()` | `entityLifecycleCreateLanguage()` |
+| `Helper\Drupal\AuthTrait` | `authUserCreate()` | `authCreateUser()` |
+| `Drupal\EckTrait` | `eckEntitiesCreate()` | `eckCreateMultiple()` |
+| `Drupal\MenuTrait` | `menuLinksCreate()` | `menuCreateLinkMultiple()` |
+| `Drupal\MenuTrait` | `menuLinksDelete()` | `menuDeleteLinkMultiple()` |
+
+`entityLifecycleCreate()` already read verb-first and is unchanged. The 3 steps at the bottom also act on several entities, so they take the `Multiple` the next section describes. The `RawContext` rows in [The Drupal lifecycle moved into concern-named helpers](#the-drupal-lifecycle-moved-into-concern-named-helpers) point straight at the new names.
+
+A capability interface that creates an entity now reads one way, so its delete, place and role methods move with its create methods. A backend of your own renames the methods it implements; `DrupalBackend`, `DrushBackend` and `Core` already have.
+
+| Interface | Old | New |
+| --- | --- | --- |
+| `ContentCapabilityInterface` | `nodeCreate()` | `createNode()` |
+| `ContentCapabilityInterface` | `nodeDelete()` | `deleteNode()` |
+| `ContentCapabilityInterface` | `termCreate()` | `createTerm()` |
+| `ContentCapabilityInterface` | `termDelete()` | `deleteTerm()` |
+| `ContentCapabilityInterface` | `entityCreate()` | `createEntity()` |
+| `ContentCapabilityInterface` | `entityDelete()` | `deleteEntity()` |
+| `BlockCapabilityInterface` | `blockPlace()` | `placeBlock()` |
+| `BlockCapabilityInterface` | `blockDelete()` | `deleteBlock()` |
+| `BlockCapabilityInterface` | `blockContentCreate()` | `createBlockContent()` |
+| `BlockCapabilityInterface` | `blockContentDelete()` | `deleteBlockContent()` |
+| `LanguageCapabilityInterface` | `languageCreate()` | `createLanguage()` |
+| `LanguageCapabilityInterface` | `languageDelete()` | `deleteLanguage()` |
+| `UserCapabilityInterface` | `userCreate()` | `createUser()` |
+| `UserCapabilityInterface` | `userDelete()` | `deleteUser()` |
+| `UserCapabilityInterface` | `userAddRole()` | `addUserRole()` |
+| `RoleCapabilityInterface` | `roleCreate()` | `createRole()` |
+| `RoleCapabilityInterface` | `roleDelete()` | `deleteRole()` |
+
+The config, state, module, mail, cache and cron capabilities keep their names. So do the entity-create hooks, because a hook is named for its event: `BeforeNodeCreate`, `AfterTermCreate` and the rest are unchanged.
+
+### A method acting on several entities ends in `Multiple`
+
+A method that created, deleted or loaded several entities at once took one of 3 shapes: a plural noun, as `userCreateRoles()` did, a `Multiple` suffix, as `userLoadMultiple()` does, or a bare verb beside a `Single` sibling, as `mediaCreate()` and `mediaCreateSingle()` did. Each now ends in `Multiple`, the way Drupal's own `loadMultiple()` does, and the method for 1 entity is the same name without it. A `With` qualifier still comes last.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\ContentTrait` | `contentCreate()` | `contentCreateMultiple()` |
+| `Drupal\ContentTrait` | `contentCreateWithFields()` | `contentCreateMultipleWithFields()` |
+| `Drupal\ContentTrait` | `contentDelete()` | `contentDeleteMultiple()` |
+| `Drupal\ContentBlockTrait` | `contentBlockCreate()` | `contentBlockCreateMultiple()` |
+| `Drupal\ContentBlockTrait` | `contentBlockCreateWithFields()` | `contentBlockCreateMultipleWithFields()` |
+| `Drupal\ContentBlockTrait` | `contentBlockDelete()` | `contentBlockDeleteMultiple()` |
+| `Drupal\ContentBlockTrait` | `contentBlockCreateSingle()` | `contentBlockCreate()` |
+| `Drupal\EckTrait` | `eckDeleteEntities()` | `eckDeleteMultiple()` |
+| `Drupal\EckTrait` | `eckCreateEntity()` | `eckCreate()` |
+| `Drupal\EckTrait` | `eckCreateEntities()` (protected) | folded into `eckCreateMultiple()` |
+| `Drupal\FileTrait` | `fileCreateManaged()` | `fileCreateManagedMultiple()` |
+| `Drupal\FileTrait` | `fileDeleteManagedFiles()` | `fileDeleteManagedMultiple()` |
+| `Drupal\FileTrait` | `fileCreateManagedSingle()` | `fileCreateManaged()` |
+| `Drupal\MediaTrait` | `mediaCreate()` | `mediaCreateMultiple()` |
+| `Drupal\MediaTrait` | `mediaCreateWithFields()` | `mediaCreateMultipleWithFields()` |
+| `Drupal\MediaTrait` | `mediaDelete()` | `mediaDeleteMultiple()` |
+| `Drupal\MediaTrait` | `mediaCreateSingle()` | `mediaCreate()` |
+| `Drupal\MenuTrait` | `menuCreate()` | `menuCreateMultiple()` |
+| `Drupal\MenuTrait` | `menuDeleteSingle()` | `menuDelete()` |
+| `Drupal\RedirectTrait` | `redirectCreate()` | `redirectCreateMultiple()` |
+| `Drupal\RedirectTrait` | `redirectDelete()` | `redirectDeleteMultiple()` |
+| `Drupal\TaxonomyTrait` | `taxonomyCreate()` | `taxonomyCreateMultiple()` |
+| `Drupal\TaxonomyTrait` | `taxonomyCreateWithFields()` | `taxonomyCreateMultipleWithFields()` |
+| `Drupal\TaxonomyTrait` | `taxonomyDeleteTerms()` | `taxonomyDeleteMultiple()` |
+| `Drupal\UserTrait` | `userCreateWithFields()` | `userCreateMultipleWithFields()` |
+| `Drupal\UserTrait` | `userCreateRoles()` | `userCreateRoleMultiple()` |
+| `Drupal\UserTrait` | `userDelete()` | `userDeleteMultiple()` |
+| `Drupal\WebformTrait` | `webformLoadAll()` | `webformLoadMultiple()` |
+| `Drupal\WebformTrait` | `webformLoadTemplates()` | `webformLoadTemplateMultiple()` |
+
+`mediaCreate()`, `contentBlockCreate()` and `fileCreateManaged()` appear on both sides of that table. The step over a table took the `Multiple` name, and the 1-entity helper beside it took the name the step freed. Their parameters differ, so a call left on the old name fails with a `TypeError` rather than reaching the wrong method quietly.
+
+`webformLoadTemplates()` shipped in v3 as `webformTemplates()`, so its row under [A lookup's verb says what a miss does](#a-lookups-verb-says-what-a-miss-does) maps that name straight to `webformLoadTemplateMultiple()`.
+
+`ContentTrait`, `TaxonomyTrait`, `UserTrait`, `LanguageTrait` and `EntityTrait` had no 1-entity helper to rename: a single node, term, user, language or other entity goes through `entityLifecycleCreateNode()`, `entityLifecycleCreateTerm()`, `authCreateUser()`, `entityLifecycleCreateLanguage()` or `entityLifecycleCreate()`. `userCreateMultiple()`, `languageCreateMultiple()` and `entityCreateMultiple()` already carried the suffix and are unchanged.
 
 ## A class is named for the role it plays
 
@@ -2026,29 +2110,33 @@ The capability interfaces disagreed about what a create returns and what a delet
 
 | Method | Before | After |
 | --- | --- | --- |
-| `UserCapabilityInterface::userCreate()` | `void` | Returns the stub |
-| `LanguageCapabilityInterface::languageCreate()` | Returned `FALSE` for a language that already exists | Returns the stub, left unsaved for a language that already exists |
-| `RoleCapabilityInterface::roleCreate()` | The role's machine name | A `user_role` stub carrying `id` and `label` |
-| `ContentCapabilityInterface::termDelete()` | `bool` | `void` |
-| `LanguageCapabilityInterface::languageDelete()` | Threw for a language that doesn't exist | Does nothing |
+| `UserCapabilityInterface::createUser()` | `void` | Returns the stub |
+| `LanguageCapabilityInterface::createLanguage()` | Returned `FALSE` for a language that already exists | Returns the stub, left unsaved for a language that already exists |
+| `RoleCapabilityInterface::createRole()` | The role's machine name | A `user_role` stub carrying `id` and `label` |
+| `ContentCapabilityInterface::deleteTerm()` | `bool` | `void` |
+| `LanguageCapabilityInterface::deleteLanguage()` | Threw for a language that doesn't exist | Does nothing |
 
-A project with its own backend updates those signatures, and every delete it implements does nothing for a missing target rather than throwing. A caller of `roleCreate()` reads the machine name from the stub:
+The table and the text below use the names [A create or delete method names the verb first](#a-create-or-delete-method-names-the-verb-first) settles on, and the code shows a call written before both changes.
+
+A project with its own backend updates those signatures, and every delete it implements does nothing for a missing target rather than throwing. A caller of `createRole()` reads the machine name from the stub:
 
 ```php
 // Before.
 $role = $backend->roleCreate(['access content']);
 
 // After.
-$role = $backend->roleCreate(['access content'])->getValue('id');
+$role = $backend->createRole(['access content'])->getValue('id');
 ```
 
-`Helper\Drupal\EntityLifecycleTrait::entityLifecycleLanguageCreate()` follows the backend: it returns the stub in both cases instead of `FALSE`, and only a stub the backend saved joins the teardown.
+`Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateLanguage()` follows the backend: it returns the stub in both cases instead of `FALSE`, and only a stub the backend saved joins the teardown.
 
-The shipped backends keep the delete contract throughout. The Drush backend's `roleDelete()` and `userDelete()` no longer fail for a role or user that's already gone, and the in-process `userDelete()` no longer reports "The user account ... does not exist." for one.
+The shipped backends keep the delete contract throughout. The Drush backend's `deleteRole()` and `deleteUser()` no longer fail for a role or user that's already gone, and the in-process `deleteUser()` no longer reports "The user account ... does not exist." for one.
 
 ## Every `LoadMultiple()` returns loaded entities
 
 5 of the 6 `<trait>LoadMultiple()` helpers returned entity IDs, while `userLoadMultiple()` returned loaded users. You couldn't tell from 1 signature what the next would hand back. All 6 now return the loaded entities keyed by entity ID, or an empty array when nothing matches. `userLoadMultiple()` already worked this way, so it's unchanged.
+
+`webformLoadMultiple()` and `webformLoadTemplateMultiple()` joined the family when [A method acting on several entities ends in `Multiple`](#a-method-acting-on-several-entities-ends-in-multiple) renamed them. They always returned loaded webforms keyed by ID, so only their names changed.
 
 | Trait | Method | Returned | Returns now |
 | --- | --- | --- | --- |

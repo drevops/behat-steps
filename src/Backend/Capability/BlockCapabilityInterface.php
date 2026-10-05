@@ -38,7 +38,7 @@ interface BlockCapabilityInterface {
    *   resolved id is also written back onto the stub's values bag under
    *   the 'id' key.
    */
-  public function blockPlace(EntityStubInterface $stub): EntityStubInterface;
+  public function placeBlock(EntityStubInterface $stub): EntityStubInterface;
 
   /**
    * Removes a placed block.
@@ -46,10 +46,10 @@ interface BlockCapabilityInterface {
    * Does nothing when the placement does not exist.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The stub returned by 'blockPlace()', or one that carries an 'id'
+   *   The stub returned by 'placeBlock()', or one that carries an 'id'
    *   value resolving to an existing block placement.
    */
-  public function blockDelete(EntityStubInterface $stub): void;
+  public function deleteBlock(EntityStubInterface $stub): void;
 
   /**
    * Creates a content block.
@@ -63,7 +63,7 @@ interface BlockCapabilityInterface {
    *   The same stub, now flagged as saved with the saved 'block_content'
    *   entity attached.
    */
-  public function blockContentCreate(EntityStubInterface $stub): EntityStubInterface;
+  public function createBlockContent(EntityStubInterface $stub): EntityStubInterface;
 
   /**
    * Deletes a content block.
@@ -71,9 +71,9 @@ interface BlockCapabilityInterface {
    * Does nothing when the content block does not exist.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The stub returned by 'blockContentCreate()', or one that carries
+   *   The stub returned by 'createBlockContent()', or one that carries
    *   the entity type's id key resolving to an existing content block.
    */
-  public function blockContentDelete(EntityStubInterface $stub): void;
+  public function deleteBlockContent(EntityStubInterface $stub): void;
 
 }

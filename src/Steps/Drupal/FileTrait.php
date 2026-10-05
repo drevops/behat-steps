@@ -99,7 +99,7 @@ trait FileTrait {
    * @endcode
    */
   #[Given('the following managed files exist:')]
-  public function fileCreateManaged(TableNode $table): void {
+  public function fileCreateManagedMultiple(TableNode $table): void {
     foreach ($table->getHash() as $hash) {
       if (empty($hash['path'])) {
         throw new \RuntimeException('Missing required column "path".');
@@ -110,7 +110,7 @@ trait FileTrait {
       unset($hash['path'], $hash['uri']);
 
       $stub = new EntityStub('file', NULL, $hash);
-      $this->fileCreateManagedSingle($path, $stub, $uri);
+      $this->fileCreateManaged($path, $stub, $uri);
     }
   }
 
@@ -137,7 +137,7 @@ trait FileTrait {
    * @endcode
    */
   #[Given('the following managed files do not exist:')]
-  public function fileDeleteManagedFiles(TableNode $table): void {
+  public function fileDeleteManagedMultiple(TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $storage = \Drupal::entityTypeManager()->getStorage('file');
@@ -284,7 +284,7 @@ trait FileTrait {
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  public function fileCreateManagedSingle(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
     $this->entityLifecycleParseFields($stub);
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);

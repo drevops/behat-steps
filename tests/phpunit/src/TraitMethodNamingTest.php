@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use PHPUnit\Framework\Attributes\CoversNothing;
@@ -83,6 +84,11 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Visit',
     'Wait',
   ];
+
+  /**
+   * Verbs that create, delete or load an entity.
+   */
+  protected const LIFECYCLE_VERBS = ['Create', 'Delete', 'Load'];
 
   /**
    * Assert that every method a trait declares carries the trait's prefix.
@@ -607,6 +613,86 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that `Create`, `Delete` and `Load` sit directly after the prefix.
+   *
+   * The verb comes before the entity it acts on, so a name carrying one of
+   * them opens with it. A hook is named for its event, as
+   * `contentBeforeNodeCreate()` is, and a `Visit` method names the page it
+   * opens, as `contentVisitDeletePageWithTitle()` does, so neither is read.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderLifecycleVerbsFollowPrefix')]
+  public function testLifecycleVerbsFollowPrefix(string $trait, string $file): void {
+    $prefix = self::traitPrefix((new \ReflectionClass($trait))->getShortName());
+
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      $words = self::wordsAfterPrefix($method->getName(), $prefix);
+
+      if (self::isHook($method) || in_array($words[0] ?? '', [...static::LIFECYCLE_VERBS, 'Visit'], TRUE) || array_intersect($words, static::LIFECYCLE_VERBS) === []) {
+        continue;
+      }
+
+      $violations[] = $method->getName();
+    }
+
+    $this->assertSame([], $violations, 'Place "Create", "Delete" or "Load" directly after the prefix, before the entity it acts on: "entityLifecycleCreateNode", not "entityLifecycleNodeCreate".');
+  }
+
+  public static function dataProviderLifecycleVerbsFollowPrefix(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that a method acting on several entities carries `Multiple`.
+   *
+   * A create or delete step over a `the following` table and a `Load`
+   * returning a set act on several entities. The method for 1 entity is the
+   * same name without `Multiple`, so no lifecycle method carries `Single`.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderBatchMethodsCarryMultiple')]
+  public function testBatchMethodsCarryMultiple(string $trait, string $file): void {
+    $prefix = self::traitPrefix((new \ReflectionClass($trait))->getShortName());
+
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      $words = self::wordsAfterPrefix($method->getName(), $prefix);
+      $verb = $words[0] ?? '';
+
+      if (!in_array($verb, static::LIFECYCLE_VERBS, TRUE)) {
+        continue;
+      }
+
+      $type = $method->getReturnType();
+      $is_batch = $verb === 'Load' ? ($type instanceof \ReflectionNamedType && $type->getName() === 'array') : self::stepOpensWith($method, 'the following ');
+
+      $carries_single = in_array('Single', $words, TRUE);
+      $lacks_multiple = $is_batch && !in_array('Multiple', $words, TRUE);
+
+      if (!$carries_single && !$lacks_multiple) {
+        continue;
+      }
+
+      $violations[] = $method->getName();
+    }
+
+    $this->assertSame([], $violations, 'Name a method acting on several entities with "Multiple" and its 1-entity counterpart without it: "contentCreateMultiple" for "the following :content_type content exist:", "userLoadMultiple" for a set, and "mediaCreate", not "mediaCreateSingle".');
+  }
+
+  public static function dataProviderBatchMethodsCarryMultiple(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Pair every trait under `src/` with the file that declares it.
    *
    * @return array<string, array{string, string}>
@@ -743,6 +829,48 @@ class TraitMethodNamingTest extends UnitTestCase {
     }
 
     return FALSE;
+  }
+
+  /**
+   * Check whether Behat registers a method as a hook.
+   */
+  protected static function isHook(\ReflectionMethod $method): bool {
+    foreach ($method->getAttributes() as $attribute) {
+      if (str_contains($attribute->getName(), '\\Hook\\')) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Check whether the text of a method's `Given` step opens with a phrase.
+   */
+  protected static function stepOpensWith(\ReflectionMethod $method, string $phrase): bool {
+    foreach ($method->getAttributes(Given::class) as $attribute) {
+      if (str_starts_with((string) $attribute->newInstance()->getPattern(), $phrase)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Split the part of a method name after the trait prefix into words.
+   *
+   * @return array<int, string>
+   *   The words, or an empty array when the name lacks the prefix.
+   */
+  protected static function wordsAfterPrefix(string $method, string $prefix): array {
+    if (!self::hasPrefix($method, $prefix)) {
+      return [];
+    }
+
+    preg_match_all('/[A-Z][a-z0-9]*/', substr($method, strlen($prefix)), $words);
+
+    return $words[0];
   }
 
   /**

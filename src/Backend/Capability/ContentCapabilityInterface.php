@@ -20,7 +20,7 @@ interface ContentCapabilityInterface {
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved with the created node attached.
    */
-  public function nodeCreate(EntityStubInterface $stub): EntityStubInterface;
+  public function createNode(EntityStubInterface $stub): EntityStubInterface;
 
   /**
    * Deletes a node.
@@ -28,10 +28,10 @@ interface ContentCapabilityInterface {
    * Does nothing when the node does not exist.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The stub returned from a previous 'nodeCreate()' call, or one that
+   *   The stub returned from a previous 'createNode()' call, or one that
    *   carries a 'nid' value resolving to an existing node.
    */
-  public function nodeDelete(EntityStubInterface $stub): void;
+  public function deleteNode(EntityStubInterface $stub): void;
 
   /**
    * Creates a taxonomy term.
@@ -42,7 +42,7 @@ interface ContentCapabilityInterface {
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved with the created term attached.
    */
-  public function termCreate(EntityStubInterface $stub): EntityStubInterface;
+  public function createTerm(EntityStubInterface $stub): EntityStubInterface;
 
   /**
    * Deletes a taxonomy term.
@@ -50,10 +50,10 @@ interface ContentCapabilityInterface {
    * Does nothing when the term does not exist.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The stub returned from a previous 'termCreate()' call, or one that
+   *   The stub returned from a previous 'createTerm()' call, or one that
    *   carries a 'tid' value resolving to an existing term.
    */
-  public function termDelete(EntityStubInterface $stub): void;
+  public function deleteTerm(EntityStubInterface $stub): void;
 
   /**
    * Creates an entity of any type.
@@ -66,7 +66,7 @@ interface ContentCapabilityInterface {
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved with the created entity attached.
    */
-  public function entityCreate(EntityStubInterface $stub): EntityStubInterface;
+  public function createEntity(EntityStubInterface $stub): EntityStubInterface;
 
   /**
    * Deletes an entity of any type.
@@ -74,9 +74,9 @@ interface ContentCapabilityInterface {
    * Does nothing when the entity does not exist.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The stub returned from a previous 'entityCreate()' call, or one that
+   *   The stub returned from a previous 'createEntity()' call, or one that
    *   carries the entity type's id key resolving to an existing entity.
    */
-  public function entityDelete(EntityStubInterface $stub): void;
+  public function deleteEntity(EntityStubInterface $stub): void;
 
 }

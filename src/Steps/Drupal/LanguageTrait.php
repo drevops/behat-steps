@@ -49,7 +49,7 @@ trait LanguageTrait {
         throw new \RuntimeException('Each row must carry a non-empty "langcode" value.');
       }
 
-      $this->entityLifecycleLanguageCreate(new EntityStub('language', NULL, ['langcode' => $langcode]));
+      $this->entityLifecycleCreateLanguage(new EntityStub('language', NULL, ['langcode' => $langcode]));
     }
   }
 

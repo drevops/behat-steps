@@ -21,7 +21,7 @@ interface UserCapabilityInterface {
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub.
    */
-  public function userCreate(EntityStubInterface $stub): EntityStubInterface;
+  public function createUser(EntityStubInterface $stub): EntityStubInterface;
 
   /**
    * Deletes a user.
@@ -29,10 +29,10 @@ interface UserCapabilityInterface {
    * Does nothing when the user does not exist.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The stub returned from a previous 'userCreate()' call, or one that
+   *   The stub returned from a previous 'createUser()' call, or one that
    *   carries a 'uid' value resolving to an existing user.
    */
-  public function userDelete(EntityStubInterface $stub): void;
+  public function deleteUser(EntityStubInterface $stub): void;
 
   /**
    * Adds a role to a user.
@@ -42,6 +42,6 @@ interface UserCapabilityInterface {
    * @param string $role
    *   The role machine name or label.
    */
-  public function userAddRole(EntityStubInterface $stub, string $role): void;
+  public function addUserRole(EntityStubInterface $stub, string $role): void;
 
 }

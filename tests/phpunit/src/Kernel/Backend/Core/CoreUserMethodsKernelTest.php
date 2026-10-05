@@ -52,7 +52,7 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
 
     $this->installEntitySchema('user');
     // users_data is used by user_cancel's batch callback; without it a
-    // synchronous userDelete fails with a missing-table error.
+    // synchronous deleteUser fails with a missing-table error.
     $this->installSchema('user', ['users_data']);
     $this->installConfig(['user']);
 
@@ -70,10 +70,10 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
       'mail' => 'alice@example.com',
       'pass' => 'correcthorsebatterystaple',
     ]);
-    $this->assertSame($user_stub, $this->core->userCreate($user_stub));
+    $this->assertSame($user_stub, $this->core->createUser($user_stub));
 
-    $this->assertNotEmpty($user_stub->getValue('uid'), 'userCreate populated uid.');
-    $this->assertTrue($user_stub->isSaved(), 'userCreate marked the stub saved.');
+    $this->assertNotEmpty($user_stub->getValue('uid'), 'createUser populated uid.');
+    $this->assertTrue($user_stub->isSaved(), 'createUser marked the stub saved.');
     $account = User::load($user_stub->getValue('uid'));
     $this->assertInstanceOf(User::class, $account);
     $this->assertSame('alice', $account->getAccountName());
@@ -82,66 +82,66 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     // 'access user profiles' is provided by the user module enabled here, so
     // checkPermissions() can validate it in isolation without pulling in node.
     $permission = 'access user profiles';
-    $role_stub = $this->core->roleCreate([$permission]);
+    $role_stub = $this->core->createRole([$permission]);
     $role_id = (string) $role_stub->getValue('id');
     $role = Role::load($role_id);
     $this->assertInstanceOf(Role::class, $role);
     $this->assertTrue($role->hasPermission($permission));
     $this->assertSame('user_role', $role_stub->getEntityType());
     $this->assertSame($role->label(), $role_stub->getValue('label'));
-    $this->assertTrue($role_stub->isSaved(), 'roleCreate marked the stub saved.');
+    $this->assertTrue($role_stub->isSaved(), 'createRole marked the stub saved.');
     $saved_role = $role_stub->getSavedEntity();
     $this->assertInstanceOf(Role::class, $saved_role);
     $this->assertSame($role_id, $saved_role->id());
 
-    $this->core->userAddRole($user_stub, $role_id);
+    $this->core->addUserRole($user_stub, $role_id);
     $account = User::load($user_stub->getValue('uid'));
     $this->assertContains($role_id, $account->getRoles());
 
-    $this->core->userDelete($user_stub);
+    $this->core->deleteUser($user_stub);
     $this->assertNull(\Drupal::entityTypeManager()->getStorage('user')->loadUnchanged($user_stub->getValue('uid')));
 
-    $this->core->roleDelete($role_id);
+    $this->core->deleteRole($role_id);
     $this->assertNull(Role::load($role_id));
   }
 
-  public function testUserAddRoleThrowsOnUnknownRole(): void {
+  public function testAddUserRoleThrowsOnUnknownRole(): void {
     $stub = new EntityStub('user', NULL, [
       'name' => 'ghost',
       'mail' => 'ghost@example.com',
       'pass' => 'pw',
     ]);
-    $this->core->userCreate($stub);
+    $this->core->createUser($stub);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/No role "nonexistent-role" exists/');
 
-    $this->core->userAddRole($stub, 'nonexistent-role');
+    $this->core->addUserRole($stub, 'nonexistent-role');
   }
 
-  public function testUserAddRoleThrowsOnUnknownUser(): void {
-    $role_id = (string) $this->core->roleCreate(['access user profiles'])->getValue('id');
+  public function testAddUserRoleThrowsOnUnknownUser(): void {
+    $role_id = (string) $this->core->createRole(['access user profiles'])->getValue('id');
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/No user with id "999999" exists/');
 
-    $this->core->userAddRole(new EntityStub('user', NULL, ['uid' => 999999]), $role_id);
+    $this->core->addUserRole(new EntityStub('user', NULL, ['uid' => 999999]), $role_id);
   }
 
   public function testDeletesTolerateMissingTargets(): void {
-    $this->core->userDelete(new EntityStub('user', NULL, ['uid' => 999999]));
-    $this->core->roleDelete('nonexistent-role');
+    $this->core->deleteUser(new EntityStub('user', NULL, ['uid' => 999999]));
+    $this->core->deleteRole('nonexistent-role');
 
     $this->assertNull(User::load(999999));
     $this->assertNull(Role::load('nonexistent-role'));
     $this->assertSame([], \Drupal::messenger()->messagesByType('error'), 'No error was reported for the missing user.');
   }
 
-  public function testRoleCreateRejectsUnknownPermission(): void {
+  public function testCreateRoleRejectsUnknownPermission(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid permission "definitely not a real permission"');
 
-    $this->core->roleCreate(['definitely not a real permission']);
+    $this->core->createRole(['definitely not a real permission']);
   }
 
   /**
@@ -152,12 +152,12 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
    */
   #[DataProvider('dataProviderClearingCachesForgetsThePermissionList')]
   public function testClearingCachesForgetsThePermissionList(string $method): void {
-    $this->core->roleCreate(['access user profiles']);
+    $this->core->createRole(['access user profiles']);
     $this->enableModules(['block']);
 
     $this->core->{$method}();
 
-    $role = Role::load($this->core->roleCreate(['administer blocks'])->getValue('id'));
+    $role = Role::load($this->core->createRole(['administer blocks'])->getValue('id'));
     $this->assertInstanceOf(Role::class, $role);
     $this->assertTrue($role->hasPermission('administer blocks'));
   }
@@ -168,29 +168,29 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   public function testModuleInstallForgetsThePermissionList(): void {
-    $this->core->roleCreate(['access user profiles']);
+    $this->core->createRole(['access user profiles']);
 
     $this->core->moduleInstall('block');
 
-    $role = Role::load($this->core->roleCreate(['administer blocks'])->getValue('id'));
+    $role = Role::load($this->core->createRole(['administer blocks'])->getValue('id'));
     $this->assertInstanceOf(Role::class, $role);
     $this->assertTrue($role->hasPermission('administer blocks'));
   }
 
   public function testModuleUninstallForgetsThePermissionList(): void {
     $this->core->moduleInstall('block');
-    $this->core->roleCreate(['access user profiles']);
+    $this->core->createRole(['access user profiles']);
 
     $this->core->moduleUninstall('block');
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid permission "administer blocks".');
 
-    $this->core->roleCreate(['administer blocks']);
+    $this->core->createRole(['administer blocks']);
   }
 
-  public function testRoleCreateAcceptsExplicitIdAndLabel(): void {
-    $role_stub = $this->core->roleCreate(['access user profiles'], 'editor', 'Editor');
+  public function testCreateRoleAcceptsExplicitIdAndLabel(): void {
+    $role_stub = $this->core->createRole(['access user profiles'], 'editor', 'Editor');
 
     $this->assertSame(['id' => 'editor', 'label' => 'Editor'], $role_stub->getValues());
     $role = Role::load('editor');
@@ -199,8 +199,8 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertTrue($role->hasPermission('access user profiles'));
   }
 
-  public function testRoleCreateFallsBackToIdAsLabel(): void {
-    $role_stub = $this->core->roleCreate([], 'content_editor');
+  public function testCreateRoleFallsBackToIdAsLabel(): void {
+    $role_stub = $this->core->createRole([], 'content_editor');
 
     $this->assertSame(['id' => 'content_editor', 'label' => 'content_editor'], $role_stub->getValues());
     $role = Role::load('content_editor');
@@ -208,8 +208,8 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertSame('content_editor', $role->label());
   }
 
-  public function testUserCreateAppliesRolesAlias(): void {
-    $role_id = (string) $this->core->roleCreate(['access user profiles'], 'editor')->getValue('id');
+  public function testCreateUserAppliesRolesAlias(): void {
+    $role_id = (string) $this->core->createRole(['access user profiles'], 'editor')->getValue('id');
 
     $stub = new EntityStub('user', NULL, [
       'name' => 'roleuser',
@@ -218,7 +218,7 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
       'roles' => [$role_id],
     ]);
 
-    $this->core->userCreate($stub);
+    $this->core->createUser($stub);
 
     $account = User::load($stub->getValue('uid'));
     $this->assertInstanceOf(User::class, $account);

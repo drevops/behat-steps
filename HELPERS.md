@@ -1375,7 +1375,7 @@ Read a stored configuration value, ignoring runtime overrides
 > Manage Drupal content blocks.
 
 <details>
-  <summary><code>public function contentBlockCreateSingle(string $content_block_type, array $values): BlockContent</code></summary>
+  <summary><code>public function contentBlockCreate(string $content_block_type, array $values): BlockContent</code></summary>
 
 <br/>
 Create a block content entity with the specified type and field values
@@ -1480,7 +1480,7 @@ Run a Drush command expecting a non-zero exit, keeping its output
 > Manage Drupal ECK entities with custom type and bundle creation.
 
 <details>
-  <summary><code>public function eckCreateEntity(EntityStub $stub): void</code></summary>
+  <summary><code>public function eckCreate(EntityStub $stub): void</code></summary>
 
 <br/>
 Create a single content entity
@@ -1564,7 +1564,7 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleCreateLanguage(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a language
@@ -1573,10 +1573,19 @@ Creates a language
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleCreateNode(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityLifecycleCreateTerm(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a taxonomy term
 <br/><br/>
 
 </details>
@@ -1599,15 +1608,6 @@ Registers an entity saved outside the create pipeline for cleanup
 
 </details>
 
-<details>
-  <summary><code>public function entityLifecycleTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a taxonomy term
-<br/><br/>
-
-</details>
-
 ## Drupal\FileTrait
 
 [Source](src/Steps/Drupal/FileTrait.php), [Steps](STEPS.md#drupalfiletrait)
@@ -1624,7 +1624,7 @@ Create file entity
 </details>
 
 <details>
-  <summary><code>public function fileCreateManagedSingle(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
+  <summary><code>public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
 
 <br/>
 Create a single managed file
@@ -1648,19 +1648,19 @@ Load multiple files with specified conditions
 > Manage Drupal media entities with type-specific field handling.
 
 <details>
-  <summary><code>public function mediaCreateEntity(EntityStubInterface $stub): MediaInterface</code></summary>
+  <summary><code>public function mediaCreate(EntityStubInterface $stub): MediaInterface</code></summary>
 
 <br/>
-Create media entity
+Create a single media item
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function mediaCreateSingle(EntityStubInterface $stub): MediaInterface</code></summary>
+  <summary><code>public function mediaCreateEntity(EntityStubInterface $stub): MediaInterface</code></summary>
 
 <br/>
-Create a single media item
+Create media entity
 <br/><br/>
 
 </details>
@@ -1969,7 +1969,7 @@ Read the errors logged since the scenario started, and clear them
 > Manage Drupal webforms.
 
 <details>
-  <summary><code>public function webformLoadAll(string $title): array</code></summary>
+  <summary><code>public function webformLoadMultiple(string $title): array</code></summary>
 
 <br/>
 Load all webforms whose title contains the given string
@@ -1978,7 +1978,7 @@ Load all webforms whose title contains the given string
 </details>
 
 <details>
-  <summary><code>public function webformLoadTemplates(string $title): array</code></summary>
+  <summary><code>public function webformLoadTemplateMultiple(string $title): array</code></summary>
 
 <br/>
 Load all webform templates whose title contains the given string
@@ -1991,6 +1991,15 @@ Load all webform templates whose title contains the given string
 [Source](src/Helper/Drupal/AuthTrait.php)
 
 > Creates users and roles, logs them in, and removes them afterwards.
+
+<details>
+  <summary><code>public function authCreateUser(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a user
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function authGetAuthenticator(): AuthenticatorInterface</code></summary>
@@ -2038,15 +2047,6 @@ Logs the current user out
 </details>
 
 <details>
-  <summary><code>public function authUserCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a user
-<br/><br/>
-
-</details>
-
-<details>
   <summary><code>public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
@@ -2056,7 +2056,7 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleCreateLanguage(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a language
@@ -2065,10 +2065,19 @@ Creates a language
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleCreateNode(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityLifecycleCreateTerm(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a taxonomy term
 <br/><br/>
 
 </details>
@@ -2087,15 +2096,6 @@ Expands a stub's raw Gherkin values into the storage field shape
 
 <br/>
 Registers an entity saved outside the create pipeline for cleanup
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a taxonomy term
 <br/><br/>
 
 </details>
@@ -2116,7 +2116,7 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleCreateLanguage(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a language
@@ -2125,10 +2125,19 @@ Creates a language
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleNodeCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
+  <summary><code>public function entityLifecycleCreateNode(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function entityLifecycleCreateTerm(EntityStubInterface $stub): EntityStubInterface</code></summary>
+
+<br/>
+Creates a taxonomy term
 <br/><br/>
 
 </details>
@@ -2147,15 +2156,6 @@ Expands a stub's raw Gherkin values into the storage field shape
 
 <br/>
 Registers an entity saved outside the create pipeline for cleanup
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleTermCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a taxonomy term
 <br/><br/>
 
 </details>

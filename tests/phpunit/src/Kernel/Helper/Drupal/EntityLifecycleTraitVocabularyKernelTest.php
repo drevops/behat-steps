@@ -78,7 +78,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
 
     $backend = $this->createInProcessBackend();
-    $backend->expects($this->once())->method('termCreate')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
+    $backend->expects($this->once())->method('createTerm')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
       $this->assertSame('tags', $received->getValue('vocabulary_machine_name'));
 
       return $stub;
@@ -86,7 +86,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     $this->context->setBackendRegistry($this->createBackendRegistry($backend));
 
-    $this->context->entityLifecycleTermCreate($stub);
+    $this->context->entityLifecycleCreateTerm($stub);
 
     $this->assertSame('tags', $stub->getValue('vocabulary_machine_name'));
   }
@@ -96,7 +96,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
     $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, ContentCapabilityInterface::class]);
-    $backend->expects($this->once())->method('termCreate')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
+    $backend->expects($this->once())->method('createTerm')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
       $this->assertSame('Tags', $received->getValue('vocabulary_machine_name'));
 
       return $stub;
@@ -104,7 +104,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     $this->context->setBackendRegistry($this->createBackendRegistry($backend));
 
-    $this->context->entityLifecycleTermCreate($stub);
+    $this->context->entityLifecycleCreateTerm($stub);
 
     $this->assertSame('Tags', $stub->getValue('vocabulary_machine_name'));
   }

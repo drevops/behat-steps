@@ -12,7 +12,7 @@ use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
  * Assigns roles to a user after the user has been created.
  *
  * Reads the 'roles' value (expected to be an array of role machine
- * names or labels) and calls 'userAddRole()' for each entry on the
+ * names or labels) and calls 'addUserRole()' for each entry on the
  * backend supplied at construction. No-ops when the value is missing or
  * not an array.
  */
@@ -22,7 +22,7 @@ class RolesAlias implements PostCreateAliasInterface {
    * Constructs the alias with the backend that receives role calls.
    *
    * @param \DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface $backend
-   *   The backend whose 'userAddRole()' will be called per role.
+   *   The backend whose 'addUserRole()' will be called per role.
    */
   public function __construct(protected readonly UserCapabilityInterface $backend) {
   }
@@ -76,7 +76,7 @@ class RolesAlias implements PostCreateAliasInterface {
         throw new CreationAliasResolutionException("Cannot assign role because one of the 'roles' entries is empty after trimming.");
       }
 
-      $this->backend->userAddRole($stub, $name);
+      $this->backend->addUserRole($stub, $name);
     }
   }
 

@@ -41,7 +41,7 @@ trait WebformTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $webforms = $this->webformLoadAll($title);
+    $webforms = $this->webformLoadMultiple($title);
 
     foreach ($webforms as $webform) {
       $webform->delete();
@@ -66,7 +66,7 @@ trait WebformTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $templates = $this->webformLoadTemplates($template);
+    $templates = $this->webformLoadTemplateMultiple($template);
 
     if (empty($templates)) {
       throw new \RuntimeException(sprintf('No webform template matching "%s" was found.', $template));
@@ -90,11 +90,12 @@ trait WebformTrait {
    * @param string $title
    *   The title string to search for (CONTAINS match).
    *
-   * @return \Drupal\webform\WebformInterface[]
-   *   An array of matching webform template entities.
+   * @return array<string, \Drupal\webform\WebformInterface>
+   *   The matching webform templates keyed by ID, or an empty array when none
+   *   match.
    */
-  public function webformLoadTemplates(string $title): array {
-    $webforms = $this->webformLoadAll($title);
+  public function webformLoadTemplateMultiple(string $title): array {
+    $webforms = $this->webformLoadMultiple($title);
 
     return array_filter($webforms, static fn($webform): bool => $webform->isTemplate());
   }
@@ -105,10 +106,10 @@ trait WebformTrait {
    * @param string $title
    *   The title string to search for (CONTAINS match).
    *
-   * @return \Drupal\webform\WebformInterface[]
-   *   An array of matching webform entities.
+   * @return array<string, \Drupal\webform\WebformInterface>
+   *   The matching webforms keyed by ID, or an empty array when none match.
    */
-  public function webformLoadAll(string $title): array {
+  public function webformLoadMultiple(string $title): array {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
@@ -133,7 +134,7 @@ trait WebformTrait {
       return [];
     }
 
-    /** @var \Drupal\webform\WebformInterface[] $webforms */
+    /** @var array<string, \Drupal\webform\WebformInterface> $webforms */
     $webforms = $storage->loadMultiple($ids);
 
     return $webforms;

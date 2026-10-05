@@ -55,7 +55,7 @@ trait RedirectTrait {
    * @endcode
    */
   #[Given('the following redirects exist:')]
-  public function redirectCreate(TableNode $table): void {
+  public function redirectCreateMultiple(TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
@@ -96,7 +96,7 @@ trait RedirectTrait {
    * @endcode
    */
   #[Given('the following redirects do not exist:')]
-  public function redirectDelete(TableNode $table): void {
+  public function redirectDeleteMultiple(TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
