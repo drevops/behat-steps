@@ -820,20 +820,16 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function termDelete(EntityStubInterface $stub): bool {
+  public function termDelete(EntityStubInterface $stub): void {
     $term = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 
     if (!$term instanceof TermInterface) {
       $term = Term::load($stub->getValue('tid'));
     }
 
-    if (!$term instanceof TermInterface) {
-      return FALSE;
+    if ($term instanceof TermInterface) {
+      $term->delete();
     }
-
-    $term->delete();
-
-    return TRUE;
   }
 
   /**
@@ -977,14 +973,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function languageDelete(EntityStubInterface $stub): void {
-    $langcode = $this->resolveLangcode($stub);
-    $configurable_language = ConfigurableLanguage::load($langcode);
+    $configurable_language = ConfigurableLanguage::load($this->resolveLangcode($stub));
 
-    if (!$configurable_language instanceof ConfigurableLanguage) {
-      throw new \RuntimeException(sprintf('Cannot delete language "%s" because it does not exist.', $langcode));
+    if ($configurable_language instanceof ConfigurableLanguage) {
+      $configurable_language->delete();
     }
-
-    $configurable_language->delete();
   }
 
   /**

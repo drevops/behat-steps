@@ -278,10 +278,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->method('nodeDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'node';
     });
-    $backend->method('termDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): bool {
+    $backend->method('termDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'term';
-
-      return TRUE;
     });
     $backend->method('entityDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'entity';
@@ -319,17 +317,17 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     yield 'configurable_language' => ['configurable_language'];
   }
 
-  public function testAnAlreadyRemovedLanguageDoesNotStopCleanup(): void {
-    $backend = $this->createBackend([LanguageCapabilityInterface::class, ContentCapabilityInterface::class]);
-    $backend->expects($this->once())->method('languageDelete')->willThrowException(new \RuntimeException('The language "fr" does not exist.'));
-    $backend->expects($this->once())->method('nodeDelete');
+  public function testALanguageDeleteFailureSurfaces(): void {
+    $backend = $this->createBackend([LanguageCapabilityInterface::class]);
+    $backend->expects($this->once())->method('languageDelete')->willThrowException(new \RuntimeException('Cannot operate on a language without a non-empty "langcode" value.'));
 
     $context = $this->createContext($backend);
-    $context->setCreatedStubs([new EntityStub('node', 'page'), new EntityStub('language', NULL, ['langcode' => 'fr'])]);
+    $context->setCreatedStubs([new EntityStub('language')]);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot operate on a language without a non-empty "langcode" value.');
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
-
-    $this->assertSame([], $context->getCreatedStubs());
   }
 
   public function testLanguageIsLeftBehindByIncapableBackend(): void {
@@ -596,10 +594,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->method('nodeDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'node';
     });
-    $backend->method('termDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): bool {
+    $backend->method('termDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
       $deleted[] = 'term';
-
-      return TRUE;
     });
 
     $context = $this->createContext($backend);

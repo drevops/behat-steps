@@ -48,11 +48,8 @@ interface ContentCapabilityInterface {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub returned from a previous 'termCreate()' call, or one that
    *   carries a 'tid' value resolving to an existing term.
-   *
-   * @return bool
-   *   TRUE when the term was deleted.
    */
-  public function termDelete(EntityStubInterface $stub): bool;
+  public function termDelete(EntityStubInterface $stub): void;
 
   /**
    * Creates an entity of any type.

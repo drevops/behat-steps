@@ -108,13 +108,12 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $this->assertSame($existing->uuid(), ConfigurableLanguage::load('fr')?->uuid());
   }
 
-  public function testLanguageDeleteThrowsWhenLanguageMissing(): void {
+  public function testLanguageDeleteToleratesMissingLanguage(): void {
     $this->assertNull(ConfigurableLanguage::load('fr'));
 
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches('/Cannot delete language "fr" because it does not exist/');
-
     $this->core->languageDelete(new EntityStub('language', NULL, ['langcode' => 'fr']));
+
+    $this->assertNull(ConfigurableLanguage::load('fr'));
   }
 
   /**

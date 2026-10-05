@@ -294,8 +294,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function termDelete(EntityStubInterface $stub): bool {
-    return $this->getCore()->termDelete($stub);
+  public function termDelete(EntityStubInterface $stub): void {
+    $this->getCore()->termDelete($stub);
   }
 
   /**

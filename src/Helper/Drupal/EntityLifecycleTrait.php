@@ -330,13 +330,7 @@ trait EntityLifecycleTrait {
 
     if (in_array($type, ['language', 'configurable_language'], TRUE)) {
       if ($registry->hasCapability(LanguageCapabilityInterface::class)) {
-        try {
-          $this->backendFor(LanguageCapabilityInterface::class)->languageDelete($stub);
-        }
-        catch (\RuntimeException) {
-          // The scenario removed the language itself. Deleting a node, a term
-          // or a generic entity twice is tolerated, so a language is too.
-        }
+        $this->backendFor(LanguageCapabilityInterface::class)->languageDelete($stub);
       }
 
       return;
