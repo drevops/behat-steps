@@ -177,9 +177,9 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->assertSame($stub, $user_registry->getUser('alice'));
   }
 
-  public function testLanguageCreationTracksTheReturnedStub(): void {
+  public function testLanguageCreationTracksTheSavedStub(): void {
     $backend = $this->createBackend([LanguageCapabilityInterface::class]);
-    $stub = new EntityStub('language', NULL, ['langcode' => 'fr']);
+    $stub = (new EntityStub('language', NULL, ['langcode' => 'fr']))->markSaved(new \stdClass());
     $backend->method('languageCreate')->willReturn($stub);
 
     $context = $this->createContext($backend);
@@ -190,11 +190,12 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testAnExistingLanguageIsNotTracked(): void {
     $backend = $this->createBackend([LanguageCapabilityInterface::class]);
-    $backend->method('languageCreate')->willReturn(FALSE);
+    $stub = new EntityStub('language', NULL, ['langcode' => 'fr']);
+    $backend->method('languageCreate')->willReturn($stub);
 
     $context = $this->createContext($backend);
 
-    $this->assertFalse($context->entityLifecycleLanguageCreate(new EntityStub('language', NULL, ['langcode' => 'fr'])));
+    $this->assertSame($stub, $context->entityLifecycleLanguageCreate($stub));
     $this->assertSame([], $context->getCreatedStubs());
   }
 

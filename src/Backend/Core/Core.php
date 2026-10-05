@@ -17,6 +17,7 @@ use DrevOps\BehatSteps\Backend\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Backend\Core\Field\FieldShapeClassifier;
 use DrevOps\BehatSteps\Backend\Core\Field\FieldShapeClassifierInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
@@ -518,7 +519,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function userCreate(EntityStubInterface $stub): void {
+  public function userCreate(EntityStubInterface $stub): EntityStubInterface {
     if (!$stub->hasValue('status')) {
       $stub->setValue('status', 1);
     }
@@ -533,12 +534,14 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $stub->markSaved($account);
 
     $this->applyPostCreateAliases($stub, $account, 'user');
+
+    return $stub;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): string {
+  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
     $rid = $id ?? strtolower($this->random->name(8, TRUE));
     $role_label = $label ?? ($id ?? trim($this->random->name(8, TRUE)));
 
@@ -557,7 +560,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $role->save();
 
-    return (string) $role->id();
+    $stub = new EntityStub('user_role', NULL, ['id' => (string) $role->id(), 'label' => (string) $role->label()]);
+
+    return $stub->markSaved($role);
   }
 
   /**
@@ -954,11 +959,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false {
+  public function languageCreate(EntityStubInterface $stub): EntityStubInterface {
     $langcode = $this->resolveLangcode($stub);
 
     if (ConfigurableLanguage::load($langcode)) {
-      return FALSE;
+      return $stub;
     }
 
     $entity = ConfigurableLanguage::createFromLangcode($langcode);

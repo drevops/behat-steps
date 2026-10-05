@@ -350,7 +350,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false {
+  public function languageCreate(EntityStubInterface $stub): EntityStubInterface {
     return $this->getCore()->languageCreate($stub);
   }
 
@@ -427,7 +427,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): string {
+  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
     return $this->getCore()->roleCreate($permissions, $id, $label);
   }
 
@@ -441,8 +441,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function userCreate(EntityStubInterface $stub): void {
-    $this->getCore()->userCreate($stub);
+  public function userCreate(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->userCreate($stub);
   }
 
   /**

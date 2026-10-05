@@ -134,6 +134,39 @@ class DrushBackendMethodsTest extends TestCase {
     $backend->userCreate($user);
   }
 
+  public function testUserCreateReturnsTheStub(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = "User ID   :   7\n";
+
+    $user = new EntityStub('user', NULL, ['name' => 'bob', 'pass' => 'pw', 'mail' => 'bob@ex.co']);
+
+    $this->assertSame($user, $backend->userCreate($user));
+    $this->assertSame(7, $user->getValue('uid'));
+  }
+
+  /**
+   * Tests that 'roleCreate()' returns a stub naming the role it created.
+   *
+   * @param array<int, mixed> $args
+   *   Positional arguments for 'roleCreate()'.
+   */
+  #[DataProvider('dataProviderRoleCreateReturnsTheRoleStub')]
+  public function testRoleCreateReturnsTheRoleStub(array $args): void {
+    $backend = $this->createBackend();
+
+    $role = $backend->roleCreate(...$args);
+
+    $this->assertSame('user_role', $role->getEntityType());
+    $this->assertFalse($role->isSaved());
+    $this->assertSame(['id' => $backend->invocations[0]['arguments'][0], 'label' => $backend->invocations[0]['arguments'][1]], $role->getValues());
+  }
+
+  public static function dataProviderRoleCreateReturnsTheRoleStub(): \Iterator {
+    yield 'generated id and label' => [[[]]];
+    yield 'explicit id' => [[[], 'editor']];
+    yield 'explicit id and label' => [[['access content'], 'editor', 'Editor']];
+  }
+
   /**
    * Tests 'cacheClear()' with a drush-only bin skips the rebuild.
    */

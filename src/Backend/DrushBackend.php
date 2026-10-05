@@ -8,6 +8,7 @@ use DrevOps\BehatSteps\Backend\Alias\CreationAliasRegistryTrait;
 use DrevOps\BehatSteps\Backend\Alias\RolesAlias;
 use DrevOps\BehatSteps\Backend\Capability\CreationAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drush\DrushResult;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use Drupal\Component\Utility\Random;
@@ -426,7 +427,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
-  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): string {
+  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
     $random = $this->getRandom();
     $rid = $id ?? strtolower($random->name(8, TRUE));
     $role_label = $label ?? ($id ?? trim($random->name(8, TRUE)));
@@ -437,7 +438,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       $this->drush('role:perm:add', [$rid, $permission], []);
     }
 
-    return $rid;
+    return new EntityStub('user_role', NULL, ['id' => $rid, 'label' => $role_label]);
   }
 
   /**
@@ -450,7 +451,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
-  public function userCreate(EntityStubInterface $stub): void {
+  public function userCreate(EntityStubInterface $stub): EntityStubInterface {
     $arguments = [(string) $stub->getValue('name')];
     $options = [
       'password' => (string) $stub->getValue('pass'),
@@ -470,6 +471,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $account->uid = $uid;
 
     $this->applyPostCreateAliases($stub, $account, 'user');
+
+    return $stub;
   }
 
   /**

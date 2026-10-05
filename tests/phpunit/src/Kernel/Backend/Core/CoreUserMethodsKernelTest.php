@@ -70,7 +70,7 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
       'mail' => 'alice@example.com',
       'pass' => 'correcthorsebatterystaple',
     ]);
-    $this->core->userCreate($user_stub);
+    $this->assertSame($user_stub, $this->core->userCreate($user_stub));
 
     $this->assertNotEmpty($user_stub->getValue('uid'), 'userCreate populated uid.');
     $this->assertTrue($user_stub->isSaved(), 'userCreate marked the stub saved.');
@@ -82,10 +82,17 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     // 'access user profiles' is provided by the user module enabled here, so
     // checkPermissions() can validate it in isolation without pulling in node.
     $permission = 'access user profiles';
-    $role_id = $this->core->roleCreate([$permission]);
+    $role_stub = $this->core->roleCreate([$permission]);
+    $role_id = (string) $role_stub->getValue('id');
     $role = Role::load($role_id);
     $this->assertInstanceOf(Role::class, $role);
     $this->assertTrue($role->hasPermission($permission));
+    $this->assertSame('user_role', $role_stub->getEntityType());
+    $this->assertSame($role->label(), $role_stub->getValue('label'));
+    $this->assertTrue($role_stub->isSaved(), 'roleCreate marked the stub saved.');
+    $saved_role = $role_stub->getSavedEntity();
+    $this->assertInstanceOf(Role::class, $saved_role);
+    $this->assertSame($role_id, $saved_role->id());
 
     $this->core->userAddRole($user_stub, $role_id);
     $account = User::load($user_stub->getValue('uid'));
@@ -113,7 +120,7 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   public function testUserAddRoleThrowsOnUnknownUser(): void {
-    $role_id = $this->core->roleCreate(['access user profiles']);
+    $role_id = (string) $this->core->roleCreate(['access user profiles'])->getValue('id');
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/No user with id "999999" exists/');
@@ -141,7 +148,7 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
 
     $this->core->{$method}();
 
-    $role = Role::load($this->core->roleCreate(['administer blocks']));
+    $role = Role::load($this->core->roleCreate(['administer blocks'])->getValue('id'));
     $this->assertInstanceOf(Role::class, $role);
     $this->assertTrue($role->hasPermission('administer blocks'));
   }
@@ -156,7 +163,7 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
 
     $this->core->moduleInstall('block');
 
-    $role = Role::load($this->core->roleCreate(['administer blocks']));
+    $role = Role::load($this->core->roleCreate(['administer blocks'])->getValue('id'));
     $this->assertInstanceOf(Role::class, $role);
     $this->assertTrue($role->hasPermission('administer blocks'));
   }
@@ -174,9 +181,9 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   public function testRoleCreateAcceptsExplicitIdAndLabel(): void {
-    $role_id = $this->core->roleCreate(['access user profiles'], 'editor', 'Editor');
+    $role_stub = $this->core->roleCreate(['access user profiles'], 'editor', 'Editor');
 
-    $this->assertSame('editor', $role_id);
+    $this->assertSame(['id' => 'editor', 'label' => 'Editor'], $role_stub->getValues());
     $role = Role::load('editor');
     $this->assertInstanceOf(Role::class, $role);
     $this->assertSame('Editor', $role->label());
@@ -184,16 +191,16 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   public function testRoleCreateFallsBackToIdAsLabel(): void {
-    $role_id = $this->core->roleCreate([], 'content_editor');
+    $role_stub = $this->core->roleCreate([], 'content_editor');
 
-    $this->assertSame('content_editor', $role_id);
+    $this->assertSame(['id' => 'content_editor', 'label' => 'content_editor'], $role_stub->getValues());
     $role = Role::load('content_editor');
     $this->assertInstanceOf(Role::class, $role);
     $this->assertSame('content_editor', $role->label());
   }
 
   public function testUserCreateAppliesRolesAlias(): void {
-    $role_id = $this->core->roleCreate(['access user profiles'], 'editor');
+    $role_id = (string) $this->core->roleCreate(['access user profiles'], 'editor')->getValue('id');
 
     $stub = new EntityStub('user', NULL, [
       'name' => 'roleuser',

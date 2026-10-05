@@ -17,8 +17,11 @@ interface UserCapabilityInterface {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The user stub. The backend writes the resolved 'uid' back onto the
    *   stub and marks it saved with the created account.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The same stub.
    */
-  public function userCreate(EntityStubInterface $stub): void;
+  public function userCreate(EntityStubInterface $stub): EntityStubInterface;
 
   /**
    * Deletes a user.

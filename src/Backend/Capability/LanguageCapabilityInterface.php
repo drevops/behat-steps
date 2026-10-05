@@ -14,13 +14,18 @@ interface LanguageCapabilityInterface {
   /**
    * Creates a language.
    *
+   * A language that already exists is left in place and the stub is not
+   * marked saved, so a caller can tell a language it created from one the
+   * site already had.
+   *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Language stub. Must carry a 'langcode' value.
    *
-   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|false
-   *   The saved stub, or FALSE if the language already exists.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The same stub, flagged as saved with the language attached when this
+   *   call created it.
    */
-  public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false;
+  public function languageCreate(EntityStubInterface $stub): EntityStubInterface;
 
   /**
    * Deletes a language.
