@@ -33,6 +33,8 @@ interface RoleCapabilityInterface {
   /**
    * Deletes a role.
    *
+   * Does nothing when the role does not exist.
+   *
    * @param string $role_name
    *   The role machine name to delete.
    */

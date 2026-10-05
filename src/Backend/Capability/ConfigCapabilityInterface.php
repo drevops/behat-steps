@@ -88,6 +88,8 @@ interface ConfigCapabilityInterface {
   /**
    * Deletes a configuration object.
    *
+   * Does nothing when the object does not exist.
+   *
    * @param string $name
    *   The configuration object name.
    */

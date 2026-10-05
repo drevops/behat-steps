@@ -26,6 +26,8 @@ interface UserCapabilityInterface {
   /**
    * Deletes a user.
    *
+   * Does nothing when the user does not exist.
+   *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub returned from a previous 'userCreate()' call, or one that
    *   carries a 'uid' value resolving to an existing user.

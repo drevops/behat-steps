@@ -33,6 +33,8 @@ interface StateCapabilityInterface {
   /**
    * Deletes a state value.
    *
+   * Does nothing when the key holds no value.
+   *
    * @param string $name
    *   The state key.
    */

@@ -25,6 +25,8 @@ interface ContentCapabilityInterface {
   /**
    * Deletes a node.
    *
+   * Does nothing when the node does not exist.
+   *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub returned from a previous 'nodeCreate()' call, or one that
    *   carries a 'nid' value resolving to an existing node.
@@ -44,6 +46,8 @@ interface ContentCapabilityInterface {
 
   /**
    * Deletes a taxonomy term.
+   *
+   * Does nothing when the term does not exist.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub returned from a previous 'termCreate()' call, or one that
@@ -66,6 +70,8 @@ interface ContentCapabilityInterface {
 
   /**
    * Deletes an entity of any type.
+   *
+   * Does nothing when the entity does not exist.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub returned from a previous 'entityCreate()' call, or one that

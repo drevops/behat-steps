@@ -264,6 +264,8 @@ A step is only as portable as the backend behind it, so each trait falls into on
 
 A step names a capability and never a backend. `WebRawContext::backendFor()` walks the scenario's backend order, returns the first backend implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedBackendActionException` naming the capability and the order. The order itself comes from the `backends` list under `behat_steps` and the `@backend:NAME` tag, documented in [docs/configuration.md](docs/configuration.md#backend-resolution).
 
+Every create and delete on a capability interface follows 1 contract, so teardown code can delete whatever a scenario created without checking first. A create returns the stub, flagged as saved once the backend holds the created entity: `languageCreate()` leaves a language that already exists alone and returns the stub unsaved, and `roleCreate()`, which takes no stub, builds a `user_role` one. A delete returns `void` and does nothing when its target doesn't exist. A stub with no identifier at all still throws, since that's a malformed argument rather than a miss. [tests/phpunit/src/CapabilityContractTest.php](tests/phpunit/src/CapabilityContractTest.php) holds every create and delete to its return type, and the backend tests pin the miss.
+
 ## Sending a request from a trait
 
 A step that sends its own HTTP request picks 1 of 3 clients on `WebRawContext` by what the response is for, and the method it calls says which:

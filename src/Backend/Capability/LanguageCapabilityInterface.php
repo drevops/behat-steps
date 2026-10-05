@@ -30,6 +30,8 @@ interface LanguageCapabilityInterface {
   /**
    * Deletes a language.
    *
+   * Does nothing when the language does not exist.
+   *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Language stub. Must carry a 'langcode' value.
    */

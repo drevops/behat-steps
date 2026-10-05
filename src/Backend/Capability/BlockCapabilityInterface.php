@@ -43,6 +43,8 @@ interface BlockCapabilityInterface {
   /**
    * Removes a placed block.
    *
+   * Does nothing when the placement does not exist.
+   *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub returned by 'blockPlace()', or one that carries an 'id'
    *   value resolving to an existing block placement.
@@ -65,6 +67,8 @@ interface BlockCapabilityInterface {
 
   /**
    * Deletes a content block.
+   *
+   * Does nothing when the content block does not exist.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub returned by 'blockContentCreate()', or one that carries
