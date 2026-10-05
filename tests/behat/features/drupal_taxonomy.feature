@@ -125,7 +125,6 @@ Feature: Check that TaxonomyTrait works
       The taxonomy term "Tag1" from the vocabulary "tags" exists, but it should not.
       """
 
-  @test-trait:Drupal\TaxonomyTrait
   Scenario: Assert "Given the following :vocabulary terms do not exist" works
     Given the following "tags" terms do not exist:
       | Tag1        |

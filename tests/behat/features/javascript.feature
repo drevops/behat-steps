@@ -175,7 +175,7 @@ Feature: Check that JavascriptTrait works
     When I press "Click to trigger error"
     And sleep for 4 second
 
-  @javascript @test-trait:JavascriptTrait @behat-steps-skip:JavascriptTrait @phpserver
+  @javascript @behat-steps-skip:JavascriptTrait @phpserver
   Scenario: Skip tag allows bypassing error checking
     Given I visit "http://cli:8888/javascript_errors1.html"
     Then I should see "Page 1 with JavaScript Errors"

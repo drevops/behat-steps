@@ -155,7 +155,6 @@ Feature: Check that ContentBlockTrait works
     And I go to "admin/content/block"
     Then I should not see "[TEST] Temporary Block"
 
-  @test-trait:Drupal\ContentBlockTrait
   Scenario: Assert that deleting a non-existent content block doesn't fail
     When I log in as a user with the role "administrator"
     And the content block type "basic" should exist
