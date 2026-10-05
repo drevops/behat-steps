@@ -4,17 +4,32 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
+use Behat\Mink\Driver\DriverInterface;
+use Behat\Mink\Exception\ExpectationException;
+use Behat\Mink\Mink;
+use Behat\Mink\Session;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Drupal\EmailTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Tests for EmailTrait.
  */
 #[CoversTrait(EmailTrait::class)]
 class EmailTraitTest extends UnitTestCase {
+
+  /**
+   * Collected messages the subject lookups and the subject steps read.
+   */
+  protected const MESSAGES = [
+    ['subject' => 'Account Verification', 'params' => ['body' => 'Verify at http://example.com/verify']],
+    ['subject' => 'Your Account Verification code', 'params' => ['body' => 'Codes: http://example.com/code/1 http://example.com/code/2']],
+    ['subject' => 'Welcome', 'params' => ['body' => 'Welcome aboard.']],
+    ['subject' => 'Monthly report', 'params' => ['body' => 'See attached.', 'attachments' => [['filename' => 'report.pdf'], ['content' => 'An entry without a file name']]]],
+  ];
 
   #[DataProvider('dataProviderExtractLinks')]
   public function testExtractLinks(string $input, array $expected): void {
@@ -83,16 +98,175 @@ class EmailTraitTest extends UnitTestCase {
     (new EmailTraitTestImplementation())->emailAfterScenario($this->createAfterScenarioScope(['email']));
   }
 
+  #[DataProvider('dataProviderFindMessageBySubject')]
+  public function testFindMessageBySubject(array $messages, string $subject, bool $is_partial, ?int $expected): void {
+    $message = $this->createContext($messages)->emailFindMessageBySubject($subject, $is_partial);
+
+    $this->assertSame($expected === NULL ? NULL : $messages[$expected], $message);
+  }
+
+  public static function dataProviderFindMessageBySubject(): \Iterator {
+    yield 'whole subject' => [self::MESSAGES, 'Account Verification', FALSE, 0];
+    yield 'whole subject of a later email' => [self::MESSAGES, 'Your Account Verification code', FALSE, 1];
+    yield 'part of a subject' => [self::MESSAGES, 'Verification', FALSE, NULL];
+    yield 'whole subject in another case' => [self::MESSAGES, 'account verification', FALSE, NULL];
+    yield 'whole subject with collapsed whitespace' => [[['subject' => 'Account  Verification']], 'Account Verification', FALSE, NULL];
+    yield 'whole subject with surrounding whitespace' => [[['subject' => ' Account Verification ']], 'Account Verification', FALSE, NULL];
+    yield 'partial, part of a subject' => [self::MESSAGES, 'Verification', TRUE, 0];
+    yield 'partial, part only a later email has' => [self::MESSAGES, 'code', TRUE, 1];
+    yield 'partial, whole subject' => [self::MESSAGES, 'Welcome', TRUE, 2];
+    yield 'partial, part in another case' => [self::MESSAGES, 'verification', TRUE, NULL];
+    yield 'no collected emails' => [[], 'Account Verification', FALSE, NULL];
+    yield 'email without a subject' => [[['params' => ['body' => 'No subject']]], 'Account Verification', TRUE, NULL];
+    yield 'subject held as markup' => [[['subject' => self::stringable('Account Verification')]], 'Account Verification', FALSE, 0];
+  }
+
+  public function testGetMessageBySubject(): void {
+    $this->assertSame(self::MESSAGES[1], $this->createContext(self::MESSAGES)->emailGetMessageBySubject('code', TRUE));
+  }
+
+  #[DataProvider('dataProviderGetMessageBySubjectFails')]
+  public function testGetMessageBySubjectFails(string $subject, bool $is_partial, string $expected_message): void {
+    $context = $this->createContext(self::MESSAGES);
+
+    $this->expectException(ExpectationException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $context->emailGetMessageBySubject($subject, $is_partial);
+  }
+
+  public static function dataProviderGetMessageBySubjectFails(): \Iterator {
+    yield 'whole subject' => ['Verification', FALSE, 'Unable to find email with subject "Verification" retrieved from test email collector.'];
+    yield 'part of a subject' => ['verification', TRUE, 'Unable to find email with subject containing "verification" retrieved from test email collector.'];
+  }
+
+  #[DataProvider('dataProviderFollowLinkWithIndexBySubject')]
+  public function testFollowLinkWithIndexBySubject(string $method, string $index, string $subject, string $expected_url): void {
+    $session = $this->createSession();
+    $session->expects($this->once())->method('visit')->with($expected_url);
+
+    $this->createContext(self::MESSAGES, $session)->{$method}($index, $subject);
+  }
+
+  public static function dataProviderFollowLinkWithIndexBySubject(): \Iterator {
+    yield 'whole subject' => ['emailFollowLinkWithIndex', '1', 'Account Verification', 'http://example.com/verify'];
+    yield 'whole subject of a later email' => ['emailFollowLinkWithIndex', '2', 'Your Account Verification code', 'http://example.com/code/2'];
+    yield 'part of a subject' => ['emailFollowLinkWithIndexWithSubjectContaining', '1', 'Verification', 'http://example.com/verify'];
+    yield 'part only a later email has' => ['emailFollowLinkWithIndexWithSubjectContaining', '2', 'code', 'http://example.com/code/2'];
+  }
+
+  #[DataProvider('dataProviderFollowLinkWithIndexBySubjectFails')]
+  public function testFollowLinkWithIndexBySubjectFails(string $method, string $index, string $subject, string $expected_message): void {
+    $session = $this->createSession();
+    $session->expects($this->never())->method('visit');
+    $context = $this->createContext(self::MESSAGES, $session);
+
+    $this->expectException(ExpectationException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $context->{$method}($index, $subject);
+  }
+
+  public static function dataProviderFollowLinkWithIndexBySubjectFails(): \Iterator {
+    yield 'part of a subject' => ['emailFollowLinkWithIndex', '1', 'Verification', 'Unable to find email with subject "Verification" retrieved from test email collector.'];
+    yield 'part in another case' => ['emailFollowLinkWithIndexWithSubjectContaining', '1', 'verification', 'Unable to find email with subject containing "verification" retrieved from test email collector.'];
+    yield 'no links' => ['emailFollowLinkWithIndex', '1', 'Welcome', 'No links were found in the email with subject "Welcome".'];
+    yield 'no links, part of a subject' => ['emailFollowLinkWithIndexWithSubjectContaining', '1', 'Welc', 'No links were found in the email with subject containing "Welc".'];
+    yield 'index past the last link' => ['emailFollowLinkWithIndex', '3', 'Your Account Verification code', 'The link with the index 3 was not found among 2 links.'];
+  }
+
+  #[DataProvider('dataProviderAssertMessageContainsAttachmentBySubject')]
+  public function testAssertMessageContainsAttachmentBySubject(string $method, string $file_name, string $subject): void {
+    $this->expectNotToPerformAssertions();
+
+    $this->createContext(self::MESSAGES)->{$method}($file_name, $subject);
+  }
+
+  public static function dataProviderAssertMessageContainsAttachmentBySubject(): \Iterator {
+    yield 'whole subject' => ['emailAssertMessageContainsAttachmentWithName', 'report.pdf', 'Monthly report'];
+    yield 'part of a subject' => ['emailAssertMessageContainsAttachmentWithSubjectContaining', 'report.pdf', 'Monthly'];
+  }
+
+  #[DataProvider('dataProviderAssertMessageContainsAttachmentBySubjectFails')]
+  public function testAssertMessageContainsAttachmentBySubjectFails(string $method, string $file_name, string $subject, string $expected_message): void {
+    $context = $this->createContext(self::MESSAGES);
+
+    $this->expectException(ExpectationException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $context->{$method}($file_name, $subject);
+  }
+
+  public static function dataProviderAssertMessageContainsAttachmentBySubjectFails(): \Iterator {
+    yield 'part of a subject' => ['emailAssertMessageContainsAttachmentWithName', 'report.pdf', 'Monthly', 'Unable to find email with subject "Monthly" retrieved from test email collector.'];
+    yield 'part in another case' => ['emailAssertMessageContainsAttachmentWithSubjectContaining', 'report.pdf', 'monthly', 'Unable to find email with subject containing "monthly" retrieved from test email collector.'];
+    yield 'email without attachments' => ['emailAssertMessageContainsAttachmentWithName', 'report.pdf', 'Welcome', 'The file "report.pdf" is not attached to the email with subject "Welcome".'];
+    yield 'email with other attachments' => ['emailAssertMessageContainsAttachmentWithName', 'summary.pdf', 'Monthly report', 'The file "summary.pdf" is not attached to the email with subject "Monthly report".'];
+    yield 'email with other attachments, part of a subject' => ['emailAssertMessageContainsAttachmentWithSubjectContaining', 'summary.pdf', 'report', 'The file "summary.pdf" is not attached to the email with subject containing "report".'];
+  }
+
+  /**
+   * Builds a context whose test email collector holds the given messages.
+   *
+   * @param array<int, array<string, mixed>> $messages
+   *   The collected messages.
+   * @param \Behat\Mink\Session|null $session
+   *   The session the context drives, or NULL for a new one.
+   */
+  protected function createContext(array $messages, ?Session $session = NULL): EmailTraitTestImplementation {
+    $mink = new Mink(['default' => $session ?? $this->createSession()]);
+    $mink->setDefaultSessionName('default');
+
+    $context = new EmailTraitTestImplementation();
+    $context->setMink($mink);
+    $context->collectedMessages = $messages;
+
+    return $context;
+  }
+
+  /**
+   * Builds a session whose driver an assertion exception can carry.
+   */
+  protected function createSession(): Session&MockObject {
+    $session = $this->createMock(Session::class);
+    $session->method('getDriver')->willReturn($this->createStub(DriverInterface::class));
+
+    return $session;
+  }
+
+  /**
+   * Returns an anonymous Stringable that mimics a Drupal TranslatableMarkup.
+   */
+  protected static function stringable(string $value): \Stringable {
+    return new readonly class($value) {
+
+      public function __construct(protected string $value) {}
+
+      public function __toString(): string {
+        return $this->value;
+      }
+
+    };
+  }
+
 }
 
 /**
  * Test implementation of EmailTrait.
  *
- * Exposes the protected link extractor under test.
+ * Exposes the protected link extractor and replaces the test email collector
+ * with the messages a test supplies.
  */
 class EmailTraitTestImplementation extends WebRawContext {
 
   use EmailTrait;
+
+  /**
+   * Messages returned in place of the test email collector.
+   *
+   * @var array<int, array<string, mixed>>
+   */
+  public array $collectedMessages = [];
 
   /**
    * Extracts all links from the provided string.
@@ -105,6 +279,16 @@ class EmailTraitTestImplementation extends WebRawContext {
    */
   public static function callExtractLinks(string $string): array {
     return static::emailExtractLinks($string);
+  }
+
+  /**
+   * Returns the messages a test supplied.
+   *
+   * @return array<int, array<string, mixed>>
+   *   The collected messages.
+   */
+  public function emailGetCollectedMessages(): array {
+    return $this->collectedMessages;
   }
 
 }

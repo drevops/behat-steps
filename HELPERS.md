@@ -44,7 +44,7 @@
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | 1 | Order items in the Drupal Draggable Views. |
 | [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 2 | Manage Drupal ECK entities with custom type and bundle creation. |
-| [Drupal\EmailTrait](#drupalemailtrait) | 3 | Test Drupal email functionality with content verification. |
+| [Drupal\EmailTrait](#drupalemailtrait) | 5 | Test Drupal email functionality with content verification. |
 | [Drupal\EntityTrait](#drupalentitytrait) | 6 | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](#drupalfiletrait) | 3 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 4 | Manage Drupal media entities with type-specific field handling. |
@@ -1522,10 +1522,28 @@ Find an email message whose field contains a value
 </details>
 
 <details>
+  <summary><code>public function emailFindMessageBySubject(string $subject, bool $is_partial = FALSE): ?array</code></summary>
+
+<br/>
+Find the first collected email by exact or partial subject
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function emailGetCollectedMessages(): array</code></summary>
 
 <br/>
 Get email messages collected during the test
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function emailGetMessageBySubject(string $subject, bool $is_partial = FALSE): array</code></summary>
+
+<br/>
+Get the first collected email by exact or partial subject
 <br/><br/>
 
 </details>
