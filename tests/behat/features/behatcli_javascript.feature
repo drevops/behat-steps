@@ -8,7 +8,7 @@ Feature: Behat CLI context Javascript steps
   Scenario: Test @javascript session can be started for the scenario
     Given I visit "http://cli:8888/javascript_clean1.html"
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Test @javascript session can be started for an assertion
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -18,7 +18,7 @@ Feature: Behat CLI context Javascript steps
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Test @javascript session can be started for assertion in the second run
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":

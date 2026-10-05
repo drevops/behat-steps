@@ -16,7 +16,7 @@ Feature: Check that LanguageTrait works
     And I visit "/admin/config/regional/language"
     Then I should see "French"
 
-  @trait:Drupal\LanguageTrait
+  @test-trait:Drupal\LanguageTrait
   Scenario: Assert "Given the following languages exist:" fails without a langcode
     Given some behat configuration
     And scenario steps:

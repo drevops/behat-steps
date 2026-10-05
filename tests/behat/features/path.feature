@@ -29,7 +29,7 @@ Feature: Check that PathTrait works
       | /user   | <front> |
       | user    | <front> |
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert that negative assertion for "Then the path should be :path" fails
     Given some behat configuration
     And scenario steps:
@@ -44,7 +44,7 @@ Feature: Check that PathTrait works
       Current path is "/user/login", but expected is "/nonexisting"
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert that negative assertion for "Then the path should be :path" fails for "<front>"
     Given some behat configuration
     And scenario steps:
@@ -59,7 +59,7 @@ Feature: Check that PathTrait works
       Current path is "/user/login", but expected is "<front>"
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert that negative assertion for "Then the path should be :path" fails for "/"
     Given some behat configuration
     And scenario steps:
@@ -74,7 +74,7 @@ Feature: Check that PathTrait works
       Current path is "/user/login", but expected is "/"
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert that negative assertion for "Then the path should not be :path" fails
     Given some behat configuration
     And scenario steps:
@@ -89,7 +89,7 @@ Feature: Check that PathTrait works
       Current path should not be "/user/login"
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert that negative assertion for "Then the path should not be :path" fails for "/"
     Given some behat configuration
     And scenario steps:
@@ -104,7 +104,7 @@ Feature: Check that PathTrait works
       Current path should not be "/"
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert that negative assertion for "Then the path should not be :path" fails for "<front>"
     Given some behat configuration
     And scenario steps:
@@ -134,7 +134,7 @@ Feature: Check that PathTrait works
     And the current URL should not have the query parameter "other"
     And the current URL should not have the query parameter "type" with the value "page"
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert failure when URL should have parameter but doesn't
     Given some behat configuration
     And scenario steps:
@@ -149,7 +149,7 @@ Feature: Check that PathTrait works
       The parameter "filter" is not in the URL
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert failure when URL parameter has wrong value
     Given some behat configuration
     And scenario steps:
@@ -164,7 +164,7 @@ Feature: Check that PathTrait works
       The parameter "status" is in the URL but with the wrong value "1"
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert failure when URL shouldn't have parameter but does
     Given some behat configuration
     And scenario steps:
@@ -179,7 +179,7 @@ Feature: Check that PathTrait works
       The parameter "status" with value "1" is in the URL, but it should not be
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert failure when URL contains parameter that should not exist
     Given some behat configuration
     And scenario steps:
@@ -211,7 +211,7 @@ Feature: Check that PathTrait works
     And the current URL should not have the query parameter "missing" with the value "0"
     And the current URL should not have the query parameter "filter" with the value "1"
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert failure when URL parameter with a zero value should not exist
     Given some behat configuration
     And scenario steps:
@@ -226,7 +226,7 @@ Feature: Check that PathTrait works
       The parameter "filter" is in the URL, but it should not be
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert failure when URL parameter with an empty value should not exist
     Given some behat configuration
     And scenario steps:
@@ -241,7 +241,7 @@ Feature: Check that PathTrait works
       The parameter "empty" is in the URL, but it should not be
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert failure when URL parameter should not have the zero value it carries
     Given some behat configuration
     And scenario steps:
@@ -256,7 +256,7 @@ Feature: Check that PathTrait works
       The parameter "filter" with value "0" is in the URL, but it should not be
       """
 
-  @trait:PathTrait
+  @test-trait:PathTrait
   Scenario: Assert failure when URL parameter should not have the empty value it carries
     Given some behat configuration
     And scenario steps:

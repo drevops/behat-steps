@@ -3,7 +3,7 @@ Feature: Check that DiagnosticsTrait works
   I want on-failure diagnostics appended to the failed step message
   So that a red CI run is self-explanatory without a re-run
 
-  @trait:DiagnosticsTrait
+  @test-trait:DiagnosticsTrait
   Scenario: Diagnostics are appended to the message of a failed step
     Given some behat configuration
     And scenario steps:
@@ -37,7 +37,7 @@ Feature: Check that DiagnosticsTrait works
       stub.feature:
       """
 
-  @trait:DiagnosticsTrait
+  @test-trait:DiagnosticsTrait
   Scenario: Diagnostics are suppressed for an opted-out scenario
     Given some behat configuration
     And scenario steps tagged with "@behat-steps-skip:DiagnosticsTrait":

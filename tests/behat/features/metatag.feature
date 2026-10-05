@@ -9,7 +9,7 @@ Feature: Check that MetatagTrait works
       | name    | MobileOptimized |
       | content | width           |
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that negative assertion for "Then the meta tag should exist with the following attributes:" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -31,7 +31,7 @@ Feature: Check that MetatagTrait works
       | name    | Non_Existing |
       | content | width        |
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that negative assertion for "Then the meta tag should not exist with the following attributes:" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -59,7 +59,7 @@ Feature: Check that MetatagTrait works
     When I visit "http://cli:8888/metatags.html"
     Then the meta tag "og:title" should not contain any HTML tags
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the meta tag :name should not contain any HTML tags" fails when meta tag contains HTML
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -73,7 +73,7 @@ Feature: Check that MetatagTrait works
       The "og:description" meta tag contains HTML tags:
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the meta tag :name should not contain any HTML tags" fails when meta tag does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -153,7 +153,7 @@ Feature: Check that MetatagTrait works
     And the following Twitter Card tags should exist:
       | twitter:image |
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the canonical URL should be" fails on mismatch
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -167,7 +167,7 @@ Feature: Check that MetatagTrait works
       The canonical URL is "http://cli:8888/metatags_seo.html", but expected "/wrong-url".
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the canonical URL should be" fails when absent
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -181,7 +181,7 @@ Feature: Check that MetatagTrait works
       The canonical URL is not set.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the canonical URL should exist" fails when absent
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -195,7 +195,7 @@ Feature: Check that MetatagTrait works
       The canonical URL is not set.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the canonical URL should not exist" fails when present
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -215,7 +215,7 @@ Feature: Check that MetatagTrait works
     When I visit "http://cli:8888/metatags_canonical_empty.html"
     Then the canonical URL should not exist
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the page should be indexable" fails on a noindex page
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -229,7 +229,7 @@ Feature: Check that MetatagTrait works
       The page is not indexable: a "noindex" directive is present in the robots meta tag or the "X-Robots-Tag" header.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the page should not be indexable" fails on an indexable page
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -243,7 +243,7 @@ Feature: Check that MetatagTrait works
       The page is indexable, but it should not be: no "noindex" directive found in the robots meta tag or the "X-Robots-Tag" header.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the meta robots should contain" fails when the directive is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -257,7 +257,7 @@ Feature: Check that MetatagTrait works
       The robots meta tag does not contain the "noindex" directive. Found: index, follow.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the meta robots should not contain" fails when the directive is present
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -271,7 +271,7 @@ Feature: Check that MetatagTrait works
       The robots meta tag contains the "noindex" directive, but it should not.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the hreflang alternates should be valid" fails with no alternates
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -285,7 +285,7 @@ Feature: Check that MetatagTrait works
       No hreflang alternate links were found on the page.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the hreflang alternates should be valid" fails on an invalid language code
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -299,7 +299,7 @@ Feature: Check that MetatagTrait works
       The hreflang value "english" is not a valid language code.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the hreflang alternates should be valid" fails on an empty href
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -313,7 +313,7 @@ Feature: Check that MetatagTrait works
       The hreflang alternate for "en" has an empty href.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the hreflang alternates should be valid" fails without a self-reference
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -327,7 +327,7 @@ Feature: Check that MetatagTrait works
       No self-referencing hreflang alternate was found for the current URL
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the hreflang alternates should have reciprocal return links" fails without a return link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -341,7 +341,7 @@ Feature: Check that MetatagTrait works
       does not link back to the current URL
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the hreflang alternates should have reciprocal return links" fails when an alternate is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -355,7 +355,7 @@ Feature: Check that MetatagTrait works
       returned HTTP status 404
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the hreflang alternates should have reciprocal return links" fails with no alternates
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -369,7 +369,7 @@ Feature: Check that MetatagTrait works
       No hreflang alternate links were found on the page.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the Open Graph tags should be valid" fails when tags are missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -383,7 +383,7 @@ Feature: Check that MetatagTrait works
       The following required Open Graph meta tags are missing or empty: og:type, og:image, og:url.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the Twitter Card tags should be valid" fails when tags are missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -397,7 +397,7 @@ Feature: Check that MetatagTrait works
       The following required Twitter Card meta tags are missing or empty: twitter:card, twitter:title, twitter:description.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the following Open Graph tags should exist" fails when a listed tag is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -413,7 +413,7 @@ Feature: Check that MetatagTrait works
       The following required Open Graph meta tags are missing or empty: og:image.
       """
 
-  @trait:MetatagTrait
+  @test-trait:MetatagTrait
   Scenario: Assert that "Then the following Twitter Card tags should exist" fails when a listed tag is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

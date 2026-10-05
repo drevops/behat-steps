@@ -59,7 +59,7 @@ Feature: Check that DropzoneTrait works
 
   # Negative tests.
 
-  @trait:DropzoneTrait
+  @test-trait:DropzoneTrait
   Scenario: Assert "When I drop the file ..." fails when target element is missing
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -74,7 +74,7 @@ Feature: Check that DropzoneTrait works
       Element matching css ".nonexistent-zone" not found.
       """
 
-  @trait:DropzoneTrait
+  @test-trait:DropzoneTrait
   Scenario: Assert "When I drop the file ..." fails when fixture file is missing
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -89,7 +89,7 @@ Feature: Check that DropzoneTrait works
       missing-fixture.bin" does not exist.
       """
 
-  @trait:DropzoneTrait
+  @test-trait:DropzoneTrait
   Scenario: Assert "When I drop the following files ..." fails when fixture file is missing
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -106,7 +106,7 @@ Feature: Check that DropzoneTrait works
       missing-second.bin" does not exist.
       """
 
-  @trait:DropzoneTrait
+  @test-trait:DropzoneTrait
   Scenario: Assert that dropping files fails naming the capability on a driver that runs no JavaScript
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

@@ -25,7 +25,7 @@ Feature: Check that JavascriptTrait works
     When I press "Click to update message"
     Then I should see "Message on page 2 updated successfully!"
 
-  @trait:JavascriptTrait
+  @test-trait:JavascriptTrait
   Scenario: Page with JavaScript errors should fail
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -48,7 +48,7 @@ Feature: Check that JavascriptTrait works
       - Error: Error page 1 - console.error triggered by button
       """
 
-  @trait:JavascriptTrait
+  @test-trait:JavascriptTrait
   Scenario: All errors collected during a step are reported together
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -82,7 +82,7 @@ Feature: Check that JavascriptTrait works
       Total errors: 3
       """
 
-  @trait:JavascriptTrait
+  @test-trait:JavascriptTrait
   Scenario: Errors from different pages are tracked separately
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -118,7 +118,7 @@ Feature: Check that JavascriptTrait works
       Total errors: 4
       """
 
-  @trait:JavascriptTrait
+  @test-trait:JavascriptTrait
   Scenario: Errors are reported when an earlier step failed
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -138,7 +138,7 @@ Feature: Check that JavascriptTrait works
       Total errors: 3
       """
 
-  @trait:JavascriptTrait
+  @test-trait:JavascriptTrait
   Scenario: Rerun after a scenario fails on a JavaScript error
     Given some behat configuration
     And a file named "features/stub.feature" with:
@@ -175,7 +175,7 @@ Feature: Check that JavascriptTrait works
     When I press "Click to trigger error"
     And sleep for 4 second
 
-  @javascript @trait:JavascriptTrait @behat-steps-skip:JavascriptTrait @phpserver
+  @javascript @test-trait:JavascriptTrait @behat-steps-skip:JavascriptTrait @phpserver
   Scenario: Skip tag allows bypassing error checking
     Given I visit "http://cli:8888/javascript_errors1.html"
     Then I should see "Page 1 with JavaScript Errors"

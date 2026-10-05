@@ -72,7 +72,7 @@ Feature: Check that QueueTrait works
     Then the queue "behat_test" should be empty
     And the config "mysite_core.settings" key "queue_budget" should have the value "16"
 
-  @trait:Drupal\QueueTrait
+  @test-trait:Drupal\QueueTrait
   Scenario: Assert negative assertion for "Then the queue :queue should have :count items" works with wrong count
     Given some behat configuration
     And scenario steps tagged with "@queue":
@@ -86,7 +86,7 @@ Feature: Check that QueueTrait works
       Expected queue "behat_test" to have 5 items, but it has 0.
       """
 
-  @trait:Drupal\QueueTrait
+  @test-trait:Drupal\QueueTrait
   Scenario: Assert negative assertion for "Then the queue :queue should be empty" works with non-empty queue
     Given some behat configuration
     And scenario steps tagged with "@queue":
@@ -100,7 +100,7 @@ Feature: Check that QueueTrait works
       Expected queue "behat_test" to be empty, but it has 2 items.
       """
 
-  @trait:Drupal\QueueTrait
+  @test-trait:Drupal\QueueTrait
   Scenario: Assert negative assertion for "When I process :count item(s) from the queue :queue" works with too few items
     Given some behat configuration
     And scenario steps tagged with "@queue":
@@ -115,7 +115,7 @@ Feature: Check that QueueTrait works
       Queue "behat_test" has no more items to process. Processed 1 of 3 requested items.
       """
 
-  @trait:Drupal\QueueTrait
+  @test-trait:Drupal\QueueTrait
   Scenario: Assert negative "Given the following item is in the queue :queue:" fails for invalid JSON
     Given some behat configuration
     And scenario steps tagged with "@queue":
@@ -129,7 +129,7 @@ Feature: Check that QueueTrait works
       The "data" value is not valid JSON: Syntax error.
       """
 
-  @trait:Drupal\QueueTrait
+  @test-trait:Drupal\QueueTrait
   Scenario: Assert negative "Given the following item is in the queue :queue:" fails for more than one data value
     Given some behat configuration
     And scenario steps tagged with "@queue":

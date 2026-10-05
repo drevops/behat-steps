@@ -74,7 +74,7 @@ Feature: Check that RegionTrait works
     Then the "search" field should contain "behat"
     And I uncheck the checkbox "Published" in the region "content"
 
-  @trait:RegionTrait @phpserver
+  @test-trait:RegionTrait @phpserver
   Scenario: Assert "Then the region :region should contain the value :value" fails for an unmapped region
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

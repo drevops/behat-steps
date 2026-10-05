@@ -25,7 +25,7 @@ Feature: Check that AccessibilityTrait works
     Given I visit "http://cli:8888/accessibility_violations.html"
     Then I should see "Inaccessible Page"
 
-  @trait:AccessibilityTrait
+  @test-trait:AccessibilityTrait
   Scenario: Explicit assertion fails on a page with violations
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -51,7 +51,7 @@ Feature: Check that AccessibilityTrait works
       violation [critical] button-name
       """
 
-  @trait:AccessibilityTrait
+  @test-trait:AccessibilityTrait
   Scenario: Auto mode fails on a page with violations
     Given some behat configuration
     And scenario steps tagged with "@javascript @accessibility @phpserver":
@@ -69,7 +69,7 @@ Feature: Check that AccessibilityTrait works
       violation [critical] image-alt on http://cli:8888/accessibility_violations.html
       """
 
-  @trait:AccessibilityTrait
+  @test-trait:AccessibilityTrait
   Scenario: Auto mode with critical threshold ignores serious violations only
     Given some behat configuration
     And scenario steps tagged with "@javascript @accessibility:critical @phpserver":
@@ -87,7 +87,7 @@ Feature: Check that AccessibilityTrait works
       violation [critical] image-alt
       """
 
-  @trait:AccessibilityTrait
+  @test-trait:AccessibilityTrait
   Scenario: A cross-page aggregate report is written after the suite
     Given some behat configuration
     And scenario steps tagged with "@javascript @accessibility:warning @phpserver":
@@ -101,7 +101,7 @@ Feature: Check that AccessibilityTrait works
     Then it should pass
     And a file matching ".logs/test_results/accessibility/accessibility_report_*.html" should exist
 
-  @trait:AccessibilityTrait
+  @test-trait:AccessibilityTrait
   Scenario: Warning mode writes a JUnit report with no failures
     Given some behat configuration
     And scenario steps tagged with "@javascript @accessibility:warning @phpserver":
@@ -124,7 +124,7 @@ Feature: Check that AccessibilityTrait works
       <system-out>
       """
 
-  @trait:AccessibilityTrait
+  @test-trait:AccessibilityTrait
   Scenario: Console summary is not printed by default
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -139,7 +139,7 @@ Feature: Check that AccessibilityTrait works
       [accessibility]
       """
 
-  @trait:AccessibilityTrait
+  @test-trait:AccessibilityTrait
   Scenario: Console summary is printed when the environment variable is set
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":

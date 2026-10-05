@@ -22,7 +22,7 @@ Feature: Check that WaitTrait works
     And I wait for "5" seconds for AJAX to finish
     Then I should see an "input[name=fields\[title\]\[settings_edit_form\]\[settings\]\[placeholder\]]" element
 
-  @trait:WaitTrait
+  @test-trait:WaitTrait
   Scenario: Assert that "When I wait for :seconds second(s) for AJAX to finish" fails when AJAX does not complete in time
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -36,7 +36,7 @@ Feature: Check that WaitTrait works
       Unable to complete an AJAX request.
       """
 
-  @trait:WaitTrait
+  @test-trait:WaitTrait
   Scenario: Assert that negative assertion for "When I wait for :seconds second(s) for AJAX to finish" can be used only with JS-capable driver
     Given some behat configuration
     And scenario steps:

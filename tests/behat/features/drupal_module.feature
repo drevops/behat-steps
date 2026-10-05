@@ -62,7 +62,7 @@ Feature: Check that ModuleTrait works
   Scenario: Assert a module whose code is absent is not enabled
     Then the module "no_such_module_xyz" should be disabled
 
-  @trait:Drupal\ModuleTrait
+  @test-trait:Drupal\ModuleTrait
   Scenario: Assert negative assertion for "Then the module :module should be enabled" works with disabled module
     Given some behat configuration
     And scenario steps:
@@ -77,7 +77,7 @@ Feature: Check that ModuleTrait works
       The module "help" is not enabled, but it should be.
       """
 
-  @trait:Drupal\ModuleTrait
+  @test-trait:Drupal\ModuleTrait
   Scenario: Assert negative assertion for "Then the module :module should be disabled" works with enabled module
     Given some behat configuration
     And scenario steps:
@@ -169,7 +169,7 @@ Feature: Check that ModuleTrait works
     When the module "help" is disabled
     Then the module "help" should be disabled
 
-  @trait:Drupal\ModuleTrait
+  @test-trait:Drupal\ModuleTrait
   Scenario: Assert enabling non-existent module throws error
     Given some behat configuration
     And scenario steps:
@@ -183,7 +183,7 @@ Feature: Check that ModuleTrait works
       Cannot enable module "nonexistent_module_xyz": module is not installed.
       """
 
-  @trait:Drupal\ModuleTrait
+  @test-trait:Drupal\ModuleTrait
   Scenario: Assert "Then the following modules should be enabled:" fails when module is disabled
     Given some behat configuration
     And scenario steps:
@@ -200,7 +200,7 @@ Feature: Check that ModuleTrait works
       The module "help" is not enabled, but it should be.
       """
 
-  @trait:Drupal\ModuleTrait
+  @test-trait:Drupal\ModuleTrait
   Scenario: Assert "Then the following modules should be disabled:" fails when module is enabled
     Given some behat configuration
     And scenario steps:
@@ -217,7 +217,7 @@ Feature: Check that ModuleTrait works
       The module "help" is enabled, but it should not be.
       """
 
-  @trait:Drupal\ModuleTrait
+  @test-trait:Drupal\ModuleTrait
   Scenario: Assert that the skip tag switches the ModuleTrait hooks off
     Given some behat configuration
     And scenario steps tagged with "@behat-steps-skip:ModuleTrait":
@@ -227,7 +227,7 @@ Feature: Check that ModuleTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\ModuleTrait
+  @test-trait:Drupal\ModuleTrait
   Scenario: Assert that a @module tag on the feature applies to every scenario and a scenario tag overrides it
     Given some behat configuration
     And a file named "features/stub.feature" with:

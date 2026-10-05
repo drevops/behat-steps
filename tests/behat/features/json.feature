@@ -23,7 +23,7 @@ Feature: Check that JsonTrait works
       """
     Then the response should be in JSON format
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the response should be in JSON format" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -42,7 +42,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_invalid.json"
     Then the response should not be in JSON format
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the response should not be in JSON format" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -60,7 +60,7 @@ Feature: Check that JsonTrait works
     Given the response JSON is loaded from the file "json_valid.json"
     Then the JSON path "$.name" should be equal to the value "John Doe"
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Given the response JSON is loaded from the file :filename" fails with an exception for missing file
     Given some behat configuration
     And scenario steps:
@@ -83,7 +83,7 @@ Feature: Check that JsonTrait works
     And the JSON path "$.meta.sku" should be equal to the value "p1"
     And the JSON path "$.tags" should have "2" elements
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that path assertion fails with an exception for invalid JSON
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -97,7 +97,7 @@ Feature: Check that JsonTrait works
       Failed to decode JSON
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that path assertion fails with an exception for a non-object JSON root
     Given some behat configuration
     And scenario steps:
@@ -114,7 +114,7 @@ Feature: Check that JsonTrait works
       The JSON response must decode to an array or object, but got int.
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that path assertion fails with an error for an invalid JSONPath expression
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -134,7 +134,7 @@ Feature: Check that JsonTrait works
     Then the JSON path "$.name" should exist
     And the JSON path "$.user.roles[0]" should exist
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should exist" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -153,7 +153,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_valid.json"
     Then the JSON path "$.nonexistent" should not exist
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should not exist" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -175,7 +175,7 @@ Feature: Check that JsonTrait works
     And the JSON path "$.price" should be equal to the value "9.99"
     And the JSON path "$.active" should be equal to the value "true"
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should be equal to the value :value" fails with an error for wrong value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -189,7 +189,7 @@ Feature: Check that JsonTrait works
       The JSON path "$.name" is "John Doe", but expected "Wrong Name".
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the JSON path :path should be equal to the value :value" fails with an error for a missing path
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -203,7 +203,7 @@ Feature: Check that JsonTrait works
       The JSON path "$.nonexistent" was not found.
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the JSON path :path should be equal to the value :value" fails with an error for multiple matches
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -217,7 +217,7 @@ Feature: Check that JsonTrait works
       The JSON path "$.books[*].id" matched 2 values, but a single value is required for this assertion.
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the JSON path :path should be equal to the value :value" fails with an error for a non-scalar value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -237,7 +237,7 @@ Feature: Check that JsonTrait works
     Then the JSON path "$.name" should not be equal to the value "Jane Roe"
     And the JSON path "$.nickname" should not be equal to the value "John Doe"
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should not be equal to the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -256,7 +256,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_valid.json"
     Then the JSON path "$.name" should contain the value "John"
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should contain the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -275,7 +275,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_valid.json"
     Then the JSON path "$.name" should not contain the value "Nonexistent"
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should not contain the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -294,7 +294,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_valid.json"
     Then the JSON path "$.email" should match "/^[^@]+@example\.com$/"
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should match :pattern" fails with an error for no match
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -308,7 +308,7 @@ Feature: Check that JsonTrait works
       does not match the pattern
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the JSON path :path should match :pattern" fails with an error for an invalid pattern
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -327,7 +327,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_valid.json"
     Then the JSON path "$.email" should not match "/^admin@/"
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should not match :pattern" fails with an error when it matches
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -341,7 +341,7 @@ Feature: Check that JsonTrait works
       matches the pattern
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the JSON path :path should not match :pattern" fails with an error for an invalid pattern
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -360,7 +360,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_valid.json"
     Then the JSON path "$.nickname" should be null
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should be null" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -379,7 +379,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_valid.json"
     Then the JSON path "$.active" should be true
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should be true" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -398,7 +398,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_valid.json"
     Then the JSON path "$.disabled" should be false
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should be false" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -419,7 +419,7 @@ Feature: Check that JsonTrait works
     And the JSON path "$.user.roles" should have "2" elements
     And the JSON path "$.user" should have "1" element
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the JSON path :path should have :count element(s)" fails with an error for wrong count
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -433,7 +433,7 @@ Feature: Check that JsonTrait works
       The JSON path "$.items" has 3 element(s), but expected 5.
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the JSON path :path should have :count element(s)" fails with an error for a scalar value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -447,7 +447,7 @@ Feature: Check that JsonTrait works
       The JSON path "$.name" is not an array or object.
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the JSON path :path should have :count element(s)" fails with an error for a non-numeric count
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -469,7 +469,7 @@ Feature: Check that JsonTrait works
       {"type": "object", "required": ["name", "age"], "properties": {"name": {"type": "string"}, "age": {"type": "integer"}}}
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that negative assertion for "Then the response should match the following JSON schema:" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -489,7 +489,7 @@ Feature: Check that JsonTrait works
       The response does not match the JSON schema
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the response should match the following JSON schema:" fails with an error for an invalid schema
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -506,7 +506,7 @@ Feature: Check that JsonTrait works
       The provided JSON schema is not valid JSON
       """
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the response should match the following JSON schema:" fails with an error for an invalid response body
     Given some behat configuration
     And scenario steps:
@@ -531,7 +531,7 @@ Feature: Check that JsonTrait works
     When I go to "http://cli:8888/json_valid.json"
     Then the response should match the JSON schema in the file "json_schema.json"
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "Then the response should match the JSON schema in the file :filename" fails with an exception for missing file
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -549,7 +549,7 @@ Feature: Check that JsonTrait works
     Given the response JSON is loaded from the file "json_valid.json"
     When I print the last JSON response
 
-  @trait:JsonTrait
+  @test-trait:JsonTrait
   Scenario: Assert that "When I print the last JSON response" fails with an error for invalid JSON
     Given some behat configuration
     And scenario steps:

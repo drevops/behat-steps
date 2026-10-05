@@ -20,7 +20,7 @@ Feature: Check that EckTrait works
     Then I should see "[TEST] ECK test1"
     And I should see "T2"
 
-  @trait:Drupal\EckTrait
+  @test-trait:Drupal\EckTrait
   Scenario: Assert navigate "I visit the eck :bundle :entity_type entity page with the title :title" works as expected
     Given some behat configuration
     And scenario steps:
@@ -39,7 +39,7 @@ Feature: Check that EckTrait works
     When I visit the eck "test_bundle" "test_entity_type" entity edit page with the title "[TEST] ECK test1"
     Then I should see "Edit test bundle [TEST] ECK test1"
 
-  @trait:Drupal\EckTrait
+  @test-trait:Drupal\EckTrait
   Scenario: Assert negative "When I visit the eck :bundle :entity_type entity edit page with the title :title" works as expected
     Given some behat configuration
     And scenario steps:

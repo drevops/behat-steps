@@ -47,7 +47,7 @@ Feature: Check that BlockTrait works
     Then the block "[TEST] Duplicate Label" should exist in the region "footer_top"
     And the block "[TEST] Duplicate Label" should not exist in the region "content"
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "block should exist" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -60,7 +60,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "block should not exist" fails for existing block
     Given some behat configuration
     And scenario steps:
@@ -78,7 +78,7 @@ Feature: Check that BlockTrait works
       The block "[TEST] User Account Menu" exists, but it should not.
       """
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "block should exist in region" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -91,7 +91,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "block should exist in region" fails for block in wrong region
     Given some behat configuration
     And scenario steps:
@@ -109,7 +109,7 @@ Feature: Check that BlockTrait works
       Block "[TEST] User Account Menu" is in region "content" but should be in "sidebar"
       """
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "block should not exist in region" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -122,7 +122,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "block should not exist in region" fails for block in the specified region
     Given some behat configuration
     And scenario steps:
@@ -140,7 +140,7 @@ Feature: Check that BlockTrait works
       Block "[TEST] User Account Menu" is in region "content", but it should not be
       """
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "Given the block is enabled" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -153,7 +153,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "Given the block is disabled" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -166,7 +166,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "Given the block has configuration" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -201,7 +201,7 @@ Feature: Check that BlockTrait works
     When I visit "/"
     Then I should see "[TEST] User Account Menu"
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "block has condition configuration" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -215,7 +215,7 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "block has condition removed" fails for non-existing block
     Given some behat configuration
     And scenario steps:
@@ -241,7 +241,7 @@ Feature: Check that BlockTrait works
     Then the block "[TEST] User Account Menu" should exist in the region "header"
     And the block "[TEST] User Account Menu" should not exist in the region "content"
 
-  @trait:Drupal\BlockTrait
+  @test-trait:Drupal\BlockTrait
   Scenario: Assert "block instance exists" fails for non-existing block type
     Given some behat configuration
     And scenario steps:

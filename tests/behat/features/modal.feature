@@ -146,7 +146,7 @@ Feature: Check that ModalTrait works
 
   # Negative tests.
 
-  @trait:ModalTrait
+  @test-trait:ModalTrait
   Scenario: Assert "Then the modal should be displayed" fails when no modal is visible
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -161,7 +161,7 @@ Feature: Check that ModalTrait works
       The modal is not visible on the page.
       """
 
-  @trait:ModalTrait
+  @test-trait:ModalTrait
   Scenario: Assert "When I close the modal" fails when modal is hidden
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -176,7 +176,7 @@ Feature: Check that ModalTrait works
       The modal is not visible on the page.
       """
 
-  @trait:ModalTrait
+  @test-trait:ModalTrait
   Scenario: Assert "When I click :selector in the modal" fails when modal is hidden
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -191,7 +191,7 @@ Feature: Check that ModalTrait works
       The modal is not visible on the page.
       """
 
-  @trait:ModalTrait
+  @test-trait:ModalTrait
   Scenario: Assert "Then the modal should contain :text" fails when modal is hidden
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -206,7 +206,7 @@ Feature: Check that ModalTrait works
       The modal is not visible on the page.
       """
 
-  @trait:ModalTrait
+  @test-trait:ModalTrait
   Scenario: Assert "When I click :selector in the modal" fails when element not found
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -222,7 +222,7 @@ Feature: Check that ModalTrait works
       Element in the modal with css|id|name|title|alt|value|text ".nonexistent-element" not found.
       """
 
-  @trait:ModalTrait
+  @test-trait:ModalTrait
   Scenario: Assert "When I wait for the modal to appear" fails when modal does not appear within timeout
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -238,7 +238,7 @@ Feature: Check that ModalTrait works
       The modal did not appear within 3 seconds.
       """
 
-  @trait:ModalTrait
+  @test-trait:ModalTrait
   Scenario: Assert "Then the modal should not be displayed" passes when no modal is visible
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -250,7 +250,7 @@ Feature: Check that ModalTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:ModalTrait
+  @test-trait:ModalTrait
   Scenario: Assert that waiting for a modal fails naming the capability instead of spending the timeout
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

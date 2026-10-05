@@ -24,7 +24,7 @@ Feature: Check that KeyboardTrait works
     And I press the key "o" on the element "#input1"
     Then the "input1" field should contain "hello"
 
-  @trait:KeyboardTrait
+  @test-trait:KeyboardTrait
   Scenario: Assert that negative assertion for "When I press the keys :keys on the element :selector" step throws an exception for using with a non-JavaScript driver
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -66,7 +66,7 @@ Feature: Check that KeyboardTrait works
     And I press the keys "world"
     Then the "input1" field should contain "helloworld"
 
-  @trait:KeyboardTrait
+  @test-trait:KeyboardTrait
   Scenario: Assert negative assertion for empty key throws an exception
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -81,7 +81,7 @@ Feature: Check that KeyboardTrait works
       The keyboard key must not be empty.
       """
 
-  @trait:KeyboardTrait
+  @test-trait:KeyboardTrait
   Scenario: Assert negative assertion for unsupported key throws an exception
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -96,7 +96,7 @@ Feature: Check that KeyboardTrait works
       Unsupported key "unsupportedkey" provided
       """
 
-  @trait:KeyboardTrait
+  @test-trait:KeyboardTrait
   Scenario: Assert negative assertion for non-existent element throws an exception
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
@@ -111,7 +111,7 @@ Feature: Check that KeyboardTrait works
       Element matching css "#non-existent-element" not found.
       """
 
-  @trait:KeyboardTrait
+  @test-trait:KeyboardTrait
   Scenario: Assert negative assertion for no focused element throws an exception
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":

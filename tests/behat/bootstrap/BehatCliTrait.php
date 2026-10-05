@@ -74,10 +74,10 @@ trait BehatCliTrait {
 
     $traits = [];
 
-    // A trait tag reads @trait:PathTrait or @trait:Drupal\\UserTrait.
+    // A trait tag reads @test-trait:PathTrait or @test-trait:Drupal\\UserTrait.
     foreach (Tag::on($scope->getScenario()) as $tag) {
-      if (str_starts_with($tag, 'trait:')) {
-        $tags = trim(substr($tag, strlen('trait:')));
+      if (str_starts_with($tag, 'test-trait:')) {
+        $tags = trim(substr($tag, strlen('test-trait:')));
         $tags = explode(',', $tags);
         $tags = array_map(fn(string $value): string => trim(str_replace('\\\\', '\\', $value)), $tags);
         $traits = array_merge($traits, $tags);

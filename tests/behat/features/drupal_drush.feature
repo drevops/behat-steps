@@ -32,7 +32,7 @@ Feature: Check that DrushTrait works
     And I print the last drush output
     Then the drush output should match the pattern "/^\d+\.\d+/"
 
-  @trait:Drupal\DrushTrait
+  @test-trait:Drupal\DrushTrait
   Scenario: Assert that reading output before running a command fails
     Given some behat configuration
     And scenario steps:
@@ -45,7 +45,7 @@ Feature: Check that DrushTrait works
       No drush command has run in this scenario, so there is no output to read.
       """
 
-  @trait:Drupal\DrushTrait
+  @test-trait:Drupal\DrushTrait
   Scenario: Assert that printing output before running a command fails
     Given some behat configuration
     And scenario steps:

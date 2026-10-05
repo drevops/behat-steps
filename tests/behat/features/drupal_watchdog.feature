@@ -4,7 +4,7 @@ Feature: Check that WatchdogTrait works
   I want to provide tools to monitor Drupal watchdog messages
   So that users can detect unexpected errors in their tests
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that watchdog fails with an error
     Given some behat configuration
     And scenario steps:
@@ -17,7 +17,7 @@ Feature: Check that WatchdogTrait works
       PHP errors were logged to watchdog during scenario "Stub scenario title" (line 3):
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that a failing scenario is reported as failed and recorded for a rerun
     Given some behat configuration
     And scenario steps:
@@ -39,7 +39,7 @@ Feature: Check that WatchdogTrait works
       PHP errors were logged to watchdog
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that an error logged after the last step is reported
     Given some behat configuration
     And scenario steps tagged with "@test-watchdog-teardown":
@@ -52,7 +52,7 @@ Feature: Check that WatchdogTrait works
       PHP errors were logged to watchdog during the teardown of scenario "Stub scenario title"
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that an error is reported when an earlier step failed
     Given some behat configuration
     And scenario steps:
@@ -67,7 +67,7 @@ Feature: Check that WatchdogTrait works
       PHP errors were logged to watchdog during scenario "Stub scenario title"
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that watchdog does not fail when a custom message type is triggered
     Given some behat configuration
     And scenario steps:
@@ -77,7 +77,7 @@ Feature: Check that WatchdogTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that watchdog fails when a custom message type is triggered
     Given some behat configuration
     And scenario steps tagged with "@watchdog:custom_type":
@@ -110,7 +110,7 @@ Feature: Check that WatchdogTrait works
     Given the watchdog is cleared
     When I go to the homepage
 
-  @trait:Drupal\WatchdogTrait @error
+  @test-trait:Drupal\WatchdogTrait @error
   Scenario: Assert that the enabled option switches the check off on a site with dblog
     Given a configuration with the step options:
       """
@@ -124,7 +124,7 @@ Feature: Check that WatchdogTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\WatchdogTrait @error
+  @test-trait:Drupal\WatchdogTrait @error
   Scenario: Assert that the skip tag switches the check off on a site with dblog
     Given some behat configuration
     And scenario steps tagged with "@behat-steps-skip:WatchdogTrait":
@@ -134,7 +134,7 @@ Feature: Check that WatchdogTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
   Scenario: Assert that an opted-in scenario on a site without dblog fails at its start
     Given some behat configuration
     And scenario steps:
@@ -151,7 +151,7 @@ Feature: Check that WatchdogTrait works
       1 step (1 skipped)
       """
 
-  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
   Scenario: Assert that turning fail_on_errors off does not cover a site without dblog
     Given a configuration with the step options:
       """
@@ -168,7 +168,7 @@ Feature: Check that WatchdogTrait works
       WatchdogTrait requires that the core "dblog" module is enabled, which does not hold.
       """
 
-  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
   Scenario: Assert that the error tag does not cover a site without dblog
     Given some behat configuration
     And scenario steps tagged with "@error":
@@ -181,7 +181,7 @@ Feature: Check that WatchdogTrait works
       WatchdogTrait requires that the core "dblog" module is enabled, which does not hold.
       """
 
-  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
   Scenario: Assert that the enabled option switches the check off on a site without dblog
     Given a configuration with the step options:
       """
@@ -195,7 +195,7 @@ Feature: Check that WatchdogTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait @module:!dblog @behat-steps-skip:WatchdogTrait
   Scenario: Assert that the skip tag switches the check off on a site without dblog
     Given some behat configuration
     And scenario steps tagged with "@behat-steps-skip:WatchdogTrait":
@@ -205,7 +205,7 @@ Feature: Check that WatchdogTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
+  @test-trait:Drupal\WatchdogTrait,Drupal\ModuleTrait
   Scenario: Assert that a scenario that uninstalls dblog fails at its last step
     Given some behat configuration
     And scenario steps:
@@ -223,7 +223,7 @@ Feature: Check that WatchdogTrait works
       2 steps (2 passed)
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that an opted-in configuration reaching Drupal only through Drush fails at its start
     Given a configuration listing the backends "drush, blackbox"
     And some behat configuration
@@ -241,7 +241,7 @@ Feature: Check that WatchdogTrait works
       1 step (1 skipped)
       """
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that an opted-out configuration reaching Drupal only through Drush passes
     Given a configuration listing the backends "drush, blackbox"
     And a configuration with the step options:
@@ -256,7 +256,7 @@ Feature: Check that WatchdogTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\WatchdogTrait
+  @test-trait:Drupal\WatchdogTrait
   Scenario: Assert that a @watchdog tag on the feature tracks the type in every scenario
     Given some behat configuration
     And a file named "features/stub.feature" with:

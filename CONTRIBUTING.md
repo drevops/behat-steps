@@ -499,7 +499,7 @@ ahoy test-bdd path/to/file   # Run all Behat scenarios in specific feature file
 ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
 ```
 
-Every step the library registers needs at least 1 scenario that runs it. Behat only resolves a step definition when a scenario uses it, so a pattern no scenario reaches can ship unusable without the suite noticing. [tests/phpunit/src/StepScenarioCoverageTest.php](tests/phpunit/src/StepScenarioCoverageTest.php) enforces this in the unit suite: it matches every registered pattern against the steps the feature files run and fails on any step nothing reaches. Steps a `@trait` scenario hands to its nested run count, since they do run. Steps in a scenario the suite filters out, such as one tagged `@skipped`, don't.
+Every step the library registers needs at least 1 scenario that runs it. Behat only resolves a step definition when a scenario uses it, so a pattern no scenario reaches can ship unusable without the suite noticing. [tests/phpunit/src/StepScenarioCoverageTest.php](tests/phpunit/src/StepScenarioCoverageTest.php) enforces this in the unit suite: it matches every registered pattern against the steps the feature files run and fails on any step nothing reaches. Steps a `@test-trait` scenario hands to its nested run count, since they do run. Steps in a scenario the suite filters out, such as one tagged `@test-skipped`, don't.
 
 ### Static fixtures
 

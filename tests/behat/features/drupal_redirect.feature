@@ -139,7 +139,7 @@ Feature: Check that RedirectTrait works
     Then the following redirects should not exist:
       | /will-go |
 
-  @trait:Drupal\RedirectTrait
+  @test-trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should exist:" fails when a redirect is missing
     Given some behat configuration
     And scenario steps:
@@ -158,7 +158,7 @@ Feature: Check that RedirectTrait works
       The following redirects should exist but were not found: {from="/not-there", to="/user/login"}.
       """
 
-  @trait:Drupal\RedirectTrait
+  @test-trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should exist:" fails when destination does not match
     Given some behat configuration
     And scenario steps:
@@ -176,7 +176,7 @@ Feature: Check that RedirectTrait works
       The following redirects should exist but were not found: {from="/wrong-dest", to="/admin/content"}.
       """
 
-  @trait:Drupal\RedirectTrait
+  @test-trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should exist:" fails when status code does not match
     Given some behat configuration
     And scenario steps:
@@ -194,7 +194,7 @@ Feature: Check that RedirectTrait works
       The following redirects should exist but were not found: {from="/wrong-code", to="/user/login", status_code=302}.
       """
 
-  @trait:Drupal\RedirectTrait
+  @test-trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should exist:" fails when "from" is empty
     Given some behat configuration
     And scenario steps:
@@ -209,7 +209,7 @@ Feature: Check that RedirectTrait works
       Each redirect row must define a non-empty "from" path.
       """
 
-  @trait:Drupal\RedirectTrait
+  @test-trait:Drupal\RedirectTrait
   Scenario: Assert "Then the following redirects should not exist:" fails when a redirect is still present
     Given some behat configuration
     And scenario steps:
@@ -226,7 +226,7 @@ Feature: Check that RedirectTrait works
       The following redirects should not exist but were found: "/lingers".
       """
 
-  @trait:Drupal\RedirectTrait
+  @test-trait:Drupal\RedirectTrait
   Scenario: Assert "Given the following redirects exist:" fails on an unsupported status code
     Given some behat configuration
     And scenario steps:
@@ -241,7 +241,7 @@ Feature: Check that RedirectTrait works
       Invalid redirect status code "404". Allowed values are: 301, 302, 303, 307, 308.
       """
 
-  @trait:Drupal\RedirectTrait
+  @test-trait:Drupal\RedirectTrait
   Scenario: Assert "Given the following redirects exist:" fails on a non-numeric status code
     Given some behat configuration
     And scenario steps:
@@ -256,7 +256,7 @@ Feature: Check that RedirectTrait works
       Invalid redirect status code "abc". Allowed values are: 301, 302, 303, 307, 308.
       """
 
-  @trait:Drupal\RedirectTrait
+  @test-trait:Drupal\RedirectTrait
   Scenario: Assert "Given the following redirects exist:" fails when "from" is empty
     Given some behat configuration
     And scenario steps:
@@ -271,7 +271,7 @@ Feature: Check that RedirectTrait works
       Each redirect row must define a non-empty "from" path.
       """
 
-  @trait:Drupal\RedirectTrait
+  @test-trait:Drupal\RedirectTrait
   Scenario: Assert "Given the following redirects exist:" fails when "to" is empty
     Given some behat configuration
     And scenario steps:

@@ -129,7 +129,7 @@ Feature: Check that FileTrait works
     When the unmanaged file at the URI "public://test-random/test4.txt" exists with the content "test content"
     Then an unmanaged file at the URI "public://test-random/test4.txt" should exist
 
-  @trait:Drupal\FileTrait
+  @test-trait:Drupal\FileTrait
   Scenario: Assert that negative assertions fail with an error
     Given some behat configuration
     And scenario steps:
@@ -142,7 +142,7 @@ Feature: Check that FileTrait works
       The file "public://test4.txt" does not exist.
       """
 
-  @trait:Drupal\FileTrait
+  @test-trait:Drupal\FileTrait
   Scenario: Assert that negative assertion for "Then an unmanaged file at the URI :uri should not exist" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -156,7 +156,7 @@ Feature: Check that FileTrait works
       The file "public://test1.txt" exists but it should not.
       """
 
-  @trait:Drupal\FileTrait
+  @test-trait:Drupal\FileTrait
   Scenario: Assert that negative assertion for "Then an unmanaged file at the URI :uri should contain :content" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -171,7 +171,7 @@ Feature: Check that FileTrait works
       File contents "test content" does not contain "test other content".
       """
 
-  @trait:Drupal\FileTrait
+  @test-trait:Drupal\FileTrait
   Scenario: Assert that negative assertion for "Then an unmanaged file at the URI :uri should not contain :content" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -186,7 +186,7 @@ Feature: Check that FileTrait works
       File contents "test content" contains "test content", but it should not.
       """
 
-  @trait:Drupal\FileTrait
+  @test-trait:Drupal\FileTrait
   Scenario: Assert that the skip tag switches the FileTrait hooks off
     Given some behat configuration
     And scenario steps tagged with "@behat-steps-skip:FileTrait":

@@ -379,7 +379,7 @@ Feature: Check that EmailTrait works
       Debug test content
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that an email was sent to an address
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -393,7 +393,7 @@ Feature: Check that EmailTrait works
       Unable to find email that should be sent to "test@example.com" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that clearing email queue without @email tag fails
     Given some behat configuration
     And scenario steps:
@@ -406,7 +406,7 @@ Feature: Check that EmailTrait works
       Clearing testing email system queue can be done only when email testing system is activated.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that no emails sent to CC address fails when email WAS sent to that CC address
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -423,7 +423,7 @@ Feature: Check that EmailTrait works
       An email was cc'ed to "cc@example.com" retrieved from test email collector, but it should not have been.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that no emails sent to BCC address fails when email WAS sent to that BCC address
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -440,7 +440,7 @@ Feature: Check that EmailTrait works
       An email was bcc'ed to "bcc@example.com" retrieved from test email collector, but it should not have been.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link in email fails when email subject not found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -457,7 +457,7 @@ Feature: Check that EmailTrait works
       Unable to find email with subject "Wrong Subject" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link in email fails when the subject matches only in part
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -474,7 +474,7 @@ Feature: Check that EmailTrait works
       Unable to find email with subject "Test" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link in email fails when no links found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -491,7 +491,7 @@ Feature: Check that EmailTrait works
       No links were found in the email with subject "Test Email"
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link in email fails when the link index is too high
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -508,7 +508,7 @@ Feature: Check that EmailTrait works
       The link with the index 5 was not found among 1 links
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario Outline: Assert that following link in email fails when the link index is not a positive integer
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -530,7 +530,7 @@ Feature: Check that EmailTrait works
       | -1     |
       | abc    |
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when the link index is zero
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -547,7 +547,7 @@ Feature: Check that EmailTrait works
       The link index must be a positive integer, but "0" was provided.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when subject not found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -564,7 +564,7 @@ Feature: Check that EmailTrait works
       Unable to find email with subject containing "Nonexistent" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when the case differs
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -581,7 +581,7 @@ Feature: Check that EmailTrait works
       Unable to find email with subject containing "test email" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when no links found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -598,7 +598,7 @@ Feature: Check that EmailTrait works
       No links were found in the email with subject containing "Test"
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when the link index is too high
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -615,7 +615,7 @@ Feature: Check that EmailTrait works
       The link with the index 3 was not found among 1 links
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that no emails sent fails when emails WERE sent
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -632,7 +632,7 @@ Feature: Check that EmailTrait works
       No emails should have been sent, but some were found:
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that no emails sent to address fails when email WAS sent to that address
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -649,7 +649,7 @@ Feature: Check that EmailTrait works
       An email was sent to "test@example.com" retrieved from test email collector, but it should not have been.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that email header contains fails when header not found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -669,7 +669,7 @@ Feature: Check that EmailTrait works
       Unable to find an email where the header "X-Nonexistent-Header" should contain text "Some value" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that email field contains fails when field not found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -689,7 +689,7 @@ Feature: Check that EmailTrait works
       Unable to find an email where the field "body" should contain text "Nonexistent content" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that email field should not contain fails when field DOES contain value
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -709,7 +709,7 @@ Feature: Check that EmailTrait works
       Found an email where the field "body" contains text "specific text" retrieved from test email collector, but it should not.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that attachment assertion fails when email subject not found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -726,7 +726,7 @@ Feature: Check that EmailTrait works
       Unable to find email with subject "Wrong Subject" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that attachment assertion fails when the subject matches only in part
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -743,7 +743,7 @@ Feature: Check that EmailTrait works
       Unable to find email with subject "with Attachment" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that attachment assertion fails when no attachments found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -760,7 +760,7 @@ Feature: Check that EmailTrait works
       The file "test.pdf" is not attached to the email with subject "Test Email".
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that attachment assertion fails when the email carries a different file
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -777,7 +777,7 @@ Feature: Check that EmailTrait works
       The file "other.pdf" is not attached to the email with subject "Email with Attachment".
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that attachment with subject substring fails when email not found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -794,7 +794,7 @@ Feature: Check that EmailTrait works
       Unable to find email with subject containing "Nonexistent" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that attachment with subject substring fails when the case differs
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -811,7 +811,7 @@ Feature: Check that EmailTrait works
       Unable to find email with subject containing "with attachment" retrieved from test email collector.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that attachment with subject substring fails when no attachments found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -828,7 +828,7 @@ Feature: Check that EmailTrait works
       The file "test.pdf" is not attached to the email with subject containing "Test".
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that a scenario with the skip tag drives the test email system itself
     Given some behat configuration
     And scenario steps tagged with "@email @behat-steps-skip:EmailTrait":
@@ -844,7 +844,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should pass
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that EmailTrait boots the Drupal kernel itself when used in isolation
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -874,7 +874,7 @@ Feature: Check that EmailTrait works
   Scenario: The mailsystem formatter should not be overridden when test email system is enabled
     Then the mailsystem formatter should be "php_mail"
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that the step enables the test email system without the "@email" tag and the teardown disables it
     Given some behat configuration
     And a file named "features/stub.feature" with:
@@ -901,7 +901,7 @@ Feature: Check that EmailTrait works
       2 scenarios (1 passed, 1 failed)
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that the skip tag keeps the "@email" tag from enabling the test email system
     Given some behat configuration
     And scenario steps tagged with "@email @behat-steps-skip:EmailTrait":
@@ -914,7 +914,7 @@ Feature: Check that EmailTrait works
       Clearing testing email system queue can be done only when email testing system is activated.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that an unknown email field is rejected by a positive assertion
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -930,7 +930,7 @@ Feature: Check that EmailTrait works
       Invalid email field nonexistent was specified for assertion.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that an unknown email field is rejected by a negative assertion
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -946,7 +946,7 @@ Feature: Check that EmailTrait works
       Invalid email field nonexistent was specified for assertion.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that following a link by part of its URL fails when no email has such a link
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -963,7 +963,7 @@ Feature: Check that EmailTrait works
       No email contains a link with "user/reset" in its URL.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that counting the emails sent fails on a count mismatch
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -980,7 +980,7 @@ Feature: Check that EmailTrait works
       Expected 2 email(s) to have been sent, but 1 were found.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that counting the emails sent to an address fails on a count mismatch
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -997,7 +997,7 @@ Feature: Check that EmailTrait works
       Expected 3 email(s) to have been sent to "test@example.com", but 1 were found.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that counting the emails sent with a subject fails on a count mismatch
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -1014,7 +1014,7 @@ Feature: Check that EmailTrait works
       Expected 0 email(s) to have been sent with the subject "Test Email", but 1 were found.
       """
 
-  @trait:Drupal\EmailTrait
+  @test-trait:Drupal\EmailTrait
   Scenario: Assert that @email and @debug tags on the feature apply to every scenario
     Given some behat configuration
     And a file named "features/stub.feature" with:

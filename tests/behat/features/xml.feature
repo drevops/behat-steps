@@ -31,7 +31,7 @@ Feature: Check that XmlTrait works
       """
     Then the response should be in XML format
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be in XML format" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -56,7 +56,7 @@ Feature: Check that XmlTrait works
     And the response XML is loaded from the file "xml_invalid.xml"
     Then the response should not be in XML format
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should not be in XML format" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -85,7 +85,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML element "//book[@id='123']" should exist
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should exist" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -104,7 +104,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML element "//nonexistent" should not exist
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should not exist" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -123,7 +123,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML element "//book[@id='123']/title" should be equal to the value "The Great Adventure"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should be equal to the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -137,7 +137,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should be equal to the value :value" fails with an error for wrong content
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -156,7 +156,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML element "//book[@id='123']/title" should not be equal to the value "Wrong Title"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should not be equal to the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -175,7 +175,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML element "//book[@id='123']/description" should contain the value "sample book"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should contain the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -189,7 +189,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should contain the value :value" fails with an error for missing text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -208,7 +208,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML element "//book[@id='123']/title" should not contain the value "nonexistent"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should not contain the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -227,7 +227,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML attribute "id" on the element "//book[@id='123']" should exist
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should exist" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -241,7 +241,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should exist" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -260,7 +260,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML attribute "nonexistent" on the element "//book[@id='123']" should not exist
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not exist" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -284,7 +284,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML attribute "category" on the element "//book[@id='123']" should be equal to the value "fiction"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should be equal to the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -298,7 +298,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should be equal to the value :value" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -312,7 +312,7 @@ Feature: Check that XmlTrait works
       The XML attribute "nonexistent" on element "//book[@id='123']" was not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should be equal to the value :value" fails with an error for wrong value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -331,7 +331,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML attribute "id" on the element "//book[@id='123']" should not be equal to the value "999"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not be equal to the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -355,7 +355,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_simple.xml"
     Then the XML element "//root" should have "5" elements
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should have :count element(s)" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -369,7 +369,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML element :element should have :count element(s)" fails with an error for wrong count
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -393,7 +393,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_namespaced.xml"
     Then the XML should use the namespace "http://example.com/test"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML should use the namespace :namespace" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -412,7 +412,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML should not use the namespace "http://example.com/nonexistent"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML should not use the namespace :namespace" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -436,7 +436,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML element "//book[@id='123']/title" should be equal to the value "The Great Adventure"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that "Then the XML element :element should not be equal to the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -450,7 +450,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that "Then the XML element :element should not contain the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -464,7 +464,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that "Then the XML attribute :attribute on the element :element should not exist" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -478,7 +478,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that "Then the XML attribute :attribute on the element :element should not be equal to the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -492,7 +492,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that "Then the XML attribute :attribute on the element :element should not be equal to the value :value" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -514,7 +514,7 @@ Feature: Check that XmlTrait works
     Given the response XML is loaded from the file "xml_valid.xml"
     Then the XML attribute "category" on the element "//book[@id='123']" should be equal to the value "fiction"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that "Given the response XML is loaded from the file :filename" fails with an exception for missing file
     Given some behat configuration
     And scenario steps:
@@ -543,7 +543,7 @@ Feature: Check that XmlTrait works
     And the XML element "//product[@id='p1']/price" should be equal to the value "9.99"
     And the XML attribute "type" on the element "//product[@id='p1']" should be equal to the value "widget"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that "Given the response XML is the following:" fails with an exception for invalid XML
     Given some behat configuration
     And scenario steps:
@@ -570,7 +570,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML attribute "id" on the element "//book[@id='123']" should contain the value "12"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should contain the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -584,7 +584,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should contain the value :value" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -598,7 +598,7 @@ Feature: Check that XmlTrait works
       The XML attribute "nonexistent" on element "//book[@id='123']" was not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should contain the value :value" fails with an error for text not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -617,7 +617,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the XML attribute "category" on the element "//book[@id='123']" should not contain the value "science"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not contain the value :value" fails with an error for missing element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -631,7 +631,7 @@ Feature: Check that XmlTrait works
       XML element matching xpath "//nonexistent" not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not contain the value :value" fails with an error for missing attribute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -645,7 +645,7 @@ Feature: Check that XmlTrait works
       The XML attribute "nonexistent" on element "//book[@id='123']" was not found.
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the XML attribute :attribute on the element :element should not contain the value :value" fails with an error when text is found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -663,7 +663,7 @@ Feature: Check that XmlTrait works
     Given the response XML is loaded from the file "xml_valid.xml"
     When I print the last XML response
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that "When I print the last XML response" fails with an error when no XML is loaded
     Given some behat configuration
     And scenario steps:
@@ -700,7 +700,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the response should match the XSD schema in the file "xml_schema.xsd"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should match the XSD schema in the file :filename" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -714,7 +714,7 @@ Feature: Check that XmlTrait works
       The response does not match the XSD schema
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that "Then the response should match the XSD schema in the file :filename" fails with an exception for missing file
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -743,7 +743,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the response should match the DTD in the file "xml_schema.dtd"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should match the DTD in the file :filename" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -774,7 +774,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/xml_valid.xml"
     Then the response should match the RelaxNG schema in the file "xml_schema.rng"
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should match the RelaxNG schema in the file :filename" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -793,7 +793,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/rss_valid.xml"
     Then the response should be a valid RSS feed
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for a non-rss root
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -811,7 +811,7 @@ Feature: Check that XmlTrait works
       the root element must be "rss"
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for a wrong version
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -829,7 +829,7 @@ Feature: Check that XmlTrait works
       must have a "version" attribute of "2.0"
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for a missing channel
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -847,7 +847,7 @@ Feature: Check that XmlTrait works
       must contain exactly one "channel" element
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for a missing required channel element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -865,7 +865,7 @@ Feature: Check that XmlTrait works
       is missing the required "description" element
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be a valid RSS feed" fails with an error for an item without a title or description
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -888,7 +888,7 @@ Feature: Check that XmlTrait works
     When I go to "http://cli:8888/atom_valid.xml"
     Then the response should be a valid Atom feed
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be a valid Atom feed" fails with an error for a non-atom root
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -906,7 +906,7 @@ Feature: Check that XmlTrait works
       the root element must be "feed" in the Atom namespace
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be a valid Atom feed" fails with an error for a missing required feed element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -924,7 +924,7 @@ Feature: Check that XmlTrait works
       the "feed" element is missing the required "updated" element
       """
 
-  @trait:XmlTrait
+  @test-trait:XmlTrait
   Scenario: Assert that negative assertion for "Then the response should be a valid Atom feed" fails with an error for an entry missing a required element
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

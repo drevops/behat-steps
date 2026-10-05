@@ -48,7 +48,7 @@ Feature: Check that LinkTrait works
     Then the link "Absolute Link One" should be an absolute link
     And the link "Relative Link One" should not be an absolute link
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that negative assertion for "I click on the link with the title :title" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -62,7 +62,7 @@ Feature: Check that LinkTrait works
       Link with title "Some non-existing title" not found.
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that "the link with title :title exists" fails when link not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -76,7 +76,7 @@ Feature: Check that LinkTrait works
       Link with title "Nonexistent title" not found.
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that negative assertion for "the link with title :title exists" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -90,7 +90,7 @@ Feature: Check that LinkTrait works
       The link with the title "Link title one" exists, but it should not.
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that link with href fails when selector does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -104,7 +104,7 @@ Feature: Check that LinkTrait works
       Element matching css "#nonexistent-selector" not found.
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that link with href fails when link text not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -118,7 +118,7 @@ Feature: Check that LinkTrait works
       Link with text "NonexistentLinkText" not found.
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that negative link assertion fails when selector does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -132,7 +132,7 @@ Feature: Check that LinkTrait works
       Element matching css "#nonexistent-selector" not found.
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that link with href fails when href does not match
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -146,7 +146,7 @@ Feature: Check that LinkTrait works
       The link href "https://www.example.com" does not match the specified href "https://wrong.url"
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that negative assertion fails when link href matches, but it should not
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -160,7 +160,7 @@ Feature: Check that LinkTrait works
       The link href "https://www.example.com" matches the specified href "https://www.example.com", but it should not
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that absolute link check fails when link not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -174,7 +174,7 @@ Feature: Check that LinkTrait works
       Link with text "NonexistentLink" not found.
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that absolute link check fails when link is not absolute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -188,7 +188,7 @@ Feature: Check that LinkTrait works
       The link "Relative Link One" is not an absolute link.
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that not absolute link check fails when link not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -202,7 +202,7 @@ Feature: Check that LinkTrait works
       Link with text "NonexistentLink" not found.
       """
 
-  @trait:LinkTrait
+  @test-trait:LinkTrait
   Scenario: Assert that not absolute link check fails when link is absolute
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

@@ -48,7 +48,7 @@ Feature: Check that ContentTrait works
     When I visit the "page" content page with the title "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content page with the title :title" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
@@ -62,7 +62,7 @@ Feature: Check that ContentTrait works
       The content type "non_existing" does not exist.
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content page with the title :title" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
@@ -84,7 +84,7 @@ Feature: Check that ContentTrait works
     When I visit the "page" content edit page with the title "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content edit page with the title :title" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
@@ -98,7 +98,7 @@ Feature: Check that ContentTrait works
       The content type "non_existing" does not exist.
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content edit page with the title :title" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
@@ -120,7 +120,7 @@ Feature: Check that ContentTrait works
     When I visit the "page" content delete page with the title "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content delete page with the title :title" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
@@ -134,7 +134,7 @@ Feature: Check that ContentTrait works
       The content type "non_existing" does not exist.
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content delete page with the title :title" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
@@ -156,7 +156,7 @@ Feature: Check that ContentTrait works
     When I visit the "page" content scheduled transitions page with the title "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content scheduled transitions page with the title :title" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
@@ -170,7 +170,7 @@ Feature: Check that ContentTrait works
       The content type "non_existing" does not exist.
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content scheduled transitions page with the title :title" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
@@ -195,7 +195,7 @@ Feature: Check that ContentTrait works
     And I visit the "page" content page with the title "[TEST] Page title"
     Then the response status code should be 200
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the state :new_state" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
@@ -209,7 +209,7 @@ Feature: Check that ContentTrait works
       The content type "non_existing" does not exist.
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the state :new_state" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
@@ -223,7 +223,7 @@ Feature: Check that ContentTrait works
       Unable to find "page" content with title "[TEST] Non-existing".
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the state :new_state" works as expected for a node without moderation state enabled
     Given some behat configuration
     And scenario steps:
@@ -253,7 +253,7 @@ Feature: Check that ContentTrait works
     And I should see "Revisions"
     And I should see "Current revision"
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content revisions page with the title :title" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
@@ -291,7 +291,7 @@ Feature: Check that ContentTrait works
     When I log in as a user with the role "administrator"
     Then the "page" content with the title "[TEST] Non-existing page" should not exist
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "Then the :content_type content with the title :title should not exist" works as expected when content exists
     Given some behat configuration
     And scenario steps:
@@ -325,7 +325,7 @@ Feature: Check that ContentTrait works
     And I visit the "page" content page with the title "[TEST] Grants all page title"
     Then I should see "[TEST] Grants all page title"
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I rebuild the access grants for the :content_type content with the title :title" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
@@ -426,7 +426,7 @@ Feature: Check that ContentTrait works
     When I go to "test-alias-first"
     Then the path should be "/test-alias-second"
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
@@ -440,7 +440,7 @@ Feature: Check that ContentTrait works
       The content type "non_existing" does not exist.
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
@@ -454,7 +454,7 @@ Feature: Check that ContentTrait works
       Unable to find "page" content with title "[TEST] Non-existing".
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for an empty alias
     Given some behat configuration
     And scenario steps:
@@ -489,7 +489,7 @@ Feature: Check that ContentTrait works
       | [TEST] Duplicate page title | draft            |
     Then the "page" content with the title "[TEST] Duplicate page title" should not be published
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "Then the :content_type content with the title :title should be published" works as expected when content is not published
     Given some behat configuration
     And scenario steps:
@@ -505,7 +505,7 @@ Feature: Check that ContentTrait works
       "page" content with the title "[TEST] Unpublished page title" should be published, but it is not (nid:
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "Then the :content_type content with the title :title should not be published" works as expected when content is published
     Given some behat configuration
     And scenario steps:
@@ -521,7 +521,7 @@ Feature: Check that ContentTrait works
       "page" content with the title "[TEST] Published page title" should not be published, but it is (nid:
       """
 
-  @trait:Drupal\ContentTrait
+  @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "Then the :content_type content with the title :title should be published" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:

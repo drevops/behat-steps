@@ -8,7 +8,7 @@ Feature: Check that ResponseTrait works
     When I go to "http://cli:8888/elements.html"
     Then the response should contain the header "Content-Type"
 
-  @trait:ResponseTrait
+  @test-trait:ResponseTrait
   Scenario: Assert that negative assertion for "Then the response should contain the header :name" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -27,7 +27,7 @@ Feature: Check that ResponseTrait works
     When I go to "http://cli:8888/elements.html"
     Then the response should not contain the header "NonExistingHeader"
 
-  @trait:ResponseTrait
+  @test-trait:ResponseTrait
   Scenario: Assert that negative assertion for "Then the response should not contain the header :name" fails with an error
     Given some behat configuration
     And scenario steps:
@@ -46,7 +46,7 @@ Feature: Check that ResponseTrait works
     When I go to "http://cli:8888/elements.html"
     Then the response header "Content-Type" should contain the value "text/html"
 
-  @trait:ResponseTrait
+  @test-trait:ResponseTrait
   Scenario: Assert that negative assertion for "Then the response header :name should contain the value :value" fails with an error for missing header
     Given some behat configuration
     And scenario steps:
@@ -60,7 +60,7 @@ Feature: Check that ResponseTrait works
       The response does not contain the header "NonExistingHeader".
       """
 
-  @trait:ResponseTrait
+  @test-trait:ResponseTrait
   Scenario: Assert that negative assertion for "Then the response header :name should contain the value :value" fails with an error for invalid header value
     Given some behat configuration
     And scenario steps:
@@ -79,7 +79,7 @@ Feature: Check that ResponseTrait works
     When I go to "http://cli:8888/elements.html"
     Then the response header "Content-Type" should not contain the value "nonexistingvalue"
 
-  @trait:ResponseTrait
+  @test-trait:ResponseTrait
   Scenario: Assert that negative assertion for "Then the response header :name should not contain the value :value" fails with an error for missing header
     Given some behat configuration
     And scenario steps:
@@ -93,7 +93,7 @@ Feature: Check that ResponseTrait works
       The response does not contain the header "NonExistingHeader".
       """
 
-  @trait:ResponseTrait
+  @test-trait:ResponseTrait
   Scenario: Assert that negative assertion for "Then the response header :name should not contain the value :value" fails with an error for invalid header value
     Given some behat configuration
     And scenario steps:

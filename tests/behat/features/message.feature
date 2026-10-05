@@ -68,7 +68,7 @@ Feature: Check that MessageTrait works
       | Article has been created. |
       | Changes saved.            |
 
-  @trait:MessageTrait
+  @test-trait:MessageTrait
   Scenario: Assert "Then the success message :message should exist" fails when no success message has the text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -82,7 +82,7 @@ Feature: Check that MessageTrait works
       The page "http://cli:8888/messages.html" does not contain the "success" message "Nothing was saved.".
       """
 
-  @trait:MessageTrait
+  @test-trait:MessageTrait
   Scenario: Assert "Then the warning message :message should exist" fails when the page has no warning messages
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -96,7 +96,7 @@ Feature: Check that MessageTrait works
       Warning message matching css ".messages.messages--warning" not found.
       """
 
-  @trait:MessageTrait
+  @test-trait:MessageTrait
   Scenario: Assert "Then the error message :message should not exist" fails when an error message has the text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -110,7 +110,7 @@ Feature: Check that MessageTrait works
       The page "http://cli:8888/messages.html" contains the "error" message "could not be uploaded".
       """
 
-  @trait:MessageTrait
+  @test-trait:MessageTrait
   Scenario: Assert "Then the following success messages should exist:" fails when one message is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -126,7 +126,7 @@ Feature: Check that MessageTrait works
       The page "http://cli:8888/messages.html" does not contain the "success" message "Nothing was saved.".
       """
 
-  @trait:MessageTrait
+  @test-trait:MessageTrait
   Scenario: Assert "Then the following success messages should not exist:" fails when one message is present
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -142,7 +142,7 @@ Feature: Check that MessageTrait works
       The page "http://cli:8888/messages.html" contains the "success" message "Changes saved.".
       """
 
-  @trait:MessageTrait
+  @test-trait:MessageTrait
   Scenario: Assert "Then the following warning messages should exist:" fails when one message is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
@@ -158,7 +158,7 @@ Feature: Check that MessageTrait works
       The page "http://cli:8888/messages.html" does not contain the "warning" message "The disk is almost full.".
       """
 
-  @trait:MessageTrait
+  @test-trait:MessageTrait
   Scenario: Assert "Then the following warning messages should not exist:" fails when one message is present
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

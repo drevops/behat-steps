@@ -151,7 +151,7 @@ Feature: Check that ConfigTrait works
   Scenario: Verify the Drush revert deleted the new config object
     Then the config "behat_steps_test.drush_ephemeral" key "foo" should not have the value "bar"
 
-  @trait:Drupal\ConfigTrait
+  @test-trait:Drupal\ConfigTrait
   Scenario: Negative assertion for "should have the value" fails on value mismatch
     Given some behat configuration
     And scenario steps:
@@ -166,7 +166,7 @@ Feature: Check that ConfigTrait works
       The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", but it should have the value "https://b.example.com".
       """
 
-  @trait:Drupal\ConfigTrait
+  @test-trait:Drupal\ConfigTrait
   Scenario: Negative assertion for "should have the value" fails when the key is not set
     Given some behat configuration
     And scenario steps:
@@ -180,7 +180,7 @@ Feature: Check that ConfigTrait works
       The config "behat_steps_test.absent" key "endpoint" is not set, but it should have the value "https://a.example.com".
       """
 
-  @trait:Drupal\ConfigTrait
+  @test-trait:Drupal\ConfigTrait
   Scenario: Negative assertion for "should not have the value" fails when it matches
     Given some behat configuration
     And scenario steps:
@@ -195,7 +195,7 @@ Feature: Check that ConfigTrait works
       The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", but it should not have the value "https://a.example.com".
       """
 
-  @trait:Drupal\ConfigTrait
+  @test-trait:Drupal\ConfigTrait
   Scenario: Negative assertion for "should contain the value" fails when the value is absent
     Given some behat configuration
     And scenario steps:
@@ -210,7 +210,7 @@ Feature: Check that ConfigTrait works
       The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", which does not contain "zzz".
       """
 
-  @trait:Drupal\ConfigTrait
+  @test-trait:Drupal\ConfigTrait
   Scenario: Negative assertion for "should contain the value" fails when the key is not set
     Given some behat configuration
     And scenario steps:
@@ -224,7 +224,7 @@ Feature: Check that ConfigTrait works
       The config "behat_steps_test.absent" key "endpoint" is not set, but its value should contain "example".
       """
 
-  @trait:Drupal\ConfigTrait
+  @test-trait:Drupal\ConfigTrait
   Scenario: Negative assertion for "should not contain the value" fails when the value is present
     Given some behat configuration
     And scenario steps:
@@ -239,7 +239,7 @@ Feature: Check that ConfigTrait works
       The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", which contains "example", but it should not.
       """
 
-  @trait:Drupal\ConfigTrait
+  @test-trait:Drupal\ConfigTrait
   Scenario: A config values table missing the value column fails with an exception
     Given some behat configuration
     And scenario steps:
