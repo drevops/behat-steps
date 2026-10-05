@@ -116,7 +116,7 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
     yield 'a pattern with a query string' => ['/news*?page=1', TRUE, 'The path pattern "/news*?page=1" must not contain a query string or a fragment.'];
   }
 
-  public function testDeletePagePathIgnoresAMissingTable(): void {
+  public function testDeletePagePathIgnoresMissingTable(): void {
     $database = Database::getConnection();
     $this->assertFalse($database->schema()->tableExists('cache_page'));
 
@@ -125,7 +125,7 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertFalse($database->schema()->tableExists('cache_page'));
   }
 
-  public function testDeletePagePathEmptiesABinThatCannotListItsEntries(): void {
+  public function testDeletePagePathEmptiesBinThatCannotListItsEntries(): void {
     $context = $this->createContext(['cache' => ['page_cache_bin' => 'data']]);
     $backend = \Drupal::cache('data');
     $this->assertNotInstanceOf(DatabaseBackend::class, $backend);
