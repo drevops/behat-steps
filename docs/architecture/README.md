@@ -213,7 +213,7 @@ Default sessions run through BrowserKit, on Mink's `HttpBrowser`. `@javascript` 
 
 ### Behat inside Behat
 
-Asserting that a step *fails correctly* is awkward from inside the same run: the failure would fail your own scenario. So scenarios tagged `@trait:SomeTrait` take a detour.
+Asserting that a step *fails correctly* is awkward from inside the same run: the failure would fail your own scenario. So scenarios tagged `@test-trait:SomeTrait` take a detour.
 
 `BehatCliTrait::behatCliBeforeScenario` reads the trait names out of the tag, writes a minimal `WebRawContext` subclass composing just those traits into a temporary directory, and `BehatCliContext` runs a real `behat` subprocess against it. The generated context starts from the step-free root and composes `AuthTrait` and `StaticCacheTrait`, the two helpers no step trait body calls into, because a tag names a trait from either half. The outer scenario then asserts on the subprocess's exit code and output. The subprocess reads a `behat.php` that `BehatCliTrait` writes, and the generated context declares its steps and hooks as PHP attributes, because Behat 4 ignores docblock annotations. One quirk worth knowing: nested PyStrings are written with `'''` and converted to `"""` on the way out, because you can't nest `"""` inside `"""` in Gherkin.
 
@@ -229,7 +229,7 @@ That merged file is the real number. The `behat/` one only ever shows the direct
 
 Alongside all this, `tests/phpunit/` holds ordinary unit tests for the parts that don't need a browser: `docs.php` itself, the backend layer, the helper traits, and the convention tests at the root of `tests/phpunit/src/` that hold the naming, member order, public surface, data provider, layer, context-composition and step-coverage rules.
 
-The step-coverage rule is the one that reads the feature files rather than the source. `StepScenarioCoverageTest` parses every scenario the suite would run - outline rows expanded, the tag filter `behat.php` declares applied, and the steps a `@trait` scenario hands to its nested run included - and matches each pattern `DrupalContext` registers against those steps through Behat's own pattern policies. A step nothing reaches fails the unit suite. It's the other half of `validate_step_patterns()`: that check stops one pattern shadowing another, and this one makes sure some scenario runs every step, since that's the only moment Behat matches a pattern against anything.
+The step-coverage rule is the one that reads the feature files rather than the source. `StepScenarioCoverageTest` parses every scenario the suite would run - outline rows expanded, the tag filter `behat.php` declares applied, and the steps a `@test-trait` scenario hands to its nested run included - and matches each pattern `DrupalContext` registers against those steps through Behat's own pattern policies. A step nothing reaches fails the unit suite. It's the other half of `validate_step_patterns()`: that check stops one pattern shadowing another, and this one makes sure some scenario runs every step, since that's the only moment Behat matches a pattern against anything.
 
 ## Continuous integration
 
