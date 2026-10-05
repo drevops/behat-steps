@@ -191,6 +191,8 @@ package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
   }
   class StringTrait <<trait>> {
     #stringFixStepArgument(argument) : string
+    #stringParseInteger(value, name, min) : int
+    #stringParseNumber(value, name, min) : float
     #stringNormalizeWhitespace(text) : string
     #stringSplitCommaSeparated(text) : array
     #stringSlug(value) : string
@@ -285,6 +287,7 @@ AuthTrait ..> EntityLifecycleTrait : composes
 PathTrait ..> RawMinkContext : requires
 PathTrait ..> RequestHeadersTrait : composes
 CommandTrait ..> WebRawContext : requires
+CommandTrait .[norank].> StringTrait : composes
 ContentTrait ..> WebRawContext : requires
 ContentTrait ..> EntityLifecycleTrait : composes
 ContentTrait ..> QueryTrait : composes
