@@ -38,7 +38,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`src/Backend/` - the backend layer.** Talks to Drupal. Knows nothing about Behat.
 
-**`src/Behat/` - the integration layer.** Wires the backend layer into a Behat suite: the extension, the service container, the backend and user registries, the authenticators, the 3 context classes, option resolution, trait prerequisites, the entity-creation hooks, the browser capabilities, and the HTTP clients a step sends its own requests through.
+**`src/Behat/` - the integration layer.** Wires the backend layer into a Behat suite: the extension, the service container, the backend, user and scenario tag registries, the authenticators, the 3 context classes, option resolution, trait prerequisites, the entity-creation hooks, the browser capabilities, and the HTTP clients a step sends its own requests through.
 
 **`src/Helper/` - the shared internals.** 9 step-free traits, each named for one concern, composed by whichever step traits and contexts need them. It splits the same way the vocabulary does: `Helper\Web` names nothing Drupal and serves `WebContext`, `Helper\Drupal` reaches a backend and serves `DrupalContext`.
 
@@ -68,7 +68,7 @@ The order itself comes from the extension configuration: its `backends` list is 
 
 `BehatStepsExtension` is a Behat extension registered under the `behat_steps` config key, and it replaces the Drupal Extension entirely. It loads the service definitions, registers the backends named in the Behat configuration, validates the `backends` list against those registrations, wires the services, defines the shared HTTP transport, and aliases the library's `DocumentElement` over Mink's own.
 
-`BackendListener` builds the backend order once per scenario, before the first step: it takes the configured `backends` list, moves every `@backend:` name to the front, and hands the result to `BackendRegistry`. A tag naming a backend the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong backend. A `@driver:` tag fails there too, naming the `@backend:` tag to use instead. It publishes the scenario's tags to `ScenarioTagRegistry` in the same pass, which Behat dispatches before the first `BeforeScenario` hook, so a tag that sets a trait option reaches a step as well as a hook.
+`BackendListener` builds the backend order once per scenario, before the first step: it takes the configured `backends` list, moves every `@backend:` name to the front, and hands the result to `BackendRegistry`. A tag naming a backend the list does not hold fails there, at scenario start, so a typo cannot quietly run the wrong backend. A `@driver:` tag fails there too, naming the `@backend:` tag to use instead. It publishes the scenario's tags to `ScenarioTagRegistry` in the same pass, which Behat dispatches before the first `BeforeScenario` hook, so a tag that sets a trait option reaches a step as well as a hook. Both registries live in `Behat\Registry`, beside `UserRegistry`, which keeps the users a scenario created and the one logged in.
 
 `SkipTagListener` runs on the same event, just before it. A `@behat-steps-skip:` tag has to name a trait, because a hook reads it by its trait's name alone, so a tag carrying a hook method name or any other value would switch nothing off. The listener fails the run there instead, naming the tag.
 
@@ -107,7 +107,7 @@ Every helper member carries its trait's prefix, so two helpers mixed into one co
 
 Note where cleanup lives. It is the lifecycle trait's job, not a step trait's, so it arrives with whichever step traits create the thing being torn down. A suite that extends `WebContext`, or composes no entity-creating trait, never runs those hooks at all.
 
-Authentication splits along the same line. `Authenticator` holds a Drupal session and lives behind `UserAwareInterface`, which `DrupalContext` declares; `BasicAuthenticator` needs only Mink and a base URL, so `WebRawContext` carries it through `getBasicAuthenticator()` and a suite with no Drupal site still gets basic auth.
+Authentication splits along the same line, with both halves in `Behat\Auth`. `Authenticator` holds a Drupal session and lives behind `UserAwareInterface`, which `DrupalContext` declares; `BasicAuthenticator` needs only Mink and a base URL, so `WebRawContext` carries it through `getBasicAuthenticator()` and a suite with no Drupal site still gets basic auth.
 
 A consumer extends exactly one class, and registering two of them is fatal: `DrupalContext` inherits `WebContext`'s 28 traits, so both registered would register every web step twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names that rather than letting Behat report a `RedundantStepException` about an arbitrary step. `ContextCompositionTest` holds the directory-to-context coverage in both directions and holds the chain to one composition of each trait.
 

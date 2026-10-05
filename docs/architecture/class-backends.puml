@@ -3,8 +3,8 @@
 ' Traced from src/Backend/BackendInterface.php, DrupalBackendInterface.php,
 ' DrushBackendInterface.php, BlackboxBackendInterface.php, DrupalBackend.php,
 ' DrushBackend.php, BlackboxBackend.php, src/Backend/Capability/,
-' src/Backend/Core/, src/Backend/Entity/, src/Behat/Manager/BackendRegistry.php,
-' scripts/lint-layers.php.
+' src/Backend/Core/, src/Backend/Entity/,
+' src/Behat/Registry/BackendRegistry.php, scripts/lint-layers.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -13,7 +13,7 @@ skinparam shadowing false
 skinparam classAttributeIconSize 0
 title Class structure: the backend layer
 
-package "DrevOps\\BehatSteps\\Behat\\Manager" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Behat\\Registry" #F3E5F5 {
   class BackendRegistry {
     +registerBackend(name, backend) : void
     +setScenarioBackends(backends) : void

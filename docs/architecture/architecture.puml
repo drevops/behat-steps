@@ -33,7 +33,8 @@ package "drevops/behat-steps" {
     component "BehatStepsExtension\nservice wiring" as Ext
     component "WebRawContext\nbackend and browser access,\noption reads, HTTP clients,\nprerequisite checks,\nhook dispatch, no steps" as WebRawCtx
     component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
-    component "Managers\nBackend, Authentication,\nUser, Scenario tags" as Managers
+    component "Registries\nsrc/Behat/Registry: backend,\nuser, scenario tags" as Registries
+    component "Authenticators\nsrc/Behat/Auth: user login,\nHTTP Basic credentials" as Authenticators
     component "Listeners\nbackend order and scenario tags,\nskip tags that name no trait" as Listeners
     component "Config\nschema reader, option resolver,\ntag overrides" as OptionConfig
     component "BrowserKitFactory\nbuilds every browserkit_http\nsession as Mink does,\nrecords its options" as BrowserKit
@@ -79,24 +80,27 @@ Consumer ..> DrupalHelpers : composes
 
 Consumer --|> WebRawCtx
 Vocabularies --|> WebRawCtx
-Ext --> Managers : registers
+Ext --> Registries : registers
+Ext --> Authenticators : registers
 Ext --> Listeners : registers
 Ext --> OptionConfig : registers
 Behat --> Listeners : before each scenario
-Listeners --> Managers : backend order,\nscenario tags
+Listeners --> Registries : backend order,\nscenario tags
 Ext --> BackendIface : registers backends
 Ext ..> BrowserKit : registers with Mink,\nreads the session options
 Ext --> HttpClients : defines the shared transport\nfrom the session options
 Ext ..> Mink : aliases DocumentElement
-WebRawCtx --> Managers
+WebRawCtx --> Registries : backendFor()
+WebRawCtx --> Authenticators : basic auth
 WebRawCtx --> OptionConfig : resolves trait options
 WebRawCtx --> BrowserCaps : browserDriverFor()
 WebRawCtx --> HttpClients : detached and\nbare clients
-OptionConfig --> Managers : reads the scenario's tags
+OptionConfig --> Registries : reads the scenario's tags
 WebRawCtx --> Prereq : reads trait prerequisites
 OptionConfig -[hidden]down- Prereq
 
-Managers --> BackendIface : resolves by capability
+Authenticators --> Registries : current user,\nbackend session
+Registries --> BackendIface : resolves by capability
 DrupalBe ..|> BackendIface
 DrushBe ..|> BackendIface
 BlackboxBe ..|> BackendIface
