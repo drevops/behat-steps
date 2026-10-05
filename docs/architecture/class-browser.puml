@@ -112,7 +112,7 @@ package "DrevOps\\BehatSteps\\Behat\\Http" #F3E5F5 {
 
   class HttpIdentity {
     +cookies : array
-    +cookieUrl : string
+    +cookieUrl : string|null
     +headers : array
     +credentials : array|null
   }
