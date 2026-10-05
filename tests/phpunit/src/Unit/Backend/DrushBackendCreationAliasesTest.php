@@ -8,9 +8,9 @@ use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
 use DrevOps\BehatSteps\Backend\Alias\RolesAlias;
 use DrevOps\BehatSteps\Backend\Capability\CreationAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\DrushBackend;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests creation-alias discovery on 'DrushBackend'.
@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 #[Group('backends')]
 #[Group('drush')]
 #[Group('aliases')]
-class DrushBackendCreationAliasesTest extends TestCase {
+class DrushBackendCreationAliasesTest extends UnitTestCase {
 
   /**
    * Tests that DrushBackend implements the opt-in capability interface.

@@ -6,16 +6,16 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Exception;
 
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the UnsupportedBackendActionException.
  */
 #[CoversClass(UnsupportedBackendActionException::class)]
 #[Group('exception')]
-class UnsupportedBackendActionExceptionTest extends TestCase {
+class UnsupportedBackendActionExceptionTest extends UnitTestCase {
 
   /**
    * Tests that the message template is populated with the backend class name.

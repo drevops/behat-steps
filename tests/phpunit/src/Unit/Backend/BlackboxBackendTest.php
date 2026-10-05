@@ -17,11 +17,11 @@ use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests BlackboxBackend's interface and capability surface.
@@ -29,7 +29,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(BlackboxBackend::class)]
 #[Group('backends')]
 #[Group('blackbox')]
-class BlackboxBackendTest extends TestCase {
+class BlackboxBackendTest extends UnitTestCase {
 
   public function testImplementsExpectedInterfaces(): void {
     $backend = new BlackboxBackend();

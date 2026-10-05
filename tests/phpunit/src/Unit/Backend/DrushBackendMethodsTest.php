@@ -8,11 +8,11 @@ use DrevOps\BehatSteps\Backend\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ArgumentsExposingDrushBackend;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingDrushBackend;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Exercises every 'DrushBackend' public method to guarantee line coverage.
@@ -26,7 +26,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DrushBackend::class)]
 #[Group('backends')]
 #[Group('drush')]
-class DrushBackendMethodsTest extends TestCase {
+class DrushBackendMethodsTest extends UnitTestCase {
 
   /**
    * Directory the throwaway Drush binary layouts are built under.

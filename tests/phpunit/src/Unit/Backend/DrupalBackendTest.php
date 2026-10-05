@@ -19,10 +19,10 @@ use DrevOps\BehatSteps\Backend\DrupalBackend;
 use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\FakeVersionDrupalBackend;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests DrupalBackend's capability surface and 'detectMajorVersion()'.
@@ -33,7 +33,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DrupalBackend::class)]
 #[Group('backends')]
 #[Group('drupal')]
-class DrupalBackendTest extends TestCase {
+class DrupalBackendTest extends UnitTestCase {
 
   /**
    * A directory carrying both entry files 'detectMajorVersion()' requires.

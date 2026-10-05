@@ -20,9 +20,9 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeTermCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeUserCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\EntityScopeInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the scope objects dispatched around entity creation.
@@ -38,7 +38,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(BeforeNodeCreateScope::class)]
 #[CoversClass(BeforeTermCreateScope::class)]
 #[CoversClass(BeforeUserCreateScope::class)]
-class ScopeTest extends TestCase {
+class ScopeTest extends UnitTestCase {
 
   /**
    * Tests the hook name each concrete scope reports.

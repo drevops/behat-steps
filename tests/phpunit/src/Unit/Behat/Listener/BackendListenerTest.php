@@ -16,15 +16,15 @@ use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Behat\Listener\BackendListener;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistry;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests how the configured list and a scenario's tags build the backend order.
  */
 #[CoversClass(BackendListener::class)]
-class BackendListenerTest extends TestCase {
+class BackendListenerTest extends UnitTestCase {
 
   /**
    * The backend list the extension configuration declares, in order.

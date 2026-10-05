@@ -7,15 +7,15 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Selector;
 use Behat\Mink\Selector\CssSelector;
 use Behat\Mink\Selector\SelectorInterface;
 use DrevOps\BehatSteps\Behat\Selector\RegionSelector;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests that a configured region name resolves to the CSS selector's XPath.
  */
 #[CoversClass(RegionSelector::class)]
-class RegionSelectorTest extends TestCase {
+class RegionSelectorTest extends UnitTestCase {
 
   /**
    * Region map the selector is constructed with.

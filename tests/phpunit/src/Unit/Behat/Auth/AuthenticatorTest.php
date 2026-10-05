@@ -21,16 +21,16 @@ use DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Behat\Registry\UserRegistry;
 use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the login, logout and basic-auth flows against a stubbed session.
  */
 #[CoversClass(Authenticator::class)]
-class AuthenticatorTest extends TestCase {
+class AuthenticatorTest extends UnitTestCase {
 
   protected const EXTENSION_PARAMS = [
     'text' => [

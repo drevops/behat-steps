@@ -9,15 +9,15 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticator;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests applying webserver-level basic auth to the session.
  */
 #[CoversClass(BasicAuthenticator::class)]
-class BasicAuthenticatorTest extends TestCase {
+class BasicAuthenticatorTest extends UnitTestCase {
 
   /**
    * Tests that credentials are parsed from the configured base URL.

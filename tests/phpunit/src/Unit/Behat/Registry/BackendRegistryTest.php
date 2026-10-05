@@ -11,15 +11,15 @@ use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the backend registry injected into backend-aware contexts.
  */
 #[CoversClass(BackendRegistry::class)]
-class BackendRegistryTest extends TestCase {
+class BackendRegistryTest extends UnitTestCase {
 
   public function testImplementsInterface(): void {
     $registry = new BackendRegistry();

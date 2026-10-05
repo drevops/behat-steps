@@ -9,8 +9,8 @@ use DrevOps\BehatSteps\Backend\Core\Core;
 use DrevOps\BehatSteps\Backend\DrupalBackend;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BackendPass;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\Reference;
  * Tests that the compiler pass wires tagged backends into the registry.
  */
 #[CoversClass(BackendPass::class)]
-class BackendPassTest extends TestCase {
+class BackendPassTest extends UnitTestCase {
 
   public function testWithoutTheRegistryNothingIsProcessed(): void {
     $container = new ContainerBuilder();

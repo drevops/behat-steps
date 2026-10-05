@@ -10,9 +10,9 @@ use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\DrupalBackend;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\AliasCapableCoreInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests creation-alias discovery on 'DrupalBackend'.
@@ -24,7 +24,7 @@ use PHPUnit\Framework\TestCase;
 #[Group('backends')]
 #[Group('drupal')]
 #[Group('aliases')]
-class DrupalBackendCreationAliasesTest extends TestCase {
+class DrupalBackendCreationAliasesTest extends UnitTestCase {
 
   /**
    * Tests that DrupalBackend implements the opt-in capability interface.

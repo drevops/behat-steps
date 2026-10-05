@@ -7,20 +7,20 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core;
 use DrevOps\BehatSteps\Backend\Core\Core;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for standalone error branches on 'Core' that need no Drupal kernel.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
-class CoreErrorPathsTest extends TestCase {
+class CoreErrorPathsTest extends UnitTestCase {
 
   /**
    * {@inheritdoc}

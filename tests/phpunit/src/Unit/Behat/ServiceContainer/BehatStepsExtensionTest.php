@@ -13,9 +13,9 @@ use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ForeignMinkExtension;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -27,7 +27,7 @@ use Symfony\Component\HttpClient\HttpClient;
  * Tests the config schema and the services the extension puts in the container.
  */
 #[CoversClass(BehatStepsExtension::class)]
-class BehatStepsExtensionTest extends TestCase {
+class BehatStepsExtensionTest extends UnitTestCase {
 
   /**
    * Directory holding the binaries the resolver probes for.
@@ -61,11 +61,15 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   protected function setUp(): void {
+    parent::setUp();
+
     $this->originalCwd = (string) getcwd();
   }
 
   protected function tearDown(): void {
     chdir($this->originalCwd);
+
+    parent::tearDown();
   }
 
   public function testConfigKeyNamesTheExtension(): void {

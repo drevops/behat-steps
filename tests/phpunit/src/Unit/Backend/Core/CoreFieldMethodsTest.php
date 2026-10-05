@@ -7,13 +7,13 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core;
 use DrevOps\BehatSteps\Backend\Core\Core;
 use DrevOps\BehatSteps\Backend\Core\Field\FieldClassifier;
 use DrevOps\BehatSteps\Backend\Core\Field\FieldClassifierInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\field\Entity\FieldStorageConfig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests 'getEntityFieldTypes()' against the classifier-backed predicates.
@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Core::class)]
 #[Group('core')]
 #[Group('fields')]
-class CoreFieldMethodsTest extends TestCase {
+class CoreFieldMethodsTest extends UnitTestCase {
 
   /**
    * Tests that 'getEntityFieldTypes()' returns configurable and F1 base fields.

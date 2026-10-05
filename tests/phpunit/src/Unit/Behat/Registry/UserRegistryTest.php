@@ -8,15 +8,15 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\Registry\UserRegistry;
 use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the register of users a scenario created.
  */
 #[CoversClass(UserRegistry::class)]
-class UserRegistryTest extends TestCase {
+class UserRegistryTest extends UnitTestCase {
 
   public function testImplementsInterface(): void {
     $registry = new UserRegistry();

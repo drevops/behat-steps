@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core\Field;
 
 use DrevOps\BehatSteps\Backend\Core\Field\AbstractHandler;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests AbstractHandler::normalize() across every accepted input shape.
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
-class AbstractHandlerNormalizeTest extends TestCase {
+class AbstractHandlerNormalizeTest extends UnitTestCase {
 
   /**
    * Tests every accepted and rejected input shape for normalize().

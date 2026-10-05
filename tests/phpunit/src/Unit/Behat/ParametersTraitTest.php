@@ -6,15 +6,15 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat;
 
 use DrevOps\BehatSteps\Behat\ParametersTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ParametersAwareObject;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests how configured text and selectors are read back.
  */
 #[CoversTrait(ParametersTrait::class)]
-class ParametersTraitTest extends TestCase {
+class ParametersTraitTest extends UnitTestCase {
 
   /**
    * Parameters the host is seeded with.

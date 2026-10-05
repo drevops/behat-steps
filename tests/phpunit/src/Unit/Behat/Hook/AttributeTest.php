@@ -14,10 +14,10 @@ use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeTermCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeUserCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\DrupalHookInterface;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\FilterStringTrait;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the attributes a context method declares its entity hooks with.
@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(BeforeTermCreate::class)]
 #[CoversClass(BeforeUserCreate::class)]
 #[CoversTrait(FilterStringTrait::class)]
-class AttributeTest extends TestCase {
+class AttributeTest extends UnitTestCase {
 
   /**
    * Tests that an attribute declared without arguments carries no filter.

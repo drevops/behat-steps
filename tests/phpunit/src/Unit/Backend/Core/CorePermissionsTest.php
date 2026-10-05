@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core;
 
 use DrevOps\BehatSteps\Backend\Core\Core;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests permission label and machine name conversion in the Core backend.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
-class CorePermissionsTest extends TestCase {
+class CorePermissionsTest extends UnitTestCase {
 
   /**
    * Tests that human-readable titles are converted to machine names.

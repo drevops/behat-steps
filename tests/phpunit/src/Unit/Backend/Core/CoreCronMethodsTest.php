@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core;
 
 use DrevOps\BehatSteps\Backend\Core\Core;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Core\CronInterface;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
-class CoreCronMethodsTest extends TestCase {
+class CoreCronMethodsTest extends UnitTestCase {
 
   /**
    * The original REQUEST_TIME value.

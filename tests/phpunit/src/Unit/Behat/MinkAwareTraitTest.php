@@ -9,15 +9,15 @@ use Behat\Mink\Session;
 use Behat\Mink\WebAssert;
 use DrevOps\BehatSteps\Behat\MinkAwareTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\MinkAwareObject;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the Mink session access a non-context class gets from the trait.
  */
 #[CoversTrait(MinkAwareTrait::class)]
-class MinkAwareTraitTest extends TestCase {
+class MinkAwareTraitTest extends UnitTestCase {
 
   public function testTheMinkInstanceIsReturned(): void {
     $mink = $this->createMink($this->createMock(Session::class));

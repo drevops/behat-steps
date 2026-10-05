@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core\Field;
 
 use DrevOps\BehatSteps\Backend\Core\Field\FieldShapeClassifier;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\Core\TypedData\DataReferenceTargetDefinition;
 use Drupal\Core\TypedData\MapDataDefinition;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests value-shape classification by stored property definitions.
@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(FieldShapeClassifier::class)]
 #[Group('core')]
 #[Group('fields')]
-class FieldShapeClassifierTest extends TestCase {
+class FieldShapeClassifierTest extends UnitTestCase {
 
   /**
    * Tests entity-reference detection by a DataReferenceTargetDefinition.

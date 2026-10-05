@@ -7,17 +7,17 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core\Alias;
 use DrevOps\BehatSteps\Backend\Alias\PreCreateAliasInterface;
 use DrevOps\BehatSteps\Backend\Core\Alias\VocabularyMachineNameAlias;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the 'VocabularyMachineNameAlias' creation alias.
  */
 #[CoversClass(VocabularyMachineNameAlias::class)]
 #[Group('aliases')]
-class VocabularyMachineNameAliasTest extends TestCase {
+class VocabularyMachineNameAliasTest extends UnitTestCase {
 
   public function testMetadataAccessors(): void {
     $alias = new VocabularyMachineNameAlias();

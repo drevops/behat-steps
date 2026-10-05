@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core\Field;
 
 use DrevOps\BehatSteps\Backend\Core\Field\FieldClassifier;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -12,7 +13,6 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\field\Entity\FieldStorageConfig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the classifier against all 9 F-row categories.
@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(FieldClassifier::class)]
 #[Group('core')]
 #[Group('fields')]
-class FieldClassifierTest extends TestCase {
+class FieldClassifierTest extends UnitTestCase {
 
   /**
    * Tests F1 detection: standard-storage entity-type-wide base field.

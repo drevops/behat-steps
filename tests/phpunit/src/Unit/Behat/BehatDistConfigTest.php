@@ -6,8 +6,8 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat;
 
 use Behat\Config\Config;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversNothing;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
@@ -15,7 +15,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
  * Tests the reference configuration in behat.dist.php.
  */
 #[CoversNothing]
-class BehatDistConfigTest extends TestCase {
+class BehatDistConfigTest extends UnitTestCase {
 
   public function testTheFileReturnsTheBehatConfiguration(): void {
     $this->assertInstanceOf(Config::class, static::loadConfig());

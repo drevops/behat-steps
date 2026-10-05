@@ -8,17 +8,17 @@ use DrevOps\BehatSteps\Backend\Alias\PreCreateAliasInterface;
 use DrevOps\BehatSteps\Backend\Core\Alias\ParentTermAlias;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the 'ParentTermAlias' creation alias.
  */
 #[CoversClass(ParentTermAlias::class)]
 #[Group('aliases')]
-class ParentTermAliasTest extends TestCase {
+class ParentTermAliasTest extends UnitTestCase {
 
   public function testMetadataAccessors(): void {
     $alias = new ParentTermAlias(static fn(): ?int => NULL);
