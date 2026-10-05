@@ -33,13 +33,13 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return RectorConfig::configure()
   ->withPaths([
-    '/app/docs.php',
-    '/app/scripts',
-    '/app/src',
-    '/app/tests/behat/bootstrap',
-    '/app/tests/behat/fixtures_drupal/d11/web/modules/custom',
-    '/app/tests/behat/fixtures_drupal/d12/web/modules/custom',
-    '/app/tests/phpunit/src',
+    __DIR__ . '/docs.php',
+    __DIR__ . '/scripts',
+    __DIR__ . '/src',
+    __DIR__ . '/tests/behat/bootstrap',
+    __DIR__ . '/tests/behat/fixtures_drupal/d11/web/modules/custom',
+    __DIR__ . '/tests/behat/fixtures_drupal/d12/web/modules/custom',
+    __DIR__ . '/tests/phpunit/src',
   ])
   ->withSkip([
     CatchExceptionNameMatchingTypeRector::class,
@@ -83,15 +83,15 @@ return RectorConfig::configure()
   // its autoloader has to be loaded rather than only scanned. Resolving a
   // parent class such as 'KernelTestBase' needs the class, not its file.
   ->withBootstrapFiles([
-    '/app/build/web/autoload.php',
+    __DIR__ . '/build/web/autoload.php',
   ])
   // Contrib classes are registered by Drupal at runtime rather than by
   // Composer, so the extension directories are scanned as well.
   ->withAutoloadPaths([
-    '/app/build/web/core',
-    '/app/build/web/modules',
-    '/app/build/web/themes',
-    '/app/build/web/profiles',
+    __DIR__ . '/build/web/core',
+    __DIR__ . '/build/web/modules',
+    __DIR__ . '/build/web/themes',
+    __DIR__ . '/build/web/profiles',
   ])
   ->withFileExtensions([
     'php',
