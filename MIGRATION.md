@@ -1901,6 +1901,8 @@ A method that created, deleted or loaded several entities at once took one of 3 
 
 `mediaCreate()`, `contentBlockCreate()` and `fileCreateManaged()` appear on both sides of that table. The step over a table took the `Multiple` name, and the 1-entity helper beside it took the name the step freed. Their parameters differ, so a call left on the old name fails with a `TypeError` rather than reaching the wrong method quietly.
 
+`webformLoadTemplates()` shipped in v3 as `webformTemplates()`, so its row under [A lookup's verb says what a miss does](#a-lookups-verb-says-what-a-miss-does) maps that name straight to `webformLoadTemplateMultiple()`.
+
 `ContentTrait`, `TaxonomyTrait`, `UserTrait`, `LanguageTrait` and `EntityTrait` had no 1-entity helper to rename: a single node, term, user, language or other entity goes through `entityLifecycleCreateNode()`, `entityLifecycleCreateTerm()`, `authCreateUser()`, `entityLifecycleCreateLanguage()` or `entityLifecycleCreate()`. `userCreateMultiple()`, `languageCreateMultiple()` and `entityCreateMultiple()` already carried the suffix and are unchanged.
 
 ## A class is named for the role it plays
