@@ -62,6 +62,36 @@ of tests. Follow these guidelines:
 We have some automated check for the steps format.
 Run `ahoy lint-docs` to validate the format of the steps.
 
+## Step arguments
+
+Behat binds every placeholder as a string, and a Turnip pattern can't make a placeholder optional. A step method declares exactly that: a required `string` for each placeholder, named as the placeholder is, plus a trailing `TableNode` or `PyStringNode` for a step that ends with a colon. Nothing is nullable, nothing has a default, and nothing else is accepted. `tests/phpunit/src/StepArgumentTest.php` enforces it.
+
+### Numbers
+
+A step that needs a number parses its placeholder with `Helper\Web\StringTrait` before it uses the value:
+
+```php
+#[Then('the table :selector should have :count row(s)')]
+public function tableAssertRowCount(string $selector, string $count): void {
+  $count = $this->stringParseInteger($count, 'count', 0);
+
+  // ...
+}
+```
+
+`stringParseInteger()` accepts what `FILTER_VALIDATE_INT` accepts, and `stringParseNumber()` accepts what `FILTER_VALIDATE_FLOAT` accepts. Both throw `\RuntimeException` naming the argument, which is the exception an invalid step argument throws everywhere in this package: `The count must be an integer, but "abc" was given.` Pass the smallest value the step accepts as `$min`, and a value below it fails the same way: `The count must be 0 or greater, but "-1" was given.` Leave `$min` out when the helper the value goes to checks the range itself, as `elementGetNth()` does for an index, so each range rule lives in 1 place.
+
+A native `int` parameter would hand the check to PHP. Behat calls a step without strict types, so PHP reads `1e3` as 1000 and `3.5` as 3 with a deprecation notice, and `abc` fails with a `TypeError` that Behat reports as `Type error: ...` rather than the `\RuntimeException` a consumer catches.
+
+### Optional arguments
+
+A step has none. A variation of a step is a step of its own. When 2 steps differ only by a qualifier one of them leaves out, both call a shared helper rather than one calling the other with `NULL`: `linkAssertExistsWithHref()` and `linkAssertExistsWithHrefWithinElement()` both call `linkAssertHrefMatches()`. A flag that only PHP code passes belongs on a helper too.
+
+A helper's optional parameter defaults to the value that means "not given":
+
+- `''` when an empty string means the same thing, as `$action_subpath` does in `contentVisitActionPageWithTitle()` and `$uri` does in `fileCreateEntity()`.
+- `NULL`, with a nullable type, when an empty string is a value of its own: `cookieAssertExists()` skips the value check for `NULL` and asserts an empty value for `''`, and `keyboardPressKeyOnElementSingle()` presses the key on the focused element for `NULL`, where `''` is an invalid selector.
+
 ## Method naming conventions
 
 Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, action, helper verb, hook, lookup, word order, batch and spelling conventions below.
@@ -81,7 +111,7 @@ An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` dir
 - **`Has` names something the subject holds**, as in `userAssertHasRoles()` and `elementAssertHasKeyboardFocus()`. It never stands in for another predicate: a value compared against reads `Equals` or `Contains` (`stateAssertValueEquals()`, not `stateAssertHasValue()`), and entries that must be absent read `NotExist` (`watchdogAssertErrorsNotExist()`).
 - **No copula**: `Assert` already states that the subject is something, so `Is` is dropped - `elementAssertVisible()`, not `elementAssertIsVisible()`.
 
-A check that throws `\RuntimeException` on a bad step argument or a missing precondition isn't an assertion, so it isn't named `Assert`. It takes the verb for what it does instead: `commandParseInteger()` turns a step argument into an integer, and `commandRequireRun()` fails when no command has run yet.
+A check that throws `\RuntimeException` on a bad step argument or a missing precondition isn't an assertion, so it isn't named `Assert`. It takes the verb for what it does instead: `stringParseInteger()` turns a step argument into an integer, and `commandRequireRun()` fails when no command has run yet.
 
 `TraitMethodNamingTest` reads every name for this shape: `Assert` right after the prefix with something after it, no qualifier ahead of `Not` or `Exists`, no `Includes` or `Present`, no `Has` before a compared value, and an assertion exception from every `Assert` method that throws one directly. A `Has` standing in for existence looks just like one naming something held, so review holds that half of the `Has` rule.
 
