@@ -19,8 +19,7 @@ class FakeUser {
    * @param int|string $id
    *   The id this fake returns from 'id()'.
    */
-  public function __construct(protected readonly int|string $id) {
-  }
+  public function __construct(protected readonly int|string $id) {}
 
   /**
    * Returns the fake user's id.

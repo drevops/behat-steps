@@ -14,6 +14,4 @@ namespace DrevOps\BehatSteps\Behat\Mink\Capability;
  * 'execute' and 'evaluate' methods would have no caller, so they would add
  * the unused-capability problem this layer removes.
  */
-interface JavascriptCapabilityInterface {
-
-}
+interface JavascriptCapabilityInterface {}

@@ -17,7 +17,6 @@ abstract class BrowserAdapterBase implements BrowserAdapterInterface {
    * @param \Behat\Mink\Driver\DriverInterface $driver
    *   The browser driver the session is running.
    */
-  public function __construct(protected readonly DriverInterface $driver) {
-  }
+  public function __construct(protected readonly DriverInterface $driver) {}
 
 }

@@ -14,5 +14,4 @@ use DrevOps\BehatSteps\Backend\Core\CoreInterface;
  * a single PHPUnit mock can satisfy 'setCore()' and the
  * 'instanceof CreationAliasCapabilityInterface' guard in the same instance.
  */
-interface AliasCapableCoreInterface extends CoreInterface, CreationAliasCapabilityInterface {
-}
+interface AliasCapableCoreInterface extends CoreInterface, CreationAliasCapabilityInterface {}

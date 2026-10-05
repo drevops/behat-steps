@@ -27,7 +27,6 @@ final readonly class DrushResult {
     public int $exitCode,
     public string $output,
     public string $errorOutput,
-  ) {
-  }
+  ) {}
 
 }

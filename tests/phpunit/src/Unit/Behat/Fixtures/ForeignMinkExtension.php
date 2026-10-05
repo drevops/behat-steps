@@ -42,14 +42,12 @@ class ForeignMinkExtension implements Extension {
   /**
    * {@inheritdoc}
    */
-  public function initialize(ExtensionManager $extensionManager): void {
-  }
+  public function initialize(ExtensionManager $extensionManager): void {}
 
   /**
    * {@inheritdoc}
    */
-  public function configure(ArrayNodeDefinition $builder): void {
-  }
+  public function configure(ArrayNodeDefinition $builder): void {}
 
   /**
    * {@inheritdoc}
@@ -59,13 +57,11 @@ class ForeignMinkExtension implements Extension {
    * @param array<string, mixed> $config
    *   The processed configuration.
    */
-  public function load(ContainerBuilder $container, array $config): void {
-  }
+  public function load(ContainerBuilder $container, array $config): void {}
 
   /**
    * {@inheritdoc}
    */
-  public function process(ContainerBuilder $container): void {
-  }
+  public function process(ContainerBuilder $container): void {}
 
 }

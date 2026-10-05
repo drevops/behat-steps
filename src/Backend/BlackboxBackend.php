@@ -36,8 +36,7 @@ class BlackboxBackend implements BlackboxBackendInterface {
   /**
    * {@inheritdoc}
    */
-  public function bootstrap(): void {
-  }
+  public function bootstrap(): void {}
 
   /**
    * {@inheritdoc}

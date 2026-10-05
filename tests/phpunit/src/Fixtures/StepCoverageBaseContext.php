@@ -15,7 +15,6 @@ class StepCoverageBaseContext {
    * Step the discovery skips, because its file is outside the directory.
    */
   #[Given('the base fixture exists')]
-  public function baseStep(): void {
-  }
+  public function baseStep(): void {}
 
 }

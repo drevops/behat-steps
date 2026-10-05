@@ -7,6 +7,4 @@ namespace DrevOps\BehatSteps\Backend\Core\Field;
 /**
  * Field handler for 'embridge_asset_item' fields (Embridge contrib).
  */
-class EmbridgeAssetItemHandler extends EntityReferenceHandler {
-
-}
+class EmbridgeAssetItemHandler extends EntityReferenceHandler {}

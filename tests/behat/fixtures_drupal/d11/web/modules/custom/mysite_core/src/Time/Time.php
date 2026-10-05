@@ -26,8 +26,7 @@ class Time implements TimeInterface {
   public function __construct(
     protected CoreTimeInterface $coreTime,
     protected StateInterface $state,
-  ) {
-  }
+  ) {}
 
   /**
    * {@inheritdoc}

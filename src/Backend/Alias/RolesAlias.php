@@ -24,8 +24,7 @@ class RolesAlias implements PostCreateAliasInterface {
    * @param \DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface $backend
    *   The backend whose 'addUserRole()' will be called per role.
    */
-  public function __construct(protected readonly UserCapabilityInterface $backend) {
-  }
+  public function __construct(protected readonly UserCapabilityInterface $backend) {}
 
   /**
    * {@inheritdoc}

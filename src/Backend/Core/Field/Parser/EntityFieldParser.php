@@ -61,8 +61,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
     protected readonly string $entityType,
     protected readonly FieldClassifierInterface $fieldClassifier,
     protected readonly ?string $bundle = NULL,
-  ) {
-  }
+  ) {}
 
   /**
    * {@inheritdoc}

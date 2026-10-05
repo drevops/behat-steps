@@ -21,8 +21,7 @@ class FieldClassifier implements FieldClassifierInterface {
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    *   The entity field manager service.
    */
-  public function __construct(protected EntityFieldManagerInterface $entityFieldManager) {
-  }
+  public function __construct(protected EntityFieldManagerInterface $entityFieldManager) {}
 
   /**
    * {@inheritdoc}

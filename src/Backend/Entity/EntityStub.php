@@ -38,8 +38,7 @@ final class EntityStub implements EntityStubInterface {
     protected readonly string $entityType,
     protected readonly ?string $bundle = NULL,
     protected array $values = [],
-  ) {
-  }
+  ) {}
 
   /**
    * {@inheritdoc}

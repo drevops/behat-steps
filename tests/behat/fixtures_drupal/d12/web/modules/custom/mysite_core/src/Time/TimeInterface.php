@@ -9,6 +9,4 @@ use Drupal\Component\Datetime\TimeInterface as CoreTimeInterface;
 /**
  * Time service interface with state-based override support.
  */
-interface TimeInterface extends CoreTimeInterface {
-
-}
+interface TimeInterface extends CoreTimeInterface {}

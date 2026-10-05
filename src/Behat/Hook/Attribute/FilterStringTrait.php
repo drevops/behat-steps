@@ -15,8 +15,7 @@ trait FilterStringTrait {
    * @param string|null $filterString
    *   The filter the hook is limited to, or NULL to run for every entity.
    */
-  public function __construct(public ?string $filterString = NULL) {
-  }
+  public function __construct(public ?string $filterString = NULL) {}
 
   /**
    * {@inheritdoc}

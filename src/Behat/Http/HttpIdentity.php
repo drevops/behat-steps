@@ -33,7 +33,6 @@ class HttpIdentity {
     public readonly string $cookieUrl = '',
     public readonly array $headers = [],
     public readonly ?array $credentials = NULL,
-  ) {
-  }
+  ) {}
 
 }

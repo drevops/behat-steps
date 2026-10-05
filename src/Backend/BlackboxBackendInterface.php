@@ -13,6 +13,4 @@ namespace DrevOps\BehatSteps\Backend;
  * BlackboxBackendInterface' check is therefore a reliable
  * negative-capability guarantee.
  */
-interface BlackboxBackendInterface extends BackendInterface {
-
-}
+interface BlackboxBackendInterface extends BackendInterface {}

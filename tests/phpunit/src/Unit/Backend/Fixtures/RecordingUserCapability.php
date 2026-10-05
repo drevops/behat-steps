@@ -33,8 +33,7 @@ class RecordingUserCapability implements UserCapabilityInterface {
   /**
    * {@inheritdoc}
    */
-  public function deleteUser(EntityStubInterface $stub): void {
-  }
+  public function deleteUser(EntityStubInterface $stub): void {}
 
   /**
    * {@inheritdoc}

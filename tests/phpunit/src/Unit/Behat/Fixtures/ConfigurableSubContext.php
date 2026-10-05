@@ -7,6 +7,4 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 /**
  * Subclass declaring no constructor of its own.
  */
-class ConfigurableSubContext extends ConfigurableContext {
-
-}
+class ConfigurableSubContext extends ConfigurableContext {}

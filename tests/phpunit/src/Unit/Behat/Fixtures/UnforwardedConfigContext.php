@@ -14,7 +14,6 @@ class UnforwardedConfigContext extends WebRawContext {
   /**
    * Constructs an UnforwardedConfigContext, deliberately forwarding nothing.
    */
-  public function __construct() {
-  }
+  public function __construct() {}
 
 }

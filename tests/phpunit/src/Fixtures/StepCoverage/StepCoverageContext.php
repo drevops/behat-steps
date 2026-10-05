@@ -18,7 +18,6 @@ class StepCoverageContext extends StepCoverageBaseContext {
    * Step declared on the context rather than on a trait.
    */
   #[Then('the context step should run')]
-  public function contextStep(): void {
-  }
+  public function contextStep(): void {}
 
 }
