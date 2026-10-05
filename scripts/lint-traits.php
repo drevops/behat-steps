@@ -57,12 +57,12 @@ function lint_traits(array $options = []): void {
   $violations = traits_violations($traits);
 
   if ($violations !== []) {
-    echo "Trait composition is inconsistent:\n\n";
-    echo implode("\n", $violations) . "\n";
+    echo 'Trait composition is inconsistent:' . PHP_EOL . PHP_EOL;
+    echo implode(PHP_EOL, $violations) . PHP_EOL;
     exit(1);
   }
 
-  echo sprintf("Every trait composes what its directory allows: %d traits checked.\n", count($traits));
+  echo sprintf('Every trait composes what its directory allows: %d traits checked.' . PHP_EOL, count($traits));
   exit(0);
 }
 

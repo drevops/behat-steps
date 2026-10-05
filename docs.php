@@ -523,7 +523,7 @@ function parse_class_comment(string $trait_name, string $comment): array {
   }
 
   $comment = preg_replace('#^/\*\*|^\s*\*\/$#m', '', $comment);
-  $lines = explode(PHP_EOL, (string) $comment);
+  $lines = explode("\n", (string) $comment);
   // Strips the docblock asterisk and at most 1 space, so any further
   // indentation is preserved.
   $lines = array_map(static fn(string $line): string => preg_replace('/^\s*\* ?/', '', $line), $lines);
@@ -609,7 +609,7 @@ function parse_method_comment(string $comment): ?array {
     'example' => '',
   ];
 
-  $lines = explode(PHP_EOL, $comment);
+  $lines = explode("\n", $comment);
 
   $example_start = FALSE;
   foreach ($lines as $line) {
@@ -2337,5 +2337,5 @@ function array_to_markdown_table(array $headers, array $rows): string {
   $separator_row = '| ' . implode(' | ', array_fill(0, count($headers), '---')) . ' |';
   $data_rows = array_map(static fn(array $row): string => '| ' . implode(' | ', $row) . ' |', $rows);
 
-  return implode("\n", array_merge([$header_row, $separator_row], $data_rows));
+  return implode(PHP_EOL, array_merge([$header_row, $separator_row], $data_rows));
 }

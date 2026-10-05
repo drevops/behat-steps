@@ -138,8 +138,8 @@ trait BehatCliTrait {
       // A 'Helper\' tag names a trait outside the vocabulary subtree.
       $root = str_starts_with((string) $qualified, 'Helper\\') ? 'DrevOps\\BehatSteps\\' : 'DrevOps\\BehatSteps\\Steps\\';
 
-      $tokens['{{USE_DECLARATION}}'] .= sprintf('use %s%s as %s;' . PHP_EOL, $root, $qualified, $alias);
-      $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $alias);
+      $tokens['{{USE_DECLARATION}}'] .= sprintf("use %s%s as %s;\n", $root, $qualified, $alias);
+      $tokens['{{USE_IN_CLASS}}'] .= sprintf("use %s;\n", $alias);
     }
 
     $content = <<<'EOL'
@@ -208,11 +208,11 @@ EOL;
   public function behatCliWriteScenarioSteps(PyStringNode $content, $tags = ''): void {
     $content = strtr((string) $content, ["'''" => '"""']);
 
-    $content_lines = explode(PHP_EOL, $content);
+    $content_lines = explode("\n", $content);
     foreach ($content_lines as $key => $content_line) {
       $content_lines[$key] = str_repeat(' ', 4) . trim($content_line);
     }
-    $content = implode(PHP_EOL, $content_lines);
+    $content = implode("\n", $content_lines);
 
     $tokens = [
       '{{SCENARIO_CONTENT}}' => $content,
@@ -285,14 +285,14 @@ EOL;
       return '';
     }
 
-    return PHP_EOL . "    'drush' => ['root' => '/app/build/web', 'binary' => '/app/build/vendor/bin/drush'],";
+    return "\n    'drush' => ['root' => '/app/build/web', 'binary' => '/app/build/vendor/bin/drush'],";
   }
 
   /**
    * Render the 'steps' section as the PHP array literal the config holds.
    */
   protected function behatCliRenderStepsConfig(): string {
-    return sprintf('[%s%s%s]', PHP_EOL . '    ' . self::BEHAT_CLI_MESSAGE_SELECTORS, PHP_EOL . '    ' . $this->behatCliStepsConfig, PHP_EOL . '  ');
+    return sprintf("[\n    %s\n    %s\n  ]", self::BEHAT_CLI_MESSAGE_SELECTORS, $this->behatCliStepsConfig);
   }
 
   /**
@@ -370,7 +370,7 @@ EOL;
       // Each subprocess writes its own coverage file, so the names cannot
       // collide.
       $coverage_id = md5($this->workingDir);
-      $coverage_extension = PHP_EOL . sprintf("  ->withExtension(new Extension(CodeCoverageExtension::class, ['filter' => ['include' => ['directories' => ['/app/src' => NULL]]], 'reports' => ['text' => ['showColors' => TRUE, 'showOnlySummary' => TRUE], 'php' => ['target' => '/app/.logs/coverage/behat_cli/phpcov/%s.php']]]))", $coverage_id);
+      $coverage_extension = sprintf("\n  ->withExtension(new Extension(CodeCoverageExtension::class, ['filter' => ['include' => ['directories' => ['/app/src' => NULL]]], 'reports' => ['text' => ['showColors' => TRUE, 'showOnlySummary' => TRUE], 'php' => ['target' => '/app/.logs/coverage/behat_cli/phpcov/%s.php']]]))", $coverage_id);
     }
 
     $content = strtr($content, [

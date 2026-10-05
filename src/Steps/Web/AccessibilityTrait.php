@@ -366,7 +366,7 @@ trait AccessibilityTrait {
     }
 
     if ($messages !== []) {
-      $message = sprintf("Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
+      $message = sprintf('Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):' . PHP_EOL . '%s', $threshold, $check_incomplete ? 'yes' : 'no', implode(PHP_EOL, $messages));
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
   }
@@ -813,7 +813,7 @@ trait AccessibilityTrait {
     $this->accessibilityLastCheckedUrl = $url;
 
     if ($this->accessibilityGetPrintCli()) {
-      fwrite(STDOUT, sprintf("\n[accessibility] %s: %d violations, %d passes, %d incomplete (rules: %s)\n",
+      fwrite(STDOUT, sprintf(PHP_EOL . '[accessibility] %s: %d violations, %d passes, %d incomplete (rules: %s)' . PHP_EOL,
         $this->accessibilityFormatUrl($url),
         count($normalized['violations'] ?? []),
         count($normalized['passes'] ?? []),
@@ -866,7 +866,7 @@ trait AccessibilityTrait {
       }
     }
 
-    return implode("\n", $lines);
+    return implode(PHP_EOL, $lines);
   }
 
   /**
@@ -1098,7 +1098,7 @@ HTML;
         foreach ($violation['nodes'] ?? [] as $node) {
           $target = static::accessibilityStringifyTarget($node['target'] ?? []);
           $html = trim((string) ($node['html'] ?? ''));
-          $details = sprintf("URL: %s\nRule: %s\nTarget: %s\nHTML: %s\nDocs: %s", $url, $rule_id, $target, $html, $help_url);
+          $details = sprintf('URL: %s' . PHP_EOL . 'Rule: %s' . PHP_EOL . 'Target: %s' . PHP_EOL . 'HTML: %s' . PHP_EOL . 'Docs: %s', $url, $rule_id, $target, $html, $help_url);
           $classname = htmlspecialchars('accessibility.' . $rule_id, ENT_XML1 | ENT_QUOTES);
           $name = htmlspecialchars($target ?: $rule_id, ENT_XML1 | ENT_QUOTES);
           $tests++;

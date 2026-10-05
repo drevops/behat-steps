@@ -41,7 +41,7 @@ class ParseException extends \RuntimeException {
       $lines[] = 'Hint: ' . $this->hint;
     }
 
-    return implode("\n", $lines);
+    return implode(PHP_EOL, $lines);
   }
 
 }

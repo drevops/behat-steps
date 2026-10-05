@@ -489,7 +489,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
       $context->authAfterScenario($this->createAfterScenarioScope());
     }
     catch (\RuntimeException $exception) {
-      $this->assertSame("Removing the created users failed: The user could not be deleted.\nRemoving the created roles failed: The role could not be deleted.", $exception->getMessage());
+      $this->assertSame('Removing the created users failed: The user could not be deleted.' . PHP_EOL . 'Removing the created roles failed: The role could not be deleted.', $exception->getMessage());
       $this->assertSame($users_failure, $exception->getPrevious());
 
       return;

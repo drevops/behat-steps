@@ -724,12 +724,12 @@ trait EmailTrait {
       $messages[$index] = array_change_key_case($message, CASE_LOWER);
 
       if ($this->emailDebug) {
-        printf("----------------------------------------\n");
-        printf("Email message number: %s\n", $index);
-        printf("----------------------------------------\n");
+        printf('----------------------------------------' . PHP_EOL);
+        printf('Email message number: %s' . PHP_EOL, $index);
+        printf('----------------------------------------' . PHP_EOL);
         foreach ($fields as $field) {
-          printf("Field: %s\n", $field);
-          printf("Value: %s\n", $messages[$index][$field] ?? '<EMPTY>');
+          printf('Field: %s' . PHP_EOL, $field);
+          printf('Value: %s' . PHP_EOL, $messages[$index][$field] ?? '<EMPTY>');
           print PHP_EOL;
         }
       }

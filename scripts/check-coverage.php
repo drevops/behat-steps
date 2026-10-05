@@ -21,9 +21,9 @@
 declare(strict_types=1);
 
 if (empty($argv[1])) {
-  echo "Error: Trait name is required.\n\n";
-  echo "Usage: php check-coverage.php <TraitName> [coverage_file_path]\n";
-  echo "Example: php check-coverage.php ElementTrait\n";
+  echo 'Error: Trait name is required.' . PHP_EOL . PHP_EOL;
+  echo 'Usage: php check-coverage.php <TraitName> [coverage_file_path]' . PHP_EOL;
+  echo 'Example: php check-coverage.php ElementTrait' . PHP_EOL;
   exit(1);
 }
 
@@ -34,13 +34,13 @@ $default_coverage_file = file_exists('/app/.logs/coverage/behat_cli/cobertura.xm
 $coverage_file = $argv[2] ?? $default_coverage_file;
 
 if (!file_exists($coverage_file)) {
-  echo sprintf("Error: Coverage file not found: %s\n", $coverage_file);
+  echo sprintf('Error: Coverage file not found: %s' . PHP_EOL, $coverage_file);
   exit(1);
 }
 
 $xml = simplexml_load_file($coverage_file);
 if ($xml === FALSE) {
-  echo sprintf("Error: Failed to parse coverage file: %s\n", $coverage_file);
+  echo sprintf('Error: Failed to parse coverage file: %s' . PHP_EOL, $coverage_file);
   exit(1);
 }
 
@@ -49,7 +49,7 @@ $xml->registerXPathNamespace('c', 'http://cobertura.sourceforge.net/xml/coverage
 $classes = $xml->xpath(sprintf('//class[contains(@name, "%s")]', $trait_name));
 
 if (empty($classes)) {
-  echo sprintf("Error: Trait '%s' not found in coverage report.\n", $trait_name);
+  echo sprintf("Error: Trait '%s' not found in coverage report." . PHP_EOL, $trait_name);
   exit(1);
 }
 
@@ -58,8 +58,8 @@ foreach ($classes as $class) {
   $line_rate = (float) $class['line-rate'];
   $percentage = number_format($line_rate * 100, 2);
 
-  echo sprintf("Class: %s\n", $class_name);
-  echo sprintf("Line rate: %s (%s%%)\n\n", $line_rate, $percentage);
+  echo sprintf('Class: %s' . PHP_EOL, $class_name);
+  echo sprintf('Line rate: %s (%s%%)' . PHP_EOL . PHP_EOL, $line_rate, $percentage);
 
   $uncovered = [];
   if (property_exists($class->lines, 'line') && $class->lines->line !== NULL) {
@@ -70,15 +70,15 @@ foreach ($classes as $class) {
     }
   }
 
-  echo "Uncovered lines:\n";
+  echo 'Uncovered lines:' . PHP_EOL;
   if (!empty($uncovered)) {
-    echo implode(', ', $uncovered) . "\n";
+    echo implode(', ', $uncovered) . PHP_EOL;
   }
   else {
-    echo "None (100% coverage)\n";
+    echo 'None (100% coverage)' . PHP_EOL;
   }
 
-  echo "\n";
+  echo PHP_EOL;
 }
 
 exit(0);

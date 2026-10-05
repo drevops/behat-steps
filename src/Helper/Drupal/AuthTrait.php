@@ -79,7 +79,7 @@ trait AuthTrait {
         $this->authCleanRoles();
       }
       catch (\Throwable $roles_exception) {
-        throw new \RuntimeException(sprintf("Removing the created users failed: %s\nRemoving the created roles failed: %s", $exception->getMessage(), $roles_exception->getMessage()), 0, $exception);
+        throw new \RuntimeException(sprintf('Removing the created users failed: %s' . PHP_EOL . 'Removing the created roles failed: %s', $exception->getMessage(), $roles_exception->getMessage()), 0, $exception);
       }
 
       throw $exception;

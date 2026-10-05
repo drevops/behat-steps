@@ -107,7 +107,7 @@ trait DrushTrait {
   #[Then('the drush output should contain the value :value')]
   public function drushAssertOutputContains(string $value): void {
     if (!str_contains($this->drushReadOutput(), $this->drushFixArgument($value))) {
-      throw new ExpectationException(sprintf("The last drush command output does not contain \"%s\". It was:\n\n%s", $value, $this->drushOutput), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The last drush command output does not contain "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput), $this->getSession()->getDriver());
     }
   }
 
@@ -121,7 +121,7 @@ trait DrushTrait {
   #[Then('the drush output should not contain the value :value')]
   public function drushAssertOutputNotContains(string $value): void {
     if (str_contains($this->drushReadOutput(), $this->drushFixArgument($value))) {
-      throw new ExpectationException(sprintf("The last drush command output contains \"%s\". It was:\n\n%s", $value, $this->drushOutput), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The last drush command output contains "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput), $this->getSession()->getDriver());
     }
   }
 
@@ -144,7 +144,7 @@ trait DrushTrait {
     }
 
     if ($result !== 1) {
-      throw new ExpectationException(sprintf("The last drush command output does not match \"%s\". It was:\n\n%s", $pattern, $this->drushOutput), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The last drush command output does not match "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $pattern, $this->drushOutput), $this->getSession()->getDriver());
     }
   }
 
@@ -193,7 +193,7 @@ trait DrushTrait {
     $this->drushOutput = $output;
 
     if ($result->exitCode === 0) {
-      throw new ExpectationException(sprintf("The drush command \"%s\" was expected to fail, but it exited 0. Output:\n\n%s", $command, $output), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The drush command "%s" was expected to fail, but it exited 0. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $output), $this->getSession()->getDriver());
     }
   }
 
