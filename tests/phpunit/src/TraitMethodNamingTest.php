@@ -296,7 +296,9 @@ class TraitMethodNamingTest extends UnitTestCase {
    *
    * A step reading "I visit" only opens a page, so its method opens with
    * `Visit` after the prefix: `userVisitProfileEditPage`, not
-   * `userEditProfile`. A step naming a page or a link carries that noun too.
+   * `userEditProfile`. A step naming a page or a link carries that noun
+   * ahead of its first qualifier, as the step text does:
+   * `mediaVisitEditPageWithName`, not `mediaVisitEditWithNamePage`.
    *
    * @param class-string $trait
    *   The trait to check.
@@ -318,14 +320,15 @@ class TraitMethodNamingTest extends UnitTestCase {
 
         $name = $method->getName();
         $destination = preg_match('/ (page|link)\b/', $step, $matches) === 1 ? ucfirst($matches[1]) : '';
+        $words = $destination === '' ? '' : sprintf('(?:(?!(?:%s)(?![a-z]))[A-Z][a-z0-9]*)*?%s', implode('|', static::QUALIFIERS), $destination);
 
-        if (preg_match('/^Visit(?![a-z])/', substr($name, strlen($prefix))) !== 1 || !str_contains($name, $destination)) {
+        if (preg_match(sprintf('/^Visit%s(?![a-z])/', $words), substr($name, strlen($prefix))) !== 1) {
           $violations[] = sprintf('%s() for "%s"', $name, $step);
         }
       }
     }
 
-    $this->assertSame([], $violations, 'Name a navigation step for the visit and the page it opens: "mediaVisitEditPageWithName" for "I visit the :media_type media edit page with the name :name", not "mediaEditWithName".');
+    $this->assertSame([], $violations, 'Name a navigation step for the visit and the page it opens, ahead of any qualifier: "mediaVisitEditPageWithName" for "I visit the :media_type media edit page with the name :name", not "mediaEditWithName" or "mediaVisitEditWithNamePage".');
   }
 
   public static function dataProviderNavigationStepsOpenWithVisit(): array {

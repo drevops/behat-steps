@@ -105,7 +105,7 @@ A step that opens a page only navigates, so its method opens with `Visit` and na
 
 A qualifier that the step opens with `with` reads `With` in the name, and a second one repeats it, in the order the step gives them: `I follow the link with the index :index in the email with a subject containing :partial_subject` is `emailFollowLinkWithIndexWithSubjectContaining()`.
 
-`TraitMethodNamingTest` fails an `I visit` step whose method doesn't open with `Visit`, or doesn't carry `Page` or `Link` when the step names one.
+`TraitMethodNamingTest` fails an `I visit` step whose method doesn't open with `Visit`, or doesn't carry the `Page` or `Link` its step names ahead of the first qualifier.
 
 ### Consumer override points
 
