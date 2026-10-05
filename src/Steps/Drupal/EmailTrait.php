@@ -130,37 +130,7 @@ trait EmailTrait {
    */
   #[When('I follow the link with the index :index in the email with the subject :subject')]
   public function emailFollowLinkWithIndex(string $index, string $subject): void {
-    $index = $this->emailParseLinkIndex($index);
-
-    $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
-
-    if (!$message) {
-      throw new ExpectationException(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
-    }
-
-    if (isset($message['params']['body']) && is_string($message['params']['body'])) {
-      $body = $message['params']['body'];
-    }
-    // @codeCoverageIgnoreStart
-    elseif (is_string($message['body'])) {
-      $body = $message['body'];
-    }
-    else {
-      throw new \RuntimeException('No body found in email.');
-    }
-    // @codeCoverageIgnoreEnd
-    $links = static::emailExtractLinks($body);
-
-    if (empty($links)) {
-      throw new ExpectationException(sprintf('No links were found in the email with subject "%s".', $subject), $this->getSession()->getDriver());
-    }
-
-    if (count($links) < $index) {
-      throw new ExpectationException(sprintf('The link with the index %s was not found among %s links.', $index, count($links)), $this->getSession()->getDriver());
-    }
-
-    $link = $links[$index - 1];
-    $this->getSession()->visit($link);
+    $this->emailFollowLinkWithIndexBySubject($index, $subject, FALSE);
   }
 
   /**
@@ -209,44 +179,7 @@ trait EmailTrait {
    */
   #[When('I follow the link with the index :index in the email with a subject containing :partial_subject')]
   public function emailFollowLinkWithIndexWithSubjectContaining(string $index, string $partial_subject): void {
-    $index = $this->emailParseLinkIndex($index);
-
-    $message = NULL;
-    foreach ($this->emailGetCollectedMessages() as $m) {
-      if (str_contains(strtolower((string) $m['subject']), strtolower($partial_subject))) {
-        $message = $m;
-        break;
-      }
-    }
-
-    if (!$message) {
-      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $partial_subject), $this->getSession()->getDriver());
-    }
-
-    if (isset($message['params']['body']) && is_string($message['params']['body'])) {
-      $body = $message['params']['body'];
-    }
-    // @codeCoverageIgnoreStart
-    elseif (is_string($message['body'])) {
-      $body = $message['body'];
-    }
-    else {
-      throw new \RuntimeException('No body found in email.');
-    }
-    // @codeCoverageIgnoreEnd
-    $links = static::emailExtractLinks($body);
-
-    if (empty($links)) {
-      throw new ExpectationException(sprintf('No links were found in the email with subject containing "%s".', $partial_subject), $this->getSession()->getDriver());
-    }
-
-    if (count($links) < $index) {
-      throw new ExpectationException(sprintf('The link with the index %s was not found among %s links.', $index, count($links)), $this->getSession()->getDriver());
-    }
-
-    $link = $links[$index - 1];
-
-    $this->getSession()->visit($link);
+    $this->emailFollowLinkWithIndexBySubject($index, $partial_subject, TRUE);
   }
 
   /**
@@ -636,21 +569,7 @@ trait EmailTrait {
    */
   #[Then('the file :file_name should be attached to the email with the subject :subject')]
   public function emailAssertMessageContainsAttachmentWithName(string $file_name, string $subject): void {
-    $message = $this->emailFindMessage('subject', new PyStringNode([$subject], 0));
-
-    if (!$message) {
-      throw new ExpectationException(sprintf('Unable to find email with subject "%s" retrieved from test email collector.', $subject), $this->getSession()->getDriver());
-    }
-
-    if (!empty($message['params']['attachments'])) {
-      foreach ($message['params']['attachments'] as $attachment) {
-        if ($attachment['filename'] === $file_name) {
-          return;
-        }
-      }
-    }
-
-    throw new ExpectationException(sprintf('No attachments were found in the email with subject %s.', $subject), $this->getSession()->getDriver());
+    $this->emailAssertMessageContainsAttachmentBySubject($file_name, $subject, FALSE);
   }
 
   /**
@@ -662,27 +581,75 @@ trait EmailTrait {
    */
   #[Then('the file :file_name should be attached to the email with a subject containing :partial_subject')]
   public function emailAssertMessageContainsAttachmentWithSubjectContaining(string $file_name, string $partial_subject): void {
-    $message = NULL;
-    foreach ($this->emailGetCollectedMessages() as $m) {
-      if (str_contains(strtolower((string) $m['subject']), strtolower($partial_subject))) {
-        $message = $m;
-        break;
+    $this->emailAssertMessageContainsAttachmentBySubject($file_name, $partial_subject, TRUE);
+  }
+
+  /**
+   * Follow the link at the 1-based index in the first email with a subject.
+   *
+   * @param string $index
+   *   The link index as provided in the step.
+   * @param string $subject
+   *   The subject, or the part of it to look for.
+   * @param bool $is_partial
+   *   Whether to search for a partial subject.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no email matches, or the email has no link at the index.
+   */
+  protected function emailFollowLinkWithIndexBySubject(string $index, string $subject, bool $is_partial): void {
+    $index = $this->emailParseLinkIndex($index);
+
+    $message = $this->emailGetMessageBySubject($subject, $is_partial);
+
+    if (isset($message['params']['body']) && is_string($message['params']['body'])) {
+      $body = $message['params']['body'];
+    }
+    // @codeCoverageIgnoreStart
+    elseif (is_string($message['body'])) {
+      $body = $message['body'];
+    }
+    else {
+      throw new \RuntimeException('No body found in email.');
+    }
+    // @codeCoverageIgnoreEnd
+
+    $links = static::emailExtractLinks($body);
+
+    if ($links === []) {
+      throw new ExpectationException(sprintf('No links were found in the email with subject%s "%s".', $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
+    }
+
+    if (count($links) < $index) {
+      throw new ExpectationException(sprintf('The link with the index %s was not found among %s links.', $index, count($links)), $this->getSession()->getDriver());
+    }
+
+    $this->getSession()->visit($links[$index - 1]);
+  }
+
+  /**
+   * Assert that a file is attached to the first email with a subject.
+   *
+   * @param string $file_name
+   *   The name of the attached file.
+   * @param string $subject
+   *   The subject, or the part of it to look for.
+   * @param bool $is_partial
+   *   Whether to search for a partial subject.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no email matches, or the file is not attached to it.
+   */
+  protected function emailAssertMessageContainsAttachmentBySubject(string $file_name, string $subject, bool $is_partial): void {
+    $message = $this->emailGetMessageBySubject($subject, $is_partial);
+
+    foreach ($message['params']['attachments'] ?? [] as $attachment) {
+      if (($attachment['filename'] ?? NULL) === $file_name) {
+        return;
       }
     }
 
-    if (!$message) {
-      throw new ExpectationException(sprintf('Unable to find email with subject containing "%s" retrieved from test email collector.', $partial_subject), $this->getSession()->getDriver());
-    }
-
-    if (!empty($message['params']['attachments'])) {
-      foreach ($message['params']['attachments'] as $attachment) {
-        if ($attachment['filename'] === $file_name) {
-          return;
-        }
-      }
-    }
-
-    throw new ExpectationException(sprintf('No attachments were found in the email with subject containing "%s".', $partial_subject), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('The file "%s" is not attached to the email with subject%s "%s".', $file_name, $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
   }
 
   /**
@@ -797,6 +764,56 @@ trait EmailTrait {
       $field_string = $exact ? $value : $this->stringNormalizeWhitespace((string) $value);
 
       if (str_contains((string) $field_string, (string) $string)) {
+        return $message;
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Get the first collected email by exact or partial subject.
+   *
+   * @param string $subject
+   *   The subject, or the part of it to look for.
+   * @param bool $is_partial
+   *   Whether to search for a partial subject.
+   *
+   * @return array<string, mixed>
+   *   The email message.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no collected email matches.
+   */
+  public function emailGetMessageBySubject(string $subject, bool $is_partial = FALSE): array {
+    $message = $this->emailFindMessageBySubject($subject, $is_partial);
+
+    if ($message === NULL) {
+      throw new ExpectationException(sprintf('Unable to find email with subject%s "%s" retrieved from test email collector.', $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
+    }
+
+    return $message;
+  }
+
+  /**
+   * Find the first collected email by exact or partial subject.
+   *
+   * An exact search compares the whole subject, and a partial search matches
+   * a substring of it. Both are case-sensitive.
+   *
+   * @param string $subject
+   *   The subject, or the part of it to look for.
+   * @param bool $is_partial
+   *   Whether to search for a partial subject.
+   *
+   * @return array<string, mixed>|null
+   *   The email message, or NULL when no collected email matches.
+   */
+  public function emailFindMessageBySubject(string $subject, bool $is_partial = FALSE): ?array {
+    foreach ($this->emailGetCollectedMessages() as $message) {
+      $message_subject = (string) ($message['subject'] ?? '');
+
+      if ($is_partial ? str_contains($message_subject, $subject) : $message_subject === $subject) {
         return $message;
       }
     }

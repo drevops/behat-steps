@@ -458,6 +458,23 @@ Feature: Check that EmailTrait works
       """
 
   @trait:Drupal\EmailTrait
+  Scenario: Assert that following link in email fails when the subject matches only in part
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with a link: http://example.com
+        '''
+      Then I follow the link with the index "1" in the email with the subject "Test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find email with subject "Test" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
   Scenario: Assert that following link in email fails when no links found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -545,6 +562,23 @@ Feature: Check that EmailTrait works
     Then it should fail with an error:
       """
       Unable to find email with subject containing "Nonexistent" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that following link by subject substring fails when the case differs
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      When I send test email to "test@example.com" with:
+        '''
+        Email with a link: http://example.com
+        '''
+      Then I follow the link with the index 1 in the email with a subject containing "test email"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find email with subject containing "test email" retrieved from test email collector.
       """
 
   @trait:Drupal\EmailTrait
@@ -693,6 +727,23 @@ Feature: Check that EmailTrait works
       """
 
   @trait:Drupal\EmailTrait
+  Scenario: Assert that attachment assertion fails when the subject matches only in part
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      When I send test email to "test@example.com" with subject "Email with Attachment" and attachment "example.pdf" and body:
+        '''
+        This email contains an attachment.
+        '''
+      Then the file "example.pdf" should be attached to the email with the subject "with Attachment"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find email with subject "with Attachment" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
   Scenario: Assert that attachment assertion fails when no attachments found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -706,7 +757,24 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      No attachments were found in the email with subject Test Email
+      The file "test.pdf" is not attached to the email with subject "Test Email".
+      """
+
+  @trait:Drupal\EmailTrait
+  Scenario: Assert that attachment assertion fails when the email carries a different file
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      When I send test email to "test@example.com" with subject "Email with Attachment" and attachment "example.pdf" and body:
+        '''
+        This email contains an attachment.
+        '''
+      Then the file "other.pdf" should be attached to the email with the subject "Email with Attachment"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The file "other.pdf" is not attached to the email with subject "Email with Attachment".
       """
 
   @trait:Drupal\EmailTrait
@@ -727,6 +795,23 @@ Feature: Check that EmailTrait works
       """
 
   @trait:Drupal\EmailTrait
+  Scenario: Assert that attachment with subject substring fails when the case differs
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      When I send test email to "test@example.com" with subject "Email with Attachment" and attachment "example.pdf" and body:
+        '''
+        This email contains an attachment.
+        '''
+      Then the file "example.pdf" should be attached to the email with a subject containing "with attachment"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Unable to find email with subject containing "with attachment" retrieved from test email collector.
+      """
+
+  @trait:Drupal\EmailTrait
   Scenario: Assert that attachment with subject substring fails when no attachments found
     Given some behat configuration
     And scenario steps tagged with "@email":
@@ -740,7 +825,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      No attachments were found in the email with subject containing "Test"
+      The file "test.pdf" is not attached to the email with subject containing "Test".
       """
 
   @trait:Drupal\EmailTrait

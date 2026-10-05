@@ -980,6 +980,8 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `When I follow the link to :urlFragment from the (e)mail to :to` | as above |
 | `When I follow the link to :urlFragment from the (e)mail with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
 
+The Drupal Extension matched a subject in part and in any case. Here `with the subject :subject` compares the whole subject, so a scenario that relied on a partial match moves to `with a subject containing :partial_subject` and writes the subject's own case. [Email subject steps match the way they read](#email-subject-steps-match-the-way-they-read) has the details.
+
 ### Config
 
 | Before | After |
@@ -1306,6 +1308,42 @@ Then the current URL should not have the query parameter "filter" with the value
 ## A value of `0` is not empty
 
 A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other: `Given the password for the user :name is "0"` sets the password instead of failing with `Password must not be empty.`, an attribute whose value is `0` counts as present for the `the element :selector with the attribute :attribute ...` steps, an iframe named `0` is switched to by name, a WYSIWYG field with the id `0` is filled through its id, and `fileCreateEntity()` honours a destination URI of `0`. A `drush` backend configured with an alias or root path of `0` is likewise read as configured.
+
+## Email subject steps match the way they read
+
+4 `Drupal\EmailTrait` steps pick an email by its subject. They matched it 2 different ways, and neither was what the step text says. `with the subject :subject` settled for the first email whose subject contained the text, after collapsing whitespace. `with a subject containing :partial_subject` ignored case.
+
+Both now follow the grammar in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). `with the subject` names the whole subject, which is how `the number of emails sent with the subject :subject should be :count` already compared it. `a subject containing` matches part of it, case-sensitively, like every other `containing` step.
+
+| Step | Before | After |
+| --- | --- | --- |
+| `When I follow the link with the index :index in the email with the subject :subject` | The subject contains `:subject`, whitespace collapsed | The subject is exactly `:subject` |
+| `Then the file :file_name should be attached to the email with the subject :subject` | The subject contains `:subject`, whitespace collapsed | The subject is exactly `:subject` |
+| `When I follow the link with the index :index in the email with a subject containing :partial_subject` | The subject contains `:partial_subject` in any case | The subject contains `:partial_subject` in the same case |
+| `Then the file :file_name should be attached to the email with a subject containing :partial_subject` | The subject contains `:partial_subject` in any case | The subject contains `:partial_subject` in the same case |
+
+When several emails match, each step still uses the first one collected.
+
+A scenario that named only part of a subject switches to the `containing` step, and one that leaned on case-insensitive matching writes the subject's own case:
+
+```gherkin
+# Before.
+When I follow the link with the index "1" in the email with the subject "Verification"
+Then the file "report.xlsx" should be attached to the email with a subject containing "monthly report"
+
+# After.
+When I follow the link with the index "1" in the email with a subject containing "Verification"
+Then the file "report.xlsx" should be attached to the email with a subject containing "Monthly Report"
+```
+
+The lookup behind all 4 steps is public, so your own step definitions can pick an email the same way. `emailFindMessageBySubject()` returns `NULL` when no email matches, and `emailGetMessageBySubject()` throws the same `ExpectationException` the steps fail with. Both take the subject and an `$is_partial` flag.
+
+When the file is missing, the attachment steps now name it. The old message said the email had no attachments at all, which was wrong whenever it carried other files:
+
+| Trait | Before | After |
+| --- | --- | --- |
+| Drupal\EmailTrait | No attachments were found in the email with subject .... | The file "..." is not attached to the email with subject "...". |
+| Drupal\EmailTrait | No attachments were found in the email with subject containing "...". | The file "..." is not attached to the email with subject containing "...". |
 
 ## Unified assertion exceptions
 
