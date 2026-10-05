@@ -182,7 +182,7 @@ class HttpClientFactoryTest extends UnitTestCase {
     $factory = new HttpClientFactory($transport, 'http://example.com');
     $received = NULL;
 
-    $decorated = $factory->withTransport(function (HttpClientInterface $inner) use (&$received): HttpClientInterface {
+    $decorated = $factory->withTransport(static function (HttpClientInterface $inner) use (&$received): HttpClientInterface {
       $received = $inner;
 
       return $inner->withOptions(['headers' => ['X-Decorated' => 'yes']]);

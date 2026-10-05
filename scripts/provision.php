@@ -653,7 +653,7 @@ function provision_widen_contrib(string $directory, string $major): int {
 function provision_widen_core_requirement(string $text, string $major): string {
   $admitted = '^' . $major;
 
-  $updated = preg_replace_callback('/^core_version_requirement: *([^#\n]*?) *(#.*)?$/m', function (array $matches) use ($admitted): string {
+  $updated = preg_replace_callback('/^core_version_requirement: *([^#\n]*?) *(#.*)?$/m', static function (array $matches) use ($admitted): string {
     $constraint = trim($matches[1], " \"'");
 
     if ($constraint === '' || str_contains($constraint, $admitted)) {

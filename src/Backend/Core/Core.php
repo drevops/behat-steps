@@ -1250,7 +1250,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     \Drupal::state()->resetCache();
     $mail = \Drupal::state()->get('system.test_mail_collector') ?: [];
     // Cancelled mail carries a false 'send' flag.
-    $mail = array_values(array_filter($mail, fn(array $mail_item): bool => (bool) $mail_item['send']));
+    $mail = array_values(array_filter($mail, static fn(array $mail_item): bool => (bool) $mail_item['send']));
     return $mail;
   }
 

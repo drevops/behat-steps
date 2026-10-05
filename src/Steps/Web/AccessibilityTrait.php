@@ -876,7 +876,7 @@ trait AccessibilityTrait {
    *   Canonical `target` value of a node entry.
    */
   protected static function accessibilityStringifyTarget(array $target): string {
-    return implode(' > ', array_map(fn($t): string => is_array($t) ? implode(' ', $t) : (string) $t, $target));
+    return implode(' > ', array_map(static fn($t): string => is_array($t) ? implode(' ', $t) : (string) $t, $target));
   }
 
   /**
@@ -1324,7 +1324,7 @@ HTML;
       }
     }
 
-    uasort($rules, function (array $a, array $b) use ($rank): int {
+    uasort($rules, static function (array $a, array $b) use ($rank): int {
       $by_impact = ($rank[$a['impact']] ?? 9) <=> ($rank[$b['impact']] ?? 9);
 
       return $by_impact !== 0 ? $by_impact : count($b['nodes']) <=> count($a['nodes']);
@@ -1471,7 +1471,7 @@ HTML;
    *   Render-ready data from accessibilityAggregateData().
    */
   protected static function accessibilityRenderAggregate(array $data): string {
-    $issue_list = function (string $heading, string $css_class, array $issues): string {
+    $issue_list = static function (string $heading, string $css_class, array $issues): string {
       if ($issues === []) {
         return sprintf('<h5>%s</h5><p class="meta">None.</p>', htmlspecialchars($heading, ENT_QUOTES));
       }

@@ -10,6 +10,7 @@
     <rule ref="PHPCompatibility"/>
     <rule ref="DrevOps"/>
     <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses"/>
+    <rule ref="SlevomatCodingStandard.Functions.StaticClosure"/>
 
     <!-- Show sniff codes in all reports -->
     <arg value="s"/>

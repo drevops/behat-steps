@@ -424,7 +424,7 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
       usort($class_info['methods'], static function (array $a, array $b): int {
         $order = ['@Given', '@When', '@Then'];
 
-        $get_order_index = function ($step) use ($order): int {
+        $get_order_index = static function ($step) use ($order): int {
           foreach ($order as $index => $prefix) {
             if (str_starts_with($step, $prefix)) {
               return $index;
@@ -1358,7 +1358,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
       $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
 
-      $method['steps'] = array_reduce($method['steps'], fn(string $carry, string $item): string => $carry . sprintf("%s\n", $item), '');
+      $method['steps'] = array_reduce($method['steps'], static fn(string $carry, string $item): string => $carry . sprintf("%s\n", $item), '');
       $method['steps'] = rtrim((string) $method['steps'], "\n");
 
       $method['description'] = rtrim((string) $method['description'], '.');
@@ -2335,7 +2335,7 @@ function array_to_markdown_table(array $headers, array $rows): string {
 
   $header_row = '| ' . implode(' | ', $headers) . ' |';
   $separator_row = '| ' . implode(' | ', array_fill(0, count($headers), '---')) . ' |';
-  $data_rows = array_map(fn(array $row): string => '| ' . implode(' | ', $row) . ' |', $rows);
+  $data_rows = array_map(static fn(array $row): string => '| ' . implode(' | ', $row) . ' |', $rows);
 
   return implode("\n", array_merge([$header_row, $separator_row], $data_rows));
 }

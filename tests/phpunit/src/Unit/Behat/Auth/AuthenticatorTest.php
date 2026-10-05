@@ -87,7 +87,7 @@ class AuthenticatorTest extends TestCase {
     $page->method('findButton')->with('Log in')->willReturn($submit);
     $page->method('has')->willReturn(TRUE);
     $filled = [];
-    $page->expects($this->exactly(2))->method('fillField')->willReturnCallback(function (string $field, string $value) use (&$filled): void {
+    $page->expects($this->exactly(2))->method('fillField')->willReturnCallback(static function (string $field, string $value) use (&$filled): void {
       $filled[$field] = $value;
     });
 
@@ -309,7 +309,7 @@ class AuthenticatorTest extends TestCase {
     $call_count = 0;
     $page = $this->createMock(DocumentElement::class);
     $page->method('has')->willReturn(FALSE);
-    $page->method('findLink')->willReturnCallback(function () use (&$call_count, $link): ?NodeElement {
+    $page->method('findLink')->willReturnCallback(static function () use (&$call_count, $link): ?NodeElement {
       $call_count++;
       return $call_count >= 3 ? $link : NULL;
     });
@@ -336,7 +336,7 @@ class AuthenticatorTest extends TestCase {
     $call_count = 0;
     $page = $this->createMock(DocumentElement::class);
     $page->method('has')->willReturn(FALSE);
-    $page->method('findLink')->willReturnCallback(function () use (&$call_count): ?NodeElement {
+    $page->method('findLink')->willReturnCallback(static function () use (&$call_count): ?NodeElement {
       $call_count++;
       return NULL;
     });
@@ -380,7 +380,7 @@ class AuthenticatorTest extends TestCase {
 
   public function testIsLoggedInHandlesDriverException(): void {
     $page = $this->createMock(DocumentElement::class);
-    $page->method('has')->willReturnCallback(function ($selector, $locator): true {
+    $page->method('has')->willReturnCallback(static function ($selector, $locator): true {
       if ($locator === 'body.logged-in') {
             throw new DriverException('Not loaded');
       }
@@ -512,7 +512,7 @@ class AuthenticatorTest extends TestCase {
     $call_count = 0;
     $page = $this->createMock(DocumentElement::class);
     $page->method('findButton')->with('Log in')->willReturn($submit);
-    $page->method('has')->willReturnCallback(function (string $selector, string $locator) use (&$call_count): bool {
+    $page->method('has')->willReturnCallback(static function (string $selector, string $locator) use (&$call_count): bool {
       if ($locator === 'body.logged-in') {
         $call_count++;
         // The first 2 calls return FALSE (during the wait loop and the
@@ -521,7 +521,7 @@ class AuthenticatorTest extends TestCase {
       }
       return FALSE;
     });
-    $page->method('find')->willReturnCallback(function (string $selector, string $locator) use ($page): ?DocumentElement {
+    $page->method('find')->willReturnCallback(static function (string $selector, string $locator) use ($page): ?DocumentElement {
       if ($locator === 'body') {
         return $page;
       }
@@ -534,7 +534,7 @@ class AuthenticatorTest extends TestCase {
     $session->method('isStarted')->willReturn(TRUE);
     // The URL changes after login, as on a redirect.
     // @phpstan-ignore method.notFound
-    $session->method('getCurrentUrl')->willReturnCallback(function () use (&$url_call_count): string {
+    $session->method('getCurrentUrl')->willReturnCallback(static function () use (&$url_call_count): string {
       $url_call_count++;
       return $url_call_count <= 1 ? 'http://localhost/user/login' : 'http://localhost/user/1';
     });
@@ -562,7 +562,7 @@ class AuthenticatorTest extends TestCase {
     $page = $this->createMock(DocumentElement::class);
     $page->method('findButton')->with('Log in')->willReturn($submit);
     $page->method('has')->willReturn(TRUE);
-    $page->method('find')->willReturnCallback(function (string $selector, string $locator) use (&$find_count, $page): ?DocumentElement {
+    $page->method('find')->willReturnCallback(static function (string $selector, string $locator) use (&$find_count, $page): ?DocumentElement {
       if ($locator !== 'body') {
         return NULL;
       }
@@ -597,7 +597,7 @@ class AuthenticatorTest extends TestCase {
     $submit = $this->createMock(NodeElement::class);
 
     $page = $this->createMock(DocumentElement::class);
-    $page->method('findButton')->willReturnCallback(fn(string $text): ?NodeElement => $text === 'Log in' ? $submit : NULL);
+    $page->method('findButton')->willReturnCallback(static fn(string $text): ?NodeElement => $text === 'Log in' ? $submit : NULL);
     // logged_in_selector is never found (simulates slow JS).
     $page->method('has')->willReturn(FALSE);
     $page->method('findLink')->willReturn(NULL);

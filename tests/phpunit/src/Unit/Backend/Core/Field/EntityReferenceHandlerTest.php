@@ -193,7 +193,7 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
 
     $captured_label = NULL;
     $query->method('condition')
-      ->willReturnCallback(function (mixed $field, mixed $value = NULL) use ($query, &$captured_label): MockObject {
+      ->willReturnCallback(static function (mixed $field, mixed $value = NULL) use ($query, &$captured_label): MockObject {
         if (is_string($field) && in_array($field, ['name', 'title', 'label'], TRUE) && $value !== NULL) {
           $captured_label = (string) $value;
         }
@@ -202,7 +202,7 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
       });
 
     $query->method('execute')
-      ->willReturnCallback(function () use (&$captured_label, $known_labels): array {
+      ->willReturnCallback(static function () use (&$captured_label, $known_labels): array {
         return $captured_label !== NULL && isset($known_labels[$captured_label])
           ? [$known_labels[$captured_label]]
           : [];

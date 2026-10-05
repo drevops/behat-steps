@@ -166,7 +166,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderAssertionsNameWhatTheyAssert')]
   public function testAssertionsNameWhatTheyAssert(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert(?:Not)?$/', $name) === 1));
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert(?:Not)?$/', $name) === 1));
 
     $this->assertSame([], $violations, 'Follow "Assert" with the subject or the predicate it asserts: "messageAssertExistsOfType", not "messageAssert".');
   }
@@ -222,7 +222,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderNegationSpelledNot')]
   public function testNegationSpelledNot(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/(?:No|DoesNot|DoNot)[A-Z]/', $name) === 1));
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/(?:No|DoesNot|DoNot)[A-Z]/', $name) === 1));
 
     $this->assertSame([], $violations, 'Negate with a bare "Not" placed before the predicate: "userAssertNotHasRoles", not "userAssertHasNoRoles" or "userAssertDoesNotHaveRoles".');
   }
@@ -250,7 +250,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $predicates = implode('|', static::PREDICATES);
     $pattern = sprintf('/Assert(?:(?!%2$s)[A-Z][a-z0-9]*)*?(?:%1$s)(?=[A-Z])[A-Za-z0-9]*?(?:%2$s)(?![a-z])|Assert[A-Za-z0-9]*?Not(?:%1$s)(?=[A-Z])/', $qualifiers, $predicates);
 
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match($pattern, $name) === 1));
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match($pattern, $name) === 1));
 
     $this->assertSame([], $violations, 'Place a qualifier after the predicate so "Not" sits directly after the subject: "cookieAssertNotExistsWithName", not "cookieAssertWithNameNotExists", and "tableAssertLinkNotExistsInRow", not "tableAssertLinkNotInRow".');
   }
@@ -354,7 +354,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderAssertionsCarryNoCopula')]
   public function testAssertionsCarryNoCopula(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Is[A-Z]/', $name) === 1));
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Is[A-Z]/', $name) === 1));
 
     $this->assertSame([], $violations, 'Drop the "Is" copula from assertion names: "elementAssertVisible" and "elementAssertNotVisible", not "elementAssertIsVisible" and "elementAssertIsNotVisible".');
   }
@@ -377,7 +377,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderHasNamesWhatSubjectHolds')]
   public function testHasNamesWhatSubjectHolds(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Has(?:(?:Content|Value|Text)(?![a-z])|[A-Z][A-Za-z0-9]*?(?:With|Containing)(?=[A-Z]))/', $name) === 1));
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*Has(?:(?:Content|Value|Text)(?![a-z])|[A-Z][A-Za-z0-9]*?(?:With|Containing)(?=[A-Z]))/', $name) === 1));
 
     $this->assertSame([], $violations, 'Keep "Has" for something the subject holds, and compare a value with "Equals" or "Contains": "stateAssertValueEquals", not "stateAssertHasValue", and "elementAssertCssPropertyEquals", not "elementAssertHasCssPropertyWithValue".');
   }
@@ -399,7 +399,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderPredicatesSpelledExistsAndContains')]
   public function testPredicatesSpelledExistsAndContains(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*(?:Absent|Includes?|Including|Missing|Presence|Present)(?![a-z])/', $name) === 1));
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Assert[A-Za-z0-9]*(?:Absent|Includes?|Including|Missing|Presence|Present)(?![a-z])/', $name) === 1));
 
     $this->assertSame([], $violations, 'Spell existence "Exists" or "Exist" and containment "Contains": "metatagAssertRobotsContains", not "metatagAssertRobotsIncludes", and "metatagAssertMetaSetExists", not "metatagAssertMetaSetPresent".');
   }
@@ -418,7 +418,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderSpellingIsAmerican')]
   public function testSpellingIsAmerican(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => stripos($name, 'normalise') !== FALSE));
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), static fn(string $name): bool => stripos($name, 'normalise') !== FALSE));
 
     $this->assertSame([], $violations, 'Spell it "Normalize", not "Normalise".');
   }
@@ -437,7 +437,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderLoginSpelledAsNoun')]
   public function testLoginSpelledAsNoun(string $trait, string $file): void {
-    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), fn(string $name): bool => preg_match('/Log(?:In|Out)(?![a-z])/', $name) === 1));
+    $violations = array_values(array_filter(self::traitOwnMethodNames($trait, $file), static fn(string $name): bool => preg_match('/Log(?:In|Out)(?![a-z])/', $name) === 1));
 
     $this->assertSame([], $violations, 'Spell it "Login" and "Logout", not "LogIn" and "LogOut": "userLoginAs", not "userLogInAs".');
   }
