@@ -317,7 +317,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     yield 'configurable_language' => ['configurable_language'];
   }
 
-  public function testALanguageDeleteFailureSurfaces(): void {
+  public function testLanguageDeleteFailureSurfaces(): void {
     $backend = $this->createBackend([LanguageCapabilityInterface::class]);
     $backend->expects($this->once())->method('languageDelete')->willThrowException(new \RuntimeException('Cannot operate on a language without a non-empty "langcode" value.'));
 
