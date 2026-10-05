@@ -288,7 +288,7 @@ EOL;
 
     $build = static::behatCliGetRootPath() . '/build';
 
-    return sprintf("\n    'drush' => ['root' => '%s/web', 'binary' => '%s/vendor/bin/drush'],", $build, $build);
+    return sprintf("\n    'drush' => ['root' => %s, 'binary' => %s],", var_export($build . '/web', TRUE), var_export($build . '/vendor/bin/drush', TRUE));
   }
 
   /**
@@ -358,7 +358,7 @@ $profile = (new Profile('default'))
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
     'backends' => {{CONFIGURED_BACKENDS}},
-    'drupal' => ['drupal_root' => '{{DRUPAL_ROOT}}'],{{DRUSH_BACKEND}}
+    'drupal' => ['drupal_root' => {{DRUPAL_ROOT}}],{{DRUSH_BACKEND}}
     'steps' => {{STEPS_CONFIG}},
   ]))
   ->withExtension(new Extension(BehatScreenshotExtension::class, ['dir' => '%paths.base%/.logs/screenshots', 'purge' => FALSE, 'on_failed' => TRUE, 'always_fullscreen' => TRUE, 'info_types' => ['url', 'feature', 'step', 'datetime']])){{COVERAGE_EXTENSION}};
@@ -374,12 +374,13 @@ EOL;
       // Each subprocess writes its own coverage file, so the names cannot
       // collide.
       $coverage_id = md5($this->workingDir);
-      $coverage_extension = sprintf("\n  ->withExtension(new Extension(CodeCoverageExtension::class, ['filter' => ['include' => ['directories' => ['%s/src' => NULL]]], 'reports' => ['text' => ['showColors' => TRUE, 'showOnlySummary' => TRUE], 'php' => ['target' => '%s/.logs/coverage/behat_cli/phpcov/%s.php']]]))", $root, $root, $coverage_id);
+      $coverage_target = sprintf('%s/.logs/coverage/behat_cli/phpcov/%s.php', $root, $coverage_id);
+      $coverage_extension = sprintf("\n  ->withExtension(new Extension(CodeCoverageExtension::class, ['filter' => ['include' => ['directories' => [%s => NULL]]], 'reports' => ['text' => ['showColors' => TRUE, 'showOnlySummary' => TRUE], 'php' => ['target' => %s]]]))", var_export($root . '/src', TRUE), var_export($coverage_target, TRUE));
     }
 
     $content = strtr($content, [
       '{{COVERAGE_EXTENSION}}' => $coverage_extension,
-      '{{DRUPAL_ROOT}}' => $root . '/build/web',
+      '{{DRUPAL_ROOT}}' => var_export($root . '/build/web', TRUE),
       '{{CONFIGURED_BACKENDS}}' => $this->behatCliRenderConfiguredBackends(),
       '{{DRUSH_BACKEND}}' => $this->behatCliRenderDrushBackend(),
       '{{STEPS_CONFIG}}' => $this->behatCliRenderStepsConfig(),
