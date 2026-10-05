@@ -21,7 +21,7 @@ class ParametersTraitTest extends TestCase {
    */
   protected const PARAMETERS = [
     'login_field' => 'mail',
-    'text' => ['log_out' => 'Sign out'],
+    'text' => ['logout' => 'Sign out'],
     'selectors' => ['logged_in_selector' => 'body.logged-in'],
   ];
 
@@ -38,7 +38,7 @@ class ParametersTraitTest extends TestCase {
   }
 
   public function testConfiguredTextIsReturned(): void {
-    $this->assertSame('Sign out', $this->createHost()->getDrupalText('log_out'));
+    $this->assertSame('Sign out', $this->createHost()->getDrupalText('logout'));
   }
 
   public function testConfiguredSelectorIsReturned(): void {
@@ -64,7 +64,7 @@ class ParametersTraitTest extends TestCase {
   }
 
   public static function dataProviderUnknownNameThrows(): \Iterator {
-    yield 'text' => ['getDrupalText', 'log_in', 'No such Drupal string: log_in.'];
+    yield 'text' => ['getDrupalText', 'login', 'No such Drupal string: login.'];
     yield 'selector' => ['getDrupalSelector', 'login_form_selector', 'No such selector configured: login_form_selector.'];
   }
 

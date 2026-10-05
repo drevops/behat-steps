@@ -391,7 +391,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testKnownUserIsLoggedOutWithoutFastLogout(): void {
     $authenticator = $this->createMock(AuthenticatorInterface::class);
-    $authenticator->expects($this->once())->method('logOut');
+    $authenticator->expects($this->once())->method('logout');
 
     $user_registry = new UserRegistry();
     $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'alice']));
@@ -401,7 +401,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testAnAnonymousSessionIsLeftAloneWhenTheManagerHasNoFastLogout(): void {
     $authenticator = $this->createMock(AuthenticatorInterface::class);
-    $authenticator->expects($this->never())->method('logOut');
+    $authenticator->expects($this->never())->method('logout');
 
     $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
   }
@@ -492,7 +492,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     putenv('BEHAT_STEPS_DISABLE_CLEANUP=1');
 
     $authenticator = $this->createMock(AuthenticatorInterface::class);
-    $authenticator->expects($this->never())->method('logOut');
+    $authenticator->expects($this->never())->method('logout');
 
     $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
   }
@@ -695,14 +695,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user = new EntityStub('user', NULL, ['name' => 'alice']);
 
     $authenticator = $this->createMock(AuthenticatorInterface::class);
-    $authenticator->expects($this->once())->method('logIn')->with($user);
+    $authenticator->expects($this->once())->method('login')->with($user);
 
     $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authLogin($user);
   }
 
   public function testLogoutDelegatesToTheAuthenticator(): void {
     $authenticator = $this->createMock(AuthenticatorInterface::class);
-    $authenticator->expects($this->once())->method('logOut');
+    $authenticator->expects($this->once())->method('logout');
 
     $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authLogout();
   }
@@ -711,21 +711,21 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     /** @var \DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
     $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
     $authenticator->expects($this->once())->method('fastLogout');
-    $authenticator->expects($this->never())->method('logOut');
+    $authenticator->expects($this->never())->method('logout');
 
     $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authLogout(TRUE);
   }
 
   public function testFastLogoutFallsBackWhenUnsupported(): void {
     $authenticator = $this->createMock(AuthenticatorInterface::class);
-    $authenticator->expects($this->once())->method('logOut');
+    $authenticator->expects($this->once())->method('logout');
 
     $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authLogout(TRUE);
   }
 
-  public function testLoggedInDelegatesToTheAuthenticator(): void {
+  public function testIsLoggedInDelegatesToTheAuthenticator(): void {
     $authenticator = $this->createMock(AuthenticatorInterface::class);
-    $authenticator->method('loggedIn')->willReturn(TRUE);
+    $authenticator->method('isLoggedIn')->willReturn(TRUE);
 
     $this->assertTrue($this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authIsLoggedIn());
   }

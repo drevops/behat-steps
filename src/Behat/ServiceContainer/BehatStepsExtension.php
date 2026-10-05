@@ -125,8 +125,8 @@ class BehatStepsExtension implements ExtensionInterface {
             . '  login_url: "/user"' . PHP_EOL
             . '  logout_url: "/user/logout"' . PHP_EOL
             . '  logout_confirm_url: "/user/logout/confirm"' . PHP_EOL
-            . '  log_out: "Sign out"' . PHP_EOL
-            . '  log_in: "Sign in"' . PHP_EOL
+            . '  logout: "Sign out"' . PHP_EOL
+            . '  login: "Sign in"' . PHP_EOL
             . '  password_field: "Enter your password"' . PHP_EOL
             . '  username_field: "Nickname"'
           )
@@ -145,11 +145,11 @@ class BehatStepsExtension implements ExtensionInterface {
               ->defaultValue('/user/logout/confirm')
               ->info('Path of the logout confirmation form, submitted when the site asks to confirm.')
             ->end()
-            ->scalarNode('log_in')
+            ->scalarNode('login')
               ->defaultValue('Log in')
               ->info('Text of the login submit button.')
             ->end()
-            ->scalarNode('log_out')
+            ->scalarNode('logout')
               ->defaultValue('Log out')
               ->info('Text of the logout link.')
             ->end()
@@ -288,22 +288,31 @@ class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Rejects a 'selectors' key that a trait declares as an option.
+   * Rejects a key that the extension reads at another path.
    *
-   * The 'selectors' node keeps the keys it does not declare, so that a project
-   * can add named selectors of its own and read them back. A stray
-   * 'selectors: messages:' is therefore accepted and never read, and the
-   * message steps would fail one by one for a missing selector.
+   * The 'selectors' and 'text' nodes keep undeclared keys, so a project can
+   * add entries of its own and read them back. A stray 'selectors: messages:'
+   * or 'text: log_in:' is therefore accepted and never read, and the steps
+   * that need its value fail one by one.
    *
    * @param array<string, mixed> $config
    *   The extension configuration.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-   *   When the configuration carries 'selectors: messages:'.
+   *   When the configuration carries 'selectors: messages:', 'text: log_in:'
+   *   or 'text: log_out:'.
    */
   protected function rejectMovedKeys(array $config): void {
     if (isset($config['selectors']['messages'])) {
       throw new InvalidConfigurationException(sprintf('The "selectors: messages:" setting under "%s" moved to "steps: message: selectors:". Move each severity selector across.', self::CONFIG_KEY));
+    }
+
+    $text = $config['text'] ?? [];
+
+    foreach (['log_in' => 'login', 'log_out' => 'logout'] as $key => $replacement) {
+      if (is_array($text) && array_key_exists($key, $text)) {
+        throw new InvalidConfigurationException(sprintf('The "text: %s:" setting under "%s" moved to "text: %s:". Rename the key; its value is unchanged.', $key, self::CONFIG_KEY, $replacement));
+      }
     }
   }
 

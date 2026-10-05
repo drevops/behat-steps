@@ -1867,7 +1867,7 @@ Build a user stub with a random name, password and email
 </details>
 
 <details>
-  <summary><code>public function userCreateAndLogIn(string $roles, array $extra_fields = []): void</code></summary>
+  <summary><code>public function userCreateAndLogin(string $roles, array $extra_fields = []): void</code></summary>
 
 <br/>
 Create a user carrying the roles and extra fields, and log in as them

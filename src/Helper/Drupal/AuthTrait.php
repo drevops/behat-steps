@@ -195,7 +195,7 @@ trait AuthTrait {
    *   The user stub to log in.
    */
   public function authLogin(EntityStubInterface $user): void {
-    $this->authGetAuthenticator()->logIn($user);
+    $this->authGetAuthenticator()->login($user);
   }
 
   /**
@@ -211,7 +211,7 @@ trait AuthTrait {
       $authenticator->fastLogout();
     }
     else {
-      $authenticator->logOut();
+      $authenticator->logout();
     }
   }
 
@@ -219,7 +219,7 @@ trait AuthTrait {
    * Determines whether a user is logged in for this session.
    */
   public function authIsLoggedIn(): bool {
-    return $this->authGetAuthenticator()->loggedIn();
+    return $this->authGetAuthenticator()->isLoggedIn();
   }
 
 }

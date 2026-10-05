@@ -34,8 +34,8 @@ class AuthenticatorTest extends TestCase {
 
   protected const EXTENSION_PARAMS = [
     'text' => [
-      'log_in' => 'Log in',
-      'log_out' => 'Log out',
+      'login' => 'Log in',
+      'logout' => 'Log out',
       'login_url' => '/user/login',
       'logout_url' => '/user/logout',
       'logout_confirm_url' => '/user/logout/confirm',
@@ -58,7 +58,7 @@ class AuthenticatorTest extends TestCase {
     $this->assertInstanceOf(FastLogoutInterface::class, $authenticator);
   }
 
-  public function testLogInSuccess(): void {
+  public function testLoginSuccess(): void {
     $submit = $this->createMock(NodeElement::class);
     $submit->expects($this->once())->method('click');
 
@@ -75,12 +75,12 @@ class AuthenticatorTest extends TestCase {
     $authenticator = $this->createAuthenticator($session, $user_registry, $backend_registry);
 
     $user = new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']);
-    $authenticator->logIn($user);
+    $authenticator->login($user);
     $this->assertSame($user, $user_registry->getCurrentUser());
   }
 
-  #[DataProvider('dataProviderLogInFieldValue')]
-  public function testLogInFieldValue(?string $login_field, string $expected_value): void {
+  #[DataProvider('dataProviderLoginFieldValue')]
+  public function testLoginFieldValue(?string $login_field, string $expected_value): void {
     $submit = $this->createMock(NodeElement::class);
 
     $page = $this->createMock(DocumentElement::class);
@@ -102,18 +102,18 @@ class AuthenticatorTest extends TestCase {
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
     $user = new EntityStub('user', NULL, ['name' => 'admin', 'mail' => 'admin@example.com', 'pass' => 'password']);
-    $authenticator->logIn($user);
+    $authenticator->login($user);
 
     $this->assertSame($expected_value, $filled['Username'] ?? NULL);
   }
 
-  public static function dataProviderLogInFieldValue(): \Iterator {
+  public static function dataProviderLoginFieldValue(): \Iterator {
     yield 'defaults to name when not configured' => [NULL, 'admin'];
     yield 'explicit name uses name' => ['name', 'admin'];
     yield 'mail uses mail' => ['mail', 'admin@example.com'];
   }
 
-  public function testLogInThrowsWhenNoSubmitButton(): void {
+  public function testLoginThrowsWhenNoSubmitButton(): void {
     $page = $this->createMock(DocumentElement::class);
     $page->method('findButton')->willReturn(NULL);
 
@@ -127,11 +127,11 @@ class AuthenticatorTest extends TestCase {
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Submit button matching css "login form" not found.');
-    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
   }
 
-  #[DataProvider('dataProviderLogInThrowsWhenNotLoggedIn')]
-  public function testLogInThrowsWhenNotLoggedIn(EntityStubInterface $user, string $expected_message): void {
+  #[DataProvider('dataProviderLoginThrowsWhenNotLoggedIn')]
+  public function testLoginThrowsWhenNotLoggedIn(EntityStubInterface $user, string $expected_message): void {
     $submit = $this->createMock(NodeElement::class);
 
     $page = $this->createMock(DocumentElement::class);
@@ -147,21 +147,21 @@ class AuthenticatorTest extends TestCase {
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage($expected_message);
-    $authenticator->logIn($user);
+    $authenticator->login($user);
   }
 
-  public static function dataProviderLogInThrowsWhenNotLoggedIn(): \Iterator {
+  public static function dataProviderLoginThrowsWhenNotLoggedIn(): \Iterator {
     yield 'user without role' => [
       new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']),
-      "Unable to determine if logged in because \"Log out\" ('log_out') link cannot be found for user \"admin\".",
+      "Unable to determine if logged in because \"Log out\" ('logout') link cannot be found for user \"admin\".",
     ];
     yield 'user with role' => [
       new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass', 'role' => 'administrator']),
-      "Unable to determine if logged in because \"Log out\" ('log_out') link cannot be found for user \"admin\" with role \"administrator\".",
+      "Unable to determine if logged in because \"Log out\" ('logout') link cannot be found for user \"admin\" with role \"administrator\".",
     ];
   }
 
-  public function testLogInCallsBackend(): void {
+  public function testLoginCallsBackend(): void {
     $submit = $this->createMock(NodeElement::class);
 
     $page = $this->createMock(DocumentElement::class);
@@ -181,7 +181,7 @@ class AuthenticatorTest extends TestCase {
     $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
 
     $authenticator = $this->createAuthenticator($session, NULL, $backend_registry);
-    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'pass']));
   }
 
   public function testLogout(): void {
@@ -198,7 +198,7 @@ class AuthenticatorTest extends TestCase {
 
     $backend_registry = $this->createBackendRegistryMock();
     $authenticator = $this->createAuthenticator($session, $user_registry, $backend_registry);
-    $authenticator->logOut();
+    $authenticator->logout();
     $this->assertFalse($user_registry->getCurrentUser());
   }
 
@@ -216,7 +216,7 @@ class AuthenticatorTest extends TestCase {
     $user_registry = new UserRegistry();
     $backend_registry = $this->createBackendRegistryMock();
     $authenticator = $this->createAuthenticator($session, $user_registry, $backend_registry);
-    $authenticator->logOut();
+    $authenticator->logout();
     $this->assertFalse($user_registry->getCurrentUser());
   }
 
@@ -232,7 +232,7 @@ class AuthenticatorTest extends TestCase {
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage('Logout button matching css "logout confirmation page" not found.');
-    $authenticator->logOut();
+    $authenticator->logout();
   }
 
   public function testLogoutCallsBackend(): void {
@@ -250,11 +250,11 @@ class AuthenticatorTest extends TestCase {
     $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
 
     $authenticator = $this->createAuthenticator($session, NULL, $backend_registry);
-    $authenticator->logOut();
+    $authenticator->logout();
   }
 
-  #[DataProvider('dataProviderLoggedIn')]
-  public function testLoggedIn(bool $session_started, bool $has_logged_in_selector, bool $has_login_form, bool $has_logout_link, bool $expected): void {
+  #[DataProvider('dataProviderIsLoggedIn')]
+  public function testIsLoggedIn(bool $session_started, bool $has_logged_in_selector, bool $has_login_form, bool $has_logout_link, bool $expected): void {
     $page = $this->createMock(DocumentElement::class);
 
     $has_map = [];
@@ -272,10 +272,10 @@ class AuthenticatorTest extends TestCase {
     $session->method('isStarted')->willReturn($session_started);
 
     $authenticator = $this->createAuthenticator($session);
-    $this->assertSame($expected, $authenticator->loggedIn());
+    $this->assertSame($expected, $authenticator->isLoggedIn());
   }
 
-  public static function dataProviderLoggedIn(): \Iterator {
+  public static function dataProviderIsLoggedIn(): \Iterator {
     yield 'session not started' => [FALSE, FALSE, FALSE, FALSE, FALSE];
     yield 'logged in selector found' => [TRUE, TRUE, FALSE, FALSE, TRUE];
     yield 'login form found means not logged in' => [TRUE, FALSE, TRUE, FALSE, FALSE];
@@ -283,7 +283,7 @@ class AuthenticatorTest extends TestCase {
     yield 'nothing found means not logged in' => [TRUE, FALSE, FALSE, FALSE, FALSE];
   }
 
-  public function testLoggedInReturnsFalseWhenPageNotAvailable(): void {
+  public function testIsLoggedInReturnsFalseWhenPageNotAvailable(): void {
     $session = $this->createMock(Session::class);
     $session->method('isStarted')->willReturn(TRUE);
     $session->method('getPage')->willReturn(NULL);
@@ -292,18 +292,18 @@ class AuthenticatorTest extends TestCase {
     $mink->setDefaultSessionName('default');
 
     $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
-    $this->assertFalse($authenticator->loggedIn());
+    $this->assertFalse($authenticator->isLoggedIn());
   }
 
   /**
-   * Tests that loggedIn() polls for the logout link when login_wait > 0.
+   * Tests that isLoggedIn() polls for the logout link when login_wait > 0.
    *
    * Simulates the Critical CSS / late JS race: the logged-in selector never
    * appears, and the login form is absent because the user is logged in. The
    * logout link appears only after several polls, so with login_wait > 0 the
    * third-resort check keeps polling.
    */
-  public function testLoggedInPollsForLogoutLinkWhenLoginWaitSet(): void {
+  public function testIsLoggedInPollsForLogoutLinkWhenLoginWaitSet(): void {
     $link = $this->createMock(NodeElement::class);
 
     $call_count = 0;
@@ -322,17 +322,17 @@ class AuthenticatorTest extends TestCase {
     $params['login_wait'] = 2;
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
-    $this->assertTrue($authenticator->loggedIn());
+    $this->assertTrue($authenticator->isLoggedIn());
     $this->assertGreaterThanOrEqual(3, $call_count);
   }
 
   /**
-   * Tests that loggedIn() does not poll when login_wait is 0.
+   * Tests that isLoggedIn() does not poll when login_wait is 0.
    *
    * Confirms the wait loop is skipped entirely when waiting is disabled, so
    * the third-resort check performs a single lookup.
    */
-  public function testLoggedInDoesNotPollWhenLoginWaitIsZero(): void {
+  public function testIsLoggedInDoesNotPollWhenLoginWaitIsZero(): void {
     $call_count = 0;
     $page = $this->createMock(DocumentElement::class);
     $page->method('has')->willReturn(FALSE);
@@ -349,17 +349,17 @@ class AuthenticatorTest extends TestCase {
     $params['login_wait'] = 0;
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
-    $this->assertFalse($authenticator->loggedIn());
+    $this->assertFalse($authenticator->isLoggedIn());
     $this->assertSame(1, $call_count);
   }
 
   /**
-   * Tests that loggedIn() returns FALSE when the wait elapses.
+   * Tests that isLoggedIn() returns FALSE when the wait elapses.
    *
    * The logout link never appears, so the wait expires after login_wait
    * seconds and the method falls through to the anonymous-state cleanup.
    */
-  public function testLoggedInReturnsFalseWhenLogoutLinkWaitTimesOut(): void {
+  public function testIsLoggedInReturnsFalseWhenLogoutLinkWaitTimesOut(): void {
     $page = $this->createMock(DocumentElement::class);
     $page->method('has')->willReturn(FALSE);
     $page->method('findLink')->willReturn(NULL);
@@ -373,12 +373,12 @@ class AuthenticatorTest extends TestCase {
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
     $start = microtime(TRUE);
-    $this->assertFalse($authenticator->loggedIn());
+    $this->assertFalse($authenticator->isLoggedIn());
     $elapsed = microtime(TRUE) - $start;
     $this->assertGreaterThanOrEqual(1.0, $elapsed);
   }
 
-  public function testLoggedInHandlesDriverException(): void {
+  public function testIsLoggedInHandlesDriverException(): void {
     $page = $this->createMock(DocumentElement::class);
     $page->method('has')->willReturnCallback(function ($selector, $locator): true {
       if ($locator === 'body.logged-in') {
@@ -393,7 +393,7 @@ class AuthenticatorTest extends TestCase {
 
     $authenticator = $this->createAuthenticator($session);
     // The login form is found, so the call returns FALSE rather than throwing.
-    $this->assertFalse($authenticator->loggedIn());
+    $this->assertFalse($authenticator->isLoggedIn());
   }
 
   public function testFastLogoutResetsSession(): void {
@@ -486,7 +486,7 @@ class AuthenticatorTest extends TestCase {
     $this->assertSame($link, $authenticator->getLogoutElement());
   }
 
-  public function testLogInSkipsWaitWhenLoginWaitIsZero(): void {
+  public function testLoginSkipsWaitWhenLoginWaitIsZero(): void {
     $submit = $this->createMock(NodeElement::class);
 
     $page = $this->createMock(DocumentElement::class);
@@ -503,10 +503,10 @@ class AuthenticatorTest extends TestCase {
     $params['login_wait'] = 0;
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
-    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
   }
 
-  public function testLogInWaitsForLoggedInSelector(): void {
+  public function testLoginWaitsForLoggedInSelector(): void {
     $submit = $this->createMock(NodeElement::class);
 
     $call_count = 0;
@@ -516,7 +516,7 @@ class AuthenticatorTest extends TestCase {
       if ($locator === 'body.logged-in') {
         $call_count++;
         // The first 2 calls return FALSE (during the wait loop and the
-        // loggedIn() check), then TRUE.
+        // isLoggedIn() check), then TRUE.
         return $call_count > 2;
       }
       return FALSE;
@@ -544,18 +544,18 @@ class AuthenticatorTest extends TestCase {
 
     $user_registry = new UserRegistry();
     $authenticator = $this->createAuthenticator($session, $user_registry, NULL, $params);
-    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
 
     $this->assertNotFalse($user_registry->getCurrentUser());
   }
 
   /**
-   * Tests that logIn() polls until the page body renders.
+   * Tests that login() polls until the page body renders.
    *
    * A driver can return a page whose body has not been written yet, so the
    * wait loop polls for the body before proceeding to the logged-in check.
    */
-  public function testLogInWaitsForTheBodyToRender(): void {
+  public function testLoginWaitsForTheBodyToRender(): void {
     $submit = $this->createMock(NodeElement::class);
 
     $find_count = 0;
@@ -582,18 +582,18 @@ class AuthenticatorTest extends TestCase {
     $params['login_wait'] = 2;
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
-    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
 
     $this->assertGreaterThanOrEqual(3, $find_count);
   }
 
   /**
-   * Tests that logIn() without login_wait throws when selector is delayed.
+   * Tests that login() without login_wait throws when selector is delayed.
    *
    * Demonstrates the race condition: without login_wait, a delayed
    * logged_in_selector causes login to fail even though login succeeded.
    */
-  public function testLogInFailsWithoutLoginWaitWhenSelectorDelayed(): void {
+  public function testLoginFailsWithoutLoginWaitWhenSelectorDelayed(): void {
     $submit = $this->createMock(NodeElement::class);
 
     $page = $this->createMock(DocumentElement::class);
@@ -612,10 +612,10 @@ class AuthenticatorTest extends TestCase {
 
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage("Unable to determine if logged in");
-    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
   }
 
-  public function testLogInVisitsConfiguredLoginUrl(): void {
+  public function testLoginVisitsConfiguredLoginUrl(): void {
     $submit = $this->createMock(NodeElement::class);
 
     $page = $this->createMock(DocumentElement::class);
@@ -632,7 +632,7 @@ class AuthenticatorTest extends TestCase {
     $params['text']['login_url'] = '/custom-login';
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
-    $authenticator->logIn(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
   }
 
   public function testLogoutVisitsConfiguredLogoutUrl(): void {
@@ -651,7 +651,7 @@ class AuthenticatorTest extends TestCase {
     $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
 
     $authenticator = $this->createAuthenticator($session, $user_registry, NULL, $params);
-    $authenticator->logOut();
+    $authenticator->logout();
     $this->assertFalse($user_registry->getCurrentUser());
   }
 
@@ -674,7 +674,7 @@ class AuthenticatorTest extends TestCase {
 
     $user_registry = new UserRegistry();
     $authenticator = $this->createAuthenticator($session, $user_registry, NULL, $params);
-    $authenticator->logOut();
+    $authenticator->logout();
     $this->assertFalse($user_registry->getCurrentUser());
   }
 
