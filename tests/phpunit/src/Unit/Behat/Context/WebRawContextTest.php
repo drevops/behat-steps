@@ -57,7 +57,7 @@ class WebRawContextTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage($expected_message);
 
-    (new WebRawContext())->$method();
+    (new WebRawContext())->{$method}();
   }
 
   public static function dataProviderUninitializedContextNamesMissingCollaborator(): \Iterator {
@@ -199,11 +199,11 @@ class WebRawContextTest extends UnitTestCase {
    *   The trait whose prerequisites to assert.
    * @param class-string<\RuntimeException> $exception
    *   The exception the assertion throws.
-   * @param string $message
+   * @param string $expected_message
    *   The message it throws with.
    */
   #[DataProvider('dataProviderUnmetPrerequisiteFails')]
-  public function testUnmetPrerequisiteFails(array $backends, bool $enabled, string $trait, string $exception, string $message): void {
+  public function testUnmetPrerequisiteFails(array $backends, bool $enabled, string $trait, string $exception, string $expected_message): void {
     $stubs = [];
 
     foreach ($backends as $name => $interface) {
@@ -217,7 +217,7 @@ class WebRawContextTest extends UnitTestCase {
     $this->assertFalse($context->callPrerequisitesMet($trait));
 
     $this->expectException($exception);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $context->callAssertPrerequisites($trait);
   }

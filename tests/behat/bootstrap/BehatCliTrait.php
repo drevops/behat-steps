@@ -390,8 +390,8 @@ EOL;
   }
 
   #[Then('it should fail with an error:')]
-  public function behatCliAssertFailWithError(PyStringNode $message): void {
-    $this->itShouldPassOrFailWith('fail', $message);
+  public function behatCliAssertFailWithError(PyStringNode $expected_message): void {
+    $this->itShouldPassOrFailWith('fail', $expected_message);
     // An assertion failure is an ExpectationException or its
     // ElementNotFoundException subclass where a Mink session is available,
     // and an AssertionException where it is not. A non-assertion failure is
@@ -409,8 +409,8 @@ EOL;
   }
 
   #[Then('it should fail with an exception:')]
-  public function behatCliAssertFailWithException(PyStringNode $message): void {
-    $this->itShouldPassOrFailWith('fail', $message);
+  public function behatCliAssertFailWithException(PyStringNode $expected_message): void {
+    $this->itShouldPassOrFailWith('fail', $expected_message);
     // A non-assertion failure is a \RuntimeException.
     if (!str_contains($this->getOutput(), ' (RuntimeException)')) {
       throw new \RuntimeException('The output does not contain an "(RuntimeException)" string as expected.');
@@ -421,8 +421,8 @@ EOL;
   }
 
   #[Then('it should fail with a :exception exception:')]
-  public function behatCliAssertFailWithCustomException(string $exception, PyStringNode $message): void {
-    $this->itShouldPassOrFailWith('fail', $message);
+  public function behatCliAssertFailWithCustomException(string $exception, PyStringNode $expected_message): void {
+    $this->itShouldPassOrFailWith('fail', $expected_message);
     if (!str_contains($this->getOutput(), ' (' . $exception . ')')) {
       throw new \RuntimeException(sprintf('The output does not contain an "(%s)" string as expected.', $exception));
     }

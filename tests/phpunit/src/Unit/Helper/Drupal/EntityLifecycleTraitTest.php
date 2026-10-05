@@ -64,22 +64,22 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   /**
    * The cleanup opt-out value to restore, NULL when it was unset.
    */
-  protected ?string $envBackup;
+  protected ?string $originalDisableCleanup;
 
   protected function setUp(): void {
     parent::setUp();
 
-    $existing = getenv('BEHAT_STEPS_DISABLE_CLEANUP');
-    $this->envBackup = $existing === FALSE ? NULL : $existing;
+    $original = getenv('BEHAT_STEPS_DISABLE_CLEANUP');
+    $this->originalDisableCleanup = $original === FALSE ? NULL : $original;
     putenv('BEHAT_STEPS_DISABLE_CLEANUP');
   }
 
   protected function tearDown(): void {
-    if ($this->envBackup === NULL) {
+    if ($this->originalDisableCleanup === NULL) {
       putenv('BEHAT_STEPS_DISABLE_CLEANUP');
     }
     else {
-      putenv('BEHAT_STEPS_DISABLE_CLEANUP=' . $this->envBackup);
+      putenv('BEHAT_STEPS_DISABLE_CLEANUP=' . $this->originalDisableCleanup);
     }
 
     parent::tearDown();
@@ -216,7 +216,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->expectException(UnsupportedBackendActionException::class);
     $this->expectExceptionMessage(sprintf('No backend provides "%s". Backends available to this scenario, in order: test.', $capability));
 
-    $context->$method($stub);
+    $context->{$method}($stub);
   }
 
   public static function dataProviderCreationRefusesIncapableBackend(): \Iterator {

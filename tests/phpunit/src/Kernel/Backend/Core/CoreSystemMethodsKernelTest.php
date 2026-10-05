@@ -123,13 +123,13 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $alice = User::create(['name' => 'alice', 'status' => 1]);
     $alice->save();
 
-    $before_uid = \Drupal::currentUser()->id();
+    $original_uid = \Drupal::currentUser()->id();
 
     $this->core->login(new EntityStub('user', NULL, ['uid' => $alice->id()]));
     $this->assertSame((int) $alice->id(), (int) \Drupal::currentUser()->id(), 'login switched to alice.');
 
     $this->core->logout();
-    $this->assertSame((int) $before_uid, (int) \Drupal::currentUser()->id(), 'logout restored the original account.');
+    $this->assertSame((int) $original_uid, (int) \Drupal::currentUser()->id(), 'logout restored the original account.');
   }
 
 }

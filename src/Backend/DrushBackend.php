@@ -209,12 +209,12 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     // given keys, so the object is deleted first to drop its other keys. The
     // delete and the write are 2 commands, so the previous data is read first
     // and restored when the write fails.
-    $previous = $this->configGetData($name);
+    $original = $this->configGetData($name);
 
     // An empty object has no keys to drop. 'config:set' rejects an empty
     // object, so deleting one would leave nothing to restore when the write
     // fails.
-    if ($previous !== []) {
+    if ($original !== []) {
       $this->configDelete($name);
     }
 
@@ -225,10 +225,10 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     try {
       $this->configWriteData($name, $data);
     }
-    catch (\RuntimeException $e) {
+    catch (\RuntimeException $exception) {
       try {
-        if ($previous !== []) {
-          $this->configWriteData($name, $previous);
+        if ($original !== []) {
+          $this->configWriteData($name, $original);
         }
       }
       // @codeCoverageIgnoreStart
@@ -237,7 +237,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
         // reported, so the restore failure is discarded.
       }
       // @codeCoverageIgnoreEnd
-      throw $e;
+      throw $exception;
     }
   }
 

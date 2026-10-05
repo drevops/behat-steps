@@ -296,17 +296,17 @@ class StepScenarioCoverageTest extends UnitTestCase {
    *   The configuration file contents.
    * @param array<int, string> $expected
    *   The step texts collected through the filter.
-   * @param string|null $exception
+   * @param string|null $expected_message
    *   The exception message expected, or NULL when none is.
    */
   #[DataProvider('dataProviderSuiteFilter')]
-  public function testSuiteFilter(string $config, array $expected, ?string $exception = NULL): void {
+  public function testSuiteFilter(string $config, array $expected, ?string $expected_message = NULL): void {
     $config_file = $this->writeFixture('behat.php', $config);
     $feature_file = $this->writeFixture('features/subject.feature', "Feature: Subject\n  Scenario: Kept\n    Given the kept step\n  @test-skipped\n  Scenario: Skipped\n    Given the skipped step\n");
 
-    if ($exception !== NULL) {
+    if ($expected_message !== NULL) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $this->assertSame($expected, static::scenarioStepTexts([$feature_file], static::suiteFilter($config_file)));

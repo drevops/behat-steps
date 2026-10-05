@@ -261,8 +261,8 @@ trait ModuleTrait {
       // service and route definitions.
       $this->backendFor(CacheCapabilityInterface::class)->cacheClear();
     }
-    catch (\Exception $e) {
-      throw new \RuntimeException(sprintf('Failed to enable module "%s": %s.', $module, $e->getMessage()), $e->getCode(), $e);
+    catch (\Exception $exception) {
+      throw new \RuntimeException(sprintf('Failed to enable module "%s": %s.', $module, $exception->getMessage()), $exception->getCode(), $exception);
     }
     // @codeCoverageIgnoreEnd
   }
@@ -286,8 +286,8 @@ trait ModuleTrait {
       // service and route definitions.
       $this->backendFor(CacheCapabilityInterface::class)->cacheClear();
     }
-    catch (\Exception $e) {
-      throw new \RuntimeException(sprintf('Failed to disable module "%s": %s.', $module, $e->getMessage()), $e->getCode(), $e);
+    catch (\Exception $exception) {
+      throw new \RuntimeException(sprintf('Failed to disable module "%s": %s.', $module, $exception->getMessage()), $exception->getCode(), $exception);
     }
     // @codeCoverageIgnoreEnd
   }

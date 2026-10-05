@@ -474,13 +474,13 @@ function provision_write_auth(string $token, string $file): void {
   // where a chmod() after the write would leave the token readable in
   // between. The build directory was emptied above, so the file cannot
   // already exist with a mode of its own.
-  $umask = umask(0077);
+  $original_umask = umask(0077);
 
   try {
     provision_write($file, (string) json_encode(['github-oauth' => ['github.com' => $token]]));
   }
   finally {
-    umask($umask);
+    umask($original_umask);
   }
 }
 

@@ -322,7 +322,7 @@ class DrushBackendMethodsTest extends TestCase {
     $temp_dir = self::TEMP_ROOT . '/drush-backend-test-' . uniqid();
     mkdir($temp_dir, 0777, TRUE);
     touch($temp_dir . '/drush');
-    $previous = getenv('COMPOSER_BIN_DIR');
+    $original = getenv('COMPOSER_BIN_DIR');
     putenv('COMPOSER_BIN_DIR=' . $temp_dir);
 
     try {
@@ -330,7 +330,7 @@ class DrushBackendMethodsTest extends TestCase {
       $this->assertSame($temp_dir . '/drush', $backend->binary);
     }
     finally {
-      putenv('COMPOSER_BIN_DIR' . ($previous === FALSE ? '' : '=' . $previous));
+      putenv('COMPOSER_BIN_DIR' . ($original === FALSE ? '' : '=' . $original));
       unlink($temp_dir . '/drush');
       rmdir($temp_dir);
     }
@@ -340,8 +340,8 @@ class DrushBackendMethodsTest extends TestCase {
     $temp_dir = self::TEMP_ROOT . '/drush-backend-cwd-' . uniqid();
     mkdir($temp_dir . '/vendor/bin', 0777, TRUE);
     touch($temp_dir . '/vendor/bin/drush');
-    $previous_cwd = (string) getcwd();
-    $previous_composer = getenv('COMPOSER_BIN_DIR');
+    $original_cwd = (string) getcwd();
+    $original_composer = getenv('COMPOSER_BIN_DIR');
     putenv('COMPOSER_BIN_DIR');
     chdir($temp_dir);
 
@@ -350,9 +350,9 @@ class DrushBackendMethodsTest extends TestCase {
       $this->assertSame(getcwd() . '/vendor/bin/drush', $backend->binary);
     }
     finally {
-      chdir($previous_cwd);
-      if ($previous_composer !== FALSE) {
-        putenv('COMPOSER_BIN_DIR=' . $previous_composer);
+      chdir($original_cwd);
+      if ($original_composer !== FALSE) {
+        putenv('COMPOSER_BIN_DIR=' . $original_composer);
       }
       unlink($temp_dir . '/vendor/bin/drush');
       rmdir($temp_dir . '/vendor/bin');
@@ -612,8 +612,8 @@ class DrushBackendMethodsTest extends TestCase {
       $backend->configSetData('system.site', ['name' => 'Replacement']);
       $this->fail('Expected the failed write to be rethrown.');
     }
-    catch (\RuntimeException $e) {
-      $this->assertStringContainsString('config:set', $e->getMessage());
+    catch (\RuntimeException $exception) {
+      $this->assertStringContainsString('config:set', $exception->getMessage());
     }
 
     $sets = array_values(array_filter($backend->invocations, static fn(array $invocation): bool => $invocation['command'] === 'config:set'));

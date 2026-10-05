@@ -158,7 +158,7 @@ class ProvisionTest extends UnitTestCase {
 
   public function testWriteAuthRestoresTheUmask(): void {
     UnwritableStream::register();
-    $before = umask();
+    $original_umask = umask();
 
     $this->withoutWarnings(static function (): void {
       try {
@@ -169,7 +169,7 @@ class ProvisionTest extends UnitTestCase {
       }
     });
 
-    $this->assertSame($before, umask());
+    $this->assertSame($original_umask, umask());
   }
 
   public function testPatchesAreKeyedByTheirDirectory(): void {

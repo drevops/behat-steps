@@ -270,15 +270,15 @@ trait AccessibilityTrait {
       return;
     }
 
-    $dir = $this->accessibilityGetReportDir();
-    if (!is_dir($dir)) {
-      mkdir($dir, 0777, TRUE);
+    $directory = $this->accessibilityGetReportDir();
+    if (!is_dir($directory)) {
+      mkdir($directory, 0777, TRUE);
     }
     $slug = $this->stringSlug($this->accessibilityFeatureName) . '__' . $this->stringSlug($this->accessibilityScenarioName);
-    file_put_contents($dir . '/' . $slug . '.html', $this->accessibilityRenderHtml());
-    file_put_contents($dir . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
+    file_put_contents($directory . '/' . $slug . '.html', $this->accessibilityRenderHtml());
+    file_put_contents($directory . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
 
-    $this->accessibilityAggregateCapture($dir);
+    $this->accessibilityAggregateCapture($directory);
 
     if (!$this->accessibilityAutoMode || $this->accessibilityGated || $scope->getTestResult()->isPassed()) {
       return;
@@ -1152,12 +1152,12 @@ HTML;
    * or a consumer override of it on, so URLs are formatted in the instance
    * phase.
    *
-   * @param string $dir
+   * @param string $directory
    *   The resolved per-scenario report directory, captured for the static
    *   `@AfterSuite` renderer.
    */
-  protected function accessibilityAggregateCapture(string $dir): void {
-    self::$accessibilityAggregateReportDir = $dir;
+  protected function accessibilityAggregateCapture(string $directory): void {
+    self::$accessibilityAggregateReportDir = $directory;
 
     $results = [];
     foreach ($this->accessibilityResults as $result) {
@@ -1195,14 +1195,14 @@ HTML;
       return;
     }
 
-    $dir = self::$accessibilityAggregateReportDir ?? (getcwd() ?: '.') . '/.logs/test_results/accessibility';
-    if (!is_dir($dir)) {
-      mkdir($dir, 0777, TRUE);
+    $directory = self::$accessibilityAggregateReportDir ?? (getcwd() ?: '.') . '/.logs/test_results/accessibility';
+    if (!is_dir($directory)) {
+      mkdir($directory, 0777, TRUE);
     }
 
     $time = time();
     $data = static::accessibilityAggregateData(self::$accessibilityAggregate, date('Y-m-d H:i', $time));
-    file_put_contents($dir . '/' . static::accessibilityAggregateFilename($time), static::accessibilityRenderAggregate($data));
+    file_put_contents($directory . '/' . static::accessibilityAggregateFilename($time), static::accessibilityRenderAggregate($data));
   }
 
   /**

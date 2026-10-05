@@ -14,12 +14,12 @@ use PHPUnit\Framework\TestCase;
  * Subclasses supply 'createHandler()' and 'dataProviderExpand()'.
  *
  * Data provider rows have the shape:
- *   [input, expected, exception_class_or_NULL, exception_message_or_NULL]
+ *   [input, expected, exception_class_or_NULL, expected_message_or_NULL]
  *
  *   - On the happy path: 'expected' is the asserted storage shape;
  *     'exception_class' is NULL.
  *   - On the error path: 'expected' is NULL and 'exception_class' is the
- *     class that must be thrown ('exception_message' optionally pins a
+ *     class that must be thrown ('expected_message' optionally pins a
  *     substring).
  */
 abstract class FieldHandlerUnitTestBase extends TestCase {
@@ -44,18 +44,18 @@ abstract class FieldHandlerUnitTestBase extends TestCase {
    *   expected.
    * @param class-string<\Throwable>|null $exception
    *   The expected exception class, or NULL for the happy path.
-   * @param string|null $exception_message
+   * @param string|null $expected_message
    *   Substring the exception message must contain, or NULL.
    */
   #[DataProvider('dataProviderExpand')]
-  public function testExpand(mixed $input, mixed $expected, ?string $exception, ?string $exception_message): void {
+  public function testExpand(mixed $input, mixed $expected, ?string $exception, ?string $expected_message): void {
     $handler = $this->createHandler();
 
     if ($exception !== NULL) {
       $this->expectException($exception);
 
-      if ($exception_message !== NULL) {
-        $this->expectExceptionMessage($exception_message);
+      if ($expected_message !== NULL) {
+        $this->expectExceptionMessage($expected_message);
       }
     }
 

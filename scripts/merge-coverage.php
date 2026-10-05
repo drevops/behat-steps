@@ -47,8 +47,8 @@ if (!file_exists(SOURCE_MAIN_COVERAGE_FILE)) {
 try {
   $main_coverage = @include SOURCE_MAIN_COVERAGE_FILE;
 }
-catch (\Throwable $e) {
-  echo 'Error loading main Behat coverage file: ' . $e->getMessage() . PHP_EOL;
+catch (\Throwable $exception) {
+  echo 'Error loading main Behat coverage file: ' . $exception->getMessage() . PHP_EOL;
   echo 'Skipping coverage merge.' . PHP_EOL;
   exit(0);
 }
@@ -79,8 +79,8 @@ foreach ($subprocess_files as $file) {
       echo '  Merged: ' . basename($file) . PHP_EOL;
     }
   }
-  catch (\Exception $e) {
-    echo '  Error merging ' . basename($file) . ': ' . $e->getMessage() . PHP_EOL;
+  catch (\Exception $exception) {
+    echo '  Error merging ' . basename($file) . ': ' . $exception->getMessage() . PHP_EOL;
   }
 }
 

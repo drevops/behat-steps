@@ -29,18 +29,18 @@ class AbstractHandlerNormalizeTest extends TestCase {
    *   expected.
    * @param class-string<\Throwable>|null $exception
    *   The expected exception class, or NULL for the happy path.
-   * @param string|null $exception_message
+   * @param string|null $expected_message
    *   Substring the exception message must contain, or NULL.
    */
   #[DataProvider('dataProviderNormalize')]
-  public function testNormalize(mixed $input, string $main_property, ?array $expected, ?string $exception, ?string $exception_message): void {
+  public function testNormalize(mixed $input, string $main_property, ?array $expected, ?string $exception, ?string $expected_message): void {
     $handler = $this->createHandler($main_property);
 
     if ($exception !== NULL) {
       $this->expectException($exception);
 
-      if ($exception_message !== NULL) {
-        $this->expectExceptionMessage($exception_message);
+      if ($expected_message !== NULL) {
+        $this->expectExceptionMessage($expected_message);
       }
     }
 

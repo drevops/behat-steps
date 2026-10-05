@@ -101,10 +101,10 @@ class DocsTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderParseMethodComment')]
-  public function testParseMethodComment(string $comment, ?array $expected, ?string $exception = NULL): void {
-    if ($exception) {
+  public function testParseMethodComment(string $comment, ?array $expected, ?string $expected_message = NULL): void {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $actual = parse_method_comment($comment);
@@ -431,11 +431,11 @@ EOD,
   }
 
   #[DataProvider('dataProviderRenderInfo')]
-  public function testRenderInfo(array $info, string $expected, ?string $exception = NULL): void {
-    if ($exception) {
+  public function testRenderInfo(array $info, string $expected, ?string $expected_message = NULL): void {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $exception = str_replace('@tmp', static::$tmp, $exception);
-      $this->expectExceptionMessage($exception);
+      $expected_message = str_replace('@tmp', static::$tmp, $expected_message);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $base_path = static::$tmp;
@@ -473,7 +473,7 @@ EOD,
     $actual = render_info($info, $base_path);
 
     // Individual elements are asserted rather than the exact formatting.
-    if ($exception === NULL && !empty($info)) {
+    if ($expected_message === NULL && !empty($info)) {
       foreach ($info as $trait => $data) {
         $name_contextual = $data['name_contextual'] ?? $trait;
         $link_id = strtolower(preg_replace('/[^A-Za-z0-9_\-]/', '', $name_contextual));
@@ -2076,11 +2076,11 @@ EOD,
     string $end,
     string $replacement,
     string $expected,
-    ?string $exception = NULL,
+    ?string $expected_message = NULL,
   ): void {
-    if ($exception) {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $actual = replace_content($haystack, $start, $end, $replacement);
@@ -2426,10 +2426,10 @@ EOD,
   }
 
   #[DataProvider('dataProviderParseClassComment')]
-  public function testParseClassComment(string $trait_name, string $comment, array $expected, ?string $exception = NULL): void {
-    if ($exception) {
+  public function testParseClassComment(string $trait_name, string $comment, array $expected, ?string $expected_message = NULL): void {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $actual = parse_class_comment($trait_name, $comment);

@@ -74,18 +74,18 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
       'author' => 'article_author',
     ]);
 
-    $result = $this->core->createNode($stub);
+    $created = $this->core->createNode($stub);
 
-    $this->assertSame($stub, $result, 'createNode returns the same stub.');
-    $this->assertNotEmpty($result->getValue('nid'), 'createNode populated nid.');
-    $this->assertTrue($result->isSaved(), 'createNode marked the stub saved.');
-    $node = Node::load($result->getValue('nid'));
+    $this->assertSame($stub, $created, 'createNode returns the same stub.');
+    $this->assertNotEmpty($created->getValue('nid'), 'createNode populated nid.');
+    $this->assertTrue($created->isSaved(), 'createNode marked the stub saved.');
+    $node = Node::load($created->getValue('nid'));
     $this->assertInstanceOf(Node::class, $node);
     $this->assertSame('Hello world', $node->getTitle());
     $this->assertSame((int) $author->id(), (int) $node->getOwnerId(), 'author mapped to uid.');
 
-    $this->core->deleteNode($result);
-    $this->assertNull(Node::load($result->getValue('nid')));
+    $this->core->deleteNode($created);
+    $this->assertNull(Node::load($created->getValue('nid')));
   }
 
   public function testCreateNodeRejectsUnknownBundle(): void {

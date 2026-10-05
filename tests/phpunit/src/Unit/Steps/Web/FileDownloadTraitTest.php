@@ -86,15 +86,15 @@ class FileDownloadTraitTest extends UnitTestCase {
    *
    * @param \Symfony\Component\HttpClient\Response\MockResponse $response
    *   The response the server sends.
-   * @param string $message
+   * @param string $expected_message
    *   The exception message expected.
    */
   #[DataProvider('dataProviderProcessRejectsTheResponse')]
-  public function testProcessRejectsTheResponse(MockResponse $response, string $message): void {
+  public function testProcessRejectsTheResponse(MockResponse $response, string $expected_message): void {
     $this->testObject->response = $response;
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $this->testObject->fileDownloadProcess('http://example.com/missing.pdf');
   }

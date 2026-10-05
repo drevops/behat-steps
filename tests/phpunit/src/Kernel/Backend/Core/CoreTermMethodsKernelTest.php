@@ -68,18 +68,18 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
       'name' => 'Drupal',
       'parent' => 'Frameworks',
     ]);
-    $result = $this->core->createTerm($child_stub);
+    $created = $this->core->createTerm($child_stub);
 
-    $this->assertSame($child_stub, $result);
-    $this->assertNotEmpty($result->getValue('tid'));
-    $this->assertTrue($result->isSaved());
-    $child = Term::load($result->getValue('tid'));
+    $this->assertSame($child_stub, $created);
+    $this->assertNotEmpty($created->getValue('tid'));
+    $this->assertTrue($created->isSaved());
+    $child = Term::load($created->getValue('tid'));
     $this->assertInstanceOf(Term::class, $child);
     $this->assertSame('Drupal', $child->getName());
     $this->assertSame((int) $parent->id(), (int) $child->get('parent')->target_id, 'parent name was resolved to tid.');
 
-    $this->core->deleteTerm($result);
-    $this->assertNull(Term::load($result->getValue('tid')));
+    $this->core->deleteTerm($created);
+    $this->assertNull(Term::load($created->getValue('tid')));
   }
 
   public function testDeleteTermToleratesMissingTerm(): void {
@@ -128,11 +128,11 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
       'vocabulary_machine_name' => 'tags',
     ]);
 
-    $result = $this->core->createTerm($stub);
+    $created = $this->core->createTerm($stub);
 
-    $this->assertTrue($result->isSaved(), 'createTerm marked the stub saved.');
-    $this->assertFalse($result->hasValue('vocabulary_machine_name'), 'Alias removed after resolution.');
-    $term = Term::load($result->getValue('tid'));
+    $this->assertTrue($created->isSaved(), 'createTerm marked the stub saved.');
+    $this->assertFalse($created->hasValue('vocabulary_machine_name'), 'Alias removed after resolution.');
+    $term = Term::load($created->getValue('tid'));
     $this->assertInstanceOf(Term::class, $term);
     $this->assertSame('tags', $term->bundle());
   }

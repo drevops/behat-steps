@@ -535,17 +535,17 @@ class BehatStepsExtensionTest extends TestCase {
    *
    * @param array<array-key, mixed> $backends
    *   The 'backends' list the configuration declares.
-   * @param string $message
+   * @param string $expected_message
    *   Part of the message the build is expected to fail with.
    */
   #[DataProvider('dataProviderProcessRejectsInvalidBackendList')]
-  public function testProcessRejectsInvalidBackendList(array $backends, string $message): void {
+  public function testProcessRejectsInvalidBackendList(array $backends, string $expected_message): void {
     $extension = new BehatStepsExtension();
     $container = $this->load(['drupal' => ['drupal_root' => 'web']], $extension);
     $container->setParameter(BehatStepsExtension::BACKENDS_PARAMETER, $backends);
 
     $this->expectException(InvalidConfigurationException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $extension->process($container);
   }

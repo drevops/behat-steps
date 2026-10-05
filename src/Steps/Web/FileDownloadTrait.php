@@ -381,13 +381,13 @@ trait FileDownloadTrait {
 
     $headers = $this->fileDownloadParseHeaders($response->getHeaders());
 
-    $dir = $this->fileDownloadGetTempDir();
+    $directory = $this->fileDownloadGetTempDir();
 
     $url_file_name = parse_url($url, PHP_URL_PATH);
     $url_file_name = $url_file_name ? basename($url_file_name) : $url_file_name;
     $headers['file_name'] = empty($headers['file_name']) && !empty($url_file_name) ? $url_file_name : $headers['file_name'];
 
-    $file_path = empty($headers['file_name']) ? tempnam($dir, 'behat') : $dir . '/' . $headers['file_name'];
+    $file_path = empty($headers['file_name']) ? tempnam($directory, 'behat') : $directory . '/' . $headers['file_name'];
     if (!$file_path) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException('Unable to create temp file for downloaded content.');

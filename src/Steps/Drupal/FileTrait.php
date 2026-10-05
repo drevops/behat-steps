@@ -61,14 +61,14 @@ trait FileTrait {
     $fs = new Filesystem();
 
     // @codeCoverageIgnoreStart
-    $dir = \Drupal::service('file_system')->realpath('private://');
-    if ($dir && !$fs->exists($dir)) {
-      $fs->mkdir($dir);
+    $directory = \Drupal::service('file_system')->realpath('private://');
+    if ($directory && !$fs->exists($directory)) {
+      $fs->mkdir($directory);
     }
 
-    $dir = \Drupal::service('file_system')->realpath('temporary://');
-    if ($dir && !$fs->exists($dir)) {
-      $fs->mkdir($dir);
+    $directory = \Drupal::service('file_system')->realpath('temporary://');
+    if ($directory && !$fs->exists($directory)) {
+      $fs->mkdir($directory);
     }
     // @codeCoverageIgnoreEnd
   }
@@ -172,8 +172,8 @@ trait FileTrait {
 
     // @codeCoverageIgnoreStart
     if (!file_exists($directory)) {
-      $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
-      if (!$dir) {
+      $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
+      if (!$is_prepared) {
         throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
       }
     }
@@ -328,9 +328,9 @@ trait FileTrait {
     if ($uri !== NULL && $uri !== '') {
       $destination = $uri;
       $directory = dirname($destination);
-      $dir = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
+      $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
       // @codeCoverageIgnoreStart
-      if (!$dir) {
+      if (!$is_prepared) {
         throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
       }
       // @codeCoverageIgnoreEnd

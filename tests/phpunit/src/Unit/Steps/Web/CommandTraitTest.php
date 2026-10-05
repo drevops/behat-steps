@@ -106,7 +106,7 @@ class CommandTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderAssertionFailures')]
-  public function testAssertionFailures(?string $command, string $method, array $args, string $exception_class, string $message_fragment): void {
+  public function testAssertionFailures(?string $command, string $method, array $args, string $exception_class, string $expected_message): void {
     if ($command !== NULL) {
       $this->testObject->commandRun($command);
     }
@@ -114,9 +114,9 @@ class CommandTraitTest extends UnitTestCase {
     try {
       $this->testObject->{$method}(...$args);
     }
-    catch (\Exception $e) {
-      $this->assertSame($exception_class, $e::class);
-      $this->assertStringContainsString($message_fragment, $e->getMessage());
+    catch (\Exception $exception) {
+      $this->assertSame($exception_class, $exception::class);
+      $this->assertStringContainsString($expected_message, $exception->getMessage());
 
       return;
     }

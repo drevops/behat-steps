@@ -83,9 +83,9 @@ class PrerequisiteReaderTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderRejectsMalformedDeclarations')]
-  public function testRejectsMalformedDeclarations(string $trait, string $message): void {
+  public function testRejectsMalformedDeclarations(string $trait, string $expected_message): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     (new PrerequisiteReader())->read(new PrerequisiteReaderHost(), $trait);
   }

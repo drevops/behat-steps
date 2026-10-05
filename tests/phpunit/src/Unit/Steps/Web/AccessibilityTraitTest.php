@@ -332,37 +332,37 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testWriteAggregateReportWritesTimestampedFile(): void {
-    $dir = static::locationsTmp() . '/aggregate-report';
+    $directory = static::locationsTmp() . '/aggregate-report';
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
-    AccessibilityTraitTestImplementation::testSetAggregateReportDir($dir);
+    AccessibilityTraitTestImplementation::testSetAggregateReportDir($directory);
 
     // First call creates the directory; second call finds it already present.
     AccessibilityTraitTestImplementation::testWriteAggregateReport();
     AccessibilityTraitTestImplementation::testWriteAggregateReport();
 
-    $files = glob($dir . '/accessibility_report_*.html') ?: [];
+    $files = glob($directory . '/accessibility_report_*.html') ?: [];
     $this->assertNotEmpty($files);
     $this->assertStringContainsString('Accessibility report - aggregate', (string) file_get_contents($files[0]));
   }
 
   public function testWriteAggregateReportDoesNothingWhenEmpty(): void {
-    $dir = static::locationsTmp() . '/aggregate-empty';
+    $directory = static::locationsTmp() . '/aggregate-empty';
     AccessibilityTraitTestImplementation::testSetAggregate([]);
-    AccessibilityTraitTestImplementation::testSetAggregateReportDir($dir);
+    AccessibilityTraitTestImplementation::testSetAggregateReportDir($directory);
 
     AccessibilityTraitTestImplementation::testWriteAggregateReport();
 
-    $this->assertEmpty(glob($dir . '/accessibility_report_*.html') ?: []);
+    $this->assertEmpty(glob($directory . '/accessibility_report_*.html') ?: []);
   }
 
   public function testAggregateRenderHookWritesReport(): void {
-    $dir = static::locationsTmp() . '/aggregate-hook';
+    $directory = static::locationsTmp() . '/aggregate-hook';
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
-    AccessibilityTraitTestImplementation::testSetAggregateReportDir($dir);
+    AccessibilityTraitTestImplementation::testSetAggregateReportDir($directory);
 
     AccessibilityTraitTestImplementation::accessibilityAfterSuite($this->createAfterSuiteScope());
 
-    $this->assertNotEmpty(glob($dir . '/accessibility_report_*.html') ?: []);
+    $this->assertNotEmpty(glob($directory . '/accessibility_report_*.html') ?: []);
   }
 
   public function testAggregateFilenameFormat(): void {
@@ -792,8 +792,8 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
     return $this->accessibilityGetReportDir();
   }
 
-  public static function testSetBaseDir(?string $dir): void {
-    self::$accessibilityBaseDir = $dir;
+  public static function testSetBaseDir(?string $directory): void {
+    self::$accessibilityBaseDir = $directory;
   }
 
   public static function testGetBaseDir(): ?string {
@@ -808,8 +808,8 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
     return self::$accessibilityAggregate;
   }
 
-  public static function testSetAggregateReportDir(?string $dir): void {
-    self::$accessibilityAggregateReportDir = $dir;
+  public static function testSetAggregateReportDir(?string $directory): void {
+    self::$accessibilityAggregateReportDir = $directory;
   }
 
   public static function testGetAggregateReportDir(): ?string {
@@ -840,11 +840,11 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
     return static::accessibilityAggregateFilename($time);
   }
 
-  public function testCapture(array $results, string $feature, string $scenario, string $dir): void {
+  public function testCapture(array $results, string $feature, string $scenario, string $directory): void {
     $this->accessibilityResults = $results;
     $this->accessibilityFeatureName = $feature;
     $this->accessibilityScenarioName = $scenario;
-    $this->accessibilityAggregateCapture($dir);
+    $this->accessibilityAggregateCapture($directory);
   }
 
   public function testRenderJunit(array $results, string $feature, string $scenario, ?string $threshold = NULL): string {

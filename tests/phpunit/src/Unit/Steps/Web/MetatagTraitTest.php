@@ -32,15 +32,15 @@ class MetatagTraitTest extends UnitTestCase {
    *
    * @param \Symfony\Component\HttpClient\Response\MockResponse $response
    *   The response the alternate page answers with.
-   * @param string $message
+   * @param string $expected_message
    *   The message the fetch is expected to fail with.
    */
   #[DataProvider('dataProviderFetchUrlFailureNamesThePage')]
-  public function testFetchUrlFailureNamesThePage(MockResponse $response, string $message): void {
+  public function testFetchUrlFailureNamesThePage(MockResponse $response, string $expected_message): void {
     $object = new MetatagTraitTestImplementation($response);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $object->metatagFetchUrl('http://example.com/de');
   }

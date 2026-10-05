@@ -35,6 +35,6 @@ trait StepCoverageTrait {
   /**
    * Method carrying no step.
    */
-  public function stepCoverageHelper(): void {}
+  public function stepCoverageNoStep(): void {}
 
 }

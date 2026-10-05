@@ -568,7 +568,7 @@ trait MetatagTrait {
    *   TRUE when a hreflang alternate resolves to the given URL.
    */
   protected function metatagHtmlLinksBackTo(string $html, string $url, string $base_url): bool {
-    $previous = libxml_use_internal_errors(TRUE);
+    $original = libxml_use_internal_errors(TRUE);
 
     try {
       $document = new \DOMDocument();
@@ -593,7 +593,7 @@ trait MetatagTrait {
       return FALSE;
     }
     finally {
-      libxml_use_internal_errors($previous);
+      libxml_use_internal_errors($original);
     }
   }
 
