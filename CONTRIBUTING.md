@@ -87,10 +87,7 @@ A native `int` parameter would hand the check to PHP. Behat calls a step without
 
 A step has none. A variation of a step is a step of its own. When 2 steps differ only by a qualifier one of them leaves out, both call a shared helper rather than one calling the other with `NULL`: `linkAssertExistsWithHref()` and `linkAssertExistsWithHrefWithinElement()` both call `linkAssertHrefMatches()`. A flag that only PHP code passes belongs on a helper too.
 
-A helper's optional parameter defaults to the value that means "not given":
-
-- `''` when an empty string means the same thing, as `$action_subpath` does in `contentVisitActionPageWithTitle()` and `$uri` does in `fileCreateEntity()`.
-- `NULL`, with a nullable type, when an empty string is a value of its own: `cookieAssertExists()` skips the value check for `NULL` and asserts an empty value for `''`, and `keyboardPressKeyOnElementSingle()` presses the key on the focused element for `NULL`, where `''` is an invalid selector.
+A helper's optional parameter defaults to `NULL`, with a nullable type, and `NULL` is the one value that means "not given": `contentVisitActionPageWithTitle()` opens the content page for a `NULL` subpath, and `configGet()` returns the whole configuration object for a `NULL` key. A parameter never defaults to an empty string, so `''` stays a value a caller passes on purpose: `cookieAssertExists()` skips the value check for `NULL` and asserts an empty value for `''`. `tests/phpunit/src/OptionalParameterTest.php` enforces it for every class, interface and trait under `src/`.
 
 ## Method naming conventions
 

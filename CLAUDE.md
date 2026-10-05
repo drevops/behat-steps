@@ -261,7 +261,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - Use a single step annotation and document alternative usage in `@code` examples
 - A step method takes exactly the arguments its step binds: a required `string` named after each placeholder, plus a trailing `TableNode` or `PyStringNode` for a step ending in a colon. No default, nullable, numeric or `mixed` parameter, and no flag only PHP callers pass - `tests/phpunit/src/StepArgumentTest.php` enforces it
 - A step parses a numeric placeholder with `stringParseInteger()` or `stringParseNumber()` from `Helper\Web\StringTrait`, which throw `\RuntimeException` naming the argument. It passes the smallest value it accepts as `$min`, unless the helper it hands the value to checks the range itself, as `elementGetNth()` does
-- An optional parameter belongs on a helper, never on a step method. It defaults to the value meaning "not given": `''` when an empty string means the same, `NULL` with a nullable type when an empty string is a value of its own
+- An optional parameter belongs on a helper, never on a step method. It defaults to `NULL` with a nullable type, never to an empty string - `tests/phpunit/src/OptionalParameterTest.php` enforces it for everything under `src/`
 - Always provide both imperative (content) and continuous (activeForm) task descriptions
 
 ### Nested PyStrings in @test-trait Scenarios

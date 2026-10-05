@@ -2586,6 +2586,18 @@ The methods are listed under their 4.x names; [One shape per naming idea](#one-s
 | `Drupal\EmailTrait::emailAssertMessageFieldContains()` | `bool $exact = FALSE` | no `$exact`; for `TRUE`, call `emailAssertMessageFieldEquals()` |
 | `Drupal\EmailTrait::emailAssertMessageFieldNotContains()` | `bool $exact = FALSE` | no `$exact`; for `TRUE`, call `emailAssertMessageFieldNotEquals()` |
 | `Drupal\FileTrait::fileCreateUnmanaged()` | `string $content = 'test'` | no `$content`; call `fileCreateUnmanagedWithContent()` |
-| `Drupal\FileTrait::fileCreateManagedSingle()`, `fileCreateEntity()` | `?string $uri = NULL` | `string $uri = ''`; leave it out, or pass `''`, for the default destination |
 
 An override of one of these methods in your `FeatureContext` takes the new signature, or PHP reports it as incompatible with the trait's.
+
+### Optional parameters default to `NULL`
+
+A parameter that can be left out defaults to `NULL` with a nullable type, never to an empty string. 4 helpers that open an entity's action page took their subpath as `string $action_subpath = ''`:
+
+| Method | Before | After |
+| --- | --- | --- |
+| `Drupal\ContentTrait::contentVisitActionPageWithTitle()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+| `Drupal\MediaTrait::mediaVisitActionPageWithName()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+| `Drupal\TaxonomyTrait::taxonomyVisitActionPageWithName()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+| `Drupal\UserTrait::userVisitActionPage()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+
+A call that leaves the subpath out, or passes `''`, opens the same page as before. An override in your `FeatureContext` takes the new signature.
