@@ -27,7 +27,7 @@ class CoreFieldMethodsTest extends UnitTestCase {
    * Tests that 'getEntityFieldTypes()' returns configurable and F1 base fields.
    */
   public function testGetEntityFieldTypesIncludesF1AndF5AndExcludesF3(): void {
-    $core = $this->createTestCore();
+    $core = $this->createCore();
     $result = $core->getEntityFieldTypes('node');
 
     $this->assertArrayHasKey('title', $result, 'F1 standard base field included.');
@@ -36,9 +36,9 @@ class CoreFieldMethodsTest extends UnitTestCase {
   }
 
   /**
-   * Creates a TestCore wired to a mocked entity field manager and classifier.
+   * Creates a core wired to a mocked entity field manager and classifier.
    */
-  protected function createTestCore(): TestCore {
+  protected function createCore(): InjectedFieldServicesCore {
     $storage_no_custom = $this->createMock(FieldStorageDefinitionInterface::class);
     $storage_no_custom->method('hasCustomStorage')->willReturn(FALSE);
 
@@ -66,7 +66,7 @@ class CoreFieldMethodsTest extends UnitTestCase {
       'moderation_state' => $moderation_state_field,
     ]);
 
-    $core = new TestCore(__DIR__, 'default');
+    $core = new InjectedFieldServicesCore(__DIR__, 'default');
     $core->testSetEntityFieldManager($entity_field_manager);
     $core->testSetFieldClassifier(new FieldClassifier($entity_field_manager));
 
@@ -76,9 +76,9 @@ class CoreFieldMethodsTest extends UnitTestCase {
 }
 
 /**
- * Testable subclass that injects a mocked entity field manager and classifier.
+ * Subclass that injects a mocked entity field manager and classifier.
  */
-class TestCore extends Core {
+class InjectedFieldServicesCore extends Core {
 
   /**
    * The injected mock entity field manager.

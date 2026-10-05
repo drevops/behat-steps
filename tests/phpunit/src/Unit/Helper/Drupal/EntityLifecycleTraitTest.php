@@ -34,7 +34,7 @@ use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\RegistryExposingContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Core\Entity\EntityInterface;
@@ -86,14 +86,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public function testImplementsUserAwareInterface(): void {
-    $this->assertInstanceOf(UserAwareInterface::class, new TestableRawContext());
+    $this->assertInstanceOf(UserAwareInterface::class, new RegistryExposingContext());
   }
 
   public function testUninitializedContextNamesTheMissingUserRegistry(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The user registry is available only after Behat has initialized the context.');
 
-    (new TestableRawContext())->authGetUserRegistry();
+    (new RegistryExposingContext())->authGetUserRegistry();
   }
 
   public function testNodeCreationDelegatesAndTracksTheStub(): void {
@@ -245,7 +245,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public function testHooksCannotBeDispatchedBeforeInitialization(): void {
-    $context = new TestableRawContext();
+    $context = new RegistryExposingContext();
     $context->setBackendRegistry($this->createMock(BackendRegistryInterface::class));
 
     $this->expectException(\RuntimeException::class);
@@ -258,7 +258,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->method('getEnvironment')->willReturn(NULL);
 
-    $context = new TestableRawContext();
+    $context = new RegistryExposingContext();
     $context->setBackendRegistry($backend_registry);
     $context->setHookDispatcher($this->createHookDispatcher());
 
@@ -667,7 +667,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025 UTC']);
     $context = $this->createContext($this->createDrupalContentBackend());
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame(strtotime('1 January 2025 UTC'), $stub->getValue('created'));
   }
@@ -683,7 +683,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => $value]);
     $context = $this->createContext($this->createDrupalContentBackend());
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame($value, $stub->getValue('created'));
   }
@@ -701,14 +701,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to read the "created" value "not a date at all" as a date.');
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
   }
 
   public function testTimestampConversionIsSkippedForForeignContext(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $scope = new BeforeNodeCreateScope($this->createMock(Environment::class), $this->createMock(Context::class), $stub);
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate($scope);
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate($scope);
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -717,7 +717,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createMock(BackendInterface::class));
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -726,7 +726,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createContentBackend());
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -796,7 +796,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    * @param \Behat\Testwork\Hook\HookDispatcher|null $dispatcher
    *   The hook dispatcher, when the test needs one that finds hooks.
    */
-  protected function createContext(BackendInterface $backend, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): TestableRawContext {
+  protected function createContext(BackendInterface $backend, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): RegistryExposingContext {
     $environment = $this->createMock(Environment::class);
     // The fixture hooks are static, so the callee's own callable is enough
     // for the dispatcher to invoke them.
@@ -806,7 +806,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend_registry->setScenarioBackends(['test' => 'test']);
     $backend_registry->setEnvironment($environment);
 
-    $context = new TestableRawContext();
+    $context = new RegistryExposingContext();
     $context->setBackendRegistry($backend_registry);
     $context->setHookDispatcher($dispatcher ?? $this->createHookDispatcher());
     $context->authSetUserRegistry($user_registry ?? new UserRegistry());

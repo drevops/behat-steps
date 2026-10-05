@@ -249,7 +249,7 @@ class AbstractHandlerNormalizeTest extends UnitTestCase {
    * set directly via reflection.
    */
   protected function createHandler(string $main_property): AbstractHandler {
-    $handler = (new \ReflectionClass(NormalizeTestHandler::class))->newInstanceWithoutConstructor();
+    $handler = (new \ReflectionClass(PassThroughHandler::class))->newInstanceWithoutConstructor();
 
     $property = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');
     $property->setValue($handler, $main_property);
@@ -262,7 +262,7 @@ class AbstractHandlerNormalizeTest extends UnitTestCase {
 /**
  * Concrete AbstractHandler subclass used only by the normalize() tests.
  */
-final class NormalizeTestHandler extends AbstractHandler {
+final class PassThroughHandler extends AbstractHandler {
 
   /**
    * {@inheritdoc}

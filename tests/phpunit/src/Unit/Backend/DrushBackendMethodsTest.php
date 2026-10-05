@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend;
 
 use DrevOps\BehatSteps\Backend\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ArgumentsExposingDrushBackend;
+use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ParserExposingDrushBackend;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingDrushBackend;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Component\Utility\Random;
@@ -360,7 +360,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderParseArguments')]
   public function testParseArguments(array $options, array $expected): void {
-    $this->assertSame($expected, ArgumentsExposingDrushBackend::callParseArguments($options));
+    $this->assertSame($expected, ParserExposingDrushBackend::callParseArguments($options));
   }
 
   public static function dataProviderParseArguments(): \Iterator {
@@ -383,7 +383,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid Drush option name: ' . $name);
 
-    ArgumentsExposingDrushBackend::callParseArguments([$name => 'value']);
+    ParserExposingDrushBackend::callParseArguments([$name => 'value']);
   }
 
   public static function dataProviderParseArgumentsRejectsName(): \Iterator {

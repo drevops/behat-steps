@@ -8,7 +8,7 @@ use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\DrushBackend;
 use DrevOps\BehatSteps\Backend\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
-use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\TestDrushBackend;
+use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ParserExposingDrushBackend;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -71,7 +71,7 @@ class DrushBackendTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderParseUserId')]
   public function testParseUserId(string $drush_output, ?int $expected): void {
-    $backend = new TestDrushBackend('alias');
+    $backend = new ParserExposingDrushBackend('alias');
     $result = $backend->callParseUserId($drush_output);
     $this->assertSame($expected, $result);
   }

@@ -12,7 +12,7 @@ use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
 /**
  * Context exposing the registries and helpers the step vocabulary fills.
  */
-class TestableRawContext extends WebRawContext implements UserAwareInterface {
+class RegistryExposingContext extends WebRawContext implements UserAwareInterface {
 
   use AuthTrait;
   use StaticCacheTrait;

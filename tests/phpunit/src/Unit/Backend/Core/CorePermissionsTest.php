@@ -24,7 +24,7 @@ class CorePermissionsTest extends UnitTestCase {
    * casts the title to string before the lookup.
    */
   public function testConvertPermissionsMapsStringableTitlesToMachineNames(): void {
-    $core = new TestPermissionsCore(__DIR__, 'default');
+    $core = new InjectedPermissionsCore(__DIR__, 'default');
     $core->testSetPermissions([
       'administer content types' => [
         'title' => $this->createStringable('Administer content types'),
@@ -41,7 +41,7 @@ class CorePermissionsTest extends UnitTestCase {
   }
 
   public function testConvertPermissionsLeavesMachineNamesAlone(): void {
-    $core = new TestPermissionsCore(__DIR__, 'default');
+    $core = new InjectedPermissionsCore(__DIR__, 'default');
     $core->testSetPermissions([
       'administer users' => [
         'title' => $this->createStringable('Administer users'),
@@ -55,7 +55,7 @@ class CorePermissionsTest extends UnitTestCase {
   }
 
   public function testCheckPermissionsAcceptsValidMachineNames(): void {
-    $core = new TestPermissionsCore(__DIR__, 'default');
+    $core = new InjectedPermissionsCore(__DIR__, 'default');
     $core->testSetPermissions([
       'administer users' => ['title' => 'Administer users'],
       'access content' => ['title' => 'Access content'],
@@ -68,7 +68,7 @@ class CorePermissionsTest extends UnitTestCase {
   }
 
   public function testCheckPermissionsThrowsForUnknownPermission(): void {
-    $core = new TestPermissionsCore(__DIR__, 'default');
+    $core = new InjectedPermissionsCore(__DIR__, 'default');
     $core->testSetPermissions([
       'administer users' => ['title' => 'Administer users'],
     ]);
@@ -125,9 +125,9 @@ class CorePermissionsTest extends UnitTestCase {
 }
 
 /**
- * Testable subclass that overrides 'getAllPermissions()'.
+ * Subclass that overrides 'getAllPermissions()'.
  */
-class TestPermissionsCore extends Core {
+class InjectedPermissionsCore extends Core {
 
   /**
    * Stored permissions keyed by machine name.
