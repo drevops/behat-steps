@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context\Initializer;
 
 use Behat\Behat\Context\Context;
+use DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Context\BackendAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\Initializer\BackendAwareInitializer;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
 use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 

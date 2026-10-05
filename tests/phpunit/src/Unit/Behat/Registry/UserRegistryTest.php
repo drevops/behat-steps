@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
+namespace DrevOps\BehatSteps\Tests\Unit\Behat\Registry;
 
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistry;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistry;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

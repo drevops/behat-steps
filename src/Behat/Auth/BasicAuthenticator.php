@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Behat\Manager;
+namespace DrevOps\BehatSteps\Behat\Auth;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Behat\Manager;
+namespace DrevOps\BehatSteps\Tests\Unit\Behat\Auth;
 
 use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Element\DocumentElement;
@@ -14,13 +14,13 @@ use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Behat\Manager\Authenticator;
-use DrevOps\BehatSteps\Behat\Manager\AuthenticatorInterface;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
-use DrevOps\BehatSteps\Behat\Manager\BasicAuthenticator;
-use DrevOps\BehatSteps\Behat\Manager\FastLogoutInterface;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistry;
-use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
+use DrevOps\BehatSteps\Behat\Auth\Authenticator;
+use DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface;
+use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticator;
+use DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistry;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -715,9 +715,9 @@ class AuthenticatorTest extends TestCase {
    *
    * @param \Behat\Mink\Session|null $session
    *   Optional Mink session override.
-   * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface|null $user_registry
+   * @param \DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface|null $user_registry
    *   Optional user registry override.
-   * @param \DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface|null $backend_registry
+   * @param \DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface|null $backend_registry
    *   Optional backend registry override.
    * @param array<string, mixed>|null $parameters
    *   Optional extension parameters override.

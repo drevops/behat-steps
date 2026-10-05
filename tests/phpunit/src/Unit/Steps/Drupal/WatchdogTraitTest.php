@@ -18,7 +18,7 @@ use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;

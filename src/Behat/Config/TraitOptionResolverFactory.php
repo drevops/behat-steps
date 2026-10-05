@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Config;
 
-use DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistry;
-use DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistry;
+use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistryInterface;
 
 /**
  * Builds the option resolver of a context out of the shared collaborators.
@@ -35,7 +35,7 @@ class TraitOptionResolverFactory implements TraitOptionResolverFactoryInterface 
    *
    * @param \DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader|null $config_schema_reader
    *   Reads the option declarations of a context class.
-   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface|null $scenario_tag_registry
+   * @param \DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistryInterface|null $scenario_tag_registry
    *   Holds the tags the running scenario carries.
    * @param \DrevOps\BehatSteps\Behat\Config\TagOverrides|null $tag_overrides
    *   Applies the tag layers of one option.

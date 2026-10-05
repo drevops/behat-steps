@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Behat\Manager;
+namespace DrevOps\BehatSteps\Behat\Auth;
 
 /**
  * Interface for authenticators that apply HTTP Basic auth.

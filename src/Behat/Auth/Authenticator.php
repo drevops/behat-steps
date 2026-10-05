@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Behat\Manager;
+namespace DrevOps\BehatSteps\Behat\Auth;
 
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Element\NodeElement;
@@ -14,6 +14,8 @@ use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\MinkAwareTrait;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 
 /**
  * Logs a user in and out of the site under test.
@@ -32,11 +34,11 @@ class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
    *
    * @param \Behat\Mink\Mink $mink
    *   The Mink instance.
-   * @param \DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface $userRegistry
+   * @param \DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface $userRegistry
    *   The user registry.
-   * @param \DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface $backendRegistry
+   * @param \DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface $backendRegistry
    *   The backend registry.
-   * @param \DrevOps\BehatSteps\Behat\Manager\BasicAuthenticatorInterface $basicAuthenticator
+   * @param \DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface $basicAuthenticator
    *   Reapplies basic auth after a session reset clears the request headers.
    * @param array<string, mixed> $mink_parameters
    *   Mink configuration parameters.

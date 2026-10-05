@@ -15,8 +15,8 @@ use DrevOps\BehatSteps\Backend\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistry;
-use DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
 use Drupal\KernelTests\KernelTestBase;
@@ -138,7 +138,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
    * @param \DrevOps\BehatSteps\Backend\BackendInterface $backend
    *   The backend the scenario resolves against.
    *
-   * @return \DrevOps\BehatSteps\Behat\Manager\BackendRegistryInterface
+   * @return \DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface
    *   The backend registry.
    */
   protected function createBackendRegistry(BackendInterface $backend): BackendRegistryInterface {

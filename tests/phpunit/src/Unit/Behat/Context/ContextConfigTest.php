@@ -8,7 +8,7 @@ use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
 use DrevOps\BehatSteps\Behat\Config\TagOverrides;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistry;
+use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistry;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\BareConfigContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableSubContext;

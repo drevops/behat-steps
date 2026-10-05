@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Behat\Config;
 
-use DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface;
+use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistryInterface;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
@@ -41,7 +41,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
    *   The context's 'config' argument, read strictly.
    * @param array<array-key, mixed> $steps
    *   The extension's 'steps' section, read permissively.
-   * @param \DrevOps\BehatSteps\Behat\Manager\ScenarioTagRegistryInterface $scenarioTagRegistry
+   * @param \DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistryInterface $scenarioTagRegistry
    *   The tags the running scenario carries.
    * @param \DrevOps\BehatSteps\Behat\Config\TagOverrides $tagOverrides
    *   Applies the tag layers of one option.
