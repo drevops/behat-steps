@@ -88,31 +88,32 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $this->assertNull(ConfigurableLanguage::load('fr'));
 
     $stub = new EntityStub('language', NULL, ['langcode' => 'fr']);
-    $result = $this->core->languageCreate($stub);
-    $this->assertNotFalse($result, 'languageCreate returned the stub for a new language.');
-    $this->assertSame($stub, $result);
-    $this->assertTrue($result->isSaved());
+    $this->assertSame($stub, $this->core->languageCreate($stub));
+    $this->assertTrue($stub->isSaved());
     $this->assertInstanceOf(ConfigurableLanguage::class, ConfigurableLanguage::load('fr'));
 
     $this->core->languageDelete($stub);
     $this->assertNull(ConfigurableLanguage::load('fr'));
   }
 
-  public function testLanguageCreateReturnsFalseWhenLanguageExists(): void {
+  public function testLanguageCreateLeavesAnExistingLanguageAlone(): void {
     $this->core->languageCreate(new EntityStub('language', NULL, ['langcode' => 'fr']));
+    $existing = ConfigurableLanguage::load('fr');
+    $this->assertInstanceOf(ConfigurableLanguage::class, $existing);
 
-    $second = $this->core->languageCreate(new EntityStub('language', NULL, ['langcode' => 'fr']));
+    $stub = new EntityStub('language', NULL, ['langcode' => 'fr']);
 
-    $this->assertFalse($second);
+    $this->assertSame($stub, $this->core->languageCreate($stub));
+    $this->assertFalse($stub->isSaved());
+    $this->assertSame($existing->uuid(), ConfigurableLanguage::load('fr')?->uuid());
   }
 
-  public function testLanguageDeleteThrowsWhenLanguageMissing(): void {
+  public function testLanguageDeleteToleratesMissingLanguage(): void {
     $this->assertNull(ConfigurableLanguage::load('fr'));
 
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches('/Cannot delete language "fr" because it does not exist/');
-
     $this->core->languageDelete(new EntityStub('language', NULL, ['langcode' => 'fr']));
+
+    $this->assertNull(ConfigurableLanguage::load('fr'));
   }
 
   /**

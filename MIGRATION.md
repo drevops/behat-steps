@@ -1947,6 +1947,32 @@ A project with its own backend implementing these capabilities adds the methods 
 
 Two smaller corrections come with it. A keyed `configGet()` returned Drush's `{"<name>:<key>": value}` envelope instead of the value. And `configGetOriginal()` was the same call as `configGet()`, so the stored and effective reads the config steps distinguish collapsed into one; the effective read now passes `--include-overridden` and the stored read does not.
 
+## Capability creates return the stub, deletes tolerate a miss
+
+The capability interfaces disagreed about what a create returns and what a delete does when its target is already gone. Every create now returns a stub, and every delete returns `void` and does nothing for a target that doesn't exist, so teardown code can delete whatever a scenario created without checking first.
+
+| Method | Before | After |
+| --- | --- | --- |
+| `UserCapabilityInterface::userCreate()` | `void` | Returns the stub |
+| `LanguageCapabilityInterface::languageCreate()` | Returned `FALSE` for a language that already exists | Returns the stub, left unsaved for a language that already exists |
+| `RoleCapabilityInterface::roleCreate()` | The role's machine name | A `user_role` stub carrying `id` and `label` |
+| `ContentCapabilityInterface::termDelete()` | `bool` | `void` |
+| `LanguageCapabilityInterface::languageDelete()` | Threw for a language that doesn't exist | Does nothing |
+
+A project with its own backend updates those signatures, and every delete it implements does nothing for a missing target rather than throwing. A caller of `roleCreate()` reads the machine name from the stub:
+
+```php
+// Before.
+$role = $backend->roleCreate(['access content']);
+
+// After.
+$role = $backend->roleCreate(['access content'])->getValue('id');
+```
+
+`Helper\Drupal\EntityLifecycleTrait::entityLifecycleLanguageCreate()` follows the backend: it returns the stub in both cases instead of `FALSE`, and only a stub the backend saved joins the teardown.
+
+The shipped backends keep the delete contract throughout. The Drush backend's `roleDelete()` and `userDelete()` no longer fail for a role or user that's already gone, and the in-process `userDelete()` no longer reports "The user account ... does not exist." for one.
+
 ## Every `LoadMultiple()` returns loaded entities
 
 5 of the 6 `<trait>LoadMultiple()` helpers returned entity IDs, while `userLoadMultiple()` returned loaded users. You couldn't tell from 1 signature what the next would hand back. All 6 now return the loaded entities keyed by entity ID, or an empty array when nothing matches. `userLoadMultiple()` already worked this way, so it's unchanged.

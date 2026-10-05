@@ -134,6 +134,139 @@ class DrushBackendMethodsTest extends TestCase {
     $backend->userCreate($user);
   }
 
+  public function testUserCreateReturnsTheStub(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = "User ID   :   7\n";
+
+    $user = new EntityStub('user', NULL, ['name' => 'bob', 'pass' => 'pw', 'mail' => 'bob@ex.co']);
+
+    $this->assertSame($user, $backend->userCreate($user));
+    $this->assertSame(7, $user->getValue('uid'));
+  }
+
+  /**
+   * Tests that 'roleCreate()' returns a stub naming the role it created.
+   *
+   * @param array<int, mixed> $args
+   *   Positional arguments for 'roleCreate()'.
+   */
+  #[DataProvider('dataProviderRoleCreateReturnsTheRoleStub')]
+  public function testRoleCreateReturnsTheRoleStub(array $args): void {
+    $backend = $this->createBackend();
+
+    $role = $backend->roleCreate(...$args);
+
+    $this->assertSame('user_role', $role->getEntityType());
+    $this->assertFalse($role->isSaved());
+    $this->assertSame(['id' => $backend->invocations[0]['arguments'][0], 'label' => $backend->invocations[0]['arguments'][1]], $role->getValues());
+  }
+
+  public static function dataProviderRoleCreateReturnsTheRoleStub(): \Iterator {
+    yield 'generated id and label' => [[[]]];
+    yield 'explicit id' => [[[], 'editor']];
+    yield 'explicit id and label' => [[['access content'], 'editor', 'Editor']];
+  }
+
+  /**
+   * Tests that a successful delete runs no existence check.
+   *
+   * @param string $method
+   *   The backend delete method.
+   * @param array<int, mixed> $args
+   *   Positional arguments for the method.
+   * @param string $delete_command
+   *   The Drush command that deletes the target.
+   */
+  #[DataProvider('dataProviderDeleteRunsOneCommandOnSuccess')]
+  public function testDeleteRunsOneCommandOnSuccess(string $method, array $args, string $delete_command): void {
+    $backend = $this->createBackend();
+
+    $backend->{$method}(...$args);
+
+    $this->assertSame([$delete_command], array_column($backend->invocations, 'command'));
+  }
+
+  public static function dataProviderDeleteRunsOneCommandOnSuccess(): \Iterator {
+    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete'];
+    yield 'userDelete' => ['userDelete', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel'];
+  }
+
+  /**
+   * Tests that a failed delete is tolerated when the target does not exist.
+   *
+   * @param string $method
+   *   The backend delete method.
+   * @param array<int, mixed> $args
+   *   Positional arguments for the method.
+   * @param string $delete_command
+   *   The Drush command that deletes the target.
+   * @param string $exists_command
+   *   The Drush command that checks whether the target exists.
+   */
+  #[DataProvider('dataProviderDeleteToleratesMissingTarget')]
+  public function testDeleteToleratesMissingTarget(string $method, array $args, string $delete_command, string $exists_command): void {
+    $backend = $this->createBackend();
+    $backend->drushFailures = [$delete_command => 1];
+    $backend->drushExitCode = 1;
+
+    $backend->{$method}(...$args);
+
+    $this->assertSame([$delete_command, $exists_command], array_column($backend->invocations, 'command'));
+  }
+
+  public static function dataProviderDeleteToleratesMissingTarget(): \Iterator {
+    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete', 'config:get'];
+    yield 'userDelete' => ['userDelete', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel', 'user:information'];
+  }
+
+  /**
+   * Tests that a failed delete surfaces while the target still exists.
+   *
+   * @param string $method
+   *   The backend delete method.
+   * @param array<int, mixed> $args
+   *   Positional arguments for the method.
+   * @param string $delete_command
+   *   The Drush command that deletes the target.
+   */
+  #[DataProvider('dataProviderDeleteFailureSurfacesWhileTargetExists')]
+  public function testDeleteFailureSurfacesWhileTargetExists(string $method, array $args, string $delete_command): void {
+    $backend = $this->createBackend();
+    $backend->drushFailures = [$delete_command => 1];
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('Drush command "%s" exited with code 1.', $delete_command));
+
+    $backend->{$method}(...$args);
+  }
+
+  public static function dataProviderDeleteFailureSurfacesWhileTargetExists(): \Iterator {
+    yield 'roleDelete' => ['roleDelete', ['editor'], 'role:delete'];
+    yield 'userDelete' => ['userDelete', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel'];
+  }
+
+  public function testUserDeleteLooksUpNamelessStubByUid(): void {
+    $backend = $this->createBackend();
+    $backend->drushFailures = ['user-cancel' => 1];
+    $backend->drushExitCode = 1;
+
+    $backend->userDelete(new EntityStub('user', NULL, ['uid' => 7]));
+
+    $this->assertSame(['user-cancel', 'user:information'], array_column($backend->invocations, 'command'));
+    $this->assertSame([[], []], array_column($backend->invocations, 'arguments'));
+    $this->assertSame(['yes' => NULL, 'delete-content' => NULL, 'uid' => '7'], $backend->invocations[0]['options']);
+    $this->assertSame(['uid' => '7'], $backend->invocations[1]['options']);
+  }
+
+  public function testUserDeleteRejectsStubWithoutIdentifier(): void {
+    $backend = $this->createBackend();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot delete a user from a stub without a "name" or "uid" value.');
+
+    $backend->userDelete(new EntityStub('user'));
+  }
+
   /**
    * Tests 'cacheClear()' with a drush-only bin skips the rebuild.
    */

@@ -78,14 +78,16 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
     $this->assertSame('Drupal', $child->getName());
     $this->assertSame((int) $parent->id(), (int) $child->get('parent')->target_id, 'parent name was resolved to tid.');
 
-    $this->assertTrue($this->core->termDelete($result));
+    $this->core->termDelete($result);
     $this->assertNull(Term::load($result->getValue('tid')));
   }
 
-  public function testTermDeleteReturnsFalseForMissingTerm(): void {
-    $missing = new EntityStub('taxonomy_term', 'tags', ['tid' => 99999]);
+  public function testTermDeleteToleratesMissingTerm(): void {
+    $this->assertNull(Term::load(99999));
 
-    $this->assertFalse($this->core->termDelete($missing));
+    $this->core->termDelete(new EntityStub('taxonomy_term', 'tags', ['tid' => 99999]));
+
+    $this->assertNull(Term::load(99999));
   }
 
   public function testTermCreateRejectsMissingVocabularyProperty(): void {

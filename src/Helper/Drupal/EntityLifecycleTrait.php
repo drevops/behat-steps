@@ -249,19 +249,20 @@ trait EntityLifecycleTrait {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Language stub. Must carry a 'langcode' value.
    *
-   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|false
-   *   The created language stub, or FALSE if the language already existed.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The same stub. It stays unsaved, and out of the teardown, when the
+   *   language already existed.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
    *   When no backend in the scenario's order can manage languages.
    */
-  public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false {
+  public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeLanguageCreateScope::class, $stub);
 
     $result = $this->backendFor(LanguageCapabilityInterface::class)->languageCreate($stub);
 
-    if ($result === FALSE) {
-      return FALSE;
+    if (!$result->isSaved()) {
+      return $result;
     }
 
     // Register before the post-create hook runs: a hook that throws still
@@ -329,13 +330,7 @@ trait EntityLifecycleTrait {
 
     if (in_array($type, ['language', 'configurable_language'], TRUE)) {
       if ($registry->hasCapability(LanguageCapabilityInterface::class)) {
-        try {
-          $this->backendFor(LanguageCapabilityInterface::class)->languageDelete($stub);
-        }
-        catch (\RuntimeException) {
-          // The scenario removed the language itself. Deleting a node, a term
-          // or a generic entity twice is tolerated, so a language is too.
-        }
+        $this->backendFor(LanguageCapabilityInterface::class)->languageDelete($stub);
       }
 
       return;

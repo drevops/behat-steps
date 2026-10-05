@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Backend\Capability;
 
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+
 /**
  * Capability: create and delete roles.
  */
@@ -21,13 +23,17 @@ interface RoleCapabilityInterface {
    *   Optional human-readable role label. Defaults to the id when omitted;
    *   falls back to a random string only when both this and $id are NULL.
    *
-   * @return string
-   *   The created role's machine name.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   A 'user_role' stub carrying the created role's 'id' and 'label'. A
+   *   backend that holds the role object attaches it and flags the stub as
+   *   saved.
    */
-  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): string;
+  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface;
 
   /**
    * Deletes a role.
+   *
+   * Does nothing when the role does not exist.
    *
    * @param string $role_name
    *   The role machine name to delete.

@@ -17,6 +17,7 @@ use DrevOps\BehatSteps\Backend\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Backend\Core\Field\FieldShapeClassifier;
 use DrevOps\BehatSteps\Backend\Core\Field\FieldShapeClassifierInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
@@ -518,7 +519,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function userCreate(EntityStubInterface $stub): void {
+  public function userCreate(EntityStubInterface $stub): EntityStubInterface {
     if (!$stub->hasValue('status')) {
       $stub->setValue('status', 1);
     }
@@ -533,12 +534,14 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $stub->markSaved($account);
 
     $this->applyPostCreateAliases($stub, $account, 'user');
+
+    return $stub;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): string {
+  public function roleCreate(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
     $rid = $id ?? strtolower($this->random->name(8, TRUE));
     $role_label = $label ?? ($id ?? trim($this->random->name(8, TRUE)));
 
@@ -557,7 +560,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $role->save();
 
-    return (string) $role->id();
+    $stub = new EntityStub('user_role', NULL, ['id' => (string) $role->id(), 'label' => (string) $role->label()]);
+
+    return $stub->markSaved($role);
   }
 
   /**
@@ -640,6 +645,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function userDelete(EntityStubInterface $stub): void {
     $uid = (int) $this->resolveUid($stub);
+
+    if (!User::load($uid) instanceof User) {
+      return;
+    }
 
     // 'AccountCancellation' exists from Drupal 11.5, and 11.4 has only
     // 'user_cancel()'.
@@ -815,20 +824,16 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function termDelete(EntityStubInterface $stub): bool {
+  public function termDelete(EntityStubInterface $stub): void {
     $term = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 
     if (!$term instanceof TermInterface) {
       $term = Term::load($stub->getValue('tid'));
     }
 
-    if (!$term instanceof TermInterface) {
-      return FALSE;
+    if ($term instanceof TermInterface) {
+      $term->delete();
     }
-
-    $term->delete();
-
-    return TRUE;
   }
 
   /**
@@ -954,11 +959,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function languageCreate(EntityStubInterface $stub): EntityStubInterface|false {
+  public function languageCreate(EntityStubInterface $stub): EntityStubInterface {
     $langcode = $this->resolveLangcode($stub);
 
     if (ConfigurableLanguage::load($langcode)) {
-      return FALSE;
+      return $stub;
     }
 
     $entity = ConfigurableLanguage::createFromLangcode($langcode);
@@ -972,14 +977,11 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function languageDelete(EntityStubInterface $stub): void {
-    $langcode = $this->resolveLangcode($stub);
-    $configurable_language = ConfigurableLanguage::load($langcode);
+    $configurable_language = ConfigurableLanguage::load($this->resolveLangcode($stub));
 
-    if (!$configurable_language instanceof ConfigurableLanguage) {
-      throw new \RuntimeException(sprintf('Cannot delete language "%s" because it does not exist.', $langcode));
+    if ($configurable_language instanceof ConfigurableLanguage) {
+      $configurable_language->delete();
     }
-
-    $configurable_language->delete();
   }
 
   /**
