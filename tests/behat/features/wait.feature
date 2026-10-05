@@ -37,6 +37,24 @@ Feature: Check that WaitTrait works
       """
 
   @test-trait:WaitTrait
+  Scenario Outline: Assert that a wait step fails when the number of seconds is not an integer of 0 or more
+    Given some behat configuration
+    And scenario steps:
+      """
+      <step>
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      <message>
+      """
+    Examples:
+      | step                                             | message                                                          |
+      | When I wait for "a few" seconds                  | The number of seconds must be an integer, but "a few" was given. |
+      | When I wait for "-1" seconds                     | The number of seconds must be 0 or greater, but "-1" was given.  |
+      | When I wait for "1.5" seconds for AJAX to finish | The number of seconds must be an integer, but "1.5" was given.   |
+
+  @test-trait:WaitTrait
   Scenario: Assert that negative assertion for "When I wait for :seconds second(s) for AJAX to finish" can be used only with JS-capable driver
     Given some behat configuration
     And scenario steps:

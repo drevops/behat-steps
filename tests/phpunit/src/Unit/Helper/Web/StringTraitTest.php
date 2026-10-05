@@ -95,6 +95,100 @@ class StringTraitTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderParseInteger')]
+  public function testParseInteger(string $value, ?int $min, int $expected): void {
+    $this->assertSame($expected, $this->testObject->callParseInteger($value, 'count', $min));
+  }
+
+  public static function dataProviderParseInteger(): array {
+    return [
+      'zero' => ['0', NULL, 0],
+      'positive' => ['42', NULL, 42],
+      'negative' => ['-5', NULL, -5],
+      'negative zero' => ['-0', NULL, 0],
+      'explicit plus sign' => ['+7', NULL, 7],
+      'surrounding whitespace' => [' 3 ', NULL, 3],
+      'largest integer' => [(string) PHP_INT_MAX, NULL, PHP_INT_MAX],
+      'smallest integer' => [(string) PHP_INT_MIN, NULL, PHP_INT_MIN],
+      'value equal to the minimum' => ['1', 1, 1],
+      'value above the minimum' => ['5', 0, 5],
+      'negative value above a negative minimum' => ['-2', -3, -2],
+    ];
+  }
+
+  #[DataProvider('dataProviderParseIntegerThrows')]
+  public function testParseIntegerThrows(string $value, ?int $min, string $message): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($message);
+
+    $this->testObject->callParseInteger($value, 'count', $min);
+  }
+
+  public static function dataProviderParseIntegerThrows(): array {
+    return [
+      'word' => ['abc', NULL, 'The count must be an integer, but "abc" was given.'],
+      'empty string' => ['', NULL, 'The count must be an integer, but "" was given.'],
+      'whitespace only' => ['  ', NULL, 'The count must be an integer, but "  " was given.'],
+      'decimal' => ['3.5', NULL, 'The count must be an integer, but "3.5" was given.'],
+      'integral decimal' => ['3.0', NULL, 'The count must be an integer, but "3.0" was given.'],
+      'exponent' => ['1e3', NULL, 'The count must be an integer, but "1e3" was given.'],
+      'hexadecimal' => ['0x1A', NULL, 'The count must be an integer, but "0x1A" was given.'],
+      'leading zero' => ['007', NULL, 'The count must be an integer, but "007" was given.'],
+      'thousands separator' => ['1,000', NULL, 'The count must be an integer, but "1,000" was given.'],
+      'trailing text' => ['3abc', NULL, 'The count must be an integer, but "3abc" was given.'],
+      'above the integer range' => ['9223372036854775808', NULL, 'The count must be an integer, but "9223372036854775808" was given.'],
+      'below the integer range' => ['-9223372036854775809', NULL, 'The count must be an integer, but "-9223372036854775809" was given.'],
+      'below a minimum of 1' => ['0', 1, 'The count must be 1 or greater, but "0" was given.'],
+      'below a minimum of 0' => ['-1', 0, 'The count must be 0 or greater, but "-1" was given.'],
+      'below a negative minimum' => ['-4', -3, 'The count must be -3 or greater, but "-4" was given.'],
+      'format checked before the minimum' => ['abc', 1, 'The count must be an integer, but "abc" was given.'],
+    ];
+  }
+
+  #[DataProvider('dataProviderParseNumber')]
+  public function testParseNumber(string $value, ?float $min, float $expected): void {
+    $this->assertSame($expected, $this->testObject->callParseNumber($value, 'duration', $min));
+  }
+
+  public static function dataProviderParseNumber(): array {
+    return [
+      'integer' => ['3', NULL, 3.0],
+      'decimal' => ['0.5', NULL, 0.5],
+      'leading decimal point' => ['.5', NULL, 0.5],
+      'trailing decimal point' => ['5.', NULL, 5.0],
+      'negative' => ['-1.5', NULL, -1.5],
+      'exponent' => ['1e3', NULL, 1000.0],
+      'leading zero' => ['007', NULL, 7.0],
+      'surrounding whitespace' => [' 2.5 ', NULL, 2.5],
+      'value equal to the minimum' => ['0', 0.0, 0.0],
+      'fraction above the minimum' => ['0.1', 0.0, 0.1],
+    ];
+  }
+
+  #[DataProvider('dataProviderParseNumberThrows')]
+  public function testParseNumberThrows(string $value, ?float $min, string $message): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($message);
+
+    $this->testObject->callParseNumber($value, 'duration', $min);
+  }
+
+  public static function dataProviderParseNumberThrows(): array {
+    return [
+      'word' => ['abc', NULL, 'The duration must be a number, but "abc" was given.'],
+      'empty string' => ['', NULL, 'The duration must be a number, but "" was given.'],
+      'hexadecimal' => ['0x1A', NULL, 'The duration must be a number, but "0x1A" was given.'],
+      'thousands separator' => ['1,000.5', NULL, 'The duration must be a number, but "1,000.5" was given.'],
+      'trailing text' => ['1.5s', NULL, 'The duration must be a number, but "1.5s" was given.'],
+      'infinity' => ['INF', NULL, 'The duration must be a number, but "INF" was given.'],
+      'not a number' => ['NAN', NULL, 'The duration must be a number, but "NAN" was given.'],
+      'beyond the float range' => ['1e999', NULL, 'The duration must be a number, but "1e999" was given.'],
+      'below a minimum of 0' => ['-0.5', 0.0, 'The duration must be 0 or greater, but "-0.5" was given.'],
+      'below a fractional minimum' => ['0.25', 0.5, 'The duration must be 0.5 or greater, but "0.25" was given.'],
+      'format checked before the minimum' => ['abc', 0.0, 'The duration must be a number, but "abc" was given.'],
+    ];
+  }
+
 }
 
 /**
@@ -126,6 +220,14 @@ class StringTraitTestImplementation {
    */
   public function callSplitCommaSeparated(string $value): array {
     return $this->stringSplitCommaSeparated($value);
+  }
+
+  public function callParseInteger(string $value, string $name, ?int $min): int {
+    return $this->stringParseInteger($value, $name, $min);
+  }
+
+  public function callParseNumber(string $value, string $name, ?float $min): float {
+    return $this->stringParseNumber($value, $name, $min);
   }
 
 }

@@ -12,6 +12,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Exception\AssertionException;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Run local shell commands and assert on their result.
@@ -29,6 +30,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait CommandTrait {
+
+  use StringTrait;
 
   /**
    * Standard output (stdout) captured from the last command.
@@ -208,7 +211,7 @@ trait CommandTrait {
   public function commandAssertExitCode(string $code): void {
     $this->commandRequireRun();
 
-    $expected = $this->commandParseInteger($code, 'expected exit code');
+    $expected = $this->stringParseInteger($code, 'exit code');
     $exit_code = (int) $this->commandExitCode;
 
     if ($exit_code !== $expected) {
@@ -306,7 +309,7 @@ trait CommandTrait {
   public function commandAssertDurationLessThan(string $seconds): void {
     $this->commandRequireRun();
 
-    $limit = $this->commandParseNumeric($seconds, 'expected duration');
+    $limit = $this->stringParseNumber($seconds, 'duration', 0);
 
     if ($this->commandDuration >= $limit) {
       throw new AssertionException(sprintf('Expected the command to complete in less than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
@@ -325,7 +328,7 @@ trait CommandTrait {
   public function commandAssertDurationMoreThan(string $seconds): void {
     $this->commandRequireRun();
 
-    $limit = $this->commandParseNumeric($seconds, 'expected duration');
+    $limit = $this->stringParseNumber($seconds, 'duration', 0);
 
     if ($this->commandDuration <= $limit) {
       throw new AssertionException(sprintf('Expected the command to complete in more than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
@@ -352,34 +355,6 @@ trait CommandTrait {
     if ($this->commandExitCode === NULL) {
       throw new \RuntimeException('No command has been run. Run a command before asserting on its result.');
     }
-  }
-
-  /**
-   * Parse a numeric step argument into a float.
-   *
-   * @throws \RuntimeException
-   *   When the value is not numeric.
-   */
-  protected function commandParseNumeric(string $value, string $label): float {
-    if (!is_numeric($value)) {
-      throw new \RuntimeException(sprintf('The %s must be numeric, but got "%s".', $label, $value));
-    }
-
-    return (float) $value;
-  }
-
-  /**
-   * Parse an integer step argument.
-   *
-   * @throws \RuntimeException
-   *   When the value is not an integer.
-   */
-  protected function commandParseInteger(string $value, string $label): int {
-    if (preg_match('/^-?\d+$/', $value) !== 1) {
-      throw new \RuntimeException(sprintf('The %s must be an integer, but got "%s".', $label, $value));
-    }
-
-    return (int) $value;
   }
 
   /**

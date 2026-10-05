@@ -98,6 +98,19 @@ Feature: Ensure Search API functionality works
       Unable to find "article" page "Non-existent article".
       """
 
+  @test-trait:Drupal\SearchApiTrait
+  Scenario: Assert "When I run search indexing for :count item(s)" fails when the count is not an integer
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I run search indexing for "all" items
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The count must be an integer, but "all" was given.
+      """
+
   Scenario: Assert "When I run the Search API cron" works as expected
     Given the following article content exist:
       | title                                    | moderation_state |

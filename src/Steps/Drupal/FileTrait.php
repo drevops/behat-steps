@@ -106,7 +106,7 @@ trait FileTrait {
       }
 
       $path = $hash['path'];
-      $uri = $hash['uri'] ?? NULL;
+      $uri = $hash['uri'] ?? '';
       unset($hash['path'], $hash['uri']);
 
       $stub = new EntityStub('file', NULL, $hash);
@@ -165,7 +165,19 @@ trait FileTrait {
    * @endcode
    */
   #[Given('the unmanaged file at the URI :uri exists')]
-  public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
+  public function fileCreateUnmanaged(string $uri): void {
+    $this->fileCreateUnmanagedWithContent($uri, 'test');
+  }
+
+  /**
+   * Create an unmanaged file with specified content.
+   *
+   * @code
+   * Given the unmanaged file at the URI "public://data.txt" exists with the content "Sample content"
+   * @endcode
+   */
+  #[Given('the unmanaged file at the URI :uri exists with the content :content')]
+  public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $directory = \Drupal::service('file_system')->dirname($uri);
@@ -181,18 +193,6 @@ trait FileTrait {
     file_put_contents($uri, $content);
 
     $this->fileUnmanagedUris[] = $uri;
-  }
-
-  /**
-   * Create an unmanaged file with specified content.
-   *
-   * @code
-   * Given the unmanaged file at the URI "public://data.txt" exists with the content "Sample content"
-   * @endcode
-   */
-  #[Given('the unmanaged file at the URI :uri exists with the content :content')]
-  public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
-    $this->fileCreateUnmanaged($uri, $content);
   }
 
   /**
@@ -278,13 +278,13 @@ trait FileTrait {
    *   The source file path relative to 'files_path'.
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Entity fields stub (must not contain 'path' or 'uri').
-   * @param string|null $uri
+   * @param string $uri
    *   Optional destination URI. Defaults to 'public://filename'.
    *
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateManaged(string $path, EntityStubInterface $stub, string $uri = ''): FileInterface {
     $this->entityLifecycleParseFields($stub);
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
@@ -301,13 +301,13 @@ trait FileTrait {
    *   The source file path relative to 'files_path'.
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Entity fields stub.
-   * @param string|null $uri
+   * @param string $uri
    *   Optional destination URI. Defaults to 'public://filename'.
    *
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateEntity(string $path, EntityStubInterface $stub, string $uri = ''): FileInterface {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $path = ltrim($path, '/');
@@ -325,7 +325,7 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     $destination = 'public://' . basename($path);
-    if ($uri !== NULL && $uri !== '') {
+    if ($uri !== '') {
       $destination = $uri;
       $directory = dirname($destination);
       $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);

@@ -250,7 +250,7 @@ trait FieldTrait {
    * @endcode
    */
   #[When('I fill in the color field :field with the value :value')]
-  public function fieldFillColor(string $field, ?string $value = NULL): void {
+  public function fieldFillColor(string $field, string $value): void {
     $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
     $value_js = json_encode($value, JSON_UNESCAPED_SLASHES);
     $script = <<<JS

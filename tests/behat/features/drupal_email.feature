@@ -522,13 +522,14 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The link index must be a positive integer, but "<index>" was provided.
+      <message>
       """
     Examples:
-      | index  |
-      | 0      |
-      | -1     |
-      | abc    |
+      | index | message                                                  |
+      | 0     | The link index must be 1 or greater, but "0" was given.  |
+      | -1    | The link index must be 1 or greater, but "-1" was given. |
+      | abc   | The link index must be an integer, but "abc" was given.  |
+      | 1.5   | The link index must be an integer, but "1.5" was given.  |
 
   @test-trait:Drupal\EmailTrait
   Scenario: Assert that following link by subject substring fails when the link index is zero
@@ -544,7 +545,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The link index must be a positive integer, but "0" was provided.
+      The link index must be 1 or greater, but "0" was given.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -1013,6 +1014,24 @@ Feature: Check that EmailTrait works
       """
       Expected 0 email(s) to have been sent with the subject "Test Email", but 1 were found.
       """
+
+  @test-trait:Drupal\EmailTrait
+  Scenario Outline: Assert that counting the emails sent fails when the count is not an integer of 0 or more
+    Given some behat configuration
+    And scenario steps tagged with "@email":
+      """
+      Then <step>
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      <message>
+      """
+    Examples:
+      | step                                                                     | message                                             |
+      | the number of sent emails should be "two"                                | The count must be an integer, but "two" was given.  |
+      | the number of emails sent to the address "test@example.com" should be -1 | The count must be 0 or greater, but "-1" was given. |
+      | the number of emails sent with the subject "Test Email" should be "1.0"  | The count must be an integer, but "1.0" was given.  |
 
   @test-trait:Drupal\EmailTrait
   Scenario: Assert that @email and @debug tags on the feature apply to every scenario

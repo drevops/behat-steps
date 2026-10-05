@@ -11,6 +11,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Interact with HTML elements using CSS selectors and DOM attributes.
@@ -22,6 +23,8 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait ElementTrait {
+
+  use StringTrait;
 
   /**
    * Accept confirmation dialogs appearing on the page.
@@ -84,7 +87,9 @@ trait ElementTrait {
    * @javascript
    */
   #[When('I click on the element :selector with the index :index')]
-  public function elementClickWithIndex(string $selector, int $index): void {
+  public function elementClickWithIndex(string $selector, string $index): void {
+    $index = $this->stringParseInteger($index, 'index');
+
     $elements = $this->getSession()->getPage()->findAll('css', $selector);
     $this->elementGetNth($elements, $index, sprintf('element matching "%s"', $selector))->click();
   }
@@ -97,7 +102,9 @@ trait ElementTrait {
    * @endcode
    */
   #[When('I follow the link :link with the index :index')]
-  public function elementFollowLinkWithIndex(string $link, int $index): void {
+  public function elementFollowLinkWithIndex(string $link, string $index): void {
+    $index = $this->stringParseInteger($index, 'index');
+
     $elements = $this->getSession()->getPage()->findAll('named', ['link', $link]);
     $this->elementGetNth($elements, $index, sprintf('link "%s"', $link))->click();
   }
@@ -110,7 +117,9 @@ trait ElementTrait {
    * @endcode
    */
   #[When('I press the button :button with the index :index')]
-  public function elementPressButtonWithIndex(string $button, int $index): void {
+  public function elementPressButtonWithIndex(string $button, string $index): void {
+    $index = $this->stringParseInteger($index, 'index');
+
     $elements = $this->getSession()->getPage()->findAll('named', ['button', $button]);
     $this->elementGetNth($elements, $index, sprintf('button "%s"', $button))->press();
   }
@@ -325,7 +334,7 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector with the attribute :attribute and the value :value should exist')]
-  public function elementAssertExistsWithAttributeValue(string $selector, string $attribute, mixed $value): void {
+  public function elementAssertExistsWithAttributeValue(string $selector, string $attribute, string $value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $value, TRUE, FALSE);
   }
 
@@ -337,7 +346,7 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector with the attribute :attribute and a value containing :partial_value should exist')]
-  public function elementAssertExistsWithAttributeContainingValue(string $selector, string $attribute, mixed $partial_value): void {
+  public function elementAssertExistsWithAttributeContainingValue(string $selector, string $attribute, string $partial_value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $partial_value, FALSE, FALSE);
   }
 
@@ -349,7 +358,7 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector with the attribute :attribute and the value :value should not exist')]
-  public function elementAssertNotExistsWithAttributeValue(string $selector, string $attribute, mixed $value): void {
+  public function elementAssertNotExistsWithAttributeValue(string $selector, string $attribute, string $value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $value, TRUE, TRUE);
   }
 
@@ -361,7 +370,7 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector with the attribute :attribute and a value containing :partial_value should not exist')]
-  public function elementAssertNotExistsWithAttributeContainingValue(string $selector, string $attribute, mixed $partial_value): void {
+  public function elementAssertNotExistsWithAttributeContainingValue(string $selector, string $attribute, string $partial_value): void {
     $this->elementAssertAttributeWithValue($selector, $attribute, $partial_value, FALSE, TRUE);
   }
 
@@ -538,8 +547,8 @@ trait ElementTrait {
    * @javascript
    */
   #[Then('the element :selector should be pinned to the top of the viewport within :tolerance pixels')]
-  public function elementAssertPinnedToTopWithTolerance(string $selector, int $tolerance): void {
-    $this->elementAssertPinnedToTopWithin($selector, $tolerance, FALSE);
+  public function elementAssertPinnedToTopWithTolerance(string $selector, string $tolerance): void {
+    $this->elementAssertPinnedToTopWithin($selector, $this->stringParseInteger($tolerance, 'tolerance'), FALSE);
   }
 
   /**
@@ -691,7 +700,9 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector should be displayed within the viewport with a top offset of :offset pixels')]
-  public function elementAssertVisuallyVisibleWithOffset(string $selector, int $offset): void {
+  public function elementAssertVisuallyVisibleWithOffset(string $selector, string $offset): void {
+    $offset = $this->stringParseInteger($offset, 'offset');
+
     $this->elementAssertVisible($selector);
     if (!$this->elementIsVisuallyVisible($selector, $offset)) {
       throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within the viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
@@ -706,7 +717,9 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector should not be displayed within the viewport with a top offset of :offset pixels')]
-  public function elementAssertNotVisuallyVisibleWithOffset(string $selector, int $offset): void {
+  public function elementAssertNotVisuallyVisibleWithOffset(string $selector, string $offset): void {
+    $offset = $this->stringParseInteger($offset, 'offset');
+
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
       throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within the viewport with a top offset of %d pixels, but it should not be.', $selector, $offset), $this->getSession()->getDriver());
     }
@@ -725,8 +738,8 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :selector should not be displayed within the viewport')]
-  public function elementAssertNotVisuallyVisible(string $selector, int $offset = 0): void {
-    if ($this->elementIsVisuallyVisible($selector, $offset)) {
+  public function elementAssertNotVisuallyVisible(string $selector): void {
+    if ($this->elementIsVisuallyVisible($selector, 0)) {
       throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within the viewport, but it should not be.', $selector), $this->getSession()->getDriver());
     }
   }
@@ -739,7 +752,9 @@ trait ElementTrait {
    * @endcode
    */
   #[Then('the element :parent should contain :count element(s) matching :selector')]
-  public function elementAssertChildElementCount(string $parent, int $count, string $selector): void {
+  public function elementAssertChildElementCount(string $parent, string $count, string $selector): void {
+    $count = $this->stringParseInteger($count, 'count', 0);
+
     $parent_element = $this->getSession()->getPage()->find('css', $parent);
 
     if (!$parent_element) {
@@ -804,7 +819,7 @@ trait ElementTrait {
    *   The CSS selector.
    * @param string $attribute
    *   The attribute name.
-   * @param mixed $value
+   * @param string $value
    *   The value to assert.
    * @param bool $is_exact
    *   Whether to assert the value exactly.
@@ -816,7 +831,7 @@ trait ElementTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   If the attribute or its value does not match the expectation.
    */
-  protected function elementAssertAttributeWithValue(string $selector, string $attribute, mixed $value, bool $is_exact, bool $is_inverted): void {
+  protected function elementAssertAttributeWithValue(string $selector, string $attribute, string $value, bool $is_exact, bool $is_inverted): void {
     $page = $this->getSession()->getPage();
     $elements = $page->findAll('css', $selector);
 
@@ -831,12 +846,12 @@ trait ElementTrait {
       if ($attribute_value !== '') {
         $attribute_found = TRUE;
         if ($is_exact) {
-          if ($attribute_value === (string) $value) {
+          if ($attribute_value === $value) {
             $attribute_value_found = TRUE;
             break;
           }
         }
-        elseif (str_contains($attribute_value, (string) $value)) {
+        elseif (str_contains($attribute_value, $value)) {
           $attribute_value_found = TRUE;
           break;
         }

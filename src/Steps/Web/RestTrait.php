@@ -13,6 +13,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Lightweight REST API testing with no Drupal dependencies.
@@ -28,6 +29,7 @@ use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 trait RestTrait {
 
   use RequestHeadersTrait;
+  use StringTrait;
 
   /**
    * Reset REST headers before each scenario.
@@ -93,7 +95,9 @@ trait RestTrait {
    * @endcode
    */
   #[Then('the REST response status code should be :code')]
-  public function restAssertResponseStatusCode(int $code): void {
+  public function restAssertResponseStatusCode(string $code): void {
+    $code = $this->stringParseInteger($code, 'status code');
+
     $actual = $this->getSession()->getStatusCode();
 
     if ($actual !== $code) {

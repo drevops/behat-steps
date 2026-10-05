@@ -13,6 +13,7 @@ use Behat\Hook\BeforeStep;
 use Behat\Step\Given;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Test responsive layouts with viewport control.
@@ -60,6 +61,8 @@ use DrevOps\BehatSteps\Behat\Tag;
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait ResponsiveTrait {
+
+  use StringTrait;
 
   /**
    * The tag that resizes the viewport to the breakpoint it names.
@@ -187,8 +190,10 @@ trait ResponsiveTrait {
    */
   #[When('I set the viewport width to :width')]
   public function responsiveSetViewportWidth(string $width): void {
+    $width = $this->stringParseInteger($width, 'width', 1);
+
     $current_dimensions = $this->responsiveGetCurrentDimensions();
-    $this->responsiveResize((int) $width, $current_dimensions['height']);
+    $this->responsiveResize($width, $current_dimensions['height']);
   }
 
   /**
@@ -204,8 +209,10 @@ trait ResponsiveTrait {
    */
   #[When('I set the viewport height to :height')]
   public function responsiveSetViewportHeight(string $height): void {
+    $height = $this->stringParseInteger($height, 'height', 1);
+
     $current_dimensions = $this->responsiveGetCurrentDimensions();
-    $this->responsiveResize($current_dimensions['width'], (int) $height);
+    $this->responsiveResize($current_dimensions['width'], $height);
   }
 
   /**
@@ -223,7 +230,7 @@ trait ResponsiveTrait {
    */
   #[When('I set the viewport to :width by :height')]
   public function responsiveSetViewportDimensions(string $width, string $height): void {
-    $this->responsiveResize((int) $width, (int) $height);
+    $this->responsiveResize($this->stringParseInteger($width, 'width', 1), $this->stringParseInteger($height, 'height', 1));
   }
 
   /**
@@ -326,7 +333,7 @@ trait ResponsiveTrait {
    *
    * @param string $dimensions
    *   Dimensions in WIDTHxHEIGHT format.
-   * @param string|null $breakpoint
+   * @param string $breakpoint
    *   Optional breakpoint name for error messages.
    *
    * @return array<string, int>
@@ -335,9 +342,9 @@ trait ResponsiveTrait {
    * @throws \RuntimeException
    *   If format is invalid.
    */
-  protected function responsiveExtractDimensions(string $dimensions, ?string $breakpoint = NULL): array {
+  protected function responsiveExtractDimensions(string $dimensions, string $breakpoint = ''): array {
     if (preg_match('/^(\d+)x(\d+)$/i', $dimensions, $matches) !== 1) {
-      if ($breakpoint) {
+      if ($breakpoint !== '') {
         throw new \RuntimeException(sprintf('Invalid breakpoint format for "%s": "%s". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).', $breakpoint, $dimensions));
       }
 

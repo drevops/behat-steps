@@ -116,6 +116,36 @@ Feature: Check that QueueTrait works
       """
 
   @test-trait:Drupal\QueueTrait
+  Scenario Outline: Assert negative "When I process :count item(s) from the queue :queue" fails when the count is not an integer of 0 or more
+    Given some behat configuration
+    And scenario steps tagged with "@queue":
+      """
+      When I process "<count>" items from the queue "behat_test"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      <message>
+      """
+    Examples:
+      | count | message                                             |
+      | all   | The count must be an integer, but "all" was given.  |
+      | -1    | The count must be 0 or greater, but "-1" was given. |
+
+  @test-trait:Drupal\QueueTrait
+  Scenario: Assert negative "Then the queue :queue should have :count items" fails when the count is not an integer
+    Given some behat configuration
+    And scenario steps tagged with "@queue":
+      """
+      Then the queue "behat_test" should have "five" items
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The count must be an integer, but "five" was given.
+      """
+
+  @test-trait:Drupal\QueueTrait
   Scenario: Assert negative "Given the following item is in the queue :queue:" fails for invalid JSON
     Given some behat configuration
     And scenario steps tagged with "@queue":

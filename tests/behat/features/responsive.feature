@@ -200,6 +200,25 @@ Feature: Check that ResponsiveTrait works
       Invalid breakpoint format for "invalid": "1920xABC". Expected format: WIDTHxHEIGHT
       """
 
+  @test-trait:ResponsiveTrait
+  Scenario Outline: A viewport size that is not an integer of 1 or more should throw exception
+    Given some behat configuration
+    And scenario steps:
+      """
+      When <step>
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      <message>
+      """
+    Examples:
+      | step                                     | message                                                |
+      | I set the viewport width to "wide"       | The width must be an integer, but "wide" was given.    |
+      | I set the viewport height to "0"         | The height must be 1 or greater, but "0" was given.    |
+      | I set the viewport to "1920" by "1080px" | The height must be an integer, but "1080px" was given. |
+      | I set the viewport to "-1" by "1080"     | The width must be 1 or greater, but "-1" was given.    |
+
   @javascript @phpserver
   Scenario: Custom breakpoint overrides default breakpoint
     Given the following responsive breakpoints exist:

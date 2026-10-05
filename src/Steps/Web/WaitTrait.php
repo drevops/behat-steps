@@ -15,6 +15,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Wait for a period of time or for AJAX to finish.
@@ -32,6 +33,8 @@ use DrevOps\BehatSteps\Behat\Tag;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait WaitTrait {
+
+  use StringTrait;
 
   /**
    * Step text that changes the page, and so warrants an AJAX wait around it.
@@ -86,7 +89,7 @@ trait WaitTrait {
    */
   #[When('I wait for AJAX to finish')]
   public function waitForAjaxDefault(): void {
-    $this->waitForAjax($this->waitGetAjaxTimeout());
+    $this->waitForAjaxWithin($this->waitGetAjaxTimeout());
   }
 
   /**
@@ -98,14 +101,12 @@ trait WaitTrait {
    * @endcode
    */
   #[When('I wait for :seconds second(s)')]
-  public function waitSeconds(string|int $seconds): void {
-    sleep((int) $seconds);
+  public function waitSeconds(string $seconds): void {
+    sleep($this->stringParseInteger($seconds, 'number of seconds', 0));
   }
 
   /**
    * Wait for the AJAX calls to finish.
-   *
-   * @see \Drupal\FunctionalJavascriptTests\JSWebAssert::assertWaitOnAjaxRequest()
    *
    * @code
    * When I wait for 5 seconds for AJAX to finish
@@ -113,9 +114,24 @@ trait WaitTrait {
    * @endcode
    */
   #[When('I wait for :seconds second(s) for AJAX to finish')]
-  public function waitForAjax(string|int $seconds): void {
-    $seconds = (int) $seconds;
+  public function waitForAjax(string $seconds): void {
+    $this->waitForAjaxWithin($this->stringParseInteger($seconds, 'number of seconds', 0));
+  }
 
+  /**
+   * Wait for the AJAX calls to finish within a number of seconds.
+   *
+   * @param int $seconds
+   *   The longest time to wait, in seconds.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the browser driver cannot run JavaScript.
+   * @throws \RuntimeException
+   *   When the AJAX calls are still running after the time is up.
+   *
+   * @see \Drupal\FunctionalJavascriptTests\JSWebAssert::assertWaitOnAjaxRequest()
+   */
+  public function waitForAjaxWithin(int $seconds): void {
     $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
     $script = <<<JS
@@ -158,7 +174,7 @@ JS;
       return;
     }
 
-    $this->waitForAjax($this->waitGetAjaxTimeout());
+    $this->waitForAjaxWithin($this->waitGetAjaxTimeout());
   }
 
   /**

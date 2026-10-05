@@ -26,7 +26,7 @@
 | [ResponsiveTrait](#responsivetrait) | 6 | Test responsive layouts with viewport control. |
 | [RestTrait](#resttrait) | 2 | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](#tabletrait) | 8 | Interact with HTML table elements and assert their content. |
-| [WaitTrait](#waittrait) | 1 | Wait for a period of time or for AJAX to finish. |
+| [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 6 | Assert XML responses with element and attribute checks. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
 | [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
@@ -1170,6 +1170,15 @@ Get the body rows from a table element
 > Wait for a period of time or for AJAX to finish.
 
 <details>
+  <summary><code>public function waitForAjaxWithin(int $seconds): void</code></summary>
+
+<br/>
+Wait for the AJAX calls to finish within a number of seconds
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function waitGetAjaxTimeout(): int</code></summary>
 
 <br/>
@@ -1624,7 +1633,7 @@ Registers an entity saved outside the create pipeline for cleanup
 > Manage Drupal file entities with upload and storage operations.
 
 <details>
-  <summary><code>public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
+  <summary><code>public function fileCreateEntity(string $path, EntityStubInterface $stub, string $uri = ''): FileInterface</code></summary>
 
 <br/>
 Create file entity
@@ -1633,7 +1642,7 @@ Create file entity
 </details>
 
 <details>
-  <summary><code>public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
+  <summary><code>public function fileCreateManaged(string $path, EntityStubInterface $stub, string $uri = ''): FileInterface</code></summary>
 
 <br/>
 Create a single managed file

@@ -47,6 +47,24 @@ Feature: Check that TableTrait works
       Expected table ".table-asc" to have 99 row(s), but found 3.
       """
 
+  @test-trait:TableTrait
+  Scenario Outline: Assert "Then the table :selector should have :count row(s)" fails when the count is not an integer of 0 or more
+    Given some behat configuration
+    And scenario steps:
+      """
+      Then the table ".table-asc" should have "<count>" rows
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      <message>
+      """
+    Examples:
+      | count | message                                             |
+      | many  | The count must be an integer, but "many" was given. |
+      | 2.5   | The count must be an integer, but "2.5" was given.  |
+      | -1    | The count must be 0 or greater, but "-1" was given. |
+
   # Column count.
 
   @phpserver
@@ -74,6 +92,19 @@ Feature: Check that TableTrait works
     Then it should fail with an error:
       """
       Expected table ".table-asc" to have 99 column(s), but found 3.
+      """
+
+  @test-trait:TableTrait
+  Scenario: Assert "Then the table :selector should have :count column(s)" fails when the count is not an integer
+    Given some behat configuration
+    And scenario steps:
+      """
+      Then the table ".table-asc" should have "three" columns
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The count must be an integer, but "three" was given.
       """
 
   # Column headers.

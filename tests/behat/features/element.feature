@@ -839,6 +839,29 @@ Feature: Check that ElementTrait works
       """
 
   @test-trait:ElementTrait
+  Scenario Outline: Assert that a numeric element step fails on an invalid number
+    Given some behat configuration
+    And scenario steps:
+      """
+      <step>
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      <message>
+      """
+    Examples:
+      | step                                                                                                  | message                                                |
+      | When I click on the element ".nth-child" with the index "second"                                      | The index must be an integer, but "second" was given.  |
+      | When I follow the link "Repeated link" with the index "2.0"                                           | The index must be an integer, but "2.0" was given.     |
+      | When I press the button "Submit" with the index "x"                                                   | The index must be an integer, but "x" was given.       |
+      | Then the element "#nth-parent" should contain "three" elements matching ".nth-child"                  | The count must be an integer, but "three" was given.   |
+      | Then the element "#nth-parent" should contain -1 elements matching ".nth-child"                       | The count must be 0 or greater, but "-1" was given.    |
+      | Then the element "#top" should be displayed within the viewport with a top offset of "ten" pixels     | The offset must be an integer, but "ten" was given.    |
+      | Then the element "#top" should not be displayed within the viewport with a top offset of "1e3" pixels | The offset must be an integer, but "1e3" was given.    |
+      | Then the element "#pinned-header" should be pinned to the top of the viewport within "5px" pixels     | The tolerance must be an integer, but "5px" was given. |
+
+  @test-trait:ElementTrait
   Scenario: Assert index-based interaction fails when the index is out of range
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

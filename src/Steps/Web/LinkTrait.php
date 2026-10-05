@@ -54,7 +54,7 @@ trait LinkTrait {
    */
   #[Then('the link :link with the href :href should exist')]
   public function linkAssertExistsWithHref(string $link, string $href): void {
-    $this->linkAssertExistsWithHrefWithinElement($link, $href, NULL);
+    $this->linkAssertHrefMatches($link, $href, NULL);
   }
 
   /**
@@ -68,30 +68,8 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href within the element :selector should exist')]
-  public function linkAssertExistsWithHrefWithinElement(string $link, string $href, ?string $selector): void {
-    /** @var \Behat\Mink\Element\DocumentElement $page */
-    $page = $this->getSession()->getPage();
-
-    if ($selector) {
-      $element = $page->find('css', $selector);
-      if (!$element) {
-        throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-      }
-    }
-    else {
-      $element = $page;
-    }
-
-    $link_element = $element->findLink($link);
-    if (!$link_element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $link);
-    }
-
-    $pattern = '/' . preg_quote($href, '/') . '/';
-    $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
-    if (preg_match($pattern, (string) $link_element->getAttribute('href')) !== 1) {
-      throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s".', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
-    }
+  public function linkAssertExistsWithHrefWithinElement(string $link, string $href, string $selector): void {
+    $this->linkAssertHrefMatches($link, $href, $selector);
   }
 
   /**
@@ -106,7 +84,7 @@ trait LinkTrait {
    */
   #[Then('the link :link with the href :href should not exist')]
   public function linkAssertNotExistsWithHref(string $link, string $href): void {
-    $this->linkAssertNotExistsWithHrefWithinElement($link, $href, NULL);
+    $this->linkAssertHrefNotMatches($link, $href, NULL);
   }
 
   /**
@@ -120,33 +98,8 @@ trait LinkTrait {
    * @endcode
    */
   #[Then('the link :link with the href :href within the element :selector should not exist')]
-  public function linkAssertNotExistsWithHrefWithinElement(string $link, string $href, ?string $selector): void {
-    /** @var \Behat\Mink\Element\DocumentElement $page */
-    $page = $this->getSession()->getPage();
-
-    if ($selector) {
-      $element = $page->find('css', $selector);
-
-      // A missing container is an error rather than a pass, so it fails
-      // here as the positive assertion does.
-      if (!$element) {
-        throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-      }
-    }
-    else {
-      $element = $page;
-    }
-
-    $link_element = $element->findLink($link);
-    if (!$link_element) {
-      return;
-    }
-
-    $pattern = '/' . preg_quote($href, '/') . '/';
-    $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
-    if (preg_match($pattern, (string) $link_element->getAttribute('href')) === 1) {
-      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s", but it should not.', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
-    }
+  public function linkAssertNotExistsWithHrefWithinElement(string $link, string $href, string $selector): void {
+    $this->linkAssertHrefNotMatches($link, $href, $selector);
   }
 
   /**
@@ -226,6 +179,99 @@ trait LinkTrait {
 
     if (parse_url((string) $href, PHP_URL_SCHEME)) {
       throw new ExpectationException(sprintf('The link "%s" is an absolute link.', $link), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a link exists and its href matches.
+   *
+   * A simplified wildcard is supported in the href: "*" matches any
+   * characters.
+   *
+   * @param string $link
+   *   The link id, title, alt or text.
+   * @param string $href
+   *   The href to match.
+   * @param string|null $selector
+   *   The CSS selector of the element to search within, or NULL to search the
+   *   whole page.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the element or the link is not found.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the href of the link does not match.
+   */
+  protected function linkAssertHrefMatches(string $link, string $href, ?string $selector): void {
+    /** @var \Behat\Mink\Element\DocumentElement $page */
+    $page = $this->getSession()->getPage();
+
+    if ($selector !== NULL) {
+      $element = $page->find('css', $selector);
+      if (!$element) {
+        throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+      }
+    }
+    else {
+      $element = $page;
+    }
+
+    $link_element = $element->findLink($link);
+    if (!$link_element) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $link);
+    }
+
+    $pattern = '/' . preg_quote($href, '/') . '/';
+    $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
+    if (preg_match($pattern, (string) $link_element->getAttribute('href')) !== 1) {
+      throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s".', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a link with a matching href does not exist.
+   *
+   * A simplified wildcard is supported in the href: "*" matches any
+   * characters.
+   *
+   * @param string $link
+   *   The link id, title, alt or text.
+   * @param string $href
+   *   The href to match.
+   * @param string|null $selector
+   *   The CSS selector of the element to search within, or NULL to search the
+   *   whole page.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the element is not found.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the link exists and its href matches.
+   */
+  protected function linkAssertHrefNotMatches(string $link, string $href, ?string $selector): void {
+    /** @var \Behat\Mink\Element\DocumentElement $page */
+    $page = $this->getSession()->getPage();
+
+    if ($selector !== NULL) {
+      $element = $page->find('css', $selector);
+
+      // A missing container is an error rather than a pass, so it fails
+      // here as the positive assertion does.
+      if (!$element) {
+        throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+      }
+    }
+    else {
+      $element = $page;
+    }
+
+    $link_element = $element->findLink($link);
+    if (!$link_element) {
+      return;
+    }
+
+    $pattern = '/' . preg_quote($href, '/') . '/';
+    $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
+    if (preg_match($pattern, (string) $link_element->getAttribute('href')) === 1) {
+      throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s", but it should not.', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
   }
 
