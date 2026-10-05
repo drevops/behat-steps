@@ -39,14 +39,14 @@ class TagOverrides {
    *   The value, replaced by whatever the last matching tag sets.
    */
   public function apply(string $group, Option $option, mixed $value, array $tags): mixed {
-    $switchable = $option->name === Option::ENABLED;
+    $is_switchable = $option->name === Option::ENABLED;
 
-    if ($tags === [] || ($option->tags === [] && !$switchable)) {
+    if ($tags === [] || ($option->tags === [] && !$is_switchable)) {
       return $value;
     }
 
     foreach ($tags as $tag) {
-      if ($switchable && $this->skipsGroup($tag, $group)) {
+      if ($is_switchable && $this->skipsGroup($tag, $group)) {
         $value = FALSE;
 
         continue;

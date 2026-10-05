@@ -46,7 +46,7 @@ trait MetatagTrait {
       $attributes[$attribute] = $value;
     }
 
-    $found = FALSE;
+    $is_found = FALSE;
 
     foreach ($elements as $element) {
       $all_attributes_matched = TRUE;
@@ -59,12 +59,12 @@ trait MetatagTrait {
       }
 
       if ($all_attributes_matched) {
-        $found = TRUE;
+        $is_found = TRUE;
         break;
       }
     }
 
-    if (!$found) {
+    if (!$is_found) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'meta tag', 'attributes', (string) json_encode($attributes));
     }
   }

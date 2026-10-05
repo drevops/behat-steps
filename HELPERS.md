@@ -1513,7 +1513,7 @@ Extract all links from provided string
 </details>
 
 <details>
-  <summary><code>public function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array</code></summary>
+  <summary><code>public function emailFindMessage(string $field, PyStringNode $string, bool $is_exact = FALSE): ?array</code></summary>
 
 <br/>
 Find an email message whose field contains a value
@@ -2038,7 +2038,7 @@ Logs the given user in
 </details>
 
 <details>
-  <summary><code>public function authLogout(bool $fast = FALSE): void</code></summary>
+  <summary><code>public function authLogout(bool $is_fast = FALSE): void</code></summary>
 
 <br/>
 Logs the current user out

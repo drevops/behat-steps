@@ -1089,7 +1089,7 @@ HTML;
       $failures = 0;
 
       foreach ($violations as $violation) {
-        $failing = $this->accessibilityFilterViolations([$violation], $threshold) !== [];
+        $is_failing = $this->accessibilityFilterViolations([$violation], $threshold) !== [];
         $rule_id = (string) ($violation['id'] ?? 'unknown');
         $impact = (string) ($violation['impact'] ?? 'unknown');
         $help = (string) ($violation['help'] ?? '');
@@ -1103,7 +1103,7 @@ HTML;
           $name = htmlspecialchars($target ?: $rule_id, ENT_XML1 | ENT_QUOTES);
           $tests++;
 
-          if (!$failing) {
+          if (!$is_failing) {
             $cases_xml .= sprintf('<testcase classname="%s" name="%s"><system-out>%s</system-out></testcase>', $classname, $name, htmlspecialchars('[advisory] ' . $details, ENT_XML1 | ENT_QUOTES));
             continue;
           }

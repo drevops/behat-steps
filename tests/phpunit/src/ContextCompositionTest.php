@@ -150,9 +150,9 @@ class ContextCompositionTest extends UnitTestCase {
       $composed = static::composedMembers($reflection);
 
       foreach ($owners as $member => $owner) {
-        $called = str_contains($body, '$this->' . $member . '(') || str_contains($body, 'static::' . $member . '(');
+        $is_called = str_contains($body, '$this->' . $member . '(') || str_contains($body, 'static::' . $member . '(');
 
-        if ($called && !in_array($member, $composed, TRUE)) {
+        if ($is_called && !in_array($member, $composed, TRUE)) {
           $missing[] = sprintf('%s calls %s() without composing %s', $reflection->getShortName(), $member, $owner);
         }
       }

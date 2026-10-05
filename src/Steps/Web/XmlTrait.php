@@ -602,11 +602,11 @@ trait XmlTrait {
     $document = new \DOMDocument();
 
     libxml_clear_errors();
-    $loaded = (bool) @$document->loadXML($content);
+    $is_loaded = (bool) @$document->loadXML($content);
     $errors = libxml_get_errors();
     libxml_clear_errors();
 
-    return ['loaded' => $loaded, 'errors' => $errors];
+    return ['loaded' => $is_loaded, 'errors' => $errors];
   }
 
   /**
@@ -622,9 +622,9 @@ trait XmlTrait {
     $this->xmlDocument = new \DOMDocument();
 
     libxml_clear_errors();
-    $loaded = @$this->xmlDocument->loadXML($content);
+    $is_loaded = @$this->xmlDocument->loadXML($content);
 
-    if (!$loaded) {
+    if (!$is_loaded) {
       $errors = libxml_get_errors();
       throw new \RuntimeException(sprintf('Failed to load XML. Errors: %s.', $this->xmlFormatErrors($errors)));
     }
@@ -754,11 +754,11 @@ trait XmlTrait {
     $this->xmlEnsureDocument();
 
     libxml_clear_errors();
-    $valid = @$this->xmlDocument->schemaValidateSource($schema);
+    $is_valid = @$this->xmlDocument->schemaValidateSource($schema);
     $errors = libxml_get_errors();
     libxml_clear_errors();
 
-    if (!$valid) {
+    if (!$is_valid) {
       throw new ExpectationException(sprintf('The response does not match the XSD schema: %s.', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
     }
   }
@@ -773,11 +773,11 @@ trait XmlTrait {
     $this->xmlEnsureDocument();
 
     libxml_clear_errors();
-    $valid = @$this->xmlDocument->relaxNGValidateSource($schema);
+    $is_valid = @$this->xmlDocument->relaxNGValidateSource($schema);
     $errors = libxml_get_errors();
     libxml_clear_errors();
 
-    if (!$valid) {
+    if (!$is_valid) {
       throw new ExpectationException(sprintf('The response does not match the RelaxNG schema: %s.', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
     }
   }
@@ -828,7 +828,7 @@ trait XmlTrait {
     libxml_set_external_entity_loader(static fn(): null => NULL);
 
     try {
-      $loaded = @$document->loadXML($combined, LIBXML_DTDVALID | LIBXML_NONET);
+      $is_loaded = @$document->loadXML($combined, LIBXML_DTDVALID | LIBXML_NONET);
       $errors = libxml_get_errors();
     }
     finally {
@@ -836,7 +836,7 @@ trait XmlTrait {
       libxml_clear_errors();
     }
 
-    if (!$loaded || $errors !== []) {
+    if (!$is_loaded || $errors !== []) {
       throw new ExpectationException(sprintf('The response does not match the DTD: %s.', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
     }
   }

@@ -234,15 +234,15 @@ trait FileDownloadTrait {
 
     $errors = [];
     foreach ($files->getColumn(0) as $partial_name) {
-      $found = FALSE;
+      $is_found = FALSE;
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $stat = $zip->statIndex($i);
         if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partial_name)) {
-          $found = TRUE;
+          $is_found = TRUE;
           break;
         }
       }
-      if (!$found) {
+      if (!$is_found) {
         $errors[] = sprintf('Unable to find any file partially named "%s" in archive.', $partial_name);
       }
     }

@@ -193,7 +193,7 @@ class WebRawContextTest extends UnitTestCase {
    * @param array<string, class-string<\DrevOps\BehatSteps\Backend\BackendInterface>> $backends
    *   Backend interfaces to stub, keyed by the name the scenario lists each
    *   one under, in order.
-   * @param bool $enabled
+   * @param bool $is_enabled
    *   What each stub reports for any module.
    * @param string $trait
    *   The trait whose prerequisites to assert.
@@ -203,12 +203,12 @@ class WebRawContextTest extends UnitTestCase {
    *   The message it throws with.
    */
   #[DataProvider('dataProviderUnmetPrerequisiteFails')]
-  public function testUnmetPrerequisiteFails(array $backends, bool $enabled, string $trait, string $exception, string $expected_message): void {
+  public function testUnmetPrerequisiteFails(array $backends, bool $is_enabled, string $trait, string $exception, string $expected_message): void {
     $stubs = [];
 
     foreach ($backends as $name => $interface) {
       $stub = $this->createStub($interface);
-      $stub->method('moduleIsEnabled')->willReturn($enabled);
+      $stub->method('moduleIsEnabled')->willReturn($is_enabled);
       $stubs[$name] = $stub;
     }
 

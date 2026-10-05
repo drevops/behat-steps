@@ -764,9 +764,9 @@ function render_type(?\ReflectionType $type): string {
 
   if ($type instanceof \ReflectionNamedType) {
     $name = $short($type->getName());
-    $nullable = $type->allowsNull() && !in_array($name, ['mixed', 'null'], TRUE);
+    $is_nullable = $type->allowsNull() && !in_array($name, ['mixed', 'null'], TRUE);
 
-    return ($nullable ? '?' : '') . $name;
+    return ($is_nullable ? '?' : '') . $name;
   }
 
   if ($type instanceof \ReflectionUnionType || $type instanceof \ReflectionIntersectionType) {
@@ -1747,16 +1747,16 @@ function validate_step_patterns(array $info): array {
 
   // A renamed pattern whose example was not updated is reported here.
   foreach ($steps as $step) {
-    $documented = FALSE;
+    $is_documented = FALSE;
 
     foreach ($step['examples'] as $example) {
       if (preg_match($step['regex'], $example) === 1) {
-        $documented = TRUE;
+        $is_documented = TRUE;
         break;
       }
     }
 
-    if (!$documented) {
+    if (!$is_documented) {
       $errors[] = sprintf('  %s - No example matches the step "%s"' . PHP_EOL, $step['label'], $step['pattern']);
     }
   }

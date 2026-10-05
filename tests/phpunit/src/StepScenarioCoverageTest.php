@@ -361,13 +361,13 @@ class StepScenarioCoverageTest extends UnitTestCase {
    *   The step pattern.
    * @param array<int, string> $texts
    *   The step texts the scenarios run.
-   * @param bool $exercised
+   * @param bool $is_exercised
    *   Whether a text matches the pattern.
    */
   #[DataProvider('dataProviderUnexercisedSteps')]
-  public function testUnexercisedSteps(string $pattern, array $texts, bool $exercised): void {
+  public function testUnexercisedSteps(string $pattern, array $texts, bool $is_exercised): void {
     $steps = [['label' => 'SubjectTrait::subjectStep()', 'pattern' => $pattern]];
-    $expected = $exercised ? [] : [sprintf('SubjectTrait::subjectStep() "%s"', $pattern)];
+    $expected = $is_exercised ? [] : [sprintf('SubjectTrait::subjectStep() "%s"', $pattern)];
 
     $this->assertSame($expected, static::unexercisedSteps($steps, $texts));
   }

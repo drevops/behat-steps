@@ -261,9 +261,9 @@ class BackendRegistryTest extends TestCase {
    * @return \DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
    *   The backend double.
    */
-  protected function createBackendMock(bool $bootstrapped): BackendInterface&MockObject {
+  protected function createBackendMock(bool $is_bootstrapped): BackendInterface&MockObject {
     $backend = $this->createMock(BackendInterface::class);
-    $backend->method('isBootstrapped')->willReturn($bootstrapped);
+    $backend->method('isBootstrapped')->willReturn($is_bootstrapped);
 
     return $backend;
   }
@@ -274,10 +274,10 @@ class BackendRegistryTest extends TestCase {
    * @return \DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
    *   The backend double.
    */
-  protected function createCacheBackendMock(bool $bootstrapped): BackendInterface&MockObject {
+  protected function createCacheBackendMock(bool $is_bootstrapped): BackendInterface&MockObject {
     /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
     $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, CacheCapabilityInterface::class]);
-    $backend->method('isBootstrapped')->willReturn($bootstrapped);
+    $backend->method('isBootstrapped')->willReturn($is_bootstrapped);
 
     return $backend;
   }

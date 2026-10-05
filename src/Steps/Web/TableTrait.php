@@ -215,25 +215,25 @@ trait TableTrait {
     $expected_rows = $expected_table->getHash();
 
     foreach ($expected_rows as $row_index => $expected_row) {
-      $found = FALSE;
+      $is_found = FALSE;
       foreach ($rows as $actual_row) {
         $cells = $actual_row->findAll('css', 'td');
-        $match = TRUE;
+        $is_match = TRUE;
         foreach ($column_indices as $column_position => $column_index) {
           $expected_value = $expected_row[$expected_headers[$column_position]];
           $actual_value = isset($cells[$column_index]) ? trim($cells[$column_index]->getText()) : '';
           if ($actual_value !== $expected_value) {
-            $match = FALSE;
+            $is_match = FALSE;
             break;
           }
         }
-        if ($match) {
-          $found = TRUE;
+        if ($is_match) {
+          $is_found = TRUE;
           break;
         }
       }
 
-      if (!$found) {
+      if (!$is_found) {
         throw new ExpectationException(sprintf('Row %d with values [%s] not found in table "%s".', $row_index + 1, implode(', ', array_values($expected_row)), $selector), $this->getSession()->getDriver());
       }
     }

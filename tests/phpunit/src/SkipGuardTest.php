@@ -58,15 +58,15 @@ class SkipGuardTest extends UnitTestCase {
   #[DataProvider('dataProviderScenarioHookIsGuarded')]
   public function testScenarioHookIsGuarded(string $trait, string $method): void {
     $hook = static::hookLabel($trait, $method);
-    $guarded = str_contains(static::methodSource($trait, $method), static::GUARD);
+    $is_guarded = str_contains(static::methodSource($trait, $method), static::GUARD);
 
     if (array_key_exists($hook, static::UNGUARDED_HOOKS)) {
-      $this->assertFalse($guarded, sprintf('%s carries a skip guard, so remove it from UNGUARDED_HOOKS.', $hook));
+      $this->assertFalse($is_guarded, sprintf('%s carries a skip guard, so remove it from UNGUARDED_HOOKS.', $hook));
 
       return;
     }
 
-    $this->assertTrue($guarded, sprintf('%s acts without a skip guard. Open it with "if (%s$scope))", or list it in UNGUARDED_HOOKS with the reason it has nothing to switch off.', $hook, static::GUARD));
+    $this->assertTrue($is_guarded, sprintf('%s acts without a skip guard. Open it with "if (%s$scope))", or list it in UNGUARDED_HOOKS with the reason it has nothing to switch off.', $hook, static::GUARD));
   }
 
   public static function dataProviderScenarioHookIsGuarded(): array {
