@@ -181,7 +181,7 @@ which likewise allows subclasses to extend registration per version.
 For reference, here is the complete flow when `createEntity()` is called with
 a stub:
 
-1. `createEntity($entity_type, $entity)` calls `expandEntityFields($entity_type, $entity)`.
+1. `createEntity($stub)` calls `expandEntityFields($stub)`.
 2. `expandEntityFields()` resolves the bundle from the stub and calls
    `getEntityFieldTypes($entity_type, $bundle)`.
 3. `getEntityFieldTypes()` iterates `getFieldStorageDefinitions()`,
