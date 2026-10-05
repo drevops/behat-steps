@@ -46,10 +46,10 @@ Feature: Check that RegionTrait works
     And the element "a" with the text "About us" in the region "footer" should have the attribute "href" with the value "/about"
 
   @phpserver
-  Scenario: Assert "When I click the link :link in the region :region" works as expected
+  Scenario: Assert "When I click on the link :link in the region :region" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/regions.html"
-    And I click the link "About us" in the region "footer"
+    And I click on the link "About us" in the region "footer"
     Then the path should be "/about"
 
   @phpserver

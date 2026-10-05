@@ -214,11 +214,11 @@ Feature: Check that EmailTrait works
       """
     Then an email should be sent to the address "test@example.com"
 
-    And I follow the link with the index "<number>" in the email with the subject "Test Email"
+    And I follow the link with the index "<index>" in the email with the subject "Test Email"
     Then the response status code should be 200
     And I should see "Example Domain"
     Examples:
-      | content                                                       | number |
+      | content                                                       | index  |
       | http://example.com                                            | 1      |
       | http://www.example.com                                        | 1      |
       | www.example.com                                               | 1      |
@@ -475,7 +475,7 @@ Feature: Check that EmailTrait works
       """
 
   @trait:Drupal\EmailTrait
-  Scenario: Assert that following link in email fails when link number too high
+  Scenario: Assert that following link in email fails when the link index is too high
     Given some behat configuration
     And scenario steps tagged with "@email":
       """
@@ -488,11 +488,11 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The link with number 5 was not found among 1 links
+      The link with the index 5 was not found among 1 links
       """
 
   @trait:Drupal\EmailTrait
-  Scenario Outline: Assert that following link in email fails when link number is not a positive integer
+  Scenario Outline: Assert that following link in email fails when the link index is not a positive integer
     Given some behat configuration
     And scenario steps tagged with "@email":
       """
@@ -500,21 +500,21 @@ Feature: Check that EmailTrait works
         '''
         Email with one link: http://example.com
         '''
-      Then I follow the link with the index "<number>" in the email with the subject "Test Email"
+      Then I follow the link with the index "<index>" in the email with the subject "Test Email"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The link number must be a positive integer, but "<number>" was provided.
+      The link index must be a positive integer, but "<index>" was provided.
       """
     Examples:
-      | number |
+      | index  |
       | 0      |
       | -1     |
       | abc    |
 
   @trait:Drupal\EmailTrait
-  Scenario: Assert that following link by subject substring fails when link number is zero
+  Scenario: Assert that following link by subject substring fails when the link index is zero
     Given some behat configuration
     And scenario steps tagged with "@email":
       """
@@ -527,7 +527,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The link number must be a positive integer, but "0" was provided.
+      The link index must be a positive integer, but "0" was provided.
       """
 
   @trait:Drupal\EmailTrait
@@ -565,7 +565,7 @@ Feature: Check that EmailTrait works
       """
 
   @trait:Drupal\EmailTrait
-  Scenario: Assert that following link by subject substring fails when link number too high
+  Scenario: Assert that following link by subject substring fails when the link index is too high
     Given some behat configuration
     And scenario steps tagged with "@email":
       """
@@ -578,7 +578,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The link with number 3 was not found among 1 links
+      The link with the index 3 was not found among 1 links
       """
 
   @trait:Drupal\EmailTrait

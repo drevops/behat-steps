@@ -299,67 +299,67 @@ Feature: Check that ElementTrait works
       """
 
   @javascript @phpserver
-  Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport with a top offset of :offset pixels" succeeds as expected
+  Scenario: Assert step definition "Then the element :selector should not be displayed within the viewport with a top offset of :offset pixels" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
-    Then the element "#hidden" should not be displayed within a viewport with a top offset of 10 pixels
+    Then the element "#hidden" should not be displayed within the viewport with a top offset of 10 pixels
 
   @javascript @phpserver
-  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :offset pixels" succeeds as expected
+  Scenario: Assert step definition "Then the element :selector should be displayed within the viewport with a top offset of :offset pixels" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
-    Then the element "#top" should be displayed within a viewport with a top offset of 10 pixels
+    Then the element "#top" should be displayed within the viewport with a top offset of 10 pixels
 
   @javascript @phpserver @skipped
-  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport with a top offset of :offset pixels" fails as expected
+  Scenario: Assert step definition "Then the element :selector should be displayed within the viewport with a top offset of :offset pixels" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
-      Then the element "#top" should be displayed within a viewport with a top offset of 1000 pixels
+      Then the element "#top" should be displayed within the viewport with a top offset of 1000 pixels
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is not displayed within a viewport with a top offset of 1000 pixels.
+      Element(s) defined by "#top" selector is not displayed within the viewport with a top offset of 1000 pixels.
       """
 
   @javascript @phpserver
-  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport" and "Then the element :selector should not be displayed within a viewport" succeeds as expected
+  Scenario: Assert step definition "Then the element :selector should be displayed within the viewport" and "Then the element :selector should not be displayed within the viewport" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
-    Then the element "#top" should be displayed within a viewport
+    Then the element "#top" should be displayed within the viewport
     # Accessibility elements visible to screen readers are visible to normal
     # visibility assertion, but visually hidden.
     And the element "#sr-only" should be displayed
-    And the element "#sr-only" should not be displayed within a viewport
-    And the element "#sr-only-focusable" should not be displayed within a viewport
+    And the element "#sr-only" should not be displayed within the viewport
+    And the element "#sr-only-focusable" should not be displayed within the viewport
 
   @trait:ElementTrait @skipped
-  Scenario: Assert step definition "Then the element :selector should be displayed within a viewport" fails as expected
+  Scenario: Assert step definition "Then the element :selector should be displayed within the viewport" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements_relative.html"
-      Then the element "#sr-only" should be displayed within a viewport
+      Then the element "#sr-only" should be displayed within the viewport
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#sr-only" selector is not displayed within a viewport.
+      Element(s) defined by "#sr-only" selector is not displayed within the viewport.
       """
 
   @trait:ElementTrait @skipped
-  Scenario: Assert step definition "Then the element :selector should not be displayed within a viewport" fails as expected
+  Scenario: Assert step definition "Then the element :selector should not be displayed within the viewport" fails as expected
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/elements_relative.html"
-      Then the element "#top" should not be displayed within a viewport
+      Then the element "#top" should not be displayed within the viewport
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is displayed within a viewport, but it should not be.
+      Element(s) defined by "#top" selector is displayed within the viewport, but it should not be.
       """
 
   @phpserver
@@ -751,12 +751,12 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
-      Then the element "#sr-only" should be displayed within a viewport
+      Then the element "#sr-only" should be displayed within the viewport
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#sr-only" selector is not displayed within a viewport.
+      Element(s) defined by "#sr-only" selector is not displayed within the viewport.
       """
 
   @trait:ElementTrait
@@ -765,12 +765,12 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
-      Then the element "#top" should be displayed within a viewport with a top offset of 10000 pixels
+      Then the element "#top" should be displayed within the viewport with a top offset of 10000 pixels
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is not displayed within a viewport with a top offset of 10000 pixels.
+      Element(s) defined by "#top" selector is not displayed within the viewport with a top offset of 10000 pixels.
       """
 
   @trait:ElementTrait
@@ -779,12 +779,12 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
-      Then the element "#top" should not be displayed within a viewport with a top offset of 0 pixels
+      Then the element "#top" should not be displayed within the viewport with a top offset of 0 pixels
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is displayed within a viewport with a top offset of 0 pixels, but it should not be.
+      Element(s) defined by "#top" selector is displayed within the viewport with a top offset of 0 pixels, but it should not be.
       """
 
   @trait:ElementTrait
@@ -793,12 +793,12 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
-      Then the element "#top" should not be displayed within a viewport
+      Then the element "#top" should not be displayed within the viewport
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is displayed within a viewport, but it should not be.
+      Element(s) defined by "#top" selector is displayed within the viewport, but it should not be.
       """
 
   @javascript @phpserver

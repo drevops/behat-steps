@@ -28,10 +28,10 @@ trait RegionTrait {
    * Click a link within a region.
    *
    * @code
-   * When I click the link "Read more" in the region "content"
+   * When I click on the link "Read more" in the region "content"
    * @endcode
    */
-  #[When('I click the link :link in the region :region')]
+  #[When('I click on the link :link in the region :region')]
   public function regionClickLink(string $link, string $region): void {
     $element = $this->regionGet($region)->findLink($link);
 

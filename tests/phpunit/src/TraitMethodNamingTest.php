@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use Behat\Step\Then;
+use Behat\Step\When;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -287,6 +288,50 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   public static function dataProviderNegativeMirrorsPositive(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
+   * Assert that a navigation step is named for the visit and its page.
+   *
+   * A step reading "I visit" only opens a page, so its method opens with
+   * `Visit` after the prefix: `userVisitProfileEditPage`, not
+   * `userEditProfile`. A step naming a page or a link carries that noun
+   * ahead of its first qualifier, as the step text does:
+   * `mediaVisitEditPageWithName`, not `mediaVisitEditWithNamePage`.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderNavigationStepsOpenWithVisit')]
+  public function testNavigationStepsOpenWithVisit(string $trait, string $file): void {
+    $prefix = self::traitPrefix((new \ReflectionClass($trait))->getShortName());
+
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      foreach ($method->getAttributes(When::class) as $attribute) {
+        $step = (string) $attribute->newInstance()->getPattern();
+
+        if (!str_starts_with($step, 'I visit ')) {
+          continue;
+        }
+
+        $name = $method->getName();
+        $destination = preg_match('/ (page|link)\b/', $step, $matches) === 1 ? ucfirst($matches[1]) : '';
+        $words = $destination === '' ? '' : sprintf('(?:(?!(?:%s)(?![a-z]))[A-Z][a-z0-9]*)*?%s', implode('|', static::QUALIFIERS), $destination);
+
+        if (preg_match(sprintf('/^Visit%s(?![a-z])/', $words), substr($name, strlen($prefix))) !== 1) {
+          $violations[] = sprintf('%s() for "%s"', $name, $step);
+        }
+      }
+    }
+
+    $this->assertSame([], $violations, 'Name a navigation step for the visit and the page it opens, ahead of any qualifier: "mediaVisitEditPageWithName" for "I visit the :media_type media edit page with the name :name", not "mediaEditWithName" or "mediaVisitEditWithNamePage".');
+  }
+
+  public static function dataProviderNavigationStepsOpenWithVisit(): array {
     return static::discoverTraitFiles();
   }
 

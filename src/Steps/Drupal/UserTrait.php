@@ -365,7 +365,7 @@ trait UserTrait {
    * @endcode
    */
   #[When('I visit the profile page of the user :name')]
-  public function userVisitProfile(string $name): void {
+  public function userVisitProfilePage(string $name): void {
     $this->userVisitActionPage($name);
   }
 
@@ -377,7 +377,7 @@ trait UserTrait {
    * @endcode
    */
   #[When('I visit my own user profile page')]
-  public function userVisitOwnProfile(): void {
+  public function userVisitOwnProfilePage(): void {
     $this->userVisitActionPage('current');
   }
 
@@ -389,7 +389,7 @@ trait UserTrait {
    * @endcode
    */
   #[When('I visit the profile edit page of the user :name')]
-  public function userEditProfile(string $name): void {
+  public function userVisitProfileEditPage(string $name): void {
     $this->userVisitActionPage($name, '/edit');
   }
 
@@ -401,7 +401,7 @@ trait UserTrait {
    * @endcode
    */
   #[When('I visit my own user profile edit page')]
-  public function userEditOwnProfile(): void {
+  public function userVisitOwnProfileEditPage(): void {
     $this->userVisitActionPage('current', '/edit');
   }
 
@@ -413,7 +413,7 @@ trait UserTrait {
    * @endcode
    */
   #[When('I visit the profile delete page of the user :name')]
-  public function userDeleteProfile(string $name): void {
+  public function userVisitProfileDeletePage(string $name): void {
     $this->userVisitActionPage($name, '/cancel');
   }
 
@@ -425,7 +425,7 @@ trait UserTrait {
    * @endcode
    */
   #[When('I visit my own user profile delete page')]
-  public function userDeleteOwnProfile(): void {
+  public function userVisitOwnProfileDeletePage(): void {
     $this->userVisitActionPage('current', '/cancel');
   }
 
@@ -507,10 +507,10 @@ trait UserTrait {
    * Then the user with the email "alice@example.com" should exist
    * @endcode
    */
-  #[Then('the user with the email :mail should exist')]
-  public function userAssertExistsWithMail(string $mail): void {
-    if (!$this->userExistsByMail($mail)) {
-      throw new ExpectationException(sprintf('User with email "%s" is expected to exist, but they do not.', $mail), $this->getSession()->getDriver());
+  #[Then('the user with the email :address should exist')]
+  public function userAssertExistsWithMail(string $address): void {
+    if (!$this->userExistsByMail($address)) {
+      throw new ExpectationException(sprintf('User with email "%s" is expected to exist, but they do not.', $address), $this->getSession()->getDriver());
     }
   }
 
@@ -523,10 +523,10 @@ trait UserTrait {
    * Then the user with the email "alice@example.com" should not exist
    * @endcode
    */
-  #[Then('the user with the email :mail should not exist')]
-  public function userAssertNotExistsWithMail(string $mail): void {
-    if ($this->userExistsByMail($mail)) {
-      throw new ExpectationException(sprintf('User with email "%s" is expected to not exist, but they do.', $mail), $this->getSession()->getDriver());
+  #[Then('the user with the email :address should not exist')]
+  public function userAssertNotExistsWithMail(string $address): void {
+    if ($this->userExistsByMail($address)) {
+      throw new ExpectationException(sprintf('User with email "%s" is expected to not exist, but they do.', $address), $this->getSession()->getDriver());
     }
   }
 

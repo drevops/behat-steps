@@ -150,7 +150,7 @@ trait ContentTrait {
    * @endcode
    */
   #[When('I visit the :content_type content page with the title :title')]
-  public function contentVisitViewWithTitle(string $content_type, string $title): void {
+  public function contentVisitPageWithTitle(string $content_type, string $title): void {
     $this->contentVisitActionPageWithTitle($content_type, $title);
   }
 

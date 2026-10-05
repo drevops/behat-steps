@@ -38,7 +38,7 @@ Feature: Check that ContentBlockTrait works
     And I go to "admin/content/block"
     Then I should see "[TEST] Content Block 1"
     And I should see "[TEST] Content Block 2"
-    When I edit the "basic" content block with the description "[TEST] Content Block 1"
+    When I visit the "basic" content block edit page with the description "[TEST] Content Block 1"
     Then the "Block description" field should contain "[TEST] Content Block 1"
     And the "Body" field should contain "[TEST] Body content 1"
 
@@ -58,18 +58,18 @@ Feature: Check that ContentBlockTrait works
     When the following "basic" content blocks exist:
       | info                  | status | body                |
       | [TEST] Editable Block | 1      | Original block body |
-    And I edit the "basic" content block with the description "[TEST] Editable Block"
+    And I visit the "basic" content block edit page with the description "[TEST] Editable Block"
     And I fill in "Body" with "Updated block body content"
     And I press "Save"
     Then the success message "Basic block [TEST] Editable Block has been updated." should exist
 
   @trait:Drupal\ContentBlockTrait
-  Scenario: Assert editing a non-existent content block fails
+  Scenario: Assert visiting the edit page of a non-existent content block fails
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
-      When I edit the "basic" content block with the description "Non-existent Content Block"
+      When I visit the "basic" content block edit page with the description "Non-existent Content Block"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -115,7 +115,7 @@ Feature: Check that ContentBlockTrait works
       | info                  | body                  | status |
       | [TEST] Editable Block | Initial block content | 1      |
     And I log in as a user with the role "administrator"
-    When I edit the "basic" content block with the description "[TEST] Editable Block"
+    When I visit the "basic" content block edit page with the description "[TEST] Editable Block"
     And I fill in "Block description" with "[TEST] Updated Block"
     And I fill in "Body" with "This content has been updated through Behat test"
     And I press "Save"
@@ -184,7 +184,7 @@ Feature: Check that ContentBlockTrait works
       | status | 1                            |
     When I go to "admin/content/block"
     Then I should see "[TEST] Vertical Block"
-    When I edit the "basic" content block with the description "[TEST] Vertical Block"
+    When I visit the "basic" content block edit page with the description "[TEST] Vertical Block"
     Then the "Body" field should contain "Created with vertical format"
 
   Scenario: Create multiple content blocks with vertical field format

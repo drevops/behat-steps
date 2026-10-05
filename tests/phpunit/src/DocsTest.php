@@ -1684,6 +1684,163 @@ EOD,
         ],
         ['  TestTrait::testAssertMethod - Step starts with a placeholder but should start with the noun it names' . PHP_EOL],
       ],
+      'placeholder synonyms in steps' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMailMethod',
+                'steps' => ['@Then the user with the email :mail should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertEmailMethod',
+                'steps' => ['@Then an email should be sent to the address :email'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testFollowMethod',
+                'steps' => ['@When I follow the link with the index :link_number in the email'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  TestTrait::testAssertMailMethod - Placeholder ":mail" in the step is a synonym of ":address"' . PHP_EOL,
+          '  TestTrait::testAssertEmailMethod - Placeholder ":email" in the step is a synonym of ":address"' . PHP_EOL,
+          '  TestTrait::testFollowMethod - Placeholder ":link_number" in the step is a synonym of ":index"' . PHP_EOL,
+        ],
+      ],
+      'rejected phrases in steps' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testEditMethod',
+                'steps' => ['@When I edit the :content_type content with the title :title'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testClickMethod',
+                'steps' => ['@When I click the link :link'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertViewportMethod',
+                'steps' => ['@Then the element :selector should be displayed within a viewport'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSelectMethod',
+                'steps' => ['@Then the option :option should exist within the select element :selector'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  TestTrait::testEditMethod - Step reads "I edit the" but should read "I visit the ... edit page"' . PHP_EOL,
+          '  TestTrait::testClickMethod - Step reads "I click the" but should read "I click on the"' . PHP_EOL,
+          '  TestTrait::testAssertViewportMethod - Step reads "a viewport" but should read "the viewport"' . PHP_EOL,
+          '  TestTrait::testAssertSelectMethod - Step reads "the select element" but should read "the select"' . PHP_EOL,
+        ],
+      ],
+      'settled phrases in steps' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testClickMethod',
+                'steps' => ['@When I click on the link :link in the region :region'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertViewportMethod',
+                'steps' => ['@Then the element :selector should be displayed within the viewport'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSelectMethod',
+                'steps' => ['@Then the option :option should exist within the select :selector'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'navigation step naming no page' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testVisitMethod',
+                'steps' => ['@When I visit the :media_type media with the name :name'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testVisitMethod - Navigation step does not name the page it opens, as in "I visit the ... page"' . PHP_EOL],
+      ],
+      'navigation steps naming a page, a link or a path' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testVisitPageMethod',
+                'steps' => ['@When I visit the :media_type media edit page with the name :name'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testVisitLinkMethod',
+                'steps' => ['@When I visit the password reset link for the user :name'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testVisitPathMethod',
+                'steps' => ['@When I visit :path'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
       'missing example' => [
         [
           'TestTrait' => [
@@ -2701,6 +2858,36 @@ EOD,
     // pattern, which carry no leading colon.
     foreach ($placeholders as $placeholder) {
       $this->assertStringStartsNotWith(':', $placeholder);
+    }
+  }
+
+  public function testPlaceholderSynonyms(): void {
+    $synonyms = placeholder_synonyms();
+
+    $this->assertSame('address', $synonyms['mail'] ?? NULL);
+    $this->assertSame('index', $synonyms['link_number'] ?? NULL);
+
+    foreach ($synonyms as $synonym => $name) {
+      $this->assertStringStartsNotWith(':', $synonym);
+      $this->assertStringStartsNotWith(':', $name);
+
+      // A name to use that is itself rejected fails validation as well.
+      $this->assertArrayNotHasKey($name, $synonyms);
+      $this->assertNotContains($name, non_descriptive_placeholders());
+    }
+  }
+
+  public function testRejectedStepPhrases(): void {
+    $phrases = rejected_step_phrases();
+
+    $this->assertSame('I click on the ', $phrases['I click the '] ?? NULL);
+    $this->assertSame(' the viewport', $phrases[' a viewport'] ?? NULL);
+
+    // A replacement containing a rejected phrase fails validation as well.
+    foreach ($phrases as $replacement) {
+      foreach (array_keys($phrases) as $rejected) {
+        $this->assertStringNotContainsString($rejected, $replacement);
+      }
     }
   }
 

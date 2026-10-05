@@ -277,10 +277,10 @@ Feature: Check that TableTrait works
       """
 
   @phpserver
-  Scenario: Assert "When I click the link :link in the row :row_text" works as expected
+  Scenario: Assert "When I click on the link :link in the row :row_text" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    And I click the link "Edit" in the row "Epsilon record"
+    And I click on the link "Edit" in the row "Epsilon record"
     Then the current URL should have the query parameter "edit" with the value "epsilon"
 
   @phpserver
@@ -305,13 +305,13 @@ Feature: Check that TableTrait works
     And the link "Edit" should not exist in the row "Zeta record"
 
   @trait:TableTrait
-  Scenario: Assert "When I click the link :link in the row :row_text" fails when the row has no such link
+  Scenario: Assert "When I click on the link :link in the row :row_text" fails when the row has no such link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      And I click the link "Edit" in the row "Zeta record"
+      And I click on the link "Edit" in the row "Zeta record"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

@@ -25,13 +25,20 @@ of tests. Follow these guidelines:
   - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it.
 
 - **Placeholders**:
-  - One concept gets one name across every trait, so reuse an existing name before inventing a synonym: `:name` for anything identified by its name, `:index` for a 1-based position, `:value` for a value.
+  - One concept gets one name across every trait, so reuse an existing name before inventing a synonym: `:name` for anything identified by its name, `:index` for a 1-based position, `:value` for a value, `:address` for an email address. `ahoy lint-docs` rejects the synonyms listed in `docs.php`'s `placeholder_synonyms()`.
   - A placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a bundle before the entity noun it qualifies (`the :media_type media`), a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`) come first.
   - Every noun takes an article, `URL` is uppercase, and a step never opens with a placeholder: `the :content_type content with the title :title should not exist`.
   - A value reads `the value :value`, never `the :value value` or a bare `:value`.
   - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is only for a step asserting on a whole body with no named target, such as `the modal should contain :text`.
   - A partial match reads `a <thing> containing :partial_<thing>`, as in `a cookie with a name containing :partial_name`.
   - Placeholder names are `snake_case`, spelled out rather than abbreviated (`:name`, not `:param`), and identical to the method parameter, because Behat binds a step argument by name.
+
+- **Settled wording**: each idea reads 1 way, even where another phrasing would read just as well.
+  - A step that opens a page reads `I visit the ... page` and names the page it opens: `I visit the :content_type content edit page with the title :title`. It never reads `I edit the ...`, because the step only navigates.
+  - A click reads `I click on the ...`: `I click on the link :link in the region :region`.
+  - The viewport is `the viewport`, never `a viewport`.
+  - A `<select>` is `the select :selector`, never `the select element :selector`.
+  - `ahoy lint-docs` rejects the replaced phrases, listed in `docs.php`'s `rejected_step_phrases()`, and an `I visit` step that names no page or link.
 
 - **`Given`**:
   - Defines test prerequisites—conditions or data that must exist before the
@@ -57,7 +64,7 @@ Run `ahoy lint-docs` to validate the format of the steps.
 
 ## Method naming conventions
 
-Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, helper verb, lookup and spelling conventions below.
+Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, action, helper verb, lookup and spelling conventions below.
 
 `TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleNodeCreate()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Behat` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Backend` is composed into nothing.
 
@@ -91,6 +98,14 @@ A check that throws `\RuntimeException` on a bad step argument or a missing prec
 | `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |
 
 The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out. `TraitMethodNamingTest` pairs every `should not` step with its `should` twin in the same trait and fails a pair whose method names differ by anything but `Not`.
+
+### Actions
+
+A step that opens a page only navigates, so its method opens with `Visit` and names the page the way the step does: `I visit the :media_type media edit page with the name :name` is `mediaVisitEditPageWithName()`, and `I visit the profile delete page of the user :name` is `userVisitProfileDeletePage()`. A noun the prefix already carries isn't repeated, so a node's page is `contentVisitPageWithTitle()` while a term's is `taxonomyVisitTermPageWithName()`.
+
+A qualifier that the step opens with `with` reads `With` in the name, and a second one repeats it, in the order the step gives them: `I follow the link with the index :index in the email with a subject containing :partial_subject` is `emailFollowLinkWithIndexWithSubjectContaining()`.
+
+`TraitMethodNamingTest` fails an `I visit` step whose method doesn't open with `Visit`, or doesn't carry the `Page` or `Link` its step names ahead of the first qualifier.
 
 ### Consumer override points
 
