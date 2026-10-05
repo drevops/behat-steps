@@ -128,6 +128,15 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->core->userAddRole(new EntityStub('user', NULL, ['uid' => 999999]), $role_id);
   }
 
+  public function testDeletesTolerateMissingTargets(): void {
+    $this->core->userDelete(new EntityStub('user', NULL, ['uid' => 999999]));
+    $this->core->roleDelete('nonexistent-role');
+
+    $this->assertNull(User::load(999999));
+    $this->assertNull(Role::load('nonexistent-role'));
+    $this->assertSame([], \Drupal::messenger()->messagesByType('error'), 'No error was reported for the missing user.');
+  }
+
   public function testRoleCreateRejectsUnknownPermission(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid permission "definitely not a real permission"');

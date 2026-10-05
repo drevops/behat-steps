@@ -445,7 +445,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function roleDelete(string $role_name): void {
-    $this->drush('role:delete', [$role_name], []);
+    $this->drushDelete('role:delete', [$role_name], [], fn(): bool => $this->configExists('user.role.' . $role_name));
   }
 
   /**
@@ -479,12 +479,44 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function userDelete(EntityStubInterface $stub): void {
-    $arguments = [(string) $stub->getValue('name')];
+    $name = (string) $stub->getValue('name');
     $options = [
       'yes' => NULL,
       'delete-content' => NULL,
     ];
-    $this->drush('user-cancel', $arguments, $options);
+
+    $this->drushDelete('user-cancel', [$name], $options, fn(): bool => $this->drushResult('user:information', [$name])->exitCode === 0);
+  }
+
+  /**
+   * Runs a Drush command that deletes a target, tolerating a missing target.
+   *
+   * A Drush delete command exits non-zero when its target does not exist,
+   * while the capability contract treats deleting a missing target as a
+   * no-op. The existence check runs only after a failure, so a successful
+   * delete costs 1 Drush call.
+   *
+   * @param string $command
+   *   The Drush command that deletes the target.
+   * @param array<int, string> $arguments
+   *   Positional arguments to pass to Drush.
+   * @param array<string, string|bool|null> $options
+   *   Options to pass to Drush.
+   * @param \Closure(): bool $exists
+   *   Reports whether the target still exists.
+   *
+   * @throws \RuntimeException
+   *   When the command fails and the target still exists.
+   */
+  protected function drushDelete(string $command, array $arguments, array $options, \Closure $exists): void {
+    try {
+      $this->drush($command, $arguments, $options);
+    }
+    catch (\RuntimeException $exception) {
+      if ($exists()) {
+        throw $exception;
+      }
+    }
   }
 
   /**

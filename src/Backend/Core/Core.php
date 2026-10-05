@@ -646,6 +646,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   public function userDelete(EntityStubInterface $stub): void {
     $uid = (int) $this->resolveUid($stub);
 
+    if (!User::load($uid) instanceof User) {
+      return;
+    }
+
     // 'AccountCancellation' exists from Drupal 11.5, and 11.4 has only
     // 'user_cancel()'.
     if (class_exists(AccountCancellation::class)) {
