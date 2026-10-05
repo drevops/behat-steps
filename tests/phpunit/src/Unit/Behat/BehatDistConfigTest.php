@@ -69,14 +69,14 @@ class BehatDistConfigTest extends UnitTestCase {
 
     foreach (['default', 'extensions', BehatStepsExtension::class] as $key) {
       if (!is_array($settings) || !isset($settings[$key])) {
-        static::fail(sprintf('behat.dist.php has no "%s" key on the path to the extension settings.', $key));
+        self::fail(sprintf('behat.dist.php has no "%s" key on the path to the extension settings.', $key));
       }
 
       $settings = $settings[$key];
     }
 
     if (!is_array($settings)) {
-      static::fail('behat.dist.php does not configure ' . BehatStepsExtension::class . '.');
+      self::fail('behat.dist.php does not configure ' . BehatStepsExtension::class . '.');
     }
 
     return $settings;
@@ -89,7 +89,7 @@ class BehatDistConfigTest extends UnitTestCase {
     $config = require dirname(__DIR__, 5) . '/behat.dist.php';
 
     if (!$config instanceof Config) {
-      static::fail('behat.dist.php does not return a Behat configuration.');
+      self::fail('behat.dist.php does not return a Behat configuration.');
     }
 
     return $config;
@@ -106,7 +106,7 @@ class BehatDistConfigTest extends UnitTestCase {
     $node = $builder->getNode(TRUE);
 
     if (!$node instanceof ArrayNode) {
-      static::fail('The extension does not build an array configuration tree.');
+      self::fail('The extension does not build an array configuration tree.');
     }
 
     return $node;
