@@ -480,12 +480,16 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    */
   public function userDelete(EntityStubInterface $stub): void {
     $name = (string) $stub->getValue('name');
-    $options = [
-      'yes' => NULL,
-      'delete-content' => NULL,
-    ];
+    $uid = (string) $stub->getValue('uid');
 
-    $this->drushDelete('user-cancel', [$name], $options, fn(): bool => $this->drushResult('user:information', [$name])->exitCode === 0);
+    if ($name === '' && $uid === '') {
+      throw new \RuntimeException('Cannot delete a user from a stub without a "name" or "uid" value.');
+    }
+
+    $arguments = $name !== '' ? [$name] : [];
+    $lookup = $name !== '' ? [] : ['uid' => $uid];
+
+    $this->drushDelete('user-cancel', $arguments, ['yes' => NULL, 'delete-content' => NULL] + $lookup, fn(): bool => $this->drushResult('user:information', $arguments, $lookup)->exitCode === 0);
   }
 
   /**

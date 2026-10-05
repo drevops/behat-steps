@@ -245,6 +245,28 @@ class DrushBackendMethodsTest extends TestCase {
     yield 'userDelete' => ['userDelete', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel'];
   }
 
+  public function testUserDeleteLooksUpNamelessStubByUid(): void {
+    $backend = $this->createBackend();
+    $backend->drushFailures = ['user-cancel' => 1];
+    $backend->drushExitCode = 1;
+
+    $backend->userDelete(new EntityStub('user', NULL, ['uid' => 7]));
+
+    $this->assertSame(['user-cancel', 'user:information'], array_column($backend->invocations, 'command'));
+    $this->assertSame([[], []], array_column($backend->invocations, 'arguments'));
+    $this->assertSame(['yes' => NULL, 'delete-content' => NULL, 'uid' => '7'], $backend->invocations[0]['options']);
+    $this->assertSame(['uid' => '7'], $backend->invocations[1]['options']);
+  }
+
+  public function testUserDeleteRejectsStubWithoutIdentifier(): void {
+    $backend = $this->createBackend();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot delete a user from a stub without a "name" or "uid" value.');
+
+    $backend->userDelete(new EntityStub('user'));
+  }
+
   /**
    * Tests 'cacheClear()' with a drush-only bin skips the rebuild.
    */
