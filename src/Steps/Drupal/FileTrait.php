@@ -313,7 +313,7 @@ trait FileTrait {
     $path = ltrim($path, '/');
 
     if (!empty($this->getMinkParameter('files_path'))) {
-      $full_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
+      $full_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . '/' . $path;
       if (is_file($full_path)) {
         $path = $full_path;
       }

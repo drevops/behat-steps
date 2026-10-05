@@ -491,13 +491,13 @@ trait AccessibilityTrait {
   public function accessibilityGetReportDir(): string {
     $directory = $this->getOptionString('accessibility', 'report_dir');
 
-    if (str_starts_with($directory, DIRECTORY_SEPARATOR)) {
+    if (str_starts_with($directory, '/')) {
       return $directory;
     }
 
     $base = self::$accessibilityBaseDir ?? (getcwd() ?: '.');
 
-    return $base . DIRECTORY_SEPARATOR . $directory;
+    return $base . '/' . $directory;
   }
 
   /**
@@ -1195,14 +1195,14 @@ HTML;
       return;
     }
 
-    $dir = self::$accessibilityAggregateReportDir ?? (getcwd() ?: '.') . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
+    $dir = self::$accessibilityAggregateReportDir ?? (getcwd() ?: '.') . '/.logs/test_results/accessibility';
     if (!is_dir($dir)) {
       mkdir($dir, 0777, TRUE);
     }
 
     $time = time();
     $data = static::accessibilityAggregateData(self::$accessibilityAggregate, date('Y-m-d H:i', $time));
-    file_put_contents($dir . DIRECTORY_SEPARATOR . static::accessibilityAggregateFilename($time), static::accessibilityRenderAggregate($data));
+    file_put_contents($dir . '/' . static::accessibilityAggregateFilename($time), static::accessibilityRenderAggregate($data));
   }
 
   /**

@@ -169,7 +169,7 @@ function main(array $options = []): void {
   $updated = [];
 
   foreach ($targets as $file => $regions) {
-    $path = $base_path . DIRECTORY_SEPARATOR . $file;
+    $path = $base_path . '/' . $file;
 
     $contents = file_get_contents($path);
     if ($contents === FALSE) {
@@ -243,20 +243,20 @@ function file_declares_trait(string $file_path): bool {
  * @throws \ReflectionException
  */
 function collect_step_traits(array $class_names, array $exclude = [], string $base_path = __DIR__): array {
-  $traits_path = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
+  $traits_path = $base_path . '/' . STEPS_DIRECTORY;
   $traits_files = [];
 
   if (is_dir($traits_path)) {
     $contexts = scandir($traits_path) ?: [];
     foreach ($contexts as $context) {
-      $context_path = $traits_path . DIRECTORY_SEPARATOR . $context;
+      $context_path = $traits_path . '/' . $context;
       if (!is_dir($context_path) || $context === '.' || $context === '..') {
         continue;
       }
 
       $context_files = scandir($context_path) ?: [];
       foreach ($context_files as $context_file) {
-        $context_file_path = $context_path . DIRECTORY_SEPARATOR . $context_file;
+        $context_file_path = $context_path . '/' . $context_file;
         if (is_file($context_file_path) && file_declares_trait($context_file_path)) {
           $traits_files[] = basename($context_file, '.php');
         }
@@ -332,7 +332,7 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
  * @throws \ReflectionException
  */
 function collect_helper_traits(string $base_path = __DIR__): array {
-  $helpers_path = $base_path . DIRECTORY_SEPARATOR . HELPERS_DIRECTORY;
+  $helpers_path = $base_path . '/' . HELPERS_DIRECTORY;
   $collected = [];
 
   if (!is_dir($helpers_path)) {
@@ -340,14 +340,14 @@ function collect_helper_traits(string $base_path = __DIR__): array {
   }
 
   foreach (scandir($helpers_path) ?: [] as $context) {
-    $context_path = $helpers_path . DIRECTORY_SEPARATOR . $context;
+    $context_path = $helpers_path . '/' . $context;
 
     if ($context === '.' || $context === '..' || !is_dir($context_path)) {
       continue;
     }
 
     foreach (scandir($context_path) ?: [] as $file) {
-      $file_path = $context_path . DIRECTORY_SEPARATOR . $file;
+      $file_path = $context_path . '/' . $file;
 
       if (!is_file($file_path) || !file_declares_trait($file_path)) {
         continue;
@@ -1257,7 +1257,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     $context = $class_info['context'];
     // @phpstan-ignore-next-line
     $src_file = sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait);
-    $src_file_path = $base_path . DIRECTORY_SEPARATOR . $src_file;
+    $src_file_path = $base_path . '/' . $src_file;
 
     if (!file_exists($src_file_path)) {
       throw new \RuntimeException(sprintf('Source file %s does not exist', $src_file_path));
@@ -1269,7 +1269,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
       ? strtolower((string) $context) . '_'
       : '';
     $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
-    $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
+    $example_file_path = $base_path . '/' . $example_file;
 
     // @codeCoverageIgnoreStart
     if (!file_exists($example_file_path)) {
@@ -1448,8 +1448,8 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     $helpers = is_array($class_info['helpers']) ? $class_info['helpers'] : [];
 
     $src_file = (string) $class_info['source'];
-    if (!file_exists($base_path . DIRECTORY_SEPARATOR . $src_file)) {
-      throw new \RuntimeException(sprintf('Source file %s does not exist', $base_path . DIRECTORY_SEPARATOR . $src_file));
+    if (!file_exists($base_path . '/' . $src_file)) {
+      throw new \RuntimeException(sprintf('Source file %s does not exist', $base_path . '/' . $src_file));
     }
 
     $steps_anchor = $class_info['steps_anchor'] ?? NULL;
@@ -2075,8 +2075,8 @@ function extension_option_description(NodeInterface $node): string {
  *   Array of errors.
  */
 function validate_env_vars(string $base_path = __DIR__): array {
-  $source = $base_path . DIRECTORY_SEPARATOR . 'src';
-  $reference = $base_path . DIRECTORY_SEPARATOR . CONFIGURATION_FILE;
+  $source = $base_path . '/src';
+  $reference = $base_path . '/' . CONFIGURATION_FILE;
 
   if (!is_dir($source) || !is_file($reference)) {
     return [];
@@ -2235,9 +2235,9 @@ function validate_tags(array $info, string $base_path = __DIR__): array {
     }
   }
 
-  $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'behat' . DIRECTORY_SEPARATOR . 'features';
+  $features_dir = $base_path . '/tests/behat/features';
   if (is_dir($features_dir)) {
-    foreach (glob($features_dir . DIRECTORY_SEPARATOR . '*.feature') ?: [] as $file) {
+    foreach (glob($features_dir . '/*.feature') ?: [] as $file) {
       $contents = file_get_contents($file);
       // @codeCoverageIgnoreStart
       if ($contents === FALSE) {

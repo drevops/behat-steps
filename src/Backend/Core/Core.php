@@ -902,7 +902,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $paths = [];
 
     foreach (\Drupal::moduleHandler()->getModuleList() as $module) {
-      $paths[] = $this->drupalRoot . DIRECTORY_SEPARATOR . $module->getPath();
+      $paths[] = $this->drupalRoot . '/' . $module->getPath();
     }
 
     return $paths;

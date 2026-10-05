@@ -70,7 +70,7 @@ function lint_layers(array $options = []): void {
 
   foreach (LAYERS as $layer) {
     foreach ($layer['paths'] as $path) {
-      $full_path = $base_path . DIRECTORY_SEPARATOR . $path;
+      $full_path = $base_path . '/' . $path;
 
       if (!file_exists($full_path)) {
         echo sprintf('Error: %s does not exist.' . PHP_EOL, $full_path);

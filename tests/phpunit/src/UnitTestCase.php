@@ -62,7 +62,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    *   Fully qualified trait names, as data provider rows.
    */
   protected static function discoverTraits(): array {
-    $root = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src';
+    $root = dirname(__DIR__, 3) . '/src';
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
 
     $traits = [];
@@ -203,7 +203,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    *   The absolute path written.
    */
   protected function writeFixture(string $path, string $contents): string {
-    $full_path = static::$tmp . DIRECTORY_SEPARATOR . $path;
+    $full_path = static::$tmp . '/' . $path;
     $directory = dirname($full_path);
 
     if (!is_dir($directory)) {

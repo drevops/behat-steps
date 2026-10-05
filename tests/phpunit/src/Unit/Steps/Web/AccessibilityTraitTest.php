@@ -201,7 +201,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     chdir(static::locationsTmp());
 
     try {
-      $this->assertSame('/sentinel/base' . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility', $this->testObject->testGetReportDir());
+      $this->assertSame('/sentinel/base/.logs/test_results/accessibility', $this->testObject->testGetReportDir());
     }
     finally {
       if (is_string($original)) {
@@ -213,7 +213,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testGetReportDirFallsBackToCwdWhenUnset(): void {
     AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
 
-    $expected = (getcwd() ?: '.') . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
+    $expected = (getcwd() ?: '.') . '/.logs/test_results/accessibility';
 
     $this->assertSame($expected, $this->testObject->testGetReportDir());
   }
@@ -332,7 +332,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testWriteAggregateReportWritesTimestampedFile(): void {
-    $dir = static::locationsTmp() . DIRECTORY_SEPARATOR . 'aggregate-report';
+    $dir = static::locationsTmp() . '/aggregate-report';
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($dir);
 
@@ -346,7 +346,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testWriteAggregateReportDoesNothingWhenEmpty(): void {
-    $dir = static::locationsTmp() . DIRECTORY_SEPARATOR . 'aggregate-empty';
+    $dir = static::locationsTmp() . '/aggregate-empty';
     AccessibilityTraitTestImplementation::testSetAggregate([]);
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($dir);
 
@@ -356,7 +356,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregateRenderHookWritesReport(): void {
-    $dir = static::locationsTmp() . DIRECTORY_SEPARATOR . 'aggregate-hook';
+    $dir = static::locationsTmp() . '/aggregate-hook';
     AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($dir);
 

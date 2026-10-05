@@ -440,11 +440,11 @@ EOD,
 
     $base_path = static::$tmp;
 
-    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
-    $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
+    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
+    $features_dir = $base_path . '/tests/behat/features';
 
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Web', 0777, TRUE);
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
+    mkdir($steps_dir . '/Web', 0777, TRUE);
+    mkdir($steps_dir . '/Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
     // The files are created because render_info() checks they exist.
@@ -456,18 +456,18 @@ EOD,
       }
 
       if ($trait !== 'MissingTrait') {
-        file_put_contents(sprintf('%s%s%s%s%s.php', $steps_dir, DIRECTORY_SEPARATOR, $context, DIRECTORY_SEPARATOR, $trait), '<?php');
+        file_put_contents(sprintf('%s/%s/%s.php', $steps_dir, $context, $trait), '<?php');
       }
 
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
       $prefix = $context === 'Drupal' ? 'drupal_' : '';
       $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
-      $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
+      $example_file_path = $base_path . '/' . $example_file;
       file_put_contents($example_file_path, 'Feature: Test');
     }
 
     if (isset($info['MissingTrait'])) {
-      @unlink($steps_dir . DIRECTORY_SEPARATOR . 'Web' . DIRECTORY_SEPARATOR . 'MissingTrait.php');
+      @unlink($steps_dir . '/Web/MissingTrait.php');
     }
 
     $actual = render_info($info, $base_path);
@@ -946,11 +946,11 @@ EOD,
   public function testRenderInfoWithPathForLinks(array $info, string $path_for_links, string $expected): void {
     $base_path = static::$tmp;
 
-    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
-    $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
+    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
+    $features_dir = $base_path . '/tests/behat/features';
 
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Web', 0777, TRUE);
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
+    mkdir($steps_dir . '/Web', 0777, TRUE);
+    mkdir($steps_dir . '/Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
     // The files are created because render_info() checks they exist.
@@ -961,12 +961,12 @@ EOD,
         $info[$trait]['name_contextual'] = ($context !== 'Web' ? $context . '\\' : '') . $trait;
       }
 
-      file_put_contents(sprintf('%s%s%s%s%s.php', $steps_dir, DIRECTORY_SEPARATOR, $context, DIRECTORY_SEPARATOR, $trait), '<?php');
+      file_put_contents(sprintf('%s/%s/%s.php', $steps_dir, $context, $trait), '<?php');
 
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
       $prefix = $context === 'Drupal' ? 'drupal_' : '';
       $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
-      $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
+      $example_file_path = $base_path . '/' . $example_file;
       file_put_contents($example_file_path, 'Feature: Test');
     }
 
@@ -2219,7 +2219,7 @@ EOD,
    */
   protected function setupTestEnvironment(): array {
     $base_path = static::$tmp;
-    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
+    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
     mkdir($steps_dir, 0777, TRUE);
 
     return [
@@ -2242,14 +2242,14 @@ EOD,
    *   The path to the copied file.
    */
   protected function copyFixtureTrait(string $trait_name, string $steps_dir, string $context = 'Web'): string {
-    $fixture_file = $this->getFixturesDir() . DIRECTORY_SEPARATOR . $context . DIRECTORY_SEPARATOR . $trait_name . '.php';
-    $target_dir = $steps_dir . DIRECTORY_SEPARATOR . $context;
+    $fixture_file = $this->getFixturesDir() . '/' . $context . '/' . $trait_name . '.php';
+    $target_dir = $steps_dir . '/' . $context;
 
     if (!is_dir($target_dir)) {
       mkdir($target_dir, 0777, TRUE);
     }
 
-    $target_file = $target_dir . DIRECTORY_SEPARATOR . $trait_name . '.php';
+    $target_file = $target_dir . '/' . $trait_name . '.php';
 
     if (file_exists($fixture_file)) {
       copy($fixture_file, $target_file);
@@ -3026,10 +3026,10 @@ EOD,
 
   public function testValidateTagsFromFeatureFiles(): void {
     $base_path = static::$tmp;
-    $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
+    $features_dir = $base_path . '/tests/behat/features';
     mkdir($features_dir, 0777, TRUE);
-    file_put_contents($features_dir . DIRECTORY_SEPARATOR . 'clean.feature', "@api @accessibility:critical\nScenario: ok");
-    file_put_contents($features_dir . DIRECTORY_SEPARATOR . 'dirty.feature', "@javascript @accessibility-critical\nScenario: bad");
+    file_put_contents($features_dir . '/clean.feature', "@api @accessibility:critical\nScenario: ok");
+    file_put_contents($features_dir . '/dirty.feature', "@javascript @accessibility-critical\nScenario: bad");
 
     $actual = validate_tags([], $base_path);
 
@@ -3359,9 +3359,9 @@ EOD,
 
   public function testRenderHelpers(): void {
     $base_path = static::$tmp;
-    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Web', 0777, TRUE);
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
+    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
+    mkdir($steps_dir . '/Web', 0777, TRUE);
+    mkdir($steps_dir . '/Drupal', 0777, TRUE);
     file_put_contents($steps_dir . '/Web/SomeTrait.php', '<?php');
     file_put_contents($steps_dir . '/Drupal/OtherTrait.php', '<?php');
 

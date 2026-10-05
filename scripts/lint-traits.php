@@ -81,7 +81,7 @@ function traits_collect(string $base_path): array {
   $traits = [];
 
   foreach (['steps' => TRAITS_STEPS_DIRECTORY, 'helper' => TRAITS_HELPER_DIRECTORY] as $kind => $directory) {
-    $path = $base_path . DIRECTORY_SEPARATOR . $directory;
+    $path = $base_path . '/' . $directory;
 
     if (!is_dir($path)) {
       continue;

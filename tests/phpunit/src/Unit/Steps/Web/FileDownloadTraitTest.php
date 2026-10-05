@@ -177,7 +177,7 @@ class FileDownloadTraitTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDownloadTagPreparesDirectory')]
   public function testDownloadTagPreparesDirectory(array $scenario_tags, array $feature_tags, bool $expected): void {
-    $directory = self::$downloadDir . DIRECTORY_SEPARATOR . 'scenario';
+    $directory = self::$downloadDir . '/scenario';
     $context = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => $directory]]);
 
     $context->fileDownloadBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));

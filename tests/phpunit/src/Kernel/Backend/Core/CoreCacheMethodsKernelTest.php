@@ -74,7 +74,7 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
     $paths = $this->core->getExtensionPathList();
 
     $this->assertContains(
-      $this->root . DIRECTORY_SEPARATOR . 'core/modules/system',
+      $this->root . '/core/modules/system',
       $paths,
       'Enabled system module path should appear in the extension list.'
     );

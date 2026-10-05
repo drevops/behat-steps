@@ -478,15 +478,15 @@ EOL;
    */
   protected function behatCliCopyFixtures() {
     $fixture_path = 'tests/behat/fixtures';
-    $fixture_path_abs = '/app' . DIRECTORY_SEPARATOR . $fixture_path;
+    $fixture_path_abs = '/app/' . $fixture_path;
     if (is_dir($fixture_path_abs)) {
-      $dst = $this->workingDir . DIRECTORY_SEPARATOR . $fixture_path;
+      $dst = $this->workingDir . '/' . $fixture_path;
       mkdir($dst, 0777, TRUE);
       foreach (glob($fixture_path_abs . '/*') as $file) {
         // Subdirectories are skipped for speed.
         if (is_file($file)) {
           $filename = basename($file);
-          copy($file, $dst . DIRECTORY_SEPARATOR . $filename);
+          copy($file, $dst . '/' . $filename);
         }
       }
     }

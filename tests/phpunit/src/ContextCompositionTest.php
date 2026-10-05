@@ -310,7 +310,7 @@ class ContextCompositionTest extends UnitTestCase {
     $traits = (new \ReflectionClass($class))->getTraits();
 
     if ($directory !== NULL) {
-      $path = dirname(__DIR__, 3) . '/src/' . $directory . '/';
+      $path = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR;
       $traits = array_filter($traits, static fn(\ReflectionClass $trait): bool => str_starts_with((string) $trait->getFileName(), $path));
     }
 
