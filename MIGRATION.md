@@ -2110,25 +2110,27 @@ The capability interfaces disagreed about what a create returns and what a delet
 
 | Method | Before | After |
 | --- | --- | --- |
-| `UserCapabilityInterface::userCreate()` | `void` | Returns the stub |
-| `LanguageCapabilityInterface::languageCreate()` | Returned `FALSE` for a language that already exists | Returns the stub, left unsaved for a language that already exists |
-| `RoleCapabilityInterface::roleCreate()` | The role's machine name | A `user_role` stub carrying `id` and `label` |
-| `ContentCapabilityInterface::termDelete()` | `bool` | `void` |
-| `LanguageCapabilityInterface::languageDelete()` | Threw for a language that doesn't exist | Does nothing |
+| `UserCapabilityInterface::createUser()` | `void` | Returns the stub |
+| `LanguageCapabilityInterface::createLanguage()` | Returned `FALSE` for a language that already exists | Returns the stub, left unsaved for a language that already exists |
+| `RoleCapabilityInterface::createRole()` | The role's machine name | A `user_role` stub carrying `id` and `label` |
+| `ContentCapabilityInterface::deleteTerm()` | `bool` | `void` |
+| `LanguageCapabilityInterface::deleteLanguage()` | Threw for a language that doesn't exist | Does nothing |
 
-A project with its own backend updates those signatures, and every delete it implements does nothing for a missing target rather than throwing. A caller of `roleCreate()` reads the machine name from the stub:
+The table and the text below use the names [A create or delete method names the verb first](#a-create-or-delete-method-names-the-verb-first) settles on, and the code shows a call written before both changes.
+
+A project with its own backend updates those signatures, and every delete it implements does nothing for a missing target rather than throwing. A caller of `createRole()` reads the machine name from the stub:
 
 ```php
 // Before.
 $role = $backend->roleCreate(['access content']);
 
 // After.
-$role = $backend->roleCreate(['access content'])->getValue('id');
+$role = $backend->createRole(['access content'])->getValue('id');
 ```
 
-`Helper\Drupal\EntityLifecycleTrait::entityLifecycleLanguageCreate()` follows the backend: it returns the stub in both cases instead of `FALSE`, and only a stub the backend saved joins the teardown.
+`Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateLanguage()` follows the backend: it returns the stub in both cases instead of `FALSE`, and only a stub the backend saved joins the teardown.
 
-The shipped backends keep the delete contract throughout. The Drush backend's `roleDelete()` and `userDelete()` no longer fail for a role or user that's already gone, and the in-process `userDelete()` no longer reports "The user account ... does not exist." for one.
+The shipped backends keep the delete contract throughout. The Drush backend's `deleteRole()` and `deleteUser()` no longer fail for a role or user that's already gone, and the in-process `deleteUser()` no longer reports "The user account ... does not exist." for one.
 
 ## Every `LoadMultiple()` returns loaded entities
 
