@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Tests;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Asserts that every data provider follows the settled provider conventions.
@@ -122,45 +121,6 @@ class DataProviderConventionTest extends UnitTestCase {
 
   public static function dataProviderProviderReturnTypesMatchTheirBody(): array {
     return static::discoverTestClasses();
-  }
-
-  /**
-   * Return every test class under `tests/phpunit/src`, keyed by name.
-   *
-   * Abstract bases stay in, because they declare tests and providers too.
-   * Fixture directories hold no tests and are skipped by path.
-   *
-   * @return array<string, array{class-string}>
-   *   Fully qualified test class names, as data provider rows.
-   */
-  protected static function discoverTestClasses(): array {
-    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(__DIR__, \FilesystemIterator::SKIP_DOTS));
-
-    $classes = [];
-
-    foreach ($files as $file) {
-      if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
-        continue;
-      }
-
-      $relative = substr($file->getPathname(), strlen(__DIR__) + 1, -strlen('.php'));
-
-      if (in_array('Fixtures', explode(DIRECTORY_SEPARATOR, $relative), TRUE)) {
-        continue;
-      }
-
-      $class = __NAMESPACE__ . '\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
-
-      if (!class_exists($class) || !is_subclass_of($class, TestCase::class)) {
-        continue;
-      }
-
-      $classes[$class] = [$class];
-    }
-
-    ksort($classes);
-
-    return $classes;
   }
 
   /**
