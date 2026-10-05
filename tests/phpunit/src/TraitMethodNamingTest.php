@@ -568,6 +568,45 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that a hook is named for the event it runs on.
+   *
+   * A hook reads `<prefix><Event>`. 2 methods cannot share a name, so a trait
+   * registers 1 hook per event and calls a helper for each further job.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderHooksAreNamedForTheirEvent')]
+  public function testHooksAreNamedForTheirEvent(string $trait, string $file): void {
+    $prefix = self::traitPrefix((new \ReflectionClass($trait))->getShortName());
+
+    $violations = [];
+    foreach (self::traitOwnMethods($trait, $file) as $method) {
+      foreach ($method->getAttributes() as $attribute) {
+        $name = $attribute->getName();
+
+        if (!str_contains($name, '\\Hook\\')) {
+          continue;
+        }
+
+        $expected = $prefix . preg_replace('/^.*\\\\/', '', $name);
+
+        if ($method->getName() !== $expected) {
+          $violations[] = sprintf('%s() for %s()', $method->getName(), $expected);
+        }
+      }
+    }
+
+    $this->assertSame([], $violations, 'Name a hook "<prefix><Event>" for the event it runs on, and merge 2 hooks on 1 event into 1 that calls a helper for each job: "authAfterScenario", not "authCleanUsers" and "authCleanRoles".');
+  }
+
+  public static function dataProviderHooksAreNamedForTheirEvent(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Pair every trait under `src/` with the file that declares it.
    *
    * @return array<string, array{string, string}>

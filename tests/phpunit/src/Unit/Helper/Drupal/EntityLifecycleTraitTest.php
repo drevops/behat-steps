@@ -366,7 +366,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_registry = new UserRegistry();
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($backend, $user_registry)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($backend, $user_registry)->authAfterScenario($this->createAfterScenarioScope());
 
     $this->assertFalse($user_registry->hasUsers());
   }
@@ -375,7 +375,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_registry = new UserRegistry();
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(BackendInterface::class), $user_registry)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(BackendInterface::class), $user_registry)->authAfterScenario($this->createAfterScenarioScope());
 
     $this->assertTrue($user_registry->hasUsers());
   }
@@ -385,7 +385,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
     $authenticator->expects($this->once())->method('fastLogout');
 
-    $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authAfterScenario($this->createAfterScenarioScope());
   }
 
   public function testKnownUserIsLoggedOutWithoutFastLogout(): void {
@@ -395,14 +395,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_registry = new UserRegistry();
     $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($this->createMock(BackendInterface::class), $user_registry, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(BackendInterface::class), $user_registry, $authenticator)->authAfterScenario($this->createAfterScenarioScope());
   }
 
   public function testAnAnonymousSessionIsLeftAloneWhenTheManagerHasNoFastLogout(): void {
     $authenticator = $this->createMock(AuthenticatorInterface::class);
     $authenticator->expects($this->never())->method('logout');
 
-    $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
+    $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authAfterScenario($this->createAfterScenarioScope());
   }
 
   public function testCreatedRolesAreDeleted(): void {
@@ -412,7 +412,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setRoles(['editor', 'reviewer']);
 
-    $context->authCleanRoles($this->createAfterScenarioScope());
+    $context->authAfterScenario($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->getRoles());
   }
@@ -421,7 +421,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(BackendInterface::class));
     $context->setRoles(['editor']);
 
-    $context->authCleanRoles($this->createAfterScenarioScope());
+    $context->authAfterScenario($this->createAfterScenarioScope());
 
     $this->assertSame(['editor'], $context->getRoles());
   }
@@ -430,7 +430,72 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend = $this->createBackend([RoleCapabilityInterface::class]);
     $backend->expects($this->never())->method('roleDelete');
 
-    $this->createContext($backend)->authCleanRoles($this->createAfterScenarioScope());
+    $this->createContext($backend)->authAfterScenario($this->createAfterScenarioScope());
+  }
+
+  public function testUsersAreDeletedBeforeRoles(): void {
+    $deleted = [];
+
+    $backend = $this->createBackend([UserCapabilityInterface::class, RoleCapabilityInterface::class]);
+    $backend->method('userDelete')->willReturnCallback(static function (EntityStub $stub) use (&$deleted): void {
+      $deleted[] = 'user';
+    });
+    $backend->method('roleDelete')->willReturnCallback(static function (string $role_name) use (&$deleted): void {
+      $deleted[] = 'role';
+    });
+
+    $user_registry = new UserRegistry();
+    $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
+
+    $context = $this->createContext($backend, $user_registry);
+    $context->setRoles(['editor']);
+
+    $context->authAfterScenario($this->createAfterScenarioScope());
+
+    $this->assertSame(['user', 'role'], $deleted);
+  }
+
+  public function testRolesAreDeletedWhenUserCleanupFails(): void {
+    $backend = $this->createBackend([UserCapabilityInterface::class, RoleCapabilityInterface::class]);
+    $backend->method('userDelete')->willThrowException(new \RuntimeException('The user could not be deleted.'));
+    $backend->expects($this->once())->method('roleDelete')->with('editor');
+
+    $user_registry = new UserRegistry();
+    $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
+
+    $context = $this->createContext($backend, $user_registry);
+    $context->setRoles(['editor']);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The user could not be deleted.');
+
+    $context->authAfterScenario($this->createAfterScenarioScope());
+  }
+
+  public function testBothCleanupFailuresAreReported(): void {
+    $users_failure = new \RuntimeException('The user could not be deleted.');
+
+    $backend = $this->createBackend([UserCapabilityInterface::class, RoleCapabilityInterface::class]);
+    $backend->method('userDelete')->willThrowException($users_failure);
+    $backend->method('roleDelete')->willThrowException(new \RuntimeException('The role could not be deleted.'));
+
+    $user_registry = new UserRegistry();
+    $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
+
+    $context = $this->createContext($backend, $user_registry);
+    $context->setRoles(['editor']);
+
+    try {
+      $context->authAfterScenario($this->createAfterScenarioScope());
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame("Removing the created users failed: The user could not be deleted.\nRemoving the created roles failed: The role could not be deleted.", $exception->getMessage());
+      $this->assertSame($users_failure, $exception->getPrevious());
+
+      return;
+    }
+
+    $this->fail('A failure in both the user and the role cleanup did not fail the teardown.');
   }
 
   public function testStaticCachesAreClearedOnBackendTheScenarioReached(): void {
@@ -487,26 +552,6 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     yield 'on disables cleanup' => [' On ', FALSE];
   }
 
-  public function testTheOptOutAlsoSkipsUserCleanup(): void {
-    putenv('BEHAT_STEPS_DISABLE_CLEANUP=1');
-
-    $authenticator = $this->createMock(AuthenticatorInterface::class);
-    $authenticator->expects($this->never())->method('logout');
-
-    $this->createContext($this->createMock(BackendInterface::class), NULL, $authenticator)->authCleanUsers($this->createAfterScenarioScope());
-  }
-
-  public function testTheOptOutAlsoSkipsRoleCleanup(): void {
-    putenv('BEHAT_STEPS_DISABLE_CLEANUP=1');
-
-    $context = $this->createContext($this->createMock(BackendInterface::class));
-    $context->setRoles(['editor']);
-
-    $context->authCleanRoles($this->createAfterScenarioScope());
-
-    $this->assertSame(['editor'], $context->getRoles());
-  }
-
   /**
    * Tests that the skip tag disables entity cleanup from either level.
    *
@@ -545,9 +590,23 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->assertSame([], $context->getCreatedStubs());
   }
 
-  public function testTheSkipTagDisablesUserCleanup(): void {
-    $backend = $this->createBackend([UserCapabilityInterface::class]);
+  /**
+   * Tests that the cleanup opt-out and the skip tag both keep the auth state.
+   *
+   * @param string $opt_out
+   *   The value of the cleanup opt-out variable.
+   * @param list<string> $scenario_tags
+   *   Tags on the scenario.
+   * @param list<string> $feature_tags
+   *   Tags on the feature.
+   */
+  #[DataProvider('dataProviderAuthCleanupIsSkipped')]
+  public function testAuthCleanupIsSkipped(string $opt_out, array $scenario_tags, array $feature_tags): void {
+    putenv('BEHAT_STEPS_DISABLE_CLEANUP=' . $opt_out);
+
+    $backend = $this->createBackend([UserCapabilityInterface::class, RoleCapabilityInterface::class]);
     $backend->expects($this->never())->method('userDelete');
+    $backend->expects($this->never())->method('roleDelete');
 
     // The normal path calls 'fastLogout()' even for a scenario that created
     // no users, so the 'never()' expectation proves the early return ran.
@@ -558,21 +617,19 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_registry = new UserRegistry();
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
-    $this->createContext($backend, $user_registry, $authenticator)->authCleanUsers($this->createAfterScenarioScope(['behat-steps-skip:AuthTrait']));
-
-    $this->assertTrue($user_registry->hasUsers());
-  }
-
-  public function testTheSkipTagDisablesRoleCleanup(): void {
-    $backend = $this->createBackend([RoleCapabilityInterface::class]);
-    $backend->expects($this->never())->method('roleDelete');
-
-    $context = $this->createContext($backend);
+    $context = $this->createContext($backend, $user_registry, $authenticator);
     $context->setRoles(['editor']);
 
-    $context->authCleanRoles($this->createAfterScenarioScope(['behat-steps-skip:AuthTrait']));
+    $context->authAfterScenario($this->createAfterScenarioScope($scenario_tags, $feature_tags));
 
+    $this->assertTrue($user_registry->hasUsers());
     $this->assertSame(['editor'], $context->getRoles());
+  }
+
+  public static function dataProviderAuthCleanupIsSkipped(): \Iterator {
+    yield 'the cleanup opt-out' => ['1', [], []];
+    yield 'the skip tag on the scenario' => ['', ['behat-steps-skip:AuthTrait'], []];
+    yield 'the skip tag on the feature' => ['', [], ['behat-steps-skip:AuthTrait']];
   }
 
   public function testTheEntitySkipTagLeavesRoleCleanupRunning(): void {
@@ -582,7 +639,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
     $context->setRoles(['editor']);
 
-    $context->authCleanRoles($this->createAfterScenarioScope(['behat-steps-skip:EntityLifecycleTrait']));
+    $context->authAfterScenario($this->createAfterScenarioScope(['behat-steps-skip:EntityLifecycleTrait']));
 
     $this->assertSame([], $context->getRoles());
   }

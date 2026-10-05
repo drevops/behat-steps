@@ -75,7 +75,7 @@ class SkipTagListenerTest extends TestCase {
     yield 'a hook method on the scenario' => [[], ['behat-steps-skip:emailAfterScenario'], 'behat-steps-skip:emailAfterScenario'];
     yield 'a hook method on the feature' => [['behat-steps-skip:entityLifecycleAfterScenario'], [], 'behat-steps-skip:entityLifecycleAfterScenario'];
     yield 'a hook method beside a valid tag' => [[], ['behat-steps-skip:EmailTrait', 'behat-steps-skip:watchdogAfterStep'], 'behat-steps-skip:watchdogAfterStep'];
-    yield 'a hook method written with its leading "@"' => [[], ['@behat-steps-skip:authCleanUsers'], 'behat-steps-skip:authCleanUsers'];
+    yield 'a hook method written with its leading "@"' => [[], ['@behat-steps-skip:authAfterScenario'], 'behat-steps-skip:authAfterScenario'];
     yield 'a trait without its suffix' => [[], ['behat-steps-skip:Email'], 'behat-steps-skip:Email'];
     yield 'a fully qualified trait' => [[], ['behat-steps-skip:Steps\Drupal\EmailTrait'], 'behat-steps-skip:Steps\Drupal\EmailTrait'];
     yield 'a negated trait' => [[], ['behat-steps-skip:!JavascriptTrait'], 'behat-steps-skip:!JavascriptTrait'];

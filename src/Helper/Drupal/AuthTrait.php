@@ -52,18 +52,46 @@ trait AuthTrait {
   protected array $roles = [];
 
   /**
-   * Removes any created users.
+   * Removes the users the scenario created, then its roles.
+   *
+   * The role cleanup runs even when removing the users throws, and that
+   * failure is rethrown afterwards.
    *
    * 'BEHAT_STEPS_DISABLE_CLEANUP' leaves the failing scenario's state intact,
    * session included, so the early-return guard skips the logout as well.
    * Later scenarios in the same run inherit that login.
+   *
+   * @throws \RuntimeException
+   *   When removing the users and removing the roles both fail. The message
+   *   names both failures, and the user failure is the previous exception.
    */
   #[AfterScenario]
-  public function authCleanUsers(AfterScenarioScope $scope): void {
+  public function authAfterScenario(AfterScenarioScope $scope): void {
     if (!$this->shouldCleanup() || $this->skipTag(__TRAIT__, $scope)) {
       return;
     }
 
+    try {
+      $this->authCleanUsers();
+    }
+    catch (\Throwable $exception) {
+      try {
+        $this->authCleanRoles();
+      }
+      catch (\Throwable $roles_exception) {
+        throw new \RuntimeException(sprintf("Removing the created users failed: %s\nRemoving the created roles failed: %s", $exception->getMessage(), $roles_exception->getMessage()), 0, $exception);
+      }
+
+      throw $exception;
+    }
+
+    $this->authCleanRoles();
+  }
+
+  /**
+   * Removes any created users.
+   */
+  protected function authCleanUsers(): void {
     $user_registry = $this->authGetUserRegistry();
 
     // Resolving a backend bootstraps it, so a scenario that created no users
@@ -96,12 +124,7 @@ trait AuthTrait {
   /**
    * Removes any created roles.
    */
-  #[AfterScenario]
-  public function authCleanRoles(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag(__TRAIT__, $scope)) {
-      return;
-    }
-
+  protected function authCleanRoles(): void {
     if ($this->roles === []) {
       return;
     }

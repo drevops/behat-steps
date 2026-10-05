@@ -31,20 +31,14 @@ class AccessibilityTraitTest extends UnitTestCase {
     parent::setUp();
 
     $this->testObject = new AccessibilityTraitTestImplementation();
-    AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
-    AccessibilityTraitTestImplementation::testSetCachedJs(NULL);
-    AccessibilityTraitRetryTestImplementation::testSetCachedJs(NULL);
-    AccessibilityTraitTestImplementation::accessibilityAggregateReset($this->createBeforeSuiteScope());
+    static::resetStaticState();
   }
 
   /**
    * {@inheritdoc}
    */
   protected function tearDown(): void {
-    AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
-    AccessibilityTraitTestImplementation::testSetCachedJs(NULL);
-    AccessibilityTraitRetryTestImplementation::testSetCachedJs(NULL);
-    AccessibilityTraitTestImplementation::accessibilityAggregateReset($this->createBeforeSuiteScope());
+    static::resetStaticState();
 
     parent::tearDown();
   }
@@ -224,20 +218,30 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertSame($expected, $this->testObject->testGetReportDir());
   }
 
-  public function testCaptureBaseDirSetsWhenUnset(): void {
-    AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
+  /**
+   * Tests that the suite hook captures the base dir once and clears the aggregate.
+   *
+   * @param string|null $base_dir
+   *   The base dir captured before the hook runs, NULL when none was.
+   */
+  #[DataProvider('dataProviderBeforeSuiteCapturesBaseDirAndClearsAggregate')]
+  public function testBeforeSuiteCapturesBaseDirAndClearsAggregate(?string $base_dir): void {
+    AccessibilityTraitTestImplementation::testSetBaseDir($base_dir);
+    AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
+    AccessibilityTraitTestImplementation::testSetAggregateReportDir('/sentinel');
 
-    AccessibilityTraitTestImplementation::accessibilityCaptureBaseDir($this->createBeforeSuiteScope());
+    AccessibilityTraitTestImplementation::accessibilityBeforeSuite($this->createBeforeSuiteScope());
 
-    $this->assertSame(getcwd(), AccessibilityTraitTestImplementation::testGetBaseDir());
+    $this->assertSame($base_dir ?? getcwd(), AccessibilityTraitTestImplementation::testGetBaseDir());
+    $this->assertSame([], AccessibilityTraitTestImplementation::testGetAggregate());
+    $this->assertNull(AccessibilityTraitTestImplementation::testGetAggregateReportDir());
   }
 
-  public function testCaptureBaseDirDoesNotOverwrite(): void {
-    AccessibilityTraitTestImplementation::testSetBaseDir('/sentinel/base');
-
-    AccessibilityTraitTestImplementation::accessibilityCaptureBaseDir($this->createBeforeSuiteScope());
-
-    $this->assertSame('/sentinel/base', AccessibilityTraitTestImplementation::testGetBaseDir());
+  public static function dataProviderBeforeSuiteCapturesBaseDirAndClearsAggregate(): array {
+    return [
+      'an unset base dir is captured from the working directory' => [NULL],
+      'a captured base dir is kept' => ['/sentinel/base'],
+    ];
   }
 
   #[DataProvider('dataProviderAggregateHtmlContains')]
@@ -451,16 +455,6 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertSame('img.logo', $data['rules'][0]['nodes'][0]['target']);
   }
 
-  public function testAggregateResetClearsState(): void {
-    AccessibilityTraitTestImplementation::testSetAggregate(static::createSampleAggregate());
-    AccessibilityTraitTestImplementation::testSetAggregateReportDir('/sentinel');
-
-    AccessibilityTraitTestImplementation::accessibilityAggregateReset($this->createBeforeSuiteScope());
-
-    $this->assertSame([], AccessibilityTraitTestImplementation::testGetAggregate());
-    $this->assertNull(AccessibilityTraitTestImplementation::testGetAggregateReportDir());
-  }
-
   public function testAggregateCaptureFormatsUrlsAndRecordsEntry(): void {
     $this->testObject->setMinkParameter('base_url', 'http://nginx:8080');
 
@@ -545,6 +539,17 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->assertCount(5, $doc->xpath('//testcase') ?: []);
     $this->assertSame('5', (string) $doc['tests']);
     $this->assertSame('2', (string) $doc['failures']);
+  }
+
+  /**
+   * Clears the static state the trait keeps for the whole process.
+   */
+  protected static function resetStaticState(): void {
+    AccessibilityTraitTestImplementation::testSetBaseDir(NULL);
+    AccessibilityTraitTestImplementation::testSetCachedJs(NULL);
+    AccessibilityTraitTestImplementation::testSetAggregate([]);
+    AccessibilityTraitTestImplementation::testSetAggregateReportDir(NULL);
+    AccessibilityTraitRetryTestImplementation::testSetCachedJs(NULL);
   }
 
   /**
