@@ -25,7 +25,7 @@ class CapabilityMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderCreateOpensName')]
   public function testCreateOpensName(string $interface): void {
     $violations = [];
-    foreach ((new \ReflectionClass($interface))->getMethods() as $method) {
+    foreach (static::reflect($interface)->getMethods() as $method) {
       $name = $method->getName();
       preg_match_all('/[A-Z][a-z0-9]*/', ucfirst($name), $words);
 
@@ -54,7 +54,7 @@ class CapabilityMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderCreateHasDelete')]
   public function testCreateHasDelete(string $interface): void {
-    $reflection = new \ReflectionClass($interface);
+    $reflection = static::reflect($interface);
 
     $violations = [];
     foreach ($reflection->getMethods() as $method) {

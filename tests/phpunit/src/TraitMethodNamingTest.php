@@ -628,13 +628,13 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderLifecycleVerbsFollowPrefix')]
   public function testLifecycleVerbsFollowPrefix(string $trait, string $file): void {
-    $prefix = self::traitPrefix((new \ReflectionClass($trait))->getShortName());
+    $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
-    foreach (self::traitOwnMethods($trait, $file) as $method) {
-      $words = self::wordsAfterPrefix($method->getName(), $prefix);
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
+      $words = static::splitWordsAfterPrefix($method->getName(), $prefix);
 
-      if (self::isHook($method) || in_array($words[0] ?? '', [...static::LIFECYCLE_VERBS, 'Visit'], TRUE) || array_intersect($words, static::LIFECYCLE_VERBS) === []) {
+      if (static::isHook($method) || in_array($words[0] ?? '', [...static::LIFECYCLE_VERBS, 'Visit'], TRUE) || array_intersect($words, static::LIFECYCLE_VERBS) === []) {
         continue;
       }
 
@@ -662,11 +662,11 @@ class TraitMethodNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderBatchMethodsCarryMultiple')]
   public function testBatchMethodsCarryMultiple(string $trait, string $file): void {
-    $prefix = self::traitPrefix((new \ReflectionClass($trait))->getShortName());
+    $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
-    foreach (self::traitOwnMethods($trait, $file) as $method) {
-      $words = self::wordsAfterPrefix($method->getName(), $prefix);
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
+      $words = static::splitWordsAfterPrefix($method->getName(), $prefix);
       $verb = $words[0] ?? '';
 
       if (!in_array($verb, static::LIFECYCLE_VERBS, TRUE)) {
@@ -674,7 +674,7 @@ class TraitMethodNamingTest extends UnitTestCase {
       }
 
       $type = $method->getReturnType();
-      $is_batch = $verb === 'Load' ? ($type instanceof \ReflectionNamedType && $type->getName() === 'array') : self::stepOpensWith($method, 'the following ');
+      $is_batch = $verb === 'Load' ? ($type instanceof \ReflectionNamedType && $type->getName() === 'array') : static::hasStepOpeningWith($method, 'the following ');
 
       $carries_single = in_array('Single', $words, TRUE);
       $lacks_multiple = $is_batch && !in_array('Multiple', $words, TRUE);
@@ -848,7 +848,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Check whether the text of a method's `Given` step opens with a phrase.
    */
-  protected static function stepOpensWith(\ReflectionMethod $method, string $phrase): bool {
+  protected static function hasStepOpeningWith(\ReflectionMethod $method, string $phrase): bool {
     foreach ($method->getAttributes(Given::class) as $attribute) {
       if (str_starts_with((string) $attribute->newInstance()->getPattern(), $phrase)) {
         return TRUE;
@@ -864,8 +864,8 @@ class TraitMethodNamingTest extends UnitTestCase {
    * @return array<int, string>
    *   The words, or an empty array when the name lacks the prefix.
    */
-  protected static function wordsAfterPrefix(string $method, string $prefix): array {
-    if (!self::hasPrefix($method, $prefix)) {
+  protected static function splitWordsAfterPrefix(string $method, string $prefix): array {
+    if (!static::hasPrefix($method, $prefix)) {
       return [];
     }
 
