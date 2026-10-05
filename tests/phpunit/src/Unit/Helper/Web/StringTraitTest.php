@@ -132,7 +132,7 @@ class StringTraitTest extends UnitTestCase {
       'decimal' => ['3.5', NULL, 'The count must be an integer, but "3.5" was given.'],
       'integral decimal' => ['3.0', NULL, 'The count must be an integer, but "3.0" was given.'],
       'exponent' => ['1e3', NULL, 'The count must be an integer, but "1e3" was given.'],
-      'hexadecimal' => ['0x1A', NULL, 'The count must be an integer, but "0x1A" was given.'],
+      'binary prefix' => ['0b101', NULL, 'The count must be an integer, but "0b101" was given.'],
       'leading zero' => ['007', NULL, 'The count must be an integer, but "007" was given.'],
       'thousands separator' => ['1,000', NULL, 'The count must be an integer, but "1,000" was given.'],
       'trailing text' => ['3abc', NULL, 'The count must be an integer, but "3abc" was given.'],
@@ -177,7 +177,7 @@ class StringTraitTest extends UnitTestCase {
     return [
       'word' => ['abc', NULL, 'The duration must be a number, but "abc" was given.'],
       'empty string' => ['', NULL, 'The duration must be a number, but "" was given.'],
-      'hexadecimal' => ['0x1A', NULL, 'The duration must be a number, but "0x1A" was given.'],
+      'binary prefix' => ['0b101', NULL, 'The duration must be a number, but "0b101" was given.'],
       'thousands separator' => ['1,000.5', NULL, 'The duration must be a number, but "1,000.5" was given.'],
       'trailing text' => ['1.5s', NULL, 'The duration must be a number, but "1.5s" was given.'],
       'infinity' => ['INF', NULL, 'The duration must be a number, but "INF" was given.'],
