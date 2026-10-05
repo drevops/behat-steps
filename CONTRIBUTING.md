@@ -274,6 +274,18 @@ Each of these has 1 answer. Write new code this way, and where a tool holds the 
 - **Calls into a trait**: an instance method is called through `$this->`. A static method a trait declares is called through `static::`, because `self::` binds at compile time to the class the trait was flattened into: a shipped context composes the trait and a project subclasses that context, so `self::` would reach past the project's override. `DateTrait::dateGetNow()` is the documented example.
 - **Data providers**: a provider is named `dataProvider` followed by its test's name without the `test` prefix, and it's declared after that test, so each provider serves exactly 1 test and renaming a test renames its provider. `tests/phpunit/src/DataProviderConventionTest.php` enforces both, along with the return types above.
 
+## Test suite conventions
+
+The PHPUnit suite under `tests/phpunit/src/` holds each of these in 1 form. [tests/phpunit/src/TestConventionTest.php](tests/phpunit/src/TestConventionTest.php) enforces all 7.
+
+- **Base class**: a unit test extends `UnitTestCase`, directly or through a base that does, and a kernel test extends Drupal's `KernelTestBase`. `UnitTestCase` gives each test a workspace that `tearDown()` removes, along with the hook scope builders and the helpers below, so call `parent::setUp()` and `parent::tearDown()` when you override them.
+- **Fixtures**: a unit test writes a fixture through `writeFixture()`, which creates the parent directories inside that workspace, and reads the workspace path from `static::$tmp`. Nothing calls `file_put_contents()`, `touch()` or `copy()` itself, so no fixture outlives its test or lands in the repository. An empty directory is the one thing `writeFixture()` can't make, and `mkdir()` stays for it.
+- **Reflection**: a class held in a variable, whether a name a test discovered or an object, is reflected through `static::reflect()`, which narrows a string to a class string. A `::class` constant goes to `new \ReflectionClass()`, which keeps the class type PHPStan reads.
+- **Static members**: a test reaches a static member through `static::`, so a subclass that redeclares it is honored, the same way a trait does. `self::` stays where late static binding has nothing to resolve: in a constant expression such as a property default or a constant value, where PHP rejects `static::`, and on a final class, a final member or a private member, where Rector's `ConvertStaticToSelfRector` requires it. `self::fail()` is the common case, because PHPUnit declares its assertions final.
+- **Helper names**: a test helper names what it does with a verb, like a published helper: `createUserStub()`, `collectRegisteredSteps()`, `readSignificantTokens()`. A yes-or-no question opens with `is` or `has`, as in `hasCallToAny()`. `TestConventionTest::HELPER_VERBS` lists the verbs in use, so a helper built on a new verb adds it there in the same change.
+- **Test doubles**: a double reaches into the code under test through 2 prefixes that production code never declares, so a test-only method can't override a production one by accident. `call<Method>()` runs a protected method and is named after it without its trait prefix, as `callSlug()` runs `stringSlug()`. `test<Accessor>()` reads or writes protected state, as `testGetExitCode()` and `testSetRoles()` do. Every other public method on a double overrides or implements a production method and keeps its name, as `httpDetachedClient()` does.
+- **Test double names**: a context composing the trait under test is named `<Trait>TestImplementation`, with any qualifier for a variant before the suffix, as in `AccessibilityTraitRetryTestImplementation`. Any other double is `<Qualifier><Role>`, the qualifier saying what sets it apart: `RecordingDrushBackend`, `ParserExposingDrushBackend`, `InjectedPermissionsCore`. `Test` and `Testable` don't say what sets a double apart, so neither qualifies a name.
+
 ## Layers
 
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Backend`.
@@ -530,6 +542,8 @@ ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
 ```
 
 Every step the library registers needs at least 1 scenario that runs it. Behat only resolves a step definition when a scenario uses it, so a pattern no scenario reaches can ship unusable without the suite noticing. [tests/phpunit/src/StepScenarioCoverageTest.php](tests/phpunit/src/StepScenarioCoverageTest.php) enforces this in the unit suite: it matches every registered pattern against the steps the feature files run and fails on any step nothing reaches. Steps a `@test-trait` scenario hands to its nested run count, since they do run. Steps in a scenario the suite filters out, such as one tagged `@test-skipped`, don't.
+
+The nested runs find the repository through `BehatCliTrait::behatCliGetRootPath()`, which derives the root from the trait's own location, and [rector.php](rector.php) derives its paths from `__DIR__` the same way. Neither writes `/app`, so both follow the checkout wherever it lives. The service hosts in the configuration, such as `nginx` and `chrome`, stay as they are: they name the Docker services the suite runs against, not paths.
 
 ### Static fixtures
 
