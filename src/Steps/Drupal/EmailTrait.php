@@ -613,7 +613,6 @@ trait EmailTrait {
       throw new \RuntimeException('No body found in email.');
     }
     // @codeCoverageIgnoreEnd
-
     $links = static::emailExtractLinks($body);
 
     if ($links === []) {
