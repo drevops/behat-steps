@@ -49,7 +49,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 The project is 3 layers, and the boundary between them is the architecture. Read them in this order:
 
 - `src/Backend/` - the backend layer. `BackendInterface` plus the capability interfaces in `Backend/Capability/`, the 3 backends, and the `Backend/Core/` field-handling bridge. It references nothing from Behat or Mink.
-- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/` for the 3 context classes and the lifecycle trait they compose, `Manager/` for backend, authentication, user and mail delegation, `Hook/` for the entity-create hooks.
+- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/` for the 3 context classes and the lifecycle trait they compose, `Registry/` for the backend, user and scenario tag registries, `Auth/` for the authenticators, `Hook/` for the entity-create hooks.
 - `src/Steps/Web/` and `src/Steps/Drupal/` - the vocabulary. Each trait's `@phpstan-require-extends` annotation says what it needs from its host.
 - `src/Helper/` - the step-free traits a step trait and a context both compose, split into `Web/` and `Drupal/`.
 - `src/Exception/AssertionException.php` - what a session-less trait throws.

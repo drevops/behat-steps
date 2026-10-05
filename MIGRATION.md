@@ -1416,8 +1416,8 @@ The same rule now covers the backend layer and the Behat services under `src/Beh
 | --- | --- | --- |
 | `Backend\Core\Core` (an unknown entity type, bundle, vocabulary, user, language, severity or handler class) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
 | `Backend\Core\Field\*Handler` (a malformed field value, an unreadable file, a missing referenced entity) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
-| `Behat\Manager\BackendRegistry::getBackend()` and `setScenarioBackends()` | `\InvalidArgumentException` | `\RuntimeException` |
-| `Behat\Manager\UserRegistry::getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Behat\Registry\BackendRegistry::getBackend()` and `setScenarioBackends()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Behat\Registry\UserRegistry::getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
 | `Behat\Selector\RegionSelector::translateToXPath()` | `\InvalidArgumentException` | `\RuntimeException` |
 | `Backend\Exception\CreationAliasResolutionException` | extends `\InvalidArgumentException` | extends `Backend\Exception\Exception` |
 
@@ -1629,9 +1629,9 @@ Logging in and out is spelled as 1 word in every name, as `authLogin()`, `FastLo
 
 | Where | Old | New |
 | --- | --- | --- |
-| `Behat\Manager\AuthenticatorInterface` | `logIn()` | `login()` |
-| `Behat\Manager\AuthenticatorInterface` | `logOut()` | `logout()` |
-| `Behat\Manager\AuthenticatorInterface` | `loggedIn()` | `isLoggedIn()` |
+| `Behat\Auth\AuthenticatorInterface` | `logIn()` | `login()` |
+| `Behat\Auth\AuthenticatorInterface` | `logOut()` | `logout()` |
+| `Behat\Auth\AuthenticatorInterface` | `loggedIn()` | `isLoggedIn()` |
 | `Drupal\UserTrait` | `userCreateAndLogIn()` | `userCreateAndLogin()` |
 | `Drupal\UserTrait` | `userLogInAs()` | `userLoginAs()` |
 | `Drupal\UserTrait` | `userLogInWithPermissions()` | `userLoginWithPermissions()` |
@@ -1827,10 +1827,10 @@ A helper that takes a bundle names the parameter after the entity type, as the s
 
 | Old | Role | New |
 | --- | --- | --- |
-| `Behat\Manager\DriverManager` | registers backends, resolves one by capability, tracks the scenario's order | `Behat\Manager\BackendRegistry` |
-| `Behat\Manager\UserManager` | stores the users a scenario created, tracks the current one | `Behat\Manager\UserRegistry` |
-| `Behat\Manager\AuthenticationManager` | logs a user in and out, holds a Drupal session | `Behat\Manager\Authenticator` |
-| `Behat\Manager\BasicAuthManager` | derives credentials from `base_url`, applies them to Mink | `Behat\Manager\BasicAuthenticator` |
+| `Behat\Manager\DriverManager` | registers backends, resolves one by capability, tracks the scenario's order | `Behat\Registry\BackendRegistry` |
+| `Behat\Manager\UserManager` | stores the users a scenario created, tracks the current one | `Behat\Registry\UserRegistry` |
+| `Behat\Manager\AuthenticationManager` | logs a user in and out, holds a Drupal session | `Behat\Auth\Authenticator` |
+| `Behat\Manager\BasicAuthManager` | derives credentials from `base_url`, applies them to Mink | `Behat\Auth\BasicAuthenticator` |
 
 Each interface travels with its class:
 
@@ -1864,6 +1864,38 @@ The service ids and the `*.class` parameters that let a suite swap an implementa
 | `behat_steps.user_manager` | `behat_steps.user_registry` |
 | `behat_steps.authentication_manager` | `behat_steps.authenticator` |
 | `behat_steps.basic_auth_manager` | `behat_steps.basic_authenticator` |
+
+### `Behat\Manager` split into `Behat\Registry` and `Behat\Auth`
+
+The class renames left `Manager` in 1 place: the namespace the classes shared, which named no role any of them plays. The 3 registries now live in `Behat\Registry`, and the 2 authenticators and `FastLogoutInterface` in `Behat\Auth`. Every class keeps its own name, so the namespace is the whole change:
+
+```php
+// Before.
+use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
+
+// After.
+use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
+```
+
+| Old | New |
+| --- | --- |
+| `Behat\Manager\BackendRegistry` | `Behat\Registry\BackendRegistry` |
+| `Behat\Manager\BackendRegistryInterface` | `Behat\Registry\BackendRegistryInterface` |
+| `Behat\Manager\UserRegistry` | `Behat\Registry\UserRegistry` |
+| `Behat\Manager\UserRegistryInterface` | `Behat\Registry\UserRegistryInterface` |
+| `Behat\Manager\ScenarioTagRegistry` | `Behat\Registry\ScenarioTagRegistry` |
+| `Behat\Manager\ScenarioTagRegistryInterface` | `Behat\Registry\ScenarioTagRegistryInterface` |
+| `Behat\Manager\Authenticator` | `Behat\Auth\Authenticator` |
+| `Behat\Manager\AuthenticatorInterface` | `Behat\Auth\AuthenticatorInterface` |
+| `Behat\Manager\BasicAuthenticator` | `Behat\Auth\BasicAuthenticator` |
+| `Behat\Manager\BasicAuthenticatorInterface` | `Behat\Auth\BasicAuthenticatorInterface` |
+| `Behat\Manager\FastLogoutInterface` | `Behat\Auth\FastLogoutInterface` |
+
+A context that composes `AuthTrait` or extends a shipped context picks up the new types for free. One that implements `BackendAwareInterface` or `UserAwareInterface` by hand names these types in its accessor signatures, and PHP refuses to load it until they match the interface again.
+
+The service ids and their `*.class` parameters keep their names; only the default class each parameter holds moves. A suite that swaps in its own registry or authenticator through one of those parameters keeps the parameter as it is and updates the imports in its own class.
+
+`grep -rnE 'BehatSteps\\+Behat\\+Manager' <your project>` lists every import, docblock type and container parameter that still names the old namespace.
 
 ### `MailManager` is gone
 
@@ -2250,8 +2282,8 @@ The names that said "driver" change as well:
 | `Driver\BlackboxDriver` | `Backend\BlackboxBackend` |
 | `Driver\BlackboxDriverInterface` | `Backend\BlackboxBackendInterface` |
 | `Driver\Exception\UnsupportedDriverActionException` | `Backend\Exception\UnsupportedBackendActionException` |
-| `Behat\Manager\DriverRegistry` | `Behat\Manager\BackendRegistry` |
-| `Behat\Manager\DriverRegistryInterface` | `Behat\Manager\BackendRegistryInterface` |
+| `Behat\Manager\DriverRegistry` | `Behat\Registry\BackendRegistry` |
+| `Behat\Manager\DriverRegistryInterface` | `Behat\Registry\BackendRegistryInterface` |
 | `Behat\Context\DriverAwareInterface` | `Behat\Context\BackendAwareInterface` |
 | `Behat\Context\Initializer\DriverAwareInitializer` | `Behat\Context\Initializer\BackendAwareInitializer` |
 | `Behat\Listener\DriverListener` | `Behat\Listener\BackendListener` |
