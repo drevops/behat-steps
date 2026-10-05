@@ -1546,7 +1546,7 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a language
@@ -2038,7 +2038,7 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a language
@@ -2098,7 +2098,7 @@ Creates an entity of a type that has no dedicated method
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface|false</code></summary>
+  <summary><code>public function entityLifecycleLanguageCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Creates a language

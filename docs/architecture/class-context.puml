@@ -210,7 +210,7 @@ package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
     +entityLifecycleNodeCreate(stub) : EntityStubInterface
     +entityLifecycleTermCreate(stub) : EntityStubInterface
     +entityLifecycleCreate(stub) : EntityStubInterface
-    +entityLifecycleLanguageCreate(stub) : EntityStubInterface|false
+    +entityLifecycleLanguageCreate(stub) : EntityStubInterface
     +entityLifecycleRegister(entity) : void
     --
     +entityLifecycleAfterScenario(scope) : void
