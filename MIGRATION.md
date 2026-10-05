@@ -2589,9 +2589,9 @@ The methods are listed under their 4.x names; [One shape per naming idea](#one-s
 
 An override of one of these methods in your `FeatureContext` takes the new signature, or PHP reports it as incompatible with the trait's.
 
-### Optional parameters default to `NULL`
+### Optional string parameters default to `NULL`
 
-A parameter that can be left out defaults to `NULL` with a nullable type, never to an empty string. 4 helpers that open an entity's action page took their subpath as `string $action_subpath = ''`:
+A string parameter that can be left out defaults to `NULL` with a nullable type, never to an empty string. 4 helpers that open an entity's action page took their subpath as `string $action_subpath = ''`:
 
 | Method | Before | After |
 | --- | --- | --- |

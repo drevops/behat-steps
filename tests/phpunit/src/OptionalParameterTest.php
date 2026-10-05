@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Asserts that an optional parameter defaults to NULL, never to ''.
+ * Asserts that an optional string parameter defaults to NULL, never to ''.
  *
  * NULL is the one value that means "not given", so an empty string stays a
  * value a caller passes on purpose. CONTRIBUTING.md states the rule.
