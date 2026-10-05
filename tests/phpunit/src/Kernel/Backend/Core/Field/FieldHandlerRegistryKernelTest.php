@@ -62,7 +62,7 @@ class FieldHandlerRegistryKernelTest extends FieldHandlerKernelTestBase {
     $this->core->registerFieldHandler('text_with_summary', MarkerTextWithSummaryHandler::class);
     $this->attachField('field_body', 'text_with_summary');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'test entity',
       'field_body' => [
         ['value' => 'raw input', 'format' => 'plain_text'],
@@ -74,7 +74,7 @@ class FieldHandlerRegistryKernelTest extends FieldHandlerKernelTestBase {
     $field_body = $stub->getValue('field_body');
     $this->assertSame(MarkerTextWithSummaryHandler::MARKER, $field_body[0]['value'], 'Consumer handler did not transform the field value during expand().');
 
-    $reloaded = \Drupal::entityTypeManager()->getStorage(self::ENTITY_TYPE)->loadUnchanged($stub->getValue('id'));
+    $reloaded = \Drupal::entityTypeManager()->getStorage(static::ENTITY_TYPE)->loadUnchanged($stub->getValue('id'));
     $this->assertInstanceOf(ContentEntityInterface::class, $reloaded);
     $this->assertSame(MarkerTextWithSummaryHandler::MARKER, $reloaded->get('field_body')->getValue()[0]['value'], 'Storage did not receive the consumer handler output.');
   }
@@ -99,7 +99,7 @@ class MarkerTextWithSummaryHandler extends AbstractHandler {
     $emitted = [];
 
     foreach ($records as $record) {
-      $record['value'] = self::MARKER;
+      $record['value'] = static::MARKER;
       $emitted[] = $record;
     }
 

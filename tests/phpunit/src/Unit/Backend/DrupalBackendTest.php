@@ -88,7 +88,7 @@ class DrupalBackendTest extends UnitTestCase {
     $this->expectExceptionMessageMatches('/Unable to extract major Drupal core version/');
 
     FakeVersionDrupalBackend::$nextVersion = 'zz.x';
-    new FakeVersionDrupalBackend(self::DRUPAL_ROOT, 'default');
+    new FakeVersionDrupalBackend(static::DRUPAL_ROOT, 'default');
   }
 
   public function testDetectMajorVersionRejectsPre11(): void {
@@ -96,7 +96,7 @@ class DrupalBackendTest extends UnitTestCase {
     $this->expectExceptionMessageMatches('/Unsupported Drupal core version/');
 
     FakeVersionDrupalBackend::$nextVersion = '10.4.0';
-    new FakeVersionDrupalBackend(self::DRUPAL_ROOT, 'default');
+    new FakeVersionDrupalBackend(static::DRUPAL_ROOT, 'default');
   }
 
   /**
@@ -119,7 +119,7 @@ class DrupalBackendTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDetectMajorVersionRejectsPartialRoot')]
   public function testDetectMajorVersionRejectsPartialRoot(string $present, string $missing): void {
-    $root = self::DRUPAL_ROOT . '/../partial-root-' . md5($present);
+    $root = static::DRUPAL_ROOT . '/../partial-root-' . md5($present);
     mkdir(dirname($root . $present), 0777, TRUE);
     touch($root . $present);
 

@@ -34,13 +34,13 @@ class FileDownloadTraitTest extends UnitTestCase {
   protected $testObject;
 
   public static function setUpBeforeClass(): void {
-    self::$downloadDir = dirname(__DIR__, 6) . '/.artifacts/tmp/file-download-' . getmypid();
+    static::$downloadDir = dirname(__DIR__, 6) . '/.artifacts/tmp/file-download-' . getmypid();
 
-    (new Filesystem())->mkdir(self::$downloadDir);
+    (new Filesystem())->mkdir(static::$downloadDir);
   }
 
   public static function tearDownAfterClass(): void {
-    (new Filesystem())->remove(self::$downloadDir);
+    (new Filesystem())->remove(static::$downloadDir);
   }
 
   /**
@@ -49,7 +49,7 @@ class FileDownloadTraitTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->testObject = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => self::$downloadDir]]);
+    $this->testObject = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => static::$downloadDir]]);
   }
 
   public function testProcessWritesTheDownloadedFile(): void {
@@ -73,7 +73,7 @@ class FileDownloadTraitTest extends UnitTestCase {
   }
 
   public function testProcessTimeoutComesFromTheOption(): void {
-    $object = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => self::$downloadDir, 'timeout' => 300]]);
+    $object = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => static::$downloadDir, 'timeout' => 300]]);
     $object->response = new MockResponse('content');
 
     $object->fileDownloadProcess('http://example.com/files/large.zip');
@@ -177,7 +177,7 @@ class FileDownloadTraitTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDownloadTagPreparesDirectory')]
   public function testDownloadTagPreparesDirectory(array $scenario_tags, array $feature_tags, bool $expected): void {
-    $directory = self::$downloadDir . '/scenario';
+    $directory = static::$downloadDir . '/scenario';
     $context = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => $directory]]);
 
     $context->fileDownloadBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));

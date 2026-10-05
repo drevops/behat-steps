@@ -54,7 +54,7 @@ class CustomModuleFieldKernelTest extends FieldHandlerKernelTestBase {
   public function testReferenceFieldWithoutHandlerIsRejected(): void {
     $this->attachField('field_ref', 'backend_test_reference');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'test entity',
       'field_ref' => [['target_id' => 1]],
     ]);

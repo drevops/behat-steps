@@ -67,7 +67,7 @@ class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
   public function testConsumerCoreOverridesLibraryHandler(): void {
     $this->attachField('field_body', 'text_long');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'test entity',
       'field_body' => [
         ['value' => 'raw input', 'format' => 'plain_text'],
@@ -79,7 +79,7 @@ class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
     $field_body = $stub->getValue('field_body');
     $this->assertSame(ConsumerTextLongHandler::MARKER, $field_body[0]['value'], 'Consumer handler did not transform the field value during expand().');
 
-    $reloaded = \Drupal::entityTypeManager()->getStorage(self::ENTITY_TYPE)->loadUnchanged($stub->getValue('id'));
+    $reloaded = \Drupal::entityTypeManager()->getStorage(static::ENTITY_TYPE)->loadUnchanged($stub->getValue('id'));
     $this->assertInstanceOf(ContentEntityInterface::class, $reloaded);
     $this->assertSame(ConsumerTextLongHandler::MARKER, $reloaded->get('field_body')->getValue()[0]['value'], 'Storage did not receive the consumer handler output.');
   }
@@ -97,7 +97,7 @@ class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
   public function testConsumerCoreAddsHandlerForNewFieldType(): void {
     $this->attachField('field_summary', 'string_long');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'test entity',
       'field_summary' => [['value' => 'raw input']],
     ]);
@@ -107,7 +107,7 @@ class CustomCoreKernelTest extends FieldHandlerKernelTestBase {
     $field_summary = $stub->getValue('field_summary');
     $this->assertSame(ConsumerStringLongHandler::MARKER, $field_summary[0]['value'], 'Consumer handler did not transform the field value during expand().');
 
-    $reloaded = \Drupal::entityTypeManager()->getStorage(self::ENTITY_TYPE)->loadUnchanged($stub->getValue('id'));
+    $reloaded = \Drupal::entityTypeManager()->getStorage(static::ENTITY_TYPE)->loadUnchanged($stub->getValue('id'));
     $this->assertInstanceOf(ContentEntityInterface::class, $reloaded);
     $this->assertSame(ConsumerStringLongHandler::MARKER, $reloaded->get('field_summary')->getValue()[0]['value'], 'Storage did not receive the consumer handler output.');
   }

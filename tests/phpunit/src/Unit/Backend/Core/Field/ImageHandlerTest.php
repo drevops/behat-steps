@@ -45,8 +45,8 @@ class ImageHandlerTest extends FileBackedHandlerTestBase {
     parent::setUp();
 
     $container = new ContainerBuilder();
-    $container->set('entity_type.manager', $this->createEntityTypeManager(self::REGISTERED_FILES));
-    $container->set('file.repository', $this->createFileRepository(self::UPLOADED_FILE_ID));
+    $container->set('entity_type.manager', $this->createEntityTypeManager(static::REGISTERED_FILES));
+    $container->set('file.repository', $this->createFileRepository(static::UPLOADED_FILE_ID));
     \Drupal::setContainer($container);
   }
 
@@ -68,23 +68,23 @@ class ImageHandlerTest extends FileBackedHandlerTestBase {
    */
   public static function dataProviderExpand(): \Iterator {
     yield 'bare scalar path triggers upload' => [
-      self::FIXTURE_PATH,
-      [['target_id' => self::UPLOADED_FILE_ID, 'alt' => NULL, 'title' => NULL]],
+      static::FIXTURE_PATH,
+      [['target_id' => static::UPLOADED_FILE_ID, 'alt' => NULL, 'title' => NULL]],
       NULL,
       NULL,
     ];
     yield 'list of paths triggers upload' => [
-      [self::FIXTURE_PATH, self::FIXTURE_PATH],
+      [static::FIXTURE_PATH, static::FIXTURE_PATH],
       [
-        ['target_id' => self::UPLOADED_FILE_ID, 'alt' => NULL, 'title' => NULL],
-        ['target_id' => self::UPLOADED_FILE_ID, 'alt' => NULL, 'title' => NULL],
+        ['target_id' => static::UPLOADED_FILE_ID, 'alt' => NULL, 'title' => NULL],
+        ['target_id' => static::UPLOADED_FILE_ID, 'alt' => NULL, 'title' => NULL],
       ],
       NULL,
       NULL,
     ];
     yield 'record with alt and title preserved' => [
-      [['target_id' => self::FIXTURE_PATH, 'alt' => 'An image', 'title' => 'A title']],
-      [['target_id' => self::UPLOADED_FILE_ID, 'alt' => 'An image', 'title' => 'A title']],
+      [['target_id' => static::FIXTURE_PATH, 'alt' => 'An image', 'title' => 'A title']],
+      [['target_id' => static::UPLOADED_FILE_ID, 'alt' => 'An image', 'title' => 'A title']],
       NULL,
       NULL,
     ];

@@ -64,7 +64,7 @@ class BackendListenerTest extends UnitTestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->once())->method('setScenarioBackends')->with($this->identicalTo($expected));
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, self::BACKENDS);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, static::BACKENDS);
     $listener->prepareScenarioBackends($this->createEvent($feature_tags, $scenario_tags));
   }
 
@@ -145,7 +145,7 @@ class BackendListenerTest extends UnitTestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->once())->method('setScenarioBackends')->with($this->identicalTo(['drush' => 'drush', 'blackbox' => 'blackbox', 'drupal' => 'drupal']));
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, self::BACKENDS);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, static::BACKENDS);
     $listener->prepareScenarioBackends($event);
   }
 
@@ -189,7 +189,7 @@ class BackendListenerTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderTagNamingUnlistedBackendIsReported')]
   public function testTagNamingUnlistedBackendIsReported(array $feature_tags, array $scenario_tags, string $expected_tag): void {
-    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTagRegistry, self::BACKENDS);
+    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTagRegistry, static::BACKENDS);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage(sprintf('The "%s" tag names a backend that the configured backend list does not hold. Configured backends: drupal, drush, blackbox. The tag reorders that list; it never adds to it.', $expected_tag));
@@ -219,7 +219,7 @@ class BackendListenerTest extends UnitTestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->never())->method('setScenarioBackends');
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, self::BACKENDS);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, static::BACKENDS);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage($expected_message);
@@ -241,7 +241,7 @@ class BackendListenerTest extends UnitTestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->expects($this->once())->method('setEnvironment')->with($event->getEnvironment());
 
-    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, self::BACKENDS);
+    $listener = new BackendListener($backend_registry, $this->scenarioTagRegistry, static::BACKENDS);
     $listener->prepareScenarioBackends($event);
   }
 
@@ -249,7 +249,7 @@ class BackendListenerTest extends UnitTestCase {
    * Tests that the scenario's tags reach the registry, feature tags first.
    */
   public function testTheScenarioTagsArePublished(): void {
-    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTagRegistry, self::BACKENDS);
+    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTagRegistry, static::BACKENDS);
 
     $listener->prepareScenarioBackends($this->createEvent(['api'], ['javascript', 'error']));
 
@@ -257,7 +257,7 @@ class BackendListenerTest extends UnitTestCase {
   }
 
   public function testTheTagsOfOneScenarioDoNotLeakIntoTheNext(): void {
-    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTagRegistry, self::BACKENDS);
+    $listener = new BackendListener($this->createMock(BackendRegistryInterface::class), $this->scenarioTagRegistry, static::BACKENDS);
 
     $listener->prepareScenarioBackends($this->createEvent([], ['error']));
     $listener->prepareScenarioBackends($this->createEvent([], []));

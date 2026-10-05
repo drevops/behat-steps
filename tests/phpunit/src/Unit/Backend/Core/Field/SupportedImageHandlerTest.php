@@ -35,7 +35,7 @@ class SupportedImageHandlerTest extends FileBackedHandlerTestBase {
     parent::setUp();
 
     $container = new ContainerBuilder();
-    $container->set('file.repository', $this->createFileRepository(self::UPLOADED_FILE_ID));
+    $container->set('file.repository', $this->createFileRepository(static::UPLOADED_FILE_ID));
     \Drupal::setContainer($container);
   }
 
@@ -57,9 +57,9 @@ class SupportedImageHandlerTest extends FileBackedHandlerTestBase {
    */
   public static function dataProviderExpand(): \Iterator {
     yield 'bare scalar path produces full record' => [
-      self::FIXTURE_PATH,
+      static::FIXTURE_PATH,
       [[
-        'target_id' => self::UPLOADED_FILE_ID,
+        'target_id' => static::UPLOADED_FILE_ID,
         'alt' => NULL,
         'title' => NULL,
         'caption_value' => NULL,
@@ -73,7 +73,7 @@ class SupportedImageHandlerTest extends FileBackedHandlerTestBase {
     ];
     yield 'record preserves caption and attribution metadata' => [
       [[
-        'target_id' => self::FIXTURE_PATH,
+        'target_id' => static::FIXTURE_PATH,
         'alt' => 'Alt',
         'title' => 'Title',
         'caption_value' => 'Caption body',
@@ -83,7 +83,7 @@ class SupportedImageHandlerTest extends FileBackedHandlerTestBase {
       ],
       ],
       [[
-        'target_id' => self::UPLOADED_FILE_ID,
+        'target_id' => static::UPLOADED_FILE_ID,
         'alt' => 'Alt',
         'title' => 'Title',
         'caption_value' => 'Caption body',

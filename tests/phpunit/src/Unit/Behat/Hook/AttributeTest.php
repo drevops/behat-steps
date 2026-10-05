@@ -48,7 +48,7 @@ class AttributeTest extends UnitTestCase {
   }
 
   public static function dataProviderFilterStringDefaultsToNone(): \Iterator {
-    yield from self::attributeClasses();
+    yield from static::attributeClasses();
   }
 
   /**
@@ -63,7 +63,7 @@ class AttributeTest extends UnitTestCase {
   }
 
   public static function dataProviderFilterStringIsReadBack(): \Iterator {
-    yield from self::attributeClasses();
+    yield from static::attributeClasses();
   }
 
   /**
@@ -81,7 +81,7 @@ class AttributeTest extends UnitTestCase {
   }
 
   public static function dataProviderAttributeTargetsRepeatableMethods(): \Iterator {
-    yield from self::attributeClasses();
+    yield from static::attributeClasses();
   }
 
   /**

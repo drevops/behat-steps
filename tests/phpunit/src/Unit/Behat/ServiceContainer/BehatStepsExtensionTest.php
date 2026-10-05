@@ -40,16 +40,16 @@ class BehatStepsExtensionTest extends UnitTestCase {
   protected string $originalCwd;
 
   public static function setUpBeforeClass(): void {
-    self::$fixtureDir = dirname(__DIR__, 6) . '/.artifacts/tmp/extension-binary-' . getmypid();
+    static::$fixtureDir = dirname(__DIR__, 6) . '/.artifacts/tmp/extension-binary-' . getmypid();
 
-    mkdir(self::$fixtureDir . '/project/vendor/bin', 0777, TRUE);
-    touch(self::$fixtureDir . '/project/vendor/bin/drush');
-    mkdir(self::$fixtureDir . '/project/web', 0777, TRUE);
+    mkdir(static::$fixtureDir . '/project/vendor/bin', 0777, TRUE);
+    touch(static::$fixtureDir . '/project/vendor/bin/drush');
+    mkdir(static::$fixtureDir . '/project/web', 0777, TRUE);
   }
 
   public static function tearDownAfterClass(): void {
     $iterator = new \RecursiveIteratorIterator(
-      new \RecursiveDirectoryIterator(self::$fixtureDir, \FilesystemIterator::SKIP_DOTS),
+      new \RecursiveDirectoryIterator(static::$fixtureDir, \FilesystemIterator::SKIP_DOTS),
       \RecursiveIteratorIterator::CHILD_FIRST
     );
 
@@ -57,7 +57,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
       $file->isDir() ? rmdir($file->getPathname()) : unlink($file->getPathname());
     }
 
-    rmdir(self::$fixtureDir);
+    rmdir(static::$fixtureDir);
   }
 
   protected function setUp(): void {
@@ -612,19 +612,19 @@ class BehatStepsExtensionTest extends UnitTestCase {
   }
 
   public function testBinaryPathResolvesFromWorkingDirectory(): void {
-    chdir(self::$fixtureDir . '/project');
+    chdir(static::$fixtureDir . '/project');
 
-    $this->assertSame(self::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
+    $this->assertSame(static::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
   }
 
   public function testBinaryPathResolvesFromParentDirectory(): void {
-    chdir(self::$fixtureDir . '/project/web');
+    chdir(static::$fixtureDir . '/project/web');
 
-    $this->assertSame(self::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
+    $this->assertSame(static::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
   }
 
   public function testUnresolvableBinaryPathIsReturnedAsIs(): void {
-    chdir(self::$fixtureDir);
+    chdir(static::$fixtureDir);
 
     $this->assertSame('some/nonexistent/binary', BehatStepsExtension::resolveBinaryPath('some/nonexistent/binary'));
   }

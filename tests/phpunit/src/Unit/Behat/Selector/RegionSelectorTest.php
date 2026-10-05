@@ -55,7 +55,7 @@ class RegionSelectorTest extends UnitTestCase {
    * Builds a selector over the fixture region map.
    */
   protected function createSelector(): RegionSelector {
-    return new RegionSelector(new CssSelector(), self::REGIONS);
+    return new RegionSelector(new CssSelector(), static::REGIONS);
   }
 
 }

@@ -95,7 +95,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     if ($login_field !== NULL) {
       $params['login_field'] = $login_field;
     }
@@ -291,7 +291,7 @@ class AuthenticatorTest extends UnitTestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, static::MINK_PARAMS), static::MINK_PARAMS, static::EXTENSION_PARAMS);
     $this->assertFalse($authenticator->isLoggedIn());
   }
 
@@ -318,7 +318,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     $params['login_wait'] = 2;
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
@@ -345,7 +345,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     $params['login_wait'] = 0;
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
@@ -368,7 +368,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     $params['login_wait'] = 1;
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
@@ -408,7 +408,7 @@ class AuthenticatorTest extends UnitTestCase {
     $user_registry->setCurrentUser(new EntityStub('user', NULL, ['name' => 'admin']));
 
     $backend_registry = $this->createBackendRegistryMock();
-    $authenticator = new Authenticator($mink, $user_registry, $backend_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, $user_registry, $backend_registry, new BasicAuthenticator($mink, static::MINK_PARAMS), static::MINK_PARAMS, static::EXTENSION_PARAMS);
     $authenticator->fastLogout();
 
     $this->assertFalse($user_registry->getCurrentUser());
@@ -423,7 +423,7 @@ class AuthenticatorTest extends UnitTestCase {
     $mink->setDefaultSessionName('default');
 
     $backend_registry = $this->createBackendRegistryMock();
-    $authenticator = new Authenticator($mink, new UserRegistry(), $backend_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, new UserRegistry(), $backend_registry, new BasicAuthenticator($mink, static::MINK_PARAMS), static::MINK_PARAMS, static::EXTENSION_PARAMS);
     $authenticator->fastLogout();
   }
 
@@ -442,7 +442,7 @@ class AuthenticatorTest extends UnitTestCase {
     $backend_registry->method('getBackendFor')->willReturn($auth_backend);
     $backend_registry->method('getResolvedBackendFor')->willReturn($auth_backend);
 
-    $authenticator = new Authenticator($mink, new UserRegistry(), $backend_registry, new BasicAuthenticator($mink, self::MINK_PARAMS), self::MINK_PARAMS, self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, new UserRegistry(), $backend_registry, new BasicAuthenticator($mink, static::MINK_PARAMS), static::MINK_PARAMS, static::EXTENSION_PARAMS);
     $authenticator->fastLogout();
   }
 
@@ -455,7 +455,7 @@ class AuthenticatorTest extends UnitTestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], static::EXTENSION_PARAMS);
     $authenticator->fastLogout();
   }
 
@@ -472,7 +472,7 @@ class AuthenticatorTest extends UnitTestCase {
     $mink = new Mink(['default' => $session]);
     $mink->setDefaultSessionName('default');
 
-    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], self::EXTENSION_PARAMS);
+    $authenticator = new Authenticator($mink, new UserRegistry(), $this->createBackendRegistryMock(), new BasicAuthenticator($mink, ['base_url' => 'http://alice:secret@localhost']), ['base_url' => 'http://alice:secret@localhost'], static::EXTENSION_PARAMS);
     $authenticator->fastLogout();
   }
 
@@ -499,7 +499,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/login');
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     $params['login_wait'] = 0;
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
@@ -539,7 +539,7 @@ class AuthenticatorTest extends UnitTestCase {
       return $url_call_count <= 1 ? 'http://localhost/user/login' : 'http://localhost/user/1';
     });
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     $params['login_wait'] = 1;
 
     $user_registry = new UserRegistry();
@@ -578,7 +578,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/user/1');
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     $params['login_wait'] = 2;
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
@@ -628,7 +628,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->expects($this->once())->method('visit')->with('http://localhost/custom-login');
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     $params['text']['login_url'] = '/custom-login';
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
@@ -644,7 +644,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/custom-logout');
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     $params['text']['logout_url'] = '/custom-logout';
 
     $user_registry = new UserRegistry();
@@ -668,7 +668,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->method('getCurrentUrl')->willReturn('http://localhost/custom-logout/confirm');
 
-    $params = self::EXTENSION_PARAMS;
+    $params = static::EXTENSION_PARAMS;
     $params['text']['logout_url'] = '/custom-logout';
     $params['text']['logout_confirm_url'] = '/custom-logout/confirm';
 
@@ -731,9 +731,9 @@ class AuthenticatorTest extends UnitTestCase {
           $mink,
           $user_registry ?? new UserRegistry(),
           $backend_registry ?? $this->createBackendRegistryMock(),
-          new BasicAuthenticator($mink, self::MINK_PARAMS),
-          self::MINK_PARAMS,
-          $parameters ?? self::EXTENSION_PARAMS
+          new BasicAuthenticator($mink, static::MINK_PARAMS),
+          static::MINK_PARAMS,
+          $parameters ?? static::EXTENSION_PARAMS
       );
   }
 

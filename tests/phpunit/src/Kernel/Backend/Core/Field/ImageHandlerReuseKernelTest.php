@@ -60,7 +60,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
     $existing = $this->createManagedFileAt('public://existing-hero.jpg', 'fixture');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'reuse by uri',
       'field_photo' => [
         ['target_id' => 'public://existing-hero.jpg', 'alt' => 'Hero', 'title' => 'Hero title'],
@@ -84,7 +84,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
     $existing = $this->createManagedFileAt('public://existing-logo.png', 'fixture');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'reuse by basename',
       'field_photo' => [
         ['target_id' => 'existing-logo.png'],
@@ -103,7 +103,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
    */
   protected function loadFirstItem(int|string $entity_id, string $field_name): FieldItemInterface {
     $entity = \Drupal::entityTypeManager()
-      ->getStorage(self::ENTITY_TYPE)
+      ->getStorage(static::ENTITY_TYPE)
       ->loadUnchanged($entity_id);
     $this->assertInstanceOf(ContentEntityInterface::class, $entity);
 

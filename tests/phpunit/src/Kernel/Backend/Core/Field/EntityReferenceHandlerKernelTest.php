@@ -97,15 +97,15 @@ class EntityReferenceHandlerKernelTest extends FieldHandlerKernelTestBase {
     // always creates a single-value field, so the storage is configured inline.
     FieldStorageConfig::create([
       'field_name' => 'field_owners',
-      'entity_type' => self::ENTITY_TYPE,
+      'entity_type' => static::ENTITY_TYPE,
       'type' => 'entity_reference',
       'cardinality' => FieldStorageConfig::CARDINALITY_UNLIMITED,
       'settings' => ['target_type' => 'user'],
     ])->save();
     FieldConfig::create([
       'field_name' => 'field_owners',
-      'entity_type' => self::ENTITY_TYPE,
-      'bundle' => self::BUNDLE,
+      'entity_type' => static::ENTITY_TYPE,
+      'bundle' => static::BUNDLE,
     ])->save();
 
     User::create(['name' => 'alice'])->save();

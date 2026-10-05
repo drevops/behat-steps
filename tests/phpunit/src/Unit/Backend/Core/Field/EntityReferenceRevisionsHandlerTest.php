@@ -51,7 +51,7 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->installContainer($this->createTarget(self::REVISION_ID, self::TARGET_BUNDLE));
+    $this->installContainer($this->createTarget(static::REVISION_ID, static::TARGET_BUNDLE));
   }
 
   /**
@@ -75,19 +75,19 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
   public static function dataProviderExpand(): \Iterator {
     yield 'bare label resolves to id and revision id' => [
       'Paragraph A',
-      [['target_id' => 42, 'target_revision_id' => self::REVISION_ID]],
+      [['target_id' => 42, 'target_revision_id' => static::REVISION_ID]],
       NULL,
       NULL,
     ];
     yield 'record preserves extras and resolves target' => [
       [['target_id' => 'Paragraph A', 'extra' => 'keep-me']],
-      [['target_id' => 42, 'extra' => 'keep-me', 'target_revision_id' => self::REVISION_ID]],
+      [['target_id' => 42, 'extra' => 'keep-me', 'target_revision_id' => static::REVISION_ID]],
       NULL,
       NULL,
     ];
     yield 'integer id bypasses validation query' => [
       [99],
-      [['target_id' => 99, 'target_revision_id' => self::REVISION_ID]],
+      [['target_id' => 99, 'target_revision_id' => static::REVISION_ID]],
       NULL,
       NULL,
     ];
@@ -135,7 +135,7 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
     $handler = $this->createHandlerWithSettings(['handler_settings' => ['target_bundles' => ['image' => 'image']]]);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage(sprintf('Entity "99" of type "paragraph" is of bundle "%s", which the field does not accept. Allowed: image.', self::TARGET_BUNDLE));
+    $this->expectExceptionMessage(sprintf('Entity "99" of type "paragraph" is of bundle "%s", which the field does not accept. Allowed: image.', static::TARGET_BUNDLE));
 
     $handler->expand([99]);
   }
@@ -148,7 +148,7 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
    */
   protected function installContainer(?RevisionableInterface $target): void {
     $container = new ContainerBuilder();
-    $container->set('entity_type.manager', $this->createEntityTypeManager(self::KNOWN_LABELS, $target));
+    $container->set('entity_type.manager', $this->createEntityTypeManager(static::KNOWN_LABELS, $target));
     \Drupal::setContainer($container);
   }
 

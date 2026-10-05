@@ -24,7 +24,7 @@ class FakeVersionDrupalBackend extends DrupalBackend {
    * {@inheritdoc}
    */
   protected function readVersionConstant(): string {
-    return self::$nextVersion;
+    return static::$nextVersion;
   }
 
 }

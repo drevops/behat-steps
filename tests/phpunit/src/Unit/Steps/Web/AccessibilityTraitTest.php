@@ -793,27 +793,27 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
   }
 
   public static function testSetBaseDir(?string $directory): void {
-    self::$accessibilityBaseDir = $directory;
+    static::$accessibilityBaseDir = $directory;
   }
 
   public static function testGetBaseDir(): ?string {
-    return self::$accessibilityBaseDir;
+    return static::$accessibilityBaseDir;
   }
 
   public static function testSetAggregate(array $aggregate): void {
-    self::$accessibilityAggregate = $aggregate;
+    static::$accessibilityAggregate = $aggregate;
   }
 
   public static function testGetAggregate(): array {
-    return self::$accessibilityAggregate;
+    return static::$accessibilityAggregate;
   }
 
   public static function testSetAggregateReportDir(?string $directory): void {
-    self::$accessibilityAggregateReportDir = $directory;
+    static::$accessibilityAggregateReportDir = $directory;
   }
 
   public static function testGetAggregateReportDir(): ?string {
-    return self::$accessibilityAggregateReportDir;
+    return static::$accessibilityAggregateReportDir;
   }
 
   public static function testAggregateData(array $aggregate, string $generated): array {
@@ -875,7 +875,7 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
   }
 
   public static function testSetCachedJs(?string $js): void {
-    self::$accessibilityCachedJs = $js;
+    static::$accessibilityCachedJs = $js;
   }
 
 }
@@ -947,7 +947,7 @@ class AccessibilityTraitRetryTestImplementation extends WebRawContext {
   }
 
   public static function testSetCachedJs(?string $js): void {
-    self::$accessibilityCachedJs = $js;
+    static::$accessibilityCachedJs = $js;
   }
 
 }

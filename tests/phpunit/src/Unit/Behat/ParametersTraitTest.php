@@ -73,7 +73,7 @@ class ParametersTraitTest extends UnitTestCase {
    */
   protected function createHost(): ParametersAwareObject {
     $host = new ParametersAwareObject();
-    $host->setParameters(self::PARAMETERS);
+    $host->setParameters(static::PARAMETERS);
 
     return $host;
   }

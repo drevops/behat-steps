@@ -39,8 +39,8 @@ class DrushBackendMethodsTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    if (!is_dir(self::TEMP_ROOT)) {
-      mkdir(self::TEMP_ROOT, 0777, TRUE);
+    if (!is_dir(static::TEMP_ROOT)) {
+      mkdir(static::TEMP_ROOT, 0777, TRUE);
     }
   }
 
@@ -319,7 +319,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
    * Tests that 'resolveProjectDrush()' prefers 'COMPOSER_BIN_DIR'.
    */
   public function testResolveProjectDrushPrefersComposerBin(): void {
-    $temp_dir = self::TEMP_ROOT . '/drush-backend-test-' . uniqid();
+    $temp_dir = static::TEMP_ROOT . '/drush-backend-test-' . uniqid();
     mkdir($temp_dir, 0777, TRUE);
     touch($temp_dir . '/drush');
     $original = getenv('COMPOSER_BIN_DIR');
@@ -337,7 +337,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
   }
 
   public function testResolveProjectDrushFallsBackToVendorBin(): void {
-    $temp_dir = self::TEMP_ROOT . '/drush-backend-cwd-' . uniqid();
+    $temp_dir = static::TEMP_ROOT . '/drush-backend-cwd-' . uniqid();
     mkdir($temp_dir . '/vendor/bin', 0777, TRUE);
     touch($temp_dir . '/vendor/bin/drush');
     $original_cwd = (string) getcwd();

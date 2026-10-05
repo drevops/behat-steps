@@ -40,7 +40,7 @@ class BackendAwareInitializerTest extends UnitTestCase {
   public function testParametersAwareContextReceivesOnlyParameters(): void {
     /** @var \Behat\Behat\Context\Context&\DrevOps\BehatSteps\Behat\ParametersAwareInterface&\PHPUnit\Framework\MockObject\MockObject $context */
     $context = $this->createMockForIntersectionOfInterfaces([Context::class, ParametersAwareInterface::class]);
-    $context->expects($this->once())->method('setParameters')->with(self::PARAMETERS);
+    $context->expects($this->once())->method('setParameters')->with(static::PARAMETERS);
 
     $this->createInitializer()->initializeContext($context);
   }
@@ -53,14 +53,14 @@ class BackendAwareInitializerTest extends UnitTestCase {
     $http_client_factory = $this->createMock(HttpClientFactoryInterface::class);
 
     $context = $this->createMock(BackendAwareInterface::class);
-    $context->expects($this->once())->method('setParameters')->with(self::PARAMETERS);
+    $context->expects($this->once())->method('setParameters')->with(static::PARAMETERS);
     $context->expects($this->once())->method('setBackendRegistry')->with($backend_registry);
     $context->expects($this->once())->method('setHookDispatcher')->with($dispatcher);
     $context->expects($this->once())->method('setBasicAuthenticator')->with($basic_authenticator);
     $context->expects($this->once())->method('setHttpClientFactory')->with($http_client_factory);
     $context->expects($this->once())->method('setOptionResolverFactory')->with($resolver_factory);
 
-    $initializer = new BackendAwareInitializer($backend_registry, self::PARAMETERS, $dispatcher, $basic_authenticator, $this->createMock(AuthenticatorInterface::class), $this->createMock(UserRegistryInterface::class), $resolver_factory, $http_client_factory);
+    $initializer = new BackendAwareInitializer($backend_registry, static::PARAMETERS, $dispatcher, $basic_authenticator, $this->createMock(AuthenticatorInterface::class), $this->createMock(UserRegistryInterface::class), $resolver_factory, $http_client_factory);
     $initializer->initializeContext($context);
   }
 
@@ -74,7 +74,7 @@ class BackendAwareInitializerTest extends UnitTestCase {
 
     $initializer = new BackendAwareInitializer(
       $this->createMock(BackendRegistryInterface::class),
-      self::PARAMETERS,
+      static::PARAMETERS,
       $this->createHookDispatcher(),
       $this->createMock(BasicAuthenticatorInterface::class),
       $authenticator,
@@ -92,7 +92,7 @@ class BackendAwareInitializerTest extends UnitTestCase {
   protected function createInitializer(): BackendAwareInitializer {
     return new BackendAwareInitializer(
       $this->createMock(BackendRegistryInterface::class),
-      self::PARAMETERS,
+      static::PARAMETERS,
       $this->createHookDispatcher(),
       $this->createMock(BasicAuthenticatorInterface::class),
       $this->createMock(AuthenticatorInterface::class),

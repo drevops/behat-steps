@@ -58,7 +58,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
     $existing = $this->createManagedFileAt('public://preexisting-uri.txt', 'hello uri');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'with existing file',
       'field_attachment' => ['public://preexisting-uri.txt'],
     ]);
@@ -77,7 +77,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
     $existing = $this->createManagedFileAt('public://preexisting-basename.txt', 'hello basename');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'with existing file by basename',
       'field_attachment' => ['preexisting-basename.txt'],
     ]);
@@ -93,7 +93,7 @@ class FileHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
    */
   protected function loadFieldTargetId(int|string $entity_id, string $field_name): int|string {
     $entity = \Drupal::entityTypeManager()
-      ->getStorage(self::ENTITY_TYPE)
+      ->getStorage(static::ENTITY_TYPE)
       ->loadUnchanged($entity_id);
     $this->assertInstanceOf(ContentEntityInterface::class, $entity);
 
