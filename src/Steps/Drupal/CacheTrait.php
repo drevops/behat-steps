@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
+use Drupal\Core\Cache\DatabaseBackend;
 use Drupal\Core\Database\Database;
 
 /**
@@ -45,6 +46,9 @@ trait CacheTrait {
    * any query string and in any request format. Entries for other paths stay
    * cached.
    *
+   * A page cache bin stored outside the database cannot list its entries, so
+   * it is emptied whole.
+   *
    * @code
    * Given the page cache for the path "/about" is empty
    * @endcode
@@ -62,7 +66,8 @@ trait CacheTrait {
    * and "/news/1" but not "/archive/news".
    *
    * Entries are deleted on any host, with any query string and in any request
-   * format.
+   * format. A page cache bin stored outside the database cannot list its
+   * entries, so it is emptied whole.
    *
    * @code
    * Given the page cache for the paths matching "/news*" is empty
@@ -114,6 +119,9 @@ trait CacheTrait {
    * The path is compared with the whole path of each cached URL, on any host,
    * with any query string and in any request format.
    *
+   * Only a bin on the database backend can list its entries, so a bin on any
+   * other backend is emptied whole.
+   *
    * @param string $path
    *   The path, starting with '/'.
    * @param bool $is_pattern
@@ -121,7 +129,7 @@ trait CacheTrait {
    *
    * @throws \RuntimeException
    *   When the path is empty, has no leading slash, carries a query string or
-   *   a fragment, or when the page cache table does not exist.
+   *   a fragment, or when the page cache bin does not exist.
    */
   public function cacheDeletePagePath(string $path, bool $is_pattern = FALSE): void {
     $this->backendFor(CoreCapabilityInterface::class);
@@ -143,11 +151,28 @@ trait CacheTrait {
     }
 
     $bin = $this->cacheGetPageCacheBin();
+
+    if (!\Drupal::hasService('cache.' . $bin)) {
+      throw new \RuntimeException(sprintf('The cache bin "%s" does not exist. Enable the page_cache module or set the "cache.page_cache_bin" option.', $bin));
+    }
+
+    $backend = \Drupal::cache($bin);
+
+    // Only the database backend can list its entries, so any other backend is
+    // emptied whole.
+    if (!$backend instanceof DatabaseBackend) {
+      $backend->deleteAll();
+
+      return;
+    }
+
     $table = 'cache_' . $bin;
     $database = Database::getConnection();
 
+    // The database backend creates its table on the first write, so a missing
+    // table holds no entries.
     if (!$database->schema()->tableExists($table)) {
-      throw new \RuntimeException(sprintf('The page cache table "%s" does not exist. Ensure the "%s" cache bin is configured.', $table, $bin));
+      return;
     }
 
     $parts = $is_pattern ? explode('*', $path) : [$path];

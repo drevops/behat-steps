@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
 use DrevOps\BehatSteps\Steps\Drupal\CacheTrait;
-use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\Core\Cache\DatabaseBackendFactory;
+use Drupal\Core\Cache\DatabaseBackend;
+use Drupal\Core\Database\Database;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -25,7 +26,21 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
    *
    * @var array<string>
    */
-  protected static $modules = ['system'];
+  protected static $modules = ['system', 'page_cache'];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function register(ContainerBuilder $container): void {
+    parent::register($container);
+
+    // The parent moves every bin to the memory backend, which cannot list its
+    // entries, so the page bin is moved back to the database.
+    $definition = $container->getDefinition('cache.page');
+    $tags = $definition->getTags();
+    $tags['cache.bin'][0]['default_backend'] = 'cache.backend.database';
+    $definition->setTags($tags);
+  }
 
   /**
    * Tests that a path or pattern deletes exactly the matching entries.
@@ -40,7 +55,8 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
   #[DataProvider('dataProviderDeletePagePath')]
   public function testDeletePagePath(string $path, bool $is_pattern, array $deleted): void {
     $entries = static::pageCacheEntries();
-    $backend = $this->createPageCacheBackend();
+    $backend = \Drupal::cache('page');
+    $this->assertInstanceOf(DatabaseBackend::class, $backend);
 
     foreach ($entries as $cid) {
       $backend->set($cid, 'response');
@@ -100,11 +116,36 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
     yield 'a pattern with a query string' => ['/news*?page=1', TRUE, 'The path pattern "/news*?page=1" must not contain a query string or a fragment.'];
   }
 
-  public function testDeletePagePathFailsWithoutThePageCacheTable(): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('The page cache table "cache_page" does not exist. Ensure the "page" cache bin is configured.');
+  public function testDeletePagePathIgnoresAMissingTable(): void {
+    $database = Database::getConnection();
+    $this->assertFalse($database->schema()->tableExists('cache_page'));
 
     $this->context->cacheDeletePagePath('/about');
+
+    $this->assertFalse($database->schema()->tableExists('cache_page'));
+  }
+
+  public function testDeletePagePathEmptiesABinThatCannotListItsEntries(): void {
+    $context = $this->createContext(['cache' => ['page_cache_bin' => 'data']]);
+    $backend = \Drupal::cache('data');
+    $this->assertNotInstanceOf(DatabaseBackend::class, $backend);
+
+    $backend->set('http://nginx:8080/about:', 'response');
+    $backend->set('http://nginx:8080/contact:', 'response');
+
+    $context->cacheDeletePagePath('/about');
+
+    $this->assertFalse($backend->get('http://nginx:8080/about:'));
+    $this->assertFalse($backend->get('http://nginx:8080/contact:'));
+  }
+
+  public function testDeletePagePathFailsWithoutTheBin(): void {
+    $context = $this->createContext(['cache' => ['page_cache_bin' => 'missing']]);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The cache bin "missing" does not exist. Enable the page_cache module or set the "cache.page_cache_bin" option.');
+
+    $context->cacheDeletePagePath('/about');
   }
 
   /**
@@ -138,16 +179,6 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
       'a URL with no path' => 'http://nginx:8080',
       'a malformed URL' => 'http:///:',
     ];
-  }
-
-  /**
-   * Creates the database backend for the page cache bin.
-   */
-  protected function createPageCacheBackend(): CacheBackendInterface {
-    $factory = $this->container->get('cache.backend.database');
-    $this->assertInstanceOf(DatabaseBackendFactory::class, $factory);
-
-    return $factory->get('page');
   }
 
 }
