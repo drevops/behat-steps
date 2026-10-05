@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Behat\Registry\UserRegistry;
+use DrevOps\BehatSteps\Behat\ServiceContainer\BackendPass;
+use DrevOps\BehatSteps\Behat\Tag;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -50,13 +53,13 @@ class ClassNamingTest extends UnitTestCase {
 
   public static function dataProviderGenericNamesAreDetected(): array {
     return [
-      'role-named namespace and class' => ['DrevOps\\BehatSteps\\Behat\\Registry\\UserRegistry', []],
-      'class directly under the package' => ['DrevOps\\BehatSteps\\Behat\\Tag', []],
+      'role-named namespace and class' => [UserRegistry::class, []],
+      'class directly under the package' => [Tag::class, []],
       'generic namespace' => ['DrevOps\\BehatSteps\\Behat\\Manager\\Authenticator', ['Manager']],
       'generic class' => ['DrevOps\\BehatSteps\\Behat\\Auth\\SessionManager', ['SessionManager']],
       'generic nested namespace' => ['DrevOps\\BehatSteps\\Behat\\Hook\\Handler\\AfterNodeCreate', ['Handler']],
       'generic namespace and class' => ['DrevOps\\BehatSteps\\Behat\\Service\\MailHelper', ['Service', 'MailHelper']],
-      'generic word opening a name' => ['DrevOps\\BehatSteps\\Behat\\ServiceContainer\\BackendPass', []],
+      'generic word opening a name' => [BackendPass::class, []],
       'generic word inside a name' => ['DrevOps\\BehatSteps\\Behat\\Mink\\HandlerAwareTrait', []],
     ];
   }
