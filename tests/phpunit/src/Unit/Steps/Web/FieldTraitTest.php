@@ -100,7 +100,7 @@ class FieldTraitTest extends UnitTestCase {
   public function testBeforeScenarioReadsValidationTag(array $scenario_tags, array $feature_tags, bool $expected): void {
     $this->testObject->fieldBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
 
-    $this->assertSame($expected, $this->testObject->isAllFormValidationDisabled());
+    $this->assertSame($expected, $this->testObject->testIsAllFormValidationDisabled());
   }
 
   public static function dataProviderBeforeScenarioReadsValidationTag(): \Iterator {
@@ -123,7 +123,7 @@ class FieldTraitTestImplementation extends WebRawContext {
   /**
    * Whether validation is disabled on every form of the scenario.
    */
-  public function isAllFormValidationDisabled(): bool {
+  public function testIsAllFormValidationDisabled(): bool {
     return $this->fieldDisableAllFormValidation;
   }
 

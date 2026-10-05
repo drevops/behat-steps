@@ -67,8 +67,8 @@ class CoreFieldMethodsTest extends UnitTestCase {
     ]);
 
     $core = new TestCore(__DIR__, 'default');
-    $core->setEntityFieldManager($entity_field_manager);
-    $core->setFieldClassifier(new FieldClassifier($entity_field_manager));
+    $core->testSetEntityFieldManager($entity_field_manager);
+    $core->testSetFieldClassifier(new FieldClassifier($entity_field_manager));
 
     return $core;
   }
@@ -85,14 +85,14 @@ class TestCore extends Core {
    */
   protected EntityFieldManagerInterface $entityFieldManager;
 
-  public function setEntityFieldManager(EntityFieldManagerInterface $entity_field_manager): void {
+  public function testSetEntityFieldManager(EntityFieldManagerInterface $entity_field_manager): void {
     $this->entityFieldManager = $entity_field_manager;
   }
 
   /**
    * Injects a pre-built classifier so the lazy factory is not consulted.
    */
-  public function setFieldClassifier(FieldClassifierInterface $classifier): void {
+  public function testSetFieldClassifier(FieldClassifierInterface $classifier): void {
     $this->fieldClassifier = $classifier;
   }
 

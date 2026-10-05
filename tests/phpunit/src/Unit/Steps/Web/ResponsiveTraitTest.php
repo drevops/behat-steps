@@ -41,7 +41,7 @@ class ResponsiveTraitTest extends UnitTestCase {
       $this->expectExceptionMessage($expected_message);
     }
 
-    $result = $this->testObject->testResponsiveExtractDimensions($dimensions);
+    $result = $this->testObject->callExtractDimensions($dimensions);
     $this->assertSame($expected, $result);
   }
 
@@ -135,7 +135,7 @@ class ResponsiveTraitTest extends UnitTestCase {
       $this->expectExceptionMessageMatches($expected_message);
     }
 
-    $result = $this->testObject->testResponsiveGetBreakpoint($name);
+    $result = $this->testObject->callGetBreakpoint($name);
     $this->assertSame($expected, $result);
   }
 
@@ -195,7 +195,7 @@ class ResponsiveTraitTest extends UnitTestCase {
       $this->testObject->responsiveSetBreakpoints($custom_breakpoints);
     }
 
-    $result = $this->testObject->testResponsiveGetAllBreakpoints();
+    $result = $this->testObject->callGetAllBreakpoints();
     $this->assertSame($expected, $result);
   }
 
@@ -258,13 +258,13 @@ class ResponsiveTraitTest extends UnitTestCase {
 
     if (!$expected_message) {
       if (empty($breakpoints)) {
-        $defaults = $this->testObject->testResponsiveGetAllBreakpoints();
+        $defaults = $this->testObject->callGetAllBreakpoints();
         $this->assertNotEmpty($defaults);
         $this->assertArrayHasKey('mobile_portrait', $defaults);
       }
       else {
         foreach ($breakpoints as $name => $dimensions) {
-          $result = $this->testObject->testResponsiveGetBreakpoint($name);
+          $result = $this->testObject->callGetBreakpoint($name);
           $this->assertSame($dimensions, $result);
         }
       }
@@ -321,7 +321,7 @@ class ResponsiveTraitTest extends UnitTestCase {
   public function testBeforeScenarioResolvesBreakpoint(array $scenario_tags, array $feature_tags, ?string $expected): void {
     $this->testObject->responsiveBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
 
-    $this->assertSame($expected, $this->testObject->testResponsiveGetBreakpointFromTag());
+    $this->assertSame($expected, $this->testObject->testGetBreakpointFromTag());
   }
 
   public static function dataProviderBeforeScenarioResolvesBreakpoint(): array {
@@ -402,28 +402,28 @@ class ResponsiveTraitTestImplementation extends RawMinkContext {
   /**
    * Exposes the protected method for testing.
    */
-  public function testResponsiveExtractDimensions(string $dimensions, ?string $name = NULL): array {
+  public function callExtractDimensions(string $dimensions, ?string $name = NULL): array {
     return $this->responsiveExtractDimensions($dimensions, $name);
   }
 
   /**
    * Exposes the protected method for testing.
    */
-  public function testResponsiveGetBreakpoint(string $name): string {
+  public function callGetBreakpoint(string $name): string {
     return $this->responsiveGetBreakpoint($name);
   }
 
   /**
    * Exposes the protected method for testing.
    */
-  public function testResponsiveGetAllBreakpoints(): array {
+  public function callGetAllBreakpoints(): array {
     return $this->responsiveGetAllBreakpoints();
   }
 
   /**
    * Exposes the breakpoint the tags resolved to.
    */
-  public function testResponsiveGetBreakpointFromTag(): ?string {
+  public function testGetBreakpointFromTag(): ?string {
     return $this->responsiveBreakpointFromTag;
   }
 

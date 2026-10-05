@@ -40,7 +40,7 @@ class WatchdogTraitTest extends UnitTestCase {
 
     $context->watchdogBeforeScenario($this->createBeforeScenarioScope());
 
-    $this->assertTrue($context->isArmed());
+    $this->assertTrue($context->testIsArmed());
   }
 
   public function testOptedInWithoutDblogFailsAtTheStart(): void {
@@ -54,7 +54,7 @@ class WatchdogTraitTest extends UnitTestCase {
       $this->assertSame('WatchdogTrait requires that the core "dblog" module is enabled, which does not hold.' . static::SWITCH_OFF, $exception->getMessage());
     }
 
-    $this->assertFalse($context->isArmed());
+    $this->assertFalse($context->testIsArmed());
   }
 
   /**
@@ -79,7 +79,7 @@ class WatchdogTraitTest extends UnitTestCase {
     $context->watchdogBeforeScenario($this->createBeforeScenarioScope($tags));
     $context->watchdogAfterScenario($this->createAfterScenarioScope($tags));
 
-    $this->assertFalse($context->isArmed());
+    $this->assertFalse($context->testIsArmed());
   }
 
   public static function dataProviderOptedOutTouchesNoBackend(): \Iterator {
@@ -153,7 +153,7 @@ class WatchdogTraitTest extends UnitTestCase {
 
     $context->watchdogBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
 
-    $this->assertSame($expected, array_values($context->getMessageTypes()));
+    $this->assertSame($expected, array_values($context->testGetMessageTypes()));
   }
 
   public static function dataProviderBeforeScenarioTracksMessageTypes(): \Iterator {
@@ -205,7 +205,7 @@ class WatchdogTraitTestImplementation extends WebRawContext {
   /**
    * Whether the scenario's follow-up hooks read the log.
    */
-  public function isArmed(): bool {
+  public function testIsArmed(): bool {
     return $this->watchdogScenarioStartTime !== NULL;
   }
 
@@ -215,7 +215,7 @@ class WatchdogTraitTestImplementation extends WebRawContext {
    * @return array<int, string>
    *   The message types.
    */
-  public function getMessageTypes(): array {
+  public function testGetMessageTypes(): array {
     return $this->watchdogMessageTypes;
   }
 

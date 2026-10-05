@@ -23,7 +23,7 @@ class TestableRawContext extends WebRawContext implements UserAwareInterface {
    * @return array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
    *   The stubs, in creation order.
    */
-  public function getCreatedStubs(): array {
+  public function testGetCreatedStubs(): array {
     return $this->createdStubs;
   }
 
@@ -33,7 +33,7 @@ class TestableRawContext extends WebRawContext implements UserAwareInterface {
    * @param array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface> $stubs
    *   The stubs to register as created.
    */
-  public function setCreatedStubs(array $stubs): void {
+  public function testSetCreatedStubs(array $stubs): void {
     $this->createdStubs = $stubs;
   }
 
@@ -43,7 +43,7 @@ class TestableRawContext extends WebRawContext implements UserAwareInterface {
    * @param array<int, string> $roles
    *   The role names to register as created.
    */
-  public function setRoles(array $roles): void {
+  public function testSetRoles(array $roles): void {
     $this->roles = $roles;
   }
 
@@ -53,7 +53,7 @@ class TestableRawContext extends WebRawContext implements UserAwareInterface {
    * @return array<int, string>
    *   The role names.
    */
-  public function getRoles(): array {
+  public function testGetRoles(): array {
     return $this->roles;
   }
 

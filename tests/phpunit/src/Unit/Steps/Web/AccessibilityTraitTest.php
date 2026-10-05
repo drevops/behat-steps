@@ -47,7 +47,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testFormatUrl(string $base_url, string $url, string $expected): void {
     $this->testObject->setMinkParameter('base_url', $base_url);
 
-    $this->assertSame($expected, $this->testObject->testFormatUrl($url));
+    $this->assertSame($expected, $this->testObject->callFormatUrl($url));
   }
 
   public static function dataProviderFormatUrl(): array {
@@ -68,12 +68,12 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testGetJsReadsSourceOnce(): void {
     $this->testObject->engineUrl = $this->writeFixture('axe-engine.js', 'ENGINE');
 
-    $first = $this->testObject->testGetJs();
+    $first = $this->testObject->callGetJs();
 
     // A second call is served from the process cache, so the source is read
     // only once even though the getter would return the same path.
     $this->writeFixture('axe-engine.js', 'CHANGED');
-    $second = $this->testObject->testGetJs();
+    $second = $this->testObject->callGetJs();
 
     $this->assertSame('ENGINE', $first);
     $this->assertSame('ENGINE', $second);
@@ -85,7 +85,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $object->engineFailures = 2;
     $object->engineContent = 'ENGINE';
 
-    $this->assertSame('ENGINE', $object->testGetJs());
+    $this->assertSame('ENGINE', $object->callGetJs());
     $this->assertSame(3, $object->engineReads);
   }
 
@@ -95,7 +95,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $object->engineAttempts = 2;
 
     try {
-      $object->testGetJs();
+      $object->callGetJs();
       $this->fail('Expected a RuntimeException.');
     }
     catch (\RuntimeException $runtime_exception) {
@@ -113,7 +113,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
 
     try {
-      $object->testGetJs();
+      $object->callGetJs();
     }
     finally {
       $this->assertSame(1, $object->engineReads);
@@ -128,7 +128,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('after 2 attempt(s) with a 1 second timeout');
 
-    $this->testObject->testGetJs();
+    $this->testObject->callGetJs();
   }
 
   public function testGetJsTreatsEmptySourceAsFailure(): void {
@@ -138,7 +138,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('after 1 attempt(s)');
 
-    $this->testObject->testGetJs();
+    $this->testObject->callGetJs();
   }
 
   public function testGetJsClampsAttemptsToOne(): void {
@@ -148,14 +148,14 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('after 1 attempt(s)');
 
-    $this->testObject->testGetJs();
+    $this->testObject->callGetJs();
   }
 
   public function testGetJsFetchDefaults(): void {
     $object = new AccessibilityTraitFetchDefaultsTestImplementation();
 
-    $this->assertSame(10, $object->testGetFetchTimeout());
-    $this->assertSame(3, $object->testGetFetchAttempts());
+    $this->assertSame(10, $object->callGetFetchTimeout());
+    $this->assertSame(3, $object->callGetFetchAttempts());
   }
 
   /**
@@ -197,7 +197,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     chdir(static::$tmp);
 
     try {
-      $this->assertSame('/sentinel/base/.logs/test_results/accessibility', $this->testObject->testGetReportDir());
+      $this->assertSame('/sentinel/base/.logs/test_results/accessibility', $this->testObject->callGetReportDir());
     }
     finally {
       if (is_string($original)) {
@@ -211,7 +211,7 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $expected = (getcwd() ?: '.') . '/.logs/test_results/accessibility';
 
-    $this->assertSame($expected, $this->testObject->testGetReportDir());
+    $this->assertSame($expected, $this->testObject->callGetReportDir());
   }
 
   /**
@@ -307,7 +307,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregatePagesDeduplicatesAndSkipsBlankUrls(): void {
-    $pages = AccessibilityTraitTestImplementation::testAggregatePages(static::createSampleAggregate());
+    $pages = AccessibilityTraitTestImplementation::callAggregatePages(static::createSampleAggregate());
 
     $this->assertSame(['/', '/contact'], array_keys($pages));
     $this->assertSame(['Homepage > Home page', 'Contact > Contact page'], array_keys($pages['/']['scenarios']));
@@ -318,8 +318,8 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregateRollupTalliesAndSortsBySeverity(): void {
-    $pages = AccessibilityTraitTestImplementation::testAggregatePages(static::createSampleAggregate());
-    $rollup = AccessibilityTraitTestImplementation::testAggregateRollup($pages);
+    $pages = AccessibilityTraitTestImplementation::callAggregatePages(static::createSampleAggregate());
+    $rollup = AccessibilityTraitTestImplementation::callAggregateRollup($pages);
 
     $this->assertSame(['critical' => 2, 'serious' => 1, 'moderate' => 0, 'minor' => 0], $rollup['totals']);
     $this->assertSame(['image-alt', 'button-name', 'color-contrast'], array_keys($rollup['rules']));
@@ -333,8 +333,8 @@ class AccessibilityTraitTest extends UnitTestCase {
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($directory);
 
     // First call creates the directory; second call finds it already present.
-    AccessibilityTraitTestImplementation::testWriteAggregateReport();
-    AccessibilityTraitTestImplementation::testWriteAggregateReport();
+    AccessibilityTraitTestImplementation::callWriteAggregateReport();
+    AccessibilityTraitTestImplementation::callWriteAggregateReport();
 
     $files = glob($directory . '/accessibility_report_*.html') ?: [];
     $this->assertNotEmpty($files);
@@ -346,7 +346,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     AccessibilityTraitTestImplementation::testSetAggregate([]);
     AccessibilityTraitTestImplementation::testSetAggregateReportDir($directory);
 
-    AccessibilityTraitTestImplementation::testWriteAggregateReport();
+    AccessibilityTraitTestImplementation::callWriteAggregateReport();
 
     $this->assertEmpty(glob($directory . '/accessibility_report_*.html') ?: []);
   }
@@ -362,10 +362,10 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregateFilenameFormat(): void {
-    $name = AccessibilityTraitTestImplementation::testAggregateFilename(1750000000);
+    $name = AccessibilityTraitTestImplementation::callAggregateFilename(1750000000);
 
     $this->assertMatchesRegularExpression('/^accessibility_report_\d{8}_\d{6}\.html$/', $name);
-    $this->assertNotSame($name, AccessibilityTraitTestImplementation::testAggregateFilename(1750086400));
+    $this->assertNotSame($name, AccessibilityTraitTestImplementation::callAggregateFilename(1750086400));
   }
 
   public function testAggregateHtmlRendersCleanRunWithoutViolations(): void {
@@ -429,7 +429,7 @@ class AccessibilityTraitTest extends UnitTestCase {
       ],
     ];
 
-    $html = AccessibilityTraitTestImplementation::testRenderAggregate($data);
+    $html = AccessibilityTraitTestImplementation::callRenderAggregate($data);
 
     $this->assertStringContainsString('<div class="card crit"><span class="num">1</span><span class="lbl">critical</span></div>', $html);
     $this->assertStringContainsString('<span class="vtype critical">image-alt <b>2</b></span>', $html);
@@ -439,7 +439,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testAggregateDataShapesRenderReadyValues(): void {
-    $data = AccessibilityTraitTestImplementation::testAggregateData(static::createSampleAggregate(), '2026-01-02 03:04');
+    $data = AccessibilityTraitTestImplementation::callAggregateData(static::createSampleAggregate(), '2026-01-02 03:04');
 
     $this->assertSame('2026-01-02 03:04', $data['generated']);
     $this->assertSame(2, $data['page_count']);
@@ -454,7 +454,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testAggregateCaptureFormatsUrlsAndRecordsEntry(): void {
     $this->testObject->setMinkParameter('base_url', 'http://nginx:8080');
 
-    $this->testObject->testCapture(
+    $this->testObject->callAggregateCapture(
       [['url' => 'http://nginx:8080/contact', 'rules' => 'wcag2a', 'result' => ['violations' => [], 'incomplete' => [], 'passes' => []]]],
       'My feature',
       'My scenario',
@@ -473,7 +473,7 @@ class AccessibilityTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderRenderJunitFailuresByThreshold')]
   public function testRenderJunitFailuresByThreshold(?string $threshold, int $expected_failures): void {
-    $xml = $this->testObject->testRenderJunit(static::createJunitResults(), 'Feature', 'Scenario', $threshold);
+    $xml = $this->testObject->callRenderJunit(static::createJunitResults(), 'Feature', 'Scenario', $threshold);
 
     $doc = simplexml_load_string($xml);
     $this->assertInstanceOf(\SimpleXMLElement::class, $doc, 'The rendered report is well-formed XML.');
@@ -498,7 +498,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   public function testRenderJunitWarningKeepsAdvisoryViolationsVisibleWithoutFailing(): void {
-    $xml = $this->testObject->testRenderJunit(static::createJunitResults(), 'Feature', 'Scenario', 'never');
+    $xml = $this->testObject->callRenderJunit(static::createJunitResults(), 'Feature', 'Scenario', 'never');
 
     $doc = simplexml_load_string($xml);
     $this->assertInstanceOf(\SimpleXMLElement::class, $doc);
@@ -525,7 +525,7 @@ class AccessibilityTraitTest extends UnitTestCase {
       ],
     ];
 
-    $xml = $this->testObject->testRenderJunit($results, 'Feature', 'Scenario', 'any');
+    $xml = $this->testObject->callRenderJunit($results, 'Feature', 'Scenario', 'any');
 
     $doc = simplexml_load_string($xml);
     $this->assertInstanceOf(\SimpleXMLElement::class, $doc);
@@ -557,7 +557,7 @@ class AccessibilityTraitTest extends UnitTestCase {
    *   Fixed generation timestamp.
    */
   protected static function renderSample(array $aggregate, string $generated): string {
-    return AccessibilityTraitTestImplementation::testRenderAggregate(AccessibilityTraitTestImplementation::testAggregateData($aggregate, $generated));
+    return AccessibilityTraitTestImplementation::callRenderAggregate(AccessibilityTraitTestImplementation::callAggregateData($aggregate, $generated));
   }
 
   /**
@@ -770,7 +770,7 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
    */
   public int $engineReads = 0;
 
-  public function testFormatUrl(string $url): string {
+  public function callFormatUrl(string $url): string {
     return $this->accessibilityFormatUrl($url);
   }
 
@@ -784,7 +784,7 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
     return [$this->accessibilityAutoMode, $this->accessibilityScenarioThreshold, $this->accessibilityScenarioFailOnIncomplete];
   }
 
-  public function testGetReportDir(): string {
+  public function callGetReportDir(): string {
     return $this->accessibilityGetReportDir();
   }
 
@@ -812,38 +812,38 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
     return static::$accessibilityAggregateReportDir;
   }
 
-  public static function testAggregateData(array $aggregate, string $generated): array {
+  public static function callAggregateData(array $aggregate, string $generated): array {
     return static::accessibilityAggregateData($aggregate, $generated);
   }
 
-  public static function testRenderAggregate(array $data): string {
+  public static function callRenderAggregate(array $data): string {
     return static::accessibilityRenderAggregate($data);
   }
 
-  public static function testAggregatePages(array $aggregate): array {
+  public static function callAggregatePages(array $aggregate): array {
     return static::accessibilityAggregatePages($aggregate);
   }
 
-  public static function testAggregateRollup(array $pages): array {
+  public static function callAggregateRollup(array $pages): array {
     return static::accessibilityAggregateRollup($pages);
   }
 
-  public static function testWriteAggregateReport(): void {
+  public static function callWriteAggregateReport(): void {
     static::accessibilityWriteAggregateReport();
   }
 
-  public static function testAggregateFilename(int $time): string {
+  public static function callAggregateFilename(int $time): string {
     return static::accessibilityAggregateFilename($time);
   }
 
-  public function testCapture(array $results, string $feature, string $scenario, string $directory): void {
+  public function callAggregateCapture(array $results, string $feature, string $scenario, string $directory): void {
     $this->accessibilityResults = $results;
     $this->accessibilityFeatureName = $feature;
     $this->accessibilityScenarioName = $scenario;
     $this->accessibilityAggregateCapture($directory);
   }
 
-  public function testRenderJunit(array $results, string $feature, string $scenario, ?string $threshold = NULL): string {
+  public function callRenderJunit(array $results, string $feature, string $scenario, ?string $threshold = NULL): string {
     $this->accessibilityResults = $results;
     $this->accessibilityFeatureName = $feature;
     $this->accessibilityScenarioName = $scenario;
@@ -866,7 +866,7 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
     return $this->engineTimeout;
   }
 
-  public function testGetJs(): string {
+  public function callGetJs(): string {
     return $this->accessibilityGetJs();
   }
 
@@ -883,11 +883,11 @@ class AccessibilityTraitFetchDefaultsTestImplementation extends WebRawContext {
 
   use AccessibilityTrait;
 
-  public function testGetFetchTimeout(): int {
+  public function callGetFetchTimeout(): int {
     return $this->accessibilityGetFetchTimeout();
   }
 
-  public function testGetFetchAttempts(): int {
+  public function callGetFetchAttempts(): int {
     return $this->accessibilityGetFetchAttempts();
   }
 
@@ -938,7 +938,7 @@ class AccessibilityTraitRetryTestImplementation extends WebRawContext {
     return $this->engineReads <= $this->engineFailures ? FALSE : $this->engineContent;
   }
 
-  public function testGetJs(): string {
+  public function callGetJs(): string {
     return $this->accessibilityGetJs();
   }
 

@@ -25,7 +25,7 @@ class CorePermissionsTest extends UnitTestCase {
    */
   public function testConvertPermissionsMapsStringableTitlesToMachineNames(): void {
     $core = new TestPermissionsCore(__DIR__, 'default');
-    $core->setPermissions([
+    $core->testSetPermissions([
       'administer content types' => [
         'title' => $this->createStringable('Administer content types'),
       ],
@@ -42,7 +42,7 @@ class CorePermissionsTest extends UnitTestCase {
 
   public function testConvertPermissionsLeavesMachineNamesAlone(): void {
     $core = new TestPermissionsCore(__DIR__, 'default');
-    $core->setPermissions([
+    $core->testSetPermissions([
       'administer users' => [
         'title' => $this->createStringable('Administer users'),
       ],
@@ -56,7 +56,7 @@ class CorePermissionsTest extends UnitTestCase {
 
   public function testCheckPermissionsAcceptsValidMachineNames(): void {
     $core = new TestPermissionsCore(__DIR__, 'default');
-    $core->setPermissions([
+    $core->testSetPermissions([
       'administer users' => ['title' => 'Administer users'],
       'access content' => ['title' => 'Access content'],
     ]);
@@ -69,7 +69,7 @@ class CorePermissionsTest extends UnitTestCase {
 
   public function testCheckPermissionsThrowsForUnknownPermission(): void {
     $core = new TestPermissionsCore(__DIR__, 'default');
-    $core->setPermissions([
+    $core->testSetPermissions([
       'administer users' => ['title' => 'Administer users'],
     ]);
 
@@ -142,7 +142,7 @@ class TestPermissionsCore extends Core {
    * @param array<string, mixed> $permissions
    *   The permissions to set.
    */
-  public function setPermissions(array $permissions): void {
+  public function testSetPermissions(array $permissions): void {
     $this->permissions = $permissions;
   }
 
