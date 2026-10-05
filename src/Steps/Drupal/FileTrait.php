@@ -106,7 +106,7 @@ trait FileTrait {
       }
 
       $path = $hash['path'];
-      $uri = $hash['uri'] ?? '';
+      $uri = $hash['uri'] ?? NULL;
       unset($hash['path'], $hash['uri']);
 
       $stub = new EntityStub('file', NULL, $hash);
@@ -278,13 +278,13 @@ trait FileTrait {
    *   The source file path relative to 'files_path'.
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Entity fields stub (must not contain 'path' or 'uri').
-   * @param string $uri
+   * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
    *
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  public function fileCreateManaged(string $path, EntityStubInterface $stub, string $uri = ''): FileInterface {
+  public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
     $this->entityLifecycleParseFields($stub);
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
@@ -301,13 +301,13 @@ trait FileTrait {
    *   The source file path relative to 'files_path'.
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Entity fields stub.
-   * @param string $uri
+   * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
    *
    * @return \Drupal\file\FileInterface
    *   Created file entity.
    */
-  public function fileCreateEntity(string $path, EntityStubInterface $stub, string $uri = ''): FileInterface {
+  public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $path = ltrim($path, '/');
@@ -325,7 +325,7 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     $destination = 'public://' . basename($path);
-    if ($uri !== '') {
+    if ($uri !== NULL && $uri !== '') {
       $destination = $uri;
       $directory = dirname($destination);
       $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);

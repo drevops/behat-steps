@@ -1435,7 +1435,7 @@ Return the node with the specified type and title
 </details>
 
 <details>
-  <summary><code>public function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void</code></summary>
+  <summary><code>public function contentVisitActionPageWithTitle(string $content_type, string $title, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit the action page of the content with a specified title
@@ -1633,7 +1633,7 @@ Registers an entity saved outside the create pipeline for cleanup
 > Manage Drupal file entities with upload and storage operations.
 
 <details>
-  <summary><code>public function fileCreateEntity(string $path, EntityStubInterface $stub, string $uri = ''): FileInterface</code></summary>
+  <summary><code>public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
 
 <br/>
 Create file entity
@@ -1642,7 +1642,7 @@ Create file entity
 </details>
 
 <details>
-  <summary><code>public function fileCreateManaged(string $path, EntityStubInterface $stub, string $uri = ''): FileInterface</code></summary>
+  <summary><code>public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
 
 <br/>
 Create a single managed file
@@ -1693,7 +1693,7 @@ Load multiple media entities with specified type and conditions
 </details>
 
 <details>
-  <summary><code>public function mediaVisitActionPageWithName(string $media_type, string $name, string $action_subpath = ''): void</code></summary>
+  <summary><code>public function mediaVisitActionPageWithName(string $media_type, string $name, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit the action page of the media with a specified name
@@ -1846,7 +1846,7 @@ Load multiple terms with specified vocabulary and conditions
 </details>
 
 <details>
-  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, string $action_subpath = ''): void</code></summary>
+  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit the action page of the term with a specified name
@@ -1939,7 +1939,7 @@ Load multiple users with specified conditions
 </details>
 
 <details>
-  <summary><code>public function userVisitActionPage(string $name, string $action_subpath = ''): void</code></summary>
+  <summary><code>public function userVisitActionPage(string $name, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit a user action page

@@ -333,7 +333,7 @@ trait ResponsiveTrait {
    *
    * @param string $dimensions
    *   Dimensions in WIDTHxHEIGHT format.
-   * @param string $breakpoint
+   * @param string|null $breakpoint
    *   Optional breakpoint name for error messages.
    *
    * @return array<string, int>
@@ -342,9 +342,9 @@ trait ResponsiveTrait {
    * @throws \RuntimeException
    *   If format is invalid.
    */
-  protected function responsiveExtractDimensions(string $dimensions, string $breakpoint = ''): array {
+  protected function responsiveExtractDimensions(string $dimensions, ?string $breakpoint = NULL): array {
     if (preg_match('/^(\d+)x(\d+)$/i', $dimensions, $matches) !== 1) {
-      if ($breakpoint !== '') {
+      if ($breakpoint !== NULL) {
         throw new \RuntimeException(sprintf('Invalid breakpoint format for "%s": "%s". Expected format: WIDTHxHEIGHT (e.g., 1920x1080).', $breakpoint, $dimensions));
       }
 

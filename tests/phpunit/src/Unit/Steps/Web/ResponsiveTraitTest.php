@@ -402,7 +402,7 @@ class ResponsiveTraitTestImplementation extends RawMinkContext {
   /**
    * Exposes the protected method for testing.
    */
-  public function callExtractDimensions(string $dimensions, string $name = ''): array {
+  public function callExtractDimensions(string $dimensions, ?string $name = NULL): array {
     return $this->responsiveExtractDimensions($dimensions, $name);
   }
 

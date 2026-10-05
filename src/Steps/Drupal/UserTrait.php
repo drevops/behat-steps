@@ -717,10 +717,10 @@ trait UserTrait {
    *
    * @param string $name
    *   The user name.
-   * @param string $action_subpath
-   *   The action subpath.
+   * @param string|null $action_subpath
+   *   The action subpath, such as '/edit', or NULL for the profile page.
    */
-  public function userVisitActionPage(string $name, string $action_subpath = ''): void {
+  public function userVisitActionPage(string $name, ?string $action_subpath = NULL): void {
     if ($name === 'current') {
       $user = $this->authGetUserRegistry()->getCurrentUser();
 
@@ -741,7 +741,7 @@ trait UserTrait {
       $uid = $user->id();
     }
 
-    $this->visitPath('/user/' . $uid . $action_subpath);
+    $this->visitPath('/user/' . $uid . ($action_subpath ?? ''));
   }
 
 }

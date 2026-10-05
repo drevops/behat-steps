@@ -173,7 +173,7 @@ class WebRawContextTest extends UnitTestCase {
     $identity = $this->captureDetachedIdentity($context);
 
     $this->assertSame([], $identity->cookies);
-    $this->assertSame('', $identity->cookieUrl);
+    $this->assertNull($identity->cookieUrl);
     $this->assertNull($identity->credentials);
   }
 

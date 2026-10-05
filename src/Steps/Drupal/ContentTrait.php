@@ -368,12 +368,12 @@ trait ContentTrait {
    *   The content type.
    * @param string $title
    *   The title of the content.
-   * @param string $action_subpath
-   *   The operation to perform.
+   * @param string|null $action_subpath
+   *   The operation to perform, such as '/edit', or NULL for the content page.
    */
-  public function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void {
+  public function contentVisitActionPageWithTitle(string $content_type, string $title, ?string $action_subpath = NULL): void {
     $nid = $this->contentGetNidByTitle($content_type, $title);
-    $path = $this->locatePath('/node/' . $nid . $action_subpath);
+    $path = $this->locatePath('/node/' . $nid . ($action_subpath ?? ''));
 
     $this->getSession()->visit($path);
   }

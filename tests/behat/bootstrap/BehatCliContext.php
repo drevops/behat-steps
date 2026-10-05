@@ -298,12 +298,12 @@ EOL;
   /**
    * Runs behat command with provided parameters.
    *
-   * @param string $argumentsString
+   * @param string|null $argumentsString
    */
   #[When('/^I run "behat(?: ((?:\\"|[^"])*))?"$/')]
-  public function iRunBehat($argumentsString = '')
+  public function iRunBehat(?string $argumentsString = null)
   {
-    $argumentsString = strtr($argumentsString, ['\'' => '"']);
+    $argumentsString = strtr($argumentsString ?? '', ['\'' => '"']);
 
     $php = $this->phpBin;
 

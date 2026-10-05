@@ -88,9 +88,9 @@ final readonly class Prerequisite {
    *
    * @param string $capability
    *   The capability interface.
-   * @param string $description
-   *   What holds when a backend provides it, as a clause. Defaults to naming
-   *   the capability.
+   * @param string|null $description
+   *   What holds when a backend provides it, as a clause, or NULL for a clause
+   *   naming the capability.
    *
    * @return self
    *   The prerequisite.
@@ -98,8 +98,8 @@ final readonly class Prerequisite {
    * @throws \RuntimeException
    *   When the capability is not an interface.
    */
-  public static function capability(string $capability, string $description = ''): self {
-    if ($description === '') {
+  public static function capability(string $capability, ?string $description = NULL): self {
+    if ($description === NULL) {
       $separator = strrpos($capability, '\\');
       $description = sprintf('a backend in the scenario\'s list provides "%s"', $separator === FALSE ? $capability : substr($capability, $separator + 1));
     }

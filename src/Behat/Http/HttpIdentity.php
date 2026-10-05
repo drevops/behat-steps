@@ -20,9 +20,9 @@ class HttpIdentity {
    *
    * @param array<string, string> $cookies
    *   Cookie values keyed by name, in wire form.
-   * @param string $cookieUrl
-   *   The URL the cookies were read for. They are sent to its host and that
-   *   host's subdomains only.
+   * @param string|null $cookieUrl
+   *   The URL the cookies were read for, or NULL before the session opens a
+   *   page. They are sent to its host and that host's subdomains only.
    * @param array<string, string> $headers
    *   Header values keyed by name.
    * @param array{username: string, password: string}|null $credentials
@@ -30,7 +30,7 @@ class HttpIdentity {
    */
   public function __construct(
     public readonly array $cookies = [],
-    public readonly string $cookieUrl = '',
+    public readonly ?string $cookieUrl = NULL,
     public readonly array $headers = [],
     public readonly ?array $credentials = NULL,
   ) {}

@@ -119,7 +119,7 @@ class HttpClientFactoryTest extends UnitTestCase {
 
   public function testDetachedAuthorizationHeaderWinsOverCredentials(): void {
     $factory = new HttpClientFactory($this->createRecordingClient(), 'http://example.com');
-    $identity = new HttpIdentity([], '', ['Authorization' => 'Bearer t2'], ['username' => 'bob', 'password' => 'pw']);
+    $identity = new HttpIdentity([], NULL, ['Authorization' => 'Bearer t2'], ['username' => 'bob', 'password' => 'pw']);
 
     $factory->createDetached($identity)->request('GET', 'http://example.com/file');
 

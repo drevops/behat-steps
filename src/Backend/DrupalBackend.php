@@ -196,14 +196,14 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function configGet(string $name, string $key = ''): mixed {
+  public function configGet(string $name, ?string $key = NULL): mixed {
     return $this->getCore()->configGet($name, $key);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function configGetOriginal(string $name, string $key = ''): mixed {
+  public function configGetOriginal(string $name, ?string $key = NULL): mixed {
     return $this->getCore()->configGetOriginal($name, $key);
   }
 
