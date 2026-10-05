@@ -37,7 +37,7 @@
 | --- | --- | --- |
 | [Drupal\BigPipeTrait](#drupalbigpipetrait) | 2 | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
 | [Drupal\BlockTrait](#drupalblocktrait) | 2 | Manage Drupal blocks. |
-| [Drupal\CacheTrait](#drupalcachetrait) | 1 | Invalidate Drupal caches and run cron from within a scenario. |
+| [Drupal\CacheTrait](#drupalcachetrait) | 2 | Invalidate Drupal caches and run cron from within a scenario. |
 | [Drupal\ConfigTrait](#drupalconfigtrait) | 2 | Assert and set stored Drupal configuration values with automatic revert. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | 2 | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](#drupalcontenttrait) | 3 | Manage Drupal content with workflow and moderation support. |
@@ -1334,6 +1334,15 @@ Return the block carrying a label
 [Source](src/Steps/Drupal/CacheTrait.php), [Steps](STEPS.md#drupalcachetrait)
 
 > Invalidate Drupal caches and run cron from within a scenario.
+
+<details>
+  <summary><code>public function cacheDeletePagePath(string $path, bool $is_pattern = FALSE): void</code></summary>
+
+<br/>
+Delete the internal page cache entries stored for a path
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function cacheGetPageCacheBin(): string</code></summary>
