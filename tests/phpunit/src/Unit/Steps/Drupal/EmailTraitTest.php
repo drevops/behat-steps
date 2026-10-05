@@ -11,7 +11,6 @@ use Behat\Mink\Session;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Drupal\EmailTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
-use Drupal\Component\Render\FormattableMarkup;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -119,7 +118,7 @@ class EmailTraitTest extends UnitTestCase {
     yield 'partial, part in another case' => [self::MESSAGES, 'verification', TRUE, NULL];
     yield 'no collected emails' => [[], 'Account Verification', FALSE, NULL];
     yield 'email without a subject' => [[['params' => ['body' => 'No subject']]], 'Account Verification', TRUE, NULL];
-    yield 'subject held as markup' => [[['subject' => new FormattableMarkup('Account Verification', [])]], 'Account Verification', FALSE, 0];
+    yield 'subject held as markup' => [[['subject' => self::stringable('Account Verification')]], 'Account Verification', FALSE, 0];
   }
 
   public function testGetMessageBySubject(): void {
@@ -233,6 +232,21 @@ class EmailTraitTest extends UnitTestCase {
     $session->method('getDriver')->willReturn($this->createStub(DriverInterface::class));
 
     return $session;
+  }
+
+  /**
+   * Returns an anonymous Stringable that mimics a Drupal TranslatableMarkup.
+   */
+  protected static function stringable(string $value): \Stringable {
+    return new readonly class($value) {
+
+      public function __construct(protected string $value) {}
+
+      public function __toString(): string {
+        return $this->value;
+      }
+
+    };
   }
 
 }
