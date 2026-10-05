@@ -121,7 +121,7 @@ Every published helper names what it does with a verb: `messageGetSelector()`, n
 
 A hook is named `<trait><Event>`, for the event it runs on rather than what it does: `timeAfterScenario()`, `watchdogBeforeScenario()`, `contentBeforeNodeCreate()`. 2 methods can't share a name, so a trait registers 1 hook per event. When a trait has 2 jobs on 1 event, its hook calls a protected helper for each, in the order they need to run: `authAfterScenario()` runs `authCleanUsers()` and then `authCleanRoles()`.
 
-Behat runs every hook on an event even when an earlier one fails, but 2 calls inside 1 hook get no such guarantee. A hook running 2 teardowns calls the second in a `finally`, so a failed first teardown still lets the second clean up.
+Behat runs every hook on an event even when an earlier one fails, and reports each failure, but 2 calls inside 1 hook get neither for free. A hook running 2 teardowns still runs the second when the first throws, then rethrows the first failure. When both throw, it throws 1 `\RuntimeException` that names both and keeps the first as its previous exception, as `authAfterScenario()` does.
 
 `TraitMethodNamingTest` fails a hook named anything but `<trait><Event>`.
 

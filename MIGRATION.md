@@ -1140,7 +1140,7 @@ A call or an override in a consumer context is renamed:
 
 Three of those names were also skip tags. A skip tag names a trait rather than a method, so `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles` both become `@behat-steps-skip:AuthTrait`.
 
-`authCleanUsers()` and `authCleanRoles()` take no parameters, aren't hooks, and are protected. `authAfterScenario()` is the hook, and it runs them users first, removing the roles even when removing the users fails. An override of either drops its `@AfterScenario` annotation or `#[AfterScenario]` attribute, or it runs twice.
+`authCleanUsers()` and `authCleanRoles()` take no parameters, aren't hooks, and are protected. `authAfterScenario()` is the hook. It runs them users first, and still runs the role cleanup when removing the users fails. When both fail, it throws 1 `\RuntimeException` that names both. An override of either drops its `@AfterScenario` annotation or `#[AfterScenario]` attribute, or it runs twice.
 
 A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
 

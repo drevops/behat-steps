@@ -54,11 +54,16 @@ trait AuthTrait {
   /**
    * Removes the users the scenario created, then its roles.
    *
-   * The roles are removed even when removing the users throws.
+   * The role cleanup runs even when removing the users throws, and that
+   * failure is rethrown afterwards.
    *
    * 'BEHAT_STEPS_DISABLE_CLEANUP' leaves the failing scenario's state intact,
    * session included, so the early-return guard skips the logout as well.
    * Later scenarios in the same run inherit that login.
+   *
+   * @throws \RuntimeException
+   *   When removing the users and removing the roles both fail. The message
+   *   names both failures, and the user failure is the previous exception.
    */
   #[AfterScenario]
   public function authAfterScenario(AfterScenarioScope $scope): void {
@@ -69,9 +74,18 @@ trait AuthTrait {
     try {
       $this->authCleanUsers();
     }
-    finally {
-      $this->authCleanRoles();
+    catch (\Throwable $exception) {
+      try {
+        $this->authCleanRoles();
+      }
+      catch (\Throwable $roles_exception) {
+        throw new \RuntimeException(sprintf("Removing the created users failed: %s\nRemoving the created roles failed: %s", $exception->getMessage(), $roles_exception->getMessage()), 0, $exception);
+      }
+
+      throw $exception;
     }
+
+    $this->authCleanRoles();
   }
 
   /**

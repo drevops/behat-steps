@@ -472,6 +472,32 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context->authAfterScenario($this->createAfterScenarioScope());
   }
 
+  public function testBothCleanupFailuresAreReported(): void {
+    $users_failure = new \RuntimeException('The user could not be deleted.');
+
+    $backend = $this->createBackend([UserCapabilityInterface::class, RoleCapabilityInterface::class]);
+    $backend->method('userDelete')->willThrowException($users_failure);
+    $backend->method('roleDelete')->willThrowException(new \RuntimeException('The role could not be deleted.'));
+
+    $user_registry = new UserRegistry();
+    $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
+
+    $context = $this->createContext($backend, $user_registry);
+    $context->setRoles(['editor']);
+
+    try {
+      $context->authAfterScenario($this->createAfterScenarioScope());
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame("Removing the created users failed: The user could not be deleted.\nRemoving the created roles failed: The role could not be deleted.", $exception->getMessage());
+      $this->assertSame($users_failure, $exception->getPrevious());
+
+      return;
+    }
+
+    $this->fail('A failure in both the user and the role cleanup did not fail the teardown.');
+  }
+
   public function testStaticCachesAreClearedOnBackendTheScenarioReached(): void {
     $backend = $this->createBackend([CacheCapabilityInterface::class]);
     $backend->expects($this->once())->method('cacheClearStatic');
