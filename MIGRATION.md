@@ -2611,3 +2611,56 @@ A string parameter left out for "not given" defaults to `NULL` with a nullable t
 | `Drupal\UserTrait::userVisitActionPage()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
 
 A call that leaves the subpath out, or passes `''`, opens the same page as before. An override in your `FeatureContext` takes the new signature.
+
+## Classes are final unless a project extends them
+
+A class a project isn't meant to extend is `final` now, so the classes left open are the ones built for it: the 3 contexts, the backends, `Core`, the field handlers, the browser adapters, `HttpClientFactory` and `DocumentElement`. [Final classes](CONTRIBUTING.md#final-classes) says why each of those stays open.
+
+A class of your own that extends one of the classes below no longer loads:
+
+```
+PHP Fatal error:  Class Acme\AcmeAuthenticator cannot extend final class DrevOps\BehatSteps\Behat\Auth\Authenticator
+```
+
+| Namespace | Now `final` |
+| --- | --- |
+| `Backend\Alias` | `RolesAlias` |
+| `Backend\Core\Alias` | `AuthorAlias`, `ParentTermAlias`, `VocabularyMachineNameAlias` |
+| `Backend\Core\Field` | `FieldClassifier`, `FieldShapeClassifier` |
+| `Backend\Core\Field\Parser` | `EntityFieldParser` |
+| `Backend\Core\Field\Parser\Exception` | `MultipleParseException` |
+| `Backend\Exception` | `BootstrapException`, `CreationAliasResolutionException`, `UnsupportedBackendActionException` |
+| `Behat\Auth` | `Authenticator`, `BasicAuthenticator` |
+| `Behat\Config` | `ConfigSchemaReader`, `TagOverrides`, `TraitOptionResolver`, `TraitOptionResolverFactory` |
+| `Behat\Context\Attribute` | `HookAttributeReader` |
+| `Behat\Context\Initializer` | `BackendAwareInitializer` |
+| `Behat\Generator` | `ClassGenerator` |
+| `Behat\Hook\Call` | `AfterEntityCreate`, `AfterNodeCreate`, `AfterTermCreate`, `AfterUserCreate`, `BeforeEntityCreate`, `BeforeNodeCreate`, `BeforeTermCreate`, `BeforeUserCreate` |
+| `Behat\Http` | `HttpIdentity` |
+| `Behat\Listener` | `BackendListener`, `SkipTagListener` |
+| `Behat\Mink` | `BrowserCapabilityResolver` |
+| `Behat\Mink\ServiceContainer\Driver` | `BrowserKitFactory` |
+| `Behat\Prerequisite` | `PrerequisiteReader` |
+| `Behat\Registry` | `BackendRegistry`, `ScenarioTagRegistry`, `UserRegistry` |
+| `Behat\Selector` | `RegionSelector` |
+| `Behat\ServiceContainer` | `BackendPass`, `BehatStepsExtension` |
+| `Exception` | `AssertionException` |
+
+Where one of these classes has an interface, implement the interface instead. A suite that swaps in its own registry or authenticator through a `*.class` parameter implements `BackendRegistryInterface`, `ScenarioTagRegistryInterface`, `UserRegistryInterface`, `AuthenticatorInterface` with `FastLogoutInterface`, or `BasicAuthenticatorInterface`. A creation alias of your own implements `PreCreateAliasInterface` or `PostCreateAliasInterface`, and option resolution is replaced through `TraitOptionResolverFactoryInterface`, as [Option resolution is a service a project can replace](#option-resolution-is-a-service-a-project-can-replace) describes.
+
+PHPUnit can't double a final class either, so a test that built a mock of one of these fails with `Class "..." is declared "final" and cannot be doubled`. Double its interface instead.
+
+2 constructor parameters are named after their types now, which only matters to a call that passes them by name:
+
+| Constructor | Before | After |
+| --- | --- | --- |
+| `Backend\Alias\RolesAlias::__construct()` | `$backend` | `$userCapability` |
+| `Behat\Context\Initializer\BackendAwareInitializer::__construct()` | `$optionResolverFactory` | `$traitOptionResolverFactory` |
+
+### Constants declare native types
+
+Every constant under `src/` declares its type now, as `public const string CONFIG_KEY = 'behat_steps';` does, and every value is unchanged. PHP holds a redeclared constant to the type it inherits, so a class of your own that redeclares one of them, such as a `FeatureContext` redeclaring a constant of a trait its parent composes, declares the same type:
+
+```
+PHP Fatal error:  Type of FeatureContext::BATCH_WAIT_TIMEOUT must be compatible with DrupalContext::BATCH_WAIT_TIMEOUT of type int
+```

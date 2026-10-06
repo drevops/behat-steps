@@ -181,6 +181,8 @@ Never call `hasTag()` or `getTags()` directly. Behat 3 strips the `@` from a tag
 - Paths are built with `/`. `DIRECTORY_SEPARATOR` only compares against, splits or trims a path the platform returned (`realpath()`, `getcwd()`, `getFileName()`, a directory iterator)
 - A closure that never touches `$this` is `static` (`SlevomatCodingStandard.Functions.StaticClosure`), and an empty class or function body is `{}` (`EmptyBodyTest`)
 - A single-word boolean takes `is_` (`$is_found`). A caught exception is `$exception`, a directory `$directory`, a restored value `$original`, a test's expected message `$expected_message`, and a dynamic call is `->{$method}()`
+- A concrete class under `src/` is `final` unless a project extends it. The extension points (the contexts, the backends, `Core`, the field handlers, the browser adapters, `HttpClientFactory` and `DocumentElement`) are listed in `EXTENSION_POINTS` in `ExtensionPointTest`, and a final class keeps its members `protected`. See "Final classes" in [CONTRIBUTING.md](CONTRIBUTING.md)
+- Every constant under `src/` declares a native type, `public const string NAME = 'value';` (`TypedConstantTest`)
 - The full list is "Settled style questions" in [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Documentation
