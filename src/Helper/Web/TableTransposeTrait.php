@@ -94,11 +94,10 @@ trait TableTransposeTrait {
    *   are values). Returns empty TableNode if input is empty.
    */
   public function tableTransposeHorizontal(array $entities): TableNode {
-    // @codeCoverageIgnoreStart
     if (empty($entities)) {
       return new TableNode([]);
     }
-    // @codeCoverageIgnoreEnd
+
     $field_names = array_keys($entities[0]);
     $rows = [$field_names];
 

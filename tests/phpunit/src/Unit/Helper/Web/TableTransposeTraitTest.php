@@ -82,6 +82,10 @@ class TableTransposeTraitTest extends UnitTestCase {
     $this->assertSame($expected, $this->testObject->tableTransposeHorizontal($entities)->getRows());
   }
 
+  public function testEmptyEntityListYieldsEmptyTable(): void {
+    $this->assertSame([], $this->testObject->tableTransposeHorizontal([])->getRows());
+  }
+
 }
 
 /**
