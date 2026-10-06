@@ -1946,15 +1946,13 @@ A method that created, deleted or loaded several entities at once took one of 3 
 
 ### A boolean parameter reads as a question
 
-A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is_inverted` already did. 5 `Drupal\EmailTrait` methods named theirs bare. Step text is unchanged, so this only matters to a call that passes the argument by name.
+A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is_inverted` already did. `Drupal\EmailTrait::emailFindMessage()` named its flag bare. Step text is unchanged, so this only matters to a call that passes the argument by name.
 
 | Method | Before | After |
 | --- | --- | --- |
-| `emailAssertMessageFieldContains()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
-| `emailAssertMessageFieldNotContains()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
-| `emailAssertMessageHeaderContains()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
-| `emailClearTestQueue()` | `bool $force = FALSE` | `bool $is_forced = FALSE` |
 | `emailFindMessage()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
+
+`emailAssertMessageHeaderContains()`, `emailAssertMessageFieldContains()`, `emailAssertMessageFieldNotContains()` and `emailClearTestQueue()` lost their flag instead, as [A step method takes only what its step binds](#a-step-method-takes-only-what-its-step-binds) lists.
 
 `Helper\Drupal\AuthTrait::authLogout()`, which replaces `RawContext::logout()`, takes `$is_fast` where `logout()` took `$fast`.
 
