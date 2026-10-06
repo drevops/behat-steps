@@ -43,7 +43,7 @@
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.3.0",
         "phpunit/phpunit": "^11.5.57",
-        "rector/rector": "^2.6.7",
+        "rector/rector": "^2.7.0",
         "softcreatr/jsonpath": "^0.10 || ^1.0"
     },
     "conflict": {
