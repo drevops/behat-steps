@@ -425,6 +425,8 @@ Every tag has the same syntax: a flag stands alone, a parametrized tag takes its
 
 A trait names each tag it reads in a constant carrying its prefix, such as `TestmodeTrait::TESTMODE_TAG`, and documents the tag in `tag_registry()` in [docs.php](docs.php). `Tag::JAVASCRIPT` names the tag Mink reads to run a scenario in its JavaScript session. `TagReadTest` fails on a trait that passes a reader a string literal or a single node, or calls `Tag::all()`, `Tag::on()` or `Tag::normalize()`, and `DocsTest` fails on a tag constant the registry does not list.
 
+A filter in a hook attribute, as in `#[AfterScenario('@acme')]`, reads its tag outside the readers, so neither test sees it. A scenario or feature hook filters on `@javascript` alone, the tag Mink reads itself, and reads any other tag in its body through a reader. `TagReadTest` fails on a hook attribute that filters on anything else.
+
 A reader also takes a single node, for a hook that ranks the 2 lines itself: `ResponsiveTrait` validates the `@breakpoint:` tag of the scenario and of its feature separately. `Tag::all()`, `Tag::on()` and `Tag::normalize()` return raw lists for code outside the traits, such as a listener. Nothing outside `Tag` calls `getTags()` or `hasTag()`, so `grep` finds any new one.
 
 ## Skipping a trait's hooks
