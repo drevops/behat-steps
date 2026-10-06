@@ -35,6 +35,16 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
+    $this->context = $this->createContext();
+  }
+
+  /**
+   * Creates a context whose backend double reads the booted kernel.
+   *
+   * @param array<string, array<string, mixed>> $config
+   *   The trait options, keyed by trait group.
+   */
+  protected function createContext(array $config = []): DrupalContext {
     $backend = $this->createStub(DrupalBackendInterface::class);
     $backend->method('isBootstrapped')->willReturn(TRUE);
     $backend->method('moduleIsEnabled')->willReturnCallback(static fn(string $module_name): bool => \Drupal::moduleHandler()->moduleExists($module_name));
@@ -42,8 +52,10 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
     $backend_registry = new BackendRegistry(['test' => $backend]);
     $backend_registry->setScenarioBackends(['test' => 'test']);
 
-    $this->context = new DrupalContext();
-    $this->context->setBackendRegistry($backend_registry);
+    $context = new DrupalContext($config);
+    $context->setBackendRegistry($backend_registry);
+
+    return $context;
   }
 
   /**

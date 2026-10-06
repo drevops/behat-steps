@@ -1347,6 +1347,45 @@ When the file is missing, the attachment steps now name it. The old message said
 | Drupal\EmailTrait | No attachments were found in the email with subject .... | The file "..." is not attached to the email with subject "...". |
 | Drupal\EmailTrait | No attachments were found in the email with subject containing "...". | The file "..." is not attached to the email with subject containing "...". |
 
+## Page cache steps clear the paths they name
+
+`Given the page cache for the path :path is empty` named 1 path but cleared every page. It invalidated the `http_response` cache tag, and Drupal puts that tag on every cacheable response, so the step emptied the whole internal page cache and the whole dynamic page cache. `Given the page cache for the paths matching :path_pattern is empty` matched its pattern anywhere in the cached URL, so `/news*` also cleared `/archive/news`, and a pattern with no `*` cleared every path that contained it.
+
+Both steps now delete the internal page cache entries whose path matches. The match ignores the host, the query string and the request format, so clearing `/about` clears `/about?page=2` too. A pattern matches the whole path, and `*` matches any run of characters, `/` included.
+
+That's on the database backend, which holds the page cache by default and is the only backend that can list its entries. A page cache bin on Redis, Memcache or any other backend is emptied whole instead, so the steps never leave a stale entry behind.
+
+| Step | Before | After |
+| --- | --- | --- |
+| `Given the page cache for the path "/about" is empty` | Empties the internal and dynamic page caches for every path | Deletes the internal page cache entries for `/about` |
+| `Given the page cache for the paths matching "/news*" is empty` | Deletes every entry whose URL contains `/news` | Deletes the entries whose path starts with `/news` |
+| `Given the page cache for the paths matching "/news" is empty` | Deletes every entry whose URL contains `/news` | Deletes the entries for `/news` |
+
+A scenario that leaned on the old reach, to refresh a path it didn't name or a page the dynamic page cache serves to a logged-in user, switches to a step that says what it clears:
+
+```gherkin
+# Before.
+Given the page cache for the path "/about" is empty
+
+# After: every internal page cache entry.
+Given the page cache for the paths matching "/*" is empty
+
+# After: every cache bin, the dynamic page cache included.
+Given the cache is empty
+```
+
+The path is matched from its first character, so a site served under a base path includes it, as in `/subdir/news*`.
+
+A path or a pattern carrying a query string or a fragment now fails with `The path "..." must not contain a query string or a fragment.`, or `The path pattern "..."` for a pattern. A cached path never holds either, so the argument could only match nothing. Drop the query string, since the step covers every query string of the path already.
+
+The pattern step used to fail whenever the bin's table was missing. The database backend creates that table on its first write, so a missing table only means nothing is cached yet, and both steps now pass. They fail when the bin itself doesn't exist, which is the case when the page_cache module isn't enabled:
+
+| Trait | Before | After |
+| --- | --- | --- |
+| Drupal\CacheTrait | The page cache table "..." does not exist. Ensure the "..." cache bin is configured. | The cache bin "..." does not exist. Enable the page_cache module or set the "cache.page_cache_bin" option. |
+
+Both steps call `cacheDeletePagePath()`, which is public, so your own step definitions can clear a path the same way. It takes the path and an `$is_pattern` flag that reads `*` as a wildcard.
+
 ## Unified assertion exceptions
 
 Assertion steps used to throw whatever their trait happened to reach for: `ExpectationException` in most places, plain `\Exception` in 8 traits, `\RuntimeException` in `XmlTrait`'s format check, and `\InvalidArgumentException` in 2 select-option steps. The type is part of the contract - consumers catch on it - so it now follows one rule.
