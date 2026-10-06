@@ -30,20 +30,29 @@ class FileHandler extends AbstractHandler {
    * {@inheritdoc}
    */
   protected function doExpand(array $records): array {
-    $files = [];
+    $items = [];
 
     foreach ($records as $record) {
       $file_path = $record[$this->mainProperty];
       $file = $this->resolveExistingFile($file_path) ?? $this->uploadAndSave($file_path);
 
-      $files[] = [
-        $this->mainProperty => $this->fileId($file),
-        'display' => $record['display'] ?? 1,
-        'description' => $record['description'] ?? '',
-      ];
+      $items[] = [$this->mainProperty => $this->fileId($file)] + $this->getItemProperties($record);
     }
 
-    return $files;
+    return $items;
+  }
+
+  /**
+   * Returns the item properties stored beside the file id.
+   *
+   * @param array<string, mixed> $record
+   *   A normalized field record.
+   *
+   * @return array<string, mixed>
+   *   Property values keyed by property name.
+   */
+  protected function getItemProperties(array $record): array {
+    return ['display' => $record['display'] ?? 1, 'description' => $record['description'] ?? ''];
   }
 
   /**

@@ -132,6 +132,12 @@ class FileHandlerTest extends FileBackedHandlerTestBase {
       \RuntimeException::class,
       'Error reading file /nonexistent/missing-file.bin.',
     ];
+    yield 'bare basename without managed file falls back to upload' => [
+      ['unmanaged-file.bin'],
+      NULL,
+      \RuntimeException::class,
+      'Error reading file unmanaged-file.bin.',
+    ];
   }
 
 }
