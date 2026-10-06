@@ -1828,12 +1828,11 @@ A method that fails with an assertion exception is named as an assertion, whethe
 | --- | --- | --- |
 | `Drupal\ConfigTrait` | `configCompareContains()` (protected) | `configAssertContains()` |
 | `Drupal\ConfigTrait` | `configCompareEquals()` (protected) | `configAssertEquals()` |
-| `Drupal\EmailTrait` | `emailAssertLinkNumber()` (protected) | `StringTrait::stringParseInteger()` |
 | `CommandTrait` | `commandAssertHasRun()` (protected) | `commandRequireRun()` |
-| `CommandTrait` | `commandAssertInteger()` (protected) | `StringTrait::stringParseInteger()` |
-| `CommandTrait` | `commandAssertNumeric()` (protected) | `StringTrait::stringParseNumber()` |
 | `CookieTrait` | `cookieExists()` | `cookieAssertExists()` |
 | `CookieTrait` | `cookieNotExists()` | `cookieAssertNotExists()` |
+
+The protected `Drupal\EmailTrait::emailAssertLinkNumber()`, `CommandTrait::commandAssertInteger()` and `CommandTrait::commandAssertNumeric()` are gone rather than renamed. A step parses its number with `StringTrait::stringParseInteger()` or `StringTrait::stringParseNumber()` instead, as [A step method takes only what its step binds](#a-step-method-takes-only-what-its-step-binds) describes.
 
 ### A hook is named for its event
 
@@ -2586,6 +2585,8 @@ The methods are listed under their 4.x names; [One shape per naming idea](#one-s
 | `Drupal\FileTrait::fileCreateUnmanaged()` | `string $content = 'test'` | no `$content`; call `fileCreateUnmanagedWithContent()` |
 
 An override of one of these methods in your `FeatureContext` takes the new signature, or PHP reports it as incompatible with the trait's.
+
+A call that still passes a removed argument doesn't fail, because PHP drops an extra argument without a word: `fileCreateUnmanaged($uri, 'Hello')` writes `test`, `emailAssertMessageFieldContains($field, $string, TRUE)` compares with whitespace collapsed, and `elementAssertNotVisuallyVisible($selector, 10)` checks an offset of 0. Move each one to the method in the last column. PHPStan reports every such call as a method invoked with more parameters than it takes.
 
 ### Optional string parameters default to `NULL`
 
