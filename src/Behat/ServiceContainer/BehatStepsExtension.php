@@ -25,22 +25,22 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * Behat extension wiring the backend layer, services and hooks into a suite.
  */
-class BehatStepsExtension implements ExtensionInterface {
+final class BehatStepsExtension implements ExtensionInterface {
 
   /**
    * Key this extension's settings live under in the Behat configuration.
    */
-  public const CONFIG_KEY = 'behat_steps';
+  public const string CONFIG_KEY = 'behat_steps';
 
   /**
    * Container parameter holding the configured ordered backend list.
    */
-  public const BACKENDS_PARAMETER = 'behat_steps.backends';
+  public const string BACKENDS_PARAMETER = 'behat_steps.backends';
 
   /**
    * Service ID of the transport the detached and bare browsers send through.
    */
-  public const TRANSPORT_SERVICE = 'behat_steps.http_client';
+  public const string TRANSPORT_SERVICE = 'behat_steps.http_client';
 
   /**
    * The factory registered with Mink, NULL when the suite registers no Mink.
@@ -96,7 +96,7 @@ class BehatStepsExtension implements ExtensionInterface {
     $builder
       ->beforeNormalization()
         ->ifArray()
-        ->then(static fn(array $config): array => static::rejectRenamedKeys($config))
+        ->then(static fn(array $config): array => self::rejectRenamedKeys($config))
       ->end()
       ->children()
         ->arrayNode('backends')

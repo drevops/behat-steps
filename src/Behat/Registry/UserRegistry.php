@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 /**
  * Default implementation of the user registry service.
  */
-class UserRegistry implements UserRegistryInterface {
+final class UserRegistry implements UserRegistryInterface {
 
   /**
    * The user stub representing the currently logged in user.

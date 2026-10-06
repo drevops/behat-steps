@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\TermScope;
 /**
  * Hook call dispatched before a taxonomy term is created.
  */
-class BeforeTermCreate extends EntityHook {
+final class BeforeTermCreate extends EntityHook {
 
   /**
    * Initializes the hook.

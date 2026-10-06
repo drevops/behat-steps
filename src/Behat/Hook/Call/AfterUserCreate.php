@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\UserScope;
 /**
  * Hook call dispatched after a user is created.
  */
-class AfterUserCreate extends EntityHook {
+final class AfterUserCreate extends EntityHook {
 
   /**
    * Initializes the hook.

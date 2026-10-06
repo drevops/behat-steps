@@ -207,6 +207,25 @@ Do not write a class whose only job is to forward to a capability interface. The
 
 A class earns its place when it holds state across calls, composes more than one collaborator, or decides something the capability cannot. Forwarding 4 methods and renaming them on the way through is none of those.
 
+## Final classes
+
+A concrete class under `src/` is `final` unless a project is meant to extend it. Sealing a class that has shipped breaks every project extending it, while opening one breaks nothing, so a new class starts `final` and is opened once a project has a reason to extend it.
+
+These are the extension points. Each one stays open, along with every class that extends or implements it:
+
+- **The contexts**: `WebRawContext`, `WebContext` and `DrupalContext`, one of which a project's own context extends.
+- **The backends**: a project backend may extend `DrupalBackend`, `DrushBackend` or `BlackboxBackend` rather than implement `BackendInterface` from scratch.
+- **`Core`**: a version-specific core extends it and registers its own field handlers and creation aliases.
+- **The field handlers**: a handler for another field type extends a shipped one, the way `OgStandardReferenceHandler` extends `EntityReferenceHandler`.
+- **The browser adapters**: an adapter for a browser driver derived from a shipped one extends that driver's adapter.
+- **`HttpClientFactory`**: a package replaces the `behat_steps.http_client_factory` service with a subclass, as [docs/http-clients.md](docs/http-clients.md) describes.
+
+`DocumentElement` stays open as well. It's installed in place of Mink's own `DocumentElement`, which other code extends. A class that another class under `src/` extends, such as `ParseException`, is open because PHP requires it.
+
+Every other class is replaced rather than extended. A suite that swaps in its own registry or authenticator through a `*.class` container parameter implements that class's interface, and option resolution is replaced through `TraitOptionResolverFactoryInterface`. A final class keeps its members `protected`, like every other class here, so `rector.php` skips the Rector rules that would make them private.
+
+`tests/phpunit/src/ExtensionPointTest.php` fails a class that's neither final nor an extension point, and an extension point that's final. Opening a class adds it, or the type it extends, to `EXTENSION_POINTS` there, with the reason a project extends it.
+
 ## Backend, browser driver and HTTP client
 
 3 things sit close together in this codebase, and each has 1 name. Use it in identifiers, docblocks and prose alike.
@@ -293,6 +312,7 @@ Each of these has 1 answer. Write new code this way, and where a tool holds the 
 - **Paths**: a path is built with `/`, which PHP accepts on every platform: `$directory . '/' . $file`, `__DIR__ . '/fixtures'`. `DIRECTORY_SEPARATOR` only compares against, splits or trims a path the platform returned - from `realpath()`, `getcwd()`, `getFileName()` or a directory iterator - because on Windows that path holds backslashes.
 - **Closures**: a closure or arrow function that never touches `$this` is `static`. `SlevomatCodingStandard.Functions.StaticClosure` fails the rest in `ahoy lint`, and `ahoy lint-fix` adds the keyword. The sniff can't see a closure that calls an instance method through `self::` or `static::`, which still needs `$this`, so check those by hand.
 - **Empty bodies**: an empty class, interface, trait, enum, function or closure body is `{}` on its declaration line, a promoted constructor's included: `) {}`. `tests/phpunit/src/EmptyBodyTest.php` enforces it.
+- **Constant types**: every constant under `src/` declares its native type, in a class, an interface or a trait alike: `public const string CONFIG_KEY = 'behat_steps';`. A subclass that redeclares one declares the same type, or PHP refuses to load it. `tests/phpunit/src/TypedConstantTest.php` enforces it.
 - **Booleans**: a single-word boolean local or parameter reads as a question with `is_`: `$is_found`, `$is_exact`, `$is_strict`. `has_` names something held, as in `$has_title`, and `should_` an expectation, as in `$should_match`. A test's expected value stays `$expected` whatever its type.
 - **Local names**: a caught exception is `$exception`. A directory path is `$directory`, and a qualified one keeps the short suffix, as in `$features_dir`, matching the `report_dir` and `temp_dir` options. The stub a create call returns is `$created`, a value saved to be restored is `$original` or `$original_<what>`, a `\ReflectionProperty` is `$property` or `$<name>_property`, never `_prop`, and a test's expected exception message is `$expected_message`.
 - **Dynamic calls**: a method name held in a variable is braced, as in `$this->{$method}()`.

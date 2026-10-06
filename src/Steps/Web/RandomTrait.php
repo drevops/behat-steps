@@ -32,7 +32,7 @@ use Drupal\Component\Utility\Random;
  */
 trait RandomTrait {
 
-  protected const RANDOM_BRACKET_REGEX = '#(\[\?[a-z0-9_]+(?::[^\]]+)?\])#i';
+  protected const string RANDOM_BRACKET_REGEX = '#(\[\?[a-z0-9_]+(?::[^\]]+)?\])#i';
 
   /**
    * Maps each token literal in the feature file to its canonical cache key.

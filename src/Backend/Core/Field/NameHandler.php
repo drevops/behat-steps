@@ -11,17 +11,17 @@ namespace DrevOps\BehatSteps\Backend\Core\Field;
  */
 class NameHandler extends AbstractHandler {
 
-  public const COMPONENT_TITLE = 'title';
+  public const string COMPONENT_TITLE = 'title';
 
-  public const COMPONENT_GIVEN = 'given';
+  public const string COMPONENT_GIVEN = 'given';
 
-  public const COMPONENT_MIDDLE = 'middle';
+  public const string COMPONENT_MIDDLE = 'middle';
 
-  public const COMPONENT_FAMILY = 'family';
+  public const string COMPONENT_FAMILY = 'family';
 
-  public const COMPONENT_GENERATIONAL = 'generational';
+  public const string COMPONENT_GENERATIONAL = 'generational';
 
-  public const COMPONENT_CREDENTIALS = 'credentials';
+  public const string COMPONENT_CREDENTIALS = 'credentials';
 
   /**
    * Canonical order of name components.
@@ -31,7 +31,7 @@ class NameHandler extends AbstractHandler {
    *
    * @var array<int, string>
    */
-  protected const COMPONENTS = [
+  protected const array COMPONENTS = [
     self::COMPONENT_TITLE,
     self::COMPONENT_GIVEN,
     self::COMPONENT_MIDDLE,

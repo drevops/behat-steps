@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Backend\BackendInterface;
 /**
  * Unsupported backend action.
  */
-class UnsupportedBackendActionException extends Exception {
+final class UnsupportedBackendActionException extends Exception {
 
   /**
    * Initializes exception.

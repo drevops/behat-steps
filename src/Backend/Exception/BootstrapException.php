@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Backend\Exception;
 /**
  * Bootstrap exception.
  */
-class BootstrapException extends Exception {
+final class BootstrapException extends Exception {
 
   /**
    * Initializes exception.

@@ -13,7 +13,7 @@ namespace DrevOps\BehatSteps\Behat\Http;
  *
  * @see \DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface::createDetached()
  */
-class HttpIdentity {
+final readonly class HttpIdentity {
 
   /**
    * Constructs an HttpIdentity object.
@@ -29,10 +29,10 @@ class HttpIdentity {
    *   Basic-auth credentials for the site, or NULL when it needs none.
    */
   public function __construct(
-    public readonly array $cookies = [],
-    public readonly ?string $cookieUrl = NULL,
-    public readonly array $headers = [],
-    public readonly ?array $credentials = NULL,
+    public array $cookies = [],
+    public ?string $cookieUrl = NULL,
+    public array $headers = [],
+    public ?array $credentials = NULL,
   ) {}
 
 }

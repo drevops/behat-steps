@@ -11,17 +11,17 @@ namespace DrevOps\BehatSteps\Behat\Config;
  * tags arrive in the order the parser produced them, feature tags before
  * scenario tags, so the tag on the narrower node settles the value.
  */
-class TagOverrides {
+final class TagOverrides {
 
   /**
    * Prefix of the tag that switches off every hook of a trait.
    */
-  public const SKIP_TAG_PREFIX = 'behat-steps-skip:';
+  public const string SKIP_TAG_PREFIX = 'behat-steps-skip:';
 
   /**
    * Matches the value a skip tag carries: the short name of a trait.
    */
-  public const SKIP_TAG_VALUE_PATTERN = '/^[A-Za-z_][A-Za-z0-9_]*' . GroupName::TRAIT_SUFFIX . '$/';
+  public const string SKIP_TAG_VALUE_PATTERN = '/^[A-Za-z_][A-Za-z0-9_]*' . GroupName::TRAIT_SUFFIX . '$/';
 
   /**
    * Replaces a resolved value with whatever the last matching tag sets.

@@ -15,7 +15,7 @@ use DrevOps\BehatSteps\Behat\MinkAwareTrait;
  * configuration. It needs only the Mink session and the configured base URL,
  * so a suite for a site behind basic auth uses it without any Drupal site.
  */
-class BasicAuthenticator implements BasicAuthenticatorInterface {
+final class BasicAuthenticator implements BasicAuthenticatorInterface {
 
   use MinkAwareTrait;
 

@@ -9,8 +9,8 @@ namespace DrevOps\BehatSteps\Behat\Hook\Scope;
  */
 abstract class TermScope extends BaseEntityScope {
 
-  public const BEFORE = 'term.create.before';
+  public const string BEFORE = 'term.create.before';
 
-  public const AFTER = 'term.create.after';
+  public const string AFTER = 'term.create.after';
 
 }

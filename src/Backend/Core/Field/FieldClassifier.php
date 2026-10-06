@@ -13,7 +13,7 @@ use Drupal\field\Entity\FieldStorageConfig;
  *
  * See 'src/Backend/Core/Field/README.md' for the full truth table.
  */
-class FieldClassifier implements FieldClassifierInterface {
+final class FieldClassifier implements FieldClassifierInterface {
 
   /**
    * Constructs the classifier.

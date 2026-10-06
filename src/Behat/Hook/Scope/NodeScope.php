@@ -9,8 +9,8 @@ namespace DrevOps\BehatSteps\Behat\Hook\Scope;
  */
 abstract class NodeScope extends BaseEntityScope {
 
-  public const BEFORE = 'node.create.before';
+  public const string BEFORE = 'node.create.before';
 
-  public const AFTER = 'node.create.after';
+  public const string AFTER = 'node.create.after';
 
 }

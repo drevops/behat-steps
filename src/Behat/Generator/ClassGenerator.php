@@ -17,7 +17,7 @@ use Behat\Testwork\Suite\Suite;
  * matches both the untyped Behat 3 interface and the 'string'-typed Behat 4
  * one.
  */
-class ClassGenerator implements UpstreamClassGenerator {
+final class ClassGenerator implements UpstreamClassGenerator {
 
   /**
    * Template for generated context class files.
@@ -74,7 +74,7 @@ PHP;
       $contextClass = substr($fqn, $position + 1);
     }
 
-    return strtr(static::$template, [
+    return strtr(self::$template, [
       '{namespace}' => $namespace,
       '{className}' => $contextClass,
     ]);

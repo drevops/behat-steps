@@ -21,7 +21,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  * It holds no Behat class, reflects over nothing and references no context
  * beyond the class name it names in a failure message.
  */
-class TraitOptionResolver implements TraitOptionResolverInterface {
+final class TraitOptionResolver implements TraitOptionResolverInterface {
 
   /**
    * Values resolved from the configuration layers, keyed by group and name.

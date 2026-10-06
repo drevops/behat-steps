@@ -13,7 +13,7 @@ use Behat\Mink\Selector\SelectorInterface;
  * Registered in Mink's selector handler under the alias 'region', so any
  * context with a Mink session can call '$page->find("region", "Header")'.
  */
-class RegionSelector implements SelectorInterface {
+final class RegionSelector implements SelectorInterface {
 
   /**
    * Constructs a RegionSelector.

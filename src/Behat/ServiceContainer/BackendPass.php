@@ -11,12 +11,12 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * Registers the tagged backends with the backend registry.
  */
-class BackendPass implements CompilerPassInterface {
+final class BackendPass implements CompilerPassInterface {
 
   /**
    * Tag a backend service carries to be registered with the registry.
    */
-  public const BACKEND_TAG = 'behat_steps.backend';
+  public const string BACKEND_TAG = 'behat_steps.backend';
 
   /**
    * Registers backends.

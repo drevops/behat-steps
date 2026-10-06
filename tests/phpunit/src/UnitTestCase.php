@@ -93,6 +93,38 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   }
 
   /**
+   * Return every class, interface and trait declared under `src/`.
+   *
+   * @return array<string, array{string}>
+   *   Fully qualified type names, as data provider rows keyed by the path
+   *   relative to `src/`.
+   */
+  protected static function discoverSourceTypes(): array {
+    $root = dirname(__DIR__, 3) . '/src';
+    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
+
+    $types = [];
+    foreach ($files as $file) {
+      if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
+        continue;
+      }
+
+      $relative = substr($file->getPathname(), strlen($root) + 1, -strlen('.php'));
+      $type = 'DrevOps\\BehatSteps\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
+
+      if (!class_exists($type) && !interface_exists($type) && !trait_exists($type)) {
+        continue;
+      }
+
+      $types[$relative] = [$type];
+    }
+
+    ksort($types);
+
+    return $types;
+  }
+
+  /**
    * Return every test class under `tests/phpunit/src`, keyed by name.
    *
    * Abstract bases stay in, because they declare tests and providers too.
@@ -172,6 +204,21 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    */
   protected static function tokenizeSignificant(string $code): array {
     return array_values(array_filter(token_get_all($code), static fn(array|string $token): bool => !is_array($token) || !in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], TRUE)));
+  }
+
+  /**
+   * Build the pattern matching the source line that declares a constant.
+   *
+   * A native type may sit between 'const' and the name.
+   *
+   * @param string $name
+   *   The constant name.
+   *
+   * @return string
+   *   A regular expression for 'preg_match()'.
+   */
+  protected static function buildConstantDeclarationPattern(string $name): string {
+    return '/(^|\s)const\s+(?:[^=]+\s)?' . preg_quote($name, '/') . '\s*=/';
   }
 
   /**

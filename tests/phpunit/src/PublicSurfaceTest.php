@@ -200,6 +200,33 @@ class PublicSurfaceTest extends UnitTestCase {
   }
 
   /**
+   * Assert that the line declaring a constant is told apart from other lines.
+   *
+   * @param string $line
+   *   A source line.
+   * @param bool $expected
+   *   Whether the line declares the constant 'PREFIX_NAME'.
+   */
+  #[DataProvider('dataProviderConstantDeclarationsAreDetected')]
+  public function testConstantDeclarationsAreDetected(string $line, bool $expected): void {
+    $this->assertSame($expected, preg_match(static::buildConstantDeclarationPattern('PREFIX_NAME'), $line) === 1);
+  }
+
+  public static function dataProviderConstantDeclarationsAreDetected(): array {
+    return [
+      'untyped' => ["  protected const PREFIX_NAME = 'value';", TRUE],
+      'typed' => ["  protected const string PREFIX_NAME = 'value';", TRUE],
+      'nullable type' => ['  public const ?string PREFIX_NAME = NULL;', TRUE],
+      'union type' => ['  public const int|string PREFIX_NAME = 1;', TRUE],
+      'final and typed' => ["  final public const string PREFIX_NAME = 'value';", TRUE],
+      'no visibility' => ["  const PREFIX_NAME = 'value';", TRUE],
+      'longer name' => ["  protected const string PREFIX_NAME_LONGER = 'value';", FALSE],
+      'name ending in it' => ["  protected const string OTHER_PREFIX_NAME = 'value';", FALSE],
+      'reference' => ['    return self::PREFIX_NAME;', FALSE],
+    ];
+  }
+
+  /**
    * Return the methods a trait declares itself.
    *
    * @param string $trait
@@ -351,7 +378,7 @@ class PublicSurfaceTest extends UnitTestCase {
     $lines = file($file) ?: [];
 
     foreach ($lines as $line) {
-      if (preg_match('/(^|\s)const\s+' . preg_quote($name, '/') . '\s*=/', $line) === 1) {
+      if (preg_match(static::buildConstantDeclarationPattern($name), $line) === 1) {
         return $line;
       }
     }

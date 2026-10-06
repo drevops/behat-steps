@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * any other value switches nothing off. Behat dispatches this event before
  * the first 'BeforeScenario' hook, so the run fails before any hook acts.
  */
-class SkipTagListener implements EventSubscriberInterface {
+final class SkipTagListener implements EventSubscriberInterface {
 
   /**
    * {@inheritdoc}

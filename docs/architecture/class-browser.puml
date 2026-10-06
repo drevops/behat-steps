@@ -30,7 +30,7 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
 package "DrevOps\\BehatSteps\\Behat\\Mink" #F3E5F5 {
   class BrowserCapabilityResolver {
     +registerAdapter(adapter) : void
-    +resolve(driver, capability) : object
+    +resolve(driver, capability) : BrowserAdapterInterface
     +has(driver, capability) : bool
   }
 

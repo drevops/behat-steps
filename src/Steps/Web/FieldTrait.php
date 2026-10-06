@@ -42,7 +42,7 @@ trait FieldTrait {
   /**
    * The tag that strips browser validation from every form of the scenario.
    */
-  protected const FIELD_DISABLE_FORM_VALIDATION_TAG = 'disable-form-validation';
+  protected const string FIELD_DISABLE_FORM_VALIDATION_TAG = 'disable-form-validation';
 
   /**
    * Registry of form selectors that should have validation disabled.

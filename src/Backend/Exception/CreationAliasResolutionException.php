@@ -12,4 +12,4 @@ namespace DrevOps\BehatSteps\Backend\Exception;
  * alias with a username that matches no account, and a 'parent' term name
  * absent from the target vocabulary.
  */
-class CreationAliasResolutionException extends Exception {}
+final class CreationAliasResolutionException extends Exception {}

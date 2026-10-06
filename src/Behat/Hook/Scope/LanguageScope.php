@@ -9,8 +9,8 @@ namespace DrevOps\BehatSteps\Behat\Hook\Scope;
  */
 abstract class LanguageScope extends BaseEntityScope {
 
-  public const BEFORE = 'language.create.before';
+  public const string BEFORE = 'language.create.before';
 
-  public const AFTER = 'language.create.after';
+  public const string AFTER = 'language.create.after';
 
 }

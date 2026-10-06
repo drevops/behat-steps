@@ -44,7 +44,7 @@ trait EntityLifecycleTrait {
   /**
    * The tag that names an entity type excluded from cleanup.
    */
-  protected const ENTITY_LIFECYCLE_CLEANUP_SKIP_TAG = 'behat-steps-entity-cleanup-skip';
+  protected const string ENTITY_LIFECYCLE_CLEANUP_SKIP_TAG = 'behat-steps-entity-cleanup-skip';
 
   /**
    * Tracks every entity stub created during a scenario for cleanup.

@@ -20,7 +20,7 @@ use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
  * or from 'vid' (which the 'VocabularyMachineNameAlias' may have
  * populated earlier in the pre-create pipeline).
  */
-class ParentTermAlias implements PreCreateAliasInterface {
+final class ParentTermAlias implements PreCreateAliasInterface {
 
   /**
    * Lookup callable for resolving a parent term name to a tid.

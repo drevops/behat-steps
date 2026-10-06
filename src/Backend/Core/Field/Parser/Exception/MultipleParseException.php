@@ -10,7 +10,7 @@ namespace DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception;
  * Parsers collect all errors detected in 1 cell before throwing, so the
  * test author sees every problem at once.
  */
-class MultipleParseException extends ParseException {
+final class MultipleParseException extends ParseException {
 
   /**
    * Wraps multiple parse errors detected in a single cell.

@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\Definition;
  *
  * @see \DrevOps\BehatSteps\Behat\Http\HttpClientFactory
  */
-class BrowserKitFactory extends UpstreamBrowserKitFactory {
+final class BrowserKitFactory extends UpstreamBrowserKitFactory {
 
   /**
    * The 'http_client_parameters' of each session built, in build order.
@@ -49,10 +49,10 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
    *   When 2 sessions declare different options.
    */
   public function getClientOptions(): array {
-    $options = static::normalizeOptions($this->sessionOptions[0] ?? []);
+    $options = self::normalizeOptions($this->sessionOptions[0] ?? []);
 
     foreach ($this->sessionOptions as $session_options) {
-      if (static::normalizeOptions($session_options) !== $options) {
+      if (self::normalizeOptions($session_options) !== $options) {
         throw new InvalidConfigurationException(sprintf('The %d "browserkit_http" sessions declare different "http_client_parameters". Behat Steps sends its own requests with 1 set of connection options, so give every "browserkit_http" session the same options.', count($this->sessionOptions)));
       }
     }
@@ -74,7 +74,7 @@ class BrowserKitFactory extends UpstreamBrowserKitFactory {
 
     foreach ($options as $key => $value) {
       if (is_array($value)) {
-        $options[$key] = static::normalizeOptions($value);
+        $options[$key] = self::normalizeOptions($value);
       }
     }
 

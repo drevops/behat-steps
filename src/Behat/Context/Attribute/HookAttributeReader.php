@@ -26,14 +26,14 @@ use DrevOps\BehatSteps\Behat\Hook\Call\BeforeUserCreate;
 /**
  * Reads the entity creation hook attributes off a context method.
  */
-class HookAttributeReader implements AttributeReader {
+final class HookAttributeReader implements AttributeReader {
 
   /**
    * Map of attribute classes to their hook call classes.
    *
    * @var array<class-string, class-string<\DrevOps\BehatSteps\Behat\Hook\Call\EntityHook>>
    */
-  protected const ATTRIBUTE_MAP = [
+  protected const array ATTRIBUTE_MAP = [
     AfterEntityCreateAttribute::class => AfterEntityCreate::class,
     AfterNodeCreateAttribute::class => AfterNodeCreate::class,
     AfterTermCreateAttribute::class => AfterTermCreate::class,

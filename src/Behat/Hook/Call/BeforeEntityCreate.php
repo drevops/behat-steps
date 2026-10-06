@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\EntityScopeInterface;
 /**
  * Hook call dispatched before a generic entity is created.
  */
-class BeforeEntityCreate extends EntityHook {
+final class BeforeEntityCreate extends EntityHook {
 
   /**
    * Initializes the hook.
