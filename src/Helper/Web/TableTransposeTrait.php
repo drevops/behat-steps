@@ -39,10 +39,15 @@ trait TableTransposeTrait {
    *   Array of entity data arrays. Each entity is an associative array.
    *
    * @throws \RuntimeException
-   *   If table doesn't have at least 2 columns or has no rows.
+   *   If the table has no rows or fewer than 2 columns, or a field name is
+   *   blank or repeated.
    */
   public function tableTransposeVertical(TableNode $table): array {
     $rows = $table->getRows();
+
+    if ($rows === []) {
+      throw new \RuntimeException('Vertical table must have at least 1 row.');
+    }
 
     $first_row = $rows[0];
     if (count($first_row) < 2) {
