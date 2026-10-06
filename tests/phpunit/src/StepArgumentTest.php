@@ -45,13 +45,13 @@ class StepArgumentTest extends UnitTestCase {
   public function testPlaceholdersBindRequiredStrings(string $trait): void {
     $violations = [];
 
-    foreach (static::stepMethods($trait) as [$method, $pattern]) {
+    foreach (static::collectStepMethods($trait) as [$method, $pattern]) {
       $parameters = [];
       foreach ($method->getParameters() as $parameter) {
         $parameters[$parameter->getName()] = $parameter;
       }
 
-      foreach (static::placeholders($pattern) as $placeholder) {
+      foreach (static::listPlaceholders($pattern) as $placeholder) {
         $parameter = $parameters[$placeholder] ?? NULL;
 
         if ($parameter === NULL) {
@@ -86,8 +86,8 @@ class StepArgumentTest extends UnitTestCase {
   public function testStepsDeclareOnlyTheirArguments(string $trait): void {
     $violations = [];
 
-    foreach (static::stepMethods($trait) as [$method, $pattern]) {
-      $placeholders = static::placeholders($pattern);
+    foreach (static::collectStepMethods($trait) as [$method, $pattern]) {
+      $placeholders = static::listPlaceholders($pattern);
       $last = $method->getNumberOfParameters() - 1;
 
       foreach ($method->getParameters() as $parameter) {
@@ -119,7 +119,7 @@ class StepArgumentTest extends UnitTestCase {
    * @return array<int, array{\ReflectionMethod, string}>
    *   Each step method paired with its step pattern.
    */
-  protected static function stepMethods(string $trait): array {
+  protected static function collectStepMethods(string $trait): array {
     $reflection = static::reflect($trait);
     $steps = [];
 
@@ -145,7 +145,7 @@ class StepArgumentTest extends UnitTestCase {
   }
 
   /**
-   * Extract the placeholder names from a step pattern.
+   * List the placeholder names in a step pattern.
    *
    * @param string $pattern
    *   The Turnip step pattern.
@@ -153,7 +153,7 @@ class StepArgumentTest extends UnitTestCase {
    * @return array<int, string>
    *   The placeholder names, without the leading colon.
    */
-  protected static function placeholders(string $pattern): array {
+  protected static function listPlaceholders(string $pattern): array {
     preg_match_all('/:(\w+)/', $pattern, $matches);
 
     return $matches[1];

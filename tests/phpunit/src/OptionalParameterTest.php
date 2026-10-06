@@ -24,7 +24,7 @@ class OptionalParameterTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderOptionalParametersDefaultToNull')]
   public function testOptionalParametersDefaultToNull(string $type): void {
-    $reflection = new \ReflectionClass($type);
+    $reflection = static::reflect($type);
     $violations = [];
 
     foreach ($reflection->getMethods() as $method) {
