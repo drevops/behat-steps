@@ -51,7 +51,7 @@ class OptionalParameterTest extends UnitTestCase {
    *   Fully qualified type names, keyed by the path relative to `src/`.
    */
   public static function dataProviderOptionalParametersDefaultToNull(): array {
-    $root = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src';
+    $root = dirname(__DIR__, 3) . '/src';
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
 
     $types = [];

@@ -117,9 +117,9 @@ class StringTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderParseIntegerThrows')]
-  public function testParseIntegerThrows(string $value, ?int $min, string $message): void {
+  public function testParseIntegerThrows(string $value, ?int $min, string $expected_message): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $this->testObject->callParseInteger($value, 'count', $min);
   }
@@ -166,9 +166,9 @@ class StringTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderParseNumberThrows')]
-  public function testParseNumberThrows(string $value, ?float $min, string $message): void {
+  public function testParseNumberThrows(string $value, ?float $min, string $expected_message): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $this->testObject->callParseNumber($value, 'duration', $min);
   }
