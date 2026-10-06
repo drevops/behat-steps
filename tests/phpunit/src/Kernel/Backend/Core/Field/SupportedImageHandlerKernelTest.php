@@ -21,7 +21,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversClass(SupportedImageHandler::class)]
 #[Group('fields')]
 #[RunTestsInSeparateProcesses]
-class SupportedImageHandlerKernelTest extends FieldHandlerKernelTestBase {
+class SupportedImageHandlerKernelTest extends FileBackedHandlerKernelTestBase {
 
   /**
    * {@inheritdoc}
@@ -42,15 +42,6 @@ class SupportedImageHandlerKernelTest extends FieldHandlerKernelTestBase {
    */
   protected function setUp(): void {
     parent::setUp();
-
-    $this->installEntitySchema('file');
-    $this->installSchema('file', ['file_usage']);
-
-    $public_path = $this->siteDirectory . '/files';
-    if (!is_dir($public_path)) {
-      mkdir($public_path, 0777, TRUE);
-    }
-    $this->setSetting('file_public_path', $public_path);
 
     // caption_format/attribution_format reference a filter format id; define a
     // plain_text format so the round-trip values validate.

@@ -20,7 +20,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversClass(FileHandler::class)]
 #[Group('fields')]
 #[RunTestsInSeparateProcesses]
-class FileHandlerKernelTest extends FieldHandlerKernelTestBase {
+class FileHandlerKernelTest extends FileBackedHandlerKernelTestBase {
 
   /**
    * {@inheritdoc}
@@ -31,23 +31,6 @@ class FileHandlerKernelTest extends FieldHandlerKernelTestBase {
     ...self::BASE_MODULES,
     'file',
   ];
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp(): void {
-    parent::setUp();
-
-    $this->installEntitySchema('file');
-    $this->installSchema('file', ['file_usage']);
-
-    // Point public:// at a real, writable directory under the test site.
-    $public_path = $this->siteDirectory . '/files';
-    if (!is_dir($public_path)) {
-      mkdir($public_path, 0777, TRUE);
-    }
-    $this->setSetting('file_public_path', $public_path);
-  }
 
   /**
    * Tests round-trip for a file field with a source file from disk.
