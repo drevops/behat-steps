@@ -24,7 +24,7 @@ class ThrowingHookReader implements EnvironmentReader {
    * {@inheritdoc}
    */
   public function readEnvironmentCallees(Environment $environment): array {
-    return [new BeforeNodeCreate(NULL, self::fail(...))];
+    return [new BeforeNodeCreate(NULL, static::fail(...))];
   }
 
   /**

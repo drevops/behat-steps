@@ -34,7 +34,7 @@ use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\RegistryExposingContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ThrowingHookReader;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Core\Entity\EntityInterface;
@@ -86,14 +86,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public function testImplementsUserAwareInterface(): void {
-    $this->assertInstanceOf(UserAwareInterface::class, new TestableRawContext());
+    $this->assertInstanceOf(UserAwareInterface::class, new RegistryExposingContext());
   }
 
   public function testUninitializedContextNamesTheMissingUserRegistry(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The user registry is available only after Behat has initialized the context.');
 
-    (new TestableRawContext())->authGetUserRegistry();
+    (new RegistryExposingContext())->authGetUserRegistry();
   }
 
   public function testNodeCreationDelegatesAndTracksTheStub(): void {
@@ -104,7 +104,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
 
     $this->assertSame($stub, $context->entityLifecycleCreateNode($stub));
-    $this->assertSame([$stub], $context->getCreatedStubs());
+    $this->assertSame([$stub], $context->testGetCreatedStubs());
   }
 
   public function testTermCreationDelegatesAndTracksTheStub(): void {
@@ -115,7 +115,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
 
     $this->assertSame($stub, $context->entityLifecycleCreateTerm($stub));
-    $this->assertSame([$stub], $context->getCreatedStubs());
+    $this->assertSame([$stub], $context->testGetCreatedStubs());
   }
 
   public function testAnEmptyTermParentIsDropped(): void {
@@ -146,7 +146,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
 
     $this->assertSame($stub, $context->entityLifecycleCreate($stub));
-    $this->assertSame([$stub], $context->getCreatedStubs());
+    $this->assertSame([$stub], $context->testGetCreatedStubs());
   }
 
   public function testScalarValuesSurviveTheBackendCall(): void {
@@ -185,7 +185,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
 
     $this->assertSame($stub, $context->entityLifecycleCreateLanguage($stub));
-    $this->assertSame([$stub], $context->getCreatedStubs());
+    $this->assertSame([$stub], $context->testGetCreatedStubs());
   }
 
   public function testAnExistingLanguageIsNotTracked(): void {
@@ -196,7 +196,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($backend);
 
     $this->assertSame($stub, $context->entityLifecycleCreateLanguage($stub));
-    $this->assertSame([], $context->getCreatedStubs());
+    $this->assertSame([], $context->testGetCreatedStubs());
   }
 
   /**
@@ -245,7 +245,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public function testHooksCannotBeDispatchedBeforeInitialization(): void {
-    $context = new TestableRawContext();
+    $context = new RegistryExposingContext();
     $context->setBackendRegistry($this->createMock(BackendRegistryInterface::class));
 
     $this->expectException(\RuntimeException::class);
@@ -258,7 +258,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend_registry = $this->createMock(BackendRegistryInterface::class);
     $backend_registry->method('getEnvironment')->willReturn(NULL);
 
-    $context = new TestableRawContext();
+    $context = new RegistryExposingContext();
     $context->setBackendRegistry($backend_registry);
     $context->setHookDispatcher($this->createHookDispatcher());
 
@@ -286,12 +286,12 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     });
 
     $context = $this->createContext($backend);
-    $context->setCreatedStubs([$term, $node, $block]);
+    $context->testSetCreatedStubs([$term, $node, $block]);
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
 
     $this->assertSame(['entity', 'node', 'term'], $deleted);
-    $this->assertSame([], $context->getCreatedStubs());
+    $this->assertSame([], $context->testGetCreatedStubs());
   }
 
   /**
@@ -307,7 +307,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->expects($this->never())->method('deleteEntity');
 
     $context = $this->createContext($backend);
-    $context->setCreatedStubs([new EntityStub($entity_type, NULL, ['langcode' => 'fr'])]);
+    $context->testSetCreatedStubs([new EntityStub($entity_type, NULL, ['langcode' => 'fr'])]);
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
   }
@@ -322,7 +322,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->expects($this->once())->method('deleteLanguage')->willThrowException(new \RuntimeException('Cannot operate on a language without a non-empty "langcode" value.'));
 
     $context = $this->createContext($backend);
-    $context->setCreatedStubs([new EntityStub('language')]);
+    $context->testSetCreatedStubs([new EntityStub('language')]);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot operate on a language without a non-empty "langcode" value.');
@@ -335,20 +335,20 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->expects($this->never())->method('deleteEntity');
 
     $context = $this->createContext($backend);
-    $context->setCreatedStubs([new EntityStub('language', NULL, ['langcode' => 'fr'])]);
+    $context->testSetCreatedStubs([new EntityStub('language', NULL, ['langcode' => 'fr'])]);
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
 
-    $this->assertSame([], $context->getCreatedStubs());
+    $this->assertSame([], $context->testGetCreatedStubs());
   }
 
   public function testEntitiesAreLeftBehindByIncapableBackend(): void {
     $context = $this->createContext($this->createMock(BackendInterface::class));
-    $context->setCreatedStubs([new EntityStub('node', 'page')]);
+    $context->testSetCreatedStubs([new EntityStub('node', 'page')]);
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
 
-    $this->assertSame([], $context->getCreatedStubs());
+    $this->assertSame([], $context->testGetCreatedStubs());
   }
 
   public function testNothingIsDeletedWhenNoEntityWasCreated(): void {
@@ -410,20 +410,20 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->expects($this->exactly(2))->method('deleteRole');
 
     $context = $this->createContext($backend);
-    $context->setRoles(['editor', 'reviewer']);
+    $context->testSetRoles(['editor', 'reviewer']);
 
     $context->authAfterScenario($this->createAfterScenarioScope());
 
-    $this->assertSame([], $context->getRoles());
+    $this->assertSame([], $context->testGetRoles());
   }
 
   public function testRolesAreLeftBehindByIncapableBackend(): void {
     $context = $this->createContext($this->createMock(BackendInterface::class));
-    $context->setRoles(['editor']);
+    $context->testSetRoles(['editor']);
 
     $context->authAfterScenario($this->createAfterScenarioScope());
 
-    $this->assertSame(['editor'], $context->getRoles());
+    $this->assertSame(['editor'], $context->testGetRoles());
   }
 
   public function testNoRoleIsDeletedWhenNoneWasCreated(): void {
@@ -448,7 +448,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
     $context = $this->createContext($backend, $user_registry);
-    $context->setRoles(['editor']);
+    $context->testSetRoles(['editor']);
 
     $context->authAfterScenario($this->createAfterScenarioScope());
 
@@ -464,7 +464,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
     $context = $this->createContext($backend, $user_registry);
-    $context->setRoles(['editor']);
+    $context->testSetRoles(['editor']);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The user could not be deleted.');
@@ -483,7 +483,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
     $context = $this->createContext($backend, $user_registry);
-    $context->setRoles(['editor']);
+    $context->testSetRoles(['editor']);
 
     try {
       $context->authAfterScenario($this->createAfterScenarioScope());
@@ -537,7 +537,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->expects($expected_cleanup ? $this->once() : $this->never())->method('deleteNode');
 
     $context = $this->createContext($backend);
-    $context->setCreatedStubs([new EntityStub('node', 'page')]);
+    $context->testSetCreatedStubs([new EntityStub('node', 'page')]);
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
   }
@@ -566,11 +566,11 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->expects($this->never())->method('deleteNode');
 
     $context = $this->createContext($backend);
-    $context->setCreatedStubs([new EntityStub('node', 'page')]);
+    $context->testSetCreatedStubs([new EntityStub('node', 'page')]);
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope($scenario_tags, $feature_tags));
 
-    $this->assertCount(1, $context->getCreatedStubs());
+    $this->assertCount(1, $context->testGetCreatedStubs());
   }
 
   public static function dataProviderTheSkipTagDisablesEntityCleanup(): \Iterator {
@@ -583,11 +583,11 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->expects($this->once())->method('deleteNode');
 
     $context = $this->createContext($backend);
-    $context->setCreatedStubs([new EntityStub('node', 'page')]);
+    $context->testSetCreatedStubs([new EntityStub('node', 'page')]);
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope(['behat-steps-skip:AuthTrait']));
 
-    $this->assertSame([], $context->getCreatedStubs());
+    $this->assertSame([], $context->testGetCreatedStubs());
   }
 
   /**
@@ -618,12 +618,12 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
 
     $context = $this->createContext($backend, $user_registry, $authenticator);
-    $context->setRoles(['editor']);
+    $context->testSetRoles(['editor']);
 
     $context->authAfterScenario($this->createAfterScenarioScope($scenario_tags, $feature_tags));
 
     $this->assertTrue($user_registry->hasUsers());
-    $this->assertSame(['editor'], $context->getRoles());
+    $this->assertSame(['editor'], $context->testGetRoles());
   }
 
   public static function dataProviderAuthCleanupIsSkipped(): \Iterator {
@@ -637,11 +637,11 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend->expects($this->once())->method('deleteRole');
 
     $context = $this->createContext($backend);
-    $context->setRoles(['editor']);
+    $context->testSetRoles(['editor']);
 
     $context->authAfterScenario($this->createAfterScenarioScope(['behat-steps-skip:EntityLifecycleTrait']));
 
-    $this->assertSame([], $context->getRoles());
+    $this->assertSame([], $context->testGetRoles());
   }
 
   public function testTheEntityCleanupSkipTagSparesOnlyTheNamedType(): void {
@@ -656,7 +656,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     });
 
     $context = $this->createContext($backend);
-    $context->setCreatedStubs([new EntityStub('taxonomy_term', 'tags'), new EntityStub('node', 'page')]);
+    $context->testSetCreatedStubs([new EntityStub('taxonomy_term', 'tags'), new EntityStub('node', 'page')]);
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope(['behat-steps-entity-cleanup-skip:node']));
 
@@ -667,7 +667,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025 UTC']);
     $context = $this->createContext($this->createDrupalContentBackend());
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame(strtotime('1 January 2025 UTC'), $stub->getValue('created'));
   }
@@ -683,7 +683,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => $value]);
     $context = $this->createContext($this->createDrupalContentBackend());
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame($value, $stub->getValue('created'));
   }
@@ -701,14 +701,14 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Unable to read the "created" value "not a date at all" as a date.');
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
   }
 
   public function testTimestampConversionIsSkippedForForeignContext(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $scope = new BeforeNodeCreateScope($this->createMock(Environment::class), $this->createMock(Context::class), $stub);
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate($scope);
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate($scope);
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -717,7 +717,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createMock(BackendInterface::class));
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -726,7 +726,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
     $context = $this->createContext($this->createContentBackend());
 
-    TestableRawContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
@@ -742,7 +742,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context = $this->createContext($this->createContentBackend());
     $context->entityLifecycleRegister($entity);
 
-    $this->assertSame([], $context->getCreatedStubs());
+    $this->assertSame([], $context->testGetCreatedStubs());
   }
 
   public function testLoginDelegatesToTheAuthenticator(): void {
@@ -796,7 +796,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    * @param \Behat\Testwork\Hook\HookDispatcher|null $dispatcher
    *   The hook dispatcher, when the test needs one that finds hooks.
    */
-  protected function createContext(BackendInterface $backend, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): TestableRawContext {
+  protected function createContext(BackendInterface $backend, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): RegistryExposingContext {
     $environment = $this->createMock(Environment::class);
     // The fixture hooks are static, so the callee's own callable is enough
     // for the dispatcher to invoke them.
@@ -806,7 +806,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $backend_registry->setScenarioBackends(['test' => 'test']);
     $backend_registry->setEnvironment($environment);
 
-    $context = new TestableRawContext();
+    $context = new RegistryExposingContext();
     $context->setBackendRegistry($backend_registry);
     $context->setHookDispatcher($dispatcher ?? $this->createHookDispatcher());
     $context->authSetUserRegistry($user_registry ?? new UserRegistry());

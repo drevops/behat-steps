@@ -36,10 +36,10 @@ class CommandTraitTest extends UnitTestCase {
   public function testRunCapturesOutputExitCodeAndDuration(): void {
     $this->testObject->commandRun('echo hello');
 
-    $this->assertSame(0, $this->testObject->exitCode());
-    $this->assertStringContainsString('hello', $this->testObject->stdout());
-    $this->assertSame('', $this->testObject->stderr());
-    $this->assertGreaterThan(0.0, $this->testObject->duration());
+    $this->assertSame(0, $this->testObject->testGetExitCode());
+    $this->assertStringContainsString('hello', $this->testObject->testGetStdout());
+    $this->assertSame('', $this->testObject->testGetStderr());
+    $this->assertGreaterThan(0.0, $this->testObject->testGetDuration());
 
     // Pass-through assertions do not throw.
     $this->testObject->commandAssertSuccess();
@@ -54,8 +54,8 @@ class CommandTraitTest extends UnitTestCase {
   public function testRunCapturesErrorOutputSeparately(): void {
     $this->testObject->commandRun('echo oops >&2');
 
-    $this->assertStringContainsString('oops', $this->testObject->stderr());
-    $this->assertSame('', trim($this->testObject->stdout()));
+    $this->assertStringContainsString('oops', $this->testObject->testGetStderr());
+    $this->assertSame('', trim($this->testObject->testGetStdout()));
 
     $this->testObject->commandAssertErrorOutputContains('oops');
     $this->testObject->commandAssertOutputNotContains('oops');
@@ -64,7 +64,7 @@ class CommandTraitTest extends UnitTestCase {
   public function testRunCapturesNonZeroExitCode(): void {
     $this->testObject->commandRun('exit 3');
 
-    $this->assertSame(3, $this->testObject->exitCode());
+    $this->assertSame(3, $this->testObject->testGetExitCode());
 
     $this->testObject->commandAssertFailure();
     $this->testObject->commandAssertExitCode('3');
@@ -74,26 +74,26 @@ class CommandTraitTest extends UnitTestCase {
     $this->testObject->commandRun('echo one');
     $this->testObject->commandRun('echo two');
 
-    $this->assertStringContainsString('two', $this->testObject->stdout());
-    $this->assertStringNotContainsString('one', $this->testObject->stdout());
+    $this->assertStringContainsString('two', $this->testObject->testGetStdout());
+    $this->assertStringNotContainsString('one', $this->testObject->testGetStdout());
   }
 
   public function testBeforeScenarioResetsState(): void {
     $this->testObject->commandRun('echo hello');
     $this->testObject->commandBeforeScenario($this->createBeforeScenarioScope());
 
-    $this->assertNull($this->testObject->exitCode());
-    $this->assertSame('', $this->testObject->stdout());
+    $this->assertNull($this->testObject->testGetExitCode());
+    $this->assertSame('', $this->testObject->testGetStdout());
   }
 
   public function testAfterScenarioResetsState(): void {
     $this->testObject->commandRun('echo hello');
     $this->testObject->commandAfterScenario($this->createAfterScenarioScope());
 
-    $this->assertNull($this->testObject->exitCode());
-    $this->assertSame('', $this->testObject->stdout());
-    $this->assertSame('', $this->testObject->stderr());
-    $this->assertSame(0.0, $this->testObject->duration());
+    $this->assertNull($this->testObject->testGetExitCode());
+    $this->assertSame('', $this->testObject->testGetStdout());
+    $this->assertSame('', $this->testObject->testGetStderr());
+    $this->assertSame(0.0, $this->testObject->testGetDuration());
   }
 
   public function testTimeoutTerminatesLongRunningCommand(): void {
@@ -167,28 +167,28 @@ class CommandTraitTestImplementation extends WebRawContext {
   /**
    * Exposes the captured exit code.
    */
-  public function exitCode(): ?int {
+  public function testGetExitCode(): ?int {
     return $this->commandExitCode;
   }
 
   /**
    * Exposes the captured standard output.
    */
-  public function stdout(): string {
+  public function testGetStdout(): string {
     return $this->commandStdout;
   }
 
   /**
    * Exposes the captured error output.
    */
-  public function stderr(): string {
+  public function testGetStderr(): string {
     return $this->commandStderr;
   }
 
   /**
    * Exposes the captured duration.
    */
-  public function duration(): float {
+  public function testGetDuration(): float {
     return $this->commandDuration;
   }
 

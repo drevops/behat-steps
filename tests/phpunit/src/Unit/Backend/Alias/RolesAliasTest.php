@@ -8,17 +8,17 @@ use DrevOps\BehatSteps\Backend\Alias\PostCreateAliasInterface;
 use DrevOps\BehatSteps\Backend\Alias\RolesAlias;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingUserCapability;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the 'RolesAlias' creation alias.
  */
 #[CoversClass(RolesAlias::class)]
 #[Group('aliases')]
-class RolesAliasTest extends TestCase {
+class RolesAliasTest extends UnitTestCase {
 
   public function testMetadataAccessors(): void {
     $alias = new RolesAlias(new RecordingUserCapability());

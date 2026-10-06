@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core\Field;
 
 use DrevOps\BehatSteps\Backend\Core\Field\FieldHandlerInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Base unit test for field handlers.
@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
  *     class that must be thrown ('expected_message' optionally pins a
  *     substring).
  */
-abstract class FieldHandlerUnitTestBase extends TestCase {
+abstract class FieldHandlerUnitTestBase extends UnitTestCase {
 
   /**
    * Absolute path to the backend fixture files, with a trailing separator.

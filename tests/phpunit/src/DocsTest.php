@@ -456,14 +456,12 @@ EOD,
       }
 
       if ($trait !== 'MissingTrait') {
-        file_put_contents(sprintf('%s/%s/%s.php', $steps_dir, $context, $trait), '<?php');
+        $this->writeFixture(sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait), '<?php');
       }
 
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
       $prefix = $context === 'Drupal' ? 'drupal_' : '';
-      $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
-      $example_file_path = $base_path . '/' . $example_file;
-      file_put_contents($example_file_path, 'Feature: Test');
+      $this->writeFixture(sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name), 'Feature: Test');
     }
 
     if (isset($info['MissingTrait'])) {
@@ -961,13 +959,11 @@ EOD,
         $info[$trait]['name_contextual'] = ($context !== 'Web' ? $context . '\\' : '') . $trait;
       }
 
-      file_put_contents(sprintf('%s/%s/%s.php', $steps_dir, $context, $trait), '<?php');
+      $this->writeFixture(sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait), '<?php');
 
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
       $prefix = $context === 'Drupal' ? 'drupal_' : '';
-      $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
-      $example_file_path = $base_path . '/' . $example_file;
-      file_put_contents($example_file_path, 'Feature: Test');
+      $this->writeFixture(sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name), 'Feature: Test');
     }
 
     $actual = render_info($info, $base_path, $path_for_links);
@@ -2171,7 +2167,7 @@ EOD,
     array $exclude,
     array $expected_trait_names,
   ): void {
-    $setup = $this->setupExtractInfoTest($trait_names);
+    $setup = $this->setUpExtractInfoTest($trait_names);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -2217,7 +2213,7 @@ EOD,
    *
    * @return array{base_path: string, steps_dir: string}
    */
-  protected function setupTestEnvironment(): array {
+  protected function setUpTestEnvironment(): array {
     $base_path = static::$tmp;
     $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
     mkdir($steps_dir, 0777, TRUE);
@@ -2233,29 +2229,16 @@ EOD,
    *
    * @param string $trait_name
    *   The trait name (e.g., 'SampleTrait').
-   * @param string $steps_dir
-   *   The target vocabulary directory.
    * @param string $context
    *   The context directory the trait belongs to.
    *
    * @return string
    *   The path to the copied file.
    */
-  protected function copyFixtureTrait(string $trait_name, string $steps_dir, string $context = 'Web'): string {
+  protected function copyFixtureTrait(string $trait_name, string $context = 'Web'): string {
     $fixture_file = $this->getFixturesDir() . '/' . $context . '/' . $trait_name . '.php';
-    $target_dir = $steps_dir . '/' . $context;
 
-    if (!is_dir($target_dir)) {
-      mkdir($target_dir, 0777, TRUE);
-    }
-
-    $target_file = $target_dir . '/' . $trait_name . '.php';
-
-    if (file_exists($fixture_file)) {
-      copy($fixture_file, $target_file);
-    }
-
-    return $target_file;
+    return $this->writeFixture(sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait_name), (string) file_get_contents($fixture_file));
   }
 
   /**
@@ -2263,12 +2246,10 @@ EOD,
    *
    * @param array<string> $trait_names
    *   Array of trait names.
-   * @param string $steps_dir
-   *   The target vocabulary directory.
    */
-  protected function copyFixtureTraits(array $trait_names, string $steps_dir): void {
+  protected function copyFixtureTraits(array $trait_names): void {
     foreach ($trait_names as $trait_name) {
-      $this->copyFixtureTrait($trait_name, $steps_dir);
+      $this->copyFixtureTrait($trait_name);
     }
   }
 
@@ -2282,17 +2263,17 @@ EOD,
    *
    * @return array{base_path: string, steps_dir: string, class_name: string}
    */
-  protected function setupExtractInfoTest(array $trait_names, ?string $context = NULL): array {
-    $paths = $this->setupTestEnvironment();
+  protected function setUpExtractInfoTest(array $trait_names, ?string $context = NULL): array {
+    $paths = $this->setUpTestEnvironment();
 
     if ($context && count($trait_names) === 1) {
-      $target_file = $this->copyFixtureTrait($trait_names[0], $paths['steps_dir'], $context);
+      $target_file = $this->copyFixtureTrait($trait_names[0], $context);
       // The trait is loaded from the test directory so reflection reports
       // that path.
       require_once $target_file;
     }
     else {
-      $this->copyFixtureTraits($trait_names, $paths['steps_dir']);
+      $this->copyFixtureTraits($trait_names);
     }
 
     $class_name = $this->createTestContext($trait_names, 'TestContext' . uniqid());
@@ -2324,7 +2305,7 @@ EOD,
    */
   public function testExtractInfoMultipleMethods(): void {
     $trait_name = 'MultiMethodTrait';
-    $setup = $this->setupExtractInfoTest([$trait_name]);
+    $setup = $this->setUpExtractInfoTest([$trait_name]);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -2363,10 +2344,10 @@ EOD,
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/The following traits were not found in the class/');
 
-    $paths = $this->setupTestEnvironment();
+    $paths = $this->setUpTestEnvironment();
 
     // The copied fixture is not used by the class.
-    $this->copyFixtureTrait('UnusedTrait', $paths['steps_dir']);
+    $this->copyFixtureTrait('UnusedTrait');
 
     $class_name = 'TestContextEmpty' . uniqid();
     // @phpcs:disable Drupal.Functions.DiscouragedFunctions.Discouraged
@@ -2378,7 +2359,7 @@ EOD,
 
   public function testExtractInfoWithSubdirectory(): void {
     $trait_name = 'DrupalTrait';
-    $setup = $this->setupExtractInfoTest([$trait_name], 'Drupal');
+    $setup = $this->setUpExtractInfoTest([$trait_name], 'Drupal');
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -2391,7 +2372,7 @@ EOD,
 
   public function testExtractInfoNoMatchingMethods(): void {
     $trait_name = 'NoMatchTrait';
-    $setup = $this->setupExtractInfoTest([$trait_name]);
+    $setup = $this->setUpExtractInfoTest([$trait_name]);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -2809,7 +2790,7 @@ EOD,
     $this->expectExceptionMessage('Class comment for EmptyCommentTrait is empty');
 
     $trait_name = 'EmptyCommentTrait';
-    $setup = $this->setupExtractInfoTest([$trait_name]);
+    $setup = $this->setUpExtractInfoTest([$trait_name]);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3025,13 +3006,10 @@ EOD,
   }
 
   public function testValidateTagsFromFeatureFiles(): void {
-    $base_path = static::$tmp;
-    $features_dir = $base_path . '/tests/behat/features';
-    mkdir($features_dir, 0777, TRUE);
-    file_put_contents($features_dir . '/clean.feature', "@api @accessibility:critical\nScenario: ok");
-    file_put_contents($features_dir . '/dirty.feature', "@javascript @accessibility-critical\nScenario: bad");
+    $this->writeFixture('tests/behat/features/clean.feature', "@api @accessibility:critical\nScenario: ok");
+    $this->writeFixture('tests/behat/features/dirty.feature', "@javascript @accessibility-critical\nScenario: bad");
 
-    $actual = validate_tags([], $base_path);
+    $actual = validate_tags([], static::$tmp);
 
     $this->assertCount(1, $actual);
     $this->assertStringContainsString('tests/behat/features/dirty.feature', $actual[0]);
@@ -3161,7 +3139,7 @@ EOD,
   }
 
   public function testExtractHelpers(): void {
-    $setup = $this->setupExtractInfoTest(['HelperSampleTrait']);
+    $setup = $this->setUpExtractInfoTest(['HelperSampleTrait']);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3184,7 +3162,7 @@ EOD,
   }
 
   public function testExtractHelpersResolvesContext(): void {
-    $setup = $this->setupExtractInfoTest(['HelperDrupalTrait'], 'Drupal');
+    $setup = $this->setUpExtractInfoTest(['HelperDrupalTrait'], 'Drupal');
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3201,7 +3179,7 @@ EOD,
   }
 
   public function testExtractHelpersSkipsTraitsWithoutHelpers(): void {
-    $setup = $this->setupExtractInfoTest(['SampleTrait']);
+    $setup = $this->setUpExtractInfoTest(['SampleTrait']);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3211,7 +3189,7 @@ EOD,
   }
 
   public function testExtractHelpersPublishesToolboxClasses(): void {
-    $setup = $this->setupExtractInfoTest(['HelperSampleTrait']);
+    $setup = $this->setUpExtractInfoTest(['HelperSampleTrait']);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3271,7 +3249,7 @@ EOD,
    */
   #[DataProvider('dataProviderHelperTraitContracts')]
   public function testHelperTraitContracts(string $trait_name, array $expected): void {
-    $contracts = helper_trait_contracts(new \ReflectionClass($trait_name), [WebContext::class, DrupalContext::class]);
+    $contracts = helper_trait_contracts(static::reflect($trait_name), [WebContext::class, DrupalContext::class]);
     $names = array_map(static fn(\ReflectionClass $contract): string => $contract->getName(), $contracts);
 
     $this->assertSame($expected, array_values(array_intersect($names, [UserAwareInterface::class, BackendAwareInterface::class])));
@@ -3291,11 +3269,9 @@ EOD,
   }
 
   public function testCollectHelperTraitsReadsOnlyTheTraitFiles(): void {
-    $helpers_path = static::$tmp . '/src/Helper/Web';
-    mkdir($helpers_path, 0777, TRUE);
-    file_put_contents($helpers_path . '/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
-    file_put_contents($helpers_path . '/README.md', 'not code');
-    file_put_contents(dirname($helpers_path) . '/Loose.php', "<?php\n\ntrait Loose {}\n");
+    $this->writeFixture('src/Helper/Web/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
+    $this->writeFixture('src/Helper/Web/README.md', 'not code');
+    $this->writeFixture('src/Helper/Loose.php', "<?php\n\ntrait Loose {}\n");
 
     $collected = collect_helper_traits(static::$tmp);
 
@@ -3347,7 +3323,7 @@ EOD,
   }
 
   public function testValidateHelpersFromSource(): void {
-    $setup = $this->setupExtractInfoTest(['HelperNoSummaryTrait']);
+    $setup = $this->setUpExtractInfoTest(['HelperNoSummaryTrait']);
 
     /** @var class-string $class_name */
     $class_name = $setup['class_name'];
@@ -3359,11 +3335,8 @@ EOD,
 
   public function testRenderHelpers(): void {
     $base_path = static::$tmp;
-    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
-    mkdir($steps_dir . '/Web', 0777, TRUE);
-    mkdir($steps_dir . '/Drupal', 0777, TRUE);
-    file_put_contents($steps_dir . '/Web/SomeTrait.php', '<?php');
-    file_put_contents($steps_dir . '/Drupal/OtherTrait.php', '<?php');
+    $this->writeFixture(STEPS_DIRECTORY . '/Web/SomeTrait.php', '<?php');
+    $this->writeFixture(STEPS_DIRECTORY . '/Drupal/OtherTrait.php', '<?php');
 
     $info = [
       'SomeTrait' => [
@@ -3575,22 +3548,18 @@ EOD,
   }
 
   public function testValidateEnvVars(): void {
-    $base_path = static::$tmp;
-    mkdir($base_path . '/src/Nested', 0777, TRUE);
-    mkdir($base_path . '/docs', 0777, TRUE);
-
-    file_put_contents($base_path . '/docs/configuration.md', 'The `BEHAT_STEPS_DOCUMENTED` and `BEHAT_STEPS_DISABLE_CLEANUP` variables are documented.');
-    file_put_contents($base_path . '/src/Documented.php', '<?php $value = getenv("BEHAT_STEPS_DOCUMENTED");');
-    file_put_contents($base_path . '/src/Nested/Undocumented.php', "<?php \$value = getenv('BEHAT_STEPS_UNDOCUMENTED');");
+    $this->writeFixture('docs/configuration.md', 'The `BEHAT_STEPS_DOCUMENTED` and `BEHAT_STEPS_DISABLE_CLEANUP` variables are documented.');
+    $this->writeFixture('src/Documented.php', '<?php $value = getenv("BEHAT_STEPS_DOCUMENTED");');
+    $this->writeFixture('src/Nested/Undocumented.php', "<?php \$value = getenv('BEHAT_STEPS_UNDOCUMENTED');");
     // A documented name that only starts with the source name does not
     // document it.
-    file_put_contents($base_path . '/src/Prefix.php', "<?php \$value = getenv('BEHAT_STEPS_DISABLE');");
+    $this->writeFixture('src/Prefix.php', "<?php \$value = getenv('BEHAT_STEPS_DISABLE');");
     // A variable named only in a comment belongs to a consuming project, not
     // to this source.
-    file_put_contents($base_path . '/src/Commented.php', "<?php\n/**\n * Reads getenv('BEHAT_STEPS_COMMENTED').\n */\n");
-    file_put_contents($base_path . '/src/NotPhp.txt', "getenv('BEHAT_STEPS_TEXT')");
+    $this->writeFixture('src/Commented.php', "<?php\n/**\n * Reads getenv('BEHAT_STEPS_COMMENTED').\n */\n");
+    $this->writeFixture('src/NotPhp.txt', "getenv('BEHAT_STEPS_TEXT')");
 
-    $actual = validate_env_vars($base_path);
+    $actual = validate_env_vars(static::$tmp);
 
     $this->assertCount(2, $actual);
     $this->assertStringContainsString('BEHAT_STEPS_UNDOCUMENTED', $actual[0]);

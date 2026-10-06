@@ -26,7 +26,7 @@ class DefaultHandlerTest extends FieldHandlerUnitTestBase {
    * {@inheritdoc}
    */
   protected function createHandler(): FieldHandlerInterface {
-    return $this->handlerWithMainProperty('value');
+    return $this->createHandlerWithMainProperty('value');
   }
 
   /**
@@ -84,7 +84,7 @@ class DefaultHandlerTest extends FieldHandlerUnitTestBase {
    * DefaultHandler's pass-through 'doExpand()' touches no field metadata, so
    * the handler needs only the main property the base 'normalize()' reads.
    */
-  protected function handlerWithMainProperty(string $main_property): DefaultHandler {
+  protected function createHandlerWithMainProperty(string $main_property): DefaultHandler {
     $handler = (new \ReflectionClass(DefaultHandler::class))->newInstanceWithoutConstructor();
 
     $property = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');

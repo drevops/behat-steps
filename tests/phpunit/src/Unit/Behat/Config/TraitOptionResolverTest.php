@@ -45,13 +45,13 @@ class TraitOptionResolverTest extends UnitTestCase {
 
   public function testAnUndeclaredOptionIsRejectedOnRead(): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('No trait in ' . self::CONTEXT . ' declares the option "sample.missing". Declared options: other_sample.selectors, sample.enabled, sample.label, sample.limit, sample.ratio, sample.selectors, sample.anything, sample_extra.enabled.');
+    $this->expectExceptionMessage('No trait in ' . static::CONTEXT . ' declares the option "sample.missing". Declared options: other_sample.selectors, sample.enabled, sample.label, sample.limit, sample.ratio, sample.selectors, sample.anything, sample_extra.enabled.');
 
     $this->createResolver()->raw('sample', 'missing');
   }
 
   public function testContextDeclaringNothingSaysSo(): void {
-    $resolver = new TraitOptionResolver(self::CONTEXT, [], [], [], new ScenarioTagRegistry(), new TagOverrides());
+    $resolver = new TraitOptionResolver(static::CONTEXT, [], [], [], new ScenarioTagRegistry(), new TagOverrides());
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('declares the option "sample.enabled". Declared options: none.');
@@ -117,7 +117,7 @@ class TraitOptionResolverTest extends UnitTestCase {
 
   public function testTheTagsAreReadOnEveryAccess(): void {
     $registry = new ScenarioTagRegistry();
-    $resolver = new TraitOptionResolver(self::CONTEXT, self::declarations(), [], [], $registry, new TagOverrides());
+    $resolver = new TraitOptionResolver(static::CONTEXT, static::declareOptions(), [], [], $registry, new TagOverrides());
 
     $this->assertTrue($resolver->bool('sample', 'enabled'));
 
@@ -149,12 +149,12 @@ class TraitOptionResolverTest extends UnitTestCase {
   public static function dataProviderStrictValidation(): \Iterator {
     yield 'unknown group' => [
       ['nonexistent' => ['enabled' => FALSE]],
-      'Unknown option group "nonexistent" for context "' . self::CONTEXT . '". This context accepts: other_sample, sample, sample_extra.',
+      'Unknown option group "nonexistent" for context "' . static::CONTEXT . '". This context accepts: other_sample, sample, sample_extra.',
     ];
 
     yield 'unknown option' => [
       ['sample' => ['nonexistent' => FALSE]],
-      'Unknown option "sample.nonexistent" for context "' . self::CONTEXT . '". The "sample" group accepts: enabled, label, limit, ratio, selectors, anything.',
+      'Unknown option "sample.nonexistent" for context "' . static::CONTEXT . '". The "sample" group accepts: enabled, label, limit, ratio, selectors, anything.',
     ];
 
     yield 'a group that is not a map' => [
@@ -170,9 +170,9 @@ class TraitOptionResolverTest extends UnitTestCase {
 
   public function testContextDeclaringNothingNamesWhatItAccepts(): void {
     $this->expectException(InvalidConfigurationException::class);
-    $this->expectExceptionMessage('Unknown option group "sample" for context "' . self::CONTEXT . '". This context accepts: nothing.');
+    $this->expectExceptionMessage('Unknown option group "sample" for context "' . static::CONTEXT . '". This context accepts: nothing.');
 
-    new TraitOptionResolver(self::CONTEXT, [], ['sample' => ['enabled' => FALSE]], [], new ScenarioTagRegistry(), new TagOverrides());
+    new TraitOptionResolver(static::CONTEXT, [], ['sample' => ['enabled' => FALSE]], [], new ScenarioTagRegistry(), new TagOverrides());
   }
 
   /**
@@ -263,7 +263,7 @@ class TraitOptionResolverTest extends UnitTestCase {
     $registry = new ScenarioTagRegistry();
     $registry->setTags($tags);
 
-    return new TraitOptionResolver(self::CONTEXT, self::declarations(), $config, $steps, $registry, new TagOverrides());
+    return new TraitOptionResolver(static::CONTEXT, static::declareOptions(), $config, $steps, $registry, new TagOverrides());
   }
 
   /**
@@ -272,7 +272,7 @@ class TraitOptionResolverTest extends UnitTestCase {
    * @return array<string, array<string, \DrevOps\BehatSteps\Behat\Config\Option>>
    *   Options keyed by group name and then by option name.
    */
-  protected static function declarations(): array {
+  protected static function declareOptions(): array {
     return [
       'other_sample' => [
         'selectors' => new Option('selectors', default: ['.one', '.two'], description: 'A map option.'),

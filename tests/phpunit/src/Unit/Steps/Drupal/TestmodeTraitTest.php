@@ -43,7 +43,7 @@ class TestmodeTraitTest extends UnitTestCase {
       $this->assertSame('TestmodeTrait requires that the "testmode" module from the "drupal/testmode" package is enabled, which does not hold. Meet the prerequisite, or switch TestmodeTrait off with the "testmode.enabled" option or the "@behat-steps-skip:TestmodeTrait" tag.', $exception->getMessage());
     }
 
-    $this->assertFalse($context->isActive());
+    $this->assertFalse($context->testIsActive());
   }
 
 }
@@ -60,7 +60,7 @@ class TestmodeTraitTestImplementation extends WebRawContext {
   /**
    * Whether the scenario enabled test mode.
    */
-  public function isActive(): bool {
+  public function testIsActive(): bool {
     return $this->testmodeActive;
   }
 

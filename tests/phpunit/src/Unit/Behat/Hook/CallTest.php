@@ -18,9 +18,9 @@ use DrevOps\BehatSteps\Behat\Hook\Call\BeforeUserCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\EntityHook;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\HookedContext;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the hook calls the attribute reader constructs.
@@ -34,7 +34,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(BeforeNodeCreate::class)]
 #[CoversClass(BeforeTermCreate::class)]
 #[CoversClass(BeforeUserCreate::class)]
-class CallTest extends TestCase {
+class CallTest extends UnitTestCase {
 
   /**
    * Tests the name and scope each hook call reports.

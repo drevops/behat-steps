@@ -35,7 +35,7 @@ class NameHandlerTest extends FieldHandlerUnitTestBase {
    * {@inheritdoc}
    */
   protected function createHandler(): FieldHandlerInterface {
-    return $this->createHandlerWithComponents(self::ALL_ENABLED);
+    return $this->createHandlerWithComponents(static::ALL_ENABLED);
   }
 
   /**

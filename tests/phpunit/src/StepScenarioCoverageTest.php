@@ -60,11 +60,11 @@ class StepScenarioCoverageTest extends UnitTestCase {
 
   public function testEveryRegisteredStepIsRun(): void {
     $root = dirname(__DIR__, 3);
-    $texts = static::scenarioStepTexts(glob($root . '/tests/behat/features/*.feature') ?: [], static::suiteFilter($root . '/behat.php'));
-    $steps = static::registeredSteps(DrupalContext::class, $root . '/src');
+    $texts = static::collectScenarioStepTexts(glob($root . '/tests/behat/features/*.feature') ?: [], static::buildSuiteFilter($root . '/behat.php'));
+    $steps = static::collectRegisteredSteps(DrupalContext::class, $root . '/src');
 
     $this->assertNotEmpty($steps);
-    $this->assertSame([], static::unexercisedSteps($steps, $texts), 'Every registered step needs a scenario under tests/behat/features that runs it. A scenario the suite filters out, such as one tagged "@test-skipped", does not count.');
+    $this->assertSame([], static::listUnexercisedSteps($steps, $texts), 'Every registered step needs a scenario under tests/behat/features that runs it. A scenario the suite filters out, such as one tagged "@test-skipped", does not count.');
   }
 
   /**
@@ -75,14 +75,14 @@ class StepScenarioCoverageTest extends UnitTestCase {
    * @param array<int, string> $expected
    *   The step texts, in the order they are collected.
    */
-  #[DataProvider('dataProviderScenarioStepTexts')]
-  public function testScenarioStepTexts(string $feature, array $expected): void {
+  #[DataProvider('dataProviderCollectScenarioStepTexts')]
+  public function testCollectScenarioStepTexts(string $feature, array $expected): void {
     $file = $this->writeFixture('features/subject.feature', $feature);
 
-    $this->assertSame($expected, static::scenarioStepTexts([$file], new TagFilter('~@test-skipped')));
+    $this->assertSame($expected, static::collectScenarioStepTexts([$file], new TagFilter('~@test-skipped')));
   }
 
-  public static function dataProviderScenarioStepTexts(): array {
+  public static function dataProviderCollectScenarioStepTexts(): array {
     return [
       'keywords are stripped' => [
         <<<'FEATURE'
@@ -283,10 +283,10 @@ class StepScenarioCoverageTest extends UnitTestCase {
     ];
   }
 
-  public function testScenarioStepTextsWithoutFilter(): void {
+  public function testCollectScenarioStepTextsWithoutFilter(): void {
     $file = $this->writeFixture('features/subject.feature', "Feature: Subject\n  @test-skipped\n  Scenario: Skipped\n    Given the skipped step\n");
 
-    $this->assertSame(['the skipped step'], static::scenarioStepTexts([$file], NULL));
+    $this->assertSame(['the skipped step'], static::collectScenarioStepTexts([$file], NULL));
   }
 
   /**
@@ -299,8 +299,8 @@ class StepScenarioCoverageTest extends UnitTestCase {
    * @param string|null $expected_message
    *   The exception message expected, or NULL when none is.
    */
-  #[DataProvider('dataProviderSuiteFilter')]
-  public function testSuiteFilter(string $config, array $expected, ?string $expected_message = NULL): void {
+  #[DataProvider('dataProviderBuildSuiteFilter')]
+  public function testBuildSuiteFilter(string $config, array $expected, ?string $expected_message = NULL): void {
     $config_file = $this->writeFixture('behat.php', $config);
     $feature_file = $this->writeFixture('features/subject.feature', "Feature: Subject\n  Scenario: Kept\n    Given the kept step\n  @test-skipped\n  Scenario: Skipped\n    Given the skipped step\n");
 
@@ -309,10 +309,10 @@ class StepScenarioCoverageTest extends UnitTestCase {
       $this->expectExceptionMessage($expected_message);
     }
 
-    $this->assertSame($expected, static::scenarioStepTexts([$feature_file], static::suiteFilter($config_file)));
+    $this->assertSame($expected, static::collectScenarioStepTexts([$feature_file], static::buildSuiteFilter($config_file)));
   }
 
-  public static function dataProviderSuiteFilter(): array {
+  public static function dataProviderBuildSuiteFilter(): array {
     return [
       'a tag filter' => [
         <<<'PHP'
@@ -364,15 +364,15 @@ class StepScenarioCoverageTest extends UnitTestCase {
    * @param bool $is_exercised
    *   Whether a text matches the pattern.
    */
-  #[DataProvider('dataProviderUnexercisedSteps')]
-  public function testUnexercisedSteps(string $pattern, array $texts, bool $is_exercised): void {
+  #[DataProvider('dataProviderListUnexercisedSteps')]
+  public function testListUnexercisedSteps(string $pattern, array $texts, bool $is_exercised): void {
     $steps = [['label' => 'SubjectTrait::subjectStep()', 'pattern' => $pattern]];
     $expected = $is_exercised ? [] : [sprintf('SubjectTrait::subjectStep() "%s"', $pattern)];
 
-    $this->assertSame($expected, static::unexercisedSteps($steps, $texts));
+    $this->assertSame($expected, static::listUnexercisedSteps($steps, $texts));
   }
 
-  public static function dataProviderUnexercisedSteps(): array {
+  public static function dataProviderListUnexercisedSteps(): array {
     return [
       'a quoted placeholder value' => ['the path should be :path', ['the path should be "/about"'], TRUE],
       'a bare placeholder value' => ['the queue should have :count items', ['the queue should have 5 items'], TRUE],
@@ -387,7 +387,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
     ];
   }
 
-  public function testRegisteredSteps(): void {
+  public function testCollectRegisteredSteps(): void {
     $expected = [
       ['label' => 'StepCoverageContext::contextStep()', 'pattern' => 'the context step should run'],
       ['label' => 'StepCoverageTrait::stepCoverageGiven()', 'pattern' => 'the fixture exists'],
@@ -396,14 +396,14 @@ class StepScenarioCoverageTest extends UnitTestCase {
       ['label' => 'StepCoverageTrait::stepCoverageThen()', 'pattern' => 'the fixture should be open'],
     ];
 
-    $this->assertSame($expected, static::registeredSteps(StepCoverageContext::class, __DIR__ . '/Fixtures/StepCoverage'));
+    $this->assertSame($expected, static::collectRegisteredSteps(StepCoverageContext::class, __DIR__ . '/Fixtures/StepCoverage'));
   }
 
-  public function testRegisteredStepsWithMissingDirectory(): void {
+  public function testCollectRegisteredStepsWithMissingDirectory(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('does not exist.');
 
-    static::registeredSteps(StepCoverageContext::class, __DIR__ . '/Fixtures/Missing');
+    static::collectRegisteredSteps(StepCoverageContext::class, __DIR__ . '/Fixtures/Missing');
   }
 
   /**
@@ -417,7 +417,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
    * @return array<int, array{label: string, pattern: string}>
    *   One entry per step attribute, labelled with the file and the method.
    */
-  protected static function registeredSteps(string $class, string $directory): array {
+  protected static function collectRegisteredSteps(string $class, string $directory): array {
     $root = realpath($directory);
 
     if ($root === FALSE) {
@@ -426,7 +426,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
 
     $steps = [];
 
-    foreach ((new \ReflectionClass($class))->getMethods() as $method) {
+    foreach (static::reflect($class)->getMethods() as $method) {
       $file = (string) $method->getFileName();
 
       if ($file === '' || !str_starts_with((string) realpath($file), $root . DIRECTORY_SEPARATOR)) {
@@ -454,7 +454,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
    * @return array<int, string>
    *   Unique step texts without their keyword, in the order they are found.
    */
-  protected static function scenarioStepTexts(array $files, ?TagFilter $filter): array {
+  protected static function collectScenarioStepTexts(array $files, ?TagFilter $filter): array {
     $parser = new Parser(new Lexer(CachedArrayKeywords::withDefaultKeywords()));
     $texts = [];
 
@@ -556,7 +556,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
    * @return \Behat\Gherkin\Filter\TagFilter|null
    *   The filter, or NULL when the profile declares none.
    */
-  protected static function suiteFilter(string $file): ?TagFilter {
+  protected static function buildSuiteFilter(string $file): ?TagFilter {
     $config = require $file;
 
     if (!$config instanceof Config) {
@@ -585,7 +585,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
    * @return array<int, string>
    *   The label and pattern of each step no text matches.
    */
-  protected static function unexercisedSteps(array $steps, array $texts): array {
+  protected static function listUnexercisedSteps(array $steps, array $texts): array {
     // The Turnip policy accepts any pattern, so the regex policy is registered
     // first.
     $transformer = new PatternTransformer();

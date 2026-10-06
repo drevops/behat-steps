@@ -71,12 +71,12 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->installEntitySchema(self::ENTITY_TYPE);
+    $this->installEntitySchema(static::ENTITY_TYPE);
     $this->installEntitySchema('user');
     $this->installConfig(['system']);
 
     // entity_test does not auto-register a default bundle in kernel tests.
-    EntityTestHelper::createBundle(self::BUNDLE);
+    EntityTestHelper::createBundle(static::BUNDLE);
 
     // Core::bootstrap() is not called: KernelTestBase has already booted the
     // kernel, and a Core instance is only needed to call the backend API
@@ -99,15 +99,15 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
   protected function attachField(string $field_name, string $type, array $storage_settings = [], array $field_settings = []): void {
     FieldStorageConfig::create([
       'field_name' => $field_name,
-      'entity_type' => self::ENTITY_TYPE,
+      'entity_type' => static::ENTITY_TYPE,
       'type' => $type,
       'settings' => $storage_settings,
     ])->save();
 
     FieldConfig::create([
       'field_name' => $field_name,
-      'entity_type' => self::ENTITY_TYPE,
-      'bundle' => self::BUNDLE,
+      'entity_type' => static::ENTITY_TYPE,
+      'bundle' => static::BUNDLE,
       'settings' => $field_settings,
     ])->save();
   }
@@ -133,7 +133,7 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
    *   or an associative array (for multi-property fields).
    */
   protected function assertFieldRoundTripViaBackend(string $field_name, array $values): void {
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'test entity',
       $field_name => $values,
     ]);
@@ -141,7 +141,7 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
     $this->core->createEntity($stub);
 
     $reloaded = \Drupal::entityTypeManager()
-      ->getStorage(self::ENTITY_TYPE)
+      ->getStorage(static::ENTITY_TYPE)
       ->loadUnchanged($stub->getValue('id'));
     $this->assertInstanceOf(ContentEntityInterface::class, $reloaded);
 
@@ -187,7 +187,7 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
    * A handler that uploads writes a new File, and the test asserts against the
    * most recent one rather than an id fixed in advance.
    */
-  protected function latestFileId(): int {
+  protected function getLatestFileId(): int {
     $ids = \Drupal::entityTypeManager()
       ->getStorage('file')
       ->getQuery()

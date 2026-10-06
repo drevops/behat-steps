@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend;
 use DrevOps\BehatSteps\Backend\Core\Core;
 use DrevOps\BehatSteps\Backend\Core99\Core as Core99Core;
 use DrevOps\BehatSteps\Backend\DrupalBackend;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests DrupalBackend::setCoreFromVersion() lookup chain.
@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Core::class)]
 #[Group('backends')]
 #[Group('drupal')]
-class CoreLookupTest extends TestCase {
+class CoreLookupTest extends UnitTestCase {
 
   /**
    * Verifies that fixture classes are autoloaded via autoload-dev.

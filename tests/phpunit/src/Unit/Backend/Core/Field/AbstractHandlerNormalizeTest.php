@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core\Field;
 
 use DrevOps\BehatSteps\Backend\Core\Field\AbstractHandler;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests AbstractHandler::normalize() across every accepted input shape.
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
-class AbstractHandlerNormalizeTest extends TestCase {
+class AbstractHandlerNormalizeTest extends UnitTestCase {
 
   /**
    * Tests every accepted and rejected input shape for normalize().
@@ -249,7 +249,7 @@ class AbstractHandlerNormalizeTest extends TestCase {
    * set directly via reflection.
    */
   protected function createHandler(string $main_property): AbstractHandler {
-    $handler = (new \ReflectionClass(NormalizeTestHandler::class))->newInstanceWithoutConstructor();
+    $handler = (new \ReflectionClass(PassThroughHandler::class))->newInstanceWithoutConstructor();
 
     $property = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');
     $property->setValue($handler, $main_property);
@@ -262,7 +262,7 @@ class AbstractHandlerNormalizeTest extends TestCase {
 /**
  * Concrete AbstractHandler subclass used only by the normalize() tests.
  */
-final class NormalizeTestHandler extends AbstractHandler {
+final class PassThroughHandler extends AbstractHandler {
 
   /**
    * {@inheritdoc}

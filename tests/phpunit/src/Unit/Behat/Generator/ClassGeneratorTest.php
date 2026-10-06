@@ -6,15 +6,15 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Generator;
 
 use Behat\Testwork\Suite\Suite;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the starter context class generator.
  */
 #[CoversClass(ClassGenerator::class)]
-class ClassGeneratorTest extends TestCase {
+class ClassGeneratorTest extends UnitTestCase {
 
   public function testSupportsSuiteAndClassReturnsTrue(): void {
     $generator = new ClassGenerator();

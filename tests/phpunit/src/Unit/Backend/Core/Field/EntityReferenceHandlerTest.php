@@ -41,7 +41,7 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
     parent::setUp();
 
     $container = new ContainerBuilder();
-    $container->set('entity_type.manager', $this->createEntityTypeManager(self::KNOWN_LABELS));
+    $container->set('entity_type.manager', $this->createEntityTypeManager(static::KNOWN_LABELS));
     \Drupal::setContainer($container);
   }
 

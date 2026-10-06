@@ -35,7 +35,7 @@ class AbstractHandlerFieldNotFoundKernelTest extends FieldHandlerKernelTestBase 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/does not exist on entity type "entity_test"/');
 
-    new DefaultHandler(new EntityStub(self::ENTITY_TYPE), self::ENTITY_TYPE, 'field_does_not_exist');
+    new DefaultHandler(new EntityStub(static::ENTITY_TYPE), static::ENTITY_TYPE, 'field_does_not_exist');
   }
 
 }

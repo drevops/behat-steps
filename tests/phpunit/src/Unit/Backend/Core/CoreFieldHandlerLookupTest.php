@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Backend\Core\Field\AbstractHandler;
 use DrevOps\BehatSteps\Backend\Core\Field\AddressHandler;
 use DrevOps\BehatSteps\Backend\Core\Field\DefaultHandler;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -17,7 +18,6 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests field handler resolution against the registry.
@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Core::class)]
 #[Group('core')]
 #[Group('fields')]
-class CoreFieldHandlerLookupTest extends TestCase {
+class CoreFieldHandlerLookupTest extends UnitTestCase {
 
   /**
    * {@inheritdoc}

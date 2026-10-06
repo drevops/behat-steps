@@ -65,7 +65,7 @@ class DatetimeHandlerKernelTest extends FieldHandlerKernelTestBase {
       'datetime_type' => DateTimeItem::DATETIME_TYPE_DATETIME,
     ]);
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'relative-date',
       'field_seen' => [['value' => 'relative:2026-01-02 03:04:05']],
     ]);

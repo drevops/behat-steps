@@ -13,9 +13,9 @@ use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ForeignMinkExtension;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\BrowserKit\HttpBrowser;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -27,45 +27,23 @@ use Symfony\Component\HttpClient\HttpClient;
  * Tests the config schema and the services the extension puts in the container.
  */
 #[CoversClass(BehatStepsExtension::class)]
-class BehatStepsExtensionTest extends TestCase {
-
-  /**
-   * Directory holding the binaries the resolver probes for.
-   */
-  protected static string $fixtureDir;
+class BehatStepsExtensionTest extends UnitTestCase {
 
   /**
    * Working directory to restore after a test that changed it.
    */
   protected string $originalCwd;
 
-  public static function setUpBeforeClass(): void {
-    self::$fixtureDir = dirname(__DIR__, 6) . '/.artifacts/tmp/extension-binary-' . getmypid();
-
-    mkdir(self::$fixtureDir . '/project/vendor/bin', 0777, TRUE);
-    touch(self::$fixtureDir . '/project/vendor/bin/drush');
-    mkdir(self::$fixtureDir . '/project/web', 0777, TRUE);
-  }
-
-  public static function tearDownAfterClass(): void {
-    $iterator = new \RecursiveIteratorIterator(
-      new \RecursiveDirectoryIterator(self::$fixtureDir, \FilesystemIterator::SKIP_DOTS),
-      \RecursiveIteratorIterator::CHILD_FIRST
-    );
-
-    foreach ($iterator as $file) {
-      $file->isDir() ? rmdir($file->getPathname()) : unlink($file->getPathname());
-    }
-
-    rmdir(self::$fixtureDir);
-  }
-
   protected function setUp(): void {
+    parent::setUp();
+
     $this->originalCwd = (string) getcwd();
   }
 
   protected function tearDown(): void {
     chdir($this->originalCwd);
+
+    parent::tearDown();
   }
 
   public function testConfigKeyNamesTheExtension(): void {
@@ -88,11 +66,11 @@ class BehatStepsExtensionTest extends TestCase {
 
     $mink = $manager->getExtension('mink');
     $this->assertInstanceOf(MinkExtension::class, $mink);
-    $before = $this->minkDriverFactories($mink);
+    $before = $this->readMinkDriverFactories($mink);
 
     $manager->initializeExtensions();
 
-    $after = $this->minkDriverFactories($mink);
+    $after = $this->readMinkDriverFactories($mink);
     $this->assertNotInstanceOf(BrowserKitFactory::class, $before['browserkit_http']);
     $this->assertInstanceOf(BrowserKitFactory::class, $after['browserkit_http']);
     $this->assertSame(array_keys($before), array_keys($after));
@@ -608,19 +586,21 @@ class BehatStepsExtensionTest extends TestCase {
   }
 
   public function testBinaryPathResolvesFromWorkingDirectory(): void {
-    chdir(self::$fixtureDir . '/project');
+    $project = $this->createDrushProject();
+    chdir($project);
 
-    $this->assertSame(self::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
+    $this->assertSame($project . '/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
   }
 
   public function testBinaryPathResolvesFromParentDirectory(): void {
-    chdir(self::$fixtureDir . '/project/web');
+    $project = $this->createDrushProject();
+    chdir($project . '/web');
 
-    $this->assertSame(self::$fixtureDir . '/project/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
+    $this->assertSame($project . '/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
   }
 
   public function testUnresolvableBinaryPathIsReturnedAsIs(): void {
-    chdir(self::$fixtureDir);
+    chdir(static::$tmp);
 
     $this->assertSame('some/nonexistent/binary', BehatStepsExtension::resolveBinaryPath('some/nonexistent/binary'));
   }
@@ -691,11 +671,24 @@ class BehatStepsExtensionTest extends TestCase {
    * @return array<string, \Behat\MinkExtension\ServiceContainer\Driver\DriverFactory>
    *   The registered factories.
    */
-  protected function minkDriverFactories(MinkExtension $mink): array {
+  protected function readMinkDriverFactories(MinkExtension $mink): array {
     $factories = (new \ReflectionProperty(MinkExtension::class, 'driverFactories'))->getValue($mink);
     $this->assertIsArray($factories);
 
     return $factories;
+  }
+
+  /**
+   * Writes a project with a Drush binary and a web root below it.
+   *
+   * @return string
+   *   The project directory.
+   */
+  protected function createDrushProject(): string {
+    $this->writeFixture('project/vendor/bin/drush', '');
+    mkdir(static::$tmp . '/project/web');
+
+    return static::$tmp . '/project';
   }
 
 }

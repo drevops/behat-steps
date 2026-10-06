@@ -52,14 +52,7 @@ class FixtureFileTraitTest extends UnitTestCase {
    */
   protected function createFixtureFiles(array $paths): void {
     foreach ($paths as $path) {
-      $full_path = $this->fixturesPath . $path;
-      $directory = dirname($full_path);
-
-      if (!is_dir($directory)) {
-        mkdir($directory, 0777, TRUE);
-      }
-
-      file_put_contents($full_path, 'fixture content');
+      $this->writeFixture($path, 'fixture content');
     }
   }
 

@@ -106,28 +106,28 @@ class EmailTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderFindMessageBySubject(): \Iterator {
-    yield 'whole subject' => [self::MESSAGES, 'Account Verification', FALSE, 0];
-    yield 'whole subject of a later email' => [self::MESSAGES, 'Your Account Verification code', FALSE, 1];
-    yield 'part of a subject' => [self::MESSAGES, 'Verification', FALSE, NULL];
-    yield 'whole subject in another case' => [self::MESSAGES, 'account verification', FALSE, NULL];
+    yield 'whole subject' => [static::MESSAGES, 'Account Verification', FALSE, 0];
+    yield 'whole subject of a later email' => [static::MESSAGES, 'Your Account Verification code', FALSE, 1];
+    yield 'part of a subject' => [static::MESSAGES, 'Verification', FALSE, NULL];
+    yield 'whole subject in another case' => [static::MESSAGES, 'account verification', FALSE, NULL];
     yield 'whole subject with collapsed whitespace' => [[['subject' => 'Account  Verification']], 'Account Verification', FALSE, NULL];
     yield 'whole subject with surrounding whitespace' => [[['subject' => ' Account Verification ']], 'Account Verification', FALSE, NULL];
-    yield 'partial, part of a subject' => [self::MESSAGES, 'Verification', TRUE, 0];
-    yield 'partial, part only a later email has' => [self::MESSAGES, 'code', TRUE, 1];
-    yield 'partial, whole subject' => [self::MESSAGES, 'Welcome', TRUE, 2];
-    yield 'partial, part in another case' => [self::MESSAGES, 'verification', TRUE, NULL];
+    yield 'partial, part of a subject' => [static::MESSAGES, 'Verification', TRUE, 0];
+    yield 'partial, part only a later email has' => [static::MESSAGES, 'code', TRUE, 1];
+    yield 'partial, whole subject' => [static::MESSAGES, 'Welcome', TRUE, 2];
+    yield 'partial, part in another case' => [static::MESSAGES, 'verification', TRUE, NULL];
     yield 'no collected emails' => [[], 'Account Verification', FALSE, NULL];
     yield 'email without a subject' => [[['params' => ['body' => 'No subject']]], 'Account Verification', TRUE, NULL];
-    yield 'subject held as markup' => [[['subject' => self::stringable('Account Verification')]], 'Account Verification', FALSE, 0];
+    yield 'subject held as markup' => [[['subject' => static::createStringable('Account Verification')]], 'Account Verification', FALSE, 0];
   }
 
   public function testGetMessageBySubject(): void {
-    $this->assertSame(self::MESSAGES[1], $this->createContext(self::MESSAGES)->emailGetMessageBySubject('code', TRUE));
+    $this->assertSame(static::MESSAGES[1], $this->createContext(static::MESSAGES)->emailGetMessageBySubject('code', TRUE));
   }
 
   #[DataProvider('dataProviderGetMessageBySubjectFails')]
   public function testGetMessageBySubjectFails(string $subject, bool $is_partial, string $expected_message): void {
-    $context = $this->createContext(self::MESSAGES);
+    $context = $this->createContext(static::MESSAGES);
 
     $this->expectException(ExpectationException::class);
     $this->expectExceptionMessage($expected_message);
@@ -145,7 +145,7 @@ class EmailTraitTest extends UnitTestCase {
     $session = $this->createSession();
     $session->expects($this->once())->method('visit')->with($expected_url);
 
-    $this->createContext(self::MESSAGES, $session)->{$method}($index, $subject);
+    $this->createContext(static::MESSAGES, $session)->{$method}($index, $subject);
   }
 
   public static function dataProviderFollowLinkWithIndexBySubject(): \Iterator {
@@ -159,7 +159,7 @@ class EmailTraitTest extends UnitTestCase {
   public function testFollowLinkWithIndexBySubjectFails(string $method, string $index, string $subject, string $expected_message): void {
     $session = $this->createSession();
     $session->expects($this->never())->method('visit');
-    $context = $this->createContext(self::MESSAGES, $session);
+    $context = $this->createContext(static::MESSAGES, $session);
 
     $this->expectException(ExpectationException::class);
     $this->expectExceptionMessage($expected_message);
@@ -179,7 +179,7 @@ class EmailTraitTest extends UnitTestCase {
   public function testAssertMessageContainsAttachmentBySubject(string $method, string $file_name, string $subject): void {
     $this->expectNotToPerformAssertions();
 
-    $this->createContext(self::MESSAGES)->{$method}($file_name, $subject);
+    $this->createContext(static::MESSAGES)->{$method}($file_name, $subject);
   }
 
   public static function dataProviderAssertMessageContainsAttachmentBySubject(): \Iterator {
@@ -189,7 +189,7 @@ class EmailTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderAssertMessageContainsAttachmentBySubjectFails')]
   public function testAssertMessageContainsAttachmentBySubjectFails(string $method, string $file_name, string $subject, string $expected_message): void {
-    $context = $this->createContext(self::MESSAGES);
+    $context = $this->createContext(static::MESSAGES);
 
     $this->expectException(ExpectationException::class);
     $this->expectExceptionMessage($expected_message);
@@ -237,7 +237,7 @@ class EmailTraitTest extends UnitTestCase {
   /**
    * Returns an anonymous Stringable that mimics a Drupal TranslatableMarkup.
    */
-  protected static function stringable(string $value): \Stringable {
+  protected static function createStringable(string $value): \Stringable {
     return new readonly class($value) {
 
       public function __construct(protected string $value) {}

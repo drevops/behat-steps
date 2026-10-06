@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Tests;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Asserts that every data provider follows the settled provider conventions.
@@ -31,14 +30,14 @@ class DataProviderConventionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProvidersAreNamedAfterTheirTest')]
   public function testProvidersAreNamedAfterTheirTest(string $class): void {
-    $reflection = new \ReflectionClass($class);
+    $reflection = static::reflect($class);
 
     $violations = [];
 
-    foreach (static::ownMethods($reflection) as $test) {
+    foreach (static::collectOwnMethods($reflection) as $test) {
       $expected = 'dataProvider' . substr($test->getName(), strlen('test'));
 
-      foreach (static::providerNames($test) as $name) {
+      foreach (static::readProviderNames($test) as $name) {
         if ($name !== $expected) {
           $violations[] = sprintf('%s() is served by %s(), not %s().', $test->getName(), $name, $expected);
         }
@@ -63,12 +62,12 @@ class DataProviderConventionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProvidersAreDeclaredAfterTheirTest')]
   public function testProvidersAreDeclaredAfterTheirTest(string $class): void {
-    $reflection = new \ReflectionClass($class);
+    $reflection = static::reflect($class);
 
     $violations = [];
 
-    foreach (static::ownMethods($reflection) as $test) {
-      foreach (static::providerNames($test) as $name) {
+    foreach (static::collectOwnMethods($reflection) as $test) {
+      foreach (static::readProviderNames($test) as $name) {
         if (!$reflection->hasMethod($name)) {
           continue;
         }
@@ -100,17 +99,17 @@ class DataProviderConventionTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProviderReturnTypesMatchTheirBody')]
   public function testProviderReturnTypesMatchTheirBody(string $class): void {
-    $reflection = new \ReflectionClass($class);
+    $reflection = static::reflect($class);
 
     $violations = [];
 
-    foreach (static::ownMethods($reflection) as $provider) {
+    foreach (static::collectOwnMethods($reflection) as $provider) {
       if (!str_starts_with($provider->getName(), 'dataProvider') || $provider->isAbstract()) {
         continue;
       }
 
       $expected = $provider->isGenerator() ? \Iterator::class : 'array';
-      $declared = static::returnTypeName($provider);
+      $declared = static::readReturnTypeName($provider);
 
       if ($declared !== $expected) {
         $violations[] = sprintf('%s() %s but declares %s instead of %s.', $provider->getName(), $provider->isGenerator() ? 'is a generator' : 'is not a generator', $declared, $expected);
@@ -125,45 +124,6 @@ class DataProviderConventionTest extends UnitTestCase {
   }
 
   /**
-   * Return every test class under `tests/phpunit/src`, keyed by name.
-   *
-   * Abstract bases stay in, because they declare tests and providers too.
-   * Fixture directories hold no tests and are skipped by path.
-   *
-   * @return array<string, array{class-string}>
-   *   Fully qualified test class names, as data provider rows.
-   */
-  protected static function discoverTestClasses(): array {
-    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(__DIR__, \FilesystemIterator::SKIP_DOTS));
-
-    $classes = [];
-
-    foreach ($files as $file) {
-      if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
-        continue;
-      }
-
-      $relative = substr($file->getPathname(), strlen(__DIR__) + 1, -strlen('.php'));
-
-      if (in_array('Fixtures', explode(DIRECTORY_SEPARATOR, $relative), TRUE)) {
-        continue;
-      }
-
-      $class = __NAMESPACE__ . '\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
-
-      if (!class_exists($class) || !is_subclass_of($class, TestCase::class)) {
-        continue;
-      }
-
-      $classes[$class] = [$class];
-    }
-
-    ksort($classes);
-
-    return $classes;
-  }
-
-  /**
    * Return the methods a class declares rather than inherits.
    *
    * @param \ReflectionClass<object> $reflection
@@ -172,7 +132,7 @@ class DataProviderConventionTest extends UnitTestCase {
    * @return array<int, \ReflectionMethod>
    *   Methods declared by the class itself.
    */
-  protected static function ownMethods(\ReflectionClass $reflection): array {
+  protected static function collectOwnMethods(\ReflectionClass $reflection): array {
     return array_values(array_filter($reflection->getMethods(), static fn(\ReflectionMethod $method): bool => $method->getDeclaringClass()->getName() === $reflection->getName()));
   }
 
@@ -185,7 +145,7 @@ class DataProviderConventionTest extends UnitTestCase {
    * @return array<int, string>
    *   Provider method names, in declaration order.
    */
-  protected static function providerNames(\ReflectionMethod $test): array {
+  protected static function readProviderNames(\ReflectionMethod $test): array {
     $names = [];
 
     foreach ($test->getAttributes(DataProvider::class) as $attribute) {
@@ -204,7 +164,7 @@ class DataProviderConventionTest extends UnitTestCase {
    * @return string
    *   The type name, or `no return type` when none is declared.
    */
-  protected static function returnTypeName(\ReflectionMethod $method): string {
+  protected static function readReturnTypeName(\ReflectionMethod $method): string {
     $type = $method->getReturnType();
 
     if ($type === NULL) {

@@ -78,7 +78,7 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
     $missing = [];
 
     foreach (array_keys($definitions) as $type) {
-      if (array_key_exists($type, self::SKIP)) {
+      if (array_key_exists($type, static::SKIP)) {
         continue;
       }
 

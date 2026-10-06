@@ -9,11 +9,11 @@ use DrevOps\BehatSteps\Backend\DrupalBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\AuthCapableCoreInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Exercises every 'DrupalBackend' public method to guarantee line coverage.
@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DrupalBackend::class)]
 #[Group('backends')]
 #[Group('drupal')]
-class DrupalBackendDelegationTest extends TestCase {
+class DrupalBackendDelegationTest extends UnitTestCase {
 
   public function testGetCoreReturnsInjectedCore(): void {
     $core = $this->createMock(CoreInterface::class);

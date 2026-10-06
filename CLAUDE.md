@@ -248,6 +248,14 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - Avoid using custom steps in negative tests that may not be available in BehatCLI context
 - Test-only tags - ones consumed by the test harness (the test contexts or the bootstrap traits) to configure a scenario, as opposed to the library's public tags registered in `docs.php`'s `tag_registry()` - must be prefixed with `test-` (e.g., `@test-bigpipe-timeout`) so they are clearly distinguishable from real library tags.
 
+### Unit Test Conventions
+- A unit test extends `UnitTestCase` (a kernel test extends `KernelTestBase`), writes fixtures through `writeFixture()` into `static::$tmp`, and reflects a class held in a variable through `static::reflect()`; a `::class` constant goes to `new \ReflectionClass()`
+- Static members are reached through `static::`; `self::` stays only in a constant expression, in a final or anonymous class, or on a final or private member, such as PHPUnit's `self::fail()`
+- A test helper opens with a verb from `TestConventionTest::HELPER_VERBS`; a yes-or-no helper opens with `is` or `has`
+- A test double's test-only methods are `call<Method>()` to run a protected method and `test<Accessor>()` to read or write protected state; everything else on a double overrides a production method
+- A double is named `<Trait>TestImplementation` or `<Qualifier><Role>`, and `Test` or `Testable` is never the qualifier
+- `tests/phpunit/src/TestConventionTest.php` enforces all of these; the "Test suite conventions" section of [CONTRIBUTING.md](CONTRIBUTING.md) explains them
+
 ### Step Definition Constraints
 - Documentation tool (`docs.php`) does not support multiple `@When` annotations per method
 - Use a single step annotation and document alternative usage in `@code` examples

@@ -19,10 +19,10 @@ use DrevOps\BehatSteps\Backend\DrupalBackend;
 use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\FakeVersionDrupalBackend;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests DrupalBackend's capability surface and 'detectMajorVersion()'.
@@ -33,7 +33,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DrupalBackend::class)]
 #[Group('backends')]
 #[Group('drupal')]
-class DrupalBackendTest extends TestCase {
+class DrupalBackendTest extends UnitTestCase {
 
   /**
    * A directory carrying both entry files 'detectMajorVersion()' requires.
@@ -88,7 +88,7 @@ class DrupalBackendTest extends TestCase {
     $this->expectExceptionMessageMatches('/Unable to extract major Drupal core version/');
 
     FakeVersionDrupalBackend::$nextVersion = 'zz.x';
-    new FakeVersionDrupalBackend(self::DRUPAL_ROOT, 'default');
+    new FakeVersionDrupalBackend(static::DRUPAL_ROOT, 'default');
   }
 
   public function testDetectMajorVersionRejectsPre11(): void {
@@ -96,7 +96,7 @@ class DrupalBackendTest extends TestCase {
     $this->expectExceptionMessageMatches('/Unsupported Drupal core version/');
 
     FakeVersionDrupalBackend::$nextVersion = '10.4.0';
-    new FakeVersionDrupalBackend(self::DRUPAL_ROOT, 'default');
+    new FakeVersionDrupalBackend(static::DRUPAL_ROOT, 'default');
   }
 
   /**
@@ -119,45 +119,17 @@ class DrupalBackendTest extends TestCase {
    */
   #[DataProvider('dataProviderDetectMajorVersionRejectsPartialRoot')]
   public function testDetectMajorVersionRejectsPartialRoot(string $present, string $missing): void {
-    $root = self::DRUPAL_ROOT . '/../partial-root-' . md5($present);
-    mkdir(dirname($root . $present), 0777, TRUE);
-    touch($root . $present);
+    $this->writeFixture('partial-root' . $present, '');
 
-    try {
-      $this->expectException(BootstrapException::class);
-      $this->expectExceptionMessage($missing . ' is missing');
+    $this->expectException(BootstrapException::class);
+    $this->expectExceptionMessage($missing . ' is missing');
 
-      new FakeVersionDrupalBackend($root, 'default');
-    }
-    finally {
-      unlink($root . $present);
-      $this->removeTree($root);
-    }
+    new FakeVersionDrupalBackend(static::$tmp . '/partial-root', 'default');
   }
 
   public static function dataProviderDetectMajorVersionRejectsPartialRoot(): \Iterator {
     yield 'bootstrap include missing' => ['/autoload.php', '/core/includes/bootstrap.inc'];
     yield 'autoloader missing' => ['/core/includes/bootstrap.inc', '/autoload.php'];
-  }
-
-  /**
-   * Removes a directory and every empty directory it contains.
-   *
-   * @param string $directory
-   *   The directory to remove.
-   */
-  protected function removeTree(string $directory): void {
-    $entries = (array) scandir($directory);
-
-    foreach ($entries as $entry) {
-      if ($entry === '.' || $entry === '..') {
-        continue;
-      }
-
-      $this->removeTree($directory . '/' . $entry);
-    }
-
-    rmdir($directory);
   }
 
 }

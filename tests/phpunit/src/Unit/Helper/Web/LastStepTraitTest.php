@@ -40,19 +40,19 @@ class LastStepTraitTest extends UnitTestCase {
   }
 
   public function testScenarioWithoutStepsMarksNoLastStep(): void {
-    $this->testObject->callCapture($this->createScenarioScopeForLines([]));
+    $this->testObject->callSetLine($this->createScenarioScopeForLines([]));
 
     $this->assertFalse($this->testObject->callReached($this->createAfterStepScope(10)));
   }
 
   public function testTheFinalStepLineIsTheLastStep(): void {
-    $this->testObject->callCapture($this->createScenarioScopeForLines([10, 11, 12]));
+    $this->testObject->callSetLine($this->createScenarioScopeForLines([10, 11, 12]));
 
     $this->assertTrue($this->testObject->callReached($this->createAfterStepScope(12)));
   }
 
   public function testAnEarlierStepLineIsNotTheLastStep(): void {
-    $this->testObject->callCapture($this->createScenarioScopeForLines([10, 11, 12]));
+    $this->testObject->callSetLine($this->createScenarioScopeForLines([10, 11, 12]));
 
     $this->assertFalse($this->testObject->callReached($this->createAfterStepScope(11)));
   }
@@ -93,7 +93,7 @@ class LastStepTraitTestImplementation {
 
   use LastStepTrait;
 
-  public function callCapture(BeforeScenarioScope $scope): void {
+  public function callSetLine(BeforeScenarioScope $scope): void {
     $this->lastStepSetLine($scope);
   }
 

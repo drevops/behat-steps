@@ -46,8 +46,8 @@ class FileHandlerTest extends FileBackedHandlerTestBase {
     parent::setUp();
 
     $container = new ContainerBuilder();
-    $container->set('entity_type.manager', $this->createEntityTypeManager(self::REGISTERED_FILES));
-    $container->set('file.repository', $this->createFileRepository(self::UPLOADED_FILE_ID));
+    $container->set('entity_type.manager', $this->createEntityTypeManager(static::REGISTERED_FILES));
+    $container->set('file.repository', $this->createFileRepository(static::UPLOADED_FILE_ID));
     \Drupal::setContainer($container);
   }
 
@@ -69,23 +69,23 @@ class FileHandlerTest extends FileBackedHandlerTestBase {
    */
   public static function dataProviderExpand(): \Iterator {
     yield 'bare scalar path triggers upload' => [
-      self::FIXTURE_PATH,
-      [['target_id' => self::UPLOADED_FILE_ID, 'display' => 1, 'description' => '']],
+      static::FIXTURE_PATH,
+      [['target_id' => static::UPLOADED_FILE_ID, 'display' => 1, 'description' => '']],
       NULL,
       NULL,
     ];
     yield 'list of paths triggers upload' => [
-      [self::FIXTURE_PATH, self::FIXTURE_PATH],
+      [static::FIXTURE_PATH, static::FIXTURE_PATH],
       [
-        ['target_id' => self::UPLOADED_FILE_ID, 'display' => 1, 'description' => ''],
-        ['target_id' => self::UPLOADED_FILE_ID, 'display' => 1, 'description' => ''],
+        ['target_id' => static::UPLOADED_FILE_ID, 'display' => 1, 'description' => ''],
+        ['target_id' => static::UPLOADED_FILE_ID, 'display' => 1, 'description' => ''],
       ],
       NULL,
       NULL,
     ];
     yield 'record with display and description preserved' => [
-      [['target_id' => self::FIXTURE_PATH, 'display' => 0, 'description' => 'Spec sheet']],
-      [['target_id' => self::UPLOADED_FILE_ID, 'display' => 0, 'description' => 'Spec sheet']],
+      [['target_id' => static::FIXTURE_PATH, 'display' => 0, 'description' => 'Spec sheet']],
+      [['target_id' => static::UPLOADED_FILE_ID, 'display' => 0, 'description' => 'Spec sheet']],
       NULL,
       NULL,
     ];

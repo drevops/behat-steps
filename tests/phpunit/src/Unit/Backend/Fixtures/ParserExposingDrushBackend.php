@@ -7,12 +7,12 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures;
 use DrevOps\BehatSteps\Backend\DrushBackend;
 
 /**
- * Subclass of 'DrushBackend' that exposes the protected static parser.
+ * Subclass of 'DrushBackend' that exposes its protected parsers.
  *
- * Lets a test invoke the protected 'parseArguments()' method directly
- * without a Drush binary.
+ * Lets a test invoke 'parseArguments()' and 'parseUserId()' directly without
+ * a Drush binary.
  */
-class ArgumentsExposingDrushBackend extends DrushBackend {
+class ParserExposingDrushBackend extends DrushBackend {
 
   /**
    * Public wrapper over the protected static parser.
@@ -24,7 +24,14 @@ class ArgumentsExposingDrushBackend extends DrushBackend {
    *   The argv entries produced by 'parseArguments()'.
    */
   public static function callParseArguments(array $arguments): array {
-    return self::parseArguments($arguments);
+    return static::parseArguments($arguments);
+  }
+
+  /**
+   * Exposes 'parseUserId()' for testing.
+   */
+  public function callParseUserId(string $info): ?int {
+    return $this->parseUserId($info);
   }
 
 }

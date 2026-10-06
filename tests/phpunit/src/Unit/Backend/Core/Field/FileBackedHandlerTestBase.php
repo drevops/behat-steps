@@ -52,7 +52,7 @@ abstract class FileBackedHandlerTestBase extends FieldHandlerUnitTestBase {
    * Builds a file.repository stub returning the same File on every write.
    */
   protected function createFileRepository(int $upload_id): object {
-    $file = self::createFakeFile($upload_id);
+    $file = static::createFakeFile($upload_id);
 
     return new readonly class($file) {
 
@@ -78,7 +78,7 @@ abstract class FileBackedHandlerTestBase extends FieldHandlerUnitTestBase {
     $files_by_uri = [];
 
     foreach ($registered_files as $uri => $id) {
-      $files_by_uri[$uri] = self::createFakeFile($id);
+      $files_by_uri[$uri] = static::createFakeFile($id);
     }
 
     $storage = new readonly class($files_by_uri) {

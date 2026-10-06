@@ -57,8 +57,8 @@ class SkipGuardTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderScenarioHookIsGuarded')]
   public function testScenarioHookIsGuarded(string $trait, string $method): void {
-    $hook = static::hookLabel($trait, $method);
-    $is_guarded = str_contains(static::methodSource($trait, $method), static::GUARD);
+    $hook = static::labelHook($trait, $method);
+    $is_guarded = str_contains(static::readMethodSource($trait, $method), static::GUARD);
 
     if (array_key_exists($hook, static::UNGUARDED_HOOKS)) {
       $this->assertFalse($is_guarded, sprintf('%s carries a skip guard, so remove it from UNGUARDED_HOOKS.', $hook));
@@ -88,7 +88,7 @@ class SkipGuardTest extends UnitTestCase {
   #[DataProvider('dataProviderSkipGuardsNameTheirTrait')]
   public function testSkipGuardsNameTheirTrait(string $trait): void {
     $violations = [];
-    $tokens = static::significantTokens((string) static::reflect($trait)->getFileName());
+    $tokens = static::readSignificantTokens((string) static::reflect($trait)->getFileName());
 
     foreach ($tokens as $index => $token) {
       if (!is_array($token)) {
@@ -136,7 +136,7 @@ class SkipGuardTest extends UnitTestCase {
           continue;
         }
 
-        $hooks[static::hookLabel($trait, $method->getName())] = [$trait, $method->getName()];
+        $hooks[static::labelHook($trait, $method->getName())] = [$trait, $method->getName()];
       }
     }
 
@@ -148,14 +148,14 @@ class SkipGuardTest extends UnitTestCase {
   /**
    * Label a hook by its trait, relative to the library namespace, and method.
    */
-  protected static function hookLabel(string $trait, string $method): string {
+  protected static function labelHook(string $trait, string $method): string {
     return substr($trait, strlen('DrevOps\\BehatSteps\\')) . '::' . $method;
   }
 
   /**
    * Return the source lines of one method.
    */
-  protected static function methodSource(string $trait, string $method): string {
+  protected static function readMethodSource(string $trait, string $method): string {
     $reflection = static::reflect($trait)->getMethod($method);
     $lines = file((string) $reflection->getFileName()) ?: [];
     $start = (int) $reflection->getStartLine();

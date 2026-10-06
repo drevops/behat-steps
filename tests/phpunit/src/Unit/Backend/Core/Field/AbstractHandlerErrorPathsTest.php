@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core\Field;
 use DrevOps\BehatSteps\Backend\Core\Field\AbstractHandler;
 use DrevOps\BehatSteps\Backend\Core\Field\DefaultHandler;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests AbstractHandler guards that need no Drupal kernel.
@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
-class AbstractHandlerErrorPathsTest extends TestCase {
+class AbstractHandlerErrorPathsTest extends UnitTestCase {
 
   /**
    * Tests that the constructor rejects an empty entity type.

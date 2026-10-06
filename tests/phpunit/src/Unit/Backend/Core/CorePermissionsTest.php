@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core;
 
 use DrevOps\BehatSteps\Backend\Core\Core;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests permission label and machine name conversion in the Core backend.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
-class CorePermissionsTest extends TestCase {
+class CorePermissionsTest extends UnitTestCase {
 
   /**
    * Tests that human-readable titles are converted to machine names.
@@ -24,13 +24,13 @@ class CorePermissionsTest extends TestCase {
    * casts the title to string before the lookup.
    */
   public function testConvertPermissionsMapsStringableTitlesToMachineNames(): void {
-    $core = new TestPermissionsCore(__DIR__, 'default');
-    $core->setPermissions([
+    $core = new InjectedPermissionsCore(__DIR__, 'default');
+    $core->testSetPermissions([
       'administer content types' => [
-        'title' => $this->stringable('Administer content types'),
+        'title' => $this->createStringable('Administer content types'),
       ],
       'administer users' => [
-        'title' => $this->stringable('Administer users'),
+        'title' => $this->createStringable('Administer users'),
       ],
     ]);
 
@@ -41,10 +41,10 @@ class CorePermissionsTest extends TestCase {
   }
 
   public function testConvertPermissionsLeavesMachineNamesAlone(): void {
-    $core = new TestPermissionsCore(__DIR__, 'default');
-    $core->setPermissions([
+    $core = new InjectedPermissionsCore(__DIR__, 'default');
+    $core->testSetPermissions([
       'administer users' => [
-        'title' => $this->stringable('Administer users'),
+        'title' => $this->createStringable('Administer users'),
       ],
     ]);
 
@@ -55,8 +55,8 @@ class CorePermissionsTest extends TestCase {
   }
 
   public function testCheckPermissionsAcceptsValidMachineNames(): void {
-    $core = new TestPermissionsCore(__DIR__, 'default');
-    $core->setPermissions([
+    $core = new InjectedPermissionsCore(__DIR__, 'default');
+    $core->testSetPermissions([
       'administer users' => ['title' => 'Administer users'],
       'access content' => ['title' => 'Access content'],
     ]);
@@ -68,8 +68,8 @@ class CorePermissionsTest extends TestCase {
   }
 
   public function testCheckPermissionsThrowsForUnknownPermission(): void {
-    $core = new TestPermissionsCore(__DIR__, 'default');
-    $core->setPermissions([
+    $core = new InjectedPermissionsCore(__DIR__, 'default');
+    $core->testSetPermissions([
       'administer users' => ['title' => 'Administer users'],
     ]);
 
@@ -110,7 +110,7 @@ class CorePermissionsTest extends TestCase {
   /**
    * Returns an anonymous Stringable that mimics a Drupal TranslatableMarkup.
    */
-  protected function stringable(string $label): object {
+  protected function createStringable(string $label): object {
     return new readonly class($label) {
 
       public function __construct(protected string $label) {}
@@ -125,9 +125,9 @@ class CorePermissionsTest extends TestCase {
 }
 
 /**
- * Testable subclass that overrides 'getAllPermissions()'.
+ * Subclass that overrides 'getAllPermissions()'.
  */
-class TestPermissionsCore extends Core {
+class InjectedPermissionsCore extends Core {
 
   /**
    * Stored permissions keyed by machine name.
@@ -142,7 +142,7 @@ class TestPermissionsCore extends Core {
    * @param array<string, mixed> $permissions
    *   The permissions to set.
    */
-  public function setPermissions(array $permissions): void {
+  public function testSetPermissions(array $permissions): void {
     $this->permissions = $permissions;
   }
 

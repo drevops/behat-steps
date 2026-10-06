@@ -56,7 +56,7 @@ class AnyDriverAdapter extends BrowserAdapterBase implements CookieCapabilityInt
    * {@inheritdoc}
    */
   public function cookieGetAll(): array {
-    return self::$cookies;
+    return static::$cookies;
   }
 
   /**

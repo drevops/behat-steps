@@ -14,10 +14,10 @@ use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeTermCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeUserCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\DrupalHookInterface;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\FilterStringTrait;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the attributes a context method declares its entity hooks with.
@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(BeforeTermCreate::class)]
 #[CoversClass(BeforeUserCreate::class)]
 #[CoversTrait(FilterStringTrait::class)]
-class AttributeTest extends TestCase {
+class AttributeTest extends UnitTestCase {
 
   /**
    * Tests that an attribute declared without arguments carries no filter.
@@ -48,7 +48,7 @@ class AttributeTest extends TestCase {
   }
 
   public static function dataProviderFilterStringDefaultsToNone(): \Iterator {
-    yield from self::attributeClasses();
+    yield from static::listAttributeClasses();
   }
 
   /**
@@ -63,7 +63,7 @@ class AttributeTest extends TestCase {
   }
 
   public static function dataProviderFilterStringIsReadBack(): \Iterator {
-    yield from self::attributeClasses();
+    yield from static::listAttributeClasses();
   }
 
   /**
@@ -74,14 +74,14 @@ class AttributeTest extends TestCase {
    */
   #[DataProvider('dataProviderAttributeTargetsRepeatableMethods')]
   public function testAttributeTargetsRepeatableMethods(string $attribute_class): void {
-    $attributes = (new \ReflectionClass($attribute_class))->getAttributes(\Attribute::class);
+    $attributes = static::reflect($attribute_class)->getAttributes(\Attribute::class);
 
     $this->assertCount(1, $attributes);
     $this->assertSame(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE, $attributes[0]->newInstance()->flags);
   }
 
   public static function dataProviderAttributeTargetsRepeatableMethods(): \Iterator {
-    yield from self::attributeClasses();
+    yield from static::listAttributeClasses();
   }
 
   /**
@@ -90,7 +90,7 @@ class AttributeTest extends TestCase {
    * @return \Iterator<string, array{class-string}>
    *   One row per attribute, keyed by description.
    */
-  protected static function attributeClasses(): \Iterator {
+  protected static function listAttributeClasses(): \Iterator {
     yield 'before entity' => [BeforeEntityCreate::class];
     yield 'after entity' => [AfterEntityCreate::class];
     yield 'before node' => [BeforeNodeCreate::class];

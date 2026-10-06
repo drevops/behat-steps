@@ -18,7 +18,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\TestableRawContext;
+use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\RegistryExposingContext;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\taxonomy\Entity\Vocabulary;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -44,7 +44,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
   /**
    * The context under test.
    */
-  protected TestableRawContext $context;
+  protected RegistryExposingContext $context;
 
   /**
    * {@inheritdoc}
@@ -54,7 +54,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     Vocabulary::create(['vid' => 'tags', 'name' => 'Tags'])->save();
 
-    $this->context = new TestableRawContext();
+    $this->context = new RegistryExposingContext();
     $this->context->setBackendRegistry($this->createBackendRegistry($this->createInProcessBackend()));
     $this->context->setHookDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
   }

@@ -47,7 +47,7 @@ class EmptyBodyTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderEmptyBodiesAreBracePairs')]
   public function testEmptyBodiesAreBracePairs(string $file): void {
-    $lines = static::paddedEmptyBodies((string) file_get_contents(dirname(__DIR__, 3) . '/' . $file));
+    $lines = static::findPaddedEmptyBodies((string) file_get_contents(dirname(__DIR__, 3) . '/' . $file));
 
     $this->assertSame([], $lines, sprintf('%s pads an empty body on line(s) %s. Write it as "{}".', $file, implode(', ', $lines)));
   }
@@ -66,7 +66,7 @@ class EmptyBodyTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderPaddedEmptyBodiesAreDetected')]
   public function testPaddedEmptyBodiesAreDetected(string $source, array $expected): void {
-    $this->assertSame($expected, static::paddedEmptyBodies($source));
+    $this->assertSame($expected, static::findPaddedEmptyBodies($source));
   }
 
   public static function dataProviderPaddedEmptyBodiesAreDetected(): array {
@@ -104,7 +104,7 @@ class EmptyBodyTest extends UnitTestCase {
    * @return array<int, int>
    *   The line of each padded body's opening brace.
    */
-  protected static function paddedEmptyBodies(string $source): array {
+  protected static function findPaddedEmptyBodies(string $source): array {
     $tokens = \PhpToken::tokenize($source);
     $lines = [];
     $opens_body = FALSE;

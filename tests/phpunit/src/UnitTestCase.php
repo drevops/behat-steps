@@ -18,6 +18,7 @@ use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Testwork\Specification\SpecificationIterator;
 use Behat\Testwork\Tester\Result\TestResult;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Base class for unit tests.
@@ -92,17 +93,59 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   }
 
   /**
-   * Reflect a trait discovered by path.
+   * Return every test class under `tests/phpunit/src`, keyed by name.
    *
-   * @param string $trait
-   *   Fully qualified trait name.
+   * Abstract bases stay in, because they declare tests and providers too.
+   * Fixture directories hold no tests and are skipped by path.
+   *
+   * @return array<string, array{class-string}>
+   *   Fully qualified test class names, as data provider rows.
+   */
+  protected static function discoverTestClasses(): array {
+    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(__DIR__, \FilesystemIterator::SKIP_DOTS));
+
+    $classes = [];
+
+    foreach ($files as $file) {
+      if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
+        continue;
+      }
+
+      $relative = substr($file->getPathname(), strlen(__DIR__) + 1, -strlen('.php'));
+
+      if (in_array('Fixtures', explode(DIRECTORY_SEPARATOR, $relative), TRUE)) {
+        continue;
+      }
+
+      $class = __NAMESPACE__ . '\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
+
+      if (!class_exists($class) || !is_subclass_of($class, TestCase::class)) {
+        continue;
+      }
+
+      $classes[$class] = [$class];
+    }
+
+    ksort($classes);
+
+    return $classes;
+  }
+
+  /**
+   * Reflect a class, interface or trait held in a variable.
+   *
+   * A name read from a file or a data provider is a plain string, so it is
+   * narrowed to a class string here.
+   *
+   * @param object|string $subject
+   *   An object, or the fully qualified name of a class, interface or trait.
    *
    * @return \ReflectionClass<object>
-   *   Reflection of the trait.
+   *   Reflection of the subject.
    */
-  protected static function reflect(string $trait): \ReflectionClass {
-    /** @var class-string $trait */
-    return new \ReflectionClass($trait);
+  protected static function reflect(object|string $subject): \ReflectionClass {
+    /** @var class-string|object $subject */
+    return new \ReflectionClass($subject);
   }
 
   /**
@@ -114,10 +157,21 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    * @return array<int, array{int, string, int}|string>
    *   The remaining tokens, reindexed.
    */
-  protected static function significantTokens(string $file): array {
-    $tokens = token_get_all((string) file_get_contents($file));
+  protected static function readSignificantTokens(string $file): array {
+    return static::tokenizeSignificant((string) file_get_contents($file));
+  }
 
-    return array_values(array_filter($tokens, static fn(array|string $token): bool => !is_array($token) || !in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], TRUE)));
+  /**
+   * Tokenize PHP code, dropping whitespace and comments.
+   *
+   * @param string $code
+   *   The PHP code, opening tag included.
+   *
+   * @return array<int, array{int, string, int}|string>
+   *   The remaining tokens, reindexed.
+   */
+  protected static function tokenizeSignificant(string $code): array {
+    return array_values(array_filter(token_get_all($code), static fn(array|string $token): bool => !is_array($token) || !in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], TRUE)));
   }
 
   /**

@@ -60,7 +60,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
     $existing = $this->createManagedFileAt('public://existing-hero.jpg', 'fixture');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'reuse by uri',
       'field_photo' => [
         ['target_id' => 'public://existing-hero.jpg', 'alt' => 'Hero', 'title' => 'Hero title'],
@@ -73,7 +73,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
     $this->assertSame((int) $existing->id(), (int) $stored->get('target_id')->getValue());
     $this->assertSame('Hero', $stored->get('alt')->getValue());
     $this->assertSame('Hero title', $stored->get('title')->getValue());
-    $this->assertSame(1, $this->fileEntityCount());
+    $this->assertSame(1, $this->countFileEntities());
   }
 
   /**
@@ -84,7 +84,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
     $existing = $this->createManagedFileAt('public://existing-logo.png', 'fixture');
 
-    $stub = new EntityStub(self::ENTITY_TYPE, self::BUNDLE, [
+    $stub = new EntityStub(static::ENTITY_TYPE, static::BUNDLE, [
       'name' => 'reuse by basename',
       'field_photo' => [
         ['target_id' => 'existing-logo.png'],
@@ -95,7 +95,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
 
     $stored = $this->loadFirstItem($stub->getValue('id'), 'field_photo');
     $this->assertSame((int) $existing->id(), (int) $stored->get('target_id')->getValue());
-    $this->assertSame(1, $this->fileEntityCount());
+    $this->assertSame(1, $this->countFileEntities());
   }
 
   /**
@@ -103,7 +103,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
    */
   protected function loadFirstItem(int|string $entity_id, string $field_name): FieldItemInterface {
     $entity = \Drupal::entityTypeManager()
-      ->getStorage(self::ENTITY_TYPE)
+      ->getStorage(static::ENTITY_TYPE)
       ->loadUnchanged($entity_id);
     $this->assertInstanceOf(ContentEntityInterface::class, $entity);
 
@@ -132,7 +132,7 @@ class ImageHandlerReuseKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Returns the total number of managed File entities currently in storage.
    */
-  protected function fileEntityCount(): int {
+  protected function countFileEntities(): int {
     return (int) \Drupal::entityTypeManager()
       ->getStorage('file')
       ->getQuery()

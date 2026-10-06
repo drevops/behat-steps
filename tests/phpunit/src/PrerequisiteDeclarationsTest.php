@@ -50,7 +50,7 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
   }
 
   public static function dataProviderDeclarationsAreWellFormed(): array {
-    return array_filter(static::discoverTraits(), static fn(array $row): bool => static::declaresPrerequisites($row[0]));
+    return array_filter(static::discoverTraits(), static fn(array $row): bool => static::hasPrerequisiteDeclaration($row[0]));
   }
 
   /**
@@ -61,10 +61,10 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDeclaringAndCheckingGoTogether')]
   public function testDeclaringAndCheckingGoTogether(string $trait): void {
-    $is_declaring = static::declaresPrerequisites($trait);
+    $is_declaring = static::hasPrerequisiteDeclaration($trait);
     $is_checking = FALSE;
 
-    foreach (static::significantTokens((string) static::reflect($trait)->getFileName()) as $token) {
+    foreach (static::readSignificantTokens((string) static::reflect($trait)->getFileName()) as $token) {
       if (is_array($token) && $token[0] === T_STRING && in_array($token[1], static::CHECKS, TRUE)) {
         $is_checking = TRUE;
       }
@@ -90,7 +90,7 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
   #[DataProvider('dataProviderChecksNameTheirTrait')]
   public function testChecksNameTheirTrait(string $trait): void {
     $violations = [];
-    $tokens = static::significantTokens((string) static::reflect($trait)->getFileName());
+    $tokens = static::readSignificantTokens((string) static::reflect($trait)->getFileName());
 
     foreach ($tokens as $index => $token) {
       $argument = $tokens[$index + 2] ?? NULL;
@@ -117,7 +117,7 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
   public function testModuleStateGoesThroughTheCapability(string $trait): void {
     $violations = [];
 
-    foreach (static::significantTokens((string) static::reflect($trait)->getFileName()) as $token) {
+    foreach (static::readSignificantTokens((string) static::reflect($trait)->getFileName()) as $token) {
       if (is_array($token) && $token[0] === T_STRING && $token[1] === 'moduleExists') {
         $violations[] = sprintf("Line %d asks Drupal's module handler whether a module is enabled.", $token[2]);
       }
@@ -136,7 +136,7 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
    * @param string $trait
    *   Fully qualified trait name.
    */
-  protected static function declaresPrerequisites(string $trait): bool {
+  protected static function hasPrerequisiteDeclaration(string $trait): bool {
     $reflection = static::reflect($trait);
     $method = PrerequisiteReader::methodFor($trait);
 

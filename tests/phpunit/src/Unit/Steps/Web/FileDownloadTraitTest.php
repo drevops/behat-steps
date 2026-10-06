@@ -11,7 +11,6 @@ use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\BrowserKit\HttpBrowser;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
@@ -22,26 +21,11 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 class FileDownloadTraitTest extends UnitTestCase {
 
   /**
-   * Directory the download tests write into.
-   */
-  protected static string $downloadDir;
-
-  /**
    * A test implementation of FileDownloadTrait.
    *
    * @var \DrevOps\BehatSteps\Tests\Unit\Steps\Web\FileDownloadTraitTestImplementation
    */
   protected $testObject;
-
-  public static function setUpBeforeClass(): void {
-    self::$downloadDir = dirname(__DIR__, 6) . '/.artifacts/tmp/file-download-' . getmypid();
-
-    (new Filesystem())->mkdir(self::$downloadDir);
-  }
-
-  public static function tearDownAfterClass(): void {
-    (new Filesystem())->remove(self::$downloadDir);
-  }
 
   /**
    * {@inheritdoc}
@@ -49,7 +33,7 @@ class FileDownloadTraitTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->testObject = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => self::$downloadDir]]);
+    $this->testObject = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => static::$tmp]]);
   }
 
   public function testProcessWritesTheDownloadedFile(): void {
@@ -73,7 +57,7 @@ class FileDownloadTraitTest extends UnitTestCase {
   }
 
   public function testProcessTimeoutComesFromTheOption(): void {
-    $object = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => self::$downloadDir, 'timeout' => 300]]);
+    $object = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => static::$tmp, 'timeout' => 300]]);
     $object->response = new MockResponse('content');
 
     $object->fileDownloadProcess('http://example.com/files/large.zip');
@@ -177,7 +161,7 @@ class FileDownloadTraitTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDownloadTagPreparesDirectory')]
   public function testDownloadTagPreparesDirectory(array $scenario_tags, array $feature_tags, bool $expected): void {
-    $directory = self::$downloadDir . '/scenario';
+    $directory = static::$tmp . '/scenario';
     $context = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => $directory]]);
 
     $context->fileDownloadBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));

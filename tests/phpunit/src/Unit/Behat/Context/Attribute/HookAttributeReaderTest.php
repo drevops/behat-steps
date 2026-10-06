@@ -11,14 +11,14 @@ use DrevOps\BehatSteps\Behat\Hook\Call\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\EntityScopeInterface;
 use DrevOps\BehatSteps\Behat\Hook\Scope\NodeScope;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\HookedContext;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests which callees the reader builds from a context method's attributes.
  */
 #[CoversClass(HookAttributeReader::class)]
-class HookAttributeReaderTest extends TestCase {
+class HookAttributeReaderTest extends UnitTestCase {
 
   public function testAnAttributedMethodYieldsItsHookCall(): void {
     $callees = $this->read('beforeNode');

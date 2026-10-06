@@ -11,15 +11,15 @@ use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Behat\Listener\SkipTagListener;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests that a skip tag naming anything but a trait fails the scenario start.
  */
 #[CoversClass(SkipTagListener::class)]
-class SkipTagListenerTest extends TestCase {
+class SkipTagListenerTest extends UnitTestCase {
 
   public function testItSubscribesToScenariosAndExamples(): void {
     $events = SkipTagListener::getSubscribedEvents();

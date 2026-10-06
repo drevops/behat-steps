@@ -6,13 +6,13 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend;
 
 use DrevOps\BehatSteps\Backend\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ArgumentsExposingDrushBackend;
+use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ParserExposingDrushBackend;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingDrushBackend;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Exercises every 'DrushBackend' public method to guarantee line coverage.
@@ -26,23 +26,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DrushBackend::class)]
 #[Group('backends')]
 #[Group('drush')]
-class DrushBackendMethodsTest extends TestCase {
-
-  /**
-   * Directory the throwaway Drush binary layouts are built under.
-   */
-  protected const TEMP_ROOT = __DIR__ . '/../../../../../.artifacts/tmp';
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp(): void {
-    parent::setUp();
-
-    if (!is_dir(self::TEMP_ROOT)) {
-      mkdir(self::TEMP_ROOT, 0777, TRUE);
-    }
-  }
+class DrushBackendMethodsTest extends UnitTestCase {
 
   public function testBootstrapMarksAsBootstrapped(): void {
     $backend = $this->createBackend();
@@ -319,31 +303,25 @@ class DrushBackendMethodsTest extends TestCase {
    * Tests that 'resolveProjectDrush()' prefers 'COMPOSER_BIN_DIR'.
    */
   public function testResolveProjectDrushPrefersComposerBin(): void {
-    $temp_dir = self::TEMP_ROOT . '/drush-backend-test-' . uniqid();
-    mkdir($temp_dir, 0777, TRUE);
-    touch($temp_dir . '/drush');
+    $binary = $this->writeFixture('bin/drush', '');
     $original = getenv('COMPOSER_BIN_DIR');
-    putenv('COMPOSER_BIN_DIR=' . $temp_dir);
+    putenv('COMPOSER_BIN_DIR=' . dirname($binary));
 
     try {
       $backend = new DrushBackend('alias');
-      $this->assertSame($temp_dir . '/drush', $backend->binary);
+      $this->assertSame($binary, $backend->binary);
     }
     finally {
       putenv('COMPOSER_BIN_DIR' . ($original === FALSE ? '' : '=' . $original));
-      unlink($temp_dir . '/drush');
-      rmdir($temp_dir);
     }
   }
 
   public function testResolveProjectDrushFallsBackToVendorBin(): void {
-    $temp_dir = self::TEMP_ROOT . '/drush-backend-cwd-' . uniqid();
-    mkdir($temp_dir . '/vendor/bin', 0777, TRUE);
-    touch($temp_dir . '/vendor/bin/drush');
+    $this->writeFixture('vendor/bin/drush', '');
     $original_cwd = (string) getcwd();
     $original_composer = getenv('COMPOSER_BIN_DIR');
     putenv('COMPOSER_BIN_DIR');
-    chdir($temp_dir);
+    chdir(static::$tmp);
 
     try {
       $backend = new DrushBackend('alias');
@@ -354,10 +332,6 @@ class DrushBackendMethodsTest extends TestCase {
       if ($original_composer !== FALSE) {
         putenv('COMPOSER_BIN_DIR=' . $original_composer);
       }
-      unlink($temp_dir . '/vendor/bin/drush');
-      rmdir($temp_dir . '/vendor/bin');
-      rmdir($temp_dir . '/vendor');
-      rmdir($temp_dir);
     }
   }
 
@@ -386,7 +360,7 @@ class DrushBackendMethodsTest extends TestCase {
    */
   #[DataProvider('dataProviderParseArguments')]
   public function testParseArguments(array $options, array $expected): void {
-    $this->assertSame($expected, ArgumentsExposingDrushBackend::callParseArguments($options));
+    $this->assertSame($expected, ParserExposingDrushBackend::callParseArguments($options));
   }
 
   public static function dataProviderParseArguments(): \Iterator {
@@ -409,7 +383,7 @@ class DrushBackendMethodsTest extends TestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid Drush option name: ' . $name);
 
-    ArgumentsExposingDrushBackend::callParseArguments([$name => 'value']);
+    ParserExposingDrushBackend::callParseArguments([$name => 'value']);
   }
 
   public static function dataProviderParseArgumentsRejectsName(): \Iterator {

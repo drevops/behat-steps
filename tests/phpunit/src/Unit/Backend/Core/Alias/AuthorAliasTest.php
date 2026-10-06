@@ -9,17 +9,17 @@ use DrevOps\BehatSteps\Backend\Core\Alias\AuthorAlias;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\FakeUser;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the 'AuthorAlias' creation alias.
  */
 #[CoversClass(AuthorAlias::class)]
 #[Group('aliases')]
-class AuthorAliasTest extends TestCase {
+class AuthorAliasTest extends UnitTestCase {
 
   public function testMetadataAccessors(): void {
     $alias = new AuthorAlias(static fn(): ?object => NULL);

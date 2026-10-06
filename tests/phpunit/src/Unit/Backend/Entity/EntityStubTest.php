@@ -6,16 +6,16 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Entity;
 
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Tests the EntityStub typed envelope.
  */
 #[CoversClass(EntityStub::class)]
 #[Group('entity')]
-class EntityStubTest extends TestCase {
+class EntityStubTest extends UnitTestCase {
 
   public function testConstructorPinsTypeAndBundle(): void {
     $stub = new EntityStub('node', 'article');

@@ -54,7 +54,7 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
    */
   #[DataProvider('dataProviderDeletePagePath')]
   public function testDeletePagePath(string $path, bool $is_pattern, array $deleted): void {
-    $entries = static::pageCacheEntries();
+    $entries = static::listPageCacheEntries();
     $backend = \Drupal::cache('page');
     $this->assertInstanceOf(DatabaseBackend::class, $backend);
 
@@ -85,7 +85,7 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
     yield 'a pattern opening with a wildcard segment' => ['/*/about', TRUE, ['archive/about']];
     yield 'a pattern with a wildcard inside' => ['/a*c', TRUE, ['a_c', 'abc']];
     yield 'an underscore in a pattern matches itself' => ['/a_c*', TRUE, ['a_c']];
-    yield 'a pattern matching every path' => ['/*', TRUE, array_values(array_diff(array_keys(static::pageCacheEntries()), ['not a URL', 'a URL with no path', 'a malformed URL']))];
+    yield 'a pattern matching every path' => ['/*', TRUE, array_values(array_diff(array_keys(static::listPageCacheEntries()), ['not a URL', 'a URL with no path', 'a malformed URL']))];
   }
 
   /**
@@ -154,7 +154,7 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
    * @return array<string, string>
    *   The cache IDs.
    */
-  protected static function pageCacheEntries(): array {
+  protected static function listPageCacheEntries(): array {
     return [
       'front page' => 'http://nginx:8080/:',
       'about' => 'http://nginx:8080/about:',
