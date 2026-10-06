@@ -63,6 +63,7 @@ class TableTransposeTraitTest extends UnitTestCase {
       'single column' => [[['name']], 'Vertical table must have at least 2 columns (field name and value).'],
       'repeated field name' => [[['name', 'John'], ['name', 'Jane']], 'Duplicate field names found: name.'],
       'blank field name' => [[['name', 'John'], [' ', 'Jane']], 'Field names cannot be empty.'],
+      'repeated blank field name' => [[['', 'John'], ['', 'Jane']], 'Field names cannot be empty.'],
     ];
   }
 
