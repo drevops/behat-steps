@@ -6773,18 +6773,19 @@ Given the following fields for the paragraph "text" exist in the field "field_co
 [Source](src/Steps/Drupal/QueueTrait.php), [Example](tests/behat/features/drupal_queue.feature)
 
 >  Manage and assert Drupal queue state.
->  - Add items to a queue and clear queues before scenarios.
+>  - Add items to a queue and empty queues.
 >  - Process queue items during tests.
 >  - Assert queue item counts.
 >  
->  Skip processing with tag: `@behat-steps-skip:QueueTrait`.
+>  Every queue a step names is deleted once the scenario finishes. Skip the
+>  deletion with `@behat-steps-skip:QueueTrait`.
 
 
 ### Options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `queue.enabled` | boolean | `TRUE` | `@behat-steps-skip:QueueTrait` | Delete the queues a scenario created once it finishes. |
+| `queue.enabled` | boolean | `TRUE` | `@behat-steps-skip:QueueTrait` | Delete the queues a scenario used once it finishes. |
 | `queue.process_limit` | integer | `1000` | - | Maximum number of items a single queue-processing step handles. |
 | `queue.lease_time` | integer | `30` | - | Time, in seconds, a claimed queue item stays leased. |
 
