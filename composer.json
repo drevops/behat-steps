@@ -55,7 +55,7 @@
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.3.0",
         "phpunit/phpunit": "^12.5.34",
-        "rector/rector": "^2.6.6",
+        "rector/rector": "^2.7.0",
         "softcreatr/jsonpath": "^0.10 || ^1.0"
     },
     "conflict": {
