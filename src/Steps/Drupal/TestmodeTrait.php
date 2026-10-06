@@ -30,7 +30,7 @@ trait TestmodeTrait {
   /**
    * The tag that runs the scenario in test mode.
    */
-  protected const TESTMODE_TAG = 'testmode';
+  protected const string TESTMODE_TAG = 'testmode';
 
   /**
    * Whether this scenario enabled test mode.

@@ -48,12 +48,12 @@ trait WatchdogTrait {
   /**
    * The tag that adds its value to the message types the scenario tracks.
    */
-  protected const WATCHDOG_TAG = 'watchdog';
+  protected const string WATCHDOG_TAG = 'watchdog';
 
   /**
    * The tag that keeps a scenario logging an error from failing.
    */
-  protected const WATCHDOG_ERROR_TAG = 'error';
+  protected const string WATCHDOG_ERROR_TAG = 'error';
 
   /**
    * Start time for each scenario.

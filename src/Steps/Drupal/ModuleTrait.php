@@ -36,7 +36,7 @@ trait ModuleTrait {
   /**
    * The tag that enables the module it names, or disables it after a '!'.
    */
-  protected const MODULE_TAG = 'module';
+  protected const string MODULE_TAG = 'module';
 
   /**
    * Stores original module states for restoration.

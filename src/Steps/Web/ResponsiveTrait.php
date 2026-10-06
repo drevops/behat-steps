@@ -67,7 +67,7 @@ trait ResponsiveTrait {
   /**
    * The tag that resizes the viewport to the breakpoint it names.
    */
-  protected const RESPONSIVE_BREAKPOINT_TAG = 'breakpoint';
+  protected const string RESPONSIVE_BREAKPOINT_TAG = 'breakpoint';
 
   /**
    * Default breakpoint definitions.

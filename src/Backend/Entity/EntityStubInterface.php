@@ -19,7 +19,7 @@ interface EntityStubInterface {
    * Drupal Core's most common bundle key is 'type', used by 'node',
    * 'block_content', 'entity_test' and others.
    */
-  public const DEFAULT_BUNDLE_KEY = 'type';
+  public const string DEFAULT_BUNDLE_KEY = 'type';
 
   /**
    * Returns the entity type ID (e.g. 'node', 'taxonomy_term', 'user').

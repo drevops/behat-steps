@@ -39,7 +39,7 @@ trait FileDownloadTrait {
   /**
    * The tag that prepares the download directory around the scenario.
    */
-  protected const FILE_DOWNLOAD_TAG = 'download';
+  protected const string FILE_DOWNLOAD_TAG = 'download';
 
   /**
    * Information about downloaded file.

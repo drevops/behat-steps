@@ -71,18 +71,18 @@ trait AccessibilityTrait {
    * shape. Threshold tags (`@accessibility:critical`, `@accessibility:serious`
    * etc.) and the gate-filter logic both compare against these values.
    */
-  public const ACCESSIBILITY_IMPACT_CRITICAL = 'critical';
+  public const string ACCESSIBILITY_IMPACT_CRITICAL = 'critical';
 
-  public const ACCESSIBILITY_IMPACT_SERIOUS = 'serious';
+  public const string ACCESSIBILITY_IMPACT_SERIOUS = 'serious';
 
-  public const ACCESSIBILITY_IMPACT_MODERATE = 'moderate';
+  public const string ACCESSIBILITY_IMPACT_MODERATE = 'moderate';
 
-  public const ACCESSIBILITY_IMPACT_MINOR = 'minor';
+  public const string ACCESSIBILITY_IMPACT_MINOR = 'minor';
 
   /**
    * The default tag that assesses every page, with an optional gate variant.
    */
-  protected const ACCESSIBILITY_TAG = 'accessibility';
+  protected const string ACCESSIBILITY_TAG = 'accessibility';
 
   /**
    * In-memory cache for the engine JavaScript source, fetched once per process.

@@ -78,7 +78,7 @@ trait ConfigOverrideTrait {
   /**
    * The tag that disables the overrides of the config object it names.
    */
-  protected const CONFIG_OVERRIDE_DISABLE_TAG = 'disable-config-override';
+  protected const string CONFIG_OVERRIDE_DISABLE_TAG = 'disable-config-override';
 
   /**
    * Config names parsed from `@disable-config-override:*` tags.

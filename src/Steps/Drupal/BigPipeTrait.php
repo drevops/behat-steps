@@ -53,12 +53,12 @@ trait BigPipeTrait {
    * The literal avoids a hard dependency on the big_pipe module; it is the
    * value of 'BigPipeStrategy::NOJS_COOKIE'.
    */
-  protected const BIG_PIPE_SERVER_RENDER_COOKIE = 'big_pipe_nojs';
+  protected const string BIG_PIPE_SERVER_RENDER_COOKIE = 'big_pipe_nojs';
 
   /**
    * The tag that renders BigPipe placeholders server-side.
    */
-  protected const BIG_PIPE_TAG = 'bigpipe';
+  protected const string BIG_PIPE_TAG = 'bigpipe';
 
   /**
    * Whether the automatic BigPipe wait is active for the current scenario.

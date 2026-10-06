@@ -57,7 +57,7 @@ trait JavascriptTrait {
   /**
    * The tag that keeps a scenario collecting JavaScript errors from failing.
    */
-  protected const JAVASCRIPT_ERRORS_TAG = 'js-errors';
+  protected const string JAVASCRIPT_ERRORS_TAG = 'js-errors';
 
   /**
    * Registry of JavaScript errors collected during scenario execution.

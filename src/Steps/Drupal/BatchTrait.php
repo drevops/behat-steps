@@ -21,7 +21,7 @@ trait BatchTrait {
   /**
    * How long to wait for a batch job, in milliseconds.
    */
-  protected const BATCH_WAIT_TIMEOUT = 180000;
+  protected const int BATCH_WAIT_TIMEOUT = 180000;
 
   /**
    * Wait for the batch job to finish.

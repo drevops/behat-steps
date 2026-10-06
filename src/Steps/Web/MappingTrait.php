@@ -35,7 +35,7 @@ trait MappingTrait {
   /**
    * Matches 1 `{{ Key }}` token, capturing the still-untrimmed key.
    */
-  protected const MAPPING_TOKEN_REGEX = '#\{\{(.+?)\}\}#';
+  protected const string MAPPING_TOKEN_REGEX = '#\{\{(.+?)\}\}#';
 
   /**
    * Whether token replacement is active for the current scenario.

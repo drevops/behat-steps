@@ -175,6 +175,21 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   }
 
   /**
+   * Build the pattern matching the source line that declares a constant.
+   *
+   * A native type may sit between 'const' and the name.
+   *
+   * @param string $name
+   *   The constant name.
+   *
+   * @return string
+   *   A regular expression for 'preg_match()'.
+   */
+  protected static function buildConstantDeclarationPattern(string $name): string {
+    return '/(^|\s)const\s+(?:[^=]+\s)?' . preg_quote($name, '/') . '\s*=/';
+  }
+
+  /**
    * Build a hook dispatcher that finds no hooks.
    *
    * The dispatcher and everything it composes are final, so a test that needs

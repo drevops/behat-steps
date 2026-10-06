@@ -43,12 +43,12 @@ trait EmailTrait {
   /**
    * The tag that collects the scenario's email, with an optional handler type.
    */
-  protected const EMAIL_TAG = 'email';
+  protected const string EMAIL_TAG = 'email';
 
   /**
    * The tag that prints each collected message as it is read.
    */
-  protected const EMAIL_DEBUG_TAG = 'debug';
+  protected const string EMAIL_DEBUG_TAG = 'debug';
 
   /**
    * List of email handler types.

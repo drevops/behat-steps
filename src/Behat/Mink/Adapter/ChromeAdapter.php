@@ -26,7 +26,7 @@ class ChromeAdapter extends BrowserAdapterBase implements CookieCapabilityInterf
    *
    * @var array<string, int>
    */
-  protected const KEYCODES = [
+  protected const array KEYCODES = [
     "\b" => 8,
     "\t" => 9,
     "\r" => 13,

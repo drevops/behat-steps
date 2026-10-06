@@ -39,7 +39,7 @@ trait WaitTrait {
   /**
    * Step text that changes the page, and so warrants an AJAX wait around it.
    */
-  protected const WAIT_STEP_PATTERN = '/\b(follow|press|click|submit|attach)\b/i';
+  protected const string WAIT_STEP_PATTERN = '/\b(follow|press|click|submit|attach)\b/i';
 
   /**
    * Whether the scenario takes the automatic waits.

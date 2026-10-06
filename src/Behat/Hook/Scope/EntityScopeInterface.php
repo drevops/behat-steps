@@ -13,9 +13,9 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  */
 interface EntityScopeInterface extends HookScope {
 
-  public const BEFORE = 'entity.create.before';
+  public const string BEFORE = 'entity.create.before';
 
-  public const AFTER = 'entity.create.after';
+  public const string AFTER = 'entity.create.after';
 
   /**
    * Returns the context that started the creation.

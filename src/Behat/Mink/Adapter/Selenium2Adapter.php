@@ -26,7 +26,7 @@ class Selenium2Adapter extends BrowserAdapterBase implements CookieCapabilityInt
    * 'BrowserCapabilityResolverTest' asserts both names still exist so an
    * upstream rename fails a test rather than a scenario.
    */
-  public const SYN_METHODS = ['withSyn', 'executeJsOnXpath'];
+  public const array SYN_METHODS = ['withSyn', 'executeJsOnXpath'];
 
   /**
    * {@inheritdoc}

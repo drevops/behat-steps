@@ -132,7 +132,7 @@ class MemberOrderTest extends UnitTestCase {
 
     $constants = $reflection->getReflectionConstants();
     foreach ($constants as $constant) {
-      $members[] = static::locate($lines, '/(^|\s)const\s+' . preg_quote($constant->getName(), '/') . '\s*=/', $constant->getName(), static::GROUP_CONSTANT);
+      $members[] = static::locate($lines, static::buildConstantDeclarationPattern($constant->getName()), $constant->getName(), static::GROUP_CONSTANT);
     }
 
     $properties = $reflection->getProperties();
