@@ -12,7 +12,6 @@ declare(strict_types=1);
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
-use Behat\Hook\BeforeStep;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Behat\Tag;
@@ -93,20 +92,6 @@ trait BehatCliTrait {
     }
 
     $this->behatCliWriteFeatureContextFile($traits);
-  }
-
-  #[BeforeStep]
-  public function behatCliBeforeStep(): void {
-    // Drupal Extension >= ^5 is coupled with Drupal core's DrupalTestBrowser.
-    // This requires Drupal root to be discoverable when running Behat from a
-    // random directory using Drupal Finder.
-    //
-    // Drupal Finder reads these variables from version > 1.2 at commit:
-    // @see https://github.com/webflo/drupal-finder/commit/2663b117878f4a45ca56df028460350c977f92c0
-    $build = static::behatCliGetRootPath() . '/build';
-    $this->iSetEnvironmentVariable('DRUPAL_FINDER_DRUPAL_ROOT', $build . '/web');
-    $this->iSetEnvironmentVariable('DRUPAL_FINDER_COMPOSER_ROOT', $build);
-    $this->iSetEnvironmentVariable('DRUPAL_FINDER_VENDOR_DIR', $build . '/vendor');
   }
 
   /**
