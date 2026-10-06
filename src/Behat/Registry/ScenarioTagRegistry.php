@@ -9,7 +9,7 @@ namespace DrevOps\BehatSteps\Behat\Registry;
  *
  * @see \DrevOps\BehatSteps\Behat\Listener\BackendListener
  */
-class ScenarioTagRegistry implements ScenarioTagRegistryInterface {
+final class ScenarioTagRegistry implements ScenarioTagRegistryInterface {
 
   /**
    * Tags of the running scenario, each without a leading '@'.

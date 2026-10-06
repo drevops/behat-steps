@@ -20,7 +20,7 @@ use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 /**
  * Injects the backend registry and its collaborators into a context.
  */
-class BackendAwareInitializer implements ContextInitializer {
+final readonly class BackendAwareInitializer implements ContextInitializer {
 
   /**
    * Constructs a BackendAwareInitializer object.
@@ -37,20 +37,20 @@ class BackendAwareInitializer implements ContextInitializer {
    *   Logs a user in and out of the site under test.
    * @param \DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface $userRegistry
    *   The user registry.
-   * @param \DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface $optionResolverFactory
+   * @param \DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface $traitOptionResolverFactory
    *   Builds a context's option resolver out of the shared collaborators.
    * @param \DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface $httpClientFactory
    *   Builds the detached and bare browsers on the shared transport.
    */
   public function __construct(
-    protected readonly BackendRegistryInterface $backendRegistry,
-    protected readonly array $parameters,
-    protected readonly HookDispatcher $hookDispatcher,
-    protected readonly BasicAuthenticatorInterface $basicAuthenticator,
-    protected readonly AuthenticatorInterface $authenticator,
-    protected readonly UserRegistryInterface $userRegistry,
-    protected readonly TraitOptionResolverFactoryInterface $optionResolverFactory,
-    protected readonly HttpClientFactoryInterface $httpClientFactory,
+    protected BackendRegistryInterface $backendRegistry,
+    protected array $parameters,
+    protected HookDispatcher $hookDispatcher,
+    protected BasicAuthenticatorInterface $basicAuthenticator,
+    protected AuthenticatorInterface $authenticator,
+    protected UserRegistryInterface $userRegistry,
+    protected TraitOptionResolverFactoryInterface $traitOptionResolverFactory,
+    protected HttpClientFactoryInterface $httpClientFactory,
   ) {}
 
   /**
@@ -77,7 +77,7 @@ class BackendAwareInitializer implements ContextInitializer {
 
     // Set last: a context that rebuilds its resolver in this call reads the
     // 'steps' section from the parameters set above.
-    $context->setOptionResolverFactory($this->optionResolverFactory);
+    $context->setOptionResolverFactory($this->traitOptionResolverFactory);
   }
 
 }

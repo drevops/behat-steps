@@ -13,7 +13,7 @@ use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistryInterface;
  * A context constructed outside Behat gets its own registry, which holds no
  * tags, so option resolution works there without the container.
  */
-class TraitOptionResolverFactory implements TraitOptionResolverFactoryInterface {
+final class TraitOptionResolverFactory implements TraitOptionResolverFactoryInterface {
 
   /**
    * Reads the option declarations of a context class.

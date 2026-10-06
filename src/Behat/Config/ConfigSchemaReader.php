@@ -14,7 +14,7 @@ namespace DrevOps\BehatSteps\Behat\Config;
  *
  * This is the only piece of the option machinery that reflects.
  */
-class ConfigSchemaReader {
+final class ConfigSchemaReader {
 
   /**
    * Suffix of the method a trait declares its options in.

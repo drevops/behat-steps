@@ -11,7 +11,7 @@ use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 /**
  * Default implementation of the backend registry service.
  */
-class BackendRegistry implements BackendRegistryInterface {
+final class BackendRegistry implements BackendRegistryInterface {
 
   /**
    * All registered backends, keyed by their lowercased registered name.

@@ -15,7 +15,7 @@ use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
  * user's id to 'uid'. The 'author' key is removed from the stub once
  * resolved. Throws when the username does not match any existing user.
  */
-class AuthorAlias implements PreCreateAliasInterface {
+final class AuthorAlias implements PreCreateAliasInterface {
 
   /**
    * Lookup callable for resolving a username to a user object.

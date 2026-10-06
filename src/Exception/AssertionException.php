@@ -15,4 +15,4 @@ namespace DrevOps\BehatSteps\Exception;
  * A failure that is not an assertion, such as an invalid step argument, an
  * unmet prerequisite or an infrastructure error, is a \RuntimeException.
  */
-class AssertionException extends \Exception {}
+final class AssertionException extends \Exception {}

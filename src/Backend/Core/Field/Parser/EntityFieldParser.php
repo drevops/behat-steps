@@ -36,7 +36,7 @@ use DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception\ParseException;
  * together via 'MultipleParseException' so authors see every problem at
  * once.
  */
-class EntityFieldParser implements EntityFieldParserInterface {
+final class EntityFieldParser implements EntityFieldParserInterface {
 
   /**
    * Property names accepted without field-type validation.

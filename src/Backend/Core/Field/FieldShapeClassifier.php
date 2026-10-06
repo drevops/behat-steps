@@ -15,7 +15,7 @@ use Drupal\Core\TypedData\ListDataDefinitionInterface;
  * See 'src/Backend/Core/Field/README.md' for the value-shape axis and how
  * 'Core' consumes it during handler selection.
  */
-class FieldShapeClassifier implements FieldShapeClassifierInterface {
+final class FieldShapeClassifier implements FieldShapeClassifierInterface {
 
   /**
    * {@inheritdoc}

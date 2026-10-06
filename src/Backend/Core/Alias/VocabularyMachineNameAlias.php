@@ -17,7 +17,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  * The alias key is always removed once handled. The alias does not
  * validate vocabulary existence.
  */
-class VocabularyMachineNameAlias implements PreCreateAliasInterface {
+final class VocabularyMachineNameAlias implements PreCreateAliasInterface {
 
   /**
    * {@inheritdoc}

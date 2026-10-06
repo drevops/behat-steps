@@ -9,7 +9,7 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\NodeScope;
 /**
  * Hook call dispatched after a node is created.
  */
-class AfterNodeCreate extends EntityHook {
+final class AfterNodeCreate extends EntityHook {
 
   /**
    * Initializes the hook.

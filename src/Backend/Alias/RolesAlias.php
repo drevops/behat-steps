@@ -16,15 +16,15 @@ use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
  * backend supplied at construction. No-ops when the value is missing or
  * not an array.
  */
-class RolesAlias implements PostCreateAliasInterface {
+final readonly class RolesAlias implements PostCreateAliasInterface {
 
   /**
    * Constructs the alias with the backend that receives role calls.
    *
-   * @param \DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface $backend
+   * @param \DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface $userCapability
    *   The backend whose 'addUserRole()' will be called per role.
    */
-  public function __construct(protected readonly UserCapabilityInterface $backend) {}
+  public function __construct(protected UserCapabilityInterface $userCapability) {}
 
   /**
    * {@inheritdoc}
@@ -75,7 +75,7 @@ class RolesAlias implements PostCreateAliasInterface {
         throw new CreationAliasResolutionException("Cannot assign role because one of the 'roles' entries is empty after trimming.");
       }
 
-      $this->backend->addUserRole($stub, $name);
+      $this->userCapability->addUserRole($stub, $name);
     }
   }
 

@@ -24,7 +24,7 @@ use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
  * reset drops request headers, so the credentials are reapplied afterwards;
  * that is the only overlap between the 2 concerns.
  */
-class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
+final class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
 
   use MinkAwareTrait;
   use ParametersTrait;

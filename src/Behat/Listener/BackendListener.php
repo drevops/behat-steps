@@ -19,17 +19,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Behat dispatches this event before the first 'BeforeScenario' hook, so
  * everything set here is in place for the whole scenario.
  */
-class BackendListener implements EventSubscriberInterface {
+final readonly class BackendListener implements EventSubscriberInterface {
 
   /**
    * Prefix of the tag that promotes a backend for one scenario or feature.
    */
-  public const BACKEND_TAG_PREFIX = 'backend:';
+  public const string BACKEND_TAG_PREFIX = 'backend:';
 
   /**
    * Prefix of a tag that fails the scenario, naming '@backend:' instead.
    */
-  protected const REPLACED_TAG_PREFIX = 'driver:';
+  protected const string REPLACED_TAG_PREFIX = 'driver:';
 
   /**
    * Constructs a BackendListener.
@@ -43,9 +43,9 @@ class BackendListener implements EventSubscriberInterface {
    *   backend name. A bare entry carries an integer key and names both.
    */
   public function __construct(
-    protected readonly BackendRegistryInterface $backendRegistry,
-    protected readonly ScenarioTagRegistryInterface $scenarioTagRegistry,
-    protected readonly array $backends = [],
+    protected BackendRegistryInterface $backendRegistry,
+    protected ScenarioTagRegistryInterface $scenarioTagRegistry,
+    protected array $backends = [],
   ) {}
 
   /**

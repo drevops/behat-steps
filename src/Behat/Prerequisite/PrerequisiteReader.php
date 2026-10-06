@@ -14,7 +14,7 @@ use DrevOps\BehatSteps\Behat\Config\GroupName;
  * '<prefix>ConfigSchema()'. A consuming project's own trait takes part without
  * being registered anywhere.
  */
-class PrerequisiteReader {
+final class PrerequisiteReader {
 
   /**
    * Suffix of the method a trait declares its prerequisites in.

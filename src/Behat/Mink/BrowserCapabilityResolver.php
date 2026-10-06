@@ -18,7 +18,7 @@ use DrevOps\BehatSteps\Behat\Mink\Adapter\Selenium2Adapter;
  * its own browser driver therefore runs the shipped steps as soon as it
  * registers an adapter declaring that capability.
  */
-class BrowserCapabilityResolver {
+final class BrowserCapabilityResolver {
 
   /**
    * Adapter classes, in the order they are tried for a browser driver.
@@ -67,7 +67,7 @@ class BrowserCapabilityResolver {
    * @param class-string<T> $capability
    *   The capability interface the caller needs.
    *
-   * @return T
+   * @return T&\DrevOps\BehatSteps\Behat\Mink\BrowserAdapterInterface
    *   The adapter.
    *
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
@@ -75,7 +75,7 @@ class BrowserCapabilityResolver {
    *
    * @template T of object
    */
-  public function resolve(DriverInterface $driver, string $capability): object {
+  public function resolve(DriverInterface $driver, string $capability): BrowserAdapterInterface {
     $adapter = $this->adapterFor($driver);
 
     if (!$adapter instanceof $capability) {
