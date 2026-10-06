@@ -47,7 +47,7 @@ class MultipleParseException extends ParseException {
       return reset($errors)->description;
     }
 
-    $codes = array_map(fn(ParseException $error): string => $error->errorCode, $errors);
+    $codes = array_map(static fn(ParseException $error): string => $error->errorCode, $errors);
 
     return sprintf('%d parse errors: %s', $count, implode(', ', $codes));
   }

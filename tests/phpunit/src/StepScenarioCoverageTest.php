@@ -296,17 +296,17 @@ class StepScenarioCoverageTest extends UnitTestCase {
    *   The configuration file contents.
    * @param array<int, string> $expected
    *   The step texts collected through the filter.
-   * @param string|null $exception
+   * @param string|null $expected_message
    *   The exception message expected, or NULL when none is.
    */
   #[DataProvider('dataProviderSuiteFilter')]
-  public function testSuiteFilter(string $config, array $expected, ?string $exception = NULL): void {
+  public function testSuiteFilter(string $config, array $expected, ?string $expected_message = NULL): void {
     $config_file = $this->writeFixture('behat.php', $config);
     $feature_file = $this->writeFixture('features/subject.feature', "Feature: Subject\n  Scenario: Kept\n    Given the kept step\n  @test-skipped\n  Scenario: Skipped\n    Given the skipped step\n");
 
-    if ($exception !== NULL) {
+    if ($expected_message !== NULL) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $this->assertSame($expected, static::scenarioStepTexts([$feature_file], static::suiteFilter($config_file)));
@@ -361,13 +361,13 @@ class StepScenarioCoverageTest extends UnitTestCase {
    *   The step pattern.
    * @param array<int, string> $texts
    *   The step texts the scenarios run.
-   * @param bool $exercised
+   * @param bool $is_exercised
    *   Whether a text matches the pattern.
    */
   #[DataProvider('dataProviderUnexercisedSteps')]
-  public function testUnexercisedSteps(string $pattern, array $texts, bool $exercised): void {
+  public function testUnexercisedSteps(string $pattern, array $texts, bool $is_exercised): void {
     $steps = [['label' => 'SubjectTrait::subjectStep()', 'pattern' => $pattern]];
-    $expected = $exercised ? [] : [sprintf('SubjectTrait::subjectStep() "%s"', $pattern)];
+    $expected = $is_exercised ? [] : [sprintf('SubjectTrait::subjectStep() "%s"', $pattern)];
 
     $this->assertSame($expected, static::unexercisedSteps($steps, $texts));
   }

@@ -167,9 +167,9 @@ class WatchdogTraitTest extends UnitTestCase {
   /**
    * Builds a Drupal backend double reporting whether dblog is enabled.
    */
-  protected function createDrupalBackend(bool $dblog): DrupalBackendInterface {
+  protected function createDrupalBackend(bool $is_dblog_enabled): DrupalBackendInterface {
     $backend = $this->createStub(DrupalBackendInterface::class);
-    $backend->method('moduleIsEnabled')->willReturn($dblog);
+    $backend->method('moduleIsEnabled')->willReturn($is_dblog_enabled);
 
     return $backend;
   }

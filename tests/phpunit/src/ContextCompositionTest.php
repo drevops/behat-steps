@@ -150,9 +150,9 @@ class ContextCompositionTest extends UnitTestCase {
       $composed = static::composedMembers($reflection);
 
       foreach ($owners as $member => $owner) {
-        $called = str_contains($body, '$this->' . $member . '(') || str_contains($body, 'static::' . $member . '(');
+        $is_called = str_contains($body, '$this->' . $member . '(') || str_contains($body, 'static::' . $member . '(');
 
-        if ($called && !in_array($member, $composed, TRUE)) {
+        if ($is_called && !in_array($member, $composed, TRUE)) {
           $missing[] = sprintf('%s calls %s() without composing %s', $reflection->getShortName(), $member, $owner);
         }
       }
@@ -310,7 +310,7 @@ class ContextCompositionTest extends UnitTestCase {
     $traits = (new \ReflectionClass($class))->getTraits();
 
     if ($directory !== NULL) {
-      $path = dirname(__DIR__, 3) . '/src/' . $directory . '/';
+      $path = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $directory . DIRECTORY_SEPARATOR;
       $traits = array_filter($traits, static fn(\ReflectionClass $trait): bool => str_starts_with((string) $trait->getFileName(), $path));
     }
 

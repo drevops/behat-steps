@@ -86,15 +86,15 @@ class FileDownloadTraitTest extends UnitTestCase {
    *
    * @param \Symfony\Component\HttpClient\Response\MockResponse $response
    *   The response the server sends.
-   * @param string $message
+   * @param string $expected_message
    *   The exception message expected.
    */
   #[DataProvider('dataProviderProcessRejectsTheResponse')]
-  public function testProcessRejectsTheResponse(MockResponse $response, string $message): void {
+  public function testProcessRejectsTheResponse(MockResponse $response, string $expected_message): void {
     $this->testObject->response = $response;
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $this->testObject->fileDownloadProcess('http://example.com/missing.pdf');
   }
@@ -177,7 +177,7 @@ class FileDownloadTraitTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDownloadTagPreparesDirectory')]
   public function testDownloadTagPreparesDirectory(array $scenario_tags, array $feature_tags, bool $expected): void {
-    $directory = self::$downloadDir . DIRECTORY_SEPARATOR . 'scenario';
+    $directory = self::$downloadDir . '/scenario';
     $context = new FileDownloadTraitTestImplementation(['file_download' => ['temp_dir' => $directory]]);
 
     $context->fileDownloadBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));

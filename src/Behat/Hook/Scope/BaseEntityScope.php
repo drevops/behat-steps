@@ -21,8 +21,7 @@ abstract class BaseEntityScope implements EntityScopeInterface {
     protected readonly Environment $environment,
     protected readonly Context $context,
     protected readonly EntityStubInterface $entityStub,
-  ) {
-  }
+  ) {}
 
   /**
    * {@inheritdoc}

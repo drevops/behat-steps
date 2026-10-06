@@ -428,6 +428,4 @@ class DiagnosticsFakeSession extends Session {
 /**
  * A stand-in driver used only for its class name.
  */
-class DiagnosticsFakeDriver extends CoreDriver {
-
-}
+class DiagnosticsFakeDriver extends CoreDriver {}

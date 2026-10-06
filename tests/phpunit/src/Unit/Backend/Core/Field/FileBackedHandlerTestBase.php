@@ -43,8 +43,7 @@ abstract class FileBackedHandlerTestBase extends FieldHandlerUnitTestBase {
       /**
        * Saves the file entity (no-op in the test double).
        */
-      public function save(): void {
-      }
+      public function save(): void {}
 
     };
   }

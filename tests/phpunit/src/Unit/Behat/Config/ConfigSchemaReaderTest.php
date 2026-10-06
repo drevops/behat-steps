@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Config;
 
 use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\BareConfigContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableContext;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\DuplicateOptionConfigContext;
@@ -21,6 +22,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 #[CoversClass(ConfigSchemaReader::class)]
 class ConfigSchemaReaderTest extends UnitTestCase {
+
+  #[DataProvider('dataProviderMethodFor')]
+  public function testMethodFor(string $trait, string $expected): void {
+    $this->assertSame($expected, ConfigSchemaReader::methodFor($trait));
+  }
+
+  public static function dataProviderMethodFor(): \Iterator {
+    yield 'short name' => ['CacheTrait', 'cacheConfigSchema'];
+    yield 'fully qualified name' => [BigPipeTrait::class, 'bigPipeConfigSchema'];
+    yield 'several words' => ['FileDownloadExtraTrait', 'fileDownloadExtraConfigSchema'];
+  }
 
   public function testEveryComposedTraitIsDiscovered(): void {
     $schema = (new ConfigSchemaReader())->read(ConfigurableContext::class);

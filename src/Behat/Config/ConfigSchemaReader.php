@@ -17,6 +17,11 @@ namespace DrevOps\BehatSteps\Behat\Config;
 class ConfigSchemaReader {
 
   /**
+   * Suffix of the method a trait declares its options in.
+   */
+  public const string METHOD_SUFFIX = 'ConfigSchema';
+
+  /**
    * Declared options, keyed by context class name.
    *
    * Reflection over every method of a context composing 40 traits is too
@@ -26,6 +31,19 @@ class ConfigSchemaReader {
    * @var array<string, array<string, array<string, \DrevOps\BehatSteps\Behat\Config\Option>>>
    */
   protected static array $cache = [];
+
+  /**
+   * Names the method a trait declares its options in.
+   *
+   * @param string $trait
+   *   The trait name, fully qualified or short.
+   *
+   * @return string
+   *   The method name, such as 'bigPipeConfigSchema'.
+   */
+  public static function methodFor(string $trait): string {
+    return GroupName::toMethodPrefix(GroupName::fromTraitName($trait)) . self::METHOD_SUFFIX;
+  }
 
   /**
    * Reads the option declarations a context class composes.
@@ -73,7 +91,7 @@ class ConfigSchemaReader {
       return NULL;
     }
 
-    $pattern = '/^(.+)' . preg_quote(GroupName::SCHEMA_METHOD_SUFFIX, '/') . '$/';
+    $pattern = '/^(.+)' . preg_quote(self::METHOD_SUFFIX, '/') . '$/';
 
     if (preg_match($pattern, $method->getName(), $matches) !== 1) {
       return NULL;

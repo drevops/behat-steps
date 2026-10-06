@@ -14,5 +14,4 @@ use DrevOps\BehatSteps\Backend\Core\CoreInterface;
  * a single PHPUnit mock can satisfy 'setCore()' and the
  * 'instanceof AuthenticationCapabilityInterface' guard in the same instance.
  */
-interface AuthCapableCoreInterface extends CoreInterface, AuthenticationCapabilityInterface {
-}
+interface AuthCapableCoreInterface extends CoreInterface, AuthenticationCapabilityInterface {}

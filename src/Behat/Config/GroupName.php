@@ -21,11 +21,6 @@ namespace DrevOps\BehatSteps\Behat\Config;
 final class GroupName {
 
   /**
-   * Suffix of the method a trait declares its options in.
-   */
-  public const string SCHEMA_METHOD_SUFFIX = 'ConfigSchema';
-
-  /**
    * Suffix every step trait's name carries.
    */
   public const string TRAIT_SUFFIX = 'Trait';
@@ -64,30 +59,23 @@ final class GroupName {
    * Converts a trait name to the group its options are configured under.
    *
    * @param string $trait_name
-   *   The short trait name, such as 'BigPipeTrait'.
+   *   The trait name, fully qualified or short, such as 'BigPipeTrait'.
    *
    * @return string
    *   The group name, such as 'big_pipe'.
    */
   public static function fromTraitName(string $trait_name): string {
+    $separator = strrpos($trait_name, '\\');
+
+    if ($separator !== FALSE) {
+      $trait_name = substr($trait_name, $separator + 1);
+    }
+
     if (str_ends_with($trait_name, self::TRAIT_SUFFIX)) {
       $trait_name = substr($trait_name, 0, -strlen(self::TRAIT_SUFFIX));
     }
 
     return self::fromMethodPrefix($trait_name);
-  }
-
-  /**
-   * Names the method a trait declares its options in.
-   *
-   * @param string $trait_name
-   *   The short trait name, such as 'BigPipeTrait'.
-   *
-   * @return string
-   *   The method name, such as 'bigPipeConfigSchema'.
-   */
-  public static function schemaMethod(string $trait_name): string {
-    return self::toMethodPrefix(self::fromTraitName($trait_name)) . self::SCHEMA_METHOD_SUFFIX;
   }
 
 }

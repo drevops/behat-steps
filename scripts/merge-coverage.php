@@ -47,15 +47,15 @@ if (!file_exists(SOURCE_MAIN_COVERAGE_FILE)) {
 try {
   $main_coverage = @include SOURCE_MAIN_COVERAGE_FILE;
 }
-catch (\Throwable $e) {
-  echo "Error loading main Behat coverage file: " . $e->getMessage() . "\n";
-  echo "Skipping coverage merge.\n";
+catch (\Throwable $exception) {
+  echo 'Error loading main Behat coverage file: ' . $exception->getMessage() . PHP_EOL;
+  echo 'Skipping coverage merge.' . PHP_EOL;
   exit(0);
 }
 
 if (!$main_coverage instanceof CodeCoverage) {
-  echo "Invalid main Behat coverage file format or unserialization failed.\n";
-  echo "This may be due to version incompatibility. Skipping coverage merge.\n";
+  echo 'Invalid main Behat coverage file format or unserialization failed.' . PHP_EOL;
+  echo 'This may be due to version incompatibility. Skipping coverage merge.' . PHP_EOL;
   exit(0);
 }
 
@@ -65,22 +65,22 @@ if (is_dir(SOURCE_SUBPROCESS_COVERAGE_DIR)) {
 }
 
 if (empty($subprocess_files)) {
-  echo "No subprocess coverage files found, skipping merge.\n";
+  echo 'No subprocess coverage files found, skipping merge.' . PHP_EOL;
   exit(0);
 }
 
-echo "Merging " . count($subprocess_files) . " subprocess coverage files...\n";
+echo 'Merging ' . count($subprocess_files) . ' subprocess coverage files...' . PHP_EOL;
 
 foreach ($subprocess_files as $file) {
   try {
     $subprocess_coverage = include $file;
     if ($subprocess_coverage instanceof CodeCoverage) {
       $main_coverage->merge($subprocess_coverage);
-      echo "  Merged: " . basename($file) . "\n";
+      echo '  Merged: ' . basename($file) . PHP_EOL;
     }
   }
-  catch (\Exception $e) {
-    echo "  Error merging " . basename($file) . ": " . $e->getMessage() . "\n";
+  catch (\Exception $exception) {
+    echo '  Error merging ' . basename($file) . ': ' . $exception->getMessage() . PHP_EOL;
   }
 }
 

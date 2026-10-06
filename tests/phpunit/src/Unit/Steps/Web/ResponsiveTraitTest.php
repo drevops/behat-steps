@@ -35,10 +35,10 @@ class ResponsiveTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderExtractDimensions')]
-  public function testExtractDimensions(string $dimensions, array $expected, ?string $exception = NULL): void {
-    if ($exception) {
+  public function testExtractDimensions(string $dimensions, array $expected, ?string $expected_message = NULL): void {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $result = $this->testObject->testResponsiveExtractDimensions($dimensions);
@@ -125,14 +125,14 @@ class ResponsiveTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderGetBreakpoint')]
-  public function testGetBreakpoint(array $custom_breakpoints, string $name, string $expected, ?string $exception = NULL): void {
+  public function testGetBreakpoint(array $custom_breakpoints, string $name, string $expected, ?string $expected_message = NULL): void {
     if (!empty($custom_breakpoints)) {
       $this->testObject->responsiveSetBreakpoints($custom_breakpoints);
     }
 
-    if ($exception) {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessageMatches($exception);
+      $this->expectExceptionMessageMatches($expected_message);
     }
 
     $result = $this->testObject->testResponsiveGetBreakpoint($name);
@@ -248,15 +248,15 @@ class ResponsiveTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderSetBreakpoints')]
-  public function testSetBreakpoints(array $breakpoints, ?string $exception = NULL): void {
-    if ($exception) {
+  public function testSetBreakpoints(array $breakpoints, ?string $expected_message = NULL): void {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $this->testObject->responsiveSetBreakpoints($breakpoints);
 
-    if (!$exception) {
+    if (!$expected_message) {
       if (empty($breakpoints)) {
         $defaults = $this->testObject->testResponsiveGetAllBreakpoints();
         $this->assertNotEmpty($defaults);
@@ -344,13 +344,13 @@ class ResponsiveTraitTest extends UnitTestCase {
    *   Tags on the scenario.
    * @param list<string> $feature_tags
    *   Tags on the feature.
-   * @param string $message
+   * @param string $expected_message
    *   The expected exception message.
    */
   #[DataProvider('dataProviderBeforeScenarioRejectsBreakpoint')]
-  public function testBeforeScenarioRejectsBreakpoint(array $scenario_tags, array $feature_tags, string $message): void {
+  public function testBeforeScenarioRejectsBreakpoint(array $scenario_tags, array $feature_tags, string $expected_message): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $this->testObject->responsiveBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
   }

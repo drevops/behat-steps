@@ -46,8 +46,7 @@ class BackendListener implements EventSubscriberInterface {
     protected readonly BackendRegistryInterface $backendRegistry,
     protected readonly ScenarioTagRegistryInterface $scenarioTagRegistry,
     protected readonly array $backends = [],
-  ) {
-  }
+  ) {}
 
   /**
    * {@inheritdoc}

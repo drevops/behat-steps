@@ -127,7 +127,7 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
     try {
       $storage = BaseFieldDefinition::create($type);
       $shape = $this->core->getFieldShapeClassifier();
-      $unsafe = $shape->fieldIsEntityReference($storage) || $shape->fieldIsComplexValue($storage);
+      $is_unsafe = $shape->fieldIsEntityReference($storage) || $shape->fieldIsComplexValue($storage);
     }
     catch (\Throwable) {
       // Property construction fails for types that require settings not
@@ -137,7 +137,7 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
       return FALSE;
     }
 
-    return !$unsafe;
+    return !$is_unsafe;
   }
 
   /**

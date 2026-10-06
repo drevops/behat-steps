@@ -57,12 +57,12 @@ function lint_traits(array $options = []): void {
   $violations = traits_violations($traits);
 
   if ($violations !== []) {
-    echo "Trait composition is inconsistent:\n\n";
-    echo implode("\n", $violations) . "\n";
+    echo 'Trait composition is inconsistent:' . PHP_EOL . PHP_EOL;
+    echo implode(PHP_EOL, $violations) . PHP_EOL;
     exit(1);
   }
 
-  echo sprintf("Every trait composes what its directory allows: %d traits checked.\n", count($traits));
+  echo sprintf('Every trait composes what its directory allows: %d traits checked.' . PHP_EOL, count($traits));
   exit(0);
 }
 
@@ -81,7 +81,7 @@ function traits_collect(string $base_path): array {
   $traits = [];
 
   foreach (['steps' => TRAITS_STEPS_DIRECTORY, 'helper' => TRAITS_HELPER_DIRECTORY] as $kind => $directory) {
-    $path = $base_path . DIRECTORY_SEPARATOR . $directory;
+    $path = $base_path . '/' . $directory;
 
     if (!is_dir($path)) {
       continue;
@@ -118,10 +118,10 @@ function traits_collect(string $base_path): array {
 function traits_file_facts(string $file): array {
   $facts = ['composed' => [], 'members' => []];
 
-  $declared = FALSE;
+  $is_declared = FALSE;
   $attribute = 0;
   $parentheses = 0;
-  $composing = FALSE;
+  $is_composing = FALSE;
 
   foreach (token_get_all((string) file_get_contents($file)) as $token) {
     $type = is_array($token) ? $token[0] : NULL;
@@ -139,7 +139,7 @@ function traits_file_facts(string $file): array {
       $parentheses += (int) ($text === '(') - (int) ($text === ')');
       $name = $attribute === 1 && $parentheses === 0 ? traits_name($type, $text) : NULL;
 
-      if ($name !== NULL && $declared) {
+      if ($name !== NULL && $is_declared) {
         $facts['members'][] = $name;
       }
 
@@ -147,13 +147,13 @@ function traits_file_facts(string $file): array {
     }
 
     if ($type === T_TRAIT) {
-      $declared = TRUE;
+      $is_declared = TRUE;
 
       continue;
     }
 
-    if ($composing) {
-      $composing = $text !== ';' && $text !== '{';
+    if ($is_composing) {
+      $is_composing = $text !== ';' && $text !== '{';
       $name = traits_name($type, $text);
 
       if ($name !== NULL) {
@@ -163,7 +163,7 @@ function traits_file_facts(string $file): array {
       continue;
     }
 
-    $composing = $declared && $type === T_USE;
+    $is_composing = $is_declared && $type === T_USE;
   }
 
   return $facts;

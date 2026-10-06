@@ -308,15 +308,15 @@ JS;
     }
 
     $error_count = 0;
-    $message_parts = ["JavaScript errors detected:\n"];
+    $message_parts = ['JavaScript errors detected:' . PHP_EOL];
 
     foreach ($this->javascriptErrorRegistry as $url => $errors) {
       $error_count += count($errors);
-      $message_parts[] = "\nURL: " . $url;
+      $message_parts[] = PHP_EOL . 'URL: ' . $url;
 
       foreach ($errors as $error) {
         $message_parts[] = sprintf(
-          "  - Error: %s\n    Source: %s:%d",
+          '  - Error: %s' . PHP_EOL . '    Source: %s:%d',
           $error['message'] ?? 'Unknown error',
           $error['source'] ?? 'Unknown source',
           $error['line'] ?? 0
@@ -324,9 +324,9 @@ JS;
       }
     }
 
-    $message_parts[] = sprintf("\nTotal errors: %d", $error_count);
+    $message_parts[] = sprintf(PHP_EOL . 'Total errors: %d', $error_count);
 
-    throw new ExpectationException(implode("\n", $message_parts), $this->getSession()->getDriver());
+    throw new ExpectationException(implode(PHP_EOL, $message_parts), $this->getSession()->getDriver());
   }
 
   /**

@@ -51,8 +51,7 @@ class BackendAwareInitializer implements ContextInitializer {
     protected readonly UserRegistryInterface $userRegistry,
     protected readonly TraitOptionResolverFactoryInterface $optionResolverFactory,
     protected readonly HttpClientFactoryInterface $httpClientFactory,
-  ) {
-  }
+  ) {}
 
   /**
    * {@inheritdoc}

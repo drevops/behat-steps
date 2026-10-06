@@ -309,21 +309,21 @@ trait ConfigTrait {
   protected function configAssertEquals(mixed $actual, string $expected, bool $should_match, string $name, string $key, string $descriptor): void {
     $is_set = $actual !== NULL;
     $actual_string = $this->configStringifyValue($actual);
-    $matches = $is_set && $actual_string === $expected;
+    $is_match = $is_set && $actual_string === $expected;
 
     if ($should_match) {
       if (!$is_set) {
         throw new AssertionException(sprintf('The config "%s" key "%s" is not set, but it should have the %s "%s".', $name, $key, $descriptor, $expected));
       }
 
-      if (!$matches) {
+      if (!$is_match) {
         throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", but it should have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
       }
 
       return;
     }
 
-    if ($matches) {
+    if ($is_match) {
       throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", but it should not have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
     }
   }
@@ -347,7 +347,7 @@ trait ConfigTrait {
    */
   protected function configAssertContains(mixed $actual, string $expected, bool $should_contain, string $name, string $key, string $descriptor): void {
     $is_set = $actual !== NULL;
-    $contains = $is_set && $this->configValueContains($actual, $expected);
+    $is_contained = $is_set && $this->configValueContains($actual, $expected);
     $actual_string = $this->configStringifyValue($actual);
 
     if ($should_contain) {
@@ -355,14 +355,14 @@ trait ConfigTrait {
         throw new AssertionException(sprintf('The config "%s" key "%s" is not set, but its %s should contain "%s".', $name, $key, $descriptor, $expected));
       }
 
-      if (!$contains) {
+      if (!$is_contained) {
         throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which does not contain "%s".', $name, $key, $descriptor, $actual_string, $expected));
       }
 
       return;
     }
 
-    if ($contains) {
+    if ($is_contained) {
       throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which contains "%s", but it should not.', $name, $key, $descriptor, $actual_string, $expected));
     }
   }

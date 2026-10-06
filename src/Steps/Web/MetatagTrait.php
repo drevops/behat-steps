@@ -46,7 +46,7 @@ trait MetatagTrait {
       $attributes[$attribute] = $value;
     }
 
-    $found = FALSE;
+    $is_found = FALSE;
 
     foreach ($elements as $element) {
       $all_attributes_matched = TRUE;
@@ -59,12 +59,12 @@ trait MetatagTrait {
       }
 
       if ($all_attributes_matched) {
-        $found = TRUE;
+        $is_found = TRUE;
         break;
       }
     }
 
-    if (!$found) {
+    if (!$is_found) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'meta tag', 'attributes', (string) json_encode($attributes));
     }
   }
@@ -568,7 +568,7 @@ trait MetatagTrait {
    *   TRUE when a hreflang alternate resolves to the given URL.
    */
   protected function metatagHtmlLinksBackTo(string $html, string $url, string $base_url): bool {
-    $previous = libxml_use_internal_errors(TRUE);
+    $original = libxml_use_internal_errors(TRUE);
 
     try {
       $document = new \DOMDocument();
@@ -593,7 +593,7 @@ trait MetatagTrait {
       return FALSE;
     }
     finally {
-      libxml_use_internal_errors($previous);
+      libxml_use_internal_errors($original);
     }
   }
 

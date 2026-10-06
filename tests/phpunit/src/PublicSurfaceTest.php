@@ -87,7 +87,7 @@ class PublicSurfaceTest extends UnitTestCase {
 
     // The documentation check holds what HELPERS.md publishes, so it reads a
     // docblock through the generator's own resolution rather than a copy of it.
-    require_once dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'docs.php';
+    require_once dirname(__DIR__, 3) . '/docs.php';
   }
 
   #[DataProvider('dataProviderPublicMethodsAreDocumented')]

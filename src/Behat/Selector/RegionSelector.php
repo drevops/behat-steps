@@ -27,8 +27,7 @@ class RegionSelector implements SelectorInterface {
   public function __construct(
     protected readonly CssSelector $cssSelector,
     protected array $regions,
-  ) {
-  }
+  ) {}
 
   /**
    * Translates a region name into XPath.

@@ -30,6 +30,4 @@ interface DrushBackendInterface extends
   ModuleCapabilityInterface,
   RoleCapabilityInterface,
   StateCapabilityInterface,
-  UserCapabilityInterface {
-
-}
+  UserCapabilityInterface {}

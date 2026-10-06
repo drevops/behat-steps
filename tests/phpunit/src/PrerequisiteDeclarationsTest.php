@@ -61,18 +61,18 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDeclaringAndCheckingGoTogether')]
   public function testDeclaringAndCheckingGoTogether(string $trait): void {
-    $declares = static::declaresPrerequisites($trait);
-    $checks = FALSE;
+    $is_declaring = static::declaresPrerequisites($trait);
+    $is_checking = FALSE;
 
     foreach (static::significantTokens((string) static::reflect($trait)->getFileName()) as $token) {
       if (is_array($token) && $token[0] === T_STRING && in_array($token[1], static::CHECKS, TRUE)) {
-        $checks = TRUE;
+        $is_checking = TRUE;
       }
     }
 
     $method = PrerequisiteReader::methodFor($trait);
 
-    $this->assertSame($declares, $checks, $declares
+    $this->assertSame($is_declaring, $is_checking, $is_declaring
       ? sprintf('%s declares its prerequisites in %s() but never checks them. Call "$this->assertPrerequisites(__TRAIT__)" where it starts acting.', $trait, $method)
       : sprintf('%s checks prerequisites it does not declare. Declare them in %s().', $trait, $method));
   }

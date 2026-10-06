@@ -176,14 +176,14 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * type id it gets registered under is derived from the short class name:
    * 'EntityReferenceHandler' → 'entity_reference'.
    *
-   * @param string $dir
+   * @param string $directory
    *   Absolute filesystem path to the directory containing '*Handler.php'
    *   files.
    * @param string $namespace
-   *   Namespace the classes in '$dir' live under, without a trailing slash.
+   *   Namespace the classes in '$directory' live under, without a trailing slash.
    */
-  protected function registerHandlersFromDirectory(string $dir, string $namespace): void {
-    foreach (glob($dir . '/*Handler.php') ?: [] as $file) {
+  protected function registerHandlersFromDirectory(string $directory, string $namespace): void {
+    foreach (glob($directory . '/*Handler.php') ?: [] as $file) {
       $short = basename($file, '.php');
 
       if ($short === 'DefaultHandler') {
@@ -408,8 +408,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     try {
       return \Drupal::entityTypeManager()->getDefinition($entity_type);
     }
-    catch (PluginNotFoundException $e) {
-      throw new \RuntimeException(sprintf('Unknown entity type "%s".', $entity_type), 0, $e);
+    catch (PluginNotFoundException $exception) {
+      throw new \RuntimeException(sprintf('Unknown entity type "%s".', $entity_type), 0, $exception);
     }
   }
 
@@ -902,7 +902,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $paths = [];
 
     foreach (\Drupal::moduleHandler()->getModuleList() as $module) {
-      $paths[] = $this->drupalRoot . DIRECTORY_SEPARATOR . $module->getPath();
+      $paths[] = $this->drupalRoot . '/' . $module->getPath();
     }
 
     return $paths;
@@ -1134,14 +1134,14 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     $this->expandEntityFields($stub);
-    $created_entity = \Drupal::entityTypeManager()->getStorage($entity_type)->create($stub->getValues());
-    $created_entity->save();
+    $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->create($stub->getValues());
+    $entity->save();
 
     // The id is stored under the entity type's own id key ('uid' for user,
     // 'nid' for node, 'tid' for term, 'id' for entity_test and others), so
     // the stub round-trips through deleteEntity().
-    $stub->setValue($id_key, $created_entity->id());
-    $stub->markSaved($created_entity);
+    $stub->setValue($id_key, $entity->id());
+    $stub->markSaved($entity);
 
     return $stub;
   }
@@ -1250,7 +1250,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     \Drupal::state()->resetCache();
     $mail = \Drupal::state()->get('system.test_mail_collector') ?: [];
     // Cancelled mail carries a false 'send' flag.
-    $mail = array_values(array_filter($mail, fn(array $mail_item): bool => (bool) $mail_item['send']));
+    $mail = array_values(array_filter($mail, static fn(array $mail_item): bool => (bool) $mail_item['send']));
     return $mail;
   }
 

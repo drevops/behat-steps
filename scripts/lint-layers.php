@@ -70,10 +70,10 @@ function lint_layers(array $options = []): void {
 
   foreach (LAYERS as $layer) {
     foreach ($layer['paths'] as $path) {
-      $full_path = $base_path . DIRECTORY_SEPARATOR . $path;
+      $full_path = $base_path . '/' . $path;
 
       if (!file_exists($full_path)) {
-        echo sprintf("Error: %s does not exist.\n", $full_path);
+        echo sprintf('Error: %s does not exist.' . PHP_EOL, $full_path);
         exit(1);
       }
 
@@ -89,12 +89,12 @@ function lint_layers(array $options = []): void {
   }
 
   if ($violations !== []) {
-    echo "Layer boundaries crossed:\n\n";
-    echo implode("\n", $violations) . "\n";
+    echo 'Layer boundaries crossed:' . PHP_EOL . PHP_EOL;
+    echo implode(PHP_EOL, $violations) . PHP_EOL;
     exit(1);
   }
 
-  echo sprintf("Every layer holds its boundary: %d files checked.\n", $checked);
+  echo sprintf('Every layer holds its boundary: %d files checked.' . PHP_EOL, $checked);
   exit(0);
 }
 

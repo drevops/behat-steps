@@ -61,8 +61,7 @@ class EntityFieldParser implements EntityFieldParserInterface {
     protected readonly string $entityType,
     protected readonly FieldClassifierInterface $fieldClassifier,
     protected readonly ?string $bundle = NULL,
-  ) {
-  }
+  ) {}
 
   /**
    * {@inheritdoc}
@@ -107,8 +106,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
         try {
           $records = $this->parseCell((string) $field_value, $is_multicolumn);
         }
-        catch (ParseException $e) {
-          $errors[] = $e;
+        catch (ParseException $exception) {
+          $errors[] = $exception;
           continue;
         }
 
@@ -269,8 +268,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
           $value = $this->readQuotedString($cell, $i);
           $items[] = $value;
         }
-        catch (ParseException $e) {
-          $errors[] = $e;
+        catch (ParseException $exception) {
+          $errors[] = $exception;
           $i = $length;
           break;
         }
@@ -364,8 +363,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
       try {
         $records[] = $this->parseRecord($trimmed, $cell, $base_offset);
       }
-      catch (ParseException $e) {
-        $errors[] = $e;
+      catch (ParseException $exception) {
+        $errors[] = $exception;
       }
     }
 
@@ -402,8 +401,8 @@ class EntityFieldParser implements EntityFieldParserInterface {
         [$key, $value] = $this->parseColumn($trimmed, $cell, $column_offset);
         $columns[$key] = $value;
       }
-      catch (ParseException $e) {
-        $errors[] = $e;
+      catch (ParseException $exception) {
+        $errors[] = $exception;
       }
     }
 

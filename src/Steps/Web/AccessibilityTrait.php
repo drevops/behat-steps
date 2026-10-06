@@ -270,15 +270,15 @@ trait AccessibilityTrait {
       return;
     }
 
-    $dir = $this->accessibilityGetReportDir();
-    if (!is_dir($dir)) {
-      mkdir($dir, 0777, TRUE);
+    $directory = $this->accessibilityGetReportDir();
+    if (!is_dir($directory)) {
+      mkdir($directory, 0777, TRUE);
     }
     $slug = $this->stringSlug($this->accessibilityFeatureName) . '__' . $this->stringSlug($this->accessibilityScenarioName);
-    file_put_contents($dir . '/' . $slug . '.html', $this->accessibilityRenderHtml());
-    file_put_contents($dir . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
+    file_put_contents($directory . '/' . $slug . '.html', $this->accessibilityRenderHtml());
+    file_put_contents($directory . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
 
-    $this->accessibilityAggregateCapture($dir);
+    $this->accessibilityAggregateCapture($directory);
 
     if (!$this->accessibilityAutoMode || $this->accessibilityGated || $scope->getTestResult()->isPassed()) {
       return;
@@ -366,7 +366,7 @@ trait AccessibilityTrait {
     }
 
     if ($messages !== []) {
-      $message = sprintf("Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):\n%s", $threshold, $check_incomplete ? 'yes' : 'no', implode("\n", $messages));
+      $message = sprintf('Auto accessibility gate failed (threshold: %s, fail_on_incomplete: %s):' . PHP_EOL . '%s', $threshold, $check_incomplete ? 'yes' : 'no', implode(PHP_EOL, $messages));
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
   }
@@ -491,13 +491,13 @@ trait AccessibilityTrait {
   public function accessibilityGetReportDir(): string {
     $directory = $this->getOptionString('accessibility', 'report_dir');
 
-    if (str_starts_with($directory, DIRECTORY_SEPARATOR)) {
+    if (str_starts_with($directory, '/')) {
       return $directory;
     }
 
     $base = self::$accessibilityBaseDir ?? (getcwd() ?: '.');
 
-    return $base . DIRECTORY_SEPARATOR . $directory;
+    return $base . '/' . $directory;
   }
 
   /**
@@ -813,7 +813,7 @@ trait AccessibilityTrait {
     $this->accessibilityLastCheckedUrl = $url;
 
     if ($this->accessibilityGetPrintCli()) {
-      fwrite(STDOUT, sprintf("\n[accessibility] %s: %d violations, %d passes, %d incomplete (rules: %s)\n",
+      fwrite(STDOUT, sprintf(PHP_EOL . '[accessibility] %s: %d violations, %d passes, %d incomplete (rules: %s)' . PHP_EOL,
         $this->accessibilityFormatUrl($url),
         count($normalized['violations'] ?? []),
         count($normalized['passes'] ?? []),
@@ -866,7 +866,7 @@ trait AccessibilityTrait {
       }
     }
 
-    return implode("\n", $lines);
+    return implode(PHP_EOL, $lines);
   }
 
   /**
@@ -876,7 +876,7 @@ trait AccessibilityTrait {
    *   Canonical `target` value of a node entry.
    */
   protected static function accessibilityStringifyTarget(array $target): string {
-    return implode(' > ', array_map(fn($t): string => is_array($t) ? implode(' ', $t) : (string) $t, $target));
+    return implode(' > ', array_map(static fn($t): string => is_array($t) ? implode(' ', $t) : (string) $t, $target));
   }
 
   /**
@@ -1089,7 +1089,7 @@ HTML;
       $failures = 0;
 
       foreach ($violations as $violation) {
-        $failing = $this->accessibilityFilterViolations([$violation], $threshold) !== [];
+        $is_failing = $this->accessibilityFilterViolations([$violation], $threshold) !== [];
         $rule_id = (string) ($violation['id'] ?? 'unknown');
         $impact = (string) ($violation['impact'] ?? 'unknown');
         $help = (string) ($violation['help'] ?? '');
@@ -1098,12 +1098,12 @@ HTML;
         foreach ($violation['nodes'] ?? [] as $node) {
           $target = static::accessibilityStringifyTarget($node['target'] ?? []);
           $html = trim((string) ($node['html'] ?? ''));
-          $details = sprintf("URL: %s\nRule: %s\nTarget: %s\nHTML: %s\nDocs: %s", $url, $rule_id, $target, $html, $help_url);
+          $details = sprintf('URL: %s' . PHP_EOL . 'Rule: %s' . PHP_EOL . 'Target: %s' . PHP_EOL . 'HTML: %s' . PHP_EOL . 'Docs: %s', $url, $rule_id, $target, $html, $help_url);
           $classname = htmlspecialchars('accessibility.' . $rule_id, ENT_XML1 | ENT_QUOTES);
           $name = htmlspecialchars($target ?: $rule_id, ENT_XML1 | ENT_QUOTES);
           $tests++;
 
-          if (!$failing) {
+          if (!$is_failing) {
             $cases_xml .= sprintf('<testcase classname="%s" name="%s"><system-out>%s</system-out></testcase>', $classname, $name, htmlspecialchars('[advisory] ' . $details, ENT_XML1 | ENT_QUOTES));
             continue;
           }
@@ -1152,12 +1152,12 @@ HTML;
    * or a consumer override of it on, so URLs are formatted in the instance
    * phase.
    *
-   * @param string $dir
+   * @param string $directory
    *   The resolved per-scenario report directory, captured for the static
    *   `@AfterSuite` renderer.
    */
-  protected function accessibilityAggregateCapture(string $dir): void {
-    self::$accessibilityAggregateReportDir = $dir;
+  protected function accessibilityAggregateCapture(string $directory): void {
+    self::$accessibilityAggregateReportDir = $directory;
 
     $results = [];
     foreach ($this->accessibilityResults as $result) {
@@ -1195,14 +1195,14 @@ HTML;
       return;
     }
 
-    $dir = self::$accessibilityAggregateReportDir ?? (getcwd() ?: '.') . DIRECTORY_SEPARATOR . '.logs/test_results/accessibility';
-    if (!is_dir($dir)) {
-      mkdir($dir, 0777, TRUE);
+    $directory = self::$accessibilityAggregateReportDir ?? (getcwd() ?: '.') . '/.logs/test_results/accessibility';
+    if (!is_dir($directory)) {
+      mkdir($directory, 0777, TRUE);
     }
 
     $time = time();
     $data = static::accessibilityAggregateData(self::$accessibilityAggregate, date('Y-m-d H:i', $time));
-    file_put_contents($dir . DIRECTORY_SEPARATOR . static::accessibilityAggregateFilename($time), static::accessibilityRenderAggregate($data));
+    file_put_contents($directory . '/' . static::accessibilityAggregateFilename($time), static::accessibilityRenderAggregate($data));
   }
 
   /**
@@ -1324,7 +1324,7 @@ HTML;
       }
     }
 
-    uasort($rules, function (array $a, array $b) use ($rank): int {
+    uasort($rules, static function (array $a, array $b) use ($rank): int {
       $by_impact = ($rank[$a['impact']] ?? 9) <=> ($rank[$b['impact']] ?? 9);
 
       return $by_impact !== 0 ? $by_impact : count($b['nodes']) <=> count($a['nodes']);
@@ -1471,7 +1471,7 @@ HTML;
    *   Render-ready data from accessibilityAggregateData().
    */
   protected static function accessibilityRenderAggregate(array $data): string {
-    $issue_list = function (string $heading, string $css_class, array $issues): string {
+    $issue_list = static function (string $heading, string $css_class, array $issues): string {
       if ($issues === []) {
         return sprintf('<h5>%s</h5><p class="meta">None.</p>', htmlspecialchars($heading, ENT_QUOTES));
       }

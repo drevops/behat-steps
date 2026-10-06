@@ -62,5 +62,4 @@ class WebContextTest extends UnitTestCase {
 /**
  * Context carrying none of the shipped vocabulary.
  */
-class UnrelatedContext {
-}
+class UnrelatedContext {}

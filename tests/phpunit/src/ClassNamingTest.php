@@ -71,7 +71,7 @@ class ClassNamingTest extends UnitTestCase {
    *   Fully qualified names, as data provider rows.
    */
   protected static function discoverBehatClasses(): array {
-    $root = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Behat';
+    $root = dirname(__DIR__, 3) . '/src/Behat';
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
 
     $classes = [];

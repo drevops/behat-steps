@@ -86,7 +86,7 @@ class OptionDeclarationsTest extends UnitTestCase {
   #[DataProvider('dataProviderDeclarationsAreReadUnderTheTraitGroup')]
   public function testDeclarationsAreReadUnderTheTraitGroup(string $trait): void {
     $short_name = (new \ReflectionClass($trait))->getShortName();
-    $method = GroupName::schemaMethod($short_name);
+    $method = ConfigSchemaReader::methodFor($short_name);
 
     $this->assertSame([$method], self::schemaMethods($trait), sprintf('%s declares its options in %s() and in no other method.', $short_name, $method));
 
@@ -172,7 +172,7 @@ class OptionDeclarationsTest extends UnitTestCase {
   protected static function schemaMethods(string $trait): array {
     $names = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), (new \ReflectionClass($trait))->getMethods());
 
-    return array_values(array_filter($names, static fn(string $name): bool => str_ends_with($name, GroupName::SCHEMA_METHOD_SUFFIX)));
+    return array_values(array_filter($names, static fn(string $name): bool => str_ends_with($name, ConfigSchemaReader::METHOD_SUFFIX)));
   }
 
 }

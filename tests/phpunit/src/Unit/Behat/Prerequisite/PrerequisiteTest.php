@@ -40,9 +40,9 @@ class PrerequisiteTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderRejectsMalformedDeclaration')]
-  public function testRejectsMalformedDeclaration(\Closure $declare, string $message): void {
+  public function testRejectsMalformedDeclaration(\Closure $declare, string $expected_message): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $declare();
   }

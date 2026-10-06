@@ -517,9 +517,9 @@ JS;
    */
   #[When('I fill in the datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetime(string $label, string $date, string $time): void {
-    $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
+    $this->fieldFillDatetimeInput($label, 'value', 'date', $date);
     if ($time !== '') {
-      $this->fieldFillDatetimeHelper($label, 'value', 'time', $time);
+      $this->fieldFillDatetimeInput($label, 'value', 'time', $time);
     }
   }
 
@@ -532,7 +532,7 @@ JS;
    */
   #[When('I fill in the date part of the datetime field :label with :date')]
   public function fieldFillDatetimeDate(string $label, string $date): void {
-    $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
+    $this->fieldFillDatetimeInput($label, 'value', 'date', $date);
   }
 
   /**
@@ -544,7 +544,7 @@ JS;
    */
   #[When('I fill in the time part of the datetime field :label with :time')]
   public function fieldFillDatetimeTime(string $label, string $time): void {
-    $this->fieldFillDatetimeHelper($label, 'value', 'time', $time);
+    $this->fieldFillDatetimeInput($label, 'value', 'time', $time);
   }
 
   /**
@@ -559,9 +559,9 @@ JS;
    */
   #[When('I fill in the start datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetimeStart(string $label, string $date, string $time): void {
-    $this->fieldFillDatetimeHelper($label, 'value', 'date', $date);
+    $this->fieldFillDatetimeInput($label, 'value', 'date', $date);
     if ($time !== '') {
-      $this->fieldFillDatetimeHelper($label, 'value', 'time', $time);
+      $this->fieldFillDatetimeInput($label, 'value', 'time', $time);
     }
   }
 
@@ -577,9 +577,9 @@ JS;
    */
   #[When('I fill in the end datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetimeEnd(string $label, string $date, string $time): void {
-    $this->fieldFillDatetimeHelper($label, 'end_value', 'date', $date);
+    $this->fieldFillDatetimeInput($label, 'end_value', 'date', $date);
     if ($time !== '') {
-      $this->fieldFillDatetimeHelper($label, 'end_value', 'time', $time);
+      $this->fieldFillDatetimeInput($label, 'end_value', 'time', $time);
     }
   }
 
@@ -1058,7 +1058,7 @@ JS;
   }
 
   /**
-   * Helper method to fill datetime field parts.
+   * Fill in one input of a datetime field.
    *
    * @param string $label
    *   The field label text.
@@ -1072,7 +1072,7 @@ JS;
    * @throws \Behat\Mink\Exception\ElementNotFoundException
    *   If the datetime field part cannot be located.
    */
-  protected function fieldFillDatetimeHelper(string $label, string $part, string $field, string $value): void {
+  protected function fieldFillDatetimeInput(string $label, string $part, string $field, string $value): void {
     $xpath = sprintf(
       '//label[contains(text(), "%s")]/..//input[contains(@name, "[%s][%s]")]',
       $label,

@@ -70,11 +70,11 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
       'settings' => ['label' => 'Powered by', 'label_display' => 'visible'],
     ]);
 
-    $result = $this->core->placeBlock($stub);
+    $created = $this->core->placeBlock($stub);
 
-    $this->assertSame($stub, $result);
-    $this->assertTrue($result->isSaved());
-    $this->assertInstanceOf(Block::class, $result->getSavedEntity());
+    $this->assertSame($stub, $created);
+    $this->assertTrue($created->isSaved());
+    $this->assertInstanceOf(Block::class, $created->getSavedEntity());
 
     $reloaded = Block::load('test_powered_by');
     $this->assertInstanceOf(Block::class, $reloaded);
@@ -82,7 +82,7 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->assertSame('stark', $reloaded->getTheme());
     $this->assertSame('system_powered_by_block', $reloaded->getPluginId());
 
-    $this->core->deleteBlock($result);
+    $this->core->deleteBlock($created);
     $this->assertNull(Block::load('test_powered_by'));
   }
 
@@ -93,10 +93,10 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
       'region' => 'footer',
     ]);
 
-    $result = $this->core->placeBlock($stub);
+    $created = $this->core->placeBlock($stub);
 
-    $this->assertTrue($result->isSaved());
-    $placement = $result->getSavedEntity();
+    $this->assertTrue($created->isSaved());
+    $placement = $created->getSavedEntity();
     $this->assertInstanceOf(Block::class, $placement);
     $this->assertNotEmpty($placement->id(), 'placeBlock populated an id on the saved placement.');
     $this->assertNotNull(Block::load($placement->id()));

@@ -60,7 +60,7 @@ class ParametersTraitTest extends TestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage($expected_message);
 
-    $this->createHost()->$method($name);
+    $this->createHost()->{$method}($name);
   }
 
   public static function dataProviderUnknownNameThrows(): \Iterator {

@@ -101,10 +101,10 @@ class DocsTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderParseMethodComment')]
-  public function testParseMethodComment(string $comment, ?array $expected, ?string $exception = NULL): void {
-    if ($exception) {
+  public function testParseMethodComment(string $comment, ?array $expected, ?string $expected_message = NULL): void {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $actual = parse_method_comment($comment);
@@ -143,7 +143,7 @@ EOD,
 EOD,
         [
           'description' => 'This is a description.',
-          'example' => "Given I am on the homepage\n",
+          'example' => 'Given I am on the homepage' . PHP_EOL,
         ],
       ],
       'with indented example' => [
@@ -159,7 +159,7 @@ EOD,
 EOD,
         [
           'description' => 'This is a description.',
-          'example' => "Given I am on the homepage\nWhen I click \"Submit\"\n",
+          'example' => 'Given I am on the homepage' . PHP_EOL . 'When I click "Submit"' . PHP_EOL,
         ],
       ],
       'multiline description' => [
@@ -189,7 +189,7 @@ EOD,
 EOD,
         [
           'description' => 'This is a description.',
-          'example' => "Given I am on the homepage\n\nWhen I click \"Submit\"\nThen I should see \"Success\"\n",
+          'example' => 'Given I am on the homepage' . PHP_EOL . PHP_EOL . 'When I click "Submit"' . PHP_EOL . 'Then I should see "Success"' . PHP_EOL,
         ],
       ],
       'comment with comment markers' => [
@@ -229,7 +229,7 @@ EOD,
 EOD,
         [
           'description' => 'This is a description.',
-          'example' => "Example code\n",
+          'example' => 'Example code' . PHP_EOL,
         ],
       ],
       'trim description' => [
@@ -361,7 +361,7 @@ EOD,
           'row1' => ['Cell 1', 'Cell 2'],
           'row2' => ['Cell 3', 'Cell 4'],
         ],
-        "| Header 1 | Header 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |\n| Cell 3 | Cell 4 |",
+        implode(PHP_EOL, ['| Header 1 | Header 2 |', '| --- | --- |', '| Cell 1 | Cell 2 |', '| Cell 3 | Cell 4 |']),
       ],
       'single column table' => [
         ['Header'],
@@ -369,14 +369,14 @@ EOD,
           'row1' => ['Cell 1'],
           'row2' => ['Cell 2'],
         ],
-        "| Header |\n| --- |\n| Cell 1 |\n| Cell 2 |",
+        implode(PHP_EOL, ['| Header |', '| --- |', '| Cell 1 |', '| Cell 2 |']),
       ],
       'single row table' => [
         ['Header 1', 'Header 2'],
         [
           'row1' => ['Cell 1', 'Cell 2'],
         ],
-        "| Header 1 | Header 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |",
+        implode(PHP_EOL, ['| Header 1 | Header 2 |', '| --- | --- |', '| Cell 1 | Cell 2 |']),
       ],
       'multi-column table' => [
         ['Header 1', 'Header 2', 'Header 3', 'Header 4'],
@@ -384,7 +384,7 @@ EOD,
           'row1' => ['Cell 1', 'Cell 2', 'Cell 3', 'Cell 4'],
           'row2' => ['Cell 5', 'Cell 6', 'Cell 7', 'Cell 8'],
         ],
-        "| Header 1 | Header 2 | Header 3 | Header 4 |\n| --- | --- | --- | --- |\n| Cell 1 | Cell 2 | Cell 3 | Cell 4 |\n| Cell 5 | Cell 6 | Cell 7 | Cell 8 |",
+        implode(PHP_EOL, ['| Header 1 | Header 2 | Header 3 | Header 4 |', '| --- | --- | --- | --- |', '| Cell 1 | Cell 2 | Cell 3 | Cell 4 |', '| Cell 5 | Cell 6 | Cell 7 | Cell 8 |']),
       ],
       'with special characters' => [
         ['Header *1*', 'Header **2**'],
@@ -392,7 +392,7 @@ EOD,
           'row1' => ['Cell *1*', 'Cell **2**'],
           'row2' => ['Cell [3](link)', 'Cell `4`'],
         ],
-        "| Header *1* | Header **2** |\n| --- | --- |\n| Cell *1* | Cell **2** |\n| Cell [3](link) | Cell `4` |",
+        implode(PHP_EOL, ['| Header *1* | Header **2** |', '| --- | --- |', '| Cell *1* | Cell **2** |', '| Cell [3](link) | Cell `4` |']),
       ],
       'empty headers' => [
         [],
@@ -417,7 +417,7 @@ EOD,
           'row1' => ['Cell 1', '', 'Cell 3'],
           'row2' => ['', 'Cell 5', ''],
         ],
-        "| Header 1 | Header 2 | Header 3 |\n| --- | --- | --- |\n| Cell 1 |  | Cell 3 |\n|  | Cell 5 |  |",
+        implode(PHP_EOL, ['| Header 1 | Header 2 | Header 3 |', '| --- | --- | --- |', '| Cell 1 |  | Cell 3 |', '|  | Cell 5 |  |']),
       ],
       'with numeric values' => [
         ['ID', 'Value'],
@@ -425,26 +425,26 @@ EOD,
           'row1' => ['1', '100'],
           'row2' => ['2', '200'],
         ],
-        "| ID | Value |\n| --- | --- |\n| 1 | 100 |\n| 2 | 200 |",
+        implode(PHP_EOL, ['| ID | Value |', '| --- | --- |', '| 1 | 100 |', '| 2 | 200 |']),
       ],
     ];
   }
 
   #[DataProvider('dataProviderRenderInfo')]
-  public function testRenderInfo(array $info, string $expected, ?string $exception = NULL): void {
-    if ($exception) {
+  public function testRenderInfo(array $info, string $expected, ?string $expected_message = NULL): void {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $exception = str_replace('@tmp', static::$tmp, $exception);
-      $this->expectExceptionMessage($exception);
+      $expected_message = str_replace('@tmp', static::$tmp, $expected_message);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $base_path = static::$tmp;
 
-    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
-    $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
+    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
+    $features_dir = $base_path . '/tests/behat/features';
 
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Web', 0777, TRUE);
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
+    mkdir($steps_dir . '/Web', 0777, TRUE);
+    mkdir($steps_dir . '/Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
     // The files are created because render_info() checks they exist.
@@ -456,24 +456,24 @@ EOD,
       }
 
       if ($trait !== 'MissingTrait') {
-        file_put_contents(sprintf('%s%s%s%s%s.php', $steps_dir, DIRECTORY_SEPARATOR, $context, DIRECTORY_SEPARATOR, $trait), '<?php');
+        file_put_contents(sprintf('%s/%s/%s.php', $steps_dir, $context, $trait), '<?php');
       }
 
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
       $prefix = $context === 'Drupal' ? 'drupal_' : '';
       $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
-      $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
+      $example_file_path = $base_path . '/' . $example_file;
       file_put_contents($example_file_path, 'Feature: Test');
     }
 
     if (isset($info['MissingTrait'])) {
-      @unlink($steps_dir . DIRECTORY_SEPARATOR . 'Web' . DIRECTORY_SEPARATOR . 'MissingTrait.php');
+      @unlink($steps_dir . '/Web/MissingTrait.php');
     }
 
     $actual = render_info($info, $base_path);
 
     // Individual elements are asserted rather than the exact formatting.
-    if ($exception === NULL && !empty($info)) {
+    if ($expected_message === NULL && !empty($info)) {
       foreach ($info as $trait => $data) {
         $name_contextual = $data['name_contextual'] ?? $trait;
         $link_id = strtolower(preg_replace('/[^A-Za-z0-9_\-]/', '', $name_contextual));
@@ -742,7 +742,7 @@ EOD,
       ],
       'empty info' => [
         [],
-        "### Index of Web steps\n\n\n",
+        '### Index of Web steps' . PHP_EOL . PHP_EOL . PHP_EOL,
       ],
       'with missing source file' => [
         [
@@ -946,11 +946,11 @@ EOD,
   public function testRenderInfoWithPathForLinks(array $info, string $path_for_links, string $expected): void {
     $base_path = static::$tmp;
 
-    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
-    $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
+    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
+    $features_dir = $base_path . '/tests/behat/features';
 
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Web', 0777, TRUE);
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
+    mkdir($steps_dir . '/Web', 0777, TRUE);
+    mkdir($steps_dir . '/Drupal', 0777, TRUE);
     mkdir($features_dir, 0777, TRUE);
 
     // The files are created because render_info() checks they exist.
@@ -961,12 +961,12 @@ EOD,
         $info[$trait]['name_contextual'] = ($context !== 'Web' ? $context . '\\' : '') . $trait;
       }
 
-      file_put_contents(sprintf('%s%s%s%s%s.php', $steps_dir, DIRECTORY_SEPARATOR, $context, DIRECTORY_SEPARATOR, $trait), '<?php');
+      file_put_contents(sprintf('%s/%s/%s.php', $steps_dir, $context, $trait), '<?php');
 
       $example_name = camel_to_snake(str_replace('Trait', '', $trait));
       $prefix = $context === 'Drupal' ? 'drupal_' : '';
       $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
-      $example_file_path = $base_path . DIRECTORY_SEPARATOR . $example_file;
+      $example_file_path = $base_path . '/' . $example_file;
       file_put_contents($example_file_path, 'Feature: Test');
     }
 
@@ -2076,11 +2076,11 @@ EOD,
     string $end,
     string $replacement,
     string $expected,
-    ?string $exception = NULL,
+    ?string $expected_message = NULL,
   ): void {
-    if ($exception) {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $actual = replace_content($haystack, $start, $end, $replacement);
@@ -2094,28 +2094,28 @@ EOD,
         'START',
         'END',
         ' new content ',
-        "This is a test string with START\n new content \nEND in it.",
+        'This is a test string with START' . PHP_EOL . ' new content ' . PHP_EOL . 'END in it.',
       ],
       'multiline content' => [
         "Line 1\nSTART\nsome content\nmore content\nEND\nLine 3",
         "START",
         "END",
         "\nnew content\n",
-        "Line 1\nSTART\n\nnew content\n\nEND\nLine 3",
+        "Line 1\nSTART" . PHP_EOL . "\nnew content\n" . PHP_EOL . "END\nLine 3",
       ],
       'replacement with special characters' => [
         'Content with START $pecial ch@rs END here',
         'START',
         'END',
         ' $p3c!al r3pl@cement ',
-        "Content with START\n \$p3c!al r3pl@cement \nEND here",
+        'Content with START' . PHP_EOL . ' $p3c!al r3pl@cement ' . PHP_EOL . 'END here',
       ],
       'start and end with regex characters' => [
         'Content with [START] regex.chars* [END] here',
         '[START]',
         '[END]',
         ' escaped content ',
-        "Content with [START]\n escaped content \n[END] here",
+        'Content with [START]' . PHP_EOL . ' escaped content ' . PHP_EOL . '[END] here',
       ],
       'error - start not found' => [
         'Content without markers',
@@ -2146,21 +2146,21 @@ EOD,
         'START',
         'END',
         ' replacement ',
-        "Content with START\n replacement \nEND together",
+        'Content with START' . PHP_EOL . ' replacement ' . PHP_EOL . 'END together',
       ],
       'nested markers' => [
         'Content with START nested START inner END markers END',
         'START',
         'END',
         ' replaced all ',
-        "Content with START\n replaced all \nEND markers END",
+        'Content with START' . PHP_EOL . ' replaced all ' . PHP_EOL . 'END markers END',
       ],
       'empty replacement' => [
         'Content with START content to remove END here',
         'START',
         'END',
         '',
-        "Content with START\n\nEND here",
+        'Content with START' . PHP_EOL . PHP_EOL . 'END here',
       ],
     ];
   }
@@ -2219,7 +2219,7 @@ EOD,
    */
   protected function setupTestEnvironment(): array {
     $base_path = static::$tmp;
-    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
+    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
     mkdir($steps_dir, 0777, TRUE);
 
     return [
@@ -2242,14 +2242,14 @@ EOD,
    *   The path to the copied file.
    */
   protected function copyFixtureTrait(string $trait_name, string $steps_dir, string $context = 'Web'): string {
-    $fixture_file = $this->getFixturesDir() . DIRECTORY_SEPARATOR . $context . DIRECTORY_SEPARATOR . $trait_name . '.php';
-    $target_dir = $steps_dir . DIRECTORY_SEPARATOR . $context;
+    $fixture_file = $this->getFixturesDir() . '/' . $context . '/' . $trait_name . '.php';
+    $target_dir = $steps_dir . '/' . $context;
 
     if (!is_dir($target_dir)) {
       mkdir($target_dir, 0777, TRUE);
     }
 
-    $target_file = $target_dir . DIRECTORY_SEPARATOR . $trait_name . '.php';
+    $target_file = $target_dir . '/' . $trait_name . '.php';
 
     if (file_exists($fixture_file)) {
       copy($fixture_file, $target_file);
@@ -2426,10 +2426,10 @@ EOD,
   }
 
   #[DataProvider('dataProviderParseClassComment')]
-  public function testParseClassComment(string $trait_name, string $comment, array $expected, ?string $exception = NULL): void {
-    if ($exception) {
+  public function testParseClassComment(string $trait_name, string $comment, array $expected, ?string $expected_message = NULL): void {
+    if ($expected_message) {
       $this->expectException(\RuntimeException::class);
-      $this->expectExceptionMessage($exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $actual = parse_class_comment($trait_name, $comment);
@@ -2556,7 +2556,7 @@ EOD,
 EOD,
         [
           'description' => 'Description line.',
-          'description_full' => "Description line.\nIndented line.\nDouble indented line.",
+          'description_full' => 'Description line.' . PHP_EOL . 'Indented line.' . PHP_EOL . 'Double indented line.',
         ],
       ],
       'with leading/trailing whitespace' => [
@@ -2570,7 +2570,7 @@ EOD,
 EOD,
         [
           'description' => 'Leading whitespace should be trimmed.',
-          'description_full' => "Leading whitespace should be trimmed.\n\nTrailing whitespace should also be trimmed.",
+          'description_full' => 'Leading whitespace should be trimmed.' . PHP_EOL . PHP_EOL . 'Trailing whitespace should also be trimmed.',
         ],
       ],
       'with special characters' => [
@@ -2584,7 +2584,7 @@ EOD,
 EOD,
         [
           'description' => 'Description with special characters: @!#$%^&*().',
-          'description_full' => "Description with special characters: @!#\$%^&*().\n\nMore special characters: ~[];'\",<>?/\\|",
+          'description_full' => 'Description with special characters: @!#$%^&*().' . PHP_EOL . PHP_EOL . "More special characters: ~[];'\",<>?/\\|",
         ],
       ],
       'with multiple code blocks' => [
@@ -2598,7 +2598,7 @@ EOD,
 EOD,
         [
           'description' => 'Description with `first code` and `second code`.',
-          'description_full' => "Description with `first code` and `second code`.\n\nMore text with `another code block`.",
+          'description_full' => 'Description with `first code` and `second code`.' . PHP_EOL . PHP_EOL . 'More text with `another code block`.',
         ],
       ],
       'comment with different comment markers' => [
@@ -3026,10 +3026,10 @@ EOD,
 
   public function testValidateTagsFromFeatureFiles(): void {
     $base_path = static::$tmp;
-    $features_dir = $base_path . DIRECTORY_SEPARATOR . 'tests/behat/features';
+    $features_dir = $base_path . '/tests/behat/features';
     mkdir($features_dir, 0777, TRUE);
-    file_put_contents($features_dir . DIRECTORY_SEPARATOR . 'clean.feature', "@api @accessibility:critical\nScenario: ok");
-    file_put_contents($features_dir . DIRECTORY_SEPARATOR . 'dirty.feature', "@javascript @accessibility-critical\nScenario: bad");
+    file_put_contents($features_dir . '/clean.feature', "@api @accessibility:critical\nScenario: ok");
+    file_put_contents($features_dir . '/dirty.feature', "@javascript @accessibility-critical\nScenario: bad");
 
     $actual = validate_tags([], $base_path);
 
@@ -3339,8 +3339,8 @@ EOD,
           ],
         ],
         [
-          "  SomeTrait::someValue - Published helper has no summary. Write one, or mark the helper @internal\n",
-          "  SomeTrait::someOther - Published helper has no summary. Write one, or mark the helper @internal\n",
+          '  SomeTrait::someValue - Published helper has no summary. Write one, or mark the helper @internal' . PHP_EOL,
+          '  SomeTrait::someOther - Published helper has no summary. Write one, or mark the helper @internal' . PHP_EOL,
         ],
       ],
     ];
@@ -3359,9 +3359,9 @@ EOD,
 
   public function testRenderHelpers(): void {
     $base_path = static::$tmp;
-    $steps_dir = $base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY;
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Web', 0777, TRUE);
-    mkdir($steps_dir . DIRECTORY_SEPARATOR . 'Drupal', 0777, TRUE);
+    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
+    mkdir($steps_dir . '/Web', 0777, TRUE);
+    mkdir($steps_dir . '/Drupal', 0777, TRUE);
     file_put_contents($steps_dir . '/Web/SomeTrait.php', '<?php');
     file_put_contents($steps_dir . '/Drupal/OtherTrait.php', '<?php');
 
@@ -3502,7 +3502,7 @@ EOD,
   }
 
   public static function dataProviderRenderTraitOptions(): array {
-    $table = implode("\n", [
+    $table = implode(PHP_EOL, [
       '| Option | Type | Default | Tag | Description |',
       '| --- | --- | --- | --- | --- |',
       '| `documented_options.enabled` | boolean | `TRUE` | `@documented-off`, `@behat-steps-skip:DocumentedOptionsTrait` | Whether the hook runs. |',
@@ -3536,7 +3536,7 @@ EOD,
   }
 
   public static function dataProviderRenderTraitPrerequisites(): array {
-    $table = implode("\n", [
+    $table = implode(PHP_EOL, [
       '| Prerequisite | Capability |',
       '| --- | --- |',
       '| A backend in the scenario\'s list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |',

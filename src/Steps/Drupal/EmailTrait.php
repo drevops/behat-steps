@@ -111,10 +111,10 @@ trait EmailTrait {
    * @endcode
    */
   #[When('I clear the test email system queue')]
-  public function emailClearTestQueue(bool $force = FALSE): void {
+  public function emailClearTestQueue(bool $is_forced = FALSE): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    if (!$force && !static::emailFindMailSystemOriginal()) {
+    if (!$is_forced && !static::emailFindMailSystemOriginal()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When I enable the test email system" step definition to the scenario.');
     }
 
@@ -371,20 +371,20 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('the email header :header should contain:')]
-  public function emailAssertMessageHeaderContains(string $header, PyStringNode $string, bool $exact = FALSE): void {
+  public function emailAssertMessageHeaderContains(string $header, PyStringNode $string, bool $is_exact = FALSE): void {
     $string_value = (string) $string;
-    $string_value = $exact ? $string_value : $this->stringNormalizeWhitespace($string_value);
+    $string_value = $is_exact ? $string_value : $this->stringNormalizeWhitespace($string_value);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
       $header_value = $message['headers'][$header] ?? '';
-      $header_value = $exact ? $header_value : $this->stringNormalizeWhitespace((string) $header_value);
+      $header_value = $is_exact ? $header_value : $this->stringNormalizeWhitespace((string) $header_value);
 
       if (str_contains((string) $header_value, (string) $string_value)) {
         return;
       }
     }
 
-    throw new ExpectationException(sprintf('Unable to find an email where the header "%s" should contain%s text "%s" retrieved from test email collector.', $header, ($exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('Unable to find an email where the header "%s" should contain%s text "%s" retrieved from test email collector.', $header, ($is_exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
   }
 
   /**
@@ -494,11 +494,11 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('the email field :field should contain:')]
-  public function emailAssertMessageFieldContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
-    $message = $this->emailFindMessage($field, $string, $exact);
+  public function emailAssertMessageFieldContains(string $field, PyStringNode $string, bool $is_exact = FALSE): void {
+    $message = $this->emailFindMessage($field, $string, $is_exact);
 
     if (!$message) {
-      throw new ExpectationException(sprintf('Unable to find an email where the field "%s" should contain%s text "%s" retrieved from test email collector.', $field, ($exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Unable to find an email where the field "%s" should contain%s text "%s" retrieved from test email collector.', $field, ($is_exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
     }
   }
 
@@ -528,19 +528,19 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('the email field :field should not contain:')]
-  public function emailAssertMessageFieldNotContains(string $field, PyStringNode $string, bool $exact = FALSE): void {
+  public function emailAssertMessageFieldNotContains(string $field, PyStringNode $string, bool $is_exact = FALSE): void {
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
     $string = (string) $string;
-    $string = $exact ? $string : $this->stringNormalizeWhitespace($string);
+    $string = $is_exact ? $string : $this->stringNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
       $value = $message[$field] ?? '';
-      $field_string = $exact ? $value : $this->stringNormalizeWhitespace((string) $value);
+      $field_string = $is_exact ? $value : $this->stringNormalizeWhitespace((string) $value);
 
       if (str_contains((string) $field_string, (string) $string)) {
-        throw new ExpectationException(sprintf('Found an email where the field "%s" contains%s text "%s" retrieved from test email collector, but it should not.', $field, ($exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('Found an email where the field "%s" contains%s text "%s" retrieved from test email collector, but it should not.', $field, ($is_exact ? ' exact' : ''), $string), $this->getSession()->getDriver());
       }
     }
   }
@@ -724,12 +724,12 @@ trait EmailTrait {
       $messages[$index] = array_change_key_case($message, CASE_LOWER);
 
       if ($this->emailDebug) {
-        printf("----------------------------------------\n");
-        printf("Email message number: %s\n", $index);
-        printf("----------------------------------------\n");
+        printf('----------------------------------------' . PHP_EOL);
+        printf('Email message number: %s' . PHP_EOL, $index);
+        printf('----------------------------------------' . PHP_EOL);
         foreach ($fields as $field) {
-          printf("Field: %s\n", $field);
-          printf("Value: %s\n", $messages[$index][$field] ?? '<EMPTY>');
+          printf('Field: %s' . PHP_EOL, $field);
+          printf('Value: %s' . PHP_EOL, $messages[$index][$field] ?? '<EMPTY>');
           print PHP_EOL;
         }
       }
@@ -745,22 +745,22 @@ trait EmailTrait {
    *   Field to search in.
    * @param \Behat\Gherkin\Node\PyStringNode $string
    *   String to search for.
-   * @param bool $exact
+   * @param bool $is_exact
    *   Whether to search for an exact match.
    *
    * @return array<string, string|array<string, mixed>>|null
    *   Email message or NULL if not found.
    */
-  public function emailFindMessage(string $field, PyStringNode $string, bool $exact = FALSE): ?array {
+  public function emailFindMessage(string $field, PyStringNode $string, bool $is_exact = FALSE): ?array {
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
     }
     $string = (string) $string;
-    $string = $exact ? $string : $this->stringNormalizeWhitespace($string);
+    $string = $is_exact ? $string : $this->stringNormalizeWhitespace($string);
 
     foreach ($this->emailGetCollectedMessages() as $message) {
       $value = $message[$field] ?? '';
-      $field_string = $exact ? $value : $this->stringNormalizeWhitespace((string) $value);
+      $field_string = $is_exact ? $value : $this->stringNormalizeWhitespace((string) $value);
 
       if (str_contains((string) $field_string, (string) $string)) {
         return $message;
@@ -831,7 +831,7 @@ trait EmailTrait {
    */
   public static function emailExtractLinks(string $string): array {
     $pattern = '(?xi)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))';
-    $string = preg_replace_callback(sprintf('#%s#i', $pattern), fn(array $matches): string => preg_match('!^https?://!i', $matches[0]) ? $matches[0] : 'http://' . $matches[0], $string);
+    $string = preg_replace_callback(sprintf('#%s#i', $pattern), static fn(array $matches): string => preg_match('!^https?://!i', $matches[0]) ? $matches[0] : 'http://' . $matches[0], $string);
 
     preg_match_all(sprintf('#%s#i', $pattern), (string) $string, $matches);
 

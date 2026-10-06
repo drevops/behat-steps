@@ -79,7 +79,7 @@ trait BehatCliTrait {
       if (str_starts_with($tag, 'test-trait:')) {
         $tags = trim(substr($tag, strlen('test-trait:')));
         $tags = explode(',', $tags);
-        $tags = array_map(fn(string $value): string => trim(str_replace('\\\\', '\\', $value)), $tags);
+        $tags = array_map(static fn(string $value): string => trim(str_replace('\\\\', '\\', $value)), $tags);
         $traits = array_merge($traits, $tags);
         break;
       }
@@ -138,8 +138,8 @@ trait BehatCliTrait {
       // A 'Helper\' tag names a trait outside the vocabulary subtree.
       $root = str_starts_with((string) $qualified, 'Helper\\') ? 'DrevOps\\BehatSteps\\' : 'DrevOps\\BehatSteps\\Steps\\';
 
-      $tokens['{{USE_DECLARATION}}'] .= sprintf('use %s%s as %s;' . PHP_EOL, $root, $qualified, $alias);
-      $tokens['{{USE_IN_CLASS}}'] .= sprintf('use %s;' . PHP_EOL, $alias);
+      $tokens['{{USE_DECLARATION}}'] .= sprintf("use %s%s as %s;\n", $root, $qualified, $alias);
+      $tokens['{{USE_IN_CLASS}}'] .= sprintf("use %s;\n", $alias);
     }
 
     $content = <<<'EOL'
@@ -208,11 +208,11 @@ EOL;
   public function behatCliWriteScenarioSteps(PyStringNode $content, $tags = ''): void {
     $content = strtr((string) $content, ["'''" => '"""']);
 
-    $content_lines = explode(PHP_EOL, $content);
+    $content_lines = explode("\n", $content);
     foreach ($content_lines as $key => $content_line) {
       $content_lines[$key] = str_repeat(' ', 4) . trim($content_line);
     }
-    $content = implode(PHP_EOL, $content_lines);
+    $content = implode("\n", $content_lines);
 
     $tokens = [
       '{{SCENARIO_CONTENT}}' => $content,
@@ -285,14 +285,14 @@ EOL;
       return '';
     }
 
-    return PHP_EOL . "    'drush' => ['root' => '/app/build/web', 'binary' => '/app/build/vendor/bin/drush'],";
+    return "\n    'drush' => ['root' => '/app/build/web', 'binary' => '/app/build/vendor/bin/drush'],";
   }
 
   /**
    * Render the 'steps' section as the PHP array literal the config holds.
    */
   protected function behatCliRenderStepsConfig(): string {
-    return sprintf('[%s%s%s]', PHP_EOL . '    ' . self::BEHAT_CLI_MESSAGE_SELECTORS, PHP_EOL . '    ' . $this->behatCliStepsConfig, PHP_EOL . '  ');
+    return sprintf("[\n    %s\n    %s\n  ]", self::BEHAT_CLI_MESSAGE_SELECTORS, $this->behatCliStepsConfig);
   }
 
   /**
@@ -370,7 +370,7 @@ EOL;
       // Each subprocess writes its own coverage file, so the names cannot
       // collide.
       $coverage_id = md5($this->workingDir);
-      $coverage_extension = PHP_EOL . sprintf("  ->withExtension(new Extension(CodeCoverageExtension::class, ['filter' => ['include' => ['directories' => ['/app/src' => NULL]]], 'reports' => ['text' => ['showColors' => TRUE, 'showOnlySummary' => TRUE], 'php' => ['target' => '/app/.logs/coverage/behat_cli/phpcov/%s.php']]]))", $coverage_id);
+      $coverage_extension = sprintf("\n  ->withExtension(new Extension(CodeCoverageExtension::class, ['filter' => ['include' => ['directories' => ['/app/src' => NULL]]], 'reports' => ['text' => ['showColors' => TRUE, 'showOnlySummary' => TRUE], 'php' => ['target' => '/app/.logs/coverage/behat_cli/phpcov/%s.php']]]))", $coverage_id);
     }
 
     $content = strtr($content, [
@@ -390,8 +390,8 @@ EOL;
   }
 
   #[Then('it should fail with an error:')]
-  public function behatCliAssertFailWithError(PyStringNode $message): void {
-    $this->itShouldPassOrFailWith('fail', $message);
+  public function behatCliAssertFailWithError(PyStringNode $expected_message): void {
+    $this->itShouldPassOrFailWith('fail', $expected_message);
     // An assertion failure is an ExpectationException or its
     // ElementNotFoundException subclass where a Mink session is available,
     // and an AssertionException where it is not. A non-assertion failure is
@@ -409,8 +409,8 @@ EOL;
   }
 
   #[Then('it should fail with an exception:')]
-  public function behatCliAssertFailWithException(PyStringNode $message): void {
-    $this->itShouldPassOrFailWith('fail', $message);
+  public function behatCliAssertFailWithException(PyStringNode $expected_message): void {
+    $this->itShouldPassOrFailWith('fail', $expected_message);
     // A non-assertion failure is a \RuntimeException.
     if (!str_contains($this->getOutput(), ' (RuntimeException)')) {
       throw new \RuntimeException('The output does not contain an "(RuntimeException)" string as expected.');
@@ -421,8 +421,8 @@ EOL;
   }
 
   #[Then('it should fail with a :exception exception:')]
-  public function behatCliAssertFailWithCustomException(string $exception, PyStringNode $message): void {
-    $this->itShouldPassOrFailWith('fail', $message);
+  public function behatCliAssertFailWithCustomException(string $exception, PyStringNode $expected_message): void {
+    $this->itShouldPassOrFailWith('fail', $expected_message);
     if (!str_contains($this->getOutput(), ' (' . $exception . ')')) {
       throw new \RuntimeException(sprintf('The output does not contain an "(%s)" string as expected.', $exception));
     }
@@ -478,15 +478,15 @@ EOL;
    */
   protected function behatCliCopyFixtures() {
     $fixture_path = 'tests/behat/fixtures';
-    $fixture_path_abs = '/app' . DIRECTORY_SEPARATOR . $fixture_path;
+    $fixture_path_abs = '/app/' . $fixture_path;
     if (is_dir($fixture_path_abs)) {
-      $dst = $this->workingDir . DIRECTORY_SEPARATOR . $fixture_path;
+      $dst = $this->workingDir . '/' . $fixture_path;
       mkdir($dst, 0777, TRUE);
       foreach (glob($fixture_path_abs . '/*') as $file) {
         // Subdirectories are skipped for speed.
         if (is_file($file)) {
           $filename = basename($file);
-          copy($file, $dst . DIRECTORY_SEPARATOR . $filename);
+          copy($file, $dst . '/' . $filename);
         }
       }
     }

@@ -30,7 +30,6 @@ final readonly class ReferenceTarget {
     public ?string $labelKey,
     public ?array $bundles,
     public ?string $bundleKey,
-  ) {
-  }
+  ) {}
 
 }

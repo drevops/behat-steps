@@ -259,19 +259,19 @@ trait EntityLifecycleTrait {
   public function entityLifecycleCreateLanguage(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeLanguageCreateScope::class, $stub);
 
-    $result = $this->backendFor(LanguageCapabilityInterface::class)->createLanguage($stub);
+    $created = $this->backendFor(LanguageCapabilityInterface::class)->createLanguage($stub);
 
-    if (!$result->isSaved()) {
-      return $result;
+    if (!$created->isSaved()) {
+      return $created;
     }
 
     // Register before the post-create hook runs: a hook that throws still
     // leaves the language behind, and cleanup removes only registered stubs.
-    $this->createdStubs[] = $result;
+    $this->createdStubs[] = $created;
 
-    $this->entityLifecycleDispatchHooks(AfterLanguageCreateScope::class, $result);
+    $this->entityLifecycleDispatchHooks(AfterLanguageCreateScope::class, $created);
 
-    return $result;
+    return $created;
   }
 
   /**

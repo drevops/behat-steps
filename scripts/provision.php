@@ -474,13 +474,13 @@ function provision_write_auth(string $token, string $file): void {
   // where a chmod() after the write would leave the token readable in
   // between. The build directory was emptied above, so the file cannot
   // already exist with a mode of its own.
-  $umask = umask(0077);
+  $original_umask = umask(0077);
 
   try {
     provision_write($file, (string) json_encode(['github-oauth' => ['github.com' => $token]]));
   }
   finally {
-    umask($umask);
+    umask($original_umask);
   }
 }
 
@@ -653,7 +653,7 @@ function provision_widen_contrib(string $directory, string $major): int {
 function provision_widen_core_requirement(string $text, string $major): string {
   $admitted = '^' . $major;
 
-  $updated = preg_replace_callback('/^core_version_requirement: *([^#\n]*?) *(#.*)?$/m', function (array $matches) use ($admitted): string {
+  $updated = preg_replace_callback('/^core_version_requirement: *([^#\n]*?) *(#.*)?$/m', static function (array $matches) use ($admitted): string {
     $constraint = trim($matches[1], " \"'");
 
     if ($constraint === '' || str_contains($constraint, $admitted)) {

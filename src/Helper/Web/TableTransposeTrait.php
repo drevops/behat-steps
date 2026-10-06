@@ -50,7 +50,7 @@ trait TableTransposeTrait {
     }
 
     $field_names = array_column($rows, 0);
-    $duplicate_fields = array_filter(array_count_values($field_names), fn(int $count): bool => $count > 1);
+    $duplicate_fields = array_filter(array_count_values($field_names), static fn(int $count): bool => $count > 1);
 
     if (!empty($duplicate_fields)) {
       throw new \RuntimeException(sprintf('Duplicate field names found: %s.', implode(', ', array_keys($duplicate_fields))));

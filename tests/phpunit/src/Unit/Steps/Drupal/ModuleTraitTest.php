@@ -28,15 +28,15 @@ class ModuleTraitTest extends UnitTestCase {
    *   Tags on the scenario.
    * @param list<string> $feature_tags
    *   Tags on the feature.
-   * @param bool $enabled
+   * @param bool $is_enabled
    *   Whether the module starts enabled.
    * @param string|null $expected_call
    *   The backend method expected to run once, or NULL when neither runs.
    */
   #[DataProvider('dataProviderBeforeScenarioAppliesTags')]
-  public function testBeforeScenarioAppliesTags(array $scenario_tags, array $feature_tags, bool $enabled, ?string $expected_call): void {
+  public function testBeforeScenarioAppliesTags(array $scenario_tags, array $feature_tags, bool $is_enabled, ?string $expected_call): void {
     $backend = $this->createModuleBackend();
-    $backend->method('moduleIsEnabled')->willReturn($enabled);
+    $backend->method('moduleIsEnabled')->willReturn($is_enabled);
     $backend->method('moduleIsPresent')->willReturn(TRUE);
     $backend->expects($expected_call === 'moduleInstall' ? $this->once() : $this->never())->method('moduleInstall')->with('help');
     $backend->expects($expected_call === 'moduleUninstall' ? $this->once() : $this->never())->method('moduleUninstall')->with('help');

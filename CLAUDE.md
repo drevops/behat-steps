@@ -177,6 +177,11 @@ Never call `hasTag()` or `getTags()` directly. Behat 3 strips the `@` from a tag
 - Code is written using Drupal coding standards
 - Local variables and method arguments: `snake_case`
 - Method names and class properties: `camelCase`
+- Line breaks: `"\n"` to split or match text the code received, `PHP_EOL` for console output, messages and generated docs. A break spliced into a nowdoc or heredoc template stays `"\n"`
+- Paths are built with `/`. `DIRECTORY_SEPARATOR` only compares against, splits or trims a path the platform returned (`realpath()`, `getcwd()`, `getFileName()`, a directory iterator)
+- A closure that never touches `$this` is `static` (`SlevomatCodingStandard.Functions.StaticClosure`), and an empty class or function body is `{}` (`EmptyBodyTest`)
+- A single-word boolean takes `is_` (`$is_found`). A caught exception is `$exception`, a directory `$directory`, a restored value `$original`, a test's expected message `$expected_message`, and a dynamic call is `->{$method}()`
+- The full list is "Settled style questions" in [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Documentation
 - List of all available steps is produced from trait and method comments and exported into [STEPS.md](STEPS.md)

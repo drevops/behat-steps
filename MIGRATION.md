@@ -1944,6 +1944,24 @@ A method that created, deleted or loaded several entities at once took one of 3 
 
 `ContentTrait`, `TaxonomyTrait`, `UserTrait`, `LanguageTrait` and `EntityTrait` had no 1-entity helper to rename: a single node, term, user, language or other entity goes through `entityLifecycleCreateNode()`, `entityLifecycleCreateTerm()`, `authCreateUser()`, `entityLifecycleCreateLanguage()` or `entityLifecycleCreate()`. `userCreateMultiple()`, `languageCreateMultiple()` and `entityCreateMultiple()` already carried the suffix and are unchanged.
 
+### A boolean parameter reads as a question
+
+A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is_inverted` already did. 5 `Drupal\EmailTrait` methods named theirs bare. Step text is unchanged, so this only matters to a call that passes the argument by name.
+
+| Method | Before | After |
+| --- | --- | --- |
+| `emailAssertMessageFieldContains()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
+| `emailAssertMessageFieldNotContains()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
+| `emailAssertMessageHeaderContains()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
+| `emailClearTestQueue()` | `bool $force = FALSE` | `bool $is_forced = FALSE` |
+| `emailFindMessage()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
+
+`Helper\Drupal\AuthTrait::authLogout()`, which replaces `RawContext::logout()`, takes `$is_fast` where `logout()` took `$fast`.
+
+### A method is named for what it does, not `Helper`
+
+The protected `FieldTrait::fieldFillDatetimeHelper()` is `fieldFillDatetimeInput()`, after the 1 input of a datetime field it fills. A context that overrides it renames the override.
+
 ## A class is named for the role it plays
 
 5 classes under `Behat\Manager` shared a `Manager` suffix while playing 3 different roles, so nothing in a name told a lookup table apart from a service that acts. The suffix is replaced by a 2-part rule: a `*Registry` holds things and looks them up, and anything that performs an action takes an agent noun.

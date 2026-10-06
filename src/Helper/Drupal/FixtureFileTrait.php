@@ -82,7 +82,7 @@ trait FixtureFileTrait {
       //   (multi-value compound)
       $is_list = is_array($value) && array_is_list($value);
       $records = $is_list ? $value : [$value];
-      $mutated = FALSE;
+      $is_mutated = FALSE;
 
       foreach ($records as $index => $record) {
         $path = is_array($record) ? $record['target_id'] ?? $record[0] ?? NULL : $record;
@@ -113,10 +113,10 @@ trait FixtureFileTrait {
           $records[$index] = $resolved;
         }
 
-        $mutated = TRUE;
+        $is_mutated = TRUE;
       }
 
-      if (!$mutated) {
+      if (!$is_mutated) {
         continue;
       }
 

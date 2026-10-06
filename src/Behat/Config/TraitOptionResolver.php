@@ -166,7 +166,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
    *   The values resolved so far.
    * @param array<array-key, mixed> $overrides
    *   The overrides to apply.
-   * @param bool $strict
+   * @param bool $is_strict
    *   Reject a group or an option no trait declares, rather than skipping it.
    *
    * @return array<string, array<string, mixed>>
@@ -177,12 +177,12 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
    *   does not hold a map of options, or a value does not match the type its
    *   declaration defaults to.
    */
-  protected function merge(array $resolved, array $overrides, bool $strict): array {
+  protected function merge(array $resolved, array $overrides, bool $is_strict): array {
     foreach ($overrides as $group => $options) {
       $group = (string) $group;
 
       if (!isset($this->declarations[$group])) {
-        if ($strict) {
+        if ($is_strict) {
           throw new InvalidConfigurationException(sprintf('Unknown option group "%s" for context "%s". This context accepts: %s.', $group, $this->contextClass, implode(', ', array_keys($this->declarations)) ?: 'nothing'));
         }
 
@@ -197,7 +197,7 @@ class TraitOptionResolver implements TraitOptionResolverInterface {
         $key = (string) $key;
 
         if (!isset($this->declarations[$group][$key])) {
-          if ($strict) {
+          if ($is_strict) {
             throw new InvalidConfigurationException(sprintf('Unknown option "%s.%s" for context "%s". The "%s" group accepts: %s.', $group, $key, $this->contextClass, $group, implode(', ', array_keys($this->declarations[$group]))));
           }
 

@@ -128,7 +128,7 @@ trait DateTrait {
     $now = $now ?: strtotime(date('Y-m-d H:i:00', static::dateGetNow()));
     $now = $now ?: NULL;
 
-    return (string) preg_replace_callback('/\[relative:([^]\[#]+)(?:#([^]\[]+))?]/', function (array $matches) use ($now): string {
+    return (string) preg_replace_callback('/\[relative:([^]\[#]+)(?:#([^]\[]+))?]/', static function (array $matches) use ($now): string {
       $offset = $matches[1];
 
       $timestamp = strtotime($offset, $now);

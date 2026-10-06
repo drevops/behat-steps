@@ -79,7 +79,7 @@ trait AuthTrait {
         $this->authCleanRoles();
       }
       catch (\Throwable $roles_exception) {
-        throw new \RuntimeException(sprintf("Removing the created users failed: %s\nRemoving the created roles failed: %s", $exception->getMessage(), $roles_exception->getMessage()), 0, $exception);
+        throw new \RuntimeException(sprintf('Removing the created users failed: %s' . PHP_EOL . 'Removing the created roles failed: %s', $exception->getMessage(), $roles_exception->getMessage()), 0, $exception);
       }
 
       throw $exception;
@@ -225,13 +225,13 @@ trait AuthTrait {
   /**
    * Logs the current user out.
    *
-   * @param bool $fast
+   * @param bool $is_fast
    *   Reset the session directly where the authenticator supports it.
    */
-  public function authLogout(bool $fast = FALSE): void {
+  public function authLogout(bool $is_fast = FALSE): void {
     $authenticator = $this->authGetAuthenticator();
 
-    if ($fast && $authenticator instanceof FastLogoutInterface) {
+    if ($is_fast && $authenticator instanceof FastLogoutInterface) {
       $authenticator->fastLogout();
     }
     else {

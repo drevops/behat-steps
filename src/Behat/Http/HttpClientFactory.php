@@ -34,8 +34,7 @@ class HttpClientFactory implements HttpClientFactoryInterface {
   public function __construct(
     protected HttpClientInterface $transport,
     protected readonly ?string $baseUrl = NULL,
-  ) {
-  }
+  ) {}
 
   /**
    * Creates the transport the detached and bare browsers share.

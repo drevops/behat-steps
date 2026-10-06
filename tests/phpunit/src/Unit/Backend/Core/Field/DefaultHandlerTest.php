@@ -87,8 +87,8 @@ class DefaultHandlerTest extends FieldHandlerUnitTestBase {
   protected function handlerWithMainProperty(string $main_property): DefaultHandler {
     $handler = (new \ReflectionClass(DefaultHandler::class))->newInstanceWithoutConstructor();
 
-    $main_prop = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');
-    $main_prop->setValue($handler, $main_property);
+    $property = new \ReflectionProperty(AbstractHandler::class, 'mainProperty');
+    $property->setValue($handler, $main_property);
 
     return $handler;
   }
