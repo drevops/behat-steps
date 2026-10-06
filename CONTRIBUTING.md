@@ -397,7 +397,7 @@ A new step that touches `\Drupal::` calls `$this->backendFor(CoreCapabilityInter
 
 The test suite follows the same rule. Behat 4 reads only PHP configuration and ignores docblock annotations, so the suite runs from [behat.php](behat.php), `BehatCliTrait` writes a `behat.php` for every nested run, and every step and hook - in `src/` and in `tests/behat/bootstrap/` - is declared with a PHP attribute. Behat 3.33 reads both the same way. Both configurations list every Mink session under `sessions` instead of using the browser driver name shorthand, because Mink 3.0.0-ALPHA.1 reads the shorthand with an `Undefined array key "sessions"` warning.
 
-[behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, which is what keeps it complete as the extension grows. Behat never loads it here, because `behat.php` takes precedence.
+[behat.dist.php](behat.dist.php) is the reference a consumer copies from, so it sets every option `BehatStepsExtension` accepts. `BehatDistConfigTest` names any option missing from it, which is what keeps it complete as the extension grows. The same test runs the reference suite through `WebContext::assertOneContext()`, so a project copying the file never starts with 2 contexts that both carry the web steps. Behat never loads it here, because `behat.php` takes precedence.
 
 ## Reading tags
 

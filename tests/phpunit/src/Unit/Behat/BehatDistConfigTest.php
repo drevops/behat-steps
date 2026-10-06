@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat;
 
+use Behat\Behat\Context\Context;
+use Behat\Behat\Context\Environment\UninitializedContextEnvironment;
 use Behat\Config\Config;
+use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
+use Behat\Testwork\Specification\SpecificationIterator;
+use Behat\Testwork\Suite\GenericSuite;
+use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversNothing;
@@ -22,7 +29,15 @@ class BehatDistConfigTest extends UnitTestCase {
   }
 
   public function testEveryExtensionOptionIsSet(): void {
-    $this->assertSame([], $this->collectUncoveredPaths(static::buildConfigTree(), static::readExtensionSettings(), ''));
+    $this->assertSame([], $this->collectUncoveredPaths(static::buildConfigTree(), static::readSetting('default', 'extensions', BehatStepsExtension::class), ''));
+  }
+
+  public function testTheSuiteRegistersDrupalContextAlone(): void {
+    $environment = static::buildContextEnvironment('default');
+
+    WebContext::assertOneContext(new BeforeSuiteScope($environment, $this->createStub(SpecificationIterator::class)));
+
+    $this->assertContains(DrupalContext::class, $environment->getContextClasses());
   }
 
   /**
@@ -59,24 +74,51 @@ class BehatDistConfigTest extends UnitTestCase {
   }
 
   /**
-   * Reads the settings the reference configuration gives this package.
+   * Builds the context environment Behat passes to a reference suite's hooks.
+   *
+   * @param string $name
+   *   The name of the suite in the default profile.
+   */
+  protected static function buildContextEnvironment(string $name): UninitializedContextEnvironment {
+    $settings = static::readSetting('default', 'suites', $name);
+    $environment = new UninitializedContextEnvironment(new GenericSuite($name, $settings));
+
+    foreach ((array) ($settings['contexts'] ?? []) as $context) {
+      $class = (string) (is_array($context) ? array_key_first($context) : $context);
+
+      if (!is_a($class, Context::class, TRUE)) {
+        self::fail(sprintf('The "%s" suite in behat.dist.php registers "%s", which is not a Behat context.', $name, $class));
+      }
+
+      $environment->registerContextClass($class);
+    }
+
+    return $environment;
+  }
+
+  /**
+   * Reads the settings the reference configuration holds at a path.
+   *
+   * @param string ...$keys
+   *   The keys leading from the configuration root to the settings.
    *
    * @return array<string, mixed>
-   *   The settings under the extension's key.
+   *   The settings at the end of the path.
    */
-  protected static function readExtensionSettings(): array {
+  protected static function readSetting(string ...$keys): array {
+    $path = implode(' > ', $keys);
     $settings = static::loadConfig()->toArray();
 
-    foreach (['default', 'extensions', BehatStepsExtension::class] as $key) {
+    foreach ($keys as $key) {
       if (!is_array($settings) || !isset($settings[$key])) {
-        self::fail(sprintf('behat.dist.php has no "%s" key on the path to the extension settings.', $key));
+        self::fail(sprintf('behat.dist.php has no "%s" key on the path %s.', $key, $path));
       }
 
       $settings = $settings[$key];
     }
 
     if (!is_array($settings)) {
-      self::fail('behat.dist.php does not configure ' . BehatStepsExtension::class . '.');
+      self::fail(sprintf('behat.dist.php holds no settings at %s.', $path));
     }
 
     return $settings;
