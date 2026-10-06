@@ -18,11 +18,12 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
 /**
  * Manage and assert Drupal queue state.
  *
- * - Add items to a queue and clear queues before scenarios.
+ * - Add items to a queue and empty queues.
  * - Process queue items during tests.
  * - Assert queue item counts.
  *
- * Skip processing with tag: `@behat-steps-skip:QueueTrait`.
+ * Every queue a step names is deleted once the scenario finishes. Skip the
+ * deletion with `@behat-steps-skip:QueueTrait`.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -38,10 +39,12 @@ trait QueueTrait {
   protected array $queueNames = [];
 
   /**
-   * Clean up queues after scenario.
+   * Delete every queue the scenario used after it finishes.
    */
-  #[AfterScenario('@queue')]
+  #[AfterScenario]
   public function queueAfterScenario(AfterScenarioScope $scope): void {
+    // Resolving a backend fails in a suite that lists no in-process Drupal
+    // backend, so a scenario that used no queue returns first.
     if ($this->queueNames === [] || $this->skipTag(__TRAIT__, $scope)) {
       return;
     }
@@ -250,7 +253,7 @@ trait QueueTrait {
    */
   protected function queueConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Delete the queues a scenario created once it finishes.'),
+      new Option('enabled', default: TRUE, description: 'Delete the queues a scenario used once it finishes.'),
       new Option('process_limit', default: 1000, description: 'Maximum number of items a single queue-processing step handles.'),
       new Option('lease_time', default: 30, description: 'Time, in seconds, a claimed queue item stays leased.'),
     ];

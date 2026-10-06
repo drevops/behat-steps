@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use Behat\Hook\AfterFeature;
+use Behat\Hook\AfterScenario;
+use Behat\Hook\BeforeFeature;
+use Behat\Hook\BeforeScenario;
+use DrevOps\BehatSteps\Behat\Tag;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -31,6 +36,16 @@ class TagReadTest extends UnitTestCase {
    * The methods that return a single node of a scope.
    */
   protected const NODE_GETTERS = ['getFeature', 'getScenario'];
+
+  /**
+   * The hook attributes whose filter is a tag expression.
+   */
+  protected const TAG_FILTERED_HOOKS = [BeforeScenario::class, AfterScenario::class, BeforeFeature::class, AfterFeature::class];
+
+  /**
+   * The only tag a hook attribute filters on.
+   */
+  protected const HOOK_FILTER = '@' . Tag::JAVASCRIPT;
 
   /**
    * Tests that a trait reads tags only through the readers, with named tags.
@@ -77,6 +92,49 @@ class TagReadTest extends UnitTestCase {
   }
 
   public static function dataProviderTraitReadsTagsThroughReaders(): array {
+    return static::discoverTraits();
+  }
+
+  /**
+   * Tests that a hook attribute filters on no tag but '@javascript'.
+   *
+   * A filter reads a tag outside the readers, so no constant names the tag and
+   * the tag registry does not list it. Mink reads '@javascript' itself, so a
+   * hook may filter on that tag alone.
+   *
+   * @param string $trait
+   *   Fully qualified trait name.
+   */
+  #[DataProvider('dataProviderHookAttributeFiltersOnlyOnJavascript')]
+  public function testHookAttributeFiltersOnlyOnJavascript(string $trait): void {
+    $violations = [];
+    $reflection = static::reflect($trait);
+
+    foreach ($reflection->getMethods() as $method) {
+      // A trait composing another trait reports the composed methods too,
+      // so only a method declared in this file is the trait's own.
+      if ($method->getFileName() !== $reflection->getFileName()) {
+        continue;
+      }
+
+      foreach ($method->getAttributes() as $attribute) {
+        if (!in_array($attribute->getName(), static::TAG_FILTERED_HOOKS, TRUE)) {
+          continue;
+        }
+
+        $arguments = $attribute->getArguments();
+        $filter = $arguments['filterString'] ?? $arguments[0] ?? NULL;
+
+        if ($filter !== NULL && $filter !== static::HOOK_FILTER) {
+          $violations[] = sprintf('%s() filters on %s.', $method->getName(), var_export($filter, TRUE));
+        }
+      }
+    }
+
+    $this->assertSame([], $violations, sprintf('A hook attribute filters on no tag but "%s". Read any other tag in the hook body through Tag::has(), Tag::values() or Tag::valueStates(), passing a constant naming the tag.', static::HOOK_FILTER));
+  }
+
+  public static function dataProviderHookAttributeFiltersOnlyOnJavascript(): array {
     return static::discoverTraits();
   }
 
