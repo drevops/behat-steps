@@ -249,7 +249,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    */
   protected function httpIdentity(): HttpIdentity {
     $cookies = [];
-    $cookie_url = '';
+    $cookie_url = NULL;
 
     try {
       $cookie_url = $this->getSession()->getCurrentUrl();
@@ -656,14 +656,14 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    *   The trait that declares the prerequisite.
    * @param \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite $prerequisite
    *   The prerequisite that does not hold.
-   * @param string $detail
-   *   What was found instead, as a sentence, or an empty string.
+   * @param string|null $detail
+   *   What was found instead, as a sentence, or NULL for nothing to add.
    */
-  protected function prerequisiteMessage(string $trait, Prerequisite $prerequisite, string $detail = ''): string {
+  protected function prerequisiteMessage(string $trait, Prerequisite $prerequisite, ?string $detail = NULL): string {
     $name = $this->traitName($trait);
     $message = sprintf('%s requires that %s, which does not hold.', $name, $prerequisite->description);
 
-    if ($detail !== '') {
+    if ($detail !== NULL) {
       $message .= ' ' . $detail;
     }
 

@@ -201,7 +201,7 @@ class TraitMethodNamingTest extends UnitTestCase {
       $violations[] = $method->getName();
     }
 
-    $this->assertSame([], $violations, 'An "Assert" method fails with ExpectationException, ElementNotFoundException or AssertionException. Name a check that throws only \RuntimeException for what it does: "commandParseInteger", not "commandAssertInteger".');
+    $this->assertSame([], $violations, 'An "Assert" method fails with ExpectationException, ElementNotFoundException or AssertionException. Name a check that throws only \RuntimeException for what it does: "stringParseInteger", not "stringAssertInteger".');
   }
 
   public static function dataProviderAssertionsFailWithAssertionException(): array {

@@ -242,10 +242,11 @@ trait TaxonomyTrait {
    *   The term vocabulary machine name.
    * @param string $term_name
    *   The name of the term.
-   * @param string $action_subpath
-   *   The operation to perform, e.g., '/delete', '/edit', etc.
+   * @param string|null $action_subpath
+   *   The operation to perform, e.g., '/delete', '/edit', etc., or NULL for the
+   *   term page.
    */
-  public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, string $action_subpath = ''): void {
+  public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, ?string $action_subpath = NULL): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
@@ -265,7 +266,7 @@ trait TaxonomyTrait {
     ksort($terms);
     $tid = end($terms)->id();
 
-    $path = $this->locatePath('/taxonomy/term/' . $tid . $action_subpath);
+    $path = $this->locatePath('/taxonomy/term/' . $tid . ($action_subpath ?? ''));
 
     $this->getSession()->visit($path);
   }

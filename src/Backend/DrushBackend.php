@@ -162,14 +162,14 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
-  public function configGet(string $name, string $key = ''): mixed {
+  public function configGet(string $name, ?string $key = NULL): mixed {
     return $this->configRead($name, $key, TRUE);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function configGetOriginal(string $name, string $key = ''): mixed {
+  public function configGetOriginal(string $name, ?string $key = NULL): mixed {
     return $this->configRead($name, $key, FALSE);
   }
 
@@ -196,7 +196,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function configGetData(string $name): array {
-    $data = $this->configRead($name, '', FALSE);
+    $data = $this->configRead($name, NULL, FALSE);
 
     return is_array($data) ? $data : [];
   }
@@ -277,8 +277,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *
    * @param string $name
    *   The configuration object name.
-   * @param string $key
-   *   The key within the object. Empty for the whole object.
+   * @param string|null $key
+   *   The key within the object, or NULL for the whole object.
    * @param bool $with_overrides
    *   Whether module and 'settings.php' overrides are applied. Without them
    *   the read returns the stored value, which is what a write replaces.
@@ -286,14 +286,14 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * @return mixed
    *   The value, or NULL when the object or key does not exist.
    */
-  protected function configRead(string $name, string $key, bool $with_overrides): mixed {
+  protected function configRead(string $name, ?string $key, bool $with_overrides): mixed {
     $options = ['format' => 'json'];
 
     if ($with_overrides) {
       $options['include-overridden'] = NULL;
     }
 
-    $arguments = $key !== '' ? [$name, $key] : [$name];
+    $arguments = $key !== NULL ? [$name, $key] : [$name];
     $result = $this->drushResult('config:get', $arguments, $options);
 
     // A missing object is an error to Drush but an absent value to Drupal's
@@ -307,7 +307,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
     // For a single key, 'config:get' returns a 1-entry map keyed
     // '<name>:<key>' instead of the bare value.
-    if ($key !== '' && is_array($decoded) && array_key_exists($envelope_key, $decoded)) {
+    if ($key !== NULL && is_array($decoded) && array_key_exists($envelope_key, $decoded)) {
       return $decoded[$envelope_key];
     }
 

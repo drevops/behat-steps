@@ -252,10 +252,11 @@ trait MediaTrait {
    *   The media type.
    * @param string $name
    *   The name of the media entity.
-   * @param string $action_subpath
-   *   The operation subpath, e.g., '/delete', '/edit', '/revisions', etc.
+   * @param string|null $action_subpath
+   *   The operation subpath, e.g., '/delete', '/edit', '/revisions', etc., or
+   *   NULL for the media page.
    */
-  public function mediaVisitActionPageWithName(string $media_type, string $name, string $action_subpath = ''): void {
+  public function mediaVisitActionPageWithName(string $media_type, string $name, ?string $action_subpath = NULL): void {
     $media = $this->mediaLoadMultiple($media_type, [
       'name' => $name,
     ]);
@@ -266,7 +267,7 @@ trait MediaTrait {
 
     ksort($media);
     $mid = end($media)->id();
-    $path = $this->locatePath('/media/' . $mid . $action_subpath);
+    $path = $this->locatePath('/media/' . $mid . ($action_subpath ?? ''));
 
     $this->getSession()->visit($path);
   }

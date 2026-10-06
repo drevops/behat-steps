@@ -1019,15 +1019,15 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function configGet(string $name, string $key = ''): mixed {
-    return \Drupal::config($name)->get($key);
+  public function configGet(string $name, ?string $key = NULL): mixed {
+    return \Drupal::config($name)->get($key ?? '');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function configGetOriginal(string $name, string $key = ''): mixed {
-    return \Drupal::config($name)->getOriginal($key, FALSE);
+  public function configGetOriginal(string $name, ?string $key = NULL): mixed {
+    return \Drupal::config($name)->getOriginal($key ?? '', FALSE);
   }
 
   /**

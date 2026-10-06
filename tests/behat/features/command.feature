@@ -177,7 +177,7 @@ Feature: Check that CommandTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The expected exit code must be an integer, but got "three".
+      The exit code must be an integer, but "three" was given.
       """
 
   @test-trait:CommandTrait
@@ -191,5 +191,19 @@ Feature: Check that CommandTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The expected duration must be numeric, but got "three".
+      The duration must be a number, but "three" was given.
+      """
+
+  @test-trait:CommandTrait
+  Scenario: Assert that a negative duration argument fails with a runtime exception
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I run the command "echo hello"
+      Then the command should complete in more than "-1" seconds
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The duration must be 0 or greater, but "-1" was given.
       """

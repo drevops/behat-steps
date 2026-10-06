@@ -1982,17 +1982,17 @@ function render_extension_options(): string {
  *
  * @param array<string, \Symfony\Component\Config\Definition\NodeInterface> $nodes
  *   The child nodes to render.
- * @param string $prefix
- *   Dotted path of the parent node, empty at the root.
+ * @param string|null $prefix
+ *   Dotted path of the parent node, or NULL at the root.
  *
  * @return array<int, array<int, string>>
  *   Rows of option path, type, default and description.
  */
-function extension_option_rows(array $nodes, string $prefix = ''): array {
+function extension_option_rows(array $nodes, ?string $prefix = NULL): array {
   $rows = [];
 
   foreach ($nodes as $name => $node) {
-    $path = $prefix === '' ? (string) $name : $prefix . '.' . $name;
+    $path = $prefix === NULL ? (string) $name : $prefix . '.' . $name;
     $children = $node instanceof ArrayNode && !$node instanceof PrototypedArrayNode ? $node->getChildren() : [];
 
     $default = '-';

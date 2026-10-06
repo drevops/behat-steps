@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Drupal\node\Entity\Node;
 
 /**
@@ -23,6 +24,7 @@ use Drupal\node\Entity\Node;
 trait SearchApiTrait {
 
   use QueryTrait;
+  use StringTrait;
 
   /**
    * Index a node of a specific content type with a specific title.
@@ -51,7 +53,7 @@ trait SearchApiTrait {
 
     search_api_entity_insert($node);
 
-    $this->searchApiDoIndex(1);
+    $this->searchApiDoIndex('1');
   }
 
   /**
@@ -63,12 +65,12 @@ trait SearchApiTrait {
    * @endcode
    */
   #[When('I run search indexing for :count item(s)')]
-  public function searchApiDoIndex(string|int $count): void {
+  public function searchApiDoIndex(string $count): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $count = (int) $count;
+    $count = $this->stringParseInteger($count, 'count', 0);
 
     $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
 

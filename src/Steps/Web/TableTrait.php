@@ -11,6 +11,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Interact with HTML table elements and assert their content.
@@ -26,6 +27,8 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait TableTrait {
+
+  use StringTrait;
 
   /**
    * Click a link within a row.
@@ -71,7 +74,9 @@ trait TableTrait {
    * @endcode
    */
   #[Then('the table :selector should have :count row(s)')]
-  public function tableAssertRowCount(string $selector, int $count): void {
+  public function tableAssertRowCount(string $selector, string $count): void {
+    $count = $this->stringParseInteger($count, 'count', 0);
+
     $table = $this->tableGet($selector);
     $actual = count($this->tableGetRows($table));
 
@@ -88,7 +93,9 @@ trait TableTrait {
    * @endcode
    */
   #[Then('the table :selector should have :count column(s)')]
-  public function tableAssertColumnCount(string $selector, int $count): void {
+  public function tableAssertColumnCount(string $selector, string $count): void {
+    $count = $this->stringParseInteger($count, 'count', 0);
+
     $table = $this->tableGet($selector);
     $actual = count($this->tableGetHeaders($table));
 

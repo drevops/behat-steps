@@ -402,13 +402,13 @@ class DrushBackendMethodsTest extends UnitTestCase {
    *   Positional arguments for the backend method.
    * @param string|null $expected_command
    *   The first Drush command string expected to be invoked.
-   * @param string $drush_response
-   *   Raw output returned by the stubbed 'drush()' call.
+   * @param string|null $drush_response
+   *   Raw output returned by the stubbed 'drush()' call, or NULL for none.
    */
   #[DataProvider('dataProviderInvokesDrush')]
-  public function testInvokesDrush(string $method, array $args, ?string $expected_command, string $drush_response = ''): void {
+  public function testInvokesDrush(string $method, array $args, ?string $expected_command, ?string $drush_response = NULL): void {
     $backend = $this->createBackend();
-    $backend->drushResponse = $drush_response;
+    $backend->drushResponse = $drush_response ?? '';
 
     $backend->{$method}(...$args);
 

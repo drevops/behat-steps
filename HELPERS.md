@@ -26,7 +26,7 @@
 | [ResponsiveTrait](#responsivetrait) | 6 | Test responsive layouts with viewport control. |
 | [RestTrait](#resttrait) | 2 | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](#tabletrait) | 8 | Interact with HTML table elements and assert their content. |
-| [WaitTrait](#waittrait) | 1 | Wait for a period of time or for AJAX to finish. |
+| [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 6 | Assert XML responses with element and attribute checks. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
 | [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
@@ -1170,6 +1170,15 @@ Get the body rows from a table element
 > Wait for a period of time or for AJAX to finish.
 
 <details>
+  <summary><code>public function waitForAjaxWithin(int $seconds): void</code></summary>
+
+<br/>
+Wait for the AJAX calls to finish within a number of seconds
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function waitGetAjaxTimeout(): int</code></summary>
 
 <br/>
@@ -1426,7 +1435,7 @@ Return the node with the specified type and title
 </details>
 
 <details>
-  <summary><code>public function contentVisitActionPageWithTitle(string $content_type, string $title, string $action_subpath = ''): void</code></summary>
+  <summary><code>public function contentVisitActionPageWithTitle(string $content_type, string $title, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit the action page of the content with a specified title
@@ -1684,7 +1693,7 @@ Load multiple media entities with specified type and conditions
 </details>
 
 <details>
-  <summary><code>public function mediaVisitActionPageWithName(string $media_type, string $name, string $action_subpath = ''): void</code></summary>
+  <summary><code>public function mediaVisitActionPageWithName(string $media_type, string $name, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit the action page of the media with a specified name
@@ -1837,7 +1846,7 @@ Load multiple terms with specified vocabulary and conditions
 </details>
 
 <details>
-  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, string $action_subpath = ''): void</code></summary>
+  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit the action page of the term with a specified name
@@ -1930,7 +1939,7 @@ Load multiple users with specified conditions
 </details>
 
 <details>
-  <summary><code>public function userVisitActionPage(string $name, string $action_subpath = ''): void</code></summary>
+  <summary><code>public function userVisitActionPage(string $name, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit a user action page

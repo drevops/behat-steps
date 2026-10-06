@@ -14,13 +14,13 @@ interface ConfigCapabilityInterface {
    *
    * @param string $name
    *   The configuration object name.
-   * @param string $key
-   *   The key within the configuration object. Empty for the whole object.
+   * @param string|null $key
+   *   The key within the configuration object, or NULL for the whole object.
    *
    * @return mixed
    *   The configuration value, or NULL if not set.
    */
-  public function configGet(string $name, string $key = ''): mixed;
+  public function configGet(string $name, ?string $key = NULL): mixed;
 
   /**
    * Returns a configuration value with overrides not applied.
@@ -30,13 +30,13 @@ interface ConfigCapabilityInterface {
    *
    * @param string $name
    *   The configuration object name.
-   * @param string $key
-   *   The key within the configuration object. Empty for the whole object.
+   * @param string|null $key
+   *   The key within the configuration object, or NULL for the whole object.
    *
    * @return mixed
    *   The stored configuration value, or NULL if not set.
    */
-  public function configGetOriginal(string $name, string $key = ''): mixed;
+  public function configGetOriginal(string $name, ?string $key = NULL): mixed;
 
   /**
    * Sets a configuration value.

@@ -177,7 +177,7 @@ class HttpClientFactory implements HttpClientFactoryInterface {
    */
   protected function cookieJar(HttpIdentity $identity): CookieJar {
     $jar = new CookieJar();
-    $host = parse_url($identity->cookieUrl, PHP_URL_HOST);
+    $host = $identity->cookieUrl === NULL ? NULL : parse_url($identity->cookieUrl, PHP_URL_HOST);
 
     // Without a host the cookies would match every request, so none are held.
     if (!is_string($host) || $host === '') {

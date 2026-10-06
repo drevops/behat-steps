@@ -13,6 +13,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Manage and assert Drupal queue state.
@@ -26,6 +27,8 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait QueueTrait {
+
+  use StringTrait;
 
   /**
    * Queue names used during the scenario.
@@ -115,8 +118,10 @@ trait QueueTrait {
    * @endcode
    */
   #[When('I process :count item(s) from the queue :queue')]
-  public function queueProcessItems(int $count, string $queue): void {
+  public function queueProcessItems(string $count, string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $count = $this->stringParseInteger($count, 'count', 0);
 
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);
@@ -182,8 +187,10 @@ trait QueueTrait {
    * @endcode
    */
   #[Then('the queue :queue should have :count item(s)')]
-  public function queueAssertItemCount(string $queue, int $count): void {
+  public function queueAssertItemCount(string $queue, string $count): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $count = $this->stringParseInteger($count, 'count', 0);
 
     $this->queueTrackName($queue);
     $queue_instance = \Drupal::service('queue')->get($queue);

@@ -165,7 +165,19 @@ trait FileTrait {
    * @endcode
    */
   #[Given('the unmanaged file at the URI :uri exists')]
-  public function fileCreateUnmanaged(string $uri, string $content = 'test'): void {
+  public function fileCreateUnmanaged(string $uri): void {
+    $this->fileCreateUnmanagedWithContent($uri, 'test');
+  }
+
+  /**
+   * Create an unmanaged file with specified content.
+   *
+   * @code
+   * Given the unmanaged file at the URI "public://data.txt" exists with the content "Sample content"
+   * @endcode
+   */
+  #[Given('the unmanaged file at the URI :uri exists with the content :content')]
+  public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $directory = \Drupal::service('file_system')->dirname($uri);
@@ -181,18 +193,6 @@ trait FileTrait {
     file_put_contents($uri, $content);
 
     $this->fileUnmanagedUris[] = $uri;
-  }
-
-  /**
-   * Create an unmanaged file with specified content.
-   *
-   * @code
-   * Given the unmanaged file at the URI "public://data.txt" exists with the content "Sample content"
-   * @endcode
-   */
-  #[Given('the unmanaged file at the URI :uri exists with the content :content')]
-  public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
-    $this->fileCreateUnmanaged($uri, $content);
   }
 
   /**

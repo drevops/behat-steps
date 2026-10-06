@@ -1839,12 +1839,11 @@ A method that fails with an assertion exception is named as an assertion, whethe
 | --- | --- | --- |
 | `Drupal\ConfigTrait` | `configCompareContains()` (protected) | `configAssertContains()` |
 | `Drupal\ConfigTrait` | `configCompareEquals()` (protected) | `configAssertEquals()` |
-| `Drupal\EmailTrait` | `emailAssertLinkNumber()` (protected) | `emailParseLinkIndex()` |
 | `CommandTrait` | `commandAssertHasRun()` (protected) | `commandRequireRun()` |
-| `CommandTrait` | `commandAssertInteger()` (protected) | `commandParseInteger()` |
-| `CommandTrait` | `commandAssertNumeric()` (protected) | `commandParseNumeric()` |
 | `CookieTrait` | `cookieExists()` | `cookieAssertExists()` |
 | `CookieTrait` | `cookieNotExists()` | `cookieAssertNotExists()` |
+
+The protected `Drupal\EmailTrait::emailAssertLinkNumber()`, `CommandTrait::commandAssertInteger()` and `CommandTrait::commandAssertNumeric()` are gone rather than renamed. A step parses its number with `StringTrait::stringParseInteger()` or `StringTrait::stringParseNumber()` instead, as [A step method takes only what its step binds](#a-step-method-takes-only-what-its-step-binds) describes.
 
 ### A hook is named for its event
 
@@ -1957,15 +1956,13 @@ A method that created, deleted or loaded several entities at once took one of 3 
 
 ### A boolean parameter reads as a question
 
-A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is_inverted` already did. 5 `Drupal\EmailTrait` methods named theirs bare. Step text is unchanged, so this only matters to a call that passes the argument by name.
+A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is_inverted` already did. `Drupal\EmailTrait::emailFindMessage()` named its flag bare. Step text is unchanged, so this only matters to a call that passes the argument by name.
 
 | Method | Before | After |
 | --- | --- | --- |
-| `emailAssertMessageFieldContains()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
-| `emailAssertMessageFieldNotContains()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
-| `emailAssertMessageHeaderContains()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
-| `emailClearTestQueue()` | `bool $force = FALSE` | `bool $is_forced = FALSE` |
 | `emailFindMessage()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
+
+`emailAssertMessageHeaderContains()`, `emailAssertMessageFieldContains()`, `emailAssertMessageFieldNotContains()` and `emailClearTestQueue()` lost their flag instead, as [A step method takes only what its step binds](#a-step-method-takes-only-what-its-step-binds) lists.
 
 `Helper\Drupal\AuthTrait::authLogout()`, which replaces `RawContext::logout()`, takes `$is_fast` where `logout()` took `$fast`.
 
@@ -2534,3 +2531,83 @@ A failure that names the concept now says "backend", so a test that asserts one 
 | `... requires that a driver in the scenario's list provides "...", which does not hold.` | `... requires that a backend in the scenario's list provides "...", which does not hold.` |
 | `The "@driver:..." tag names a driver that the configured driver list does not hold.` | `The "@backend:..." tag names a backend that the configured backend list does not hold.` |
 | `Driver "..." is not registered. Registered drivers: ...` | `Backend "..." is not registered. Registered backends: ...` |
+
+## A step method takes only what its step binds
+
+Behat binds every placeholder as a string, and a Turnip pattern can't make a placeholder optional. Step methods declared other types anyway: native `int`, `string|int`, `mixed` and nullable parameters, plus trailing parameters with a default that no step text ever set. Each step method now declares exactly what its step binds - a required `string` per placeholder, and a trailing `TableNode` or `PyStringNode` for a step that ends with a colon - and a step that needs a number parses it.
+
+No step text changes. A `.feature` file only needs an edit where it asserts on one of the messages below, or where it passed a malformed number that used to read as `0`.
+
+### A malformed number fails with `\RuntimeException`
+
+A step that takes a number parses it with `StringTrait::stringParseInteger()` or `StringTrait::stringParseNumber()`, which throw `\RuntimeException` naming the argument:
+
+```
+The count must be an integer, but "abc" was given.
+The count must be 0 or greater, but "-1" was given.
+```
+
+| Steps | `abc` before | `abc` now |
+| --- | --- | --- |
+| Every step whose method took an `int`: the queue, email, table and element counts, the element index, tolerance and offset steps, and `the REST response status code should be :code` | Behat's `Type error: ... must be of type int, string given` | `\RuntimeException` |
+| `I wait for :seconds second(s)`, `I wait for :seconds second(s) for AJAX to finish` and `I run search indexing for :count item(s)` | read as `0` | `\RuntimeException` |
+| `I set the viewport width to :width`, `I set the viewport height to :height` and `I set the viewport to :width by :height` | read as `0`, and the resize failed without a word | `\RuntimeException` |
+
+PHP's coercion was looser than the `int` type suggested: `1e3` read as 1000, and `3.5` read as 3 with a deprecation notice, which only failed the step where PHP reports deprecations. Both now fail with `\RuntimeException`.
+
+A value below what a step accepts fails the same way: a count below 0, a link index below 1, a viewport width or height below 1, a wait below 0 seconds and a command duration below 0. An element index below 1 and a negative tolerance already failed this way and still do.
+
+### Messages
+
+A test that asserts one of these messages needs the new text:
+
+| Step | Before | After |
+| --- | --- | --- |
+| `the command exit code should be :code` | `The expected exit code must be an integer, but got "...".` | `The exit code must be an integer, but "..." was given.` |
+| `the command should complete in less than :seconds second(s)` and `... more than :seconds second(s)` | `The expected duration must be numeric, but got "...".` | `The duration must be a number, but "..." was given.` |
+| `I follow the link with the index :index ...`, both forms | `The link number must be a positive integer, but "..." was provided.` | `The link index must be an integer, but "..." was given.`, or `The link index must be 1 or greater, but "..." was given.` for an integer below 1 |
+
+### Signatures
+
+The methods are listed under their 4.x names; [One shape per naming idea](#one-shape-per-naming-idea) lists the renames. PHP that calls one of these methods passes a string where it passed an `int`, or calls the method in the last column.
+
+| Method | Before | After |
+| --- | --- | --- |
+| `Drupal\QueueTrait::queueProcessItems()`, `queueAssertItemCount()` | `int $count` | `string $count` |
+| `Drupal\EmailTrait::emailAssertMessageCount()`, `emailAssertMessageCountToAddress()`, `emailAssertMessageCountWithSubject()` | `int $count` | `string $count` |
+| `Drupal\SearchApiTrait::searchApiDoIndex()` | `string\|int $limit` | `string $count` |
+| `TableTrait::tableAssertRowCount()`, `tableAssertColumnCount()` | `int $count` | `string $count` |
+| `RestTrait::restAssertResponseStatusCode()` | `int $code` | `string $code` |
+| `ElementTrait::elementClickWithIndex()`, `elementFollowLinkWithIndex()`, `elementPressButtonWithIndex()` | `int $index` | `string $index` |
+| `ElementTrait::elementAssertPinnedToTopWithTolerance()` | `int $tolerance` | `string $tolerance` |
+| `ElementTrait::elementAssertVisuallyVisibleWithOffset()`, `elementAssertNotVisuallyVisibleWithOffset()` | `int $number` | `string $offset` |
+| `ElementTrait::elementAssertChildElementCount()` | `int $count` | `string $count` |
+| `ElementTrait::elementAssertExistsWithAttributeValue()` and the 3 other attribute value steps | `mixed $value` | `string $value` or `string $partial_value` |
+| `ElementTrait::elementAssertNotVisuallyVisible()` | `int $offset = 0` | no `$offset`; call `elementAssertNotVisuallyVisibleWithOffset()` |
+| `WaitTrait::waitSeconds()` | `string\|int $seconds` | `string $seconds` |
+| `WaitTrait::waitForAjax()` | `string\|int $seconds` | `string $seconds`; PHP holding an `int` calls the new `waitForAjaxWithin(int $seconds)` |
+| `FieldTrait::fieldFillColor()` | `?string $value = NULL` | `string $value` |
+| `KeyboardTrait::keyboardPressKeyOnElement()`, `keyboardPressKeysOnElement()` | `?string $selector` | `string $selector`; for the focused element, call `keyboardPressKey()` or `keyboardPressKeys()` |
+| `LinkTrait::linkAssertExistsWithHrefWithinElement()`, `linkAssertNotExistsWithHrefWithinElement()` | `?string $selector` | `string $selector`; for the whole page, call `linkAssertExistsWithHref()` or `linkAssertNotExistsWithHref()` |
+| `Drupal\EmailTrait::emailClearTestQueue()` | `bool $force = FALSE` | no `$force`; `emailClearCollectedMessages()` clears the collected messages without the check |
+| `Drupal\EmailTrait::emailAssertMessageHeaderContains()` | `bool $exact = FALSE` | no `$exact`; for `TRUE`, call `emailAssertMessageHeaderEquals()` |
+| `Drupal\EmailTrait::emailAssertMessageFieldContains()` | `bool $exact = FALSE` | no `$exact`; for `TRUE`, call `emailAssertMessageFieldEquals()` |
+| `Drupal\EmailTrait::emailAssertMessageFieldNotContains()` | `bool $exact = FALSE` | no `$exact`; for `TRUE`, call `emailAssertMessageFieldNotEquals()` |
+| `Drupal\FileTrait::fileCreateUnmanaged()` | `string $content = 'test'` | no `$content`; call `fileCreateUnmanagedWithContent()` |
+
+An override of one of these methods in your `FeatureContext` takes the new signature, or PHP reports it as incompatible with the trait's.
+
+A call that still passes a removed argument doesn't fail, because PHP drops an extra argument without a word: `fileCreateUnmanaged($uri, 'Hello')` writes `test`, `emailAssertMessageFieldContains($field, $string, TRUE)` compares with whitespace collapsed, and `elementAssertNotVisuallyVisible($selector, 10)` checks an offset of 0. Move each one to the method in the last column. PHPStan reports every such call as a method invoked with more parameters than it takes.
+
+### Optional string parameters default to `NULL`
+
+A string parameter left out for "not given" defaults to `NULL` with a nullable type, never to an empty string. 4 helpers that open an entity's action page took their subpath as `string $action_subpath = ''`:
+
+| Method | Before | After |
+| --- | --- | --- |
+| `Drupal\ContentTrait::contentVisitActionPageWithTitle()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+| `Drupal\MediaTrait::mediaVisitActionPageWithName()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+| `Drupal\TaxonomyTrait::taxonomyVisitActionPageWithName()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+| `Drupal\UserTrait::userVisitActionPage()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+
+A call that leaves the subpath out, or passes `''`, opens the same page as before. An override in your `FeatureContext` takes the new signature.

@@ -45,11 +45,11 @@ class UnwritableStream {
   /**
    * Registers the wrapper and the contents its paths read back.
    *
-   * @param string $contents
-   *   The contents every path under the protocol reads back.
+   * @param string|null $contents
+   *   The contents every path under the protocol reads back, or NULL for none.
    */
-  public static function register(string $contents = ''): void {
-    static::$contents = $contents;
+  public static function register(?string $contents = NULL): void {
+    static::$contents = $contents ?? '';
 
     stream_wrapper_register(static::PROTOCOL, static::class);
   }

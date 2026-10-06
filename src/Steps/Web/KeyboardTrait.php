@@ -41,7 +41,7 @@ trait KeyboardTrait {
    * @endcode
    */
   #[When('I press the key :key on the element :selector')]
-  public function keyboardPressKeyOnElement(string $key, ?string $selector): void {
+  public function keyboardPressKeyOnElement(string $key, string $selector): void {
     $this->keyboardPressKeyOnElementSingle($key, $selector);
   }
 
@@ -54,7 +54,7 @@ trait KeyboardTrait {
    */
   #[When('I press the keys :keys')]
   public function keyboardPressKeys(string $keys): void {
-    $this->keyboardPressKeysOnElement($keys, NULL);
+    $this->keyboardPressKeySequence($keys, NULL);
   }
 
   /**
@@ -65,7 +65,20 @@ trait KeyboardTrait {
    * @endcode
    */
   #[When('I press the keys :keys on the element :selector')]
-  public function keyboardPressKeysOnElement(string $keys, ?string $selector): void {
+  public function keyboardPressKeysOnElement(string $keys, string $selector): void {
+    $this->keyboardPressKeySequence($keys, $selector);
+  }
+
+  /**
+   * Press each character of a string as a separate key, optionally on element.
+   *
+   * @param string $keys
+   *   The characters to press, in order.
+   * @param string|null $selector
+   *   CSS selector for an element to trigger the keys on, or NULL for the
+   *   currently focused element.
+   */
+  protected function keyboardPressKeySequence(string $keys, ?string $selector): void {
     $chars = preg_split('//u', $keys, -1, PREG_SPLIT_NO_EMPTY);
 
     // @codeCoverageIgnoreStart

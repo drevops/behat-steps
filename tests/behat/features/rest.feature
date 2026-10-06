@@ -41,6 +41,19 @@ Feature: Check that RestTrait works
       """
 
   @test-trait:RestTrait
+  Scenario: Assert that "Then the REST response status code should be :code" fails when the code is not an integer
+    Given some behat configuration
+    And scenario steps:
+      """
+      Then the REST response status code should be "OK"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The status code must be an integer, but "OK" was given.
+      """
+
+  @test-trait:RestTrait
   Scenario: Assert that negative assertion for "Then the REST response should contain :text" fails with an error
     Given some behat configuration
     And scenario steps:

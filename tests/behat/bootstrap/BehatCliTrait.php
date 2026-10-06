@@ -191,7 +191,7 @@ EOL;
   }
 
   #[Given('/^scenario steps(?: tagged with "([^"]*)")?:$/')]
-  public function behatCliWriteScenarioSteps(PyStringNode $content, $tags = ''): void {
+  public function behatCliWriteScenarioSteps(PyStringNode $content, ?string $tags = NULL): void {
     $content = strtr((string) $content, ["'''" => '"""']);
 
     $content_lines = explode("\n", $content);
@@ -202,7 +202,7 @@ EOL;
 
     $tokens = [
       '{{SCENARIO_CONTENT}}' => $content,
-      '{{ADDITIONAL_TAGS}}' => $tags,
+      '{{ADDITIONAL_TAGS}}' => $tags ?? '',
     ];
 
     $content = <<<'EOL'
@@ -435,18 +435,18 @@ EOL;
   /**
    * Print the contents of a file.
    */
-  protected static function behatCliPrintFileContents(string $filename, string $title = '') {
+  protected static function behatCliPrintFileContents(string $filename, ?string $title = NULL) {
     if (!is_readable($filename)) {
       throw new \RuntimeException(sprintf('Unable to access file "%s"', $filename));
     }
 
     $content = file_get_contents($filename);
 
-    print sprintf('-------------------- %s START --------------------', $title) . PHP_EOL;
+    print sprintf('-------------------- %s START --------------------', $title ?? '') . PHP_EOL;
     print $filename . PHP_EOL;
     print_r($content);
     print PHP_EOL;
-    print sprintf('-------------------- %s FINISH --------------------', $title) . PHP_EOL;
+    print sprintf('-------------------- %s FINISH --------------------', $title ?? '') . PHP_EOL;
   }
 
   /**
