@@ -44,35 +44,8 @@ class OptionalParameterTest extends UnitTestCase {
     $this->assertSame([], $violations, 'Default an optional parameter to NULL with a nullable type, never to an empty string: "?string $key = NULL", not "string $key = \'\'".');
   }
 
-  /**
-   * Provides every class, interface and trait declared under `src/`.
-   *
-   * @return array<string, array{string}>
-   *   Fully qualified type names, keyed by the path relative to `src/`.
-   */
   public static function dataProviderOptionalParametersDefaultToNull(): array {
-    $root = dirname(__DIR__, 3) . '/src';
-    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
-
-    $types = [];
-    foreach ($files as $file) {
-      if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
-        continue;
-      }
-
-      $relative = substr($file->getPathname(), strlen($root) + 1, -strlen('.php'));
-      $type = 'DrevOps\\BehatSteps\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
-
-      if (!class_exists($type) && !interface_exists($type) && !trait_exists($type)) {
-        continue;
-      }
-
-      $types[$relative] = [$type];
-    }
-
-    ksort($types);
-
-    return $types;
+    return static::discoverSourceTypes();
   }
 
 }
