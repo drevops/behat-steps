@@ -12,21 +12,8 @@ class ImageHandler extends FileHandler {
   /**
    * {@inheritdoc}
    */
-  protected function doExpand(array $records): array {
-    $expanded = [];
-
-    foreach ($records as $record) {
-      $file_path = $record[$this->mainProperty];
-      $file = $this->resolveExistingFile($file_path) ?? $this->uploadAndSave($file_path);
-
-      $expanded[] = [
-        $this->mainProperty => $this->fileId($file),
-        'alt' => $record['alt'] ?? NULL,
-        'title' => $record['title'] ?? NULL,
-      ];
-    }
-
-    return $expanded;
+  protected function getItemProperties(array $record): array {
+    return ['alt' => $record['alt'] ?? NULL, 'title' => $record['title'] ?? NULL];
   }
 
   /**

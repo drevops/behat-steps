@@ -1386,6 +1386,17 @@ The pattern step used to fail whenever the bin's table was missing. The database
 
 Both steps call `cacheDeletePagePath()`, which is public, so your own step definitions can clear a path the same way. It takes the path and an `$is_pattern` flag that reads `*` as a wildcard.
 
+## Supported image fields reuse existing files
+
+A `supported_image` field now resolves its value the way `file` and `image` fields do: a value naming a managed file that's already on the site references that file, and only a path to a file on disk is uploaded.
+
+| Value | Before | After |
+| --- | --- | --- |
+| `public://hero.jpg`, the URI of a managed file | Uploads a copy as a new managed file | References the managed file |
+| `hero.jpg`, the basename of a managed file in `public://` or `private://` | Fails with `Error reading file hero.jpg.` | References the managed file |
+
+`SupportedImageHandler` extends `ImageHandler` now, and all 3 file handlers share the `doExpand()` in `FileHandler`. A handler of your own that extends `FileHandler` and only changes the properties stored beside the file id can override `getItemProperties()` instead of `doExpand()`, and it reuses existing files the same way.
+
 ## Unified assertion exceptions
 
 Assertion steps used to throw whatever their trait happened to reach for: `ExpectationException` in most places, plain `\Exception` in 8 traits, `\RuntimeException` in `XmlTrait`'s format check, and `\InvalidArgumentException` in 2 select-option steps. The type is part of the contract - consumers catch on it - so it now follows one rule.

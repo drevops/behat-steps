@@ -22,7 +22,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversClass(ImageHandler::class)]
 #[Group('fields')]
 #[RunTestsInSeparateProcesses]
-class ImageHandlerKernelTest extends FieldHandlerKernelTestBase {
+class ImageHandlerKernelTest extends FileBackedHandlerKernelTestBase {
 
   /**
    * {@inheritdoc}
@@ -34,22 +34,6 @@ class ImageHandlerKernelTest extends FieldHandlerKernelTestBase {
     'file',
     'image',
   ];
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp(): void {
-    parent::setUp();
-
-    $this->installEntitySchema('file');
-    $this->installSchema('file', ['file_usage']);
-
-    $public_path = $this->siteDirectory . '/files';
-    if (!is_dir($public_path)) {
-      mkdir($public_path, 0777, TRUE);
-    }
-    $this->setSetting('file_public_path', $public_path);
-  }
 
   /**
    * Tests round-trip for an image field with a source JPEG from disk.
