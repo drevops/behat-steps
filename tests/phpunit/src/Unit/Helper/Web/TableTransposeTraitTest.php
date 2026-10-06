@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests transposing a vertical Gherkin table into entity rows.
@@ -47,25 +48,23 @@ class TableTransposeTraitTest extends UnitTestCase {
     $this->assertSame($expected, $this->testObject->tableTransposeVertical($table));
   }
 
-  public function testSingleColumnTableIsRefused(): void {
+  #[DataProvider('dataProviderInvalidTableIsRefused')]
+  public function testInvalidTableIsRefused(array $rows, string $expected_message): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Vertical table must have at least 2 columns (field name and value).');
+    $this->expectExceptionMessage($expected_message);
 
-    $this->testObject->tableTransposeVertical(new TableNode([['name']]));
+    $this->testObject->tableTransposeVertical(new TableNode($rows));
   }
 
-  public function testRepeatedFieldNameIsRefused(): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Duplicate field names found: name.');
-
-    $this->testObject->tableTransposeVertical(new TableNode([['name', 'John'], ['name', 'Jane']]));
-  }
-
-  public function testBlankFieldNameIsRefused(): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Field names cannot be empty.');
-
-    $this->testObject->tableTransposeVertical(new TableNode([['name', 'John'], [' ', 'Jane']]));
+  public static function dataProviderInvalidTableIsRefused(): array {
+    return [
+      'no rows' => [[], 'Vertical table must have at least 1 row.'],
+      'row without cells' => [[[]], 'Vertical table must have at least 2 columns (field name and value).'],
+      'single column' => [[['name']], 'Vertical table must have at least 2 columns (field name and value).'],
+      'repeated field name' => [[['name', 'John'], ['name', 'Jane']], 'Duplicate field names found: name.'],
+      'blank field name' => [[['name', 'John'], [' ', 'Jane']], 'Field names cannot be empty.'],
+      'repeated blank field name' => [[['', 'John'], ['', 'Jane']], 'Field names cannot be empty.'],
+    ];
   }
 
   public function testEntitiesAreRenderedAsHeaderRowAndValueRows(): void {
@@ -81,6 +80,10 @@ class TableTransposeTraitTest extends UnitTestCase {
     ];
 
     $this->assertSame($expected, $this->testObject->tableTransposeHorizontal($entities)->getRows());
+  }
+
+  public function testEmptyEntityListYieldsEmptyTable(): void {
+    $this->assertSame([], $this->testObject->tableTransposeHorizontal([])->getRows());
   }
 
 }

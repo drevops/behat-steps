@@ -71,6 +71,21 @@ Feature: Check that TableTransposeTrait transposes tables
       """
 
   @test-trait:Helper\Web\TableTransposeTrait
+  Scenario: Assert transposeVerticalTable throws exception for repeated empty field names
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I call transposeVerticalTable with:
+        |       | John  |
+        |       | Jane  |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Field names cannot be empty.
+      """
+
+  @test-trait:Helper\Web\TableTransposeTrait
   Scenario: Assert transposeVerticalTable handles empty values in rows
     Given some behat configuration
     And scenario steps:

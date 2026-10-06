@@ -39,10 +39,15 @@ trait TableTransposeTrait {
    *   Array of entity data arrays. Each entity is an associative array.
    *
    * @throws \RuntimeException
-   *   If table doesn't have at least 2 columns or has no rows.
+   *   If the table has no rows or fewer than 2 columns, or a field name is
+   *   blank or repeated.
    */
   public function tableTransposeVertical(TableNode $table): array {
     $rows = $table->getRows();
+
+    if ($rows === []) {
+      throw new \RuntimeException('Vertical table must have at least 1 row.');
+    }
 
     $first_row = $rows[0];
     if (count($first_row) < 2) {
@@ -50,16 +55,17 @@ trait TableTransposeTrait {
     }
 
     $field_names = array_column($rows, 0);
-    $duplicate_fields = array_filter(array_count_values($field_names), static fn(int $count): bool => $count > 1);
-
-    if (!empty($duplicate_fields)) {
-      throw new \RuntimeException(sprintf('Duplicate field names found: %s.', implode(', ', array_keys($duplicate_fields))));
-    }
 
     foreach ($field_names as $field_name) {
       if (trim((string) $field_name) === '') {
         throw new \RuntimeException('Field names cannot be empty.');
       }
+    }
+
+    $duplicate_fields = array_filter(array_count_values($field_names), static fn(int $count): bool => $count > 1);
+
+    if (!empty($duplicate_fields)) {
+      throw new \RuntimeException(sprintf('Duplicate field names found: %s.', implode(', ', array_keys($duplicate_fields))));
     }
 
     $num_entities = count($first_row) - 1;
@@ -88,11 +94,10 @@ trait TableTransposeTrait {
    *   are values). Returns empty TableNode if input is empty.
    */
   public function tableTransposeHorizontal(array $entities): TableNode {
-    // @codeCoverageIgnoreStart
     if (empty($entities)) {
       return new TableNode([]);
     }
-    // @codeCoverageIgnoreEnd
+
     $field_names = array_keys($entities[0]);
     $rows = [$field_names];
 
