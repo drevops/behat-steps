@@ -2590,7 +2590,7 @@ A call that still passes a removed argument doesn't fail, because PHP drops an e
 
 ### Optional string parameters default to `NULL`
 
-A string parameter that can be left out defaults to `NULL` with a nullable type, never to an empty string. 4 helpers that open an entity's action page took their subpath as `string $action_subpath = ''`:
+A string parameter left out for "not given" defaults to `NULL` with a nullable type, never to an empty string. 4 helpers that open an entity's action page took their subpath as `string $action_subpath = ''`:
 
 | Method | Before | After |
 | --- | --- | --- |
