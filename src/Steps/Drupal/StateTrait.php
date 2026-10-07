@@ -90,8 +90,7 @@ trait StateTrait {
    */
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
-    $this->stateStoreOriginalValue($name);
-    $this->backendFor(StateCapabilityInterface::class)->stateSet($name, $this->stringNormalizeValue($value));
+    $this->stateSetValue($name, $this->stringNormalizeValue($value));
   }
 
   /**
@@ -119,15 +118,14 @@ trait StateTrait {
    */
   #[Given('the following state values exist:')]
   public function stateSetMultiple(TableNode $table): void {
-    $backend = $this->backendFor(StateCapabilityInterface::class);
+    $this->backendFor(StateCapabilityInterface::class);
 
     foreach ($table->getHash() as $row) {
       if (!isset($row['name']) || !array_key_exists('value', $row)) {
         throw new \RuntimeException('The state values table must contain "name" and "value" columns.');
       }
-      $name = $row['name'];
-      $this->stateStoreOriginalValue($name);
-      $backend->stateSet($name, $this->stringNormalizeValue($row['value']));
+
+      $this->stateSetValue($row['name'], $this->stringNormalizeValue($row['value']));
     }
   }
 
@@ -192,6 +190,19 @@ trait StateTrait {
     }
 
     return ['exists' => TRUE, 'value' => $backend->stateGet($name)];
+  }
+
+  /**
+   * Set a state value, restored after the scenario.
+   *
+   * @param string $name
+   *   The state key name.
+   * @param mixed $value
+   *   The value.
+   */
+  public function stateSetValue(string $name, mixed $value): void {
+    $this->stateStoreOriginalValue($name);
+    $this->backendFor(StateCapabilityInterface::class)->stateSet($name, $value);
   }
 
   /**
