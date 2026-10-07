@@ -2280,6 +2280,8 @@ $role = $backend->createRole(['access content'])->getValue('id');
 
 The shipped backends keep the delete contract throughout. The Drush backend's `deleteRole()` and `deleteUser()` no longer fail for a role or user that's already gone, and the in-process `deleteUser()` no longer reports "The user account ... does not exist." for one.
 
+A stub that names no entity at all is a malformed argument rather than a miss, so a delete still throws `\RuntimeException` for it. The in-process `deleteNode()` and `deleteTerm()` now do this too, for a stub that's neither saved nor carries a `nid` or `tid` value, as `deleteUser()` and `deleteBlock()` already did. A stub whose id names nothing is still a no-op.
+
 ## Every `LoadMultiple()` returns loaded entities
 
 5 of the 6 `<trait>LoadMultiple()` helpers returned entity IDs, while `userLoadMultiple()` returned loaded users. You couldn't tell from 1 signature what the next would hand back. All 6 now return the loaded entities keyed by entity ID, or an empty array when nothing matches. `userLoadMultiple()` already worked this way, so it's unchanged.

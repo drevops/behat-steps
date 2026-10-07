@@ -499,7 +499,13 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $node = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 
     if (!$node instanceof NodeInterface) {
-      $node = Node::load($stub->getValue('nid'));
+      $nid = $stub->getValue('nid');
+
+      if ($nid === NULL) {
+        throw new \RuntimeException('Cannot resolve a node id from the stub: neither the saved entity nor a "nid" value is set.');
+      }
+
+      $node = Node::load($nid);
     }
 
     if ($node instanceof NodeInterface) {
@@ -830,7 +836,13 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $term = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 
     if (!$term instanceof TermInterface) {
-      $term = Term::load($stub->getValue('tid'));
+      $tid = $stub->getValue('tid');
+
+      if ($tid === NULL) {
+        throw new \RuntimeException('Cannot resolve a term id from the stub: neither the saved entity nor a "tid" value is set.');
+      }
+
+      $term = Term::load($tid);
     }
 
     if ($term instanceof TermInterface) {
