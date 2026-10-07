@@ -433,7 +433,7 @@ JS;
    * @endcode
    */
   #[When('I check the checkbox :selector')]
-  public function fieldCheckboxCheck(string $selector): void {
+  public function fieldCheckCheckbox(string $selector): void {
     $selector = $this->stringFixStepArgument($selector);
 
     $this->getSession()->getPage()->checkField($selector);
@@ -451,7 +451,7 @@ JS;
    * @endcode
    */
   #[When('I uncheck the checkbox :selector')]
-  public function fieldCheckboxUncheck(string $selector): void {
+  public function fieldUncheckCheckbox(string $selector): void {
     $selector = $this->stringFixStepArgument($selector);
 
     $this->getSession()->getPage()->uncheckField($selector);
@@ -469,7 +469,7 @@ JS;
    * @endcode
    */
   #[When('I choose the radio button :selector')]
-  public function fieldRadioSelect(string $selector): void {
+  public function fieldChooseRadioButton(string $selector): void {
     $selector = $this->stringFixStepArgument($selector);
 
     $page = $this->getSession()->getPage();

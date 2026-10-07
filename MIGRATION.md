@@ -1912,6 +1912,16 @@ A capability interface that creates an entity now reads one way, so its delete, 
 
 The config, state, module, mail, cache and cron capabilities keep their names. So do the entity-create hooks, because a hook is named for its event: `BeforeNodeCreate`, `AfterTermCreate` and the rest are unchanged.
 
+### An action method names its step's verb first
+
+A method behind an action step puts the verb its step reads right after its prefix, as `fieldFillColor()` and `fieldClearSelect()` do. 3 `FieldTrait` methods put the noun first, and 1 of them named a verb its step doesn't use. Step text is unchanged.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `FieldTrait` | `fieldCheckboxCheck()` | `fieldCheckCheckbox()` |
+| `FieldTrait` | `fieldCheckboxUncheck()` | `fieldUncheckCheckbox()` |
+| `FieldTrait` | `fieldRadioSelect()` | `fieldChooseRadioButton()` |
+
 ### A method acting on several entities ends in `Multiple`
 
 A method that created, deleted or loaded several entities at once took one of 3 shapes: a plural noun, as `userCreateRoles()` did, a `Multiple` suffix, as `userLoadMultiple()` does, or a bare verb beside a `Single` sibling, as `mediaCreate()` and `mediaCreateSingle()` did. Each now ends in `Multiple`, the way Drupal's own `loadMultiple()` does, and the method for 1 entity is the same name without it. A `With` qualifier still comes last.
