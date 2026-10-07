@@ -179,6 +179,11 @@ class ResponsiveTraitTest extends UnitTestCase {
         '4k',
         '3840x2160',
       ],
+      'custom breakpoint with a numeric name' => [
+        ['1080' => '1920x1080'],
+        '1080',
+        '1920x1080',
+      ],
       'non-existent breakpoint' => [
         [],
         'non_existent',
