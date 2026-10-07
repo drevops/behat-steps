@@ -125,39 +125,39 @@ class DiagnosticsTraitTest extends UnitTestCase {
     $this->assertSame('Original failure.', $exception->getMessage());
   }
 
-  public function testGetUrlReturnsValue(): void {
+  public function testFindUrlReturnsValue(): void {
     $this->assertSame('http://example.com/page', $this->testObject->callFindUrl());
   }
 
-  public function testGetUrlReturnsNullWhenBlank(): void {
+  public function testFindUrlReturnsNullWhenBlank(): void {
     $this->testObject->session->url = '';
 
     $this->assertNull($this->testObject->callFindUrl());
   }
 
-  public function testGetUrlReturnsNullWhenDriverErrors(): void {
+  public function testFindUrlReturnsNullWhenDriverErrors(): void {
     $this->testObject->session->urlError = new \RuntimeException('unsupported');
 
     $this->assertNull($this->testObject->callFindUrl());
   }
 
-  public function testGetStatusCodeReturnsValue(): void {
+  public function testFindStatusCodeReturnsValue(): void {
     $this->testObject->session->status = 500;
 
     $this->assertSame(500, $this->testObject->callFindStatusCode());
   }
 
-  public function testGetStatusCodeReturnsNullWhenDriverErrors(): void {
+  public function testFindStatusCodeReturnsNullWhenDriverErrors(): void {
     $this->testObject->session->statusError = new \RuntimeException('unsupported');
 
     $this->assertNull($this->testObject->callFindStatusCode());
   }
 
-  public function testGetDriverNameReturnsClass(): void {
+  public function testFindBrowserDriverNameReturnsClass(): void {
     $this->assertSame(DiagnosticsFakeDriver::class, $this->testObject->callFindBrowserDriverName());
   }
 
-  public function testGetDriverNameReturnsNullWhenDriverErrors(): void {
+  public function testFindBrowserDriverNameReturnsNullWhenDriverErrors(): void {
     $this->testObject->session->driverError = new \RuntimeException('unsupported');
 
     $this->assertNull($this->testObject->callFindBrowserDriverName());

@@ -380,7 +380,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->assertTrue($user_registry->hasUsers());
   }
 
-  public function testSessionIsResetWhenManagerSupportsFastLogout(): void {
+  public function testSessionIsResetWhenAuthenticatorSupportsFastLogout(): void {
     /** @var \DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
     $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
     $authenticator->expects($this->once())->method('fastLogout');
@@ -398,7 +398,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->createContext($this->createMock(BackendInterface::class), $user_registry, $authenticator)->authAfterScenario($this->createAfterScenarioScope());
   }
 
-  public function testAnAnonymousSessionIsLeftAloneWhenTheManagerHasNoFastLogout(): void {
+  public function testAnAnonymousSessionIsLeftAloneWhenTheAuthenticatorHasNoFastLogout(): void {
     $authenticator = $this->createMock(AuthenticatorInterface::class);
     $authenticator->expects($this->never())->method('logout');
 
