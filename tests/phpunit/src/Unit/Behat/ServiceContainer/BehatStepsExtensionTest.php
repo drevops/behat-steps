@@ -242,8 +242,8 @@ class BehatStepsExtensionTest extends UnitTestCase {
   }
 
   public function testDrushBackendRequiresAliasOrRoot(): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Drush `alias` or `root` path is required for the Drush backend.');
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('Drush "alias" or "root" path is required for the Drush backend.');
 
     $this->load(['drush' => []]);
   }

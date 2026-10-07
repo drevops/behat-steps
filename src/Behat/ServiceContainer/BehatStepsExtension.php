@@ -375,14 +375,14 @@ final class BehatStepsExtension implements ExtensionInterface {
    * @param array<string, mixed> $config
    *   The extension configuration.
    *
-   * @throws \RuntimeException
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
    *   When neither a Drush alias nor a Drupal root is configured.
    */
   protected function loadDrush(FileLoader $loader, ContainerBuilder $container, array $config): void {
     if (isset($config['drush'])) {
       $loader->load('backends/drush.yml');
       if (!isset($config['drush']['alias']) && !isset($config['drush']['root'])) {
-        throw new \RuntimeException('Drush `alias` or `root` path is required for the Drush backend.');
+        throw new InvalidConfigurationException('Drush "alias" or "root" path is required for the Drush backend.');
       }
       $config['drush']['alias'] ??= FALSE;
       $container->setParameter('behat_steps.backend.drush.alias', $config['drush']['alias']);
