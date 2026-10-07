@@ -298,6 +298,37 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that a step reading "should not" carries `Not` in its method name.
+   *
+   * A step that names a state of its own, such as "should be disabled", is
+   * not a negation, so its method names that state instead.
+   *
+   * @param class-string $trait
+   *   The trait to check.
+   * @param string $file
+   *   The absolute path to the file declaring the trait.
+   */
+  #[DataProvider('dataProviderNegativeStepsCarryNot')]
+  public function testNegativeStepsCarryNot(string $trait, string $file): void {
+    $violations = [];
+    foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
+      foreach ($method->getAttributes(Then::class) as $attribute) {
+        $step = (string) $attribute->newInstance()->getPattern();
+
+        if (str_contains($step, ' should not ') && preg_match('/Assert[A-Za-z0-9]*Not(?![a-z])/', $method->getName()) !== 1) {
+          $violations[] = sprintf('%s() for "%s"', $method->getName(), $step);
+        }
+      }
+    }
+
+    $this->assertSame([], $violations, 'Name a "should not" step with "Not" before its predicate: "elementAssertNotVisible" for "should not be displayed". A step naming a state of its own keeps that word: "moduleAssertDisabled" for "should be disabled".');
+  }
+
+  public static function dataProviderNegativeStepsCarryNot(): array {
+    return static::discoverTraitFiles();
+  }
+
+  /**
    * Assert that a navigation step is named for the visit and its page.
    *
    * A step reading "I visit" only opens a page, so its method opens with
