@@ -71,7 +71,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   empty, or when the root path cannot be resolved.
    */
   public function __construct(?string $alias = NULL, ?string $root_path = NULL, string $binary = 'drush', ?Random $random = NULL) {
-    if ($alias !== NULL && ltrim($alias, '@') === '') {
+    if ($alias !== NULL && trim(ltrim($alias, '@')) === '') {
       throw new BootstrapException(sprintf('The drush alias "%s" names no site. Pass NULL to leave it out.', $alias));
     }
 

@@ -95,6 +95,8 @@ class DrushBackendTest extends UnitTestCase {
     yield 'neither given' => [NULL, NULL, 'A drush alias or root path is required.'];
     yield 'an empty alias' => ['', NULL, 'The drush alias "" names no site. Pass NULL to leave it out.'];
     yield 'an alias of only the prefix' => ['@', NULL, 'The drush alias "@" names no site. Pass NULL to leave it out.'];
+    yield 'an alias of only whitespace' => [' ', NULL, 'The drush alias " " names no site. Pass NULL to leave it out.'];
+    yield 'an alias of the prefix and whitespace' => ['@ ', NULL, 'The drush alias "@ " names no site. Pass NULL to leave it out.'];
     yield 'an empty alias beside a root path' => ['', __FILE__, 'The drush alias "" names no site. Pass NULL to leave it out.'];
     yield 'an empty root path' => [NULL, '', 'The root path is empty. Pass NULL to leave it out.'];
     yield 'an empty root path beside an alias' => ['alias', '', 'The root path is empty. Pass NULL to leave it out.'];
