@@ -164,7 +164,7 @@ trait FileDownloadTrait {
    * @endcode
    */
   #[Then('the downloaded file name should be :name')]
-  public function fileDownloadAssertFileName(string $name): void {
+  public function fileDownloadAssertFileNameEquals(string $name): void {
     if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
       throw new \RuntimeException('Downloaded file name content has no data.');
     }

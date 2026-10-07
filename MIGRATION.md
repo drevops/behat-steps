@@ -1831,6 +1831,20 @@ It still asserts that an email went to the address and that no collected email's
 
 The step text follows the method: `the meta robots should include :directive` is `the meta robots should contain :directive`, and `should not include` is `should not contain`.
 
+### An assertion names its predicate
+
+An assertion says what it asserts after its subject: a compared value reads `Equals`, a set that must be present reads `Exist`, and validity reads `Valid` after the subject, as `commandAssertOutputEquals()` and `metatagAssertHreflangValid()` do. 7 assertions named no predicate or put `Valid` ahead of the subject. Step text is unchanged.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `CommandTrait` | `commandAssertExitCode()` | `commandAssertExitCodeEquals()` |
+| `FileDownloadTrait` | `fileDownloadAssertFileName()` | `fileDownloadAssertFileNameEquals()` |
+| `MetatagTrait` | `metatagAssertOpenGraphTags()` | `metatagAssertOpenGraphTagsExist()` |
+| `MetatagTrait` | `metatagAssertTwitterCardTags()` | `metatagAssertTwitterCardTagsExist()` |
+| `RestTrait` | `restAssertResponseStatusCode()` | `restAssertResponseStatusCodeEquals()` |
+| `XmlTrait` | `xmlAssertValidRssFeed()` | `xmlAssertRssFeedValid()` |
+| `XmlTrait` | `xmlAssertValidAtomFeed()` | `xmlAssertAtomFeedValid()` |
+
 ### Only an assertion is named `Assert`
 
 A method that fails with an assertion exception is named as an assertion, whether or not it registers a step. A method that only rejects a bad step argument or a missing precondition throws `\RuntimeException` instead, so it isn't an assertion and is named for what it does.
@@ -2596,7 +2610,7 @@ The methods are listed under their 4.x names; [One shape per naming idea](#one-s
 | `Drupal\EmailTrait::emailAssertMessageCount()`, `emailAssertMessageCountToAddress()`, `emailAssertMessageCountWithSubject()` | `int $count` | `string $count` |
 | `Drupal\SearchApiTrait::searchApiRunIndexing()` | `string\|int $limit` | `string $count` |
 | `TableTrait::tableAssertRowCount()`, `tableAssertColumnCount()` | `int $count` | `string $count` |
-| `RestTrait::restAssertResponseStatusCode()` | `int $code` | `string $code` |
+| `RestTrait::restAssertResponseStatusCodeEquals()` | `int $code` | `string $code` |
 | `ElementTrait::elementClickWithIndex()`, `elementFollowLinkWithIndex()`, `elementPressButtonWithIndex()` | `int $index` | `string $index` |
 | `ElementTrait::elementAssertPinnedToTopWithTolerance()` | `int $tolerance` | `string $tolerance` |
 | `ElementTrait::elementAssertVisuallyVisibleWithOffset()`, `elementAssertNotVisuallyVisibleWithOffset()` | `int $number` | `string $offset` |

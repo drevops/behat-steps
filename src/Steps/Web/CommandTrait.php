@@ -208,7 +208,7 @@ trait CommandTrait {
    * @endcode
    */
   #[Then('the command exit code should be :code')]
-  public function commandAssertExitCode(string $code): void {
+  public function commandAssertExitCodeEquals(string $code): void {
     $this->commandRequireRun();
 
     $expected = $this->stringParseInteger($code, 'exit code');

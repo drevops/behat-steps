@@ -95,7 +95,7 @@ trait RestTrait {
    * @endcode
    */
   #[Then('the REST response status code should be :code')]
-  public function restAssertResponseStatusCode(string $code): void {
+  public function restAssertResponseStatusCodeEquals(string $code): void {
     $code = $this->stringParseInteger($code, 'status code');
 
     $actual = $this->getSession()->getStatusCode();

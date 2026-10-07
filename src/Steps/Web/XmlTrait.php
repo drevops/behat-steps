@@ -558,7 +558,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Then('the response should be a valid RSS feed')]
-  public function xmlAssertValidRssFeed(): void {
+  public function xmlAssertRssFeedValid(): void {
     $this->xmlValidateRssFeed();
   }
 
@@ -574,7 +574,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Then('the response should be a valid Atom feed')]
-  public function xmlAssertValidAtomFeed(): void {
+  public function xmlAssertAtomFeedValid(): void {
     $this->xmlValidateAtomFeed();
   }
 

@@ -350,7 +350,7 @@ trait MetatagTrait {
    * @endcode
    */
   #[Then('the following Open Graph tags should exist:')]
-  public function metatagAssertOpenGraphTags(TableNode $table): void {
+  public function metatagAssertOpenGraphTagsExist(TableNode $table): void {
     $this->metatagAssertMetaSetExists($this->metatagTablePropertyNames($table), 'Open Graph');
   }
 
@@ -379,7 +379,7 @@ trait MetatagTrait {
    * @endcode
    */
   #[Then('the following Twitter Card tags should exist:')]
-  public function metatagAssertTwitterCardTags(TableNode $table): void {
+  public function metatagAssertTwitterCardTagsExist(TableNode $table): void {
     $this->metatagAssertMetaSetExists($this->metatagTablePropertyNames($table), 'Twitter Card');
   }
 

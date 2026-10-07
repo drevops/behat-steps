@@ -250,7 +250,7 @@ trait RegionTrait {
    * @endcode
    */
   #[Then('the element :selector in the region :region should have the value :value')]
-  public function regionAssertElementText(string $selector, string $region, string $value): void {
+  public function regionAssertElementEquals(string $selector, string $region, string $value): void {
     $this->regionGetElementByText($region, $selector, $value);
   }
 
@@ -262,7 +262,7 @@ trait RegionTrait {
    * @endcode
    */
   #[Then('the element :selector in the region :region should not have the value :value')]
-  public function regionAssertElementNotText(string $selector, string $region, string $value): void {
+  public function regionAssertElementNotEquals(string $selector, string $region, string $value): void {
     foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
       if (trim($element->getText()) === $value) {
         throw new ExpectationException(sprintf('The text "%s" was found in the "%s" element in the "%s" region on the page %s.', $value, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
@@ -278,7 +278,7 @@ trait RegionTrait {
    * @endcode
    */
   #[Then('the element :selector in the region :region should have the attribute :attribute with the value :value')]
-  public function regionAssertElementAttribute(string $selector, string $region, string $attribute, string $value): void {
+  public function regionAssertElementAttributeEquals(string $selector, string $region, string $attribute, string $value): void {
     foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
       if ($element->getAttribute($attribute) === $value) {
         return;
@@ -296,7 +296,7 @@ trait RegionTrait {
    * @endcode
    */
   #[Then('the element :selector with the text :text in the region :region should have the attribute :attribute with the value :value')]
-  public function regionAssertElementTextAttribute(string $selector, string $text, string $region, string $attribute, string $value): void {
+  public function regionAssertElementAttributeEqualsWithText(string $selector, string $text, string $region, string $attribute, string $value): void {
     $element = $this->regionGetElementByText($region, $selector, $text);
 
     if ($element->getAttribute($attribute) !== $value) {
@@ -314,7 +314,7 @@ trait RegionTrait {
    * @javascript
    */
   #[Then('the element :selector with the text :text in the region :region should have the CSS property :property with the value :value')]
-  public function regionAssertElementTextCssProperty(string $selector, string $text, string $region, string $property, string $value): void {
+  public function regionAssertElementCssPropertyEqualsWithText(string $selector, string $text, string $region, string $property, string $value): void {
     $element = $this->regionGetElementByText($region, $selector, $text);
     $actual = $this->getSession()->getDriver()->evaluateScript(sprintf('window.getComputedStyle(document.evaluate(%s, document, null, 9, null).singleNodeValue).getPropertyValue(%s);', json_encode($element->getXpath()), json_encode($property)));
 
