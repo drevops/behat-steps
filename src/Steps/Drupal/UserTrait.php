@@ -22,6 +22,7 @@ use Drupal\Core\Url;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\OneTimeAuthentication;
+use Drupal\user\RoleInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -62,19 +63,7 @@ trait UserTrait {
   #[Given('the following users do not exist:')]
   public function userDeleteMultiple(TableNode $table): void {
     foreach ($table->getHash() as $user_hash) {
-      $users = [];
-
-      if (isset($user_hash['mail'])) {
-        $users = $this->userLoadMultiple(['mail' => $user_hash['mail']]);
-      }
-      elseif (isset($user_hash['name'])) {
-        $users = $this->userLoadMultiple(['name' => $user_hash['name']]);
-      }
-
-      foreach ($users as $user) {
-        $user->delete();
-        $this->authGetUserRegistry()->removeUser($user->getAccountName());
-      }
+      $this->userDelete($user_hash);
     }
   }
 
@@ -96,9 +85,9 @@ trait UserTrait {
    */
   #[Given('the following users with fields exist:')]
   public function userCreateMultipleWithFields(TableNode $table): void {
-    $entities = $this->tableTransposeVertical($table);
-    $horizontal_table = $this->tableTransposeHorizontal($entities);
-    $this->userCreateMultiple($horizontal_table);
+    foreach ($this->tableTransposeVertical($table) as $values) {
+      $this->userCreate($values);
+    }
   }
 
   /**
@@ -116,26 +105,10 @@ trait UserTrait {
    */
   #[Given('the following users exist:')]
   public function userCreateMultiple(TableNode $table): void {
-    $backend = $this->backendFor(UserCapabilityInterface::class);
+    $this->backendFor(UserCapabilityInterface::class);
 
     foreach ($table->getHash() as $values) {
-      $roles = '';
-
-      if (isset($values['roles'])) {
-        $roles = (string) $values['roles'];
-        unset($values['roles']);
-      }
-
-      // An account cannot be created with an empty password, so a blank
-      // 'pass' cell is treated as no password given.
-      if (empty($values['pass'])) {
-        $values['pass'] = $this->getRandom()->name();
-      }
-
-      $stub = new EntityStub('user', NULL, $values);
-      $this->authCreateUser($stub);
-
-      $this->userAssignRoles($backend, $stub, $roles);
+      $this->userCreate($values);
     }
   }
 
@@ -226,36 +199,7 @@ trait UserTrait {
    */
   #[Given('the role :role has the permissions :permissions')]
   public function userCreateRole(string $role, string $permissions): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $permissions = $this->stringSplitCommaSeparated($permissions);
-
-    $rid = strtolower($role);
-    $role = trim($role);
-
-    $existing_role = Role::load($rid);
-    if ($existing_role) {
-      $existing_role->delete();
-    }
-
-    /** @var \Drupal\user\RoleInterface $role_entity */
-    $role_entity = \Drupal::entityTypeManager()->getStorage('user_role')->create([
-      'id' => $rid,
-      'label' => $role,
-    ]);
-
-    foreach ($permissions as $permission) {
-      $role_entity->grantPermission($permission);
-    }
-
-    $saved = $role_entity->save();
-
-    // @codeCoverageIgnoreStart
-    if ($saved !== SAVED_NEW) {
-      throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
-    }
-    // @codeCoverageIgnoreEnd
-    $this->authRoles[] = (string) $role_entity->id();
+    $this->userCreateRoleWithPermissions($role, $this->stringSplitCommaSeparated($permissions));
   }
 
   /**
@@ -275,8 +219,7 @@ trait UserTrait {
         throw new \RuntimeException('Missing required column "name".');
       }
 
-      $permissions = $hash['permissions'] ?: '';
-      $this->userCreateRole($hash['name'], $permissions);
+      $this->userCreateRoleWithPermissions($hash['name'], $this->stringSplitCommaSeparated($hash['permissions'] ?: ''));
     }
   }
 
@@ -322,14 +265,7 @@ trait UserTrait {
    */
   #[When('I log in as a user with the permission(s) :permissions')]
   public function userLoginWithPermissions(string $permissions): void {
-    $created = $this->backendFor(RoleCapabilityInterface::class)->createRole(array_filter($this->stringSplitCommaSeparated($permissions)));
-    $role_id = (string) $created->getValue('id');
-    $this->authRoles[] = $role_id;
-
-    $stub = $this->userBuildStub();
-    $this->authCreateUser($stub);
-
-    $this->backendFor(UserCapabilityInterface::class)->addUserRole($stub, $role_id);
+    $stub = $this->userCreateWithPermissions(array_filter($this->stringSplitCommaSeparated($permissions)));
 
     $this->authLogin($stub);
   }
@@ -583,6 +519,145 @@ trait UserTrait {
     $this->userAssignRoles($backend, $stub, $roles);
 
     $this->authLogin($stub);
+  }
+
+  /**
+   * Create a user.
+   *
+   * The user is removed after the scenario.
+   *
+   * @param array<string, mixed> $values
+   *   The base properties and field values, keyed by name. A "roles" value
+   *   takes a comma-separated list, assigned after the account is saved. A
+   *   user without a "pass" value gets a random password.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created user.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can manage users.
+   */
+  public function userCreate(array $values): EntityStubInterface {
+    $backend = $this->backendFor(UserCapabilityInterface::class);
+
+    $roles = '';
+
+    if (isset($values['roles'])) {
+      $roles = (string) $values['roles'];
+      unset($values['roles']);
+    }
+
+    // An account cannot be created with an empty password, so an empty
+    // 'pass' value counts as no password given.
+    if (empty($values['pass'])) {
+      $values['pass'] = $this->getRandom()->name();
+    }
+
+    $stub = new EntityStub('user', NULL, $values);
+    $this->authCreateUser($stub);
+
+    $this->userAssignRoles($backend, $stub, $roles);
+
+    return $stub;
+  }
+
+  /**
+   * Create a user with a new role carrying permissions.
+   *
+   * The user and the role are removed after the scenario.
+   *
+   * @param array<int, string> $permissions
+   *   The permissions.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created user.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can manage roles or users.
+   */
+  public function userCreateWithPermissions(array $permissions): EntityStubInterface {
+    $created = $this->backendFor(RoleCapabilityInterface::class)->createRole($permissions);
+    $role_id = (string) $created->getValue('id');
+    $this->authRoles[] = $role_id;
+
+    $stub = $this->userBuildStub();
+    $this->authCreateUser($stub);
+
+    $this->backendFor(UserCapabilityInterface::class)->addUserRole($stub, $role_id);
+
+    return $stub;
+  }
+
+  /**
+   * Create a role with permissions, replacing a role with the same ID.
+   *
+   * The role ID is the lowercased role name. The role is removed after the
+   * scenario.
+   *
+   * @param string $role
+   *   The role name.
+   * @param array<int, string> $permissions
+   *   The permissions.
+   *
+   * @return \Drupal\user\RoleInterface
+   *   The role.
+   */
+  public function userCreateRoleWithPermissions(string $role, array $permissions): RoleInterface {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $rid = strtolower($role);
+    $role = trim($role);
+
+    $existing_role = Role::load($rid);
+    if ($existing_role) {
+      $existing_role->delete();
+    }
+
+    /** @var \Drupal\user\RoleInterface $role_entity */
+    $role_entity = \Drupal::entityTypeManager()->getStorage('user_role')->create([
+      'id' => $rid,
+      'label' => $role,
+    ]);
+
+    foreach ($permissions as $permission) {
+      $role_entity->grantPermission($permission);
+    }
+
+    $saved = $role_entity->save();
+
+    // @codeCoverageIgnoreStart
+    if ($saved !== SAVED_NEW) {
+      throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
+    }
+    // @codeCoverageIgnoreEnd
+    $this->authRoles[] = (string) $role_entity->id();
+
+    return $role_entity;
+  }
+
+  /**
+   * Delete the users with an email address or, without one, a name.
+   *
+   * The users are also dropped from the user registry.
+   *
+   * @param array<string, string> $values
+   *   The values, with a "mail" or a "name" key. Values with neither delete
+   *   no user.
+   */
+  public function userDelete(array $values): void {
+    $users = [];
+
+    if (isset($values['mail'])) {
+      $users = $this->userLoadMultiple(['mail' => $values['mail']]);
+    }
+    elseif (isset($values['name'])) {
+      $users = $this->userLoadMultiple(['name' => $values['name']]);
+    }
+
+    foreach ($users as $user) {
+      $user->delete();
+      $this->authGetUserRegistry()->removeUser($user->getAccountName());
+    }
   }
 
   /**
