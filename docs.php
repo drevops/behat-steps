@@ -1830,8 +1830,11 @@ function non_descriptive_placeholders(): array {
 function placeholder_synonyms(): array {
   return [
     'email' => 'address',
+    'file_name' => 'filename',
     'link_number' => 'index',
     'mail' => 'address',
+    'role_name' => 'role',
+    'term_name' => 'name',
   ];
 }
 
