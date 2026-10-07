@@ -84,7 +84,12 @@ trait CommandTrait {
   public function commandRun(string $command): void {
     $this->commandResetState();
 
-    ['exit_code' => $this->commandExitCode, 'duration' => $this->commandDuration, 'stdout' => $this->commandStdout, 'stderr' => $this->commandStderr] = $this->commandExecute($command);
+    [
+      'exit_code' => $this->commandExitCode,
+      'duration' => $this->commandDuration,
+      'stdout' => $this->commandStdout,
+      'stderr' => $this->commandStderr,
+    ] = $this->commandExecute($command);
   }
 
   /**

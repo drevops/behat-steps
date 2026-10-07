@@ -201,7 +201,7 @@ class FileDownloadTraitTest extends UnitTestCase {
     ];
   }
 
-  public function testFindLineRequiresADownload(): void {
+  public function testFindLineRequiresDownload(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('No file has been downloaded. Download a file before asserting on it.');
 

@@ -17,6 +17,7 @@ use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Do_;
+use PhpParser\Node\Stmt\Else_;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\For_;
 use PhpParser\Node\Stmt\Foreach_;
@@ -293,7 +294,7 @@ class StepBodyTest extends UnitTestCase {
   protected static function isGuard(Node $statement): bool {
     return $statement instanceof If_
       && $statement->elseifs === []
-      && $statement->else === NULL
+      && !$statement->else instanceof Else_
       && count($statement->stmts) === 1
       && $statement->stmts[0] instanceof Expression
       && $statement->stmts[0]->expr instanceof Throw_;

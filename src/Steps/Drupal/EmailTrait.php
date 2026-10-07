@@ -772,7 +772,7 @@ trait EmailTrait {
    * @param string $address
    *   The email address, matched against the "to" recipients only.
    *
-   * @return array<string, array<string, mixed>>
+   * @return array<int|string, array<string, mixed>>
    *   The email messages, keyed as collected.
    */
   public function emailGetMessagesToAddress(string $address): array {
@@ -785,7 +785,7 @@ trait EmailTrait {
    * @param string $subject
    *   The whole subject, compared case-sensitively.
    *
-   * @return array<string, array<string, mixed>>
+   * @return array<int|string, array<string, mixed>>
    *   The email messages, keyed as collected.
    */
   public function emailGetMessagesWithSubject(string $subject): array {

@@ -98,7 +98,7 @@ trait FileTrait {
         throw new \RuntimeException('Missing required column "path".');
       }
 
-      $this->fileCreateManaged($hash['path'], new EntityStub('file', NULL, array_diff_key($hash, ['path' => TRUE, 'uri' => TRUE])), $hash['uri'] ?? NULL);
+      $this->fileCreateManaged($hash['path'], $this->fileBuildManagedStub($hash), $hash['uri'] ?? NULL);
     }
   }
 
@@ -288,6 +288,20 @@ trait FileTrait {
     }
     // @codeCoverageIgnoreEnd
     return $file_content;
+  }
+
+  /**
+   * Build a managed file stub from a set of values.
+   *
+   * @param array<string, string> $values
+   *   The values. The "path" and "uri" values locate the file rather than
+   *   describe it, so the stub leaves them out.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStub
+   *   The file stub.
+   */
+  protected function fileBuildManagedStub(array $values): EntityStub {
+    return new EntityStub('file', NULL, array_diff_key($values, ['path' => TRUE, 'uri' => TRUE]));
   }
 
   /**
