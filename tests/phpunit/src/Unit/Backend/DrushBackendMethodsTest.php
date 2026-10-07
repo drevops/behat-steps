@@ -139,6 +139,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
     $this->assertSame($user, $backend->createUser($user));
     $this->assertSame(7, $user->getValue('uid'));
+    $this->assertFalse($user->isSaved(), 'The backend holds no account, so the stub stays unsaved.');
   }
 
   /**

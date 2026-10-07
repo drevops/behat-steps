@@ -474,6 +474,9 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
     $stub->setValue('uid', $uid);
 
+    // The stub stays unsaved, because Drush runs in another process and
+    // returns no account object. The placeholder carries only the id the
+    // post-create aliases read.
     $account = new \stdClass();
     $account->uid = $uid;
 
