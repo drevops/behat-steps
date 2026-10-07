@@ -303,8 +303,8 @@ trait AccessibilityTrait {
    * @endcode
    */
   #[Then('the current page should pass accessibility checks')]
-  public function accessibilityAssertCurrentPage(): void {
-    $this->accessibilityAssertCurrentPageForTags($this->accessibilityGetDefaultRules());
+  public function accessibilityAssertCurrentPagePasses(): void {
+    $this->accessibilityAssertCurrentPagePassesForTags($this->accessibilityGetDefaultRules());
   }
 
   /**
@@ -315,7 +315,7 @@ trait AccessibilityTrait {
    * @endcode
    */
   #[Then('the current page should pass accessibility checks for the tags :tags')]
-  public function accessibilityAssertCurrentPageForTags(string $tags): void {
+  public function accessibilityAssertCurrentPagePassesForTags(string $tags): void {
     $result = $this->accessibilityAssess($tags);
 
     $threshold = $this->accessibilityEffectiveThreshold();

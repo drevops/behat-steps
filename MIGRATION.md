@@ -1893,10 +1893,12 @@ The step text follows the method: `the meta robots should include :directive` is
 
 ### An assertion names its predicate
 
-An assertion says what it asserts after its subject: a compared value reads `Equals`, a set that must be present reads `Exist`, and validity reads `Valid` after the subject, as `commandAssertOutputEquals()` and `metatagAssertHreflangValid()` do. 7 assertions named no predicate or put `Valid` ahead of the subject. Step text is unchanged.
+An assertion says what it asserts after its subject: a compared value reads `Equals`, a set that must be present reads `Exist`, validity reads `Valid` after the subject, and a check the subject must pass reads `Passes`, as `commandAssertOutputEquals()`, `metatagAssertHreflangValid()` and `accessibilityAssertCurrentPagePasses()` do. 9 assertions named no predicate or put `Valid` ahead of the subject. Step text is unchanged.
 
 | Trait | Old | New |
 | --- | --- | --- |
+| `AccessibilityTrait` | `accessibilityAssertCurrentPage()` | `accessibilityAssertCurrentPagePasses()` |
+| `AccessibilityTrait` | `accessibilityAssertCurrentPageForTags()` | `accessibilityAssertCurrentPagePassesForTags()` |
 | `CommandTrait` | `commandAssertExitCode()` | `commandAssertExitCodeEquals()` |
 | `FileDownloadTrait` | `fileDownloadAssertFileName()` | `fileDownloadAssertFileNameEquals()` |
 | `MetatagTrait` | `metatagAssertOpenGraphTags()` | `metatagAssertOpenGraphTagsExist()` |
