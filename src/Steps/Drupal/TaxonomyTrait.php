@@ -12,12 +12,14 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\taxonomy\VocabularyInterface;
 
 /**
  * Manage Drupal taxonomy terms with vocabulary organization.
@@ -53,9 +55,9 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms with fields exist:')]
   public function taxonomyCreateMultipleWithFields(string $vocabulary, TableNode $table): void {
-    $entities = $this->tableTransposeVertical($table);
-    $horizontal_table = $this->tableTransposeHorizontal($entities);
-    $this->taxonomyCreateMultiple($vocabulary, $horizontal_table);
+    foreach ($this->tableTransposeVertical($table) as $values) {
+      $this->taxonomyCreate($vocabulary, $values);
+    }
   }
 
   /**
@@ -75,8 +77,7 @@ trait TaxonomyTrait {
     // Terms are created through the content capability, which any backend may
     // provide, so this step checks no prerequisite.
     foreach ($table->getHash() as $values) {
-      $values['vocabulary_machine_name'] = $vocabulary;
-      $this->entityLifecycleCreateTerm(new EntityStub('taxonomy_term', $vocabulary, $values));
+      $this->taxonomyCreate($vocabulary, $values);
     }
   }
 
@@ -91,24 +92,10 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms do not exist:')]
   public function taxonomyDeleteMultiple(string $vocabulary, TableNode $terms_table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
-    $vocab = Vocabulary::load($vocabulary);
-
-    if (!$vocab) {
-      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary));
-    }
+    $this->taxonomyGetVocabulary($vocabulary);
 
     foreach ($terms_table->getColumn(0) as $name) {
-      $terms = $this->taxonomyLoadMultiple($vocabulary, [
-        'name' => $name,
-      ]);
-
-      foreach ($terms as $term) {
-        $term->delete();
-      }
+      $this->taxonomyDelete($vocabulary, ['name' => $name]);
     }
   }
 
@@ -157,13 +144,9 @@ trait TaxonomyTrait {
    */
   #[Then('the vocabulary :vocabulary with the name :name should exist')]
   public function taxonomyAssertVocabularyExists(string $vocabulary, string $name): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $vocab = $this->taxonomyFindVocabulary($vocabulary);
 
-    $this->assertPrerequisites(__TRAIT__);
-
-    $vocab = Vocabulary::load($vocabulary);
-
-    if (!$vocab) {
+    if ($vocab === NULL) {
       throw new ExpectationException(sprintf('The vocabulary "%s" does not exist.', $vocabulary), $this->getSession()->getDriver());
     }
 
@@ -182,13 +165,7 @@ trait TaxonomyTrait {
    */
   #[Then('the vocabulary :vocabulary should not exist')]
   public function taxonomyAssertVocabularyNotExists(string $vocabulary): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
-    $vocab = Vocabulary::load($vocabulary);
-
-    if ($vocab) {
+    if ($this->taxonomyFindVocabulary($vocabulary) !== NULL) {
       throw new ExpectationException(sprintf('The vocabulary "%s" exists, but it should not.', $vocabulary), $this->getSession()->getDriver());
     }
   }
@@ -202,15 +179,7 @@ trait TaxonomyTrait {
    */
   #[Then('the taxonomy term :name from the vocabulary :vocabulary should exist')]
   public function taxonomyAssertTermExistsWithName(string $name, string $vocabulary): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
-    $vocab = Vocabulary::load($vocabulary);
-
-    if (!$vocab) {
-      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary));
-    }
+    $this->taxonomyGetVocabulary($vocabulary);
 
     $found = $this->taxonomyLoadMultiple($vocabulary, [
       'name' => $name,
@@ -230,15 +199,7 @@ trait TaxonomyTrait {
    */
   #[Then('the taxonomy term :name from the vocabulary :vocabulary should not exist')]
   public function taxonomyAssertTermNotExistsWithName(string $name, string $vocabulary): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
-    $vocab = Vocabulary::load($vocabulary);
-
-    if (!$vocab) {
-      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary));
-    }
+    $this->taxonomyGetVocabulary($vocabulary);
 
     $found = $this->taxonomyLoadMultiple($vocabulary, [
       'name' => $name,
@@ -261,15 +222,7 @@ trait TaxonomyTrait {
    *   term page.
    */
   public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, ?string $action_subpath = NULL): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
-    $vocab = Vocabulary::load($vocabulary);
-
-    if (!$vocab) {
-      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary));
-    }
+    $this->taxonomyGetVocabulary($vocabulary);
 
     $terms = $this->taxonomyLoadMultiple($vocabulary, [
       'name' => $name,
@@ -306,6 +259,78 @@ trait TaxonomyTrait {
     $ids = $this->queryEntityIds('taxonomy_term', $conditions, $vocabulary);
 
     return $ids ? Term::loadMultiple($ids) : [];
+  }
+
+  /**
+   * Create a term in a vocabulary.
+   *
+   * The term is removed after the scenario.
+   *
+   * @param string $vocabulary
+   *   The vocabulary machine name or human label.
+   * @param array<string, mixed> $values
+   *   The base properties and field values, keyed by name.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created term.
+   */
+  public function taxonomyCreate(string $vocabulary, array $values): EntityStubInterface {
+    $values['vocabulary_machine_name'] = $vocabulary;
+
+    return $this->entityLifecycleCreateTerm(new EntityStub('taxonomy_term', $vocabulary, $values));
+  }
+
+  /**
+   * Delete the terms of a vocabulary that match conditions.
+   *
+   * @param string $vocabulary
+   *   The vocabulary machine name.
+   * @param array<string, string> $conditions
+   *   Conditions keyed by field names.
+   */
+  public function taxonomyDelete(string $vocabulary, array $conditions): void {
+    foreach ($this->taxonomyLoadMultiple($vocabulary, $conditions) as $term) {
+      $term->delete();
+    }
+  }
+
+  /**
+   * Find a vocabulary by machine name.
+   *
+   * @param string $vocabulary
+   *   The vocabulary machine name.
+   *
+   * @return \Drupal\taxonomy\VocabularyInterface|null
+   *   The vocabulary, or NULL when it does not exist.
+   */
+  public function taxonomyFindVocabulary(string $vocabulary): ?VocabularyInterface {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
+    return Vocabulary::load($vocabulary);
+  }
+
+  /**
+   * Get a vocabulary by machine name.
+   *
+   * @param string $vocabulary
+   *   The vocabulary machine name.
+   *
+   * @return \Drupal\taxonomy\VocabularyInterface
+   *   The vocabulary.
+   *
+   * @throws \RuntimeException
+   *   When the vocabulary does not exist.
+   */
+  public function taxonomyGetVocabulary(string $vocabulary): VocabularyInterface {
+    $vocab = $this->taxonomyFindVocabulary($vocabulary);
+
+    if ($vocab === NULL) {
+      throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary));
+    }
+
+    return $vocab;
   }
 
   /**
