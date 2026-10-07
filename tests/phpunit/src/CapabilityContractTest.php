@@ -28,7 +28,7 @@ class CapabilityContractTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderCreateReturnsStub')]
   public function testCreateReturnsStub(string $interface, string $method): void {
-    $type = (new \ReflectionMethod($interface, $method))->getReturnType();
+    $type = static::reflect($interface)->getMethod($method)->getReturnType();
 
     $declared = $type instanceof \ReflectionType ? (string) $type : 'no return type';
 
@@ -49,7 +49,7 @@ class CapabilityContractTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDeleteReturnsVoid')]
   public function testDeleteReturnsVoid(string $interface, string $method): void {
-    $type = (new \ReflectionMethod($interface, $method))->getReturnType();
+    $type = static::reflect($interface)->getMethod($method)->getReturnType();
 
     $declared = $type instanceof \ReflectionType ? (string) $type : 'no return type';
 
