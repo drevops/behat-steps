@@ -153,7 +153,7 @@ Feature: Check that FileTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The file "public://test1.txt" exists but it should not.
+      The file "public://test1.txt" exists, but it should not.
       """
 
   @test-trait:Drupal\FileTrait

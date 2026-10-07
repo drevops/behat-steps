@@ -223,7 +223,7 @@ trait FileTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     if (@file_exists($uri)) {
-      throw new ExpectationException(sprintf('The file "%s" exists but it should not.', $uri), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The file "%s" exists, but it should not.', $uri), $this->getSession()->getDriver());
     }
   }
 

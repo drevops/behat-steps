@@ -259,7 +259,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set but it should not be.
+      The cookie with name "testname" was set, but it should not be.
       """
 
   @phpserver
@@ -340,7 +340,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "testname" was set but it should not be.
+      The cookie with name containing "testname" was set, but it should not be.
       """
 
   @phpserver

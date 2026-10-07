@@ -541,7 +541,7 @@ trait MetatagTrait {
       $browser->request('GET', $url);
     }
     catch (TransportExceptionInterface $exception) {
-      throw new \RuntimeException(sprintf('Failed to fetch the hreflang alternate page "%s": %s', $url, $exception->getMessage()), 0, $exception);
+      throw new \RuntimeException(sprintf('Failed to fetch the hreflang alternate page "%s": %s.', $url, $exception->getMessage()), 0, $exception);
     }
 
     $response = $browser->getInternalResponse();

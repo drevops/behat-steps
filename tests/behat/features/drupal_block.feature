@@ -106,7 +106,7 @@ Feature: Check that BlockTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Block "[TEST] User Account Menu" is in region "content" but should be in "sidebar"
+      Block "[TEST] User Account Menu" is in region "content", but it should be in "sidebar"
       """
 
   @test-trait:Drupal\BlockTrait

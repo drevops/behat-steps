@@ -95,7 +95,7 @@ trait FileDownloadTrait {
 
     // @codeCoverageIgnoreStart
     if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
-      throw new \RuntimeException(sprintf('Unable to download file from URL %s.', $url));
+      throw new \RuntimeException(sprintf('Unable to download file from URL "%s".', $url));
     }
     $file_data = file_get_contents($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($file_data === FALSE) {
@@ -364,7 +364,7 @@ trait FileDownloadTrait {
       $browser->request('GET', $url);
     }
     catch (TransportExceptionInterface $exception) {
-      throw new \RuntimeException(sprintf('Unable to download file from URL %s: %s', $url, $exception->getMessage()), 0, $exception);
+      throw new \RuntimeException(sprintf('Unable to download file from URL "%s": %s.', $url, $exception->getMessage()), 0, $exception);
     }
 
     $response = $browser->getInternalResponse();
@@ -372,11 +372,11 @@ trait FileDownloadTrait {
     $status = $response->getStatusCode();
 
     if ($status >= 400) {
-      throw new \RuntimeException(sprintf('The URL %s returned HTTP status %d.', $url, $status));
+      throw new \RuntimeException(sprintf('The URL "%s" returned HTTP status %d.', $url, $status));
     }
 
     if ($content === '') {
-      throw new \RuntimeException(sprintf('Unable to save temp file from URL %s.', $url));
+      throw new \RuntimeException(sprintf('Unable to save temp file from URL "%s".', $url));
     }
 
     $headers = $this->fileDownloadParseHeaders($response->getHeaders());
@@ -399,7 +399,7 @@ trait FileDownloadTrait {
     $written = file_put_contents($file_path, $content);
     if ($written === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to write downloaded content into file %s.', $file_path));
+      throw new \RuntimeException(sprintf('Unable to write downloaded content into file "%s".', $file_path));
       // @codeCoverageIgnoreEnd
     }
 

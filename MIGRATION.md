@@ -1539,6 +1539,16 @@ A failure message quotes the values it names in double quotes, ends with a perio
 | ResponsiveTrait | Breakpoint '...' not found. Available breakpoints: ... | Breakpoint "..." not found. Available breakpoints: .... |
 | ResponsiveTrait | Invalid breakpoint format for '...': '...'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080) | Invalid breakpoint format for "...": "...". Expected format: WIDTHxHEIGHT (e.g., 1920x1080). |
 | ResponsiveTrait | Invalid breakpoint format: '...'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080) | Invalid breakpoint format: "...". Expected format: WIDTHxHEIGHT (e.g., 1920x1080). |
+| Drupal\FileTrait | The file "..." exists but it should not. | The file "..." exists, but it should not. |
+| CookieTrait | The cookie with name "..." was set but it should not be. | The cookie with name "..." was set, but it should not be. |
+| CookieTrait | The cookie with name containing "..." was set but it should not be. | The cookie with name containing "..." was set, but it should not be. |
+| Drupal\BlockTrait | Block "..." is in region "..." but should be in "...". | Block "..." is in region "...", but it should be in "...". |
+| Drupal\EmailTrait | Invalid email field ... was specified for assertion. | Invalid email field "..." was specified for assertion. |
+| MetatagTrait | Failed to fetch the hreflang alternate page "...". | Failed to fetch the hreflang alternate page "...": .... |
+| FileDownloadTrait | Unable to download file from URL .... | Unable to download file from URL "...". |
+| FileDownloadTrait | The URL ... returned HTTP status N. | The URL "..." returned HTTP status N. |
+| FileDownloadTrait | Unable to save temp file from URL .... | Unable to save temp file from URL "...". |
+| FileDownloadTrait | Unable to write downloaded content into file .... | Unable to write downloaded content into file "...". |
 
 ## Tightened public surface
 

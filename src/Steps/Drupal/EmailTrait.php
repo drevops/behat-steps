@@ -739,7 +739,7 @@ trait EmailTrait {
    */
   public function emailFindMessage(string $field, PyStringNode $string, bool $is_exact = FALSE): ?array {
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
-      throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
+      throw new \RuntimeException(sprintf('Invalid email field "%s" was specified for assertion.', $field));
     }
     $string = (string) $string;
     $string = $is_exact ? $string : $this->stringNormalizeWhitespace($string);
@@ -891,7 +891,7 @@ trait EmailTrait {
    */
   protected function emailAssertMessageNotExistsWithFieldValue(string $field, PyStringNode $string, bool $is_exact): void {
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
-      throw new \RuntimeException(sprintf('Invalid email field %s was specified for assertion.', $field));
+      throw new \RuntimeException(sprintf('Invalid email field "%s" was specified for assertion.', $field));
     }
     $string = (string) $string;
     $string = $is_exact ? $string : $this->stringNormalizeWhitespace($string);

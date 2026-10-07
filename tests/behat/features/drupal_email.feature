@@ -928,7 +928,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Invalid email field nonexistent was specified for assertion.
+      Invalid email field "nonexistent" was specified for assertion.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -944,7 +944,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Invalid email field nonexistent was specified for assertion.
+      Invalid email field "nonexistent" was specified for assertion.
       """
 
   @test-trait:Drupal\EmailTrait

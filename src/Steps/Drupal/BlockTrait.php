@@ -302,7 +302,7 @@ trait BlockTrait {
     $actual_region = $block->getRegion();
 
     if ($actual_region !== $region) {
-      throw new ExpectationException(sprintf('Block "%s" is in region "%s" but should be in "%s".', $label, $actual_region, $region), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Block "%s" is in region "%s", but it should be in "%s".', $label, $actual_region, $region), $this->getSession()->getDriver());
     }
   }
 
