@@ -4,30 +4,33 @@
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [AccessibilityTrait](#accessibilitytrait) | 15 | Assess accessibility of rendered pages. |
+| [AccessibilityTrait](#accessibilitytrait) | 16 | Assess accessibility of rendered pages. |
 | [BasicAuthTrait](#basicauthtrait) | 1 | Keep HTTP basic authentication applied across session resets. |
-| [CommandTrait](#commandtrait) | 1 | Run local shell commands and assert on their result. |
+| [CommandTrait](#commandtrait) | 2 | Run local shell commands and assert on their result. |
 | [CookieTrait](#cookietrait) | 4 | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | 3 | Convert relative date expressions into timestamps or formatted dates. |
 | [DiagnosticsTrait](#diagnosticstrait) | 12 | Append on-failure diagnostics to the failure message of any failed step. |
 | [DropzoneTrait](#dropzonetrait) | 1 | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
-| [ElementTrait](#elementtrait) | 4 | Interact with HTML elements using CSS selectors and DOM attributes. |
-| [FieldTrait](#fieldtrait) | 4 | Manipulate form fields and verify widget functionality. |
-| [FileDownloadTrait](#filedownloadtrait) | 3 | Test file download functionality with content verification. |
+| [ElementTrait](#elementtrait) | 7 | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [FieldTrait](#fieldtrait) | 13 | Manipulate form fields and verify widget functionality. |
+| [FileDownloadTrait](#filedownloadtrait) | 7 | Test file download functionality with content verification. |
+| [IframeTrait](#iframetrait) | 1 | Switch between iframes and the root document. |
 | [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 6 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
-| [MetatagTrait](#metatagtrait) | 11 | Assert `<meta>` tags and head/SEO markup in page markup. |
-| [ModalTrait](#modaltrait) | 6 | Interact with and assert modals. |
-| [PathTrait](#pathtrait) | 1 | Navigate and verify paths with URL validation. |
+| [MetatagTrait](#metatagtrait) | 14 | Assert `<meta>` tags and head/SEO markup in page markup. |
+| [ModalTrait](#modaltrait) | 9 | Interact with and assert modals. |
+| [PathTrait](#pathtrait) | 4 | Navigate and verify paths with URL validation. |
 | [RandomTrait](#randomtrait) | 10 | Replace random-value tokens in step arguments and table cells. |
-| [RegionTrait](#regiontrait) | 2 | Interact with and assert against named page regions. |
+| [RegionTrait](#regiontrait) | 4 | Interact with and assert against named page regions. |
 | [ResponsiveTrait](#responsivetrait) | 6 | Test responsive layouts with viewport control. |
 | [RestTrait](#resttrait) | 2 | Lightweight REST API testing with no Drupal dependencies. |
-| [TableTrait](#tabletrait) | 8 | Interact with HTML table elements and assert their content. |
+| [TableTrait](#tabletrait) | 10 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 4 | Assert XML responses with element and attribute checks. |
+| [FixtureDirectoryTrait](#fixturedirectorytrait) | 5 | Resolves fixture files in the directory Mink's `files_path` parameter names. |
+| [HeadingTrait](#headingtrait) | 1 | Finds a heading by its text within the page or an element of it. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
 | [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
 
@@ -36,31 +39,33 @@
 | Class | Helpers | Description |
 | --- | --- | --- |
 | [Drupal\BigPipeTrait](#drupalbigpipetrait) | 2 | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
-| [Drupal\BlockTrait](#drupalblocktrait) | 2 | Manage Drupal blocks. |
+| [Drupal\BlockTrait](#drupalblocktrait) | 5 | Manage Drupal blocks. |
 | [Drupal\CacheTrait](#drupalcachetrait) | 2 | Invalidate Drupal caches and run cron from within a scenario. |
-| [Drupal\ConfigTrait](#drupalconfigtrait) | 2 | Assert and set stored Drupal configuration values with automatic revert. |
-| [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | 2 | Manage Drupal content blocks. |
-| [Drupal\ContentTrait](#drupalcontenttrait) | 3 | Manage Drupal content with workflow and moderation support. |
-| [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | 1 | Order items in the Drupal Draggable Views. |
+| [Drupal\ConfigTrait](#drupalconfigtrait) | 3 | Assert and set stored Drupal configuration values with automatic revert. |
+| [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | 4 | Manage Drupal content blocks. |
+| [Drupal\ContentTrait](#drupalcontenttrait) | 8 | Manage Drupal content with workflow and moderation support. |
+| [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | 3 | Order items in the Drupal Draggable Views. |
 | [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
-| [Drupal\EckTrait](#drupalecktrait) | 2 | Manage Drupal ECK entities with custom type and bundle creation. |
-| [Drupal\EmailTrait](#drupalemailtrait) | 5 | Test Drupal email functionality with content verification. |
+| [Drupal\EckTrait](#drupalecktrait) | 4 | Manage Drupal ECK entities with custom type and bundle creation. |
+| [Drupal\EmailTrait](#drupalemailtrait) | 10 | Test Drupal email functionality with content verification. |
 | [Drupal\EntityTrait](#drupalentitytrait) | 6 | Create entities of a type that has no dedicated trait. |
-| [Drupal\FileTrait](#drupalfiletrait) | 3 | Manage Drupal file entities with upload and storage operations. |
-| [Drupal\MediaTrait](#drupalmediatrait) | 4 | Manage Drupal media entities with type-specific field handling. |
-| [Drupal\MenuTrait](#drupalmenutrait) | 2 | Manage Drupal menus and menu links. |
-| [Drupal\ModuleTrait](#drupalmoduletrait) | 4 | Enable and disable Drupal modules with automatic state restoration. |
-| [Drupal\ParagraphsTrait](#drupalparagraphstrait) | 2 | Manage Drupal paragraphs entities with structured field data. |
-| [Drupal\QueueTrait](#drupalqueuetrait) | 2 | Manage and assert Drupal queue state. |
-| [Drupal\StateTrait](#drupalstatetrait) | 1 | Manage and assert Drupal State API values with automatic revert. |
-| [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | 2 | Manage Drupal taxonomy terms with vocabulary organization. |
+| [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
+| [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
+| [Drupal\MenuTrait](#drupalmenutrait) | 4 | Manage Drupal menus and menu links. |
+| [Drupal\ModuleTrait](#drupalmoduletrait) | 5 | Enable and disable Drupal modules with automatic state restoration. |
+| [Drupal\ParagraphsTrait](#drupalparagraphstrait) | 4 | Manage Drupal paragraphs entities with structured field data. |
+| [Drupal\QueueTrait](#drupalqueuetrait) | 4 | Manage and assert Drupal queue state. |
+| [Drupal\RedirectTrait](#drupalredirecttrait) | 3 | Manage Drupal redirect entities provided by the contrib `redirect` module. |
+| [Drupal\SearchApiTrait](#drupalsearchapitrait) | 3 | Run Drupal Search API indexing and cron hooks. |
+| [Drupal\StateTrait](#drupalstatetrait) | 2 | Manage and assert Drupal State API values with automatic revert. |
+| [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | 6 | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | 2 | Configure Drupal Testmode module for controlled testing scenarios. |
-| [Drupal\UserTrait](#drupalusertrait) | 8 | Manage Drupal users with role and permission assignments. |
+| [Drupal\UserTrait](#drupalusertrait) | 12 | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
-| [Drupal\WebformTrait](#drupalwebformtrait) | 2 | Manage Drupal webforms. |
+| [Drupal\WebformTrait](#drupalwebformtrait) | 3 | Manage Drupal webforms. |
 | [Drupal\AuthTrait](#drupalauthtrait) | 12 | Creates users and roles, logs them in, and removes them afterwards. |
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 6 | Creates Drupal entities and removes them when the scenario ends. |
-| [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
+| [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 6 | Resolves a fixture file path for a file or image field. |
 | [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a backend. |
 
 ### Index of Toolbox helpers
@@ -76,6 +81,15 @@
 [Source](src/Steps/Web/AccessibilityTrait.php), [Steps](STEPS.md#accessibilitytrait)
 
 > Assess accessibility of rendered pages.
+
+<details>
+  <summary><code>public function accessibilityAssertResultPasses(array $result, string $rules): void</code></summary>
+
+<br/>
+Assert that an assessment result passes the effective failure threshold
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function accessibilityAssess(string $rules): array</code></summary>
@@ -232,6 +246,15 @@ Apply the resolved credentials to the session
 [Source](src/Steps/Web/CommandTrait.php), [Steps](STEPS.md#commandtrait)
 
 > Run local shell commands and assert on their result.
+
+<details>
+  <summary><code>public function commandExecute(string $command): array</code></summary>
+
+<br/>
+Run a shell command and capture its result
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function commandGetTimeout(): int</code></summary>
@@ -444,10 +467,10 @@ Return TRUE to include the current URL. Override to suppress
 > Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
 
 <details>
-  <summary><code>public function dropzoneResolvePath(string $path): string</code></summary>
+  <summary><code>public function dropzoneDrop(string $selector, array $paths): void</code></summary>
 
 <br/>
-Resolve a fixture path against the Mink `files_path` parameter
+Drop files on a target element in a single native drop event
 <br/><br/>
 
 </details>
@@ -468,10 +491,19 @@ Execute JS on an element provided by the selector
 </details>
 
 <details>
-  <summary><code>public function elementFindHeading(string $heading): ?NodeElement</code></summary>
+  <summary><code>public function elementFindVisible(string $selector): ?NodeElement</code></summary>
 
 <br/>
-Find a heading whose text matches exactly
+Find the first visible element matching a CSS selector
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function elementGet(string $selector): NodeElement</code></summary>
+
+<br/>
+Get the first element matching a CSS selector
 <br/><br/>
 
 </details>
@@ -481,6 +513,24 @@ Find a heading whose text matches exactly
 
 <br/>
 Return the element at a 1-based index or throw a clear error
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function elementGetPosition(string $selector): int</code></summary>
+
+<br/>
+Get where an element's markup starts within the markup of the page
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function elementGetVisible(string $selector): NodeElement</code></summary>
+
+<br/>
+Get the first visible element matching a CSS selector
 <br/><br/>
 
 </details>
@@ -510,10 +560,55 @@ Disable browser validation for forms
 </details>
 
 <details>
+  <summary><code>public function fieldFillMultiValueItems(string $field, array $values): void</code></summary>
+
+<br/>
+Fill in the items of a multi-value field widget with a list of values
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fieldFind(string $field): ?NodeElement</code></summary>
+
+<br/>
+Find a field by its id, name, label or value
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fieldFindSelectOption(string $selector, string $option): ?NodeElement</code></summary>
+
+<br/>
+Find an option of a select by its value or text
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fieldGet(string $field): NodeElement</code></summary>
+
+<br/>
+Get a field by its id, name, label or value
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function fieldGetAddMoreButtonSelectors(): array</code></summary>
 
 <br/>
 CSS selectors for the "Add another item" button
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fieldGetRadioButton(string $selector): NodeElement</code></summary>
+
+<br/>
+Get a radio button by its id, name, label or value
 <br/><br/>
 
 </details>
@@ -528,10 +623,46 @@ CSS selectors that indicate a required-field marker
 </details>
 
 <details>
+  <summary><code>public function fieldGetSelect(string $selector): NodeElement</code></summary>
+
+<br/>
+Get a select by its id, name or label
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fieldGetSelectOption(string $selector, string $option): NodeElement</code></summary>
+
+<br/>
+Get an option of a select by its value or text
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function fieldIsMarkedRequired(NodeElement $field_element): bool</code></summary>
 
 <br/>
 Check if a given field element is marked as required
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fieldSetWysiwygValue(NodeElement $element, string $value): void</code></summary>
+
+<br/>
+Set the value of a field that carries a WYSIWYG editor
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fieldUnselectValue(NodeElement $select_field, string $value): void</code></summary>
+
+<br/>
+Remove a value from the selection of a select
 <br/><br/>
 
 </details>
@@ -543,10 +674,46 @@ Check if a given field element is marked as required
 > Test file download functionality with content verification.
 
 <details>
+  <summary><code>public function fileDownloadAssertZipContainsFiles(array $names, bool $is_partial): void</code></summary>
+
+<br/>
+Assert that the downloaded ZIP archive holds every named file
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fileDownloadAssertZipNotContainsFiles(array $names, bool $is_partial): void</code></summary>
+
+<br/>
+Assert that the downloaded ZIP archive holds none of the named files
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fileDownloadFindLine(string $search): ?string</code></summary>
+
+<br/>
+Find the first line of the downloaded file that contains a string
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function fileDownloadGetTempDir(): string</code></summary>
 
 <br/>
 Get temp download dir
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fileDownloadLoad(string $url): void</code></summary>
+
+<br/>
+Download a file and keep it as the scenario's download
 <br/><br/>
 
 </details>
@@ -565,6 +732,21 @@ Open downloaded ZIP archive and validate contents
 
 <br/>
 Download file
+<br/><br/>
+
+</details>
+
+## IframeTrait
+
+[Source](src/Steps/Web/IframeTrait.php), [Steps](STEPS.md#iframetrait)
+
+> Switch between iframes and the root document.
+
+<details>
+  <summary><code>public function iframeGetName(string $selector): string</code></summary>
+
+<br/>
+Get the name of an iframe, assigning one when it has none
 <br/><br/>
 
 </details>
@@ -708,6 +890,24 @@ Return the configured CSS selector for a message type
 > Assert `<meta>` tags and head/SEO markup in page markup.
 
 <details>
+  <summary><code>public function metatagAssertHreflangAlternatesReciprocal(array $alternates): void</code></summary>
+
+<br/>
+Assert that every hreflang alternate page links back to the current URL
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function metatagAssertHreflangAlternatesValid(array $alternates): void</code></summary>
+
+<br/>
+Assert that hreflang alternates are valid
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function metatagAssertMetaSetExists(array $names, string $label): void</code></summary>
 
 <br/>
@@ -739,6 +939,15 @@ Find a meta tag by its "name" or "property" attribute
 
 <br/>
 Find the content of a meta tag by its "name" or "property" attribute
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function metatagFindMetaWithAttributes(array $attributes): ?NodeElement</code></summary>
+
+<br/>
+Find the first meta tag carrying every given attribute value
 <br/><br/>
 
 </details>
@@ -831,10 +1040,28 @@ Get the CSS selectors for the modal close button
 </details>
 
 <details>
+  <summary><code>public function modalGetContent(): NodeElement</code></summary>
+
+<br/>
+Get the content element of the visible modal
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function modalGetContentSelectors(): array</code></summary>
 
 <br/>
 Get the CSS selectors for the modal content
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function modalGetElement(string $selector): NodeElement</code></summary>
+
+<br/>
+Get a visible element in the visible modal
 <br/><br/>
 
 </details>
@@ -866,6 +1093,15 @@ Get the timeout in seconds for waiting for the modal to appear
 
 </details>
 
+<details>
+  <summary><code>public function modalWaitForAppearWithin(int $seconds): void</code></summary>
+
+<br/>
+Wait for the modal to appear within a number of seconds
+<br/><br/>
+
+</details>
+
 ## PathTrait
 
 [Source](src/Steps/Web/PathTrait.php), [Steps](STEPS.md#pathtrait)
@@ -873,10 +1109,37 @@ Get the timeout in seconds for waiting for the modal to appear
 > Navigate and verify paths with URL validation.
 
 <details>
+  <summary><code>public function pathGetCurrent(): string</code></summary>
+
+<br/>
+Get the path of the current URL
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function pathGetCurrentUrlQuery(): array</code></summary>
 
 <br/>
 Get the query parameters of the current URL
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function pathGetUrlParameter(string $name): array|string</code></summary>
+
+<br/>
+Get a query parameter of the current URL
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function pathIsCurrent(string $path): bool</code></summary>
+
+<br/>
+Check whether the current URL is at a path
 <br/><br/>
 
 </details>
@@ -982,6 +1245,24 @@ Applies 'randomSubstitute()' across every cell in '$table'
 [Source](src/Steps/Web/RegionTrait.php), [Steps](STEPS.md#regiontrait)
 
 > Interact with and assert against named page regions.
+
+<details>
+  <summary><code>public function regionFindElementByText(string $region, string $selector, string $text): ?NodeElement</code></summary>
+
+<br/>
+Find an element in a region whose text matches exactly
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function regionFindElementWithAttribute(string $region, string $selector, string $attribute, string $value): ?NodeElement</code></summary>
+
+<br/>
+Find an element in a region whose attribute holds a value
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function regionGet(string $region): NodeElement</code></summary>
@@ -1101,6 +1382,15 @@ Find a table row containing the given text
 </details>
 
 <details>
+  <summary><code>public function tableFindRowByValues(NodeElement $table, array $values, string $selector): ?NodeElement</code></summary>
+
+<br/>
+Find the first body row whose cells hold the given values
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function tableGet(string $selector): NodeElement</code></summary>
 
 <br/>
@@ -1123,6 +1413,15 @@ Get the CSS selector for table body rows
 
 <br/>
 Get the index of a column by its header text
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function tableGetColumnValues(NodeElement $table, int $column_index): array</code></summary>
+
+<br/>
+Get the texts of a column's cells in the body rows of a table
 <br/><br/>
 
 </details>
@@ -1229,6 +1528,72 @@ Parse XML content without altering the cached document
 
 </details>
 
+## FixtureDirectoryTrait
+
+[Source](src/Helper/Web/FixtureDirectoryTrait.php)
+
+> Resolves fixture files in the directory Mink's `files_path` parameter names.
+
+<details>
+  <summary><code>public function fixtureDirectoryFind(): ?string</code></summary>
+
+<br/>
+Find the fixtures directory
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fixtureDirectoryFindFile(string $path): ?string</code></summary>
+
+<br/>
+Find a file in the fixtures directory
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fixtureDirectoryGet(): string</code></summary>
+
+<br/>
+Get the fixtures directory
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fixtureDirectoryGetFile(string $path): string</code></summary>
+
+<br/>
+Get a file in the fixtures directory
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fixtureDirectoryReadFile(string $path): string</code></summary>
+
+<br/>
+Read a file in the fixtures directory
+<br/><br/>
+
+</details>
+
+## HeadingTrait
+
+[Source](src/Helper/Web/HeadingTrait.php)
+
+> Finds a heading by its text within the page or an element of it.
+
+<details>
+  <summary><code>public function headingFind(TraversableElement $container, string $heading): ?NodeElement</code></summary>
+
+<br/>
+Find a heading whose text matches exactly
+<br/><br/>
+
+</details>
+
 ## RequestHeadersTrait
 
 [Source](src/Helper/Web/RequestHeadersTrait.php)
@@ -1303,6 +1668,24 @@ Wait until no BigPipe placeholder markers remain in the DOM
 > Manage Drupal blocks.
 
 <details>
+  <summary><code>public function blockApplyConfiguration(Block $block, array $configuration): void</code></summary>
+
+<br/>
+Apply a configuration to a block and save it
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function blockCreate(string $admin_label): Block</code></summary>
+
+<br/>
+Create a block in the default theme from the plugin with an admin label
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function blockFindByLabel(string $label): ?Block</code></summary>
 
 <br/>
@@ -1316,6 +1699,15 @@ Find a block by its label
 
 <br/>
 Return the block carrying a label
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function blockSetVisibilityCondition(Block $block, string $condition, array $configuration): void</code></summary>
+
+<br/>
+Set a visibility condition on a block and save it
 <br/><br/>
 
 </details>
@@ -1368,6 +1760,15 @@ Read a stored configuration value, ignoring runtime overrides
 
 </details>
 
+<details>
+  <summary><code>public function configSetValue(string $name, string $key, mixed $value): void</code></summary>
+
+<br/>
+Set a stored configuration value, restored after the scenario
+<br/><br/>
+
+</details>
+
 ## Drupal\ContentBlockTrait
 
 [Source](src/Steps/Drupal/ContentBlockTrait.php), [Steps](STEPS.md#drupalcontentblocktrait)
@@ -1379,6 +1780,24 @@ Read a stored configuration value, ignoring runtime overrides
 
 <br/>
 Create a block content entity with the specified type and field values
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function contentBlockDelete(string $content_block_type, array $conditions): void</code></summary>
+
+<br/>
+Delete the content blocks of a type that match conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function contentBlockGetByDescription(string $content_block_type, string $description): BlockContentInterface</code></summary>
+
+<br/>
+Get the newest content block with a description
 <br/><br/>
 
 </details>
@@ -1399,6 +1818,24 @@ Load multiple content blocks with specified type and conditions
 > Manage Drupal content with workflow and moderation support.
 
 <details>
+  <summary><code>public function contentCreate(string $content_type, array $values): EntityStubInterface</code></summary>
+
+<br/>
+Create a node of a content type
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function contentDelete(string $content_type, array $conditions): void</code></summary>
+
+<br/>
+Delete the nodes of a content type that match conditions
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function contentGetNidByTitle(string $content_type, string $title): int</code></summary>
 
 <br/>
@@ -1412,6 +1849,33 @@ Return the ID of the node with the specified type and title
 
 <br/>
 Return the node with the specified type and title
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function contentRebuildAccessGrants(NodeInterface $node): void</code></summary>
+
+<br/>
+Rebuild the access grants of a node
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function contentSetModerationState(NodeInterface $node, string $state): void</code></summary>
+
+<br/>
+Set the moderation state of a node and save it
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function contentSetPathAlias(NodeInterface $node, string $alias): void</code></summary>
+
+<br/>
+Set the path alias of a node, replacing any existing alias
 <br/><br/>
 
 </details>
@@ -1436,6 +1900,24 @@ Visit the action page of the content with a specified title
 
 <br/>
 Find a node using provided conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function draggableviewsGetNodesByTitle(string $type, array $titles): array</code></summary>
+
+<br/>
+Get nodes of a type by title, keyed like the titles
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function draggableviewsSetOrder(string $view_id, string $view_display_id, array $nodes): void</code></summary>
+
+<br/>
+Set the order of nodes in a Draggable Views display
 <br/><br/>
 
 </details>
@@ -1489,6 +1971,24 @@ Create a single content entity
 </details>
 
 <details>
+  <summary><code>public function eckDelete(string $entity_type, string $bundle, array $conditions): void</code></summary>
+
+<br/>
+Delete the entities of a type and bundle that match conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function eckGetEntityByTitle(string $entity_type, string $bundle, string $title): EntityInterface</code></summary>
+
+<br/>
+Get an entity of a type and bundle by title
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array</code></summary>
 
 <br/>
@@ -1504,10 +2004,37 @@ Load multiple entities with specified type and conditions
 > Test Drupal email functionality with content verification.
 
 <details>
+  <summary><code>public function emailDisableCollector(): void</code></summary>
+
+<br/>
+Restore the mail system of every handler type, and clear the collector
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function emailEnableCollector(): void</code></summary>
+
+<br/>
+Switch every handler type to the test mail collector, and clear it
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public static function emailExtractLinks(string $string): array</code></summary>
 
 <br/>
 Extract all links from provided string
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function emailFindLinkContaining(string $partial_url): ?string</code></summary>
+
+<br/>
+Find the first link in a collected email whose URL contains a value
 <br/><br/>
 
 </details>
@@ -1544,6 +2071,24 @@ Get email messages collected during the test
 
 <br/>
 Get the first collected email by exact or partial subject
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function emailGetMessagesToAddress(string $address): array</code></summary>
+
+<br/>
+Get the collected emails sent to an address
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function emailGetMessagesWithSubject(string $subject): array</code></summary>
+
+<br/>
+Get the collected emails with a subject
 <br/><br/>
 
 </details>
@@ -1633,10 +2178,37 @@ Create a single managed file
 </details>
 
 <details>
+  <summary><code>public function fileDeleteManaged(array $conditions): void</code></summary>
+
+<br/>
+Delete the managed files that match conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fileGetUnmanagedContent(string $uri): string</code></summary>
+
+<br/>
+Get the content of an unmanaged file
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function fileLoadMultiple(array $conditions = []): array</code></summary>
 
 <br/>
 Load multiple files with specified conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fileWriteUnmanaged(string $uri, string $content): void</code></summary>
+
+<br/>
+Write an unmanaged file, creating its directory when it is missing
 <br/><br/>
 
 </details>
@@ -1666,6 +2238,15 @@ Create media entity
 </details>
 
 <details>
+  <summary><code>public function mediaDelete(string $media_type, array $conditions): void</code></summary>
+
+<br/>
+Delete the media of a type that match conditions
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function mediaLoadMultiple(string $media_type, array $conditions = []): array</code></summary>
 
 <br/>
@@ -1688,6 +2269,24 @@ Visit the action page of the media with a specified name
 [Source](src/Steps/Drupal/MenuTrait.php), [Steps](STEPS.md#drupalmenutrait)
 
 > Manage Drupal menus and menu links.
+
+<details>
+  <summary><code>public function menuCreate(array $values): MenuInterface</code></summary>
+
+<br/>
+Create a menu
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function menuCreateLink(MenuInterface $menu, array $values): MenuLinkContent</code></summary>
+
+<br/>
+Create a link in a menu
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function menuFindByLabel(string $label): ?MenuInterface</code></summary>
@@ -1749,6 +2348,15 @@ Check if a module's code is present
 
 </details>
 
+<details>
+  <summary><code>public function moduleSetEnabled(string $module, bool $is_enabled): void</code></summary>
+
+<br/>
+Enable or disable a module, restored after the scenario
+<br/><br/>
+
+</details>
+
 ## Drupal\ParagraphsTrait
 
 [Source](src/Steps/Drupal/ParagraphsTrait.php), [Steps](STEPS.md#drupalparagraphstrait)
@@ -1765,10 +2373,28 @@ Create a paragraphs item from a stub and attach it to an entity
 </details>
 
 <details>
+  <summary><code>public function paragraphsBuildStub(string $paragraph_type, array $fields): EntityStub</code></summary>
+
+<br/>
+Build a paragraph stub from field values
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface</code></summary>
 
 <br/>
 Find entity
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function paragraphsGetParentEntity(string $entity_type, string $bundle, string $field_name, string $lookup_field, string $lookup_value): ContentEntityInterface</code></summary>
+
+<br/>
+Get the entity to attach a paragraph to
 <br/><br/>
 
 </details>
@@ -1778,6 +2404,15 @@ Find entity
 [Source](src/Steps/Drupal/QueueTrait.php), [Steps](STEPS.md#drupalqueuetrait)
 
 > Manage and assert Drupal queue state.
+
+<details>
+  <summary><code>public function queueGet(string $queue): QueueInterface</code></summary>
+
+<br/>
+Get a queue, which is deleted after the scenario
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function queueGetLeaseTime(): int</code></summary>
@@ -1797,6 +2432,81 @@ Get the maximum number of items to process
 
 </details>
 
+<details>
+  <summary><code>public function queueProcess(string $queue, int $limit): int</code></summary>
+
+<br/>
+Process items from a queue with the queue's worker
+<br/><br/>
+
+</details>
+
+## Drupal\RedirectTrait
+
+[Source](src/Steps/Drupal/RedirectTrait.php), [Steps](STEPS.md#drupalredirecttrait)
+
+> Manage Drupal redirect entities provided by the contrib `redirect` module.
+
+<details>
+  <summary><code>public function redirectCreate(string $from, string $to, int $status_code = 301): Redirect</code></summary>
+
+<br/>
+Create a redirect
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function redirectDelete(string $from): void</code></summary>
+
+<br/>
+Delete the redirects from a source path
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function redirectExists(string $from, ?string $to = NULL, ?int $status_code = NULL): bool</code></summary>
+
+<br/>
+Check whether a redirect exists
+<br/><br/>
+
+</details>
+
+## Drupal\SearchApiTrait
+
+[Source](src/Steps/Drupal/SearchApiTrait.php), [Steps](STEPS.md#drupalsearchapitrait)
+
+> Run Drupal Search API indexing and cron hooks.
+
+<details>
+  <summary><code>public function searchApiFindNodeByTitle(string $content_type, string $title): ?NodeInterface</code></summary>
+
+<br/>
+Find a node of a content type by title
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function searchApiIndexItems(int $count): void</code></summary>
+
+<br/>
+Index items on every active search index
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function searchApiIndexNode(NodeInterface $node): void</code></summary>
+
+<br/>
+Track a node in the search indexes, then index 1 item on each
+<br/><br/>
+
+</details>
+
 ## Drupal\StateTrait
 
 [Source](src/Steps/Drupal/StateTrait.php), [Steps](STEPS.md#drupalstatetrait)
@@ -1812,11 +2522,56 @@ Read a state value, distinguishing stored NULL from a missing key
 
 </details>
 
+<details>
+  <summary><code>public function stateSetValue(string $name, mixed $value): void</code></summary>
+
+<br/>
+Set a state value, restored after the scenario
+<br/><br/>
+
+</details>
+
 ## Drupal\TaxonomyTrait
 
 [Source](src/Steps/Drupal/TaxonomyTrait.php), [Steps](STEPS.md#drupaltaxonomytrait)
 
 > Manage Drupal taxonomy terms with vocabulary organization.
+
+<details>
+  <summary><code>public function taxonomyCreate(string $vocabulary, array $values): EntityStubInterface</code></summary>
+
+<br/>
+Create a term in a vocabulary
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function taxonomyDelete(string $vocabulary, array $conditions): void</code></summary>
+
+<br/>
+Delete the terms of a vocabulary that match conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function taxonomyFindVocabulary(string $vocabulary): ?VocabularyInterface</code></summary>
+
+<br/>
+Find a vocabulary by machine name
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function taxonomyGetVocabulary(string $vocabulary): VocabularyInterface</code></summary>
+
+<br/>
+Get a vocabulary by machine name
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array</code></summary>
@@ -1885,10 +2640,46 @@ Build a user stub with a random name, password and email
 </details>
 
 <details>
+  <summary><code>public function userCreate(array $values): EntityStubInterface</code></summary>
+
+<br/>
+Create a user
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function userCreateAndLogin(string $roles, array $extra_fields = []): void</code></summary>
 
 <br/>
 Create a user carrying the roles and extra fields, and log in as them
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function userCreateRoleWithPermissions(string $role, array $permissions): RoleInterface</code></summary>
+
+<br/>
+Create a role with permissions, replacing a role with the same ID
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function userCreateWithPermissions(array $permissions): EntityStubInterface</code></summary>
+
+<br/>
+Create a user with a new role carrying permissions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function userDelete(array $values): void</code></summary>
+
+<br/>
+Delete the users with an email address or, without one, a name
 <br/><br/>
 
 </details>
@@ -1967,6 +2758,15 @@ Read the errors logged since the scenario started, and clear them
 [Source](src/Steps/Drupal/WebformTrait.php), [Steps](STEPS.md#drupalwebformtrait)
 
 > Manage Drupal webforms.
+
+<details>
+  <summary><code>public function webformCreateFromTemplate(string $title, WebformInterface $template): WebformInterface</code></summary>
+
+<br/>
+Create a webform as a copy of a template
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function webformLoadMultiple(string $title): array</code></summary>
@@ -2165,6 +2965,51 @@ Registers an entity saved outside the create pipeline for cleanup
 [Source](src/Helper/Drupal/FixtureFileTrait.php)
 
 > Resolves a fixture file path for a file or image field.
+
+<details>
+  <summary><code>public function fixtureDirectoryFind(): ?string</code></summary>
+
+<br/>
+Find the fixtures directory
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fixtureDirectoryFindFile(string $path): ?string</code></summary>
+
+<br/>
+Find a file in the fixtures directory
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fixtureDirectoryGet(): string</code></summary>
+
+<br/>
+Get the fixtures directory
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fixtureDirectoryGetFile(string $path): string</code></summary>
+
+<br/>
+Get a file in the fixtures directory
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function fixtureDirectoryReadFile(string $path): string</code></summary>
+
+<br/>
+Read a file in the fixtures directory
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function fixtureFileExpandEntityFields(string $entity_type, EntityStubInterface $stub): void</code></summary>
