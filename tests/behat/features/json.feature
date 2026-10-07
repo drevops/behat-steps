@@ -458,7 +458,7 @@ Feature: Check that JsonTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The expected element count "three" is not a valid non-negative integer.
+      The count must be an integer, but "three" was given.
       """
 
   @phpserver

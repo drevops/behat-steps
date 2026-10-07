@@ -14,6 +14,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Assert XML responses with element and attribute checks.
@@ -26,6 +27,8 @@ use Behat\Step\When;
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait XmlTrait {
+
+  use StringTrait;
 
   /**
    * The current XML document.
@@ -402,6 +405,8 @@ trait XmlTrait {
    */
   #[Then('the XML element :element should have :count element(s)')]
   public function xmlAssertElementCount(string $element, string $count): void {
+    $count = $this->stringParseInteger($count, 'count', 0);
+
     $parent_node = $this->xmlGetFirstNode($element);
 
     $child_elements = 0;
@@ -412,9 +417,8 @@ trait XmlTrait {
       }
     }
 
-    $expected_count = (int) $count;
-    if ($child_elements !== $expected_count) {
-      throw new ExpectationException(sprintf('The XML element "%s" has %d child element(s), but expected %d.', $element, $child_elements, $expected_count), $this->getSession()->getDriver());
+    if ($child_elements !== $count) {
+      throw new ExpectationException(sprintf('The XML element "%s" has %d child element(s), but expected %d.', $element, $child_elements, $count), $this->getSession()->getDriver());
     }
   }
 

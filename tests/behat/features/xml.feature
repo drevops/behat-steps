@@ -383,6 +383,20 @@ Feature: Check that XmlTrait works
       The XML element "//library" has 3 child element(s), but expected 5.
       """
 
+  @test-trait:XmlTrait
+  Scenario: Assert that "Then the XML element :element should have :count element(s)" fails with an error for a non-numeric count
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I go to "http://cli:8888/xml_valid.xml"
+      Then the XML element "//library" should have "three" elements
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The count must be an integer, but "three" was given.
+      """
+
   @phpserver
   Scenario: Assert "Then the XML should use the namespace :namespace" works
     When I go to "http://cli:8888/xml_namespaced.xml"

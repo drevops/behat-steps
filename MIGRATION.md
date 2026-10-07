@@ -2634,6 +2634,7 @@ The count must be 0 or greater, but "-1" was given.
 | --- | --- | --- |
 | Every step whose method took an `int`: the queue, email, table and element counts, the element index, tolerance and offset steps, and `the REST response status code should be :code` | Behat's `Type error: ... must be of type int, string given` | `\RuntimeException` |
 | `I wait for :seconds second(s)`, `I wait for :seconds second(s) for AJAX to finish` and `I run search indexing for :count item(s)` | read as `0` | `\RuntimeException` |
+| `the XML element :element should have :count element(s)` and `I set the system time to the value :value` | read as `0` | `\RuntimeException` |
 | `I set the viewport width to :width`, `I set the viewport height to :height` and `I set the viewport to :width by :height` | read as `0`, and the resize failed without a word | `\RuntimeException` |
 
 PHP's coercion was looser than the `int` type suggested: `1e3` read as 1000, and `3.5` read as 3 with a deprecation notice, which only failed the step where PHP reports deprecations. Both now fail with `\RuntimeException`.
@@ -2649,6 +2650,7 @@ A test that asserts one of these messages needs the new text:
 | `the command exit code should be :code` | `The expected exit code must be an integer, but got "...".` | `The exit code must be an integer, but "..." was given.` |
 | `the command should complete in less than :seconds second(s)` and `... more than :seconds second(s)` | `The expected duration must be numeric, but got "...".` | `The duration must be a number, but "..." was given.` |
 | `I follow the link with the index :index ...`, both forms | `The link number must be a positive integer, but "..." was provided.` | `The link index must be an integer, but "..." was given.`, or `The link index must be 1 or greater, but "..." was given.` for an integer below 1 |
+| `the JSON path :path should have :count element(s)` | `The expected element count "..." is not a valid non-negative integer.` | `The count must be an integer, but "..." was given.`, or `The count must be 0 or greater, but "..." was given.` for an integer below 0 |
 
 ### Signatures
 

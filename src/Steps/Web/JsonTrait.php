@@ -13,6 +13,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Flow\JSONPath\JSONPath;
 use JsonSchema\Validator;
 
@@ -32,6 +33,8 @@ use JsonSchema\Validator;
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait JsonTrait {
+
+  use StringTrait;
 
   /**
    * Decoded JSON data from the current response.
@@ -348,21 +351,18 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should have :count element(s)')]
   public function jsonAssertPathCount(string $path, string $count): void {
+    $count = $this->stringParseInteger($count, 'count', 0);
+
     $value = $this->jsonResolveSingle($path);
 
     if (!is_array($value)) {
       throw new ExpectationException(sprintf('The JSON path "%s" is not an array or object.', $path), $this->getSession()->getDriver());
     }
 
-    if (!ctype_digit($count)) {
-      throw new \RuntimeException(sprintf('The expected element count "%s" is not a valid non-negative integer.', $count));
-    }
-
     $actual = count($value);
-    $expected = (int) $count;
 
-    if ($actual !== $expected) {
-      throw new ExpectationException(sprintf('The JSON path "%s" has %d element(s), but expected %d.', $path, $actual, $expected), $this->getSession()->getDriver());
+    if ($actual !== $count) {
+      throw new ExpectationException(sprintf('The JSON path "%s" has %d element(s), but expected %d.', $path, $actual, $count), $this->getSession()->getDriver());
     }
   }
 
