@@ -77,7 +77,7 @@ final class TraitOptionResolver implements TraitOptionResolverInterface {
    */
   public function raw(string $group, string $key): mixed {
     if (!$this->has($group, $key)) {
-      throw new \RuntimeException(sprintf('No trait in %s declares the option "%s.%s". Declared options: %s.', $this->contextClass, $group, $key, $this->optionList()));
+      throw new \RuntimeException(sprintf('No trait in %s declares the option "%s.%s". Declared options: %s.', $this->contextClass, $group, $key, $this->listOptionNames()));
     }
 
     return $this->tagOverrides->apply($group, $this->declarations[$group][$key], $this->resolved[$group][$key], $this->scenarioTagRegistry->getTags());
@@ -214,7 +214,7 @@ final class TraitOptionResolver implements TraitOptionResolverInterface {
   /**
    * Lists every declared option as a dotted path.
    */
-  protected function optionList(): string {
+  protected function listOptionNames(): string {
     $paths = [];
 
     foreach ($this->declarations as $group => $options) {

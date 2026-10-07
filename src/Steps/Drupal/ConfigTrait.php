@@ -108,8 +108,8 @@ trait ConfigTrait {
    */
   #[Given('the config :name key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
-    $this->configSnapshot($name);
-    $this->backendFor(ConfigCapabilityInterface::class)->configSet($name, $key, $this->configCastValue($value));
+    $this->configStoreOriginalData($name);
+    $this->backendFor(ConfigCapabilityInterface::class)->configSet($name, $key, $this->configNormalizeValue($value));
   }
 
   /**
@@ -132,8 +132,8 @@ trait ConfigTrait {
         throw new \RuntimeException('The config values table must contain "name", "key" and "value" columns.');
       }
 
-      $this->configSnapshot($row['name']);
-      $backend->configSet($row['name'], $row['key'], $this->configCastValue($row['value']));
+      $this->configStoreOriginalData($row['name']);
+      $backend->configSet($row['name'], $row['key'], $this->configNormalizeValue($row['value']));
     }
   }
 
@@ -277,7 +277,7 @@ trait ConfigTrait {
    * @param string $name
    *   The configuration object name.
    */
-  protected function configSnapshot(string $name): void {
+  protected function configStoreOriginalData(string $name): void {
     if (array_key_exists($name, $this->configOriginalData)) {
       return;
     }
@@ -427,7 +427,7 @@ trait ConfigTrait {
    *   for numeric input, boolean for "true"/"false", NULL for "null", or the
    *   original string otherwise.
    */
-  protected function configCastValue(string $value): mixed {
+  protected function configNormalizeValue(string $value): mixed {
     $trimmed = trim($value);
 
     if ($trimmed === '') {
