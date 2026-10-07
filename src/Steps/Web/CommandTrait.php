@@ -82,85 +82,9 @@ trait CommandTrait {
    */
   #[When('I run the command :command')]
   public function commandRun(string $command): void {
-    $descriptors = [
-      0 => ['pipe', 'r'],
-      1 => ['pipe', 'w'],
-      2 => ['pipe', 'w'],
-    ];
-
     $this->commandResetState();
 
-    $started = microtime(TRUE);
-    $process = proc_open($command, $descriptors, $pipes);
-
-    if (!is_resource($process)) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to start the command "%s".', $command));
-      // @codeCoverageIgnoreEnd
-    }
-
-    fclose($pipes[0]);
-
-    // Drain both pipes concurrently. A sequential read deadlocks once a
-    // command fills the unread pipe's buffer (~64KB) and blocks before it
-    // finishes writing the pipe being read.
-    stream_set_blocking($pipes[1], FALSE);
-    stream_set_blocking($pipes[2], FALSE);
-
-    $stdout = '';
-    $stderr = '';
-    $timeout = $this->commandGetTimeout();
-
-    while (!feof($pipes[1]) || !feof($pipes[2])) {
-      if (microtime(TRUE) - $started > $timeout) {
-        proc_terminate($process, 9);
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-        proc_close($process);
-
-        throw new \RuntimeException(sprintf('The command "%s" timed out after %d seconds.', $command, $timeout));
-      }
-
-      $read = [];
-      if (!feof($pipes[1])) {
-        $read[] = $pipes[1];
-      }
-      if (!feof($pipes[2])) {
-        $read[] = $pipes[2];
-      }
-
-      $write = NULL;
-      $except = NULL;
-      if (stream_select($read, $write, $except, 1) === FALSE) {
-        // @codeCoverageIgnoreStart
-        break;
-        // @codeCoverageIgnoreEnd
-      }
-
-      foreach ($read as $stream) {
-        $chunk = fread($stream, 8192);
-        if ($chunk === FALSE) {
-          // @codeCoverageIgnoreStart
-          continue;
-          // @codeCoverageIgnoreEnd
-        }
-
-        if ($stream === $pipes[1]) {
-          $stdout .= $chunk;
-        }
-        else {
-          $stderr .= $chunk;
-        }
-      }
-    }
-
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-
-    $this->commandExitCode = proc_close($process);
-    $this->commandDuration = microtime(TRUE) - $started;
-    $this->commandStdout = $stdout;
-    $this->commandStderr = $stderr;
+    ['exit_code' => $this->commandExitCode, 'duration' => $this->commandDuration, 'stdout' => $this->commandStdout, 'stderr' => $this->commandStderr] = $this->commandExecute($command);
   }
 
   /**
@@ -333,6 +257,106 @@ trait CommandTrait {
     if ($this->commandDuration <= $limit) {
       throw new AssertionException(sprintf('Expected the command to complete in more than %s seconds, but it took %.3f seconds.', $seconds, $this->commandDuration));
     }
+  }
+
+  /**
+   * Run a shell command and capture its result.
+   *
+   * Both output pipes are drained as the command runs, and a command running
+   * longer than commandGetTimeout() is terminated.
+   *
+   * @param string $command
+   *   The command, passed to the system shell verbatim.
+   *
+   * @return array{exit_code: int, duration: float, stdout: string, stderr: string}
+   *   The exit code, the duration in seconds, the standard output and the
+   *   error output.
+   *
+   * @throws \RuntimeException
+   *   When the command cannot start, or runs longer than the timeout.
+   */
+  public function commandExecute(string $command): array {
+    $descriptors = [
+      0 => ['pipe', 'r'],
+      1 => ['pipe', 'w'],
+      2 => ['pipe', 'w'],
+    ];
+
+    $started = microtime(TRUE);
+    $process = proc_open($command, $descriptors, $pipes);
+
+    if (!is_resource($process)) {
+      // @codeCoverageIgnoreStart
+      throw new \RuntimeException(sprintf('Unable to start the command "%s".', $command));
+      // @codeCoverageIgnoreEnd
+    }
+
+    fclose($pipes[0]);
+
+    // Drain both pipes concurrently. A sequential read deadlocks once a
+    // command fills the unread pipe's buffer (~64KB) and blocks before it
+    // finishes writing the pipe being read.
+    stream_set_blocking($pipes[1], FALSE);
+    stream_set_blocking($pipes[2], FALSE);
+
+    $stdout = '';
+    $stderr = '';
+    $timeout = $this->commandGetTimeout();
+
+    while (!feof($pipes[1]) || !feof($pipes[2])) {
+      if (microtime(TRUE) - $started > $timeout) {
+        proc_terminate($process, 9);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        proc_close($process);
+
+        throw new \RuntimeException(sprintf('The command "%s" timed out after %d seconds.', $command, $timeout));
+      }
+
+      $read = [];
+      if (!feof($pipes[1])) {
+        $read[] = $pipes[1];
+      }
+      if (!feof($pipes[2])) {
+        $read[] = $pipes[2];
+      }
+
+      $write = NULL;
+      $except = NULL;
+      if (stream_select($read, $write, $except, 1) === FALSE) {
+        // @codeCoverageIgnoreStart
+        break;
+        // @codeCoverageIgnoreEnd
+      }
+
+      foreach ($read as $stream) {
+        $chunk = fread($stream, 8192);
+        if ($chunk === FALSE) {
+          // @codeCoverageIgnoreStart
+          continue;
+          // @codeCoverageIgnoreEnd
+        }
+
+        if ($stream === $pipes[1]) {
+          $stdout .= $chunk;
+        }
+        else {
+          $stderr .= $chunk;
+        }
+      }
+    }
+
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+
+    $exit_code = proc_close($process);
+
+    return [
+      'exit_code' => $exit_code,
+      'duration' => microtime(TRUE) - $started,
+      'stdout' => $stdout,
+      'stderr' => $stderr,
+    ];
   }
 
   /**
