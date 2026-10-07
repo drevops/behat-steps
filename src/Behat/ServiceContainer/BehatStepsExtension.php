@@ -390,6 +390,7 @@ final class BehatStepsExtension implements ExtensionInterface {
       if (!isset($config['drush']['alias']) && !isset($config['drush']['root'])) {
         throw new InvalidConfigurationException('Drush "alias" or "root" path is required for the Drush backend.');
       }
+
       $container->setParameter('behat_steps.backend.drush.alias', $config['drush']['alias'] ?? NULL);
 
       $config['drush']['binary'] ??= 'vendor/bin/drush';

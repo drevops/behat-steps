@@ -616,7 +616,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    *   The trait whose prerequisites to check. A hook passes '__TRAIT__'.
    */
   protected function prerequisitesMet(string $trait): bool {
-    return !$this->prerequisiteFailure($trait, FALSE) instanceof \RuntimeException;
+    return !$this->prerequisiteFailure($trait, is_hook: FALSE) instanceof \RuntimeException;
   }
 
   /**
