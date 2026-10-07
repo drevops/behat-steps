@@ -334,7 +334,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 
 | Before | After |
 | --- | --- |
-| `Then the :rowText row should contain the following:` | `Then the row :row_text should contain the following:` |
+| `Then the :rowText row should contain the following:` | `Then the row containing :partial_text should contain the following:` |
 
 ### TaxonomyTrait
 
@@ -414,7 +414,7 @@ The passes above still left steps that broke the step-text rules in [CONTRIBUTIN
 - Every noun takes an article: `on the element :element`, `to the URL :url`, `the system time`, `the last XML response`.
 - A value reads `the value :value`, so `should be equal to :value` became `should be equal to the value :value`.
 - A step that names its target compares against `:value`, so the region, row and command output assertions take `:value` where they took `:text`. `the modal should contain :text` keeps `:text`, because it asserts on a whole body with no named target.
-- A partial match reads `a <thing> containing :partial_<thing>`, as the cookie steps already did.
+- A partial match reads `a <thing> containing :partial_<thing>`, as the cookie steps already did. The table row steps find a row by part of its text, so they read `the row containing :partial_text`, and their methods take `$partial_text` where they took `$row_text`.
 - `:param` became `:name`, the placeholder every other named thing uses, and an email link's position became `:index`, as it is in `I follow the link :link with the index :index`.
 
 Where a pass above already renamed a step, its row there now carries the final text instead of being repeated here, so each v3 step maps straight to its v4 form. That covers the query parameter, meta tag and table row steps, and the XML comparisons. Steps that are new in v4 changed only in the [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary).
@@ -592,7 +592,7 @@ A handful of ideas still read 2 ways after the passes above. Most navigation ste
 
 `ahoy lint-docs` and `TraitMethodNamingTest` reject the replaced forms, so they don't come back.
 
-The media, ECK and content block navigation steps and the 2 viewport offset steps were already renamed by a pass above, so their rows there carry the final text. `I click on the link :link in the region :region` and `I click on the link :link in the row :row_text` are new in v4, so only their [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary) rows change. The steps below changed in this pass alone.
+The media, ECK and content block navigation steps and the 2 viewport offset steps were already renamed by a pass above, so their rows there carry the final text. `I click on the link :link in the region :region` and `I click on the link :link in the row containing :partial_text` are new in v4, so only their [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary) rows change. The steps below changed in this pass alone.
 
 ### ElementTrait
 
@@ -985,12 +985,12 @@ The message tables lose their header row: each row is a message, with no `error 
 
 | Before | After |
 | --- | --- |
-| `Given I click :link in the :rowText row` | `When I click on the link :link in the row :row_text` |
-| `Given I press :button in the :rowText row` | `When I press the button :button in the row :row_text` |
-| `Then I should see the text :text in the :rowText row` | `Then the row :row_text should contain the value :value` |
-| `Then I should not see the text :text in the :rowText row` | `Then the row :row_text should not contain the value :value` |
-| `Then I should see the :link in the :rowText row` | `Then the link :link should exist in the row :row_text` |
-| `Then I should not see the :link in the :rowText row` | `Then the link :link should not exist in the row :row_text` |
+| `Given I click :link in the :rowText row` | `When I click on the link :link in the row containing :partial_text` |
+| `Given I press :button in the :rowText row` | `When I press the button :button in the row containing :partial_text` |
+| `Then I should see the text :text in the :rowText row` | `Then the row containing :partial_text should contain the value :value` |
+| `Then I should not see the text :text in the :rowText row` | `Then the row containing :partial_text should not contain the value :value` |
+| `Then I should see the :link in the :rowText row` | `Then the link :link should exist in the row containing :partial_text` |
+| `Then I should not see the :link in the :rowText row` | `Then the link :link should not exist in the row containing :partial_text` |
 
 ### Mail
 
@@ -1841,7 +1841,7 @@ An assertion that narrows its subject with a qualifier, such as a cookie's name 
 | `MetatagTrait` | `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |
 | `TableTrait` | `tableAssertMultipleTextsInRow()` | `tableAssertRowContainsMultiple()` |
 
-The subject is what the step asserts about. `ElementTrait`'s attribute steps assert that an element exists, so the attribute and its value join the qualifier, and `LinkTrait` drops `Text`, which named how the step finds the link: `the link :link with the href :href should exist` is `linkAssertExistsWithHref()`. `the row :row_text should contain the following:` asserts about the row, so `TableTrait` names it first.
+The subject is what the step asserts about. `ElementTrait`'s attribute steps assert that an element exists, so the attribute and its value join the qualifier, and `LinkTrait` drops `Text`, which named how the step finds the link: `the link :link with the href :href should exist` is `linkAssertExistsWithHref()`. `the row containing :partial_text should contain the following:` asserts about the row, so `TableTrait` names it first.
 
 `Drupal\EmailTrait::emailAssertMessageSentToAddressWithContentNotContaining()` negates its content check rather than the send, so `Not` can't move into the predicate slot without changing what it asserts, and `emailAssertMessageNotSentToAddressWithContentContaining()` already asserts the other thing. The message sent to the address becomes the subject instead:
 

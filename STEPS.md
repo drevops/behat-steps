@@ -3824,7 +3824,8 @@ Then the REST response should contain "success"
 >  - Assert table sort order by column.
 >  - Assert text values present in a specific table row.
 >  - Assert bulk row content against expected values.
->  - Click links and press buttons within a row identified by its text.
+>  - Click links and press buttons within a row identified by part of its
+>  text.
 
 
 ### Options
@@ -3835,28 +3836,28 @@ Then the REST response should contain "success"
 | `table.body_row_selector` | string | `'tbody tr'` | - | CSS selector of a table body row, relative to the table. |
 
 <details>
-  <summary><code>@When I click on the link :link in the row :row_text</code></summary>
+  <summary><code>@When I click on the link :link in the row containing :partial_text</code></summary>
 
 <br/>
 Click a link within a row
 <br/><br/>
 
 ```gherkin
-When I click on the link "Edit" in the row "Article title"
+When I click on the link "Edit" in the row containing "Article title"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I press the button :button in the row :row_text</code></summary>
+  <summary><code>@When I press the button :button in the row containing :partial_text</code></summary>
 
 <br/>
 Press a button within a row
 <br/><br/>
 
 ```gherkin
-When I press the button "Remove" in the row "Article title"
+When I press the button "Remove" in the row containing "Article title"
 
 ```
 
@@ -3968,14 +3969,14 @@ Then the table ".mytable" should contain the following rows:
 </details>
 
 <details>
-  <summary><code>@Then the row :row_text should contain the following:</code></summary>
+  <summary><code>@Then the row containing :partial_text should contain the following:</code></summary>
 
 <br/>
 Assert that a table row containing a text has the expected values
 <br/><br/>
 
 ```gherkin
-Then the row "Article title" should contain the following:
+Then the row containing "Article title" should contain the following:
   | Published |
   | admin     |
 
@@ -3984,56 +3985,56 @@ Then the row "Article title" should contain the following:
 </details>
 
 <details>
-  <summary><code>@Then the row :row_text should contain the value :value</code></summary>
+  <summary><code>@Then the row containing :partial_text should contain the value :value</code></summary>
 
 <br/>
 Assert that a row contains a value
 <br/><br/>
 
 ```gherkin
-Then the row "Article title" should contain the value "Published"
+Then the row containing "Article title" should contain the value "Published"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the row :row_text should not contain the value :value</code></summary>
+  <summary><code>@Then the row containing :partial_text should not contain the value :value</code></summary>
 
 <br/>
 Assert that a row does not contain a value
 <br/><br/>
 
 ```gherkin
-Then the row "Article title" should not contain the value "Unpublished"
+Then the row containing "Article title" should not contain the value "Unpublished"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link should exist in the row :row_text</code></summary>
+  <summary><code>@Then the link :link should exist in the row containing :partial_text</code></summary>
 
 <br/>
 Assert that a row contains the link
 <br/><br/>
 
 ```gherkin
-Then the link "Edit" should exist in the row "Article title"
+Then the link "Edit" should exist in the row containing "Article title"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link should not exist in the row :row_text</code></summary>
+  <summary><code>@Then the link :link should not exist in the row containing :partial_text</code></summary>
 
 <br/>
 Assert that a row does not contain the link
 <br/><br/>
 
 ```gherkin
-Then the link "Delete" should not exist in the row "Article title"
+Then the link "Delete" should not exist in the row containing "Article title"
 
 ```
 

@@ -22,7 +22,8 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * - Assert table sort order by column.
  * - Assert text values present in a specific table row.
  * - Assert bulk row content against expected values.
- * - Click links and press buttons within a row identified by its text.
+ * - Click links and press buttons within a row identified by part of its
+ *   text.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -34,15 +35,15 @@ trait TableTrait {
    * Click a link within a row.
    *
    * @code
-   * When I click on the link "Edit" in the row "Article title"
+   * When I click on the link "Edit" in the row containing "Article title"
    * @endcode
    */
-  #[When('I click on the link :link in the row :row_text')]
-  public function tableClickLinkInRow(string $link, string $row_text): void {
-    $element = $this->tableGetRowByText($row_text)->findLink($link);
+  #[When('I click on the link :link in the row containing :partial_text')]
+  public function tableClickLinkInRow(string $link, string $partial_text): void {
+    $element = $this->tableGetRowByText($partial_text)->findLink($link);
 
     if (!$element instanceof NodeElement) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the row containing "%s"', $row_text), 'id|title|alt|text', $link);
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the row containing "%s"', $partial_text), 'id|title|alt|text', $link);
     }
 
     $element->click();
@@ -52,15 +53,15 @@ trait TableTrait {
    * Press a button within a row.
    *
    * @code
-   * When I press the button "Remove" in the row "Article title"
+   * When I press the button "Remove" in the row containing "Article title"
    * @endcode
    */
-  #[When('I press the button :button in the row :row_text')]
-  public function tablePressButtonInRow(string $button, string $row_text): void {
-    $element = $this->tableGetRowByText($row_text)->findButton($button);
+  #[When('I press the button :button in the row containing :partial_text')]
+  public function tablePressButtonInRow(string $button, string $partial_text): void {
+    $element = $this->tableGetRowByText($partial_text)->findButton($button);
 
     if (!$element instanceof NodeElement) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('button in the row containing "%s"', $row_text), 'id|name|title|alt|value', $button);
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('button in the row containing "%s"', $partial_text), 'id|name|title|alt|value', $button);
     }
 
     $element->press();
@@ -250,17 +251,17 @@ trait TableTrait {
    * Assert that a table row containing a text has the expected values.
    *
    * @code
-   * Then the row "Article title" should contain the following:
+   * Then the row containing "Article title" should contain the following:
    *   | Published |
    *   | admin     |
    * @endcode
    */
-  #[Then('the row :row_text should contain the following:')]
-  public function tableAssertRowContainsMultiple(string $row_text, TableNode $table): void {
-    $actual_text = $this->tableGetRowByText($row_text)->getText();
+  #[Then('the row containing :partial_text should contain the following:')]
+  public function tableAssertRowContainsMultiple(string $partial_text, TableNode $table): void {
+    $actual_text = $this->tableGetRowByText($partial_text)->getText();
     foreach ($table->getColumn(0) as $expected_text) {
       if (!str_contains((string) $actual_text, $expected_text)) {
-        throw new ExpectationException(sprintf('Row containing "%s" does not contain expected text "%s".', $row_text, $expected_text), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('Row containing "%s" does not contain expected text "%s".', $partial_text, $expected_text), $this->getSession()->getDriver());
       }
     }
   }
@@ -269,15 +270,15 @@ trait TableTrait {
    * Assert that a row contains a value.
    *
    * @code
-   * Then the row "Article title" should contain the value "Published"
+   * Then the row containing "Article title" should contain the value "Published"
    * @endcode
    */
-  #[Then('the row :row_text should contain the value :value')]
-  public function tableAssertRowContains(string $row_text, string $value): void {
-    $row = $this->tableGetRowByText($row_text);
+  #[Then('the row containing :partial_text should contain the value :value')]
+  public function tableAssertRowContains(string $partial_text, string $value): void {
+    $row = $this->tableGetRowByText($partial_text);
 
     if (!str_contains($row->getText(), $value)) {
-      throw new ExpectationException(sprintf('The row containing "%s" does not contain the text "%s".', $row_text, $value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The row containing "%s" does not contain the text "%s".', $partial_text, $value), $this->getSession()->getDriver());
     }
   }
 
@@ -285,15 +286,15 @@ trait TableTrait {
    * Assert that a row does not contain a value.
    *
    * @code
-   * Then the row "Article title" should not contain the value "Unpublished"
+   * Then the row containing "Article title" should not contain the value "Unpublished"
    * @endcode
    */
-  #[Then('the row :row_text should not contain the value :value')]
-  public function tableAssertRowNotContains(string $row_text, string $value): void {
-    $row = $this->tableGetRowByText($row_text);
+  #[Then('the row containing :partial_text should not contain the value :value')]
+  public function tableAssertRowNotContains(string $partial_text, string $value): void {
+    $row = $this->tableGetRowByText($partial_text);
 
     if (str_contains($row->getText(), $value)) {
-      throw new ExpectationException(sprintf('The row containing "%s" contains the text "%s".', $row_text, $value), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The row containing "%s" contains the text "%s".', $partial_text, $value), $this->getSession()->getDriver());
     }
   }
 
@@ -301,13 +302,13 @@ trait TableTrait {
    * Assert that a row contains the link.
    *
    * @code
-   * Then the link "Edit" should exist in the row "Article title"
+   * Then the link "Edit" should exist in the row containing "Article title"
    * @endcode
    */
-  #[Then('the link :link should exist in the row :row_text')]
-  public function tableAssertLinkExistsInRow(string $link, string $row_text): void {
-    if (!$this->tableGetRowByText($row_text)->findLink($link) instanceof NodeElement) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the row containing "%s"', $row_text), 'id|title|alt|text', $link);
+  #[Then('the link :link should exist in the row containing :partial_text')]
+  public function tableAssertLinkExistsInRow(string $link, string $partial_text): void {
+    if (!$this->tableGetRowByText($partial_text)->findLink($link) instanceof NodeElement) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the row containing "%s"', $partial_text), 'id|title|alt|text', $link);
     }
   }
 
@@ -315,13 +316,13 @@ trait TableTrait {
    * Assert that a row does not contain the link.
    *
    * @code
-   * Then the link "Delete" should not exist in the row "Article title"
+   * Then the link "Delete" should not exist in the row containing "Article title"
    * @endcode
    */
-  #[Then('the link :link should not exist in the row :row_text')]
-  public function tableAssertLinkNotExistsInRow(string $link, string $row_text): void {
-    if ($this->tableGetRowByText($row_text)->findLink($link) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The row containing "%s" has the link "%s".', $row_text, $link), $this->getSession()->getDriver());
+  #[Then('the link :link should not exist in the row containing :partial_text')]
+  public function tableAssertLinkNotExistsInRow(string $link, string $partial_text): void {
+    if ($this->tableGetRowByText($partial_text)->findLink($link) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The row containing "%s" has the link "%s".', $partial_text, $link), $this->getSession()->getDriver());
     }
   }
 
