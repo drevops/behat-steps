@@ -168,7 +168,7 @@ Placeholder names, articles and `Given` verbs drifted as traits were added, so t
 
 Placeholder names are part of the contract even when the surrounding words are identical. Behat binds a step argument to the method parameter of the same name, so a rename reaches any context that overrides the step method or calls it directly.
 
-Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their step text is unchanged, but the method signatures are not: `MediaTrait::mediaRemoveType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiDoIndex()` now take `$content_type` and `$count`.
+Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their step text is unchanged, but the method signatures are not: `MediaTrait::mediaDeleteType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiDoIndex()` now take `$content_type` and `$count`.
 
 ### CacheTrait
 
@@ -1887,6 +1887,14 @@ A method that created an entity put the verb and the noun in either order. The s
 | `Drupal\MenuTrait` | `menuLinksDelete()` | `menuDeleteLinkMultiple()` |
 
 `entityLifecycleCreate()` already read verb-first and is unchanged. The 3 steps at the bottom also act on several entities, so they take the `Multiple` the next section describes. The `RawContext` rows in [The Drupal lifecycle moved into concern-named helpers](#the-drupal-lifecycle-moved-into-concern-named-helpers) point straight at the new names.
+
+The verb that deletes is `Delete`. 3 `does not exist` steps said `Remove` instead, and `ContentTrait` repeated the noun its prefix already carries:
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\BlockTrait` | `blockRemove()` | `blockDelete()` |
+| `Drupal\ContentTrait` | `contentRemoveContentType()` | `contentDeleteType()` |
+| `Drupal\MediaTrait` | `mediaRemoveType()` | `mediaDeleteType()` |
 
 A capability interface that creates an entity now reads one way, so its delete, place and role methods move with its create methods. A backend of your own renames the methods it implements; `DrupalBackend`, `DrushBackend` and `Core` already have.
 

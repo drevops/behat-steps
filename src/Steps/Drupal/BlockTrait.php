@@ -141,7 +141,7 @@ trait BlockTrait {
    * @endcode
    */
   #[Given('the block :label does not exist')]
-  public function blockRemove(string $label): void {
+  public function blockDelete(string $label): void {
     while ($block = $this->blockFindByLabel($label)) {
       $block->delete();
     }

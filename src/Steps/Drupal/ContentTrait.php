@@ -65,7 +65,7 @@ trait ContentTrait {
    * @endcode
    */
   #[Given('the content type :content_type does not exist')]
-  public function contentRemoveContentType(string $content_type): void {
+  public function contentDeleteType(string $content_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);

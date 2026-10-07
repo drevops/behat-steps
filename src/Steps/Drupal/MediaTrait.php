@@ -45,7 +45,7 @@ trait MediaTrait {
    * @endcode
    */
   #[Given('the media type :media_type does not exist')]
-  public function mediaRemoveType(string $media_type): void {
+  public function mediaDeleteType(string $media_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
