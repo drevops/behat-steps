@@ -82,9 +82,10 @@ trait JsonTrait {
    */
   #[Given('the response JSON is loaded from the file :filename')]
   public function jsonSetContentFromFile(string $filename): void {
-    $this->jsonTestContent = $this->fixtureDirectoryReadFile($filename);
-    $this->jsonData = NULL;
-    $this->jsonContentHash = NULL;
+    $content = $this->fixtureDirectoryReadFile($filename);
+
+    $this->jsonResetState();
+    $this->jsonTestContent = $content;
   }
 
   /**
@@ -99,9 +100,8 @@ trait JsonTrait {
    */
   #[Given('the response JSON is the following:')]
   public function jsonSetContent(PyStringNode $content): void {
+    $this->jsonResetState();
     $this->jsonTestContent = $content->getRaw();
-    $this->jsonData = NULL;
-    $this->jsonContentHash = NULL;
   }
 
   /**

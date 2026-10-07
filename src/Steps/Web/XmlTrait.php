@@ -59,13 +59,8 @@ trait XmlTrait {
    */
   #[BeforeScenario]
   public function xmlBeforeScenario(BeforeScenarioScope $scope): void {
-    libxml_use_internal_errors(TRUE);
-    libxml_clear_errors();
-
-    $this->xmlDocument = NULL;
-    $this->xmlXpath = NULL;
-    $this->xmlContentHash = NULL;
-    $this->xmlTestContent = NULL;
+    $this->xmlEnableInternalErrors();
+    $this->xmlResetState();
   }
 
   /**
@@ -73,10 +68,7 @@ trait XmlTrait {
    */
   #[AfterScenario]
   public function xmlAfterScenario(AfterScenarioScope $scope): void {
-    $this->xmlDocument = NULL;
-    $this->xmlXpath = NULL;
-    $this->xmlContentHash = NULL;
-    $this->xmlTestContent = NULL;
+    $this->xmlResetState();
   }
 
   /**
@@ -88,10 +80,10 @@ trait XmlTrait {
    */
   #[Given('the response XML is loaded from the file :filename')]
   public function xmlSetContentFromFile(string $filename): void {
-    $this->xmlTestContent = $this->fixtureDirectoryReadFile($filename);
-    $this->xmlDocument = NULL;
-    $this->xmlXpath = NULL;
-    $this->xmlContentHash = NULL;
+    $content = $this->fixtureDirectoryReadFile($filename);
+
+    $this->xmlResetState();
+    $this->xmlTestContent = $content;
   }
 
   /**
@@ -106,10 +98,8 @@ trait XmlTrait {
    */
   #[Given('the response XML is the following:')]
   public function xmlSetContent(PyStringNode $content): void {
+    $this->xmlResetState();
     $this->xmlTestContent = $content->getRaw();
-    $this->xmlDocument = NULL;
-    $this->xmlXpath = NULL;
-    $this->xmlContentHash = NULL;
   }
 
   /**
@@ -634,6 +624,24 @@ trait XmlTrait {
         }
       }
     }
+  }
+
+  /**
+   * Switch libxml to collecting its errors, and drop those collected so far.
+   */
+  protected function xmlEnableInternalErrors(): void {
+    libxml_use_internal_errors(TRUE);
+    libxml_clear_errors();
+  }
+
+  /**
+   * Reset all cached XML state.
+   */
+  protected function xmlResetState(): void {
+    $this->xmlDocument = NULL;
+    $this->xmlXpath = NULL;
+    $this->xmlContentHash = NULL;
+    $this->xmlTestContent = NULL;
   }
 
   /**
