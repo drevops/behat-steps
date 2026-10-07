@@ -77,6 +77,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Process',
     'Query',
     'Read',
+    'Rebuild',
     'Register',
     'Resize',
     'Resolve',
@@ -87,6 +88,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Unselect',
     'Visit',
     'Wait',
+    'Write',
   ];
 
   /**
