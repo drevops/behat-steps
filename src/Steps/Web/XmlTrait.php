@@ -399,15 +399,7 @@ trait XmlTrait {
   public function xmlAssertElementCount(string $element, string $count): void {
     $count = $this->stringParseInteger($count, 'count', 0);
 
-    $parent_node = $this->xmlGetFirstNode($element);
-
-    $child_elements = 0;
-
-    foreach ($parent_node->childNodes as $child) {
-      if ($child->nodeType === XML_ELEMENT_NODE) {
-        $child_elements++;
-      }
-    }
+    $child_elements = $this->xmlCountChildElements($this->xmlGetFirstNode($element));
 
     if ($child_elements !== $count) {
       throw new ExpectationException(sprintf('The XML element "%s" has %d child element(s), but expected %d.', $element, $child_elements, $count), $this->getSession()->getDriver());
@@ -878,6 +870,27 @@ trait XmlTrait {
     if (!$is_loaded || $errors !== []) {
       throw new ExpectationException(sprintf('The response does not match the DTD: %s.', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Count the direct child elements of a node.
+   *
+   * @param \DOMNode $node
+   *   The parent node.
+   *
+   * @return int
+   *   The number of direct children that are elements.
+   */
+  protected function xmlCountChildElements(\DOMNode $node): int {
+    $count = 0;
+
+    foreach ($node->childNodes as $child) {
+      if ($child->nodeType === XML_ELEMENT_NODE) {
+        $count++;
+      }
+    }
+
+    return $count;
   }
 
   /**
