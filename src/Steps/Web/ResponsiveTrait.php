@@ -376,11 +376,9 @@ trait ResponsiveTrait {
         'height' => $height ?: $default_height,
       ];
     }
-    // @codeCoverageIgnoreStart
     catch (\Exception) {
       return ['width' => $default_width, 'height' => $default_height];
     }
-    // @codeCoverageIgnoreEnd
   }
 
   /**
@@ -401,11 +399,9 @@ trait ResponsiveTrait {
 
       $this->getSession()->resizeWindow($width, $height, 'current');
     }
-    // @codeCoverageIgnoreStart
     catch (\Exception) {
       // A browser driver without resize support throws.
     }
-    // @codeCoverageIgnoreEnd
   }
 
 }

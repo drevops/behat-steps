@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
+use Behat\Mink\Driver\DriverInterface;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Behat\Mink\Mink;
+use Behat\Mink\Session;
 use Behat\MinkExtension\Context\RawMinkContext;
 use DrevOps\BehatSteps\Steps\Web\ResponsiveTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Tests for ResponsiveTrait.
@@ -388,6 +393,62 @@ class ResponsiveTraitTest extends UnitTestCase {
         'Breakpoint "unknown" not found.',
       ],
     ];
+  }
+
+  #[DataProvider('dataProviderGetCurrentDimensions')]
+  public function testGetCurrentDimensions(?int $width, ?int $height, array $expected): void {
+    $session = $this->attachSession();
+    $session->method('evaluateScript')->willReturnMap([
+      ['return window.innerWidth;', $width],
+      ['return window.innerHeight;', $height],
+    ]);
+
+    $this->assertSame($expected, $this->testObject->responsiveGetCurrentDimensions());
+  }
+
+  public static function dataProviderGetCurrentDimensions(): array {
+    return [
+      'reported by the browser' => [1024, 768, ['width' => 1024, 'height' => 768]],
+      'not reported by the browser' => [NULL, NULL, ['width' => 1280, 'height' => 800]],
+    ];
+  }
+
+  public function testGetCurrentDimensionsWithoutJavascript(): void {
+    $session = $this->attachSession();
+    $session->method('evaluateScript')->willThrowException(new UnsupportedDriverActionException('Evaluating scripts is not supported by %s', $this->createStub(DriverInterface::class)));
+
+    $this->assertSame(['width' => 1280, 'height' => 800], $this->testObject->responsiveGetCurrentDimensions());
+  }
+
+  public function testResize(): void {
+    $session = $this->attachSession();
+    $session->expects($this->once())->method('resizeWindow')->with(1920, 1080, 'current');
+
+    $this->testObject->responsiveResize(1920, 1080);
+  }
+
+  public function testResizeWithoutResizeSupport(): void {
+    $session = $this->attachSession();
+    $session->expects($this->once())->method('resizeWindow')->willThrowException(new UnsupportedDriverActionException('Resizing windows is not supported by %s', $this->createStub(DriverInterface::class)));
+
+    $this->testObject->responsiveResize(1920, 1080);
+  }
+
+  /**
+   * Attach a started session double to the test object.
+   *
+   * @return \Behat\Mink\Session&\PHPUnit\Framework\MockObject\MockObject
+   *   The session the test object reads.
+   */
+  protected function attachSession(): Session&MockObject {
+    $session = $this->createMock(Session::class);
+    $session->method('isStarted')->willReturn(TRUE);
+
+    $mink = new Mink(['default' => $session]);
+    $mink->setDefaultSessionName('default');
+    $this->testObject->setMink($mink);
+
+    return $session;
   }
 
 }

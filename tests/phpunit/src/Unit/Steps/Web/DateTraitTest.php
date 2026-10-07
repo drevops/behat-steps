@@ -123,6 +123,23 @@ class DateTraitTest extends UnitTestCase {
     $this->assertSame([['created'], [$expected]], $this->testObject->dateRelativeTransformTable($table)->getRows());
   }
 
+  public function testDateGetNowReadsTheSystemClock(): void {
+    // DateTraitTestImplementation pins the clock, so the default runs only on
+    // a context that composes the trait without overriding it.
+    $context = new class extends WebRawContext {
+
+      use DateTrait;
+
+    };
+
+    $before = time();
+    $now = $context::dateGetNow();
+    $after = time();
+
+    $this->assertGreaterThanOrEqual($before, $now);
+    $this->assertLessThanOrEqual($after, $now);
+  }
+
 }
 
 /**
