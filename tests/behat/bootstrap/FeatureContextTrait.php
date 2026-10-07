@@ -307,8 +307,8 @@ trait FeatureContextTrait {
     try {
       $result = $module_installer->install([$name]);
     }
-    catch (MissingDependencyException $missing_dependency_exception) {
-      throw new \Exception(sprintf('Unable to install a module "%s": %s.', $name, $missing_dependency_exception->getMessage()), $missing_dependency_exception->getCode(), $missing_dependency_exception);
+    catch (MissingDependencyException $exception) {
+      throw new \Exception(sprintf('Unable to install a module "%s": %s.', $name, $exception->getMessage()), $exception->getCode(), $exception);
     }
 
     if (!$result) {

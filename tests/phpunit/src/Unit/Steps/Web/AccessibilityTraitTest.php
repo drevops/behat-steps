@@ -98,8 +98,8 @@ class AccessibilityTraitTest extends UnitTestCase {
       $object->callGetJs();
       $this->fail('Expected a RuntimeException.');
     }
-    catch (\RuntimeException $runtime_exception) {
-      $this->assertStringContainsString('after 2 attempt(s) with a 1 second timeout', $runtime_exception->getMessage());
+    catch (\RuntimeException $exception) {
+      $this->assertStringContainsString('after 2 attempt(s) with a 1 second timeout', $exception->getMessage());
     }
 
     $this->assertSame(2, $object->engineReads);
