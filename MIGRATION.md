@@ -1449,6 +1449,8 @@ If your project catches an exception from one of these steps, update the type:
 | `Drupal\ModuleTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
 | `Drupal\StateTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
 | `Drupal\RedirectTrait` (`the following redirects should (not) exist:`) | `\Exception` | `AssertionException` |
+| `Drupal\QueueTrait` (all `Then` steps) | `ExpectationException` | `AssertionException` |
+| `Drupal\WatchdogTrait` (the check for PHP errors logged during a scenario) | `ExpectationException` | `AssertionException` |
 | `MetatagTrait` (all `Then` steps) | `\Exception` | `ExpectationException`; `ElementNotFoundException` when the meta tag itself is missing; `\RuntimeException` when an hreflang alternate page returns an HTTP error |
 | `XmlTrait` (`the response should be in XML format`) | `\RuntimeException` | `ExpectationException` |
 | `FieldTrait` (`the option ... should (not) exist within the select ...`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select or a missing option, `ExpectationException` for an option that exists but should not |

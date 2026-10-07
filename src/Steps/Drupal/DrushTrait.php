@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
-use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\DrushCapabilityInterface;
+use DrevOps\BehatSteps\Exception\AssertionException;
 
 /**
  * Run Drush commands and assert their output.
@@ -107,7 +107,7 @@ trait DrushTrait {
   #[Then('the drush output should contain the value :value')]
   public function drushAssertOutputContains(string $value): void {
     if (!str_contains($this->drushReadOutput(), $this->drushFixArgument($value))) {
-      throw new ExpectationException(sprintf('The last drush command output does not contain "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput), $this->getSession()->getDriver());
+      throw new AssertionException(sprintf('The last drush command output does not contain "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
     }
   }
 
@@ -121,7 +121,7 @@ trait DrushTrait {
   #[Then('the drush output should not contain the value :value')]
   public function drushAssertOutputNotContains(string $value): void {
     if (str_contains($this->drushReadOutput(), $this->drushFixArgument($value))) {
-      throw new ExpectationException(sprintf('The last drush command output contains "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput), $this->getSession()->getDriver());
+      throw new AssertionException(sprintf('The last drush command output contains "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
     }
   }
 
@@ -144,7 +144,7 @@ trait DrushTrait {
     }
 
     if ($result !== 1) {
-      throw new ExpectationException(sprintf('The last drush command output does not match "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $pattern, $this->drushOutput), $this->getSession()->getDriver());
+      throw new AssertionException(sprintf('The last drush command output does not match "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $pattern, $this->drushOutput));
     }
   }
 
@@ -180,7 +180,7 @@ trait DrushTrait {
    * @param string|null $arguments
    *   Arguments appended to the command verbatim, or NULL for none.
    *
-   * @throws \Behat\Mink\Exception\ExpectationException
+   * @throws \DrevOps\BehatSteps\Exception\AssertionException
    *   When the command exits zero.
    */
   public function drushRunExpectingFailure(string $command, ?string $arguments = NULL): void {
@@ -193,7 +193,7 @@ trait DrushTrait {
     $this->drushOutput = $output;
 
     if ($result->exitCode === 0) {
-      throw new ExpectationException(sprintf('The drush command "%s" was expected to fail, but it exited 0. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $output), $this->getSession()->getDriver());
+      throw new AssertionException(sprintf('The drush command "%s" was expected to fail, but it exited 0. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $output));
     }
   }
 

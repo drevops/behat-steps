@@ -7,12 +7,12 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
-use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Exception\AssertionException;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
@@ -199,7 +199,7 @@ trait QueueTrait {
     $queue_instance = \Drupal::service('queue')->get($queue);
     $actual = $queue_instance->numberOfItems();
     if ($actual !== $count) {
-      throw new ExpectationException(sprintf('Expected queue "%s" to have %d items, but it has %d.', $queue, $count, $actual), $this->getSession()->getDriver());
+      throw new AssertionException(sprintf('Expected queue "%s" to have %d items, but it has %d.', $queue, $count, $actual));
     }
   }
 
@@ -218,7 +218,7 @@ trait QueueTrait {
     $queue_instance = \Drupal::service('queue')->get($queue);
     $actual = $queue_instance->numberOfItems();
     if ($actual !== 0) {
-      throw new ExpectationException(sprintf('Expected queue "%s" to be empty, but it has %d items.', $queue, $actual), $this->getSession()->getDriver());
+      throw new AssertionException(sprintf('Expected queue "%s" to be empty, but it has %d items.', $queue, $actual));
     }
   }
 

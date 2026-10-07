@@ -143,7 +143,7 @@ Because a step attribute is inherited through `use`, two registered contexts com
 Assertions fail by throwing, and which exception is part of the public contract:
 
 - A trait with a Mink session throws `ExpectationException`, passing the browser driver as the second argument so the message carries page context. A missing element throws `ElementNotFoundException`.
-- A trait with no Mink session - `CommandTrait`, `Drupal\ConfigTrait`, `ModuleTrait`, `StateTrait`, `RedirectTrait` - throws `DrevOps\BehatSteps\Exception\AssertionException`, which needs no browser driver.
+- A trait with no Mink session - `CommandTrait`, `Drupal\ConfigTrait`, `DrushTrait`, `ModuleTrait`, `QueueTrait`, `RedirectTrait`, `StateTrait`, `WatchdogTrait` - throws `DrevOps\BehatSteps\Exception\AssertionException`, which needs no browser driver.
 - A bad step argument or unmet prerequisite is not an assertion failure and throws `\RuntimeException`.
 - A capability the session's browser driver lacks throws Mink's `UnsupportedDriverActionException`. A capability no backend in the scenario's order provides throws the backend layer's own `UnsupportedBackendActionException`.
 
