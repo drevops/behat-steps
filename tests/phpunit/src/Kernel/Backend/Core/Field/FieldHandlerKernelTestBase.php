@@ -145,13 +145,8 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
       ->loadUnchanged($stub->getValue('id'));
     $this->assertInstanceOf(ContentEntityInterface::class, $reloaded);
 
-    // Some handlers (e.g. ImageHandler) emit a flat associative array as
-    // single-delta shorthand rather than a list of deltas. Normalize that
-    // shape into a 1-element list so the iteration below is uniform.
-    $expanded = $stub->getValue($field_name);
-    $deltas = is_array($expanded) && !array_is_list($expanded)
-      ? [$expanded]
-      : $expanded;
+    $deltas = $stub->getValue($field_name);
+    $this->assertIsList($deltas, sprintf('Field "%s" expanded to keyed values rather than a list of deltas.', $field_name));
 
     // Assert the stored delta count matches the stub; the per-delta loop
     // alone would not detect a handler that duplicates or appends deltas.
