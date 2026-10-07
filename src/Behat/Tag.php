@@ -74,16 +74,16 @@ final class Tag {
    * @param \Behat\Gherkin\Node\TaggedNodeInterface|\Behat\Behat\Hook\Scope\ScenarioScope|\Behat\Behat\EventDispatcher\Event\BeforeScenarioTested $subject
    *   A scenario scope or event, to read the scenario and its feature, or a
    *   single node.
-   * @param string $tag
+   * @param string $name
    *   The tag name, without a leading '@'.
    *
    * @return bool
    *   TRUE when the subject carries the tag.
    */
-  public static function has(TaggedNodeInterface|ScenarioScope|BeforeScenarioTested $subject, string $tag): bool {
+  public static function has(TaggedNodeInterface|ScenarioScope|BeforeScenarioTested $subject, string $name): bool {
     $tags = $subject instanceof TaggedNodeInterface ? self::on($subject) : self::all($subject);
 
-    return in_array($tag, $tags, TRUE);
+    return in_array($name, $tags, TRUE);
   }
 
   /**
