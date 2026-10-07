@@ -1526,7 +1526,12 @@ A failure message quotes the values it names in double quotes, puts the noun bef
 | --- | --- | --- |
 | Drupal\BlockTrait | The block "..." exists but should not. | The block "..." exists, but it should not. |
 | Drupal\BlockTrait | Block "..." is in region "..." but should not be. | Block "..." is in region "...", but it should not be. |
-| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which contains "..." but should not. | The config "..." key "..." has the ... "...", which contains "...", but it should not. |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which contains "..." but should not. | The config "..." with the key "..." has the ... "...", which contains "...", but it should not. |
+| Drupal\ConfigTrait | The config "..." key "..." is not set, but it should have the ... "...". | The config "..." with the key "..." is not set, but it should have the ... "...". |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", but it should have the ... "...". | The config "..." with the key "..." has the ... "...", but it should have the ... "...". |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", but it should not have the ... "...". | The config "..." with the key "..." has the ... "...", but it should not have the ... "...". |
+| Drupal\ConfigTrait | The config "..." key "..." is not set, but its ... should contain "...". | The config "..." with the key "..." is not set, but its ... should contain "...". |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which does not contain "...". | The config "..." with the key "..." has the ... "...", which does not contain "...". |
 | Drupal\FileTrait | File contents "..." contains "...", but should not. | File contents "..." contains "...", but it should not. |
 | LinkTrait | The link href "..." matches the specified href "..." but should not. | The link href "..." matches the specified href "...", but it should not. |
 | LinkTrait | The link with the title "..." exists, but should not. | The link with the title "..." exists, but it should not. |

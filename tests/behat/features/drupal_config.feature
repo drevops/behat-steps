@@ -163,7 +163,7 @@ Feature: Check that ConfigTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", but it should have the value "https://b.example.com".
+      The config "behat_steps_test.settings" with the key "endpoint" has the value "https://a.example.com", but it should have the value "https://b.example.com".
       """
 
   @test-trait:Drupal\ConfigTrait
@@ -177,7 +177,7 @@ Feature: Check that ConfigTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The config "behat_steps_test.absent" key "endpoint" is not set, but it should have the value "https://a.example.com".
+      The config "behat_steps_test.absent" with the key "endpoint" is not set, but it should have the value "https://a.example.com".
       """
 
   @test-trait:Drupal\ConfigTrait
@@ -192,7 +192,7 @@ Feature: Check that ConfigTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", but it should not have the value "https://a.example.com".
+      The config "behat_steps_test.settings" with the key "endpoint" has the value "https://a.example.com", but it should not have the value "https://a.example.com".
       """
 
   @test-trait:Drupal\ConfigTrait
@@ -207,7 +207,7 @@ Feature: Check that ConfigTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", which does not contain "zzz".
+      The config "behat_steps_test.settings" with the key "endpoint" has the value "https://a.example.com", which does not contain "zzz".
       """
 
   @test-trait:Drupal\ConfigTrait
@@ -221,7 +221,7 @@ Feature: Check that ConfigTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The config "behat_steps_test.absent" key "endpoint" is not set, but its value should contain "example".
+      The config "behat_steps_test.absent" with the key "endpoint" is not set, but its value should contain "example".
       """
 
   @test-trait:Drupal\ConfigTrait
@@ -236,7 +236,7 @@ Feature: Check that ConfigTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The config "behat_steps_test.settings" key "endpoint" has the value "https://a.example.com", which contains "example", but it should not.
+      The config "behat_steps_test.settings" with the key "endpoint" has the value "https://a.example.com", which contains "example", but it should not.
       """
 
   @test-trait:Drupal\ConfigTrait

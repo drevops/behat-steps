@@ -313,18 +313,18 @@ trait ConfigTrait {
 
     if ($should_match) {
       if (!$is_set) {
-        throw new AssertionException(sprintf('The config "%s" key "%s" is not set, but it should have the %s "%s".', $name, $key, $descriptor, $expected));
+        throw new AssertionException(sprintf('The config "%s" with the key "%s" is not set, but it should have the %s "%s".', $name, $key, $descriptor, $expected));
       }
 
       if (!$is_match) {
-        throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", but it should have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
+        throw new AssertionException(sprintf('The config "%s" with the key "%s" has the %s "%s", but it should have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
       }
 
       return;
     }
 
     if ($is_match) {
-      throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", but it should not have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
+      throw new AssertionException(sprintf('The config "%s" with the key "%s" has the %s "%s", but it should not have the %s "%s".', $name, $key, $descriptor, $actual_string, $descriptor, $expected));
     }
   }
 
@@ -352,18 +352,18 @@ trait ConfigTrait {
 
     if ($should_contain) {
       if (!$is_set) {
-        throw new AssertionException(sprintf('The config "%s" key "%s" is not set, but its %s should contain "%s".', $name, $key, $descriptor, $expected));
+        throw new AssertionException(sprintf('The config "%s" with the key "%s" is not set, but its %s should contain "%s".', $name, $key, $descriptor, $expected));
       }
 
       if (!$is_contained) {
-        throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which does not contain "%s".', $name, $key, $descriptor, $actual_string, $expected));
+        throw new AssertionException(sprintf('The config "%s" with the key "%s" has the %s "%s", which does not contain "%s".', $name, $key, $descriptor, $actual_string, $expected));
       }
 
       return;
     }
 
     if ($is_contained) {
-      throw new AssertionException(sprintf('The config "%s" key "%s" has the %s "%s", which contains "%s", but it should not.', $name, $key, $descriptor, $actual_string, $expected));
+      throw new AssertionException(sprintf('The config "%s" with the key "%s" has the %s "%s", which contains "%s", but it should not.', $name, $key, $descriptor, $actual_string, $expected));
     }
   }
 
