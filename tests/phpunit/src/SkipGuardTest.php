@@ -16,6 +16,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * A skip tag names a trait and switches off every hook that trait registers.
  * A guard names its own trait through '__TRAIT__' and never a hook.
  *
+ * A guarded hook either returns when its trait is skipped, or records the
+ * answer in a property for the step hooks and transforms of its trait, which
+ * see no scenario tags.
+ *
  * A scenario hook that has nothing to switch off is listed in UNGUARDED_HOOKS
  * with the reason, so each one is a reviewed decision.
  */
@@ -26,6 +30,17 @@ class SkipGuardTest extends UnitTestCase {
    * The call a guarded scenario hook makes.
    */
   protected const GUARD = '$this->skipTag(__TRAIT__, ';
+
+  /**
+   * The shapes a guarded scenario hook makes the call in.
+   *
+   * The first returns when the trait is skipped. The second records the answer
+   * in a property.
+   */
+  protected const GUARD_SHAPES = [
+    '/\bif \(\$this->skipTag\(__TRAIT__, \$scope\)/',
+    '/\$this->[a-zA-Z]+ = !?\$this->skipTag\(__TRAIT__, \$scope\)/',
+  ];
 
   /**
    * Scenario hooks that carry no skip guard, and why.
@@ -59,15 +74,15 @@ class SkipGuardTest extends UnitTestCase {
   #[DataProvider('dataProviderScenarioHookIsGuarded')]
   public function testScenarioHookIsGuarded(string $trait, string $method): void {
     $hook = static::labelHook($trait, $method);
-    $is_guarded = str_contains(static::readMethodSource($trait, $method), static::GUARD);
+    $source = static::readMethodSource($trait, $method);
 
     if (array_key_exists($hook, static::UNGUARDED_HOOKS)) {
-      $this->assertFalse($is_guarded, sprintf('%s carries a skip guard, so remove it from UNGUARDED_HOOKS.', $hook));
+      $this->assertStringNotContainsString(static::GUARD, $source, sprintf('%s carries a skip guard, so remove it from UNGUARDED_HOOKS.', $hook));
 
       return;
     }
 
-    $this->assertTrue($is_guarded, sprintf('%s acts without a skip guard. Open it with "if (%s$scope))", or list it in UNGUARDED_HOOKS with the reason it has nothing to switch off.', $hook, static::GUARD));
+    $this->assertTrue(static::hasGuardShape($source), sprintf('%s acts without a skip guard. Open it with "if (%s$scope))", record the answer for its step hooks with "$this-><prefix>Enabled = !%s$scope);", or list it in UNGUARDED_HOOKS with the reason it has nothing to switch off.', $hook, static::GUARD, static::GUARD));
   }
 
   public static function dataProviderScenarioHookIsGuarded(): array {
@@ -151,6 +166,19 @@ class SkipGuardTest extends UnitTestCase {
    */
   protected static function labelHook(string $trait, string $method): string {
     return substr($trait, strlen('DrevOps\\BehatSteps\\')) . '::' . $method;
+  }
+
+  /**
+   * Check whether a hook's source makes the skip call in a guarded shape.
+   */
+  protected static function hasGuardShape(string $source): bool {
+    foreach (static::GUARD_SHAPES as $pattern) {
+      if (preg_match($pattern, $source) === 1) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**

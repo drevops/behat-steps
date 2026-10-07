@@ -85,12 +85,16 @@ trait BigPipeTrait {
    */
   #[BeforeScenario]
   public function bigPipeBeforeScenario(BeforeScenarioScope $scope): void {
-    $is_skipped = $this->skipTag(__TRAIT__, $scope);
-
-    $this->bigPipeAutoWaitEnabled = Tag::has($scope, Tag::JAVASCRIPT) && !$is_skipped;
+    $this->bigPipeAutoWaitEnabled = FALSE;
+    $this->bigPipeServerRenderEnabled = FALSE;
     $this->bigPipeJavascriptProbe = NULL;
 
-    $this->bigPipeServerRenderEnabled = !$is_skipped && Tag::has($scope, self::BIG_PIPE_TAG);
+    if ($this->skipTag(__TRAIT__, $scope)) {
+      return;
+    }
+
+    $this->bigPipeAutoWaitEnabled = Tag::has($scope, Tag::JAVASCRIPT);
+    $this->bigPipeServerRenderEnabled = Tag::has($scope, self::BIG_PIPE_TAG);
 
     $this->bigPipeApplyServerRenderCookie();
   }

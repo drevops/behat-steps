@@ -433,7 +433,7 @@ A reader also takes a single node, for a hook that ranks the 2 lines itself: `Re
 
 A consumer switches a trait's hooks off with `@behat-steps-skip:<TraitName>` on a scenario or a feature, or for a whole profile or context with the trait's `enabled` option. The tag names a trait and never a hook, and it switches off every hook that trait registers. `SkipTagListener` fails the run at scenario start on a skip tag whose value is not a trait name, so a tag that would switch nothing off cannot pass unnoticed.
 
-A scenario hook opens with the guard, naming its own trait:
+A scenario hook asks the guard in 1 of 2 shapes, naming its own trait. A hook that acts returns when its trait is skipped:
 
 ```php
 #[AfterScenario]
@@ -446,14 +446,27 @@ public function acmeAfterScenario(AfterScenarioScope $scope): void {
 }
 ```
 
+Resetting the trait's own properties may come before the guard, because a reset changes nothing a skipped scenario keeps. `bigPipeBeforeScenario()` clears its flags and then guards.
+
+A step hook's scope carries no scenario tags, and neither does a transform's, so a trait whose step hooks or transforms need the answer records it in a property instead:
+
+```php
+#[BeforeScenario]
+public function acmeBeforeScenario(BeforeScenarioScope $scope): void {
+  $this->acmeEnabled = !$this->skipTag(__TRAIT__, $scope);
+}
+```
+
+The hook assigns the answer rather than returning, so a property that defaults to on is switched off for a skipped scenario. `DateTrait` and `MappingTrait` read theirs in a transform and `WaitTrait` in a step hook, and an `AfterScenario` hook may read the same property instead of a guard of its own.
+
 `__TRAIT__` resolves to the trait the code is written in, so the guard cannot name the wrong trait or fall out of step with a rename.
 
-A step hook's scope carries no scenario tags, so it reads a flag its trait's `BeforeScenario` hook set behind the guard, and an `AfterScenario` hook may read the same flag instead of a guard of its own. Two other kinds of scenario hook carry no guard, because they have nothing to switch off:
+Two other kinds of scenario hook carry no guard, because they have nothing to switch off:
 
 - A hook that only resets in-memory state - its trait's own properties, or a static cache in this process - holds nothing a scenario would want to keep.
 - A hook that acts only on its trait's own activation tag, such as `@breakpoint:`, is switched off by removing the tag.
 
-`tests/phpunit/src/SkipGuardTest.php` holds all of this. It fails a scenario hook that is neither guarded nor listed in its `UNGUARDED_HOOKS` with a reason, a `skipTag()` call naming anything but `__TRAIT__`, and a trait that reads a skip tag directly.
+`tests/phpunit/src/SkipGuardTest.php` holds all of this. It fails a scenario hook that asks the guard in neither shape and isn't listed in its `UNGUARDED_HOOKS` with a reason, a `skipTag()` call naming anything but `__TRAIT__`, and a trait that reads a skip tag directly.
 
 ## Deciding whether a trait acts
 
