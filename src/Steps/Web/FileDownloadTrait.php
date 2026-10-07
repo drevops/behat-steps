@@ -133,11 +133,9 @@ trait FileDownloadTrait {
    */
   #[Then('the downloaded file should contain:')]
   public function fileDownloadAssertFileContains(PyStringNode $string): void {
-    $string = (string) $string;
-    if (!$this->fileDownloadDownloadedFileInfo) {
-      throw new \RuntimeException('Downloaded file content has no data.');
-    }
+    $this->fileDownloadRequireDownload();
 
+    $string = (string) $string;
     $lines = preg_split('/\R/', (string) $this->fileDownloadDownloadedFileInfo['content']);
 
     if (is_array($lines)) {
@@ -165,9 +163,7 @@ trait FileDownloadTrait {
    */
   #[Then('the downloaded file name should be :name')]
   public function fileDownloadAssertFileNameEquals(string $name): void {
-    if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
-      throw new \RuntimeException('Downloaded file name content has no data.');
-    }
+    $this->fileDownloadRequireDownload();
 
     if ($name !== $this->fileDownloadDownloadedFileInfo['file_name']) {
       throw new ExpectationException(sprintf('The downloaded file name is "%s", but expected "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $name), $this->getSession()->getDriver());
@@ -183,9 +179,7 @@ trait FileDownloadTrait {
    */
   #[Then('the downloaded file name should contain :partial_name')]
   public function fileDownloadAssertFileNameContains(string $partial_name): void {
-    if (!$this->fileDownloadDownloadedFileInfo || empty($this->fileDownloadDownloadedFileInfo['file_name'])) {
-      throw new \RuntimeException('Downloaded file name content has no data.');
-    }
+    $this->fileDownloadRequireDownload();
 
     if (!str_contains((string) $this->fileDownloadDownloadedFileInfo['file_name'], $partial_name)) {
       throw new ExpectationException(sprintf('The downloaded file name "%s" does not contain "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $partial_name), $this->getSession()->getDriver());
@@ -283,6 +277,18 @@ trait FileDownloadTrait {
   }
 
   /**
+   * Require a file to have been downloaded in the current scenario.
+   *
+   * @throws \RuntimeException
+   *   When no file has been downloaded yet.
+   */
+  protected function fileDownloadRequireDownload(): void {
+    if ($this->fileDownloadDownloadedFileInfo === []) {
+      throw new \RuntimeException('No file has been downloaded. Download a file before asserting on it.');
+    }
+  }
+
+  /**
    * Return a link on the page by its text, id, title or alt.
    *
    * @throws \Behat\Mink\Exception\ElementNotFoundException
@@ -308,9 +314,7 @@ trait FileDownloadTrait {
       throw new \RuntimeException('ZIP extension is not enabled for PHP.');
     }
     // @codeCoverageIgnoreEnd
-    if (empty($this->fileDownloadDownloadedFileInfo) || empty($this->fileDownloadDownloadedFileInfo['file_path'])) {
-      throw new \RuntimeException('Downloaded file path data is not available.');
-    }
+    $this->fileDownloadRequireDownload();
 
     // @codeCoverageIgnoreStart
     if (empty($this->fileDownloadDownloadedFileInfo) || empty($this->fileDownloadDownloadedFileInfo['content_type'])) {
