@@ -11,6 +11,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\HeadingTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
@@ -24,6 +25,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  */
 trait ElementTrait {
 
+  use HeadingTrait;
   use StringTrait;
 
   /**
@@ -209,7 +211,7 @@ trait ElementTrait {
    */
   #[Then('the heading :heading should exist')]
   public function elementAssertHeadingExists(string $heading): void {
-    if (!$this->elementFindHeading($heading) instanceof NodeElement) {
+    if (!$this->headingFind($this->getSession()->getPage(), $heading) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'heading', 'text', $heading);
     }
   }
@@ -223,7 +225,7 @@ trait ElementTrait {
    */
   #[Then('the heading :heading should not exist')]
   public function elementAssertHeadingNotExists(string $heading): void {
-    if ($this->elementFindHeading($heading) instanceof NodeElement) {
+    if ($this->headingFind($this->getSession()->getPage(), $heading) instanceof NodeElement) {
       throw new ExpectationException(sprintf('The heading "%s" was found on the page "%s".', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
@@ -791,25 +793,6 @@ trait ElementTrait {
    */
   protected function elementGetScrollIntoViewCenter(): bool {
     return $this->getOptionBool('element', 'scroll_into_view_center');
-  }
-
-  /**
-   * Find a heading whose text matches exactly.
-   *
-   * @param string $heading
-   *   The heading text.
-   *
-   * @return \Behat\Mink\Element\NodeElement|null
-   *   The matching heading, or NULL when the page has none.
-   */
-  public function elementFindHeading(string $heading): ?NodeElement {
-    foreach ($this->getSession()->getPage()->findAll('css', 'h1, h2, h3, h4, h5, h6') as $element) {
-      if (trim($element->getText()) === $heading) {
-        return $element;
-      }
-    }
-
-    return NULL;
   }
 
   /**
