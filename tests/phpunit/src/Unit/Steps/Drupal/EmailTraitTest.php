@@ -176,10 +176,10 @@ class EmailTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderAssertMessageContainsAttachmentBySubject')]
-  public function testAssertMessageContainsAttachmentBySubject(string $method, string $file_name, string $subject): void {
+  public function testAssertMessageContainsAttachmentBySubject(string $method, string $filename, string $subject): void {
     $this->expectNotToPerformAssertions();
 
-    $this->createContext(static::MESSAGES)->{$method}($file_name, $subject);
+    $this->createContext(static::MESSAGES)->{$method}($filename, $subject);
   }
 
   public static function dataProviderAssertMessageContainsAttachmentBySubject(): \Iterator {
@@ -188,13 +188,13 @@ class EmailTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderAssertMessageContainsAttachmentBySubjectFails')]
-  public function testAssertMessageContainsAttachmentBySubjectFails(string $method, string $file_name, string $subject, string $expected_message): void {
+  public function testAssertMessageContainsAttachmentBySubjectFails(string $method, string $filename, string $subject, string $expected_message): void {
     $context = $this->createContext(static::MESSAGES);
 
     $this->expectException(ExpectationException::class);
     $this->expectExceptionMessage($expected_message);
 
-    $context->{$method}($file_name, $subject);
+    $context->{$method}($filename, $subject);
   }
 
   public static function dataProviderAssertMessageContainsAttachmentBySubjectFails(): \Iterator {

@@ -95,9 +95,9 @@ trait TaxonomyTrait {
       throw new \RuntimeException(sprintf('The vocabulary "%s" does not exist.', $vocabulary));
     }
 
-    foreach ($terms_table->getColumn(0) as $term_name) {
+    foreach ($terms_table->getColumn(0) as $name) {
       $terms = $this->taxonomyLoadMultiple($vocabulary, [
-        'name' => $term_name,
+        'name' => $name,
       ]);
 
       foreach ($terms as $term) {
@@ -113,9 +113,9 @@ trait TaxonomyTrait {
    * When I visit the "fruits" term page with the name "Apple"
    * @endcode
    */
-  #[When('I visit the :vocabulary term page with the name :term_name')]
-  public function taxonomyVisitTermPageWithName(string $vocabulary, string $term_name): void {
-    $this->taxonomyVisitActionPageWithName($vocabulary, $term_name);
+  #[When('I visit the :vocabulary term page with the name :name')]
+  public function taxonomyVisitTermPageWithName(string $vocabulary, string $name): void {
+    $this->taxonomyVisitActionPageWithName($vocabulary, $name);
   }
 
   /**
@@ -125,9 +125,9 @@ trait TaxonomyTrait {
    * When I visit the "fruits" term edit page with the name "Apple"
    * @endcode
    */
-  #[When('I visit the :vocabulary term edit page with the name :term_name')]
-  public function taxonomyVisitTermEditPageWithName(string $vocabulary, string $term_name): void {
-    $this->taxonomyVisitActionPageWithName($vocabulary, $term_name, '/edit');
+  #[When('I visit the :vocabulary term edit page with the name :name')]
+  public function taxonomyVisitTermEditPageWithName(string $vocabulary, string $name): void {
+    $this->taxonomyVisitActionPageWithName($vocabulary, $name, '/edit');
   }
 
   /**
@@ -137,9 +137,9 @@ trait TaxonomyTrait {
    * When I visit the "tags" term delete page with the name "[TEST] Remove"
    * @endcode
    */
-  #[When('I visit the :vocabulary term delete page with the name :term_name')]
-  public function taxonomyVisitTermDeletePageWithName(string $vocabulary, string $term_name): void {
-    $this->taxonomyVisitActionPageWithName($vocabulary, $term_name, '/delete');
+  #[When('I visit the :vocabulary term delete page with the name :name')]
+  public function taxonomyVisitTermDeletePageWithName(string $vocabulary, string $name): void {
+    $this->taxonomyVisitActionPageWithName($vocabulary, $name, '/delete');
   }
 
   /**
@@ -190,8 +190,8 @@ trait TaxonomyTrait {
    * Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
    * @endcode
    */
-  #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should exist')]
-  public function taxonomyAssertTermExistsWithName(string $term_name, string $vocabulary): void {
+  #[Then('the taxonomy term :name from the vocabulary :vocabulary should exist')]
+  public function taxonomyAssertTermExistsWithName(string $name, string $vocabulary): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
@@ -201,11 +201,11 @@ trait TaxonomyTrait {
     }
 
     $found = $this->taxonomyLoadMultiple($vocabulary, [
-      'name' => $term_name,
+      'name' => $name,
     ]);
 
     if (count($found) === 0) {
-      throw new ExpectationException(sprintf('The taxonomy term "%s" from the vocabulary "%s" does not exist.', $term_name, $vocabulary), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The taxonomy term "%s" from the vocabulary "%s" does not exist.', $name, $vocabulary), $this->getSession()->getDriver());
     }
   }
 
@@ -216,8 +216,8 @@ trait TaxonomyTrait {
    * Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
    * @endcode
    */
-  #[Then('the taxonomy term :term_name from the vocabulary :vocabulary should not exist')]
-  public function taxonomyAssertTermNotExistsWithName(string $term_name, string $vocabulary): void {
+  #[Then('the taxonomy term :name from the vocabulary :vocabulary should not exist')]
+  public function taxonomyAssertTermNotExistsWithName(string $name, string $vocabulary): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
@@ -227,11 +227,11 @@ trait TaxonomyTrait {
     }
 
     $found = $this->taxonomyLoadMultiple($vocabulary, [
-      'name' => $term_name,
+      'name' => $name,
     ]);
 
     if (count($found) > 0) {
-      throw new ExpectationException(sprintf('The taxonomy term "%s" from the vocabulary "%s" exists, but it should not.', $term_name, $vocabulary), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The taxonomy term "%s" from the vocabulary "%s" exists, but it should not.', $name, $vocabulary), $this->getSession()->getDriver());
     }
   }
 
@@ -240,13 +240,13 @@ trait TaxonomyTrait {
    *
    * @param string $vocabulary
    *   The term vocabulary machine name.
-   * @param string $term_name
+   * @param string $name
    *   The name of the term.
    * @param string|null $action_subpath
    *   The operation to perform, e.g., '/delete', '/edit', etc., or NULL for the
    *   term page.
    */
-  public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, ?string $action_subpath = NULL): void {
+  public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, ?string $action_subpath = NULL): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $vocab = Vocabulary::load($vocabulary);
@@ -256,11 +256,11 @@ trait TaxonomyTrait {
     }
 
     $terms = $this->taxonomyLoadMultiple($vocabulary, [
-      'name' => $term_name,
+      'name' => $name,
     ]);
 
     if (empty($terms)) {
-      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $term_name, $vocabulary));
+      throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $name, $vocabulary));
     }
 
     ksort($terms);

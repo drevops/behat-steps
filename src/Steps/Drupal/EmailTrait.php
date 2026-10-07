@@ -544,9 +544,9 @@ trait EmailTrait {
    * Then the file "document.pdf" should be attached to the email with the subject "Your document"
    * @endcode
    */
-  #[Then('the file :file_name should be attached to the email with the subject :subject')]
-  public function emailAssertMessageContainsAttachmentWithSubject(string $file_name, string $subject): void {
-    $this->emailAssertMessageContainsAttachmentBySubject($file_name, $subject, FALSE);
+  #[Then('the file :filename should be attached to the email with the subject :subject')]
+  public function emailAssertMessageContainsAttachmentWithSubject(string $filename, string $subject): void {
+    $this->emailAssertMessageContainsAttachmentBySubject($filename, $subject, FALSE);
   }
 
   /**
@@ -556,9 +556,9 @@ trait EmailTrait {
    * Then the file "report.xlsx" should be attached to the email with a subject containing "Monthly Report"
    * @endcode
    */
-  #[Then('the file :file_name should be attached to the email with a subject containing :partial_subject')]
-  public function emailAssertMessageContainsAttachmentWithSubjectContaining(string $file_name, string $partial_subject): void {
-    $this->emailAssertMessageContainsAttachmentBySubject($file_name, $partial_subject, TRUE);
+  #[Then('the file :filename should be attached to the email with a subject containing :partial_subject')]
+  public function emailAssertMessageContainsAttachmentWithSubjectContaining(string $filename, string $partial_subject): void {
+    $this->emailAssertMessageContainsAttachmentBySubject($filename, $partial_subject, TRUE);
   }
 
   /**
@@ -608,7 +608,7 @@ trait EmailTrait {
   /**
    * Assert that a file is attached to the first email with a subject.
    *
-   * @param string $file_name
+   * @param string $filename
    *   The name of the attached file.
    * @param string $subject
    *   The subject, or the part of it to look for.
@@ -618,16 +618,16 @@ trait EmailTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no email matches, or the file is not attached to it.
    */
-  protected function emailAssertMessageContainsAttachmentBySubject(string $file_name, string $subject, bool $is_partial): void {
+  protected function emailAssertMessageContainsAttachmentBySubject(string $filename, string $subject, bool $is_partial): void {
     $message = $this->emailGetMessageBySubject($subject, $is_partial);
 
     foreach ($message['params']['attachments'] ?? [] as $attachment) {
-      if (($attachment['filename'] ?? NULL) === $file_name) {
+      if (($attachment['filename'] ?? NULL) === $filename) {
         return;
       }
     }
 
-    throw new ExpectationException(sprintf('The file "%s" is not attached to the email with subject%s "%s".', $file_name, $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('The file "%s" is not attached to the email with subject%s "%s".', $filename, $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
   }
 
   /**

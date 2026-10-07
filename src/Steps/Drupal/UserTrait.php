@@ -224,38 +224,38 @@ trait UserTrait {
    * Given the role "Content Manager" has the permissions "access content, create article content, edit any article content"
    * @endcode
    */
-  #[Given('the role :role_name has the permissions :permissions')]
-  public function userCreateRole(string $role_name, string $permissions): void {
+  #[Given('the role :role has the permissions :permissions')]
+  public function userCreateRole(string $role, string $permissions): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $permissions = $this->stringSplitCommaSeparated($permissions);
 
-    $rid = strtolower($role_name);
-    $role_name = trim($role_name);
+    $rid = strtolower($role);
+    $role = trim($role);
 
     $existing_role = Role::load($rid);
     if ($existing_role) {
       $existing_role->delete();
     }
 
-    /** @var \Drupal\user\RoleInterface $role */
-    $role = \Drupal::entityTypeManager()->getStorage('user_role')->create([
+    /** @var \Drupal\user\RoleInterface $role_entity */
+    $role_entity = \Drupal::entityTypeManager()->getStorage('user_role')->create([
       'id' => $rid,
-      'label' => $role_name,
+      'label' => $role,
     ]);
 
     foreach ($permissions as $permission) {
-      $role->grantPermission($permission);
+      $role_entity->grantPermission($permission);
     }
 
-    $saved = $role->save();
+    $saved = $role_entity->save();
 
     // @codeCoverageIgnoreStart
     if ($saved !== SAVED_NEW) {
       throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
     }
     // @codeCoverageIgnoreEnd
-    $this->authRoles[] = (string) $role->id();
+    $this->authRoles[] = (string) $role_entity->id();
   }
 
   /**

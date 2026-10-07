@@ -630,7 +630,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 
 <details>
-  <summary><code>@When I drop the file :path on the dropzone :selector</code></summary>
+  <summary><code>@When I drop the file :filename on the dropzone :selector</code></summary>
 
 <br/>
 Drop a single file on the target element
@@ -6089,7 +6089,7 @@ Password Reset
 </details>
 
 <details>
-  <summary><code>@Then the file :file_name should be attached to the email with the subject :subject</code></summary>
+  <summary><code>@Then the file :filename should be attached to the email with the subject :subject</code></summary>
 
 <br/>
 Assert that a file is attached to an email message with specified subject
@@ -6103,7 +6103,7 @@ Then the file "document.pdf" should be attached to the email with the subject "Y
 </details>
 
 <details>
-  <summary><code>@Then the file :file_name should be attached to the email with a subject containing :partial_subject</code></summary>
+  <summary><code>@Then the file :filename should be attached to the email with a subject containing :partial_subject</code></summary>
 
 <br/>
 Assert that a file is attached to an email message with a subject containing the specified substring
@@ -7189,7 +7189,7 @@ Given the following "fruits" terms do not exist:
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary term page with the name :term_name</code></summary>
+  <summary><code>@When I visit the :vocabulary term page with the name :name</code></summary>
 
 <br/>
 Visit specified vocabulary term page
@@ -7203,7 +7203,7 @@ When I visit the "fruits" term page with the name "Apple"
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary term edit page with the name :term_name</code></summary>
+  <summary><code>@When I visit the :vocabulary term edit page with the name :name</code></summary>
 
 <br/>
 Visit specified vocabulary term edit page
@@ -7217,7 +7217,7 @@ When I visit the "fruits" term edit page with the name "Apple"
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary term delete page with the name :term_name</code></summary>
+  <summary><code>@When I visit the :vocabulary term delete page with the name :name</code></summary>
 
 <br/>
 Visit specified vocabulary term delete page
@@ -7259,7 +7259,7 @@ Then the vocabulary "topics" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary should exist</code></summary>
+  <summary><code>@Then the taxonomy term :name from the vocabulary :vocabulary should exist</code></summary>
 
 <br/>
 Assert that a taxonomy term exists by name
@@ -7273,7 +7273,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
 </details>
 
 <details>
-  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary should not exist</code></summary>
+  <summary><code>@Then the taxonomy term :name from the vocabulary :vocabulary should not exist</code></summary>
 
 <br/>
 Assert that a taxonomy term does not exist by name
@@ -7487,7 +7487,7 @@ Given the last login time for the user "John" is "1732319174"
 </details>
 
 <details>
-  <summary><code>@Given the role :role_name has the permissions :permissions</code></summary>
+  <summary><code>@Given the role :role has the permissions :permissions</code></summary>
 
 <br/>
 Create a single role with specified permissions

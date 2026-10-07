@@ -324,13 +324,13 @@ Three steps were relying on Behat's positional fallback because their parameter 
 
 | Before | After |
 | --- | --- |
-| `When I visit the :vocabulary_machine_name term delete page with the name :term_name` | `When I visit the :vocabulary term delete page with the name :term_name` |
-| `When I visit the :vocabulary_machine_name term edit page with the name :term_name` | `When I visit the :vocabulary term edit page with the name :term_name` |
-| `When I visit the :vocabulary_machine_name term page with the name :term_name` | `When I visit the :vocabulary term page with the name :term_name` |
+| `When I visit the :vocabulary_machine_name term delete page with the name :term_name` | `When I visit the :vocabulary term delete page with the name :name` |
+| `When I visit the :vocabulary_machine_name term edit page with the name :term_name` | `When I visit the :vocabulary term edit page with the name :name` |
+| `When I visit the :vocabulary_machine_name term page with the name :term_name` | `When I visit the :vocabulary term page with the name :name` |
 | `Given the following :vocabulary terms with fields:` | `Given the following :vocabulary terms with fields exist:` |
 | `Given the following :vocabulary_machine_name vocabulary terms do not exist:` | `Given the following :vocabulary terms do not exist:` |
-| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist` | `Then the taxonomy term :term_name from the vocabulary :vocabulary should exist` |
-| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist` | `Then the taxonomy term :term_name from the vocabulary :vocabulary should not exist` |
+| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist` | `Then the taxonomy term :name from the vocabulary :vocabulary should exist` |
+| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist` | `Then the taxonomy term :name from the vocabulary :vocabulary should not exist` |
 | `Then the vocabulary :machine_name should not exist` | `Then the vocabulary :vocabulary should not exist` |
 | `Then the vocabulary :machine_name with the name :name should exist` | `Then the vocabulary :vocabulary with the name :name should exist` |
 
@@ -340,7 +340,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | --- | --- |
 | `Given the following roles:` | `Given the following roles exist:` |
 | `Given the following users with fields:` | `Given the following users with fields exist:` |
-| `Given the role :role_name with the permissions :permissions` | `Given the role :role_name has the permissions :permissions` |
+| `Given the role :role_name with the permissions :permissions` | `Given the role :role has the permissions :permissions` |
 
 ### WebformTrait
 
@@ -450,7 +450,7 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 
 | Before | After |
 | --- | --- |
-| `When I drop the file :path on the :selector dropzone` | `When I drop the file :path on the dropzone :selector` |
+| `When I drop the file :path on the :selector dropzone` | `When I drop the file :filename on the dropzone :selector` |
 | `When I drop the following files on the :selector dropzone:` | `When I drop the following files on the dropzone :selector:` |
 
 ### EckTrait
@@ -475,7 +475,7 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 | --- | --- |
 | `When I follow link number :link_number in the email with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
 | `When I follow link number :link_number in the email with the subject containing :subject` | `When I follow the link with the index :index in the email with a subject containing :partial_subject` |
-| `Then the file :file_name should be attached to the email with the subject containing :subject` | `Then the file :file_name should be attached to the email with a subject containing :partial_subject` |
+| `Then the file :file_name should be attached to the email with the subject containing :subject` | `Then the file :filename should be attached to the email with a subject containing :partial_subject` |
 
 ### FieldTrait
 
@@ -623,6 +623,16 @@ A method behind a navigation step opens with `Visit` and names the page the way 
 | --- | --- | --- |
 | `UserTrait::userAssertExistsWithMail()` | `$mail` | `$address` |
 | `UserTrait::userAssertNotExistsWithMail()` | `$mail` | `$address` |
+
+A taxonomy term's name, a role and a file name each had 2 placeholder names: `:term_name` where every other named entity reads `:name`, `:role_name` beside its own `:roles`, and `:file_name` or `:path` where the XML and JSON steps read `:filename`. Each now has 1. A placeholder name never appears in a feature file, so no `.feature` file changes, but the parameter behind each placeholder is renamed:
+
+| Method | Before | After |
+| --- | --- | --- |
+| `TaxonomyTrait::taxonomyVisitTermPageWithName()`, `taxonomyVisitTermEditPageWithName()`, `taxonomyVisitTermDeletePageWithName()`, `taxonomyVisitActionPageWithName()` | `$term_name` | `$name` |
+| `TaxonomyTrait::taxonomyAssertTermExistsWithName()`, `taxonomyAssertTermNotExistsWithName()` | `$term_name` | `$name` |
+| `UserTrait::userCreateRole()` | `$role_name` | `$role` |
+| `EmailTrait::emailAssertMessageContainsAttachmentWithSubject()`, `emailAssertMessageContainsAttachmentWithSubjectContaining()` | `$file_name` | `$filename` |
+| `DropzoneTrait::dropzoneDropFile()` | `$path` | `$filename` |
 
 ### Failure messages
 
@@ -846,7 +856,7 @@ The suite registers `Behat\MinkExtension\Context\MinkContext` for the base brows
 | `Given I am viewing a/an :type content with the following fields:` | as above |
 | `Given I am viewing my :type with the title :title` | `Given the following :content_type content exist:` with an `author` column, then visit the page |
 | `Given I am viewing my :type content with the title :title` | as above |
-| `Given a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:` then `When I visit the :vocabulary term page with the name :term_name` |
+| `Given a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:` then `When I visit the :vocabulary term page with the name :name` |
 | `Given I am viewing a/an :vocabulary term with the name :name` | as above |
 | `Then I should be able to edit the :type` | `Given the following :content_type content exist:`, `When I visit the :content_type content edit page with the title :title`, `Then the response status code should be 200` |
 | `Then I should be able to edit the :type content` | as above |
@@ -974,7 +984,7 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `Then there should be a total of :count (e)mail(s) sent to :to` | `Then the number of emails sent to the address :address should be :count` |
 | `Then there should be a total of :count (e)mail(s) sent with the subject :subject` | `Then the number of emails sent with the subject :subject should be :count` |
 | `Then there should be a total of :count new (e)mail(s) sent...` | clear the queue, then use the non-`new` step |
-| `Then (a )(an )(e)mail(s) should have been sent with the attachment(s) :attachments` | `Then the file :file_name should be attached to the email with the subject :subject` |
+| `Then (a )(an )(e)mail(s) should have been sent with the attachment(s) :attachments` | `Then the file :filename should be attached to the email with the subject :subject` |
 | `Then (a )(an )(e)mail(s) should have been sent to :to with the attachment(s) :attachments` | as above |
 | `When I follow the link to :urlFragment from the (e)mail` | `When I follow the link with a URL containing :partial_url in the email` |
 | `When I follow the link to :urlFragment from the (e)mail to :to` | as above |
@@ -1320,9 +1330,9 @@ Both now follow the grammar in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). 
 | Step | Before | After |
 | --- | --- | --- |
 | `When I follow the link with the index :index in the email with the subject :subject` | The subject contains `:subject`, whitespace collapsed | The subject is exactly `:subject` |
-| `Then the file :file_name should be attached to the email with the subject :subject` | The subject contains `:subject`, whitespace collapsed | The subject is exactly `:subject` |
+| `Then the file :filename should be attached to the email with the subject :subject` | The subject contains `:subject`, whitespace collapsed | The subject is exactly `:subject` |
 | `When I follow the link with the index :index in the email with a subject containing :partial_subject` | The subject contains `:partial_subject` in any case | The subject contains `:partial_subject` in the same case |
-| `Then the file :file_name should be attached to the email with a subject containing :partial_subject` | The subject contains `:partial_subject` in any case | The subject contains `:partial_subject` in the same case |
+| `Then the file :filename should be attached to the email with a subject containing :partial_subject` | The subject contains `:partial_subject` in any case | The subject contains `:partial_subject` in the same case |
 
 When several emails match, each step still uses the first one collected.
 
@@ -2285,7 +2295,7 @@ The keys changed as well. An entity query keys a revisionable entity type by rev
 This affects the steps that look an entity up by name and, when several share that name, visit the one with the highest key. With duplicates, they now visit the most recently created match instead of the most recently revised one:
 
 - The 4 media steps `I visit the :media_type media page with the name :name`, `I visit the :media_type media edit page with the name :name`, `I visit the :media_type media delete page with the name :name` and `I visit the :media_type media revisions page with the name :name`, and the `mediaVisitActionPageWithName()` helper behind them.
-- The 3 term steps `I visit the :vocabulary term page with the name :term_name`, `I visit the :vocabulary term edit page with the name :term_name` and `I visit the :vocabulary term delete page with the name :term_name`, and the `taxonomyVisitActionPageWithName()` helper behind them.
+- The 3 term steps `I visit the :vocabulary term page with the name :name`, `I visit the :vocabulary term edit page with the name :name` and `I visit the :vocabulary term delete page with the name :name`, and the `taxonomyVisitActionPageWithName()` helper behind them.
 - `I visit the :content_block_type content block edit page with the description :description`.
 
 ## One skip tag per trait

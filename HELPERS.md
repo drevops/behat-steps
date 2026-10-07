@@ -1846,7 +1846,7 @@ Load multiple terms with specified vocabulary and conditions
 </details>
 
 <details>
-  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, ?string $action_subpath = NULL): void</code></summary>
+  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit the action page of the term with a specified name

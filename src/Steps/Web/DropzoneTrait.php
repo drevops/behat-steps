@@ -40,9 +40,9 @@ trait DropzoneTrait {
    *
    * @javascript
    */
-  #[When('I drop the file :path on the dropzone :selector')]
-  public function dropzoneDropFile(string $path, string $selector): void {
-    $this->dropzoneDropFiles($selector, new TableNode([[$path]]));
+  #[When('I drop the file :filename on the dropzone :selector')]
+  public function dropzoneDropFile(string $filename, string $selector): void {
+    $this->dropzoneDropFiles($selector, new TableNode([[$filename]]));
   }
 
   /**
