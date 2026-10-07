@@ -62,19 +62,8 @@ trait FileTrait {
 
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $fs = new Filesystem();
-
-    // @codeCoverageIgnoreStart
-    $directory = \Drupal::service('file_system')->realpath('private://');
-    if ($directory && !$fs->exists($directory)) {
-      $fs->mkdir($directory);
-    }
-
-    $directory = \Drupal::service('file_system')->realpath('temporary://');
-    if ($directory && !$fs->exists($directory)) {
-      $fs->mkdir($directory);
-    }
-    // @codeCoverageIgnoreEnd
+    $this->fileEnsureDirectory('private://');
+    $this->fileEnsureDirectory('temporary://');
   }
 
   /**
@@ -355,6 +344,23 @@ trait FileTrait {
     $entity->save();
 
     return $entity;
+  }
+
+  /**
+   * Create the directory a stream wrapper URI points at, when it is missing.
+   *
+   * @param string $uri
+   *   The URI of the directory, such as `private://`.
+   */
+  protected function fileEnsureDirectory(string $uri): void {
+    $directory = \Drupal::service('file_system')->realpath($uri);
+    $fs = new Filesystem();
+
+    if ($directory && !$fs->exists($directory)) {
+      // @codeCoverageIgnoreStart
+      $fs->mkdir($directory);
+      // @codeCoverageIgnoreEnd
+    }
   }
 
   /**

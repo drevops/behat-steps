@@ -80,7 +80,7 @@ trait EmailTrait {
     $this->emailDebug = Tag::has($scope, self::EMAIL_DEBUG_TAG);
     $this->emailHandlerTypes = Tag::values($scope, self::EMAIL_TAG);
 
-    $this->emailEnableTestSystem();
+    $this->emailEnableCollector();
   }
 
   /**
@@ -98,9 +98,7 @@ trait EmailTrait {
       return;
     }
 
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->emailDisableTestEmailSystem();
+    $this->emailDisableCollector();
   }
 
   /**
@@ -196,20 +194,7 @@ trait EmailTrait {
    */
   #[When('I enable the test email system')]
   public function emailEnableTestSystem(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->emailHandlerTypes = array_values(array_unique($this->emailHandlerTypes ?: ['default']));
-
-    foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = static::emailFindMailSystemDefault($type);
-      if (!static::emailFindMailSystemOriginal($type)) {
-        static::emailSetMailSystemOriginal($type, $original_test_system);
-      }
-      $this->emailSetMailSystemDefault($type, 'test_mail_collector');
-    }
-
-    // Clearing on enable lets this step also reset existing mail.
-    $this->emailClearCollectedMessages();
+    $this->emailEnableCollector();
   }
 
   /**
@@ -221,15 +206,7 @@ trait EmailTrait {
    */
   #[When('I disable the test email system')]
   public function emailDisableTestEmailSystem(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = static::emailFindMailSystemOriginal($type);
-      $this->emailSetMailSystemDefault($type, $original_test_system);
-    }
-
-    static::emailDeleteMailSystemOriginal();
-    $this->emailClearCollectedMessages();
+    $this->emailDisableCollector();
   }
 
   /**
@@ -628,6 +605,44 @@ trait EmailTrait {
     }
 
     throw new ExpectationException(sprintf('The file "%s" is not attached to the email with subject%s "%s".', $filename, $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Switch every handler type to the test mail collector, and clear it.
+   *
+   * The handler types default to `default`. The mail system each type used
+   * before is stored, so emailDisableCollector() can restore it.
+   */
+  public function emailEnableCollector(): void {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->emailHandlerTypes = array_values(array_unique($this->emailHandlerTypes ?: ['default']));
+
+    foreach ($this->emailHandlerTypes as $type) {
+      $original_test_system = static::emailFindMailSystemDefault($type);
+      if (!static::emailFindMailSystemOriginal($type)) {
+        static::emailSetMailSystemOriginal($type, $original_test_system);
+      }
+      $this->emailSetMailSystemDefault($type, 'test_mail_collector');
+    }
+
+    // Clearing on enable also drops mail collected before the switch.
+    $this->emailClearCollectedMessages();
+  }
+
+  /**
+   * Restore the mail system of every handler type, and clear the collector.
+   */
+  public function emailDisableCollector(): void {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    foreach ($this->emailHandlerTypes as $type) {
+      $original_test_system = static::emailFindMailSystemOriginal($type);
+      $this->emailSetMailSystemDefault($type, $original_test_system);
+    }
+
+    static::emailDeleteMailSystemOriginal();
+    $this->emailClearCollectedMessages();
   }
 
   /**
