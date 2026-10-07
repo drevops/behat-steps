@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\Entity\File;
@@ -40,6 +41,7 @@ use Symfony\Component\Filesystem\Filesystem;
 trait FileTrait {
 
   use EntityLifecycleTrait;
+  use FixtureDirectoryTrait;
   use QueryTrait;
 
   /**
@@ -320,13 +322,7 @@ trait FileTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     $path = ltrim($path, '/');
-
-    if (!empty($this->getMinkParameter('files_path'))) {
-      $full_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . '/' . $path;
-      if (is_file($full_path)) {
-        $path = $full_path;
-      }
-    }
+    $path = $this->fixtureDirectoryFindFile($path) ?? $path;
 
     if (!is_readable($path)) {
       throw new \RuntimeException(sprintf('Unable to find file "%s".', $path));

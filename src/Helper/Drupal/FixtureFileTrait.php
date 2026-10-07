@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Helper\Drupal;
 
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
 
 /**
  * Resolves a fixture file path for a file or image field.
@@ -16,6 +17,8 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait FixtureFileTrait {
+
+  use FixtureDirectoryTrait;
 
   /**
    * Expand fixture file paths for file/image fields on an entity stub.
@@ -35,19 +38,9 @@ trait FixtureFileTrait {
    *   The entity stub mutated in place.
    */
   public function fixtureFileExpandEntityFields(string $entity_type, EntityStubInterface $stub): void {
-    $files_path = $this->getMinkParameter('files_path');
-
-    if (empty($files_path)) {
+    if ($this->fixtureDirectoryFind() === NULL) {
       return;
     }
-
-    $resolved_files_path = realpath((string) $files_path);
-
-    if ($resolved_files_path === FALSE || !is_dir($resolved_files_path)) {
-      return;
-    }
-
-    $fixture_path = rtrim($resolved_files_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
     if (!$this->getBackendRegistry()->hasCapability(CoreCapabilityInterface::class)) {
       return;
@@ -64,7 +57,7 @@ trait FixtureFileTrait {
       // the raw compound cell as written in the Behat table
       // (e.g. 'target_id:"foo.jpg", alt:"A"').
       if (is_string($value) && $this->fixtureFileLooksLikeCompoundCell($value)) {
-        $rewritten = $this->fixtureFileExpandCompoundCell($value, $fixture_path);
+        $rewritten = $this->fixtureFileExpandCompoundCell($value);
 
         if ($rewritten !== $value) {
           $stub->setValue($name, $rewritten);
@@ -95,7 +88,7 @@ trait FixtureFileTrait {
           continue;
         }
 
-        $resolved = $this->fixtureFileResolve($path, $fixture_path);
+        $resolved = $this->fixtureFileResolve($path);
 
         if ($resolved === NULL) {
           continue;
@@ -144,15 +137,15 @@ trait FixtureFileTrait {
    * Other compound columns such as 'alt' and 'description' are left untouched
    * so the parser can still process them.
    */
-  protected function fixtureFileExpandCompoundCell(string $value, string $fixture_path): string {
-    $callback = function (array $matches) use ($fixture_path): string {
+  protected function fixtureFileExpandCompoundCell(string $value): string {
+    $callback = function (array $matches): string {
       $path = $matches[2];
 
       if ($this->fixtureFileManagedExists($path)) {
         return $matches[0];
       }
 
-      $resolved = $this->fixtureFileResolve($path, $fixture_path);
+      $resolved = $this->fixtureFileResolve($path);
 
       return $resolved === NULL ? $matches[0] : $matches[1] . $resolved . $matches[3];
     };
@@ -166,14 +159,12 @@ trait FixtureFileTrait {
    * @param string $value
    *   The raw field value: a path relative to the fixtures directory, a
    *   stream URI or an absolute filesystem path.
-   * @param string $fixture_path
-   *   The resolved fixtures directory, with a trailing separator.
    *
    * @return string|null
    *   The absolute path to the fixture file, or NULL when the value does not
    *   resolve to a file inside the fixtures directory.
    */
-  protected function fixtureFileResolve(string $value, string $fixture_path): ?string {
+  protected function fixtureFileResolve(string $value): ?string {
     // The backend's 'FileHandler' resolves stream URIs and absolute paths
     // itself.
     if (str_contains($value, '://')) {
@@ -184,19 +175,7 @@ trait FixtureFileTrait {
       return NULL;
     }
 
-    if (!is_file($fixture_path . $value)) {
-      return NULL;
-    }
-
-    $resolved = realpath($fixture_path . $value);
-
-    // is_file() also succeeds for a '..' path that resolves outside the
-    // fixtures directory.
-    if ($resolved === FALSE || !str_starts_with($resolved, $fixture_path)) {
-      return NULL;
-    }
-
-    return $resolved;
+    return $this->fixtureDirectoryFindFile($value);
   }
 
   /**

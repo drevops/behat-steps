@@ -82,9 +82,10 @@ class FixtureFileTraitTest extends UnitTestCase {
     $this->createFixtureFiles($existing_fixture_files);
 
     $this->testObject->managedBasenames = $existing_managed_basenames;
+    $this->testObject->minkFilesPath = rtrim($this->fixturesPath, DIRECTORY_SEPARATOR);
 
     $expected = str_replace('{FIXTURES}', $this->fixturesPath, $expected_template);
-    $actual = $this->testObject->callExpandCompoundCell($value, $this->fixturesPath);
+    $actual = $this->testObject->callExpandCompoundCell($value);
 
     $this->assertSame($expected, $actual);
   }
@@ -379,8 +380,8 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
     return $this->fixtureFileLooksLikeCompoundCell($value);
   }
 
-  public function callExpandCompoundCell(string $value, string $fixture_path): string {
-    return $this->fixtureFileExpandCompoundCell($value, $fixture_path);
+  public function callExpandCompoundCell(string $value): string {
+    return $this->fixtureFileExpandCompoundCell($value);
   }
 
   public function getMinkParameter(mixed $name): mixed {

@@ -13,6 +13,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Flow\JSONPath\JSONPath;
 use JsonSchema\Validator;
@@ -34,6 +35,7 @@ use JsonSchema\Validator;
  */
 trait JsonTrait {
 
+  use FixtureDirectoryTrait;
   use StringTrait;
 
   /**
@@ -80,7 +82,7 @@ trait JsonTrait {
    */
   #[Given('the response JSON is loaded from the file :filename')]
   public function jsonSetContentFromFile(string $filename): void {
-    $this->jsonTestContent = $this->jsonReadFile($filename);
+    $this->jsonTestContent = $this->fixtureDirectoryReadFile($filename);
     $this->jsonData = NULL;
     $this->jsonContentHash = NULL;
   }
@@ -390,7 +392,7 @@ trait JsonTrait {
    */
   #[Then('the response should match the JSON schema in the file :filename')]
   public function jsonAssertMatchesSchemaFromFile(string $filename): void {
-    $this->jsonAssertResponseMatchesSchema($this->jsonReadFile($filename));
+    $this->jsonAssertResponseMatchesSchema($this->fixtureDirectoryReadFile($filename));
   }
 
   /**
@@ -400,33 +402,6 @@ trait JsonTrait {
     $this->jsonData = NULL;
     $this->jsonContentHash = NULL;
     $this->jsonTestContent = NULL;
-  }
-
-  /**
-   * Read a fixture file's contents.
-   *
-   * @param string $filename
-   *   The fixture file name relative to the Mink files path.
-   *
-   * @return string
-   *   The file contents.
-   */
-  protected function jsonReadFile(string $filename): string {
-    $files_path = rtrim((string) $this->getMinkParameter('files_path'), '/');
-    $file_path = $files_path . '/' . $filename;
-
-    if (!file_exists($file_path)) {
-      throw new \RuntimeException(sprintf('The file "%s" does not exist.', $file_path));
-    }
-
-    $content = file_get_contents($file_path);
-    if ($content === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Failed to read the file "%s".', $file_path));
-      // @codeCoverageIgnoreEnd
-    }
-
-    return $content;
   }
 
   /**

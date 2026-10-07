@@ -14,6 +14,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
@@ -28,6 +29,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  */
 trait XmlTrait {
 
+  use FixtureDirectoryTrait;
   use StringTrait;
 
   /**
@@ -86,7 +88,7 @@ trait XmlTrait {
    */
   #[Given('the response XML is loaded from the file :filename')]
   public function xmlSetContentFromFile(string $filename): void {
-    $this->xmlTestContent = $this->xmlReadFile($filename);
+    $this->xmlTestContent = $this->fixtureDirectoryReadFile($filename);
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;
     $this->xmlContentHash = NULL;
@@ -485,7 +487,7 @@ trait XmlTrait {
    */
   #[Then('the response should match the XSD schema in the file :filename')]
   public function xmlAssertMatchesXsdFromFile(string $filename): void {
-    $this->xmlAssertResponseMatchesXsd($this->xmlReadFile($filename));
+    $this->xmlAssertResponseMatchesXsd($this->fixtureDirectoryReadFile($filename));
   }
 
   /**
@@ -518,7 +520,7 @@ trait XmlTrait {
    */
   #[Then('the response should match the DTD in the file :filename')]
   public function xmlAssertMatchesDtdFromFile(string $filename): void {
-    $this->xmlAssertResponseMatchesDtd($this->xmlReadFile($filename));
+    $this->xmlAssertResponseMatchesDtd($this->fixtureDirectoryReadFile($filename));
   }
 
   /**
@@ -547,7 +549,7 @@ trait XmlTrait {
    */
   #[Then('the response should match the RelaxNG schema in the file :filename')]
   public function xmlAssertMatchesRelaxNgFromFile(string $filename): void {
-    $this->xmlAssertResponseMatchesRelaxNg($this->xmlReadFile($filename));
+    $this->xmlAssertResponseMatchesRelaxNg($this->fixtureDirectoryReadFile($filename));
   }
 
   /**
@@ -771,33 +773,6 @@ trait XmlTrait {
     }
 
     return implode('; ', $messages);
-  }
-
-  /**
-   * Read a fixture file's contents.
-   *
-   * @param string $filename
-   *   The fixture file name relative to the Mink files path.
-   *
-   * @return string
-   *   The file contents.
-   */
-  protected function xmlReadFile(string $filename): string {
-    $files_path = rtrim((string) $this->getMinkParameter('files_path'), '/');
-    $file_path = $files_path . '/' . $filename;
-
-    if (!file_exists($file_path)) {
-      throw new \RuntimeException(sprintf('The file "%s" does not exist.', $file_path));
-    }
-
-    $content = file_get_contents($file_path);
-    if ($content === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Failed to read the file "%s".', $file_path));
-      // @codeCoverageIgnoreEnd
-    }
-
-    return $content;
   }
 
   /**
