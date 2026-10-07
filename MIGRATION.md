@@ -1172,6 +1172,8 @@ Three of those names were also skip tags. A skip tag names a trait rather than a
 
 `authCleanUsers()` and `authCleanRoles()` take no parameters, aren't hooks, and are protected. `authAfterScenario()` is the hook. It runs them users first, and still runs the role cleanup when removing the users fails. When both fail, it throws 1 `\RuntimeException` that names both. An override of either drops its `@AfterScenario` annotation or `#[AfterScenario]` attribute, or it runs twice.
 
+The roles a scenario creates are recorded in `AuthTrait::$authRoles`, which `authCleanRoles()` deletes. 3.x recorded them in the Drupal Extension's `RawDrupalContext::$roles`, so a context that read `$this->roles` reads `$this->authRoles`.
+
 A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
 
 A context that wants one concern without the Drupal vocabulary composes that helper alone:
@@ -2061,6 +2063,15 @@ A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is
 ### A method is named for what it does, not `Helper`
 
 The protected `FieldTrait::fieldFillDatetimeHelper()` is `fieldFillDatetimeInput()`, after the 1 input of a datetime field it fills. A context that overrides it renames the override.
+
+### `ConfigTrait` names its helpers as its siblings do
+
+`ConfigTrait` has 2 protected helpers that its siblings name differently: 1 records what a step is about to change so the teardown can restore it, as `stateStoreOriginalValue()` and `moduleStoreOriginalState()` do, and 1 turns step text into a typed value, as `stateNormalizeValue()` does. A context that overrides one of them renames the override.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\ConfigTrait` | `configSnapshot()` | `configStoreOriginalData()` |
+| `Drupal\ConfigTrait` | `configCastValue()` | `configNormalizeValue()` |
 
 ### `XmlTrait` names its content steps as `JsonTrait` does
 
