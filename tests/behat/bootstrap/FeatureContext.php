@@ -23,6 +23,11 @@ class FeatureContext extends DrupalContext {
   use FeatureContextTrait;
 
   /**
+   * The tag that shortens the BigPipe wait timeout.
+   */
+  protected const string TEST_BIGPIPE_TIMEOUT_TAG = 'test-bigpipe-timeout';
+
+  /**
    * Override dateGetNow() method to return a preset value for testing.
    *
    * The override is declared on the class, not in FeatureContextTrait. The
@@ -69,7 +74,7 @@ class FeatureContext extends DrupalContext {
    */
   #[BeforeScenario]
   public function bigPipeSetWaitTimeout(BeforeScenarioScope $scope): void {
-    $this->bigPipeWaitTimeout = Tag::has($scope->getScenario(), 'test-bigpipe-timeout') ? 2000 : NULL;
+    $this->bigPipeWaitTimeout = Tag::has($scope, self::TEST_BIGPIPE_TIMEOUT_TAG) ? 2000 : NULL;
   }
 
 }

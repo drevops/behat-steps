@@ -249,6 +249,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - Negative tests using `@test-trait:FieldTrait` should use simple navigation (e.g., `I go to "node/add/page"`)
 - Avoid using custom steps in negative tests that may not be available in BehatCLI context
 - Test-only tags - ones consumed by the test harness (the test contexts or the bootstrap traits) to configure a scenario, as opposed to the library's public tags registered in `docs.php`'s `tag_registry()` - must be prefixed with `test-` (e.g., `@test-bigpipe-timeout`) so they are clearly distinguishable from real library tags.
+- The harness in `tests/behat/bootstrap/` reads tags, parses numbers, names hooks and types constants the way `src/` does, but its steps keep their own wording, placeholders and signatures. See "Behat harness conventions" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Unit Test Conventions
 - A unit test extends `UnitTestCase` (a kernel test extends `KernelTestBase`), writes fixtures through `writeFixture()` into `static::$tmp`, and reflects a class held in a variable through `static::reflect()`; a `::class` constant goes to `new \ReflectionClass()`
