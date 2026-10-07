@@ -1994,6 +1994,12 @@ A method that created, deleted or loaded several entities at once took one of 3 
 
 `ContentTrait`, `TaxonomyTrait`, `UserTrait`, `LanguageTrait` and `EntityTrait` had no 1-entity helper to rename: a single node, term, user, language or other entity goes through `entityLifecycleCreateNode()`, `entityLifecycleCreateTerm()`, `authCreateUser()`, `entityLifecycleCreateLanguage()` or `entityLifecycleCreate()`. `userCreateMultiple()`, `languageCreateMultiple()` and `entityCreateMultiple()` already carried the suffix and are unchanged.
 
+A table step that sets several values takes the suffix too, as `configSetMultiple()` and `stateSetMultiple()` do. `ResponsiveTrait`'s breakpoint table read `FromTable` with a plural noun instead:
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `ResponsiveTrait` | `responsiveSetBreakpointsFromTable()` | `responsiveSetBreakpointMultiple()` |
+
 ### A boolean parameter reads as a question
 
 A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is_inverted` already did. `Drupal\EmailTrait::emailFindMessage()` named its flag bare. Step text is unchanged, so this only matters to a call that passes the argument by name.
