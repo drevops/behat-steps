@@ -558,6 +558,8 @@ Keep the `require` section of `composer.json` minimal - it should contain only w
 - **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink` - plus what the backend and Behat layers need at runtime. Both ship in `src/`, so every consumer loads them: `drupal/core-utility`, `symfony/process` for the Drush backend, and `friends-of-behat/mink-extension`, `symfony/config`, `symfony/dependency-injection`, `symfony/event-dispatcher` for the extension, its config schema and `WebRawContext`'s Mink ancestor.
 - **`require-dev` + `suggest`**: any package used by only a subset of traits. List it in `require-dev` so this library's own test suite still exercises it, **and** in `suggest` with a message naming the exact trait(s) or step(s) that need it (as `justinrainbow/json-schema` does for `JsonTrait`).
 
+A package that code under `src/` calls is declared in its own right, even when a `require` dependency already installs it. That arrival is the other package's implementation detail, which it can drop in any release. `symfony/filesystem` is the case in point: `symfony/config` requires it, yet it sits in `require` itself, because `FileTrait`'s setup hook builds a `Filesystem` on every scenario of a context composing the trait, as `DrupalContext` does, and `FileDownloadTrait` builds one for its download directory.
+
 When a new trait needs a package, decide up front: trait-specific packages go in `require-dev` + `suggest`, never in `require`. Demoting a package from `require` to `suggest` later is a breaking change for consumers relying on transitive installation, so batch such demotions into the next major release and document them in [MIGRATION.md](MIGRATION.md).
 
 ### Dependency patches
