@@ -157,7 +157,7 @@ Each of the three resolves that decision in a `BeforeScenario` hook, so all thre
 
 ## Unified step text
 
-Placeholder names, articles and `Given` verbs drifted as traits were added, so the same idea ended up written several different ways: an XML attribute was `:attribute` in 4 steps and `:attribute_name` in 2, a taxonomy vocabulary answered to 3 different names, and a handful of `Given` steps had no verb at all. 73 steps now follow one set of conventions.
+Placeholder names, articles and `Given` verbs drifted as traits were added, so the same idea ended up written several different ways: an XML attribute was `:attribute` in 4 steps and `:attribute_name` in 2, a taxonomy vocabulary answered to 3 different names, and a handful of `Given` steps had no verb at all. 89 steps now follow one set of conventions.
 
 - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is now reserved for steps that assert on a whole body with no named target, such as `the modal should contain :text`.
 - A bundle placeholder is named after its entity type - `:content_type`, `:media_type`, `:content_block_type`, `:vocabulary`. Steps that are deliberately entity-agnostic keep `:bundle` (`EckTrait`, and the parent lookup in `ParagraphsTrait`).
@@ -183,6 +183,15 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | Before | After |
 | --- | --- |
 | `Given the following config values:` | `Given the following config values exist:` |
+| `Given the config :name key :key has the value :value` | `Given the config :name with the key :key has the value :value` |
+| `Then the config :name key :key should have the value :value` | `Then the config :name with the key :key should have the value :value` |
+| `Then the config :name key :key should not have the value :value` | `Then the config :name with the key :key should not have the value :value` |
+| `Then the config :name key :key should contain the value :value` | `Then the config :name with the key :key should contain the value :value` |
+| `Then the config :name key :key should not contain the value :value` | `Then the config :name with the key :key should not contain the value :value` |
+| `Then the config :name key :key should have the effective value :value` | `Then the config :name with the key :key should have the effective value :value` |
+| `Then the config :name key :key should not have the effective value :value` | `Then the config :name with the key :key should not have the effective value :value` |
+| `Then the config :name key :key should contain the effective value :value` | `Then the config :name with the key :key should contain the effective value :value` |
+| `Then the config :name key :key should not contain the effective value :value` | `Then the config :name with the key :key should not contain the effective value :value` |
 
 ### ContentBlockTrait
 
@@ -1005,7 +1014,7 @@ The Drupal Extension matched a subject in part and in any case. Here `with the s
 
 | Before | After |
 | --- | --- |
-| `Given I set the configuration item :name with key :key to :value` | `Given the config :name key :key has the value :value` |
+| `Given I set the configuration item :name with key :key to :value` | `Given the config :name with the key :key has the value :value` |
 | `Given I set the configuration item :name with key :key with the following values:` | `Given the following config values exist:` |
 
 ### Drush

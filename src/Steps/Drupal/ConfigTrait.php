@@ -41,9 +41,9 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  *
  * @code
  * Scenario: Assert configured values
- *   Given the config "mymodule.settings" key "api.endpoint" has the value "https://api.example.com"
- *   Then the config "mymodule.settings" key "api.endpoint" should have the value "https://api.example.com"
- *   And the config "system.site" key "name" should have the effective value "My overridden site"
+ *   Given the config "mymodule.settings" with the key "api.endpoint" has the value "https://api.example.com"
+ *   Then the config "mymodule.settings" with the key "api.endpoint" should have the value "https://api.example.com"
+ *   And the config "system.site" with the key "name" should have the effective value "My overridden site"
  * @endcode
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
@@ -103,10 +103,10 @@ trait ConfigTrait {
    * Set a stored Drupal configuration value.
    *
    * @code
-   * Given the config "system.site" key "page.front" has the value "/node"
+   * Given the config "system.site" with the key "page.front" has the value "/node"
    * @endcode
    */
-  #[Given('the config :name key :key has the value :value')]
+  #[Given('the config :name with the key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
     $this->configStoreOriginalData($name);
     $this->backendFor(ConfigCapabilityInterface::class)->configSet($name, $key, $this->configNormalizeValue($value));
@@ -141,10 +141,10 @@ trait ConfigTrait {
    * Assert that a stored configuration value equals an expected value.
    *
    * @code
-   * Then the config "system.site" key "name" should have the value "My site"
+   * Then the config "system.site" with the key "name" should have the value "My site"
    * @endcode
    */
-  #[Then('the config :name key :key should have the value :value')]
+  #[Then('the config :name with the key :key should have the value :value')]
   public function configAssertValueEquals(string $name, string $key, string $value): void {
     $this->configAssertEquals($this->configReadStored($name, $key), $value, TRUE, $name, $key, 'value');
   }
@@ -153,10 +153,10 @@ trait ConfigTrait {
    * Assert that a stored configuration value does not equal a value.
    *
    * @code
-   * Then the config "system.site" key "name" should not have the value "Wrong"
+   * Then the config "system.site" with the key "name" should not have the value "Wrong"
    * @endcode
    */
-  #[Then('the config :name key :key should not have the value :value')]
+  #[Then('the config :name with the key :key should not have the value :value')]
   public function configAssertValueNotEquals(string $name, string $key, string $value): void {
     $this->configAssertEquals($this->configReadStored($name, $key), $value, FALSE, $name, $key, 'value');
   }
@@ -165,10 +165,10 @@ trait ConfigTrait {
    * Assert that a stored configuration value contains an expected value.
    *
    * @code
-   * Then the config "system.site" key "name" should contain the value "site"
+   * Then the config "system.site" with the key "name" should contain the value "site"
    * @endcode
    */
-  #[Then('the config :name key :key should contain the value :value')]
+  #[Then('the config :name with the key :key should contain the value :value')]
   public function configAssertValueContains(string $name, string $key, string $value): void {
     $this->configAssertContains($this->configReadStored($name, $key), $value, TRUE, $name, $key, 'value');
   }
@@ -177,10 +177,10 @@ trait ConfigTrait {
    * Assert that a stored configuration value does not contain a value.
    *
    * @code
-   * Then the config "system.site" key "name" should not contain the value "xyz"
+   * Then the config "system.site" with the key "name" should not contain the value "xyz"
    * @endcode
    */
-  #[Then('the config :name key :key should not contain the value :value')]
+  #[Then('the config :name with the key :key should not contain the value :value')]
   public function configAssertValueNotContains(string $name, string $key, string $value): void {
     $this->configAssertContains($this->configReadStored($name, $key), $value, FALSE, $name, $key, 'value');
   }
@@ -191,10 +191,10 @@ trait ConfigTrait {
    * The effective value has module and `settings.php` overrides applied.
    *
    * @code
-   * Then the config "system.site" key "name" should have the effective value "Overridden"
+   * Then the config "system.site" with the key "name" should have the effective value "Overridden"
    * @endcode
    */
-  #[Then('the config :name key :key should have the effective value :value')]
+  #[Then('the config :name with the key :key should have the effective value :value')]
   public function configAssertEffectiveValueEquals(string $name, string $key, string $value): void {
     $this->configAssertEquals($this->configReadEffective($name, $key), $value, TRUE, $name, $key, 'effective value');
   }
@@ -205,10 +205,10 @@ trait ConfigTrait {
    * The effective value has module and `settings.php` overrides applied.
    *
    * @code
-   * Then the config "system.site" key "name" should not have the effective value "Wrong"
+   * Then the config "system.site" with the key "name" should not have the effective value "Wrong"
    * @endcode
    */
-  #[Then('the config :name key :key should not have the effective value :value')]
+  #[Then('the config :name with the key :key should not have the effective value :value')]
   public function configAssertEffectiveValueNotEquals(string $name, string $key, string $value): void {
     $this->configAssertEquals($this->configReadEffective($name, $key), $value, FALSE, $name, $key, 'effective value');
   }
@@ -219,10 +219,10 @@ trait ConfigTrait {
    * The effective value has module and `settings.php` overrides applied.
    *
    * @code
-   * Then the config "system.site" key "name" should contain the effective value "Over"
+   * Then the config "system.site" with the key "name" should contain the effective value "Over"
    * @endcode
    */
-  #[Then('the config :name key :key should contain the effective value :value')]
+  #[Then('the config :name with the key :key should contain the effective value :value')]
   public function configAssertEffectiveValueContains(string $name, string $key, string $value): void {
     $this->configAssertContains($this->configReadEffective($name, $key), $value, TRUE, $name, $key, 'effective value');
   }
@@ -233,10 +233,10 @@ trait ConfigTrait {
    * The effective value has module and `settings.php` overrides applied.
    *
    * @code
-   * Then the config "system.site" key "name" should not contain the effective value "xyz"
+   * Then the config "system.site" with the key "name" should not contain the effective value "xyz"
    * @endcode
    */
-  #[Then('the config :name key :key should not contain the effective value :value')]
+  #[Then('the config :name with the key :key should not contain the effective value :value')]
   public function configAssertEffectiveValueNotContains(string $name, string $key, string $value): void {
     $this->configAssertContains($this->configReadEffective($name, $key), $value, FALSE, $name, $key, 'effective value');
   }

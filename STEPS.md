@@ -4969,9 +4969,9 @@ When I run cron
 >  <br/><br/>
 >  ```
 >  Scenario: Assert configured values
->    Given the config "mymodule.settings" key "api.endpoint" has the value "https://api.example.com"
->    Then the config "mymodule.settings" key "api.endpoint" should have the value "https://api.example.com"
->    And the config "system.site" key "name" should have the effective value "My overridden site"
+>    Given the config "mymodule.settings" with the key "api.endpoint" has the value "https://api.example.com"
+>    Then the config "mymodule.settings" with the key "api.endpoint" should have the value "https://api.example.com"
+>    And the config "system.site" with the key "name" should have the effective value "My overridden site"
 >  ```
 
 
@@ -4982,14 +4982,14 @@ When I run cron
 | `config.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigTrait` | Restore the configuration values a scenario changed once it finishes. |
 
 <details>
-  <summary><code>@Given the config :name key :key has the value :value</code></summary>
+  <summary><code>@Given the config :name with the key :key has the value :value</code></summary>
 
 <br/>
 Set a stored Drupal configuration value
 <br/><br/>
 
 ```gherkin
-Given the config "system.site" key "page.front" has the value "/node"
+Given the config "system.site" with the key "page.front" has the value "/node"
 
 ```
 
@@ -5014,112 +5014,112 @@ Given the following config values exist:
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should have the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should have the value :value</code></summary>
 
 <br/>
 Assert that a stored configuration value equals an expected value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should have the value "My site"
+Then the config "system.site" with the key "name" should have the value "My site"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should not have the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should not have the value :value</code></summary>
 
 <br/>
 Assert that a stored configuration value does not equal a value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should not have the value "Wrong"
+Then the config "system.site" with the key "name" should not have the value "Wrong"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should contain the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should contain the value :value</code></summary>
 
 <br/>
 Assert that a stored configuration value contains an expected value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should contain the value "site"
+Then the config "system.site" with the key "name" should contain the value "site"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should not contain the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should not contain the value :value</code></summary>
 
 <br/>
 Assert that a stored configuration value does not contain a value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should not contain the value "xyz"
+Then the config "system.site" with the key "name" should not contain the value "xyz"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should have the effective value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should have the effective value :value</code></summary>
 
 <br/>
 Assert that an effective configuration value equals an expected value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should have the effective value "Overridden"
+Then the config "system.site" with the key "name" should have the effective value "Overridden"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should not have the effective value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should not have the effective value :value</code></summary>
 
 <br/>
 Assert that an effective configuration value does not equal a value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should not have the effective value "Wrong"
+Then the config "system.site" with the key "name" should not have the effective value "Wrong"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should contain the effective value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should contain the effective value :value</code></summary>
 
 <br/>
 Assert that an effective configuration value contains an expected value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should contain the effective value "Over"
+Then the config "system.site" with the key "name" should contain the effective value "Over"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should not contain the effective value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should not contain the effective value :value</code></summary>
 
 <br/>
 Assert that an effective configuration value does not contain a value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should not contain the effective value "xyz"
+Then the config "system.site" with the key "name" should not contain the effective value "xyz"
 
 ```
 

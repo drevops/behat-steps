@@ -30,38 +30,38 @@ Feature: Check that QueueTrait works
     Then the queue "behat_test" should have 1 item
 
   Scenario: Assert "Given the following item is in the queue :queue:" adds an item the worker processes
-    Given the config "mysite_core.settings" key "queue_budget" has the value "20"
+    Given the config "mysite_core.settings" with the key "queue_budget" has the value "20"
     And the queue "behat_test" is empty
     And the following item is in the queue "behat_test":
       | data | {"nid":1} |
     Then the queue "behat_test" should have 1 item
     When I process the queue "behat_test"
     Then the queue "behat_test" should be empty
-    And the config "mysite_core.settings" key "queue_budget" should have the value "19"
+    And the config "mysite_core.settings" with the key "queue_budget" should have the value "19"
 
   Scenario: Assert "When I process :count item(s) from the queue :queue" processes the requested number of items
-    Given the config "mysite_core.settings" key "queue_budget" has the value "20"
+    Given the config "mysite_core.settings" with the key "queue_budget" has the value "20"
     And the queue "behat_test" is empty
     And I add 7 items to the "behat_test" queue
     When I process 3 items from the queue "behat_test"
     Then the queue "behat_test" should have 4 items
-    And the config "mysite_core.settings" key "queue_budget" should have the value "17"
+    And the config "mysite_core.settings" with the key "queue_budget" should have the value "17"
 
   Scenario: Assert "When I process :count item(s) from the queue :queue" works with singular
-    Given the config "mysite_core.settings" key "queue_budget" has the value "20"
+    Given the config "mysite_core.settings" with the key "queue_budget" has the value "20"
     And the queue "behat_test" is empty
     And I add 6 items to the "behat_test" queue
     When I process 1 item from the queue "behat_test"
     Then the queue "behat_test" should have 5 items
-    And the config "mysite_core.settings" key "queue_budget" should have the value "19"
+    And the config "mysite_core.settings" with the key "queue_budget" should have the value "19"
 
   Scenario: Assert "When I process the queue :queue" processes all items
-    Given the config "mysite_core.settings" key "queue_budget" has the value "20"
+    Given the config "mysite_core.settings" with the key "queue_budget" has the value "20"
     And the queue "behat_test" is empty
     And I add 4 items to the "behat_test" queue
     When I process the queue "behat_test"
     Then the queue "behat_test" should be empty
-    And the config "mysite_core.settings" key "queue_budget" should have the value "16"
+    And the config "mysite_core.settings" with the key "queue_budget" should have the value "16"
 
   @test-trait:Drupal\QueueTrait
   Scenario: Assert that the queues a scenario used are deleted once it finishes

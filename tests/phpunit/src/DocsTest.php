@@ -1571,7 +1571,7 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testAssertMethod2',
-                'steps' => ['@Then the config :name key :key should have the effective value :value'],
+                'steps' => ['@Then the config :name with the key :key should have the effective value :value'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
               ],
