@@ -69,11 +69,17 @@ trait BehatCliTrait {
    */
   protected string $behatCliContextArguments = '';
 
+  /**
+   * Top-level extension options the generated configuration declares.
+   */
+  protected string $behatCliExtensionOptions = '';
+
   #[BeforeScenario]
   public function behatCliBeforeScenario(BeforeScenarioScope $scope): void {
     $this->behatCliConfiguredBackends = ['drupal', 'blackbox'];
     $this->behatCliStepsConfig = '';
     $this->behatCliContextArguments = '';
+    $this->behatCliExtensionOptions = '';
     $this->behatCliCopyFixtures();
 
     $traits = [];
@@ -268,6 +274,17 @@ EOL;
   }
 
   /**
+   * Declare top-level options of the generated extension configuration.
+   *
+   * The body is written into the generated 'behat.php' verbatim, so it reads as
+   * the inside of a PHP array literal.
+   */
+  #[Given('a configuration with the extension options:')]
+  public function behatCliSetExtensionOptions(PyStringNode $body): void {
+    $this->behatCliExtensionOptions = trim((string) $body);
+  }
+
+  /**
    * Render the backend list as the PHP array literal the config holds.
    */
   protected function behatCliRenderConfiguredBackends(): string {
@@ -303,6 +320,17 @@ EOL;
     }
 
     return sprintf(', [%s]', $this->behatCliContextArguments);
+  }
+
+  /**
+   * Render the top-level extension options as entries of the config array.
+   */
+  protected function behatCliRenderExtensionOptions(): string {
+    if ($this->behatCliExtensionOptions === '') {
+      return '';
+    }
+
+    return "\n    " . $this->behatCliExtensionOptions;
   }
 
   #[Given('some behat configuration')]
@@ -356,7 +384,7 @@ $profile = (new Profile('default'))
     'backends' => {{CONFIGURED_BACKENDS}},
     'drupal' => ['drupal_root' => {{DRUPAL_ROOT}}],{{DRUSH_BACKEND}}
     'regions' => ['content' => '#content', 'sidebar' => '#sidebar', 'footer' => '#footer'],
-    'steps' => {{STEPS_CONFIG}},
+    'steps' => {{STEPS_CONFIG}},{{EXTENSION_OPTIONS}}
   ]))
   ->withExtension(new Extension(BehatScreenshotExtension::class, ['dir' => '%paths.base%/.logs/screenshots', 'purge' => FALSE, 'on_failed' => TRUE, 'always_fullscreen' => TRUE, 'info_types' => ['url', 'feature', 'step', 'datetime']])){{COVERAGE_EXTENSION}};
 
@@ -382,6 +410,7 @@ EOL;
       '{{DRUSH_BACKEND}}' => $this->behatCliRenderDrushBackend(),
       '{{STEPS_CONFIG}}' => $this->behatCliRenderStepsConfig(),
       '{{CONTEXT_ARGUMENTS}}' => $this->behatCliRenderContextArguments(),
+      '{{EXTENSION_OPTIONS}}' => $this->behatCliRenderExtensionOptions(),
     ]);
 
     $filename = 'behat.php';
