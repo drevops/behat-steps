@@ -14,6 +14,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
+use Drupal\block_content\BlockContentInterface;
 use Drupal\block_content\BlockContentTypeInterface;
 use Drupal\block_content\Entity\BlockContent;
 
@@ -50,13 +51,7 @@ trait ContentBlockTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($content_block_table->getColumn(0) as $description) {
-      $content_blocks = $this->contentBlockLoadMultiple($content_block_type, [
-        'info' => $description,
-      ]);
-
-      foreach ($content_blocks as $content_block) {
-        $content_block->delete();
-      }
+      $this->contentBlockDelete($content_block_type, ['info' => $description]);
     }
   }
 
@@ -127,19 +122,9 @@ trait ContentBlockTrait {
    */
   #[When('I visit the :content_block_type content block edit page with the description :description')]
   public function contentBlockVisitEditPageWithDescription(string $content_block_type, string $description): void {
-    $content_blocks = $this->contentBlockLoadMultiple($content_block_type, [
-      'info' => $description,
-    ]);
+    $content_block = $this->contentBlockGetByDescription($content_block_type, $description);
 
-    if (empty($content_blocks)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $content_block_type, $description));
-    }
-
-    ksort($content_blocks);
-    $block_id = end($content_blocks)->id();
-
-    $path = $this->locatePath('/admin/content/block/' . $block_id);
-    $this->getSession()->visit($path);
+    $this->getSession()->visit($this->locatePath('/admin/content/block/' . $content_block->id()));
   }
 
   /**
@@ -213,6 +198,48 @@ trait ContentBlockTrait {
     $ids = $this->queryEntityIds('block_content', $conditions, $content_block_type);
 
     return $ids ? BlockContent::loadMultiple($ids) : [];
+  }
+
+  /**
+   * Get the newest content block with a description.
+   *
+   * @param string $content_block_type
+   *   The block content type.
+   * @param string $description
+   *   The block description.
+   *
+   * @return \Drupal\block_content\BlockContentInterface
+   *   The content block with the highest ID.
+   *
+   * @throws \RuntimeException
+   *   When no content block of the type has the description.
+   */
+  public function contentBlockGetByDescription(string $content_block_type, string $description): BlockContentInterface {
+    $content_blocks = $this->contentBlockLoadMultiple($content_block_type, [
+      'info' => $description,
+    ]);
+
+    if (empty($content_blocks)) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $content_block_type, $description));
+    }
+
+    ksort($content_blocks);
+
+    return end($content_blocks);
+  }
+
+  /**
+   * Delete the content blocks of a type that match conditions.
+   *
+   * @param string $content_block_type
+   *   The block content type.
+   * @param array<string, string> $conditions
+   *   Conditions keyed by field names.
+   */
+  public function contentBlockDelete(string $content_block_type, array $conditions): void {
+    foreach ($this->contentBlockLoadMultiple($content_block_type, $conditions) as $content_block) {
+      $content_block->delete();
+    }
   }
 
 }
