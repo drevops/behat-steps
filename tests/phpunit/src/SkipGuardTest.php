@@ -39,7 +39,7 @@ class SkipGuardTest extends UnitTestCase {
    */
   protected const GUARD_SHAPES = [
     '/\bif \(\$this->skipTag\(__TRAIT__, \$scope\)/',
-    '/\$this->[a-zA-Z]+ = !?\$this->skipTag\(__TRAIT__, \$scope\)/',
+    '/\$this->\w+ = !?\$this->skipTag\(__TRAIT__, \$scope\)/',
   ];
 
   /**
