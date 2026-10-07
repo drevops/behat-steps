@@ -135,7 +135,7 @@ class ResponsiveTraitTest extends UnitTestCase {
       $this->expectExceptionMessageMatches($expected_message);
     }
 
-    $result = $this->testObject->callGetBreakpoint($name);
+    $result = $this->testObject->responsiveGetBreakpoint($name);
     $this->assertSame($expected, $result);
   }
 
@@ -195,7 +195,7 @@ class ResponsiveTraitTest extends UnitTestCase {
       $this->testObject->responsiveSetBreakpoints($custom_breakpoints);
     }
 
-    $result = $this->testObject->callGetAllBreakpoints();
+    $result = $this->testObject->responsiveGetAllBreakpoints();
     $this->assertSame($expected, $result);
   }
 
@@ -258,13 +258,13 @@ class ResponsiveTraitTest extends UnitTestCase {
 
     if (!$expected_message) {
       if (empty($breakpoints)) {
-        $defaults = $this->testObject->callGetAllBreakpoints();
+        $defaults = $this->testObject->responsiveGetAllBreakpoints();
         $this->assertNotEmpty($defaults);
         $this->assertArrayHasKey('mobile_portrait', $defaults);
       }
       else {
         foreach ($breakpoints as $name => $dimensions) {
-          $result = $this->testObject->callGetBreakpoint($name);
+          $result = $this->testObject->responsiveGetBreakpoint($name);
           $this->assertSame($dimensions, $result);
         }
       }
@@ -404,20 +404,6 @@ class ResponsiveTraitTestImplementation extends RawMinkContext {
    */
   public function callExtractDimensions(string $dimensions, ?string $name = NULL): array {
     return $this->responsiveExtractDimensions($dimensions, $name);
-  }
-
-  /**
-   * Exposes the protected method for testing.
-   */
-  public function callGetBreakpoint(string $name): string {
-    return $this->responsiveGetBreakpoint($name);
-  }
-
-  /**
-   * Exposes the protected method for testing.
-   */
-  public function callGetAllBreakpoints(): array {
-    return $this->responsiveGetAllBreakpoints();
   }
 
   /**

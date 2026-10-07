@@ -33,7 +33,7 @@ class EmailTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderExtractLinks')]
   public function testExtractLinks(string $input, array $expected): void {
-    $result = EmailTraitTestImplementation::callExtractLinks($input);
+    $result = EmailTraitTestImplementation::emailExtractLinks($input);
     $this->assertSame($expected, $result);
   }
 
@@ -254,8 +254,7 @@ class EmailTraitTest extends UnitTestCase {
 /**
  * Test implementation of EmailTrait.
  *
- * Exposes the protected link extractor and replaces the test email collector
- * with the messages a test supplies.
+ * Replaces the test email collector with the messages a test supplies.
  */
 class EmailTraitTestImplementation extends WebRawContext {
 
@@ -267,19 +266,6 @@ class EmailTraitTestImplementation extends WebRawContext {
    * @var array<int, array<string, mixed>>
    */
   public array $collectedMessages = [];
-
-  /**
-   * Extracts all links from the provided string.
-   *
-   * @param string $string
-   *   String to extract links from.
-   *
-   * @return array<int, string>
-   *   Array of extracted links.
-   */
-  public static function callExtractLinks(string $string): array {
-    return static::emailExtractLinks($string);
-  }
 
   /**
    * Returns the messages a test supplied.
