@@ -112,11 +112,7 @@ trait PathTrait {
    */
   #[Then('the current URL should have the query parameter :name')]
   public function pathAssertUrlParameterExists(string $name): void {
-    $query = $this->pathGetCurrentUrlQuery();
-
-    if (!array_key_exists($name, $query)) {
-      throw new ExpectationException(sprintf('The parameter "%s" is not in the URL.', $name), $this->getSession()->getDriver());
-    }
+    $this->pathGetUrlParameter($name);
   }
 
   /**
@@ -128,11 +124,7 @@ trait PathTrait {
    */
   #[Then('the current URL should have the query parameter :name with the value :value')]
   public function pathAssertUrlParameterEquals(string $name, string $value): void {
-    $this->pathAssertUrlParameterExists($name);
-
-    $query = $this->pathGetCurrentUrlQuery();
-
-    $actual_value = $query[$name] ?? '';
+    $actual_value = $this->pathGetUrlParameter($name);
 
     if ($actual_value !== $value) {
       throw new ExpectationException(sprintf('The parameter "%s" is in the URL but with the wrong value "%s".', $name, is_array($actual_value) ? json_encode($actual_value) : $actual_value), $this->getSession()->getDriver());
@@ -223,6 +215,28 @@ trait PathTrait {
     $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
     return ltrim($normalized_current_path, '/') === ltrim($normalized_path, '/');
+  }
+
+  /**
+   * Get a query parameter of the current URL.
+   *
+   * @param string $name
+   *   The name of the parameter.
+   *
+   * @return string|array<int|string, mixed>
+   *   The value of the parameter, an array for a name written with brackets.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the current URL does not carry the parameter.
+   */
+  public function pathGetUrlParameter(string $name): string|array {
+    $query = $this->pathGetCurrentUrlQuery();
+
+    if (!array_key_exists($name, $query)) {
+      throw new ExpectationException(sprintf('The parameter "%s" is not in the URL.', $name), $this->getSession()->getDriver());
+    }
+
+    return $query[$name];
   }
 
   /**
