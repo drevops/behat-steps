@@ -79,13 +79,13 @@ trait ContentTrait {
    * Remove content defined by provided properties.
    *
    * @code
-   * Given the following "article" content does not exist:
+   * Given the following "article" content do not exist:
    *   | title                |
    *   | Test article         |
    *   | Another test article |
    * @endcode
    */
-  #[Given('the following :content_type content does not exist:')]
+  #[Given('the following :content_type content do not exist:')]
   public function contentDeleteMultiple(string $content_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -280,10 +280,10 @@ trait ContentTrait {
    * accepted.
    *
    * @code
-   * When I set the path alias of the "article" content with the title "Test article" to "/my-test-article"
+   * When I set the path alias of the "article" content with the title "Test article" to the alias "/my-test-article"
    * @endcode
    */
-  #[When('I set the path alias of the :content_type content with the title :title to :alias')]
+  #[When('I set the path alias of the :content_type content with the title :title to the alias :alias')]
   public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

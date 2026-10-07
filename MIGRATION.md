@@ -199,6 +199,8 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | Before | After |
 | --- | --- |
 | `Given the following :type content with fields:` | `Given the following :content_type content with fields exist:` |
+| `When I set the path alias of the :content_type content with the title :title to :alias` | `When I set the path alias of the :content_type content with the title :title to the alias :alias` |
+| `Given the following :content_type content does not exist:` | `Given the following :content_type content do not exist:` |
 
 ### DraggableviewsTrait
 
@@ -212,6 +214,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | --- | --- |
 | `Then an email should be sent to the :address` | `Then an email should be sent to the address :address` |
 | `Then no emails should have been sent to the :address` | `Then no emails should have been sent to the address :address` |
+| `Then the email header :header should exactly be:` | `Then the email header :header should be:` |
 
 ### FieldTrait
 
@@ -223,6 +226,8 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | `Then the field :name should exist` | `Then the field :field should exist` |
 | `Then the field :name should have :enabled_or_disabled state` | `Then the field :field should have the :enabled_or_disabled state` |
 | `Then the field :name should not exist` | `Then the field :field should not exist` |
+| `When I fill in the date part of the datetime field :label with :date` | `When I fill in the date part of the datetime field :label with the date :date` |
+| `When I fill in the time part of the datetime field :label with :time` | `When I fill in the time part of the datetime field :label with the time :time` |
 
 ### FileDownloadTrait
 
@@ -236,12 +241,14 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | --- | --- |
 | `Given the following managed files:` | `Given the following managed files exist:` |
 | `Given the unmanaged file at the URI :uri exists with :content` | `Given the unmanaged file at the URI :uri exists with the content :content` |
+| `Then an unmanaged file at the URI :uri should contain :content` | `Then an unmanaged file at the URI :uri should contain the value :value` |
+| `Then an unmanaged file at the URI :uri should not contain :content` | `Then an unmanaged file at the URI :uri should not contain the value :value` |
 
 ### IframeTrait
 
 | Before | After |
 | --- | --- |
-| `When I switch to iframe with locator :locator` | `When I switch to the iframe with the selector :selector` |
+| `When I switch to iframe with locator :locator` | `When I switch to the iframe :selector` |
 
 ### JsonTrait
 
@@ -633,6 +640,8 @@ A taxonomy term's name, a role and a file name each had 2 placeholder names: `:t
 | `UserTrait::userCreateRole()` | `$role_name` | `$role` |
 | `EmailTrait::emailAssertMessageContainsAttachmentWithSubject()`, `emailAssertMessageContainsAttachmentWithSubjectContaining()` | `$file_name` | `$filename` |
 | `DropzoneTrait::dropzoneDropFile()` | `$path` | `$filename` |
+
+`FileTrait::fileAssertUnmanagedContains()` and `fileAssertUnmanagedNotContains()` take `$value` where they took `$content`, because their steps now read `the value :value`, as the `FileTrait` table under [Unified step text](#unified-step-text) shows.
 
 ### Failure messages
 
@@ -2178,7 +2187,7 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
 ### Three steps now fail naming the capability
 
-`I wait for the modal to appear`, `I drop the following files on the dropzone :selector:` and `I switch to the iframe with the selector :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
+`I wait for the modal to appear`, `I drop the following files on the dropzone :selector:` and `I switch to the iframe :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
 
 `I press the key ...` and `I wait for :seconds second(s) for AJAX to finish` still raise on a browser driver that cannot serve them, with the capability named in place of a hardcoded list of browser drivers.
 

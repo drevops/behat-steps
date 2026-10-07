@@ -385,13 +385,13 @@ trait EmailTrait {
    * Assert that the email message header should be the exact specified content.
    *
    * @code
-   * Then the email header "Subject" should exactly be:
+   * Then the email header "Subject" should be:
    * """
    * Your Account Details
    * """
    * @endcode
    */
-  #[Then('the email header :header should exactly be:')]
+  #[Then('the email header :header should be:')]
   public function emailAssertMessageHeaderEquals(string $header, PyStringNode $string): void {
     $this->emailAssertMessageExistsWithHeaderValue($header, $string, TRUE);
   }

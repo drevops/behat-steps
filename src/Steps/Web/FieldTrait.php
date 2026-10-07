@@ -527,10 +527,10 @@ JS;
    * Fill in the date part of a datetime field.
    *
    * @code
-   * When I fill in the date part of the datetime field "Event date" with "2024-01-15"
+   * When I fill in the date part of the datetime field "Event date" with the date "2024-01-15"
    * @endcode
    */
-  #[When('I fill in the date part of the datetime field :label with :date')]
+  #[When('I fill in the date part of the datetime field :label with the date :date')]
   public function fieldFillDatetimeDate(string $label, string $date): void {
     $this->fieldFillDatetimeInput($label, 'value', 'date', $date);
   }
@@ -539,10 +539,10 @@ JS;
    * Fill in the time part of a datetime field.
    *
    * @code
-   * When I fill in the time part of the datetime field "Event date" with "14:30:00"
+   * When I fill in the time part of the datetime field "Event date" with the time "14:30:00"
    * @endcode
    */
-  #[When('I fill in the time part of the datetime field :label with :time')]
+  #[When('I fill in the time part of the datetime field :label with the time :time')]
   public function fieldFillDatetimeTime(string $label, string $time): void {
     $this->fieldFillDatetimeInput($label, 'value', 'time', $time);
   }

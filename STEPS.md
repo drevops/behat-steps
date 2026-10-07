@@ -1459,28 +1459,28 @@ When I fill in the datetime field "Event date" with the date "2024-01-15" and th
 </details>
 
 <details>
-  <summary><code>@When I fill in the date part of the datetime field :label with :date</code></summary>
+  <summary><code>@When I fill in the date part of the datetime field :label with the date :date</code></summary>
 
 <br/>
 Fill in the date part of a datetime field
 <br/><br/>
 
 ```gherkin
-When I fill in the date part of the datetime field "Event date" with "2024-01-15"
+When I fill in the date part of the datetime field "Event date" with the date "2024-01-15"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I fill in the time part of the datetime field :label with :time</code></summary>
+  <summary><code>@When I fill in the time part of the datetime field :label with the time :time</code></summary>
 
 <br/>
 Fill in the time part of a datetime field
 <br/><br/>
 
 ```gherkin
-When I fill in the time part of the datetime field "Event date" with "14:30:00"
+When I fill in the time part of the datetime field "Event date" with the time "14:30:00"
 
 ```
 
@@ -1878,15 +1878,15 @@ Then the downloaded file should be a zip archive not containing the following fi
 
 
 <details>
-  <summary><code>@When I switch to the iframe with the selector :selector</code></summary>
+  <summary><code>@When I switch to the iframe :selector</code></summary>
 
 <br/>
 Switch to an iframe identified by CSS selector
 <br/><br/>
 
 ```gherkin
-When I switch to the iframe with the selector "iframe.payment-form"
-When I switch to the iframe with the selector "#recaptcha iframe"
+When I switch to the iframe "iframe.payment-form"
+When I switch to the iframe "#recaptcha iframe"
 
 ```
 
@@ -5254,14 +5254,14 @@ Given the content type "article" does not exist
 </details>
 
 <details>
-  <summary><code>@Given the following :content_type content does not exist:</code></summary>
+  <summary><code>@Given the following :content_type content do not exist:</code></summary>
 
 <br/>
 Remove content defined by provided properties
 <br/><br/>
 
 ```gherkin
-Given the following "article" content does not exist:
+Given the following "article" content do not exist:
   | title                |
   | Test article         |
   | Another test article |
@@ -5417,14 +5417,14 @@ When I rebuild the access grants for all content
 </details>
 
 <details>
-  <summary><code>@When I set the path alias of the :content_type content with the title :title to :alias</code></summary>
+  <summary><code>@When I set the path alias of the :content_type content with the title :title to the alias :alias</code></summary>
 
 <br/>
 Set the path alias of a content with the specified title
 <br/><br/>
 
 ```gherkin
-When I set the path alias of the "article" content with the title "Test article" to "/my-test-article"
+When I set the path alias of the "article" content with the title "Test article" to the alias "/my-test-article"
 
 ```
 
@@ -5918,14 +5918,14 @@ Account details
 </details>
 
 <details>
-  <summary><code>@Then the email header :header should exactly be:</code></summary>
+  <summary><code>@Then the email header :header should be:</code></summary>
 
 <br/>
 Assert that the email message header should be the exact specified content
 <br/><br/>
 
 ```gherkin
-Then the email header "Subject" should exactly be:
+Then the email header "Subject" should be:
 """
 Your Account Details
 """
@@ -6262,28 +6262,28 @@ Then an unmanaged file at the URI "public://temp.txt" should not exist
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should contain :content</code></summary>
+  <summary><code>@Then an unmanaged file at the URI :uri should contain the value :value</code></summary>
 
 <br/>
 Assert that an unmanaged file exists and has specified content
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
+Then an unmanaged file at the URI "public://config.txt" should contain the value "debug=true"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should not contain :content</code></summary>
+  <summary><code>@Then an unmanaged file at the URI :uri should not contain the value :value</code></summary>
 
 <br/>
 Assert that an unmanaged file exists and does not have specified content
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
+Then an unmanaged file at the URI "public://config.txt" should not contain the value "debug=false"
 
 ```
 

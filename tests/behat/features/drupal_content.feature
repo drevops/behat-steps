@@ -21,7 +21,7 @@ Feature: Check that ContentTrait works
     When I visit "/admin/structure/types"
     Then I should not see "test_content_type"
 
-  Scenario: Assert "@Given the following :content_type content does not exist:" works as expected
+  Scenario: Assert "@Given the following :content_type content do not exist:" works as expected
     Given the following page content exist:
       | title              |
       | [TEST] Page title1 |
@@ -31,7 +31,7 @@ Feature: Check that ContentTrait works
     Then the response status code should be 200
     When I go to "content/test-page-title2"
     Then the response status code should be 200
-    When the following "page" content does not exist:
+    When the following "page" content do not exist:
       | title              |
       | [TEST] Page title1 |
       | [TEST] Page title2 |
@@ -391,35 +391,35 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Compound subdirectory file"
     And the response should contain ".pdf"
 
-  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected
+  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to the alias :alias" works as expected
     Given the following page content exist:
       | title                   |
       | [TEST] Alias page title |
     And I log in as a user with the role "administrator"
-    When I set the path alias of the "page" content with the title "[TEST] Alias page title" to "/test-custom-alias"
+    When I set the path alias of the "page" content with the title "[TEST] Alias page title" to the alias "/test-custom-alias"
     And I go to "test-custom-alias"
     Then the response status code should be 200
     And I should see "[TEST] Alias page title"
 
-  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for an alias without a leading slash
+  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to the alias :alias" works as expected for an alias without a leading slash
     Given the following page content exist:
       | title                            |
       | [TEST] Alias no slash page title |
     And I log in as a user with the role "administrator"
-    When I set the path alias of the "page" content with the title "[TEST] Alias no slash page title" to "test-no-slash-alias"
+    When I set the path alias of the "page" content with the title "[TEST] Alias no slash page title" to the alias "test-no-slash-alias"
     And I go to "test-no-slash-alias"
     Then the response status code should be 200
     And I should see "[TEST] Alias no slash page title"
 
-  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" replaces an existing alias instead of adding a second one
+  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to the alias :alias" replaces an existing alias instead of adding a second one
     Given the following page content exist:
       | title                            |
       | [TEST] Alias replaced page title |
     And I log in as a user with the role "administrator"
-    When I set the path alias of the "page" content with the title "[TEST] Alias replaced page title" to "/test-alias-first"
+    When I set the path alias of the "page" content with the title "[TEST] Alias replaced page title" to the alias "/test-alias-first"
     And I go to "test-alias-first"
     Then the response status code should be 200
-    When I set the path alias of the "page" content with the title "[TEST] Alias replaced page title" to "/test-alias-second"
+    When I set the path alias of the "page" content with the title "[TEST] Alias replaced page title" to the alias "/test-alias-second"
     And I go to "test-alias-second"
     Then the response status code should be 200
     And the path should be "/test-alias-second"
@@ -427,12 +427,12 @@ Feature: Check that ContentTrait works
     Then the path should be "/test-alias-second"
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for non-existing content type
+  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to the alias :alias" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
-      When I set the path alias of the "non_existing" content with the title "[TEST] Page title" to "/test-alias"
+      When I set the path alias of the "non_existing" content with the title "[TEST] Page title" to the alias "/test-alias"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -441,12 +441,12 @@ Feature: Check that ContentTrait works
       """
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for non-existing content
+  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to the alias :alias" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
-      When I set the path alias of the "page" content with the title "[TEST] Non-existing" to "/test-alias"
+      When I set the path alias of the "page" content with the title "[TEST] Non-existing" to the alias "/test-alias"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -455,14 +455,14 @@ Feature: Check that ContentTrait works
       """
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for an empty alias
+  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to the alias :alias" works as expected for an empty alias
     Given some behat configuration
     And scenario steps:
       """
       Given the following page content exist:
         | title                         |
         | [TEST] Empty alias page title |
-      When I set the path alias of the "page" content with the title "[TEST] Empty alias page title" to ""
+      When I set the path alias of the "page" content with the title "[TEST] Empty alias page title" to the alias ""
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

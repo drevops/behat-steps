@@ -697,8 +697,8 @@ Feature: Check that FieldTrait works
       | [TEST] Datetime separate steps |
     And I log in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Datetime separate steps"
-    And I fill in the date part of the datetime field "Event date" with "2024-02-20"
-    And I fill in the time part of the datetime field "Event date" with "15:45:00"
+    And I fill in the date part of the datetime field "Event date" with the date "2024-02-20"
+    And I fill in the time part of the datetime field "Event date" with the time "15:45:00"
     And I press "Save"
     Then I should see "Page [TEST] Datetime separate steps has been updated."
 
@@ -720,7 +720,7 @@ Feature: Check that FieldTrait works
       | [TEST] Date part test page |
     And I log in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Date part test page"
-    And I fill in the date part of the datetime field "Event date only" with "2024-04-05"
+    And I fill in the date part of the datetime field "Event date only" with the date "2024-04-05"
     And I press "Save"
     Then I should see "Page [TEST] Date part test page has been updated."
 
@@ -770,7 +770,7 @@ Feature: Check that FieldTrait works
       """
       When I log in as a user with the role "administrator"
       And I go to "node/add/page"
-      And I fill in the date part of the datetime field "Non-existent field" with "2024-01-01"
+      And I fill in the date part of the datetime field "Non-existent field" with the date "2024-01-01"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -785,7 +785,7 @@ Feature: Check that FieldTrait works
       """
       When I log in as a user with the role "administrator"
       And I go to "node/add/page"
-      And I fill in the time part of the datetime field "Non-existent field" with "12:00:00"
+      And I fill in the time part of the datetime field "Non-existent field" with the time "12:00:00"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

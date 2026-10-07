@@ -83,11 +83,11 @@ Feature: Check that EmailTrait works
       Test email content line three
       """
     Then an email should be sent to the address "test@example.com"
-    And the email header "Content-Type" should exactly be:
+    And the email header "Content-Type" should be:
       """
       text/plain; charset=utf-8; format=flowed; delsp=yes
       """
-    And the email header "X-Mailer" should exactly be:
+    And the email header "X-Mailer" should be:
       """
       Drupal
       """
