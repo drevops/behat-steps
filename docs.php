@@ -401,6 +401,10 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
 
     $methods = $trait->getMethods(\ReflectionMethod::IS_PUBLIC);
     $trait_prefix = str_replace('Trait', '', $trait_name);
+    // Methods group by the keyword of their first step, so the reference lists
+    // Given steps first and Then steps last.
+    $methods_by_keyword = ['@Given' => [], '@When' => [], '@Then' => []];
+
     foreach ($methods as $method) {
       if (!str_starts_with(strtolower($method->getName()), strtolower($trait_prefix))) {
         continue;
@@ -412,7 +416,7 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
       }
 
       $parsed_comment = parse_method_comment((string) $method->getDocComment());
-      $class_info['methods'][] = [
+      $methods_by_keyword[explode(' ', $steps[0], 2)[0]][] = [
         'steps' => $steps,
         'description' => $parsed_comment['description'] ?? '',
         'example' => $parsed_comment['example'] ?? '',
@@ -420,31 +424,7 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
       ];
     }
 
-    if (!empty($class_info['methods'])) {
-      usort($class_info['methods'], static function (array $a, array $b): int {
-        $order = ['@Given', '@When', '@Then'];
-
-        $get_order_index = static function ($step) use ($order): int {
-          foreach ($order as $index => $prefix) {
-            if (str_starts_with($step, $prefix)) {
-              return $index;
-            }
-          }
-
-          // @codeCoverageIgnoreStart
-          return PHP_INT_MAX;
-          // @codeCoverageIgnoreEnd
-        };
-
-        $a_step = $a['steps'][0] ?? '';
-        $b_step = $b['steps'][0] ?? '';
-
-        $a_index = $get_order_index($a_step);
-        $b_index = $get_order_index($b_step);
-
-        return $a_index <=> $b_index;
-      });
-    }
+    $class_info['methods'] = array_merge(...array_values($methods_by_keyword));
 
     $info[$trait_name] = $class_info;
   }
@@ -562,11 +542,10 @@ function parse_class_comment(string $trait_name, string $comment): array {
     array_pop($lines);
   }
 
-  // @codeCoverageIgnoreStart
   if (empty($lines)) {
     throw new \RuntimeException(sprintf('Class comment for %s is empty', $trait_name));
   }
-  // @codeCoverageIgnoreEnd
+
   $description = $lines[0];
   if (empty($description)) {
     throw new \RuntimeException(sprintf('Class comment for %s is empty', $trait_name));
@@ -1001,11 +980,11 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $trait = $collected['reflection'];
     $context = $collected['context'];
     $helpers = collect_helper_methods($trait, NULL, NULL, helper_trait_contracts($trait, $class_names));
-    // @codeCoverageIgnoreStart
+
     if ($helpers === []) {
       continue;
     }
-    // @codeCoverageIgnoreEnd
+
     $name_contextual = ($context !== DEFAULT_CONTEXT ? $context . '\\' : '') . $trait_name;
     $class_info = [
       'name' => $trait_name,
@@ -1233,9 +1212,7 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
     }
   }
 
-  // @codeCoverageIgnoreStart
   return $file_path;
-  // @codeCoverageIgnoreEnd
 }
 
 /**
@@ -1273,11 +1250,10 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
     $example_file_path = $base_path . '/' . $example_file;
 
-    // @codeCoverageIgnoreStart
     if (!file_exists($example_file_path)) {
       throw new \RuntimeException(sprintf('Example file %s does not exist', $example_file_path));
     }
-    // @codeCoverageIgnoreEnd
+
     // @phpstan-ignore-next-line
     $content_output[$context] ??= '';
     // @phpstan-ignore-next-line

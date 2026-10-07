@@ -187,6 +187,36 @@ Feature: Check that FileTrait works
       """
 
   @test-trait:Drupal\FileTrait
+  Scenario: A managed files table whose first column is a number fails with an exception
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following managed files do not exist:
+        | 1 |
+        | 2 |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The first column should be the field name.
+      """
+
+  @test-trait:Drupal\FileTrait
+  Scenario: A managed file whose path does not exist fails with an exception
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following managed files exist:
+        | path        |
+        | missing.txt |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Unable to find file "missing.txt".
+      """
+
+  @test-trait:Drupal\FileTrait
   Scenario: Assert that the skip tag switches the FileTrait hooks off
     Given some behat configuration
     And scenario steps tagged with "@behat-steps-skip:FileTrait":

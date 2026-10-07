@@ -942,6 +942,24 @@ EOD,
     ];
   }
 
+  public function testRenderInfoThrowsOnMissingExample(): void {
+    $this->writeFixture(STEPS_DIRECTORY . '/Web/SomeTrait.php', '<?php');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('Example file %s/tests/behat/features/some.feature does not exist', static::$tmp));
+
+    render_info([
+      'SomeTrait' => [
+        'name' => 'SomeTrait',
+        'name_contextual' => 'SomeTrait',
+        'context' => 'Web',
+        'description' => 'Do the thing.',
+        'description_full' => 'Do the thing.',
+        'methods' => [],
+      ],
+    ], static::$tmp);
+  }
+
   #[DataProvider('dataProviderRenderInfoWithPathForLinks')]
   public function testRenderInfoWithPathForLinks(array $info, string $path_for_links, string $expected): void {
     $base_path = static::$tmp;
@@ -3244,6 +3262,7 @@ EOD,
     return [
       'under the documented repository' => ['/repo/src/Behat/Context/WebRawContext.php', '/repo', 'src/Behat/Context/WebRawContext.php'],
       'under this repository' => [dirname(__DIR__, 3) . '/src/Behat/Context/WebRawContext.php', '/elsewhere', 'src/Behat/Context/WebRawContext.php'],
+      'outside both repositories' => ['/elsewhere/src/Behat/Context/WebRawContext.php', '/repo', '/elsewhere/src/Behat/Context/WebRawContext.php'],
     ];
   }
 
@@ -3295,6 +3314,31 @@ EOD,
     $actual = extract_helpers([$class_name], [], $setup['base_path']);
 
     $this->assertArrayNotHasKey('SampleTrait', $actual);
+  }
+
+  public function testExtractHelpersSkipsHelperTraitsWithoutHelpers(): void {
+    // collect_helper_traits() derives the namespace from the directory, so the
+    // fixture declares the library's helper namespace.
+    require_once $this->writeFixture('src/Helper/Web/BareHelperTrait.php', <<<'EOD'
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Helper\Web;
+
+/**
+ * Declare no public method.
+ */
+trait BareHelperTrait {
+
+  protected function bareHelperValue(): void {}
+
+}
+
+EOD);
+
+    $this->assertArrayHasKey('BareHelperTrait', collect_helper_traits(static::$tmp));
+    $this->assertArrayNotHasKey('BareHelperTrait', extract_helpers([], [], static::$tmp));
   }
 
   public function testExtractHelpersPublishesToolboxClasses(): void {

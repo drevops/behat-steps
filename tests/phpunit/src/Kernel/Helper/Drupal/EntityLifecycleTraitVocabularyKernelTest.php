@@ -22,6 +22,7 @@ use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\RegistryExposingContext;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\taxonomy\Entity\Vocabulary;
 use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -59,19 +60,27 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     $this->context->setHookDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
   }
 
-  public function testMachineNameResolvesToItself(): void {
-    $this->assertSame('tags', $this->context->callResolveVocabularyMachineName('tags'));
-  }
-
-  public function testLabelResolvesToItsMachineName(): void {
-    $this->assertSame('tags', $this->context->callResolveVocabularyMachineName('Tags'));
-  }
-
   /**
-   * Tests that an unknown identifier is returned for the backend to reject.
+   * Tests how a vocabulary identifier resolves to a machine name.
+   *
+   * An unknown identifier is returned unchanged for the backend to reject.
+   *
+   * @param string $identifier
+   *   The machine name or label naming the vocabulary.
+   * @param string $expected
+   *   The machine name it resolves to.
    */
-  public function testAnUnknownIdentifierIsReturnedUnchanged(): void {
-    $this->assertSame('Unknown', $this->context->callResolveVocabularyMachineName('Unknown'));
+  #[DataProvider('dataProviderResolveVocabularyMachineName')]
+  public function testResolveVocabularyMachineName(string $identifier, string $expected): void {
+    $this->assertSame($expected, $this->context->callResolveVocabularyMachineName($identifier));
+  }
+
+  public static function dataProviderResolveVocabularyMachineName(): array {
+    return [
+      'a machine name resolves to itself' => ['tags', 'tags'],
+      'a label resolves to its machine name' => ['Tags', 'tags'],
+      'an unknown identifier is returned unchanged' => ['Unknown', 'Unknown'],
+    ];
   }
 
   public function testTermCreationResolvesTheVocabularyLabel(): void {

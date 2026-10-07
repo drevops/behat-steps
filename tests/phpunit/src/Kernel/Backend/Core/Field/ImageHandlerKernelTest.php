@@ -14,10 +14,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel round-trip test for ImageHandler via the Core backend.
  *
  * ImageHandler reads an image file, writes it to public:// via the
- * file.repository service, and emits a single-delta shorthand
- * ['target_id' => X, 'alt' => Y, 'title' => Z]. The base helper's
- * normalization handles that shape, so the assertion is identical to the
- * other multi-property handlers.
+ * file.repository service, and emits 1 record per delta keyed by
+ * 'target_id', 'alt' and 'title'.
  */
 #[CoversClass(ImageHandler::class)]
 #[Group('fields')]

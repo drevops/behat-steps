@@ -34,6 +34,16 @@ use Symfony\Component\BrowserKit\Cookie;
 trait FeatureContextTrait {
 
   /**
+   * The tag that runs a scenario's steps in a nested Behat process.
+   */
+  protected const string TEST_TRAIT_TAG = 'test-trait';
+
+  /**
+   * The tag that clears the watchdog table after a feature.
+   */
+  protected const string TEST_ERRORCLEANUP_TAG = 'test-errorcleanup';
+
+  /**
    * Whether to use center scroll alignment for testing.
    */
   protected bool $testElementScrollCenter = TRUE;
@@ -48,11 +58,26 @@ trait FeatureContextTrait {
    * @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession()
    */
   #[BeforeScenario]
-  public function testStopSessionsBeforeSubProcess(BeforeScenarioScope $scope): void {
-    $has_trait_tag = (bool) array_filter(Tag::on($scope->getScenario()), static fn(string $tag): bool => str_starts_with($tag, 'test-trait:'));
+  public function testBeforeScenario(BeforeScenarioScope $scope): void {
+    if (Tag::values($scope, self::TEST_TRAIT_TAG) === []) {
+      return;
+    }
 
-    if ($has_trait_tag) {
-      $this->getMink()->stopSessions();
+    $this->getMink()->stopSessions();
+  }
+
+  /**
+   * Clean watchdog after feature with an error.
+   */
+  #[AfterFeature]
+  public static function testAfterFeature(AfterFeatureScope $scope): void {
+    if (!Tag::has($scope->getFeature(), self::TEST_ERRORCLEANUP_TAG)) {
+      return;
+    }
+
+    $database = Database::getConnection();
+    if ($database->schema()->tableExists('watchdog')) {
+      $database->truncate('watchdog')->execute();
     }
   }
 
@@ -64,8 +89,8 @@ trait FeatureContextTrait {
    * @endcode
    */
   #[When('sleep for :seconds second(s)')]
-  public function testSleepForSeconds(int|string $seconds): void {
-    sleep((int) $seconds);
+  public function testSleepForSeconds(string $seconds): void {
+    sleep($this->stringParseInteger($seconds, 'seconds', 1));
   }
 
   /**
@@ -137,7 +162,7 @@ trait FeatureContextTrait {
   #[Then('the viewport should have the width of :width')]
   public function testAssertViewportWidth(string $width): void {
     $current = $this->responsiveGetCurrentDimensions();
-    $expected = (int) $width;
+    $expected = $this->stringParseInteger($width, 'width', 1);
     $tolerance = 20;
     if (abs($current['width'] - $expected) > $tolerance) {
       throw new \RuntimeException(sprintf('Expected viewport width within %dpx of %d, but got %d.', $tolerance, $expected, $current['width']));
@@ -205,17 +230,6 @@ trait FeatureContextTrait {
     }
 
     return $cookie_list;
-  }
-
-  /**
-   * Clean watchdog after feature with an error.
-   */
-  #[AfterFeature('@test-errorcleanup')]
-  public static function testClearWatchdog(AfterFeatureScope $scope): void {
-    $database = Database::getConnection();
-    if ($database->schema()->tableExists('watchdog')) {
-      $database->truncate('watchdog')->execute();
-    }
   }
 
   /**
@@ -530,7 +544,9 @@ trait FeatureContextTrait {
    * Add items to a Drupal queue for testing.
    */
   #[Given('I add :count item(s) to the :queue queue')]
-  public function testAddItemsToQueue(int $count, string $queue): void {
+  public function testAddItemsToQueue(string $count, string $queue): void {
+    $count = $this->stringParseInteger($count, 'count', 1);
+
     $this->backendFor(CoreCapabilityInterface::class);
 
     $queue_instance = \Drupal::service('queue')->get($queue);

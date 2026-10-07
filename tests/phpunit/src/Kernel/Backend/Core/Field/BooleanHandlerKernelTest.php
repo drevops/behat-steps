@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Core\Field;
 
 use DrevOps\BehatSteps\Backend\Core\Field\BooleanHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -31,39 +32,33 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
     ...self::BASE_MODULES,
   ];
 
-  public function testCanonicalYesRoundTrip(): void {
-    $this->attachField('field_flag', 'boolean');
-    $this->assertFieldRoundTripViaBackend('field_flag', ['Yes']);
-  }
-
-  public function testCanonicalNoRoundTrip(): void {
-    $this->attachField('field_flag', 'boolean');
-    $this->assertFieldRoundTripViaBackend('field_flag', ['no']);
-  }
-
   /**
-   * Tests the field's configured on_label takes priority over canonical forms.
+   * Tests that a canonical word or a configured label round-trips.
    *
-   * Site builders often customize the labels (e.g. 'Published'/'Draft' on a
-   * publishing workflow field), so a scenario must be able to use those exact
-   * words.
+   * Site builders often customize the labels, such as 'Published' and 'Draft'
+   * on a publishing workflow field, so a scenario must be able to use them.
+   *
+   * @param array<string, string> $field_settings
+   *   The field settings, carrying the configured labels.
+   * @param string $value
+   *   The word the scenario passes.
    */
-  public function testFieldOnLabelResolvesToTrue(): void {
-    $this->attachField('field_flag', 'boolean', [], [
-      'on_label' => 'Published',
-      'off_label' => 'Draft',
-    ]);
+  #[DataProvider('dataProviderWordRoundTrip')]
+  public function testWordRoundTrip(array $field_settings, string $value): void {
+    $this->attachField('field_flag', 'boolean', [], $field_settings);
 
-    $this->assertFieldRoundTripViaBackend('field_flag', ['Published']);
+    $this->assertFieldRoundTripViaBackend('field_flag', [$value]);
   }
 
-  public function testFieldOffLabelResolvesToFalse(): void {
-    $this->attachField('field_flag', 'boolean', [], [
-      'on_label' => 'Published',
-      'off_label' => 'Draft',
-    ]);
+  public static function dataProviderWordRoundTrip(): array {
+    $labels = ['on_label' => 'Published', 'off_label' => 'Draft'];
 
-    $this->assertFieldRoundTripViaBackend('field_flag', ['Draft']);
+    return [
+      'canonical yes' => [[], 'Yes'],
+      'canonical no' => [[], 'no'],
+      'configured on label' => [$labels, 'Published'],
+      'configured off label' => [$labels, 'Draft'],
+    ];
   }
 
   public function testUnrecognizedValueThrows(): void {

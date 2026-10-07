@@ -44,9 +44,27 @@ Feature: Check that MenuTrait works
     And I should see "Child Link Title"
 
     When the following menu links do not exist in the menu "[TEST] menu 1 title":
-      | Child Link Title |
+      | Child Link Title         |
+      | [TEST] Non-existent link |
+    And the following menu links do not exist in the menu "[TEST] non-existent menu":
+      | Parent Link Title |
     And I visit "/admin/config/development/performance"
     And I press "Clear all cache"
     And I visit "/admin/structure/menu/manage/_test_menu_1_title"
     Then I should not see "Child Link Title"
     And I should see "Parent Link Title"
+
+  @test-trait:Drupal\MenuTrait
+  Scenario: Menu links in a menu that does not exist fail with an exception
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following menu links exist in the menu "[TEST] non-existent menu":
+        | title       | uri                     |
+        | Orphan Link | https://www.example.com |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      Menu "[TEST] non-existent menu" was not found.
+      """

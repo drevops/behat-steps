@@ -115,11 +115,10 @@ trait MenuTrait {
 
     $menu = $this->menuFindByLabel($menu_name);
 
-    // @codeCoverageIgnoreStart
     if (!$menu instanceof MenuInterface) {
       throw new \RuntimeException(sprintf('Menu "%s" was not found.', $menu_name));
     }
-    // @codeCoverageIgnoreEnd
+
     foreach ($table->getHash() as $menu_link_hash) {
       $menu_link_hash['menu_name'] = $menu->id();
       if (isset($menu_link_hash['uri'])) {
@@ -132,11 +131,9 @@ trait MenuTrait {
         if ($parent_link instanceof MenuLinkContent) {
           $menu_link_hash['parent'] = 'menu_link_content:' . $parent_link->uuid();
         }
-        // @codeCoverageIgnoreStart
         else {
           unset($menu_link_hash['parent']);
         }
-        // @codeCoverageIgnoreEnd
       }
       else {
         unset($menu_link_hash['parent']);
@@ -191,11 +188,9 @@ trait MenuTrait {
 
     $menu = $this->menuFindByLabel($menu_name);
 
-    // @codeCoverageIgnoreStart
     if (!$menu instanceof MenuInterface) {
       return NULL;
     }
-    // @codeCoverageIgnoreEnd
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
     $entity_type_manager = \Drupal::entityTypeManager();
@@ -206,11 +201,10 @@ trait MenuTrait {
       ->condition('title', $title)
       ->execute();
 
-    // @codeCoverageIgnoreStart
     if (empty($menu_link_ids)) {
       return NULL;
     }
-    // @codeCoverageIgnoreEnd
+
     $menu_link_id = reset($menu_link_ids);
 
     return MenuLinkContent::load($menu_link_id);

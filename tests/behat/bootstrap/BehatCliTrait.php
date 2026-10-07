@@ -22,11 +22,16 @@ use DrevOps\BehatSteps\Behat\Tag;
 trait BehatCliTrait {
 
   /**
+   * The tag naming the traits the generated context composes.
+   */
+  protected const string BEHAT_CLI_TRAIT_TAG = 'test-trait';
+
+  /**
    * Traits every generated context composes, on top of the ones under test.
    *
    * @var array<int, string>
    */
-  protected const BEHAT_CLI_BASELINE_TRAITS = [
+  protected const array BEHAT_CLI_BASELINE_TRAITS = [
     'Web\\PathTrait',
     'Drupal\\ContentTrait',
     'Drupal\\UserTrait',
@@ -37,7 +42,7 @@ trait BehatCliTrait {
    *
    * @var array<int, string>
    */
-  protected const BEHAT_CLI_INHERENT_TRAITS = ['Helper\\Drupal\\AuthTrait', 'Helper\\Drupal\\StaticCacheTrait'];
+  protected const array BEHAT_CLI_INHERENT_TRAITS = ['Helper\\Drupal\\AuthTrait', 'Helper\\Drupal\\StaticCacheTrait'];
 
   /**
    * Message selectors every generated configuration declares.
@@ -45,7 +50,7 @@ trait BehatCliTrait {
    * The message steps appear as setup throughout the generated scenarios, and
    * they have no default selector of their own.
    */
-  protected const BEHAT_CLI_MESSAGE_SELECTORS = "'message' => ['selectors' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning']],";
+  protected const string BEHAT_CLI_MESSAGE_SELECTORS = "'message' => ['selectors' => ['default' => '.messages', 'error' => '.messages.messages--error', 'success' => '.messages.messages--status', 'warning' => '.messages.messages--warning']],";
 
   /**
    * Backend list the generated extension configuration declares.
@@ -74,14 +79,9 @@ trait BehatCliTrait {
     $traits = [];
 
     // A trait tag reads @test-trait:PathTrait or @test-trait:Drupal\\UserTrait.
-    foreach (Tag::on($scope->getScenario()) as $tag) {
-      if (str_starts_with($tag, 'test-trait:')) {
-        $tags = trim(substr($tag, strlen('test-trait:')));
-        $tags = explode(',', $tags);
-        $tags = array_map(static fn(string $value): string => trim(str_replace('\\\\', '\\', $value)), $tags);
-        $traits = array_merge($traits, $tags);
-        break;
-      }
+    foreach (Tag::values($scope, self::BEHAT_CLI_TRAIT_TAG) as $value) {
+      $tags = array_map(static fn(string $name): string => trim(str_replace('\\\\', '\\', $name)), explode(',', $value));
+      $traits = array_merge($traits, $tags);
     }
 
     $traits = array_filter($traits);
@@ -131,11 +131,13 @@ trait BehatCliTrait {
     $content = <<<'EOL'
 <?php
 
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Behat\Tag;
 use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
 {{USE_DECLARATION}}
@@ -151,19 +153,28 @@ class FeatureContext extends WebRawContext implements UserAwareInterface {
 
   use FeatureContextTrait;
 
-  #[Given('I throw test exception with message :message')]
-  public function throwTestException($message) {
-    throw new \RuntimeException($message);
-  }
+  /**
+   * The tag that logs an error after the last step result has been composed.
+   */
+  protected const string TEST_WATCHDOG_TEARDOWN_TAG = 'test-watchdog-teardown';
 
   /**
    * Log an error after the last step result has been composed.
    */
-  #[AfterScenario('@test-watchdog-teardown')]
-  public function testSetWatchdogErrorInTeardown() {
+  #[AfterScenario]
+  public function testAfterScenario(AfterScenarioScope $scope): void {
+    if (!Tag::has($scope, self::TEST_WATCHDOG_TEARDOWN_TAG)) {
+      return;
+    }
+
     $this->backendFor(CoreCapabilityInterface::class);
 
     \Drupal::logger('php')->log('warning', 'test');
+  }
+
+  #[Given('I throw test exception with message :message')]
+  public function throwTestException($message) {
+    throw new \RuntimeException($message);
   }
 
 }

@@ -345,6 +345,19 @@ The PHPUnit suite under `tests/phpunit/src/` holds each of these in 1 form. [tes
 - **Test doubles**: a double reaches into the code under test through 2 prefixes that production code never declares, so a test-only method can't override a production one by accident. `call<Method>()` runs a protected method and is named after it without its trait prefix, as `callSlug()` runs `stringSlug()`. `test<Accessor>()` reads or writes protected state, as `testGetExitCode()` and `testSetRoles()` do. Every other public method on a double overrides or implements a production method and keeps its name, as `httpDetachedClient()` does.
 - **Test double names**: a context composing the trait under test is named `<Trait>TestImplementation`, with any qualifier for a variant before the suffix, as in `AccessibilityTraitRetryTestImplementation`. Any other double is `<Qualifier><Role>`, the qualifier saying what sets it apart: `RecordingDrushBackend`, `ParserExposingDrushBackend`, `InjectedPermissionsCore`. `Test` and `Testable` don't say what sets a double apart, so neither qualifies a name.
 
+## Behat harness conventions
+
+The Behat harness in `tests/behat/bootstrap/` - `FeatureContext`, `FeatureContextTrait` and `BehatCliTrait` - holds these conventions from `src/`:
+
+- **Tags**: a tag is read through `Tag::has()` or `Tag::values()`, passing the scope and a constant that names the tag, and no hook attribute filters on a tag. A feature hook has no scenario, so it passes the feature.
+- **Numbers**: a numeric step argument is parsed with `stringParseInteger()`, so `sleep for five seconds` fails instead of sleeping for 0 seconds.
+- **Hooks**: a hook is named `<prefix><Event>` and declared before the steps.
+- **Constants**: every constant declares a native type.
+
+The harness steps keep their own wording, placeholders, patterns and signatures rather than follow [Steps format](#steps-format) and [Step arguments](#step-arguments). They aren't published, and renaming one means editing every `.feature` line that uses it: every `@test-trait` scenario opens with `Given some behat configuration` and `And scenario steps:`. `BehatCliContext.php` holds none of these conventions, because it's kept in step with an upstream copy.
+
+`TraitMethodNamingTest`, `MemberOrderTest`, `PublicSurfaceTest` and `TagReadTest` read only `src/`, since each of them also holds a vocabulary rule the harness doesn't follow. The list above is held in review rather than by a test.
+
 ## Layers
 
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Backend`.

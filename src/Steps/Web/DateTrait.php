@@ -162,9 +162,7 @@ trait DateTrait {
    * Get the current timestamp.
    */
   public static function dateGetNow(): int {
-    // @codeCoverageIgnoreStart
     return time();
-    // @codeCoverageIgnoreEnd
   }
 
   /**

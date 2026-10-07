@@ -145,11 +145,10 @@ trait FileTrait {
     $field_values = $table->getColumn(0);
     $field_name = array_shift($field_values);
 
-    // @codeCoverageIgnoreStart
     if (is_numeric($field_name)) {
       throw new \RuntimeException('The first column should be the field name.');
     }
-    // @codeCoverageIgnoreEnd
+
     $field_name = (string) $field_name;
 
     foreach ($field_values as $field_value) {
@@ -319,11 +318,10 @@ trait FileTrait {
       }
     }
 
-    // @codeCoverageIgnoreStart
     if (!is_readable($path)) {
       throw new \RuntimeException(sprintf('Unable to find file "%s".', $path));
     }
-    // @codeCoverageIgnoreEnd
+
     $destination = 'public://' . basename($path);
     if ($uri !== NULL && $uri !== '') {
       $destination = $uri;
