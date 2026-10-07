@@ -66,6 +66,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Generate',
     'Get',
     'Has',
+    'Index',
     'Is',
     'Load',
     'Login',

@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 
 /**
  * Run Drupal Search API indexing and cron hooks.
@@ -39,21 +40,13 @@ trait SearchApiTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $nids = $this->queryNodeIds($content_type, [
-      'title' => $title,
-    ]);
+    $node = $this->searchApiFindNodeByTitle($content_type, $title);
 
-    if (empty($nids)) {
+    if ($node === NULL) {
       throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $content_type, $title));
     }
 
-    ksort($nids);
-    $nid = end($nids);
-    $node = Node::load($nid);
-
-    search_api_entity_insert($node);
-
-    $this->searchApiRunIndexing('1');
+    $this->searchApiIndexNode($node);
   }
 
   /**
@@ -70,21 +63,7 @@ trait SearchApiTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $count = $this->stringParseInteger($count, 'count', 0);
-
-    $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
-
-    /** @var \Drupal\search_api\IndexInterface[] $indexes */
-    $indexes = $index_storage->loadByProperties(['status' => TRUE]);
-
-    // @codeCoverageIgnoreStart
-    if (empty($indexes)) {
-      throw new \RuntimeException('No active search indexes found.');
-    }
-    // @codeCoverageIgnoreEnd
-    foreach ($indexes as $index) {
-      $index->indexItems($count);
-    }
+    $this->searchApiIndexItems($this->stringParseInteger($count, 'count', 0));
   }
 
   /**
@@ -126,6 +105,69 @@ trait SearchApiTrait {
 
     \Drupal::moduleHandler()->invoke('search_api_solr', 'cron');
     // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Find a node of a content type by title.
+   *
+   * @param string $content_type
+   *   The content type.
+   * @param string $title
+   *   The node title.
+   *
+   * @return \Drupal\node\NodeInterface|null
+   *   The node with the highest revision ID among those with the title, or
+   *   NULL when none has it.
+   */
+  public function searchApiFindNodeByTitle(string $content_type, string $title): ?NodeInterface {
+    $nids = $this->queryNodeIds($content_type, [
+      'title' => $title,
+    ]);
+
+    if (empty($nids)) {
+      return NULL;
+    }
+
+    ksort($nids);
+
+    return Node::load(end($nids));
+  }
+
+  /**
+   * Track a node in the search indexes, then index 1 item on each.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node.
+   */
+  public function searchApiIndexNode(NodeInterface $node): void {
+    search_api_entity_insert($node);
+
+    $this->searchApiIndexItems(1);
+  }
+
+  /**
+   * Index items on every active search index.
+   *
+   * @param int $count
+   *   The most items to index on each index.
+   *
+   * @throws \RuntimeException
+   *   When no search index is active.
+   */
+  public function searchApiIndexItems(int $count): void {
+    $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
+
+    /** @var \Drupal\search_api\IndexInterface[] $indexes */
+    $indexes = $index_storage->loadByProperties(['status' => TRUE]);
+
+    // @codeCoverageIgnoreStart
+    if (empty($indexes)) {
+      throw new \RuntimeException('No active search indexes found.');
+    }
+    // @codeCoverageIgnoreEnd
+    foreach ($indexes as $index) {
+      $index->indexItems($count);
+    }
   }
 
   /**
