@@ -10,7 +10,9 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
@@ -70,6 +72,8 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms exist:')]
   public function taxonomyCreateMultiple(string $vocabulary, TableNode $table): void {
+    // Terms are created through the content capability, which any backend may
+    // provide, so this step checks no prerequisite.
     foreach ($table->getHash() as $values) {
       $values['vocabulary_machine_name'] = $vocabulary;
       $this->entityLifecycleCreateTerm(new EntityStub('taxonomy_term', $vocabulary, $values));
@@ -88,6 +92,8 @@ trait TaxonomyTrait {
   #[Given('the following :vocabulary terms do not exist:')]
   public function taxonomyDeleteMultiple(string $vocabulary, TableNode $terms_table): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -153,6 +159,8 @@ trait TaxonomyTrait {
   public function taxonomyAssertVocabularyExists(string $vocabulary, string $name): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $vocab = Vocabulary::load($vocabulary);
 
     if (!$vocab) {
@@ -176,6 +184,8 @@ trait TaxonomyTrait {
   public function taxonomyAssertVocabularyNotExists(string $vocabulary): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $vocab = Vocabulary::load($vocabulary);
 
     if ($vocab) {
@@ -193,6 +203,8 @@ trait TaxonomyTrait {
   #[Then('the taxonomy term :name from the vocabulary :vocabulary should exist')]
   public function taxonomyAssertTermExistsWithName(string $name, string $vocabulary): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -219,6 +231,8 @@ trait TaxonomyTrait {
   #[Then('the taxonomy term :name from the vocabulary :vocabulary should not exist')]
   public function taxonomyAssertTermNotExistsWithName(string $name, string $vocabulary): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -248,6 +262,8 @@ trait TaxonomyTrait {
    */
   public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, ?string $action_subpath = NULL): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $vocab = Vocabulary::load($vocabulary);
 
@@ -283,9 +299,26 @@ trait TaxonomyTrait {
    *   The matching terms keyed by ID, or an empty array when none match.
    */
   public function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
     $ids = $this->queryEntityIds('taxonomy_term', $conditions, $vocabulary);
 
     return $ids ? Term::loadMultiple($ids) : [];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function taxonomyPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('taxonomy'), 'the core "taxonomy" module is enabled'),
+    ];
   }
 
 }

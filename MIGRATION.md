@@ -1248,6 +1248,8 @@ A step checks them with `$this->assertPrerequisites(__TRAIT__)`, a setup hook wi
 
 The message for a missing module changes with it. `The "webform" module is not enabled. Add "drupal/webform" to the consumer project's composer.json and enable the module as part of the site setup.` becomes `WebformTrait requires that the "webform" module from the "drupal/webform" package is enabled, which does not hold.`, so a test asserting the old text needs the new one.
 
+`FileTrait`, `MediaTrait` and `TaxonomyTrait` declare the core module they build on, so on a site without it a step fails with `MediaTrait requires that the core "media" module is enabled, which does not hold.` rather than with whatever Drupal threw first. `FileTrait` checks `file` in its managed file steps only, so the unmanaged file steps keep working without it, and `TaxonomyTrait`'s term creation goes through the content capability and checks nothing.
+
 `TestmodeTrait` still checks the `testmode` module when a `@testmode` scenario starts, but it no longer checks it again when the scenario ends: the teardown disables test mode only if the scenario enabled it.
 
 ## A trait's directory classifies it

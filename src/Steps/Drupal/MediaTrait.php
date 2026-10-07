@@ -10,8 +10,10 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
@@ -47,6 +49,8 @@ trait MediaTrait {
   #[Given('the media type :media_type does not exist')]
   public function mediaDeleteType(string $media_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
     if ($type_entity) {
@@ -118,6 +122,8 @@ trait MediaTrait {
   public function mediaDeleteMultiple(string $media_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $storage = \Drupal::entityTypeManager()->getStorage('media');
 
     foreach ($table->getHash() as $media_hash) {
@@ -184,6 +190,8 @@ trait MediaTrait {
   public function mediaAssertTypeExists(string $media_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
     if (!$type_entity) {
@@ -201,6 +209,8 @@ trait MediaTrait {
   #[Then('the media type :media_type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
 
@@ -282,6 +292,10 @@ trait MediaTrait {
    *   The created media item.
    */
   public function mediaCreate(EntityStubInterface $stub): MediaInterface {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
     $this->entityLifecycleParseFields($stub);
     $entity = $this->mediaCreateEntity($stub);
     $this->entityLifecycleRegister($entity);
@@ -300,6 +314,8 @@ trait MediaTrait {
    */
   public function mediaCreateEntity(EntityStubInterface $stub): MediaInterface {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $bundle = $stub->getBundle();
 
@@ -362,9 +378,26 @@ trait MediaTrait {
    *   The matching media keyed by ID, or an empty array when none match.
    */
   public function mediaLoadMultiple(string $media_type, array $conditions = []): array {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
     $ids = $this->queryEntityIds('media', $conditions, $media_type);
 
     return $ids ? Media::loadMultiple($ids) : [];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function mediaPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('media'), 'the core "media" module is enabled'),
+    ];
   }
 
 }
