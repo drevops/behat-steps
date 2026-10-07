@@ -85,7 +85,7 @@ class DrushBackendResultTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('the failure reason');
 
-    $backend->drush('cron');
+    $backend->drush('core:cron');
   }
 
   /**

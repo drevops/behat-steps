@@ -179,7 +179,7 @@ A nested option is written as a section in the configuration and reads as a dott
 | `blackbox` | section | - | Settings of the backend that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve. |
 | `drupal` | section | - | Settings of the backend that bootstraps Drupal in-process. |
 | `drupal.drupal_root` | string | required | Path to the Drupal root the in-process backend bootstraps. |
-| `drush` | section | - | Settings of the backend that reaches the site by running Drush. |
+| `drush` | section | - | Settings of the backend that reaches the site by running Drush 13 or newer. |
 | `drush.alias` | string | - | Drush site alias to run every command against. |
 | `drush.binary` | string | `'vendor/bin/drush'` | Path to the Drush binary. |
 | `drush.root` | string | - | Drupal root passed to Drush, for a site Drush cannot locate on its own. |

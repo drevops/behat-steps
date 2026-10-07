@@ -146,17 +146,13 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
   /**
    * {@inheritdoc}
+   *
+   * Drush 13 and later keep no cache of their own, so the 'drush' type clears
+   * nothing. Every other type rebuilds all of Drupal's caches.
    */
   public function cacheClear(?string $type = NULL): void {
-    $type ??= 'all';
-
     if ($type === 'drush') {
-      $this->drush('cache-clear', ['drush'], []);
       return;
-    }
-
-    if ($type === 'all') {
-      $this->drush('cache-clear', ['drush'], []);
     }
 
     $this->drush('cache:rebuild');
@@ -376,7 +372,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function cronRun(): bool {
-    $this->drush('cron');
+    $this->drush('core:cron');
     return TRUE;
   }
 
@@ -384,14 +380,14 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function moduleInstall(string $module_name): void {
-    $this->drush('pm-enable', [$module_name], ['yes' => NULL]);
+    $this->drush('pm:install', [$module_name], ['yes' => NULL]);
   }
 
   /**
    * {@inheritdoc}
    */
   public function moduleUninstall(string $module_name): void {
-    $this->drush('pm-uninstall', [$module_name], ['yes' => NULL]);
+    $this->drush('pm:uninstall', [$module_name], ['yes' => NULL]);
   }
 
   /**
@@ -469,7 +465,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       'mail' => (string) $stub->getValue('mail'),
     ];
 
-    $result = $this->drush('user-create', $arguments, $options);
+    $result = $this->drush('user:create', $arguments, $options);
     $uid = $this->parseUserId($result);
 
     if (!$uid) {
@@ -500,7 +496,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $arguments = $name !== '' ? [$name] : [];
     $lookup = $name !== '' ? [] : ['uid' => $uid];
 
-    $this->drushDelete('user-cancel', $arguments, ['yes' => NULL, 'delete-content' => NULL] + $lookup, fn(): bool => $this->drushResult('user:information', $arguments, $lookup)->exitCode === 0);
+    $this->drushDelete('user:cancel', $arguments, ['yes' => NULL, 'delete-content' => NULL] + $lookup, fn(): bool => $this->drushResult('user:information', $arguments, $lookup)->exitCode === 0);
   }
 
   /**
@@ -542,7 +538,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       $role,
       (string) $stub->getValue('name'),
     ];
-    $this->drush('user-add-role', $arguments);
+    $this->drush('user:role:add', $arguments);
   }
 
   /**
@@ -700,7 +696,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   }
 
   /**
-   * Parses the user id from drush user-information output.
+   * Parses the user id from drush 'user:information' output.
    *
    * Supports both the legacy key-value format ("User ID : 123") and the
    * Drush 12+ table format where the ID is the first numeric value in the

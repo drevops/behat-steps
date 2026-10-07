@@ -327,6 +327,16 @@ Feature: Check that UserTrait works
     And the user "multiple_roles" should have the role "administrator, content_editor" assigned
     And the user "multiple_roles" should have the role "administrator,content_editor" assigned
 
+  # User creation resolves the User capability instead of bootstrapping Drupal,
+  # so '@backend:drush' creates the users, assigns their roles and deletes them
+  # over Drush.
+  @backend:drush
+  Scenario: Assert "Given the following users exist:" creates users with their roles over Drush
+    Given the following users exist:
+      | name       | mail                     | roles          |
+      | drush_user | drush_user@myexample.com | content_editor |
+    Then the user "drush_user" should have the role "content_editor" assigned
+
   @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing single role
     Given some behat configuration

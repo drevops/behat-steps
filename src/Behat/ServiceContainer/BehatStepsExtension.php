@@ -207,7 +207,7 @@ final class BehatStepsExtension implements ExtensionInterface {
           ->end()
         ->end()
         ->arrayNode('drush')
-          ->info('Settings of the backend that reaches the site by running Drush.')
+          ->info('Settings of the backend that reaches the site by running Drush 13 or newer.')
           ->children()
             ->scalarNode('alias')->info('Drush site alias to run every command against.')->end()
             ->scalarNode('binary')->defaultValue('vendor/bin/drush')->info('Path to the Drush binary.')->end()
