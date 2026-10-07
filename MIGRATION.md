@@ -408,7 +408,7 @@ This also renames the `$number` argument of `ElementTrait::elementAssertVisually
 
 ## Step text follows the documented grammar
 
-The passes above still left steps that broke the step-text rules in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). They follow those rules now. Only the wording and the placeholder names changed. The one behaviour tied to a placeholder name, `[relative:...]` token expansion, is described below the rules.
+The passes above still left steps that broke the step-text rules in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). They follow those rules now. Only the wording and the placeholder names changed. The one behavior tied to a placeholder name, `[relative:...]` token expansion, is described below the rules.
 
 - A placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the dropzone :selector`. A bundle still comes before the entity noun it qualifies (`the :media_type media`), and a count before its unit (`:count item(s)`).
 - Every noun takes an article: `on the element :element`, `to the URL :url`, `the system time`, `the last XML response`.
@@ -840,7 +840,7 @@ Two consequences are worth checking in an existing project:
 
 ## DrupalExtension step text mapped to the v4 vocabulary
 
-The Drupal Extension's contexts are gone. Their behaviour lives in the step traits, re-expressed in the one grammar the docs linter enforces: tuple placeholders, no regex, no optional words, and a `Then` that starts with the subject rather than `I`.
+The Drupal Extension's contexts are gone. Their behavior lives in the step traits, re-expressed in the one grammar the docs linter enforces: tuple placeholders, no regex, no optional words, and a `Then` that starts with the subject rather than `I`.
 
 The suite registers `Behat\MinkExtension\Context\MinkContext` for the base browser vocabulary, so `I am on`, `I go to`, `I should see`, `I fill in`, `I press`, `I follow`, `I check`, `I select`, `I attach the file`, `the response status code should be` and the other upstream Mink steps are unchanged. The table below covers only the steps the Drupal Extension added on top.
 
@@ -991,8 +991,8 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 
 | Before | After |
 | --- | --- |
-| `When I send the following mail:` | dropped; trigger the site behaviour that sends the mail |
-| `When I send the following email:` | dropped; trigger the site behaviour that sends the mail |
+| `When I send the following mail:` | dropped; trigger the site behavior that sends the mail |
+| `When I send the following email:` | dropped; trigger the site behavior that sends the mail |
 | `Then the following (e)mail(s) should have been sent:` | `Then the email field :field should contain:` |
 | `Then the following (e)mail(s) should have been sent to :to:` | `Then an email should be sent to the address :address with the content:` |
 | `Then the following (e)mail(s) should have been sent with the subject :subject:` | `Then the email field :field should be:` against `subject` |
@@ -1337,7 +1337,7 @@ Then the current URL should not have the query parameter "filter" with the value
 
 ## A value of `0` is not empty
 
-A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other: `Given the password for the user :name is "0"` sets the password instead of failing with `Password must not be empty.`, an attribute whose value is `0` counts as present for the `the element :selector with the attribute :attribute ...` steps, an iframe named `0` is switched to by name, a WYSIWYG field with the id `0` is filled through its id, and `fileCreateEntity()` honours a destination URI of `0`. A `drush` backend configured with an alias or root path of `0` is likewise read as configured.
+A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other: `Given the password for the user :name is "0"` sets the password instead of failing with `Password must not be empty.`, an attribute whose value is `0` counts as present for the `the element :selector with the attribute :attribute ...` steps, an iframe named `0` is switched to by name, a WYSIWYG field with the id `0` is filled through its id, and `fileCreateEntity()` honors a destination URI of `0`. A `drush` backend configured with an alias or root path of `0` is likewise read as configured.
 
 ## Email subject steps match the way they read
 
@@ -1463,7 +1463,7 @@ If your project catches an exception from one of these steps, update the type:
 | `ElementTrait` (`... with the index ...`, with an index below 1; `... pinned to the top of the viewport within ... pixels`, with a negative tolerance) | `ExpectationException` | `\RuntimeException` |
 | `Drupal\EmailTrait` (`I follow the link with the index ...`, with an index that is not a positive integer) | `ExpectationException` | `\RuntimeException` |
 | `FieldTrait` (`I fill in the WYSIWYG field ...`, when the field has no `id` attribute) | `ExpectationException` | `\RuntimeException` |
-| `XmlTrait` (`I print last XML response`, when the document cannot be serialised) | `ExpectationException` | `\RuntimeException` |
+| `XmlTrait` (`I print last XML response`, when the document cannot be serialized) | `ExpectationException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...` without an element, when nothing has focus) | `ExpectationException` | `\RuntimeException` |
 | `Drupal\BlockTrait` (every `Given the block ...` step, when the block does not exist) | `ExpectationException` | `\RuntimeException` |
 | `WaitTrait` (`I wait for AJAX to finish` and `I wait for ... second(s) for AJAX to finish`, without a JavaScript driver) | `\RuntimeException` | `UnsupportedDriverActionException` |
@@ -2206,7 +2206,7 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 $this->getBrowserCapabilityResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
-An adapter extends `BrowserAdapterBase`, implements the capability interfaces its browser driver can honour, and answers `supports()` for the browser driver it speaks for. A registered adapter is offered each browser driver ahead of the shipped ones.
+An adapter extends `BrowserAdapterBase`, implements the capability interfaces its browser driver can honor, and answers `supports()` for the browser driver it speaks for. A registered adapter is offered each browser driver ahead of the shipped ones.
 
 ## Steps send their own requests through 3 HTTP clients
 
@@ -2406,7 +2406,7 @@ if ($this->skipTag(__TRAIT__, $scope)) {
 
 Where both lines carry the same kind of tag:
 
-- A flag such as `@email` or `@download` switches the behaviour on from either line.
+- A flag such as `@email` or `@download` switches the behavior on from either line.
 - `@email:TYPE` and `@watchdog:TYPE` add up, so the scenario uses every handler type and tracks every message type named on either line.
 - `@module:` and `@breakpoint:` take the scenario's value over the feature's. A feature tagged `@module:help` holding a scenario tagged `@module:!help` leaves `help` disabled for that scenario, and doesn't install it first.
 - Each line takes 1 `@breakpoint:` tag at most. 2 on the `Feature:` line fail every scenario below it with `Only one @breakpoint tag is allowed per feature`.
@@ -2430,7 +2430,7 @@ A tag that was only meant for some of the scenarios in a feature moves down onto
 
 Mink owns the word "driver" across the Behat ecosystem, and this package used it for a second thing: the Drupal, Drush and Blackbox backends a step resolves a capability from. So `$this->getDriver('drupal')` and `$this->getSession()->getDriver()` returned 2 unrelated objects, and only a naming rule told them apart. The backends now carry their own name, and "driver" in this package only ever means Mink's browser driver.
 
-Apart from 1 removed interface, it's a rename: behaviour stays the same, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name. The service container is the exception: a parameter, service tag or service id under its old name can go unread without an error, so [Service ids and parameters](#service-ids-and-parameters) lists what to check.
+Apart from 1 removed interface, it's a rename: behavior stays the same, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name. The service container is the exception: a parameter, service tag or service id under its old name can go unread without an error, so [Service ids and parameters](#service-ids-and-parameters) lists what to check.
 
 ### Configuration and tags
 
