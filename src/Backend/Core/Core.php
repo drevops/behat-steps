@@ -562,7 +562,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $stub = new EntityStub('user_role', NULL, ['id' => (string) $role->id(), 'label' => (string) $role->label()]);
 
-    return $stub->markSaved($role);
+    $stub->markSaved($role);
+
+    return $stub;
   }
 
   /**
