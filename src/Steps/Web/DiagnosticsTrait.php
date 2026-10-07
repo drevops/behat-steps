@@ -10,6 +10,7 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Testwork\Tester\Result\ExceptionResult;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\JavascriptErrorTrait;
 
 /**
  * Append on-failure diagnostics to the failure message of any failed step.
@@ -50,6 +51,8 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait DiagnosticsTrait {
+
+  use JavascriptErrorTrait;
 
   /**
    * Absolute path to the current feature file, captured for the re-run command.
@@ -211,36 +214,20 @@ trait DiagnosticsTrait {
   /**
    * Return collected JavaScript console error messages.
    *
-   * 2 sources are merged and de-duplicated: the `JavascriptTrait` registry
-   * when the context also uses it, and the live browser buffer its collector
-   * populates. The registry is detected at runtime, so there is no hard
-   * dependency on that trait. Both are best-effort and yield nothing under a
-   * browser driver that cannot evaluate JavaScript.
+   * 2 sources are merged and de-duplicated: the registry `JavascriptTrait`
+   * records into, which stays empty when the context does not compose it, and
+   * the live browser buffer its collector populates. The buffer is
+   * best-effort and yields nothing under a browser driver that cannot
+   * evaluate JavaScript.
    *
    * @return array<int, string>
    *   Distinct error messages, in the order first seen.
    */
   public function diagnosticsGetJsErrors(): array {
-    $messages = [];
-
-    $registry = get_object_vars($this)['javascriptErrorRegistry'] ?? NULL;
-    if (is_array($registry)) {
-      foreach ($registry as $errors) {
-        foreach (is_array($errors) ? $errors : [] as $error) {
-          if (is_array($error) && isset($error['message'])) {
-            $messages[] = (string) $error['message'];
-          }
-        }
-      }
-    }
+    $messages = $this->javascriptErrorGetMessages();
 
     try {
-      $live = $this->getSession()->evaluateScript('return (typeof window.jsErrors !== "undefined") ? window.jsErrors : [];');
-      foreach (is_array($live) ? $live : [] as $error) {
-        if (is_array($error) && isset($error['message'])) {
-          $messages[] = (string) $error['message'];
-        }
-      }
+      $messages = [...$messages, ...$this->javascriptErrorExtractMessages($this->javascriptErrorReadBuffer())];
     }
     catch (\Throwable) {
       // A non-JavaScript browser driver or an unstarted session has no buffer

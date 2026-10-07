@@ -174,15 +174,18 @@ class DiagnosticsTraitTest extends UnitTestCase {
   }
 
   public function testGetJsErrorsReadsRegistryAndDeduplicates(): void {
-    $object = new DiagnosticsTraitJsRegistryTestImplementation();
-    $object->javascriptErrorRegistry = [
-      'http://example.com/a' => [['message' => 'TypeError: a'], ['no-message' => 'skip']],
-      'http://example.com/b' => 'not-an-array',
-    ];
+    $this->testObject->callRecord('http://example.com/a', [['message' => 'TypeError: a'], ['no-message' => 'skip']]);
     // The same message arrives from the live buffer and is de-duplicated.
-    $object->session->script = [['message' => 'TypeError: a'], ['message' => 'ReferenceError: b']];
+    $this->testObject->session->script = [['message' => 'TypeError: a'], ['message' => 'ReferenceError: b']];
 
-    $this->assertSame(['TypeError: a', 'ReferenceError: b'], $object->diagnosticsGetJsErrors());
+    $this->assertSame(['TypeError: a', 'ReferenceError: b'], $this->testObject->diagnosticsGetJsErrors());
+  }
+
+  public function testGetJsErrorsReadsRegistryWhenBufferIsUnavailable(): void {
+    $this->testObject->callRecord('http://example.com/a', [['message' => 'TypeError: a']]);
+    $this->testObject->session->scriptError = new \RuntimeException('unsupported');
+
+    $this->assertSame(['TypeError: a'], $this->testObject->diagnosticsGetJsErrors());
   }
 
   public function testGetJsErrorsIsEmptyWhenUnavailable(): void {
@@ -273,6 +276,18 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
     $this->diagnosticsAppendToException($exception);
   }
 
+  /**
+   * Records errors the way JavascriptTrait does after a step.
+   *
+   * @param string $url
+   *   The URL of the page the errors were collected from.
+   * @param array<int, array<string, mixed>> $errors
+   *   The errors.
+   */
+  public function callRecord(string $url, array $errors): void {
+    $this->javascriptErrorRecord($url, $errors);
+  }
+
   protected function diagnosticsGetShowUrl(): bool {
     return $this->show['url'];
   }
@@ -292,20 +307,6 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
   protected function diagnosticsGetShowRerun(): bool {
     return $this->show['rerun'];
   }
-
-}
-
-/**
- * Test implementation that also exposes a JavascriptTrait-style registry.
- */
-class DiagnosticsTraitJsRegistryTestImplementation extends DiagnosticsTraitTestImplementation {
-
-  /**
-   * Mimics the registry property maintained by JavascriptTrait.
-   *
-   * @var array<string, mixed>
-   */
-  public array $javascriptErrorRegistry = [];
 
 }
 
