@@ -40,7 +40,7 @@ class MenuTraitKernelTest extends StepTraitKernelTestBase {
     Menu::create(['id' => 'footer', 'label' => 'Footer'])->save();
   }
 
-  public function testCreateLinkMultipleCreatesALinkWithAMissingParentAtTheTopLevel(): void {
+  public function testCreateLinkMultipleCreatesAnOrphanLinkAtTheTopLevel(): void {
     $this->context->menuCreateLinkMultiple('Footer', new TableNode([
       ['title', 'uri', 'parent'],
       ['Orphan', 'https://www.example.com', 'Missing parent'],
