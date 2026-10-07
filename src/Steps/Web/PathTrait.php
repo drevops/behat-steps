@@ -80,25 +80,8 @@ trait PathTrait {
    */
   #[Then('the path should be :path')]
   public function pathAssertCurrent(string $path): void {
-    $current_path = $this->getSession()->getCurrentUrl();
-
-    // @codeCoverageIgnoreStart
-    if ($current_path === '') {
-      throw new \RuntimeException('Current path is empty.');
-    }
-    // @codeCoverageIgnoreEnd
-    $current_path = parse_url((string) $current_path, PHP_URL_PATH);
-
-    // @codeCoverageIgnoreStart
-    if ($current_path === FALSE) {
-      throw new \RuntimeException('Current path is not a valid URL.');
-    }
-    // @codeCoverageIgnoreEnd
-    $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
-    $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
-
-    if (ltrim((string) $normalized_current_path, '/') !== ltrim($normalized_path, '/')) {
-      throw new ExpectationException(sprintf('The current path is "%s", but it should be "%s".', $current_path, $path), $this->getSession()->getDriver());
+    if (!$this->pathIsCurrent($path)) {
+      throw new ExpectationException(sprintf('The current path is "%s", but it should be "%s".', $this->pathGetCurrent(), $path), $this->getSession()->getDriver());
     }
   }
 
@@ -115,24 +98,7 @@ trait PathTrait {
    */
   #[Then('the path should not be :path')]
   public function pathAssertNotCurrent(string $path): void {
-    $current_path = $this->getSession()->getCurrentUrl();
-
-    // @codeCoverageIgnoreStart
-    if ($current_path === '') {
-      throw new \RuntimeException('Current path is empty.');
-    }
-    // @codeCoverageIgnoreEnd
-    $current_path = parse_url((string) $current_path, PHP_URL_PATH);
-
-    // @codeCoverageIgnoreStart
-    if ($current_path === FALSE) {
-      throw new \RuntimeException('Current path is not a valid URL.');
-    }
-    // @codeCoverageIgnoreEnd
-    $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
-    $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
-
-    if (ltrim((string) $normalized_current_path, '/') === ltrim($normalized_path, '/')) {
+    if ($this->pathIsCurrent($path)) {
       throw new ExpectationException(sprintf('The current path should not be "%s", but it is.', $path), $this->getSession()->getDriver());
     }
   }
@@ -209,6 +175,54 @@ trait PathTrait {
     if ($query[$name] === $value) {
       throw new ExpectationException(sprintf('The parameter "%s" with value "%s" is in the URL, but it should not be.', $name, $value), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Get the path of the current URL.
+   *
+   * @return string
+   *   The path, or an empty string when the URL carries none.
+   *
+   * @throws \RuntimeException
+   *   When the session holds no URL, or the URL cannot be parsed.
+   */
+  public function pathGetCurrent(): string {
+    $current_url = $this->getSession()->getCurrentUrl();
+
+    // @codeCoverageIgnoreStart
+    if ($current_url === '') {
+      throw new \RuntimeException('Current path is empty.');
+    }
+    // @codeCoverageIgnoreEnd
+    $current_path = parse_url($current_url, PHP_URL_PATH);
+
+    // @codeCoverageIgnoreStart
+    if ($current_path === FALSE) {
+      throw new \RuntimeException('Current path is not a valid URL.');
+    }
+    // @codeCoverageIgnoreEnd
+    return (string) $current_path;
+  }
+
+  /**
+   * Check whether the current URL is at a path.
+   *
+   * "<front>" and "/" both name the front page, and a leading slash is
+   * optional on either side.
+   *
+   * @param string $path
+   *   The path to compare the current URL's path against.
+   *
+   * @return bool
+   *   TRUE when the current URL is at the path.
+   */
+  public function pathIsCurrent(string $path): bool {
+    $current_path = $this->pathGetCurrent();
+
+    $normalized_current_path = ($current_path === '' || $current_path === '/') ? '<front>' : $current_path;
+    $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
+
+    return ltrim($normalized_current_path, '/') === ltrim($normalized_path, '/');
   }
 
   /**
