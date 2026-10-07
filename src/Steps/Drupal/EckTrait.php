@@ -46,8 +46,10 @@ trait EckTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $filtered_table = TableNode::fromList($table->getColumn(0));
-    $this->eckDeleteMultiple($bundle, $entity_type, $filtered_table);
+    // An entity matching a row's first column is replaced, not duplicated.
+    foreach ($table->getHash() as $entity_hash) {
+      $this->eckDelete($entity_type, $bundle, array_slice($entity_hash, 0, 1, TRUE));
+    }
 
     foreach ($table->getHash() as $entity_hash) {
       $this->eckCreate(new EntityStub($entity_type, $bundle, $entity_hash));
@@ -70,11 +72,7 @@ trait EckTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     foreach ($table->getHash() as $entity_hash) {
-      $entities = $this->eckLoadMultiple($entity_type, $bundle, $entity_hash);
-
-      foreach ($entities as $entity) {
-        $entity->delete();
-      }
+      $this->eckDelete($entity_type, $bundle, $entity_hash);
     }
   }
 
@@ -91,17 +89,7 @@ trait EckTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $entities = $this->eckLoadMultiple($entity_type, $bundle, [
-      'title' => $title,
-    ]);
-
-    if (empty($entities)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $entity_type, $title));
-    }
-
-    $path = current($entities)->toUrl('canonical')->toString();
-
-    $this->getSession()->visit($path);
+    $this->getSession()->visit($this->eckGetEntityByTitle($entity_type, $bundle, $title)->toUrl('canonical')->toString());
   }
 
   /**
@@ -117,17 +105,7 @@ trait EckTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $entities = $this->eckLoadMultiple($entity_type, $bundle, [
-      'title' => $title,
-    ]);
-
-    if (empty($entities)) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $entity_type, $title));
-    }
-
-    $path = current($entities)->toUrl('edit-form')->toString();
-
-    $this->getSession()->visit($path);
+    $this->getSession()->visit($this->eckGetEntityByTitle($entity_type, $bundle, $title)->toUrl('edit-form')->toString());
   }
 
   /**
@@ -147,6 +125,50 @@ trait EckTrait {
     $ids = $this->queryEntityIds($entity_type, $conditions, $bundle);
 
     return $ids ? \Drupal::entityTypeManager()->getStorage($entity_type)->loadMultiple($ids) : [];
+  }
+
+  /**
+   * Get an entity of a type and bundle by title.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   * @param string $bundle
+   *   The entity bundle.
+   * @param string $title
+   *   The entity title.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface
+   *   The first entity the query returns.
+   *
+   * @throws \RuntimeException
+   *   When no entity has the title.
+   */
+  public function eckGetEntityByTitle(string $entity_type, string $bundle, string $title): EntityInterface {
+    $entities = $this->eckLoadMultiple($entity_type, $bundle, [
+      'title' => $title,
+    ]);
+
+    if (empty($entities)) {
+      throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $entity_type, $title));
+    }
+
+    return current($entities);
+  }
+
+  /**
+   * Delete the entities of a type and bundle that match conditions.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   * @param string $bundle
+   *   The entity bundle.
+   * @param array<string, string> $conditions
+   *   Conditions keyed by field names.
+   */
+  public function eckDelete(string $entity_type, string $bundle, array $conditions): void {
+    foreach ($this->eckLoadMultiple($entity_type, $bundle, $conditions) as $entity) {
+      $entity->delete();
+    }
   }
 
   /**
