@@ -2397,8 +2397,6 @@ The capability interfaces disagreed about what a create returns and what a delet
 | `ContentCapabilityInterface::deleteTerm()` | `bool` | `void` |
 | `LanguageCapabilityInterface::deleteLanguage()` | Threw for a language that doesn't exist | Does nothing |
 
-A create flags the stub as saved only when the backend holds the created entity. The Drush backend runs outside the test process, so its `createUser()` writes the new `uid` onto the stub and its `createRole()` stub carries the role's `id`, but neither stub is saved. Read the id from the stub's values rather than from `getSavedEntity()` when the backend may be Drush.
-
 The table and the text below use the names [A create or delete method names the verb first](#a-create-or-delete-method-names-the-verb-first) settles on, and the code shows a call written before both changes.
 
 A project with its own backend updates those signatures, and every delete it implements does nothing for a missing target rather than throwing. A caller of `createRole()` reads the machine name from the stub:
@@ -2412,6 +2410,8 @@ $role = $backend->createRole(['access content'])->getValue('id');
 ```
 
 `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateLanguage()` follows the backend: it returns the stub in both cases instead of `FALSE`, and only a stub the backend saved joins the teardown.
+
+A create flags the stub as saved only when the backend holds the created entity. The Drush backend runs outside the test process, so its `createUser()` writes the new `uid` onto the stub and its `createRole()` stub carries the role's `id`, but neither stub is saved. Read the id from the stub's values rather than from `getSavedEntity()` when the backend may be Drush.
 
 The shipped backends keep the delete contract throughout. The Drush backend's `deleteRole()` and `deleteUser()` no longer fail for a role or user that's already gone, and the in-process `deleteUser()` no longer reports "The user account ... does not exist." for one.
 
