@@ -111,8 +111,7 @@ trait ConfigTrait {
    */
   #[Given('the config :name with the key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
-    $this->configStoreOriginalData($name);
-    $this->backendFor(ConfigCapabilityInterface::class)->configSet($name, $key, $this->stringNormalizeValue($value));
+    $this->configSetValue($name, $key, $this->stringNormalizeValue($value));
   }
 
   /**
@@ -128,15 +127,14 @@ trait ConfigTrait {
    */
   #[Given('the following config values exist:')]
   public function configSetMultiple(TableNode $table): void {
-    $backend = $this->backendFor(ConfigCapabilityInterface::class);
+    $this->backendFor(ConfigCapabilityInterface::class);
 
     foreach ($table->getHash() as $row) {
       if (!isset($row['name'], $row['key']) || !array_key_exists('value', $row)) {
         throw new \RuntimeException('The config values table must contain "name", "key" and "value" columns.');
       }
 
-      $this->configStoreOriginalData($row['name']);
-      $backend->configSet($row['name'], $row['key'], $this->stringNormalizeValue($row['value']));
+      $this->configSetValue($row['name'], $row['key'], $this->stringNormalizeValue($row['value']));
     }
   }
 
@@ -272,6 +270,21 @@ trait ConfigTrait {
    */
   public function configReadEffective(string $name, string $key): mixed {
     return $this->backendFor(ConfigCapabilityInterface::class)->configGet($name, $key);
+  }
+
+  /**
+   * Set a stored configuration value, restored after the scenario.
+   *
+   * @param string $name
+   *   The configuration object name.
+   * @param string $key
+   *   The configuration key, using dotted notation for nested keys.
+   * @param mixed $value
+   *   The value.
+   */
+  public function configSetValue(string $name, string $key, mixed $value): void {
+    $this->configStoreOriginalData($name);
+    $this->backendFor(ConfigCapabilityInterface::class)->configSet($name, $key, $value);
   }
 
   /**
