@@ -34,36 +34,7 @@ trait IframeTrait {
   public function iframeSwitchTo(string $selector): void {
     $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
-    $iframe = $this->getSession()->getPage()->find('css', $selector);
-
-    if ($iframe === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'iframe', 'css', $selector);
-    }
-
-    $iframe_name = $iframe->getAttribute('name');
-
-    if ($iframe_name === NULL || $iframe_name === '') {
-      $this->getSession()->executeScript(
-        "(function(){
-          var iframes = document.querySelectorAll('iframe');
-          for (var i = 0; i < iframes.length; i++) {
-            if (!iframes[i].name) {
-              iframes[i].name = 'behat_iframe_' + (i + 1);
-            }
-          }
-        })()"
-      );
-
-      $iframe = $this->getSession()->getPage()->find('css', $selector);
-
-      if ($iframe === NULL) {
-        throw new ElementNotFoundException($this->getSession()->getDriver(), 'iframe', 'css', $selector);
-      }
-
-      $iframe_name = $iframe->getAttribute('name');
-    }
-
-    $this->getSession()->getDriver()->switchToIFrame($iframe_name);
+    $this->getSession()->getDriver()->switchToIFrame($this->iframeGetName($selector));
   }
 
   /**
@@ -76,6 +47,54 @@ trait IframeTrait {
   #[When('I switch to the root document')]
   public function iframeSwitchToRootDocument(): void {
     $this->getSession()->getDriver()->switchToIFrame();
+  }
+
+  /**
+   * Get the name of an iframe, assigning one when it has none.
+   *
+   * A browser driver switches to an iframe by name, so every unnamed iframe
+   * on the page is named "behat_iframe_N" after its 1-based position.
+   *
+   * @param string $selector
+   *   The CSS selector of the iframe.
+   *
+   * @return string
+   *   The iframe name.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When no iframe matches the selector.
+   */
+  public function iframeGetName(string $selector): string {
+    $iframe = $this->getSession()->getPage()->find('css', $selector);
+
+    if ($iframe === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'iframe', 'css', $selector);
+    }
+
+    $iframe_name = $iframe->getAttribute('name');
+
+    if ($iframe_name !== NULL && $iframe_name !== '') {
+      return $iframe_name;
+    }
+
+    $this->getSession()->executeScript(
+      "(function(){
+        var iframes = document.querySelectorAll('iframe');
+        for (var i = 0; i < iframes.length; i++) {
+          if (!iframes[i].name) {
+            iframes[i].name = 'behat_iframe_' + (i + 1);
+          }
+        }
+      })()"
+    );
+
+    $iframe = $this->getSession()->getPage()->find('css', $selector);
+
+    if ($iframe === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'iframe', 'css', $selector);
+    }
+
+    return (string) $iframe->getAttribute('name');
   }
 
 }
