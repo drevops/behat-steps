@@ -1,4 +1,4 @@
-Feature: Ensure TestmodeTrait works.
+Feature: Check that TestmodeTrait works
   As Behat Steps library developer
   I want to provide tools to filter content in test mode
   So that users can focus on test-specific content in their tests

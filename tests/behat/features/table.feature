@@ -24,7 +24,7 @@ Feature: Check that TableTrait works
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the table ".nonexistent" should have 1 rows
+      Then the table ".nonexistent" should have 1 row
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

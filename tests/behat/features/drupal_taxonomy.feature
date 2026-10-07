@@ -21,12 +21,12 @@ Feature: Check that TaxonomyTrait works
     And scenario steps:
       """
       When I log in as a user with the role "administrator"
-      Then the vocabulary "noneixisting" with the name "Noneixisting" should exist
+      Then the vocabulary "nonexisting" with the name "Nonexisting" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The vocabulary "noneixisting" does not exist.
+      The vocabulary "nonexisting" does not exist.
       """
 
   @test-trait:Drupal\TaxonomyTrait
@@ -45,7 +45,7 @@ Feature: Check that TaxonomyTrait works
 
   Scenario: Assert "Then the vocabulary :vocabulary should not exist" works
     When I log in as a user with the role "administrator"
-    Then the vocabulary "noneixisting" should not exist
+    Then the vocabulary "nonexisting" should not exist
 
   @test-trait:Drupal\TaxonomyTrait
   Scenario: Assert negative assertion for "Then the vocabulary :vocabulary should not exist" works with existing vocabulary

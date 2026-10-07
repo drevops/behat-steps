@@ -1,5 +1,5 @@
 @search
-Feature: Ensure Search API functionality works
+Feature: Check that SearchApiTrait works
   As Behat Steps library developer
   I want to provide tools to index and search content
   So that users can test search functionality

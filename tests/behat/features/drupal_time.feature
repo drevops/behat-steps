@@ -1,4 +1,4 @@
-Feature: Ensure TimeTrait works.
+Feature: Check that TimeTrait works
 
   Scenario: Assert system time can be overridden
     When I go to "/mysite_core/test-time"

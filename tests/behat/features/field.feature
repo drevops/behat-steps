@@ -556,7 +556,7 @@ Feature: Check that FieldTrait works
     Then I should see "Please fill in all required fields"
 
   @javascript @phpserver
-  Scenario: Disable browser validation as the VERY FIRST step (fixes issue #423)
+  Scenario: Disable browser validation as the very first step
     # This is the VERY FIRST step - no page visited yet - this is the core issue being fixed
     Given the browser validation for the form "#login-form" is disabled
     When I visit "http://cli:8888/fields.html"
