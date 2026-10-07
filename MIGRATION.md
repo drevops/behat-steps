@@ -1786,6 +1786,8 @@ Only the name changes. Each method keeps its body, its parameters, its return ty
 | `DiagnosticsTrait` | `diagnosticsGetUrl()` | `diagnosticsFindUrl()` | returns `NULL` |
 | `ElementTrait` | `elementFindNthOrFail()` | `elementGetNth()` | throws `ElementNotFoundException`, or `ExpectationException` past the last match |
 | `FileDownloadTrait` | `fileDownloadAssertLinkPresent()` (protected) | `fileDownloadGetLink()` | throws `ElementNotFoundException` |
+| `JsonTrait` | `jsonResolveSingle()` (protected) | `jsonGetValue()` | throws `ExpectationException` |
+| `JsonTrait` | `jsonResolveScalar()` (protected) | `jsonGetScalar()` | throws `ExpectationException` |
 | `MetatagTrait` | `metatagGetCanonicalHref()` | `metatagFindCanonicalHref()` | returns `NULL` |
 | `MetatagTrait` | `metatagGetMetaContent()` | `metatagFindMetaContent()` | returns `NULL` |
 | `ModalTrait` | `modalFindVisible()` | `modalGetVisible()` | throws `ExpectationException` |
@@ -1794,6 +1796,8 @@ Only the name changes. Each method keeps its body, its parameters, its return ty
 The 2 `MenuTrait` lookups go straight to their `Find` names, listed under [Trait methods prefixed with their trait name](#trait-methods-prefixed-with-their-trait-name). A lookup that already matched its contract keeps its name, such as `tableFindRowByText()`, `modalFind()`, `metatagFindMeta()` and `emailFindMessage()`.
 
 `webformTemplates()` carried no verb at all, and `fileDownloadAssertLinkPresent()` was named as an assertion although it returns the link it finds, so both take the lookup verb for what they do.
+
+`Resolve` derives a value from its input, as `restResolveUrl()` does, so the 2 JSON path lookups take `Get` and drop `Single`. A JSON `null` is a value the path matches, so `jsonGetValue()` returns `NULL` for it and throws only when the path matches nothing or more than 1 value.
 
 ### A qualifier follows the predicate
 
@@ -1903,7 +1907,7 @@ An assertion says what it asserts after its subject: a compared value reads `Equ
 
 ### Only an assertion is named `Assert`
 
-A method that fails with an assertion exception is named as an assertion, whether or not it registers a step. A method that only rejects a bad step argument or a missing precondition throws `\RuntimeException` instead, so it isn't an assertion and is named for what it does.
+A method that only checks something and fails with an assertion exception is named as an assertion, whether or not it registers a step. A method that only rejects a bad step argument or a missing precondition throws `\RuntimeException` instead, so it isn't an assertion and is named for what it does.
 
 | Trait | Old | New |
 | --- | --- | --- |
@@ -1912,6 +1916,14 @@ A method that fails with an assertion exception is named as an assertion, whethe
 | `CommandTrait` | `commandAssertHasRun()` (protected) | `commandRequireRun()` |
 | `CookieTrait` | `cookieExists()` | `cookieAssertExists()` |
 | `CookieTrait` | `cookieNotExists()` | `cookieAssertNotExists()` |
+| `JsonTrait` | `jsonValidateSchema()` (protected) | `jsonAssertResponseMatchesSchema()` |
+| `XmlTrait` | `xmlValidateXsd()` (protected) | `xmlAssertResponseMatchesXsd()` |
+| `XmlTrait` | `xmlValidateRelaxNg()` (protected) | `xmlAssertResponseMatchesRelaxNg()` |
+| `XmlTrait` | `xmlValidateDtd()` (protected) | `xmlAssertResponseMatchesDtd()` |
+| `XmlTrait` | `xmlValidateRssFeed()` (protected) | folded into `xmlAssertRssFeedValid()` |
+| `XmlTrait` | `xmlValidateAtomFeed()` (protected) | folded into `xmlAssertAtomFeedValid()` |
+
+The schema steps take a PyString or a file name, so the 4 schema checks stay helpers that take the schema source, and name the response they check. The 2 feed checks take no argument, exactly like the steps that called them, so a context calls or overrides the step method instead.
 
 The protected `Drupal\EmailTrait::emailAssertLinkNumber()`, `CommandTrait::commandAssertInteger()` and `CommandTrait::commandAssertNumeric()` are gone rather than renamed. A step parses its number with `StringTrait::stringParseInteger()` or `StringTrait::stringParseNumber()` instead, as [A step method takes only what its step binds](#a-step-method-takes-only-what-its-step-binds) describes.
 

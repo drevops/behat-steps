@@ -473,7 +473,7 @@ trait XmlTrait {
    */
   #[Then('the response should match the following XSD schema:')]
   public function xmlAssertMatchesXsd(PyStringNode $schema): void {
-    $this->xmlValidateXsd($schema->getRaw());
+    $this->xmlAssertResponseMatchesXsd($schema->getRaw());
   }
 
   /**
@@ -485,7 +485,7 @@ trait XmlTrait {
    */
   #[Then('the response should match the XSD schema in the file :filename')]
   public function xmlAssertMatchesXsdFromFile(string $filename): void {
-    $this->xmlValidateXsd($this->xmlReadFile($filename));
+    $this->xmlAssertResponseMatchesXsd($this->xmlReadFile($filename));
   }
 
   /**
@@ -503,7 +503,7 @@ trait XmlTrait {
    */
   #[Then('the response should match the following DTD:')]
   public function xmlAssertMatchesDtd(PyStringNode $dtd): void {
-    $this->xmlValidateDtd($dtd->getRaw());
+    $this->xmlAssertResponseMatchesDtd($dtd->getRaw());
   }
 
   /**
@@ -518,7 +518,7 @@ trait XmlTrait {
    */
   #[Then('the response should match the DTD in the file :filename')]
   public function xmlAssertMatchesDtdFromFile(string $filename): void {
-    $this->xmlValidateDtd($this->xmlReadFile($filename));
+    $this->xmlAssertResponseMatchesDtd($this->xmlReadFile($filename));
   }
 
   /**
@@ -535,7 +535,7 @@ trait XmlTrait {
    */
   #[Then('the response should match the following RelaxNG schema:')]
   public function xmlAssertMatchesRelaxNg(PyStringNode $schema): void {
-    $this->xmlValidateRelaxNg($schema->getRaw());
+    $this->xmlAssertResponseMatchesRelaxNg($schema->getRaw());
   }
 
   /**
@@ -547,7 +547,7 @@ trait XmlTrait {
    */
   #[Then('the response should match the RelaxNG schema in the file :filename')]
   public function xmlAssertMatchesRelaxNgFromFile(string $filename): void {
-    $this->xmlValidateRelaxNg($this->xmlReadFile($filename));
+    $this->xmlAssertResponseMatchesRelaxNg($this->xmlReadFile($filename));
   }
 
   /**
@@ -563,7 +563,38 @@ trait XmlTrait {
    */
   #[Then('the response should be a valid RSS feed')]
   public function xmlAssertRssFeedValid(): void {
-    $this->xmlValidateRssFeed();
+    $this->xmlEnsureDocument();
+
+    $root = $this->xmlDocument->documentElement;
+    if (!$root instanceof \DOMElement || $root->localName !== 'rss') {
+      throw new ExpectationException('The response is not a valid RSS feed: the root element must be "rss".', $this->getSession()->getDriver());
+    }
+
+    if ($root->getAttribute('version') !== '2.0') {
+      throw new ExpectationException('The response is not a valid RSS feed: the "rss" element must have a "version" attribute of "2.0".', $this->getSession()->getDriver());
+    }
+
+    $channels = $this->xmlDirectChildElements($root, 'channel');
+    if (count($channels) !== 1) {
+      throw new ExpectationException('The response is not a valid RSS feed: the "rss" element must contain exactly one "channel" element.', $this->getSession()->getDriver());
+    }
+
+    $channel = $channels[0];
+
+    foreach (['title', 'link', 'description'] as $required) {
+      if ($this->xmlDirectChildElements($channel, $required) === []) {
+        throw new ExpectationException(sprintf('The response is not a valid RSS feed: the "channel" element is missing the required "%s" element.', $required), $this->getSession()->getDriver());
+      }
+    }
+
+    foreach ($this->xmlDirectChildElements($channel, 'item') as $item) {
+      $has_title = $this->xmlDirectChildElements($item, 'title') !== [];
+      $has_description = $this->xmlDirectChildElements($item, 'description') !== [];
+
+      if (!$has_title && !$has_description) {
+        throw new ExpectationException('The response is not a valid RSS feed: each "item" element must contain a "title" or a "description" element.', $this->getSession()->getDriver());
+      }
+    }
   }
 
   /**
@@ -579,7 +610,28 @@ trait XmlTrait {
    */
   #[Then('the response should be a valid Atom feed')]
   public function xmlAssertAtomFeedValid(): void {
-    $this->xmlValidateAtomFeed();
+    $this->xmlEnsureDocument();
+
+    $namespace = 'http://www.w3.org/2005/Atom';
+
+    $root = $this->xmlDocument->documentElement;
+    if (!$root instanceof \DOMElement || $root->localName !== 'feed' || $root->namespaceURI !== $namespace) {
+      throw new ExpectationException('The response is not a valid Atom feed: the root element must be "feed" in the Atom namespace.', $this->getSession()->getDriver());
+    }
+
+    foreach (['id', 'title', 'updated'] as $required) {
+      if ($this->xmlDirectChildElements($root, $required, $namespace) === []) {
+        throw new ExpectationException(sprintf('The response is not a valid Atom feed: the "feed" element is missing the required "%s" element.', $required), $this->getSession()->getDriver());
+      }
+    }
+
+    foreach ($this->xmlDirectChildElements($root, 'entry', $namespace) as $entry) {
+      foreach (['id', 'title', 'updated'] as $required) {
+        if ($this->xmlDirectChildElements($entry, $required, $namespace) === []) {
+          throw new ExpectationException(sprintf('The response is not a valid Atom feed: an "entry" element is missing the required "%s" element.', $required), $this->getSession()->getDriver());
+        }
+      }
+    }
   }
 
   /**
@@ -749,12 +801,12 @@ trait XmlTrait {
   }
 
   /**
-   * Validate the response against an XSD schema.
+   * Assert that the response validates against an XSD schema.
    *
    * @param string $schema
    *   The XSD schema source.
    */
-  public function xmlValidateXsd(string $schema): void {
+  public function xmlAssertResponseMatchesXsd(string $schema): void {
     $this->xmlEnsureDocument();
 
     libxml_clear_errors();
@@ -768,12 +820,12 @@ trait XmlTrait {
   }
 
   /**
-   * Validate the response against a RelaxNG schema.
+   * Assert that the response validates against a RelaxNG schema.
    *
    * @param string $schema
    *   The RelaxNG schema source.
    */
-  public function xmlValidateRelaxNg(string $schema): void {
+  public function xmlAssertResponseMatchesRelaxNg(string $schema): void {
     $this->xmlEnsureDocument();
 
     libxml_clear_errors();
@@ -787,7 +839,7 @@ trait XmlTrait {
   }
 
   /**
-   * Validate the response against a DTD.
+   * Assert that the response validates against a DTD.
    *
    * The DTD is embedded as an internal subset and the response is reloaded
    * with validation enabled.
@@ -803,7 +855,7 @@ trait XmlTrait {
    * @param string $dtd
    *   The DTD source (element, attribute and entity declarations).
    */
-  public function xmlValidateDtd(string $dtd): void {
+  public function xmlAssertResponseMatchesDtd(string $dtd): void {
     $this->xmlEnsureDocument();
 
     $root = $this->xmlDocument->documentElement;
@@ -842,72 +894,6 @@ trait XmlTrait {
 
     if (!$is_loaded || $errors !== []) {
       throw new ExpectationException(sprintf('The response does not match the DTD: %s.', $this->xmlFormatErrors($errors)), $this->getSession()->getDriver());
-    }
-  }
-
-  /**
-   * Validate the response as an RSS 2.0 feed.
-   */
-  public function xmlValidateRssFeed(): void {
-    $this->xmlEnsureDocument();
-
-    $root = $this->xmlDocument->documentElement;
-    if (!$root instanceof \DOMElement || $root->localName !== 'rss') {
-      throw new ExpectationException('The response is not a valid RSS feed: the root element must be "rss".', $this->getSession()->getDriver());
-    }
-
-    if ($root->getAttribute('version') !== '2.0') {
-      throw new ExpectationException('The response is not a valid RSS feed: the "rss" element must have a "version" attribute of "2.0".', $this->getSession()->getDriver());
-    }
-
-    $channels = $this->xmlDirectChildElements($root, 'channel');
-    if (count($channels) !== 1) {
-      throw new ExpectationException('The response is not a valid RSS feed: the "rss" element must contain exactly one "channel" element.', $this->getSession()->getDriver());
-    }
-
-    $channel = $channels[0];
-
-    foreach (['title', 'link', 'description'] as $required) {
-      if ($this->xmlDirectChildElements($channel, $required) === []) {
-        throw new ExpectationException(sprintf('The response is not a valid RSS feed: the "channel" element is missing the required "%s" element.', $required), $this->getSession()->getDriver());
-      }
-    }
-
-    foreach ($this->xmlDirectChildElements($channel, 'item') as $item) {
-      $has_title = $this->xmlDirectChildElements($item, 'title') !== [];
-      $has_description = $this->xmlDirectChildElements($item, 'description') !== [];
-
-      if (!$has_title && !$has_description) {
-        throw new ExpectationException('The response is not a valid RSS feed: each "item" element must contain a "title" or a "description" element.', $this->getSession()->getDriver());
-      }
-    }
-  }
-
-  /**
-   * Validate the response as an Atom feed.
-   */
-  public function xmlValidateAtomFeed(): void {
-    $this->xmlEnsureDocument();
-
-    $namespace = 'http://www.w3.org/2005/Atom';
-
-    $root = $this->xmlDocument->documentElement;
-    if (!$root instanceof \DOMElement || $root->localName !== 'feed' || $root->namespaceURI !== $namespace) {
-      throw new ExpectationException('The response is not a valid Atom feed: the root element must be "feed" in the Atom namespace.', $this->getSession()->getDriver());
-    }
-
-    foreach (['id', 'title', 'updated'] as $required) {
-      if ($this->xmlDirectChildElements($root, $required, $namespace) === []) {
-        throw new ExpectationException(sprintf('The response is not a valid Atom feed: the "feed" element is missing the required "%s" element.', $required), $this->getSession()->getDriver());
-      }
-    }
-
-    foreach ($this->xmlDirectChildElements($root, 'entry', $namespace) as $entry) {
-      foreach (['id', 'title', 'updated'] as $required) {
-        if ($this->xmlDirectChildElements($entry, $required, $namespace) === []) {
-          throw new ExpectationException(sprintf('The response is not a valid Atom feed: an "entry" element is missing the required "%s" element.', $required), $this->getSession()->getDriver());
-        }
-      }
     }
   }
 

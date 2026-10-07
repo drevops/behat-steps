@@ -27,7 +27,7 @@
 | [RestTrait](#resttrait) | 2 | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](#tabletrait) | 8 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
-| [XmlTrait](#xmltrait) | 6 | Assert XML responses with element and attribute checks. |
+| [XmlTrait](#xmltrait) | 4 | Assert XML responses with element and attribute checks. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
 | [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
 
@@ -591,6 +591,15 @@ Assert that no JavaScript errors were collected
 > Assert JSON responses with path and schema checks.
 
 <details>
+  <summary><code>public function jsonAssertResponseMatchesSchema(string $schema_json): void</code></summary>
+
+<br/>
+Assert that the response validates against a JSON schema
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function jsonDecode(string $content): array</code></summary>
 
 <br/>
@@ -609,37 +618,28 @@ Decode JSON content as loosely-typed data
 </details>
 
 <details>
+  <summary><code>public function jsonGetScalar(string $path): mixed</code></summary>
+
+<br/>
+Get the scalar value a JSONPath expression matches
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function jsonGetValue(string $path): mixed</code></summary>
+
+<br/>
+Get the value a JSONPath expression matches
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function jsonQuery(string $path): array</code></summary>
 
 <br/>
 Run a JSONPath expression against the decoded response
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function jsonResolveScalar(string $path): mixed</code></summary>
-
-<br/>
-Resolve a JSONPath expression to a single scalar value
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function jsonResolveSingle(string $path): mixed</code></summary>
-
-<br/>
-Resolve a JSONPath expression to a single matched value
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function jsonValidateSchema(string $schema_json): void</code></summary>
-
-<br/>
-Validate the response body against a JSON schema
 <br/><br/>
 
 </details>
@@ -1194,55 +1194,37 @@ Return the configured AJAX timeout, in seconds
 > Assert XML responses with element and attribute checks.
 
 <details>
+  <summary><code>public function xmlAssertResponseMatchesDtd(string $dtd): void</code></summary>
+
+<br/>
+Assert that the response validates against a DTD
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function xmlAssertResponseMatchesRelaxNg(string $schema): void</code></summary>
+
+<br/>
+Assert that the response validates against a RelaxNG schema
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function xmlAssertResponseMatchesXsd(string $schema): void</code></summary>
+
+<br/>
+Assert that the response validates against an XSD schema
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function xmlParse(string $content): array</code></summary>
 
 <br/>
 Parse XML content without altering the cached document
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function xmlValidateAtomFeed(): void</code></summary>
-
-<br/>
-Validate the response as an Atom feed
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function xmlValidateDtd(string $dtd): void</code></summary>
-
-<br/>
-Validate the response against a DTD
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function xmlValidateRelaxNg(string $schema): void</code></summary>
-
-<br/>
-Validate the response against a RelaxNG schema
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function xmlValidateRssFeed(): void</code></summary>
-
-<br/>
-Validate the response as an RSS 2.0 feed
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function xmlValidateXsd(string $schema): void</code></summary>
-
-<br/>
-Validate the response against an XSD schema
 <br/><br/>
 
 </details>

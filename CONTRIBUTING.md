@@ -97,7 +97,7 @@ Every method a trait contributes begins with the trait's own name, so that trait
 
 ### Assertions
 
-An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` directly after the prefix and nowhere else. Every `Then` step is an assertion, and so is a helper that fails with an assertion exception, so it's `cookieAssertExists()`, not `cookieExists()`. `Assert` always says what it asserts: `messageAssertExistsOfType()`, not a bare `messageAssert()`.
+An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` directly after the prefix and nowhere else. Every `Then` step is an assertion, and so is a helper that only checks something and fails with an assertion exception, so it's `cookieAssertExists()`, not `cookieExists()`, and `xmlAssertResponseMatchesXsd()`, not `xmlValidateXsd()`. A helper that returns what it found or produced is named for that instead, even when a miss fails the step: `elementGetNth()` returns an element, `jsonGetValue()` the value at a JSON path and `jsonDecodeLoose()` the decoded value. `Assert` always says what it asserts: `messageAssertExistsOfType()`, not a bare `messageAssert()`.
 
 - **Existence**: never `Present`, `Absent` or `Missing`.
   - Singular subjects → `Exists` or `NotExists` (e.g., `fieldAssertExists()`, `taxonomyAssertVocabularyNotExists()`)
