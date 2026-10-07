@@ -390,7 +390,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email that should be sent to "test@example.com" retrieved from test email collector.
+      Unable to find an email that should be sent to "test@example.com" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -454,7 +454,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject "Wrong Subject" retrieved from test email collector.
+      Unable to find an email with the subject "Wrong Subject" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -471,7 +471,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject "Test" retrieved from test email collector.
+      Unable to find an email with the subject "Test" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -562,7 +562,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject containing "Nonexistent" retrieved from test email collector.
+      Unable to find an email with the subject containing "Nonexistent" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -579,7 +579,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject containing "test email" retrieved from test email collector.
+      Unable to find an email with the subject containing "test email" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -724,7 +724,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject "Wrong Subject" retrieved from test email collector.
+      Unable to find an email with the subject "Wrong Subject" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -741,7 +741,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject "with Attachment" retrieved from test email collector.
+      Unable to find an email with the subject "with Attachment" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -792,7 +792,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject containing "Nonexistent" retrieved from test email collector.
+      Unable to find an email with the subject containing "Nonexistent" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -809,7 +809,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject containing "with attachment" retrieved from test email collector.
+      Unable to find an email with the subject containing "with attachment" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait

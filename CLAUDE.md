@@ -147,7 +147,7 @@ Which exception a step throws is part of the public contract - consumers catch o
 
 Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
 
-A failure message names its subject the way its step does, with the article (`The element "..."`, `The config "..." with the key "..."`), quotes every value it names, the page URL included, ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. See "Failure messages" in [CONTRIBUTING.md](CONTRIBUTING.md).
+A failure message names its subject the way its step does, with the article (`The element "..."`, `The config "..." with the key "..."`), or keeps its quantifier when nothing in a set matched (`No hreflang alternate links were found on the page.`), quotes every value it names, the page URL included, ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. See "Failure messages" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 A trait without a Mink session is one that never calls `$this->getSession()` - `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Do not add a session to a trait just to reach `ExpectationException`.
 

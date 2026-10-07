@@ -188,7 +188,7 @@ trait FileDownloadTrait {
     }
 
     if (!str_contains((string) $this->fileDownloadDownloadedFileInfo['file_name'], $partial_name)) {
-      throw new ExpectationException(sprintf('Downloaded file name "%s" does not contain "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $partial_name), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The downloaded file name "%s" does not contain "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $partial_name), $this->getSession()->getDriver());
     }
   }
 
@@ -324,14 +324,14 @@ trait FileDownloadTrait {
       'application/octet-stream',
       'application/zip',
     ], TRUE)) {
-      throw new ExpectationException('Downloaded file does not have correct headers set for ZIP.', $this->getSession()->getDriver());
+      throw new ExpectationException('The downloaded file does not have correct headers set for ZIP.', $this->getSession()->getDriver());
     }
 
     $zip = new \ZipArchive();
     $result = $zip->open($this->fileDownloadDownloadedFileInfo['file_path']);
     if ($result !== TRUE) {
       if ($result === \ZipArchive::ER_NOZIP) {
-        throw new ExpectationException('Downloaded file is not a valid ZIP file.', $this->getSession()->getDriver());
+        throw new ExpectationException('The downloaded file is not a valid ZIP file.', $this->getSession()->getDriver());
       }
 
       // @codeCoverageIgnoreStart

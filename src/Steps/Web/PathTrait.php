@@ -98,7 +98,7 @@ trait PathTrait {
     $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
     if (ltrim((string) $normalized_current_path, '/') !== ltrim($normalized_path, '/')) {
-      throw new ExpectationException(sprintf('Current path is "%s", but expected is "%s".', $current_path, $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The current path is "%s", but it should be "%s".', $current_path, $path), $this->getSession()->getDriver());
     }
   }
 
@@ -133,7 +133,7 @@ trait PathTrait {
     $normalized_path = ($path === '/' || $path === '<front>') ? '<front>' : $path;
 
     if (ltrim((string) $normalized_current_path, '/') === ltrim($normalized_path, '/')) {
-      throw new ExpectationException(sprintf('Current path should not be "%s".', $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The current path should not be "%s", but it is.', $path), $this->getSession()->getDriver());
     }
   }
 

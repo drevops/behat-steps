@@ -1606,6 +1606,14 @@ A failure message names what it reports about the way its step does, with the ar
 | FileDownloadTrait | Downloaded file "...", but expected "...". | The downloaded file name is "...", but expected "...". |
 | MetatagTrait | Meta tag with specified attributes should not exist: .... | The meta tag with the attributes "..." exists, but it should not. |
 | RestTrait | Expected response status code N, but got N. | Expected the REST response status code to be N, but got N. |
+| PathTrait | Current path is "...", but expected is "...". | The current path is "...", but it should be "...". |
+| PathTrait | Current path should not be "...". | The current path should not be "...", but it is. |
+| Drupal\ContentTrait | "..." content with the title "..." should ... (the 3 existence and publishing messages) | The "..." content with the title "..." should ... |
+| FileDownloadTrait | Downloaded file name "..." does not contain "...". | The downloaded file name "..." does not contain "...". |
+| FileDownloadTrait | Downloaded file does not have correct headers set for ZIP. | The downloaded file does not have correct headers set for ZIP. |
+| FileDownloadTrait | Downloaded file is not a valid ZIP file. | The downloaded file is not a valid ZIP file. |
+| Drupal\EmailTrait | Unable to find email that should be sent to "..." retrieved from test email collector. | Unable to find an email that should be sent to "..." retrieved from test email collector. |
+| Drupal\EmailTrait | Unable to find email with subject "..." retrieved from test email collector. (also `with subject containing`) | Unable to find an email with the subject "..." retrieved from test email collector. (also `with the subject containing`) |
 
 ## Tightened public surface
 

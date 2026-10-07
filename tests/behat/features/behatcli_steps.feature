@@ -60,5 +60,5 @@ Feature: Behat CLI context additional steps
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Current path is "/", but expected is "/nonexisting"
+      The current path is "/", but it should be "/nonexisting"
       """

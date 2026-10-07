@@ -249,7 +249,7 @@ trait EmailTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('Unable to find email that should be sent to "%s" retrieved from test email collector.', $address), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('Unable to find an email that should be sent to "%s" retrieved from test email collector.', $address), $this->getSession()->getDriver());
   }
 
   /**
@@ -774,7 +774,7 @@ trait EmailTrait {
     $message = $this->emailFindMessageBySubject($subject, $is_partial);
 
     if ($message === NULL) {
-      throw new ExpectationException(sprintf('Unable to find email with subject%s "%s" retrieved from test email collector.', $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Unable to find an email with the subject%s "%s" retrieved from test email collector.', $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
     }
 
     return $message;
