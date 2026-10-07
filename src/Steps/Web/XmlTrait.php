@@ -82,7 +82,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Given('the response XML is loaded from the file :filename')]
-  public function xmlSetResponseContentFromFile(string $filename): void {
+  public function xmlSetContentFromFile(string $filename): void {
     $this->xmlTestContent = $this->xmlReadFile($filename);
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;
@@ -100,7 +100,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Given('the response XML is the following:')]
-  public function xmlSetResponseContentDirect(PyStringNode $content): void {
+  public function xmlSetContent(PyStringNode $content): void {
     $this->xmlTestContent = $content->getRaw();
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;

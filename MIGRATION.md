@@ -2010,6 +2010,15 @@ A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is
 
 The protected `FieldTrait::fieldFillDatetimeHelper()` is `fieldFillDatetimeInput()`, after the 1 input of a datetime field it fills. A context that overrides it renames the override.
 
+### `XmlTrait` names its content steps as `JsonTrait` does
+
+`XmlTrait` and `JsonTrait` register the same 2 `Given` steps, 1 loading the response body from a fixture file and 1 taking it from a PyString. `JsonTrait` names them `jsonSetContentFromFile()` and `jsonSetContent()`, while `XmlTrait` added `Response`, which every step in the trait acts on, and `Direct`, which names nothing in its step. Step text is unchanged.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `XmlTrait` | `xmlSetResponseContentFromFile()` | `xmlSetContentFromFile()` |
+| `XmlTrait` | `xmlSetResponseContentDirect()` | `xmlSetContent()` |
+
 ## A class is named for the role it plays
 
 5 classes under `Behat\Manager` shared a `Manager` suffix while playing 3 different roles, so nothing in a name told a lookup table apart from a service that acts. The suffix is replaced by a 2-part rule: a `*Registry` holds things and looks them up, and anything that performs an action takes an agent noun.
