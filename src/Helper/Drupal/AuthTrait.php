@@ -37,19 +37,19 @@ trait AuthTrait {
   /**
    * User registry.
    */
-  protected ?UserRegistryInterface $userRegistry = NULL;
+  protected ?UserRegistryInterface $authUserRegistry = NULL;
 
   /**
    * Logs a user in and out of the site under test.
    */
-  protected ?AuthenticatorInterface $authenticator = NULL;
+  protected ?AuthenticatorInterface $authAuthenticator = NULL;
 
   /**
    * Roles created during a scenario, so they can be removed after it.
    *
    * @var array<int, string>
    */
-  protected array $roles = [];
+  protected array $authRoles = [];
 
   /**
    * Removes the users the scenario created, then its roles.
@@ -126,7 +126,7 @@ trait AuthTrait {
    * Removes any created roles.
    */
   protected function authCleanRoles(): void {
-    if ($this->roles === []) {
+    if ($this->authRoles === []) {
       return;
     }
 
@@ -136,47 +136,47 @@ trait AuthTrait {
 
     $backend = $this->backendFor(RoleCapabilityInterface::class);
 
-    foreach ($this->roles as $role) {
+    foreach ($this->authRoles as $role) {
       $backend->deleteRole($role);
     }
 
-    $this->roles = [];
+    $this->authRoles = [];
   }
 
   /**
    * {@inheritdoc}
    */
   public function authSetUserRegistry(UserRegistryInterface $user_registry): void {
-    $this->userRegistry = $user_registry;
+    $this->authUserRegistry = $user_registry;
   }
 
   /**
    * {@inheritdoc}
    */
   public function authSetAuthenticator(AuthenticatorInterface $authenticator): void {
-    $this->authenticator = $authenticator;
+    $this->authAuthenticator = $authenticator;
   }
 
   /**
    * {@inheritdoc}
    */
   public function authGetAuthenticator(): AuthenticatorInterface {
-    if (!$this->authenticator instanceof AuthenticatorInterface) {
+    if (!$this->authAuthenticator instanceof AuthenticatorInterface) {
       throw new \RuntimeException('The authenticator is available only after Behat has initialized the context.');
     }
 
-    return $this->authenticator;
+    return $this->authAuthenticator;
   }
 
   /**
    * {@inheritdoc}
    */
   public function authGetUserRegistry(): UserRegistryInterface {
-    if (!$this->userRegistry instanceof UserRegistryInterface) {
+    if (!$this->authUserRegistry instanceof UserRegistryInterface) {
       throw new \RuntimeException('The user registry is available only after Behat has initialized the context.');
     }
 
-    return $this->userRegistry;
+    return $this->authUserRegistry;
   }
 
   /**

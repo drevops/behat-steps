@@ -255,7 +255,7 @@ trait UserTrait {
       throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
     }
     // @codeCoverageIgnoreEnd
-    $this->roles[] = (string) $role->id();
+    $this->authRoles[] = (string) $role->id();
   }
 
   /**
@@ -324,7 +324,7 @@ trait UserTrait {
   public function userLoginWithPermissions(string $permissions): void {
     $created = $this->backendFor(RoleCapabilityInterface::class)->createRole(array_filter(array_map(trim(...), explode(',', $permissions))));
     $role_id = (string) $created->getValue('id');
-    $this->roles[] = $role_id;
+    $this->authRoles[] = $role_id;
 
     $stub = $this->userBuildStub();
     $this->authCreateUser($stub);

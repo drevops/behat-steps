@@ -54,7 +54,7 @@ trait EntityLifecycleTrait {
    *
    * @var array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
    */
-  protected array $createdStubs = [];
+  protected array $entityLifecycleCreatedStubs = [];
 
   /**
    * Converts textual node timestamps into the numeric form storage expects.
@@ -104,8 +104,9 @@ trait EntityLifecycleTrait {
   /**
    * Removes every entity created during the scenario.
    *
-   * Walks 'createdStubs' in reverse order, so a dependent entity such as a
-   * node referencing a term is deleted before the entity it references.
+   * Walks 'entityLifecycleCreatedStubs' in reverse order, so a dependent
+   * entity such as a node referencing a term is deleted before the entity it
+   * references.
    *
    * '@behat-steps-skip:EntityLifecycleTrait' skips the whole pass, and
    * '@behat-steps-entity-cleanup-skip:<entity_type_id>' skips 1 entity
@@ -117,13 +118,13 @@ trait EntityLifecycleTrait {
       return;
     }
 
-    if ($this->createdStubs === []) {
+    if ($this->entityLifecycleCreatedStubs === []) {
       return;
     }
 
     $skip_types = $this->entityLifecycleSkippedCleanupTypes($scope);
 
-    foreach (array_reverse($this->createdStubs) as $stub) {
+    foreach (array_reverse($this->entityLifecycleCreatedStubs) as $stub) {
       if (in_array($stub->getEntityType(), $skip_types, TRUE)) {
         continue;
       }
@@ -131,7 +132,7 @@ trait EntityLifecycleTrait {
       $this->entityLifecycleDeleteStub($stub);
     }
 
-    $this->createdStubs = [];
+    $this->entityLifecycleCreatedStubs = [];
   }
 
   /**
@@ -156,7 +157,7 @@ trait EntityLifecycleTrait {
 
     // Register before the post-create hooks run: a hook that throws still
     // leaves the entity behind, and cleanup removes only registered stubs.
-    $this->createdStubs[] = $stub;
+    $this->entityLifecycleCreatedStubs[] = $stub;
 
     $this->entityLifecycleDispatchHooks(AfterNodeCreateScope::class, $stub);
     $this->entityLifecycleDispatchHooks(AfterEntityCreateScope::class, $stub);
@@ -203,7 +204,7 @@ trait EntityLifecycleTrait {
 
     // Register before the post-create hooks run: a hook that throws still
     // leaves the term behind, and cleanup removes only registered stubs.
-    $this->createdStubs[] = $stub;
+    $this->entityLifecycleCreatedStubs[] = $stub;
 
     $this->entityLifecycleDispatchHooks(AfterTermCreateScope::class, $stub);
     $this->entityLifecycleDispatchHooks(AfterEntityCreateScope::class, $stub);
@@ -214,9 +215,9 @@ trait EntityLifecycleTrait {
   /**
    * Creates an entity of a type that has no dedicated method.
    *
-   * The stub is added to 'createdStubs', so 'entityLifecycleAfterScenario()'
-   * removes it after the scenario through the backend's 'deleteEntity()'
-   * fallback.
+   * The stub is added to 'entityLifecycleCreatedStubs', so
+   * 'entityLifecycleAfterScenario()' removes it after the scenario through the
+   * backend's 'deleteEntity()' fallback.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The entity stub.
@@ -236,7 +237,7 @@ trait EntityLifecycleTrait {
 
     // Register before the post-create hook runs: a hook that throws still
     // leaves the entity behind, and cleanup removes only registered stubs.
-    $this->createdStubs[] = $stub;
+    $this->entityLifecycleCreatedStubs[] = $stub;
 
     $this->entityLifecycleDispatchHooks(AfterEntityCreateScope::class, $stub);
 
@@ -267,7 +268,7 @@ trait EntityLifecycleTrait {
 
     // Register before the post-create hook runs: a hook that throws still
     // leaves the language behind, and cleanup removes only registered stubs.
-    $this->createdStubs[] = $created;
+    $this->entityLifecycleCreatedStubs[] = $created;
 
     $this->entityLifecycleDispatchHooks(AfterLanguageCreateScope::class, $created);
 
@@ -293,7 +294,7 @@ trait EntityLifecycleTrait {
       return;
     }
 
-    $this->createdStubs[] = new EntityStub($entity->getEntityTypeId(), $entity->bundle(), [$id_key => $id]);
+    $this->entityLifecycleCreatedStubs[] = new EntityStub($entity->getEntityTypeId(), $entity->bundle(), [$id_key => $id]);
   }
 
   /**

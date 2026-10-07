@@ -24,7 +24,7 @@ class RegistryExposingContext extends WebRawContext implements UserAwareInterfac
    *   The stubs, in creation order.
    */
   public function testGetCreatedStubs(): array {
-    return $this->createdStubs;
+    return $this->entityLifecycleCreatedStubs;
   }
 
   /**
@@ -34,7 +34,7 @@ class RegistryExposingContext extends WebRawContext implements UserAwareInterfac
    *   The stubs to register as created.
    */
   public function testSetCreatedStubs(array $stubs): void {
-    $this->createdStubs = $stubs;
+    $this->entityLifecycleCreatedStubs = $stubs;
   }
 
   /**
@@ -44,7 +44,7 @@ class RegistryExposingContext extends WebRawContext implements UserAwareInterfac
    *   The role names to register as created.
    */
   public function testSetRoles(array $roles): void {
-    $this->roles = $roles;
+    $this->authRoles = $roles;
   }
 
   /**
@@ -54,7 +54,7 @@ class RegistryExposingContext extends WebRawContext implements UserAwareInterfac
    *   The role names.
    */
   public function testGetRoles(): array {
-    return $this->roles;
+    return $this->authRoles;
   }
 
   /**
