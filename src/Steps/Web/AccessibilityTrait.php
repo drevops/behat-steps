@@ -619,7 +619,7 @@ trait AccessibilityTrait {
     $driver = $session->getDriver();
     $driver->executeScript($this->accessibilityGetJs());
 
-    $tag_list = json_encode(array_map(trim(...), explode(',', $rules)));
+    $tag_list = json_encode($this->stringSplitCommaSeparated($rules));
     $driver->executeScript(sprintf(
       'window.__accessibilityResults = null; axe.run(document, { runOnly: { type: "tag", values: %s } }).then(function (r) { window.__accessibilityResults = r; }).catch(function (e) { window.__accessibilityResults = { error: String(e) }; });',
       $tag_list
