@@ -39,7 +39,7 @@ trait TimeTrait {
   public function timeAfterScenario(AfterScenarioScope $scope): void {
     // A scenario that never set the time has nothing to clean up, and
     // resolving a backend would fail a suite that lists none reaching Drupal.
-    if (!$this->timeWasSet || $this->skipTag(__TRAIT__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope) || !$this->timeWasSet) {
       $this->timeWasSet = FALSE;
 
       return;

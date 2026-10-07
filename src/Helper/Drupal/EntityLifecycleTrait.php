@@ -114,7 +114,7 @@ trait EntityLifecycleTrait {
    */
   #[AfterScenario]
   public function entityLifecycleAfterScenario(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag(__TRAIT__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope) || !$this->shouldCleanup()) {
       return;
     }
 

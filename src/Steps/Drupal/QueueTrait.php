@@ -45,7 +45,7 @@ trait QueueTrait {
   public function queueAfterScenario(AfterScenarioScope $scope): void {
     // Resolving a backend fails in a suite that lists no in-process Drupal
     // backend, so a scenario that used no queue returns first.
-    if ($this->queueNames === [] || $this->skipTag(__TRAIT__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope) || $this->queueNames === []) {
       return;
     }
 

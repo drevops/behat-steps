@@ -67,7 +67,7 @@ trait AuthTrait {
    */
   #[AfterScenario]
   public function authAfterScenario(AfterScenarioScope $scope): void {
-    if (!$this->shouldCleanup() || $this->skipTag(__TRAIT__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope) || !$this->shouldCleanup()) {
       return;
     }
 
