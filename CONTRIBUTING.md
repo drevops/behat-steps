@@ -735,7 +735,7 @@ Building the Drupal 12 fixture takes 3 packages that the Drupal 11 fixture does 
 - `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8. This is why the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
 - `drupal/scheduled_transitions ^2.9.0@beta`, the first release declaring Drupal 12.
 
-The Drush backend supports Drush 13, the first release that runs Drupal 11, and newer: the Drupal 11 fixture installs 13.x and the Drupal 12 fixture `14.x-dev`. It runs each command by its canonical colon-separated name, such as `pm:install` or `core:cron`, which every supported release registers, and never by a legacy alias such as `pm-enable` or `cron`. `DrushBackendMethodsTest` fails a command issued in any other form, and the `@backend:drush` scenarios run the commands against the Drush each fixture installs.
+The Drush backend supports Drush 13, the first release that runs Drupal 11, and newer: the Drupal 11 fixture installs 13.x and the Drupal 12 fixture `14.x-dev`. It runs each command by its canonical colon-separated name, such as `pm:install` or `core:cron`, which every supported release registers, and never by a legacy alias such as `pm-enable` or `cron`. `DrushBackendMethodsTest` fails a command issued in any other form, and the `@backend:drush` scenarios run the cache, cron and user commands against the Drush each fixture installs.
 
 The fixture also takes `drupal/core` from source rather than dist. From 12.0.0-beta1 the release package no longer carries core's test files, which the PHPUnit bootstrap and the Kernel suite need, and [scripts/provision.php](scripts/provision.php) passes no `--prefer-dist` so the per-package setting holds.
 

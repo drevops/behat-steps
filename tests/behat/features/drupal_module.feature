@@ -49,21 +49,14 @@ Feature: Check that ModuleTrait works
       | help   |
       | syslog |
 
-  # The steps below resolve the Module capability instead of bootstrapping
-  # Drupal, so the '@backend:drush' tag runs them against a site this process
-  # never boots. Only 1 scenario enables and disables a module over Drush,
-  # because each module change there costs several Drush subprocesses.
+  # The assertions below resolve the Module capability instead of bootstrapping
+  # Drupal, so the '@backend:drush' tag reads the module list off a site this
+  # process never boots. Enabling and disabling over Drush is left to the
+  # in-process scenarios above, which do not pay a subprocess per module.
   @backend:drush
   Scenario: Assert an enabled core module over Drush
     Then the module "node" should be enabled
     And the module "field" should be enabled
-
-  @backend:drush
-  Scenario: Assert a module is disabled and enabled over Drush
-    Given the module "help" is disabled
-    Then the module "help" should be disabled
-    When the module "help" is enabled
-    Then the module "help" should be enabled
 
   @backend:drush
   Scenario: Assert a module whose code is absent is not enabled
