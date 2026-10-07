@@ -322,7 +322,7 @@ trait UserTrait {
    */
   #[When('I log in as a user with the permission(s) :permissions')]
   public function userLoginWithPermissions(string $permissions): void {
-    $created = $this->backendFor(RoleCapabilityInterface::class)->createRole(array_filter(array_map(trim(...), explode(',', $permissions))));
+    $created = $this->backendFor(RoleCapabilityInterface::class)->createRole(array_filter($this->stringSplitCommaSeparated($permissions)));
     $role_id = (string) $created->getValue('id');
     $this->authRoles[] = $role_id;
 
@@ -597,7 +597,7 @@ trait UserTrait {
    *   assigns nothing.
    */
   public function userAssignRoles(UserCapabilityInterface $backend, EntityStubInterface $stub, string $roles): void {
-    foreach (array_filter(array_map(trim(...), explode(',', $roles))) as $role) {
+    foreach (array_filter($this->stringSplitCommaSeparated($roles)) as $role) {
       // Every account carries 'authenticated', and the role is not assignable
       // in its own right.
       if (in_array(strtolower($role), ['authenticated', 'authenticated user'], TRUE)) {
