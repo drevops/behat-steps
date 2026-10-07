@@ -25,7 +25,7 @@ package "drevops/behat-steps" {
   }
 
   package "Helpers - src/Helper" #F3E5F5 {
-    component "Helper\\Web\n4 traits: last step,\nrequest headers, strings,\ntable transpose" as WebHelpers
+    component "Helper\\Web\n8 traits: last step,\nrequest headers, strings,\ntable transpose, tokens,\nfixture directory, headings,\nJavaScript errors" as WebHelpers
     component "Helper\\Drupal\n5 traits: entity lifecycle,\nauthentication, static cache,\nfixture files, queries" as DrupalHelpers
   }
 

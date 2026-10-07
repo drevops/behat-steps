@@ -178,14 +178,22 @@ package "DrevOps\\BehatSteps\\Steps\\Drupal" #E3F2FD {
 }
 
 package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
+  class FixtureDirectoryTrait <<trait>>
+  class HeadingTrait <<trait>>
+  class JavascriptErrorTrait <<trait>>
   class LastStepTrait <<trait>>
   class RequestHeadersTrait <<trait>>
   class StringTrait <<trait>>
   class TableTransposeTrait <<trait>>
+  class TokenTrait <<trait>>
 
-  LastStepTrait -[hidden]down- RequestHeadersTrait
+  FixtureDirectoryTrait -[hidden]down- HeadingTrait
+  HeadingTrait -[hidden]down- JavascriptErrorTrait
+  JavascriptErrorTrait -[hidden]down- LastStepTrait
+
   RequestHeadersTrait -[hidden]down- StringTrait
   StringTrait -[hidden]down- TableTransposeTrait
+  TableTransposeTrait -[hidden]down- TokenTrait
 }
 
 package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {

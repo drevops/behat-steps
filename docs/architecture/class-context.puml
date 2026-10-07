@@ -196,6 +196,8 @@ package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
     #stringNormalizeWhitespace(text) : string
     #stringSplitCommaSeparated(text) : array
     #stringSlug(value) : string
+    #stringNormalizeValue(value) : mixed
+    #stringFormatValue(value) : string
   }
   class LastStepTrait <<trait>> {
     #lastStepSetLine(scope) : void
@@ -205,10 +207,36 @@ package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
     +tableTransposeVertical(table) : array
     +tableTransposeHorizontal(entities) : TableNode
   }
+  class FixtureDirectoryTrait <<trait>> {
+    +fixtureDirectoryFind() : ?string
+    +fixtureDirectoryGet() : string
+    +fixtureDirectoryFindFile(path) : ?string
+    +fixtureDirectoryGetFile(path) : string
+    +fixtureDirectoryReadFile(path) : string
+  }
+  class HeadingTrait <<trait>> {
+    +headingFind(container, heading) : ?NodeElement
+  }
+  class JavascriptErrorTrait <<trait>> {
+    #javascriptErrorReadBuffer() : array
+    #javascriptErrorClearBuffer() : void
+    #javascriptErrorRecord(url, errors) : void
+    #javascriptErrorGetAll() : array
+    #javascriptErrorGetMessages() : array
+    #javascriptErrorExtractMessages(errors) : array
+    #javascriptErrorClear() : void
+  }
+  class TokenTrait <<trait>> {
+    #tokenReplaceInTable(table, replace) : TableNode
+  }
 
   RequestHeadersTrait -[hidden]down- StringTrait
   StringTrait -[hidden]down- LastStepTrait
   LastStepTrait -[hidden]down- TableTransposeTrait
+
+  FixtureDirectoryTrait -[hidden]down- HeadingTrait
+  HeadingTrait -[hidden]down- JavascriptErrorTrait
+  JavascriptErrorTrait -[hidden]down- TokenTrait
 }
 
 package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
@@ -265,6 +293,10 @@ package "Steps\\Web" #E8F5E9 {
     +pathGoBack() : void
     +pathAssertCurrent(path) : void
     +pathAssertUrlParameterExists(name) : void
+    --
+    +pathGetCurrent() : string
+    +pathIsCurrent(path) : bool
+    +pathGetUrlParameter(name) : string|array
   }
 
   class CommandTrait <<trait>> {
@@ -272,6 +304,8 @@ package "Steps\\Web" #E8F5E9 {
     +commandAssertSuccess() : void
     +commandAssertExitCodeEquals(code) : void
     +commandAssertOutputContains(value) : void
+    --
+    +commandExecute(command) : array
   }
 }
 
