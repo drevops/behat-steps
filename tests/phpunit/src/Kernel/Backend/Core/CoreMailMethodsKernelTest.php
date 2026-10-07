@@ -56,8 +56,8 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
   public function testMailLifecycleRoundTrip(): void {
     $this->core->mailStartCollecting();
 
-    $sent = $this->core->mailSend('Body text', 'Subject line', 'to@example.com', 'en');
-    $this->assertTrue($sent);
+    $is_sent = $this->core->mailSend('Body text', 'Subject line', 'to@example.com', 'en');
+    $this->assertTrue($is_sent);
 
     $mail = $this->core->mailGet();
     $this->assertCount(1, $mail);
@@ -84,8 +84,8 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
         'filemime' => 'application/pdf',
       ],
     ];
-    $sent = $this->core->mailSend('Body text', 'Subject line', 'to@example.com', 'en', $attachments);
-    $this->assertTrue($sent);
+    $is_sent = $this->core->mailSend('Body text', 'Subject line', 'to@example.com', 'en', $attachments);
+    $this->assertTrue($is_sent);
 
     $mail = $this->core->mailGet();
     $this->assertCount(1, $mail);
@@ -98,8 +98,8 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
   public function testMailSendWithEmptyAttachmentsOmitsKey(): void {
     $this->core->mailStartCollecting();
 
-    $sent = $this->core->mailSend('Body text', 'Subject line', 'to@example.com', 'en', []);
-    $this->assertTrue($sent);
+    $is_sent = $this->core->mailSend('Body text', 'Subject line', 'to@example.com', 'en', []);
+    $this->assertTrue($is_sent);
 
     $mail = $this->core->mailGet();
     $this->assertCount(1, $mail);
