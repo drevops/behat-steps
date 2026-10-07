@@ -70,11 +70,14 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media exist:')]
   public function mediaCreateMultiple(string $media_type, TableNode $table): void {
-    $this->mediaDeleteMultiple($media_type, $table);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $media_hash) {
-      $stub = new EntityStub('media', $media_type, $media_hash);
-      $this->mediaCreate($stub);
+      $this->mediaDelete($media_type, $media_hash);
+    }
+
+    foreach ($table->getHash() as $media_hash) {
+      $this->mediaCreate(new EntityStub('media', $media_type, $media_hash));
     }
   }
 
@@ -98,13 +101,15 @@ trait MediaTrait {
   #[Given('the following :media_type media with fields exist:')]
   public function mediaCreateMultipleWithFields(string $media_type, TableNode $table): void {
     $entities = $this->tableTransposeVertical($table);
-    $horizontal_table = $this->tableTransposeHorizontal($entities);
 
-    $this->mediaDeleteMultiple($media_type, $horizontal_table);
+    $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($entities as $entity_data) {
-      $stub = new EntityStub('media', $media_type, $entity_data);
-      $this->mediaCreate($stub);
+      $this->mediaDelete($media_type, $entity_data);
+    }
+
+    foreach ($entities as $entity_data) {
+      $this->mediaCreate(new EntityStub('media', $media_type, $entity_data));
     }
   }
 
@@ -124,10 +129,8 @@ trait MediaTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $storage = \Drupal::entityTypeManager()->getStorage('media');
-
     foreach ($table->getHash() as $media_hash) {
-      $storage->delete($this->mediaLoadMultiple($media_type, $media_hash));
+      $this->mediaDelete($media_type, $media_hash);
     }
   }
 
@@ -385,6 +388,20 @@ trait MediaTrait {
     $ids = $this->queryEntityIds('media', $conditions, $media_type);
 
     return $ids ? Media::loadMultiple($ids) : [];
+  }
+
+  /**
+   * Delete the media of a type that match conditions.
+   *
+   * @param string $media_type
+   *   The media type.
+   * @param array<string, mixed> $conditions
+   *   Conditions keyed by field names.
+   */
+  public function mediaDelete(string $media_type, array $conditions): void {
+    $media = $this->mediaLoadMultiple($media_type, $conditions);
+
+    \Drupal::entityTypeManager()->getStorage('media')->delete($media);
   }
 
   /**
