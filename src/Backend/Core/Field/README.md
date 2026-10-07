@@ -61,7 +61,7 @@ shape. No category in the primary table changes behavior based on cardinality.
 ## DefaultHandler classification policy
 
 `DefaultHandler` is the fallback when no typed handler matches a field's type
-string. It is a pure pass-through: it relays the normalised records to storage
+string. It is a pure pass-through: it relays the normalized records to storage
 verbatim. Deciding whether that is safe is not its job - `Core` consults the
 field shape classifier first.
 

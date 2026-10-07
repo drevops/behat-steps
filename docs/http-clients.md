@@ -104,7 +104,7 @@ Both timeouts are idle timeouts: a slow download that keeps receiving data never
 
 ## What the detached client carries
 
-The detached client acts as the scenario's visitor, so it carries whatever makes the site recognise that visitor:
+The detached client acts as the scenario's visitor, so it carries whatever makes the site recognize that visitor:
 
 - **Cookies** - the session's cookies, read through the browser driver's cookie capability, so they come across under BrowserKit, Selenium and Chrome alike. Before the scenario opens a page there are none.
 - **Headers the steps set** - the ones from `the REST header :name has the value :value`, the `X-Config-No-Override` header `ConfigOverrideTrait` sets, and the header the credentials step records.
