@@ -87,22 +87,7 @@ trait FileDownloadTrait {
    */
   #[When('I download the file from the URL :url')]
   public function fileDownloadFrom(string $url): void {
-    if (empty(parse_url($url, PHP_URL_HOST))) {
-      $url = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($url, '/');
-    }
-
-    $this->fileDownloadDownloadedFileInfo = $this->fileDownloadProcess($url);
-
-    // @codeCoverageIgnoreStart
-    if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
-      throw new \RuntimeException(sprintf('Unable to download file from URL "%s".', $url));
-    }
-    $file_data = file_get_contents($this->fileDownloadDownloadedFileInfo['file_path']);
-    if ($file_data === FALSE) {
-      throw new \RuntimeException('Unable to load content for downloaded file from temporary local file.');
-    }
-    // @codeCoverageIgnoreEnd
-    $this->fileDownloadDownloadedFileInfo['content'] = $file_data;
+    $this->fileDownloadLoad($url);
   }
 
   /**
@@ -115,10 +100,7 @@ trait FileDownloadTrait {
    */
   #[When('I download the file from the link :link')]
   public function fileDownloadFromLink(string $link): void {
-    $link_element = $this->fileDownloadGetLink($link);
-
-    $url = $link_element->getAttribute('href');
-    $this->fileDownloadFrom($url);
+    $this->fileDownloadLoad($this->fileDownloadGetLink($link)->getAttribute('href'));
   }
 
   /**
@@ -133,25 +115,9 @@ trait FileDownloadTrait {
    */
   #[Then('the downloaded file should contain:')]
   public function fileDownloadAssertFileContains(PyStringNode $string): void {
-    $this->fileDownloadRequireDownload();
-
-    $string = (string) $string;
-    $lines = preg_split('/\R/', (string) $this->fileDownloadDownloadedFileInfo['content']);
-
-    if (is_array($lines)) {
-      foreach ($lines as $line) {
-        if ($this->fileDownloadIsRegex($string)) {
-          if (preg_match($string, $line) === 1) {
-            return;
-          }
-        }
-        elseif (str_contains($line, $string)) {
-          return;
-        }
-      }
+    if ($this->fileDownloadFindLine((string) $string) === NULL) {
+      throw new ExpectationException('Unable to find a content line with searched string.', $this->getSession()->getDriver());
     }
-
-    throw new ExpectationException('Unable to find a content line with searched string.', $this->getSession()->getDriver());
   }
 
   /**
@@ -198,18 +164,7 @@ trait FileDownloadTrait {
    */
   #[Then('the downloaded file should be a zip archive containing the following files named:')]
   public function fileDownloadAssertZipContains(TableNode $files): void {
-    $zip = $this->fileDownloadOpenZip();
-
-    $errors = [];
-    foreach ($files->getColumn(0) as $line) {
-      if ($zip->locateName($line) === FALSE) {
-        $errors[] = sprintf('Unable to find file "%s" in archive.', $line);
-      }
-    }
-
-    if (!empty($errors)) {
-      throw new ExpectationException(implode(PHP_EOL, $errors), $this->getSession()->getDriver());
-    }
+    $this->fileDownloadAssertZipContainsFiles($files->getColumn(0), FALSE);
   }
 
   /**
@@ -224,26 +179,7 @@ trait FileDownloadTrait {
    */
   #[Then('the downloaded file should be a zip archive containing the following files partially named:')]
   public function fileDownloadAssertZipContainsPartial(TableNode $files): void {
-    $zip = $this->fileDownloadOpenZip();
-
-    $errors = [];
-    foreach ($files->getColumn(0) as $partial_name) {
-      $is_found = FALSE;
-      for ($i = 0; $i < $zip->numFiles; $i++) {
-        $stat = $zip->statIndex($i);
-        if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partial_name)) {
-          $is_found = TRUE;
-          break;
-        }
-      }
-      if (!$is_found) {
-        $errors[] = sprintf('Unable to find any file partially named "%s" in archive.', $partial_name);
-      }
-    }
-
-    if (!empty($errors)) {
-      throw new ExpectationException(implode(PHP_EOL, $errors), $this->getSession()->getDriver());
-    }
+    $this->fileDownloadAssertZipContainsFiles($files->getColumn(0), TRUE);
   }
 
   /**
@@ -258,22 +194,138 @@ trait FileDownloadTrait {
    */
   #[Then('the downloaded file should be a zip archive not containing the following files partially named:')]
   public function fileDownloadAssertZipNotContainsPartial(TableNode $files): void {
-    $zip = $this->fileDownloadOpenZip();
+    $this->fileDownloadAssertZipNotContainsFiles($files->getColumn(0), TRUE);
+  }
 
-    $errors = [];
-    foreach ($files->getColumn(0) as $partial_name) {
-      for ($i = 0; $i < $zip->numFiles; $i++) {
-        $stat = $zip->statIndex($i);
-        if ($stat !== FALSE && str_contains((string) $stat['name'], (string) $partial_name)) {
-          $errors[] = sprintf('Found file partially named "%s" in archive, but it should not.', $partial_name);
-          break;
-        }
+  /**
+   * Download a file and keep it as the scenario's download.
+   *
+   * The download assertions read the file kept here.
+   *
+   * @param string $url
+   *   The URL, absolute or relative to the Mink `base_url`.
+   */
+  public function fileDownloadLoad(string $url): void {
+    if (empty(parse_url($url, PHP_URL_HOST))) {
+      $url = rtrim($this->getMinkParameter('base_url'), '/') . '/' . ltrim($url, '/');
+    }
+
+    $this->fileDownloadDownloadedFileInfo = $this->fileDownloadProcess($url);
+
+    // @codeCoverageIgnoreStart
+    if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
+      throw new \RuntimeException(sprintf('Unable to download file from URL "%s".', $url));
+    }
+    $file_data = file_get_contents($this->fileDownloadDownloadedFileInfo['file_path']);
+    if ($file_data === FALSE) {
+      throw new \RuntimeException('Unable to load content for downloaded file from temporary local file.');
+    }
+    // @codeCoverageIgnoreEnd
+    $this->fileDownloadDownloadedFileInfo['content'] = $file_data;
+  }
+
+  /**
+   * Find the first line of the downloaded file that contains a string.
+   *
+   * @param string $search
+   *   The string to find, or a regular expression the line must match.
+   *
+   * @return string|null
+   *   The line, or NULL when no line holds the string.
+   *
+   * @throws \RuntimeException
+   *   When no file has been downloaded yet.
+   */
+  public function fileDownloadFindLine(string $search): ?string {
+    $this->fileDownloadRequireDownload();
+
+    $lines = preg_split('/\R/', (string) $this->fileDownloadDownloadedFileInfo['content']);
+
+    foreach (is_array($lines) ? $lines : [] as $line) {
+      if ($this->fileDownloadIsRegex($search) ? preg_match($search, $line) === 1 : str_contains($line, $search)) {
+        return $line;
       }
     }
 
-    if (!empty($errors)) {
+    return NULL;
+  }
+
+  /**
+   * Assert that the downloaded ZIP archive holds every named file.
+   *
+   * @param array<int, string> $names
+   *   The file names to find.
+   * @param bool $is_partial
+   *   Whether a file name only has to contain a name.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the archive misses a file, naming every file it misses.
+   */
+  public function fileDownloadAssertZipContainsFiles(array $names, bool $is_partial): void {
+    $zip = $this->fileDownloadOpenZip();
+
+    $errors = [];
+    foreach ($names as $name) {
+      if (!$this->fileDownloadZipHasEntry($zip, $name, $is_partial)) {
+        $errors[] = $is_partial ? sprintf('Unable to find any file partially named "%s" in archive.', $name) : sprintf('Unable to find file "%s" in archive.', $name);
+      }
+    }
+
+    if ($errors !== []) {
       throw new ExpectationException(implode(PHP_EOL, $errors), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Assert that the downloaded ZIP archive holds none of the named files.
+   *
+   * @param array<int, string> $names
+   *   The file names to look for.
+   * @param bool $is_partial
+   *   Whether a file name only has to contain a name to count.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the archive holds a file, naming every file it holds.
+   */
+  public function fileDownloadAssertZipNotContainsFiles(array $names, bool $is_partial): void {
+    $zip = $this->fileDownloadOpenZip();
+
+    $errors = [];
+    foreach ($names as $name) {
+      if ($this->fileDownloadZipHasEntry($zip, $name, $is_partial)) {
+        $errors[] = $is_partial ? sprintf('Found file partially named "%s" in archive, but it should not.', $name) : sprintf('Found file "%s" in archive, but it should not.', $name);
+      }
+    }
+
+    if ($errors !== []) {
+      throw new ExpectationException(implode(PHP_EOL, $errors), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Check whether a ZIP archive holds a file.
+   *
+   * @param \ZipArchive $zip
+   *   The open archive.
+   * @param string $name
+   *   The file name.
+   * @param bool $is_partial
+   *   Whether a file name only has to contain the name.
+   */
+  protected function fileDownloadZipHasEntry(\ZipArchive $zip, string $name, bool $is_partial): bool {
+    if (!$is_partial) {
+      return $zip->locateName($name) !== FALSE;
+    }
+
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+      $stat = $zip->statIndex($i);
+
+      if ($stat !== FALSE && str_contains((string) $stat['name'], $name)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**
