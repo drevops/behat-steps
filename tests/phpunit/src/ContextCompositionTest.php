@@ -216,9 +216,9 @@ class ContextCompositionTest extends UnitTestCase {
     $context = new HelperStateSubject();
 
     $context->requestHeadersSet('X-A', '1');
-    $context->setThroughTrait('X-B', '2');
+    $context->testSetThroughTrait('X-B', '2');
 
-    $this->assertSame(['X-A' => '1', 'X-B' => '2'], $context->readThroughTrait());
+    $this->assertSame(['X-A' => '1', 'X-B' => '2'], $context->testReadThroughTrait());
 
     $properties = static::reflect($context)->getProperties();
     $slots = array_filter($properties, static fn(\ReflectionProperty $property): bool => $property->getName() === 'requestHeaders');
@@ -338,7 +338,7 @@ trait HelperStateStepTrait {
 
   use RequestHeadersTrait;
 
-  public function setThroughTrait(string $name, string $value): void {
+  public function testSetThroughTrait(string $name, string $value): void {
     $this->requestHeadersSet($name, $value);
   }
 
@@ -348,7 +348,7 @@ trait HelperStateStepTrait {
    * @return array<string, string>
    *   Header values keyed by header name.
    */
-  public function readThroughTrait(): array {
+  public function testReadThroughTrait(): array {
     return $this->requestHeadersAll();
   }
 
