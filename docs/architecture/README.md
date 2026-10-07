@@ -16,7 +16,7 @@ Every diagram is a PlantUML source in this directory, rendered to a committed li
 | `class-traits.puml` | `class-traits.svg` | Every step trait in both namespaces, and the context hierarchy they mix into |
 | `class-context.puml` | `class-context.svg` | The context hierarchy, its services and prerequisite declarations, the helper traits, representative step traits, and the exceptions a failing step throws |
 | `class-backends.puml` | `class-backends.svg` | The Behat-free backend layer: the base contract, the capability interfaces, the 3 backends, and the Core bridge |
-| `class-browser.puml` | `class-browser.svg` | The browser capability layer, the HTTP client factory, and the `browserkit_http` browser driver factory |
+| `class-browser.puml` | `class-browser.svg` | The browser capability layer and the 2 classes that resolve it, the HTTP client factory, and the `browserkit_http` browser driver factory |
 | `dataflow-step.puml` | `dataflow-step.svg` | A step running in a consuming project |
 | `dataflow-http.puml` | `dataflow-http.svg` | A step sending its own request through the page, detached or bare client |
 | `dataflow-docs.puml` | `dataflow-docs.svg` | `docs.php` reflecting, validating and rendering every reference document |
@@ -108,6 +108,8 @@ Every helper member carries its trait's prefix, so two helpers mixed into one co
 Note where cleanup lives. It is the lifecycle trait's job, not a step trait's, so it arrives with whichever step traits create the thing being torn down. A suite that extends `WebContext`, or composes no entity-creating trait, never runs those hooks at all.
 
 Authentication splits along the same line, with both halves in `Behat\Auth`. `Authenticator` holds a Drupal session and lives behind `UserAwareInterface`, which `DrupalContext` declares; `BasicAuthenticator` needs only Mink and a base URL, so `WebRawContext` carries it through `getBasicAuthenticator()` and a suite with no Drupal site still gets basic auth.
+
+`Authenticator` is the browser capability layer's other consumer. A real browser can return from the login click before it loads the next page, so `Authenticator` builds a `BrowserCapabilityResolver` of its own and, when the session runs JavaScript, waits for the URL to change before it checks the login. It's a separate resolver from the one on `WebRawContext`, so an adapter a project registers on its context doesn't reach it.
 
 A consumer extends exactly one class, and registering two of them is fatal: `DrupalContext` inherits `WebContext`'s 28 traits, so both registered would register every web step twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names that rather than letting Behat report a `RedundantStepException` about an arbitrary step. `ContextCompositionTest` holds the directory-to-context coverage in both directions and holds the chain to one composition of each trait.
 

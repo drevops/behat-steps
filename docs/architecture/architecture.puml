@@ -100,6 +100,7 @@ WebRawCtx --> Prereq : reads trait prerequisites
 OptionConfig -[hidden]down- Prereq
 
 Authenticators --> Registries : current user,\nbackend session
+Authenticators --> BrowserCaps : whether the session\nruns JavaScript
 Registries --> BackendIface : resolves by capability
 DrupalBe ..|> BackendIface
 DrushBe ..|> BackendIface
