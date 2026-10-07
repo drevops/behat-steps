@@ -39,32 +39,9 @@ trait MetatagTrait {
    */
   #[Then('the meta tag should exist with the following attributes:')]
   public function metatagAssertExistsWithAttributes(TableNode $table): void {
-    $elements = $this->getSession()->getPage()->findAll('css', 'meta');
+    $attributes = $table->getRowsHash();
 
-    $attributes = [];
-    foreach ($table->getRowsHash() as $attribute => $value) {
-      $attributes[$attribute] = $value;
-    }
-
-    $is_found = FALSE;
-
-    foreach ($elements as $element) {
-      $all_attributes_matched = TRUE;
-
-      foreach ($attributes as $attribute => $value) {
-        if ($element->getAttribute($attribute) !== $value) {
-          $all_attributes_matched = FALSE;
-          break;
-        }
-      }
-
-      if ($all_attributes_matched) {
-        $is_found = TRUE;
-        break;
-      }
-    }
-
-    if (!$is_found) {
+    if (!$this->metatagFindMetaWithAttributes($attributes) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'meta tag', 'attributes', (string) json_encode($attributes));
     }
   }
@@ -80,25 +57,10 @@ trait MetatagTrait {
    */
   #[Then('the meta tag should not exist with the following attributes:')]
   public function metatagAssertNotExistsWithAttributes(TableNode $table): void {
-    $meta_tags = $this->getSession()->getPage()->findAll('css', 'meta');
+    $attributes = $table->getRowsHash();
 
-    $attributes = [];
-    foreach ($table->getRowsHash() as $attribute => $value) {
-      $attributes[$attribute] = $value;
-    }
-
-    foreach ($meta_tags as $meta_tag) {
-      $all_attributes_matched = TRUE;
-      foreach ($attributes as $attribute => $value) {
-        if ($meta_tag->getAttribute($attribute) !== $value) {
-          $all_attributes_matched = FALSE;
-          break;
-        }
-      }
-
-      if ($all_attributes_matched) {
-        throw new ExpectationException(sprintf('The meta tag with the attributes "%s" exists, but it should not.', json_encode($attributes)), $this->getSession()->getDriver());
-      }
+    if ($this->metatagFindMetaWithAttributes($attributes) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The meta tag with the attributes "%s" exists, but it should not.', json_encode($attributes)), $this->getSession()->getDriver());
     }
   }
 
@@ -267,31 +229,7 @@ trait MetatagTrait {
    */
   #[Then('the hreflang alternates should be valid')]
   public function metatagAssertHreflangValid(): void {
-    $alternates = $this->metatagGetHreflangAlternates();
-
-    if ($alternates === []) {
-      throw new ExpectationException('No hreflang alternate links were found on the page.', $this->getSession()->getDriver());
-    }
-
-    foreach ($alternates as $alternate) {
-      if ($alternate['href'] === '') {
-        throw new ExpectationException(sprintf('The hreflang alternate for "%s" has an empty href.', $alternate['hreflang']), $this->getSession()->getDriver());
-      }
-
-      if (!$this->metatagIsValidHreflang($alternate['hreflang'])) {
-        throw new ExpectationException(sprintf('The hreflang value "%s" is not a valid language code.', $alternate['hreflang']), $this->getSession()->getDriver());
-      }
-    }
-
-    $current = $this->metatagResolveUrl($this->getSession()->getCurrentUrl());
-
-    foreach ($alternates as $alternate) {
-      if ($this->metatagResolveUrl($alternate['href']) === $current) {
-        return;
-      }
-    }
-
-    throw new ExpectationException(sprintf('No self-referencing hreflang alternate was found for the current URL "%s".', $current), $this->getSession()->getDriver());
+    $this->metatagAssertHreflangAlternatesValid($this->metatagGetHreflangAlternates());
   }
 
   /**
@@ -306,22 +244,10 @@ trait MetatagTrait {
    */
   #[Then('the hreflang alternates should have reciprocal return links')]
   public function metatagAssertHreflangReciprocal(): void {
-    $this->metatagAssertHreflangValid();
-
     $alternates = $this->metatagGetHreflangAlternates();
-    $current = $this->metatagResolveUrl($this->getSession()->getCurrentUrl());
 
-    foreach ($alternates as $alternate) {
-      $target = $this->metatagResolveUrl($alternate['href']);
-
-      if ($target === $current || strtolower((string) $alternate['hreflang']) === 'x-default') {
-        continue;
-      }
-
-      if (!$this->metatagHtmlLinksBackTo($this->metatagFetchUrl($target), $current, $target)) {
-        throw new ExpectationException(sprintf('The hreflang alternate "%s" (%s) does not link back to the current URL "%s".', $alternate['hreflang'], $target, $current), $this->getSession()->getDriver());
-      }
-    }
+    $this->metatagAssertHreflangAlternatesValid($alternates);
+    $this->metatagAssertHreflangAlternatesReciprocal($alternates);
   }
 
   /**
@@ -480,6 +406,99 @@ trait MetatagTrait {
     }
 
     return FALSE;
+  }
+
+  /**
+   * Find the first meta tag carrying every given attribute value.
+   *
+   * @param array<int|string, mixed> $attributes
+   *   The expected attribute values, keyed by attribute name.
+   *
+   * @return \Behat\Mink\Element\NodeElement|null
+   *   The meta tag, or NULL when no meta tag carries every value.
+   */
+  public function metatagFindMetaWithAttributes(array $attributes): ?NodeElement {
+    foreach ($this->getSession()->getPage()->findAll('css', 'meta') as $element) {
+      $all_attributes_matched = TRUE;
+
+      foreach ($attributes as $attribute => $value) {
+        if ($element->getAttribute((string) $attribute) !== $value) {
+          $all_attributes_matched = FALSE;
+          break;
+        }
+      }
+
+      if ($all_attributes_matched) {
+        return $element;
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Assert that hreflang alternates are valid.
+   *
+   * At least 1 alternate exists, each has an href and a well-formed language
+   * code (or "x-default"), and 1 of them references the current URL.
+   *
+   * @param array<int, array{hreflang: string, href: string}> $alternates
+   *   The hreflang alternates, as metatagGetHreflangAlternates() returns them.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the alternates are not valid.
+   */
+  public function metatagAssertHreflangAlternatesValid(array $alternates): void {
+    if ($alternates === []) {
+      throw new ExpectationException('No hreflang alternate links were found on the page.', $this->getSession()->getDriver());
+    }
+
+    foreach ($alternates as $alternate) {
+      if ($alternate['href'] === '') {
+        throw new ExpectationException(sprintf('The hreflang alternate for "%s" has an empty href.', $alternate['hreflang']), $this->getSession()->getDriver());
+      }
+
+      if (!$this->metatagIsValidHreflang($alternate['hreflang'])) {
+        throw new ExpectationException(sprintf('The hreflang value "%s" is not a valid language code.', $alternate['hreflang']), $this->getSession()->getDriver());
+      }
+    }
+
+    $current = $this->metatagResolveUrl($this->getSession()->getCurrentUrl());
+
+    foreach ($alternates as $alternate) {
+      if ($this->metatagResolveUrl($alternate['href']) === $current) {
+        return;
+      }
+    }
+
+    throw new ExpectationException(sprintf('No self-referencing hreflang alternate was found for the current URL "%s".', $current), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Assert that every hreflang alternate page links back to the current URL.
+   *
+   * Each alternate other than the current page and "x-default" is fetched.
+   *
+   * @param array<int, array{hreflang: string, href: string}> $alternates
+   *   The hreflang alternates, as metatagGetHreflangAlternates() returns them.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When an alternate page does not link back.
+   */
+  public function metatagAssertHreflangAlternatesReciprocal(array $alternates): void {
+    $current = $this->metatagResolveUrl($this->getSession()->getCurrentUrl());
+
+    foreach ($alternates as $alternate) {
+      $target = $this->metatagResolveUrl($alternate['href']);
+
+      if ($target === $current || strtolower((string) $alternate['hreflang']) === 'x-default') {
+        continue;
+      }
+
+      if (!$this->metatagHtmlLinksBackTo($this->metatagFetchUrl($target), $current, $target)) {
+        throw new ExpectationException(sprintf('The hreflang alternate "%s" (%s) does not link back to the current URL "%s".', $alternate['hreflang'], $target, $current), $this->getSession()->getDriver());
+      }
+    }
   }
 
   /**
