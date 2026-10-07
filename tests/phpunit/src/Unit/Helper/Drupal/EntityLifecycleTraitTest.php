@@ -57,11 +57,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 class EntityLifecycleTraitTest extends UnitTestCase {
 
   /**
-   * A directory carrying the entry file the Drupal backend requires.
-   */
-  protected const DRUPAL_ROOT = __DIR__ . '/../../../../fixtures/backend/drupal-root';
-
-  /**
    * The cleanup opt-out value to restore, NULL when it was unset.
    */
   protected ?string $originalDisableCleanup;

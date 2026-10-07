@@ -48,6 +48,8 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('parse_class_comment')]
 #[CoversFunction('tag_registry')]
 #[CoversFunction('non_descriptive_placeholders')]
+#[CoversFunction('placeholder_synonyms')]
+#[CoversFunction('rejected_step_phrases')]
 #[CoversFunction('extract_tags')]
 #[CoversFunction('validate_tag')]
 #[CoversFunction('validate_tags')]
@@ -3427,7 +3429,7 @@ EOD,
     $this->assertStringContainsString('| `drupal.drupal_root` | string | required |', $actual);
 
     // Line breaks inside an option description are made table-safe.
-    $this->assertStringContainsString('<br>', $actual);
+    $this->assertStringContainsString('<br/>', $actual);
   }
 
   #[DataProvider('dataProviderExtensionOptionType')]

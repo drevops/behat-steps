@@ -2059,7 +2059,7 @@ function extension_option_description(NodeInterface $node): string {
 
   $lines = array_filter(array_map(trim(...), explode(PHP_EOL, $info)), static fn(string $line): bool => $line !== '');
 
-  return str_replace('|', '\\|', implode('<br>', $lines));
+  return str_replace('|', '\\|', implode('<br/>', $lines));
 }
 
 /**
