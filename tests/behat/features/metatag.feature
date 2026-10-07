@@ -44,7 +44,7 @@ Feature: Check that MetatagTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Meta tag with specified attributes should not exist: {"name":"MobileOptimized","content":"width"}
+      The meta tag with the attributes "{"name":"MobileOptimized","content":"width"}" exists, but it should not.
       """
 
   @phpserver

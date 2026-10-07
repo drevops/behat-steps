@@ -14,7 +14,7 @@ Feature: Check that BlockTrait works
       | status        | 1                        |
     Then the block "[TEST] User Account Menu" should exist
     Then the block "Other random block" should not exist
-    And the block "[TEST] User Account Menu" should exist in the region "content"
+    And the block "[TEST] User Account Menu" in the region "content" should exist
     When I visit "/"
     Then I should see "[TEST] User Account Menu"
 
@@ -44,8 +44,8 @@ Feature: Check that BlockTrait works
       | label_display | 1                      |
       | region        | footer_top             |
       | status        | 1                      |
-    Then the block "[TEST] Duplicate Label" should exist in the region "footer_top"
-    And the block "[TEST] Duplicate Label" should not exist in the region "content"
+    Then the block "[TEST] Duplicate Label" in the region "footer_top" should exist
+    And the block "[TEST] Duplicate Label" in the region "content" should not exist
 
   @test-trait:Drupal\BlockTrait
   Scenario: Assert "block should exist" fails for non-existing block
@@ -83,7 +83,7 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Then the block "Non-existent Block Label" should exist in the region "content"
+      Then the block "Non-existent Block Label" in the region "content" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -101,12 +101,12 @@ Feature: Check that BlockTrait works
         | label_display | 1                        |
         | region        | content                  |
         | status        | 1                        |
-      Then the block "[TEST] User Account Menu" should exist in the region "sidebar"
+      Then the block "[TEST] User Account Menu" in the region "sidebar" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Block "[TEST] User Account Menu" is in region "content", but it should be in "sidebar"
+      The block "[TEST] User Account Menu" is in the region "content", but it should be in the region "sidebar"
       """
 
   @test-trait:Drupal\BlockTrait
@@ -114,7 +114,7 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Then the block "Non-existent Block Label" should not exist in the region "content"
+      Then the block "Non-existent Block Label" in the region "content" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -132,12 +132,12 @@ Feature: Check that BlockTrait works
         | label_display | 1                        |
         | region        | content                  |
         | status        | 1                        |
-      Then the block "[TEST] User Account Menu" should not exist in the region "content"
+      Then the block "[TEST] User Account Menu" in the region "content" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Block "[TEST] User Account Menu" is in region "content", but it should not be
+      The block "[TEST] User Account Menu" is in the region "content", but it should not be
       """
 
   @test-trait:Drupal\BlockTrait
@@ -234,12 +234,12 @@ Feature: Check that BlockTrait works
       | label_display | 1                        |
       | region        | content                  |
       | status        | 1                        |
-    Then the block "[TEST] User Account Menu" should exist in the region "content"
+    Then the block "[TEST] User Account Menu" in the region "content" should exist
 
     Given the block "[TEST] User Account Menu" has the following configuration:
       | region | header |
-    Then the block "[TEST] User Account Menu" should exist in the region "header"
-    And the block "[TEST] User Account Menu" should not exist in the region "content"
+    Then the block "[TEST] User Account Menu" in the region "header" should exist
+    And the block "[TEST] User Account Menu" in the region "content" should not exist
 
   @test-trait:Drupal\BlockTrait
   Scenario: Assert "block instance exists" fails for non-existing block type

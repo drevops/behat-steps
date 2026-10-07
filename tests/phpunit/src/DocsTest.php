@@ -1179,7 +1179,7 @@ EOD,
         ],
         ['  TestTrait::testAssertMethod - Missing "should" in the step' . PHP_EOL],
       ],
-      'then without the/a/no' => [
+      'then without the/a/an' => [
         [
           'TestTrait' => [
             'name' => 'TestTrait',
@@ -1194,7 +1194,41 @@ EOD,
             ],
           ],
         ],
-        ['  TestTrait::testAssertMethod - Missing "the", "a" or "no" in the step' . PHP_EOL],
+        ['  TestTrait::testAssertMethod - Missing "the", "a" or "an" in the step' . PHP_EOL],
+      ],
+      'then opening with an' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then an email should not be sent'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'then negated with no' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then no emails should be sent to the address :address'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Then step negates with "no" but should negate with "should not"' . PHP_EOL],
       ],
       'given starting with I' => [
         [
@@ -1746,7 +1780,14 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testAssertSelectMethod',
-                'steps' => ['@Then the option :option should exist within the select element :selector'],
+                'steps' => ['@Then the option :option within the select element :selector should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSentMethod',
+                'steps' => ['@Then an email should have been sent'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
               ],
@@ -1758,6 +1799,7 @@ EOD,
           '  TestTrait::testClickMethod - Step reads "I click the" but should read "I click on the"' . PHP_EOL,
           '  TestTrait::testAssertViewportMethod - Step reads "a viewport" but should read "the viewport"' . PHP_EOL,
           '  TestTrait::testAssertSelectMethod - Step reads "the select element" but should read "the select"' . PHP_EOL,
+          '  TestTrait::testAssertSentMethod - Step reads "should have been" but should read "should be"' . PHP_EOL,
         ],
       ],
       'settled phrases in steps' => [
@@ -1782,7 +1824,72 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testAssertSelectMethod',
-                'steps' => ['@Then the option :option should exist within the select :selector'],
+                'steps' => ['@Then the option :option within the select :selector should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'qualifier after the predicate' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertRegionMethod',
+                'steps' => ['@Then the link :link should exist in the region :region'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSelectMethod',
+                'steps' => ['@Then the option :option should be selected within the select :selector'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  TestTrait::testAssertRegionMethod - Qualifier follows the predicate but should precede "should" with the subject it narrows' . PHP_EOL,
+          '  TestTrait::testAssertSelectMethod - Qualifier follows the predicate but should precede "should" with the subject it narrows' . PHP_EOL,
+        ],
+      ],
+      'qualifier with the subject, after an object or naming a table' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertRegionMethod',
+                'steps' => ['@Then the link :link in the region :region should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertTableMethod',
+                'steps' => ['@Then the meta tag should exist with the following attributes:'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertViewportMethod',
+                'steps' => ['@Then the element :selector should be displayed within the viewport with a top offset of :offset pixels'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSchemaMethod',
+                'steps' => ['@Then the response should match the XSD schema in the file :filename'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
               ],
@@ -1874,7 +1981,7 @@ EOD,
         [
           '  TestTrait::testMethod - Missing "Assert" in the method name' . PHP_EOL,
           '  TestTrait::testMethod - Missing "should" in the step' . PHP_EOL,
-          '  TestTrait::testMethod - Missing "the", "a" or "no" in the step' . PHP_EOL,
+          '  TestTrait::testMethod - Missing "the", "a" or "an" in the step' . PHP_EOL,
           '  TestTrait::testMethod - Missing example' . PHP_EOL,
         ],
       ],
@@ -1900,7 +2007,7 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testAssertMethod3',
-                'steps' => ['@Then no results should be displayed'],
+                'steps' => ['@Then an error should be displayed'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
               ],

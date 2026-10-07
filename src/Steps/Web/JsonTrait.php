@@ -193,7 +193,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should be equal to the value :value')]
   public function jsonAssertPathEquals(string $path, string $value): void {
-    $actual = $this->jsonScalarToString($this->jsonResolveScalar($path));
+    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     if ($actual !== $value) {
       throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but expected "%s".', $path, $actual, $value), $this->getSession()->getDriver());
@@ -209,7 +209,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should not be equal to the value :value')]
   public function jsonAssertPathNotEquals(string $path, string $value): void {
-    $actual = $this->jsonScalarToString($this->jsonResolveScalar($path));
+    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     if ($actual === $value) {
       throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but it should not be.', $path, $actual), $this->getSession()->getDriver());
@@ -225,7 +225,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should contain the value :value')]
   public function jsonAssertPathContains(string $path, string $value): void {
-    $actual = $this->jsonScalarToString($this->jsonResolveScalar($path));
+    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     if (!str_contains((string) $actual, $value)) {
       throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and does not contain "%s".', $path, $actual, $value), $this->getSession()->getDriver());
@@ -241,7 +241,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should not contain the value :value')]
   public function jsonAssertPathNotContains(string $path, string $value): void {
-    $actual = $this->jsonScalarToString($this->jsonResolveScalar($path));
+    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     if (str_contains((string) $actual, $value)) {
       throw new ExpectationException(sprintf('The JSON path "%s" is "%s" and contains "%s", but it should not.', $path, $actual, $value), $this->getSession()->getDriver());
@@ -257,7 +257,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should match :pattern')]
   public function jsonAssertPathMatches(string $path, string $pattern): void {
-    $actual = $this->jsonScalarToString($this->jsonResolveScalar($path));
+    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     $result = @preg_match($pattern, (string) $actual);
     if ($result === FALSE) {
@@ -278,7 +278,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should not match :pattern')]
   public function jsonAssertPathNotMatches(string $path, string $pattern): void {
-    $actual = $this->jsonScalarToString($this->jsonResolveScalar($path));
+    $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     $result = @preg_match($pattern, (string) $actual);
     if ($result === FALSE) {
@@ -299,7 +299,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should be null')]
   public function jsonAssertPathNull(string $path): void {
-    $value = $this->jsonResolveSingle($path);
+    $value = $this->jsonGetValue($path);
 
     if ($value !== NULL) {
       throw new ExpectationException(sprintf('The JSON path "%s" is "%s", but expected null.', $path, $this->jsonScalarToString($value)), $this->getSession()->getDriver());
@@ -315,7 +315,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should be true')]
   public function jsonAssertPathTrue(string $path): void {
-    $value = $this->jsonResolveSingle($path);
+    $value = $this->jsonGetValue($path);
 
     if ($value !== TRUE) {
       throw new ExpectationException(sprintf('The JSON path "%s" is not true.', $path), $this->getSession()->getDriver());
@@ -331,7 +331,7 @@ trait JsonTrait {
    */
   #[Then('the JSON path :path should be false')]
   public function jsonAssertPathFalse(string $path): void {
-    $value = $this->jsonResolveSingle($path);
+    $value = $this->jsonGetValue($path);
 
     if ($value !== FALSE) {
       throw new ExpectationException(sprintf('The JSON path "%s" is not false.', $path), $this->getSession()->getDriver());
@@ -353,7 +353,7 @@ trait JsonTrait {
   public function jsonAssertPathCount(string $path, string $count): void {
     $count = $this->stringParseInteger($count, 'count', 0);
 
-    $value = $this->jsonResolveSingle($path);
+    $value = $this->jsonGetValue($path);
 
     if (!is_array($value)) {
       throw new ExpectationException(sprintf('The JSON path "%s" is not an array or object.', $path), $this->getSession()->getDriver());
@@ -378,7 +378,7 @@ trait JsonTrait {
    */
   #[Then('the response should match the following JSON schema:')]
   public function jsonAssertMatchesSchema(PyStringNode $schema): void {
-    $this->jsonValidateSchema($schema->getRaw());
+    $this->jsonAssertResponseMatchesSchema($schema->getRaw());
   }
 
   /**
@@ -390,7 +390,7 @@ trait JsonTrait {
    */
   #[Then('the response should match the JSON schema in the file :filename')]
   public function jsonAssertMatchesSchemaFromFile(string $filename): void {
-    $this->jsonValidateSchema($this->jsonReadFile($filename));
+    $this->jsonAssertResponseMatchesSchema($this->jsonReadFile($filename));
   }
 
   /**
@@ -529,15 +529,21 @@ trait JsonTrait {
   }
 
   /**
-   * Resolve a JSONPath expression to a single matched value.
+   * Get the value a JSONPath expression matches.
+   *
+   * The expression must match exactly 1 value. A JSON `null` is a match and
+   * is returned as NULL.
    *
    * @param string $path
    *   The JSONPath expression.
    *
    * @return mixed
-   *   The single matched value.
+   *   The matched value.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If the expression matches no value or more than 1.
    */
-  public function jsonResolveSingle(string $path): mixed {
+  public function jsonGetValue(string $path): mixed {
     $matches = $this->jsonQuery($path);
 
     if (count($matches) === 0) {
@@ -552,16 +558,19 @@ trait JsonTrait {
   }
 
   /**
-   * Resolve a JSONPath expression to a single scalar value.
+   * Get the scalar value a JSONPath expression matches.
    *
    * @param string $path
    *   The JSONPath expression.
    *
    * @return mixed
-   *   The single scalar (or null) value.
+   *   The matched scalar, or NULL for a JSON `null`.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   If the expression matches no value, more than 1, or an array or object.
    */
-  public function jsonResolveScalar(string $path): mixed {
-    $value = $this->jsonResolveSingle($path);
+  public function jsonGetScalar(string $path): mixed {
+    $value = $this->jsonGetValue($path);
 
     if (is_array($value)) {
       throw new ExpectationException(sprintf('The JSON path "%s" resolves to an array or object, but a scalar value is required for this assertion.', $path), $this->getSession()->getDriver());
@@ -592,12 +601,12 @@ trait JsonTrait {
   }
 
   /**
-   * Validate the response body against a JSON schema.
+   * Assert that the response validates against a JSON schema.
    *
    * @param string $schema_json
    *   The JSON schema as a string.
    */
-  public function jsonValidateSchema(string $schema_json): void {
+  public function jsonAssertResponseMatchesSchema(string $schema_json): void {
     if (!class_exists(Validator::class)) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException('JSON Schema validation requires the "justinrainbow/json-schema" package. Install it with "composer require --dev justinrainbow/json-schema".');

@@ -64,7 +64,7 @@ Feature: Check that EmailTrait works
       """
     Then an email should be sent to the address "test@example.com"
     And an email should be sent to the address "test@example.com"
-    And no emails should have been sent to the address "test3@example.com"
+    And an email should not be sent to the address "test3@example.com"
     And the email header "Content-Type" should contain:
       """
       text/plain
@@ -268,7 +268,7 @@ Feature: Check that EmailTrait works
 
   @email
   Scenario: As a developer, I want to know that no emails assertions works as expected
-    Given no emails should have been sent
+    Given an email should not be sent
     When I send test email to "test@example.com" with
       """
       Line one of the test email content
@@ -278,11 +278,11 @@ Feature: Check that EmailTrait works
     Then an email should be sent to the address "test@example.com"
 
     When I clear the test email system queue
-    Then no emails should have been sent
+    Then an email should not be sent
 
   @email
   Scenario: As a developer, I want to manually enable the test email system and verify it works
-    Given no emails should have been sent
+    Given an email should not be sent
     And I enable the test email system
     And I send test email to "test@example.com" with
       """
@@ -310,7 +310,7 @@ Feature: Check that EmailTrait works
       Test email content line three
       """
     When I disable the test email system
-    Then no emails should have been sent
+    Then an email should not be sent
 
   @email
   Scenario: As a developer, I want to verify that an email contains an attachment
@@ -336,7 +336,7 @@ Feature: Check that EmailTrait works
 
   @email
   Scenario: As a developer, I want error when no emails sent but some expected
-    Given no emails should have been sent
+    Given an email should not be sent
     When I send test email to "test@example.com" with:
       """
       Test content
@@ -349,7 +349,7 @@ Feature: Check that EmailTrait works
       """
       Test content
       """
-    Then no emails should have been sent to the address "wrong@example.com"
+    Then an email should not be sent to the address "wrong@example.com"
 
   @email
   Scenario: As a developer, I want to verify no emails sent to CC address assertion passes when address not used
@@ -357,7 +357,7 @@ Feature: Check that EmailTrait works
       """
       Test content with CC
       """
-    Then no emails should have been sent to the address "wrong@example.com"
+    Then an email should not be sent to the address "wrong@example.com"
 
   @email
   Scenario: As a developer, I want to verify no emails sent to BCC address assertion passes when address not used
@@ -365,7 +365,7 @@ Feature: Check that EmailTrait works
       """
       Test content with BCC
       """
-    Then no emails should have been sent to the address "wrong@example.com"
+    Then an email should not be sent to the address "wrong@example.com"
 
   @email @debug
   Scenario: As a developer, I want to verify email debug output is triggered with @debug tag
@@ -390,7 +390,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email that should be sent to "test@example.com" retrieved from test email collector.
+      Unable to find an email that should be sent to "test@example.com" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -415,7 +415,7 @@ Feature: Check that EmailTrait works
         '''
         Test content with CC
         '''
-      Then no emails should have been sent to the address "cc@example.com"
+      Then an email should not be sent to the address "cc@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -432,7 +432,7 @@ Feature: Check that EmailTrait works
         '''
         Test content with BCC
         '''
-      Then no emails should have been sent to the address "bcc@example.com"
+      Then an email should not be sent to the address "bcc@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -454,7 +454,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject "Wrong Subject" retrieved from test email collector.
+      Unable to find an email with the subject "Wrong Subject" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -471,7 +471,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject "Test" retrieved from test email collector.
+      Unable to find an email with the subject "Test" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -562,7 +562,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject containing "Nonexistent" retrieved from test email collector.
+      Unable to find an email with the subject containing "Nonexistent" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -579,7 +579,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject containing "test email" retrieved from test email collector.
+      Unable to find an email with the subject containing "test email" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -625,12 +625,12 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then no emails should have been sent
+      Then an email should not be sent
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      No emails should have been sent, but some were found:
+      An email was sent, but it should not have been:
       """
 
   @test-trait:Drupal\EmailTrait
@@ -642,7 +642,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then no emails should have been sent to the address "test@example.com"
+      Then an email should not be sent to the address "test@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -724,7 +724,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject "Wrong Subject" retrieved from test email collector.
+      Unable to find an email with the subject "Wrong Subject" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -741,7 +741,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject "with Attachment" retrieved from test email collector.
+      Unable to find an email with the subject "with Attachment" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -792,7 +792,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject containing "Nonexistent" retrieved from test email collector.
+      Unable to find an email with the subject containing "Nonexistent" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -809,7 +809,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Unable to find email with subject containing "with attachment" retrieved from test email collector.
+      Unable to find an email with the subject containing "with attachment" retrieved from test email collector.
       """
 
   @test-trait:Drupal\EmailTrait

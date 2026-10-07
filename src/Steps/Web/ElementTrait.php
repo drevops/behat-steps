@@ -224,7 +224,7 @@ trait ElementTrait {
   #[Then('the heading :heading should not exist')]
   public function elementAssertHeadingNotExists(string $heading): void {
     if ($this->elementFindHeading($heading) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The heading "%s" was found on the page %s.', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The heading "%s" was found on the page "%s".', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -254,7 +254,7 @@ trait ElementTrait {
   #[Then('the button :button should not exist')]
   public function elementAssertButtonNotExists(string $button): void {
     if ($this->getSession()->getPage()->findButton($button) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The button "%s" was found on the page %s.', $button, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The button "%s" was found on the page "%s".', $button, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -296,7 +296,7 @@ trait ElementTrait {
     }
     // @codeCoverageIgnoreEnd
     if ($pos1 <= $pos2) {
-      throw new ExpectationException(sprintf('Element "%s" appears before "%s".', $selector1, $selector2), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The element "%s" appears before the element "%s".', $selector1, $selector2), $this->getSession()->getDriver());
     }
   }
 
@@ -315,14 +315,14 @@ trait ElementTrait {
     $pos2 = strpos((string) $content, $text2);
 
     if ($pos1 === FALSE) {
-      throw new ExpectationException(sprintf('Text was not found: "%s".', $text1), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The text "%s" was not found.', $text1), $this->getSession()->getDriver());
     }
     if ($pos2 === FALSE) {
-      throw new ExpectationException(sprintf('Text was not found: "%s".', $text2), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The text "%s" was not found.', $text2), $this->getSession()->getDriver());
     }
 
     if ($pos1 <= $pos2) {
-      throw new ExpectationException(sprintf('Text "%s" appears before "%s".', $text1, $text2), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The text "%s" appears before the text "%s".', $text1, $text2), $this->getSession()->getDriver());
     }
   }
 
@@ -491,7 +491,7 @@ trait ElementTrait {
   public function elementAssertElementAtTopOfViewport(string $selector): void {
     $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); return (rect.top >= 0 && rect.top <= window.innerHeight);');
     if (!$result) {
-      throw new ExpectationException(sprintf('Element with selector "%s" is not at the top of the viewport.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The element "%s" is not at the top of the viewport.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -509,7 +509,7 @@ trait ElementTrait {
   public function elementAssertElementCenteredInViewport(string $selector): void {
     $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var elementCenter = rect.top + rect.height / 2; var viewportThird = window.innerHeight / 3; return (elementCenter >= viewportThird && elementCenter <= viewportThird * 2);');
     if (!$result) {
-      throw new ExpectationException(sprintf('Element with selector "%s" is not centered in the viewport.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The element "%s" is not centered in the viewport.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -654,7 +654,7 @@ trait ElementTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('None of the elements defined by "%s" selector are visible on the page.', $selector), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('The element "%s" is not visible on the page.', $selector), $this->getSession()->getDriver());
   }
 
   /**
@@ -671,7 +671,7 @@ trait ElementTrait {
 
     foreach ($elements as $element) {
       if ($element->isVisible()) {
-        throw new ExpectationException(sprintf('Element defined by "%s" selector is visible on the page, but it should not be.', $selector), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('The element "%s" is visible on the page, but it should not be.', $selector), $this->getSession()->getDriver());
       }
     }
   }
@@ -688,7 +688,7 @@ trait ElementTrait {
     $this->elementAssertVisible($selector);
 
     if (!$this->elementIsVisuallyVisible($selector, 0)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within the viewport.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The element "%s" is not displayed within the viewport.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -705,7 +705,7 @@ trait ElementTrait {
 
     $this->elementAssertVisible($selector);
     if (!$this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is not displayed within the viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The element "%s" is not displayed within the viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
     }
   }
 
@@ -721,7 +721,7 @@ trait ElementTrait {
     $offset = $this->stringParseInteger($offset, 'offset');
 
     if ($this->elementIsVisuallyVisible($selector, $offset)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within the viewport with a top offset of %d pixels, but it should not be.', $selector, $offset), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The element "%s" is displayed within the viewport with a top offset of %d pixels, but it should not be.', $selector, $offset), $this->getSession()->getDriver());
     }
   }
 
@@ -740,7 +740,7 @@ trait ElementTrait {
   #[Then('the element :selector should not be displayed within the viewport')]
   public function elementAssertNotVisuallyVisible(string $selector): void {
     if ($this->elementIsVisuallyVisible($selector, 0)) {
-      throw new ExpectationException(sprintf('Element(s) defined by "%s" selector is displayed within the viewport, but it should not be.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The element "%s" is displayed within the viewport, but it should not be.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -989,7 +989,7 @@ trait ElementTrait {
       default => sprintf('their effective z-indexes are %s and %s', $z1, $z2),
     };
 
-    throw new ExpectationException(sprintf('Expected element "%s" to stack %s the element "%s", but it stacks %s it: %s.', $selector1, $is_above ? 'above' : 'below', $selector2, $is_above ? 'below' : 'above', $reason), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('Expected the element "%s" to stack %s the element "%s", but it stacks %s it: %s.', $selector1, $is_above ? 'above' : 'below', $selector2, $is_above ? 'below' : 'above', $reason), $this->getSession()->getDriver());
   }
 
   /**
@@ -1160,17 +1160,17 @@ JS;
         return;
       }
 
-      throw new ExpectationException(sprintf('Expected element "%s" to be pinned to the top of the viewport, but it is not rendered.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the element "%s" to be pinned to the top of the viewport, but it is not rendered.', $selector), $this->getSession()->getDriver());
     }
 
     $is_pinned = abs((float) $top) <= $tolerance;
 
     if (!$is_inverted && !$is_pinned) {
-      throw new ExpectationException(sprintf('Expected element "%s" to be pinned to the top of the viewport within %d pixel(s), but its top edge is at %s pixels.', $selector, $tolerance, $top), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the element "%s" to be pinned to the top of the viewport within %d pixel(s), but its top edge is at %s pixels.', $selector, $tolerance, $top), $this->getSession()->getDriver());
     }
 
     if ($is_inverted && $is_pinned) {
-      throw new ExpectationException(sprintf('Expected element "%s" to not be pinned to the top of the viewport, but its top edge is at %s pixels.', $selector, $top), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the element "%s" to not be pinned to the top of the viewport, but its top edge is at %s pixels.', $selector, $top), $this->getSession()->getDriver());
     }
   }
 
@@ -1208,13 +1208,13 @@ JS;
       }
 
       $message = $result === '__NONE__'
-        ? sprintf('Expected element "%s" to have keyboard focus, but no element is focused.', $selector)
-        : sprintf('Expected element "%s" to have keyboard focus, but focus is on: %s', $selector, $result);
+        ? sprintf('Expected the element "%s" to have keyboard focus, but no element is focused.', $selector)
+        : sprintf('Expected the element "%s" to have keyboard focus, but focus is on: %s', $selector, $result);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
 
     if ($result === '__OK__') {
-      throw new ExpectationException(sprintf('Expected element "%s" to not have keyboard focus, but it does.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the element "%s" to not have keyboard focus, but it does.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -1252,11 +1252,11 @@ JS;
     $is_visible = $has_outline || $has_shadow;
 
     if (!$is_inverted && !$is_visible) {
-      throw new ExpectationException(sprintf('Expected element "%s" to have a visible focus outline, but outline-style is "%s", outline-width is "%s", box-shadow is "%s".', $selector, $outline_style, $outline_width, $box_shadow), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the element "%s" to have a visible focus outline, but outline-style is "%s", outline-width is "%s", box-shadow is "%s".', $selector, $outline_style, $outline_width, $box_shadow), $this->getSession()->getDriver());
     }
 
     if ($is_inverted && $is_visible) {
-      throw new ExpectationException(sprintf('Expected element "%s" to not have a visible focus outline, but outline-style is "%s", outline-width is "%s", box-shadow is "%s".', $selector, $outline_style, $outline_width, $box_shadow), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the element "%s" to not have a visible focus outline, but outline-style is "%s", outline-width is "%s", box-shadow is "%s".', $selector, $outline_style, $outline_width, $box_shadow), $this->getSession()->getDriver());
     }
   }
 

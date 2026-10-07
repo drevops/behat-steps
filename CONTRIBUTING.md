@@ -38,7 +38,8 @@ of tests. Follow these guidelines:
   - A click reads `I click on the ...`: `I click on the link :link in the region :region`.
   - The viewport is `the viewport`, never `a viewport`.
   - A `<select>` is `the select :selector`, never `the select element :selector`.
-  - `ahoy lint-docs` rejects the replaced phrases, listed in `docs.php`'s `rejected_step_phrases()`, and an `I visit` step that names no page or link.
+  - An assertion negates with `should not`, never with the determiner `no` or the perfect tense: `an email should not be sent`, not `no emails should have been sent`.
+  - `ahoy lint-docs` rejects the replaced phrases, listed in `docs.php`'s `rejected_step_phrases()`, an `I visit` step that names no page or link, and a `Then` step that opens with `no`.
 
 - **`Given`**:
   - Defines test prerequisites—conditions or data that must exist before the
@@ -57,6 +58,7 @@ of tests. Follow these guidelines:
   - Start the step with the entity being asserted, e.g.,
     `Then the link with a title :title exists`.
   - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. Start with the entity being asserted.
+  - A qualifier that narrows the entity, such as `in the region :region`, `within the select :selector` or `on the element :element`, reads with it, before `should`: `the link :link in the region :region should exist`, not `the link :link should exist in the region :region`. A qualifier of the predicate's own object stays with the object, as in `the response should match the XSD schema in the file :filename`, and a step that takes a table or a PyString still names it last: `the meta tag should exist with the following attributes:`. `ahoy lint-docs` rejects a qualifier that ends the step after `exist` or `be <state>`.
   - Methods should include the `Assert` prefix, e.g., `userAssertHasRoles()`.
 
 We have some automated check for the steps format.
@@ -89,6 +91,16 @@ A step has none. A variation of a step is a step of its own. When 2 steps differ
 
 When leaving out a helper's string argument means "not given", the parameter defaults to `NULL`, with a nullable type, and `NULL` is the one value that means it: `contentVisitActionPageWithTitle()` opens the content page for a `NULL` subpath, and `configGet()` returns the whole configuration object for a `NULL` key. A parameter never defaults to an empty string, so `''` stays a value a caller passes on purpose: `cookieAssertExists()` skips the value check for `NULL` and asserts an empty value for `''`. A default that is a value in its own right stays, as `DrushBackend`'s `$binary = 'drush'` does. `tests/phpunit/src/OptionalParameterTest.php` rejects an empty-string default on every class, interface and trait under `src/`.
 
+## Failure messages
+
+A project's own tests assert on failure messages, so each one reads 1 way:
+
+- It names what it reports about the way its step does, with the article: `the element :selector` fails with `The element "..." is not displayed within the viewport.`, and `the config :name with the key :key` with `The config "..." with the key "..." ...`. A message reporting that nothing in a set matched keeps its quantifier, as `No hreflang alternate links were found on the page.` does.
+- It quotes every value it names in double quotes, the page URL included, and puts the noun before the value: `the attribute "..."`, not `the "..." attribute`.
+- It ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`.
+
+Which exception carries the message depends on what failed, as the [exception table](README.md#exceptions) lists. A missing element on the page or in an XML response is an `ElementNotFoundException`. An attribute, a JSON path or a table column isn't an element, so a missing one is an `ExpectationException`.
+
 ## Method naming conventions
 
 Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, action, helper verb, hook, lookup, word order, batch and spelling conventions below.
@@ -97,13 +109,13 @@ Every method a trait contributes begins with the trait's own name, so that trait
 
 ### Assertions
 
-An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` directly after the prefix and nowhere else. Every `Then` step is an assertion, and so is a helper that fails with an assertion exception, so it's `cookieAssertExists()`, not `cookieExists()`. `Assert` always says what it asserts: `messageAssertExistsOfType()`, not a bare `messageAssert()`.
+An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` directly after the prefix and nowhere else. Every `Then` step is an assertion, and so is a helper that only checks something and fails with an assertion exception, so it's `cookieAssertExists()`, not `cookieExists()`, and `xmlAssertResponseMatchesXsd()`, not `xmlValidateXsd()`. A helper that returns what it found or produced is named for that instead, even when a miss fails the step: `elementGetNth()` returns an element, `jsonGetValue()` the value at a JSON path and `jsonDecodeLoose()` the decoded value. `Assert` always says what it asserts: `messageAssertExistsOfType()`, not a bare `messageAssert()`.
 
 - **Existence**: never `Present`, `Absent` or `Missing`.
   - Singular subjects → `Exists` or `NotExists` (e.g., `fieldAssertExists()`, `taxonomyAssertVocabularyNotExists()`)
   - Plural subjects → `Exist` or `NotExist` (e.g., `redirectAssertExist()`)
 - **Containment**: always `Contains` or `NotContains`, never `Includes` (e.g., `xmlAssertElementContains()`, `responseAssertHeaderNotContains()`)
-- **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`. The subject is what the step asserts about, so `the row :row_text should contain the value :value` is `tableAssertRowContains()`, not `tableAssertTextInRow()`.
+- **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`. The subject is what the step asserts about, so `the row containing :partial_text should contain the value :value` is `tableAssertRowContains()`, not `tableAssertTextInRow()`.
 - **Qualifiers last**: a qualifier that narrows the subject, opened by a word such as `With`, `By`, `In`, `Within`, `Of` or `Containing`, follows the predicate, as in `mediaAssertExistsWithName()` and `blockAssertNotExistsInRegion()`. That keeps the slot after the subject free for `Not`: `cookieAssertNotExistsWithName()`, not `cookieAssertWithNameNotExists()`.
 - **`Has` names something the subject holds**, as in `userAssertHasRoles()` and `elementAssertHasKeyboardFocus()`. It never stands in for another predicate: a value compared against reads `Equals` or `Contains` (`stateAssertValueEquals()`, not `stateAssertHasValue()`), and entries that must be absent read `NotExist` (`watchdogAssertErrorsNotExist()`).
 - **No copula**: `Assert` already states that the subject is something, so `Is` is dropped - `elementAssertVisible()`, not `elementAssertIsVisible()`.
@@ -119,12 +131,12 @@ A check that throws `\RuntimeException` on a bad step argument or a missing prec
 | Instead of | Write |
 | --- | --- |
 | `userAssertHasNoRoles()` | `userAssertNotHasRoles()` |
-| `emailAssertNoMessagesSent()` | `emailAssertMessagesNotSent()` |
+| `emailAssertNoMessagesSent()` | `emailAssertMessageNotSent()` |
 | `userAssertIsNotBlocked()` | `userAssertNotBlocked()` |
 | `elementAssertIsVisuallyHidden()` | `elementAssertNotVisuallyVisible()` |
 | `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |
 
-The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out. `TraitMethodNamingTest` pairs every `should not` step with its `should` twin in the same trait and fails a pair whose method names differ by anything but `Not`.
+The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out. A method follows its step, so a step reading `should not` takes `Not`, while a step that names a state of its own takes that state's word: `the module :module should be disabled` is `moduleAssertDisabled()` and `the command should fail` is `commandAssertFailure()`, because the step asserts that state rather than negating another. `TraitMethodNamingTest` fails a `should not` step whose method carries no `Not`, and pairs every `should not` step with its `should` twin in the same trait, failing a pair whose method names differ by anything but `Not`.
 
 ### Actions
 
@@ -433,7 +445,7 @@ A reader also takes a single node, for a hook that ranks the 2 lines itself: `Re
 
 A consumer switches a trait's hooks off with `@behat-steps-skip:<TraitName>` on a scenario or a feature, or for a whole profile or context with the trait's `enabled` option. The tag names a trait and never a hook, and it switches off every hook that trait registers. `SkipTagListener` fails the run at scenario start on a skip tag whose value is not a trait name, so a tag that would switch nothing off cannot pass unnoticed.
 
-A scenario hook opens with the guard, naming its own trait:
+A scenario hook asks the guard in 1 of 2 shapes, naming its own trait. A hook that acts returns when its trait is skipped:
 
 ```php
 #[AfterScenario]
@@ -446,14 +458,27 @@ public function acmeAfterScenario(AfterScenarioScope $scope): void {
 }
 ```
 
+Resetting the trait's own properties may come before the guard, because a reset changes nothing a skipped scenario keeps. `bigPipeBeforeScenario()` clears its flags and then guards.
+
+A step hook's scope carries no scenario tags, and neither does a transform's, so a trait whose step hooks or transforms need the answer records it in a property instead:
+
+```php
+#[BeforeScenario]
+public function acmeBeforeScenario(BeforeScenarioScope $scope): void {
+  $this->acmeEnabled = !$this->skipTag(__TRAIT__, $scope);
+}
+```
+
+The hook assigns the answer rather than returning, so a property that defaults to on is switched off for a skipped scenario. `DateTrait` and `MappingTrait` read theirs in a transform and `WaitTrait` in a step hook, and an `AfterScenario` hook may read the same property instead of a guard of its own.
+
 `__TRAIT__` resolves to the trait the code is written in, so the guard cannot name the wrong trait or fall out of step with a rename.
 
-A step hook's scope carries no scenario tags, so it reads a flag its trait's `BeforeScenario` hook set behind the guard, and an `AfterScenario` hook may read the same flag instead of a guard of its own. Two other kinds of scenario hook carry no guard, because they have nothing to switch off:
+Two other kinds of scenario hook carry no guard, because they have nothing to switch off:
 
 - A hook that only resets in-memory state - its trait's own properties, or a static cache in this process - holds nothing a scenario would want to keep.
 - A hook that acts only on its trait's own activation tag, such as `@breakpoint:`, is switched off by removing the tag.
 
-`tests/phpunit/src/SkipGuardTest.php` holds all of this. It fails a scenario hook that is neither guarded nor listed in its `UNGUARDED_HOOKS` with a reason, a `skipTag()` call naming anything but `__TRAIT__`, and a trait that reads a skip tag directly.
+`tests/phpunit/src/SkipGuardTest.php` holds all of this. It fails a scenario hook that asks the guard in neither shape and isn't listed in its `UNGUARDED_HOOKS` with a reason, a `skipTag()` call naming anything but `__TRAIT__`, and a trait that reads a skip tag directly.
 
 ## Deciding whether a trait acts
 

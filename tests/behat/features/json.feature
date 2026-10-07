@@ -143,7 +143,7 @@ Feature: Check that JsonTrait works
       Then the JSON path "$.nonexistent" should exist
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       The JSON path "$.nonexistent" was not found.
       """

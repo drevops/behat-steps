@@ -34,7 +34,7 @@ Feature: Check that ElementTrait works
       Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should exist
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       The attribute "no-existing-attribute" does not exist on the element "html".
       """
@@ -276,7 +276,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      None of the elements defined by "#hidden" selector are visible on the page.
+      The element "#hidden" is not visible on the page.
       """
 
   @javascript @phpserver
@@ -295,7 +295,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element defined by "#top" selector is visible on the page, but it should not be.
+      The element "#top" is visible on the page, but it should not be.
       """
 
   @javascript @phpserver
@@ -319,7 +319,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is not displayed within the viewport with a top offset of 1000 pixels.
+      The element "#top" is not displayed within the viewport with a top offset of 1000 pixels.
       """
 
   @javascript @phpserver
@@ -344,7 +344,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#sr-only" selector is not displayed within the viewport.
+      The element "#sr-only" is not displayed within the viewport.
       """
 
   @test-trait:ElementTrait @test-skipped
@@ -359,7 +359,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is displayed within the viewport, but it should not be.
+      The element "#top" is displayed within the viewport, but it should not be.
       """
 
   @phpserver
@@ -399,7 +399,21 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The heading "Basic Elements" was found on the page http://cli:8888/elements.html.
+      The heading "Basic Elements" was found on the page "http://cli:8888/elements.html".
+      """
+
+  @test-trait:ElementTrait
+  Scenario: Assert "Then the button :button should not exist" fails when the button exists
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/elements.html"
+      Then the button "focus-button-outline" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The button "focus-button-outline" was found on the page "http://cli:8888/elements.html".
       """
 
   @phpserver
@@ -423,7 +437,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element "head" appears before "body".
+      The element "head" appears before the element "body".
       """
 
   @test-trait:ElementTrait
@@ -437,7 +451,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Text "Welcome" appears before "Copyright 2024".
+      The text "Welcome" appears before the text "Copyright 2024".
       """
 
   @test-trait:ElementTrait
@@ -479,7 +493,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Text was not found: "NonExistentText123".
+      The text "NonExistentText123" was not found.
       """
 
   @test-trait:ElementTrait
@@ -493,7 +507,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Text was not found: "NonExistentText123".
+      The text "NonExistentText123" was not found.
       """
 
   @javascript @phpserver
@@ -590,7 +604,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#focus-button-outline" to have keyboard focus, but focus is on:
+      Expected the element "#focus-button-outline" to have keyboard focus, but focus is on:
       """
 
   @test-trait:ElementTrait
@@ -605,7 +619,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#focus-input" to have keyboard focus, but no element is focused.
+      Expected the element "#focus-input" to have keyboard focus, but no element is focused.
       """
 
   @test-trait:ElementTrait
@@ -621,7 +635,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#focus-input" to not have keyboard focus, but it does.
+      Expected the element "#focus-input" to not have keyboard focus, but it does.
       """
 
   @test-trait:ElementTrait
@@ -651,7 +665,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#focus-button-no-outline" to have a visible focus outline, but outline-style is "none"
+      Expected the element "#focus-button-no-outline" to have a visible focus outline, but outline-style is "none"
       """
 
   @test-trait:ElementTrait
@@ -666,7 +680,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#focus-button-outline" to not have a visible focus outline, but outline-style is "solid"
+      Expected the element "#focus-button-outline" to not have a visible focus outline, but outline-style is "solid"
       """
 
   @javascript @phpserver
@@ -700,7 +714,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element with selector "#bottom" is not at the top of the viewport.
+      The element "#bottom" is not at the top of the viewport.
       """
 
   @test-trait:ElementTrait
@@ -728,7 +742,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      None of the elements defined by "#hidden" selector are visible on the page.
+      The element "#hidden" is not visible on the page.
       """
 
   @test-trait:ElementTrait
@@ -742,7 +756,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element defined by "#top" selector is visible on the page, but it should not be.
+      The element "#top" is visible on the page, but it should not be.
       """
 
   @test-trait:ElementTrait
@@ -756,7 +770,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#sr-only" selector is not displayed within the viewport.
+      The element "#sr-only" is not displayed within the viewport.
       """
 
   @test-trait:ElementTrait
@@ -770,7 +784,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is not displayed within the viewport with a top offset of 10000 pixels.
+      The element "#top" is not displayed within the viewport with a top offset of 10000 pixels.
       """
 
   @test-trait:ElementTrait
@@ -784,7 +798,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is displayed within the viewport with a top offset of 0 pixels, but it should not be.
+      The element "#top" is displayed within the viewport with a top offset of 0 pixels, but it should not be.
       """
 
   @test-trait:ElementTrait
@@ -798,7 +812,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Element(s) defined by "#top" selector is displayed within the viewport, but it should not be.
+      The element "#top" is displayed within the viewport, but it should not be.
       """
 
   @javascript @phpserver
@@ -1111,7 +1125,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#stack-low" to stack above the element "#stack-high", but it stacks below it: their effective z-indexes are 1 and 5.
+      Expected the element "#stack-low" to stack above the element "#stack-high", but it stacks below it: their effective z-indexes are 1 and 5.
       """
 
   @test-trait:ElementTrait
@@ -1126,7 +1140,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#stack-second" to stack below the element "#stack-first", but it stacks above it: both have an effective z-index of 0 and "#stack-first" comes earlier in the document.
+      Expected the element "#stack-second" to stack below the element "#stack-first", but it stacks above it: both have an effective z-index of 0 and "#stack-first" comes earlier in the document.
       """
 
   @test-trait:ElementTrait
@@ -1141,7 +1155,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#stack-behind" to stack above the element "#stack-parent", but it stacks below it: "#stack-behind" sits inside the stacking context of "#stack-parent" with an effective z-index of -1.
+      Expected the element "#stack-behind" to stack above the element "#stack-parent", but it stacks below it: "#stack-behind" sits inside the stacking context of "#stack-parent" with an effective z-index of -1.
       """
 
   @test-trait:ElementTrait
@@ -1156,7 +1170,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#stack-parent" to stack above the element "#stack-child", but it stacks below it: "#stack-child" sits inside the stacking context of "#stack-parent" with an effective z-index of 0.
+      Expected the element "#stack-parent" to stack above the element "#stack-child", but it stacks below it: "#stack-child" sits inside the stacking context of "#stack-parent" with an effective z-index of 0.
       """
 
   @javascript @phpserver
@@ -1201,7 +1215,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#not-pinned" to be pinned to the top of the viewport within 2 pixel(s), but its top edge is at
+      Expected the element "#not-pinned" to be pinned to the top of the viewport within 2 pixel(s), but its top edge is at
       """
 
   @test-trait:ElementTrait
@@ -1216,7 +1230,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#pinned-hidden" to be pinned to the top of the viewport, but it is not rendered.
+      Expected the element "#pinned-hidden" to be pinned to the top of the viewport, but it is not rendered.
       """
 
   @test-trait:ElementTrait
@@ -1231,7 +1245,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected element "#pinned-header" to not be pinned to the top of the viewport, but its top edge is at
+      Expected the element "#pinned-header" to not be pinned to the top of the viewport, but its top edge is at
       """
 
   @test-trait:ElementTrait

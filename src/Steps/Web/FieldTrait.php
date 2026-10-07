@@ -596,7 +596,7 @@ JS;
     $value = $field_element->getValue();
 
     if ($value !== NULL && $value !== '') {
-      throw new ExpectationException(sprintf('The field "%s" is not empty, but should be.', $field), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The field "%s" is not empty, but it should be.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -654,7 +654,7 @@ JS;
     $field_element = $field_element ?: $page->findById($field);
 
     if ($field_element !== NULL) {
-      throw new ExpectationException(sprintf('A field "%s" appears on this page, but it should not.', $field), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The field "%s" appears on this page, but it should not.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -673,11 +673,11 @@ JS;
     $field_element = $this->fieldAssertExists($field);
 
     if ($enabled_or_disabled === 'disabled' && !$field_element->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
     }
 
     if ($enabled_or_disabled !== 'disabled' && $field_element->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $field), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The field "%s" should not be disabled, but it is.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -702,7 +702,7 @@ JS;
       return;
     }
 
-    throw new ExpectationException(sprintf('The field "%s" is not marked as required, but should be.', $field), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('The field "%s" is not marked as required, but it should be.', $field), $this->getSession()->getDriver());
   }
 
   /**
@@ -745,7 +745,7 @@ JS;
     $actual = $this->getSession()->evaluateScript($script);
 
     if ($actual !== $value) {
-      throw new ExpectationException(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual), $this->getSession()->getDriver());
     }
   }
 
@@ -753,10 +753,10 @@ JS;
    * Assert that a select has an option.
    *
    * @code
-   * Then the option "Administrator" should exist within the select "edit-roles"
+   * Then the option "Administrator" within the select "edit-roles" should exist
    * @endcode
    */
-  #[Then('the option :option should exist within the select :selector')]
+  #[Then('the option :option within the select :selector should exist')]
   public function fieldAssertSelectOptionExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
 
@@ -775,10 +775,10 @@ JS;
    * Assert that a select does not have an option.
    *
    * @code
-   * Then the option "Guest" should not exist within the select "edit-roles"
+   * Then the option "Guest" within the select "edit-roles" should not exist
    * @endcode
    */
-  #[Then('the option :option should not exist within the select :selector')]
+  #[Then('the option :option within the select :selector should not exist')]
   public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
 
@@ -789,7 +789,7 @@ JS;
     $option_element = $select_element->find('named', ['option', $option]);
 
     if ($option_element !== NULL) {
-      throw new ExpectationException(sprintf('The option "%s" was found in the select "%s" on the page %s, but it should not exist.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The option "%s" was found in the select "%s" on the page "%s", but it should not exist.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
     }
   }
 
@@ -797,10 +797,10 @@ JS;
    * Assert that a select option is selected.
    *
    * @code
-   * Then the option "Administrator" should be selected within the select "edit-roles"
+   * Then the option "Administrator" within the select "edit-roles" should be selected
    * @endcode
    */
-  #[Then('the option :option should be selected within the select :selector')]
+  #[Then('the option :option within the select :selector should be selected')]
   public function fieldAssertSelectOptionSelected(string $option, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
     $path = $this->fieldCurrentPath();
@@ -819,7 +819,7 @@ JS;
     }
 
     if (!$option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was not selected on the page %s.', $option, $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The option "%s" was not selected on the page "%s".', $option, $path), $this->getSession()->getDriver());
     }
   }
 
@@ -827,10 +827,10 @@ JS;
    * Assert that a select option is not selected.
    *
    * @code
-   * Then the option "Editor" should not be selected within the select "edit-roles"
+   * Then the option "Editor" within the select "edit-roles" should not be selected
    * @endcode
    */
-  #[Then('the option :option should not be selected within the select :selector')]
+  #[Then('the option :option within the select :selector should not be selected')]
   public function fieldAssertSelectOptionNotSelected(string $option, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
     $path = $this->fieldCurrentPath();
@@ -846,7 +846,7 @@ JS;
     }
 
     if ($option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page %s, but it should not be.', $option, $selector, $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page "%s", but it should not be.', $option, $selector, $path), $this->getSession()->getDriver());
     }
   }
 
@@ -873,7 +873,7 @@ JS;
     }
 
     if (!$radio_button->isChecked()) {
-      throw new ExpectationException(sprintf('The radio button "%s" is not selected, but should be.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The radio button "%s" is not selected, but it should be.', $selector), $this->getSession()->getDriver());
     }
   }
 

@@ -1635,56 +1635,56 @@ Then the color field "#edit-background-color" should have the value "#FF5733"
 </details>
 
 <details>
-  <summary><code>@Then the option :option should exist within the select :selector</code></summary>
+  <summary><code>@Then the option :option within the select :selector should exist</code></summary>
 
 <br/>
 Assert that a select has an option
 <br/><br/>
 
 ```gherkin
-Then the option "Administrator" should exist within the select "edit-roles"
+Then the option "Administrator" within the select "edit-roles" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the option :option should not exist within the select :selector</code></summary>
+  <summary><code>@Then the option :option within the select :selector should not exist</code></summary>
 
 <br/>
 Assert that a select does not have an option
 <br/><br/>
 
 ```gherkin
-Then the option "Guest" should not exist within the select "edit-roles"
+Then the option "Guest" within the select "edit-roles" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the option :option should be selected within the select :selector</code></summary>
+  <summary><code>@Then the option :option within the select :selector should be selected</code></summary>
 
 <br/>
 Assert that a select option is selected
 <br/><br/>
 
 ```gherkin
-Then the option "Administrator" should be selected within the select "edit-roles"
+Then the option "Administrator" within the select "edit-roles" should be selected
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the option :option should not be selected within the select :selector</code></summary>
+  <summary><code>@Then the option :option within the select :selector should not be selected</code></summary>
 
 <br/>
 Assert that a select option is not selected
 <br/><br/>
 
 ```gherkin
-Then the option "Editor" should not be selected within the select "edit-roles"
+Then the option "Editor" within the select "edit-roles" should not be selected
 
 ```
 
@@ -3379,84 +3379,84 @@ Then the region "sidebar" should not contain the heading "Admin"
 </details>
 
 <details>
-  <summary><code>@Then the link :link should exist in the region :region</code></summary>
+  <summary><code>@Then the link :link in the region :region should exist</code></summary>
 
 <br/>
 Assert that a region contains the link
 <br/><br/>
 
 ```gherkin
-Then the link "About us" should exist in the region "footer"
+Then the link "About us" in the region "footer" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link should not exist in the region :region</code></summary>
+  <summary><code>@Then the link :link in the region :region should not exist</code></summary>
 
 <br/>
 Assert that a region does not contain the link
 <br/><br/>
 
 ```gherkin
-Then the link "Admin" should not exist in the region "footer"
+Then the link "Admin" in the region "footer" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the button :button should exist in the region :region</code></summary>
+  <summary><code>@Then the button :button in the region :region should exist</code></summary>
 
 <br/>
 Assert that a region contains the button
 <br/><br/>
 
 ```gherkin
-Then the button "Save" should exist in the region "content"
+Then the button "Save" in the region "content" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the button :button should not exist in the region :region</code></summary>
+  <summary><code>@Then the button :button in the region :region should not exist</code></summary>
 
 <br/>
 Assert that a region does not contain the button
 <br/><br/>
 
 ```gherkin
-Then the button "Delete" should not exist in the region "content"
+Then the button "Delete" in the region "content" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should exist in the region :region</code></summary>
+  <summary><code>@Then the element :selector in the region :region should exist</code></summary>
 
 <br/>
 Assert that a region contains an element matching the selector
 <br/><br/>
 
 ```gherkin
-Then the element "blockquote" should exist in the region "content"
+Then the element "blockquote" in the region "content" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should not exist in the region :region</code></summary>
+  <summary><code>@Then the element :selector in the region :region should not exist</code></summary>
 
 <br/>
 Assert that a region contains no element matching the selector
 <br/><br/>
 
 ```gherkin
-Then the element "blockquote" should not exist in the region "content"
+Then the element "blockquote" in the region "content" should not exist
 
 ```
 
@@ -3824,7 +3824,8 @@ Then the REST response should contain "success"
 >  - Assert table sort order by column.
 >  - Assert text values present in a specific table row.
 >  - Assert bulk row content against expected values.
->  - Click links and press buttons within a row identified by its text.
+>  - Click links and press buttons within a row identified by part of its
+>  text.
 
 
 ### Options
@@ -3835,28 +3836,28 @@ Then the REST response should contain "success"
 | `table.body_row_selector` | string | `'tbody tr'` | - | CSS selector of a table body row, relative to the table. |
 
 <details>
-  <summary><code>@When I click on the link :link in the row :row_text</code></summary>
+  <summary><code>@When I click on the link :link in the row containing :partial_text</code></summary>
 
 <br/>
 Click a link within a row
 <br/><br/>
 
 ```gherkin
-When I click on the link "Edit" in the row "Article title"
+When I click on the link "Edit" in the row containing "Article title"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I press the button :button in the row :row_text</code></summary>
+  <summary><code>@When I press the button :button in the row containing :partial_text</code></summary>
 
 <br/>
 Press a button within a row
 <br/><br/>
 
 ```gherkin
-When I press the button "Remove" in the row "Article title"
+When I press the button "Remove" in the row containing "Article title"
 
 ```
 
@@ -3968,14 +3969,14 @@ Then the table ".mytable" should contain the following rows:
 </details>
 
 <details>
-  <summary><code>@Then the row :row_text should contain the following:</code></summary>
+  <summary><code>@Then the row containing :partial_text should contain the following:</code></summary>
 
 <br/>
 Assert that a table row containing a text has the expected values
 <br/><br/>
 
 ```gherkin
-Then the row "Article title" should contain the following:
+Then the row containing "Article title" should contain the following:
   | Published |
   | admin     |
 
@@ -3984,56 +3985,56 @@ Then the row "Article title" should contain the following:
 </details>
 
 <details>
-  <summary><code>@Then the row :row_text should contain the value :value</code></summary>
+  <summary><code>@Then the row containing :partial_text should contain the value :value</code></summary>
 
 <br/>
 Assert that a row contains a value
 <br/><br/>
 
 ```gherkin
-Then the row "Article title" should contain the value "Published"
+Then the row containing "Article title" should contain the value "Published"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the row :row_text should not contain the value :value</code></summary>
+  <summary><code>@Then the row containing :partial_text should not contain the value :value</code></summary>
 
 <br/>
 Assert that a row does not contain a value
 <br/><br/>
 
 ```gherkin
-Then the row "Article title" should not contain the value "Unpublished"
+Then the row containing "Article title" should not contain the value "Unpublished"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link should exist in the row :row_text</code></summary>
+  <summary><code>@Then the link :link in the row containing :partial_text should exist</code></summary>
 
 <br/>
 Assert that a row contains the link
 <br/><br/>
 
 ```gherkin
-Then the link "Edit" should exist in the row "Article title"
+Then the link "Edit" in the row containing "Article title" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link should not exist in the row :row_text</code></summary>
+  <summary><code>@Then the link :link in the row containing :partial_text should not exist</code></summary>
 
 <br/>
 Assert that a row does not contain the link
 <br/><br/>
 
 ```gherkin
-Then the link "Delete" should not exist in the row "Article title"
+Then the link "Delete" in the row containing "Article title" should not exist
 
 ```
 
@@ -4762,28 +4763,28 @@ Then the block "My block" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the block :label should exist in the region :region</code></summary>
+  <summary><code>@Then the block :label in the region :region should exist</code></summary>
 
 <br/>
 Assert that a block with the specified label exists in a region
 <br/><br/>
 
 ```gherkin
-Then the block "My block" should exist in the region "content"
+Then the block "My block" in the region "content" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the block :label should not exist in the region :region</code></summary>
+  <summary><code>@Then the block :label in the region :region should not exist</code></summary>
 
 <br/>
 Assert that a block with the specified label does not exist in a region
 <br/><br/>
 
 ```gherkin
-Then the block "My block" should not exist in the region "content"
+Then the block "My block" in the region "content" should not exist
 
 ```
 
@@ -5876,28 +5877,28 @@ Then the number of emails sent with the subject "Welcome" should be 1
 </details>
 
 <details>
-  <summary><code>@Then no emails should have been sent</code></summary>
+  <summary><code>@Then an email should not be sent</code></summary>
 
 <br/>
-Assert that no email messages should be sent
+Assert that no email was sent
 <br/><br/>
 
 ```gherkin
-Then no emails should have been sent
+Then an email should not be sent
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then no emails should have been sent to the address :address</code></summary>
+  <summary><code>@Then an email should not be sent to the address :address</code></summary>
 
 <br/>
-Assert that no email messages should be sent to a specified address
+Assert that no email was sent to an address
 <br/><br/>
 
 ```gherkin
-Then no emails should have been sent to the address "user@example.com"
+Then an email should not be sent to the address "user@example.com"
 
 ```
 

@@ -222,7 +222,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | Before | After |
 | --- | --- |
 | `Then an email should be sent to the :address` | `Then an email should be sent to the address :address` |
-| `Then no emails should have been sent to the :address` | `Then no emails should have been sent to the address :address` |
+| `Then no emails should have been sent to the :address` | `Then an email should not be sent to the address :address` |
 | `Then the email header :header should exactly be:` | `Then the email header :header should be:` |
 
 ### FieldTrait
@@ -334,7 +334,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 
 | Before | After |
 | --- | --- |
-| `Then the :rowText row should contain the following:` | `Then the row :row_text should contain the following:` |
+| `Then the :rowText row should contain the following:` | `Then the row containing :partial_text should contain the following:` |
 
 ### TaxonomyTrait
 
@@ -414,7 +414,8 @@ The passes above still left steps that broke the step-text rules in [CONTRIBUTIN
 - Every noun takes an article: `on the element :element`, `to the URL :url`, `the system time`, `the last XML response`.
 - A value reads `the value :value`, so `should be equal to :value` became `should be equal to the value :value`.
 - A step that names its target compares against `:value`, so the region, row and command output assertions take `:value` where they took `:text`. `the modal should contain :text` keeps `:text`, because it asserts on a whole body with no named target.
-- A partial match reads `a <thing> containing :partial_<thing>`, as the cookie steps already did.
+- A qualifier that narrows the asserted subject, such as `in the region :region` or `within the select :selector`, reads with the subject before `should`: `the block :label in the region :region should exist`. A step that takes a table or a PyString still names it last.
+- A partial match reads `a <thing> containing :partial_<thing>`, as the cookie steps already did. The table row steps find a row by part of its text, so they read `the row containing :partial_text`, and their methods take `$partial_text` where they took `$row_text`.
 - `:param` became `:name`, the placeholder every other named thing uses, and an email link's position became `:index`, as it is in `I follow the link :link with the index :index`.
 
 Where a pass above already renamed a step, its row there now carries the final text instead of being repeated here, so each v3 step maps straight to its v4 form. That covers the query parameter, meta tag and table row steps, and the XML comparisons. Steps that are new in v4 changed only in the [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary).
@@ -441,8 +442,8 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 | `Given the instance of :admin_label block exists with the following configuration:` | `Given the instance of the block :admin_label exists with the following configuration:` |
 | `Given the block :label has the following :condition condition configuration:` | `Given the block :label has the condition :condition with the following configuration:` |
 | `Given the block :label has the :condition condition removed` | `Given the block :label has the condition :condition removed` |
-| `Then the block :label should exist in the :region region` | `Then the block :label should exist in the region :region` |
-| `Then the block :label should not exist in the :region region` | `Then the block :label should not exist in the region :region` |
+| `Then the block :label should exist in the :region region` | `Then the block :label in the region :region should exist` |
+| `Then the block :label should not exist in the :region region` | `Then the block :label in the region :region should not exist` |
 
 ### CommandTrait
 
@@ -582,16 +583,17 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 
 ## One wording per step idea
 
-A handful of ideas still read 2 ways after the passes above. Most navigation steps said `I visit the ... page`, while 2 dropped `page` and 3 said `I edit the ...` although they only open the edit form. A click was `I click on` in some traits and `I click` in others, the viewport was both `the viewport` and `a viewport`, a `<select>` was both `the select` and `the select element`, and an email address was `:address` in one trait and `:mail` in another. Each idea now reads 1 way:
+A handful of ideas still read 2 ways after the passes above. Most navigation steps said `I visit the ... page`, while 2 dropped `page` and 3 said `I edit the ...` although they only open the edit form. A click was `I click on` in some traits and `I click` in others, the viewport was both `the viewport` and `a viewport`, a `<select>` was both `the select` and `the select element`, an email address was `:address` in one trait and `:mail` in another, and an email that must not be sent was both `an email should not be sent` and `no emails should have been sent`. Each idea now reads 1 way:
 
 - A step that opens a page reads `I visit the ... page` and names the page it opens.
 - A click reads `I click on the ...`.
 - The viewport is `the viewport`, and a `<select>` is `the select :selector`.
 - An email address is `:address` everywhere, and an email link's position reads `WithIndex` in the method names, as it already did in the step text.
+- An email that must not be sent reads `an email should not be sent`, as the 2 content checks already did, so each negative pairs with the positive `an email should be sent ...`.
 
 `ahoy lint-docs` and `TraitMethodNamingTest` reject the replaced forms, so they don't come back.
 
-The media, ECK and content block navigation steps and the 2 viewport offset steps were already renamed by a pass above, so their rows there carry the final text. `I click on the link :link in the region :region` and `I click on the link :link in the row :row_text` are new in v4, so only their [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary) rows change. The steps below changed in this pass alone.
+The media, ECK and content block navigation steps and the 2 viewport offset steps were already renamed by a pass above, so their rows there carry the final text. `I click on the link :link in the region :region` and `I click on the link :link in the row containing :partial_text` are new in v4, so only their [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary) rows change. The steps below changed in this pass alone.
 
 ### ElementTrait
 
@@ -600,14 +602,22 @@ The media, ECK and content block navigation steps and the 2 viewport offset step
 | `Then the element :selector should be displayed within a viewport` | `Then the element :selector should be displayed within the viewport` |
 | `Then the element :selector should not be displayed within a viewport` | `Then the element :selector should not be displayed within the viewport` |
 
+### EmailTrait
+
+| Before | After |
+| --- | --- |
+| `Then no emails should have been sent` | `Then an email should not be sent` |
+
+`Then no emails should have been sent to the :address` changed in an earlier pass, so its row under [Unified step text](#unified-step-text) carries the final text.
+
 ### FieldTrait
 
 | Before | After |
 | --- | --- |
-| `Then the option :option should exist within the select element :selector` | `Then the option :option should exist within the select :selector` |
-| `Then the option :option should not exist within the select element :selector` | `Then the option :option should not exist within the select :selector` |
-| `Then the option :option should be selected within the select element :selector` | `Then the option :option should be selected within the select :selector` |
-| `Then the option :option should not be selected within the select element :selector` | `Then the option :option should not be selected within the select :selector` |
+| `Then the option :option should exist within the select element :selector` | `Then the option :option within the select :selector should exist` |
+| `Then the option :option should not exist within the select element :selector` | `Then the option :option within the select :selector should not exist` |
+| `Then the option :option should be selected within the select element :selector` | `Then the option :option within the select :selector should be selected` |
+| `Then the option :option should not be selected within the select element :selector` | `Then the option :option within the select :selector should not be selected` |
 
 ### Method names
 
@@ -656,8 +666,8 @@ A taxonomy term's name, a role and a file name each had 2 placeholder names: `:t
 
 | Trait | Before | After |
 | --- | --- | --- |
-| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport. | Element(s) defined by "..." selector is not displayed within the viewport. |
-| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport with a top offset of N pixels. | Element(s) defined by "..." selector is not displayed within the viewport with a top offset of N pixels. |
+| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport. | The element "..." is not displayed within the viewport. |
+| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport with a top offset of N pixels. | The element "..." is not displayed within the viewport with a top offset of N pixels. |
 | Drupal\EmailTrait | The link number must be a positive integer, but "..." was provided. | The link index must be a positive integer, but "..." was provided. |
 | Drupal\EmailTrait | The link with number N was not found among N links. | The link with the index N was not found among N links. |
 
@@ -921,7 +931,7 @@ The suite registers `Behat\MinkExtension\Context\MinkContext` for the base brows
 
 ### Regions
 
-Every region step drops the optional `( region)` suffix and names the region last, so one phrasing covers each action.
+Every region step drops the optional `( region)` suffix, so one phrasing covers each action. An action names the region last, and an assertion names it with the subject it narrows, before `should`.
 
 | Before | After |
 | --- | --- |
@@ -935,14 +945,14 @@ Every region step drops the optional `( region)` suffix and names the region las
 | `Then I should not see( the text) :text in the :region( region)` | `Then the region :region should not contain the value :value` |
 | `Then I should see the heading :heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
 | `Then I should see the :heading heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
-| `Then I should see the link :link in the :region( region)` | `Then the link :link should exist in the region :region` |
-| `Then I should not see the link :link in the :region( region)` | `Then the link :link should not exist in the region :region` |
-| `Then I should see the button :button in the :region( region)` | `Then the button :button should exist in the region :region` |
-| `Then I should see the :button button in the :region( region)` | `Then the button :button should exist in the region :region` |
-| `Then I should not see the button :button in the :region( region)` | `Then the button :button should not exist in the region :region` |
-| `Then I should not see the :button button in the :region( region)` | `Then the button :button should not exist in the region :region` |
-| `Then I should see the :tag element in the :region( region)` | `Then the element :selector should exist in the region :region` |
-| `Then I should not see the :tag element in the :region( region)` | `Then the element :selector should not exist in the region :region` |
+| `Then I should see the link :link in the :region( region)` | `Then the link :link in the region :region should exist` |
+| `Then I should not see the link :link in the :region( region)` | `Then the link :link in the region :region should not exist` |
+| `Then I should see the button :button in the :region( region)` | `Then the button :button in the region :region should exist` |
+| `Then I should see the :button button in the :region( region)` | `Then the button :button in the region :region should exist` |
+| `Then I should not see the button :button in the :region( region)` | `Then the button :button in the region :region should not exist` |
+| `Then I should not see the :button button in the :region( region)` | `Then the button :button in the region :region should not exist` |
+| `Then I should see the :tag element in the :region( region)` | `Then the element :selector in the region :region should exist` |
+| `Then I should not see the :tag element in the :region( region)` | `Then the element :selector in the region :region should not exist` |
 | `Then I should see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should have the value :value` |
 | `Then I should not see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should not have the value :value` |
 | `Then I should see the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector in the region :region should have the attribute :attribute with the value :value` |
@@ -976,12 +986,12 @@ The message tables lose their header row: each row is a message, with no `error 
 
 | Before | After |
 | --- | --- |
-| `Given I click :link in the :rowText row` | `When I click on the link :link in the row :row_text` |
-| `Given I press :button in the :rowText row` | `When I press the button :button in the row :row_text` |
-| `Then I should see the text :text in the :rowText row` | `Then the row :row_text should contain the value :value` |
-| `Then I should not see the text :text in the :rowText row` | `Then the row :row_text should not contain the value :value` |
-| `Then I should see the :link in the :rowText row` | `Then the link :link should exist in the row :row_text` |
-| `Then I should not see the :link in the :rowText row` | `Then the link :link should not exist in the row :row_text` |
+| `Given I click :link in the :rowText row` | `When I click on the link :link in the row containing :partial_text` |
+| `Given I press :button in the :rowText row` | `When I press the button :button in the row containing :partial_text` |
+| `Then I should see the text :text in the :rowText row` | `Then the row containing :partial_text should contain the value :value` |
+| `Then I should not see the text :text in the :rowText row` | `Then the row containing :partial_text should not contain the value :value` |
+| `Then I should see the :link in the :rowText row` | `Then the link :link in the row containing :partial_text should exist` |
+| `Then I should not see the :link in the :rowText row` | `Then the link :link in the row containing :partial_text should not exist` |
 
 ### Mail
 
@@ -1435,7 +1445,8 @@ Assertion steps used to throw whatever their trait happened to reach for: `Expec
 | --- | --- |
 | An assertion fails and the step can reach the page | `Behat\Mink\Exception\ExpectationException` |
 | An assertion fails and the step has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
-| An expected element, field, link or selector is missing | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An element the step locates is missing, on the page or in an XML response: a field, link, button, select, table or row | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An attribute, a JSON path or a table column is missing. None of them is an element | `Behat\Mink\Exception\ExpectationException` |
 | Anything that is not an assertion - an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
 | A step needs a driver capability the current driver lacks | `Behat\Mink\Exception\UnsupportedDriverActionException` |
 | No backend the scenario lists provides a capability the step needs | `DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException`, a `\RuntimeException` |
@@ -1455,12 +1466,12 @@ If your project catches an exception from one of these steps, update the type:
 | `Drupal\WatchdogTrait` (the check for PHP errors logged during a scenario) | `ExpectationException` | `AssertionException` |
 | `MetatagTrait` (all `Then` steps) | `\Exception` | `ExpectationException`; `ElementNotFoundException` when the meta tag itself is missing; `\RuntimeException` when an hreflang alternate page returns an HTTP error |
 | `XmlTrait` (`the response should be in XML format`) | `\RuntimeException` | `ExpectationException` |
-| `FieldTrait` (`the option ... should (not) exist within the select ...`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select or a missing option, `ExpectationException` for an option that exists but should not |
+| `FieldTrait` (`the option ... within the select ... should (not) exist`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select or a missing option, `ExpectationException` for an option that exists but should not |
 | `Drupal\CacheTrait` (`the page cache for the path(s) ... is empty`) | `\InvalidArgumentException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...`) | `\InvalidArgumentException` | `\RuntimeException` |
 | `TableTrait` (any table step, when the table or the row is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `ModalTrait` (`I close the modal`, `I click on the element ... in the modal`, `the modal should (not) contain ...`, when the close button, the content element or the target element is missing) | `ExpectationException` | `ElementNotFoundException` |
-| `FieldTrait` (`I unselect the option ... from the select ...` and `the option ... should not be selected within the select ...`, when the option is missing; `I fill in the multi-value field ...`, when an input row is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `FieldTrait` (`I unselect the option ... from the select ...` and `the option ... within the select ... should not be selected`, when the option is missing; `I fill in the multi-value field ...`, when an input row is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `XmlTrait` (every `the XML element ...` and `the XML attribute ... on the element ...` step, when the element is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `JsonTrait` (an invalid JSONPath expression, an invalid regular expression, a count that is not an integer, a schema that is not JSON) | `ExpectationException` | `\RuntimeException` |
 | `TableTrait` (`the table ... should be sorted by the column ... in ... order`, with a direction other than `ascending` or `descending`) | `ExpectationException` | `\RuntimeException` |
@@ -1478,10 +1489,10 @@ If your project catches an exception from one of these steps, update the type:
 | Step | Was | Now |
 | --- | --- | --- |
 | `the response should be in XML format` | `Failed to load XML. Errors: ...` | `The response is not valid XML: ...` |
-| `the option :option should exist within the select :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
-| `the option :option should not exist within the select :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but it should not exist.` |
+| `the option :option within the select :selector should exist` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
+| `the option :option within the select :selector should not exist` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page "...", but it should not exist.` |
 | `I unselect the option :option from the select :selector` | `The option "..." was not found in the select "...".` | `Option in the select "..." with value\|text "..." not found.` |
-| `the option :option should not be selected within the select :selector` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
+| `the option :option within the select :selector should not be selected` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
 | `I fill in the multi-value field :field with the following values:` | `Could not locate input row N for multi-value field "...".` | `Input row of the multi-value field "..." with index "N" not found.` |
 | every `the table ...` step, when the table is missing | `Table with selector "..." not found.` | `Table matching css "..." not found.` |
 | every `... the row ...` step, when the row is missing | `Table row containing text "..." not found.` | `Table row with text "..." not found.` |
@@ -1509,22 +1520,28 @@ Behat reports every one of these as a failed step either way, so a scenario that
 
 ## Failure messages read one way
 
-A failure message quotes the values it names in double quotes, puts the noun before the value it names (`the attribute "..."`, not `the "..." attribute`), ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
+A failure message names what it reports about the way its step does, with the article: `the element :selector` fails with `The element "..."` and `the config :name with the key :key` with `The config "..." with the key "..."`. It quotes the values it names in double quotes, the page URL included, puts the noun before the value it names (`the attribute "..."`, not `the "..." attribute`), ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
 
 | Trait | Before | After |
 | --- | --- | --- |
 | Drupal\BlockTrait | The block "..." exists but should not. | The block "..." exists, but it should not. |
-| Drupal\BlockTrait | Block "..." is in region "..." but should not be. | Block "..." is in region "...", but it should not be. |
-| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which contains "..." but should not. | The config "..." key "..." has the ... "...", which contains "...", but it should not. |
-| Drupal\FileTrait | File contents "..." contains "...", but should not. | File contents "..." contains "...", but it should not. |
+| Drupal\BlockTrait | Block "..." is in region "..." but should not be. | The block "..." is in the region "...", but it should not be. |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which contains "..." but should not. | The config "..." with the key "..." has the ... "...", which contains "...", but it should not. |
+| Drupal\ConfigTrait | The config "..." key "..." is not set, but it should have the ... "...". | The config "..." with the key "..." is not set, but it should have the ... "...". |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", but it should have the ... "...". | The config "..." with the key "..." has the ... "...", but it should have the ... "...". |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", but it should not have the ... "...". | The config "..." with the key "..." has the ... "...", but it should not have the ... "...". |
+| Drupal\ConfigTrait | The config "..." key "..." is not set, but its ... should contain "...". | The config "..." with the key "..." is not set, but its ... should contain "...". |
+| Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which does not contain "...". | The config "..." with the key "..." has the ... "...", which does not contain "...". |
+| Drupal\FileTrait | File contents "..." contains "...", but should not. | The file content "..." contains "...", but it should not. |
 | LinkTrait | The link href "..." matches the specified href "..." but should not. | The link href "..." matches the specified href "...", but it should not. |
 | LinkTrait | The link with the title "..." exists, but should not. | The link with the title "..." exists, but it should not. |
-| ElementTrait | Element defined by "..." selector is visible on the page, but should not be. | Element defined by "..." selector is visible on the page, but it should not be. |
-| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but should not be. | Element(s) defined by "..." selector is displayed within the viewport with a top offset of N pixels, but it should not be. |
-| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport, but should not be. | Element(s) defined by "..." selector is displayed within the viewport, but it should not be. |
+| ElementTrait | Element defined by "..." selector is visible on the page, but should not be. | The element "..." is visible on the page, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but should not be. | The element "..." is displayed within the viewport with a top offset of N pixels, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport, but should not be. | The element "..." is displayed within the viewport, but it should not be. |
 | FieldTrait | The field "..." is empty, but should not be. | The field "..." is empty, but it should not be. |
 | FieldTrait | The field "..." is marked as required, but should not be. | The field "..." is marked as required, but it should not be. |
-| FieldTrait | The option "..." was selected in the select "..." on the page ..., but should not be. | The option "..." was selected in the select "..." on the page ..., but it should not be. |
+| FieldTrait | The option "..." was selected in the select "..." on the page ..., but should not be. | The option "..." was selected in the select "..." on the page "...", but it should not be. |
+| FieldTrait | The option "..." was not selected on the page .... | The option "..." was not selected on the page "...". |
 | FieldTrait | The radio button "..." is selected, but should not be. | The radio button "..." is selected, but it should not be. |
 | FileDownloadTrait | Found file partially named "..." in archive but should not. | Found file partially named "..." in archive, but it should not. |
 | ResponseTrait | The response contains the header "...", but should not. | The response contains the header "...", but it should not. |
@@ -1544,7 +1561,7 @@ A failure message quotes the values it names in double quotes, puts the noun bef
 | Drupal\FileTrait | The file "..." exists but it should not. | The file "..." exists, but it should not. |
 | CookieTrait | The cookie with name "..." was set but it should not be. | The cookie with name "..." was set, but it should not be. |
 | CookieTrait | The cookie with name containing "..." was set but it should not be. | The cookie with name containing "..." was set, but it should not be. |
-| Drupal\BlockTrait | Block "..." is in region "..." but should be in "...". | Block "..." is in region "...", but it should be in "...". |
+| Drupal\BlockTrait | Block "..." is in region "..." but should be in "...". | The block "..." is in the region "...", but it should be in the region "...". |
 | Drupal\EmailTrait | Invalid email field ... was specified for assertion. | Invalid email field "..." was specified for assertion. |
 | MetatagTrait | Failed to fetch the hreflang alternate page "...". | Failed to fetch the hreflang alternate page "...": .... |
 | FileDownloadTrait | Unable to download file from URL .... | Unable to download file from URL "...". |
@@ -1557,6 +1574,46 @@ A failure message quotes the values it names in double quotes, puts the noun bef
 | ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it does not have a value "...". | The attribute "..." exists on the element "..." with a value "...", but it does not have a value "...". |
 | ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it does not contain a value "...". | The attribute "..." exists on the element "..." with a value "...", but it does not contain a value "...". |
 | MetatagTrait | The "..." meta tag contains HTML tags: .... | The meta tag "..." contains HTML tags: .... |
+| Drupal\EmailTrait | No emails should have been sent, but some were found: ... | An email was sent, but it should not have been: ... |
+| ElementTrait | Element "..." appears before "...". | The element "..." appears before the element "...". |
+| ElementTrait | Text was not found: "...". | The text "..." was not found. |
+| ElementTrait | Text "..." appears before "...". | The text "..." appears before the text "...". |
+| ElementTrait | Element with selector "..." is not at the top of the viewport. | The element "..." is not at the top of the viewport. |
+| ElementTrait | Element with selector "..." is not centered in the viewport. | The element "..." is not centered in the viewport. |
+| ElementTrait | None of the elements defined by "..." selector are visible on the page. | The element "..." is not visible on the page. |
+| ElementTrait | Expected element "..." to ... (the stacking, pinned, keyboard focus and focus outline messages) | Expected the element "..." to ... |
+| FieldTrait | The field "..." is not empty, but should be. | The field "..." is not empty, but it should be. |
+| FieldTrait | The field "..." is not marked as required, but should be. | The field "..." is not marked as required, but it should be. |
+| FieldTrait | The radio button "..." is not selected, but should be. | The radio button "..." is not selected, but it should be. |
+| FieldTrait | A field "..." appears on this page, but it should not. | The field "..." appears on this page, but it should not. |
+| FieldTrait | A field "..." should be disabled, but it is not. | The field "..." should be disabled, but it is not. |
+| FieldTrait | A field "..." should not be disabled, but it is. | The field "..." should not be disabled, but it is. |
+| FieldTrait | Color field "..." expected a value "..." but has a value "...". | The color field "..." expected a value "..." but has a value "...". |
+| TableTrait | Expected table "..." to ... (the row count, column count, empty and not empty messages) | Expected the table "..." to ... |
+| TableTrait | Expected table "..." to be sorted by "..." in ... order. Actual values: .... | Expected the table "..." to be sorted by the column "..." in ... order. Actual values: .... |
+| TableTrait | Column "..." not found in table "...". Available columns: .... | The column "..." was not found in the table "...". Available columns: .... |
+| TableTrait | Row N with values [...] not found in table "...". | The table "..." does not contain the row N with the values [...]. |
+| TableTrait | Row containing "..." does not contain expected text "...". | The row containing "..." does not contain the text "...". |
+| Drupal\UserTrait | User "..." does not have role(s) "...", but has roles "...". | The user "..." does not have role(s) "...", but has roles "...". |
+| Drupal\UserTrait | User "..." should not have role(s) "...", but has "...". | The user "..." should not have role(s) "...", but has "...". |
+| Drupal\UserTrait | User with email "..." is expected to exist, but they do not. | The user with the email "..." is expected to exist, but they do not. |
+| Drupal\UserTrait | User with email "..." is expected to not exist, but they do. | The user with the email "..." is expected to not exist, but they do. |
+| Drupal\UserTrait | User "..." is expected to be blocked, but they are not. | The user "..." is expected to be blocked, but they are not. |
+| Drupal\UserTrait | User "..." is expected to not be blocked, but they are. | The user "..." is expected to not be blocked, but they are. |
+| Drupal\QueueTrait | Expected queue "..." to have N items, but it has N. | Expected the queue "..." to have N items, but it has N. |
+| Drupal\QueueTrait | Expected queue "..." to be empty, but it has N items. | Expected the queue "..." to be empty, but it has N items. |
+| Drupal\FileTrait | File contents "..." does not contain "...". | The file content "..." does not contain "...". |
+| FileDownloadTrait | Downloaded file "...", but expected "...". | The downloaded file name is "...", but expected "...". |
+| MetatagTrait | Meta tag with specified attributes should not exist: .... | The meta tag with the attributes "..." exists, but it should not. |
+| RestTrait | Expected response status code N, but got N. | Expected the REST response status code to be N, but got N. |
+| PathTrait | Current path is "...", but expected is "...". | The current path is "...", but it should be "...". |
+| PathTrait | Current path should not be "...". | The current path should not be "...", but it is. |
+| Drupal\ContentTrait | "..." content with the title "..." should ... (the 3 existence and publishing messages) | The "..." content with the title "..." should ... |
+| FileDownloadTrait | Downloaded file name "..." does not contain "...". | The downloaded file name "..." does not contain "...". |
+| FileDownloadTrait | Downloaded file does not have correct headers set for ZIP. | The downloaded file does not have correct headers set for ZIP. |
+| FileDownloadTrait | Downloaded file is not a valid ZIP file. | The downloaded file is not a valid ZIP file. |
+| Drupal\EmailTrait | Unable to find email that should be sent to "..." retrieved from test email collector. | Unable to find an email that should be sent to "..." retrieved from test email collector. |
+| Drupal\EmailTrait | Unable to find email with subject "..." retrieved from test email collector. (also `with subject containing`) | Unable to find an email with the subject "..." retrieved from test email collector. (also `with the subject containing`) |
 
 ## Tightened public surface
 
@@ -1662,8 +1719,8 @@ Method names carried 6 shapes for "assert the negative", 2 spellings of "normali
 
 | Trait | Old | New |
 | --- | --- | --- |
-| `Drupal\EmailTrait` | `emailAssertNoMessagesSent()` | `emailAssertMessagesNotSent()` |
-| `Drupal\EmailTrait` | `emailAssertNoMessagesSentToAddress()` | `emailAssertMessagesNotSentToAddress()` |
+| `Drupal\EmailTrait` | `emailAssertNoMessagesSent()` | `emailAssertMessageNotSent()` |
+| `Drupal\EmailTrait` | `emailAssertNoMessagesSentToAddress()` | `emailAssertMessageNotSentToAddress()` |
 | `Drupal\FileTrait` | `fileAssertUnmanagedHasNoContent()` | `fileAssertUnmanagedNotContains()` |
 | `Drupal\UserTrait` | `userAssertHasNoRoles()` | `userAssertNotHasRoles()` |
 | `Drupal\UserTrait` | `userAssertIsBlocked()` | `userAssertBlocked()` |
@@ -1785,6 +1842,8 @@ Only the name changes. Each method keeps its body, its parameters, its return ty
 | `DiagnosticsTrait` | `diagnosticsGetUrl()` | `diagnosticsFindUrl()` | returns `NULL` |
 | `ElementTrait` | `elementFindNthOrFail()` | `elementGetNth()` | throws `ElementNotFoundException`, or `ExpectationException` past the last match |
 | `FileDownloadTrait` | `fileDownloadAssertLinkPresent()` (protected) | `fileDownloadGetLink()` | throws `ElementNotFoundException` |
+| `JsonTrait` | `jsonResolveSingle()` (protected) | `jsonGetValue()` | throws `ExpectationException` |
+| `JsonTrait` | `jsonResolveScalar()` (protected) | `jsonGetScalar()` | throws `ExpectationException` |
 | `MetatagTrait` | `metatagGetCanonicalHref()` | `metatagFindCanonicalHref()` | returns `NULL` |
 | `MetatagTrait` | `metatagGetMetaContent()` | `metatagFindMetaContent()` | returns `NULL` |
 | `ModalTrait` | `modalFindVisible()` | `modalGetVisible()` | throws `ExpectationException` |
@@ -1793,6 +1852,8 @@ Only the name changes. Each method keeps its body, its parameters, its return ty
 The 2 `MenuTrait` lookups go straight to their `Find` names, listed under [Trait methods prefixed with their trait name](#trait-methods-prefixed-with-their-trait-name). A lookup that already matched its contract keeps its name, such as `tableFindRowByText()`, `modalFind()`, `metatagFindMeta()` and `emailFindMessage()`.
 
 `webformTemplates()` carried no verb at all, and `fileDownloadAssertLinkPresent()` was named as an assertion although it returns the link it finds, so both take the lookup verb for what they do.
+
+`Resolve` derives a value from its input, as `restResolveUrl()` does, so the 2 JSON path lookups take `Get` and drop `Single`. A JSON `null` is a value the path matches, so `jsonGetValue()` returns `NULL` for it and throws only when the path matches nothing or more than 1 value.
 
 ### A qualifier follows the predicate
 
@@ -1826,7 +1887,7 @@ An assertion that narrows its subject with a qualifier, such as a cookie's name 
 | `MetatagTrait` | `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |
 | `TableTrait` | `tableAssertMultipleTextsInRow()` | `tableAssertRowContainsMultiple()` |
 
-The subject is what the step asserts about. `ElementTrait`'s attribute steps assert that an element exists, so the attribute and its value join the qualifier, and `LinkTrait` drops `Text`, which named how the step finds the link: `the link :link with the href :href should exist` is `linkAssertExistsWithHref()`. `the row :row_text should contain the following:` asserts about the row, so `TableTrait` names it first.
+The subject is what the step asserts about. `ElementTrait`'s attribute steps assert that an element exists, so the attribute and its value join the qualifier, and `LinkTrait` drops `Text`, which named how the step finds the link: `the link :link with the href :href should exist` is `linkAssertExistsWithHref()`. `the row containing :partial_text should contain the following:` asserts about the row, so `TableTrait` names it first.
 
 `Drupal\EmailTrait::emailAssertMessageSentToAddressWithContentNotContaining()` negates its content check rather than the send, so `Not` can't move into the predicate slot without changing what it asserts, and `emailAssertMessageNotSentToAddressWithContentContaining()` already asserts the other thing. The message sent to the address becomes the subject instead:
 
@@ -1888,10 +1949,12 @@ The step text follows the method: `the meta robots should include :directive` is
 
 ### An assertion names its predicate
 
-An assertion says what it asserts after its subject: a compared value reads `Equals`, a set that must be present reads `Exist`, and validity reads `Valid` after the subject, as `commandAssertOutputEquals()` and `metatagAssertHreflangValid()` do. 7 assertions named no predicate or put `Valid` ahead of the subject. Step text is unchanged.
+An assertion says what it asserts after its subject: a compared value reads `Equals`, a set that must be present reads `Exist`, validity reads `Valid` after the subject, and a check the subject must pass reads `Passes`, as `commandAssertOutputEquals()`, `metatagAssertHreflangValid()` and `accessibilityAssertCurrentPagePasses()` do. 9 assertions named no predicate or put `Valid` ahead of the subject. Step text is unchanged.
 
 | Trait | Old | New |
 | --- | --- | --- |
+| `AccessibilityTrait` | `accessibilityAssertCurrentPage()` | `accessibilityAssertCurrentPagePasses()` |
+| `AccessibilityTrait` | `accessibilityAssertCurrentPageForTags()` | `accessibilityAssertCurrentPagePassesForTags()` |
 | `CommandTrait` | `commandAssertExitCode()` | `commandAssertExitCodeEquals()` |
 | `FileDownloadTrait` | `fileDownloadAssertFileName()` | `fileDownloadAssertFileNameEquals()` |
 | `MetatagTrait` | `metatagAssertOpenGraphTags()` | `metatagAssertOpenGraphTagsExist()` |
@@ -1902,7 +1965,7 @@ An assertion says what it asserts after its subject: a compared value reads `Equ
 
 ### Only an assertion is named `Assert`
 
-A method that fails with an assertion exception is named as an assertion, whether or not it registers a step. A method that only rejects a bad step argument or a missing precondition throws `\RuntimeException` instead, so it isn't an assertion and is named for what it does.
+A method that only checks something and fails with an assertion exception is named as an assertion, whether or not it registers a step. A method that only rejects a bad step argument or a missing precondition throws `\RuntimeException` instead, so it isn't an assertion and is named for what it does.
 
 | Trait | Old | New |
 | --- | --- | --- |
@@ -1911,6 +1974,14 @@ A method that fails with an assertion exception is named as an assertion, whethe
 | `CommandTrait` | `commandAssertHasRun()` (protected) | `commandRequireRun()` |
 | `CookieTrait` | `cookieExists()` | `cookieAssertExists()` |
 | `CookieTrait` | `cookieNotExists()` | `cookieAssertNotExists()` |
+| `JsonTrait` | `jsonValidateSchema()` (protected) | `jsonAssertResponseMatchesSchema()` |
+| `XmlTrait` | `xmlValidateXsd()` (protected) | `xmlAssertResponseMatchesXsd()` |
+| `XmlTrait` | `xmlValidateRelaxNg()` (protected) | `xmlAssertResponseMatchesRelaxNg()` |
+| `XmlTrait` | `xmlValidateDtd()` (protected) | `xmlAssertResponseMatchesDtd()` |
+| `XmlTrait` | `xmlValidateRssFeed()` (protected) | folded into `xmlAssertRssFeedValid()` |
+| `XmlTrait` | `xmlValidateAtomFeed()` (protected) | folded into `xmlAssertAtomFeedValid()` |
+
+The schema steps take a PyString or a file name, so the 4 schema checks stay helpers that take the schema source, and name the response they check. The 2 feed checks take no argument, exactly like the steps that called them, so a context calls or overrides the step method instead.
 
 The protected `Drupal\EmailTrait::emailAssertLinkNumber()`, `CommandTrait::commandAssertInteger()` and `CommandTrait::commandAssertNumeric()` are gone rather than renamed. A step parses its number with `StringTrait::stringParseInteger()` or `StringTrait::stringParseNumber()` instead, as [A step method takes only what its step binds](#a-step-method-takes-only-what-its-step-binds) describes.
 

@@ -111,7 +111,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Downloaded file name "text.txt" does not contain "nonexistent"
+      The downloaded file name "text.txt" does not contain "nonexistent"
       """
 
   @download
@@ -176,7 +176,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Downloaded file "text.txt", but expected "wrong_name.txt"
+      The downloaded file name is "text.txt", but expected "wrong_name.txt"
       """
 
   @test-trait:FileDownloadTrait
@@ -325,7 +325,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Downloaded file is not a valid ZIP file.
+      The downloaded file is not a valid ZIP file.
       """
 
   @test-trait:FileDownloadTrait
@@ -356,7 +356,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Downloaded file does not have correct headers set for ZIP.
+      The downloaded file does not have correct headers set for ZIP.
       """
 
   @test-trait:FileDownloadTrait

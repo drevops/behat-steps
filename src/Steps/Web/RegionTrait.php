@@ -106,7 +106,7 @@ trait RegionTrait {
   #[Then('the region :region should contain the value :value')]
   public function regionAssertContainsText(string $region, string $value): void {
     if (!str_contains($this->regionGet($region)->getText(), $value)) {
-      throw new ExpectationException(sprintf('The text "%s" was not found in the region "%s" on the page %s.', $value, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The text "%s" was not found in the region "%s" on the page "%s".', $value, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -120,7 +120,7 @@ trait RegionTrait {
   #[Then('the region :region should not contain the value :value')]
   public function regionAssertNotContainsText(string $region, string $value): void {
     if (str_contains($this->regionGet($region)->getText(), $value)) {
-      throw new ExpectationException(sprintf('The text "%s" was found in the region "%s" on the page %s.', $value, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The text "%s" was found in the region "%s" on the page "%s".', $value, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -153,7 +153,7 @@ trait RegionTrait {
   public function regionAssertNotContainsHeading(string $region, string $heading): void {
     foreach ($this->regionGet($region)->findAll('css', 'h1, h2, h3, h4, h5, h6') as $element) {
       if (trim($element->getText()) === $heading) {
-        throw new ExpectationException(sprintf('The heading "%s" was found in the region "%s" on the page %s.', $heading, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('The heading "%s" was found in the region "%s" on the page "%s".', $heading, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
       }
     }
   }
@@ -162,10 +162,10 @@ trait RegionTrait {
    * Assert that a region contains the link.
    *
    * @code
-   * Then the link "About us" should exist in the region "footer"
+   * Then the link "About us" in the region "footer" should exist
    * @endcode
    */
-  #[Then('the link :link should exist in the region :region')]
+  #[Then('the link :link in the region :region should exist')]
   public function regionAssertLinkExists(string $link, string $region): void {
     if (!$this->regionGet($region)->findLink($link) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the region "%s"', $region), 'id|title|alt|text', $link);
@@ -176,13 +176,13 @@ trait RegionTrait {
    * Assert that a region does not contain the link.
    *
    * @code
-   * Then the link "Admin" should not exist in the region "footer"
+   * Then the link "Admin" in the region "footer" should not exist
    * @endcode
    */
-  #[Then('the link :link should not exist in the region :region')]
+  #[Then('the link :link in the region :region should not exist')]
   public function regionAssertLinkNotExists(string $link, string $region): void {
     if ($this->regionGet($region)->findLink($link) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The link "%s" was found in the region "%s" on the page %s.', $link, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The link "%s" was found in the region "%s" on the page "%s".', $link, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -190,10 +190,10 @@ trait RegionTrait {
    * Assert that a region contains the button.
    *
    * @code
-   * Then the button "Save" should exist in the region "content"
+   * Then the button "Save" in the region "content" should exist
    * @endcode
    */
-  #[Then('the button :button should exist in the region :region')]
+  #[Then('the button :button in the region :region should exist')]
   public function regionAssertButtonExists(string $button, string $region): void {
     if (!$this->regionGet($region)->findButton($button) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('button in the region "%s"', $region), 'id|name|title|alt|value', $button);
@@ -204,13 +204,13 @@ trait RegionTrait {
    * Assert that a region does not contain the button.
    *
    * @code
-   * Then the button "Delete" should not exist in the region "content"
+   * Then the button "Delete" in the region "content" should not exist
    * @endcode
    */
-  #[Then('the button :button should not exist in the region :region')]
+  #[Then('the button :button in the region :region should not exist')]
   public function regionAssertButtonNotExists(string $button, string $region): void {
     if ($this->regionGet($region)->findButton($button) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The button "%s" was found in the region "%s" on the page %s.', $button, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The button "%s" was found in the region "%s" on the page "%s".', $button, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -218,10 +218,10 @@ trait RegionTrait {
    * Assert that a region contains an element matching the selector.
    *
    * @code
-   * Then the element "blockquote" should exist in the region "content"
+   * Then the element "blockquote" in the region "content" should exist
    * @endcode
    */
-  #[Then('the element :selector should exist in the region :region')]
+  #[Then('the element :selector in the region :region should exist')]
   public function regionAssertElementExists(string $selector, string $region): void {
     if ($this->regionGet($region)->findAll('css', $selector) === []) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('element in the region "%s"', $region), 'css', $selector);
@@ -232,13 +232,13 @@ trait RegionTrait {
    * Assert that a region contains no element matching the selector.
    *
    * @code
-   * Then the element "blockquote" should not exist in the region "content"
+   * Then the element "blockquote" in the region "content" should not exist
    * @endcode
    */
-  #[Then('the element :selector should not exist in the region :region')]
+  #[Then('the element :selector in the region :region should not exist')]
   public function regionAssertElementNotExists(string $selector, string $region): void {
     if ($this->regionGet($region)->findAll('css', $selector) !== []) {
-      throw new ExpectationException(sprintf('The element "%s" was found in the region "%s" on the page %s.', $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The element "%s" was found in the region "%s" on the page "%s".', $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -265,7 +265,7 @@ trait RegionTrait {
   public function regionAssertElementNotEquals(string $selector, string $region, string $value): void {
     foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
       if (trim($element->getText()) === $value) {
-        throw new ExpectationException(sprintf('The text "%s" was found in the element "%s" in the region "%s" on the page %s.', $value, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('The text "%s" was found in the element "%s" in the region "%s" on the page "%s".', $value, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
       }
     }
   }
@@ -285,7 +285,7 @@ trait RegionTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('No element "%s" in the region "%s" has the attribute "%s" with the value "%s" on the page %s.', $selector, $region, $attribute, $value, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('The element "%s" in the region "%s" does not have the attribute "%s" with the value "%s" on the page "%s".', $selector, $region, $attribute, $value, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
   }
 
   /**
@@ -300,7 +300,7 @@ trait RegionTrait {
     $element = $this->regionGetElementByText($region, $selector, $text);
 
     if ($element->getAttribute($attribute) !== $value) {
-      throw new ExpectationException(sprintf('The element "%s" with the text "%s" in the region "%s" does not have the attribute "%s" with the value "%s" on the page %s.', $selector, $text, $region, $attribute, $value, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The element "%s" with the text "%s" in the region "%s" does not have the attribute "%s" with the value "%s" on the page "%s".', $selector, $text, $region, $attribute, $value, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -376,7 +376,7 @@ trait RegionTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('The text "%s" was not found in the element "%s" in the region "%s" on the page %s.', $text, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('The text "%s" was not found in the element "%s" in the region "%s" on the page "%s".', $text, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
   }
 
 }

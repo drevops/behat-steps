@@ -249,7 +249,7 @@ trait EmailTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('Unable to find email that should be sent to "%s" retrieved from test email collector.', $address), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('Unable to find an email that should be sent to "%s" retrieved from test email collector.', $address), $this->getSession()->getDriver());
   }
 
   /**
@@ -321,29 +321,29 @@ trait EmailTrait {
   }
 
   /**
-   * Assert that no email messages should be sent.
+   * Assert that no email was sent.
    *
    * @code
-   * Then no emails should have been sent
+   * Then an email should not be sent
    * @endcode
    */
-  #[Then('no emails should have been sent')]
-  public function emailAssertMessagesNotSent(): void {
+  #[Then('an email should not be sent')]
+  public function emailAssertMessageNotSent(): void {
     $messages = $this->emailGetCollectedMessages();
     if (count($messages) > 0) {
-      throw new ExpectationException('No emails should have been sent, but some were found: ' . PHP_EOL . print_r($messages, TRUE), $this->getSession()->getDriver());
+      throw new ExpectationException('An email was sent, but it should not have been:' . PHP_EOL . print_r($messages, TRUE), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert that no email messages should be sent to a specified address.
+   * Assert that no email was sent to an address.
    *
    * @code
-   * Then no emails should have been sent to the address "user@example.com"
+   * Then an email should not be sent to the address "user@example.com"
    * @endcode
    */
-  #[Then('no emails should have been sent to the address :address')]
-  public function emailAssertMessagesNotSentToAddress(string $address): void {
+  #[Then('an email should not be sent to the address :address')]
+  public function emailAssertMessageNotSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->stringSplitCommaSeparated((string) $message['to']);
       if (in_array($address, $to, TRUE)) {
@@ -457,7 +457,7 @@ trait EmailTrait {
    */
   #[Then('an email should not be sent to the address :address with the content:')]
   public function emailAssertMessageNotSentToAddressWithContent(string $address, PyStringNode $string): void {
-    $this->emailAssertMessagesNotSentToAddress($address);
+    $this->emailAssertMessageNotSentToAddress($address);
     $this->emailAssertMessageFieldNotEquals('body', $string);
   }
 
@@ -473,7 +473,7 @@ trait EmailTrait {
    */
   #[Then('an email should not be sent to the address :address with the content containing:')]
   public function emailAssertMessageNotSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
-    $this->emailAssertMessagesNotSentToAddress($address);
+    $this->emailAssertMessageNotSentToAddress($address);
     $this->emailAssertMessageFieldNotContains('body', $string);
   }
 
@@ -774,7 +774,7 @@ trait EmailTrait {
     $message = $this->emailFindMessageBySubject($subject, $is_partial);
 
     if ($message === NULL) {
-      throw new ExpectationException(sprintf('Unable to find email with subject%s "%s" retrieved from test email collector.', $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Unable to find an email with the subject%s "%s" retrieved from test email collector.', $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
     }
 
     return $message;

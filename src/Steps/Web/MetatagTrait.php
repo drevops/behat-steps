@@ -97,7 +97,7 @@ trait MetatagTrait {
       }
 
       if ($all_attributes_matched) {
-        throw new ExpectationException(sprintf('Meta tag with specified attributes should not exist: %s.', json_encode($attributes)), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('The meta tag with the attributes "%s" exists, but it should not.', json_encode($attributes)), $this->getSession()->getDriver());
       }
     }
   }

@@ -304,7 +304,7 @@ Feature: Check that ContentTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      "page" content with the title "[TEST] Exists page" should not exist, but it does (nid:
+      The "page" content with the title "[TEST] Exists page" should not exist, but it does (nid:
       """
 
   Scenario: Assert "When I rebuild the access grants for the :content_type content with the title :title" works as expected
@@ -502,7 +502,7 @@ Feature: Check that ContentTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      "page" content with the title "[TEST] Unpublished page title" should be published, but it is not (nid:
+      The "page" content with the title "[TEST] Unpublished page title" should be published, but it is not (nid:
       """
 
   @test-trait:Drupal\ContentTrait
@@ -518,7 +518,7 @@ Feature: Check that ContentTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      "page" content with the title "[TEST] Published page title" should not be published, but it is (nid:
+      The "page" content with the title "[TEST] Published page title" should not be published, but it is (nid:
       """
 
   @test-trait:Drupal\ContentTrait

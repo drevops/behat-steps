@@ -25,7 +25,7 @@ Feature: Check that TableTrait works
       Then the table ".nonexistent" should have 1 row
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
       Table matching css ".nonexistent" not found.
       """
@@ -42,7 +42,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-asc" to have 99 row(s), but found 3.
+      Expected the table ".table-asc" to have 99 row(s), but found 3.
       """
 
   @test-trait:TableTrait
@@ -87,7 +87,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-asc" to have 99 column(s), but found 3.
+      Expected the table ".table-asc" to have 99 column(s), but found 3.
       """
 
   @test-trait:TableTrait
@@ -123,9 +123,9 @@ Feature: Check that TableTrait works
         | NonExistent |
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
-      Column "NonExistent" not found in table ".table-asc".
+      The column "NonExistent" was not found in the table ".table-asc".
       """
 
   @phpserver
@@ -146,7 +146,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-asc" to be empty, but found 3 row(s).
+      Expected the table ".table-asc" to be empty, but found 3 row(s).
       """
 
   @phpserver
@@ -167,7 +167,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-empty" to not be empty, but it has no rows.
+      Expected the table ".table-empty" to not be empty, but it has no rows.
       """
 
   @phpserver
@@ -209,7 +209,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-desc" to be sorted by "Name" in ascending order.
+      Expected the table ".table-desc" to be sorted by the column "Name" in ascending order.
       """
 
   @test-trait:TableTrait
@@ -224,7 +224,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Column "NonExistent" not found in table ".table-asc".
+      The column "NonExistent" was not found in the table ".table-asc".
       """
 
   @phpserver
@@ -250,100 +250,101 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      not found in table ".table-asc".
+      The table ".table-asc" does not contain the row 1 with the values [Non Existent].
       """
 
   @phpserver
-  Scenario: Assert "Then the row :row_text should contain the following:" works as expected
+  Scenario: Assert "Then the row containing :partial_text should contain the following:" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    Then the row "Alpha item" should contain the following:
+    Then the row containing "Alpha item" should contain the following:
       | Type A  |
       | Active  |
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row :row_text should contain the following:" fails when row not found
+  Scenario: Assert "Then the row containing :partial_text should contain the following:" fails when row not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the row "NonExistent" should contain the following:
+      Then the row containing "NonExistent" should contain the following:
         | some text |
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
       Table row with text "NonExistent" not found.
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row :row_text should contain the following:" fails when text not found in row
+  Scenario: Assert "Then the row containing :partial_text should contain the following:" fails when text not found in row
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the row "Alpha item" should contain the following:
+      Then the row containing "Alpha item" should contain the following:
         | NonExistent |
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Row containing "Alpha item" does not contain expected text "NonExistent".
+      The row containing "Alpha item" does not contain the text "NonExistent".
       """
 
   @phpserver
-  Scenario: Assert "When I click on the link :link in the row :row_text" works as expected
+  Scenario: Assert "When I click on the link :link in the row containing :partial_text" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    And I click on the link "Edit" in the row "Epsilon record"
+    And I click on the link "Edit" in the row containing "Epsilon record"
     Then the current URL should have the query parameter "edit" with the value "epsilon"
 
   @phpserver
-  Scenario: Assert "When I press the button :button in the row :row_text" works as expected
+  Scenario: Assert "When I press the button :button in the row containing :partial_text" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    And I press the button "Remove" in the row "Epsilon record"
+    And I press the button "Remove" in the row containing "Epsilon record"
     Then the current URL should have the query parameter "remove" with the value "epsilon"
 
   @phpserver
-  Scenario: Assert "Then the row :row_text should contain the value :value" works as expected
+  Scenario: Assert "Then the row containing :partial_text should contain the value :value" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    Then the row "Delta record" should contain the value "Draft"
-    And the row "Delta record" should not contain the value "Published"
+    Then the row containing "Delta record" should contain the value "Draft"
+    And the row containing "Delta record" should not contain the value "Published"
+    And the row containing "Delta" should contain the value "Draft"
 
   @phpserver
-  Scenario: Assert "Then the link :link should exist in the row :row_text" works as expected
+  Scenario: Assert "Then the link :link in the row containing :partial_text should exist" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    Then the link "Edit" should exist in the row "Delta record"
-    And the link "Edit" should not exist in the row "Zeta record"
+    Then the link "Edit" in the row containing "Delta record" should exist
+    And the link "Edit" in the row containing "Zeta record" should not exist
 
   @test-trait:TableTrait
-  Scenario: Assert "When I click on the link :link in the row :row_text" fails when the row has no such link
+  Scenario: Assert "When I click on the link :link in the row containing :partial_text" fails when the row has no such link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      And I click on the link "Edit" in the row "Zeta record"
+      And I click on the link "Edit" in the row containing "Zeta record"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
       Link in the row containing "Zeta record" with id|title|alt|text "Edit" not found.
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "When I press the button :button in the row :row_text" fails when the row has no such button
+  Scenario: Assert "When I press the button :button in the row containing :partial_text" fails when the row has no such button
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      And I press the button "Remove" in the row "Zeta record"
+      And I press the button "Remove" in the row containing "Zeta record"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -352,13 +353,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row :row_text should contain the value :value" fails when no row has the text
+  Scenario: Assert "Then the row containing :partial_text should contain the value :value" fails when no row has the text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the row "Omega record" should contain the value "Draft"
+      Then the row containing "Omega record" should contain the value "Draft"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -367,13 +368,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row :row_text should contain the value :value" fails when the row lacks the value
+  Scenario: Assert "Then the row containing :partial_text should contain the value :value" fails when the row lacks the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the row "Delta record" should contain the value "Published"
+      Then the row containing "Delta record" should contain the value "Published"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -382,13 +383,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row :row_text should not contain the value :value" fails when the row has the value
+  Scenario: Assert "Then the row containing :partial_text should not contain the value :value" fails when the row has the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the row "Delta record" should not contain the value "Draft"
+      Then the row containing "Delta record" should not contain the value "Draft"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -397,13 +398,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the link :link should exist in the row :row_text" fails when the row has no such link
+  Scenario: Assert "Then the link :link in the row containing :partial_text should exist" fails when the row has no such link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the link "Edit" should exist in the row "Zeta record"
+      Then the link "Edit" in the row containing "Zeta record" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -412,13 +413,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the link :link should not exist in the row :row_text" fails when the row has the link
+  Scenario: Assert "Then the link :link in the row containing :partial_text should not exist" fails when the row has the link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the link "Edit" should not exist in the row "Delta record"
+      Then the link "Edit" in the row containing "Delta record" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

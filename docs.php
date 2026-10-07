@@ -1596,8 +1596,19 @@ function validate(array $info): array {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "should" in the step');
         }
 
-        if (!(str_contains($step, ' the ') || str_contains($step, ' a ') || str_contains($step, ' no '))) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "the", "a" or "no" in the step');
+        if (!(str_contains($step, ' the ') || str_contains($step, ' a ') || str_contains($step, ' an '))) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "the", "a" or "an" in the step');
+        }
+
+        if (str_starts_with($step, '@Then no ')) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Then step negates with "no" but should negate with "should not"');
+        }
+
+        // A qualifier after "exist" or "be <state>" narrows the subject. One after
+        // a predicate's own object, as in "should match the XSD schema in the
+        // file :filename", narrows that object, so it stays.
+        if (preg_match('/ should (?:not )?(?:exist|be [a-z]+) (?:in|within|on|at|from) the [a-z]+(?: [a-z]+)* :[a-z_]+$/', $step) === 1) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Qualifier follows the predicate but should precede "should" with the subject it narrows');
         }
       }
 
@@ -1853,6 +1864,7 @@ function rejected_step_phrases(): array {
     'I edit the ' => 'I visit the ... edit page',
     ' a viewport' => ' the viewport',
     'the select element ' => 'the select ',
+    ' should have been ' => ' should be ',
   ];
 }
 

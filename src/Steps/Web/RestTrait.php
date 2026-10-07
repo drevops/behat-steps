@@ -101,7 +101,7 @@ trait RestTrait {
     $actual = $this->getSession()->getStatusCode();
 
     if ($actual !== $code) {
-      throw new ExpectationException(sprintf('Expected response status code %d, but got %d.', $code, $actual), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the REST response status code to be %d, but got %d.', $code, $actual), $this->getSession()->getDriver());
     }
   }
 

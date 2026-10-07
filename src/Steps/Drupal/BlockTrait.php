@@ -288,13 +288,13 @@ trait BlockTrait {
    *   The region to check for the block
    *
    * @code
-   *   Then the block "My block" should exist in the region "content"
+   *   Then the block "My block" in the region "content" should exist
    * @endcode
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no block with the specified label is found in the given region.
    */
-  #[Then('the block :label should exist in the region :region')]
+  #[Then('the block :label in the region :region should exist')]
   public function blockAssertExistsInRegion(string $label, string $region): void {
     $this->blockAssertExists($label);
     $block = $this->blockFindByLabel($label);
@@ -302,7 +302,7 @@ trait BlockTrait {
     $actual_region = $block->getRegion();
 
     if ($actual_region !== $region) {
-      throw new ExpectationException(sprintf('Block "%s" is in region "%s", but it should be in "%s".', $label, $actual_region, $region), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The block "%s" is in the region "%s", but it should be in the region "%s".', $label, $actual_region, $region), $this->getSession()->getDriver());
     }
   }
 
@@ -315,13 +315,13 @@ trait BlockTrait {
    *   The region to check for the block
    *
    * @code
-   *   Then the block "My block" should not exist in the region "content"
+   *   Then the block "My block" in the region "content" should not exist
    * @endcode
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When block with the specified label is found in the given region.
    */
-  #[Then('the block :label should not exist in the region :region')]
+  #[Then('the block :label in the region :region should not exist')]
   public function blockAssertNotExistsInRegion(string $label, string $region): void {
     $this->blockAssertExists($label);
     $block = $this->blockFindByLabel($label);
@@ -329,7 +329,7 @@ trait BlockTrait {
     $actual_region = $block->getRegion();
 
     if ($actual_region === $region) {
-      throw new ExpectationException(sprintf('Block "%s" is in region "%s", but it should not be.', $label, $region), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The block "%s" is in the region "%s", but it should not be.', $label, $region), $this->getSession()->getDriver());
     }
   }
 

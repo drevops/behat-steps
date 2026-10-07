@@ -41,7 +41,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Current path is "/user/login", but expected is "/nonexisting"
+      The current path is "/user/login", but it should be "/nonexisting"
       """
 
   @test-trait:PathTrait
@@ -56,7 +56,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Current path is "/user/login", but expected is "<front>"
+      The current path is "/user/login", but it should be "<front>"
       """
 
   @test-trait:PathTrait
@@ -71,7 +71,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Current path is "/user/login", but expected is "/"
+      The current path is "/user/login", but it should be "/"
       """
 
   @test-trait:PathTrait
@@ -86,7 +86,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Current path should not be "/user/login"
+      The current path should not be "/user/login", but it is.
       """
 
   @test-trait:PathTrait
@@ -101,7 +101,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Current path should not be "/"
+      The current path should not be "/", but it is.
       """
 
   @test-trait:PathTrait
@@ -116,7 +116,7 @@ Feature: Check that PathTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Current path should not be "<front>"
+      The current path should not be "<front>", but it is.
       """
 
   Scenario: Assert that URL has query parameter with a specific value

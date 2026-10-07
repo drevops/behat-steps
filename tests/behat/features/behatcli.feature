@@ -83,7 +83,7 @@ Feature: Behat CLI context
         Scenario: Anonymous user visits homepage # features/drupal_bootstrap.feature:2
           Given I go to the homepage             # Behat\MinkExtension\Context\MinkContext::iAmOnHomepage()
           And the path should be "/nonexisting"  # FeatureContext::pathAssertCurrent()
-            Current path is "/", but expected is "/nonexisting". (Behat\Mink\Exception\ExpectationException)
+            The current path is "/", but it should be "/nonexisting". (Behat\Mink\Exception\ExpectationException)
 
       --- Failed scenarios:
 

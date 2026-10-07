@@ -327,7 +327,7 @@ trait ContentTrait {
     $nids = $this->queryNodeIds($content_type, ['title' => $title]);
 
     if (!empty($nids)) {
-      throw new ExpectationException(sprintf('"%s" content with the title "%s" should not exist, but it does (nid: %s).', $content_type, $title, implode(', ', $nids)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The "%s" content with the title "%s" should not exist, but it does (nid: %s).', $content_type, $title, implode(', ', $nids)), $this->getSession()->getDriver());
     }
   }
 
@@ -343,7 +343,7 @@ trait ContentTrait {
     $node = $this->contentGetNodeByTitle($content_type, $title);
 
     if (!$node->isPublished()) {
-      throw new ExpectationException(sprintf('"%s" content with the title "%s" should be published, but it is not (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The "%s" content with the title "%s" should be published, but it is not (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
     }
   }
 
@@ -359,7 +359,7 @@ trait ContentTrait {
     $node = $this->contentGetNodeByTitle($content_type, $title);
 
     if ($node->isPublished()) {
-      throw new ExpectationException(sprintf('"%s" content with the title "%s" should not be published, but it is (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The "%s" content with the title "%s" should not be published, but it is (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
     }
   }
 

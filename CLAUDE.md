@@ -100,13 +100,14 @@ ahoy copy-files
     (`the media type :media_type`)
   - Any other placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`, `a REST :method request`) also come first
   - A step never opens with a placeholder: `the :content_type content with the title :title should not exist`
-  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, the names in `docs.php`'s `non_descriptive_placeholders()` and `placeholder_synonyms()`, the phrases in `rejected_step_phrases()`, and an `I visit` step that names no page or link
+  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, the names in `docs.php`'s `non_descriptive_placeholders()` and `placeholder_synonyms()`, the phrases in `rejected_step_phrases()`, an `I visit` step that names no page or link, a `Then` step that opens with `no`, and a qualifier ending a `Then` step after `exist` or `be <state>`
 
 - **Settled Wording**: each idea reads 1 way
   - A step that opens a page reads `I visit the ... page` and names the page: `I visit the :content_type content edit page with the title :title`, never `I edit the ...`
   - Its method opens with `Visit` and names the page as the step does: `contentVisitEditPageWithTitle()`, `userVisitProfileEditPage()`. `TraitMethodNamingTest` enforces it
   - A click reads `I click on the ...`, the viewport is `the viewport`, and a `<select>` is `the select :selector`
   - A second `with` qualifier on an action repeats `With` in the method name, in step-text order: `emailFollowLinkWithIndexWithSubjectContaining()`
+  - An assertion negates with `should not`, never with the determiner `no` or the perfect tense: `an email should not be sent`, not `no emails should have been sent`
 
 - **Given Steps**:
   - Define test prerequisites
@@ -127,6 +128,7 @@ ahoy copy-files
   - Use `should` and `should not` for assertions
   - Start with the entity being asserted
   - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step
+  - A qualifier that narrows the asserted entity reads with it, before `should`: `the link :link in the region :region should exist`. A qualifier of the predicate's object stays with it (`should match the XSD schema in the file :filename`), and a table or PyString argument still comes last: `the meta tag should exist with the following attributes:`
   - Methods should include the `Assert` prefix
 
 ## Exception Types
@@ -136,13 +138,16 @@ Which exception a step throws is part of the public contract - consumers catch o
 | Failure | Throw |
 | --- | --- |
 | An assertion failed and the trait has a Mink session | `Behat\Mink\Exception\ExpectationException`, with `$this->getSession()->getDriver()` as the second argument |
-| An expected element, field, link or selector is missing | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An element the step locates is missing - on the page or in an XML response: a field, link, button, select, table or row | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An attribute, a JSON path or a table column is missing - none of them is an element | `Behat\Mink\Exception\ExpectationException` |
 | An assertion failed and the trait has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
 | Not an assertion: an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
 | The current browser driver lacks a required capability | `Behat\Mink\Exception\UnsupportedDriverActionException` |
 | No backend the scenario lists provides a required capability | `DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException` |
 
 Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
+
+A failure message names its subject the way its step does, with the article (`The element "..."`, `The config "..." with the key "..."`), or keeps its quantifier when nothing in a set matched (`No hreflang alternate links were found on the page.`), quotes every value it names, the page URL included, ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. See "Failure messages" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 A trait without a Mink session is one that never calls `$this->getSession()` - `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Do not add a session to a trait just to reach `ExpectationException`.
 
@@ -151,7 +156,7 @@ In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an ass
 ## Common Behat Step Patterns
 - Block assertions:
   - `the block "..." should exist`
-  - `the block "..." should exist in the region "..."`
+  - `the block "..." in the region "..." should exist`
 
 - Content block operations:
   - `the content block type "..." should exist`
@@ -168,7 +173,7 @@ A trait's hooks are switched off by adding the `@behat-steps-skip:TRAIT_NAME` ta
 
 Example: To skip the hooks of `EmailTrait`, add `@behat-steps-skip:EmailTrait` tag to the feature.
 
-A scenario hook opens with `if ($this->skipTag(__TRAIT__, $scope)) { return; }`. A scenario hook with nothing to switch off carries no guard and is listed with its reason in `UNGUARDED_HOOKS` in `tests/phpunit/src/SkipGuardTest.php`. See the "Skipping a trait's hooks" section of [CONTRIBUTING.md](CONTRIBUTING.md).
+A scenario hook opens with `if ($this->skipTag(__TRAIT__, $scope)) { return; }`, with only resets of the trait's own properties before it. A trait whose step hooks or transforms need the answer records it in a property instead: `$this->dateEnabled = !$this->skipTag(__TRAIT__, $scope);`. A scenario hook with nothing to switch off carries no guard and is listed with its reason in `UNGUARDED_HOOKS` in `tests/phpunit/src/SkipGuardTest.php`. See the "Skipping a trait's hooks" section of [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Reading Tags
 Never call `hasTag()` or `getTags()` directly. Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, and `hasTag()` compares strictly, so a bare-name comparison that matches on one major fails on the other. Read tags through `DrevOps\BehatSteps\Behat\Tag` instead. A trait reads a tag only through `Tag::has($scope, self::X_TAG)` for a flag, `Tag::values($scope, self::X_TAG)` for the values of `@x:VALUE` tags, and `Tag::valueStates($scope, self::X_TAG)` for the on/off state of each value of `@x:VALUE`/`@x:!VALUE` tags. Passing the scope reads the scenario plus its feature, so a tag on the `Feature:` line applies to every scenario below it; a single node is passed only by a hook that ranks the 2 lines itself. Every tag a trait reads is named in a prefixed constant (`TESTMODE_TAG`) and listed in `tag_registry()` in `docs.php`, never written as a string literal; `Tag::JAVASCRIPT` names Mink's `@javascript`, the only tag a hook attribute filters on (`#[BeforeScenario('@javascript')]`); a hook reads any other tag in its body. `TagReadTest` and `DocsTest` enforce this. `Tag::all()`, `Tag::on()` and `Tag::normalize()` return raw lists for code outside the traits. Nothing outside `Tag` calls `getTags()` or `hasTag()`. See the "Reading tags" section of [CONTRIBUTING.md](CONTRIBUTING.md).
