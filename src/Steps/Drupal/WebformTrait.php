@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use Drupal\webform\WebformInterface;
 
 /**
  * Manage Drupal webforms.
@@ -72,16 +73,33 @@ trait WebformTrait {
       throw new \RuntimeException(sprintf('No webform template matching "%s" was found.', $template));
     }
 
-    $source = reset($templates);
+    $this->webformCreateFromTemplate($title, reset($templates));
+  }
 
+  /**
+   * Create a webform as a copy of a template.
+   *
+   * The webform is removed after the scenario.
+   *
+   * @param string $title
+   *   The title of the new webform.
+   * @param \Drupal\webform\WebformInterface $template
+   *   The template to copy.
+   *
+   * @return \Drupal\webform\WebformInterface
+   *   The new webform.
+   */
+  public function webformCreateFromTemplate(string $title, WebformInterface $template): WebformInterface {
     /** @var \Drupal\webform\WebformInterface $clone */
-    $clone = $source->createDuplicate();
+    $clone = $template->createDuplicate();
     $clone->set('title', $title);
     $clone->set('id', $this->webformMachineName($title));
     $clone->set('template', FALSE);
     $clone->save();
 
     $this->entityLifecycleRegister($clone);
+
+    return $clone;
   }
 
   /**
