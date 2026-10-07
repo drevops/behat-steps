@@ -66,23 +66,7 @@ trait ModalTrait {
    */
   #[When('I click on the element :selector in the modal')]
   public function modalClick(string $selector): void {
-    $modal = $this->modalGetVisible();
-
-    $element = $modal->find('css', $selector);
-
-    if ($element === NULL || !$element->isVisible()) {
-      $element = $modal->findButton($selector);
-    }
-
-    if ($element === NULL || !$element->isVisible()) {
-      $element = $modal->findLink($selector);
-    }
-
-    if ($element === NULL || !$element->isVisible()) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element in the modal', 'css|id|name|title|alt|value|text', $selector);
-    }
-
-    $element->click();
+    $this->modalGetElement($selector)->click();
   }
 
   /**
@@ -96,21 +80,7 @@ trait ModalTrait {
    */
   #[When('I wait for the modal to appear')]
   public function modalWaitForAppear(): void {
-    // Without the capability the wait can only time out, so the browser driver
-    // is checked before the timeout is spent.
-    $this->browserDriverFor(JavascriptCapabilityInterface::class);
-
-    $timeout = $this->modalGetWaitTimeout();
-
-    $result = $this->getSession()->getPage()->waitFor($timeout, function (): bool {
-      $modal = $this->modalFind();
-
-      return $modal !== NULL && $modal->isVisible();
-    });
-
-    if (!$result) {
-      throw new ExpectationException(sprintf('The modal did not appear within %d seconds.', $timeout), $this->getSession()->getDriver());
-    }
+    $this->modalWaitForAppearWithin($this->modalGetWaitTimeout());
   }
 
   /**
@@ -160,14 +130,7 @@ trait ModalTrait {
    */
   #[Then('the modal should contain :text')]
   public function modalAssertContains(string $text): void {
-    $modal = $this->modalGetVisible();
-    $content = $this->modalFindElementIn($modal, $this->modalGetContentSelectors());
-
-    if ($content === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'modal content element', 'css', implode(', ', $this->modalGetContentSelectors()));
-    }
-
-    $actual_text = $content->getText();
+    $actual_text = $this->modalGetContent()->getText();
 
     if (!str_contains((string) $actual_text, $text)) {
       throw new ExpectationException(sprintf('The modal does not contain the text "%s". Actual text: "%s".', $text, $actual_text), $this->getSession()->getDriver());
@@ -185,14 +148,7 @@ trait ModalTrait {
    */
   #[Then('the modal should not contain :text')]
   public function modalAssertNotContains(string $text): void {
-    $modal = $this->modalGetVisible();
-    $content = $this->modalFindElementIn($modal, $this->modalGetContentSelectors());
-
-    if ($content === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'modal content element', 'css', implode(', ', $this->modalGetContentSelectors()));
-    }
-
-    $actual_text = $content->getText();
+    $actual_text = $this->modalGetContent()->getText();
 
     if (str_contains((string) $actual_text, $text)) {
       throw new ExpectationException(sprintf('The modal contains the text "%s", but it should not.', $text), $this->getSession()->getDriver());
@@ -279,6 +235,91 @@ trait ModalTrait {
     }
 
     return $modal;
+  }
+
+  /**
+   * Get a visible element in the visible modal.
+   *
+   * The element is resolved by CSS selector, then as a button by id, name,
+   * value or text, then as a link by text or title.
+   *
+   * @param string $selector
+   *   The CSS selector, button label or link text.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The element.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no modal is visible.
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the modal holds no such visible element.
+   */
+  public function modalGetElement(string $selector): NodeElement {
+    $modal = $this->modalGetVisible();
+
+    $element = $modal->find('css', $selector);
+
+    if ($element === NULL || !$element->isVisible()) {
+      $element = $modal->findButton($selector);
+    }
+
+    if ($element === NULL || !$element->isVisible()) {
+      $element = $modal->findLink($selector);
+    }
+
+    if ($element === NULL || !$element->isVisible()) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element in the modal', 'css|id|name|title|alt|value|text', $selector);
+    }
+
+    return $element;
+  }
+
+  /**
+   * Get the content element of the visible modal.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The content element.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no modal is visible.
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the modal holds no element matching a content selector.
+   */
+  public function modalGetContent(): NodeElement {
+    $content = $this->modalFindElementIn($this->modalGetVisible(), $this->modalGetContentSelectors());
+
+    if ($content === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'modal content element', 'css', implode(', ', $this->modalGetContentSelectors()));
+    }
+
+    return $content;
+  }
+
+  /**
+   * Wait for the modal to appear within a number of seconds.
+   *
+   * @param int $seconds
+   *   The longest time to wait, in seconds.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the browser driver cannot run JavaScript.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no modal is visible after the time is up.
+   */
+  public function modalWaitForAppearWithin(int $seconds): void {
+    // Without the capability the wait can only time out, so the browser driver
+    // is checked before the timeout is spent.
+    $this->browserDriverFor(JavascriptCapabilityInterface::class);
+
+    $result = $this->getSession()->getPage()->waitFor($seconds, function (): bool {
+      $modal = $this->modalFind();
+
+      return $modal !== NULL && $modal->isVisible();
+    });
+
+    if (!$result) {
+      throw new ExpectationException(sprintf('The modal did not appear within %d seconds.', $seconds), $this->getSession()->getDriver());
+    }
   }
 
   /**
