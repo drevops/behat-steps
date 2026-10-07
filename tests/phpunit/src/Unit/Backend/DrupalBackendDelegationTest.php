@@ -155,6 +155,14 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'configGet' => ['configGet', ['system.site', 'name'], 'configGet'];
     yield 'configGetOriginal' => ['configGetOriginal', ['system.site', 'name'], 'configGetOriginal'];
     yield 'configSet' => ['configSet', ['system.site', 'name', 'v'], 'configSet'];
+    yield 'configExists' => ['configExists', ['system.site'], 'configExists'];
+    yield 'configGetData' => ['configGetData', ['system.site'], 'configGetData'];
+    yield 'configSetData' => ['configSetData', ['system.site', ['name' => 'v']], 'configSetData'];
+    yield 'configDelete' => ['configDelete', ['system.site'], 'configDelete'];
+    yield 'stateGet' => ['stateGet', ['my.key'], 'stateGet'];
+    yield 'stateSet' => ['stateSet', ['my.key', 'v'], 'stateSet'];
+    yield 'stateDelete' => ['stateDelete', ['my.key'], 'stateDelete'];
+    yield 'stateExists' => ['stateExists', ['my.key'], 'stateExists'];
     yield 'createEntity' => ['createEntity', [$entity], 'createEntity'];
     yield 'deleteEntity' => ['deleteEntity', [$entity], 'deleteEntity'];
     yield 'placeBlock' => ['placeBlock', [$block], 'placeBlock'];
@@ -172,6 +180,8 @@ class DrupalBackendDelegationTest extends UnitTestCase {
       'mailSend',
     ];
     yield 'moduleInstall' => ['moduleInstall', ['node'], 'moduleInstall'];
+    yield 'moduleIsEnabled' => ['moduleIsEnabled', ['node'], 'moduleIsEnabled'];
+    yield 'moduleIsPresent' => ['moduleIsPresent', ['node'], 'moduleIsPresent'];
     yield 'moduleUninstall' => ['moduleUninstall', ['node'], 'moduleUninstall'];
   }
 

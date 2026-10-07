@@ -6,14 +6,18 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend;
 
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\BatchCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\DrupalBackend;
 use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
@@ -66,14 +70,18 @@ class DrupalBackendTest extends UnitTestCase {
    */
   public static function dataProviderImplementsCapability(): \Iterator {
     yield 'authentication' => [AuthenticationCapabilityInterface::class];
+    yield 'batch' => [BatchCapabilityInterface::class];
+    yield 'block' => [BlockCapabilityInterface::class];
     yield 'cache' => [CacheCapabilityInterface::class];
     yield 'config' => [ConfigCapabilityInterface::class];
     yield 'content' => [ContentCapabilityInterface::class];
+    yield 'core' => [CoreCapabilityInterface::class];
     yield 'cron' => [CronCapabilityInterface::class];
     yield 'language' => [LanguageCapabilityInterface::class];
     yield 'mail' => [MailCapabilityInterface::class];
     yield 'module' => [ModuleCapabilityInterface::class];
     yield 'role' => [RoleCapabilityInterface::class];
+    yield 'state' => [StateCapabilityInterface::class];
     yield 'user' => [UserCapabilityInterface::class];
   }
 
