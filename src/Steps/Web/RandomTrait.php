@@ -12,6 +12,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Helper\Web\TokenTrait;
 use Drupal\Component\Utility\Random;
 
 /**
@@ -34,6 +35,7 @@ use Drupal\Component\Utility\Random;
 trait RandomTrait {
 
   use StringTrait;
+  use TokenTrait;
 
   protected const string RANDOM_BRACKET_REGEX = '#(\[\?[a-z0-9_]+(?::[^\]]+)?\])#i';
 
@@ -170,12 +172,7 @@ trait RandomTrait {
    * Applies 'randomSubstitute()' across every cell in '$table'.
    */
   public function randomSubstituteTable(TableNode $table): TableNode {
-    $rows = [];
-    foreach ($table->getRows() as $row) {
-      $rows[] = array_map($this->randomSubstitute(...), $row);
-    }
-
-    return new TableNode($rows);
+    return $this->tokenReplaceInTable($table, $this->randomSubstitute(...));
   }
 
   /**
