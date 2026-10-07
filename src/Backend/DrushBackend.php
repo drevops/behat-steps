@@ -56,29 +56,34 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * Sets the drush alias or root path.
    *
-   * @param string $alias
-   *   A drush alias.
-   * @param string $root_path
-   *   The root path of the Drupal install. This is an alternative to using
-   *   aliases.
+   * @param string|null $alias
+   *   A drush alias, or NULL to reach the site through the root path.
+   * @param string|null $root_path
+   *   The root path of the Drupal install, or NULL when an alias is given.
+   *   This is an alternative to using aliases.
    * @param string $binary
    *   The path to the drush binary.
    * @param \Drupal\Component\Utility\Random $random
    *   Random generator.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   Thrown when a required parameter is missing, or when the root path
-   *   cannot be resolved.
+   *   Thrown when neither an alias nor a root path is given, when either is
+   *   empty, or when the root path cannot be resolved.
    */
   public function __construct(?string $alias = NULL, ?string $root_path = NULL, string $binary = 'drush', ?Random $random = NULL) {
-    if (($alias === NULL || $alias === '') && ($root_path === NULL || $root_path === '')) {
-      throw new BootstrapException('A drush alias or root path is required.');
+    if ($alias !== NULL && trim(ltrim($alias, '@')) === '') {
+      throw new BootstrapException(sprintf('The drush alias "%s" names no site. Pass NULL to leave it out.', $alias));
     }
 
-    if ($alias !== NULL && $alias !== '') {
+    // 'realpath()' resolves an empty path to the working directory.
+    if ($root_path === '') {
+      throw new BootstrapException('The root path is empty. Pass NULL to leave it out.');
+    }
+
+    if ($alias !== NULL) {
       $this->alias = ltrim($alias, '@');
     }
-    else {
+    elseif ($root_path !== NULL) {
       $resolved = realpath($root_path);
 
       if ($resolved === FALSE) {
@@ -86,6 +91,9 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       }
 
       $this->root = $resolved;
+    }
+    else {
+      throw new BootstrapException('A drush alias or root path is required.');
     }
 
     if ($binary === 'drush') {
@@ -138,17 +146,13 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
   /**
    * {@inheritdoc}
+   *
+   * Drush 13 and later keep no cache of their own, so the 'drush' type clears
+   * nothing. Every other type rebuilds all of Drupal's caches.
    */
   public function cacheClear(?string $type = NULL): void {
-    $type ??= 'all';
-
     if ($type === 'drush') {
-      $this->drush('cache-clear', ['drush'], []);
       return;
-    }
-
-    if ($type === 'all') {
-      $this->drush('cache-clear', ['drush'], []);
     }
 
     $this->drush('cache:rebuild');
@@ -368,7 +372,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function cronRun(): bool {
-    $this->drush('cron');
+    $this->drush('core:cron');
     return TRUE;
   }
 
@@ -376,14 +380,14 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function moduleInstall(string $module_name): void {
-    $this->drush('pm-enable', [$module_name], ['yes' => NULL]);
+    $this->drush('pm:install', [$module_name], ['yes' => NULL]);
   }
 
   /**
    * {@inheritdoc}
    */
   public function moduleUninstall(string $module_name): void {
-    $this->drush('pm-uninstall', [$module_name], ['yes' => NULL]);
+    $this->drush('pm:uninstall', [$module_name], ['yes' => NULL]);
   }
 
   /**
@@ -461,7 +465,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       'mail' => (string) $stub->getValue('mail'),
     ];
 
-    $result = $this->drush('user-create', $arguments, $options);
+    $result = $this->drush('user:create', $arguments, $options);
     $uid = $this->parseUserId($result);
 
     if (!$uid) {
@@ -470,6 +474,9 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
     $stub->setValue('uid', $uid);
 
+    // The stub stays unsaved, because Drush runs in another process and
+    // returns no account object. The placeholder carries only the id the
+    // post-create aliases read.
     $account = new \stdClass();
     $account->uid = $uid;
 
@@ -492,7 +499,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $arguments = $name !== '' ? [$name] : [];
     $lookup = $name !== '' ? [] : ['uid' => $uid];
 
-    $this->drushDelete('user-cancel', $arguments, ['yes' => NULL, 'delete-content' => NULL] + $lookup, fn(): bool => $this->drushResult('user:information', $arguments, $lookup)->exitCode === 0);
+    $this->drushDelete('user:cancel', $arguments, ['yes' => NULL, 'delete-content' => NULL] + $lookup, fn(): bool => $this->drushResult('user:information', $arguments, $lookup)->exitCode === 0);
   }
 
   /**
@@ -534,7 +541,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       $role,
       (string) $stub->getValue('name'),
     ];
-    $this->drush('user-add-role', $arguments);
+    $this->drush('user:role:add', $arguments);
   }
 
   /**
@@ -692,7 +699,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   }
 
   /**
-   * Parses the user id from drush user-information output.
+   * Parses the user id from drush 'user:information' output.
    *
    * Supports both the legacy key-value format ("User ID : 123") and the
    * Drush 12+ table format where the ID is the first numeric value in the

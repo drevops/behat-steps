@@ -186,7 +186,8 @@ trait AuthTrait {
    *   The user stub.
    *
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
-   *   The same stub, now flagged as saved.
+   *   The same stub, carrying the 'uid' of the created account. It is
+   *   flagged as saved only when the backend holds that account.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
    *   When no backend in the scenario's order can create users.

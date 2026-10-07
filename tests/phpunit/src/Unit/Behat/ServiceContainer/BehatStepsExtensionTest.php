@@ -224,14 +224,45 @@ class BehatStepsExtensionTest extends UnitTestCase {
 
     $this->assertTrue($container->hasDefinition('behat_steps.backend.drush'));
     $this->assertSame('web', $container->getParameter('behat_steps.backend.drush.root'));
-    $this->assertFalse($container->getParameter('behat_steps.backend.drush.alias'));
+    $this->assertNull($container->getParameter('behat_steps.backend.drush.alias'));
   }
 
   public function testDrushBackendAcceptsAliasInsteadOfRoot(): void {
     $container = $this->load(['drush' => ['alias' => '@self']]);
 
     $this->assertSame('@self', $container->getParameter('behat_steps.backend.drush.alias'));
-    $this->assertFalse($container->getParameter('behat_steps.backend.drush.root'));
+    $this->assertNull($container->getParameter('behat_steps.backend.drush.root'));
+  }
+
+  public function testDrushBackendReadsNullAliasAsNotGiven(): void {
+    $container = $this->load(['drush' => ['alias' => NULL, 'root' => 'web']]);
+
+    $this->assertNull($container->getParameter('behat_steps.backend.drush.alias'));
+    $this->assertSame('web', $container->getParameter('behat_steps.backend.drush.root'));
+  }
+
+  /**
+   * Tests that an empty alias or root fails the build, naming the setting.
+   *
+   * @param array<string, mixed> $drush
+   *   The Drush settings, before schema normalization.
+   * @param string $expected_message
+   *   The message the build is expected to fail with.
+   */
+  #[DataProvider('dataProviderDrushBackendRejectsEmptySetting')]
+  public function testDrushBackendRejectsEmptySetting(array $drush, string $expected_message): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $this->load(['drush' => $drush]);
+  }
+
+  public static function dataProviderDrushBackendRejectsEmptySetting(): \Iterator {
+    yield 'an empty alias beside a root' => [['alias' => '', 'root' => 'web'], 'Drush "alias" is empty. Set a value, or leave it out.'];
+    yield 'an empty alias alone' => [['alias' => ''], 'Drush "alias" is empty. Set a value, or leave it out.'];
+    yield 'an empty root beside an alias' => [['alias' => '@self', 'root' => ''], 'Drush "root" is empty. Set a value, or leave it out.'];
+    yield 'an empty root alone' => [['root' => ''], 'Drush "root" is empty. Set a value, or leave it out.'];
+    yield 'both empty' => [['alias' => '', 'root' => ''], 'Drush "alias" is empty. Set a value, or leave it out.'];
   }
 
   public function testDrupalBackendRequiresItsRoot(): void {
@@ -241,11 +272,23 @@ class BehatStepsExtensionTest extends UnitTestCase {
     $this->load(['drupal' => []]);
   }
 
-  public function testDrushBackendRequiresAliasOrRoot(): void {
+  /**
+   * Tests that the Drush backend fails the build without an alias or a root.
+   *
+   * @param array<string, mixed> $drush
+   *   The Drush settings, before schema normalization.
+   */
+  #[DataProvider('dataProviderDrushBackendRequiresAliasOrRoot')]
+  public function testDrushBackendRequiresAliasOrRoot(array $drush): void {
     $this->expectException(InvalidConfigurationException::class);
     $this->expectExceptionMessage('Drush "alias" or "root" path is required for the Drush backend.');
 
-    $this->load(['drush' => []]);
+    $this->load(['drush' => $drush]);
+  }
+
+  public static function dataProviderDrushBackendRequiresAliasOrRoot(): \Iterator {
+    yield 'neither set' => [[]];
+    yield 'both left out with NULL' => [['alias' => NULL, 'root' => NULL]];
   }
 
   public function testDrushGlobalOptionsReachTheBackend(): void {

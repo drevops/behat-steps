@@ -86,7 +86,7 @@ trait WatchdogTrait {
       return;
     }
 
-    $this->assertPrerequisites(__TRAIT__);
+    $this->assertPrerequisites(__TRAIT__, $scope);
 
     $scenario = $scope->getScenario();
 
@@ -113,7 +113,7 @@ trait WatchdogTrait {
       return;
     }
 
-    $this->assertPrerequisites(__TRAIT__);
+    $this->assertPrerequisites(__TRAIT__, $scope);
 
     if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
       $this->watchdogReadErrors();

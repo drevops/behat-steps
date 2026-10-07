@@ -13,9 +13,11 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\Core\File\FileExists;
@@ -139,6 +141,8 @@ trait FileTrait {
   #[Given('the following managed files do not exist:')]
   public function fileDeleteManagedMultiple(TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $storage = \Drupal::entityTypeManager()->getStorage('file');
 
@@ -284,6 +288,10 @@ trait FileTrait {
    *   Created file entity.
    */
   public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
     $this->entityLifecycleParseFields($stub);
 
     $entity = $this->fileCreateEntity($path, $stub, $uri);
@@ -308,6 +316,8 @@ trait FileTrait {
    */
   public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $path = ltrim($path, '/');
 
@@ -361,6 +371,10 @@ trait FileTrait {
    *   The matching files keyed by ID, or an empty array when none match.
    */
   public function fileLoadMultiple(array $conditions = []): array {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
     $ids = $this->queryEntityIds('file', $conditions);
 
     return $ids ? File::loadMultiple($ids) : [];
@@ -375,6 +389,19 @@ trait FileTrait {
   protected function fileConfigSchema(): array {
     return [
       new Option('enabled', default: TRUE, description: 'Create the private and temporary directories before a scenario, and remove the unmanaged files it created afterwards.'),
+    ];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function filePrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('file'), 'the core "file" module is enabled, for the managed file steps'),
     ];
   }
 

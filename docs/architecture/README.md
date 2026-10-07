@@ -93,7 +93,7 @@ The context layer is one chain. `WebRawContext` is the root and registers no ste
 - Basic authentication: `getBasicAuthenticator()`, because `BasicAuthTrait` is a web trait and calls it.
 - Browser access: `browserDriverFor()` and `browserDriverHas()`, which resolve a browser capability.
 - HTTP clients: `httpPageClient()`, `httpDetachedClient()` and `httpBareClient()`.
-- Prerequisite checks: `assertPrerequisites()` throws for the first declaration that doesn't hold, naming it and, for a trait with an `enabled` option, the option and the skip tag that switch the trait off. `prerequisitesMet()` answers the same question without throwing, for a teardown. Each check goes through `anyBackendFor()`, which returns a backend the scenario already reached before the first one listed, so checking never starts a second backend. A trait adapting to an optional module asks through it too.
+- Prerequisite checks: `assertPrerequisites()` throws for the first declaration that doesn't hold, naming it. A hook passes its scope as well, and when its trait has an `enabled` option the failure also names that option and the skip tag that switch the trait off; a step's failure names neither, because they stop only hooks. `prerequisitesMet()` answers the same question without throwing, for a teardown. Each check goes through `anyBackendFor()`, which returns a backend the scenario already reached before the first one listed, so checking never starts a second backend. A trait adapting to an optional module asks through it too.
 - The hook dispatcher and `skipTag()`.
 - 3 of the web helper traits: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait`.
 

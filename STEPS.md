@@ -6165,6 +6165,13 @@ Given the following "commerce_product" entities exist:
 >  Skip processing with tag: `@behat-steps-skip:FileTrait`.
 
 
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The core "file" module is enabled, for the managed file steps | `ModuleCapabilityInterface` |
+
 ### Options
 
 | Option | Type | Default | Tag | Description |
@@ -6336,6 +6343,13 @@ Given the following languages exist:
 >  - Support for multiple media types with field value expansion handling.
 >  - Created entities are automatically removed at the end of the scenario.
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The core "media" module is enabled | `ModuleCapabilityInterface` |
 
 <details>
   <summary><code>@Given the media type :media_type does not exist</code></summary>
@@ -7143,6 +7157,13 @@ Then the state "my_module.launched" should not exist
 >  - Navigate to term pages.
 >  - Verify vocabulary configurations.
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The core "taxonomy" module is enabled | `ModuleCapabilityInterface` |
 
 <details>
   <summary><code>@Given the following :vocabulary terms with fields exist:</code></summary>

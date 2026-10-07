@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\ScenarioScope;
 use Behat\Mink\Exception\DriverException;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\HookDispatcher;
+use Behat\Testwork\Hook\Scope\HookScope;
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface;
@@ -587,14 +588,18 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * @param string $trait
    *   The trait whose prerequisites to assert. A hook or a step passes
    *   '__TRAIT__'.
+   * @param \Behat\Testwork\Hook\Scope\HookScope|null $scope
+   *   The scope of the hook that checks, or NULL when a step checks. The
+   *   option and the tag that switch a trait off stop its hooks but never a
+   *   step, so only a hook's failure names them.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
    *   When no backend in the scenario's list provides a declared capability.
    * @throws \RuntimeException
    *   When a declared check fails.
    */
-  protected function assertPrerequisites(string $trait): void {
-    $failure = $this->prerequisiteFailure($trait);
+  protected function assertPrerequisites(string $trait, ?HookScope $scope = NULL): void {
+    $failure = $this->prerequisiteFailure($trait, $scope instanceof HookScope);
 
     if ($failure instanceof \RuntimeException) {
       throw $failure;
@@ -611,7 +616,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    *   The trait whose prerequisites to check. A hook passes '__TRAIT__'.
    */
   protected function prerequisitesMet(string $trait): bool {
-    return !$this->prerequisiteFailure($trait) instanceof \RuntimeException;
+    return !$this->prerequisiteFailure($trait, is_hook: FALSE) instanceof \RuntimeException;
   }
 
   /**
@@ -619,11 +624,13 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    *
    * @param string $trait
    *   The trait whose prerequisites to evaluate.
+   * @param bool $is_hook
+   *   Whether a hook checks the prerequisites.
    *
    * @return \RuntimeException|null
    *   The failure to throw, or NULL when every prerequisite holds.
    */
-  protected function prerequisiteFailure(string $trait): ?\RuntimeException {
+  protected function prerequisiteFailure(string $trait, bool $is_hook): ?\RuntimeException {
     $registry = $this->getBackendRegistry();
 
     foreach ((new PrerequisiteReader())->read($this, $trait) as $prerequisite) {
@@ -631,7 +638,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
         $backends = array_keys($registry->getScenarioBackends());
         $detail = sprintf('Backends available to this scenario, in order: %s.', $backends === [] ? 'none' : implode(', ', $backends));
 
-        return new UnsupportedBackendActionException($this->prerequisiteMessage($trait, $prerequisite, $detail));
+        return new UnsupportedBackendActionException($this->prerequisiteMessage($trait, $prerequisite, $is_hook, $detail));
       }
 
       // A capability without a check still reaches its backend, so a later
@@ -639,7 +646,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
       $backend = $this->anyBackendFor($prerequisite->capability);
 
       if ($prerequisite->check instanceof \Closure && !($prerequisite->check)($backend)) {
-        return new \RuntimeException($this->prerequisiteMessage($trait, $prerequisite));
+        return new \RuntimeException($this->prerequisiteMessage($trait, $prerequisite, $is_hook));
       }
     }
 
@@ -650,21 +657,28 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * Builds the message of a prerequisite that does not hold.
    *
    * A trait that declares an 'enabled' option can be switched off instead of
-   * having its prerequisite met, so its message names both switches.
+   * having its prerequisite met. That stops its hooks but never a step, so a
+   * hook's message names both switches and a step's names neither.
    *
    * @param string $trait
    *   The trait that declares the prerequisite.
    * @param \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite $prerequisite
    *   The prerequisite that does not hold.
+   * @param bool $is_hook
+   *   Whether a hook checks the prerequisite.
    * @param string|null $detail
    *   What was found instead, as a sentence, or NULL for nothing to add.
    */
-  protected function prerequisiteMessage(string $trait, Prerequisite $prerequisite, ?string $detail = NULL): string {
+  protected function prerequisiteMessage(string $trait, Prerequisite $prerequisite, bool $is_hook, ?string $detail = NULL): string {
     $name = $this->traitName($trait);
     $message = sprintf('%s requires that %s, which does not hold.', $name, $prerequisite->description);
 
     if ($detail !== NULL) {
       $message .= ' ' . $detail;
+    }
+
+    if (!$is_hook) {
+      return $message;
     }
 
     $group = $this->getOptionResolver()->groupFor($name);

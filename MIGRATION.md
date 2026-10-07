@@ -1239,7 +1239,7 @@ protected function acmePrerequisites(): array {
 }
 ```
 
-A step or a setup hook checks them with `$this->assertPrerequisites(__TRAIT__)`, and a teardown asks `$this->prerequisitesMet(__TRAIT__)` instead, so it never replaces a failure the scenario already recorded. A prerequisite that doesn't hold fails with a message naming it and, for a trait with an `enabled` option, the option and the skip tag that switch the trait off.
+A step checks them with `$this->assertPrerequisites(__TRAIT__)`, a setup hook with `$this->assertPrerequisites(__TRAIT__, $scope)`, and a teardown asks `$this->prerequisitesMet(__TRAIT__)` instead, so it never replaces a failure the scenario already recorded. A prerequisite that doesn't hold fails with a message naming it. When a hook of a trait with an `enabled` option checks it, the message also names the option and the skip tag that switch the trait off; a step's message doesn't, because neither stops a step.
 
 | Before | After |
 | --- | --- |
@@ -1247,6 +1247,8 @@ A step or a setup hook checks them with `$this->assertPrerequisites(__TRAIT__)`,
 | `\Drupal::moduleHandler()->moduleExists('acme')` to adapt to an optional module | `$this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('acme')` |
 
 The message for a missing module changes with it. `The "webform" module is not enabled. Add "drupal/webform" to the consumer project's composer.json and enable the module as part of the site setup.` becomes `WebformTrait requires that the "webform" module from the "drupal/webform" package is enabled, which does not hold.`, so a test asserting the old text needs the new one.
+
+`FileTrait`, `MediaTrait` and `TaxonomyTrait` declare the core module they build on, so on a site without it a step fails with `MediaTrait requires that the core "media" module is enabled, which does not hold.` rather than with whatever Drupal threw first. `FileTrait` checks `file` in its managed file steps only, so the unmanaged file steps keep working without it, and `TaxonomyTrait`'s term creation goes through the content capability and checks nothing.
 
 `TestmodeTrait` still checks the `testmode` module when a `@testmode` scenario starts, but it no longer checks it again when the scenario ends: the teardown disables test mode only if the scenario enabled it.
 
@@ -2352,6 +2354,37 @@ A project with its own backend implementing these capabilities adds the methods 
 
 Two smaller corrections come with it. A keyed `configGet()` returned Drush's `{"<name>:<key>": value}` envelope instead of the value. And `configGetOriginal()` was the same call as `configGet()`, so the stored and effective reads the config steps distinguish collapsed into one; the effective read now passes `--include-overridden` and the stored read does not.
 
+## The Drush backend needs Drush 13
+
+The Drush backend supports Drush 13, the first release that runs Drupal 11, and newer. It runs every command by its canonical colon-separated name rather than by a legacy alias, and each of those names exists from Drush 13:
+
+| Method | Before | After |
+| --- | --- | --- |
+| `cronRun()` | `cron` | `core:cron` |
+| `moduleInstall()` | `pm-enable` | `pm:install` |
+| `moduleUninstall()` | `pm-uninstall` | `pm:uninstall` |
+| `createUser()` | `user-create` | `user:create` |
+| `deleteUser()` | `user-cancel` | `user:cancel` |
+| `addUserRole()` | `user-add-role` | `user:role:add` |
+
+`cacheClear()` no longer runs `cache-clear drush` ahead of `cache:rebuild`. Drush 13 keeps no cache of its own, so that command cleared nothing, and Drush 14 rejects the `drush` cache type, so every cache clear over Drush failed there. `cacheClear()` now runs `cache:rebuild` alone, and `cacheClear('drush')` runs no command.
+
+A project that extends `DrushBackend` and matches the command names it issues, in an override of `drush()` or `drushResult()`, matches the names in the right-hand column.
+
+## The Drush backend reads `NULL` as an unset alias or root
+
+`NULL` is the only value meaning the Drush backend wasn't given an alias or a root path. The extension used to pass `FALSE` for an unset `alias` or `root`, PHP turned it into an empty string, and `DrushBackend` read an empty string as missing too. It now passes `NULL`, so the `behat_steps.backend.drush.alias` and `behat_steps.backend.drush.root` container parameters hold `NULL` when unset, and the constructor throws a `BootstrapException` for an empty alias or root path:
+
+```php
+// Before.
+$backend = new DrushBackend('', 'web');
+
+// After.
+$backend = new DrushBackend(NULL, 'web');
+```
+
+An empty `alias` or `root` under `behat_steps: drush:` fails the container build and names the setting, where it used to be read as missing. Leave the setting out, or set it to `NULL`.
+
 ## Capability creates return the stub, deletes tolerate a miss
 
 The capability interfaces disagreed about what a create returns and what a delete does when its target is already gone. Every create now returns a stub, and every delete returns `void` and does nothing for a target that doesn't exist, so teardown code can delete whatever a scenario created without checking first.
@@ -2377,6 +2410,8 @@ $role = $backend->createRole(['access content'])->getValue('id');
 ```
 
 `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateLanguage()` follows the backend: it returns the stub in both cases instead of `FALSE`, and only a stub the backend saved joins the teardown.
+
+A create flags the stub as saved only when the backend holds the created entity. The Drush backend runs outside the test process, so its `createUser()` writes the new `uid` onto the stub and its `createRole()` stub carries the role's `id`, but neither stub is saved. Read the id from the stub's values rather than from `getSavedEntity()` when the backend may be Drush.
 
 The shipped backends keep the delete contract throughout. The Drush backend's `deleteRole()` and `deleteUser()` no longer fail for a role or user that's already gone, and the in-process `deleteUser()` no longer reports "The user account ... does not exist." for one.
 

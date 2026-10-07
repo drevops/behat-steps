@@ -386,7 +386,7 @@ A step is only as portable as the backend behind it, so each trait falls into on
 
 A step names a capability and never a backend. `WebRawContext::backendFor()` walks the scenario's backend order, returns the first backend implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedBackendActionException` naming the capability and the order. The order itself comes from the `backends` list under `behat_steps` and the `@backend:NAME` tag, documented in [docs/configuration.md](docs/configuration.md#backend-resolution).
 
-Every create and delete on a capability interface follows 1 contract, so teardown code can delete whatever a scenario created without checking first. A create returns the stub, flagged as saved once the backend holds the created entity: `createLanguage()` leaves a language that already exists alone and returns the stub unsaved, and `createRole()`, which takes no stub, builds a `user_role` one. A delete returns `void` and does nothing when its target doesn't exist. A stub with no identifier at all still throws, since that's a malformed argument rather than a miss. [tests/phpunit/src/CapabilityContractTest.php](tests/phpunit/src/CapabilityContractTest.php) holds every create and delete to its return type, and the backend tests pin the miss.
+Every create and delete on a capability interface follows 1 contract, so teardown code can delete whatever a scenario created without checking first. A create returns the stub, flagged as saved once the backend holds the created entity: `createLanguage()` leaves a language that already exists alone and returns the stub unsaved, and `createRole()`, which takes no stub, builds a `user_role` one. A backend running outside the test process holds no entity, so the Drush backend's `createUser()` and `createRole()` return their stubs unsaved, carrying the new `uid` or `id` value. A delete returns `void` and does nothing when its target doesn't exist. A stub with no identifier at all still throws, since that's a malformed argument rather than a miss. [tests/phpunit/src/CapabilityContractTest.php](tests/phpunit/src/CapabilityContractTest.php) holds every create and delete to its return type, and the backend tests pin the miss.
 
 ## Sending a request from a trait
 
@@ -514,7 +514,7 @@ public function acmeBeforeScenario(BeforeScenarioScope $scope): void {
     return;
   }
 
-  $this->assertPrerequisites(__TRAIT__);
+  $this->assertPrerequisites(__TRAIT__, $scope);
 
   // ...
 }
@@ -537,12 +537,13 @@ protected function acmePrerequisites(): array {
 - `Prerequisite::check()` takes a static closure whose only parameter is typed to a capability interface. The checker hands it a backend providing that capability, and the closure returns whether the prerequisite holds. The closure gets nothing else: a condition that depends on an option, a tag or a step argument is opt-in, activation or input validation, not a prerequisite.
 - A description is a clause completing "requires that", in lower case with no closing period. It appears both in the failure message and in the Prerequisites table `docs.php` renders into [STEPS.md](STEPS.md).
 
-A module the trait needs is declared. A module it only adapts to, such as `pathauto`, is asked with `$this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled()`, which reuses a backend the scenario already reached, so the question never starts a second backend the way `backendFor()` would under `@backend:drush`. Either way, module state goes through `ModuleCapabilityInterface`, never `\Drupal::moduleHandler()->moduleExists()`.
+A module the trait needs is declared. A core module counts the same as a contrib one, since a site can uninstall it: `FileTrait` declares `file`, `MediaTrait` `media` and `TaxonomyTrait` `taxonomy`, as `WebformTrait` declares `webform`. A module it only adapts to, such as `pathauto`, is asked with `$this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled()`, which reuses a backend the scenario already reached, so the question never starts a second backend the way `backendFor()` would under `@backend:drush`. Either way, module state goes through `ModuleCapabilityInterface`, never `\Drupal::moduleHandler()->moduleExists()`.
 
 ### Where a trait checks them
 
-- **A step** calls `$this->assertPrerequisites(__TRAIT__)` right after resolving its backend. It checks only when a scenario uses it, so a suite that never runs a webform step never needs `webform`.
-- **A setup hook** checks at scenario start, straight after its guard.
+- **A step** calls `$this->assertPrerequisites(__TRAIT__)` right after resolving its backend. It checks only when a scenario uses it, so a suite that never runs a webform step never needs `webform`. A public helper a project calls from its own steps checks the same way, as `webformLoadMultiple()` and `mediaLoadMultiple()` do.
+- **Only the steps that need every declaration** check, because `assertPrerequisites()` checks the trait's whole list. A module only some steps need is checked in those steps alone: `ContentTrait` checks `path` in its path alias step, and `FileTrait` checks `file` in its managed file steps. A step that creates through a narrow capability rather than Drupal's API, such as `TaxonomyTrait`'s term creation, checks nothing, so it keeps running on any backend providing that capability.
+- **A setup hook** checks at scenario start, straight after its guard, and passes its scope: `$this->assertPrerequisites(__TRAIT__, $scope)`. The `enabled` option and the skip tag stop a trait's hooks but never its steps, so only a hook's failure names them as a way out.
 - **A check at step scope** that reads what a prerequisite provides checks again first, in case the scenario removed it.
 - **A teardown** never throws for an unmet prerequisite. It asks `$this->prerequisitesMet(__TRAIT__)`, or reads a flag its setup set, and undoes only what the setup did, so it can't replace a failure the scenario already recorded.
 
@@ -556,6 +557,8 @@ Keep the `require` section of `composer.json` minimal - it should contain only w
 
 - **`require`**: the framework and browser abstraction that virtually all steps build on - `php`, `behat/behat`, `behat/mink` - plus what the backend and Behat layers need at runtime. Both ship in `src/`, so every consumer loads them: `drupal/core-utility`, `symfony/process` for the Drush backend, and `friends-of-behat/mink-extension`, `symfony/config`, `symfony/dependency-injection`, `symfony/event-dispatcher` for the extension, its config schema and `WebRawContext`'s Mink ancestor.
 - **`require-dev` + `suggest`**: any package used by only a subset of traits. List it in `require-dev` so this library's own test suite still exercises it, **and** in `suggest` with a message naming the exact trait(s) or step(s) that need it (as `justinrainbow/json-schema` does for `JsonTrait`).
+
+A package that code under `src/` calls is declared in its own right, even when a `require` dependency already installs it. That arrival is the other package's implementation detail, which it can drop in any release. `symfony/filesystem` is the case in point: `symfony/config` requires it, yet it sits in `require` itself, because `FileTrait`'s setup hook builds a `Filesystem` on every scenario of a context composing the trait, as `DrupalContext` does, and `FileDownloadTrait` builds one for its download directory.
 
 When a new trait needs a package, decide up front: trait-specific packages go in `require-dev` + `suggest`, never in `require`. Demoting a package from `require` to `suggest` later is a breaking change for consumers relying on transitive installation, so batch such demotions into the next major release and document them in [MIGRATION.md](MIGRATION.md).
 
@@ -731,6 +734,8 @@ Building the Drupal 12 fixture takes 3 packages that the Drupal 11 fixture does 
 - `mglaman/composer-drupal-lenient`, with every contrib module the fixture installs on its `extra.drupal-lenient.allowed-list`. Most of those modules have no release declaring `drupal/core ^12`, and the plugin strips the core constraint so they install anyway. The hosted lenient endpoint on drupal.org is not used - it currently redirects to a page that does not exist. A Composer plugin only shapes a solve it is already installed for, and the fixture has no solution until this one runs, so [scripts/provision.php](scripts/provision.php) installs it globally before the build update; Composer loads global plugins for local projects.
 - `drush/drush ^14@dev`. No tagged Drush release accepts Symfony 8. This is why the fixture sets `minimum-stability` to `dev` with `prefer-stable`.
 - `drupal/scheduled_transitions ^2.9.0@beta`, the first release declaring Drupal 12.
+
+The Drush backend supports Drush 13, the first release that runs Drupal 11, and newer: the Drupal 11 fixture installs 13.x and the Drupal 12 fixture `14.x-dev`. It runs each command by its canonical colon-separated name, such as `pm:install` or `core:cron`, which every supported release registers, and never by a legacy alias such as `pm-enable` or `cron`. `DrushBackendMethodsTest` fails a command issued in any other form, and the `@backend:drush` scenarios run the cache, cron and user commands against the Drush each fixture installs.
 
 The fixture also takes `drupal/core` from source rather than dist. From 12.0.0-beta1 the release package no longer carries core's test files, which the PHPUnit bootstrap and the Kernel suite need, and [scripts/provision.php](scripts/provision.php) passes no `--prefer-dist` so the per-package setting holds.
 

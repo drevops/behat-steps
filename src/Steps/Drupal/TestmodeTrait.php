@@ -48,7 +48,7 @@ trait TestmodeTrait {
 
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $this->assertPrerequisites(__TRAIT__);
+    $this->assertPrerequisites(__TRAIT__, $scope);
 
     static::testmodeEnableTestMode();
 

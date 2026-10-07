@@ -35,7 +35,7 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     --
     #skipTag(trait, scope) : bool
     #anyBackendFor(capability) : object
-    #assertPrerequisites(trait) : void
+    #assertPrerequisites(trait, scope) : void
     #prerequisitesMet(trait) : bool
     #shouldCleanup() : bool
     #buildOptionResolver() : TraitOptionResolverInterface
@@ -389,8 +389,10 @@ note bottom of PrerequisiteReader
   <prefix>Prerequisites(), each entry through a backend
   capability. A setup hook or a step calls
   assertPrerequisites(), which throws for the first entry
-  that does not hold. A teardown asks prerequisitesMet(),
-  so it never replaces a failure already recorded.
+  that does not hold. A hook passes its scope, so only its
+  failure names the switches that turn the trait off.
+  A teardown asks prerequisitesMet(), so it never
+  replaces a failure already recorded.
 
   Each check runs against a backend the scenario already
   reached before the first one listed, so checking never

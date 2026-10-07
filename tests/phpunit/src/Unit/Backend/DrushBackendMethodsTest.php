@@ -57,14 +57,26 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testCacheClearRebuilds(): void {
+  /**
+   * Tests that a cache clear rebuilds Drupal's caches in 1 command.
+   *
+   * @param string|null $type
+   *   The cache type to clear.
+   */
+  #[DataProvider('dataProviderCacheClearRebuilds')]
+  public function testCacheClearRebuilds(?string $type): void {
     $backend = $this->createBackend();
 
-    $backend->cacheClear();
+    $backend->cacheClear($type);
 
-    $this->assertNotEmpty($backend->invocations);
-    $commands = array_column($backend->invocations, 'command');
-    $this->assertContains('cache:rebuild', $commands);
+    $this->assertSame(['cache:rebuild'], array_column($backend->invocations, 'command'));
+    $this->assertSame([], $backend->invocations[0]['arguments']);
+  }
+
+  public static function dataProviderCacheClearRebuilds(): \Iterator {
+    yield 'no type' => [NULL];
+    yield 'all' => ['all'];
+    yield 'a single bin' => ['render'];
   }
 
   public function testCacheClearStaticIsNoop(): void {
@@ -98,9 +110,9 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $backend->createUser($user);
 
     $commands = array_column($backend->invocations, 'command');
-    $this->assertSame('user-create', $commands[0]);
-    $this->assertContains('user-add-role', $commands, 'Expected a user-add-role invocation for each role.');
-    $this->assertSame(2, array_count_values($commands)['user-add-role'] ?? 0);
+    $this->assertSame('user:create', $commands[0]);
+    $this->assertContains('user:role:add', $commands, 'Expected a user:role:add invocation for each role.');
+    $this->assertSame(2, array_count_values($commands)['user:role:add'] ?? 0);
   }
 
   public function testCreateUserThrowsWhenDrushReportsNoUserId(): void {
@@ -127,6 +139,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
     $this->assertSame($user, $backend->createUser($user));
     $this->assertSame(7, $user->getValue('uid'));
+    $this->assertFalse($user->isSaved(), 'The backend holds no account, so the stub stays unsaved.');
   }
 
   /**
@@ -173,7 +186,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   public static function dataProviderDeleteRunsOneCommandOnSuccess(): \Iterator {
     yield 'deleteRole' => ['deleteRole', ['editor'], 'role:delete'];
-    yield 'deleteUser' => ['deleteUser', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel'];
+    yield 'deleteUser' => ['deleteUser', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user:cancel'];
   }
 
   /**
@@ -201,7 +214,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   public static function dataProviderDeleteToleratesMissingTarget(): \Iterator {
     yield 'deleteRole' => ['deleteRole', ['editor'], 'role:delete', 'config:get'];
-    yield 'deleteUser' => ['deleteUser', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel', 'user:information'];
+    yield 'deleteUser' => ['deleteUser', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user:cancel', 'user:information'];
   }
 
   /**
@@ -227,17 +240,17 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   public static function dataProviderDeleteFailureSurfacesWhileTargetExists(): \Iterator {
     yield 'deleteRole' => ['deleteRole', ['editor'], 'role:delete'];
-    yield 'deleteUser' => ['deleteUser', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user-cancel'];
+    yield 'deleteUser' => ['deleteUser', [new EntityStub('user', NULL, ['name' => 'alice'])], 'user:cancel'];
   }
 
   public function testDeleteUserLooksUpNamelessStubByUid(): void {
     $backend = $this->createBackend();
-    $backend->drushFailures = ['user-cancel' => 1];
+    $backend->drushFailures = ['user:cancel' => 1];
     $backend->drushExitCode = 1;
 
     $backend->deleteUser(new EntityStub('user', NULL, ['uid' => 7]));
 
-    $this->assertSame(['user-cancel', 'user:information'], array_column($backend->invocations, 'command'));
+    $this->assertSame(['user:cancel', 'user:information'], array_column($backend->invocations, 'command'));
     $this->assertSame([[], []], array_column($backend->invocations, 'arguments'));
     $this->assertSame(['yes' => NULL, 'delete-content' => NULL, 'uid' => '7'], $backend->invocations[0]['options']);
     $this->assertSame(['uid' => '7'], $backend->invocations[1]['options']);
@@ -252,14 +265,12 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $backend->deleteUser(new EntityStub('user'));
   }
 
-  public function testCacheClearDrushOnlySkipsRebuild(): void {
+  public function testCacheClearDrushIssuesNoCommand(): void {
     $backend = $this->createBackend();
 
     $backend->cacheClear('drush');
 
-    $this->assertCount(1, $backend->invocations);
-    $this->assertSame('cache-clear', $backend->invocations[0]['command']);
-    $this->assertSame(['drush'], $backend->invocations[0]['arguments']);
+    $this->assertSame([], $backend->invocations);
   }
 
   /**
@@ -394,6 +405,9 @@ class DrushBackendMethodsTest extends UnitTestCase {
   /**
    * Tests every command-issuing method drives 'drush()' as expected.
    *
+   * Each command is issued by its canonical colon-separated name, which
+   * Drush 13 and later register, never by a legacy alias.
+   *
    * @param string $method
    *   The backend method name.
    * @param array<int, mixed> $args
@@ -415,6 +429,10 @@ class DrushBackendMethodsTest extends UnitTestCase {
     if ($expected_command !== NULL) {
       $this->assertSame($expected_command, $backend->invocations[0]['command']);
     }
+
+    foreach (array_column($backend->invocations, 'command') as $command) {
+      $this->assertMatchesRegularExpression('/^[a-z]+(?::[a-z]+)+$/', $command, sprintf('The command "%s" is not a canonical colon-separated Drush command name.', $command));
+    }
   }
 
   /**
@@ -425,12 +443,13 @@ class DrushBackendMethodsTest extends UnitTestCase {
   public static function dataProviderInvokesDrush(): \Iterator {
     $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
 
-    yield 'createUser' => ['createUser', [$user], 'user-create', "User ID   :   9\n"];
-    yield 'deleteUser' => ['deleteUser', [$user], 'user-cancel'];
-    yield 'addUserRole' => ['addUserRole', [$user, 'admin'], 'user-add-role'];
-    yield 'cronRun' => ['cronRun', [], 'cron'];
-    yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm-enable'];
-    yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm-uninstall'];
+    yield 'cacheClear' => ['cacheClear', [], 'cache:rebuild'];
+    yield 'createUser' => ['createUser', [$user], 'user:create', "User ID   :   9\n"];
+    yield 'deleteUser' => ['deleteUser', [$user], 'user:cancel'];
+    yield 'addUserRole' => ['addUserRole', [$user, 'admin'], 'user:role:add'];
+    yield 'cronRun' => ['cronRun', [], 'core:cron'];
+    yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm:install'];
+    yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm:uninstall'];
     yield 'configGet' => ['configGet', ['system.site', 'name'], 'config:get', '"Example"'];
     yield 'configGetOriginal' => ['configGetOriginal', ['system.site'], 'config:get', '{}'];
     yield 'configSet' => ['configSet', ['system.site', 'name', 'v'], 'config:set'];
