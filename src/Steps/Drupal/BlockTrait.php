@@ -38,44 +38,9 @@ trait BlockTrait {
    */
   #[Given('the instance of the block :admin_label exists with the following configuration:')]
   public function blockCreateInstance(string $admin_label, TableNode $fields): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $block = $this->blockCreate($admin_label);
 
-    $block = NULL;
-
-    /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
-    $block_manager = \Drupal::service('plugin.manager.block');
-    $definitions = $block_manager->getDefinitions();
-    foreach ($definitions as $plugin_id => $definition) {
-      if ((string) $definition['admin_label'] === $admin_label) {
-        $default_theme = \Drupal::config('system.theme')->get('default');
-        $block = \Drupal::entityTypeManager()->getStorage('block')->create([
-          'plugin' => $plugin_id,
-          'theme' => $default_theme,
-        ]);
-
-        $suggestion = $block->getPlugin()->getMachineNameSuggestion();
-        $block_id = \Drupal::service('block.repository')->getUniqueMachineName($suggestion, $block->getTheme());
-
-        $block->set('id', $block_id);
-
-        // Set a temporary label for the 'blockConfigure()' call.
-        $settings = $block->get('settings');
-        $settings['label'] = $admin_label;
-        $block->set('settings', $settings);
-
-        $block->save();
-
-        break;
-      }
-    }
-
-    if (!$block instanceof Block) {
-      throw new \RuntimeException(sprintf('Could not create block with admin label "%s".', $admin_label));
-    }
-
-    $this->blockConfigure($admin_label, $fields);
-
-    $this->entityLifecycleRegister($block);
+    $this->blockApplyConfiguration($block, $fields->getRowsHash());
   }
 
   /**
@@ -95,39 +60,7 @@ trait BlockTrait {
    */
   #[Given('the block :label has the following configuration:')]
   public function blockConfigure(string $label, TableNode $fields): void {
-    $block = $this->blockGetByLabel($label);
-
-    $settings = $block->get('settings');
-    foreach ($fields->getRowsHash() as $field => $value) {
-      switch ($field) {
-        case 'label':
-          $settings['label'] = $value;
-          $block->set('settings', $settings);
-          break;
-
-        case 'label_display':
-          $settings['label_display'] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-          $block->set('settings', $settings);
-          break;
-
-        case 'region':
-          if (is_string($value)) {
-            $block->setRegion($value);
-          }
-          // @codeCoverageIgnoreStart
-          else {
-            throw new \RuntimeException('Expected region as string.');
-          }
-          // @codeCoverageIgnoreEnd
-          break;
-
-        case 'status':
-          $block->setStatus(filter_var($value, FILTER_VALIDATE_BOOLEAN));
-          break;
-      }
-    }
-
-    $block->save();
+    $this->blockApplyConfiguration($this->blockGetByLabel($label), $fields->getRowsHash());
   }
 
   /**
@@ -209,13 +142,7 @@ trait BlockTrait {
    */
   #[Given('the block :label has the condition :condition with the following configuration:')]
   public function blockConfigureVisibilityCondition(string $label, string $condition, TableNode $fields): void {
-    $block = $this->blockGetByLabel($label);
-
-    $configuration = $fields->getRowsHash();
-    $configuration['id'] = $condition;
-    $block->setVisibilityConfig($condition, $configuration);
-
-    $block->save();
+    $this->blockSetVisibilityCondition($this->blockGetByLabel($label), $condition, $fields->getRowsHash());
   }
 
   /**
@@ -232,7 +159,7 @@ trait BlockTrait {
    */
   #[Given('the block :label has the condition :condition removed')]
   public function blockRemoveVisibilityCondition(string $label, string $condition): void {
-    $this->blockConfigureVisibilityCondition($label, $condition, new TableNode([]));
+    $this->blockSetVisibilityCondition($this->blockGetByLabel($label), $condition, []);
   }
 
   /**
@@ -296,8 +223,11 @@ trait BlockTrait {
    */
   #[Then('the block :label in the region :region should exist')]
   public function blockAssertExistsInRegion(string $label, string $region): void {
-    $this->blockAssertExists($label);
     $block = $this->blockFindByLabel($label);
+
+    if ($block === NULL) {
+      throw new ExpectationException(sprintf('The block "%s" does not exist.', $label), $this->getSession()->getDriver());
+    }
 
     $actual_region = $block->getRegion();
 
@@ -323,14 +253,140 @@ trait BlockTrait {
    */
   #[Then('the block :label in the region :region should not exist')]
   public function blockAssertNotExistsInRegion(string $label, string $region): void {
-    $this->blockAssertExists($label);
     $block = $this->blockFindByLabel($label);
+
+    if ($block === NULL) {
+      throw new ExpectationException(sprintf('The block "%s" does not exist.', $label), $this->getSession()->getDriver());
+    }
 
     $actual_region = $block->getRegion();
 
     if ($actual_region === $region) {
       throw new ExpectationException(sprintf('The block "%s" is in the region "%s", but it should not be.', $label, $region), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Create a block in the default theme from the plugin with an admin label.
+   *
+   * The block is removed after the scenario.
+   *
+   * @param string $admin_label
+   *   The admin label of the block plugin.
+   *
+   * @return \Drupal\block\Entity\Block
+   *   The block, labelled with the admin label.
+   *
+   * @throws \RuntimeException
+   *   When no block plugin has the admin label.
+   */
+  public function blockCreate(string $admin_label): Block {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $block = NULL;
+
+    /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
+    $block_manager = \Drupal::service('plugin.manager.block');
+    $definitions = $block_manager->getDefinitions();
+    foreach ($definitions as $plugin_id => $definition) {
+      if ((string) $definition['admin_label'] === $admin_label) {
+        $default_theme = \Drupal::config('system.theme')->get('default');
+        $block = \Drupal::entityTypeManager()->getStorage('block')->create([
+          'plugin' => $plugin_id,
+          'theme' => $default_theme,
+        ]);
+
+        $suggestion = $block->getPlugin()->getMachineNameSuggestion();
+        $block_id = \Drupal::service('block.repository')->getUniqueMachineName($suggestion, $block->getTheme());
+
+        $block->set('id', $block_id);
+
+        // The label setting is what the label lookups match, so the block
+        // takes the admin label until a configuration replaces it.
+        $settings = $block->get('settings');
+        $settings['label'] = $admin_label;
+        $block->set('settings', $settings);
+
+        $block->save();
+
+        break;
+      }
+    }
+
+    if (!$block instanceof Block) {
+      throw new \RuntimeException(sprintf('Could not create block with admin label "%s".', $admin_label));
+    }
+
+    $this->entityLifecycleRegister($block);
+
+    return $block;
+  }
+
+  /**
+   * Apply a configuration to a block and save it.
+   *
+   * @param \Drupal\block\Entity\Block $block
+   *   The block.
+   * @param array<string, mixed> $configuration
+   *   The "label", "label_display", "region" and "status" values to set. Any
+   *   other key is ignored.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   *   When the block cannot be saved.
+   */
+  public function blockApplyConfiguration(Block $block, array $configuration): void {
+    $settings = $block->get('settings');
+    foreach ($configuration as $field => $value) {
+      switch ($field) {
+        case 'label':
+          $settings['label'] = $value;
+          $block->set('settings', $settings);
+          break;
+
+        case 'label_display':
+          $settings['label_display'] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+          $block->set('settings', $settings);
+          break;
+
+        case 'region':
+          if (is_string($value)) {
+            $block->setRegion($value);
+          }
+          // @codeCoverageIgnoreStart
+          else {
+            throw new \RuntimeException('Expected region as string.');
+          }
+          // @codeCoverageIgnoreEnd
+          break;
+
+        case 'status':
+          $block->setStatus(filter_var($value, FILTER_VALIDATE_BOOLEAN));
+          break;
+      }
+    }
+
+    $block->save();
+  }
+
+  /**
+   * Set a visibility condition on a block and save it.
+   *
+   * @param \Drupal\block\Entity\Block $block
+   *   The block.
+   * @param string $condition
+   *   The condition plugin ID.
+   * @param array<string, mixed> $configuration
+   *   The condition configuration. An empty configuration leaves the
+   *   condition with its defaults.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   *   When the block cannot be saved.
+   */
+  public function blockSetVisibilityCondition(Block $block, string $condition, array $configuration): void {
+    $configuration['id'] = $condition;
+    $block->setVisibilityConfig($condition, $configuration);
+
+    $block->save();
   }
 
   /**
