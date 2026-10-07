@@ -1,7 +1,7 @@
 Feature: Check that DrushTrait works
   As Behat Steps library developer
   I want to provide tools to run Drush commands and assert their output
-  So that users can cover behaviour that only the CLI exposes
+  So that users can cover behavior that only the CLI exposes
 
   Scenario: Assert "When I run the drush command :command" works as expected
     Given the user is anonymous

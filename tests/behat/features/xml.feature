@@ -14,13 +14,13 @@ Feature: Check that XmlTrait works
     Then the response should be in XML format
 
   @phpserver
-  Scenario: Assert "Then the response should be in XML format" honours content set from a fixture file over the page content
+  Scenario: Assert "Then the response should be in XML format" honors content set from a fixture file over the page content
     When I go to "http://cli:8888/xml_invalid.xml"
     And the response XML is loaded from the file "xml_valid.xml"
     Then the response should be in XML format
 
   @phpserver
-  Scenario: Assert "Then the response should be in XML format" honours content set from a PyString over the page content
+  Scenario: Assert "Then the response should be in XML format" honors content set from a PyString over the page content
     When I go to "http://cli:8888/xml_invalid.xml"
     And the response XML is the following:
       """
@@ -51,7 +51,7 @@ Feature: Check that XmlTrait works
     Then the response should not be in XML format
 
   @phpserver
-  Scenario: Assert "Then the response should not be in XML format" honours content set from a fixture file over the page content
+  Scenario: Assert "Then the response should not be in XML format" honors content set from a fixture file over the page content
     When I go to "http://cli:8888/xml_valid.xml"
     And the response XML is loaded from the file "xml_invalid.xml"
     Then the response should not be in XML format

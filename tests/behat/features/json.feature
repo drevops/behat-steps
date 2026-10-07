@@ -9,13 +9,13 @@ Feature: Check that JsonTrait works
     Then the response should be in JSON format
 
   @phpserver
-  Scenario: Assert "Then the response should be in JSON format" honours content set from a fixture file over the page content
+  Scenario: Assert "Then the response should be in JSON format" honors content set from a fixture file over the page content
     When I go to "http://cli:8888/json_invalid.json"
     And the response JSON is loaded from the file "json_valid.json"
     Then the response should be in JSON format
 
   @phpserver
-  Scenario: Assert "Then the response should be in JSON format" honours content set from a PyString over the page content
+  Scenario: Assert "Then the response should be in JSON format" honors content set from a PyString over the page content
     When I go to "http://cli:8888/json_invalid.json"
     And the response JSON is the following:
       """

@@ -1,7 +1,7 @@
 Feature: Check that LanguageTrait works
   As Behat Steps library developer
   I want to provide a step that installs languages
-  So that users can write scenarios covering multilingual behaviour
+  So that users can write scenarios covering multilingual behavior
 
   # The module teardown uninstalls "language" again, which removes the language
   # it defines. Both run as AfterScenario hooks in no guaranteed order, so the
