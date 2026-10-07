@@ -437,5 +437,5 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The row containing "Delta record" has a "Edit" link.
+      The row containing "Delta record" has the link "Edit".
       """

@@ -70,7 +70,7 @@ Feature: Check that MetatagTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "og:description" meta tag contains HTML tags:
+      The meta tag "og:description" contains HTML tags:
       """
 
   @test-trait:MetatagTrait

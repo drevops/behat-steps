@@ -859,20 +859,20 @@ trait ElementTrait {
     }
 
     if (!$attribute_found) {
-      throw new ExpectationException(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The attribute "%s" does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
     }
 
     if ($is_inverted && $attribute_value_found) {
       $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
+        ? sprintf('The attribute "%s" exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
+        : sprintf('The attribute "%s" exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
 
     if (!$is_inverted && !$attribute_value_found) {
       $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
+        ? sprintf('The attribute "%s" exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
+        : sprintf('The attribute "%s" exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
   }

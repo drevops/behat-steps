@@ -1507,7 +1507,7 @@ Behat reports every one of these as a failed step either way, so a scenario that
 
 ## Failure messages read one way
 
-A failure message quotes the values it names in double quotes, ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
+A failure message quotes the values it names in double quotes, puts the noun before the value it names (`the attribute "..."`, not `the "..." attribute`), ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
 
 | Trait | Before | After |
 | --- | --- | --- |
@@ -1549,6 +1549,12 @@ A failure message quotes the values it names in double quotes, ends with a perio
 | FileDownloadTrait | The URL ... returned HTTP status N. | The URL "..." returned HTTP status N. |
 | FileDownloadTrait | Unable to save temp file from URL .... | Unable to save temp file from URL "...". |
 | FileDownloadTrait | Unable to write downloaded content into file .... | Unable to write downloaded content into file "...". |
+| ElementTrait | The "..." attribute does not exist on the element "...". | The attribute "..." does not exist on the element "...". |
+| ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it should not. | The attribute "..." exists on the element "..." with a value "...", but it should not. |
+| ElementTrait | The "..." attribute exists on the element "..." with a value containing "...", but it should not. | The attribute "..." exists on the element "..." with a value containing "...", but it should not. |
+| ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it does not have a value "...". | The attribute "..." exists on the element "..." with a value "...", but it does not have a value "...". |
+| ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it does not contain a value "...". | The attribute "..." exists on the element "..." with a value "...", but it does not contain a value "...". |
+| MetatagTrait | The "..." meta tag contains HTML tags: .... | The meta tag "..." contains HTML tags: .... |
 
 ## Tightened public surface
 

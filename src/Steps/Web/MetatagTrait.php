@@ -124,7 +124,7 @@ trait MetatagTrait {
     $content = (string) $meta_tag->getAttribute('content');
 
     if ($content !== strip_tags($content)) {
-      throw new ExpectationException(sprintf('The "%s" meta tag contains HTML tags: %s.', $name, $content), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The meta tag "%s" contains HTML tags: %s.', $name, $content), $this->getSession()->getDriver());
     }
   }
 
