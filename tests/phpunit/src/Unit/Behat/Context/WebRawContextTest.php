@@ -197,13 +197,16 @@ class WebRawContextTest extends UnitTestCase {
    *   What each stub reports for any module.
    * @param string $trait
    *   The trait whose prerequisites to assert.
-   * @param class-string<\RuntimeException> $exception
+   * @param bool $is_hook
+   *   Whether a hook asserts the prerequisites, passing its scope.
+   * @param class-string<\RuntimeException> $expected_exception
    *   The exception the assertion throws.
    * @param string $expected_message
-   *   The message it throws with.
+   *   The whole message it throws with, compared exactly so a switch named
+   *   where it should not be fails the test.
    */
   #[DataProvider('dataProviderUnmetPrerequisiteFails')]
-  public function testUnmetPrerequisiteFails(array $backends, bool $is_enabled, string $trait, string $exception, string $expected_message): void {
+  public function testUnmetPrerequisiteFails(array $backends, bool $is_enabled, string $trait, bool $is_hook, string $expected_exception, string $expected_message): void {
     $stubs = [];
 
     foreach ($backends as $name => $interface) {
@@ -216,49 +219,75 @@ class WebRawContextTest extends UnitTestCase {
 
     $this->assertFalse($context->callPrerequisitesMet($trait));
 
-    $this->expectException($exception);
-    $this->expectExceptionMessage($expected_message);
-
-    $context->callAssertPrerequisites($trait);
+    try {
+      $context->callAssertPrerequisites($trait, $is_hook ? $this->createBeforeScenarioScope() : NULL);
+      $this->fail('An unmet prerequisite did not fail.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertInstanceOf($expected_exception, $exception);
+      $this->assertSame($expected_message, $exception->getMessage());
+    }
   }
 
   public static function dataProviderUnmetPrerequisiteFails(): \Iterator {
     $switch_off = ' Meet the prerequisite, or switch SamplePrerequisiteTrait off with the "sample_prerequisite.enabled" option or the "@behat-steps-skip:SamplePrerequisiteTrait" tag.';
 
-    yield 'no backend provides the capability' => [
+    yield 'no backend provides the capability, checked by a hook' => [
       ['drush' => DrushBackendInterface::class],
       TRUE,
       SamplePrerequisiteTrait::class,
+      TRUE,
       UnsupportedBackendActionException::class,
       'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: drush.' . $switch_off,
     ];
-    yield 'no backend listed' => [
+    yield 'no backend listed, checked by a hook' => [
       [],
       TRUE,
       SamplePrerequisiteTrait::class,
+      TRUE,
       UnsupportedBackendActionException::class,
       'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: none.' . $switch_off,
     ];
-    yield 'a check fails for a trait that switches off' => [
+    yield 'a check fails for a trait that switches off, checked by a hook' => [
       ['drupal' => DrupalBackendInterface::class],
       FALSE,
       SamplePrerequisiteTrait::class,
+      TRUE,
       \RuntimeException::class,
       'SamplePrerequisiteTrait requires that the "sample" module is enabled, which does not hold.' . $switch_off,
     ];
-  }
-
-  public function testUnmetPrerequisiteOfTraitWithoutSwitchNamesNoSwitch(): void {
-    $drupal = $this->createStub(DrupalBackendInterface::class);
-    $drupal->method('moduleIsEnabled')->willReturn(FALSE);
-
-    try {
-      $this->createPrerequisiteContext(['drupal' => $drupal])->callAssertPrerequisites(StepPrerequisiteTrait::class);
-      $this->fail('An unmet prerequisite did not fail.');
-    }
-    catch (\RuntimeException $exception) {
-      $this->assertSame('StepPrerequisiteTrait requires that the "step" module is enabled, which does not hold.', $exception->getMessage());
-    }
+    yield 'no backend provides the capability, checked by a step' => [
+      ['drush' => DrushBackendInterface::class],
+      TRUE,
+      SamplePrerequisiteTrait::class,
+      FALSE,
+      UnsupportedBackendActionException::class,
+      'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: drush.',
+    ];
+    yield 'a check fails for a trait that switches off, checked by a step' => [
+      ['drupal' => DrupalBackendInterface::class],
+      FALSE,
+      SamplePrerequisiteTrait::class,
+      FALSE,
+      \RuntimeException::class,
+      'SamplePrerequisiteTrait requires that the "sample" module is enabled, which does not hold.',
+    ];
+    yield 'a check fails for a trait without a switch, checked by a hook' => [
+      ['drupal' => DrupalBackendInterface::class],
+      FALSE,
+      StepPrerequisiteTrait::class,
+      TRUE,
+      \RuntimeException::class,
+      'StepPrerequisiteTrait requires that the "step" module is enabled, which does not hold.',
+    ];
+    yield 'a check fails for a trait without a switch, checked by a step' => [
+      ['drupal' => DrupalBackendInterface::class],
+      FALSE,
+      StepPrerequisiteTrait::class,
+      FALSE,
+      \RuntimeException::class,
+      'StepPrerequisiteTrait requires that the "step" module is enabled, which does not hold.',
+    ];
   }
 
   public function testReachedBackendAnswersBeforeFirstInList(): void {

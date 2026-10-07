@@ -514,7 +514,7 @@ public function acmeBeforeScenario(BeforeScenarioScope $scope): void {
     return;
   }
 
-  $this->assertPrerequisites(__TRAIT__);
+  $this->assertPrerequisites(__TRAIT__, $scope);
 
   // ...
 }
@@ -542,7 +542,7 @@ A module the trait needs is declared. A module it only adapts to, such as `patha
 ### Where a trait checks them
 
 - **A step** calls `$this->assertPrerequisites(__TRAIT__)` right after resolving its backend. It checks only when a scenario uses it, so a suite that never runs a webform step never needs `webform`.
-- **A setup hook** checks at scenario start, straight after its guard.
+- **A setup hook** checks at scenario start, straight after its guard, and passes its scope: `$this->assertPrerequisites(__TRAIT__, $scope)`. The `enabled` option and the skip tag stop a trait's hooks but never its steps, so only a hook's failure names them as a way out.
 - **A check at step scope** that reads what a prerequisite provides checks again first, in case the scenario removed it.
 - **A teardown** never throws for an unmet prerequisite. It asks `$this->prerequisitesMet(__TRAIT__)`, or reads a flag its setup set, and undoes only what the setup did, so it can't replace a failure the scenario already recorded.
 

@@ -1239,7 +1239,7 @@ protected function acmePrerequisites(): array {
 }
 ```
 
-A step or a setup hook checks them with `$this->assertPrerequisites(__TRAIT__)`, and a teardown asks `$this->prerequisitesMet(__TRAIT__)` instead, so it never replaces a failure the scenario already recorded. A prerequisite that doesn't hold fails with a message naming it and, for a trait with an `enabled` option, the option and the skip tag that switch the trait off.
+A step checks them with `$this->assertPrerequisites(__TRAIT__)`, a setup hook with `$this->assertPrerequisites(__TRAIT__, $scope)`, and a teardown asks `$this->prerequisitesMet(__TRAIT__)` instead, so it never replaces a failure the scenario already recorded. A prerequisite that doesn't hold fails with a message naming it. When a hook of a trait with an `enabled` option checks it, the message also names the option and the skip tag that switch the trait off; a step's message doesn't, because neither stops a step.
 
 | Before | After |
 | --- | --- |

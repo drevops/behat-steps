@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
+use Behat\Testwork\Hook\Scope\HookScope;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
@@ -17,8 +18,8 @@ class PrerequisiteContext extends WebRawContext {
   /**
    * Public bridge to the protected prerequisite assertion.
    */
-  public function callAssertPrerequisites(string $trait): void {
-    $this->assertPrerequisites($trait);
+  public function callAssertPrerequisites(string $trait, ?HookScope $scope = NULL): void {
+    $this->assertPrerequisites($trait, $scope);
   }
 
   /**
