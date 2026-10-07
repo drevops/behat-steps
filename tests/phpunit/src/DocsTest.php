@@ -1179,7 +1179,7 @@ EOD,
         ],
         ['  TestTrait::testAssertMethod - Missing "should" in the step' . PHP_EOL],
       ],
-      'then without the/a/no' => [
+      'then without the/a/an' => [
         [
           'TestTrait' => [
             'name' => 'TestTrait',
@@ -1194,7 +1194,41 @@ EOD,
             ],
           ],
         ],
-        ['  TestTrait::testAssertMethod - Missing "the", "a" or "no" in the step' . PHP_EOL],
+        ['  TestTrait::testAssertMethod - Missing "the", "a" or "an" in the step' . PHP_EOL],
+      ],
+      'then opening with an' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then an email should not be sent'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'then negated with no' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then no emails should be sent to the address :address'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Then step negates with "no" but should negate with "should not"' . PHP_EOL],
       ],
       'given starting with I' => [
         [
@@ -1750,6 +1784,13 @@ EOD,
                 'description' => 'Test method description',
                 'example' => 'Example text',
               ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSentMethod',
+                'steps' => ['@Then an email should have been sent'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
             ],
           ],
         ],
@@ -1758,6 +1799,7 @@ EOD,
           '  TestTrait::testClickMethod - Step reads "I click the" but should read "I click on the"' . PHP_EOL,
           '  TestTrait::testAssertViewportMethod - Step reads "a viewport" but should read "the viewport"' . PHP_EOL,
           '  TestTrait::testAssertSelectMethod - Step reads "the select element" but should read "the select"' . PHP_EOL,
+          '  TestTrait::testAssertSentMethod - Step reads "should have been" but should read "should be"' . PHP_EOL,
         ],
       ],
       'settled phrases in steps' => [
@@ -1874,7 +1916,7 @@ EOD,
         [
           '  TestTrait::testMethod - Missing "Assert" in the method name' . PHP_EOL,
           '  TestTrait::testMethod - Missing "should" in the step' . PHP_EOL,
-          '  TestTrait::testMethod - Missing "the", "a" or "no" in the step' . PHP_EOL,
+          '  TestTrait::testMethod - Missing "the", "a" or "an" in the step' . PHP_EOL,
           '  TestTrait::testMethod - Missing example' . PHP_EOL,
         ],
       ],
@@ -1900,7 +1942,7 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testAssertMethod3',
-                'steps' => ['@Then no results should be displayed'],
+                'steps' => ['@Then an error should be displayed'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
               ],

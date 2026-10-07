@@ -5876,28 +5876,28 @@ Then the number of emails sent with the subject "Welcome" should be 1
 </details>
 
 <details>
-  <summary><code>@Then no emails should have been sent</code></summary>
+  <summary><code>@Then an email should not be sent</code></summary>
 
 <br/>
-Assert that no email messages should be sent
+Assert that no email was sent
 <br/><br/>
 
 ```gherkin
-Then no emails should have been sent
+Then an email should not be sent
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then no emails should have been sent to the address :address</code></summary>
+  <summary><code>@Then an email should not be sent to the address :address</code></summary>
 
 <br/>
-Assert that no email messages should be sent to a specified address
+Assert that no email was sent to an address
 <br/><br/>
 
 ```gherkin
-Then no emails should have been sent to the address "user@example.com"
+Then an email should not be sent to the address "user@example.com"
 
 ```
 

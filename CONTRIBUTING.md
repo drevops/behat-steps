@@ -38,7 +38,8 @@ of tests. Follow these guidelines:
   - A click reads `I click on the ...`: `I click on the link :link in the region :region`.
   - The viewport is `the viewport`, never `a viewport`.
   - A `<select>` is `the select :selector`, never `the select element :selector`.
-  - `ahoy lint-docs` rejects the replaced phrases, listed in `docs.php`'s `rejected_step_phrases()`, and an `I visit` step that names no page or link.
+  - An assertion negates with `should not`, never with the determiner `no` or the perfect tense: `an email should not be sent`, not `no emails should have been sent`.
+  - `ahoy lint-docs` rejects the replaced phrases, listed in `docs.php`'s `rejected_step_phrases()`, an `I visit` step that names no page or link, and a `Then` step that opens with `no`.
 
 - **`Given`**:
   - Defines test prerequisites—conditions or data that must exist before the
@@ -119,7 +120,7 @@ A check that throws `\RuntimeException` on a bad step argument or a missing prec
 | Instead of | Write |
 | --- | --- |
 | `userAssertHasNoRoles()` | `userAssertNotHasRoles()` |
-| `emailAssertNoMessagesSent()` | `emailAssertMessagesNotSent()` |
+| `emailAssertNoMessagesSent()` | `emailAssertMessageNotSent()` |
 | `userAssertIsNotBlocked()` | `userAssertNotBlocked()` |
 | `elementAssertIsVisuallyHidden()` | `elementAssertNotVisuallyVisible()` |
 | `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |

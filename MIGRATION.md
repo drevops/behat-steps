@@ -222,7 +222,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | Before | After |
 | --- | --- |
 | `Then an email should be sent to the :address` | `Then an email should be sent to the address :address` |
-| `Then no emails should have been sent to the :address` | `Then no emails should have been sent to the address :address` |
+| `Then no emails should have been sent to the :address` | `Then an email should not be sent to the address :address` |
 | `Then the email header :header should exactly be:` | `Then the email header :header should be:` |
 
 ### FieldTrait
@@ -582,12 +582,13 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 
 ## One wording per step idea
 
-A handful of ideas still read 2 ways after the passes above. Most navigation steps said `I visit the ... page`, while 2 dropped `page` and 3 said `I edit the ...` although they only open the edit form. A click was `I click on` in some traits and `I click` in others, the viewport was both `the viewport` and `a viewport`, a `<select>` was both `the select` and `the select element`, and an email address was `:address` in one trait and `:mail` in another. Each idea now reads 1 way:
+A handful of ideas still read 2 ways after the passes above. Most navigation steps said `I visit the ... page`, while 2 dropped `page` and 3 said `I edit the ...` although they only open the edit form. A click was `I click on` in some traits and `I click` in others, the viewport was both `the viewport` and `a viewport`, a `<select>` was both `the select` and `the select element`, an email address was `:address` in one trait and `:mail` in another, and an email that must not be sent was both `an email should not be sent` and `no emails should have been sent`. Each idea now reads 1 way:
 
 - A step that opens a page reads `I visit the ... page` and names the page it opens.
 - A click reads `I click on the ...`.
 - The viewport is `the viewport`, and a `<select>` is `the select :selector`.
 - An email address is `:address` everywhere, and an email link's position reads `WithIndex` in the method names, as it already did in the step text.
+- An email that must not be sent reads `an email should not be sent`, as the 2 content checks already did, so each negative pairs with the positive `an email should be sent ...`.
 
 `ahoy lint-docs` and `TraitMethodNamingTest` reject the replaced forms, so they don't come back.
 
@@ -599,6 +600,14 @@ The media, ECK and content block navigation steps and the 2 viewport offset step
 | --- | --- |
 | `Then the element :selector should be displayed within a viewport` | `Then the element :selector should be displayed within the viewport` |
 | `Then the element :selector should not be displayed within a viewport` | `Then the element :selector should not be displayed within the viewport` |
+
+### EmailTrait
+
+| Before | After |
+| --- | --- |
+| `Then no emails should have been sent` | `Then an email should not be sent` |
+
+`Then no emails should have been sent to the :address` changed in an earlier pass, so its row under [Unified step text](#unified-step-text) carries the final text.
 
 ### FieldTrait
 
@@ -1558,6 +1567,7 @@ A failure message quotes the values it names in double quotes, puts the noun bef
 | ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it does not have a value "...". | The attribute "..." exists on the element "..." with a value "...", but it does not have a value "...". |
 | ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it does not contain a value "...". | The attribute "..." exists on the element "..." with a value "...", but it does not contain a value "...". |
 | MetatagTrait | The "..." meta tag contains HTML tags: .... | The meta tag "..." contains HTML tags: .... |
+| Drupal\EmailTrait | No emails should have been sent, but some were found: ... | An email was sent, but it should not have been: ... |
 
 ## Tightened public surface
 
@@ -1663,8 +1673,8 @@ Method names carried 6 shapes for "assert the negative", 2 spellings of "normali
 
 | Trait | Old | New |
 | --- | --- | --- |
-| `Drupal\EmailTrait` | `emailAssertNoMessagesSent()` | `emailAssertMessagesNotSent()` |
-| `Drupal\EmailTrait` | `emailAssertNoMessagesSentToAddress()` | `emailAssertMessagesNotSentToAddress()` |
+| `Drupal\EmailTrait` | `emailAssertNoMessagesSent()` | `emailAssertMessageNotSent()` |
+| `Drupal\EmailTrait` | `emailAssertNoMessagesSentToAddress()` | `emailAssertMessageNotSentToAddress()` |
 | `Drupal\FileTrait` | `fileAssertUnmanagedHasNoContent()` | `fileAssertUnmanagedNotContains()` |
 | `Drupal\UserTrait` | `userAssertHasNoRoles()` | `userAssertNotHasRoles()` |
 | `Drupal\UserTrait` | `userAssertIsBlocked()` | `userAssertBlocked()` |
