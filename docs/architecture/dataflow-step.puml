@@ -55,7 +55,7 @@ Behat -> Ctx: BeforeScenario
 activate Ctx
 Ctx -> Ctx: each hook asks skipTag() for its own trait, and returns\non the trait's skip tag or enabled = FALSE, or records\nthe answer for the trait's step hooks and transforms
 opt the hook's trait declares prerequisites
-  Ctx -> Registry: assertPrerequisites(): hasCapability(), then the\nbackend already reached, else the first one listed
+  Ctx -> Registry: assertPrerequisites(trait, scope): hasCapability(), then\nthe backend already reached, else the first one listed
   activate Registry
   Registry --> Ctx: a backend providing each capability
   deactivate Registry
@@ -90,7 +90,7 @@ else the step needs Drupal
   end
   deactivate Registry
   opt the step's trait declares prerequisites
-    Trait -> Ctx: assertPrerequisites() for its own trait, the same\nchecks, run only when a scenario uses the step
+    Trait -> Ctx: assertPrerequisites(trait) with no scope: the same\nchecks, run only when a scenario uses the step, and a\nfailure names no switch, since the switches stop only hooks
   end
   Trait -> Backend: the capability call, e.g. createNode(stub)
   activate Backend
