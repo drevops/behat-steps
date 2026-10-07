@@ -57,9 +57,6 @@ class CoreTermMethodsKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests the term lifecycle: create with parent lookup, then delete.
-   */
   public function testTermLifecycle(): void {
     $parent = Term::create(['name' => 'Frameworks', 'vid' => 'tags']);
     $parent->save();

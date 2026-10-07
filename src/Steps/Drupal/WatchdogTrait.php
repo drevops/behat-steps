@@ -29,8 +29,8 @@ use Drupal\Core\Database\Database;
  * The check is on by default. An opted-in scenario whose prerequisites do not
  * hold fails at its start.
  *
- * `watchdog.fail_on_errors` and `@error` decide what happens to errors that
- * were read, so they do not cover an unmet prerequisite.
+ * `watchdog.fail_on_errors` and `@error` determine what happens to errors
+ * that were read, so they do not cover an unmet prerequisite.
  *
  * Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
  *

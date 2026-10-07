@@ -254,7 +254,7 @@ final class BehatStepsExtension implements ExtensionInterface {
    * A Behat run loads this extension while the container is built, before
    * any element is requested from Mink, so the replacement holds for the
    * session. A process that loaded Mink's class first, such as this package's
-   * PHPUnit suite, keeps Mink's behaviour, which affects only page-text
+   * PHPUnit suite, keeps Mink's behavior, which affects only page-text
    * extraction.
    */
   protected function aliasDocumentElement(): void {
@@ -319,7 +319,7 @@ final class BehatStepsExtension implements ExtensionInterface {
   /**
    * Rejects a 'drivers' key, naming 'backends' in its place.
    *
-   * The tree refuses an undeclared key before 'load()' runs, with a message
+   * The tree rejects an undeclared key before 'load()' runs, with a message
    * listing only the declared keys, so this check runs before normalization.
    *
    * @param array<array-key, mixed> $config
@@ -343,8 +343,6 @@ final class BehatStepsExtension implements ExtensionInterface {
    * Loads the blackbox backend.
    */
   protected function loadBlackbox(FileLoader $loader): void {
-    // The blackbox backend needs no configuration, unlike the Drupal and Drush
-    // backends, which load only when configured.
     $loader->load('backends/blackbox.yml');
   }
 
@@ -497,7 +495,7 @@ final class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Validates one entry of the backend list and returns its tag name.
+   * Validates 1 entry of the backend list and returns its tag name.
    *
    * @param int|string $tag
    *   The entry's key: an integer for a bare entry, the tag name otherwise.

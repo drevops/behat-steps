@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Asserts the return contract of every capability create and delete method.
  *
  * A teardown deletes whatever a scenario created without checking first, so
- * a create hands back a stub and a delete returns nothing. CONTRIBUTING.md
+ * a create returns a stub and a delete returns nothing. CONTRIBUTING.md
  * states the contract, including that a delete tolerates a missing target.
  */
 #[CoversNothing]

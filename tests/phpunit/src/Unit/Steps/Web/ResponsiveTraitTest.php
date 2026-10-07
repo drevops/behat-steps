@@ -399,16 +399,10 @@ class ResponsiveTraitTestImplementation extends RawMinkContext {
 
   use ResponsiveTrait;
 
-  /**
-   * Exposes the protected method for testing.
-   */
   public function callExtractDimensions(string $dimensions, ?string $name = NULL): array {
     return $this->responsiveExtractDimensions($dimensions, $name);
   }
 
-  /**
-   * Exposes the breakpoint the tags resolved to.
-   */
   public function testGetBreakpointFromTag(): ?string {
     return $this->responsiveBreakpointFromTag;
   }

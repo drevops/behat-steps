@@ -515,7 +515,7 @@ trait AccessibilityTrait {
   /**
    * Return the base tag name that enables automatic mode (no `@` prefix).
    *
-   * The trait recognises this exact tag plus value variants
+   * The trait recognizes this exact tag plus value variants
    * (`<tag>:critical`, `<tag>:serious`, `<tag>:moderate`, `<tag>:minor`,
    * `<tag>:warning`, `<tag>:strict`, `<tag>:any`) for per-scenario gate
    * configuration.
@@ -560,7 +560,7 @@ trait AccessibilityTrait {
    *
    * Default: enabled only when the `BEHAT_ACCESSIBILITY_PRINT` environment
    * variable is set to a non-empty value other than `0`. Override to
-   * hardcode either behaviour.
+   * hardcode either behavior.
    */
   public function accessibilityGetPrintCli(): bool {
     $value = getenv('BEHAT_ACCESSIBILITY_PRINT');

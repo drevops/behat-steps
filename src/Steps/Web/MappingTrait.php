@@ -135,7 +135,7 @@ trait MappingTrait {
   /**
    * Flattens the configured groups into a single key to value map.
    *
-   * A group is a way to organise the configuration and takes no part in the
+   * A group is a way to organize the configuration and takes no part in the
    * lookup, so a key appearing in 2 groups would make its bare-key token
    * ambiguous.
    *
@@ -143,7 +143,7 @@ trait MappingTrait {
    *   Mapped values keyed by mapping key.
    *
    * @throws \RuntimeException
-   *   When the same key appears in more than one group.
+   *   When the same key appears in more than 1 group.
    */
   protected function mappingGetFlattened(): array {
     $groups = $this->getOptionArray('mapping', 'groups');

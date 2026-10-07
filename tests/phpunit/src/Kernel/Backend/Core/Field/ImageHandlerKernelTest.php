@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * ImageHandler reads an image file, writes it to public:// via the
  * file.repository service, and emits a single-delta shorthand
  * ['target_id' => X, 'alt' => Y, 'title' => Z]. The base helper's
- * normalisation handles that shape, so the assertion is identical to the
+ * normalization handles that shape, so the assertion is identical to the
  * other multi-property handlers.
  */
 #[CoversClass(ImageHandler::class)]

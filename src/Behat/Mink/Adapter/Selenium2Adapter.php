@@ -22,9 +22,7 @@ class Selenium2Adapter extends BrowserAdapterBase implements CookieCapabilityInt
   /**
    * Browser driver methods this adapter reaches through reflection.
    *
-   * The browser driver exposes no public equivalent, and
-   * 'BrowserCapabilityResolverTest' asserts both names still exist so an
-   * upstream rename fails a test rather than a scenario.
+   * The browser driver exposes no public equivalent.
    */
   public const array SYN_METHODS = ['withSyn', 'executeJsOnXpath'];
 

@@ -126,7 +126,7 @@ trait ContentTrait {
   /**
    * Create content of a type from a table of field values.
    *
-   * Each row becomes one node; each column is a base property or a field.
+   * Each row becomes 1 node; each column is a base property or a field.
    *
    * @code
    *   Given the following page content exist:

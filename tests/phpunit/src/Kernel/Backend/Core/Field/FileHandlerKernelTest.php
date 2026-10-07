@@ -32,9 +32,6 @@ class FileHandlerKernelTest extends FileBackedHandlerKernelTestBase {
     'file',
   ];
 
-  /**
-   * Tests round-trip for a file field with a source file from disk.
-   */
   public function testFileRoundTrip(): void {
     $this->attachField('field_attachment', 'file');
 

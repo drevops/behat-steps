@@ -165,7 +165,7 @@ class CoreErrorPathsTest extends UnitTestCase {
   }
 
   /**
-   * Installs a container serving one mocked, bundle-less entity type.
+   * Installs a container serving 1 mocked, bundle-less entity type.
    *
    * @param string $entity_type
    *   The entity type id the mocked definition answers for.

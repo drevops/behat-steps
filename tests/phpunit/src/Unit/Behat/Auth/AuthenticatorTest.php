@@ -326,12 +326,6 @@ class AuthenticatorTest extends UnitTestCase {
     $this->assertGreaterThanOrEqual(3, $call_count);
   }
 
-  /**
-   * Tests that isLoggedIn() does not poll when login_wait is 0.
-   *
-   * Confirms the wait loop is skipped entirely when waiting is disabled, so
-   * the third-resort check performs a single lookup.
-   */
   public function testIsLoggedInDoesNotPollWhenLoginWaitIsZero(): void {
     $call_count = 0;
     $page = $this->createMock(DocumentElement::class);

@@ -36,9 +36,6 @@ class SmartdateHandlerKernelTest extends FieldHandlerKernelTestBase {
     'smart_date',
   ];
 
-  /**
-   * Tests round-trip for a smartdate field with numeric Unix timestamps.
-   */
   public function testSmartdateRoundTrip(): void {
     $this->attachField('field_event', 'smartdate');
 

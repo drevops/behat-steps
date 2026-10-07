@@ -99,14 +99,12 @@ Feature: Check that WatchdogTrait works
 
   @watchdog:custom_type
   Scenario: Assert that @watchdog tag parsing works with custom type
-    # This scenario tests that the @watchdog:custom_type tag is parsed correctly
-    # The watchdog functionality will check for both 'php' and 'custom_type' messages
+    # The watchdog check covers both 'php' and 'custom_type' messages.
     Given the watchdog is cleared
     When I go to the homepage
 
   @watchdog:type1 @watchdog:type2
   Scenario: Assert that multiple @watchdog tags are parsed correctly
-    # This scenario tests that multiple @watchdog tags are parsed into message types
     Given the watchdog is cleared
     When I go to the homepage
 

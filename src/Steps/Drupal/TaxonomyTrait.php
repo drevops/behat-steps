@@ -59,7 +59,7 @@ trait TaxonomyTrait {
   /**
    * Create taxonomy terms in a vocabulary from a table of field values.
    *
-   * Each row becomes one term; each column is a base property or a field. The
+   * Each row becomes 1 term; each column is a base property or a field. The
    * vocabulary accepts either its machine name or its human label.
    *
    * @code

@@ -51,7 +51,7 @@ class DrushBackendResultTest extends UnitTestCase {
    * Tests that 'drushResult()' maps a finished process onto a 'DrushResult'.
    *
    * @param int|null $exit_code
-   *   The exit code reported by the process (NULL when signalled).
+   *   The exit code reported by the process (NULL when signaled).
    * @param string $output
    *   The process standard output.
    * @param string $error_output

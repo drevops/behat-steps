@@ -115,9 +115,6 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
     static::reflect($handler)->getMethod('doExpand')->invoke($handler, [['extra' => 'keep-me']]);
   }
 
-  /**
-   * Tests that a resolved id whose entity no longer loads is rejected.
-   */
   public function testExpandRejectsDeletedTarget(): void {
     $this->installContainer(NULL);
     $handler = $this->createHandler();
@@ -128,9 +125,6 @@ class EntityReferenceRevisionsHandlerTest extends FieldHandlerUnitTestBase {
     $handler->expand([99]);
   }
 
-  /**
-   * Tests that a loaded target outside the field's bundles is rejected.
-   */
   public function testExpandRejectsTargetOfUnacceptedBundle(): void {
     $handler = $this->createHandlerWithSettings(['handler_settings' => ['target_bundles' => ['image' => 'image']]]);
 

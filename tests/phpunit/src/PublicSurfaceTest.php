@@ -75,7 +75,7 @@ class PublicSurfaceTest extends UnitTestCase {
   protected const ALLOWED_CONSTANTS = [];
 
   /**
-   * The classes naming the contracts a composed trait answers to.
+   * The classes naming the contracts a composed trait satisfies.
    */
   protected const CONTEXTS = [WebContext::class, DrupalContext::class];
 

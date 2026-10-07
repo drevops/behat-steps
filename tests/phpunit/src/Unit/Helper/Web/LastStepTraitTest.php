@@ -72,9 +72,6 @@ class LastStepTraitTest extends UnitTestCase {
     return new BeforeScenarioScope($this->createStub(Environment::class), $feature, $scenario);
   }
 
-  /**
-   * Builds an AfterStep scope for a step on the given line.
-   */
   protected function createAfterStepScope(int $line): AfterStepScope {
     $step = new StepNode('Given', 'a step', [], $line, 'Given');
     $feature = new FeatureNode('Feature', NULL, [], NULL, [], 'Feature', 'en', __FILE__, 1);

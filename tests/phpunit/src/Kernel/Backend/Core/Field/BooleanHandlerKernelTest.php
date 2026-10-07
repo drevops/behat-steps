@@ -31,17 +31,11 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
     ...self::BASE_MODULES,
   ];
 
-  /**
-   * Tests canonical 'Yes' resolves to 1 and round-trips via storage.
-   */
   public function testCanonicalYesRoundTrip(): void {
     $this->attachField('field_flag', 'boolean');
     $this->assertFieldRoundTripViaBackend('field_flag', ['Yes']);
   }
 
-  /**
-   * Tests canonical 'no' resolves to 0 and round-trips via storage.
-   */
   public function testCanonicalNoRoundTrip(): void {
     $this->attachField('field_flag', 'boolean');
     $this->assertFieldRoundTripViaBackend('field_flag', ['no']);

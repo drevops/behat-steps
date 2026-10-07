@@ -70,8 +70,8 @@ class ExtensionPointTest extends UnitTestCase {
   /**
    * Provides every concrete class under `src/` that no class there extends.
    *
-   * PHP refuses to extend a final class, so a class the package extends
-   * itself is open whatever this test asserts.
+   * A final class cannot be extended, so a class the package extends itself
+   * is open whatever this test asserts.
    */
   public static function dataProviderClassIsFinalUnlessExtensionPoint(): array {
     $types = static::discoverSourceTypes();

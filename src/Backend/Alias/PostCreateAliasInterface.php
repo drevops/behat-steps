@@ -10,9 +10,9 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  * A creation alias that acts on the entity after it has been saved.
  *
  * This lifecycle is for side-effects that require the entity to exist
- * first - for example, assigning roles to a user after the user record
- * has been written, or attaching references to an entity that needs an
- * id before it can be linked.
+ * first. Examples are assigning roles to a user after the user record has
+ * been written, or attaching references to an entity that needs an id
+ * before it can be linked.
  */
 interface PostCreateAliasInterface extends CreationAliasInterface {
 

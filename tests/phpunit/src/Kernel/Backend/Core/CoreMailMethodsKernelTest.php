@@ -40,9 +40,6 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests that 'mailStartCollecting()' swaps the default mail interface.
-   */
   public function testMailStartCollectingSwapsInterface(): void {
     $this->core->mailStartCollecting();
 
@@ -50,9 +47,6 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
     $this->assertSame('test_mail_collector', $interface['default'] ?? NULL);
   }
 
-  /**
-   * Tests the collect -> send -> get -> clear -> stop lifecycle.
-   */
   public function testMailLifecycleRoundTrip(): void {
     $this->core->mailStartCollecting();
 
@@ -92,9 +86,6 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
     $this->assertSame($attachments, $mail[0]['params']['attachments']);
   }
 
-  /**
-   * Tests that an explicit empty attachments array omits the params key.
-   */
   public function testMailSendWithEmptyAttachmentsOmitsKey(): void {
     $this->core->mailStartCollecting();
 
@@ -106,9 +97,6 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
     $this->assertArrayNotHasKey('attachments', $mail[0]['params']);
   }
 
-  /**
-   * Tests mail collection swaps mailsystem senders when the module is on.
-   */
   public function testMailCollectionRedirectsMailsystemSenders(): void {
     \Drupal::service('module_installer')->install(['mailsystem']);
 

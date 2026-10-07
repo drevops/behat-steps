@@ -14,7 +14,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * Assert status, error, warning and success messages rendered on the page.
  *
  * - Match a single message by substring, per message type.
- * - Match a table of messages in one step.
+ * - Match a table of messages in 1 step.
  *
  * Each message type resolves to a CSS selector from the `message.selectors`
  * option, keyed `default`, `error`, `success` and `warning`. A message

@@ -27,7 +27,7 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests DrupalBackend's capability surface and 'detectMajorVersion()'.
  *
- * Behaviour past construction requires a real Drupal bootstrap and is
+ * Behavior past construction requires a real Drupal bootstrap and is
  * exercised by the Kernel test suite.
  */
 #[CoversClass(DrupalBackend::class)]
@@ -40,9 +40,6 @@ class DrupalBackendTest extends UnitTestCase {
    */
   protected const DRUPAL_ROOT = __DIR__ . '/../../../fixtures/backend/drupal-root';
 
-  /**
-   * Tests that DrupalBackend implements its composite contract.
-   */
   public function testImplementsDrupalBackendInterface(): void {
     $interfaces = (array) class_implements(DrupalBackend::class);
 
@@ -80,9 +77,6 @@ class DrupalBackendTest extends UnitTestCase {
     yield 'user' => [UserCapabilityInterface::class];
   }
 
-  /**
-   * Tests that 'detectMajorVersion()' rejects an unparseable version string.
-   */
   public function testDetectMajorVersionRejectsNonNumeric(): void {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessageMatches('/Unable to extract major Drupal core version/');

@@ -69,8 +69,8 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
    *   The interface every entity in the set implements.
    */
   protected function assertLoadedSet(array $expected, array $actual, string $interface): void {
-    // IDs compare as strings, so a config entity keyed by its machine name
-    // reads the same way as a content entity keyed by an integer.
+    // IDs compare as strings, so a config entity keyed by machine name and a
+    // content entity keyed by integer are handled alike.
     $expected_ids = array_map(static fn(EntityInterface $entity): string => (string) $entity->id(), $expected);
     sort($expected_ids);
 

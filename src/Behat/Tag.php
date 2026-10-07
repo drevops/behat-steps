@@ -120,7 +120,7 @@ final class Tag {
    *   The tag name, without a leading '@' or the separator.
    *
    * @return array<int, string>
-   *   One value per tag, feature tags first, each in the order written.
+   *   1 value per tag, feature tags first, each in the order written.
    */
   public static function values(TaggedNodeInterface|ScenarioScope|BeforeScenarioTested $subject, string $name): array {
     $tags = $subject instanceof TaggedNodeInterface ? self::on($subject) : self::all($subject);

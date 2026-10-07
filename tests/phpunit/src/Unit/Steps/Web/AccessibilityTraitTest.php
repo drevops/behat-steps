@@ -564,7 +564,8 @@ class AccessibilityTraitTest extends UnitTestCase {
    * Builds a representative accumulator with 2 scenarios, a shared URL, a blank tab, and mixed-impact findings.
    *
    * @return array<int, array<string, mixed>>
-   *   Sample aggregate data in the shape produced by accessibilityAggregateCapture().
+   *   Sample aggregate data in the shape produced by
+   *   accessibilityAggregateCapture().
    */
   protected static function createSampleAggregate(): array {
     $image_alt = [

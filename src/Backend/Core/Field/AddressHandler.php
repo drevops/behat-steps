@@ -103,7 +103,7 @@ class AddressHandler extends AbstractHandler {
   }
 
   /**
-   * Folds one address value into a keyed sub-field array.
+   * Folds 1 address value into a keyed sub-field array.
    *
    * @param mixed $value
    *   A single address value (string or array).

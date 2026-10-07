@@ -3,8 +3,6 @@ Feature: Check that TableTrait works
   I want to provide tools to verify HTML table content and structure
   So that users can test tabular data reliably
 
-  # Row count.
-
   @phpserver
   Scenario: Assert "Then the table :selector should have :count row(s)" works as expected
     Given the user is anonymous
@@ -65,8 +63,6 @@ Feature: Check that TableTrait works
       | 2.5   | The count must be an integer, but "2.5" was given.  |
       | -1    | The count must be 0 or greater, but "-1" was given. |
 
-  # Column count.
-
   @phpserver
   Scenario: Assert "Then the table :selector should have :count column(s)" works as expected
     Given the user is anonymous
@@ -107,8 +103,6 @@ Feature: Check that TableTrait works
       The count must be an integer, but "three" was given.
       """
 
-  # Column headers.
-
   @phpserver
   Scenario: Assert "Then the table :selector should contain the following columns:" works as expected
     Given the user is anonymous
@@ -133,8 +127,6 @@ Feature: Check that TableTrait works
       """
       Column "NonExistent" not found in table ".table-asc".
       """
-
-  # Empty and not empty.
 
   @phpserver
   Scenario: Assert "Then the table :selector should be empty" works as expected
@@ -177,8 +169,6 @@ Feature: Check that TableTrait works
       """
       Expected table ".table-empty" to not be empty, but it has no rows.
       """
-
-  # Sort order.
 
   @phpserver
   Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" works with ascending order
@@ -237,8 +227,6 @@ Feature: Check that TableTrait works
       Column "NonExistent" not found in table ".table-asc".
       """
 
-  # Row content.
-
   @phpserver
   Scenario: Assert "Then the table :selector should contain the following rows:" works as expected
     Given the user is anonymous
@@ -264,8 +252,6 @@ Feature: Check that TableTrait works
       """
       not found in table ".table-asc".
       """
-
-  # Row text.
 
   @phpserver
   Scenario: Assert "Then the row :row_text should contain the following:" works as expected

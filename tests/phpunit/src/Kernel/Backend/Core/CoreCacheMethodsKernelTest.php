@@ -42,7 +42,6 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
   }
 
   public function testCacheClearDispatches(): void {
-    // Populate a cache entry so the clear has something to flush.
     \Drupal::cache()->set('drupal_backend_test:sentinel', 'value');
     $this->assertNotFalse(\Drupal::cache()->get('drupal_backend_test:sentinel'));
 

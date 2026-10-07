@@ -21,9 +21,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('aliases')]
 class DrushBackendCreationAliasesTest extends UnitTestCase {
 
-  /**
-   * Tests that DrushBackend implements the opt-in capability interface.
-   */
   public function testImplementsCreationAliasCapability(): void {
     $this->assertContains(CreationAliasCapabilityInterface::class, (array) class_implements(DrushBackend::class));
   }

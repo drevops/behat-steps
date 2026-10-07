@@ -61,9 +61,6 @@ class UserTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertSame(['access user profiles', 'change own username'], $role->getPermissions());
   }
 
-  /**
-   * Creates and saves a user.
-   */
   protected function createUser(string $name, int $status): UserInterface {
     $user = User::create(['name' => $name, 'status' => $status]);
     $user->save();

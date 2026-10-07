@@ -16,10 +16,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * Name is a multi-property field provided by the 'drupal/name' contrib
  * module. The handler accepts 3 input shapes (shorthand string, numeric
- * array, associative array) and normalises them into the same per-component
+ * array, associative array) and normalizes them into the same per-component
  * keyed structure.
  *
- * The handler also honours the field's 'components' setting: positional input
+ * The handler also honors the field's 'components' setting: positional input
  * skips disabled components and named input throws if it targets one.
  */
 #[CoversClass(NameHandler::class)]
@@ -48,9 +48,6 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
     ]);
   }
 
-  /**
-   * Tests round-trip for a name field with "Family, Given" shorthand.
-   */
   public function testNameShorthandStringRoundTrip(): void {
     $this->attachField('field_author', 'name');
 

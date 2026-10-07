@@ -146,7 +146,7 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
     $this->assertInstanceOf(ContentEntityInterface::class, $reloaded);
 
     // Some handlers (e.g. ImageHandler) emit a flat associative array as
-    // single-delta shorthand rather than a list of deltas. Normalise that
+    // single-delta shorthand rather than a list of deltas. Normalize that
     // shape into a 1-element list so the iteration below is uniform.
     $expanded = $stub->getValue($field_name);
     $deltas = is_array($expanded) && !array_is_list($expanded)

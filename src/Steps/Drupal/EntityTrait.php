@@ -15,7 +15,7 @@ use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
  * - Create entities of any type from a table of field values.
  *
  * Covers types such as `commerce_product`, `group` or `paragraph`, where a
- * dedicated trait would add vocabulary without adding behaviour. Entities
+ * dedicated trait would add vocabulary without adding behavior. Entities
  * created here are removed after the scenario along with every other entity
  * the scenario created.
  *
@@ -31,7 +31,7 @@ trait EntityTrait {
   /**
    * Create entities of a type from a table of field values.
    *
-   * Each row becomes one entity; each column is a base property or a field.
+   * Each row becomes 1 entity; each column is a base property or a field.
    *
    * @code
    *   Given the following "commerce_product" entities exist:

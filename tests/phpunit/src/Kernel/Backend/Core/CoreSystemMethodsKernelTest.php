@@ -81,9 +81,6 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $this->assertContains('language', $modules);
   }
 
-  /**
-   * Tests createLanguage with a fresh language and deleteLanguage removes it.
-   */
   public function testLanguageLifecycle(): void {
     $this->assertNull(ConfigurableLanguage::load('fr'));
 
@@ -116,9 +113,6 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $this->assertNull(ConfigurableLanguage::load('fr'));
   }
 
-  /**
-   * Tests that login switches the active account and logout restores it.
-   */
   public function testLoginAndLogoutSwitchesAccount(): void {
     $alice = User::create(['name' => 'alice', 'status' => 1]);
     $alice->save();

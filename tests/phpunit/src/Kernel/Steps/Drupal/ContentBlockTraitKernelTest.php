@@ -58,9 +58,6 @@ class ContentBlockTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertSame([], $this->context->contentBlockLoadMultiple('basic', ['info' => 'Shared']));
   }
 
-  /**
-   * Creates and saves a content block.
-   */
   protected function createContentBlock(string $content_block_type, string $info): BlockContentInterface {
     $content_block = BlockContent::create(['type' => $content_block_type, 'info' => $info]);
     $content_block->save();

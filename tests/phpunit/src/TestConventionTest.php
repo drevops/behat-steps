@@ -189,7 +189,8 @@ class TestConventionTest extends UnitTestCase {
    *
    * 'Test' appears only in the 'TestImplementation' suffix of a context that
    * composes the trait under test, and that name opens with the trait's name.
-   * 'Testable' says nothing a reader can use, so it qualifies nothing.
+   * 'Testable' describes nothing a reader can use, so it is never the
+   * qualifier.
    *
    * @param class-string $class
    *   The double or fixture class to check.
@@ -232,7 +233,8 @@ class TestConventionTest extends UnitTestCase {
    * Assert that a unit test writes its fixtures through 'writeFixture()'.
    *
    * The helper writes into the per-test workspace that 'tearDown()' removes,
-   * so a fixture outlives neither its test nor a failure.
+   * so a fixture lasts no longer than its test, whether the test passes or
+   * fails.
    *
    * @param string $file
    *   The file to check.
@@ -580,7 +582,7 @@ class TestConventionTest extends UnitTestCase {
    *   The PHP code, opening tag included.
    *
    * @return array<int, array{line: int, class: string|null, member: string, kind: string}>
-   *   One entry per reference, in source order. The class is the one the
+   *   1 entry per reference, in source order. The class is the one the
    *   reference sits in, or NULL inside an anonymous class.
    */
   protected static function collectRuntimeSelfReferences(string $code): array {
@@ -822,7 +824,7 @@ class TestConventionTest extends UnitTestCase {
    *   The PHP code, opening tag included.
    *
    * @return array<int, array{line: int, function: string}>
-   *   One entry per call, in source order.
+   *   1 entry per call, in source order.
    */
   protected static function collectFileWrites(string $code): array {
     $tokens = static::tokenizeSignificant($code);
@@ -845,7 +847,7 @@ class TestConventionTest extends UnitTestCase {
   }
 
   /**
-   * Collect the reflections in PHP code written in the form that loses.
+   * Collect the reflections in PHP code written in the wrong form.
    *
    * A variable passed to 'new \ReflectionClass()' skips the narrowing
    * 'reflect()' does, and a '::class' constant passed to 'reflect()' loses
@@ -855,7 +857,7 @@ class TestConventionTest extends UnitTestCase {
    *   The PHP code, opening tag included.
    *
    * @return array<int, array{line: int, reason: string}>
-   *   One entry per reflection, in source order.
+   *   1 entry per reflection, in source order.
    */
   protected static function collectMisroutedReflections(string $code): array {
     $tokens = static::tokenizeSignificant($code);

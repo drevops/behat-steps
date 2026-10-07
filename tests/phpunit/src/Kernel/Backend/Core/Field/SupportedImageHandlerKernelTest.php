@@ -48,9 +48,6 @@ class SupportedImageHandlerKernelTest extends FileBackedHandlerKernelTestBase {
     FilterFormat::create(['format' => 'plain_text', 'name' => 'Plain text'])->save();
   }
 
-  /**
-   * Tests round-trip for a supported_image field with a disk source image.
-   */
   public function testSupportedImageRoundTrip(): void {
     $this->attachField('field_hero', 'supported_image');
 

@@ -391,9 +391,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Resolves an entity type definition, rethrowing with an actionable message.
    *
    * Drupal's EntityTypeManager throws 'PluginNotFoundException' with text like
-   * "The 'xyz' plugin does not exist.", which describes the plugin system
-   * rather than the backend-level error a scenario author sees. The wrapper
-   * names the entity type argument instead.
+   * "The 'xyz' plugin does not exist". That text describes the plugin
+   * system, not the backend-level error a scenario author sees, so the
+   * wrapper names the entity type argument instead.
    *
    * @param string $entity_type
    *   Entity type id to load.
@@ -678,7 +678,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function addUserRole(EntityStubInterface $stub, string $role): void {
-    // Both machine and human role names are accepted.
     $query = \Drupal::entityQuery('user_role');
     $conditions = $query->orConditionGroup()
       ->condition('id', $role)
@@ -697,9 +696,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Resolves the user id from a stub.
    *
-   * Prefers the saved-entity slot - that is the only authoritative source
-   * after 'createUser()' - then falls back to a 'uid' value the caller may
-   * have populated manually.
+   * The saved-entity slot is the only authoritative source after
+   * 'createUser()', so it is read first. A 'uid' value the caller may have
+   * populated manually is the fallback.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The user stub to read the id from.
@@ -1263,7 +1262,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   public function mailGet(): array {
     \Drupal::state()->resetCache();
     $mail = \Drupal::state()->get('system.test_mail_collector') ?: [];
-    // Cancelled mail carries a false 'send' flag.
+    // Canceled mail carries a false 'send' flag.
     $mail = array_values(array_filter($mail, static fn(array $mail_item): bool => (bool) $mail_item['send']));
     return $mail;
   }

@@ -20,7 +20,7 @@ use PHPUnit\Framework\Attributes\Group;
  *
  * 'DrupalBackend' is a thin facade over 'CoreInterface'; the tests here verify
  * that each method delegates to the corresponding core method. Kernel tests
- * under 'Kernel/Backend/Core/' exercise the behaviour end-to-end.
+ * under 'Kernel/Backend/Core/' exercise the behavior end-to-end.
  */
 #[CoversClass(DrupalBackend::class)]
 #[Group('backends')]
@@ -59,9 +59,6 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     $this->assertTrue($backend->isBootstrapped());
   }
 
-  /**
-   * Tests that 'setCore()' assigns the injected instance verbatim.
-   */
   public function testSetCoreAssignsInjectedInstance(): void {
     $backend = $this->createBackendWithCore($this->createMock(CoreInterface::class));
     $custom = $this->createMock(CoreInterface::class);

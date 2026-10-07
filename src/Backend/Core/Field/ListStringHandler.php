@@ -5,6 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Backend\Core\Field;
 
 /**
- * Handler for ListString fields.
+ * Field handler for 'list_string' fields.
  */
 class ListStringHandler extends ListHandlerBase {}

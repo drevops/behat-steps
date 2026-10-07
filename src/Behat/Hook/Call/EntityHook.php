@@ -47,7 +47,7 @@ abstract class EntityHook extends RuntimeFilterableHook {
    * converts it. Behat 3 has no factory and accepts the pair unchanged.
    *
    * The return type is 'mixed' because each major accepts a different type,
-   * and PHPStan analyses against the installed one only.
+   * and PHPStan analyzes against the installed one only.
    *
    * @param array{class-string<\Behat\Behat\Context\Context>, string}|callable $callable
    *   The context method to call.

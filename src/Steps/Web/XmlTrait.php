@@ -827,7 +827,7 @@ trait XmlTrait {
 
     // A SYSTEM entity declared in the DTD is dereferenced while validating, so
     // the loader returns NULL for every external reference. LIBXML_NONET is
-    // passed as well, but on its own it blocks only the network half.
+    // passed as well, but on its own it blocks only network references.
     $original_loader = function_exists('libxml_get_external_entity_loader') ? libxml_get_external_entity_loader() : NULL;
     libxml_set_external_entity_loader(static fn(): null => NULL);
 

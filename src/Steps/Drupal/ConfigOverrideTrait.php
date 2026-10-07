@@ -126,8 +126,8 @@ trait ConfigOverrideTrait {
 
     $value = implode(',', $this->configOverrideDisabledNames);
 
-    // A hook cannot fail a scenario over a browser driver that carries no
-    // request headers, so the capability is asked for rather than required.
+    // A hook must not fail a scenario when the browser driver carries no
+    // request headers, so the capability is checked for rather than required.
     if ($this->browserDriverHas(RequestHeaderCapabilityInterface::class)) {
       $this->browserDriverFor(RequestHeaderCapabilityInterface::class)->requestHeaderSet('X-Config-No-Override', $value);
     }
@@ -143,10 +143,6 @@ trait ConfigOverrideTrait {
 
   /**
    * Clear the process-level and REST-level X-Config-No-Override signal.
-   *
-   * The browser driver's request headers are cleared separately in the
-   * BeforeStep hook because the session is not guaranteed to be started at the
-   * point BeforeScenario runs.
    */
   protected function configOverrideClearSignal(): void {
     unset($_SERVER['HTTP_X_CONFIG_NO_OVERRIDE']);

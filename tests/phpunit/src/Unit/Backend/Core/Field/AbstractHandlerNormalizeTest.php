@@ -51,12 +51,6 @@ class AbstractHandlerNormalizeTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider for testNormalize().
-   *
-   * Covers happy paths (every loose input shape the helper must accept)
-   * and error paths (every malformed shape the helper must reject).
-   */
   public static function dataProviderNormalize(): \Iterator {
     yield 'bare string scalar with target_id main' => [
       'foo.jpg',

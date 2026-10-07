@@ -17,9 +17,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * in the same place in every file. CONTRIBUTING.md states the layout; this
  * test holds it.
  *
- * The order is settled between groups only; members inside one group stay in
- * whatever order reads best. This also keeps STEPS.md stable: docs.php sorts
- * steps by Given, When and Then and preserves source order within each.
+ * The order is settled between groups only; members inside 1 group stay in
+ * whatever order reads best.
  */
 #[CoversNothing]
 class MemberOrderTest extends UnitTestCase {
@@ -103,8 +102,8 @@ class MemberOrderTest extends UnitTestCase {
   /**
    * Return a trait's own members in source order, tagged with their group.
    *
-   * Reflection flattens a composed trait's members into the composing trait,
-   * so a member is taken as this trait's own when its declaration is found in
+   * Reflection flattens a composed trait's members into the composing trait.
+   * A member is taken as this trait's own when its declaration is found in
    * this trait's file.
    *
    * @param string $trait
@@ -183,7 +182,7 @@ class MemberOrderTest extends UnitTestCase {
   /**
    * Return the ordering group a method belongs to.
    *
-   * Hook attributes are recognised by namespace so that this library's own
+   * Hook attributes are recognized by namespace so that this library's own
    * hook attributes count alongside Behat's.
    */
   protected static function resolveMethodGroup(\ReflectionMethod $method): int {

@@ -17,7 +17,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * Complements SupportedImageHandlerKernelTest (upload path): referencing a
  * pre-created image by URI or bare basename reuses its file id without
- * uploading a new copy, and stores the caption and attribution on the item.
+ * uploading a new copy. The caption and attribution are also stored on the
+ * item.
  */
 #[CoversClass(SupportedImageHandler::class)]
 #[Group('fields')]

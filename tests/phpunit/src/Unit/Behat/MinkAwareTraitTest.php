@@ -106,7 +106,7 @@ class MinkAwareTraitTest extends UnitTestCase {
   }
 
   /**
-   * Builds a Mink instance holding one default session.
+   * Builds a Mink instance holding 1 default session.
    */
   protected function createMink(Session $session): Mink {
     $mink = new Mink(['default' => $session]);

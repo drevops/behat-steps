@@ -552,16 +552,13 @@ Feature: Check that FieldTrait works
     When I visit "http://cli:8888/fields.html"
     And the browser validation for the form "#login-form" is disabled
     And I press "Submit 1"
-    # Server-side validation message should appear
     Then I should see "Please fill in all required fields"
 
   @javascript @phpserver
   Scenario: Disable browser validation as the very first step
-    # This is the VERY FIRST step - no page visited yet - this is the core issue being fixed
     Given the browser validation for the form "#login-form" is disabled
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
-    # Server-side validation message should appear (browser validation was disabled)
     Then I should see "Please fill in all required fields"
 
   @javascript @phpserver
@@ -577,8 +574,8 @@ Feature: Check that FieldTrait works
     Given the browser validation for the form "#login-form" is disabled
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
-    # With the skip tag, validation disabling should not be applied
-    # Browser validation will catch the empty fields before form submission
+    # With the skip tag, validation disabling is not applied, so
+    # browser validation catches the empty fields before form submission.
     Then I should not see "Please fill in all required fields"
 
   @test-trait:FieldTrait
@@ -598,17 +595,13 @@ Feature: Check that FieldTrait works
   Scenario: Validation step works without JavaScript driver
     Given the browser validation for the form "#login-form" is disabled
     When I visit "http://cli:8888/fields.html"
-    # Without JavaScript, the registry stores the selector but AfterStep returns early
-    # The step should not throw an error
     Then the field "username" should exist
 
   @javascript @disable-form-validation @phpserver
   Scenario: Tag disables all forms on page automatically
     When I visit "http://cli:8888/fields.html"
-    # Try to submit login form without filling fields
     And I press "Submit 1"
     Then I should see "Please fill in all required fields"
-    # Try to submit contact form without filling fields
     When I press "Submit 2"
     Then I should see "Please fill in all required fields"
 
@@ -617,15 +610,12 @@ Feature: Check that FieldTrait works
     When I visit "http://cli:8888/form1.html"
     And I press "Submit 1"
     Then I should see "Please fill in all required fields"
-    # Navigate to second page
     When I follow "Go to Second Page"
     And I press "Submit"
-    # Validation should still be disabled on the second page
     Then I should see "Please fill in all required fields"
 
   @javascript @disable-form-validation @phpserver
   Scenario: Tag works before visiting any page
-    # No page visited yet - tag should still work when we visit pages
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
     Then I should see "Please fill in all required fields"
@@ -634,7 +624,6 @@ Feature: Check that FieldTrait works
   Scenario: Without tag browser validation blocks submission
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
-    # Browser validation will block, so we won't see the error message
     Then I should not see "Please fill in all required fields"
 
   @javascript @phpserver
@@ -643,7 +632,6 @@ Feature: Check that FieldTrait works
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
     Then I should see "Login form error: Please fill in all required fields"
-    # Contact form should still have browser validation
     When I press "Submit 2"
     Then I should not see "Contact form error: Please fill in all required fields"
 
@@ -651,13 +639,11 @@ Feature: Check that FieldTrait works
   Scenario: Skip tag overrides disable-form-validation tag
     When I visit "http://cli:8888/fields.html"
     And I press "Submit 1"
-    # With skip tag, validation disabling should not be applied
     Then I should not see "Please fill in all required fields"
 
   @disable-form-validation @phpserver
   Scenario: Tag works gracefully without JavaScript driver
     When I visit "http://cli:8888/fields.html"
-    # Without JavaScript, the tag should not throw an error
     Then the field "username" should exist
 
   @test-trait:FieldTrait
@@ -875,7 +861,7 @@ Feature: Check that FieldTrait works
     And I fill in the WYSIWYG field "Body" with the value "Updated CKEditor 5 body content"
     And I fill in the WYSIWYG field "Description" with the value "Updated CKEditor 5 description"
 
-  # Non-commercial version of CKEditor 4 throw an error about being insecure.
+  # The non-commercial version of CKEditor 4 throws an error about being insecure.
   @javascript @js-errors @phpserver
   Scenario: Fill in WYSIWYG field with CKEditor 4
     When I visit "http://cli:8888/wysiwyg_ckeditor4.html"

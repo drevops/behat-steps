@@ -52,7 +52,7 @@ class LintTraitsTest extends UnitTestCase {
   }
 
   /**
-   * Assert that the facts of one file are read from its tokens.
+   * Assert that the facts of 1 file are read from its tokens.
    *
    * @param string $code
    *   The file contents to read.

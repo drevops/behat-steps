@@ -283,7 +283,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   The key within the object, or NULL for the whole object.
    * @param bool $with_overrides
    *   Whether module and 'settings.php' overrides are applied. Without them
-   *   the read returns the stored value, which is what a write replaces.
+   *   the read returns the stored value a write replaces.
    *
    * @return mixed
    *   The value, or NULL when the object or key does not exist.
@@ -557,7 +557,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * Splits the common drush arguments into individual argv entries.
    *
    * @return array<int, string>
-   *   One entry per whitespace-separated argument, empty when none are set.
+   *   1 entry per whitespace-separated argument, empty when none are set.
    */
   protected function getArgumentList(): array {
     $arguments = trim($this->arguments);
@@ -599,7 +599,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
     $process = $this->runProcess($argv);
 
-    // A signalled process yields a NULL exit code, so it is classified as a
+    // A signaled process yields a NULL exit code, so it is classified as a
     // failure.
     return new DrushResult($process->getExitCode() ?? 1, $process->getOutput(), $process->getErrorOutput());
   }
@@ -654,7 +654,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * Builds, runs, and returns a process for the given argument vector.
    *
    * @param array<int, string> $argv
-   *   The binary followed by its arguments, one entry each.
+   *   The binary followed by its arguments, 1 entry each.
    *
    * @return \Symfony\Component\Process\Process
    *   The process after it has finished running.
@@ -732,7 +732,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   An array of option names to values. A NULL value yields a bare flag.
    *
    * @return array<int, string>
-   *   One entry per option.
+   *   1 entry per option.
    *
    * @throws \RuntimeException
    *   Thrown when an option name is not a bare long-option name.

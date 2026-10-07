@@ -61,9 +61,6 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests the full user/role lifecycle in 1 bundled method.
-   */
   public function testUserLifecycle(): void {
     $user_stub = new EntityStub('user', NULL, [
       'name' => 'alice',

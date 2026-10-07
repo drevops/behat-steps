@@ -207,7 +207,7 @@ class ContextCompositionTest extends UnitTestCase {
   }
 
   /**
-   * Assert that a helper trait composed twice holds one slot of state.
+   * Assert that a helper trait composed twice holds 1 slot of state.
    *
    * A step trait and the root context compose the same helper, so they read
    * and write the same state rather than a copy each.

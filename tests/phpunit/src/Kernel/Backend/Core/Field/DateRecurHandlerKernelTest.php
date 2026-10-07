@@ -38,9 +38,6 @@ class DateRecurHandlerKernelTest extends FieldHandlerKernelTestBase {
     'date_recur',
   ];
 
-  /**
-   * Tests round-trip for a recurring date with an explicit timezone.
-   */
   public function testDateRecurRoundTrip(): void {
     $this->attachField('field_schedule', 'date_recur');
 

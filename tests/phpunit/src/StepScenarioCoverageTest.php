@@ -415,7 +415,7 @@ class StepScenarioCoverageTest extends UnitTestCase {
    *   The directory a method has to be declared under to count.
    *
    * @return array<int, array{label: string, pattern: string}>
-   *   One entry per step attribute, labelled with the file and the method.
+   *   1 entry per step attribute, labeled with the file and the method.
    */
   protected static function collectRegisteredSteps(string $class, string $directory): array {
     $root = realpath($directory);

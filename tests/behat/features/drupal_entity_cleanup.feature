@@ -53,10 +53,6 @@ Feature: Check that automatic entity cleanup works
     Given the following redirects do not exist:
       | /entity-cleanup-kept-type |
 
-  # One registry covers entities created by any route, so a node created
-  # through a creation step and a term created alongside it come down in the
-  # reverse of the order they were created in.
-
   Scenario: Entities of several types created in one scenario are all registered
     Given the following "tags" terms exist:
       | name                 |

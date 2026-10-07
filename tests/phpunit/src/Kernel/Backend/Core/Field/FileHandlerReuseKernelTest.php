@@ -32,9 +32,6 @@ class FileHandlerReuseKernelTest extends FileBackedHandlerKernelTestBase {
     'file',
   ];
 
-  /**
-   * Tests that referencing a managed file by URI reuses the same file id.
-   */
   public function testReuseByFullUri(): void {
     $this->attachField('field_attachment', 'file');
 
@@ -52,9 +49,6 @@ class FileHandlerReuseKernelTest extends FileBackedHandlerKernelTestBase {
     $this->assertSame(1, $this->countFileEntities(), 'A second managed file was created instead of reusing the existing one.');
   }
 
-  /**
-   * Tests that a bare basename resolves against public:// and reuses the id.
-   */
   public function testReuseByBareBasenamePublic(): void {
     $this->attachField('field_attachment', 'file');
 

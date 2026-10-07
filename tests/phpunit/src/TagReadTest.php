@@ -214,7 +214,7 @@ class TagReadTest extends UnitTestCase {
    * Whether an argument calls any of the named methods.
    *
    * @param array<int, array{int, string, int}|string> $argument
-   *   The tokens of one argument.
+   *   The tokens of 1 argument.
    * @param array<int, string> $methods
    *   The method names to look for.
    */
@@ -232,7 +232,7 @@ class TagReadTest extends UnitTestCase {
    * Whether an argument holds a string literal.
    *
    * @param array<int, array{int, string, int}|string> $argument
-   *   The tokens of one argument.
+   *   The tokens of 1 argument.
    */
   protected static function hasStringLiteral(array $argument): bool {
     foreach ($argument as $token) {

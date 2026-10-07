@@ -92,9 +92,6 @@ class CoreCreateEntityModerationStateKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests that 'moderation_state' on a stub is captured at save.
-   */
   public function testCreateEntityPassesModerationStateThrough(): void {
     $stub = new EntityStub('node', 'article', [
       'title' => 'Draft article',

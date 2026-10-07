@@ -793,8 +793,6 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    */
   protected function createContext(BackendInterface $backend, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): RegistryExposingContext {
     $environment = $this->createMock(Environment::class);
-    // The fixture hooks are static, so the callee's own callable is enough
-    // for the dispatcher to invoke them.
     $environment->method('bindCallee')->willReturnCallback(static fn(Callee $callee): mixed => $callee->getCallable());
 
     $backend_registry = new BackendRegistry(['test' => $backend]);

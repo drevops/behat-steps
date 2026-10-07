@@ -151,7 +151,7 @@ trait JsonTrait {
   }
 
   /**
-   * Assert that a JSONPath expression matches at least one value.
+   * Assert that a JSONPath expression matches at least 1 value.
    *
    * @code
    * Then the JSON path "$.name" should exist

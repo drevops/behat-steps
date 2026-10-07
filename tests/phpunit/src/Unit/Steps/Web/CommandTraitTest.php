@@ -41,7 +41,6 @@ class CommandTraitTest extends UnitTestCase {
     $this->assertSame('', $this->testObject->testGetStderr());
     $this->assertGreaterThan(0.0, $this->testObject->testGetDuration());
 
-    // Pass-through assertions do not throw.
     $this->testObject->commandAssertSuccess();
     $this->testObject->commandAssertExitCodeEquals('0');
     $this->testObject->commandAssertOutputContains('hello');
@@ -165,30 +164,18 @@ class CommandTraitTestImplementation extends WebRawContext {
     return $this->timeoutOverride;
   }
 
-  /**
-   * Exposes the captured exit code.
-   */
   public function testGetExitCode(): ?int {
     return $this->commandExitCode;
   }
 
-  /**
-   * Exposes the captured standard output.
-   */
   public function testGetStdout(): string {
     return $this->commandStdout;
   }
 
-  /**
-   * Exposes the captured error output.
-   */
   public function testGetStderr(): string {
     return $this->commandStderr;
   }
 
-  /**
-   * Exposes the captured duration.
-   */
   public function testGetDuration(): float {
     return $this->commandDuration;
   }

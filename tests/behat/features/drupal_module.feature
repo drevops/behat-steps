@@ -122,39 +122,30 @@ Feature: Check that ModuleTrait works
   @behat-steps-skip:ModuleTrait
   Scenario: Assert module state is restored after scenario changes
     When I log in as a user with the role "administrator"
-    # First, ensure help is disabled
     And the module "help" is disabled
     Then the module "help" should be disabled
 
   @module:help
   Scenario: Assert module state restoration works after tag-based enable
     When I log in as a user with the role "administrator"
-    # This scenario should enable help via tag, but after this scenario
-    # the previous state should be restored in the next scenario
     Then the module "help" should be enabled
 
   Scenario: Verify module state was restored after previous scenario with tag
     When I log in as a user with the role "administrator"
-    # This verifies that help module was restored to disabled state
-    # after the previous scenario that used @module:help tag
     Then the module "help" should be disabled
 
   Scenario: Setup initial state for Given step restoration test
     When I log in as a user with the role "administrator"
-    # Ensure syslog is disabled as the initial state
     And the module "syslog" is disabled
     Then the module "syslog" should be disabled
 
   Scenario: Assert module state changes via Given step
     When I log in as a user with the role "administrator"
-    # Enable syslog module using Given step (not tag)
     And the module "syslog" is enabled
     Then the module "syslog" should be enabled
 
   Scenario: Verify module state was restored after Given step modification
     When I log in as a user with the role "administrator"
-    # This verifies that syslog module was restored to disabled state
-    # after the previous scenario modified it using Given step
     Then the module "syslog" should be disabled
 
   Scenario: Assert enabling already-enabled module is idempotent

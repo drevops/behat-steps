@@ -158,9 +158,9 @@ Then the current page should pass accessibility checks for the tags "wcag2a"
 >  - Re-apply the configured credentials before every scenario and step.
 >  
 >  Mink resets the session before every scenario and on every fast logout,
->  which clears request headers and drops the credentials. A site behind
->  webserver-level basic auth would start answering 401 mid-scenario without
->  this. The hooks are a no-op when no credentials are configured.
+>  which clears request headers and drops the credentials. Without the
+>  re-application, a site behind webserver-level basic auth answers 401
+>  mid-scenario. The hooks are a no-op when no credentials are configured.
 >  <br/><br/>
 >  Skip with tag: `@behat-steps-skip:BasicAuthTrait`.
 
@@ -2044,7 +2044,7 @@ Then the response should not be in JSON format
   <summary><code>@Then the JSON path :path should exist</code></summary>
 
 <br/>
-Assert that a JSONPath expression matches at least one value
+Assert that a JSONPath expression matches at least 1 value
 <br/><br/>
 
 ```gherkin
@@ -2484,7 +2484,7 @@ Then the link "Return to site content" should not be an absolute link
 
 >  Assert status, error, warning and success messages rendered on the page.
 >  - Match a single message by substring, per message type.
->  - Match a table of messages in one step.
+>  - Match a table of messages in 1 step.
 >  
 >  Each message type resolves to a CSS selector from the `message.selectors`
 >  option, keyed `default`, `error`, `success` and `warning`. A message
@@ -6124,7 +6124,7 @@ Then the file "report.xlsx" should be attached to the email with a subject conta
 >  - Create entities of any type from a table of field values.
 >  
 >  Covers types such as `commerce_product`, `group` or `paragraph`, where a
->  dedicated trait would add vocabulary without adding behaviour. Entities
+>  dedicated trait would add vocabulary without adding behavior. Entities
 >  created here are removed after the scenario along with every other entity
 >  the scenario created.
 >  <br/><br/>
@@ -7047,8 +7047,8 @@ When I run the Search API Solr cron
 >  reverted after the scenario finishes.
 >  <br/><br/>
 >  Skip the revert with `@behat-steps-skip:StateTrait`. The snapshot registry
->  is cleared unconditionally before and after the scenario to prevent state
->  leaking into subsequent scenarios.
+>  is cleared unconditionally before and after the scenario, so no snapshot
+>  persists across scenarios.
 
 
 ### Options
@@ -7800,8 +7800,8 @@ Then the user "John" should not be blocked
 >  The check is on by default. An opted-in scenario whose prerequisites do not
 >  hold fails at its start.
 >  <br/><br/>
->  `watchdog.fail_on_errors` and `@error` decide what happens to errors that
->  were read, so they do not cover an unmet prerequisite.
+>  `watchdog.fail_on_errors` and `@error` determine what happens to errors
+>  that were read, so they do not cover an unmet prerequisite.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
 >  <br/><br/>

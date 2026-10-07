@@ -266,6 +266,4 @@ Feature: Check that BlockTrait works
       | region        | content                   |
       | status        | 1                         |
     Then the block "[TEST] Skip Cleanup Block" should exist
-    # Block will not be auto-deleted due to skip tag
-    # Manual cleanup
     Given the block "[TEST] Skip Cleanup Block" does not exist

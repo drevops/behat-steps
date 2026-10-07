@@ -19,10 +19,6 @@ use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 
 /**
  * Logs a user in and out of the site under test.
- *
- * Takes a basic-auth applier instead of applying basic auth itself. A session
- * reset drops request headers, so the credentials are reapplied afterwards;
- * that is the only overlap between the 2 concerns.
  */
 final class Authenticator implements AuthenticatorInterface, FastLogoutInterface {
 
@@ -250,8 +246,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
    */
   protected function backendLogout(): void {
     // Only a backend the scenario already reached can hold a backend session,
-    // and resolving one here would bootstrap it. Teardown logs every scenario
-    // out, so asking for the capability would boot Drupal for all of them.
+    // and resolving one here would bootstrap it.
     $this->backendRegistry->getResolvedBackendFor(AuthenticationCapabilityInterface::class)?->logout();
   }
 

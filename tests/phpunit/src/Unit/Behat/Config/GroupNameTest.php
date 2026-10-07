@@ -62,7 +62,7 @@ class GroupNameTest extends UnitTestCase {
   }
 
   /**
-   * Tests that a run of capitals reads as one word.
+   * Tests that a run of capitals reads as 1 word.
    *
    * An acronym trait has to derive the same group from its name and from its
    * method prefix. Otherwise the option that switches it off cannot be

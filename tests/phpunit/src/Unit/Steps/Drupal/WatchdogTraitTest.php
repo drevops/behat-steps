@@ -202,9 +202,6 @@ class WatchdogTraitTestImplementation extends WebRawContext {
 
   use WatchdogTrait;
 
-  /**
-   * Whether the scenario's follow-up hooks read the log.
-   */
   public function testIsArmed(): bool {
     return $this->watchdogScenarioStartTime !== NULL;
   }

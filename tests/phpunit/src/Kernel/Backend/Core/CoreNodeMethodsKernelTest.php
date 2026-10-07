@@ -62,9 +62,6 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests the node lifecycle: create with author mapping, then delete.
-   */
   public function testNodeLifecycle(): void {
     $author = User::create(['name' => 'article_author', 'status' => 1]);
     $author->save();

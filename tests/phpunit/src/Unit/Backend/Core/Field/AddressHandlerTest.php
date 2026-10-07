@@ -91,9 +91,6 @@ class AddressHandlerTest extends FieldHandlerUnitTestBase {
     ];
   }
 
-  /**
-   * Tests that hidden fields are removed from the visible field list.
-   */
   public function testHiddenFieldsAreSkippedForNumericIndices(): void {
     $handler = $this->createHandlerWithSettings([
       'givenName' => ['override' => 'hidden'],
@@ -106,9 +103,6 @@ class AddressHandlerTest extends FieldHandlerUnitTestBase {
     );
   }
 
-  /**
-   * Tests that non-hidden overrides do not alter the visible field list.
-   */
   public function testNonHiddenOverridesAreIgnored(): void {
     $handler = $this->createHandlerWithSettings([
       'givenName' => ['override' => 'optional'],

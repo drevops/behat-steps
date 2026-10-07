@@ -11,8 +11,6 @@ namespace DrevOps\BehatSteps\Behat\Config;
  * the prefix its other methods carry. The group name derives from the method
  * name, so a consuming project's own trait participates without being
  * registered anywhere.
- *
- * This is the only piece of the option machinery that reflects.
  */
 final class ConfigSchemaReader {
 

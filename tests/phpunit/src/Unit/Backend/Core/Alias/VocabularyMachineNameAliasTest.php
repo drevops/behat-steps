@@ -29,7 +29,7 @@ class VocabularyMachineNameAliasTest extends UnitTestCase {
   }
 
   /**
-   * Tests resolution behaviour across stub shapes.
+   * Tests resolution behavior across stub shapes.
    *
    * @param string|null $bundle
    *   The bundle passed to the stub constructor.

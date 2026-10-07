@@ -17,9 +17,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  * The configuration layers settle when this object is built. The tag layers
  * are read per option, because the tags belong to whichever scenario is
  * running.
- *
- * It holds no Behat class, reflects over nothing and references no context
- * beyond the class name it names in a failure message.
  */
 final class TraitOptionResolver implements TraitOptionResolverInterface {
 

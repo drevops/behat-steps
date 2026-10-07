@@ -1,10 +1,6 @@
 parameters:
   behat_steps.backend.drupal.class: DrevOps\BehatSteps\Backend\DrupalBackend
-
-  # Random generator.
   behat_steps.random.class: Drupal\Component\Utility\Random
-
-  # Core controller.
   behat_steps.backend.core.class: DrevOps\BehatSteps\Backend\Core\Core
 
 services:

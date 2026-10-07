@@ -231,10 +231,6 @@ Feature: Check that CookieTrait works
       The cookie with name containing "estna" was set with value "testothervalue", but it should contain "estval".
       """
 
-  #
-  # NOT EXISTS
-  #
-
   @phpserver
   Scenario: Assert step definition "a cookie with the name :name should not exist" works as expected
     When I visit "http://cli:8888/cookies.html"

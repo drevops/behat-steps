@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Backend\Core\Field;
 /**
  * Fallback handler for field types with no dedicated handler.
  *
- * Relays the normalised records to storage verbatim. An entity-reference
+ * Relays the normalized records to storage verbatim. An entity-reference
  * target or a complex/nested value is rejected during handler selection (see
  * 'FieldShapeClassifierInterface'), so every field this handler receives is
  * a plain-scalar shape.

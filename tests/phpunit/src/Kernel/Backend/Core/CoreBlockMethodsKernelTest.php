@@ -57,9 +57,6 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests that 'placeBlock()' creates a placement in the given region.
-   */
   public function testPlaceBlockAndDeleteRoundTrip(): void {
     $stub = new EntityStub('block', NULL, [
       'id' => 'test_powered_by',

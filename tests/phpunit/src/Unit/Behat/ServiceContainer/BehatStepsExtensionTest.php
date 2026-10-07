@@ -264,7 +264,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * Tests that the configured region map reaches the container.
    *
    * @param array<string, mixed> $config
-   *   The extension configuration, before schema normalisation.
+   *   The extension configuration, before schema normalization.
    * @param array<string, string> $expected
    *   The region map expected on the container parameter.
    */
@@ -296,11 +296,11 @@ class BehatStepsExtensionTest extends UnitTestCase {
   /**
    * Tests that the steps section reaches the parameters untouched.
    *
-   * A group there may name a trait only one of the registered contexts
+   * A group there may name a trait only 1 of the registered contexts
    * composes, so the extension validates nothing about its contents.
    *
    * @param array<string, mixed> $config
-   *   The extension configuration, before schema normalisation.
+   *   The extension configuration, before schema normalization.
    * @param array<string, mixed> $expected
    *   The expected steps section.
    */
@@ -427,7 +427,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * Tests that a 'drivers' key fails, naming 'backends' in its place.
    *
    * @param array<string, mixed> $config
-   *   The extension configuration, before schema normalisation.
+   *   The extension configuration, before schema normalization.
    */
   #[DataProvider('dataProviderDriversKeyIsRejected')]
   public function testDriversKeyIsRejected(array $config): void {
@@ -609,7 +609,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * Runs a raw configuration array through the schema and into a container.
    *
    * @param array<string, mixed> $config
-   *   The extension configuration, before schema normalisation.
+   *   The extension configuration, before schema normalization.
    * @param \DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension|null $extension
    *   The extension to load with, when the test needs it afterwards.
    */
@@ -646,7 +646,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * @param \Behat\MinkExtension\ServiceContainer\MinkExtension $mink
    *   The Mink extension whose schema to apply.
    * @param array<string, mixed> $config
-   *   The Mink configuration, before schema normalisation.
+   *   The Mink configuration, before schema normalization.
    *
    * @return array<string, mixed>
    *   The processed configuration.

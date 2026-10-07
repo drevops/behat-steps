@@ -172,10 +172,9 @@ trait FieldTrait {
     $page = $this->getSession()->getPage();
 
     // A Drupal multi-value widget wraps its rows and "Add another item" button
-    // in a container with `data-drupal-selector="edit-<field>-wrapper"`, and
-    // its title can be a nested <label>, <h4>, <legend>, <caption> or plain
-    // text element. The XPath matches the title, then its nearest `-wrapper`
-    // ancestor, which holds both the rows and the button.
+    // in a `data-drupal-selector="edit-<field>-wrapper"` container. The XPath
+    // matches the title, which can be a nested <label>, <h4>, <legend>,
+    // <caption> or plain text element, then its nearest `-wrapper` ancestor.
     $literal = $this->fieldXpathLiteral($field);
     $title_xpath = sprintf('//*[not(self::input or self::select or self::textarea) and (normalize-space(text())=%s or normalize-space(.)=%s)]', $literal, $literal);
     $wrapper_xpath = $title_xpath . '/ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]';
