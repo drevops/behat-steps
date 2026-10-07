@@ -170,7 +170,7 @@ class TraitOptionResolverTest extends UnitTestCase {
 
   public function testContextDeclaringNothingNamesWhatItAccepts(): void {
     $this->expectException(InvalidConfigurationException::class);
-    $this->expectExceptionMessage('Unknown option group "sample" for context "' . static::CONTEXT . '". This context accepts: nothing.');
+    $this->expectExceptionMessage('Unknown option group "sample" for context "' . static::CONTEXT . '". This context accepts: none.');
 
     new TraitOptionResolver(static::CONTEXT, [], ['sample' => ['enabled' => FALSE]], [], new ScenarioTagRegistry(), new TagOverrides());
   }

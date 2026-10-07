@@ -46,7 +46,7 @@ trait LanguageTrait {
       $langcode = $row['langcode'] ?? reset($row);
 
       if (!is_string($langcode) || $langcode === '') {
-        throw new \RuntimeException('Each row must carry a non-empty "langcode" value.');
+        throw new \RuntimeException('Each row must define a non-empty "langcode" value.');
       }
 
       $this->entityLifecycleCreateLanguage(new EntityStub('language', NULL, ['langcode' => $langcode]));

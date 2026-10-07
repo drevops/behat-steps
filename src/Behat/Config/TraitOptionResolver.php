@@ -183,7 +183,7 @@ final class TraitOptionResolver implements TraitOptionResolverInterface {
 
       if (!isset($this->declarations[$group])) {
         if ($is_strict) {
-          throw new InvalidConfigurationException(sprintf('Unknown option group "%s" for context "%s". This context accepts: %s.', $group, $this->contextClass, implode(', ', array_keys($this->declarations)) ?: 'nothing'));
+          throw new InvalidConfigurationException(sprintf('Unknown option group "%s" for context "%s". This context accepts: %s.', $group, $this->contextClass, implode(', ', array_keys($this->declarations)) ?: 'none'));
         }
 
         continue;

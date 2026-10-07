@@ -28,5 +28,5 @@ Feature: Check that LanguageTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Each row must carry a non-empty "langcode" value.
+      Each row must define a non-empty "langcode" value.
       """
