@@ -14,6 +14,7 @@ use Behat\Step\Then;
 use DrevOps\BehatSteps\Backend\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Exception\AssertionException;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Assert and set stored Drupal configuration values with automatic revert.
@@ -49,6 +50,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait ConfigTrait {
+
+  use StringTrait;
 
   /**
    * Original raw data of configuration objects touched during the scenario.
@@ -109,7 +112,7 @@ trait ConfigTrait {
   #[Given('the config :name with the key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
     $this->configStoreOriginalData($name);
-    $this->backendFor(ConfigCapabilityInterface::class)->configSet($name, $key, $this->configNormalizeValue($value));
+    $this->backendFor(ConfigCapabilityInterface::class)->configSet($name, $key, $this->stringNormalizeValue($value));
   }
 
   /**
@@ -133,7 +136,7 @@ trait ConfigTrait {
       }
 
       $this->configStoreOriginalData($row['name']);
-      $backend->configSet($row['name'], $row['key'], $this->configNormalizeValue($row['value']));
+      $backend->configSet($row['name'], $row['key'], $this->stringNormalizeValue($row['value']));
     }
   }
 
@@ -308,7 +311,7 @@ trait ConfigTrait {
    */
   protected function configAssertEquals(mixed $actual, string $expected, bool $should_match, string $name, string $key, string $descriptor): void {
     $is_set = $actual !== NULL;
-    $actual_string = $this->configStringifyValue($actual);
+    $actual_string = $this->stringFormatValue($actual);
     $is_match = $is_set && $actual_string === $expected;
 
     if ($should_match) {
@@ -348,7 +351,7 @@ trait ConfigTrait {
   protected function configAssertContains(mixed $actual, string $expected, bool $should_contain, string $name, string $key, string $descriptor): void {
     $is_set = $actual !== NULL;
     $is_contained = $is_set && $this->configValueContains($actual, $expected);
-    $actual_string = $this->configStringifyValue($actual);
+    $actual_string = $this->stringFormatValue($actual);
 
     if ($should_contain) {
       if (!$is_set) {
@@ -387,7 +390,7 @@ trait ConfigTrait {
       return $this->configArrayContainsValue($actual, $expected);
     }
 
-    return str_contains($this->configStringifyValue($actual), $expected);
+    return str_contains($this->stringFormatValue($actual), $expected);
   }
 
   /**
@@ -408,77 +411,12 @@ trait ConfigTrait {
           return TRUE;
         }
       }
-      elseif ($this->configStringifyValue($item) === $expected) {
+      elseif ($this->stringFormatValue($item) === $expected) {
         return TRUE;
       }
     }
 
     return FALSE;
-  }
-
-  /**
-   * Cast a string value from a step into the shape stored in configuration.
-   *
-   * @param string $value
-   *   The raw value captured from the step or table cell.
-   *
-   * @return mixed
-   *   The cast value: decoded JSON for array/object input, integer or float
-   *   for numeric input, boolean for "true"/"false", NULL for "null", or the
-   *   original string otherwise.
-   */
-  protected function configNormalizeValue(string $value): mixed {
-    $trimmed = trim($value);
-
-    if ($trimmed === '') {
-      return $value;
-    }
-
-    $lower = strtolower($trimmed);
-    if ($lower === 'true') {
-      return TRUE;
-    }
-    if ($lower === 'false') {
-      return FALSE;
-    }
-    if ($lower === 'null') {
-      return NULL;
-    }
-
-    if ($trimmed[0] === '{' || $trimmed[0] === '[') {
-      $decoded = json_decode($trimmed, TRUE);
-      if (json_last_error() === JSON_ERROR_NONE) {
-        return $decoded;
-      }
-    }
-
-    if (is_numeric($trimmed)) {
-      return str_contains($trimmed, '.') ? (float) $trimmed : (int) $trimmed;
-    }
-
-    return $value;
-  }
-
-  /**
-   * Stringify a configuration value for comparison and error messages.
-   *
-   * @param mixed $value
-   *   The value to stringify.
-   *
-   * @return string
-   *   The stringified value.
-   */
-  protected function configStringifyValue(mixed $value): string {
-    if ($value === NULL) {
-      return 'NULL';
-    }
-    if (is_bool($value)) {
-      return $value ? 'true' : 'false';
-    }
-    if (is_scalar($value)) {
-      return (string) $value;
-    }
-    return (string) json_encode($value);
   }
 
   /**

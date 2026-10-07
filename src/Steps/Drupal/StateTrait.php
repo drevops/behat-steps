@@ -14,6 +14,7 @@ use Behat\Step\Then;
 use DrevOps\BehatSteps\Backend\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Exception\AssertionException;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Manage and assert Drupal State API values with automatic revert.
@@ -29,6 +30,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait StateTrait {
+
+  use StringTrait;
 
   /**
    * Original state values captured before the scenario touched them.
@@ -88,7 +91,7 @@ trait StateTrait {
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
     $this->stateStoreOriginalValue($name);
-    $this->backendFor(StateCapabilityInterface::class)->stateSet($name, $this->stateNormalizeValue($value));
+    $this->backendFor(StateCapabilityInterface::class)->stateSet($name, $this->stringNormalizeValue($value));
   }
 
   /**
@@ -124,7 +127,7 @@ trait StateTrait {
       }
       $name = $row['name'];
       $this->stateStoreOriginalValue($name);
-      $backend->stateSet($name, $this->stateNormalizeValue($row['value']));
+      $backend->stateSet($name, $this->stringNormalizeValue($row['value']));
     }
   }
 
@@ -142,9 +145,9 @@ trait StateTrait {
       throw new AssertionException(sprintf('The state "%s" does not exist, but it should have the value "%s".', $name, $value));
     }
 
-    $expected = $this->stateNormalizeValue($value);
-    $actual_stringified = $this->stateStringifyValue($state_value['value']);
-    $expected_stringified = $this->stateStringifyValue($expected);
+    $expected = $this->stringNormalizeValue($value);
+    $actual_stringified = $this->stringFormatValue($state_value['value']);
+    $expected_stringified = $this->stringFormatValue($expected);
     if ($actual_stringified !== $expected_stringified) {
       throw new AssertionException(sprintf('The state "%s" has the value "%s", but it should have the value "%s".', $name, $actual_stringified, $expected_stringified));
     }
@@ -161,7 +164,7 @@ trait StateTrait {
   public function stateAssertNotExists(string $name): void {
     $state_value = $this->stateReadValue($name);
     if ($state_value['exists']) {
-      throw new AssertionException(sprintf('The state "%s" exists with the value "%s", but it should not exist.', $name, $this->stateStringifyValue($state_value['value'])));
+      throw new AssertionException(sprintf('The state "%s" exists with the value "%s", but it should not exist.', $name, $this->stringFormatValue($state_value['value'])));
     }
   }
 
@@ -203,71 +206,6 @@ trait StateTrait {
     }
 
     $this->stateOriginalValues[$name] = $this->stateReadValue($name);
-  }
-
-  /**
-   * Normalize a string value from a step into the shape actually stored.
-   *
-   * @param string $value
-   *   The raw value captured from the step or table cell.
-   *
-   * @return mixed
-   *   The normalized value: decoded JSON for array/object input, integer or
-   *   float for numeric input, boolean for "true"/"false", NULL for "null",
-   *   or the original string otherwise.
-   */
-  protected function stateNormalizeValue(string $value): mixed {
-    $trimmed = trim($value);
-
-    if ($trimmed === '') {
-      return $value;
-    }
-
-    $lower = strtolower($trimmed);
-    if ($lower === 'true') {
-      return TRUE;
-    }
-    if ($lower === 'false') {
-      return FALSE;
-    }
-    if ($lower === 'null') {
-      return NULL;
-    }
-
-    if ($trimmed[0] === '{' || $trimmed[0] === '[') {
-      $decoded = json_decode($trimmed);
-      if (json_last_error() === JSON_ERROR_NONE) {
-        return $decoded;
-      }
-    }
-
-    if (is_numeric($trimmed)) {
-      return str_contains($trimmed, '.') ? (float) $trimmed : (int) $trimmed;
-    }
-
-    return $value;
-  }
-
-  /**
-   * Stringify a state value for comparison and error messages.
-   *
-   * @param mixed $value
-   *   The value to stringify.
-   *
-   * @return string
-   *   The stringified value.
-   */
-  protected function stateStringifyValue(mixed $value): string {
-    if ($value === NULL) {
-      return 'NULL';
-    }
-    if (is_bool($value)) {
-      return $value ? 'true' : 'false';
-    }
-    if (is_scalar($value)) {
-      return (string) $value;
-    }
-    return (string) json_encode($value);
   }
 
   /**
