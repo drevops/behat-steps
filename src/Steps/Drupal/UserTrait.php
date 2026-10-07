@@ -322,8 +322,8 @@ trait UserTrait {
    */
   #[When('I log in as a user with the permission(s) :permissions')]
   public function userLoginWithPermissions(string $permissions): void {
-    $role = $this->backendFor(RoleCapabilityInterface::class)->createRole(array_filter(array_map(trim(...), explode(',', $permissions))));
-    $role_id = (string) $role->getValue('id');
+    $created = $this->backendFor(RoleCapabilityInterface::class)->createRole(array_filter(array_map(trim(...), explode(',', $permissions))));
+    $role_id = (string) $created->getValue('id');
     $this->roles[] = $role_id;
 
     $stub = $this->userBuildStub();

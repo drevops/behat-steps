@@ -82,15 +82,15 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     // 'access user profiles' is provided by the user module enabled here, so
     // checkPermissions() can validate it in isolation without pulling in node.
     $permission = 'access user profiles';
-    $role_stub = $this->core->createRole([$permission]);
-    $role_id = (string) $role_stub->getValue('id');
+    $created = $this->core->createRole([$permission]);
+    $role_id = (string) $created->getValue('id');
     $role = Role::load($role_id);
     $this->assertInstanceOf(Role::class, $role);
     $this->assertTrue($role->hasPermission($permission));
-    $this->assertSame('user_role', $role_stub->getEntityType());
-    $this->assertSame($role->label(), $role_stub->getValue('label'));
-    $this->assertTrue($role_stub->isSaved(), 'createRole marked the stub saved.');
-    $saved_role = $role_stub->getSavedEntity();
+    $this->assertSame('user_role', $created->getEntityType());
+    $this->assertSame($role->label(), $created->getValue('label'));
+    $this->assertTrue($created->isSaved(), 'createRole marked the stub saved.');
+    $saved_role = $created->getSavedEntity();
     $this->assertInstanceOf(Role::class, $saved_role);
     $this->assertSame($role_id, $saved_role->id());
 
@@ -190,9 +190,9 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   public function testCreateRoleAcceptsExplicitIdAndLabel(): void {
-    $role_stub = $this->core->createRole(['access user profiles'], 'editor', 'Editor');
+    $created = $this->core->createRole(['access user profiles'], 'editor', 'Editor');
 
-    $this->assertSame(['id' => 'editor', 'label' => 'Editor'], $role_stub->getValues());
+    $this->assertSame(['id' => 'editor', 'label' => 'Editor'], $created->getValues());
     $role = Role::load('editor');
     $this->assertInstanceOf(Role::class, $role);
     $this->assertSame('Editor', $role->label());
@@ -200,9 +200,9 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
   }
 
   public function testCreateRoleFallsBackToIdAsLabel(): void {
-    $role_stub = $this->core->createRole([], 'content_editor');
+    $created = $this->core->createRole([], 'content_editor');
 
-    $this->assertSame(['id' => 'content_editor', 'label' => 'content_editor'], $role_stub->getValues());
+    $this->assertSame(['id' => 'content_editor', 'label' => 'content_editor'], $created->getValues());
     $role = Role::load('content_editor');
     $this->assertInstanceOf(Role::class, $role);
     $this->assertSame('content_editor', $role->label());

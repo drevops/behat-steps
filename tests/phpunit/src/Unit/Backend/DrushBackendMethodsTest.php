@@ -138,11 +138,11 @@ class DrushBackendMethodsTest extends UnitTestCase {
   public function testCreateRoleReturnsTheRoleStub(array $args): void {
     $backend = $this->createBackend();
 
-    $role = $backend->createRole(...$args);
+    $created = $backend->createRole(...$args);
 
-    $this->assertSame('user_role', $role->getEntityType());
-    $this->assertFalse($role->isSaved());
-    $this->assertSame(['id' => $backend->invocations[0]['arguments'][0], 'label' => $backend->invocations[0]['arguments'][1]], $role->getValues());
+    $this->assertSame('user_role', $created->getEntityType());
+    $this->assertFalse($created->isSaved());
+    $this->assertSame(['id' => $backend->invocations[0]['arguments'][0], 'label' => $backend->invocations[0]['arguments'][1]], $created->getValues());
   }
 
   public static function dataProviderCreateRoleReturnsTheRoleStub(): \Iterator {
