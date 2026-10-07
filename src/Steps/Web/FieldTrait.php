@@ -158,87 +158,11 @@ trait FieldTrait {
    */
   #[When('I fill in the multi-value field :field with the following values:')]
   public function fieldFillMultiValue(string $field, TableNode $table): void {
-    $this->browserDriverFor(JavascriptCapabilityInterface::class);
-
-    $rows = $table->getColumn(0);
+    $values = $table->getColumn(0);
     // Drop the header row.
-    array_shift($rows);
-    $values = array_values($rows);
+    array_shift($values);
 
-    if ($values === []) {
-      return;
-    }
-
-    $page = $this->getSession()->getPage();
-
-    // A Drupal multi-value widget wraps its rows and "Add another item" button
-    // in a `data-drupal-selector="edit-<field>-wrapper"` container. The XPath
-    // matches the title, which can be a nested <label>, <h4>, <legend>,
-    // <caption> or plain text element, then its nearest `-wrapper` ancestor.
-    $literal = $this->fieldXpathLiteral($field);
-    $title_xpath = sprintf('//*[not(self::input or self::select or self::textarea) and (normalize-space(text())=%s or normalize-space(.)=%s)]', $literal, $literal);
-    $wrapper_xpath = $title_xpath . '/ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]';
-    $wrapper = $page->find('xpath', $wrapper_xpath);
-
-    if ($wrapper === NULL) {
-      $fallback_xpath = $title_xpath . '/ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]';
-      $wrapper = $page->find('xpath', $fallback_xpath);
-    }
-
-    if ($wrapper === NULL) {
-      $first_input = $page->findField($field);
-      if ($first_input !== NULL) {
-        $wrapper = $first_input->find('xpath', 'ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]');
-        $wrapper ??= $first_input->find('xpath', 'ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]');
-      }
-    }
-
-    if ($wrapper === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'multi-value field wrapper', 'label', $field);
-    }
-
-    // Multi-value rows carry name suffixes such as [0][value] and
-    // [1][value]; entity reference widgets use [0][target_id].
-    $existing_inputs = $wrapper->findAll('xpath', './/input[contains(@name, "[value]") or contains(@name, "[target_id]")]');
-    $existing_count = count($existing_inputs);
-    if ($existing_count === 0) {
-      $existing_inputs = $wrapper->findAll('xpath', './/input[@type="text"]');
-      $existing_count = count($existing_inputs);
-    }
-
-    $existing_count = max(1, $existing_count);
-
-    $required = count($values);
-    $clicks_needed = max(0, $required - $existing_count);
-
-    for ($i = 0; $i < $clicks_needed; $i++) {
-      $add_more = NULL;
-      foreach ($this->fieldGetAddMoreButtonSelectors() as $css_selector) {
-        $add_more = $wrapper->find('css', $css_selector);
-        if ($add_more !== NULL) {
-          break;
-        }
-      }
-      $add_more ??= $wrapper->find('xpath', './/input[@type="submit" and (contains(@name, "_add_more") or contains(@value, "Add another"))] | .//button[contains(@name, "_add_more") or contains(normalize-space(.), "Add another")]');
-      if ($add_more === NULL) {
-        throw new ElementNotFoundException($this->getSession()->getDriver(), '"Add another item" button', 'css', implode(', ', $this->fieldGetAddMoreButtonSelectors()));
-      }
-      $add_more->press();
-      $this->getSession()->wait(5000, '(typeof jQuery === "undefined") || (0 === jQuery.active && 0 === jQuery(\':animated\').length)');
-    }
-
-    // Re-collect input rows now that any new rows have been added.
-    $inputs = $wrapper->findAll('xpath', './/input[contains(@name, "[value]") or contains(@name, "[target_id]")]');
-    if (count($inputs) === 0) {
-      $inputs = $wrapper->findAll('xpath', './/input[@type="text"]');
-    }
-
-    foreach ($values as $index => $value) {
-      if (!isset($inputs[$index])) {
-        throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('input row of the multi-value field "%s"', $field), 'index', (string) $index);
-      }
-      $inputs[$index]->setValue($value);
-    }
+    $this->fieldFillMultiValueItems($field, $values);
   }
 
   /**
@@ -281,50 +205,13 @@ JS;
     $field = $this->stringFixStepArgument($field);
     $value = $this->stringFixStepArgument($value);
 
-    $page = $this->getSession()->getPage();
-    $element = $page->findField($field);
+    $element = $this->getSession()->getPage()->findField($field);
+
     if ($element === NULL) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value|placeholder', $field);
     }
 
-    if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
-      $element->setValue($value);
-      return;
-    }
-
-    $driver = $this->getSession()->getDriver();
-
-    $element_id = $element->getAttribute('id');
-    if ($element_id === NULL || $element_id === '') {
-      throw new \RuntimeException('WYSIWYG field must have an ID attribute.');
-    }
-
-    $element_id_js = json_encode($element_id, JSON_UNESCAPED_SLASHES);
-    $value_js = json_encode($value, JSON_UNESCAPED_SLASHES);
-
-    $parent_element = $element->getParent();
-
-    $is_ckeditor_4 = !empty($driver->find($parent_element->getXpath() . "/div[contains(@class,'cke')]"));
-    if ($is_ckeditor_4) {
-      $script = <<<JS
-        CKEDITOR.instances[{$element_id_js}].setData({$value_js});
-JS;
-    }
-    else {
-      $script = <<<JS
-        (function() {
-          const element = document.querySelector('#' + {$element_id_js})?.nextElementSibling.querySelector('.ck-editor__editable');
-          if (!element) {
-            throw new Error('CKEditor editable area not found for element with ID ' + {$element_id_js});
-          }
-          if (!element.ckeditorInstance) {
-            throw new Error('CKEditor instance not found for element with ID ' + {$element_id_js});
-          }
-          element.ckeditorInstance.setData({$value_js});
-        })();
-JS;
-    }
-    $this->getSession()->executeScript($script);
+    $this->fieldSetWysiwygValue($element, $value);
   }
 
   /**
@@ -347,45 +234,14 @@ JS;
   public function fieldUnselectOption(string $option, string $selector): void {
     $option = $this->stringFixStepArgument($option);
     $selector = $this->stringFixStepArgument($selector);
+    $option_value = $this->fieldGetSelectOption($selector, $option)->getValue();
 
-    $select_field = $this->getSession()->getPage()->findField($selector);
-    if (!$select_field) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $is_multiple = $select_field->hasAttribute('multiple');
-
-    $option_element = $select_field->find('named', ['option', $option]);
-    if (!$option_element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
-    }
-
-    $option_value = $option_element->getValue();
     // @codeCoverageIgnoreStart
     if (is_array($option_value) || is_bool($option_value)) {
       throw new \RuntimeException(sprintf('Unexpected option value type for "%s" in select "%s".', $option, $selector));
     }
     // @codeCoverageIgnoreEnd
-    $option_value = (string) $option_value;
-
-    if ($is_multiple) {
-      $current_values = $select_field->getValue();
-
-      // @codeCoverageIgnoreStart
-      if (!is_array($current_values)) {
-        $current_values = $current_values ? [$current_values] : [];
-      }
-      // @codeCoverageIgnoreEnd
-      $new_values = array_values(array_filter(
-        array_diff($current_values, [$option_value]),
-        is_string(...)
-      ));
-
-      $select_field->setValue($new_values);
-    }
-    else {
-      $select_field->setValue('');
-    }
+    $this->fieldUnselectValue($this->fieldGetSelect($selector), (string) $option_value);
   }
 
   /**
@@ -403,21 +259,9 @@ JS;
    */
   #[When('I clear the select :selector')]
   public function fieldClearSelect(string $selector): void {
-    $selector = $this->stringFixStepArgument($selector);
+    $select_field = $this->fieldGetSelect($this->stringFixStepArgument($selector));
 
-    $select_field = $this->getSession()->getPage()->findField($selector);
-    if (!$select_field) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $is_multiple = $select_field->hasAttribute('multiple');
-
-    if ($is_multiple) {
-      $select_field->setValue([]);
-    }
-    else {
-      $select_field->setValue('');
-    }
+    $select_field->setValue($select_field->hasAttribute('multiple') ? [] : '');
   }
 
   /**
@@ -469,17 +313,9 @@ JS;
    */
   #[When('I choose the radio button :selector')]
   public function fieldChooseRadioButton(string $selector): void {
-    $selector = $this->stringFixStepArgument($selector);
+    $radio_button = $this->fieldGetRadioButton($this->stringFixStepArgument($selector));
 
-    $page = $this->getSession()->getPage();
-    $radio_button = $page->findField($selector);
-
-    if ($radio_button === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
-    }
-
-    $value = $radio_button->getAttribute('value');
-    $radio_button->selectOption($value);
+    $radio_button->selectOption($radio_button->getAttribute('value'));
   }
 
   /**
@@ -591,9 +427,7 @@ JS;
    */
   #[Then('the field :field should be empty')]
   public function fieldAssertEmpty(string $field): void {
-    $field_element = $this->fieldAssertExists($field);
-
-    $value = $field_element->getValue();
+    $value = $this->fieldGet($field)->getValue();
 
     if ($value !== NULL && $value !== '') {
       throw new ExpectationException(sprintf('The field "%s" is not empty, but it should be.', $field), $this->getSession()->getDriver());
@@ -609,9 +443,7 @@ JS;
    */
   #[Then('the field :field should not be empty')]
   public function fieldAssertNotEmpty(string $field): void {
-    $field_element = $this->fieldAssertExists($field);
-
-    $value = $field_element->getValue();
+    $value = $this->fieldGet($field)->getValue();
 
     if ($value === NULL || $value === '') {
       throw new ExpectationException(sprintf('The field "%s" is empty, but it should not be.', $field), $this->getSession()->getDriver());
@@ -627,16 +459,8 @@ JS;
    * @endcode
    */
   #[Then('the field :field should exist')]
-  public function fieldAssertExists(string $field): NodeElement {
-    $page = $this->getSession()->getPage();
-    $field_element = $page->findField($field);
-    $field_element = $field_element ?: $page->findById($field);
-
-    if ($field_element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $field);
-    }
-
-    return $field_element;
+  public function fieldAssertExists(string $field): void {
+    $this->fieldGet($field);
   }
 
   /**
@@ -649,11 +473,7 @@ JS;
    */
   #[Then('the field :field should not exist')]
   public function fieldAssertNotExists(string $field): void {
-    $page = $this->getSession()->getPage();
-    $field_element = $page->findField($field);
-    $field_element = $field_element ?: $page->findById($field);
-
-    if ($field_element !== NULL) {
+    if ($this->fieldFind($field) instanceof NodeElement) {
       throw new ExpectationException(sprintf('The field "%s" appears on this page, but it should not.', $field), $this->getSession()->getDriver());
     }
   }
@@ -670,7 +490,7 @@ JS;
    */
   #[Then('the field :field should have the :enabled_or_disabled state')]
   public function fieldAssertState(string $field, string $enabled_or_disabled): void {
-    $field_element = $this->fieldAssertExists($field);
+    $field_element = $this->fieldGet($field);
 
     if ($enabled_or_disabled === 'disabled' && !$field_element->hasAttribute('disabled')) {
       throw new ExpectationException(sprintf('The field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
@@ -696,9 +516,7 @@ JS;
    */
   #[Then('the field :field should be required')]
   public function fieldAssertRequired(string $field): void {
-    $field_element = $this->fieldAssertExists($field);
-
-    if ($this->fieldIsMarkedRequired($field_element)) {
+    if ($this->fieldIsMarkedRequired($this->fieldGet($field))) {
       return;
     }
 
@@ -714,9 +532,7 @@ JS;
    */
   #[Then('the field :field should not be required')]
   public function fieldAssertNotRequired(string $field): void {
-    $field_element = $this->fieldAssertExists($field);
-
-    if (!$this->fieldIsMarkedRequired($field_element)) {
+    if (!$this->fieldIsMarkedRequired($this->fieldGet($field))) {
       return;
     }
 
@@ -758,17 +574,7 @@ JS;
    */
   #[Then('the option :option within the select :selector should exist')]
   public function fieldAssertSelectOptionExists(string $selector, string $option): void {
-    $select_element = $this->getSession()->getPage()->findField($selector);
-
-    if ($select_element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $option_element = $select_element->find('named', ['option', $option]);
-
-    if ($option_element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
-    }
+    $this->fieldGetSelectOption($selector, $option);
   }
 
   /**
@@ -780,15 +586,7 @@ JS;
    */
   #[Then('the option :option within the select :selector should not exist')]
   public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
-    $select_element = $this->getSession()->getPage()->findField($selector);
-
-    if ($select_element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $option_element = $select_element->find('named', ['option', $option]);
-
-    if ($option_element !== NULL) {
+    if ($this->fieldFindSelectOption($selector, $option) instanceof NodeElement) {
       throw new ExpectationException(sprintf('The option "%s" was found in the select "%s" on the page "%s", but it should not exist.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
     }
   }
@@ -802,24 +600,8 @@ JS;
    */
   #[Then('the option :option within the select :selector should be selected')]
   public function fieldAssertSelectOptionSelected(string $option, string $selector): void {
-    $select_field = $this->getSession()->getPage()->findField($selector);
-    $path = $this->fieldCurrentPath();
-
-    if (!$select_field) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $option_field = $select_field->find('named', [
-      'option',
-      $option,
-    ]);
-
-    if (!$option_field) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
-    }
-
-    if (!$option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was not selected on the page "%s".', $option, $path), $this->getSession()->getDriver());
+    if (!$this->fieldGetSelectOption($selector, $option)->isSelected()) {
+      throw new ExpectationException(sprintf('The option "%s" was not selected on the page "%s".', $option, $this->fieldCurrentPath()), $this->getSession()->getDriver());
     }
   }
 
@@ -832,21 +614,8 @@ JS;
    */
   #[Then('the option :option within the select :selector should not be selected')]
   public function fieldAssertSelectOptionNotSelected(string $option, string $selector): void {
-    $select_field = $this->getSession()->getPage()->findField($selector);
-    $path = $this->fieldCurrentPath();
-
-    if (!$select_field) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
-    }
-
-    $option_field = $select_field->find('named', ['option', $option]);
-
-    if (!$option_field) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
-    }
-
-    if ($option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page "%s", but it should not be.', $option, $selector, $path), $this->getSession()->getDriver());
+    if ($this->fieldGetSelectOption($selector, $option)->isSelected()) {
+      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page "%s", but it should not be.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
     }
   }
 
@@ -865,14 +634,7 @@ JS;
   public function fieldAssertRadioSelected(string $selector): void {
     $selector = $this->stringFixStepArgument($selector);
 
-    $page = $this->getSession()->getPage();
-    $radio_button = $page->findField($selector);
-
-    if ($radio_button === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
-    }
-
-    if (!$radio_button->isChecked()) {
+    if (!$this->fieldGetRadioButton($selector)->isChecked()) {
       throw new ExpectationException(sprintf('The radio button "%s" is not selected, but it should be.', $selector), $this->getSession()->getDriver());
     }
   }
@@ -892,16 +654,313 @@ JS;
   public function fieldAssertRadioNotSelected(string $selector): void {
     $selector = $this->stringFixStepArgument($selector);
 
+    if ($this->fieldGetRadioButton($selector)->isChecked()) {
+      throw new ExpectationException(sprintf('The radio button "%s" is selected, but it should not be.', $selector), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Fill in the items of a multi-value field widget with a list of values.
+   *
+   * Locates the field wrapper by label and counts existing rows. "Add another
+   * item" is clicked as many times as needed, waiting for AJAX between clicks,
+   * and each row is filled in order.
+   *
+   * @param string $field
+   *   The label of the field.
+   * @param array<int, string> $values
+   *   The values, 1 per item, in order.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the browser driver cannot run JavaScript.
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the field wrapper, the "Add another item" button or an item input
+   *   is not found.
+   */
+  public function fieldFillMultiValueItems(string $field, array $values): void {
+    $this->browserDriverFor(JavascriptCapabilityInterface::class);
+
+    $values = array_values($values);
+
+    if ($values === []) {
+      return;
+    }
+
     $page = $this->getSession()->getPage();
-    $radio_button = $page->findField($selector);
+
+    // A Drupal multi-value widget wraps its rows and "Add another item" button
+    // in a `data-drupal-selector="edit-<field>-wrapper"` container. The XPath
+    // matches the title, which can be a nested <label>, <h4>, <legend>,
+    // <caption> or plain text element, then its nearest `-wrapper` ancestor.
+    $literal = $this->fieldXpathLiteral($field);
+    $title_xpath = sprintf('//*[not(self::input or self::select or self::textarea) and (normalize-space(text())=%s or normalize-space(.)=%s)]', $literal, $literal);
+    $wrapper_xpath = $title_xpath . '/ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]';
+    $wrapper = $page->find('xpath', $wrapper_xpath);
+
+    if ($wrapper === NULL) {
+      $fallback_xpath = $title_xpath . '/ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]';
+      $wrapper = $page->find('xpath', $fallback_xpath);
+    }
+
+    if ($wrapper === NULL) {
+      $first_input = $page->findField($field);
+      if ($first_input !== NULL) {
+        $wrapper = $first_input->find('xpath', 'ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]');
+        $wrapper ??= $first_input->find('xpath', 'ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]');
+      }
+    }
+
+    if ($wrapper === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'multi-value field wrapper', 'label', $field);
+    }
+
+    // Multi-value rows carry name suffixes such as [0][value] and
+    // [1][value]; entity reference widgets use [0][target_id].
+    $existing_inputs = $wrapper->findAll('xpath', './/input[contains(@name, "[value]") or contains(@name, "[target_id]")]');
+    $existing_count = count($existing_inputs);
+    if ($existing_count === 0) {
+      $existing_inputs = $wrapper->findAll('xpath', './/input[@type="text"]');
+      $existing_count = count($existing_inputs);
+    }
+
+    $existing_count = max(1, $existing_count);
+
+    $required = count($values);
+    $clicks_needed = max(0, $required - $existing_count);
+
+    for ($i = 0; $i < $clicks_needed; $i++) {
+      $add_more = NULL;
+      foreach ($this->fieldGetAddMoreButtonSelectors() as $css_selector) {
+        $add_more = $wrapper->find('css', $css_selector);
+        if ($add_more !== NULL) {
+          break;
+        }
+      }
+      $add_more ??= $wrapper->find('xpath', './/input[@type="submit" and (contains(@name, "_add_more") or contains(@value, "Add another"))] | .//button[contains(@name, "_add_more") or contains(normalize-space(.), "Add another")]');
+      if ($add_more === NULL) {
+        throw new ElementNotFoundException($this->getSession()->getDriver(), '"Add another item" button', 'css', implode(', ', $this->fieldGetAddMoreButtonSelectors()));
+      }
+      $add_more->press();
+      $this->getSession()->wait(5000, '(typeof jQuery === "undefined") || (0 === jQuery.active && 0 === jQuery(\':animated\').length)');
+    }
+
+    // Re-collect input rows now that any new rows have been added.
+    $inputs = $wrapper->findAll('xpath', './/input[contains(@name, "[value]") or contains(@name, "[target_id]")]');
+    if (count($inputs) === 0) {
+      $inputs = $wrapper->findAll('xpath', './/input[@type="text"]');
+    }
+
+    foreach ($values as $index => $value) {
+      if (!isset($inputs[$index])) {
+        throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('input row of the multi-value field "%s"', $field), 'index', (string) $index);
+      }
+      $inputs[$index]->setValue($value);
+    }
+  }
+
+  /**
+   * Set the value of a field that carries a WYSIWYG editor.
+   *
+   * A JavaScript-capable browser driver fills the CKEditor 4 or CKEditor 5
+   * instance attached to the field; any other one sets the field value
+   * directly.
+   *
+   * @param \Behat\Mink\Element\NodeElement $element
+   *   The field the editor is attached to.
+   * @param string $value
+   *   The value, as markup.
+   *
+   * @throws \RuntimeException
+   *   When the field has no ID for the editor to be found by.
+   */
+  public function fieldSetWysiwygValue(NodeElement $element, string $value): void {
+    if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
+      $element->setValue($value);
+      return;
+    }
+
+    $driver = $this->getSession()->getDriver();
+
+    $element_id = $element->getAttribute('id');
+    if ($element_id === NULL || $element_id === '') {
+      throw new \RuntimeException('WYSIWYG field must have an ID attribute.');
+    }
+
+    $element_id_js = json_encode($element_id, JSON_UNESCAPED_SLASHES);
+    $value_js = json_encode($value, JSON_UNESCAPED_SLASHES);
+
+    $parent_element = $element->getParent();
+
+    $is_ckeditor_4 = !empty($driver->find($parent_element->getXpath() . "/div[contains(@class,'cke')]"));
+    if ($is_ckeditor_4) {
+      $script = <<<JS
+        CKEDITOR.instances[{$element_id_js}].setData({$value_js});
+JS;
+    }
+    else {
+      $script = <<<JS
+        (function() {
+          const element = document.querySelector('#' + {$element_id_js})?.nextElementSibling.querySelector('.ck-editor__editable');
+          if (!element) {
+            throw new Error('CKEditor editable area not found for element with ID ' + {$element_id_js});
+          }
+          if (!element.ckeditorInstance) {
+            throw new Error('CKEditor instance not found for element with ID ' + {$element_id_js});
+          }
+          element.ckeditorInstance.setData({$value_js});
+        })();
+JS;
+    }
+    $this->getSession()->executeScript($script);
+  }
+
+  /**
+   * Remove a value from the selection of a select.
+   *
+   * A select without the `multiple` attribute is cleared.
+   *
+   * @param \Behat\Mink\Element\NodeElement $select_field
+   *   The select.
+   * @param string $value
+   *   The value of the option to remove.
+   */
+  public function fieldUnselectValue(NodeElement $select_field, string $value): void {
+    if (!$select_field->hasAttribute('multiple')) {
+      $select_field->setValue('');
+      return;
+    }
+
+    $current_values = $select_field->getValue();
+
+    // @codeCoverageIgnoreStart
+    if (!is_array($current_values)) {
+      $current_values = $current_values ? [$current_values] : [];
+    }
+    // @codeCoverageIgnoreEnd
+    $select_field->setValue(array_values(array_filter(array_diff($current_values, [$value]), is_string(...))));
+  }
+
+  /**
+   * Find a field by its id, name, label or value.
+   *
+   * @param string $field
+   *   The id, name, label or value of the field.
+   *
+   * @return \Behat\Mink\Element\NodeElement|null
+   *   The field, or NULL when the page has none.
+   */
+  public function fieldFind(string $field): ?NodeElement {
+    $page = $this->getSession()->getPage();
+
+    return $page->findField($field) ?? $page->findById($field);
+  }
+
+  /**
+   * Get a field by its id, name, label or value.
+   *
+   * @param string $field
+   *   The id, name, label or value of the field.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The field.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the page has no such field.
+   */
+  public function fieldGet(string $field): NodeElement {
+    $field_element = $this->fieldFind($field);
+
+    if ($field_element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'form field', 'id|name|label|value', $field);
+    }
+
+    return $field_element;
+  }
+
+  /**
+   * Get a select by its id, name or label.
+   *
+   * @param string $selector
+   *   The id, name or label of the select.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The select.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the page has no such select.
+   */
+  public function fieldGetSelect(string $selector): NodeElement {
+    $select_field = $this->getSession()->getPage()->findField($selector);
+
+    if ($select_field === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'select', 'id|name|label', $selector);
+    }
+
+    return $select_field;
+  }
+
+  /**
+   * Find an option of a select by its value or text.
+   *
+   * @param string $selector
+   *   The id, name or label of the select.
+   * @param string $option
+   *   The value or text of the option.
+   *
+   * @return \Behat\Mink\Element\NodeElement|null
+   *   The option, or NULL when the select has none.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the page has no such select.
+   */
+  public function fieldFindSelectOption(string $selector, string $option): ?NodeElement {
+    return $this->fieldGetSelect($selector)->find('named', ['option', $option]);
+  }
+
+  /**
+   * Get an option of a select by its value or text.
+   *
+   * @param string $selector
+   *   The id, name or label of the select.
+   * @param string $option
+   *   The value or text of the option.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The option.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the page has no such select, or the select has no such option.
+   */
+  public function fieldGetSelectOption(string $selector, string $option): NodeElement {
+    $option_element = $this->fieldFindSelectOption($selector, $option);
+
+    if ($option_element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('option in the select "%s"', $selector), 'value|text', $option);
+    }
+
+    return $option_element;
+  }
+
+  /**
+   * Get a radio button by its id, name, label or value.
+   *
+   * @param string $selector
+   *   The id, name, label or value of the radio button.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The radio button.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the page has no such radio button.
+   */
+  public function fieldGetRadioButton(string $selector): NodeElement {
+    $radio_button = $this->getSession()->getPage()->findField($selector);
 
     if ($radio_button === NULL) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'radio button', 'id|name|label|value', $selector);
     }
 
-    if ($radio_button->isChecked()) {
-      throw new ExpectationException(sprintf('The radio button "%s" is selected, but it should not be.', $selector), $this->getSession()->getDriver());
-    }
+    return $radio_button;
   }
 
   /**

@@ -60,6 +60,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Expand',
     'Extract',
     'Fetch',
+    'Fill',
     'Find',
     'Generate',
     'Get',
@@ -81,6 +82,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Set',
     'Substitute',
     'Transpose',
+    'Unselect',
     'Visit',
     'Wait',
   ];
