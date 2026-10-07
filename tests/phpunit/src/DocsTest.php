@@ -257,13 +257,13 @@ EOD,
   public function testExtractMethodStepsMultiple(): void {
     $trait = new \ReflectionClass(MultiMethodTrait::class);
 
-    $given_method = $trait->getMethod('multimethodGivenItems');
+    $given_method = $trait->getMethod('multiMethodGivenItems');
     $this->assertSame(['@Given the following items:'], extract_method_steps($given_method));
 
-    $when_method = $trait->getMethod('multimethodClickButton');
+    $when_method = $trait->getMethod('multiMethodClickButton');
     $this->assertSame(['@When I click on :button'], extract_method_steps($when_method));
 
-    $then_method = $trait->getMethod('multimethodAssertResultVisible');
+    $then_method = $trait->getMethod('multiMethodAssertResultVisible');
     $this->assertSame(['@Then the result should be visible'], extract_method_steps($then_method));
   }
 

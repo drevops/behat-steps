@@ -18,6 +18,6 @@ trait NoStepAnnotationTrait {
    *
    * This should trigger the PHP_INT_MAX return in the sorting function.
    */
-  public function nostepannotationMethodWithoutStepAnnotation(): void {}
+  public function noStepAnnotationMethodWithoutStepAnnotation(): void {}
 
 }

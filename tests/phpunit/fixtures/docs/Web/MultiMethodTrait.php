@@ -21,7 +21,7 @@ trait MultiMethodTrait {
    * @endcode
    */
   #[Then('the result should be visible')]
-  public function multimethodAssertResultVisible(): void {}
+  public function multiMethodAssertResultVisible(): void {}
 
   /**
    * Given step.
@@ -31,7 +31,7 @@ trait MultiMethodTrait {
    * @endcode
    */
   #[Given('the following items:')]
-  public function multimethodGivenItems(): void {}
+  public function multiMethodGivenItems(): void {}
 
   /**
    * When step.
@@ -41,7 +41,7 @@ trait MultiMethodTrait {
    * @endcode
    */
   #[When('I click on :button')]
-  public function multimethodClickButton(): void {}
+  public function multiMethodClickButton(): void {}
 
   /**
    * Assert that the content should contain the specified text.
@@ -54,7 +54,7 @@ trait MultiMethodTrait {
    * @endcode
    */
   #[Then('the content should contain:')]
-  public function multimethodAssertContentContains(): void {}
+  public function multiMethodAssertContentContains(): void {}
 
   /**
    * Assert that the items should have the following properties.
@@ -67,6 +67,6 @@ trait MultiMethodTrait {
    * @endcode
    */
   #[Given('the following items exist:')]
-  public function multimethodGivenItemsExist(): void {}
+  public function multiMethodGivenItemsExist(): void {}
 
 }
