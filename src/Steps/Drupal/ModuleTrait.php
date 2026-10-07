@@ -55,16 +55,7 @@ trait ModuleTrait {
     }
 
     foreach (Tag::valueStates($scope, self::MODULE_TAG) as $module_name => $should_enable) {
-      $this->moduleStoreOriginalState($module_name);
-
-      if ($should_enable) {
-        if (!$this->moduleIsEnabled($module_name)) {
-          $this->moduleEnable($module_name);
-        }
-      }
-      elseif ($this->moduleIsEnabled($module_name)) {
-        $this->moduleDisable($module_name);
-      }
+      $this->moduleSetEnabled($module_name, $should_enable);
     }
   }
 
@@ -102,10 +93,7 @@ trait ModuleTrait {
    */
   #[Given('the module :module is enabled')]
   public function moduleEnsureEnabled(string $module): void {
-    $this->moduleStoreOriginalState($module);
-    if (!$this->moduleIsEnabled($module)) {
-      $this->moduleEnable($module);
-    }
+    $this->moduleSetEnabled($module, TRUE);
   }
 
   /**
@@ -117,10 +105,7 @@ trait ModuleTrait {
    */
   #[Given('the module :module is disabled')]
   public function moduleEnsureDisabled(string $module): void {
-    $this->moduleStoreOriginalState($module);
-    if ($this->moduleIsEnabled($module)) {
-      $this->moduleDisable($module);
-    }
+    $this->moduleSetEnabled($module, FALSE);
   }
 
   /**
@@ -135,10 +120,7 @@ trait ModuleTrait {
   #[Given('the following modules are enabled:')]
   public function moduleEnsureEnabledMultiple(TableNode $modules_table): void {
     foreach ($modules_table->getColumn(0) as $module) {
-      $this->moduleStoreOriginalState($module);
-      if (!$this->moduleIsEnabled($module)) {
-        $this->moduleEnable($module);
-      }
+      $this->moduleSetEnabled($module, TRUE);
     }
   }
 
@@ -154,10 +136,7 @@ trait ModuleTrait {
   #[Given('the following modules are disabled:')]
   public function moduleEnsureDisabledMultiple(TableNode $modules_table): void {
     foreach ($modules_table->getColumn(0) as $module) {
-      $this->moduleStoreOriginalState($module);
-      if ($this->moduleIsEnabled($module)) {
-        $this->moduleDisable($module);
-      }
+      $this->moduleSetEnabled($module, FALSE);
     }
   }
 
@@ -303,6 +282,29 @@ trait ModuleTrait {
    */
   public function moduleIsPresent(string $module): bool {
     return $this->backendFor(ModuleCapabilityInterface::class)->moduleIsPresent($module);
+  }
+
+  /**
+   * Enable or disable a module, restored after the scenario.
+   *
+   * @param string $module
+   *   The module machine name.
+   * @param bool $is_enabled
+   *   TRUE to enable the module, FALSE to disable it.
+   */
+  public function moduleSetEnabled(string $module, bool $is_enabled): void {
+    $this->moduleStoreOriginalState($module);
+
+    if ($this->moduleIsEnabled($module) === $is_enabled) {
+      return;
+    }
+
+    if ($is_enabled) {
+      $this->moduleEnable($module);
+    }
+    else {
+      $this->moduleDisable($module);
+    }
   }
 
   /**
