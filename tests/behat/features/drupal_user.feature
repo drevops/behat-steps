@@ -48,7 +48,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User with email "nobody@example.com" is expected to exist, but they do not.
+      The user with the email "nobody@example.com" is expected to exist, but they do not.
       """
 
   @test-trait:Drupal\UserTrait
@@ -64,7 +64,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User with email "alice@example.com" is expected to not exist, but they do.
+      The user with the email "alice@example.com" is expected to not exist, but they do.
       """
 
   Scenario: Assert "When the password for the user :name is :password" works
@@ -341,7 +341,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User "single_role" does not have role(s) "content_editor", but has roles "authenticated", "administrator".
+      The user "single_role" does not have role(s) "content_editor", but has roles "authenticated", "administrator".
       """
 
   @test-trait:Drupal\UserTrait
@@ -358,7 +358,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User "single_role" does not have role(s) "administrator", "content_editor", but has roles "authenticated", "administrator".
+      The user "single_role" does not have role(s) "administrator", "content_editor", but has roles "authenticated", "administrator".
       """
 
   @test-trait:Drupal\UserTrait
@@ -395,7 +395,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User "single_role" should not have role(s) "administrator", but has "authenticated", "administrator".
+      The user "single_role" should not have role(s) "administrator", but has "authenticated", "administrator".
       """
 
   @test-trait:Drupal\UserTrait
@@ -411,7 +411,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User "single_role" should not have role(s) "administrator", "content_editor", but has "authenticated", "administrator", "content_editor", "content_approver".
+      The user "single_role" should not have role(s) "administrator", "content_editor", but has "authenticated", "administrator", "content_editor", "content_approver".
       """
 
   @test-trait:Drupal\UserTrait
@@ -440,7 +440,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User "authenticated_user" is expected to be blocked, but they are not.
+      The user "authenticated_user" is expected to be blocked, but they are not.
       """
 
   @test-trait:Drupal\UserTrait
@@ -469,7 +469,7 @@ Feature: Check that UserTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      User "authenticated_user_blocked" is expected to not be blocked, but they are.
+      The user "authenticated_user_blocked" is expected to not be blocked, but they are.
       """
 
   @test-trait:Drupal\UserTrait

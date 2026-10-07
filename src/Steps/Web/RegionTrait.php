@@ -285,7 +285,7 @@ trait RegionTrait {
       }
     }
 
-    throw new ExpectationException(sprintf('No element "%s" in the region "%s" has the attribute "%s" with the value "%s" on the page "%s".', $selector, $region, $attribute, $value, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('The element "%s" in the region "%s" does not have the attribute "%s" with the value "%s" on the page "%s".', $selector, $region, $attribute, $value, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
   }
 
   /**

@@ -37,7 +37,7 @@ Feature: Check that RestTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected response status code 404, but got 200.
+      Expected the REST response status code to be 404, but got 200.
       """
 
   @test-trait:RestTrait

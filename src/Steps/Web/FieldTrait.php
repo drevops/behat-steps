@@ -596,7 +596,7 @@ JS;
     $value = $field_element->getValue();
 
     if ($value !== NULL && $value !== '') {
-      throw new ExpectationException(sprintf('The field "%s" is not empty, but should be.', $field), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The field "%s" is not empty, but it should be.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -654,7 +654,7 @@ JS;
     $field_element = $field_element ?: $page->findById($field);
 
     if ($field_element !== NULL) {
-      throw new ExpectationException(sprintf('A field "%s" appears on this page, but it should not.', $field), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The field "%s" appears on this page, but it should not.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -673,11 +673,11 @@ JS;
     $field_element = $this->fieldAssertExists($field);
 
     if ($enabled_or_disabled === 'disabled' && !$field_element->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
     }
 
     if ($enabled_or_disabled !== 'disabled' && $field_element->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('A field "%s" should not be disabled, but it is.', $field), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The field "%s" should not be disabled, but it is.', $field), $this->getSession()->getDriver());
     }
   }
 
@@ -702,7 +702,7 @@ JS;
       return;
     }
 
-    throw new ExpectationException(sprintf('The field "%s" is not marked as required, but should be.', $field), $this->getSession()->getDriver());
+    throw new ExpectationException(sprintf('The field "%s" is not marked as required, but it should be.', $field), $this->getSession()->getDriver());
   }
 
   /**
@@ -745,7 +745,7 @@ JS;
     $actual = $this->getSession()->evaluateScript($script);
 
     if ($actual !== $value) {
-      throw new ExpectationException(sprintf('Color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The color field "%s" expected a value "%s" but has a value "%s".', $field, $value, $actual), $this->getSession()->getDriver());
     }
   }
 
@@ -873,7 +873,7 @@ JS;
     }
 
     if (!$radio_button->isChecked()) {
-      throw new ExpectationException(sprintf('The radio button "%s" is not selected, but should be.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The radio button "%s" is not selected, but it should be.', $selector), $this->getSession()->getDriver());
     }
   }
 

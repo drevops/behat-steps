@@ -52,7 +52,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The field "field1" is not empty, but should be.
+      The field "field1" is not empty, but it should be.
       """
 
   @test-trait:FieldTrait
@@ -67,7 +67,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The field "field1" is not empty, but should be.
+      The field "field1" is not empty, but it should be.
       """
 
   @test-trait:FieldTrait
@@ -159,7 +159,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      A field "Field 1" appears on this page, but it should not.
+      The field "Field 1" appears on this page, but it should not.
       """
 
   @test-trait:FieldTrait
@@ -173,7 +173,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      A field "field1" appears on this page, but it should not.
+      The field "field1" appears on this page, but it should not.
       """
 
   @test-trait:FieldTrait
@@ -187,7 +187,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      A field "field3disabled" should not be disabled, but it is.
+      The field "field3disabled" should not be disabled, but it is.
       """
 
   @test-trait:FieldTrait
@@ -201,7 +201,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      A field "field1" should be disabled, but it is not.
+      The field "field1" should be disabled, but it is not.
       """
 
   @phpserver
@@ -226,7 +226,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The field "field1" is not marked as required, but should be.
+      The field "field1" is not marked as required, but it should be.
       """
 
   @test-trait:FieldTrait
@@ -530,7 +530,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The radio button "Option 1" is not selected, but should be.
+      The radio button "Option 1" is not selected, but it should be.
       """
 
   @test-trait:FieldTrait
@@ -852,7 +852,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Color field "#edit-color-input" expected a value "#000000" but has a value "#ffffff".
+      The color field "#edit-color-input" expected a value "#000000" but has a value "#ffffff".
       """
 
   @javascript @phpserver

@@ -176,7 +176,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Downloaded file "text.txt", but expected "wrong_name.txt"
+      The downloaded file name is "text.txt", but expected "wrong_name.txt"
       """
 
   @test-trait:FileDownloadTrait

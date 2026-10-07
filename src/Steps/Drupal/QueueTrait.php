@@ -199,7 +199,7 @@ trait QueueTrait {
     $queue_instance = \Drupal::service('queue')->get($queue);
     $actual = $queue_instance->numberOfItems();
     if ($actual !== $count) {
-      throw new AssertionException(sprintf('Expected queue "%s" to have %d items, but it has %d.', $queue, $count, $actual));
+      throw new AssertionException(sprintf('Expected the queue "%s" to have %d items, but it has %d.', $queue, $count, $actual));
     }
   }
 
@@ -218,7 +218,7 @@ trait QueueTrait {
     $queue_instance = \Drupal::service('queue')->get($queue);
     $actual = $queue_instance->numberOfItems();
     if ($actual !== 0) {
-      throw new AssertionException(sprintf('Expected queue "%s" to be empty, but it has %d items.', $queue, $actual));
+      throw new AssertionException(sprintf('Expected the queue "%s" to be empty, but it has %d items.', $queue, $actual));
     }
   }
 

@@ -666,8 +666,8 @@ A taxonomy term's name, a role and a file name each had 2 placeholder names: `:t
 
 | Trait | Before | After |
 | --- | --- | --- |
-| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport. | Element(s) defined by "..." selector is not displayed within the viewport. |
-| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport with a top offset of N pixels. | Element(s) defined by "..." selector is not displayed within the viewport with a top offset of N pixels. |
+| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport. | The element "..." is not displayed within the viewport. |
+| ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport with a top offset of N pixels. | The element "..." is not displayed within the viewport with a top offset of N pixels. |
 | Drupal\EmailTrait | The link number must be a positive integer, but "..." was provided. | The link index must be a positive integer, but "..." was provided. |
 | Drupal\EmailTrait | The link with number N was not found among N links. | The link with the index N was not found among N links. |
 
@@ -1520,24 +1520,24 @@ Behat reports every one of these as a failed step either way, so a scenario that
 
 ## Failure messages read one way
 
-A failure message quotes the values it names in double quotes, the page URL included, puts the noun before the value it names (`the attribute "..."`, not `the "..." attribute`), ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
+A failure message names what it reports about the way its step does, with the article: `the element :selector` fails with `The element "..."` and `the config :name with the key :key` with `The config "..." with the key "..."`. It quotes the values it names in double quotes, the page URL included, puts the noun before the value it names (`the attribute "..."`, not `the "..." attribute`), ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
 
 | Trait | Before | After |
 | --- | --- | --- |
 | Drupal\BlockTrait | The block "..." exists but should not. | The block "..." exists, but it should not. |
-| Drupal\BlockTrait | Block "..." is in region "..." but should not be. | Block "..." is in region "...", but it should not be. |
+| Drupal\BlockTrait | Block "..." is in region "..." but should not be. | The block "..." is in the region "...", but it should not be. |
 | Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which contains "..." but should not. | The config "..." with the key "..." has the ... "...", which contains "...", but it should not. |
 | Drupal\ConfigTrait | The config "..." key "..." is not set, but it should have the ... "...". | The config "..." with the key "..." is not set, but it should have the ... "...". |
 | Drupal\ConfigTrait | The config "..." key "..." has the ... "...", but it should have the ... "...". | The config "..." with the key "..." has the ... "...", but it should have the ... "...". |
 | Drupal\ConfigTrait | The config "..." key "..." has the ... "...", but it should not have the ... "...". | The config "..." with the key "..." has the ... "...", but it should not have the ... "...". |
 | Drupal\ConfigTrait | The config "..." key "..." is not set, but its ... should contain "...". | The config "..." with the key "..." is not set, but its ... should contain "...". |
 | Drupal\ConfigTrait | The config "..." key "..." has the ... "...", which does not contain "...". | The config "..." with the key "..." has the ... "...", which does not contain "...". |
-| Drupal\FileTrait | File contents "..." contains "...", but should not. | File contents "..." contains "...", but it should not. |
+| Drupal\FileTrait | File contents "..." contains "...", but should not. | The file content "..." contains "...", but it should not. |
 | LinkTrait | The link href "..." matches the specified href "..." but should not. | The link href "..." matches the specified href "...", but it should not. |
 | LinkTrait | The link with the title "..." exists, but should not. | The link with the title "..." exists, but it should not. |
-| ElementTrait | Element defined by "..." selector is visible on the page, but should not be. | Element defined by "..." selector is visible on the page, but it should not be. |
-| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but should not be. | Element(s) defined by "..." selector is displayed within the viewport with a top offset of N pixels, but it should not be. |
-| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport, but should not be. | Element(s) defined by "..." selector is displayed within the viewport, but it should not be. |
+| ElementTrait | Element defined by "..." selector is visible on the page, but should not be. | The element "..." is visible on the page, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport with a top offset of N pixels, but should not be. | The element "..." is displayed within the viewport with a top offset of N pixels, but it should not be. |
+| ElementTrait | Element(s) defined by "..." selector is displayed within a viewport, but should not be. | The element "..." is displayed within the viewport, but it should not be. |
 | FieldTrait | The field "..." is empty, but should not be. | The field "..." is empty, but it should not be. |
 | FieldTrait | The field "..." is marked as required, but should not be. | The field "..." is marked as required, but it should not be. |
 | FieldTrait | The option "..." was selected in the select "..." on the page ..., but should not be. | The option "..." was selected in the select "..." on the page "...", but it should not be. |
@@ -1561,7 +1561,7 @@ A failure message quotes the values it names in double quotes, the page URL incl
 | Drupal\FileTrait | The file "..." exists but it should not. | The file "..." exists, but it should not. |
 | CookieTrait | The cookie with name "..." was set but it should not be. | The cookie with name "..." was set, but it should not be. |
 | CookieTrait | The cookie with name containing "..." was set but it should not be. | The cookie with name containing "..." was set, but it should not be. |
-| Drupal\BlockTrait | Block "..." is in region "..." but should be in "...". | Block "..." is in region "...", but it should be in "...". |
+| Drupal\BlockTrait | Block "..." is in region "..." but should be in "...". | The block "..." is in the region "...", but it should be in the region "...". |
 | Drupal\EmailTrait | Invalid email field ... was specified for assertion. | Invalid email field "..." was specified for assertion. |
 | MetatagTrait | Failed to fetch the hreflang alternate page "...". | Failed to fetch the hreflang alternate page "...": .... |
 | FileDownloadTrait | Unable to download file from URL .... | Unable to download file from URL "...". |
@@ -1575,6 +1575,37 @@ A failure message quotes the values it names in double quotes, the page URL incl
 | ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it does not contain a value "...". | The attribute "..." exists on the element "..." with a value "...", but it does not contain a value "...". |
 | MetatagTrait | The "..." meta tag contains HTML tags: .... | The meta tag "..." contains HTML tags: .... |
 | Drupal\EmailTrait | No emails should have been sent, but some were found: ... | An email was sent, but it should not have been: ... |
+| ElementTrait | Element "..." appears before "...". | The element "..." appears before the element "...". |
+| ElementTrait | Text was not found: "...". | The text "..." was not found. |
+| ElementTrait | Text "..." appears before "...". | The text "..." appears before the text "...". |
+| ElementTrait | Element with selector "..." is not at the top of the viewport. | The element "..." is not at the top of the viewport. |
+| ElementTrait | Element with selector "..." is not centered in the viewport. | The element "..." is not centered in the viewport. |
+| ElementTrait | None of the elements defined by "..." selector are visible on the page. | The element "..." is not visible on the page. |
+| ElementTrait | Expected element "..." to ... (the stacking, pinned, keyboard focus and focus outline messages) | Expected the element "..." to ... |
+| FieldTrait | The field "..." is not empty, but should be. | The field "..." is not empty, but it should be. |
+| FieldTrait | The field "..." is not marked as required, but should be. | The field "..." is not marked as required, but it should be. |
+| FieldTrait | The radio button "..." is not selected, but should be. | The radio button "..." is not selected, but it should be. |
+| FieldTrait | A field "..." appears on this page, but it should not. | The field "..." appears on this page, but it should not. |
+| FieldTrait | A field "..." should be disabled, but it is not. | The field "..." should be disabled, but it is not. |
+| FieldTrait | A field "..." should not be disabled, but it is. | The field "..." should not be disabled, but it is. |
+| FieldTrait | Color field "..." expected a value "..." but has a value "...". | The color field "..." expected a value "..." but has a value "...". |
+| TableTrait | Expected table "..." to ... (the row count, column count, empty and not empty messages) | Expected the table "..." to ... |
+| TableTrait | Expected table "..." to be sorted by "..." in ... order. Actual values: .... | Expected the table "..." to be sorted by the column "..." in ... order. Actual values: .... |
+| TableTrait | Column "..." not found in table "...". Available columns: .... | The column "..." was not found in the table "...". Available columns: .... |
+| TableTrait | Row N with values [...] not found in table "...". | The table "..." does not contain the row N with the values [...]. |
+| TableTrait | Row containing "..." does not contain expected text "...". | The row containing "..." does not contain the text "...". |
+| Drupal\UserTrait | User "..." does not have role(s) "...", but has roles "...". | The user "..." does not have role(s) "...", but has roles "...". |
+| Drupal\UserTrait | User "..." should not have role(s) "...", but has "...". | The user "..." should not have role(s) "...", but has "...". |
+| Drupal\UserTrait | User with email "..." is expected to exist, but they do not. | The user with the email "..." is expected to exist, but they do not. |
+| Drupal\UserTrait | User with email "..." is expected to not exist, but they do. | The user with the email "..." is expected to not exist, but they do. |
+| Drupal\UserTrait | User "..." is expected to be blocked, but they are not. | The user "..." is expected to be blocked, but they are not. |
+| Drupal\UserTrait | User "..." is expected to not be blocked, but they are. | The user "..." is expected to not be blocked, but they are. |
+| Drupal\QueueTrait | Expected queue "..." to have N items, but it has N. | Expected the queue "..." to have N items, but it has N. |
+| Drupal\QueueTrait | Expected queue "..." to be empty, but it has N items. | Expected the queue "..." to be empty, but it has N items. |
+| Drupal\FileTrait | File contents "..." does not contain "...". | The file content "..." does not contain "...". |
+| FileDownloadTrait | Downloaded file "...", but expected "...". | The downloaded file name is "...", but expected "...". |
+| MetatagTrait | Meta tag with specified attributes should not exist: .... | The meta tag with the attributes "..." exists, but it should not. |
+| RestTrait | Expected response status code N, but got N. | Expected the REST response status code to be N, but got N. |
 
 ## Tightened public surface
 

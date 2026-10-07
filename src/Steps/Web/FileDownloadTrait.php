@@ -170,7 +170,7 @@ trait FileDownloadTrait {
     }
 
     if ($name !== $this->fileDownloadDownloadedFileInfo['file_name']) {
-      throw new ExpectationException(sprintf('Downloaded file "%s", but expected "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $name), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The downloaded file name is "%s", but expected "%s".', $this->fileDownloadDownloadedFileInfo['file_name'], $name), $this->getSession()->getDriver());
     }
   }
 

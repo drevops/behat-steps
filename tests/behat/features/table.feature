@@ -42,7 +42,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-asc" to have 99 row(s), but found 3.
+      Expected the table ".table-asc" to have 99 row(s), but found 3.
       """
 
   @test-trait:TableTrait
@@ -87,7 +87,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-asc" to have 99 column(s), but found 3.
+      Expected the table ".table-asc" to have 99 column(s), but found 3.
       """
 
   @test-trait:TableTrait
@@ -125,7 +125,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
-      Column "NonExistent" not found in table ".table-asc".
+      The column "NonExistent" was not found in the table ".table-asc".
       """
 
   @phpserver
@@ -146,7 +146,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-asc" to be empty, but found 3 row(s).
+      Expected the table ".table-asc" to be empty, but found 3 row(s).
       """
 
   @phpserver
@@ -167,7 +167,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-empty" to not be empty, but it has no rows.
+      Expected the table ".table-empty" to not be empty, but it has no rows.
       """
 
   @phpserver
@@ -209,7 +209,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected table ".table-desc" to be sorted by "Name" in ascending order.
+      Expected the table ".table-desc" to be sorted by the column "Name" in ascending order.
       """
 
   @test-trait:TableTrait
@@ -224,7 +224,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Column "NonExistent" not found in table ".table-asc".
+      The column "NonExistent" was not found in the table ".table-asc".
       """
 
   @phpserver
@@ -250,7 +250,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      not found in table ".table-asc".
+      The table ".table-asc" does not contain the row 1 with the values [Non Existent].
       """
 
   @phpserver
@@ -290,7 +290,7 @@ Feature: Check that TableTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Row containing "Alpha item" does not contain expected text "NonExistent".
+      The row containing "Alpha item" does not contain the text "NonExistent".
       """
 
   @phpserver

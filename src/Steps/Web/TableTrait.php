@@ -82,7 +82,7 @@ trait TableTrait {
     $actual = count($this->tableGetRows($table));
 
     if ($actual !== $count) {
-      throw new ExpectationException(sprintf('Expected table "%s" to have %d row(s), but found %d.', $selector, $count, $actual), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the table "%s" to have %d row(s), but found %d.', $selector, $count, $actual), $this->getSession()->getDriver());
     }
   }
 
@@ -101,7 +101,7 @@ trait TableTrait {
     $actual = count($this->tableGetHeaders($table));
 
     if ($actual !== $count) {
-      throw new ExpectationException(sprintf('Expected table "%s" to have %d column(s), but found %d.', $selector, $count, $actual), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the table "%s" to have %d column(s), but found %d.', $selector, $count, $actual), $this->getSession()->getDriver());
     }
   }
 
@@ -123,7 +123,7 @@ trait TableTrait {
     foreach ($table->getColumn(0) as $expected_column) {
       $expected_column = trim($expected_column);
       if (!in_array($expected_column, $actual_headers, TRUE)) {
-        throw new ExpectationException(sprintf('Column "%s" not found in table "%s". Available columns: %s.', $expected_column, $selector, implode(', ', $actual_headers)), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('The column "%s" was not found in the table "%s". Available columns: %s.', $expected_column, $selector, implode(', ', $actual_headers)), $this->getSession()->getDriver());
       }
     }
   }
@@ -141,7 +141,7 @@ trait TableTrait {
     $actual = count($this->tableGetRows($table));
 
     if ($actual !== 0) {
-      throw new ExpectationException(sprintf('Expected table "%s" to be empty, but found %d row(s).', $selector, $actual), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the table "%s" to be empty, but found %d row(s).', $selector, $actual), $this->getSession()->getDriver());
     }
   }
 
@@ -157,7 +157,7 @@ trait TableTrait {
     $table = $this->tableGet($selector);
 
     if (count($this->tableGetRows($table)) === 0) {
-      throw new ExpectationException(sprintf('Expected table "%s" to not be empty, but it has no rows.', $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the table "%s" to not be empty, but it has no rows.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -195,7 +195,7 @@ trait TableTrait {
     }
 
     if ($values !== $sorted) {
-      throw new ExpectationException(sprintf('Expected table "%s" to be sorted by "%s" in %s order. Actual values: %s.', $selector, $column, $direction, implode(', ', $values)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Expected the table "%s" to be sorted by the column "%s" in %s order. Actual values: %s.', $selector, $column, $direction, implode(', ', $values)), $this->getSession()->getDriver());
     }
   }
 
@@ -242,7 +242,7 @@ trait TableTrait {
       }
 
       if (!$is_found) {
-        throw new ExpectationException(sprintf('Row %d with values [%s] not found in table "%s".', $row_index + 1, implode(', ', array_values($expected_row)), $selector), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('The table "%s" does not contain the row %d with the values [%s].', $selector, $row_index + 1, implode(', ', array_values($expected_row))), $this->getSession()->getDriver());
       }
     }
   }
@@ -261,7 +261,7 @@ trait TableTrait {
     $actual_text = $this->tableGetRowByText($partial_text)->getText();
     foreach ($table->getColumn(0) as $expected_text) {
       if (!str_contains((string) $actual_text, $expected_text)) {
-        throw new ExpectationException(sprintf('Row containing "%s" does not contain expected text "%s".', $partial_text, $expected_text), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('The row containing "%s" does not contain the text "%s".', $partial_text, $expected_text), $this->getSession()->getDriver());
       }
     }
   }
@@ -432,7 +432,7 @@ trait TableTrait {
     $index = array_search($column, $headers, TRUE);
 
     if ($index === FALSE) {
-      throw new ExpectationException(sprintf('Column "%s" not found in table "%s". Available columns: %s.', $column, $selector, implode(', ', $headers)), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The column "%s" was not found in the table "%s". Available columns: %s.', $column, $selector, implode(', ', $headers)), $this->getSession()->getDriver());
     }
 
     return (int) $index;

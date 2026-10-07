@@ -91,6 +91,16 @@ A step has none. A variation of a step is a step of its own. When 2 steps differ
 
 When leaving out a helper's string argument means "not given", the parameter defaults to `NULL`, with a nullable type, and `NULL` is the one value that means it: `contentVisitActionPageWithTitle()` opens the content page for a `NULL` subpath, and `configGet()` returns the whole configuration object for a `NULL` key. A parameter never defaults to an empty string, so `''` stays a value a caller passes on purpose: `cookieAssertExists()` skips the value check for `NULL` and asserts an empty value for `''`. A default that is a value in its own right stays, as `DrushBackend`'s `$binary = 'drush'` does. `tests/phpunit/src/OptionalParameterTest.php` rejects an empty-string default on every class, interface and trait under `src/`.
 
+## Failure messages
+
+A project's own tests assert on failure messages, so each one reads 1 way:
+
+- It names what it reports about the way its step does, with the article: `the element :selector` fails with `The element "..." is not displayed within the viewport.`, and `the config :name with the key :key` with `The config "..." with the key "..." ...`.
+- It quotes every value it names in double quotes, the page URL included, and puts the noun before the value: `the attribute "..."`, not `the "..." attribute`.
+- It ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`.
+
+Which exception carries the message depends on what failed, as the [exception table](README.md#exceptions) lists. A missing element on the page or in an XML response is an `ElementNotFoundException`. An attribute, a JSON path or a table column isn't an element, so a missing one is an `ExpectationException`.
+
 ## Method naming conventions
 
 Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, action, helper verb, hook, lookup, word order, batch and spelling conventions below.

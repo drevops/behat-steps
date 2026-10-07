@@ -477,7 +477,7 @@ trait UserTrait {
     $roles = $this->stringSplitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) !== count($roles)) {
-      throw new ExpectationException(sprintf('User "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The user "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
     }
   }
 
@@ -495,7 +495,7 @@ trait UserTrait {
     $roles = $this->stringSplitCommaSeparated($roles);
 
     if (count(array_intersect($roles, $user->getRoles())) > 0) {
-      throw new ExpectationException(sprintf('User "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The user "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
     }
   }
 
@@ -511,7 +511,7 @@ trait UserTrait {
   #[Then('the user with the email :address should exist')]
   public function userAssertExistsWithMail(string $address): void {
     if (!$this->userExistsByMail($address)) {
-      throw new ExpectationException(sprintf('User with email "%s" is expected to exist, but they do not.', $address), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The user with the email "%s" is expected to exist, but they do not.', $address), $this->getSession()->getDriver());
     }
   }
 
@@ -527,7 +527,7 @@ trait UserTrait {
   #[Then('the user with the email :address should not exist')]
   public function userAssertNotExistsWithMail(string $address): void {
     if ($this->userExistsByMail($address)) {
-      throw new ExpectationException(sprintf('User with email "%s" is expected to not exist, but they do.', $address), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The user with the email "%s" is expected to not exist, but they do.', $address), $this->getSession()->getDriver());
     }
   }
 
@@ -543,7 +543,7 @@ trait UserTrait {
     $user = $this->userGetByName($name);
 
     if ($user->isActive()) {
-      throw new ExpectationException(sprintf('User "%s" is expected to be blocked, but they are not.', $name), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The user "%s" is expected to be blocked, but they are not.', $name), $this->getSession()->getDriver());
     }
   }
 
@@ -559,7 +559,7 @@ trait UserTrait {
     $user = $this->userGetByName($name);
 
     if (!$user->isActive()) {
-      throw new ExpectationException(sprintf('User "%s" is expected to not be blocked, but they are.', $name), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The user "%s" is expected to not be blocked, but they are.', $name), $this->getSession()->getDriver());
     }
   }
 

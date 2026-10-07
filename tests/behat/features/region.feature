@@ -201,6 +201,20 @@ Feature: Check that RegionTrait works
       """
 
   @test-trait:RegionTrait @phpserver
+  Scenario: Assert "Then the element :selector in the region :region should have the attribute :attribute with the value :value" fails when no element has the attribute value
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/regions.html"
+      Then the element "img" in the region "content" should have the attribute "alt" with the value "Banner"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The element "img" in the region "content" does not have the attribute "alt" with the value "Banner" on the page "http://cli:8888/regions.html".
+      """
+
+  @test-trait:RegionTrait @phpserver
   Scenario: Assert "Then the element :selector with the text :text in the region :region should have the attribute :attribute with the value :value" fails when the attribute differs
     Given some behat configuration
     And scenario steps tagged with "@phpserver":

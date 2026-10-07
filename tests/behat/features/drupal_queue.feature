@@ -156,7 +156,7 @@ Feature: Check that QueueTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected queue "behat_test" to have 5 items, but it has 0.
+      Expected the queue "behat_test" to have 5 items, but it has 0.
       """
 
   @test-trait:Drupal\QueueTrait
@@ -170,7 +170,7 @@ Feature: Check that QueueTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Expected queue "behat_test" to be empty, but it has 2 items.
+      Expected the queue "behat_test" to be empty, but it has 2 items.
       """
 
   @test-trait:Drupal\QueueTrait
