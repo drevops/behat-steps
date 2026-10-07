@@ -274,10 +274,8 @@ trait RegionTrait {
    */
   #[Then('the element :selector in the region :region should have the attribute :attribute with the value :value')]
   public function regionAssertElementAttributeEquals(string $selector, string $region, string $attribute, string $value): void {
-    foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
-      if ($element->getAttribute($attribute) === $value) {
-        return;
-      }
+    if ($this->regionFindElementWithAttribute($region, $selector, $attribute, $value) instanceof NodeElement) {
+      return;
     }
 
     throw new ExpectationException(sprintf('The element "%s" in the region "%s" does not have the attribute "%s" with the value "%s" on the page "%s".', $selector, $region, $attribute, $value, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
@@ -370,6 +368,34 @@ trait RegionTrait {
     }
 
     throw new ExpectationException(sprintf('The text "%s" was not found in the element "%s" in the region "%s" on the page "%s".', $text, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Find an element in a region whose attribute holds a value.
+   *
+   * @param string $region
+   *   The region name.
+   * @param string $selector
+   *   The CSS selector for the element.
+   * @param string $attribute
+   *   The name of the attribute.
+   * @param string $value
+   *   The value the attribute holds exactly.
+   *
+   * @return \Behat\Mink\Element\NodeElement|null
+   *   The first matching element, or NULL when none carries the value.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the region name is not mapped or its selector matches nothing.
+   */
+  public function regionFindElementWithAttribute(string $region, string $selector, string $attribute, string $value): ?NodeElement {
+    foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
+      if ($element->getAttribute($attribute) === $value) {
+        return $element;
+      }
+    }
+
+    return NULL;
   }
 
   /**
