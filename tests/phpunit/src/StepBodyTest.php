@@ -10,8 +10,11 @@ use Behat\Step\When;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Closure;
+use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Match_;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\NullsafeMethodCall;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Throw_;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
@@ -151,6 +154,11 @@ class StepBodyTest extends UnitTestCase {
       'loop dispatching after a guard' => ['foreach ($table->getHash() as $row) { ' . $guard . ' $this->acmeCreate($row); }', []],
       'loop of guards' => ['foreach ($table->getHash() as $row) { ' . $guard . ' }', []],
       'while dispatching 1 call' => ['while ($a = $this->acmeFind()) { $a->delete(); }', []],
+      'loop dispatching a nullsafe call' => ['foreach ($table->getColumn(0) as $a) { $this->acmeFind($a)?->delete(); }', []],
+      'loop dispatching a static call' => ['foreach ($table->getColumn(0) as $a) { static::acmeCreate($a); }', []],
+      'loop dispatching a function call' => ['foreach ($table->getColumn(0) as $a) { unlink($a); }', []],
+      'loop ending in an assignment' => ['foreach ($table->getHash() as $row) { $a[] = $row; }', ['acmeAssertStep() holds a loop doing more than guarding and 1 call']],
+      'loop ending in a condition' => ['foreach ($table->getHash() as $row) { if ($row) { $this->acmeCreate($row); } }', ['acmeAssertStep() holds a loop doing more than guarding and 1 call']],
       'loop of 2 calls' => ['foreach ($table->getHash() as $row) { $this->acmeCreate($row); $this->acmeCreate($row); }', ['acmeAssertStep() holds a loop doing more than guarding and 1 call']],
       'guard after the call' => ['foreach ($table->getHash() as $row) { $this->acmeCreate($row); ' . $guard . ' }', ['acmeAssertStep() holds a loop doing more than guarding and 1 call']],
       'nested loop' => ['foreach ($a as $b) { foreach ($b as $c) { $this->acmeCreate($c); } }', ['acmeAssertStep() holds a loop doing more than guarding and 1 call']],
@@ -275,7 +283,7 @@ class StepBodyTest extends UnitTestCase {
     $statements = array_values(array_filter($statements, static fn(Node $statement): bool => !$statement instanceof Nop));
     $last = array_pop($statements);
 
-    if ($last !== NULL && !$last instanceof Expression && !static::isGuard($last)) {
+    if ($last !== NULL && !static::isCall($last) && !static::isGuard($last)) {
       return FALSE;
     }
 
@@ -286,6 +294,14 @@ class StepBodyTest extends UnitTestCase {
     }
 
     return TRUE;
+  }
+
+  /**
+   * Check whether a statement is a single call, whatever it is called on.
+   */
+  protected static function isCall(Node $statement): bool {
+    return $statement instanceof Expression
+      && ($statement->expr instanceof MethodCall || $statement->expr instanceof NullsafeMethodCall || $statement->expr instanceof StaticCall || $statement->expr instanceof FuncCall);
   }
 
   /**

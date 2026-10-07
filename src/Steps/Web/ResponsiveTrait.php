@@ -151,11 +151,9 @@ trait ResponsiveTrait {
    */
   #[Given('the following responsive breakpoints exist:')]
   public function responsiveSetBreakpointMultiple(TableNode $table): void {
-    $breakpoints = [];
     foreach ($table->getHash() as $row) {
-      $breakpoints[$row['name']] = $row['dimensions'];
+      $this->responsiveSetBreakpoint($row['name'], $row['dimensions']);
     }
-    $this->responsiveSetBreakpoints($breakpoints);
   }
 
   /**
@@ -246,10 +244,27 @@ trait ResponsiveTrait {
    */
   public function responsiveSetBreakpoints(array $breakpoints): void {
     foreach ($breakpoints as $name => $dimensions) {
-      // The extraction throws on an invalid format.
-      $this->responsiveExtractDimensions($dimensions, $name);
-      $this->responsiveCustomBreakpoints[$name] = $dimensions;
+      $this->responsiveSetBreakpoint($name, $dimensions);
     }
+  }
+
+  /**
+   * Set a custom breakpoint.
+   *
+   * A custom breakpoint overrides a default breakpoint with the same name.
+   *
+   * @param string $name
+   *   The breakpoint name.
+   * @param string $dimensions
+   *   The dimensions, in WIDTHxHEIGHT format.
+   *
+   * @throws \RuntimeException
+   *   If the dimensions format is invalid.
+   */
+  public function responsiveSetBreakpoint(string $name, string $dimensions): void {
+    // The extraction throws on an invalid format.
+    $this->responsiveExtractDimensions($dimensions, $name);
+    $this->responsiveCustomBreakpoints[$name] = $dimensions;
   }
 
   /**

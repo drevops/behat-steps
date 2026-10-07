@@ -24,7 +24,7 @@
 | [PathTrait](#pathtrait) | 4 | Navigate and verify paths with URL validation. |
 | [RandomTrait](#randomtrait) | 10 | Replace random-value tokens in step arguments and table cells. |
 | [RegionTrait](#regiontrait) | 4 | Interact with and assert against named page regions. |
-| [ResponsiveTrait](#responsivetrait) | 6 | Test responsive layouts with viewport control. |
+| [ResponsiveTrait](#responsivetrait) | 7 | Test responsive layouts with viewport control. |
 | [RestTrait](#resttrait) | 2 | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](#tabletrait) | 10 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
@@ -1329,6 +1329,15 @@ Resize the browser window
 
 <br/>
 Resize viewport to a named breakpoint
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function responsiveSetBreakpoint(string $name, string $dimensions): void</code></summary>
+
+<br/>
+Set a custom breakpoint
 <br/><br/>
 
 </details>
