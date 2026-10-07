@@ -101,6 +101,25 @@ Feature: Check that MediaTrait works
     Then I should see "Duplicate test item"
     And I should see 1 ".view-media td:contains('Duplicate test item')" elements
 
+  @test-trait:Drupal\MediaTrait
+  Scenario Outline: Media of a type that is empty or does not exist fails with an exception
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following "<media_type>" media exist:
+        | name         |
+        | Orphan media |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      <message>
+      """
+    Examples:
+      | media_type   | message                                                                    |
+      |              | Cannot create media because it is missing the required bundle.             |
+      | unknown_type | Cannot create media because provided bundle "unknown_type" does not exist. |
+
   Scenario: Create single media with vertical field format
     When I log in as a user with the role "administrator"
     And the following managed files exist:
