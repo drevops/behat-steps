@@ -189,11 +189,11 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     /** @var \DrevOps\BehatSteps\Backend\DrupalBackend $backend */
     $backend = $reflection->newInstanceWithoutConstructor();
 
-    $root = $reflection->getProperty('drupalRoot');
-    $root->setValue($backend, __DIR__);
+    $root_property = $reflection->getProperty('drupalRoot');
+    $root_property->setValue($backend, __DIR__);
 
-    $uri = $reflection->getProperty('uri');
-    $uri->setValue($backend, 'default');
+    $uri_property = $reflection->getProperty('uri');
+    $uri_property->setValue($backend, 'default');
 
     $version_property = $reflection->getProperty('version');
     $version_property->setValue($backend, $version);
