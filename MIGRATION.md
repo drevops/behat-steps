@@ -602,7 +602,7 @@ A method behind a navigation step opens with `Visit` and names the page the way 
 | `Drupal\ContentBlockTrait` | `contentBlockEditBlockContentWithDescription()` | `contentBlockVisitEditPageWithDescription()` |
 | `Drupal\ContentTrait` | `contentVisitViewWithTitle()` | `contentVisitPageWithTitle()` |
 | `Drupal\EckTrait` | `eckEditEntityWithTitle()` | `eckVisitEntityEditPageWithTitle()` |
-| `Drupal\EmailTrait` | `emailFollowLinkNumber()` | `emailFollowLinkWithIndex()` |
+| `Drupal\EmailTrait` | `emailFollowLinkNumber()` | `emailFollowLinkWithIndexWithSubject()` |
 | `Drupal\EmailTrait` | `emailFollowLinkNumberWithSubjectContaining()` | `emailFollowLinkWithIndexWithSubjectContaining()` |
 | `Drupal\MediaTrait` | `mediaEditWithName()` | `mediaVisitEditPageWithName()` |
 | `Drupal\MediaTrait` | `mediaVisitViewWithName()` | `mediaVisitPageWithName()` |
@@ -1802,6 +1802,13 @@ It still asserts that an email went to the address and that no collected email's
 | `ElementTrait` | `elementClickByIndex()` | `elementClickWithIndex()` |
 | `ElementTrait` | `elementFollowLinkByIndex()` | `elementFollowLinkWithIndex()` |
 | `ElementTrait` | `elementPressButtonByIndex()` | `elementPressButtonWithIndex()` |
+
+2 `Drupal\EmailTrait` assertions named their target unlike their siblings: the attachment check named the file instead of the subject that picks the email, and the address check dropped the `Address` its 6 siblings carry.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\EmailTrait` | `emailAssertMessageContainsAttachmentWithName()` | `emailAssertMessageContainsAttachmentWithSubject()` |
+| `Drupal\EmailTrait` | `emailAssertMessageSentTo()` | `emailAssertMessageSentToAddress()` |
 
 ### `Has` names something the subject holds
 

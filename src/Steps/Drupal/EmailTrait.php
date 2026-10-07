@@ -129,7 +129,7 @@ trait EmailTrait {
    * @endcode
    */
   #[When('I follow the link with the index :index in the email with the subject :subject')]
-  public function emailFollowLinkWithIndex(string $index, string $subject): void {
+  public function emailFollowLinkWithIndexWithSubject(string $index, string $subject): void {
     $this->emailFollowLinkWithIndexBySubject($index, $subject, FALSE);
   }
 
@@ -144,7 +144,7 @@ trait EmailTrait {
    * @endcode
    */
   #[When('I follow the link with a URL containing :partial_url in the email')]
-  public function emailFollowLinkContaining(string $partial_url): void {
+  public function emailFollowLinkWithUrlContaining(string $partial_url): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $body = $message['params']['body'] ?? NULL;
 
@@ -240,7 +240,7 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('an email should be sent to the address :address')]
-  public function emailAssertMessageSentTo(string $address): void {
+  public function emailAssertMessageSentToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->stringSplitCommaSeparated((string) $message['to']);
 
@@ -409,7 +409,7 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address with the content:')]
   public function emailAssertMessageSentToAddressWithContent(string $address, PyStringNode $string): void {
-    $this->emailAssertMessageSentTo($address);
+    $this->emailAssertMessageSentToAddress($address);
     $this->emailAssertMessageFieldEquals('body', $string);
   }
 
@@ -425,7 +425,7 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address with the content containing:')]
   public function emailAssertMessageSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
-    $this->emailAssertMessageSentTo($address);
+    $this->emailAssertMessageSentToAddress($address);
     $this->emailAssertMessageFieldContains('body', $string);
   }
 
@@ -441,7 +441,7 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address with the content not containing:')]
   public function emailAssertMessageSentToAddressNotContains(string $address, PyStringNode $string): void {
-    $this->emailAssertMessageSentTo($address);
+    $this->emailAssertMessageSentToAddress($address);
     $this->emailAssertMessageFieldNotContains('body', $string);
   }
 
@@ -545,7 +545,7 @@ trait EmailTrait {
    * @endcode
    */
   #[Then('the file :file_name should be attached to the email with the subject :subject')]
-  public function emailAssertMessageContainsAttachmentWithName(string $file_name, string $subject): void {
+  public function emailAssertMessageContainsAttachmentWithSubject(string $file_name, string $subject): void {
     $this->emailAssertMessageContainsAttachmentBySubject($file_name, $subject, FALSE);
   }
 
