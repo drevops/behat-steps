@@ -19,9 +19,9 @@ services:
       - { name: behat_steps.backend, alias: drupal }
   behat_steps.backend.core:
     class: "%behat_steps.backend.core.class%"
-    tags:
-      - { name: behat_steps.core }
     arguments:
       - "%behat_steps.backend.drupal.drupal_root%"
       - "%mink.base_url%"
       - "@behat_steps.backend.random"
+    tags:
+      - { name: behat_steps.core }
