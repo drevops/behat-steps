@@ -138,7 +138,9 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
-  public function cacheClear(?string $type = 'all'): void {
+  public function cacheClear(?string $type = NULL): void {
+    $type ??= 'all';
+
     if ($type === 'drush') {
       $this->drush('cache-clear', ['drush'], []);
       return;
