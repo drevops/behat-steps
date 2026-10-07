@@ -574,8 +574,9 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  `JavascriptTrait` when the context also uses it, and the live browser buffer.
 >  - `Re-run` - a ready-to-paste command that re-runs just the failing scenario.
 >  
->  The trait is opt-in: `use` it in the context and it is active with no further
->  configuration. Every field is individually toggleable by overriding its
+>  The trait is active with no further configuration once a context composes
+>  it. The `enabled` option switches it off. Every field is individually
+>  toggleable through its `show_*` option or by overriding its
 >  `diagnosticsGetShow*()` method to return FALSE. Each value source degrades
 >  to nothing when the browser driver cannot provide it, so a failed step is
 >  never turned into a different failure.
@@ -5224,8 +5225,10 @@ Then the content block type "Search" should exist
 >  - Support content moderation transitions and scheduled publishing.
 >  - Set path aliases and assert the published state of content.
 >  
->  Steps that match content by title resolve to the most recently created node
->  when several nodes of the same type share that title.
+>  Steps that visit, modify or assert the published state of content by title
+>  resolve to the most recently created node when several nodes of the same
+>  type share that title. Steps that delete content or assert it does not
+>  exist match every such node.
 >  <br/><br/>
 >  When the contrib `pathauto` module is enabled, the path alias step switches
 >  automatic alias generation off for the content, so that the provided alias

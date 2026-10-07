@@ -21,8 +21,8 @@ trait FixtureFileTrait {
    * Expand fixture file paths for file/image fields on an entity stub.
    *
    * Rewrites fixture paths on 'file' and 'image' field types to absolute
-   * paths under the Mink 'files_path'. With an absolute path, drupal-driver's
-   * FileHandler can read and upload the file during entity creation.
+   * paths under the Mink 'files_path'. With an absolute path, the backend's
+   * 'FileHandler' can read and upload the file during entity creation.
    *
    * A path is taken relative to the fixtures directory, so both
    * 'document.pdf' and 'images/photo.png' resolve. Expansion is skipped when
@@ -174,7 +174,8 @@ trait FixtureFileTrait {
    *   resolve to a file inside the fixtures directory.
    */
   protected function fixtureFileResolve(string $value, string $fixture_path): ?string {
-    // drupal-driver resolves stream URIs and absolute paths itself.
+    // The backend's 'FileHandler' resolves stream URIs and absolute paths
+    // itself.
     if (str_contains($value, '://')) {
       return NULL;
     }
@@ -201,7 +202,7 @@ trait FixtureFileTrait {
   /**
    * Check whether a managed file with the given basename already exists.
    *
-   * Mirrors drupal-driver FileHandler::resolveExistingFile() for bare
+   * Mirrors the backend's 'FileHandler::resolveExistingFile()' for bare
    * basenames so the backend's own lookup is not pre-empted.
    *
    * @param string $basename

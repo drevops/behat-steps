@@ -26,8 +26,9 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  *   `JavascriptTrait` when the context also uses it, and the live browser buffer.
  * - `Re-run` - a ready-to-paste command that re-runs just the failing scenario.
  *
- * The trait is opt-in: `use` it in the context and it is active with no further
- * configuration. Every field is individually toggleable by overriding its
+ * The trait is active with no further configuration once a context composes
+ * it. The `enabled` option switches it off. Every field is individually
+ * toggleable through its `show_*` option or by overriding its
  * `diagnosticsGetShow*()` method to return FALSE. Each value source degrades
  * to nothing when the browser driver cannot provide it, so a failed step is
  * never turned into a different failure.

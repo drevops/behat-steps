@@ -12,6 +12,8 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests AbstractHandler::normalize() across every accepted input shape.
+ *
+ * Also tests isListOfRecords() across each array shape it classifies.
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
@@ -254,7 +256,7 @@ class AbstractHandlerNormalizeTest extends UnitTestCase {
 }
 
 /**
- * Concrete AbstractHandler subclass used only by the normalize() tests.
+ * Concrete AbstractHandler subclass used only by the tests in this file.
  */
 final class PassThroughHandler extends AbstractHandler {
 

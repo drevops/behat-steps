@@ -72,9 +72,9 @@ $profile = (new Profile('default'))
       'sidebar' => '#sidebar',
       'footer' => '#footer',
     ],
-    // Defaults of the options the step traits declare, keyed by trait group.
-    // STEPS.md lists every group and option; the few below are the ones a
-    // project almost always sets.
+    // Example values of the options the step traits declare, keyed by trait
+    // group. STEPS.md lists every group and option; the few below are the
+    // ones a project almost always sets.
     'steps' => [
       'javascript' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
       'watchdog' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],

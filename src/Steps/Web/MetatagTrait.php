@@ -445,8 +445,8 @@ trait MetatagTrait {
    * Determine whether the current page is indexable.
    *
    * @return bool
-   *   TRUE when neither the robots meta tag nor the X-Robots-Tag header carries
-   *   a "noindex" directive.
+   *   TRUE when the robots meta tag carries neither a "noindex" nor a "none"
+   *   directive and the X-Robots-Tag header carries no "noindex" directive.
    */
   public function metatagIsIndexable(): bool {
     $directives = $this->metatagGetRobotsDirectives();

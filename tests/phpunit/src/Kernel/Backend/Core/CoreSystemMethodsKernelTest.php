@@ -17,8 +17,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel tests for system-level methods on Core via the backend.
  *
  * Covers module install/uninstall, language create/delete, module list
- * retrieval, and the account switcher login/logout pair in a single class
- * to amortise per-method KernelTestBase bootstrap cost.
+ * retrieval, and the account switcher login/logout pair.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

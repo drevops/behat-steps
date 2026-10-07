@@ -649,7 +649,7 @@ trait XmlTrait {
    * Reloads the document if the page content has changed since last load.
    *
    * @throws \RuntimeException
-   *   If no document is loaded.
+   *   If the content cannot be loaded as XML.
    */
   protected function xmlEnsureDocument(): void {
     if ($this->xmlTestContent !== NULL) {

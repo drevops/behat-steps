@@ -43,8 +43,8 @@ Feature: Check that StateTrait works
     Then the state "behat_steps_test.missing" should not exist
 
   # Setup scenario: store a known value so the next scenario can prove it got
-  # reverted automatically. The AfterScenario hook should snapshot NULL here
-  # and revert the key back to NULL after this scenario finishes.
+  # reverted automatically. The AfterScenario hook is skipped here so the value
+  # persists into the following scenario.
   @behat-steps-skip:StateTrait
   Scenario: Seed a state value without auto-revert
     Given the state "behat_steps_test.persistent" has the value "seeded"

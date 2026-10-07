@@ -11,9 +11,9 @@ namespace DrevOps\BehatSteps\Behat\Config;
  * trait declares its options in a method carrying the same name in camel
  * case.
  *
- * Every conversion runs towards the group name, never back to the trait name.
- * A run of capitals reads as 1 word, so 'APIClientTrait' and 'ApiClientTrait'
- * both give 'api_client', and the group alone does not identify the spelling.
+ * No conversion runs back to the trait name. A run of capitals reads as 1
+ * word, so 'APIClientTrait' and 'ApiClientTrait' both give 'api_client', and
+ * the group alone does not identify the spelling.
  */
 final class GroupName {
 

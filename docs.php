@@ -377,8 +377,8 @@ function collect_helper_traits(string $base_path = __DIR__): array {
  *   Base path for the repository.
  *
  * @return array<string, array<string, mixed>>
- *   Array of info with 'name', 'options', 'methods', 'description' and
- *   'description_full' keys.
+ *   Array of info with 'name', 'name_contextual', 'context', 'methods',
+ *   'options', 'prerequisites', 'description' and 'description_full' keys.
  *
  * @throws \ReflectionException
  */
@@ -964,8 +964,9 @@ function heading_anchor(string $name): string {
  *   Base path for the repository.
  *
  * @return array<string, array<string, mixed>>
- *   Array of info with 'name', 'context' and 'helpers' keys, keyed by trait
- *   short name. Traits contributing no helper are left out.
+ *   Array of info with 'name', 'name_contextual', 'context', 'source',
+ *   'steps_anchor', 'helpers', 'description' and 'description_full' keys,
+ *   keyed by trait short name. Traits contributing no helper are left out.
  *
  * @throws \ReflectionException
  */
@@ -1246,7 +1247,8 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
  *   Base path for the repository.
  *
  * @return string
- *   Markdown table.
+ *   The index table of each context, followed by a horizontal rule and every
+ *   trait's section, or the index tables alone when '$path_for_links' is set.
  */
 function render_info(array $info, string $base_path = __DIR__, ?string $path_for_links = NULL): string {
   $content_output = [];

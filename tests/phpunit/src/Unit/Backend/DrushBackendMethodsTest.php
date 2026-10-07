@@ -419,6 +419,8 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   /**
    * Data provider: method -> args -> first-expected-drush-command.
+   *
+   * A row may carry a canned Drush response as an optional 4th element.
    */
   public static function dataProviderInvokesDrush(): \Iterator {
     $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);

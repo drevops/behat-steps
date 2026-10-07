@@ -767,7 +767,7 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
   public int $engineTimeout = 10;
 
   /**
-   * Count of reads issued against the source.
+   * Count of engine URL lookups, 1 per uncached fetch.
    */
   public int $engineReads = 0;
 

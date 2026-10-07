@@ -180,7 +180,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *   Absolute filesystem path to the directory containing '*Handler.php'
    *   files.
    * @param string $namespace
-   *   Namespace the classes in '$directory' live under, without a trailing slash.
+   *   Namespace the classes in '$directory' live under, without a trailing
+   *   backslash.
    */
   protected function registerHandlersFromDirectory(string $directory, string $namespace): void {
     foreach (glob($directory . '/*Handler.php') ?: [] as $file) {
@@ -220,8 +221,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Creates the field classifier instance for this Core.
    *
    * Subclasses override this method when they ship a version-specific
-   * classifier. The default returns the base 'FieldClassifier' which covers
-   * Drupal 11.
+   * classifier. The default returns the base 'FieldClassifier'.
    */
   protected function createFieldClassifier(): FieldClassifierInterface {
     return new FieldClassifier($this->getEntityFieldManager());
@@ -242,8 +242,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Creates the field shape classifier instance for this Core.
    *
    * Subclasses override this method when they ship a version-specific value
-   * shape classifier. The default returns the base 'FieldShapeClassifier' which
-   * covers Drupal 11.
+   * shape classifier. The default returns the base 'FieldShapeClassifier'.
    */
   protected function createFieldShapeClassifier(): FieldShapeClassifierInterface {
     return new FieldShapeClassifier();

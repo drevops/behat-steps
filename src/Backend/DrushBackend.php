@@ -67,7 +67,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   Random generator.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   Thrown when a required parameter is missing.
+   *   Thrown when a required parameter is missing, or when the root path
+   *   cannot be resolved.
    */
   public function __construct(?string $alias = NULL, ?string $root_path = NULL, string $binary = 'drush', ?Random $random = NULL) {
     if (($alias === NULL || $alias === '') && ($root_path === NULL || $root_path === '')) {

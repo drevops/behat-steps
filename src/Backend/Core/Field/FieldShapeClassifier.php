@@ -10,7 +10,7 @@ use Drupal\Core\TypedData\DataReferenceTargetDefinition;
 use Drupal\Core\TypedData\ListDataDefinitionInterface;
 
 /**
- * Default Drupal 11 value-shape classifier.
+ * Default value-shape classifier.
  *
  * See 'src/Backend/Core/Field/README.md' for the value-shape axis and how
  * 'Core' consumes it during handler selection.

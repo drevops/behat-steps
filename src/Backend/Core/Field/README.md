@@ -132,11 +132,11 @@ One predicate per F-row, all on `FieldClassifierInterface`, implemented by
 | F1    | `fieldIsBaseStandard($type, $name)`                    | field is in `getBaseFieldDefinitions($type)`, not computed, not custom-storage                                                |
 | F2    | `fieldIsBaseComputedReadOnly($type, $name)`            | in `getBaseFieldDefinitions($type)`, computed, `isReadOnly()` returns TRUE                                                    |
 | F3    | `fieldIsBaseComputedWritable($type, $name)`            | in `getBaseFieldDefinitions($type)`, computed, `isReadOnly()` returns FALSE                                                   |
-| F4    | `fieldIsBaseCustomStorage($type, $name)`               | in `getBaseFieldDefinitions($type)`, `hasCustomStorage()` returns TRUE                                                        |
+| F4    | `fieldIsBaseCustomStorage($type, $name)`               | in `getBaseFieldDefinitions($type)`, not computed, `hasCustomStorage()` returns TRUE                                          |
 | F5    | `fieldIsConfigurable($type, $name)`                    | present in `getFieldStorageDefinitions($type)` as `FieldStorageConfig` instance                                               |
 | F6    | `fieldIsBundleComputedReadOnly($type, $name, $bundle)` | in `getFieldDefinitions($type, $bundle)`, computed, read-only, not in base definitions                                        |
 | F7    | `fieldIsBundleComputedWritable($type, $name, $bundle)` | in `getFieldDefinitions($type, $bundle)`, computed, writable, not in base definitions                                         |
-| F8    | `fieldIsBundleCustomStorage($type, $name, $bundle)`    | in `getFieldDefinitions($type, $bundle)`, custom storage, not in base definitions                                             |
+| F8    | `fieldIsBundleCustomStorage($type, $name, $bundle)`    | in `getFieldDefinitions($type, $bundle)`, not computed, custom storage, not in base definitions                               |
 | F9    | `fieldIsBundleStorageBacked($type, $name, $bundle)`    | present in `getFieldStorageDefinitions($type)` (via `hook_entity_field_storage_info()`), not a `FieldStorageConfig`, not base |
 
 No aggregate predicate. Code that needs to decide whether a field enters the

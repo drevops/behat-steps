@@ -11,8 +11,9 @@ use DrevOps\BehatSteps\Backend\Core\Field\AbstractHandler;
  *
  * 'text_long' is served by 'DefaultHandler' when nothing is registered. When
  * 'ConsumerCore::registerDefaultFieldHandlers()' calls the parent first and
- * then re-scans its own 'Field/' directory, this registration wins because
- * 'registerFieldHandler()' is last-write-wins on the field type key.
+ * then re-scans its own 'Field/' directory, this registration takes effect
+ * because 'getFieldHandler()' prefers a registered handler to the
+ * 'DefaultHandler' fallback.
  */
 class TextLongHandler extends AbstractHandler {
 

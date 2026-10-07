@@ -69,7 +69,7 @@ interface FieldClassifierInterface {
    *   The field name.
    *
    * @return bool
-   *   TRUE when the field is in 'getBaseFieldDefinitions()' and
+   *   TRUE when the field is in 'getBaseFieldDefinitions()', not computed, and
    *   'hasCustomStorage()' returns TRUE.
    */
   public function fieldIsBaseCustomStorage(string $entity_type, string $field_name): bool;
@@ -132,7 +132,7 @@ interface FieldClassifierInterface {
    *
    * @return bool
    *   TRUE when the field is in 'getFieldDefinitions($entity_type, $bundle)',
-   *   custom storage, and not in 'getBaseFieldDefinitions()'.
+   *   not computed, custom storage, and not in 'getBaseFieldDefinitions()'.
    */
   public function fieldIsBundleCustomStorage(string $entity_type, string $field_name, string $bundle): bool;
 
