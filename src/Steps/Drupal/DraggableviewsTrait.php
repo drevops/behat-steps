@@ -40,15 +40,76 @@ trait DraggableviewsTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $database = Database::getConnection();
+    $this->draggableviewsSetOrder($view_id, $view_display_id, $this->draggableviewsGetNodesByTitle($content_type, $order_table->getColumn(0)));
+  }
 
-    foreach ($order_table->getColumn(0) as $weight => $title) {
-      $node = $this->draggableviewsFindNode($content_type, ['title' => $title]);
+  /**
+   * Find a node using provided conditions.
+   *
+   * @param string $type
+   *   The node type.
+   * @param array<string, string> $conditions
+   *   The conditions to search for.
+   *
+   * @return \Drupal\node\NodeInterface|null
+   *   The found node or NULL.
+   */
+  public function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface {
+    $nids = $this->queryNodeIds($type, $conditions);
 
-      if (empty($node)) {
+    if (empty($nids)) {
+      return NULL;
+    }
+
+    $nid = current($nids);
+
+    return Node::load($nid);
+  }
+
+  /**
+   * Get nodes of a type by title, keyed like the titles.
+   *
+   * @param string $type
+   *   The node type.
+   * @param array<int, string> $titles
+   *   The node titles.
+   *
+   * @return array<int, \Drupal\node\NodeInterface>
+   *   The nodes, keyed like the titles.
+   *
+   * @throws \RuntimeException
+   *   When no node of the type has 1 of the titles.
+   */
+  public function draggableviewsGetNodesByTitle(string $type, array $titles): array {
+    $nodes = [];
+
+    foreach ($titles as $key => $title) {
+      $node = $this->draggableviewsFindNode($type, ['title' => $title]);
+
+      if ($node === NULL) {
         throw new \RuntimeException(sprintf('Unable to find the node "%s".', $title));
       }
 
+      $nodes[$key] = $node;
+    }
+
+    return $nodes;
+  }
+
+  /**
+   * Set the order of nodes in a Draggable Views display.
+   *
+   * @param string $view_id
+   *   The view ID.
+   * @param string $view_display_id
+   *   The view display ID.
+   * @param array<int, \Drupal\node\NodeInterface> $nodes
+   *   The nodes, keyed by weight.
+   */
+  public function draggableviewsSetOrder(string $view_id, string $view_display_id, array $nodes): void {
+    $database = Database::getConnection();
+
+    foreach ($nodes as $weight => $node) {
       $entity_id = $node->id();
 
       // The delete and insert mirror draggableviews_views_submit().
@@ -73,29 +134,6 @@ trait DraggableviewsTrait {
     // change.
     $list_cache_tags = \Drupal::entityTypeManager()->getDefinition('node')->getListCacheTags();
     Cache::invalidateTags($list_cache_tags);
-  }
-
-  /**
-   * Find a node using provided conditions.
-   *
-   * @param string $type
-   *   The node type.
-   * @param array<string, string> $conditions
-   *   The conditions to search for.
-   *
-   * @return \Drupal\node\NodeInterface|null
-   *   The found node or NULL.
-   */
-  public function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface {
-    $nids = $this->queryNodeIds($type, $conditions);
-
-    if (empty($nids)) {
-      return NULL;
-    }
-
-    $nid = current($nids);
-
-    return Node::load($nid);
   }
 
   /**
