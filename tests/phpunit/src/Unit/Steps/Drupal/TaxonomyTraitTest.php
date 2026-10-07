@@ -70,6 +70,7 @@ class TaxonomyTraitTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderTermCreationChecksNoPrerequisite')]
   public function testTermCreationChecksNoPrerequisite(string $method, TableNode $table): void {
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface&\PHPUnit\Framework\MockObject\Stub $content */
     $content = $this->createStubForIntersectionOfInterfaces([BackendInterface::class, ContentCapabilityInterface::class]);
 
     $this->expectException(\RuntimeException::class);
