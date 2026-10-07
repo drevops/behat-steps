@@ -78,8 +78,8 @@ class LintLayersTest extends UnitTestCase {
   /**
    * Fixture rows for the violation scan.
    *
-   * The classes named here do not exist. The scan reads tokens rather than
-   * resolving them.
+   * The classes named here under the forbidden roots do not exist. The scan
+   * reads tokens rather than resolving them.
    *
    * Static tooling rewrites an expected symbol that matches a real class to
    * a '::class' constant, which drops the leading separator the scan reports.

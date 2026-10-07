@@ -33,9 +33,6 @@ class DaterangeHandlerKernelTest extends FieldHandlerKernelTestBase {
     'datetime_range',
   ];
 
-  /**
-   * Tests round-trip for a daterange field with start and end datetimes.
-   */
   public function testDaterangeRoundTrip(): void {
     $this->attachField('field_event_window', 'daterange', [
       'datetime_type' => 'datetime',

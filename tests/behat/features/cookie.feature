@@ -4,21 +4,21 @@ Feature: Check that CookieTrait works
   So that users can test session management and user preferences
 
   @phpserver
-  Scenario: Assert step definition "a cookie with( the) name :name should exist" works as expected
+  Scenario: Assert step definition "a cookie with the name :name should exist" works as expected
     When I visit "http://cli:8888/cookies.html"
     And I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" should exist
     And a cookie with the name "testname" should exist
 
   @javascript @phpserver
-  Scenario: Assert step definition "a cookie with( the) name :name should exist" works as expected with real browser
+  Scenario: Assert step definition "a cookie with the name :name should exist" works as expected with real browser
     When I visit "http://cli:8888/cookies.html"
     And I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" should exist
     And a cookie with the name "testname" should exist
 
   @test-trait:CookieTrait
-  Scenario: Assert that negative assertion for "a cookie with( the) name :name should exist" fails with an error
+  Scenario: Assert that negative assertion for "a cookie with the name :name should exist" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -33,21 +33,21 @@ Feature: Check that CookieTrait works
       """
 
   @phpserver
-  Scenario: Assert step definition "a cookie with( the) name :name and value :value should exist" works as expected
+  Scenario: Assert step definition "a cookie with the name :name and the value :value should exist" works as expected
     When I visit "http://cli:8888/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" and the value "testvalue" should exist
     And a cookie with the name "testname" and the value "testvalue" should exist
 
   @javascript @phpserver
-  Scenario: Assert step definition "a cookie with( the) name :name and value :value should exist" works as expected with real browser
+  Scenario: Assert step definition "a cookie with the name :name and the value :value should exist" works as expected with real browser
     When I visit "http://cli:8888/cookies.html"
     When I set a test cookie with name "testname" and value "testvalue"
     Then a cookie with the name "testname" and the value "testvalue" should exist
     And a cookie with the name "testname" and the value "testvalue" should exist
 
   @test-trait:CookieTrait
-  Scenario: Assert that negative assertion for "a cookie with( the) name :name and value :value should exist" fails with an error for incorrect name
+  Scenario: Assert that negative assertion for "a cookie with the name :name and the value :value should exist" fails with an error for incorrect name
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -62,7 +62,7 @@ Feature: Check that CookieTrait works
       """
 
   @test-trait:CookieTrait
-  Scenario: Assert that negative assertion for "a cookie with( the) name :name and value :value should exist" fails with an error for incorrect value
+  Scenario: Assert that negative assertion for "a cookie with the name :name and the value :value should exist" fails with an error for incorrect value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -231,10 +231,6 @@ Feature: Check that CookieTrait works
       The cookie with name containing "estna" was set with value "testothervalue", but it should contain "estval".
       """
 
-  #
-  # NOT EXISTS
-  #
-
   @phpserver
   Scenario: Assert step definition "a cookie with the name :name should not exist" works as expected
     When I visit "http://cli:8888/cookies.html"
@@ -259,7 +255,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set but it should not be.
+      The cookie with name "testname" was set, but it should not be.
       """
 
   @phpserver
@@ -340,7 +336,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "testname" was set but it should not be.
+      The cookie with name containing "testname" was set, but it should not be.
       """
 
   @phpserver

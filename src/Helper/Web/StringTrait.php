@@ -111,7 +111,7 @@ trait StringTrait {
    * @param string $text
    *   The comma-separated string.
    *
-   * @return array<int, string>
+   * @return non-empty-list<string>
    *   Array of trimmed values.
    */
   protected function stringSplitCommaSeparated(string $text): array {

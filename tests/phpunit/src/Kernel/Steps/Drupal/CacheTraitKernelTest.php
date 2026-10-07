@@ -95,13 +95,13 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
    *   The path or pattern passed to the helper.
    * @param bool $is_pattern
    *   Whether the path is a pattern.
-   * @param string $message
+   * @param string $expected_message
    *   The expected exception message.
    */
   #[DataProvider('dataProviderDeletePagePathRejectsInvalidPath')]
-  public function testDeletePagePathRejectsInvalidPath(string $path, bool $is_pattern, string $message): void {
+  public function testDeletePagePathRejectsInvalidPath(string $path, bool $is_pattern, string $expected_message): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage($expected_message);
 
     $this->context->cacheDeletePagePath($path, $is_pattern);
   }

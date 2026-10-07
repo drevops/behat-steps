@@ -95,9 +95,6 @@ class CoreCreateEntityCommerceKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  /**
-   * Tests 'createEntity()' resolves 'commerce_product.variations'.
-   */
   public function testCreateEntityExpandsProductVariationsBaseField(): void {
     $variation_stub = new EntityStub('commerce_product_variation', 'default', [
       'sku' => 'SKU-001',

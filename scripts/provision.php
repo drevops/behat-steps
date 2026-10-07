@@ -121,10 +121,10 @@ const PROVISION_FIXTURE_CONTENT_TYPE = 'landing_page';
  */
 const PROVISION_SETTINGS_OVERRIDES = <<<'PHP'
 
-// Fixture config overrides used by ConfigOverrideTrait tests. These mimic
-// environment-specific overrides that a real site would set in settings.php,
-// so tests can verify that @disable-config-override:<name> tags let the SUT
-// read the stored (original) values via ImmutableConfig::getOriginal().
+// These fixture config overrides mimic the environment-specific overrides a
+// real site sets in settings.php. ConfigOverrideTrait tests verify that a
+// @disable-config-override:<name> tag lets the SUT read the stored original
+// values through ImmutableConfig::getOriginal().
 $config['system.site']['name'] = 'Overridden Site Name';
 $config['system.site']['slogan'] = 'Overridden Slogan';
 
@@ -470,10 +470,8 @@ function provision_write_auth(string $token, string $file): void {
     return;
   }
 
-  // A umask denies every other user from the moment the file is created,
-  // where a chmod() after the write would leave the token readable in
-  // between. The build directory was emptied above, so the file cannot
-  // already exist with a mode of its own.
+  // A umask denies every other user from creation, where a chmod() after the
+  // write would leave the token readable in between.
   $original_umask = umask(0077);
 
   try {

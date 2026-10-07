@@ -57,8 +57,10 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    *
    * The user entity type's id key is 'uid', so createEntity should populate
    * the stub under 'uid' (not the generic 'id' property). deleteEntity should
-   * load by that same key. createNode/deleteNode (nid), createUser (uid) and
-   * createTerm/deleteTerm (tid) follow the same convention.
+   * load by that same key.
+   *
+   * createNode/deleteNode (nid), createUser (uid) and createTerm/deleteTerm
+   * (tid) follow the same convention.
    */
   public function testCreateEntityAndDeleteWithStub(): void {
     $stub = new EntityStub('user', NULL, [

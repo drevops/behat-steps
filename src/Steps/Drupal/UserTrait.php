@@ -224,38 +224,38 @@ trait UserTrait {
    * Given the role "Content Manager" has the permissions "access content, create article content, edit any article content"
    * @endcode
    */
-  #[Given('the role :role_name has the permissions :permissions')]
-  public function userCreateRole(string $role_name, string $permissions): void {
+  #[Given('the role :role has the permissions :permissions')]
+  public function userCreateRole(string $role, string $permissions): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $permissions = $this->stringSplitCommaSeparated($permissions);
 
-    $rid = strtolower($role_name);
-    $role_name = trim($role_name);
+    $rid = strtolower($role);
+    $role = trim($role);
 
     $existing_role = Role::load($rid);
     if ($existing_role) {
       $existing_role->delete();
     }
 
-    /** @var \Drupal\user\RoleInterface $role */
-    $role = \Drupal::entityTypeManager()->getStorage('user_role')->create([
+    /** @var \Drupal\user\RoleInterface $role_entity */
+    $role_entity = \Drupal::entityTypeManager()->getStorage('user_role')->create([
       'id' => $rid,
-      'label' => $role_name,
+      'label' => $role,
     ]);
 
     foreach ($permissions as $permission) {
-      $role->grantPermission($permission);
+      $role_entity->grantPermission($permission);
     }
 
-    $saved = $role->save();
+    $saved = $role_entity->save();
 
     // @codeCoverageIgnoreStart
     if ($saved !== SAVED_NEW) {
       throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
     }
     // @codeCoverageIgnoreEnd
-    $this->roles[] = (string) $role->id();
+    $this->authRoles[] = (string) $role_entity->id();
   }
 
   /**
@@ -322,9 +322,9 @@ trait UserTrait {
    */
   #[When('I log in as a user with the permission(s) :permissions')]
   public function userLoginWithPermissions(string $permissions): void {
-    $role = $this->backendFor(RoleCapabilityInterface::class)->createRole(array_filter(array_map(trim(...), explode(',', $permissions))));
-    $role_id = (string) $role->getValue('id');
-    $this->roles[] = $role_id;
+    $created = $this->backendFor(RoleCapabilityInterface::class)->createRole(array_filter($this->stringSplitCommaSeparated($permissions)));
+    $role_id = (string) $created->getValue('id');
+    $this->authRoles[] = $role_id;
 
     $stub = $this->userBuildStub();
     $this->authCreateUser($stub);
@@ -597,7 +597,7 @@ trait UserTrait {
    *   assigns nothing.
    */
   public function userAssignRoles(UserCapabilityInterface $backend, EntityStubInterface $stub, string $roles): void {
-    foreach (array_filter(array_map(trim(...), explode(',', $roles))) as $role) {
+    foreach (array_filter($this->stringSplitCommaSeparated($roles)) as $role) {
       // Every account carries 'authenticated', and the role is not assignable
       // in its own right.
       if (in_array(strtolower($role), ['authenticated', 'authenticated user'], TRUE)) {

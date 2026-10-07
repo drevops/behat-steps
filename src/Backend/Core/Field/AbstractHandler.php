@@ -87,7 +87,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
   /**
    * Folds loose input into a canonical list of records.
    *
-   * Recognised input shapes:
+   * Recognized input shapes:
    *   - Bare scalar -> wrapped as a single record using the main property.
    *   - List of scalars -> each wrapped as a record.
    *   - Single keyed record -> wrapped in a 1-element list.
@@ -170,7 +170,7 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    * Whether a value holds several deltas rather than 1 positional record.
    *
    * A positional record such as '['start', 'end']' is itself a list, so a
-   * handler that reads positions cannot iterate a list directly: only a list
+   * handler that reads positions cannot iterate a list directly. Only a list
    * whose first element is an array holds a delta per element.
    *
    * @param array<int|string, mixed> $values

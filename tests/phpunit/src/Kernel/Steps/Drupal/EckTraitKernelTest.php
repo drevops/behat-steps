@@ -60,9 +60,6 @@ class EckTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertSame([], $this->context->eckLoadMultiple('contact', 'person', ['title' => 'Shared']));
   }
 
-  /**
-   * Creates and saves a 'contact' entity.
-   */
   protected function createEntity(string $bundle, string $title): EntityInterface {
     $entity = \Drupal::entityTypeManager()->getStorage('contact')->create(['type' => $bundle, 'title' => $title]);
     $entity->save();

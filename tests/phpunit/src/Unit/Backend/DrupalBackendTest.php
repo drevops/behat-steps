@@ -6,14 +6,18 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend;
 
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\BatchCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\DrupalBackend;
 use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
@@ -27,7 +31,7 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests DrupalBackend's capability surface and 'detectMajorVersion()'.
  *
- * Behaviour past construction requires a real Drupal bootstrap and is
+ * Behavior past construction requires a real Drupal bootstrap and is
  * exercised by the Kernel test suite.
  */
 #[CoversClass(DrupalBackend::class)]
@@ -40,9 +44,6 @@ class DrupalBackendTest extends UnitTestCase {
    */
   protected const DRUPAL_ROOT = __DIR__ . '/../../../fixtures/backend/drupal-root';
 
-  /**
-   * Tests that DrupalBackend implements its composite contract.
-   */
   public function testImplementsDrupalBackendInterface(): void {
     $interfaces = (array) class_implements(DrupalBackend::class);
 
@@ -69,20 +70,21 @@ class DrupalBackendTest extends UnitTestCase {
    */
   public static function dataProviderImplementsCapability(): \Iterator {
     yield 'authentication' => [AuthenticationCapabilityInterface::class];
+    yield 'batch' => [BatchCapabilityInterface::class];
+    yield 'block' => [BlockCapabilityInterface::class];
     yield 'cache' => [CacheCapabilityInterface::class];
     yield 'config' => [ConfigCapabilityInterface::class];
     yield 'content' => [ContentCapabilityInterface::class];
+    yield 'core' => [CoreCapabilityInterface::class];
     yield 'cron' => [CronCapabilityInterface::class];
     yield 'language' => [LanguageCapabilityInterface::class];
     yield 'mail' => [MailCapabilityInterface::class];
     yield 'module' => [ModuleCapabilityInterface::class];
     yield 'role' => [RoleCapabilityInterface::class];
+    yield 'state' => [StateCapabilityInterface::class];
     yield 'user' => [UserCapabilityInterface::class];
   }
 
-  /**
-   * Tests that 'detectMajorVersion()' rejects an unparseable version string.
-   */
   public function testDetectMajorVersionRejectsNonNumeric(): void {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessageMatches('/Unable to extract major Drupal core version/');

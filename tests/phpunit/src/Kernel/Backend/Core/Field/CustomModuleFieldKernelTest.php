@@ -20,7 +20,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  *  - 'backend_test_scalar' (plain-scalar columns) is handled by
  *    'DefaultHandler' and round-trips through real storage intact.
- *  - 'backend_test_reference' (an entity-reference target column) is refused
+ *  - 'backend_test_reference' (an entity-reference target column) is rejected
  *    at handler resolution with the "register a dedicated handler" exception
  *    instead of persisting an invalid id.
  */
@@ -40,9 +40,6 @@ class CustomModuleFieldKernelTest extends FieldHandlerKernelTestBase {
     'backend_field_test',
   ];
 
-  /**
-   * Tests a custom plain-scalar field with no handler uses the fallback.
-   */
   public function testScalarFieldWithoutHandlerRoundTrips(): void {
     $this->attachField('field_scalar', 'backend_test_scalar');
 

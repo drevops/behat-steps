@@ -29,7 +29,7 @@ class ListFloatHandlerKernelTest extends FieldHandlerKernelTestBase {
 
   public function testLabelToFloatKeyRoundTrip(): void {
     // Use fractional-only keys so the stored value exercises float handling;
-    // a key like '1.0' normalises to the integer '1' in storage and would not
+    // a key like '1.0' normalizes to the integer '1' in storage and would not
     // distinguish list_float from list_integer.
     $this->attachField('field_rating', 'list_float', [
       'allowed_values' => [

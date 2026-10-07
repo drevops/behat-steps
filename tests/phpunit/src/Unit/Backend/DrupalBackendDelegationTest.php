@@ -20,7 +20,7 @@ use PHPUnit\Framework\Attributes\Group;
  *
  * 'DrupalBackend' is a thin facade over 'CoreInterface'; the tests here verify
  * that each method delegates to the corresponding core method. Kernel tests
- * under 'Kernel/Backend/Core/' exercise the behaviour end-to-end.
+ * under 'Kernel/Backend/Core/' exercise the behavior end-to-end.
  */
 #[CoversClass(DrupalBackend::class)]
 #[Group('backends')]
@@ -59,9 +59,6 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     $this->assertTrue($backend->isBootstrapped());
   }
 
-  /**
-   * Tests that 'setCore()' assigns the injected instance verbatim.
-   */
   public function testSetCoreAssignsInjectedInstance(): void {
     $backend = $this->createBackendWithCore($this->createMock(CoreInterface::class));
     $custom = $this->createMock(CoreInterface::class);
@@ -158,6 +155,14 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'configGet' => ['configGet', ['system.site', 'name'], 'configGet'];
     yield 'configGetOriginal' => ['configGetOriginal', ['system.site', 'name'], 'configGetOriginal'];
     yield 'configSet' => ['configSet', ['system.site', 'name', 'v'], 'configSet'];
+    yield 'configExists' => ['configExists', ['system.site'], 'configExists'];
+    yield 'configGetData' => ['configGetData', ['system.site'], 'configGetData'];
+    yield 'configSetData' => ['configSetData', ['system.site', ['name' => 'v']], 'configSetData'];
+    yield 'configDelete' => ['configDelete', ['system.site'], 'configDelete'];
+    yield 'stateGet' => ['stateGet', ['my.key'], 'stateGet'];
+    yield 'stateSet' => ['stateSet', ['my.key', 'v'], 'stateSet'];
+    yield 'stateDelete' => ['stateDelete', ['my.key'], 'stateDelete'];
+    yield 'stateExists' => ['stateExists', ['my.key'], 'stateExists'];
     yield 'createEntity' => ['createEntity', [$entity], 'createEntity'];
     yield 'deleteEntity' => ['deleteEntity', [$entity], 'deleteEntity'];
     yield 'placeBlock' => ['placeBlock', [$block], 'placeBlock'];
@@ -175,6 +180,8 @@ class DrupalBackendDelegationTest extends UnitTestCase {
       'mailSend',
     ];
     yield 'moduleInstall' => ['moduleInstall', ['node'], 'moduleInstall'];
+    yield 'moduleIsEnabled' => ['moduleIsEnabled', ['node'], 'moduleIsEnabled'];
+    yield 'moduleIsPresent' => ['moduleIsPresent', ['node'], 'moduleIsPresent'];
     yield 'moduleUninstall' => ['moduleUninstall', ['node'], 'moduleUninstall'];
   }
 
@@ -189,11 +196,11 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     /** @var \DrevOps\BehatSteps\Backend\DrupalBackend $backend */
     $backend = $reflection->newInstanceWithoutConstructor();
 
-    $root = $reflection->getProperty('drupalRoot');
-    $root->setValue($backend, __DIR__);
+    $root_property = $reflection->getProperty('drupalRoot');
+    $root_property->setValue($backend, __DIR__);
 
-    $uri = $reflection->getProperty('uri');
-    $uri->setValue($backend, 'default');
+    $uri_property = $reflection->getProperty('uri');
+    $uri_property->setValue($backend, 'default');
 
     $version_property = $reflection->getProperty('version');
     $version_property->setValue($backend, $version);

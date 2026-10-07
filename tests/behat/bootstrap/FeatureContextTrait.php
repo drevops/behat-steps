@@ -41,9 +41,9 @@ trait FeatureContextTrait {
   /**
    * Stop Mink sessions before scenarios that will spawn sub-processes.
    *
-   * When a @javascript scenario runs in the parent process, Mink keeps the
-   * Selenium2/Chrome connection open (via resetSessions()). This causes
-   * child processes to hang when they try to establish their own connection.
+   * Mink keeps the Selenium2/Chrome connection open after a @javascript
+   * scenario in the parent process, so a child process hangs while it opens
+   * its own.
    *
    * @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession()
    */
@@ -115,10 +115,6 @@ trait FeatureContextTrait {
       $cookie_jar->set($cookie);
     }
 
-    // A CDP-based driver like Chrome (chrome-mink) binds setCookie() cookies
-    // to the configured base URL, so pages on another origin never receive
-    // them. Writing through the document keeps the cookie on the origin the
-    // scenario is on.
     if (method_exists($driver, 'getCookies')) {
       $driver->evaluateScript(sprintf('document.cookie = %s;', json_encode($name . '=' . rawurlencode($value) . '; path=/')));
     }
@@ -307,8 +303,8 @@ trait FeatureContextTrait {
     try {
       $result = $module_installer->install([$name]);
     }
-    catch (MissingDependencyException $missing_dependency_exception) {
-      throw new \Exception(sprintf('Unable to install a module "%s": %s.', $name, $missing_dependency_exception->getMessage()), $missing_dependency_exception->getCode(), $missing_dependency_exception);
+    catch (MissingDependencyException $exception) {
+      throw new \Exception(sprintf('Unable to install a module "%s": %s.', $name, $exception->getMessage()), $exception->getCode(), $exception);
     }
 
     if (!$result) {

@@ -141,7 +141,7 @@ trait BlockTrait {
    * @endcode
    */
   #[Given('the block :label does not exist')]
-  public function blockRemove(string $label): void {
+  public function blockDelete(string $label): void {
     while ($block = $this->blockFindByLabel($label)) {
       $block->delete();
     }
@@ -302,7 +302,7 @@ trait BlockTrait {
     $actual_region = $block->getRegion();
 
     if ($actual_region !== $region) {
-      throw new ExpectationException(sprintf('Block "%s" is in region "%s" but should be in "%s".', $label, $actual_region, $region), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('Block "%s" is in region "%s", but it should be in "%s".', $label, $actual_region, $region), $this->getSession()->getDriver());
     }
   }
 

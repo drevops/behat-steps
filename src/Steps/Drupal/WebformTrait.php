@@ -114,8 +114,8 @@ trait WebformTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    // Clear config factory cache to pick up webform changes made via the
-    // admin UI in a separate process.
+    // A webform change made via the admin UI in a separate process leaves
+    // the config factory cache stale, so it is reset first.
     \Drupal::configFactory()->reset();
 
     /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */

@@ -58,8 +58,8 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
     ],
   ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
-    'blackbox' => NULL,
     'backends' => ['drupal', 'drush', 'blackbox'],
+    'blackbox' => NULL,
     // Behat runs from within "build", so both roots are relative to it.
     'drupal' => ['drupal_root' => 'web'],
     'drush' => [
@@ -95,10 +95,11 @@ if (class_exists(CodeCoverageExtension::class)) {
   ]));
 }
 
-// The "chrome_headless" profile drives headless Chrome directly over the
-// DevTools Protocol, with no Selenium server. It inherits the "default"
-// profile and swaps only the JavaScript session to "chrome", a session on the
-// driver that ChromeExtension registers. Run with "behat -p chrome_headless".
+// The "chrome_headless" profile, run with "behat -p chrome_headless", drives
+// headless Chrome directly over the DevTools Protocol, with no Selenium
+// server. It inherits the "default" profile and swaps only the JavaScript
+// session to "chrome", a session on the driver that ChromeExtension
+// registers.
 $chrome_headless = (new Profile('chrome_headless'))
   ->withExtension(new Extension(ChromeExtension::class))
   ->withExtension(new Extension(MinkExtension::class, ['javascript_session' => 'chrome', 'sessions' => ['chrome' => ['chrome' => ['api_url' => 'http://chrome_headless:9222']]]]));

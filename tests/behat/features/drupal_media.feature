@@ -85,7 +85,6 @@ Feature: Check that MediaTrait works
       | path      |
       | image.png |
 
-    # Create initial media
     And the following "image" media exist:
       | name                | field_media_image |
       | Duplicate test item | image.png         |
@@ -94,14 +93,12 @@ Feature: Check that MediaTrait works
     And I visit "/admin/content/media"
     Then I should see "Duplicate test item"
 
-    # Create media again with the same name - should replace the first one
     When the following "image" media exist:
       | name                | field_media_image |
       | Duplicate test item | image.png         |
 
     And I visit "/admin/content/media"
     Then I should see "Duplicate test item"
-    # Verify only one media item exists by checking there's exactly one row in the table
     And I should see 1 ".view-media td:contains('Duplicate test item')" elements
 
   Scenario: Create single media with vertical field format

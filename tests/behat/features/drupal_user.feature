@@ -485,13 +485,13 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  Scenario: Assert "Given the role :role_name has the permissions :permissions" works
+  Scenario: Assert "Given the role :role has the permissions :permissions" works
     Given the role "Content Manager" has the permissions "access content, create article content"
     And I log in as a user with the role "administrator"
     And I visit "/admin/people/roles"
     Then I should see "Content Manager"
 
-  Scenario: Assert "Given the role :role_name has the permissions :permissions" replaces existing role
+  Scenario: Assert "Given the role :role has the permissions :permissions" replaces existing role
     Given the role "Editor" has the permissions "access content"
     And the role "Editor" has the permissions "access content, create article content"
     And I log in as a user with the role "administrator"

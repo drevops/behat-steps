@@ -321,7 +321,7 @@ trait TableTrait {
   #[Then('the link :link should not exist in the row :row_text')]
   public function tableAssertLinkNotExistsInRow(string $link, string $row_text): void {
     if ($this->tableGetRowByText($row_text)->findLink($link) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The row containing "%s" has a "%s" link.', $row_text, $link), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The row containing "%s" has the link "%s".', $row_text, $link), $this->getSession()->getDriver());
     }
   }
 

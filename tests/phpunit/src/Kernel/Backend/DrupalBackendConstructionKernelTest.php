@@ -33,9 +33,6 @@ class DrupalBackendConstructionKernelTest extends KernelTestBase {
    */
   protected static $modules = ['system'];
 
-  /**
-   * Tests that the constructor resolves the root and detects the version.
-   */
   public function testConstructorDetectsVersion(): void {
     $backend = new DrupalBackend($this->root, 'default');
 
@@ -44,9 +41,6 @@ class DrupalBackendConstructionKernelTest extends KernelTestBase {
     $this->assertGreaterThanOrEqual(11, $version, 'Backend should detect Drupal 11 or higher.');
   }
 
-  /**
-   * Tests that an invalid Drupal root raises 'BootstrapException'.
-   */
   public function testConstructorRejectsMissingRoot(): void {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessageMatches('/No Drupal installation found/');

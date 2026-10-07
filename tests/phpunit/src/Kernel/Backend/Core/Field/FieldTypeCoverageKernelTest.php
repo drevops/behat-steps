@@ -105,9 +105,6 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
     );
   }
 
-  /**
-   * Returns TRUE when Core has a handler class registered for this type.
-   */
   protected function isHandlerRegistered(string $type): bool {
     $property = new \ReflectionProperty(Core::class, 'fieldHandlers');
     $handlers = $property->getValue($this->core);

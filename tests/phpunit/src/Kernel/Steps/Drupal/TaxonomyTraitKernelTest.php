@@ -55,8 +55,8 @@ class TaxonomyTraitKernelTest extends StepTraitKernelTestBase {
   /**
    * Tests that terms are keyed by ID when their revision IDs differ.
    *
-   * An entity query keys a revisionable type by revision ID, so a new
-   * revision of the first term makes the 2 sets of keys differ.
+   * Entity queries key revisionable types by revision ID, so a new revision
+   * of the first term makes the 2 sets of keys differ.
    */
   public function testLoadMultipleKeysByIdNotRevisionId(): void {
     $first = $this->createTerm('tags', 'Shared');
@@ -78,9 +78,6 @@ class TaxonomyTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertSame([], $this->context->taxonomyLoadMultiple('tags', ['name' => 'Shared']));
   }
 
-  /**
-   * Creates and saves a term.
-   */
   protected function createTerm(string $vocabulary, string $name): TermInterface {
     $term = Term::create(['vid' => $vocabulary, 'name' => $name]);
     $term->save();

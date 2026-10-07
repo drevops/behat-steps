@@ -33,8 +33,10 @@ use Drupal\workflows\Entity\Workflow;
  * - Support content moderation transitions and scheduled publishing.
  * - Set path aliases and assert the published state of content.
  *
- * Steps that match content by title resolve to the most recently created node
- * when several nodes of the same type share that title.
+ * Steps that visit, modify or assert the published state of content by title
+ * resolve to the most recently created node when several nodes of the same
+ * type share that title. Steps that delete content or assert it does not
+ * exist match every such node.
  *
  * When the contrib `pathauto` module is enabled, the path alias step switches
  * automatic alias generation off for the content, so that the provided alias
@@ -65,7 +67,7 @@ trait ContentTrait {
    * @endcode
    */
   #[Given('the content type :content_type does not exist')]
-  public function contentRemoveContentType(string $content_type): void {
+  public function contentDeleteType(string $content_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
@@ -79,13 +81,13 @@ trait ContentTrait {
    * Remove content defined by provided properties.
    *
    * @code
-   * Given the following "article" content does not exist:
+   * Given the following "article" content do not exist:
    *   | title                |
    *   | Test article         |
    *   | Another test article |
    * @endcode
    */
-  #[Given('the following :content_type content does not exist:')]
+  #[Given('the following :content_type content do not exist:')]
   public function contentDeleteMultiple(string $content_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -126,7 +128,7 @@ trait ContentTrait {
   /**
    * Create content of a type from a table of field values.
    *
-   * Each row becomes one node; each column is a base property or a field.
+   * Each row becomes 1 node; each column is a base property or a field.
    *
    * @code
    *   Given the following page content exist:
@@ -280,10 +282,10 @@ trait ContentTrait {
    * accepted.
    *
    * @code
-   * When I set the path alias of the "article" content with the title "Test article" to "/my-test-article"
+   * When I set the path alias of the "article" content with the title "Test article" to the alias "/my-test-article"
    * @endcode
    */
-  #[When('I set the path alias of the :content_type content with the title :title to :alias')]
+  #[When('I set the path alias of the :content_type content with the title :title to the alias :alias')]
   public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

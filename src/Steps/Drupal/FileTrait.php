@@ -223,7 +223,7 @@ trait FileTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     if (@file_exists($uri)) {
-      throw new ExpectationException(sprintf('The file "%s" exists but it should not.', $uri), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The file "%s" exists, but it should not.', $uri), $this->getSession()->getDriver());
     }
   }
 
@@ -231,11 +231,11 @@ trait FileTrait {
    * Assert that an unmanaged file exists and has specified content.
    *
    * @code
-   * Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
+   * Then an unmanaged file at the URI "public://config.txt" should contain the value "debug=true"
    * @endcode
    */
-  #[Then('an unmanaged file at the URI :uri should contain :content')]
-  public function fileAssertUnmanagedContains(string $uri, string $content): void {
+  #[Then('an unmanaged file at the URI :uri should contain the value :value')]
+  public function fileAssertUnmanagedContains(string $uri, string $value): void {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
@@ -244,8 +244,8 @@ trait FileTrait {
       throw new \RuntimeException(sprintf('Unable to read file "%s".', $uri));
     }
     // @codeCoverageIgnoreEnd
-    if (!str_contains($file_content, $content)) {
-      throw new ExpectationException(sprintf('File contents "%s" does not contain "%s".', $file_content, $content), $this->getSession()->getDriver());
+    if (!str_contains($file_content, $value)) {
+      throw new ExpectationException(sprintf('File contents "%s" does not contain "%s".', $file_content, $value), $this->getSession()->getDriver());
     }
   }
 
@@ -253,11 +253,11 @@ trait FileTrait {
    * Assert that an unmanaged file exists and does not have specified content.
    *
    * @code
-   * Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
+   * Then an unmanaged file at the URI "public://config.txt" should not contain the value "debug=false"
    * @endcode
    */
-  #[Then('an unmanaged file at the URI :uri should not contain :content')]
-  public function fileAssertUnmanagedNotContains(string $uri, string $content): void {
+  #[Then('an unmanaged file at the URI :uri should not contain the value :value')]
+  public function fileAssertUnmanagedNotContains(string $uri, string $value): void {
     $this->fileAssertUnmanagedExists($uri);
 
     $file_content = @file_get_contents($uri);
@@ -266,8 +266,8 @@ trait FileTrait {
       throw new \RuntimeException(sprintf('Unable to read file "%s".', $uri));
     }
     // @codeCoverageIgnoreEnd
-    if (str_contains($file_content, $content)) {
-      throw new ExpectationException(sprintf('File contents "%s" contains "%s", but it should not.', $file_content, $content), $this->getSession()->getDriver());
+    if (str_contains($file_content, $value)) {
+      throw new ExpectationException(sprintf('File contents "%s" contains "%s", but it should not.', $file_content, $value), $this->getSession()->getDriver());
     }
   }
 

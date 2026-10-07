@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Asserts the return contract of every capability create and delete method.
  *
  * A teardown deletes whatever a scenario created without checking first, so
- * a create hands back a stub and a delete returns nothing. CONTRIBUTING.md
+ * a create returns a stub and a delete returns nothing. CONTRIBUTING.md
  * states the contract, including that a delete tolerates a missing target.
  */
 #[CoversNothing]
@@ -28,7 +28,7 @@ class CapabilityContractTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderCreateReturnsStub')]
   public function testCreateReturnsStub(string $interface, string $method): void {
-    $type = (new \ReflectionMethod($interface, $method))->getReturnType();
+    $type = static::reflect($interface)->getMethod($method)->getReturnType();
 
     $declared = $type instanceof \ReflectionType ? (string) $type : 'no return type';
 
@@ -49,7 +49,7 @@ class CapabilityContractTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderDeleteReturnsVoid')]
   public function testDeleteReturnsVoid(string $interface, string $method): void {
-    $type = (new \ReflectionMethod($interface, $method))->getReturnType();
+    $type = static::reflect($interface)->getMethod($method)->getReturnType();
 
     $declared = $type instanceof \ReflectionType ? (string) $type : 'no return type';
 

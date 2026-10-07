@@ -5,6 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Backend\Core\Field;
 
 /**
- * Handler for ListInteger fields.
+ * Field handler for 'list_integer' fields.
  */
 class ListIntegerHandler extends ListHandlerBase {}

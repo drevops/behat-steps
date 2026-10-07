@@ -41,9 +41,8 @@ class CommandTraitTest extends UnitTestCase {
     $this->assertSame('', $this->testObject->testGetStderr());
     $this->assertGreaterThan(0.0, $this->testObject->testGetDuration());
 
-    // Pass-through assertions do not throw.
     $this->testObject->commandAssertSuccess();
-    $this->testObject->commandAssertExitCode('0');
+    $this->testObject->commandAssertExitCodeEquals('0');
     $this->testObject->commandAssertOutputContains('hello');
     $this->testObject->commandAssertOutputEquals('hello');
     $this->testObject->commandAssertOutputNotContains('goodbye');
@@ -67,7 +66,7 @@ class CommandTraitTest extends UnitTestCase {
     $this->assertSame(3, $this->testObject->testGetExitCode());
 
     $this->testObject->commandAssertFailure();
-    $this->testObject->commandAssertExitCode('3');
+    $this->testObject->commandAssertExitCodeEquals('3');
   }
 
   public function testRunReplacesPreviousState(): void {
@@ -128,7 +127,7 @@ class CommandTraitTest extends UnitTestCase {
     return [
       'succeed on a failed command' => ['exit 1', 'commandAssertSuccess', [], AssertionException::class, 'Expected the command to succeed, but it exited with code 1.'],
       'fail on a successful command' => ['echo hello', 'commandAssertFailure', [], AssertionException::class, 'Expected the command to fail, but it exited with code 0.'],
-      'exit code mismatch' => ['echo hello', 'commandAssertExitCode', ['3'], AssertionException::class, 'Expected the command to exit with code 3, but it exited with code 0.'],
+      'exit code mismatch' => ['echo hello', 'commandAssertExitCodeEquals', ['3'], AssertionException::class, 'Expected the command to exit with code 3, but it exited with code 0.'],
       'output does not contain' => ['echo hello', 'commandAssertOutputContains', ['goodbye'], AssertionException::class, 'Expected the command output to contain "goodbye"'],
       'output unexpectedly contains' => ['echo hello', 'commandAssertOutputNotContains', ['hello'], AssertionException::class, 'Expected the command output to not contain "hello"'],
       'output does not equal' => ['echo hello', 'commandAssertOutputEquals', ['goodbye'], AssertionException::class, 'Expected the command output to be "goodbye", but got "hello".'],
@@ -136,8 +135,8 @@ class CommandTraitTest extends UnitTestCase {
       'duration exceeds the limit' => ['sleep 1', 'commandAssertDurationLessThan', ['0.5'], AssertionException::class, 'Expected the command to complete in less than 0.5 seconds'],
       'duration below the floor' => ['echo fast', 'commandAssertDurationMoreThan', ['5'], AssertionException::class, 'Expected the command to complete in more than 5 seconds'],
       'assertion before any command' => [NULL, 'commandAssertSuccess', [], \RuntimeException::class, 'No command has been run.'],
-      'non-integer exit code word' => ['echo hello', 'commandAssertExitCode', ['three'], \RuntimeException::class, 'The exit code must be an integer, but "three" was given.'],
-      'non-integer exit code float' => ['echo hello', 'commandAssertExitCode', ['3.5'], \RuntimeException::class, 'The exit code must be an integer, but "3.5" was given.'],
+      'non-integer exit code word' => ['echo hello', 'commandAssertExitCodeEquals', ['three'], \RuntimeException::class, 'The exit code must be an integer, but "three" was given.'],
+      'non-integer exit code float' => ['echo hello', 'commandAssertExitCodeEquals', ['3.5'], \RuntimeException::class, 'The exit code must be an integer, but "3.5" was given.'],
       'non-numeric less-than duration' => ['echo hello', 'commandAssertDurationLessThan', ['three'], \RuntimeException::class, 'The duration must be a number, but "three" was given.'],
       'non-numeric more-than duration' => ['echo hello', 'commandAssertDurationMoreThan', ['three'], \RuntimeException::class, 'The duration must be a number, but "three" was given.'],
       'negative more-than duration' => ['echo hello', 'commandAssertDurationMoreThan', ['-1'], \RuntimeException::class, 'The duration must be 0 or greater, but "-1" was given.'],
@@ -165,30 +164,18 @@ class CommandTraitTestImplementation extends WebRawContext {
     return $this->timeoutOverride;
   }
 
-  /**
-   * Exposes the captured exit code.
-   */
   public function testGetExitCode(): ?int {
     return $this->commandExitCode;
   }
 
-  /**
-   * Exposes the captured standard output.
-   */
   public function testGetStdout(): string {
     return $this->commandStdout;
   }
 
-  /**
-   * Exposes the captured error output.
-   */
   public function testGetStderr(): string {
     return $this->commandStderr;
   }
 
-  /**
-   * Exposes the captured duration.
-   */
   public function testGetDuration(): float {
     return $this->commandDuration;
   }

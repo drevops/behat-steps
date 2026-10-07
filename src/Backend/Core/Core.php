@@ -180,7 +180,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *   Absolute filesystem path to the directory containing '*Handler.php'
    *   files.
    * @param string $namespace
-   *   Namespace the classes in '$directory' live under, without a trailing slash.
+   *   Namespace the classes in '$directory' live under, without a trailing
+   *   backslash.
    */
   protected function registerHandlersFromDirectory(string $directory, string $namespace): void {
     foreach (glob($directory . '/*Handler.php') ?: [] as $file) {
@@ -220,8 +221,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Creates the field classifier instance for this Core.
    *
    * Subclasses override this method when they ship a version-specific
-   * classifier. The default returns the base 'FieldClassifier' which covers
-   * Drupal 11.
+   * classifier. The default returns the base 'FieldClassifier'.
    */
   protected function createFieldClassifier(): FieldClassifierInterface {
     return new FieldClassifier($this->getEntityFieldManager());
@@ -242,8 +242,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Creates the field shape classifier instance for this Core.
    *
    * Subclasses override this method when they ship a version-specific value
-   * shape classifier. The default returns the base 'FieldShapeClassifier' which
-   * covers Drupal 11.
+   * shape classifier. The default returns the base 'FieldShapeClassifier'.
    */
   protected function createFieldShapeClassifier(): FieldShapeClassifierInterface {
     return new FieldShapeClassifier();
@@ -391,9 +390,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Resolves an entity type definition, rethrowing with an actionable message.
    *
    * Drupal's EntityTypeManager throws 'PluginNotFoundException' with text like
-   * "The 'xyz' plugin does not exist.", which describes the plugin system
-   * rather than the backend-level error a scenario author sees. The wrapper
-   * names the entity type argument instead.
+   * "The 'xyz' plugin does not exist". That text describes the plugin
+   * system, not the backend-level error a scenario author sees, so the
+   * wrapper names the entity type argument instead.
    *
    * @param string $entity_type
    *   Entity type id to load.
@@ -499,7 +498,13 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $node = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 
     if (!$node instanceof NodeInterface) {
-      $node = Node::load($stub->getValue('nid'));
+      $nid = $stub->getValue('nid');
+
+      if ($nid === NULL) {
+        throw new \RuntimeException('Cannot resolve a node id from the stub: neither the saved entity nor a "nid" value is set.');
+      }
+
+      $node = Node::load($nid);
     }
 
     if ($node instanceof NodeInterface) {
@@ -562,7 +567,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $stub = new EntityStub('user_role', NULL, ['id' => (string) $role->id(), 'label' => (string) $role->label()]);
 
-    return $stub->markSaved($role);
+    $stub->markSaved($role);
+
+    return $stub;
   }
 
   /**
@@ -670,7 +677,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function addUserRole(EntityStubInterface $stub, string $role): void {
-    // Both machine and human role names are accepted.
     $query = \Drupal::entityQuery('user_role');
     $conditions = $query->orConditionGroup()
       ->condition('id', $role)
@@ -689,9 +695,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Resolves the user id from a stub.
    *
-   * Prefers the saved-entity slot - that is the only authoritative source
-   * after 'createUser()' - then falls back to a 'uid' value the caller may
-   * have populated manually.
+   * The saved-entity slot is the only authoritative source after
+   * 'createUser()', so it is read first. A 'uid' value the caller may have
+   * populated manually is the fallback.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The user stub to read the id from.
@@ -828,7 +834,13 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $term = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
 
     if (!$term instanceof TermInterface) {
-      $term = Term::load($stub->getValue('tid'));
+      $tid = $stub->getValue('tid');
+
+      if ($tid === NULL) {
+        throw new \RuntimeException('Cannot resolve a term id from the stub: neither the saved entity nor a "tid" value is set.');
+      }
+
+      $term = Term::load($tid);
     }
 
     if ($term instanceof TermInterface) {
@@ -1249,7 +1261,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   public function mailGet(): array {
     \Drupal::state()->resetCache();
     $mail = \Drupal::state()->get('system.test_mail_collector') ?: [];
-    // Cancelled mail carries a false 'send' flag.
+    // Canceled mail carries a false 'send' flag.
     $mail = array_values(array_filter($mail, static fn(array $mail_item): bool => (bool) $mail_item['send']));
     return $mail;
   }

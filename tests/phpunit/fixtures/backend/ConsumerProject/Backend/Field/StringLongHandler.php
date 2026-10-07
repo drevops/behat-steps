@@ -11,9 +11,9 @@ use DrevOps\BehatSteps\Backend\Core\Field\AbstractHandler;
  *
  * The library ships no 'StringLongHandler', so without this fixture the
  * 'string_long' field type would fall through to 'DefaultHandler'. Adding
- * this class to the consumer's 'Field/' directory is all it takes for
- * 'ConsumerCore::registerDefaultFieldHandlers()' to pick it up and route
- * 'string_long' fields to it.
+ * this class to the consumer's 'Field/' directory is enough for
+ * 'ConsumerCore::registerDefaultFieldHandlers()' to register it, so it
+ * serves 'string_long' fields.
  */
 class StringLongHandler extends AbstractHandler {
 

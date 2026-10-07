@@ -14,13 +14,13 @@ Feature: Check that XmlTrait works
     Then the response should be in XML format
 
   @phpserver
-  Scenario: Assert "Then the response should be in XML format" honours content set from a fixture file over the page content
+  Scenario: Assert "Then the response should be in XML format" honors content set from a fixture file over the page content
     When I go to "http://cli:8888/xml_invalid.xml"
     And the response XML is loaded from the file "xml_valid.xml"
     Then the response should be in XML format
 
   @phpserver
-  Scenario: Assert "Then the response should be in XML format" honours content set from a PyString over the page content
+  Scenario: Assert "Then the response should be in XML format" honors content set from a PyString over the page content
     When I go to "http://cli:8888/xml_invalid.xml"
     And the response XML is the following:
       """
@@ -51,7 +51,7 @@ Feature: Check that XmlTrait works
     Then the response should not be in XML format
 
   @phpserver
-  Scenario: Assert "Then the response should not be in XML format" honours content set from a fixture file over the page content
+  Scenario: Assert "Then the response should not be in XML format" honors content set from a fixture file over the page content
     When I go to "http://cli:8888/xml_valid.xml"
     And the response XML is loaded from the file "xml_invalid.xml"
     Then the response should not be in XML format
@@ -381,6 +381,20 @@ Feature: Check that XmlTrait works
     Then it should fail with an error:
       """
       The XML element "//library" has 3 child element(s), but expected 5.
+      """
+
+  @test-trait:XmlTrait
+  Scenario: Assert that "Then the XML element :element should have :count element(s)" fails when the count is not an integer
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I go to "http://cli:8888/xml_valid.xml"
+      Then the XML element "//library" should have "three" elements
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The count must be an integer, but "three" was given.
       """
 
   @phpserver

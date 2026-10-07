@@ -125,42 +125,42 @@ class DiagnosticsTraitTest extends UnitTestCase {
     $this->assertSame('Original failure.', $exception->getMessage());
   }
 
-  public function testGetUrlReturnsValue(): void {
-    $this->assertSame('http://example.com/page', $this->testObject->callFindUrl());
+  public function testFindUrlReturnsValue(): void {
+    $this->assertSame('http://example.com/page', $this->testObject->diagnosticsFindUrl());
   }
 
-  public function testGetUrlReturnsNullWhenBlank(): void {
+  public function testFindUrlReturnsNullWhenBlank(): void {
     $this->testObject->session->url = '';
 
-    $this->assertNull($this->testObject->callFindUrl());
+    $this->assertNull($this->testObject->diagnosticsFindUrl());
   }
 
-  public function testGetUrlReturnsNullWhenDriverErrors(): void {
+  public function testFindUrlReturnsNullWhenDriverErrors(): void {
     $this->testObject->session->urlError = new \RuntimeException('unsupported');
 
-    $this->assertNull($this->testObject->callFindUrl());
+    $this->assertNull($this->testObject->diagnosticsFindUrl());
   }
 
-  public function testGetStatusCodeReturnsValue(): void {
+  public function testFindStatusCodeReturnsValue(): void {
     $this->testObject->session->status = 500;
 
-    $this->assertSame(500, $this->testObject->callFindStatusCode());
+    $this->assertSame(500, $this->testObject->diagnosticsFindStatusCode());
   }
 
-  public function testGetStatusCodeReturnsNullWhenDriverErrors(): void {
+  public function testFindStatusCodeReturnsNullWhenDriverErrors(): void {
     $this->testObject->session->statusError = new \RuntimeException('unsupported');
 
-    $this->assertNull($this->testObject->callFindStatusCode());
+    $this->assertNull($this->testObject->diagnosticsFindStatusCode());
   }
 
-  public function testGetDriverNameReturnsClass(): void {
-    $this->assertSame(DiagnosticsFakeDriver::class, $this->testObject->callFindBrowserDriverName());
+  public function testFindBrowserDriverNameReturnsClass(): void {
+    $this->assertSame(DiagnosticsFakeDriver::class, $this->testObject->diagnosticsFindBrowserDriverName());
   }
 
-  public function testGetDriverNameReturnsNullWhenDriverErrors(): void {
+  public function testFindBrowserDriverNameReturnsNullWhenDriverErrors(): void {
     $this->testObject->session->driverError = new \RuntimeException('unsupported');
 
-    $this->assertNull($this->testObject->callFindBrowserDriverName());
+    $this->assertNull($this->testObject->diagnosticsFindBrowserDriverName());
   }
 
   public function testGetJsErrorsReadsLiveBrowserBuffer(): void {
@@ -170,7 +170,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
       ['not-a-message' => 'ignored'],
     ];
 
-    $this->assertSame(['TypeError: a', 'ReferenceError: b'], $this->testObject->callGetJsErrors());
+    $this->assertSame(['TypeError: a', 'ReferenceError: b'], $this->testObject->diagnosticsGetJsErrors());
   }
 
   public function testGetJsErrorsReadsRegistryAndDeduplicates(): void {
@@ -182,20 +182,20 @@ class DiagnosticsTraitTest extends UnitTestCase {
     // The same message arrives from the live buffer and is de-duplicated.
     $object->session->script = [['message' => 'TypeError: a'], ['message' => 'ReferenceError: b']];
 
-    $this->assertSame(['TypeError: a', 'ReferenceError: b'], $object->callGetJsErrors());
+    $this->assertSame(['TypeError: a', 'ReferenceError: b'], $object->diagnosticsGetJsErrors());
   }
 
   public function testGetJsErrorsIsEmptyWhenUnavailable(): void {
     $this->testObject->session->scriptError = new \RuntimeException('unsupported');
 
-    $this->assertSame([], $this->testObject->callGetJsErrors());
+    $this->assertSame([], $this->testObject->diagnosticsGetJsErrors());
   }
 
   #[DataProvider('dataProviderRerunCommand')]
   public function testRerunCommand(?string $file, ?int $line, ?string $expected): void {
     $this->testObject->testSetRerunCoordinates($file, $line);
 
-    $this->assertSame($expected, $this->testObject->callFindRerunCommand());
+    $this->assertSame($expected, $this->testObject->diagnosticsFindRerunCommand());
   }
 
   public static function dataProviderRerunCommand(): array {
@@ -211,7 +211,7 @@ class DiagnosticsTraitTest extends UnitTestCase {
     $this->assertNotFalse($cwd);
     $this->testObject->testSetRerunCoordinates($cwd . '/features/x.feature', 7);
 
-    $this->assertSame('vendor/bin/behat features/x.feature:7', $this->testObject->callFindRerunCommand());
+    $this->assertSame('vendor/bin/behat features/x.feature:7', $this->testObject->diagnosticsFindRerunCommand());
   }
 
 }
@@ -271,32 +271,6 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
 
   public function callAppendToException(\Exception $exception): void {
     $this->diagnosticsAppendToException($exception);
-  }
-
-  public function callFindUrl(): ?string {
-    return $this->diagnosticsFindUrl();
-  }
-
-  public function callFindStatusCode(): ?int {
-    return $this->diagnosticsFindStatusCode();
-  }
-
-  public function callFindBrowserDriverName(): ?string {
-    return $this->diagnosticsFindBrowserDriverName();
-  }
-
-  /**
-   * Exposes the collected JavaScript console error messages.
-   *
-   * @return array<int, string>
-   *   Collected JavaScript error messages.
-   */
-  public function callGetJsErrors(): array {
-    return $this->diagnosticsGetJsErrors();
-  }
-
-  public function callFindRerunCommand(): ?string {
-    return $this->diagnosticsFindRerunCommand();
   }
 
   protected function diagnosticsGetShowUrl(): bool {

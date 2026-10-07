@@ -103,9 +103,9 @@ interface CoreInterface extends
    * Overrides one of the backend's built-in handlers or adds a handler for a
    * field type the backend does not ship one for. The registration replaces
    * the default registered by 'Core::registerDefaultFieldHandlers()' in the
-   * constructor. A class that does not implement 'FieldHandlerInterface'
-   * triggers a 'RuntimeException' at registration time rather than at field
-   * resolution time.
+   * constructor. A class that does not implement 'FieldHandlerInterface', or
+   * that is abstract, triggers a 'RuntimeException' at registration time
+   * rather than at field resolution time.
    *
    * @param string $field_type
    *   The Drupal field type id, e.g. 'boolean', 'entity_reference', or a
@@ -115,7 +115,7 @@ interface CoreInterface extends
    *   expanded. The class must implement 'FieldHandlerInterface'.
    *
    * @throws \RuntimeException
-   *   When '$class' does not implement 'FieldHandlerInterface'.
+   *   When '$class' does not implement 'FieldHandlerInterface' or is abstract.
    */
   public function registerFieldHandler(string $field_type, string $class): void;
 

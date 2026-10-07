@@ -19,9 +19,10 @@ use PHPUnit\Framework\Attributes\Group;
  *
  * Most tests replace 'drush()' with a recorder and assert on the commands it
  * records. The rest run a system binary such as 'echo' through the real
- * 'drush()', or cover 'resolveProjectDrush()' and 'parseArguments()'. The
- * actual Drush binary is never executed here; end-to-end behaviour is covered
- * separately.
+ * 'drush()', or cover 'resolveProjectDrush()' and 'parseArguments()'.
+ *
+ * The actual Drush binary is never executed here; end-to-end behavior is
+ * covered separately.
  */
 #[CoversClass(DrushBackend::class)]
 #[Group('backends')]
@@ -138,11 +139,11 @@ class DrushBackendMethodsTest extends UnitTestCase {
   public function testCreateRoleReturnsTheRoleStub(array $args): void {
     $backend = $this->createBackend();
 
-    $role = $backend->createRole(...$args);
+    $created = $backend->createRole(...$args);
 
-    $this->assertSame('user_role', $role->getEntityType());
-    $this->assertFalse($role->isSaved());
-    $this->assertSame(['id' => $backend->invocations[0]['arguments'][0], 'label' => $backend->invocations[0]['arguments'][1]], $role->getValues());
+    $this->assertSame('user_role', $created->getEntityType());
+    $this->assertFalse($created->isSaved());
+    $this->assertSame(['id' => $backend->invocations[0]['arguments'][0], 'label' => $backend->invocations[0]['arguments'][1]], $created->getValues());
   }
 
   public static function dataProviderCreateRoleReturnsTheRoleStub(): \Iterator {
@@ -251,9 +252,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $backend->deleteUser(new EntityStub('user'));
   }
 
-  /**
-   * Tests 'cacheClear()' with a drush-only bin skips the rebuild.
-   */
   public function testCacheClearDrushOnlySkipsRebuild(): void {
     $backend = $this->createBackend();
 
@@ -421,6 +419,8 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   /**
    * Data provider: method -> args -> first-expected-drush-command.
+   *
+   * A row may carry a canned Drush response as an optional 4th element.
    */
   public static function dataProviderInvokesDrush(): \Iterator {
     $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
@@ -454,9 +454,9 @@ class DrushBackendMethodsTest extends UnitTestCase {
   /**
    * Tests that a config write requests an input format Drush parses.
    *
-   * 'config:set' parses its value only under '--input-format=yaml'; under any
-   * other format the value is stored verbatim, so a JSON payload would be
-   * stored as its own encoding, not as the value it encodes.
+   * 'config:set' parses its value only under '--input-format=yaml'. Under any
+   * other format the value is stored verbatim, so a JSON payload is stored as
+   * JSON text, not as the value it encodes.
    */
   public function testConfigSetRequestsParsedInputFormat(): void {
     $backend = $this->createBackend();
@@ -553,9 +553,8 @@ class DrushBackendMethodsTest extends UnitTestCase {
   /**
    * Tests that a module lookup matches the machine name exactly.
    *
-   * The 'pm:list' filter matches any substring of a name, so a listing that
-   * only holds a module with a longer name must not report the module as
-   * present.
+   * The 'pm:list' filter matches any substring of a name, so a listing
+   * holding only a longer-named module must not report the module as present.
    */
   public function testModuleLookupMatchesTheExactName(): void {
     $backend = $this->createBackend();
@@ -642,9 +641,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
     return NULL;
   }
 
-  /**
-   * Creates a backend with a stubbed 'drush()' that records every invocation.
-   */
   protected function createBackend(): RecordingDrushBackend {
     return new RecordingDrushBackend('alias');
   }

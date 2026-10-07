@@ -24,13 +24,13 @@ trait IframeTrait {
    * Handles unnamed iframes by auto-assigning a name via JavaScript.
    *
    * @code
-   * When I switch to the iframe with the selector "iframe.payment-form"
-   * When I switch to the iframe with the selector "#recaptcha iframe"
+   * When I switch to the iframe "iframe.payment-form"
+   * When I switch to the iframe "#recaptcha iframe"
    * @endcode
    *
    * @javascript
    */
-  #[When('I switch to the iframe with the selector :selector')]
+  #[When('I switch to the iframe :selector')]
   public function iframeSwitchTo(string $selector): void {
     $this->browserDriverFor(JavascriptCapabilityInterface::class);
 

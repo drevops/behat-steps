@@ -453,7 +453,7 @@ trait ElementTrait {
    * the context they share, and compares the 2 participants that branch off
    * it. Document order breaks a tie; painting order within a single stacking
    * context (floats, inline content and positioned descendants) is not
-   * modelled.
+   * modeled.
    *
    * @code
    * Then the element "#modal" should stack above the element "#page-header"
@@ -521,9 +521,9 @@ trait ElementTrait {
    * Use the step with an explicit tolerance for layouts that require a
    * larger one.
    *
-   * This asserts where the element currently renders, so scroll the page
-   * first to tell a pinned element apart from one that starts at the top of
-   * the document.
+   * This asserts where the element currently renders. A scroll beforehand
+   * tells a pinned element apart from one that starts at the top of the
+   * document.
    *
    * @code
    * When I scroll to the element "#footer"
@@ -571,7 +571,7 @@ trait ElementTrait {
    *
    * Verifies that the element matched by the selector is the current
    * `document.activeElement`. This is the canonical check for tab-order tests,
-   * skip-link behaviour, modal focus traps, autofocus, and focus-after-action
+   * skip-link behavior, modal focus traps, autofocus, and focus-after-action
    * flows.
    *
    * @code
@@ -859,20 +859,20 @@ trait ElementTrait {
     }
 
     if (!$attribute_found) {
-      throw new ExpectationException(sprintf('The "%s" attribute does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The attribute "%s" does not exist on the element "%s".', $attribute, $selector), $this->getSession()->getDriver());
     }
 
     if ($is_inverted && $attribute_value_found) {
       $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
+        ? sprintf('The attribute "%s" exists on the element "%s" with a value "%s", but it should not.', $attribute, $selector, $value)
+        : sprintf('The attribute "%s" exists on the element "%s" with a value containing "%s", but it should not.', $attribute, $selector, $value);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
 
     if (!$is_inverted && !$attribute_value_found) {
       $message = $is_exact
-        ? sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
-        : sprintf('The "%s" attribute exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
+        ? sprintf('The attribute "%s" exists on the element "%s" with a value "%s", but it does not have a value "%s".', $attribute, $selector, $attribute_value, $value)
+        : sprintf('The attribute "%s" exists on the element "%s" with a value "%s", but it does not contain a value "%s".', $attribute, $selector, $attribute_value, $value);
       throw new ExpectationException($message, $this->getSession()->getDriver());
     }
   }
@@ -1052,7 +1052,7 @@ trait ElementTrait {
           }
 
           // A flex or grid item takes part in its parent's stacking context
-          // when it carries a z-index, without needing to be positioned.
+          // when it carries a z-index, whether or not it is positioned.
           var parent = el.parentElement;
           if (parent && style.zIndex !== 'auto') {
             var parentDisplay = window.getComputedStyle(parent).display;
@@ -1096,7 +1096,7 @@ trait ElementTrait {
         }
 
         // One element sits inside the other's stacking context, so it paints
-        // above it unless it opted out with a negative z-index.
+        // above it unless its z-index is negative.
         if (index >= chain1.length) {
           var nested2 = zIndexOf(chain2[index]);
           return (nested2 < 0 ? '1' : '-1') + '|0|' + nested2 + '|nesting-second';
@@ -1367,8 +1367,8 @@ JS;
    * @param string $selector
    *   The CSS selector for an element.
    * @param string $script
-   *   The script to execute. Note that '{{ELEMENT}}' is a token to use in
-   *   the script to reference the element.
+   *   The script to execute. The '{{ELEMENT}}' token in the script references
+   *   the element.
    *
    * @return mixed
    *   The result of script evaluation. Script has to explicitly return a value.

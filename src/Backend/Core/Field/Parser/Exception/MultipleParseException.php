@@ -5,20 +5,18 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception;
 
 /**
- * Container for multiple parse errors detected in a single cell.
- *
- * Parsers collect all errors detected in 1 cell before throwing, so the
- * test author sees every problem at once.
+ * Container for multiple parse errors.
  */
 final class MultipleParseException extends ParseException {
 
   /**
-   * Wraps multiple parse errors detected in a single cell.
+   * Wraps multiple parse errors.
    *
    * @param ParseException[] $errors
    *   The individual parse errors. Must contain at least 1 entry.
    * @param string $cell
-   *   The cell value being parsed when the errors were collected.
+   *   The cell value the exception reports. The wrapped errors can come from
+   *   several cells.
    * @param \Throwable|null $previous
    *   Optional previous throwable for chaining.
    */
@@ -35,7 +33,7 @@ final class MultipleParseException extends ParseException {
   }
 
   /**
-   * Builds a single-line description summarising the wrapped errors.
+   * Builds a single-line description summarizing the wrapped errors.
    *
    * @param ParseException[] $errors
    *   The wrapped errors.

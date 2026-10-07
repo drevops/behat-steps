@@ -158,9 +158,9 @@ Then the current page should pass accessibility checks for the tags "wcag2a"
 >  - Re-apply the configured credentials before every scenario and step.
 >  
 >  Mink resets the session before every scenario and on every fast logout,
->  which clears request headers and drops the credentials. A site behind
->  webserver-level basic auth would start answering 401 mid-scenario without
->  this. The hooks are a no-op when no credentials are configured.
+>  which clears request headers and drops the credentials. Without the
+>  re-application, a site behind webserver-level basic auth answers 401
+>  mid-scenario. The hooks are a no-op when no credentials are configured.
 >  <br/><br/>
 >  Skip with tag: `@behat-steps-skip:BasicAuthTrait`.
 
@@ -574,8 +574,9 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  `JavascriptTrait` when the context also uses it, and the live browser buffer.
 >  - `Re-run` - a ready-to-paste command that re-runs just the failing scenario.
 >  
->  The trait is opt-in: `use` it in the context and it is active with no further
->  configuration. Every field is individually toggleable by overriding its
+>  The trait is active with no further configuration once a context composes
+>  it. The `enabled` option switches it off. Every field is individually
+>  toggleable through its `show_*` option or by overriding its
 >  `diagnosticsGetShow*()` method to return FALSE. Each value source degrades
 >  to nothing when the browser driver cannot provide it, so a failed step is
 >  never turned into a different failure.
@@ -630,7 +631,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 
 <details>
-  <summary><code>@When I drop the file :path on the dropzone :selector</code></summary>
+  <summary><code>@When I drop the file :filename on the dropzone :selector</code></summary>
 
 <br/>
 Drop a single file on the target element
@@ -1459,28 +1460,28 @@ When I fill in the datetime field "Event date" with the date "2024-01-15" and th
 </details>
 
 <details>
-  <summary><code>@When I fill in the date part of the datetime field :label with :date</code></summary>
+  <summary><code>@When I fill in the date part of the datetime field :label with the date :date</code></summary>
 
 <br/>
 Fill in the date part of a datetime field
 <br/><br/>
 
 ```gherkin
-When I fill in the date part of the datetime field "Event date" with "2024-01-15"
+When I fill in the date part of the datetime field "Event date" with the date "2024-01-15"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I fill in the time part of the datetime field :label with :time</code></summary>
+  <summary><code>@When I fill in the time part of the datetime field :label with the time :time</code></summary>
 
 <br/>
 Fill in the time part of a datetime field
 <br/><br/>
 
 ```gherkin
-When I fill in the time part of the datetime field "Event date" with "14:30:00"
+When I fill in the time part of the datetime field "Event date" with the time "14:30:00"
 
 ```
 
@@ -1878,15 +1879,15 @@ Then the downloaded file should be a zip archive not containing the following fi
 
 
 <details>
-  <summary><code>@When I switch to the iframe with the selector :selector</code></summary>
+  <summary><code>@When I switch to the iframe :selector</code></summary>
 
 <br/>
 Switch to an iframe identified by CSS selector
 <br/><br/>
 
 ```gherkin
-When I switch to the iframe with the selector "iframe.payment-form"
-When I switch to the iframe with the selector "#recaptcha iframe"
+When I switch to the iframe "iframe.payment-form"
+When I switch to the iframe "#recaptcha iframe"
 
 ```
 
@@ -2044,7 +2045,7 @@ Then the response should not be in JSON format
   <summary><code>@Then the JSON path :path should exist</code></summary>
 
 <br/>
-Assert that a JSONPath expression matches at least one value
+Assert that a JSONPath expression matches at least 1 value
 <br/><br/>
 
 ```gherkin
@@ -2484,7 +2485,7 @@ Then the link "Return to site content" should not be an absolute link
 
 >  Assert status, error, warning and success messages rendered on the page.
 >  - Match a single message by substring, per message type.
->  - Match a table of messages in one step.
+>  - Match a table of messages in 1 step.
 >  
 >  Each message type resolves to a CSS selector from the `message.selectors`
 >  option, keyed `default`, `error`, `success` and `warning`. A message
@@ -4969,9 +4970,9 @@ When I run cron
 >  <br/><br/>
 >  ```
 >  Scenario: Assert configured values
->    Given the config "mymodule.settings" key "api.endpoint" has the value "https://api.example.com"
->    Then the config "mymodule.settings" key "api.endpoint" should have the value "https://api.example.com"
->    And the config "system.site" key "name" should have the effective value "My overridden site"
+>    Given the config "mymodule.settings" with the key "api.endpoint" has the value "https://api.example.com"
+>    Then the config "mymodule.settings" with the key "api.endpoint" should have the value "https://api.example.com"
+>    And the config "system.site" with the key "name" should have the effective value "My overridden site"
 >  ```
 
 
@@ -4982,14 +4983,14 @@ When I run cron
 | `config.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigTrait` | Restore the configuration values a scenario changed once it finishes. |
 
 <details>
-  <summary><code>@Given the config :name key :key has the value :value</code></summary>
+  <summary><code>@Given the config :name with the key :key has the value :value</code></summary>
 
 <br/>
 Set a stored Drupal configuration value
 <br/><br/>
 
 ```gherkin
-Given the config "system.site" key "page.front" has the value "/node"
+Given the config "system.site" with the key "page.front" has the value "/node"
 
 ```
 
@@ -5014,112 +5015,112 @@ Given the following config values exist:
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should have the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should have the value :value</code></summary>
 
 <br/>
 Assert that a stored configuration value equals an expected value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should have the value "My site"
+Then the config "system.site" with the key "name" should have the value "My site"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should not have the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should not have the value :value</code></summary>
 
 <br/>
 Assert that a stored configuration value does not equal a value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should not have the value "Wrong"
+Then the config "system.site" with the key "name" should not have the value "Wrong"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should contain the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should contain the value :value</code></summary>
 
 <br/>
 Assert that a stored configuration value contains an expected value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should contain the value "site"
+Then the config "system.site" with the key "name" should contain the value "site"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should not contain the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should not contain the value :value</code></summary>
 
 <br/>
 Assert that a stored configuration value does not contain a value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should not contain the value "xyz"
+Then the config "system.site" with the key "name" should not contain the value "xyz"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should have the effective value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should have the effective value :value</code></summary>
 
 <br/>
 Assert that an effective configuration value equals an expected value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should have the effective value "Overridden"
+Then the config "system.site" with the key "name" should have the effective value "Overridden"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should not have the effective value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should not have the effective value :value</code></summary>
 
 <br/>
 Assert that an effective configuration value does not equal a value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should not have the effective value "Wrong"
+Then the config "system.site" with the key "name" should not have the effective value "Wrong"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should contain the effective value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should contain the effective value :value</code></summary>
 
 <br/>
 Assert that an effective configuration value contains an expected value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should contain the effective value "Over"
+Then the config "system.site" with the key "name" should contain the effective value "Over"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name key :key should not contain the effective value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should not contain the effective value :value</code></summary>
 
 <br/>
 Assert that an effective configuration value does not contain a value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" key "name" should not contain the effective value "xyz"
+Then the config "system.site" with the key "name" should not contain the effective value "xyz"
 
 ```
 
@@ -5224,8 +5225,10 @@ Then the content block type "Search" should exist
 >  - Support content moderation transitions and scheduled publishing.
 >  - Set path aliases and assert the published state of content.
 >  
->  Steps that match content by title resolve to the most recently created node
->  when several nodes of the same type share that title.
+>  Steps that visit, modify or assert the published state of content by title
+>  resolve to the most recently created node when several nodes of the same
+>  type share that title. Steps that delete content or assert it does not
+>  exist match every such node.
 >  <br/><br/>
 >  When the contrib `pathauto` module is enabled, the path alias step switches
 >  automatic alias generation off for the content, so that the provided alias
@@ -5254,14 +5257,14 @@ Given the content type "article" does not exist
 </details>
 
 <details>
-  <summary><code>@Given the following :content_type content does not exist:</code></summary>
+  <summary><code>@Given the following :content_type content do not exist:</code></summary>
 
 <br/>
 Remove content defined by provided properties
 <br/><br/>
 
 ```gherkin
-Given the following "article" content does not exist:
+Given the following "article" content do not exist:
   | title                |
   | Test article         |
   | Another test article |
@@ -5417,14 +5420,14 @@ When I rebuild the access grants for all content
 </details>
 
 <details>
-  <summary><code>@When I set the path alias of the :content_type content with the title :title to :alias</code></summary>
+  <summary><code>@When I set the path alias of the :content_type content with the title :title to the alias :alias</code></summary>
 
 <br/>
 Set the path alias of a content with the specified title
 <br/><br/>
 
 ```gherkin
-When I set the path alias of the "article" content with the title "Test article" to "/my-test-article"
+When I set the path alias of the "article" content with the title "Test article" to the alias "/my-test-article"
 
 ```
 
@@ -5918,14 +5921,14 @@ Account details
 </details>
 
 <details>
-  <summary><code>@Then the email header :header should exactly be:</code></summary>
+  <summary><code>@Then the email header :header should be:</code></summary>
 
 <br/>
 Assert that the email message header should be the exact specified content
 <br/><br/>
 
 ```gherkin
-Then the email header "Subject" should exactly be:
+Then the email header "Subject" should be:
 """
 Your Account Details
 """
@@ -6089,7 +6092,7 @@ Password Reset
 </details>
 
 <details>
-  <summary><code>@Then the file :file_name should be attached to the email with the subject :subject</code></summary>
+  <summary><code>@Then the file :filename should be attached to the email with the subject :subject</code></summary>
 
 <br/>
 Assert that a file is attached to an email message with specified subject
@@ -6103,7 +6106,7 @@ Then the file "document.pdf" should be attached to the email with the subject "Y
 </details>
 
 <details>
-  <summary><code>@Then the file :file_name should be attached to the email with a subject containing :partial_subject</code></summary>
+  <summary><code>@Then the file :filename should be attached to the email with a subject containing :partial_subject</code></summary>
 
 <br/>
 Assert that a file is attached to an email message with a subject containing the specified substring
@@ -6124,7 +6127,7 @@ Then the file "report.xlsx" should be attached to the email with a subject conta
 >  - Create entities of any type from a table of field values.
 >  
 >  Covers types such as `commerce_product`, `group` or `paragraph`, where a
->  dedicated trait would add vocabulary without adding behaviour. Entities
+>  dedicated trait would add vocabulary without adding behavior. Entities
 >  created here are removed after the scenario along with every other entity
 >  the scenario created.
 >  <br/><br/>
@@ -6262,28 +6265,28 @@ Then an unmanaged file at the URI "public://temp.txt" should not exist
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should contain :content</code></summary>
+  <summary><code>@Then an unmanaged file at the URI :uri should contain the value :value</code></summary>
 
 <br/>
 Assert that an unmanaged file exists and has specified content
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
+Then an unmanaged file at the URI "public://config.txt" should contain the value "debug=true"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should not contain :content</code></summary>
+  <summary><code>@Then an unmanaged file at the URI :uri should not contain the value :value</code></summary>
 
 <br/>
 Assert that an unmanaged file exists and does not have specified content
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
+Then an unmanaged file at the URI "public://config.txt" should not contain the value "debug=false"
 
 ```
 
@@ -7047,8 +7050,8 @@ When I run the Search API Solr cron
 >  reverted after the scenario finishes.
 >  <br/><br/>
 >  Skip the revert with `@behat-steps-skip:StateTrait`. The snapshot registry
->  is cleared unconditionally before and after the scenario to prevent state
->  leaking into subsequent scenarios.
+>  is cleared unconditionally before and after the scenario, so no snapshot
+>  persists across scenarios.
 
 
 ### Options
@@ -7189,7 +7192,7 @@ Given the following "fruits" terms do not exist:
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary term page with the name :term_name</code></summary>
+  <summary><code>@When I visit the :vocabulary term page with the name :name</code></summary>
 
 <br/>
 Visit specified vocabulary term page
@@ -7203,7 +7206,7 @@ When I visit the "fruits" term page with the name "Apple"
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary term edit page with the name :term_name</code></summary>
+  <summary><code>@When I visit the :vocabulary term edit page with the name :name</code></summary>
 
 <br/>
 Visit specified vocabulary term edit page
@@ -7217,7 +7220,7 @@ When I visit the "fruits" term edit page with the name "Apple"
 </details>
 
 <details>
-  <summary><code>@When I visit the :vocabulary term delete page with the name :term_name</code></summary>
+  <summary><code>@When I visit the :vocabulary term delete page with the name :name</code></summary>
 
 <br/>
 Visit specified vocabulary term delete page
@@ -7259,7 +7262,7 @@ Then the vocabulary "topics" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary should exist</code></summary>
+  <summary><code>@Then the taxonomy term :name from the vocabulary :vocabulary should exist</code></summary>
 
 <br/>
 Assert that a taxonomy term exists by name
@@ -7273,7 +7276,7 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
 </details>
 
 <details>
-  <summary><code>@Then the taxonomy term :term_name from the vocabulary :vocabulary should not exist</code></summary>
+  <summary><code>@Then the taxonomy term :name from the vocabulary :vocabulary should not exist</code></summary>
 
 <br/>
 Assert that a taxonomy term does not exist by name
@@ -7487,7 +7490,7 @@ Given the last login time for the user "John" is "1732319174"
 </details>
 
 <details>
-  <summary><code>@Given the role :role_name has the permissions :permissions</code></summary>
+  <summary><code>@Given the role :role has the permissions :permissions</code></summary>
 
 <br/>
 Create a single role with specified permissions
@@ -7800,8 +7803,8 @@ Then the user "John" should not be blocked
 >  The check is on by default. An opted-in scenario whose prerequisites do not
 >  hold fails at its start.
 >  <br/><br/>
->  `watchdog.fail_on_errors` and `@error` decide what happens to errors that
->  were read, so they do not cover an unmet prerequisite.
+>  `watchdog.fail_on_errors` and `@error` determine what happens to errors
+>  that were read, so they do not cover an unmet prerequisite.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
 >  <br/><br/>

@@ -66,11 +66,11 @@ class BehatStepsExtensionTest extends UnitTestCase {
 
     $mink = $manager->getExtension('mink');
     $this->assertInstanceOf(MinkExtension::class, $mink);
-    $before = $this->readMinkDriverFactories($mink);
+    $before = $this->readBrowserDriverFactories($mink);
 
     $manager->initializeExtensions();
 
-    $after = $this->readMinkDriverFactories($mink);
+    $after = $this->readBrowserDriverFactories($mink);
     $this->assertNotInstanceOf(BrowserKitFactory::class, $before['browserkit_http']);
     $this->assertInstanceOf(BrowserKitFactory::class, $after['browserkit_http']);
     $this->assertSame(array_keys($before), array_keys($after));
@@ -242,8 +242,8 @@ class BehatStepsExtensionTest extends UnitTestCase {
   }
 
   public function testDrushBackendRequiresAliasOrRoot(): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Drush `alias` or `root` path is required for the Drush backend.');
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('Drush "alias" or "root" path is required for the Drush backend.');
 
     $this->load(['drush' => []]);
   }
@@ -264,7 +264,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * Tests that the configured region map reaches the container.
    *
    * @param array<string, mixed> $config
-   *   The extension configuration, before schema normalisation.
+   *   The extension configuration, before schema normalization.
    * @param array<string, string> $expected
    *   The region map expected on the container parameter.
    */
@@ -296,11 +296,11 @@ class BehatStepsExtensionTest extends UnitTestCase {
   /**
    * Tests that the steps section reaches the parameters untouched.
    *
-   * A group there may name a trait only one of the registered contexts
+   * A group there may name a trait only 1 of the registered contexts
    * composes, so the extension validates nothing about its contents.
    *
    * @param array<string, mixed> $config
-   *   The extension configuration, before schema normalisation.
+   *   The extension configuration, before schema normalization.
    * @param array<string, mixed> $expected
    *   The expected steps section.
    */
@@ -427,7 +427,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * Tests that a 'drivers' key fails, naming 'backends' in its place.
    *
    * @param array<string, mixed> $config
-   *   The extension configuration, before schema normalisation.
+   *   The extension configuration, before schema normalization.
    */
   #[DataProvider('dataProviderDriversKeyIsRejected')]
   public function testDriversKeyIsRejected(array $config): void {
@@ -609,7 +609,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * Runs a raw configuration array through the schema and into a container.
    *
    * @param array<string, mixed> $config
-   *   The extension configuration, before schema normalisation.
+   *   The extension configuration, before schema normalization.
    * @param \DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension|null $extension
    *   The extension to load with, when the test needs it afterwards.
    */
@@ -646,7 +646,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * @param \Behat\MinkExtension\ServiceContainer\MinkExtension $mink
    *   The Mink extension whose schema to apply.
    * @param array<string, mixed> $config
-   *   The Mink configuration, before schema normalisation.
+   *   The Mink configuration, before schema normalization.
    *
    * @return array<string, mixed>
    *   The processed configuration.
@@ -671,7 +671,7 @@ class BehatStepsExtensionTest extends UnitTestCase {
    * @return array<string, \Behat\MinkExtension\ServiceContainer\Driver\DriverFactory>
    *   The registered factories.
    */
-  protected function readMinkDriverFactories(MinkExtension $mink): array {
+  protected function readBrowserDriverFactories(MinkExtension $mink): array {
     $factories = (new \ReflectionProperty(MinkExtension::class, 'driverFactories'))->getValue($mink);
     $this->assertIsArray($factories);
 

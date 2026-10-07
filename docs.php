@@ -230,7 +230,7 @@ function file_declares_trait(string $file_path): bool {
  * rather than the part one context uses.
  *
  * @param array<int, class-string> $class_names
- *   The classes documenting the vocabulary, one per context.
+ *   The classes documenting the vocabulary, 1 per context.
  * @param array<int, string> $exclude
  *   Array of trait names to exclude.
  * @param string $base_path
@@ -370,15 +370,15 @@ function collect_helper_traits(string $base_path = __DIR__): array {
  * Parse info from the classes.
  *
  * @param array<int, class-string> $class_names
- *   The classes documenting the vocabulary, one per context.
+ *   The classes documenting the vocabulary, 1 per context.
  * @param array<int, string> $exclude
  *   Array of trait names to exclude.
  * @param string $base_path
  *   Base path for the repository.
  *
  * @return array<string, array<string, mixed>>
- *   Array of info with 'name', 'options', 'methods', 'description' and
- *   'description_full' keys.
+ *   Array of info with 'name', 'name_contextual', 'context', 'methods',
+ *   'options', 'prerequisites', 'description' and 'description_full' keys.
  *
  * @throws \ReflectionException
  */
@@ -957,15 +957,16 @@ function heading_anchor(string $name): string {
  * no Behat attribute and no '@internal' tag.
  *
  * @param array<int, class-string> $class_names
- *   The classes documenting the vocabulary, one per context.
+ *   The classes documenting the vocabulary, 1 per context.
  * @param array<int, string> $exclude
  *   Array of trait names to exclude.
  * @param string $base_path
  *   Base path for the repository.
  *
  * @return array<string, array<string, mixed>>
- *   Array of info with 'name', 'context' and 'helpers' keys, keyed by trait
- *   short name. Traits contributing no helper are left out.
+ *   Array of info with 'name', 'name_contextual', 'context', 'source',
+ *   'steps_anchor', 'helpers', 'description' and 'description_full' keys,
+ *   keyed by trait short name. Traits contributing no helper are left out.
  *
  * @throws \ReflectionException
  */
@@ -1246,7 +1247,8 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
  *   Base path for the repository.
  *
  * @return string
- *   Markdown table.
+ *   The index table of each context, followed by a horizontal rule and every
+ *   trait's section, or the index tables alone when '$path_for_links' is set.
  */
 function render_info(array $info, string $base_path = __DIR__, ?string $path_for_links = NULL): string {
   $content_output = [];
@@ -1677,7 +1679,7 @@ function validate(array $info): array {
 }
 
 /**
- * Validate that every documented step matches exactly one definition.
+ * Validate that every documented step matches exactly 1 definition.
  *
  * Behat resolves definitions per step text while a scenario runs, so a pattern
  * that shadows another one is only reported once a scenario uses the shadowed
@@ -1819,7 +1821,7 @@ function non_descriptive_placeholders(): array {
 /**
  * Placeholder names that duplicate a concept another name already carries.
  *
- * One concept takes one placeholder name across every trait, so a step using
+ * 1 concept takes 1 placeholder name across every trait, so a step using
  * a synonym is rejected in favor of the name the vocabulary uses.
  *
  * @return array<string, string>
@@ -1828,13 +1830,16 @@ function non_descriptive_placeholders(): array {
 function placeholder_synonyms(): array {
   return [
     'email' => 'address',
+    'file_name' => 'filename',
     'link_number' => 'index',
     'mail' => 'address',
+    'role_name' => 'role',
+    'term_name' => 'name',
   ];
 }
 
 /**
- * Phrases the step vocabulary replaced with 1 settled form.
+ * Phrases the step vocabulary rejects in favor of 1 settled form.
  *
  * A step containing a key fails validation, and the error names the value as
  * the phrase to write instead.
@@ -2046,7 +2051,7 @@ function extension_option_type(NodeInterface $node): string {
 }
 
 /**
- * Render the description of a configuration node as one table cell.
+ * Render the description of a configuration node as 1 table cell.
  *
  * @param \Symfony\Component\Config\Definition\NodeInterface $node
  *   The configuration node.
@@ -2059,7 +2064,7 @@ function extension_option_description(NodeInterface $node): string {
 
   $lines = array_filter(array_map(trim(...), explode(PHP_EOL, $info)), static fn(string $line): bool => $line !== '');
 
-  return str_replace('|', '\\|', implode('<br>', $lines));
+  return str_replace('|', '\\|', implode('<br/>', $lines));
 }
 
 /**
@@ -2109,8 +2114,8 @@ function validate_env_vars(string $base_path = __DIR__): array {
     preg_match_all('/getenv\(\s*[\'"]([A-Z][A-Z0-9_]*)[\'"]\s*\)/', $code, $matches);
 
     foreach (array_unique($matches[1]) as $variable) {
-      // The boundary is one of name characters rather than '\b', which does
-      // not separate a name from a following underscore.
+      // A '\b' boundary does not separate a name from a following
+      // underscore, so the lookarounds test for name characters instead.
       if (preg_match('/(?<![A-Z0-9_])' . preg_quote($variable, '/') . '(?![A-Z0-9_])/', $documented) === 1) {
         continue;
       }
@@ -2202,7 +2207,7 @@ function validate_tag(string $tag, array $registry): ?string {
  *   Base path for the repository.
  *
  * @return array<int, string>
- *   Array of error messages, one per offending tag and source.
+ *   Array of error messages, 1 per offending tag and source.
  */
 function validate_tags(array $info, string $base_path = __DIR__): array {
   $registry = tag_registry();

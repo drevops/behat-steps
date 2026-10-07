@@ -14,6 +14,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Assert XML responses with element and attribute checks.
@@ -26,6 +27,8 @@ use Behat\Step\When;
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait XmlTrait {
+
+  use StringTrait;
 
   /**
    * The current XML document.
@@ -82,7 +85,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Given('the response XML is loaded from the file :filename')]
-  public function xmlSetResponseContentFromFile(string $filename): void {
+  public function xmlSetContentFromFile(string $filename): void {
     $this->xmlTestContent = $this->xmlReadFile($filename);
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;
@@ -100,7 +103,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Given('the response XML is the following:')]
-  public function xmlSetResponseContentDirect(PyStringNode $content): void {
+  public function xmlSetContent(PyStringNode $content): void {
     $this->xmlTestContent = $content->getRaw();
     $this->xmlDocument = NULL;
     $this->xmlXpath = NULL;
@@ -402,6 +405,8 @@ trait XmlTrait {
    */
   #[Then('the XML element :element should have :count element(s)')]
   public function xmlAssertElementCount(string $element, string $count): void {
+    $count = $this->stringParseInteger($count, 'count', 0);
+
     $parent_node = $this->xmlGetFirstNode($element);
 
     $child_elements = 0;
@@ -412,9 +417,8 @@ trait XmlTrait {
       }
     }
 
-    $expected_count = (int) $count;
-    if ($child_elements !== $expected_count) {
-      throw new ExpectationException(sprintf('The XML element "%s" has %d child element(s), but expected %d.', $element, $child_elements, $expected_count), $this->getSession()->getDriver());
+    if ($child_elements !== $count) {
+      throw new ExpectationException(sprintf('The XML element "%s" has %d child element(s), but expected %d.', $element, $child_elements, $count), $this->getSession()->getDriver());
     }
   }
 
@@ -558,7 +562,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Then('the response should be a valid RSS feed')]
-  public function xmlAssertValidRssFeed(): void {
+  public function xmlAssertRssFeedValid(): void {
     $this->xmlValidateRssFeed();
   }
 
@@ -574,7 +578,7 @@ trait XmlTrait {
    * @endcode
    */
   #[Then('the response should be a valid Atom feed')]
-  public function xmlAssertValidAtomFeed(): void {
+  public function xmlAssertAtomFeedValid(): void {
     $this->xmlValidateAtomFeed();
   }
 
@@ -645,7 +649,7 @@ trait XmlTrait {
    * Reloads the document if the page content has changed since last load.
    *
    * @throws \RuntimeException
-   *   If no document is loaded.
+   *   If the content cannot be loaded as XML.
    */
   protected function xmlEnsureDocument(): void {
     if ($this->xmlTestContent !== NULL) {
@@ -823,7 +827,7 @@ trait XmlTrait {
 
     // A SYSTEM entity declared in the DTD is dereferenced while validating, so
     // the loader returns NULL for every external reference. LIBXML_NONET is
-    // passed as well, but on its own it blocks only the network half.
+    // passed as well, but on its own it blocks only network references.
     $original_loader = function_exists('libxml_get_external_entity_loader') ? libxml_get_external_entity_loader() : NULL;
     libxml_set_external_entity_loader(static fn(): null => NULL);
 

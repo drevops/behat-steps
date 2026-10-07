@@ -31,7 +31,6 @@ Feature: Check that WebformTrait works
     Given the webform "Cloned contact form" exists from the template "Test template form"
     And I visit "/admin/structure/webform"
     Then I should see "Cloned contact form"
-    # Clean up the template.
     When the webform "Test template form" does not exist
 
   @test-trait:Drupal\WebformTrait

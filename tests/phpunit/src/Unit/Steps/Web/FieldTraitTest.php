@@ -120,9 +120,6 @@ class FieldTraitTestImplementation extends WebRawContext {
 
   use FieldTrait;
 
-  /**
-   * Whether validation is disabled on every form of the scenario.
-   */
   public function testIsAllFormValidationDisabled(): bool {
     return $this->fieldDisableAllFormValidation;
   }

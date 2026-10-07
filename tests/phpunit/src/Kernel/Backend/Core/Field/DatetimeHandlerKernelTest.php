@@ -57,9 +57,6 @@ class DatetimeHandlerKernelTest extends FieldHandlerKernelTestBase {
     ]);
   }
 
-  /**
-   * Tests the 'relative:' prefix shorthand resolves to a concrete timestamp.
-   */
   public function testRelativePrefixIsResolved(): void {
     $this->attachField('field_seen', 'datetime', [
       'datetime_type' => DateTimeItem::DATETIME_TYPE_DATETIME,

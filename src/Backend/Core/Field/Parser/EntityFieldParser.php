@@ -26,7 +26,7 @@ use DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception\ParseException;
  *     - Multi-value compound: records separated by ';'.
  *     - Each column value MUST be a quoted string ('"..."') or token
  *       ('[name:value]'). Bare values are a parse error.
- *     - Inside '"..."': '\"' '\\' '\n' '\t' '\r' are recognised escape
+ *     - Inside '"..."': '\"' '\\' '\n' '\t' '\r' are recognized escape
  *       sequences; any other backslash sequence is an error.
  *
  * Whitespace around ',', ';' and ':' is ignored outside quoted strings
@@ -128,7 +128,7 @@ final class EntityFieldParser implements EntityFieldParserInterface {
         // are checked and a computed or custom-storage base field like
         // 'moderation_state' is known. With a bundle, F6-F9 (bundle-scoped
         // fields) are known too, so a field contributed via
-        // 'hook_entity_bundle_field_info()' is recognised.
+        // 'hook_entity_bundle_field_info()' is recognized.
         $is_known = $this->fieldClassifier->fieldIsBaseStandard($this->entityType, $field_name)
           || $this->fieldClassifier->fieldIsBaseComputedReadOnly($this->entityType, $field_name)
           || $this->fieldClassifier->fieldIsBaseComputedWritable($this->entityType, $field_name)

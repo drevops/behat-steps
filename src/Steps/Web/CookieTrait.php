@@ -227,10 +227,10 @@ trait CookieTrait {
     }
     else {
       if ($is_partial_name) {
-        throw new ExpectationException(sprintf('The cookie with name containing "%s" was set but it should not be.', $name), $this->getSession()->getDriver());
+        throw new ExpectationException(sprintf('The cookie with name containing "%s" was set, but it should not be.', $name), $this->getSession()->getDriver());
       }
 
-      throw new ExpectationException(sprintf('The cookie with name "%s" was set but it should not be.', $name), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The cookie with name "%s" was set, but it should not be.', $name), $this->getSession()->getDriver());
     }
   }
 

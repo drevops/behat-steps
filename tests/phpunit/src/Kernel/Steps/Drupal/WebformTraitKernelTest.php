@@ -63,9 +63,6 @@ class WebformTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertLoadedSet([$template], $templates, WebformInterface::class);
   }
 
-  /**
-   * Creates and saves a webform.
-   */
   protected function createWebform(string $id, string $title, bool $is_template = FALSE): WebformInterface {
     $webform = Webform::create(['id' => $id, 'title' => $title, 'template' => $is_template]);
     $webform->save();

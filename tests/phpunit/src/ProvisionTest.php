@@ -11,10 +11,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Tests the fixture site provisioning script.
  *
- * The CI matrix builds a real site on every leg, so it exercises the
- * provisioning sequence itself. This test covers the logic that shapes the
- * build: the Composer merge, the paths it rebases, the patch map, and the 2
- * rewrites that a Drupal 12 build depends on.
+ * This test covers the logic that shapes the build: the Composer merge, the
+ * paths it rebases, the patch map, and the 2 rewrites that a Drupal 12 build
+ * depends on.
  */
 #[CoversFunction('provision_append_settings')]
 #[CoversFunction('provision_behat_packages')]
@@ -481,7 +480,7 @@ class ProvisionTest extends UnitTestCase {
    * Assert that a PSR-4 path the fixture declares is not rebased.
    *
    * The fixture's own paths are already relative to the build directory, so
-   * prefixing them would push them outside it.
+   * a prefixed path would resolve outside it.
    */
   public function testMergeComposerLeavesTheFixturePsr4Alone(): void {
     $fixture = static::buildFixtureConfig();

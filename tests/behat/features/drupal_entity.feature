@@ -12,8 +12,8 @@ Feature: Check that EntityTrait works
     Then I should see "[TEST] Basic block"
 
   # The paired scenarios below rely on Behat running scenarios in file order:
-  # the first keeps its entity past teardown, the second proves it survived and
-  # removes it so later scenarios do not inherit it.
+  # the first keeps its entity past teardown, the second removes it so later
+  # scenarios do not inherit it.
 
   @behat-steps-entity-cleanup-skip:block_content
   Scenario: The per-type skip tag keeps entities of the named type

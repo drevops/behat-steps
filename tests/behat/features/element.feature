@@ -36,7 +36,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "no-existing-attribute" attribute does not exist on the element "html".
+      The attribute "no-existing-attribute" does not exist on the element "html".
       """
 
   @test-trait:ElementTrait
@@ -51,7 +51,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "dir" attribute exists on the element "html" with a value "ltr", but it does not have a value "lt".
+      The attribute "dir" exists on the element "html" with a value "ltr", but it does not have a value "lt".
       """
 
   @phpserver
@@ -87,7 +87,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "no-existing-attribute" attribute does not exist on the element "html".
+      The attribute "no-existing-attribute" does not exist on the element "html".
       """
 
   @test-trait:ElementTrait
@@ -102,7 +102,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "dir" attribute exists on the element "html" with a value "ltr", but it does not contain a value "ltr1".
+      The attribute "dir" exists on the element "html" with a value "ltr", but it does not contain a value "ltr1".
       """
 
   @phpserver
@@ -138,7 +138,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "no-existing-attribute" attribute does not exist on the element "html".
+      The attribute "no-existing-attribute" does not exist on the element "html".
       """
 
   @test-trait:ElementTrait
@@ -153,7 +153,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "dir" attribute exists on the element "html" with a value "ltr", but it should not.
+      The attribute "dir" exists on the element "html" with a value "ltr", but it should not.
       """
 
   @phpserver
@@ -189,7 +189,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "no-existing-attribute" attribute does not exist on the element "html".
+      The attribute "no-existing-attribute" does not exist on the element "html".
       """
 
   @test-trait:ElementTrait
@@ -204,7 +204,7 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The "dir" attribute exists on the element "html" with a value containing "lt", but it should not.
+      The attribute "dir" exists on the element "html" with a value containing "lt", but it should not.
       """
 
   @javascript @phpserver

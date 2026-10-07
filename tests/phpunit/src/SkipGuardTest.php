@@ -13,9 +13,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Tests that every scenario hook is switched off by its trait's skip tag.
  *
- * A skip tag names a trait and switches off every hook that trait registers,
- * so a guard names its own trait through '__TRAIT__' and never a hook. A
- * scenario hook that has nothing to switch off is listed in UNGUARDED_HOOKS
+ * A skip tag names a trait and switches off every hook that trait registers.
+ * A guard names its own trait through '__TRAIT__' and never a hook.
+ *
+ * A scenario hook that has nothing to switch off is listed in UNGUARDED_HOOKS
  * with the reason, so each one is a reviewed decision.
  */
 #[CoversNothing]
@@ -153,7 +154,7 @@ class SkipGuardTest extends UnitTestCase {
   }
 
   /**
-   * Return the source lines of one method.
+   * Return the source lines of 1 method.
    */
   protected static function readMethodSource(string $trait, string $method): string {
     $reflection = static::reflect($trait)->getMethod($method);

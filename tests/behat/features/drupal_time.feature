@@ -1,4 +1,4 @@
-Feature: Ensure TimeTrait works.
+Feature: Check that TimeTrait works
 
   Scenario: Assert system time can be overridden
     When I go to "/mysite_core/test-time"
@@ -18,3 +18,16 @@ Feature: Ensure TimeTrait works.
   Scenario: Assert system time is cleaned up after scenario
     When I go to "/mysite_core/test-time"
     Then I should not see "1737849900"
+
+  @test-trait:Drupal\TimeTrait
+  Scenario: Assert that "When I set the system time to the value :value" fails when the value is not an integer
+    Given some behat configuration
+    And scenario steps:
+      """
+      When I set the system time to the value "tomorrow"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The value must be an integer, but "tomorrow" was given.
+      """

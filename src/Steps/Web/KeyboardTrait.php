@@ -29,7 +29,7 @@ trait KeyboardTrait {
    */
   #[When('I press the key :key')]
   public function keyboardPressKey(string $key): void {
-    $this->keyboardPressKeyOnElementSingle($key, NULL);
+    $this->keyboardPressKeyOnElementSingle($key);
   }
 
   /**
@@ -54,7 +54,7 @@ trait KeyboardTrait {
    */
   #[When('I press the keys :keys')]
   public function keyboardPressKeys(string $keys): void {
-    $this->keyboardPressKeySequence($keys, NULL);
+    $this->keyboardPressKeySequence($keys);
   }
 
   /**
@@ -78,7 +78,7 @@ trait KeyboardTrait {
    *   CSS selector for an element to trigger the keys on, or NULL for the
    *   currently focused element.
    */
-  protected function keyboardPressKeySequence(string $keys, ?string $selector): void {
+  protected function keyboardPressKeySequence(string $keys, ?string $selector = NULL): void {
     $chars = preg_split('//u', $keys, -1, PREG_SPLIT_NO_EMPTY);
 
     // @codeCoverageIgnoreStart
@@ -104,7 +104,7 @@ trait KeyboardTrait {
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   If method is used for invalid browser driver.
    */
-  protected function keyboardPressKeyOnElementSingle(string $char, ?string $selector): void {
+  protected function keyboardPressKeyOnElementSingle(string $char, ?string $selector = NULL): void {
     // Resolve the capability before the key map is built, so a browser
     // driver that cannot dispatch a key event fails naming the capability.
     $keyboard = $this->browserDriverFor(KeyboardCapabilityInterface::class);

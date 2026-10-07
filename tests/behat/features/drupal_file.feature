@@ -121,9 +121,9 @@ Feature: Check that FileTrait works
     Given an unmanaged file at the URI "public://test3.txt" should not exist
     When the unmanaged file at the URI "public://test3.txt" exists with the content "test content"
     Then an unmanaged file at the URI "public://test3.txt" should exist
-    And an unmanaged file at the URI "public://test3.txt" should contain "test content"
-    And an unmanaged file at the URI "public://test3.txt" should contain "content"
-    And an unmanaged file at the URI "public://test3.txt" should not contain "test more content"
+    And an unmanaged file at the URI "public://test3.txt" should contain the value "test content"
+    And an unmanaged file at the URI "public://test3.txt" should contain the value "content"
+    And an unmanaged file at the URI "public://test3.txt" should not contain the value "test more content"
 
     Given an unmanaged file at the URI "public://test-random/test4.txt" should not exist
     When the unmanaged file at the URI "public://test-random/test4.txt" exists with the content "test content"
@@ -153,17 +153,17 @@ Feature: Check that FileTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The file "public://test1.txt" exists but it should not.
+      The file "public://test1.txt" exists, but it should not.
       """
 
   @test-trait:Drupal\FileTrait
-  Scenario: Assert that negative assertion for "Then an unmanaged file at the URI :uri should contain :content" fails with an error
+  Scenario: Assert that negative assertion for "Then an unmanaged file at the URI :uri should contain the value :value" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given the unmanaged file at the URI "public://test1.txt" exists with the content "test content"
       Then an unmanaged file at the URI "public://test1.txt" should exist
-      And an unmanaged file at the URI "public://test1.txt" should contain "test other content"
+      And an unmanaged file at the URI "public://test1.txt" should contain the value "test other content"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -172,13 +172,13 @@ Feature: Check that FileTrait works
       """
 
   @test-trait:Drupal\FileTrait
-  Scenario: Assert that negative assertion for "Then an unmanaged file at the URI :uri should not contain :content" fails with an error
+  Scenario: Assert that negative assertion for "Then an unmanaged file at the URI :uri should not contain the value :value" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       Given the unmanaged file at the URI "public://test1.txt" exists with the content "test content"
       Then an unmanaged file at the URI "public://test1.txt" should exist
-      And an unmanaged file at the URI "public://test1.txt" should not contain "test content"
+      And an unmanaged file at the URI "public://test1.txt" should not contain the value "test content"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

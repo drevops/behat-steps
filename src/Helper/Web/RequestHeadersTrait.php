@@ -7,8 +7,8 @@ namespace DrevOps\BehatSteps\Helper\Web;
 /**
  * Holds the request headers shared by the traits that issue HTTP requests.
  *
- * The array is a property of the context object, so a header set through one
- * composing trait is read by every other composing trait in the same object.
+ * The array is a property of the context object, so every composing trait
+ * in that object reads the same headers.
  */
 trait RequestHeadersTrait {
 

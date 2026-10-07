@@ -61,7 +61,7 @@ class UserRegistryTest extends UnitTestCase {
     $registry = new UserRegistry();
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('No user with ghost name is registered with the backend.');
+    $this->expectExceptionMessage('No user with the name "ghost" is registered with the backend.');
 
     $registry->getUser('ghost');
   }

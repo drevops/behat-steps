@@ -68,12 +68,12 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testGetJsReadsSourceOnce(): void {
     $this->testObject->engineUrl = $this->writeFixture('axe-engine.js', 'ENGINE');
 
-    $first = $this->testObject->callGetJs();
+    $first = $this->testObject->accessibilityGetJs();
 
     // A second call is served from the process cache, so the source is read
     // only once even though the getter would return the same path.
     $this->writeFixture('axe-engine.js', 'CHANGED');
-    $second = $this->testObject->callGetJs();
+    $second = $this->testObject->accessibilityGetJs();
 
     $this->assertSame('ENGINE', $first);
     $this->assertSame('ENGINE', $second);
@@ -85,7 +85,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $object->engineFailures = 2;
     $object->engineContent = 'ENGINE';
 
-    $this->assertSame('ENGINE', $object->callGetJs());
+    $this->assertSame('ENGINE', $object->accessibilityGetJs());
     $this->assertSame(3, $object->engineReads);
   }
 
@@ -95,11 +95,11 @@ class AccessibilityTraitTest extends UnitTestCase {
     $object->engineAttempts = 2;
 
     try {
-      $object->callGetJs();
+      $object->accessibilityGetJs();
       $this->fail('Expected a RuntimeException.');
     }
-    catch (\RuntimeException $runtime_exception) {
-      $this->assertStringContainsString('after 2 attempt(s) with a 1 second timeout', $runtime_exception->getMessage());
+    catch (\RuntimeException $exception) {
+      $this->assertStringContainsString('after 2 attempt(s) with a 1 second timeout', $exception->getMessage());
     }
 
     $this->assertSame(2, $object->engineReads);
@@ -113,7 +113,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
 
     try {
-      $object->callGetJs();
+      $object->accessibilityGetJs();
     }
     finally {
       $this->assertSame(1, $object->engineReads);
@@ -128,7 +128,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('after 2 attempt(s) with a 1 second timeout');
 
-    $this->testObject->callGetJs();
+    $this->testObject->accessibilityGetJs();
   }
 
   public function testGetJsTreatsEmptySourceAsFailure(): void {
@@ -138,7 +138,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('after 1 attempt(s)');
 
-    $this->testObject->callGetJs();
+    $this->testObject->accessibilityGetJs();
   }
 
   public function testGetJsClampsAttemptsToOne(): void {
@@ -148,14 +148,14 @@ class AccessibilityTraitTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('after 1 attempt(s)');
 
-    $this->testObject->callGetJs();
+    $this->testObject->accessibilityGetJs();
   }
 
   public function testGetJsFetchDefaults(): void {
     $object = new AccessibilityTraitFetchDefaultsTestImplementation();
 
-    $this->assertSame(10, $object->callGetFetchTimeout());
-    $this->assertSame(3, $object->callGetFetchAttempts());
+    $this->assertSame(10, $object->accessibilityGetFetchTimeout());
+    $this->assertSame(3, $object->accessibilityGetFetchAttempts());
   }
 
   /**
@@ -197,7 +197,7 @@ class AccessibilityTraitTest extends UnitTestCase {
     chdir(static::$tmp);
 
     try {
-      $this->assertSame('/sentinel/base/.logs/test_results/accessibility', $this->testObject->callGetReportDir());
+      $this->assertSame('/sentinel/base/.logs/test_results/accessibility', $this->testObject->accessibilityGetReportDir());
     }
     finally {
       if (is_string($original)) {
@@ -211,7 +211,7 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $expected = (getcwd() ?: '.') . '/.logs/test_results/accessibility';
 
-    $this->assertSame($expected, $this->testObject->callGetReportDir());
+    $this->assertSame($expected, $this->testObject->accessibilityGetReportDir());
   }
 
   /**
@@ -564,7 +564,8 @@ class AccessibilityTraitTest extends UnitTestCase {
    * Builds a representative accumulator with 2 scenarios, a shared URL, a blank tab, and mixed-impact findings.
    *
    * @return array<int, array<string, mixed>>
-   *   Sample aggregate data in the shape produced by accessibilityAggregateCapture().
+   *   Sample aggregate data in the shape produced by
+   *   accessibilityAggregateCapture().
    */
   protected static function createSampleAggregate(): array {
     $image_alt = [
@@ -766,7 +767,7 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
   public int $engineTimeout = 10;
 
   /**
-   * Count of reads issued against the source.
+   * Count of engine URL lookups, 1 per uncached fetch.
    */
   public int $engineReads = 0;
 
@@ -782,10 +783,6 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
    */
   public function testGetTagState(): array {
     return [$this->accessibilityAutoMode, $this->accessibilityScenarioThreshold, $this->accessibilityScenarioFailOnIncomplete];
-  }
-
-  public function callGetReportDir(): string {
-    return $this->accessibilityGetReportDir();
   }
 
   public static function testSetBaseDir(?string $directory): void {
@@ -866,10 +863,6 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
     return $this->engineTimeout;
   }
 
-  public function callGetJs(): string {
-    return $this->accessibilityGetJs();
-  }
-
   public static function testSetCachedJs(?string $js): void {
     static::$accessibilityCachedJs = $js;
   }
@@ -882,14 +875,6 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
 class AccessibilityTraitFetchDefaultsTestImplementation extends WebRawContext {
 
   use AccessibilityTrait;
-
-  public function callGetFetchTimeout(): int {
-    return $this->accessibilityGetFetchTimeout();
-  }
-
-  public function callGetFetchAttempts(): int {
-    return $this->accessibilityGetFetchAttempts();
-  }
 
 }
 
@@ -936,10 +921,6 @@ class AccessibilityTraitRetryTestImplementation extends WebRawContext {
     $this->engineReads++;
 
     return $this->engineReads <= $this->engineFailures ? FALSE : $this->engineContent;
-  }
-
-  public function callGetJs(): string {
-    return $this->accessibilityGetJs();
   }
 
   public static function testSetCachedJs(?string $js): void {

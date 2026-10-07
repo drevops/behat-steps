@@ -9,13 +9,13 @@ Feature: Check that JsonTrait works
     Then the response should be in JSON format
 
   @phpserver
-  Scenario: Assert "Then the response should be in JSON format" honours content set from a fixture file over the page content
+  Scenario: Assert "Then the response should be in JSON format" honors content set from a fixture file over the page content
     When I go to "http://cli:8888/json_invalid.json"
     And the response JSON is loaded from the file "json_valid.json"
     Then the response should be in JSON format
 
   @phpserver
-  Scenario: Assert "Then the response should be in JSON format" honours content set from a PyString over the page content
+  Scenario: Assert "Then the response should be in JSON format" honors content set from a PyString over the page content
     When I go to "http://cli:8888/json_invalid.json"
     And the response JSON is the following:
       """
@@ -448,7 +448,7 @@ Feature: Check that JsonTrait works
       """
 
   @test-trait:JsonTrait
-  Scenario: Assert that "Then the JSON path :path should have :count element(s)" fails with an error for a non-numeric count
+  Scenario: Assert that "Then the JSON path :path should have :count element(s)" fails when the count is not an integer
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -458,7 +458,7 @@ Feature: Check that JsonTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      The expected element count "three" is not a valid non-negative integer.
+      The count must be an integer, but "three" was given.
       """
 
   @phpserver

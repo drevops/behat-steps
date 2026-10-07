@@ -37,18 +37,20 @@ class RegionSelectorTest extends UnitTestCase {
    *
    * @param string|array<int, string> $locator
    *   The locator handed to the selector.
+   * @param string $expected_message
+   *   The message the selector throws.
    */
   #[DataProvider('dataProviderUnknownRegionThrows')]
-  public function testUnknownRegionThrows(string|array $locator): void {
+  public function testUnknownRegionThrows(string|array $locator, string $expected_message): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('region is not configured.');
+    $this->expectExceptionMessage($expected_message);
 
     $this->createSelector()->translateToXPath($locator);
   }
 
   public static function dataProviderUnknownRegionThrows(): \Iterator {
-    yield 'name that matches no region' => ['Footer'];
-    yield 'array locator' => [['Header']];
+    yield 'name that matches no region' => ['Footer', 'The region "Footer" is not configured.'];
+    yield 'array locator' => [['Header'], 'The region "array" is not configured.'];
   }
 
   /**

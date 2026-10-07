@@ -44,7 +44,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Tests the options every shipped step trait declares.
  *
  * The runtime reads a trait's options under the group its method prefix
- * derives, and the documentation generator looks them up under the group the
+ * derives. The documentation generator looks them up under the group the
  * trait's name derives, so the 2 have to agree for every trait.
  */
 #[CoversTrait(BigPipeTrait::class)]

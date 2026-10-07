@@ -57,9 +57,6 @@ class TestmodeTraitTestImplementation extends WebRawContext {
 
   use TestmodeTrait;
 
-  /**
-   * Whether the scenario enabled test mode.
-   */
   public function testIsActive(): bool {
     return $this->testmodeActive;
   }

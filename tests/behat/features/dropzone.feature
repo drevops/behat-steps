@@ -42,8 +42,6 @@ Feature: Check that DropzoneTrait works
     And I should see "text.txt"
     And the "#event-count" element should contain "2"
 
-  # Real Dropzone.js library integration.
-
   @javascript @phpserver
   Scenario: Assert multi-file drop populates a real Dropzone.js instance
     Given the user is anonymous
@@ -56,8 +54,6 @@ Feature: Check that DropzoneTrait works
     And the "#real-dropzone" element should contain "document.pdf"
     And the "#real-dropzone" element should contain "image.png"
     And the "#real-dropzone" element should contain "text.txt"
-
-  # Negative tests.
 
   @test-trait:DropzoneTrait
   Scenario: Assert "When I drop the file ..." fails when target element is missing

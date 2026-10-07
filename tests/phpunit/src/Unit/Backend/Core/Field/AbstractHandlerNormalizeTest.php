@@ -12,6 +12,8 @@ use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests AbstractHandler::normalize() across every accepted input shape.
+ *
+ * Also tests isListOfRecords() across each array shape it classifies.
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]
@@ -51,12 +53,6 @@ class AbstractHandlerNormalizeTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider for testNormalize().
-   *
-   * Covers happy paths (every loose input shape the helper must accept)
-   * and error paths (every malformed shape the helper must reject).
-   */
   public static function dataProviderNormalize(): \Iterator {
     yield 'bare string scalar with target_id main' => [
       'foo.jpg',
@@ -260,7 +256,7 @@ class AbstractHandlerNormalizeTest extends UnitTestCase {
 }
 
 /**
- * Concrete AbstractHandler subclass used only by the normalize() tests.
+ * Concrete AbstractHandler subclass used only by the tests in this file.
  */
 final class PassThroughHandler extends AbstractHandler {
 

@@ -21,6 +21,6 @@ trait EmptyCommentTrait {
    * @endcode
    */
   #[Given('I test empty comment')]
-  public function emptycommentTestMethod(): void {}
+  public function emptyCommentTestMethod(): void {}
 
 }

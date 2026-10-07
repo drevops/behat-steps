@@ -51,7 +51,7 @@ class DrushBackendResultTest extends UnitTestCase {
    * Tests that 'drushResult()' maps a finished process onto a 'DrushResult'.
    *
    * @param int|null $exit_code
-   *   The exit code reported by the process (NULL when signalled).
+   *   The exit code reported by the process (NULL when signaled).
    * @param string $output
    *   The process standard output.
    * @param string $error_output
@@ -75,7 +75,7 @@ class DrushBackendResultTest extends UnitTestCase {
   public static function dataProviderDrushResultMapsProcess(): \Iterator {
     yield 'success' => [0, 'stdout text', '', 0];
     yield 'failure with stderr' => [2, '', 'stderr text', 2];
-    yield 'signalled process maps null exit to one' => [NULL, '', '', 1];
+    yield 'signaled process maps null exit to one' => [NULL, '', '', 1];
   }
 
   public function testDrushThrowsWithErrorOutputOnFailure(): void {

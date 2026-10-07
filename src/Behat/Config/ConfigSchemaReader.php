@@ -11,8 +11,6 @@ namespace DrevOps\BehatSteps\Behat\Config;
  * the prefix its other methods carry. The group name derives from the method
  * name, so a consuming project's own trait participates without being
  * registered anywhere.
- *
- * This is the only piece of the option machinery that reflects.
  */
 final class ConfigSchemaReader {
 
@@ -25,8 +23,8 @@ final class ConfigSchemaReader {
    * Declared options, keyed by context class name.
    *
    * Reflection over every method of a context composing 40 traits is too
-   * expensive to repeat per option read. A class's declarations cannot
-   * change within a run.
+   * expensive to repeat for every context instance. A class's declarations
+   * cannot change within a run.
    *
    * @var array<string, array<string, array<string, \DrevOps\BehatSteps\Behat\Config\Option>>>
    */

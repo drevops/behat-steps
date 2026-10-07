@@ -5,7 +5,7 @@ Feature: Check that ParagraphsTrait works
 
   Background:
     When I log in as a user with the role "administrator"
-    And the following "landing_page" content does not exist:
+    And the following "landing_page" content do not exist:
       | title                 |
       | [TEST] Landing page 1 |
     And the following landing_page content exist:

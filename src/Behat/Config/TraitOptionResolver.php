@@ -17,9 +17,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
  * The configuration layers settle when this object is built. The tag layers
  * are read per option, because the tags belong to whichever scenario is
  * running.
- *
- * It holds no Behat class, reflects over nothing and references no context
- * beyond the class name it names in a failure message.
  */
 final class TraitOptionResolver implements TraitOptionResolverInterface {
 
@@ -77,7 +74,7 @@ final class TraitOptionResolver implements TraitOptionResolverInterface {
    */
   public function raw(string $group, string $key): mixed {
     if (!$this->has($group, $key)) {
-      throw new \RuntimeException(sprintf('No trait in %s declares the option "%s.%s". Declared options: %s.', $this->contextClass, $group, $key, $this->optionList()));
+      throw new \RuntimeException(sprintf('No trait in %s declares the option "%s.%s". Declared options: %s.', $this->contextClass, $group, $key, $this->listOptionNames()));
     }
 
     return $this->tagOverrides->apply($group, $this->declarations[$group][$key], $this->resolved[$group][$key], $this->scenarioTagRegistry->getTags());
@@ -183,7 +180,7 @@ final class TraitOptionResolver implements TraitOptionResolverInterface {
 
       if (!isset($this->declarations[$group])) {
         if ($is_strict) {
-          throw new InvalidConfigurationException(sprintf('Unknown option group "%s" for context "%s". This context accepts: %s.', $group, $this->contextClass, implode(', ', array_keys($this->declarations)) ?: 'nothing'));
+          throw new InvalidConfigurationException(sprintf('Unknown option group "%s" for context "%s". This context accepts: %s.', $group, $this->contextClass, implode(', ', array_keys($this->declarations)) ?: 'none'));
         }
 
         continue;
@@ -214,7 +211,7 @@ final class TraitOptionResolver implements TraitOptionResolverInterface {
   /**
    * Lists every declared option as a dotted path.
    */
-  protected function optionList(): string {
+  protected function listOptionNames(): string {
     $paths = [];
 
     foreach ($this->declarations as $group => $options) {

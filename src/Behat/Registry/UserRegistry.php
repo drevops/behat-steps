@@ -57,7 +57,7 @@ final class UserRegistry implements UserRegistryInterface {
    */
   public function getUser(string $name): EntityStubInterface {
     if (!isset($this->users[$name])) {
-      throw new \RuntimeException(sprintf('No user with %s name is registered with the backend.', $name));
+      throw new \RuntimeException(sprintf('No user with the name "%s" is registered with the backend.', $name));
     }
 
     return $this->users[$name];

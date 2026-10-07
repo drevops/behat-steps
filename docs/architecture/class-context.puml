@@ -270,7 +270,7 @@ package "Steps\\Web" #E8F5E9 {
   class CommandTrait <<trait>> {
     +commandRun(command) : void
     +commandAssertSuccess() : void
-    +commandAssertExitCode(code) : void
+    +commandAssertExitCodeEquals(code) : void
     +commandAssertOutputContains(value) : void
   }
 }

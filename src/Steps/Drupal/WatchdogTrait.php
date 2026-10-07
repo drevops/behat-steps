@@ -10,12 +10,12 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
-use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Exception\AssertionException;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 use Drupal\Core\Database\Database;
 
@@ -29,8 +29,8 @@ use Drupal\Core\Database\Database;
  * The check is on by default. An opted-in scenario whose prerequisites do not
  * hold fails at its start.
  *
- * `watchdog.fail_on_errors` and `@error` decide what happens to errors that
- * were read, so they do not cover an unmet prerequisite.
+ * `watchdog.fail_on_errors` and `@error` determine what happens to errors
+ * that were read, so they do not cover an unmet prerequisite.
  *
  * Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
  *
@@ -162,7 +162,7 @@ trait WatchdogTrait {
    * @param string $context
    *   Description of when the errors were logged, for the failure message.
    *
-   * @throws \Behat\Mink\Exception\ExpectationException
+   * @throws \DrevOps\BehatSteps\Exception\AssertionException
    *   If errors at or above the severity threshold were logged.
    */
   public function watchdogAssertErrorsNotExist(string $context): void {
@@ -172,7 +172,7 @@ trait WatchdogTrait {
       return;
     }
 
-    throw new ExpectationException(sprintf('PHP errors were logged to watchdog %s: %s', $context, PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors)), $this->getSession()->getDriver());
+    throw new AssertionException(sprintf('PHP errors were logged to watchdog %s: %s', $context, PHP_EOL . implode(PHP_EOL . PHP_EOL, $errors)));
   }
 
   /**

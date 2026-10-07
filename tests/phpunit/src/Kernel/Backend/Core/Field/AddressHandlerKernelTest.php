@@ -13,10 +13,11 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel round-trip test for AddressHandler via the Core backend.
  *
  * Address is a multi-property field supplied by the 'drupal/address' contrib
- * module. The handler normalises input (scalar first name, numeric-indexed
+ * module. The handler normalizes input (scalar first name, numeric-indexed
  * array, or associative array) against the visible sub-field list configured
- * on the field. The tests exercise the associative and numeric-indexed
- * paths.
+ * on the field.
+ *
+ * The tests exercise the associative and numeric-indexed paths.
  */
 #[CoversClass(AddressHandler::class)]
 #[Group('fields')]
@@ -52,7 +53,7 @@ class AddressHandlerKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests numeric-indexed input with country_code defaulted from field config.
    *
-   * Exercises AddressHandler's positional-to-keyed normalisation and the
+   * Exercises AddressHandler's positional-to-keyed normalization and the
    * fallback that fills an omitted country_code from the first entry in the
    * field's available_countries list.
    */
@@ -75,9 +76,6 @@ class AddressHandlerKernelTest extends FieldHandlerKernelTestBase {
     ]);
   }
 
-  /**
-   * Attaches the test address field with a single available country (US).
-   */
   protected function attachAddressField(): void {
     $this->attachField('field_address', 'address', [], [
       'available_countries' => ['US'],

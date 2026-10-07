@@ -18,7 +18,7 @@ use PHPUnit\Framework\Attributes\Group;
 class NameHandlerTest extends FieldHandlerUnitTestBase {
 
   /**
-   * All 6 name components, all enabled (the module's default).
+   * All 6 name components, all enabled.
    *
    * @var array<string, bool>
    */

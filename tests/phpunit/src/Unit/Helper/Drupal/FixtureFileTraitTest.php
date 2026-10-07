@@ -8,7 +8,6 @@ use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
@@ -177,7 +176,7 @@ class FixtureFileTraitTest extends UnitTestCase {
 
     $stub = new EntityStub('node', 'article', $stub_values);
 
-    $this->testObject->callExpandEntityFields('node', $stub);
+    $this->testObject->fixtureFileExpandEntityFields('node', $stub);
 
     $this->assertSame($expected_factory($this->fixturesPath), $stub->getValues());
   }
@@ -320,7 +319,7 @@ class FixtureFileTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'article', ['field_file' => 'document.pdf']);
 
     $this->testObject->minkFilesPath = '';
-    $this->testObject->callExpandEntityFields('node', $stub);
+    $this->testObject->fixtureFileExpandEntityFields('node', $stub);
 
     $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
   }
@@ -329,7 +328,7 @@ class FixtureFileTraitTest extends UnitTestCase {
     $stub = new EntityStub('node', 'article', ['field_file' => 'document.pdf']);
 
     $this->testObject->minkFilesPath = $this->fixturesPath . 'no-such-directory';
-    $this->testObject->callExpandEntityFields('node', $stub);
+    $this->testObject->fixtureFileExpandEntityFields('node', $stub);
 
     $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
   }
@@ -341,7 +340,7 @@ class FixtureFileTraitTest extends UnitTestCase {
 
     $this->testObject->backend = $this->createStub(BackendInterface::class);
     $this->testObject->minkFilesPath = rtrim($this->fixturesPath, DIRECTORY_SEPARATOR);
-    $this->testObject->callExpandEntityFields('node', $stub);
+    $this->testObject->fixtureFileExpandEntityFields('node', $stub);
 
     $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
   }
@@ -382,10 +381,6 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
 
   public function callExpandCompoundCell(string $value, string $fixture_path): string {
     return $this->fixtureFileExpandCompoundCell($value, $fixture_path);
-  }
-
-  public function callExpandEntityFields(string $entity_type, EntityStubInterface $stub): void {
-    $this->fixtureFileExpandEntityFields($entity_type, $stub);
   }
 
   public function getMinkParameter(mixed $name): mixed {

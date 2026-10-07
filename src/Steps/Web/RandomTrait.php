@@ -11,6 +11,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Drupal\Component\Utility\Random;
 
 /**
@@ -31,6 +32,8 @@ use Drupal\Component\Utility\Random;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait RandomTrait {
+
+  use StringTrait;
 
   protected const string RANDOM_BRACKET_REGEX = '#(\[\?[a-z0-9_]+(?::[^\]]+)?\])#i';
 
@@ -209,7 +212,7 @@ trait RandomTrait {
 
     $name = substr($body, 0, $colon);
     $spec = substr($body, $colon + 1);
-    $parts = array_map(trim(...), explode(',', $spec));
+    $parts = $this->stringSplitCommaSeparated($spec);
     $type = array_shift($parts);
 
     return [$name, $type === '' ? 'string' : $type, $parts];

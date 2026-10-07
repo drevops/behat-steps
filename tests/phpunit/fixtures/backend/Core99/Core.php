@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Backend\Core99;
 
-use DrevOps\BehatSteps\Backend\Core\Core as DefaultCore;
+use DrevOps\BehatSteps\Backend\Core\Core as BaseCore;
 
 /**
  * Fixture: simulated Core99 override.
  *
  * Extends the default Core, used by lookup-chain tests to verify that
- * DrupalBackend::setCoreFromVersion() picks up version-specific overrides
+ * DrupalBackend::setCoreFromVersion() uses version-specific overrides
  * when they exist.
  */
-class Core extends DefaultCore {
+class Core extends BaseCore {
 
   /**
    * Marker so tests can identify which class was instantiated.

@@ -57,11 +57,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 class EntityLifecycleTraitTest extends UnitTestCase {
 
   /**
-   * A directory carrying the entry file the Drupal backend requires.
-   */
-  protected const DRUPAL_ROOT = __DIR__ . '/../../../../fixtures/backend/drupal-root';
-
-  /**
    * The cleanup opt-out value to restore, NULL when it was unset.
    */
   protected ?string $originalDisableCleanup;
@@ -380,7 +375,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->assertTrue($user_registry->hasUsers());
   }
 
-  public function testSessionIsResetWhenManagerSupportsFastLogout(): void {
+  public function testSessionIsResetWhenAuthenticatorSupportsFastLogout(): void {
     /** @var \DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface&\DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface&\PHPUnit\Framework\MockObject\MockObject $authenticator */
     $authenticator = $this->createMockForIntersectionOfInterfaces([AuthenticatorInterface::class, FastLogoutInterface::class]);
     $authenticator->expects($this->once())->method('fastLogout');
@@ -398,7 +393,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->createContext($this->createMock(BackendInterface::class), $user_registry, $authenticator)->authAfterScenario($this->createAfterScenarioScope());
   }
 
-  public function testAnAnonymousSessionIsLeftAloneWhenTheManagerHasNoFastLogout(): void {
+  public function testAnAnonymousSessionIsLeftAloneWhenTheAuthenticatorHasNoFastLogout(): void {
     $authenticator = $this->createMock(AuthenticatorInterface::class);
     $authenticator->expects($this->never())->method('logout');
 
@@ -798,8 +793,6 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    */
   protected function createContext(BackendInterface $backend, ?UserRegistryInterface $user_registry = NULL, ?AuthenticatorInterface $authenticator = NULL, ?HookDispatcher $dispatcher = NULL): RegistryExposingContext {
     $environment = $this->createMock(Environment::class);
-    // The fixture hooks are static, so the callee's own callable is enough
-    // for the dispatcher to invoke them.
     $environment->method('bindCallee')->willReturnCallback(static fn(Callee $callee): mixed => $callee->getCallable());
 
     $backend_registry = new BackendRegistry(['test' => $backend]);

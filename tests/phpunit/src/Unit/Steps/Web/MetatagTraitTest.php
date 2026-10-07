@@ -47,7 +47,7 @@ class MetatagTraitTest extends UnitTestCase {
 
   public static function dataProviderFetchUrlFailureNamesThePage(): \Iterator {
     yield 'a missing page' => [new MockResponse('Not found', ['http_code' => 404]), 'The hreflang alternate page "http://example.com/de" returned HTTP status 404.'];
-    yield 'an unreachable host' => [new MockResponse('', ['error' => 'Could not resolve host']), 'Failed to fetch the hreflang alternate page "http://example.com/de": Could not resolve host'];
+    yield 'an unreachable host' => [new MockResponse('', ['error' => 'Could not resolve host']), 'Failed to fetch the hreflang alternate page "http://example.com/de": Could not resolve host.'];
   }
 
 }

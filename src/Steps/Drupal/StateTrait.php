@@ -23,8 +23,8 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * reverted after the scenario finishes.
  *
  * Skip the revert with `@behat-steps-skip:StateTrait`. The snapshot registry
- * is cleared unconditionally before and after the scenario to prevent state
- * leaking into subsequent scenarios.
+ * is cleared unconditionally before and after the scenario, so no snapshot
+ * persists across scenarios.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */

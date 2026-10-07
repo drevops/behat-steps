@@ -106,7 +106,7 @@ Feature: Check that BlockTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      Block "[TEST] User Account Menu" is in region "content" but should be in "sidebar"
+      Block "[TEST] User Account Menu" is in region "content", but it should be in "sidebar"
       """
 
   @test-trait:Drupal\BlockTrait
@@ -266,6 +266,4 @@ Feature: Check that BlockTrait works
       | region        | content                   |
       | status        | 1                         |
     Then the block "[TEST] Skip Cleanup Block" should exist
-    # Block will not be auto-deleted due to skip tag
-    # Manual cleanup
     Given the block "[TEST] Skip Cleanup Block" does not exist

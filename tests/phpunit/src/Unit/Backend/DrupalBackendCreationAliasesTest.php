@@ -26,9 +26,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('aliases')]
 class DrupalBackendCreationAliasesTest extends UnitTestCase {
 
-  /**
-   * Tests that DrupalBackend implements the opt-in capability interface.
-   */
   public function testImplementsCreationAliasCapability(): void {
     $this->assertContains(CreationAliasCapabilityInterface::class, (array) class_implements(DrupalBackend::class));
   }
@@ -59,9 +56,6 @@ class DrupalBackendCreationAliasesTest extends UnitTestCase {
     $this->assertSame(['roles' => $alias], $backend->getCreationAliases('user'));
   }
 
-  /**
-   * Returns a noop 'UserCapabilityInterface' double for RolesAlias.
-   */
   protected function createStubUserCapability(): UserCapabilityInterface {
     return $this->createMock(UserCapabilityInterface::class);
   }

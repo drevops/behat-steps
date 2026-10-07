@@ -13,10 +13,10 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests the DefaultHandler field handler.
  *
- * DefaultHandler is a pure pass-through: it relays the normalised records to
+ * DefaultHandler is a pure pass-through: it relays the normalized records to
  * storage unchanged. 'Core' rejects fields the default cannot marshal before it
- * resolves this handler, so that classification is exercised in FieldClassifier
- * and Core, not here.
+ * resolves this handler, so that classification is exercised in
+ * FieldShapeClassifier and Core, not here.
  */
 #[CoversClass(DefaultHandler::class)]
 #[Group('fields')]

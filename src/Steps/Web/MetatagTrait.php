@@ -124,7 +124,7 @@ trait MetatagTrait {
     $content = (string) $meta_tag->getAttribute('content');
 
     if ($content !== strip_tags($content)) {
-      throw new ExpectationException(sprintf('The "%s" meta tag contains HTML tags: %s.', $name, $content), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The meta tag "%s" contains HTML tags: %s.', $name, $content), $this->getSession()->getDriver());
     }
   }
 
@@ -350,7 +350,7 @@ trait MetatagTrait {
    * @endcode
    */
   #[Then('the following Open Graph tags should exist:')]
-  public function metatagAssertOpenGraphTags(TableNode $table): void {
+  public function metatagAssertOpenGraphTagsExist(TableNode $table): void {
     $this->metatagAssertMetaSetExists($this->metatagTablePropertyNames($table), 'Open Graph');
   }
 
@@ -379,7 +379,7 @@ trait MetatagTrait {
    * @endcode
    */
   #[Then('the following Twitter Card tags should exist:')]
-  public function metatagAssertTwitterCardTags(TableNode $table): void {
+  public function metatagAssertTwitterCardTagsExist(TableNode $table): void {
     $this->metatagAssertMetaSetExists($this->metatagTablePropertyNames($table), 'Twitter Card');
   }
 
@@ -445,8 +445,8 @@ trait MetatagTrait {
    * Determine whether the current page is indexable.
    *
    * @return bool
-   *   TRUE when neither the robots meta tag nor the X-Robots-Tag header carries
-   *   a "noindex" directive.
+   *   TRUE when the robots meta tag carries neither a "noindex" nor a "none"
+   *   directive and the X-Robots-Tag header carries no "noindex" directive.
    */
   public function metatagIsIndexable(): bool {
     $directives = $this->metatagGetRobotsDirectives();
@@ -541,7 +541,7 @@ trait MetatagTrait {
       $browser->request('GET', $url);
     }
     catch (TransportExceptionInterface $exception) {
-      throw new \RuntimeException(sprintf('Failed to fetch the hreflang alternate page "%s": %s', $url, $exception->getMessage()), 0, $exception);
+      throw new \RuntimeException(sprintf('Failed to fetch the hreflang alternate page "%s": %s.', $url, $exception->getMessage()), 0, $exception);
     }
 
     $response = $browser->getInternalResponse();

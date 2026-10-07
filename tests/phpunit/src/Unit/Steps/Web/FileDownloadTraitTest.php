@@ -85,10 +85,10 @@ class FileDownloadTraitTest extends UnitTestCase {
 
   public static function dataProviderProcessRejectsTheResponse(): array {
     return [
-      'an error status' => [new MockResponse('Not found', ['http_code' => 404]), 'The URL http://example.com/missing.pdf returned HTTP status 404.'],
-      'an error status with an empty body' => [new MockResponse('', ['http_code' => 401]), 'The URL http://example.com/missing.pdf returned HTTP status 401.'],
-      'an empty body' => [new MockResponse(''), 'Unable to save temp file from URL http://example.com/missing.pdf.'],
-      'an unreachable host' => [new MockResponse('', ['error' => 'Could not resolve host']), 'Unable to download file from URL http://example.com/missing.pdf: Could not resolve host'],
+      'an error status' => [new MockResponse('Not found', ['http_code' => 404]), 'The URL "http://example.com/missing.pdf" returned HTTP status 404.'],
+      'an error status with an empty body' => [new MockResponse('', ['http_code' => 401]), 'The URL "http://example.com/missing.pdf" returned HTTP status 401.'],
+      'an empty body' => [new MockResponse(''), 'Unable to save temp file from URL "http://example.com/missing.pdf".'],
+      'an unreachable host' => [new MockResponse('', ['error' => 'Could not resolve host']), 'Unable to download file from URL "http://example.com/missing.pdf": Could not resolve host.'],
     ];
   }
 

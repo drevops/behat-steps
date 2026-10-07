@@ -3,8 +3,6 @@ Feature: Check that ModalTrait works
   I want to provide tools to interact with and assert modals
   So that users can test modal-driven workflows
 
-  # jQuery UI modal tests.
-
   @javascript @phpserver
   Scenario: Assert jQuery UI modal full lifecycle
     Given the user is anonymous
@@ -53,8 +51,6 @@ Feature: Check that ModalTrait works
     And the modal should contain "Confirmation modal content"
     And the modal should not contain "Settings modal content"
 
-  # Native dialog element tests.
-
   @javascript @phpserver
   Scenario: Assert native dialog full lifecycle
     Given the user is anonymous
@@ -92,8 +88,6 @@ Feature: Check that ModalTrait works
     And I wait for the modal to appear
     Then the modal should contain "Delete modal content"
     And the modal should not contain "Info modal content"
-
-  # Custom CSS modal tests.
 
   @javascript @phpserver
   Scenario: Assert custom modal full lifecycle
@@ -143,8 +137,6 @@ Feature: Check that ModalTrait works
     Then the modal should be displayed
     And the modal should contain "Native modal content"
     And the modal should not contain "Leftover jQuery UI modal content"
-
-  # Negative tests.
 
   @test-trait:ModalTrait
   Scenario: Assert "Then the modal should be displayed" fails when no modal is visible

@@ -45,9 +45,6 @@ class EntityReferenceHandlerEdgeCasesKernelTest extends FieldHandlerKernelTestBa
     $this->installEntitySchema('entity_test_no_label');
   }
 
-  /**
-   * Tests the target_bundles restriction path resolves labels within bundle.
-   */
   public function testTargetBundlesRestrictsMatches(): void {
     Vocabulary::create(['vid' => 'tags', 'name' => 'Tags'])->save();
     Vocabulary::create(['vid' => 'categories', 'name' => 'Categories'])->save();

@@ -17,10 +17,6 @@ use Symfony\Component\HttpClient\MockHttpClient;
 
 /**
  * Declares every capability for any driver, including a mocked one.
- *
- * Registered the way a consuming project registers an adapter for its own
- * Mink driver. A test then reaches a step body past its capability gate
- * through the same seam.
  */
 class AnyDriverAdapter extends BrowserAdapterBase implements CookieCapabilityInterface, HttpClientCapabilityInterface, JavascriptCapabilityInterface, KeyboardCapabilityInterface, RequestHeaderCapabilityInterface {
 

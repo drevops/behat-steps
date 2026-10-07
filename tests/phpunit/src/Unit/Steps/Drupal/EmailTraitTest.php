@@ -33,7 +33,7 @@ class EmailTraitTest extends UnitTestCase {
 
   #[DataProvider('dataProviderExtractLinks')]
   public function testExtractLinks(string $input, array $expected): void {
-    $result = EmailTraitTestImplementation::callExtractLinks($input);
+    $result = EmailTraitTestImplementation::emailExtractLinks($input);
     $this->assertSame($expected, $result);
   }
 
@@ -149,8 +149,8 @@ class EmailTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderFollowLinkWithIndexBySubject(): \Iterator {
-    yield 'whole subject' => ['emailFollowLinkWithIndex', '1', 'Account Verification', 'http://example.com/verify'];
-    yield 'whole subject of a later email' => ['emailFollowLinkWithIndex', '2', 'Your Account Verification code', 'http://example.com/code/2'];
+    yield 'whole subject' => ['emailFollowLinkWithIndexWithSubject', '1', 'Account Verification', 'http://example.com/verify'];
+    yield 'whole subject of a later email' => ['emailFollowLinkWithIndexWithSubject', '2', 'Your Account Verification code', 'http://example.com/code/2'];
     yield 'part of a subject' => ['emailFollowLinkWithIndexWithSubjectContaining', '1', 'Verification', 'http://example.com/verify'];
     yield 'part only a later email has' => ['emailFollowLinkWithIndexWithSubjectContaining', '2', 'code', 'http://example.com/code/2'];
   }
@@ -168,40 +168,40 @@ class EmailTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderFollowLinkWithIndexBySubjectFails(): \Iterator {
-    yield 'part of a subject' => ['emailFollowLinkWithIndex', '1', 'Verification', 'Unable to find email with subject "Verification" retrieved from test email collector.'];
+    yield 'part of a subject' => ['emailFollowLinkWithIndexWithSubject', '1', 'Verification', 'Unable to find email with subject "Verification" retrieved from test email collector.'];
     yield 'part in another case' => ['emailFollowLinkWithIndexWithSubjectContaining', '1', 'verification', 'Unable to find email with subject containing "verification" retrieved from test email collector.'];
-    yield 'no links' => ['emailFollowLinkWithIndex', '1', 'Welcome', 'No links were found in the email with subject "Welcome".'];
+    yield 'no links' => ['emailFollowLinkWithIndexWithSubject', '1', 'Welcome', 'No links were found in the email with subject "Welcome".'];
     yield 'no links, part of a subject' => ['emailFollowLinkWithIndexWithSubjectContaining', '1', 'Welc', 'No links were found in the email with subject containing "Welc".'];
-    yield 'index past the last link' => ['emailFollowLinkWithIndex', '3', 'Your Account Verification code', 'The link with the index 3 was not found among 2 links.'];
+    yield 'index past the last link' => ['emailFollowLinkWithIndexWithSubject', '3', 'Your Account Verification code', 'The link with the index 3 was not found among 2 links.'];
   }
 
   #[DataProvider('dataProviderAssertMessageContainsAttachmentBySubject')]
-  public function testAssertMessageContainsAttachmentBySubject(string $method, string $file_name, string $subject): void {
+  public function testAssertMessageContainsAttachmentBySubject(string $method, string $filename, string $subject): void {
     $this->expectNotToPerformAssertions();
 
-    $this->createContext(static::MESSAGES)->{$method}($file_name, $subject);
+    $this->createContext(static::MESSAGES)->{$method}($filename, $subject);
   }
 
   public static function dataProviderAssertMessageContainsAttachmentBySubject(): \Iterator {
-    yield 'whole subject' => ['emailAssertMessageContainsAttachmentWithName', 'report.pdf', 'Monthly report'];
+    yield 'whole subject' => ['emailAssertMessageContainsAttachmentWithSubject', 'report.pdf', 'Monthly report'];
     yield 'part of a subject' => ['emailAssertMessageContainsAttachmentWithSubjectContaining', 'report.pdf', 'Monthly'];
   }
 
   #[DataProvider('dataProviderAssertMessageContainsAttachmentBySubjectFails')]
-  public function testAssertMessageContainsAttachmentBySubjectFails(string $method, string $file_name, string $subject, string $expected_message): void {
+  public function testAssertMessageContainsAttachmentBySubjectFails(string $method, string $filename, string $subject, string $expected_message): void {
     $context = $this->createContext(static::MESSAGES);
 
     $this->expectException(ExpectationException::class);
     $this->expectExceptionMessage($expected_message);
 
-    $context->{$method}($file_name, $subject);
+    $context->{$method}($filename, $subject);
   }
 
   public static function dataProviderAssertMessageContainsAttachmentBySubjectFails(): \Iterator {
-    yield 'part of a subject' => ['emailAssertMessageContainsAttachmentWithName', 'report.pdf', 'Monthly', 'Unable to find email with subject "Monthly" retrieved from test email collector.'];
+    yield 'part of a subject' => ['emailAssertMessageContainsAttachmentWithSubject', 'report.pdf', 'Monthly', 'Unable to find email with subject "Monthly" retrieved from test email collector.'];
     yield 'part in another case' => ['emailAssertMessageContainsAttachmentWithSubjectContaining', 'report.pdf', 'monthly', 'Unable to find email with subject containing "monthly" retrieved from test email collector.'];
-    yield 'email without attachments' => ['emailAssertMessageContainsAttachmentWithName', 'report.pdf', 'Welcome', 'The file "report.pdf" is not attached to the email with subject "Welcome".'];
-    yield 'email with other attachments' => ['emailAssertMessageContainsAttachmentWithName', 'summary.pdf', 'Monthly report', 'The file "summary.pdf" is not attached to the email with subject "Monthly report".'];
+    yield 'email without attachments' => ['emailAssertMessageContainsAttachmentWithSubject', 'report.pdf', 'Welcome', 'The file "report.pdf" is not attached to the email with subject "Welcome".'];
+    yield 'email with other attachments' => ['emailAssertMessageContainsAttachmentWithSubject', 'summary.pdf', 'Monthly report', 'The file "summary.pdf" is not attached to the email with subject "Monthly report".'];
     yield 'email with other attachments, part of a subject' => ['emailAssertMessageContainsAttachmentWithSubjectContaining', 'summary.pdf', 'report', 'The file "summary.pdf" is not attached to the email with subject containing "report".'];
   }
 
@@ -254,8 +254,7 @@ class EmailTraitTest extends UnitTestCase {
 /**
  * Test implementation of EmailTrait.
  *
- * Exposes the protected link extractor and replaces the test email collector
- * with the messages a test supplies.
+ * Replaces the test email collector with the messages a test supplies.
  */
 class EmailTraitTestImplementation extends WebRawContext {
 
@@ -267,19 +266,6 @@ class EmailTraitTestImplementation extends WebRawContext {
    * @var array<int, array<string, mixed>>
    */
   public array $collectedMessages = [];
-
-  /**
-   * Extracts all links from the provided string.
-   *
-   * @param string $string
-   *   String to extract links from.
-   *
-   * @return array<int, string>
-   *   Array of extracted links.
-   */
-  public static function callExtractLinks(string $string): array {
-    return static::emailExtractLinks($string);
-  }
 
   /**
    * Returns the messages a test supplied.

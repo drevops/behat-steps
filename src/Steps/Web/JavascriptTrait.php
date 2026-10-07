@@ -112,7 +112,7 @@ trait JavascriptTrait {
    */
   #[AfterScenario('@javascript')]
   public function javascriptAfterScenario(AfterScenarioScope $scope): void {
-    $assert = $this->javascriptEnabled
+    $should_assert = $this->javascriptEnabled
       && $this->getOptionBool('javascript', 'fail_on_errors')
       && !$this->javascriptAsserted
       && !$scope->getTestResult()->isPassed();
@@ -120,7 +120,7 @@ trait JavascriptTrait {
     $this->javascriptEnabled = FALSE;
     $this->javascriptAsserted = FALSE;
 
-    if (!$assert) {
+    if (!$should_assert) {
       $this->javascriptClearRegistry();
       return;
     }

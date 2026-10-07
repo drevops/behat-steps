@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Kernel test asserting a consumer-registered handler wins end-to-end.
+ * Kernel test asserting end-to-end that a consumer-registered handler is used.
  *
  * This test proves that a class registered via 'Core::registerFieldHandler()'
  * is the one instantiated when 'createEntity()' expands a field. The stored

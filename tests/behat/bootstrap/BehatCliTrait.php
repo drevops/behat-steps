@@ -140,9 +140,9 @@ use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
 {{USE_DECLARATION}}
 
-// A trait tag names a trait from either half, and the generated class composes
-// only the traits under test, so it starts from the step-free root and adds the
-// Drupal lifecycle a Drupal trait requires.
+// A trait tag names a trait from either half, and the generated class
+// composes only the traits under test. The class therefore starts from the
+// step-free root and adds the Drupal lifecycle a Drupal trait requires.
 class FeatureContext extends WebRawContext implements UserAwareInterface {
   use AuthTrait;
   use StaticCacheTrait;

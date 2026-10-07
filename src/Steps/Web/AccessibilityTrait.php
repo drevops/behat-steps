@@ -515,7 +515,7 @@ trait AccessibilityTrait {
   /**
    * Return the base tag name that enables automatic mode (no `@` prefix).
    *
-   * The trait recognises this exact tag plus value variants
+   * The trait recognizes this exact tag plus value variants
    * (`<tag>:critical`, `<tag>:serious`, `<tag>:moderate`, `<tag>:minor`,
    * `<tag>:warning`, `<tag>:strict`, `<tag>:any`) for per-scenario gate
    * configuration.
@@ -560,7 +560,7 @@ trait AccessibilityTrait {
    *
    * Default: enabled only when the `BEHAT_ACCESSIBILITY_PRINT` environment
    * variable is set to a non-empty value other than `0`. Override to
-   * hardcode either behaviour.
+   * hardcode either behavior.
    */
   public function accessibilityGetPrintCli(): bool {
     $value = getenv('BEHAT_ACCESSIBILITY_PRINT');
@@ -619,7 +619,7 @@ trait AccessibilityTrait {
     $driver = $session->getDriver();
     $driver->executeScript($this->accessibilityGetJs());
 
-    $tag_list = json_encode(array_map(trim(...), explode(',', $rules)));
+    $tag_list = json_encode($this->stringSplitCommaSeparated($rules));
     $driver->executeScript(sprintf(
       'window.__accessibilityResults = null; axe.run(document, { runOnly: { type: "tag", values: %s } }).then(function (r) { window.__accessibilityResults = r; }).catch(function (e) { window.__accessibilityResults = { error: String(e) }; });',
       $tag_list
@@ -1614,7 +1614,7 @@ a { color: #0969da; }
 </head>
 <body>
 <h1>Accessibility report - aggregate</h1>
-<p class="meta">One page summarising every accessibility assessment in the run &middot; generated {$generated}</p>
+<p class="meta">One page summarizing every accessibility assessment in the run &middot; generated {$generated}</p>
 {$body}
 </body>
 </html>

@@ -61,8 +61,6 @@ Feature: Check that EckTrait works
     And I log in as a user with the role "administrator"
     When I visit the eck "test_bundle" "test_entity_type" entity page with the title "[TEST] Skip Cleanup ECK"
     Then I should see "[TEST] Skip Cleanup ECK"
-    # ECK entity will not be auto-deleted due to skip tag
-    # Manual cleanup
     Given the following eck "test_bundle" "test_entity_type" entities do not exist:
       | title                   |
       | [TEST] Skip Cleanup ECK |
@@ -75,4 +73,3 @@ Feature: Check that EckTrait works
     And I log in as a user with the role "administrator"
     When I visit the eck "test_bundle" "test_entity_type" entity page with the title "[TEST] Auto Cleanup ECK 1"
     Then I should see "[TEST] Auto Cleanup ECK 1"
-    # ECK entities will be auto-deleted by the shared entity cleanup hook

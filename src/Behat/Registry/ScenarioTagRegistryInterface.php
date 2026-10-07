@@ -6,10 +6,6 @@ namespace DrevOps\BehatSteps\Behat\Registry;
 
 /**
  * Interface for classes that hold the tags the running scenario carries.
- *
- * Option resolution reads the tags through this registry rather than from a
- * hook scope, so a tag that sets an option applies to a step as well as to a
- * hook.
  */
 interface ScenarioTagRegistryInterface {
 

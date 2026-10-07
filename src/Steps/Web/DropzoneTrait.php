@@ -40,9 +40,9 @@ trait DropzoneTrait {
    *
    * @javascript
    */
-  #[When('I drop the file :path on the dropzone :selector')]
-  public function dropzoneDropFile(string $path, string $selector): void {
-    $this->dropzoneDropFiles($selector, new TableNode([[$path]]));
+  #[When('I drop the file :filename on the dropzone :selector')]
+  public function dropzoneDropFile(string $filename, string $selector): void {
+    $this->dropzoneDropFiles($selector, new TableNode([[$filename]]));
   }
 
   /**
@@ -61,9 +61,6 @@ trait DropzoneTrait {
    */
   #[When('I drop the following files on the dropzone :selector:')]
   public function dropzoneDropFiles(string $selector, TableNode $paths): void {
-    // The gesture is built entirely in JavaScript, so a browser driver that
-    // runs none fails naming the capability instead of on the first script
-    // call.
     $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
     $session = $this->getSession();

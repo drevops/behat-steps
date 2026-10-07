@@ -22,9 +22,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('drush')]
 class DrushBackendTest extends UnitTestCase {
 
-  /**
-   * Tests that DrushBackend implements its composite contract.
-   */
   public function testImplementsDrushBackendInterface(): void {
     $interfaces = (array) class_implements(DrushBackend::class);
 

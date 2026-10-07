@@ -17,8 +17,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel tests for system-level methods on Core via the backend.
  *
  * Covers module install/uninstall, language create/delete, module list
- * retrieval, and the account switcher login/logout pair in a single class
- * to amortise per-method KernelTestBase bootstrap cost.
+ * retrieval, and the account switcher login/logout pair.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -81,9 +80,6 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $this->assertContains('language', $modules);
   }
 
-  /**
-   * Tests createLanguage with a fresh language and deleteLanguage removes it.
-   */
   public function testLanguageLifecycle(): void {
     $this->assertNull(ConfigurableLanguage::load('fr'));
 
@@ -116,9 +112,6 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     $this->assertNull(ConfigurableLanguage::load('fr'));
   }
 
-  /**
-   * Tests that login switches the active account and logout restores it.
-   */
   public function testLoginAndLogoutSwitchesAccount(): void {
     $alice = User::create(['name' => 'alice', 'status' => 1]);
     $alice->save();

@@ -83,11 +83,11 @@ Feature: Check that EmailTrait works
       Test email content line three
       """
     Then an email should be sent to the address "test@example.com"
-    And the email header "Content-Type" should exactly be:
+    And the email header "Content-Type" should be:
       """
       text/plain; charset=utf-8; format=flowed; delsp=yes
       """
-    And the email header "X-Mailer" should exactly be:
+    And the email header "X-Mailer" should be:
       """
       Drupal
       """
@@ -928,7 +928,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Invalid email field nonexistent was specified for assertion.
+      Invalid email field "nonexistent" was specified for assertion.
       """
 
   @test-trait:Drupal\EmailTrait
@@ -944,7 +944,7 @@ Feature: Check that EmailTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Invalid email field nonexistent was specified for assertion.
+      Invalid email field "nonexistent" was specified for assertion.
       """
 
   @test-trait:Drupal\EmailTrait

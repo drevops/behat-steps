@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Traits are mixed into a single consumer context, so an unprefixed method
  * name can collide with a method of the same name from another trait.
  *
- * The remaining conventions keep one shape per idea, so that a consumer can
+ * The remaining conventions keep 1 shape per idea, so that a consumer can
  * derive a name rather than look it up. CONTRIBUTING.md states them.
  */
 #[CoversNothing]
@@ -410,7 +410,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
-   * Assert that names spell normalisation the American way.
+   * Assert that names spell normalization the American way.
    *
    * @param class-string $trait
    *   The trait to check.
@@ -936,7 +936,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
-   * Check that a negative name is the positive name with one `Not` added.
+   * Check that a negative name is the positive name with 1 `Not` added.
    */
   protected static function isNegatedName(string $positive, string $negative): bool {
     $offset = 0;

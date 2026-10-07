@@ -1,7 +1,5 @@
 parameters:
   behat_steps.backend.drush.class: DrevOps\BehatSteps\Backend\DrushBackend
-
-  # Random generator.
   behat_steps.random.class: Drupal\Component\Utility\Random
 
 services:

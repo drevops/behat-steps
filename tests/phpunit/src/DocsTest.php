@@ -48,6 +48,8 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('parse_class_comment')]
 #[CoversFunction('tag_registry')]
 #[CoversFunction('non_descriptive_placeholders')]
+#[CoversFunction('placeholder_synonyms')]
+#[CoversFunction('rejected_step_phrases')]
 #[CoversFunction('extract_tags')]
 #[CoversFunction('validate_tag')]
 #[CoversFunction('validate_tags')]
@@ -257,13 +259,13 @@ EOD,
   public function testExtractMethodStepsMultiple(): void {
     $trait = new \ReflectionClass(MultiMethodTrait::class);
 
-    $given_method = $trait->getMethod('multimethodGivenItems');
+    $given_method = $trait->getMethod('multiMethodGivenItems');
     $this->assertSame(['@Given the following items:'], extract_method_steps($given_method));
 
-    $when_method = $trait->getMethod('multimethodClickButton');
+    $when_method = $trait->getMethod('multiMethodClickButton');
     $this->assertSame(['@When I click on :button'], extract_method_steps($when_method));
 
-    $then_method = $trait->getMethod('multimethodAssertResultVisible');
+    $then_method = $trait->getMethod('multiMethodAssertResultVisible');
     $this->assertSame(['@Then the result should be visible'], extract_method_steps($then_method));
   }
 
@@ -1569,7 +1571,7 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testAssertMethod2',
-                'steps' => ['@Then the config :name key :key should have the effective value :value'],
+                'steps' => ['@Then the config :name with the key :key should have the effective value :value'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
               ],
@@ -3427,7 +3429,7 @@ EOD,
     $this->assertStringContainsString('| `drupal.drupal_root` | string | required |', $actual);
 
     // Line breaks inside an option description are made table-safe.
-    $this->assertStringContainsString('<br>', $actual);
+    $this->assertStringContainsString('<br/>', $actual);
   }
 
   #[DataProvider('dataProviderExtensionOptionType')]

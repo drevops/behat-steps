@@ -387,7 +387,7 @@ Return collected JavaScript console error messages
   <summary><code>public function diagnosticsGetRerunBinary(): string</code></summary>
 
 <br/>
-Return the binary used in the re-run command. Override to customise
+Return the binary used in the re-run command. Override to customize
 <br/><br/>
 
 </details>
@@ -1846,7 +1846,7 @@ Load multiple terms with specified vocabulary and conditions
 </details>
 
 <details>
-  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $term_name, ?string $action_subpath = NULL): void</code></summary>
+  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, ?string $action_subpath = NULL): void</code></summary>
 
 <br/>
 Visit the action page of the term with a specified name

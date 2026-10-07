@@ -22,7 +22,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 final readonly class BackendListener implements EventSubscriberInterface {
 
   /**
-   * Prefix of the tag that promotes a backend for one scenario or feature.
+   * Prefix of the tag that promotes a backend for 1 scenario or feature.
    */
   public const string BACKEND_TAG_PREFIX = 'backend:';
 

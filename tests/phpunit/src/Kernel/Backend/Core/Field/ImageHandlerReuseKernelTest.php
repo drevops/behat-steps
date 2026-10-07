@@ -33,9 +33,6 @@ class ImageHandlerReuseKernelTest extends FileBackedHandlerKernelTestBase {
     'image',
   ];
 
-  /**
-   * Tests that referencing an image by URI reuses the same file id.
-   */
   public function testReuseByFullUri(): void {
     $this->attachField('field_photo', 'image');
 
@@ -57,9 +54,6 @@ class ImageHandlerReuseKernelTest extends FileBackedHandlerKernelTestBase {
     $this->assertSame(1, $this->countFileEntities());
   }
 
-  /**
-   * Tests that a bare basename resolves against public:// and reuses the id.
-   */
   public function testReuseByBareBasename(): void {
     $this->attachField('field_photo', 'image');
 

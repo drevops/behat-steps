@@ -1,5 +1,5 @@
 @search
-Feature: Ensure Search API functionality works
+Feature: Check that SearchApiTrait works
   As Behat Steps library developer
   I want to provide tools to index and search content
   So that users can test search functionality
@@ -11,18 +11,15 @@ Feature: Ensure Search API functionality works
       | [MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT | published        |
       | [MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT     | draft            |
     And I log in as a user with the role "administrator"
-    # Initial search without indexed nodes.
     And I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
     Then I should not see "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
     And I should not see "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
 
-    # Index nodes and preform another search.
     When I add the "article" content with the title "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT" to the search index
     And I add the "article" content with the title "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT" to the search index
 
-    # Perform another search.
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
@@ -55,7 +52,6 @@ Feature: Ensure Search API functionality works
       | [MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT | draft            |
     And I log in as a user with the role "administrator"
 
-    # Initial search without indexed nodes.
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
@@ -63,10 +59,8 @@ Feature: Ensure Search API functionality works
     And I should not see "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
     And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
-    # Run indexing for a limited number of items (e.g., 1 item).
     When I run search indexing for 1 item
 
-    # Perform another search to verify the indexing.
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
@@ -74,10 +68,8 @@ Feature: Ensure Search API functionality works
     And I should not see "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
     And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
-    # Run indexing for more items (e.g., 2 more items, total 3).
     When I run search indexing for 2 items
 
-    # Perform another search to verify all published items are indexed.
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
@@ -118,17 +110,14 @@ Feature: Ensure Search API functionality works
       | [MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT | published        |
     And I log in as a user with the role "administrator"
 
-    # Initial search without indexed nodes.
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUECRONTEXT"
     And I press "edit-submit-search"
     Then I should not see "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
     And I should not see "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
 
-    # Trigger Search API cron to run the tracker and indexer.
     When I run the Search API cron
 
-    # Perform another search to verify indexing happened via cron.
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUECRONTEXT"
     And I press "edit-submit-search"

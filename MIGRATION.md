@@ -157,7 +157,7 @@ Each of the three resolves that decision in a `BeforeScenario` hook, so all thre
 
 ## Unified step text
 
-Placeholder names, articles and `Given` verbs drifted as traits were added, so the same idea ended up written several different ways: an XML attribute was `:attribute` in 4 steps and `:attribute_name` in 2, a taxonomy vocabulary answered to 3 different names, and a handful of `Given` steps had no verb at all. 73 steps now follow one set of conventions.
+Placeholder names, articles and `Given` verbs drifted as traits were added, so the same idea ended up written several different ways: an XML attribute was `:attribute` in 4 steps and `:attribute_name` in 2, a taxonomy vocabulary answered to 3 different names, and a handful of `Given` steps had no verb at all. 89 steps now follow one set of conventions.
 
 - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is now reserved for steps that assert on a whole body with no named target, such as `the modal should contain :text`.
 - A bundle placeholder is named after its entity type - `:content_type`, `:media_type`, `:content_block_type`, `:vocabulary`. Steps that are deliberately entity-agnostic keep `:bundle` (`EckTrait`, and the parent lookup in `ParagraphsTrait`).
@@ -168,7 +168,7 @@ Placeholder names, articles and `Given` verbs drifted as traits were added, so t
 
 Placeholder names are part of the contract even when the surrounding words are identical. Behat binds a step argument to the method parameter of the same name, so a rename reaches any context that overrides the step method or calls it directly.
 
-Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their step text is unchanged, but the method signatures are not: `MediaTrait::mediaRemoveType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiDoIndex()` now take `$content_type` and `$count`.
+Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their step text is unchanged, but the method signatures are not: `MediaTrait::mediaDeleteType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiRunIndexing()` now take `$content_type` and `$count`.
 
 ### CacheTrait
 
@@ -183,6 +183,15 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | Before | After |
 | --- | --- |
 | `Given the following config values:` | `Given the following config values exist:` |
+| `Given the config :name key :key has the value :value` | `Given the config :name with the key :key has the value :value` |
+| `Then the config :name key :key should have the value :value` | `Then the config :name with the key :key should have the value :value` |
+| `Then the config :name key :key should not have the value :value` | `Then the config :name with the key :key should not have the value :value` |
+| `Then the config :name key :key should contain the value :value` | `Then the config :name with the key :key should contain the value :value` |
+| `Then the config :name key :key should not contain the value :value` | `Then the config :name with the key :key should not contain the value :value` |
+| `Then the config :name key :key should have the effective value :value` | `Then the config :name with the key :key should have the effective value :value` |
+| `Then the config :name key :key should not have the effective value :value` | `Then the config :name with the key :key should not have the effective value :value` |
+| `Then the config :name key :key should contain the effective value :value` | `Then the config :name with the key :key should contain the effective value :value` |
+| `Then the config :name key :key should not contain the effective value :value` | `Then the config :name with the key :key should not contain the effective value :value` |
 
 ### ContentBlockTrait
 
@@ -199,6 +208,8 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | Before | After |
 | --- | --- |
 | `Given the following :type content with fields:` | `Given the following :content_type content with fields exist:` |
+| `When I set the path alias of the :content_type content with the title :title to :alias` | `When I set the path alias of the :content_type content with the title :title to the alias :alias` |
+| `Given the following :content_type content does not exist:` | `Given the following :content_type content do not exist:` |
 
 ### DraggableviewsTrait
 
@@ -212,6 +223,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | --- | --- |
 | `Then an email should be sent to the :address` | `Then an email should be sent to the address :address` |
 | `Then no emails should have been sent to the :address` | `Then no emails should have been sent to the address :address` |
+| `Then the email header :header should exactly be:` | `Then the email header :header should be:` |
 
 ### FieldTrait
 
@@ -223,6 +235,8 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | `Then the field :name should exist` | `Then the field :field should exist` |
 | `Then the field :name should have :enabled_or_disabled state` | `Then the field :field should have the :enabled_or_disabled state` |
 | `Then the field :name should not exist` | `Then the field :field should not exist` |
+| `When I fill in the date part of the datetime field :label with :date` | `When I fill in the date part of the datetime field :label with the date :date` |
+| `When I fill in the time part of the datetime field :label with :time` | `When I fill in the time part of the datetime field :label with the time :time` |
 
 ### FileDownloadTrait
 
@@ -236,12 +250,14 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | --- | --- |
 | `Given the following managed files:` | `Given the following managed files exist:` |
 | `Given the unmanaged file at the URI :uri exists with :content` | `Given the unmanaged file at the URI :uri exists with the content :content` |
+| `Then an unmanaged file at the URI :uri should contain :content` | `Then an unmanaged file at the URI :uri should contain the value :value` |
+| `Then an unmanaged file at the URI :uri should not contain :content` | `Then an unmanaged file at the URI :uri should not contain the value :value` |
 
 ### IframeTrait
 
 | Before | After |
 | --- | --- |
-| `When I switch to iframe with locator :locator` | `When I switch to the iframe with the selector :selector` |
+| `When I switch to iframe with locator :locator` | `When I switch to the iframe :selector` |
 
 ### JsonTrait
 
@@ -324,13 +340,13 @@ Three steps were relying on Behat's positional fallback because their parameter 
 
 | Before | After |
 | --- | --- |
-| `When I visit the :vocabulary_machine_name term delete page with the name :term_name` | `When I visit the :vocabulary term delete page with the name :term_name` |
-| `When I visit the :vocabulary_machine_name term edit page with the name :term_name` | `When I visit the :vocabulary term edit page with the name :term_name` |
-| `When I visit the :vocabulary_machine_name term page with the name :term_name` | `When I visit the :vocabulary term page with the name :term_name` |
+| `When I visit the :vocabulary_machine_name term delete page with the name :term_name` | `When I visit the :vocabulary term delete page with the name :name` |
+| `When I visit the :vocabulary_machine_name term edit page with the name :term_name` | `When I visit the :vocabulary term edit page with the name :name` |
+| `When I visit the :vocabulary_machine_name term page with the name :term_name` | `When I visit the :vocabulary term page with the name :name` |
 | `Given the following :vocabulary terms with fields:` | `Given the following :vocabulary terms with fields exist:` |
 | `Given the following :vocabulary_machine_name vocabulary terms do not exist:` | `Given the following :vocabulary terms do not exist:` |
-| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist` | `Then the taxonomy term :term_name from the vocabulary :vocabulary should exist` |
-| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist` | `Then the taxonomy term :term_name from the vocabulary :vocabulary should not exist` |
+| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist` | `Then the taxonomy term :name from the vocabulary :vocabulary should exist` |
+| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist` | `Then the taxonomy term :name from the vocabulary :vocabulary should not exist` |
 | `Then the vocabulary :machine_name should not exist` | `Then the vocabulary :vocabulary should not exist` |
 | `Then the vocabulary :machine_name with the name :name should exist` | `Then the vocabulary :vocabulary with the name :name should exist` |
 
@@ -340,7 +356,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 | --- | --- |
 | `Given the following roles:` | `Given the following roles exist:` |
 | `Given the following users with fields:` | `Given the following users with fields exist:` |
-| `Given the role :role_name with the permissions :permissions` | `Given the role :role_name has the permissions :permissions` |
+| `Given the role :role_name with the permissions :permissions` | `Given the role :role has the permissions :permissions` |
 
 ### WebformTrait
 
@@ -392,7 +408,7 @@ This also renames the `$number` argument of `ElementTrait::elementAssertVisually
 
 ## Step text follows the documented grammar
 
-The passes above still left steps that broke the step-text rules in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). They follow those rules now. Only the wording and the placeholder names changed. The one behaviour tied to a placeholder name, `[relative:...]` token expansion, is described below the rules.
+The passes above still left steps that broke the step-text rules in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). They follow those rules now. Only the wording and the placeholder names changed. The one behavior tied to a placeholder name, `[relative:...]` token expansion, is described below the rules.
 
 - A placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the dropzone :selector`. A bundle still comes before the entity noun it qualifies (`the :media_type media`), and a count before its unit (`:count item(s)`).
 - Every noun takes an article: `on the element :element`, `to the URL :url`, `the system time`, `the last XML response`.
@@ -450,7 +466,7 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 
 | Before | After |
 | --- | --- |
-| `When I drop the file :path on the :selector dropzone` | `When I drop the file :path on the dropzone :selector` |
+| `When I drop the file :path on the :selector dropzone` | `When I drop the file :filename on the dropzone :selector` |
 | `When I drop the following files on the :selector dropzone:` | `When I drop the following files on the dropzone :selector:` |
 
 ### EckTrait
@@ -475,7 +491,7 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 | --- | --- |
 | `When I follow link number :link_number in the email with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
 | `When I follow link number :link_number in the email with the subject containing :subject` | `When I follow the link with the index :index in the email with a subject containing :partial_subject` |
-| `Then the file :file_name should be attached to the email with the subject containing :subject` | `Then the file :file_name should be attached to the email with a subject containing :partial_subject` |
+| `Then the file :file_name should be attached to the email with the subject containing :subject` | `Then the file :filename should be attached to the email with a subject containing :partial_subject` |
 
 ### FieldTrait
 
@@ -602,7 +618,7 @@ A method behind a navigation step opens with `Visit` and names the page the way 
 | `Drupal\ContentBlockTrait` | `contentBlockEditBlockContentWithDescription()` | `contentBlockVisitEditPageWithDescription()` |
 | `Drupal\ContentTrait` | `contentVisitViewWithTitle()` | `contentVisitPageWithTitle()` |
 | `Drupal\EckTrait` | `eckEditEntityWithTitle()` | `eckVisitEntityEditPageWithTitle()` |
-| `Drupal\EmailTrait` | `emailFollowLinkNumber()` | `emailFollowLinkWithIndex()` |
+| `Drupal\EmailTrait` | `emailFollowLinkNumber()` | `emailFollowLinkWithIndexWithSubject()` |
 | `Drupal\EmailTrait` | `emailFollowLinkNumberWithSubjectContaining()` | `emailFollowLinkWithIndexWithSubjectContaining()` |
 | `Drupal\MediaTrait` | `mediaEditWithName()` | `mediaVisitEditPageWithName()` |
 | `Drupal\MediaTrait` | `mediaVisitViewWithName()` | `mediaVisitPageWithName()` |
@@ -623,6 +639,18 @@ A method behind a navigation step opens with `Visit` and names the page the way 
 | --- | --- | --- |
 | `UserTrait::userAssertExistsWithMail()` | `$mail` | `$address` |
 | `UserTrait::userAssertNotExistsWithMail()` | `$mail` | `$address` |
+
+A taxonomy term's name, a role and a file name each had 2 placeholder names: `:term_name` where every other named entity reads `:name`, `:role_name` beside its own `:roles`, and `:file_name` or `:path` where the XML and JSON steps read `:filename`. Each now has 1. A placeholder name never appears in a feature file, so no `.feature` file changes, but the parameter behind each placeholder is renamed:
+
+| Method | Before | After |
+| --- | --- | --- |
+| `TaxonomyTrait::taxonomyVisitTermPageWithName()`, `taxonomyVisitTermEditPageWithName()`, `taxonomyVisitTermDeletePageWithName()`, `taxonomyVisitActionPageWithName()` | `$term_name` | `$name` |
+| `TaxonomyTrait::taxonomyAssertTermExistsWithName()`, `taxonomyAssertTermNotExistsWithName()` | `$term_name` | `$name` |
+| `UserTrait::userCreateRole()` | `$role_name` | `$role` |
+| `EmailTrait::emailAssertMessageContainsAttachmentWithSubject()`, `emailAssertMessageContainsAttachmentWithSubjectContaining()` | `$file_name` | `$filename` |
+| `DropzoneTrait::dropzoneDropFile()` | `$path` | `$filename` |
+
+`FileTrait::fileAssertUnmanagedContains()` and `fileAssertUnmanagedNotContains()` take `$value` where they took `$content`, because their steps now read `the value :value`, as the `FileTrait` table under [Unified step text](#unified-step-text) shows.
 
 ### Failure messages
 
@@ -812,7 +840,7 @@ Two consequences are worth checking in an existing project:
 
 ## DrupalExtension step text mapped to the v4 vocabulary
 
-The Drupal Extension's contexts are gone. Their behaviour lives in the step traits, re-expressed in the one grammar the docs linter enforces: tuple placeholders, no regex, no optional words, and a `Then` that starts with the subject rather than `I`.
+The Drupal Extension's contexts are gone. Their behavior lives in the step traits, re-expressed in the one grammar the docs linter enforces: tuple placeholders, no regex, no optional words, and a `Then` that starts with the subject rather than `I`.
 
 The suite registers `Behat\MinkExtension\Context\MinkContext` for the base browser vocabulary, so `I am on`, `I go to`, `I should see`, `I fill in`, `I press`, `I follow`, `I check`, `I select`, `I attach the file`, `the response status code should be` and the other upstream Mink steps are unchanged. The table below covers only the steps the Drupal Extension added on top.
 
@@ -846,7 +874,7 @@ The suite registers `Behat\MinkExtension\Context\MinkContext` for the base brows
 | `Given I am viewing a/an :type content with the following fields:` | as above |
 | `Given I am viewing my :type with the title :title` | `Given the following :content_type content exist:` with an `author` column, then visit the page |
 | `Given I am viewing my :type content with the title :title` | as above |
-| `Given a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:` then `When I visit the :vocabulary term page with the name :term_name` |
+| `Given a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:` then `When I visit the :vocabulary term page with the name :name` |
 | `Given I am viewing a/an :vocabulary term with the name :name` | as above |
 | `Then I should be able to edit the :type` | `Given the following :content_type content exist:`, `When I visit the :content_type content edit page with the title :title`, `Then the response status code should be 200` |
 | `Then I should be able to edit the :type content` | as above |
@@ -963,8 +991,8 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 
 | Before | After |
 | --- | --- |
-| `When I send the following mail:` | dropped; trigger the site behaviour that sends the mail |
-| `When I send the following email:` | dropped; trigger the site behaviour that sends the mail |
+| `When I send the following mail:` | dropped; trigger the site behavior that sends the mail |
+| `When I send the following email:` | dropped; trigger the site behavior that sends the mail |
 | `Then the following (e)mail(s) should have been sent:` | `Then the email field :field should contain:` |
 | `Then the following (e)mail(s) should have been sent to :to:` | `Then an email should be sent to the address :address with the content:` |
 | `Then the following (e)mail(s) should have been sent with the subject :subject:` | `Then the email field :field should be:` against `subject` |
@@ -974,7 +1002,7 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `Then there should be a total of :count (e)mail(s) sent to :to` | `Then the number of emails sent to the address :address should be :count` |
 | `Then there should be a total of :count (e)mail(s) sent with the subject :subject` | `Then the number of emails sent with the subject :subject should be :count` |
 | `Then there should be a total of :count new (e)mail(s) sent...` | clear the queue, then use the non-`new` step |
-| `Then (a )(an )(e)mail(s) should have been sent with the attachment(s) :attachments` | `Then the file :file_name should be attached to the email with the subject :subject` |
+| `Then (a )(an )(e)mail(s) should have been sent with the attachment(s) :attachments` | `Then the file :filename should be attached to the email with the subject :subject` |
 | `Then (a )(an )(e)mail(s) should have been sent to :to with the attachment(s) :attachments` | as above |
 | `When I follow the link to :urlFragment from the (e)mail` | `When I follow the link with a URL containing :partial_url in the email` |
 | `When I follow the link to :urlFragment from the (e)mail to :to` | as above |
@@ -986,7 +1014,7 @@ The Drupal Extension matched a subject in part and in any case. Here `with the s
 
 | Before | After |
 | --- | --- |
-| `Given I set the configuration item :name with key :key to :value` | `Given the config :name key :key has the value :value` |
+| `Given I set the configuration item :name with key :key to :value` | `Given the config :name with the key :key has the value :value` |
 | `Given I set the configuration item :name with key :key with the following values:` | `Given the following config values exist:` |
 
 ### Drush
@@ -1143,6 +1171,8 @@ A call or an override in a consumer context is renamed:
 Three of those names were also skip tags. A skip tag names a trait rather than a method, so `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles` both become `@behat-steps-skip:AuthTrait`.
 
 `authCleanUsers()` and `authCleanRoles()` take no parameters, aren't hooks, and are protected. `authAfterScenario()` is the hook. It runs them users first, and still runs the role cleanup when removing the users fails. When both fail, it throws 1 `\RuntimeException` that names both. An override of either drops its `@AfterScenario` annotation or `#[AfterScenario]` attribute, or it runs twice.
+
+The roles a scenario creates are recorded in `AuthTrait::$authRoles`, which `authCleanRoles()` deletes. 3.x recorded them in the Drupal Extension's `RawDrupalContext::$roles`, so a context that read `$this->roles` reads `$this->authRoles`.
 
 A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
 
@@ -1309,7 +1339,7 @@ Then the current URL should not have the query parameter "filter" with the value
 
 ## A value of `0` is not empty
 
-A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other: `Given the password for the user :name is "0"` sets the password instead of failing with `Password must not be empty.`, an attribute whose value is `0` counts as present for the `the element :selector with the attribute :attribute ...` steps, an iframe named `0` is switched to by name, a WYSIWYG field with the id `0` is filled through its id, and `fileCreateEntity()` honours a destination URI of `0`. A `drush` backend configured with an alias or root path of `0` is likewise read as configured.
+A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other: `Given the password for the user :name is "0"` sets the password instead of failing with `Password must not be empty.`, an attribute whose value is `0` counts as present for the `the element :selector with the attribute :attribute ...` steps, an iframe named `0` is switched to by name, a WYSIWYG field with the id `0` is filled through its id, and `fileCreateEntity()` honors a destination URI of `0`. A `drush` backend configured with an alias or root path of `0` is likewise read as configured.
 
 ## Email subject steps match the way they read
 
@@ -1320,9 +1350,9 @@ Both now follow the grammar in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). 
 | Step | Before | After |
 | --- | --- | --- |
 | `When I follow the link with the index :index in the email with the subject :subject` | The subject contains `:subject`, whitespace collapsed | The subject is exactly `:subject` |
-| `Then the file :file_name should be attached to the email with the subject :subject` | The subject contains `:subject`, whitespace collapsed | The subject is exactly `:subject` |
+| `Then the file :filename should be attached to the email with the subject :subject` | The subject contains `:subject`, whitespace collapsed | The subject is exactly `:subject` |
 | `When I follow the link with the index :index in the email with a subject containing :partial_subject` | The subject contains `:partial_subject` in any case | The subject contains `:partial_subject` in the same case |
-| `Then the file :file_name should be attached to the email with a subject containing :partial_subject` | The subject contains `:partial_subject` in any case | The subject contains `:partial_subject` in the same case |
+| `Then the file :filename should be attached to the email with a subject containing :partial_subject` | The subject contains `:partial_subject` in any case | The subject contains `:partial_subject` in the same case |
 
 When several emails match, each step still uses the first one collected.
 
@@ -1421,6 +1451,8 @@ If your project catches an exception from one of these steps, update the type:
 | `Drupal\ModuleTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
 | `Drupal\StateTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
 | `Drupal\RedirectTrait` (`the following redirects should (not) exist:`) | `\Exception` | `AssertionException` |
+| `Drupal\QueueTrait` (all `Then` steps) | `ExpectationException` | `AssertionException` |
+| `Drupal\WatchdogTrait` (the check for PHP errors logged during a scenario) | `ExpectationException` | `AssertionException` |
 | `MetatagTrait` (all `Then` steps) | `\Exception` | `ExpectationException`; `ElementNotFoundException` when the meta tag itself is missing; `\RuntimeException` when an hreflang alternate page returns an HTTP error |
 | `XmlTrait` (`the response should be in XML format`) | `\RuntimeException` | `ExpectationException` |
 | `FieldTrait` (`the option ... should (not) exist within the select ...`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select or a missing option, `ExpectationException` for an option that exists but should not |
@@ -1435,7 +1467,7 @@ If your project catches an exception from one of these steps, update the type:
 | `ElementTrait` (`... with the index ...`, with an index below 1; `... pinned to the top of the viewport within ... pixels`, with a negative tolerance) | `ExpectationException` | `\RuntimeException` |
 | `Drupal\EmailTrait` (`I follow the link with the index ...`, with an index that is not a positive integer) | `ExpectationException` | `\RuntimeException` |
 | `FieldTrait` (`I fill in the WYSIWYG field ...`, when the field has no `id` attribute) | `ExpectationException` | `\RuntimeException` |
-| `XmlTrait` (`I print last XML response`, when the document cannot be serialised) | `ExpectationException` | `\RuntimeException` |
+| `XmlTrait` (`I print last XML response`, when the document cannot be serialized) | `ExpectationException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...` without an element, when nothing has focus) | `ExpectationException` | `\RuntimeException` |
 | `Drupal\BlockTrait` (every `Given the block ...` step, when the block does not exist) | `ExpectationException` | `\RuntimeException` |
 | `WaitTrait` (`I wait for AJAX to finish` and `I wait for ... second(s) for AJAX to finish`, without a JavaScript driver) | `\RuntimeException` | `UnsupportedDriverActionException` |
@@ -1477,7 +1509,7 @@ Behat reports every one of these as a failed step either way, so a scenario that
 
 ## Failure messages read one way
 
-A failure message quotes the values it names in double quotes, ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
+A failure message quotes the values it names in double quotes, puts the noun before the value it names (`the attribute "..."`, not `the "..." attribute`), ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
 
 | Trait | Before | After |
 | --- | --- | --- |
@@ -1509,6 +1541,22 @@ A failure message quotes the values it names in double quotes, ends with a perio
 | ResponsiveTrait | Breakpoint '...' not found. Available breakpoints: ... | Breakpoint "..." not found. Available breakpoints: .... |
 | ResponsiveTrait | Invalid breakpoint format for '...': '...'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080) | Invalid breakpoint format for "...": "...". Expected format: WIDTHxHEIGHT (e.g., 1920x1080). |
 | ResponsiveTrait | Invalid breakpoint format: '...'. Expected format: WIDTHxHEIGHT (e.g., 1920x1080) | Invalid breakpoint format: "...". Expected format: WIDTHxHEIGHT (e.g., 1920x1080). |
+| Drupal\FileTrait | The file "..." exists but it should not. | The file "..." exists, but it should not. |
+| CookieTrait | The cookie with name "..." was set but it should not be. | The cookie with name "..." was set, but it should not be. |
+| CookieTrait | The cookie with name containing "..." was set but it should not be. | The cookie with name containing "..." was set, but it should not be. |
+| Drupal\BlockTrait | Block "..." is in region "..." but should be in "...". | Block "..." is in region "...", but it should be in "...". |
+| Drupal\EmailTrait | Invalid email field ... was specified for assertion. | Invalid email field "..." was specified for assertion. |
+| MetatagTrait | Failed to fetch the hreflang alternate page "...". | Failed to fetch the hreflang alternate page "...": .... |
+| FileDownloadTrait | Unable to download file from URL .... | Unable to download file from URL "...". |
+| FileDownloadTrait | The URL ... returned HTTP status N. | The URL "..." returned HTTP status N. |
+| FileDownloadTrait | Unable to save temp file from URL .... | Unable to save temp file from URL "...". |
+| FileDownloadTrait | Unable to write downloaded content into file .... | Unable to write downloaded content into file "...". |
+| ElementTrait | The "..." attribute does not exist on the element "...". | The attribute "..." does not exist on the element "...". |
+| ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it should not. | The attribute "..." exists on the element "..." with a value "...", but it should not. |
+| ElementTrait | The "..." attribute exists on the element "..." with a value containing "...", but it should not. | The attribute "..." exists on the element "..." with a value containing "...", but it should not. |
+| ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it does not have a value "...". | The attribute "..." exists on the element "..." with a value "...", but it does not have a value "...". |
+| ElementTrait | The "..." attribute exists on the element "..." with a value "...", but it does not contain a value "...". | The attribute "..." exists on the element "..." with a value "...", but it does not contain a value "...". |
+| MetatagTrait | The "..." meta tag contains HTML tags: .... | The meta tag "..." contains HTML tags: .... |
 
 ## Tightened public surface
 
@@ -1803,6 +1851,13 @@ It still asserts that an email went to the address and that no collected email's
 | `ElementTrait` | `elementFollowLinkByIndex()` | `elementFollowLinkWithIndex()` |
 | `ElementTrait` | `elementPressButtonByIndex()` | `elementPressButtonWithIndex()` |
 
+2 `Drupal\EmailTrait` assertions named their target unlike their siblings: the attachment check named the file instead of the subject that picks the email, and the address check dropped the `Address` its 6 siblings carry.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\EmailTrait` | `emailAssertMessageContainsAttachmentWithName()` | `emailAssertMessageContainsAttachmentWithSubject()` |
+| `Drupal\EmailTrait` | `emailAssertMessageSentTo()` | `emailAssertMessageSentToAddress()` |
+
 ### `Has` names something the subject holds
 
 `Has` named something a subject holds, such as a user's roles, and also stood in for a comparison: `stateAssertHasValue()` checks that a state value equals the expected one. A compared value now reads `Equals` or `Contains`, and `Has` stays for what a subject holds, as in `userAssertHasRoles()` and `elementAssertHasKeyboardFocus()`.
@@ -1830,6 +1885,20 @@ It still asserts that an email went to the address and that no collected email's
 | `MetatagTrait` | `metatagAssertMetaSetPresent()` | `metatagAssertMetaSetExists()` |
 
 The step text follows the method: `the meta robots should include :directive` is `the meta robots should contain :directive`, and `should not include` is `should not contain`.
+
+### An assertion names its predicate
+
+An assertion says what it asserts after its subject: a compared value reads `Equals`, a set that must be present reads `Exist`, and validity reads `Valid` after the subject, as `commandAssertOutputEquals()` and `metatagAssertHreflangValid()` do. 7 assertions named no predicate or put `Valid` ahead of the subject. Step text is unchanged.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `CommandTrait` | `commandAssertExitCode()` | `commandAssertExitCodeEquals()` |
+| `FileDownloadTrait` | `fileDownloadAssertFileName()` | `fileDownloadAssertFileNameEquals()` |
+| `MetatagTrait` | `metatagAssertOpenGraphTags()` | `metatagAssertOpenGraphTagsExist()` |
+| `MetatagTrait` | `metatagAssertTwitterCardTags()` | `metatagAssertTwitterCardTagsExist()` |
+| `RestTrait` | `restAssertResponseStatusCode()` | `restAssertResponseStatusCodeEquals()` |
+| `XmlTrait` | `xmlAssertValidRssFeed()` | `xmlAssertRssFeedValid()` |
+| `XmlTrait` | `xmlAssertValidAtomFeed()` | `xmlAssertAtomFeedValid()` |
 
 ### Only an assertion is named `Assert`
 
@@ -1888,6 +1957,14 @@ A method that created an entity put the verb and the noun in either order. The s
 
 `entityLifecycleCreate()` already read verb-first and is unchanged. The 3 steps at the bottom also act on several entities, so they take the `Multiple` the next section describes. The `RawContext` rows in [The Drupal lifecycle moved into concern-named helpers](#the-drupal-lifecycle-moved-into-concern-named-helpers) point straight at the new names.
 
+The verb that deletes is `Delete`. 3 `does not exist` steps said `Remove` instead, and `ContentTrait` repeated the noun its prefix already carries:
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\BlockTrait` | `blockRemove()` | `blockDelete()` |
+| `Drupal\ContentTrait` | `contentRemoveContentType()` | `contentDeleteType()` |
+| `Drupal\MediaTrait` | `mediaRemoveType()` | `mediaDeleteType()` |
+
 A capability interface that creates an entity now reads one way, so its delete, place and role methods move with its create methods. A backend of your own renames the methods it implements; `DrupalBackend`, `DrushBackend` and `Core` already have.
 
 | Interface | Old | New |
@@ -1911,6 +1988,17 @@ A capability interface that creates an entity now reads one way, so its delete, 
 | `RoleCapabilityInterface` | `roleDelete()` | `deleteRole()` |
 
 The config, state, module, mail, cache and cron capabilities keep their names. So do the entity-create hooks, because a hook is named for its event: `BeforeNodeCreate`, `AfterTermCreate` and the rest are unchanged.
+
+### An action method names its step's verb first
+
+A method behind an action step puts the verb its step reads right after its prefix, as `fieldFillColor()` and `fieldClearSelect()` do. 3 `FieldTrait` methods put the noun first, 1 of them with a verb its step doesn't use, and `SearchApiTrait` named its indexing step `Do`, which names no action. Step text is unchanged.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `FieldTrait` | `fieldCheckboxCheck()` | `fieldCheckCheckbox()` |
+| `FieldTrait` | `fieldCheckboxUncheck()` | `fieldUncheckCheckbox()` |
+| `FieldTrait` | `fieldRadioSelect()` | `fieldChooseRadioButton()` |
+| `Drupal\SearchApiTrait` | `searchApiDoIndex()` | `searchApiRunIndexing()` |
 
 ### A method acting on several entities ends in `Multiple`
 
@@ -1954,6 +2042,12 @@ A method that created, deleted or loaded several entities at once took one of 3 
 
 `ContentTrait`, `TaxonomyTrait`, `UserTrait`, `LanguageTrait` and `EntityTrait` had no 1-entity helper to rename: a single node, term, user, language or other entity goes through `entityLifecycleCreateNode()`, `entityLifecycleCreateTerm()`, `authCreateUser()`, `entityLifecycleCreateLanguage()` or `entityLifecycleCreate()`. `userCreateMultiple()`, `languageCreateMultiple()` and `entityCreateMultiple()` already carried the suffix and are unchanged.
 
+A table step that sets several values takes the suffix too, as `configSetMultiple()` and `stateSetMultiple()` do. `ResponsiveTrait`'s breakpoint table read `FromTable` with a plural noun instead:
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `ResponsiveTrait` | `responsiveSetBreakpointsFromTable()` | `responsiveSetBreakpointMultiple()` |
+
 ### A boolean parameter reads as a question
 
 A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is_inverted` already did. `Drupal\EmailTrait::emailFindMessage()` named its flag bare. Step text is unchanged, so this only matters to a call that passes the argument by name.
@@ -1969,6 +2063,24 @@ A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is
 ### A method is named for what it does, not `Helper`
 
 The protected `FieldTrait::fieldFillDatetimeHelper()` is `fieldFillDatetimeInput()`, after the 1 input of a datetime field it fills. A context that overrides it renames the override.
+
+### `ConfigTrait` names its helpers as its siblings do
+
+`ConfigTrait` has 2 protected helpers that its siblings name differently: 1 records what a step is about to change so the teardown can restore it, as `stateStoreOriginalValue()` and `moduleStoreOriginalState()` do, and 1 turns step text into a typed value, as `stateNormalizeValue()` does. A context that overrides one of them renames the override.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `Drupal\ConfigTrait` | `configSnapshot()` | `configStoreOriginalData()` |
+| `Drupal\ConfigTrait` | `configCastValue()` | `configNormalizeValue()` |
+
+### `XmlTrait` names its content steps as `JsonTrait` does
+
+`XmlTrait` and `JsonTrait` register the same 2 `Given` steps, 1 loading the response body from a fixture file and 1 taking it from a PyString. `JsonTrait` names them `jsonSetContentFromFile()` and `jsonSetContent()`, while `XmlTrait` added `Response`, which every step in the trait acts on, and `Direct`, which names nothing in its step. Step text is unchanged.
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `XmlTrait` | `xmlSetResponseContentFromFile()` | `xmlSetContentFromFile()` |
+| `XmlTrait` | `xmlSetResponseContentDirect()` | `xmlSetContent()` |
 
 ## A class is named for the role it plays
 
@@ -2113,7 +2225,7 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
 ### Three steps now fail naming the capability
 
-`I wait for the modal to appear`, `I drop the following files on the dropzone :selector:` and `I switch to the iframe with the selector :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
+`I wait for the modal to appear`, `I drop the following files on the dropzone :selector:` and `I switch to the iframe :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
 
 `I press the key ...` and `I wait for :seconds second(s) for AJAX to finish` still raise on a browser driver that cannot serve them, with the capability named in place of a hardcoded list of browser drivers.
 
@@ -2123,7 +2235,7 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 $this->getBrowserCapabilityResolver()->registerAdapter(AcmeDriverAdapter::class);
 ```
 
-An adapter extends `BrowserAdapterBase`, implements the capability interfaces its browser driver can honour, and answers `supports()` for the browser driver it speaks for. A registered adapter is offered each browser driver ahead of the shipped ones.
+An adapter extends `BrowserAdapterBase`, implements the capability interfaces its browser driver can honor, and answers `supports()` for the browser driver it speaks for. A registered adapter is offered each browser driver ahead of the shipped ones.
 
 ## Steps send their own requests through 3 HTTP clients
 
@@ -2197,6 +2309,8 @@ $role = $backend->createRole(['access content'])->getValue('id');
 
 The shipped backends keep the delete contract throughout. The Drush backend's `deleteRole()` and `deleteUser()` no longer fail for a role or user that's already gone, and the in-process `deleteUser()` no longer reports "The user account ... does not exist." for one.
 
+A stub that names no entity at all is a malformed argument rather than a miss, so a delete still throws `\RuntimeException` for it. The in-process `deleteNode()` and `deleteTerm()` now do this too, for a stub that's neither saved nor carries a `nid` or `tid` value, as `deleteUser()` and `deleteBlock()` already did. A stub whose id names nothing is still a no-op.
+
 ## Every `LoadMultiple()` returns loaded entities
 
 5 of the 6 `<trait>LoadMultiple()` helpers returned entity IDs, while `userLoadMultiple()` returned loaded users. You couldn't tell from 1 signature what the next would hand back. All 6 now return the loaded entities keyed by entity ID, or an empty array when nothing matches. `userLoadMultiple()` already worked this way, so it's unchanged.
@@ -2230,7 +2344,7 @@ The keys changed as well. An entity query keys a revisionable entity type by rev
 This affects the steps that look an entity up by name and, when several share that name, visit the one with the highest key. With duplicates, they now visit the most recently created match instead of the most recently revised one:
 
 - The 4 media steps `I visit the :media_type media page with the name :name`, `I visit the :media_type media edit page with the name :name`, `I visit the :media_type media delete page with the name :name` and `I visit the :media_type media revisions page with the name :name`, and the `mediaVisitActionPageWithName()` helper behind them.
-- The 3 term steps `I visit the :vocabulary term page with the name :term_name`, `I visit the :vocabulary term edit page with the name :term_name` and `I visit the :vocabulary term delete page with the name :term_name`, and the `taxonomyVisitActionPageWithName()` helper behind them.
+- The 3 term steps `I visit the :vocabulary term page with the name :name`, `I visit the :vocabulary term edit page with the name :name` and `I visit the :vocabulary term delete page with the name :name`, and the `taxonomyVisitActionPageWithName()` helper behind them.
 - `I visit the :content_block_type content block edit page with the description :description`.
 
 ## One skip tag per trait
@@ -2323,7 +2437,7 @@ if ($this->skipTag(__TRAIT__, $scope)) {
 
 Where both lines carry the same kind of tag:
 
-- A flag such as `@email` or `@download` switches the behaviour on from either line.
+- A flag such as `@email` or `@download` switches the behavior on from either line.
 - `@email:TYPE` and `@watchdog:TYPE` add up, so the scenario uses every handler type and tracks every message type named on either line.
 - `@module:` and `@breakpoint:` take the scenario's value over the feature's. A feature tagged `@module:help` holding a scenario tagged `@module:!help` leaves `help` disabled for that scenario, and doesn't install it first.
 - Each line takes 1 `@breakpoint:` tag at most. 2 on the `Feature:` line fail every scenario below it with `Only one @breakpoint tag is allowed per feature`.
@@ -2347,7 +2461,7 @@ A tag that was only meant for some of the scenarios in a feature moves down onto
 
 Mink owns the word "driver" across the Behat ecosystem, and this package used it for a second thing: the Drupal, Drush and Blackbox backends a step resolves a capability from. So `$this->getDriver('drupal')` and `$this->getSession()->getDriver()` returned 2 unrelated objects, and only a naming rule told them apart. The backends now carry their own name, and "driver" in this package only ever means Mink's browser driver.
 
-Apart from 1 removed interface, it's a rename: behaviour stays the same, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name. The service container is the exception: a parameter, service tag or service id under its old name can go unread without an error, so [Service ids and parameters](#service-ids-and-parameters) lists what to check.
+Apart from 1 removed interface, it's a rename: behavior stays the same, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name. The service container is the exception: a parameter, service tag or service id under its old name can go unread without an error, so [Service ids and parameters](#service-ids-and-parameters) lists what to check.
 
 ### Configuration and tags
 
@@ -2551,6 +2665,7 @@ The count must be 0 or greater, but "-1" was given.
 | --- | --- | --- |
 | Every step whose method took an `int`: the queue, email, table and element counts, the element index, tolerance and offset steps, and `the REST response status code should be :code` | Behat's `Type error: ... must be of type int, string given` | `\RuntimeException` |
 | `I wait for :seconds second(s)`, `I wait for :seconds second(s) for AJAX to finish` and `I run search indexing for :count item(s)` | read as `0` | `\RuntimeException` |
+| `the XML element :element should have :count element(s)` and `I set the system time to the value :value` | read as `0` | `\RuntimeException` |
 | `I set the viewport width to :width`, `I set the viewport height to :height` and `I set the viewport to :width by :height` | read as `0`, and the resize failed without a word | `\RuntimeException` |
 
 PHP's coercion was looser than the `int` type suggested: `1e3` read as 1000, and `3.5` read as 3 with a deprecation notice, which only failed the step where PHP reports deprecations. Both now fail with `\RuntimeException`.
@@ -2566,6 +2681,7 @@ A test that asserts one of these messages needs the new text:
 | `the command exit code should be :code` | `The expected exit code must be an integer, but got "...".` | `The exit code must be an integer, but "..." was given.` |
 | `the command should complete in less than :seconds second(s)` and `... more than :seconds second(s)` | `The expected duration must be numeric, but got "...".` | `The duration must be a number, but "..." was given.` |
 | `I follow the link with the index :index ...`, both forms | `The link number must be a positive integer, but "..." was provided.` | `The link index must be an integer, but "..." was given.`, or `The link index must be 1 or greater, but "..." was given.` for an integer below 1 |
+| `the JSON path :path should have :count element(s)` | `The expected element count "..." is not a valid non-negative integer.` | `The count must be an integer, but "..." was given.`, or `The count must be 0 or greater, but "..." was given.` for an integer below 0 |
 
 ### Signatures
 
@@ -2575,9 +2691,9 @@ The methods are listed under their 4.x names; [One shape per naming idea](#one-s
 | --- | --- | --- |
 | `Drupal\QueueTrait::queueProcessItems()`, `queueAssertItemCount()` | `int $count` | `string $count` |
 | `Drupal\EmailTrait::emailAssertMessageCount()`, `emailAssertMessageCountToAddress()`, `emailAssertMessageCountWithSubject()` | `int $count` | `string $count` |
-| `Drupal\SearchApiTrait::searchApiDoIndex()` | `string\|int $limit` | `string $count` |
+| `Drupal\SearchApiTrait::searchApiRunIndexing()` | `string\|int $limit` | `string $count` |
 | `TableTrait::tableAssertRowCount()`, `tableAssertColumnCount()` | `int $count` | `string $count` |
-| `RestTrait::restAssertResponseStatusCode()` | `int $code` | `string $code` |
+| `RestTrait::restAssertResponseStatusCodeEquals()` | `int $code` | `string $code` |
 | `ElementTrait::elementClickWithIndex()`, `elementFollowLinkWithIndex()`, `elementPressButtonWithIndex()` | `int $index` | `string $index` |
 | `ElementTrait::elementAssertPinnedToTopWithTolerance()` | `int $tolerance` | `string $tolerance` |
 | `ElementTrait::elementAssertVisuallyVisibleWithOffset()`, `elementAssertNotVisuallyVisibleWithOffset()` | `int $number` | `string $offset` |

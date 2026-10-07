@@ -9,6 +9,7 @@ use Behat\Hook\AfterScenario;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
  * Control system time in tests using Drupal state overrides.
@@ -27,6 +28,8 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  */
 trait TimeTrait {
 
+  use StringTrait;
+
   /**
    * Whether a step in this scenario overrode the system time.
    */
@@ -37,9 +40,9 @@ trait TimeTrait {
    */
   #[AfterScenario]
   public function timeAfterScenario(AfterScenarioScope $scope): void {
-    // A scenario that never set the time has nothing to clean up, and
-    // resolving a backend would fail a suite that lists none reaching Drupal.
-    if (!$this->timeWasSet || $this->skipTag(__TRAIT__, $scope)) {
+    // A scenario that never set the time has nothing to clean up. Resolving a
+    // backend would fail a suite that lists none reaching Drupal.
+    if ($this->skipTag(__TRAIT__, $scope) || !$this->timeWasSet) {
       $this->timeWasSet = FALSE;
 
       return;
@@ -66,9 +69,11 @@ trait TimeTrait {
   public function timeSet(string $value): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $value = $this->stringParseInteger($value, 'value');
+
     $this->timeWasSet = TRUE;
 
-    \Drupal::state()->set('testing.time', (int) $value);
+    \Drupal::state()->set('testing.time', $value);
   }
 
   /**

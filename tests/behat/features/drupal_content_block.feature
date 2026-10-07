@@ -170,8 +170,6 @@ Feature: Check that ContentBlockTrait works
     And I log in as a user with the role "administrator"
     When I visit "/admin/content/block"
     Then I should see "[TEST] Skip Cleanup Block"
-    # Content block will not be auto-deleted due to skip tag
-    # Manual cleanup
     When the following "basic" content blocks do not exist:
       | [TEST] Skip Cleanup Block |
 

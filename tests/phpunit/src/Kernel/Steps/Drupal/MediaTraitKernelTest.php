@@ -65,9 +65,6 @@ class MediaTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertSame([], $this->context->mediaLoadMultiple('document', ['name' => 'Shared']));
   }
 
-  /**
-   * Creates and saves a media item.
-   */
   protected function createMedia(string $media_type, string $name): MediaInterface {
     $media = Media::create(['bundle' => $media_type, 'name' => $name]);
     $media->save();

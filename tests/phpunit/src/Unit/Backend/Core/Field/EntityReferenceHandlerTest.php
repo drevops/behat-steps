@@ -153,7 +153,7 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Entity reference record is missing the main property "target_id".');
 
-    (new \ReflectionMethod($handler, 'doExpand'))->invoke($handler, [['display' => 1]]);
+    static::reflect($handler)->getMethod('doExpand')->invoke($handler, [['display' => 1]]);
   }
 
   /**

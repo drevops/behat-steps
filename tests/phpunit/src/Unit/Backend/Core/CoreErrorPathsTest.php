@@ -130,6 +130,31 @@ class CoreErrorPathsTest extends UnitTestCase {
   }
 
   /**
+   * Tests that a typed delete rejects a stub that carries no id.
+   *
+   * @param string $method
+   *   The 'Core' delete method to call.
+   * @param string $entity_type
+   *   The entity type of the stub.
+   * @param string $expected_message
+   *   The message the delete throws.
+   */
+  #[DataProvider('dataProviderTypedDeleteRejectsStubWithoutId')]
+  public function testTypedDeleteRejectsStubWithoutId(string $method, string $entity_type, string $expected_message): void {
+    $core = $this->createCore();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $core->{$method}(new EntityStub($entity_type));
+  }
+
+  public static function dataProviderTypedDeleteRejectsStubWithoutId(): \Iterator {
+    yield 'node' => ['deleteNode', 'node', 'Cannot resolve a node id from the stub: neither the saved entity nor a "nid" value is set.'];
+    yield 'term' => ['deleteTerm', 'taxonomy_term', 'Cannot resolve a term id from the stub: neither the saved entity nor a "tid" value is set.'];
+  }
+
+  /**
    * Builds a 'Core' instance pointed at a valid path.
    *
    * None of the error paths under test reach the filesystem, so any existing
@@ -140,7 +165,7 @@ class CoreErrorPathsTest extends UnitTestCase {
   }
 
   /**
-   * Installs a container serving one mocked, bundle-less entity type.
+   * Installs a container serving 1 mocked, bundle-less entity type.
    *
    * @param string $entity_type
    *   The entity type id the mocked definition answers for.

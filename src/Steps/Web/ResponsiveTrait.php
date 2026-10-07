@@ -150,7 +150,7 @@ trait ResponsiveTrait {
    * @endcode
    */
   #[Given('the following responsive breakpoints exist:')]
-  public function responsiveSetBreakpointsFromTable(TableNode $table): void {
+  public function responsiveSetBreakpointMultiple(TableNode $table): void {
     $breakpoints = [];
     foreach ($table->getHash() as $row) {
       $breakpoints[$row['name']] = $row['dimensions'];

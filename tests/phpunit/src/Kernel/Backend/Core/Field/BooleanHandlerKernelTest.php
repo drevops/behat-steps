@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * Asserts that scenarios can populate boolean fields with human-readable
  * words ('Yes', 'Published') instead of 1/0. It also asserts that
- * unrecognised values raise a clear error rather than silently coercing to
+ * unrecognized values raise a clear error rather than silently coercing to
  * FALSE.
  */
 #[CoversClass(BooleanHandler::class)]
@@ -31,17 +31,11 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
     ...self::BASE_MODULES,
   ];
 
-  /**
-   * Tests canonical 'Yes' resolves to 1 and round-trips via storage.
-   */
   public function testCanonicalYesRoundTrip(): void {
     $this->attachField('field_flag', 'boolean');
     $this->assertFieldRoundTripViaBackend('field_flag', ['Yes']);
   }
 
-  /**
-   * Tests canonical 'no' resolves to 0 and round-trips via storage.
-   */
   public function testCanonicalNoRoundTrip(): void {
     $this->attachField('field_flag', 'boolean');
     $this->assertFieldRoundTripViaBackend('field_flag', ['no']);
@@ -50,7 +44,7 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests the field's configured on_label takes priority over canonical forms.
    *
-   * Site builders often customise the labels (e.g. 'Published'/'Draft' on a
+   * Site builders often customize the labels (e.g. 'Published'/'Draft' on a
    * publishing workflow field), so a scenario must be able to use those exact
    * words.
    */
