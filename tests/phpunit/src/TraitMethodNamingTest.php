@@ -54,6 +54,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Decode',
     'Delete',
     'Disable',
+    'Drop',
     'Enable',
     'Execute',
     'Exists',

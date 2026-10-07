@@ -45,7 +45,7 @@ trait DropzoneTrait {
    */
   #[When('I drop the file :filename on the dropzone :selector')]
   public function dropzoneDropFile(string $filename, string $selector): void {
-    $this->dropzoneDropFiles($selector, new TableNode([[$filename]]));
+    $this->dropzoneDrop($selector, [$filename]);
   }
 
   /**
@@ -64,6 +64,25 @@ trait DropzoneTrait {
    */
   #[When('I drop the following files on the dropzone :selector:')]
   public function dropzoneDropFiles(string $selector, TableNode $paths): void {
+    $this->dropzoneDrop($selector, $paths->getColumn(0));
+  }
+
+  /**
+   * Drop files on a target element in a single native drop event.
+   *
+   * @param string $selector
+   *   The CSS selector of the drop target.
+   * @param array<int, string> $paths
+   *   The fixture file paths, relative to the Mink "files_path" parameter.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the browser driver cannot run JavaScript.
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When no element matches the selector.
+   * @throws \RuntimeException
+   *   When a fixture file does not exist.
+   */
+  public function dropzoneDrop(string $selector, array $paths): void {
     $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
     $session = $this->getSession();
@@ -74,8 +93,8 @@ trait DropzoneTrait {
     }
 
     $resolved_paths = [];
-    foreach ($paths->getColumn(0) as $row) {
-      $resolved_paths[] = $this->fixtureDirectoryGetFile((string) $row);
+    foreach ($paths as $path) {
+      $resolved_paths[] = $this->fixtureDirectoryGetFile($path);
     }
 
     $token = str_replace('.', '', uniqid('', TRUE));
