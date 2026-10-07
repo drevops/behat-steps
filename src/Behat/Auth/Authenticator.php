@@ -12,6 +12,8 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Mink;
 use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Behat\Mink\BrowserCapabilityResolver;
+use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
 use DrevOps\BehatSteps\Behat\MinkAwareTrait;
 use DrevOps\BehatSteps\Behat\ParametersTrait;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
@@ -24,6 +26,18 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
 
   use MinkAwareTrait;
   use ParametersTrait;
+
+  /**
+   * Seconds a JavaScript session waits for the URL to change after a login.
+   *
+   * A 'login_wait' above it is used instead.
+   */
+  public const int JAVASCRIPT_NAVIGATION_WAIT = 10;
+
+  /**
+   * Resolves what the session's browser driver can do.
+   */
+  protected BrowserCapabilityResolver $browserCapabilityResolver;
 
   /**
    * Constructs an Authenticator object.
@@ -52,6 +66,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     $this->setMink($mink);
     $this->setMinkParameters($mink_parameters);
     $this->setParameters($parameters);
+    $this->browserCapabilityResolver = new BrowserCapabilityResolver();
   }
 
   /**
@@ -62,8 +77,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
 
     $session = $this->getSession();
 
-    $login_url = $this->locatePath($this->getDrupalText('login_url'));
-    $session->visit($login_url);
+    $session->visit($this->locatePath($this->getDrupalText('login_url')));
 
     $name = (string) $user->getValue('name');
     $pass = (string) $user->getValue('pass');
@@ -79,25 +93,27 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     if (!$login_element instanceof NodeElement) {
       throw new ElementNotFoundException($session->getDriver(), 'submit button', 'css', 'login form');
     }
+
+    // The login URL can redirect, so the wait compares against the URL the
+    // form is submitted from.
+    $form_url = $session->getCurrentUrl();
     $login_element->click();
 
     $login_wait = (int) $this->getParameter('login_wait');
-    if ($login_wait > 0) {
-      $timeout = microtime(TRUE) + $login_wait;
-      while (microtime(TRUE) < $timeout && $session->getCurrentUrl() === $login_url) {
-        usleep(100000);
-      }
 
-      $timeout = microtime(TRUE) + $login_wait;
-      while (microtime(TRUE) < $timeout && !$session->getPage()->find('css', 'body')) {
-        usleep(100000);
-      }
+    // In a JavaScript session, 'click()' can return before the browser loads
+    // the next page, so the wait runs even when 'login_wait' is 0.
+    $navigation_wait = $this->isJavascriptSession() ? max($login_wait, self::JAVASCRIPT_NAVIGATION_WAIT) : $login_wait;
+
+    if ($navigation_wait > 0) {
+      $this->waitUntil($navigation_wait, static fn(): bool => $session->getCurrentUrl() !== $form_url);
+    }
+
+    if ($login_wait > 0) {
+      $this->waitUntil($login_wait, static fn(): bool => $session->getPage()->find('css', 'body') !== NULL);
 
       // The logged-in selector may be added by JS or AJAX after the render.
-      $timeout = microtime(TRUE) + $login_wait;
-      while (microtime(TRUE) < $timeout && !$session->getPage()->has('css', $this->getDrupalSelector('logged_in_selector'))) {
-        usleep(100000);
-      }
+      $this->waitUntil($login_wait, $this->hasLoggedInSelector(...));
     }
 
     if (!$this->isLoggedIn()) {
@@ -154,7 +170,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
 
     // The logged-in class on the body tag works with almost any theme.
     try {
-      if ($page->has('css', $this->getDrupalSelector('logged_in_selector'))) {
+      if ($this->hasLoggedInSelector()) {
         return TRUE;
       }
     }
@@ -162,28 +178,27 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
       // The browser driver has not loaded a page yet.
     }
 
+    // The current page can predate the login, so the check repeats on the page
+    // the login URL leads to.
+    $session->visit($this->locatePath($this->getDrupalText('login_url')));
+    if ($this->hasLoggedInSelector()) {
+      return TRUE;
+    }
+
     // Some themes do not add that class to the body, so fall back to the
     // presence of the login form.
-    $login_url = $this->locatePath($this->getDrupalText('login_url'));
-    $session->visit($login_url);
     if ($page->has('css', $this->getDrupalSelector('login_form_selector'))) {
       $this->fastLogout();
 
       return FALSE;
     }
 
-    // As a last resort, a logout link means a user is logged in. A theme that
-    // defers header navigation (Critical CSS or a late JS render) may add the
-    // link late, so the poll reuses the 'login_wait' window of 'login()'.
+    // As a last resort, the logged-in selector or a logout link on the
+    // homepage means a user is logged in. A theme deferring its header
+    // (Critical CSS or a late JS render) can add either late, so the poll runs
+    // for up to 'login_wait' seconds.
     $session->visit($this->locatePath('/'));
-    $login_wait = (int) $this->getParameter('login_wait');
-    if ($login_wait > 0) {
-      $timeout = microtime(TRUE) + $login_wait;
-      while (microtime(TRUE) < $timeout && !$this->getLogoutElement() instanceof NodeElement) {
-        usleep(100000);
-      }
-    }
-    if ($this->getLogoutElement() instanceof NodeElement) {
+    if ($this->waitUntil((int) $this->getParameter('login_wait'), fn(): bool => $this->hasLoggedInSelector() || $this->getLogoutElement() instanceof NodeElement)) {
       return TRUE;
     }
 
@@ -230,6 +245,50 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
    */
   protected function getLogoutConfirmElement(DocumentElement $element): ?NodeElement {
     return $element->findButton($this->getDrupalText('logout'));
+  }
+
+  /**
+   * Determines whether the current page matches the logged-in selector.
+   *
+   * @phpstan-impure
+   */
+  protected function hasLoggedInSelector(): bool {
+    return $this->getSession()->getPage()->has('css', $this->getDrupalSelector('logged_in_selector'));
+  }
+
+  /**
+   * Determines whether the session's browser driver runs JavaScript.
+   */
+  protected function isJavascriptSession(): bool {
+    return $this->browserCapabilityResolver->has($this->getSession()->getDriver(), JavascriptCapabilityInterface::class);
+  }
+
+  /**
+   * Polls a condition until it holds or the given seconds elapse.
+   *
+   * The condition is checked at least once, so 0 seconds checks it without
+   * waiting.
+   *
+   * @param int $seconds
+   *   The longest time to poll for, in seconds.
+   * @param \Closure(): bool $condition
+   *   The condition to poll.
+   *
+   * @return bool
+   *   Whether the condition held.
+   */
+  protected function waitUntil(int $seconds, \Closure $condition): bool {
+    $timeout = microtime(TRUE) + $seconds;
+
+    while (!$condition()) {
+      if (microtime(TRUE) >= $timeout) {
+        return FALSE;
+      }
+
+      usleep(100000);
+    }
+
+    return TRUE;
   }
 
   /**

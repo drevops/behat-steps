@@ -9,6 +9,7 @@ use Behat\Mink\Element\DocumentElement as UpstreamDocumentElement;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
+use DrevOps\BehatSteps\Behat\Auth\Authenticator;
 use DrevOps\BehatSteps\Behat\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement;
@@ -166,7 +167,7 @@ final class BehatStepsExtension implements ExtensionInterface {
         ->integerNode('login_wait')
           ->min(0)
           ->defaultValue(0)
-          ->info('Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting.')
+          ->info(sprintf('Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting. A JavaScript session still waits for the URL to change after the login form is submitted, for up to %d seconds or this value, whichever is larger.', Authenticator::JAVASCRIPT_NAVIGATION_WAIT))
         ->end()
         ->arrayNode('steps')
           ->info('Default values of the options the step traits declare, keyed by trait group and then by option name. Each group is named after the trait that declares it, so "JavascriptTrait" reads "javascript" and "BigPipeTrait" reads "big_pipe". A group naming a trait none of the registered contexts composes is ignored, so one profile can carry the defaults of every suite.' . PHP_EOL
