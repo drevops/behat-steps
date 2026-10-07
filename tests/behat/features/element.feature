@@ -399,7 +399,21 @@ Feature: Check that ElementTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The heading "Basic Elements" was found on the page http://cli:8888/elements.html.
+      The heading "Basic Elements" was found on the page "http://cli:8888/elements.html".
+      """
+
+  @test-trait:ElementTrait
+  Scenario: Assert "Then the button :button should not exist" fails when the button exists
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/elements.html"
+      Then the button "focus-button-outline" should not exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The button "focus-button-outline" was found on the page "http://cli:8888/elements.html".
       """
 
   @phpserver

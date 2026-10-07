@@ -789,7 +789,7 @@ JS;
     $option_element = $select_element->find('named', ['option', $option]);
 
     if ($option_element !== NULL) {
-      throw new ExpectationException(sprintf('The option "%s" was found in the select "%s" on the page %s, but it should not exist.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The option "%s" was found in the select "%s" on the page "%s", but it should not exist.', $option, $selector, $this->fieldCurrentPath()), $this->getSession()->getDriver());
     }
   }
 
@@ -819,7 +819,7 @@ JS;
     }
 
     if (!$option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was not selected on the page %s.', $option, $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The option "%s" was not selected on the page "%s".', $option, $path), $this->getSession()->getDriver());
     }
   }
 
@@ -846,7 +846,7 @@ JS;
     }
 
     if ($option_field->isSelected()) {
-      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page %s, but it should not be.', $option, $selector, $path), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The option "%s" was selected in the select "%s" on the page "%s", but it should not be.', $option, $selector, $path), $this->getSession()->getDriver());
     }
   }
 

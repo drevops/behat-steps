@@ -344,6 +344,7 @@ $profile = (new Profile('default'))
   ->withExtension(new Extension(BehatStepsExtension::class, [
     'backends' => {{CONFIGURED_BACKENDS}},
     'drupal' => ['drupal_root' => {{DRUPAL_ROOT}}],{{DRUSH_BACKEND}}
+    'regions' => ['content' => '#content', 'sidebar' => '#sidebar', 'footer' => '#footer'],
     'steps' => {{STEPS_CONFIG}},
   ]))
   ->withExtension(new Extension(BehatScreenshotExtension::class, ['dir' => '%paths.base%/.logs/screenshots', 'purge' => FALSE, 'on_failed' => TRUE, 'always_fullscreen' => TRUE, 'info_types' => ['url', 'feature', 'step', 'datetime']])){{COVERAGE_EXTENSION}};

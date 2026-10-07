@@ -1490,7 +1490,7 @@ If your project catches an exception from one of these steps, update the type:
 | --- | --- | --- |
 | `the response should be in XML format` | `Failed to load XML. Errors: ...` | `The response is not valid XML: ...` |
 | `the option :option within the select :selector should exist` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
-| `the option :option within the select :selector should not exist` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but it should not exist.` |
+| `the option :option within the select :selector should not exist` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page "...", but it should not exist.` |
 | `I unselect the option :option from the select :selector` | `The option "..." was not found in the select "...".` | `Option in the select "..." with value\|text "..." not found.` |
 | `the option :option within the select :selector should not be selected` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
 | `I fill in the multi-value field :field with the following values:` | `Could not locate input row N for multi-value field "...".` | `Input row of the multi-value field "..." with index "N" not found.` |
@@ -1520,7 +1520,7 @@ Behat reports every one of these as a failed step either way, so a scenario that
 
 ## Failure messages read one way
 
-A failure message quotes the values it names in double quotes, puts the noun before the value it names (`the attribute "..."`, not `the "..." attribute`), ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
+A failure message quotes the values it names in double quotes, the page URL included, puts the noun before the value it names (`the attribute "..."`, not `the "..." attribute`), ends with a period, and reports something present that must be absent with `, but it should not`. The messages below changed wording only, so the exception a step throws is the same as the row above says; only a test asserting on the text needs the new one. Rows were checked against 3.14.4: a message introduced in 4.x is not listed.
 
 | Trait | Before | After |
 | --- | --- | --- |
@@ -1540,7 +1540,8 @@ A failure message quotes the values it names in double quotes, puts the noun bef
 | ElementTrait | Element(s) defined by "..." selector is displayed within a viewport, but should not be. | Element(s) defined by "..." selector is displayed within the viewport, but it should not be. |
 | FieldTrait | The field "..." is empty, but should not be. | The field "..." is empty, but it should not be. |
 | FieldTrait | The field "..." is marked as required, but should not be. | The field "..." is marked as required, but it should not be. |
-| FieldTrait | The option "..." was selected in the select "..." on the page ..., but should not be. | The option "..." was selected in the select "..." on the page ..., but it should not be. |
+| FieldTrait | The option "..." was selected in the select "..." on the page ..., but should not be. | The option "..." was selected in the select "..." on the page "...", but it should not be. |
+| FieldTrait | The option "..." was not selected on the page .... | The option "..." was not selected on the page "...". |
 | FieldTrait | The radio button "..." is selected, but should not be. | The radio button "..." is selected, but it should not be. |
 | FileDownloadTrait | Found file partially named "..." in archive but should not. | Found file partially named "..." in archive, but it should not. |
 | ResponseTrait | The response contains the header "...", but should not. | The response contains the header "...", but it should not. |

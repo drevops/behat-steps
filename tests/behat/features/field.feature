@@ -328,7 +328,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
-      The option "UTC" was found in the select "date_default_timezone" on the page /admin/config/regional/settings, but it should not exist.
+      The option "UTC" was found in the select "date_default_timezone" on the page "/admin/config/regional/settings", but it should not exist.
       """
 
   @test-trait:FieldTrait
@@ -373,7 +373,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
-      The option "UTC" was selected in the select "date_default_timezone" on the page /admin/config/regional/settings, but it should not be.
+      The option "UTC" was selected in the select "date_default_timezone" on the page "/admin/config/regional/settings", but it should not be.
       """
 
   @test-trait:FieldTrait
@@ -418,7 +418,7 @@ Feature: Check that FieldTrait works
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
-      The option "Australia/Sydney" was not selected on the page /admin/config/regional/settings.
+      The option "Australia/Sydney" was not selected on the page "/admin/config/regional/settings".
       """
 
   @test-trait:FieldTrait

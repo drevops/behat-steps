@@ -224,7 +224,7 @@ trait ElementTrait {
   #[Then('the heading :heading should not exist')]
   public function elementAssertHeadingNotExists(string $heading): void {
     if ($this->elementFindHeading($heading) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The heading "%s" was found on the page %s.', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The heading "%s" was found on the page "%s".', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -254,7 +254,7 @@ trait ElementTrait {
   #[Then('the button :button should not exist')]
   public function elementAssertButtonNotExists(string $button): void {
     if ($this->getSession()->getPage()->findButton($button) instanceof NodeElement) {
-      throw new ExpectationException(sprintf('The button "%s" was found on the page %s.', $button, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+      throw new ExpectationException(sprintf('The button "%s" was found on the page "%s".', $button, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
