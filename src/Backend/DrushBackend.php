@@ -56,29 +56,34 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * Sets the drush alias or root path.
    *
-   * @param string $alias
-   *   A drush alias.
-   * @param string $root_path
-   *   The root path of the Drupal install. This is an alternative to using
-   *   aliases.
+   * @param string|null $alias
+   *   A drush alias, or NULL to reach the site through the root path.
+   * @param string|null $root_path
+   *   The root path of the Drupal install, or NULL when an alias is given.
+   *   This is an alternative to using aliases.
    * @param string $binary
    *   The path to the drush binary.
    * @param \Drupal\Component\Utility\Random $random
    *   Random generator.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   Thrown when a required parameter is missing, or when the root path
-   *   cannot be resolved.
+   *   Thrown when neither an alias nor a root path is given, when either is
+   *   empty, or when the root path cannot be resolved.
    */
   public function __construct(?string $alias = NULL, ?string $root_path = NULL, string $binary = 'drush', ?Random $random = NULL) {
-    if (($alias === NULL || $alias === '') && ($root_path === NULL || $root_path === '')) {
-      throw new BootstrapException('A drush alias or root path is required.');
+    if ($alias !== NULL && ltrim($alias, '@') === '') {
+      throw new BootstrapException(sprintf('The drush alias "%s" names no site. Pass NULL to leave it out.', $alias));
     }
 
-    if ($alias !== NULL && $alias !== '') {
+    // 'realpath()' resolves an empty path to the working directory.
+    if ($root_path === '') {
+      throw new BootstrapException('The root path is empty. Pass NULL to leave it out.');
+    }
+
+    if ($alias !== NULL) {
       $this->alias = ltrim($alias, '@');
     }
-    else {
+    elseif ($root_path !== NULL) {
       $resolved = realpath($root_path);
 
       if ($resolved === FALSE) {
@@ -86,6 +91,9 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       }
 
       $this->root = $resolved;
+    }
+    else {
+      throw new BootstrapException('A drush alias or root path is required.');
     }
 
     if ($binary === 'drush') {

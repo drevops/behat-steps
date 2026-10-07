@@ -374,23 +374,29 @@ final class BehatStepsExtension implements ExtensionInterface {
    *   The extension configuration.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-   *   When neither a Drush alias nor a Drupal root is configured.
+   *   When neither a Drush alias nor a Drupal root is configured, or when
+   *   either is configured empty.
    */
   protected function loadDrush(FileLoader $loader, ContainerBuilder $container, array $config): void {
     if (isset($config['drush'])) {
       $loader->load('backends/drush.yml');
+
+      foreach (['alias', 'root'] as $key) {
+        if (($config['drush'][$key] ?? NULL) === '') {
+          throw new InvalidConfigurationException(sprintf('Drush "%s" is empty. Set a value, or leave it out.', $key));
+        }
+      }
+
       if (!isset($config['drush']['alias']) && !isset($config['drush']['root'])) {
         throw new InvalidConfigurationException('Drush "alias" or "root" path is required for the Drush backend.');
       }
-      $config['drush']['alias'] ??= FALSE;
-      $container->setParameter('behat_steps.backend.drush.alias', $config['drush']['alias']);
+      $container->setParameter('behat_steps.backend.drush.alias', $config['drush']['alias'] ?? NULL);
 
       $config['drush']['binary'] ??= 'vendor/bin/drush';
       $config['drush']['binary'] = self::resolveBinaryPath($config['drush']['binary']);
       $container->setParameter('behat_steps.backend.drush.binary', $config['drush']['binary']);
 
-      $config['drush']['root'] ??= FALSE;
-      $container->setParameter('behat_steps.backend.drush.root', $config['drush']['root']);
+      $container->setParameter('behat_steps.backend.drush.root', $config['drush']['root'] ?? NULL);
 
       $this->setDrushOptions($container, $config);
     }

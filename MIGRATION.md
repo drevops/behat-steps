@@ -2352,6 +2352,20 @@ A project with its own backend implementing these capabilities adds the methods 
 
 Two smaller corrections come with it. A keyed `configGet()` returned Drush's `{"<name>:<key>": value}` envelope instead of the value. And `configGetOriginal()` was the same call as `configGet()`, so the stored and effective reads the config steps distinguish collapsed into one; the effective read now passes `--include-overridden` and the stored read does not.
 
+## The Drush backend reads `NULL` as an unset alias or root
+
+`NULL` is the only value meaning the Drush backend wasn't given an alias or a root path. The extension used to pass `FALSE` for an unset `alias` or `root`, PHP turned it into an empty string, and `DrushBackend` read an empty string as missing too. It now passes `NULL`, so the `behat_steps.backend.drush.alias` and `behat_steps.backend.drush.root` container parameters hold `NULL` when unset, and the constructor throws a `BootstrapException` for an empty alias or root path:
+
+```php
+// Before.
+$backend = new DrushBackend('', 'web');
+
+// After.
+$backend = new DrushBackend(NULL, 'web');
+```
+
+An empty `alias` or `root` under `behat_steps: drush:` fails the container build and names the setting, where it used to be read as missing. Leave the setting out, or set it to `NULL`.
+
 ## Capability creates return the stub, deletes tolerate a miss
 
 The capability interfaces disagreed about what a create returns and what a delete does when its target is already gone. Every create now returns a stub, and every delete returns `void` and does nothing for a target that doesn't exist, so teardown code can delete whatever a scenario created without checking first.

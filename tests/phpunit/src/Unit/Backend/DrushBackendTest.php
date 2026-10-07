@@ -46,21 +46,59 @@ class DrushBackendTest extends UnitTestCase {
   }
 
   /**
+   * Tests instantiating the backend with an alias that reads as falsy.
+   */
+  public function testWithAliasZero(): void {
+    $backend = new DrushBackend('0');
+    $this->assertSame('0', $backend->alias);
+  }
+
+  /**
    * Tests instantiating the backend with only the root path.
    */
   public function testWithRoot(): void {
     // The backend only resolves the root with 'realpath()', so the path to this
     // file serves as a root.
-    $backend = new DrushBackend('', __FILE__);
+    $backend = new DrushBackend(NULL, __FILE__);
     $this->assertSame(__FILE__, $backend->root);
   }
 
   /**
-   * Tests instantiating the backend with missing alias and root path.
+   * Tests that an alias is used even when a root path is given beside it.
    */
-  public function testWithNeither(): void {
+  public function testWithAliasAndRoot(): void {
+    $backend = new DrushBackend('alias', __FILE__);
+
+    $this->assertSame('alias', $backend->alias);
+    $this->assertFalse((new \ReflectionProperty(DrushBackend::class, 'root'))->isInitialized($backend));
+  }
+
+  /**
+   * Tests that the backend rejects a missing or an empty alias and root path.
+   *
+   * @param string|null $alias
+   *   The alias to construct with.
+   * @param string|null $root_path
+   *   The root path to construct with.
+   * @param string $expected_message
+   *   The message the constructor is expected to throw with.
+   */
+  #[DataProvider('dataProviderConstructorRejects')]
+  public function testConstructorRejects(?string $alias, ?string $root_path, string $expected_message): void {
     $this->expectException(BootstrapException::class);
-    new DrushBackend('', '');
+    $this->expectExceptionMessage($expected_message);
+
+    new DrushBackend($alias, $root_path);
+  }
+
+  public static function dataProviderConstructorRejects(): \Iterator {
+    yield 'neither given' => [NULL, NULL, 'A drush alias or root path is required.'];
+    yield 'an empty alias' => ['', NULL, 'The drush alias "" names no site. Pass NULL to leave it out.'];
+    yield 'an alias of only the prefix' => ['@', NULL, 'The drush alias "@" names no site. Pass NULL to leave it out.'];
+    yield 'an empty alias beside a root path' => ['', __FILE__, 'The drush alias "" names no site. Pass NULL to leave it out.'];
+    yield 'an empty root path' => [NULL, '', 'The root path is empty. Pass NULL to leave it out.'];
+    yield 'an empty root path beside an alias' => ['alias', '', 'The root path is empty. Pass NULL to leave it out.'];
+    yield 'a root path that does not exist' => [NULL, '/nonexistent/drupal/root', 'No Drupal installation found at /nonexistent/drupal/root.'];
   }
 
   /**
