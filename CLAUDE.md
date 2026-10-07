@@ -100,7 +100,7 @@ ahoy copy-files
     (`the media type :media_type`)
   - Any other placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`, `a REST :method request`) also come first
   - A step never opens with a placeholder: `the :content_type content with the title :title should not exist`
-  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, the names in `docs.php`'s `non_descriptive_placeholders()` and `placeholder_synonyms()`, the phrases in `rejected_step_phrases()`, an `I visit` step that names no page or link, and a `Then` step that opens with `no`
+  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, the names in `docs.php`'s `non_descriptive_placeholders()` and `placeholder_synonyms()`, the phrases in `rejected_step_phrases()`, an `I visit` step that names no page or link, a `Then` step that opens with `no`, and a qualifier ending a `Then` step after `exist` or `be <state>`
 
 - **Settled Wording**: each idea reads 1 way
   - A step that opens a page reads `I visit the ... page` and names the page: `I visit the :content_type content edit page with the title :title`, never `I edit the ...`
@@ -128,6 +128,7 @@ ahoy copy-files
   - Use `should` and `should not` for assertions
   - Start with the entity being asserted
   - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step
+  - A qualifier that narrows the asserted entity reads with it, before `should`: `the link :link in the region :region should exist`. A qualifier of the predicate's object stays with it (`should match the XSD schema in the file :filename`), and a table or PyString argument still comes last: `the meta tag should exist with the following attributes:`
   - Methods should include the `Assert` prefix
 
 ## Exception Types
@@ -153,7 +154,7 @@ In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an ass
 ## Common Behat Step Patterns
 - Block assertions:
   - `the block "..." should exist`
-  - `the block "..." should exist in the region "..."`
+  - `the block "..." in the region "..." should exist`
 
 - Content block operations:
   - `the content block type "..." should exist`

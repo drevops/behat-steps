@@ -20,26 +20,26 @@ Feature: Check that RegionTrait works
     And the region "sidebar" should contain the heading "Sidebar heading"
 
   @phpserver
-  Scenario: Assert "Then the link :link should exist in the region :region" works as expected
+  Scenario: Assert "Then the link :link in the region :region should exist" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/regions.html"
-    Then the link "About us" should exist in the region "footer"
-    And the link "About us" should not exist in the region "content"
-    And the link "Read more" should exist in the region "content"
+    Then the link "About us" in the region "footer" should exist
+    And the link "About us" in the region "content" should not exist
+    And the link "Read more" in the region "content" should exist
 
   @phpserver
-  Scenario: Assert "Then the button :button should exist in the region :region" works as expected
+  Scenario: Assert "Then the button :button in the region :region should exist" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/regions.html"
-    Then the button "Save" should exist in the region "content"
-    And the button "Save" should not exist in the region "footer"
+    Then the button "Save" in the region "content" should exist
+    And the button "Save" in the region "footer" should not exist
 
   @phpserver
-  Scenario: Assert "Then the element :selector should exist in the region :region" works as expected
+  Scenario: Assert "Then the element :selector in the region :region should exist" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/regions.html"
-    Then the element "img" should exist in the region "content"
-    And the element "img" should not exist in the region "footer"
+    Then the element "img" in the region "content" should exist
+    And the element "img" in the region "footer" should not exist
     And the element "h2" in the region "content" should have the value "Latest news"
     And the element "h2" in the region "content" should not have the value "Sidebar heading"
     And the element "img" in the region "content" should have the attribute "alt" with the value "Logo"

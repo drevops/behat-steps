@@ -58,6 +58,7 @@ of tests. Follow these guidelines:
   - Start the step with the entity being asserted, e.g.,
     `Then the link with a title :title exists`.
   - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. Start with the entity being asserted.
+  - A qualifier that narrows the entity, such as `in the region :region`, `within the select :selector` or `on the element :element`, reads with it, before `should`: `the link :link in the region :region should exist`, not `the link :link should exist in the region :region`. A qualifier of the predicate's own object stays with the object, as in `the response should match the XSD schema in the file :filename`, and a step that takes a table or a PyString still names it last: `the meta tag should exist with the following attributes:`. `ahoy lint-docs` rejects a qualifier that ends the step after `exist` or `be <state>`.
   - Methods should include the `Assert` prefix, e.g., `userAssertHasRoles()`.
 
 We have some automated check for the steps format.

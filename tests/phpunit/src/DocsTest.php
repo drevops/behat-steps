@@ -1780,7 +1780,7 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testAssertSelectMethod',
-                'steps' => ['@Then the option :option should exist within the select element :selector'],
+                'steps' => ['@Then the option :option within the select element :selector should exist'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
               ],
@@ -1824,7 +1824,72 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testAssertSelectMethod',
-                'steps' => ['@Then the option :option should exist within the select :selector'],
+                'steps' => ['@Then the option :option within the select :selector should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'qualifier after the predicate' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertRegionMethod',
+                'steps' => ['@Then the link :link should exist in the region :region'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSelectMethod',
+                'steps' => ['@Then the option :option should be selected within the select :selector'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  TestTrait::testAssertRegionMethod - Qualifier follows the predicate but should precede "should" with the subject it narrows' . PHP_EOL,
+          '  TestTrait::testAssertSelectMethod - Qualifier follows the predicate but should precede "should" with the subject it narrows' . PHP_EOL,
+        ],
+      ],
+      'qualifier with the subject, after an object or naming a table' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertRegionMethod',
+                'steps' => ['@Then the link :link in the region :region should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertTableMethod',
+                'steps' => ['@Then the meta tag should exist with the following attributes:'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertViewportMethod',
+                'steps' => ['@Then the element :selector should be displayed within the viewport with a top offset of :offset pixels'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSchemaMethod',
+                'steps' => ['@Then the response should match the XSD schema in the file :filename'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
               ],

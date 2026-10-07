@@ -316,11 +316,11 @@ Feature: Check that TableTrait works
     And the row containing "Delta" should contain the value "Draft"
 
   @phpserver
-  Scenario: Assert "Then the link :link should exist in the row containing :partial_text" works as expected
+  Scenario: Assert "Then the link :link in the row containing :partial_text should exist" works as expected
     Given the user is anonymous
     When I visit "http://cli:8888/table.html"
-    Then the link "Edit" should exist in the row containing "Delta record"
-    And the link "Edit" should not exist in the row containing "Zeta record"
+    Then the link "Edit" in the row containing "Delta record" should exist
+    And the link "Edit" in the row containing "Zeta record" should not exist
 
   @test-trait:TableTrait
   Scenario: Assert "When I click on the link :link in the row containing :partial_text" fails when the row has no such link
@@ -398,13 +398,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the link :link should exist in the row containing :partial_text" fails when the row has no such link
+  Scenario: Assert "Then the link :link in the row containing :partial_text should exist" fails when the row has no such link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the link "Edit" should exist in the row containing "Zeta record"
+      Then the link "Edit" in the row containing "Zeta record" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -413,13 +413,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the link :link should not exist in the row containing :partial_text" fails when the row has the link
+  Scenario: Assert "Then the link :link in the row containing :partial_text should not exist" fails when the row has the link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       Given the user is anonymous
       When I visit "http://cli:8888/table.html"
-      Then the link "Edit" should not exist in the row containing "Delta record"
+      Then the link "Edit" in the row containing "Delta record" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

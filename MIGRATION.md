@@ -414,6 +414,7 @@ The passes above still left steps that broke the step-text rules in [CONTRIBUTIN
 - Every noun takes an article: `on the element :element`, `to the URL :url`, `the system time`, `the last XML response`.
 - A value reads `the value :value`, so `should be equal to :value` became `should be equal to the value :value`.
 - A step that names its target compares against `:value`, so the region, row and command output assertions take `:value` where they took `:text`. `the modal should contain :text` keeps `:text`, because it asserts on a whole body with no named target.
+- A qualifier that narrows the asserted subject, such as `in the region :region` or `within the select :selector`, reads with the subject before `should`: `the block :label in the region :region should exist`. A step that takes a table or a PyString still names it last.
 - A partial match reads `a <thing> containing :partial_<thing>`, as the cookie steps already did. The table row steps find a row by part of its text, so they read `the row containing :partial_text`, and their methods take `$partial_text` where they took `$row_text`.
 - `:param` became `:name`, the placeholder every other named thing uses, and an email link's position became `:index`, as it is in `I follow the link :link with the index :index`.
 
@@ -441,8 +442,8 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 | `Given the instance of :admin_label block exists with the following configuration:` | `Given the instance of the block :admin_label exists with the following configuration:` |
 | `Given the block :label has the following :condition condition configuration:` | `Given the block :label has the condition :condition with the following configuration:` |
 | `Given the block :label has the :condition condition removed` | `Given the block :label has the condition :condition removed` |
-| `Then the block :label should exist in the :region region` | `Then the block :label should exist in the region :region` |
-| `Then the block :label should not exist in the :region region` | `Then the block :label should not exist in the region :region` |
+| `Then the block :label should exist in the :region region` | `Then the block :label in the region :region should exist` |
+| `Then the block :label should not exist in the :region region` | `Then the block :label in the region :region should not exist` |
 
 ### CommandTrait
 
@@ -613,10 +614,10 @@ The media, ECK and content block navigation steps and the 2 viewport offset step
 
 | Before | After |
 | --- | --- |
-| `Then the option :option should exist within the select element :selector` | `Then the option :option should exist within the select :selector` |
-| `Then the option :option should not exist within the select element :selector` | `Then the option :option should not exist within the select :selector` |
-| `Then the option :option should be selected within the select element :selector` | `Then the option :option should be selected within the select :selector` |
-| `Then the option :option should not be selected within the select element :selector` | `Then the option :option should not be selected within the select :selector` |
+| `Then the option :option should exist within the select element :selector` | `Then the option :option within the select :selector should exist` |
+| `Then the option :option should not exist within the select element :selector` | `Then the option :option within the select :selector should not exist` |
+| `Then the option :option should be selected within the select element :selector` | `Then the option :option within the select :selector should be selected` |
+| `Then the option :option should not be selected within the select element :selector` | `Then the option :option within the select :selector should not be selected` |
 
 ### Method names
 
@@ -930,7 +931,7 @@ The suite registers `Behat\MinkExtension\Context\MinkContext` for the base brows
 
 ### Regions
 
-Every region step drops the optional `( region)` suffix and names the region last, so one phrasing covers each action.
+Every region step drops the optional `( region)` suffix, so one phrasing covers each action. An action names the region last, and an assertion names it with the subject it narrows, before `should`.
 
 | Before | After |
 | --- | --- |
@@ -944,14 +945,14 @@ Every region step drops the optional `( region)` suffix and names the region las
 | `Then I should not see( the text) :text in the :region( region)` | `Then the region :region should not contain the value :value` |
 | `Then I should see the heading :heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
 | `Then I should see the :heading heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
-| `Then I should see the link :link in the :region( region)` | `Then the link :link should exist in the region :region` |
-| `Then I should not see the link :link in the :region( region)` | `Then the link :link should not exist in the region :region` |
-| `Then I should see the button :button in the :region( region)` | `Then the button :button should exist in the region :region` |
-| `Then I should see the :button button in the :region( region)` | `Then the button :button should exist in the region :region` |
-| `Then I should not see the button :button in the :region( region)` | `Then the button :button should not exist in the region :region` |
-| `Then I should not see the :button button in the :region( region)` | `Then the button :button should not exist in the region :region` |
-| `Then I should see the :tag element in the :region( region)` | `Then the element :selector should exist in the region :region` |
-| `Then I should not see the :tag element in the :region( region)` | `Then the element :selector should not exist in the region :region` |
+| `Then I should see the link :link in the :region( region)` | `Then the link :link in the region :region should exist` |
+| `Then I should not see the link :link in the :region( region)` | `Then the link :link in the region :region should not exist` |
+| `Then I should see the button :button in the :region( region)` | `Then the button :button in the region :region should exist` |
+| `Then I should see the :button button in the :region( region)` | `Then the button :button in the region :region should exist` |
+| `Then I should not see the button :button in the :region( region)` | `Then the button :button in the region :region should not exist` |
+| `Then I should not see the :button button in the :region( region)` | `Then the button :button in the region :region should not exist` |
+| `Then I should see the :tag element in the :region( region)` | `Then the element :selector in the region :region should exist` |
+| `Then I should not see the :tag element in the :region( region)` | `Then the element :selector in the region :region should not exist` |
 | `Then I should see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should have the value :value` |
 | `Then I should not see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should not have the value :value` |
 | `Then I should see the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector in the region :region should have the attribute :attribute with the value :value` |
@@ -989,8 +990,8 @@ The message tables lose their header row: each row is a message, with no `error 
 | `Given I press :button in the :rowText row` | `When I press the button :button in the row containing :partial_text` |
 | `Then I should see the text :text in the :rowText row` | `Then the row containing :partial_text should contain the value :value` |
 | `Then I should not see the text :text in the :rowText row` | `Then the row containing :partial_text should not contain the value :value` |
-| `Then I should see the :link in the :rowText row` | `Then the link :link should exist in the row containing :partial_text` |
-| `Then I should not see the :link in the :rowText row` | `Then the link :link should not exist in the row containing :partial_text` |
+| `Then I should see the :link in the :rowText row` | `Then the link :link in the row containing :partial_text should exist` |
+| `Then I should not see the :link in the :rowText row` | `Then the link :link in the row containing :partial_text should not exist` |
 
 ### Mail
 
@@ -1465,12 +1466,12 @@ If your project catches an exception from one of these steps, update the type:
 | `Drupal\WatchdogTrait` (the check for PHP errors logged during a scenario) | `ExpectationException` | `AssertionException` |
 | `MetatagTrait` (all `Then` steps) | `\Exception` | `ExpectationException`; `ElementNotFoundException` when the meta tag itself is missing; `\RuntimeException` when an hreflang alternate page returns an HTTP error |
 | `XmlTrait` (`the response should be in XML format`) | `\RuntimeException` | `ExpectationException` |
-| `FieldTrait` (`the option ... should (not) exist within the select ...`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select or a missing option, `ExpectationException` for an option that exists but should not |
+| `FieldTrait` (`the option ... within the select ... should (not) exist`) | `\InvalidArgumentException` | `ElementNotFoundException` for a missing select or a missing option, `ExpectationException` for an option that exists but should not |
 | `Drupal\CacheTrait` (`the page cache for the path(s) ... is empty`) | `\InvalidArgumentException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...`) | `\InvalidArgumentException` | `\RuntimeException` |
 | `TableTrait` (any table step, when the table or the row is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `ModalTrait` (`I close the modal`, `I click on the element ... in the modal`, `the modal should (not) contain ...`, when the close button, the content element or the target element is missing) | `ExpectationException` | `ElementNotFoundException` |
-| `FieldTrait` (`I unselect the option ... from the select ...` and `the option ... should not be selected within the select ...`, when the option is missing; `I fill in the multi-value field ...`, when an input row is missing) | `ExpectationException` | `ElementNotFoundException` |
+| `FieldTrait` (`I unselect the option ... from the select ...` and `the option ... within the select ... should not be selected`, when the option is missing; `I fill in the multi-value field ...`, when an input row is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `XmlTrait` (every `the XML element ...` and `the XML attribute ... on the element ...` step, when the element is missing) | `ExpectationException` | `ElementNotFoundException` |
 | `JsonTrait` (an invalid JSONPath expression, an invalid regular expression, a count that is not an integer, a schema that is not JSON) | `ExpectationException` | `\RuntimeException` |
 | `TableTrait` (`the table ... should be sorted by the column ... in ... order`, with a direction other than `ascending` or `descending`) | `ExpectationException` | `\RuntimeException` |
@@ -1488,10 +1489,10 @@ If your project catches an exception from one of these steps, update the type:
 | Step | Was | Now |
 | --- | --- | --- |
 | `the response should be in XML format` | `Failed to load XML. Errors: ...` | `The response is not valid XML: ...` |
-| `the option :option should exist within the select :selector` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
-| `the option :option should not exist within the select :selector` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but it should not exist.` |
+| `the option :option within the select :selector should exist` | `Element "..." is not found.` / `Option "..." is not found in select "...".` | `Select with id\|name\|label "..." not found.` / `Option in the select "..." with value\|text "..." not found.` |
+| `the option :option within the select :selector should not exist` | `Element "..." is not found.` / `Option "..." is found in select "...", but should not.` | `Select with id\|name\|label "..." not found.` / `The option "..." was found in the select "..." on the page ..., but it should not exist.` |
 | `I unselect the option :option from the select :selector` | `The option "..." was not found in the select "...".` | `Option in the select "..." with value\|text "..." not found.` |
-| `the option :option should not be selected within the select :selector` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
+| `the option :option within the select :selector should not be selected` | `The option "..." was not found in the select "..." on the page ....` | `Option in the select "..." with value\|text "..." not found.` |
 | `I fill in the multi-value field :field with the following values:` | `Could not locate input row N for multi-value field "...".` | `Input row of the multi-value field "..." with index "N" not found.` |
 | every `the table ...` step, when the table is missing | `Table with selector "..." not found.` | `Table matching css "..." not found.` |
 | every `... the row ...` step, when the row is missing | `Table row containing text "..." not found.` | `Table row with text "..." not found.` |

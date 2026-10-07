@@ -302,10 +302,10 @@ trait TableTrait {
    * Assert that a row contains the link.
    *
    * @code
-   * Then the link "Edit" should exist in the row containing "Article title"
+   * Then the link "Edit" in the row containing "Article title" should exist
    * @endcode
    */
-  #[Then('the link :link should exist in the row containing :partial_text')]
+  #[Then('the link :link in the row containing :partial_text should exist')]
   public function tableAssertLinkExistsInRow(string $link, string $partial_text): void {
     if (!$this->tableGetRowByText($partial_text)->findLink($link) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the row containing "%s"', $partial_text), 'id|title|alt|text', $link);
@@ -316,10 +316,10 @@ trait TableTrait {
    * Assert that a row does not contain the link.
    *
    * @code
-   * Then the link "Delete" should not exist in the row containing "Article title"
+   * Then the link "Delete" in the row containing "Article title" should not exist
    * @endcode
    */
-  #[Then('the link :link should not exist in the row containing :partial_text')]
+  #[Then('the link :link in the row containing :partial_text should not exist')]
   public function tableAssertLinkNotExistsInRow(string $link, string $partial_text): void {
     if ($this->tableGetRowByText($partial_text)->findLink($link) instanceof NodeElement) {
       throw new ExpectationException(sprintf('The row containing "%s" has the link "%s".', $partial_text, $link), $this->getSession()->getDriver());

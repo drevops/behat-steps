@@ -1635,56 +1635,56 @@ Then the color field "#edit-background-color" should have the value "#FF5733"
 </details>
 
 <details>
-  <summary><code>@Then the option :option should exist within the select :selector</code></summary>
+  <summary><code>@Then the option :option within the select :selector should exist</code></summary>
 
 <br/>
 Assert that a select has an option
 <br/><br/>
 
 ```gherkin
-Then the option "Administrator" should exist within the select "edit-roles"
+Then the option "Administrator" within the select "edit-roles" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the option :option should not exist within the select :selector</code></summary>
+  <summary><code>@Then the option :option within the select :selector should not exist</code></summary>
 
 <br/>
 Assert that a select does not have an option
 <br/><br/>
 
 ```gherkin
-Then the option "Guest" should not exist within the select "edit-roles"
+Then the option "Guest" within the select "edit-roles" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the option :option should be selected within the select :selector</code></summary>
+  <summary><code>@Then the option :option within the select :selector should be selected</code></summary>
 
 <br/>
 Assert that a select option is selected
 <br/><br/>
 
 ```gherkin
-Then the option "Administrator" should be selected within the select "edit-roles"
+Then the option "Administrator" within the select "edit-roles" should be selected
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the option :option should not be selected within the select :selector</code></summary>
+  <summary><code>@Then the option :option within the select :selector should not be selected</code></summary>
 
 <br/>
 Assert that a select option is not selected
 <br/><br/>
 
 ```gherkin
-Then the option "Editor" should not be selected within the select "edit-roles"
+Then the option "Editor" within the select "edit-roles" should not be selected
 
 ```
 
@@ -3379,84 +3379,84 @@ Then the region "sidebar" should not contain the heading "Admin"
 </details>
 
 <details>
-  <summary><code>@Then the link :link should exist in the region :region</code></summary>
+  <summary><code>@Then the link :link in the region :region should exist</code></summary>
 
 <br/>
 Assert that a region contains the link
 <br/><br/>
 
 ```gherkin
-Then the link "About us" should exist in the region "footer"
+Then the link "About us" in the region "footer" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link should not exist in the region :region</code></summary>
+  <summary><code>@Then the link :link in the region :region should not exist</code></summary>
 
 <br/>
 Assert that a region does not contain the link
 <br/><br/>
 
 ```gherkin
-Then the link "Admin" should not exist in the region "footer"
+Then the link "Admin" in the region "footer" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the button :button should exist in the region :region</code></summary>
+  <summary><code>@Then the button :button in the region :region should exist</code></summary>
 
 <br/>
 Assert that a region contains the button
 <br/><br/>
 
 ```gherkin
-Then the button "Save" should exist in the region "content"
+Then the button "Save" in the region "content" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the button :button should not exist in the region :region</code></summary>
+  <summary><code>@Then the button :button in the region :region should not exist</code></summary>
 
 <br/>
 Assert that a region does not contain the button
 <br/><br/>
 
 ```gherkin
-Then the button "Delete" should not exist in the region "content"
+Then the button "Delete" in the region "content" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should exist in the region :region</code></summary>
+  <summary><code>@Then the element :selector in the region :region should exist</code></summary>
 
 <br/>
 Assert that a region contains an element matching the selector
 <br/><br/>
 
 ```gherkin
-Then the element "blockquote" should exist in the region "content"
+Then the element "blockquote" in the region "content" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the element :selector should not exist in the region :region</code></summary>
+  <summary><code>@Then the element :selector in the region :region should not exist</code></summary>
 
 <br/>
 Assert that a region contains no element matching the selector
 <br/><br/>
 
 ```gherkin
-Then the element "blockquote" should not exist in the region "content"
+Then the element "blockquote" in the region "content" should not exist
 
 ```
 
@@ -4013,28 +4013,28 @@ Then the row containing "Article title" should not contain the value "Unpublishe
 </details>
 
 <details>
-  <summary><code>@Then the link :link should exist in the row containing :partial_text</code></summary>
+  <summary><code>@Then the link :link in the row containing :partial_text should exist</code></summary>
 
 <br/>
 Assert that a row contains the link
 <br/><br/>
 
 ```gherkin
-Then the link "Edit" should exist in the row containing "Article title"
+Then the link "Edit" in the row containing "Article title" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link should not exist in the row containing :partial_text</code></summary>
+  <summary><code>@Then the link :link in the row containing :partial_text should not exist</code></summary>
 
 <br/>
 Assert that a row does not contain the link
 <br/><br/>
 
 ```gherkin
-Then the link "Delete" should not exist in the row containing "Article title"
+Then the link "Delete" in the row containing "Article title" should not exist
 
 ```
 
@@ -4763,28 +4763,28 @@ Then the block "My block" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the block :label should exist in the region :region</code></summary>
+  <summary><code>@Then the block :label in the region :region should exist</code></summary>
 
 <br/>
 Assert that a block with the specified label exists in a region
 <br/><br/>
 
 ```gherkin
-Then the block "My block" should exist in the region "content"
+Then the block "My block" in the region "content" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the block :label should not exist in the region :region</code></summary>
+  <summary><code>@Then the block :label in the region :region should not exist</code></summary>
 
 <br/>
 Assert that a block with the specified label does not exist in a region
 <br/><br/>
 
 ```gherkin
-Then the block "My block" should not exist in the region "content"
+Then the block "My block" in the region "content" should not exist
 
 ```
 

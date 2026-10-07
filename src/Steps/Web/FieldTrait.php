@@ -753,10 +753,10 @@ JS;
    * Assert that a select has an option.
    *
    * @code
-   * Then the option "Administrator" should exist within the select "edit-roles"
+   * Then the option "Administrator" within the select "edit-roles" should exist
    * @endcode
    */
-  #[Then('the option :option should exist within the select :selector')]
+  #[Then('the option :option within the select :selector should exist')]
   public function fieldAssertSelectOptionExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
 
@@ -775,10 +775,10 @@ JS;
    * Assert that a select does not have an option.
    *
    * @code
-   * Then the option "Guest" should not exist within the select "edit-roles"
+   * Then the option "Guest" within the select "edit-roles" should not exist
    * @endcode
    */
-  #[Then('the option :option should not exist within the select :selector')]
+  #[Then('the option :option within the select :selector should not exist')]
   public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
     $select_element = $this->getSession()->getPage()->findField($selector);
 
@@ -797,10 +797,10 @@ JS;
    * Assert that a select option is selected.
    *
    * @code
-   * Then the option "Administrator" should be selected within the select "edit-roles"
+   * Then the option "Administrator" within the select "edit-roles" should be selected
    * @endcode
    */
-  #[Then('the option :option should be selected within the select :selector')]
+  #[Then('the option :option within the select :selector should be selected')]
   public function fieldAssertSelectOptionSelected(string $option, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
     $path = $this->fieldCurrentPath();
@@ -827,10 +827,10 @@ JS;
    * Assert that a select option is not selected.
    *
    * @code
-   * Then the option "Editor" should not be selected within the select "edit-roles"
+   * Then the option "Editor" within the select "edit-roles" should not be selected
    * @endcode
    */
-  #[Then('the option :option should not be selected within the select :selector')]
+  #[Then('the option :option within the select :selector should not be selected')]
   public function fieldAssertSelectOptionNotSelected(string $option, string $selector): void {
     $select_field = $this->getSession()->getPage()->findField($selector);
     $path = $this->fieldCurrentPath();

@@ -1603,6 +1603,13 @@ function validate(array $info): array {
         if (str_starts_with($step, '@Then no ')) {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Then step negates with "no" but should negate with "should not"');
         }
+
+        // A qualifier after "exist" or "be <state>" narrows the subject. One after
+        // a predicate's own object, as in "should match the XSD schema in the
+        // file :filename", narrows that object, so it stays.
+        if (preg_match('/ should (?:not )?(?:exist|be [a-z]+) (?:in|within|on|at|from) the [a-z]+(?: [a-z]+)* :[a-z_]+$/', $step) === 1) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Qualifier follows the predicate but should precede "should" with the subject it narrows');
+        }
       }
 
       // The pattern also matches names the snake_case rule rejects, so a
