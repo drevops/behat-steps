@@ -53,7 +53,7 @@ trait SearchApiTrait {
 
     search_api_entity_insert($node);
 
-    $this->searchApiDoIndex('1');
+    $this->searchApiRunIndexing('1');
   }
 
   /**
@@ -65,7 +65,7 @@ trait SearchApiTrait {
    * @endcode
    */
   #[When('I run search indexing for :count item(s)')]
-  public function searchApiDoIndex(string $count): void {
+  public function searchApiRunIndexing(string $count): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);

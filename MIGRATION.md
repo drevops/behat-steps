@@ -168,7 +168,7 @@ Placeholder names, articles and `Given` verbs drifted as traits were added, so t
 
 Placeholder names are part of the contract even when the surrounding words are identical. Behat binds a step argument to the method parameter of the same name, so a rename reaches any context that overrides the step method or calls it directly.
 
-Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their step text is unchanged, but the method signatures are not: `MediaTrait::mediaDeleteType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiDoIndex()` now take `$content_type` and `$count`.
+Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their step text is unchanged, but the method signatures are not: `MediaTrait::mediaDeleteType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiRunIndexing()` now take `$content_type` and `$count`.
 
 ### CacheTrait
 
@@ -1922,13 +1922,14 @@ The config, state, module, mail, cache and cron capabilities keep their names. S
 
 ### An action method names its step's verb first
 
-A method behind an action step puts the verb its step reads right after its prefix, as `fieldFillColor()` and `fieldClearSelect()` do. 3 `FieldTrait` methods put the noun first, and 1 of them named a verb its step doesn't use. Step text is unchanged.
+A method behind an action step puts the verb its step reads right after its prefix, as `fieldFillColor()` and `fieldClearSelect()` do. 3 `FieldTrait` methods put the noun first, 1 of them with a verb its step doesn't use, and `SearchApiTrait` named its indexing step `Do`, which names no action. Step text is unchanged.
 
 | Trait | Old | New |
 | --- | --- | --- |
 | `FieldTrait` | `fieldCheckboxCheck()` | `fieldCheckCheckbox()` |
 | `FieldTrait` | `fieldCheckboxUncheck()` | `fieldUncheckCheckbox()` |
 | `FieldTrait` | `fieldRadioSelect()` | `fieldChooseRadioButton()` |
+| `Drupal\SearchApiTrait` | `searchApiDoIndex()` | `searchApiRunIndexing()` |
 
 ### A method acting on several entities ends in `Multiple`
 
@@ -2593,7 +2594,7 @@ The methods are listed under their 4.x names; [One shape per naming idea](#one-s
 | --- | --- | --- |
 | `Drupal\QueueTrait::queueProcessItems()`, `queueAssertItemCount()` | `int $count` | `string $count` |
 | `Drupal\EmailTrait::emailAssertMessageCount()`, `emailAssertMessageCountToAddress()`, `emailAssertMessageCountWithSubject()` | `int $count` | `string $count` |
-| `Drupal\SearchApiTrait::searchApiDoIndex()` | `string\|int $limit` | `string $count` |
+| `Drupal\SearchApiTrait::searchApiRunIndexing()` | `string\|int $limit` | `string $count` |
 | `TableTrait::tableAssertRowCount()`, `tableAssertColumnCount()` | `int $count` | `string $count` |
 | `RestTrait::restAssertResponseStatusCode()` | `int $code` | `string $code` |
 | `ElementTrait::elementClickWithIndex()`, `elementFollowLinkWithIndex()`, `elementPressButtonWithIndex()` | `int $index` | `string $index` |
