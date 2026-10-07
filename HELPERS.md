@@ -28,7 +28,7 @@
 | [RestTrait](#resttrait) | 2 | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](#tabletrait) | 10 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
-| [XmlTrait](#xmltrait) | 4 | Assert XML responses with element and attribute checks. |
+| [XmlTrait](#xmltrait) | 7 | Assert XML responses with element and attribute checks. |
 | [FixtureDirectoryTrait](#fixturedirectorytrait) | 5 | Resolves fixture files in the directory Mink's `files_path` parameter names. |
 | [HeadingTrait](#headingtrait) | 1 | Finds a heading by its text within the page or an element of it. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
@@ -1524,6 +1524,33 @@ Assert that the response validates against a RelaxNG schema
 
 <br/>
 Assert that the response validates against an XSD schema
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function xmlFindMissingChildElement(array $elements, array $names, ?string $namespace = NULL): ?string</code></summary>
+
+<br/>
+Find the first required child element that 1 of the elements lacks
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function xmlGetAtomFeed(): DOMElement</code></summary>
+
+<br/>
+Get the feed element of an Atom response
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function xmlGetRssChannel(): DOMElement</code></summary>
+
+<br/>
+Get the channel element of an RSS 2.0 response
 <br/><br/>
 
 </details>
