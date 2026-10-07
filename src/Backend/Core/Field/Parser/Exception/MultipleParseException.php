@@ -33,7 +33,7 @@ final class MultipleParseException extends ParseException {
   }
 
   /**
-   * Builds a single-line description summarising the wrapped errors.
+   * Builds a single-line description summarizing the wrapped errors.
    *
    * @param ParseException[] $errors
    *   The wrapped errors.

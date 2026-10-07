@@ -82,7 +82,7 @@ class MappingTraitTest extends UnitTestCase {
 
   public function testUnknownKeyFailsTheStep(): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('No such mapping: Nonexistent Key.');
+    $this->expectExceptionMessage('No such mapping: "Nonexistent Key".');
 
     $this->testObject->mappingTransformValue('{{ Nonexistent Key }}');
   }

@@ -1614,7 +1614,7 @@ a { color: #0969da; }
 </head>
 <body>
 <h1>Accessibility report - aggregate</h1>
-<p class="meta">One page summarising every accessibility assessment in the run &middot; generated {$generated}</p>
+<p class="meta">One page summarizing every accessibility assessment in the run &middot; generated {$generated}</p>
 {$body}
 </body>
 </html>

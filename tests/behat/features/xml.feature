@@ -384,7 +384,7 @@ Feature: Check that XmlTrait works
       """
 
   @test-trait:XmlTrait
-  Scenario: Assert that "Then the XML element :element should have :count element(s)" fails with an error for a non-numeric count
+  Scenario: Assert that "Then the XML element :element should have :count element(s)" fails when the count is not an integer
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """

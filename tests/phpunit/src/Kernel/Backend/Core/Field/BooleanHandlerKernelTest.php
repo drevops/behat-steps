@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  *
  * Asserts that scenarios can populate boolean fields with human-readable
  * words ('Yes', 'Published') instead of 1/0. It also asserts that
- * unrecognised values raise a clear error rather than silently coercing to
+ * unrecognized values raise a clear error rather than silently coercing to
  * FALSE.
  */
 #[CoversClass(BooleanHandler::class)]
@@ -44,7 +44,7 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
   /**
    * Tests the field's configured on_label takes priority over canonical forms.
    *
-   * Site builders often customise the labels (e.g. 'Published'/'Draft' on a
+   * Site builders often customize the labels (e.g. 'Published'/'Draft' on a
    * publishing workflow field), so a scenario must be able to use those exact
    * words.
    */

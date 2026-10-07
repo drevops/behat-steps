@@ -20,7 +20,7 @@ Feature: Check that TimeTrait works
     Then I should not see "1737849900"
 
   @test-trait:Drupal\TimeTrait
-  Scenario: Assert that "When I set the system time to the value :value" fails with an error for a non-numeric value
+  Scenario: Assert that "When I set the system time to the value :value" fails when the value is not an integer
     Given some behat configuration
     And scenario steps:
       """

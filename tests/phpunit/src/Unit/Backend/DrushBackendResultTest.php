@@ -75,7 +75,7 @@ class DrushBackendResultTest extends UnitTestCase {
   public static function dataProviderDrushResultMapsProcess(): \Iterator {
     yield 'success' => [0, 'stdout text', '', 0];
     yield 'failure with stderr' => [2, '', 'stderr text', 2];
-    yield 'signalled process maps null exit to one' => [NULL, '', '', 1];
+    yield 'signaled process maps null exit to one' => [NULL, '', '', 1];
   }
 
   public function testDrushThrowsWithErrorOutputOnFailure(): void {

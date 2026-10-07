@@ -292,7 +292,7 @@ trait DiagnosticsTrait {
   }
 
   /**
-   * Return the binary used in the re-run command. Override to customise.
+   * Return the binary used in the re-run command. Override to customize.
    */
   public function diagnosticsGetRerunBinary(): string {
     return $this->getOptionString('diagnostics', 'rerun_binary');

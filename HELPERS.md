@@ -387,7 +387,7 @@ Return collected JavaScript console error messages
   <summary><code>public function diagnosticsGetRerunBinary(): string</code></summary>
 
 <br/>
-Return the binary used in the re-run command. Override to customise
+Return the binary used in the re-run command. Override to customize
 <br/><br/>
 
 </details>

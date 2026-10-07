@@ -125,7 +125,7 @@ trait BigPipeTrait {
     // @codeCoverageIgnoreStart
     catch (DriverException) {
       // The browser driver session is not ready (e.g. no page has been visited
-      // yet), so there is nothing to synchronise.
+      // yet), so there is nothing to synchronize.
     }
     // @codeCoverageIgnoreEnd
   }
