@@ -296,14 +296,14 @@ This library reports failures with a small, fixed set of exception types, mostly
 
 | Exception                           | When thrown                                                        |
 |-------------------------------------|--------------------------------------------------------------------|
-| `ElementNotFoundException`          | Element, field, link, or selector not found on page                |
+| `ElementNotFoundException`          | An element on the page or in an XML response is not found          |
 | `ExpectationException`              | Assertion fails (value mismatch, state verification)               |
 | `AssertionException`                | Assertion fails in a step with no Mink session                     |
 | `UnsupportedDriverActionException`  | The browser driver lacks a capability the step needs               |
 | `UnsupportedBackendActionException` | No backend the scenario lists provides a capability the step needs |
 | `\RuntimeException`                 | Invalid input or processing error (not an assertion)               |
 
-`ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both.
+`ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both. An attribute, a JSON path or a table column isn't an element, so a missing one throws `ExpectationException`.
 
 `DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a browser driver, which those traits do not have, so they report a failed assertion with this instead.
 

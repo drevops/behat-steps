@@ -25,7 +25,7 @@ Feature: Check that TableTrait works
       Then the table ".nonexistent" should have 1 row
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
       Table matching css ".nonexistent" not found.
       """
@@ -123,7 +123,7 @@ Feature: Check that TableTrait works
         | NonExistent |
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       Column "NonExistent" not found in table ".table-asc".
       """
@@ -272,7 +272,7 @@ Feature: Check that TableTrait works
         | some text |
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
       Table row with text "NonExistent" not found.
       """
@@ -331,7 +331,7 @@ Feature: Check that TableTrait works
       And I click on the link "Edit" in the row "Zeta record"
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
       Link in the row containing "Zeta record" with id|title|alt|text "Edit" not found.
       """

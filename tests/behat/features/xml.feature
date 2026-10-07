@@ -94,7 +94,7 @@ Feature: Check that XmlTrait works
       Then the XML element "//nonexistent" should exist
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
       """
       XML element matching xpath "//nonexistent" not found.
       """
@@ -250,7 +250,7 @@ Feature: Check that XmlTrait works
       Then the XML attribute "nonexistent" on the element "//book[@id='123']" should exist
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       The XML attribute "nonexistent" on element "//book[@id='123']" was not found.
       """

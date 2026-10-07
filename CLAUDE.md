@@ -136,7 +136,8 @@ Which exception a step throws is part of the public contract - consumers catch o
 | Failure | Throw |
 | --- | --- |
 | An assertion failed and the trait has a Mink session | `Behat\Mink\Exception\ExpectationException`, with `$this->getSession()->getDriver()` as the second argument |
-| An expected element, field, link or selector is missing | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An element the step locates is missing - on the page or in an XML response: a field, link, button, select, table or row | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An attribute, a JSON path or a table column is missing - none of them is an element | `Behat\Mink\Exception\ExpectationException` |
 | An assertion failed and the trait has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
 | Not an assertion: an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
 | The current browser driver lacks a required capability | `Behat\Mink\Exception\UnsupportedDriverActionException` |

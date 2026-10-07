@@ -34,7 +34,7 @@ Feature: Check that ElementTrait works
       Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should exist
       """
     When I run "behat --no-colors"
-    Then it should fail with an error:
+    Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
       """
       The attribute "no-existing-attribute" does not exist on the element "html".
       """

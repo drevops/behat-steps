@@ -1435,7 +1435,8 @@ Assertion steps used to throw whatever their trait happened to reach for: `Expec
 | --- | --- |
 | An assertion fails and the step can reach the page | `Behat\Mink\Exception\ExpectationException` |
 | An assertion fails and the step has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
-| An expected element, field, link or selector is missing | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An element the step locates is missing, on the page or in an XML response: a field, link, button, select, table or row | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An attribute, a JSON path or a table column is missing. None of them is an element | `Behat\Mink\Exception\ExpectationException` |
 | Anything that is not an assertion - an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
 | A step needs a driver capability the current driver lacks | `Behat\Mink\Exception\UnsupportedDriverActionException` |
 | No backend the scenario lists provides a capability the step needs | `DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException`, a `\RuntimeException` |
