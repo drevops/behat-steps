@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
+use Behat\Mink\Driver\DriverInterface;
+use Behat\Mink\Exception\ExpectationException;
+use Behat\Mink\Session;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\FileDownloadTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -181,6 +184,96 @@ class FileDownloadTraitTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderFindLine')]
+  public function testFindLine(string $search, ?string $expected): void {
+    $this->testObject->response = new MockResponse("Line one\nLine two\n", ['response_headers' => ['Content-Disposition: attachment; filename="lines.txt"']]);
+    $this->testObject->fileDownloadLoad('http://example.com/lines.txt');
+
+    $this->assertSame($expected, $this->testObject->fileDownloadFindLine($search));
+  }
+
+  public static function dataProviderFindLine(): array {
+    return [
+      'text' => ['two', 'Line two'],
+      'regular expression' => ['/^Line o/', 'Line one'],
+      'missing text' => ['three', NULL],
+      'missing match' => ['/^two/', NULL],
+    ];
+  }
+
+  public function testFindLineRequiresDownload(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No file has been downloaded. Download a file before asserting on it.');
+
+    $this->testObject->fileDownloadFindLine('Line');
+  }
+
+  #[DataProvider('dataProviderAssertZipContainsFiles')]
+  public function testAssertZipContainsFiles(array $names, bool $is_partial, ?string $expected_message): void {
+    $this->loadZip();
+
+    if ($expected_message !== NULL) {
+      $this->expectException(ExpectationException::class);
+      $this->expectExceptionMessage($expected_message);
+    }
+
+    $this->testObject->fileDownloadAssertZipContainsFiles($names, $is_partial);
+
+    $this->addToAssertionCount(1);
+  }
+
+  public static function dataProviderAssertZipContainsFiles(): array {
+    return [
+      'exact names' => [['report.csv', 'images/logo.png'], FALSE, NULL],
+      'partial names' => [['report', 'logo'], TRUE, NULL],
+      'a missing exact name' => [['report.csv', 'missing.txt'], FALSE, 'Unable to find file "missing.txt" in archive.'],
+      'a partial name as an exact name' => [['report'], FALSE, 'Unable to find file "report" in archive.'],
+      'a missing partial name' => [['missing'], TRUE, 'Unable to find any file partially named "missing" in archive.'],
+      'every missing name' => [['a.txt', 'b.txt'], FALSE, 'Unable to find file "a.txt" in archive.' . PHP_EOL . 'Unable to find file "b.txt" in archive.'],
+    ];
+  }
+
+  #[DataProvider('dataProviderAssertZipNotContainsFiles')]
+  public function testAssertZipNotContainsFiles(array $names, bool $is_partial, ?string $expected_message): void {
+    $this->loadZip();
+
+    if ($expected_message !== NULL) {
+      $this->expectException(ExpectationException::class);
+      $this->expectExceptionMessage($expected_message);
+    }
+
+    $this->testObject->fileDownloadAssertZipNotContainsFiles($names, $is_partial);
+
+    $this->addToAssertionCount(1);
+  }
+
+  public static function dataProviderAssertZipNotContainsFiles(): array {
+    return [
+      'absent exact names' => [['missing.txt'], FALSE, NULL],
+      'absent partial names' => [['missing'], TRUE, NULL],
+      'a present exact name' => [['report.csv'], FALSE, 'Found file "report.csv" in archive, but it should not.'],
+      'a present partial name' => [['logo'], TRUE, 'Found file partially named "logo" in archive, but it should not.'],
+      'every present name' => [['report', 'logo'], TRUE, 'Found file partially named "report" in archive, but it should not.' . PHP_EOL . 'Found file partially named "logo" in archive, but it should not.'],
+    ];
+  }
+
+  /**
+   * Download a ZIP archive holding a report and a logo.
+   */
+  protected function loadZip(): void {
+    $path = static::$tmp . '/source.zip';
+
+    $zip = new \ZipArchive();
+    $zip->open($path, \ZipArchive::CREATE);
+    $zip->addFromString('report.csv', 'a,b');
+    $zip->addFromString('images/logo.png', 'png');
+    $zip->close();
+
+    $this->testObject->session = new Session($this->createStub(DriverInterface::class));
+    $this->testObject->response = new MockResponse((string) file_get_contents($path), ['response_headers' => ['Content-Type: application/zip', 'Content-Disposition: attachment; filename="archive.zip"']]);
+    $this->testObject->fileDownloadLoad('http://example.com/archive.zip');
+  }
+
 }
 
 /**
@@ -204,6 +297,15 @@ class FileDownloadTraitTestImplementation extends WebRawContext {
    * @var array<string, mixed>
    */
   public array $detachedOptions = [];
+
+  /**
+   * The session getSession() returns.
+   */
+  public ?Session $session = NULL;
+
+  public function getSession(mixed $name = NULL): Session {
+    return $this->session ?? throw new \RuntimeException('Set the session double before the trait reaches it.');
+  }
 
   /**
    * {@inheritdoc}

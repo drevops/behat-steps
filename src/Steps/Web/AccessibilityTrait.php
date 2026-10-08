@@ -304,7 +304,9 @@ trait AccessibilityTrait {
    */
   #[Then('the current page should pass accessibility checks')]
   public function accessibilityAssertCurrentPagePasses(): void {
-    $this->accessibilityAssertCurrentPagePassesForTags($this->accessibilityGetDefaultRules());
+    $rules = $this->accessibilityGetDefaultRules();
+
+    $this->accessibilityAssertResultPasses($this->accessibilityAssess($rules), $rules);
   }
 
   /**
@@ -316,8 +318,25 @@ trait AccessibilityTrait {
    */
   #[Then('the current page should pass accessibility checks for the tags :tags')]
   public function accessibilityAssertCurrentPagePassesForTags(string $tags): void {
-    $result = $this->accessibilityAssess($tags);
+    $this->accessibilityAssertResultPasses($this->accessibilityAssess($tags), $tags);
+  }
 
+  /**
+   * Assert that an assessment result passes the effective failure threshold.
+   *
+   * Incomplete findings fail the assertion only when the scenario fails on
+   * incomplete findings, through the "strict" tag or the configuration.
+   *
+   * @param array<string, mixed> $result
+   *   The normalized result, as returned by accessibilityAssess().
+   * @param string $rules
+   *   The rules the result was assessed against.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the result holds a violation at or above the threshold, or an
+   *   incomplete finding the scenario fails on.
+   */
+  public function accessibilityAssertResultPasses(array $result, string $rules): void {
     $threshold = $this->accessibilityEffectiveThreshold();
     $check_incomplete = $this->accessibilityEffectiveFailOnIncomplete();
 
@@ -331,7 +350,7 @@ trait AccessibilityTrait {
     throw new ExpectationException(
       $this->accessibilityFormatGateMessage(
         $this->getSession()->getCurrentUrl(),
-        $tags,
+        $rules,
         $threshold,
         $check_incomplete,
         $violations,

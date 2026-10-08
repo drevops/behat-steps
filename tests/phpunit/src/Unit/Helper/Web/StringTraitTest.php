@@ -189,6 +189,49 @@ class StringTraitTest extends UnitTestCase {
     ];
   }
 
+  #[DataProvider('dataProviderNormalizeValue')]
+  public function testNormalizeValue(string $value, mixed $expected): void {
+    $this->assertSame($expected, $this->testObject->callNormalizeValue($value));
+  }
+
+  public static function dataProviderNormalizeValue(): array {
+    return [
+      'empty string' => ['', ''],
+      'whitespace kept as given' => ['  ', '  '],
+      'true' => ['true', TRUE],
+      'true in upper case' => ['TRUE', TRUE],
+      'false with whitespace' => [' false ', FALSE],
+      'null' => ['null', NULL],
+      'integer' => ['42', 42],
+      'negative integer' => ['-7', -7],
+      'float' => ['3.14', 3.14],
+      'json array' => ['["editor","reviewer"]', ['editor', 'reviewer']],
+      'json object decodes to an array' => ['{"a": 1, "b": {"c": true}}', ['a' => 1, 'b' => ['c' => TRUE]]],
+      'empty json object decodes to an empty array' => ['{}', []],
+      'invalid json kept as given' => ['{not json', '{not json'],
+      'text kept as given' => ['My site', 'My site'],
+      'text with whitespace kept as given' => [' My site ', ' My site '],
+    ];
+  }
+
+  #[DataProvider('dataProviderFormatValue')]
+  public function testFormatValue(mixed $value, string $expected): void {
+    $this->assertSame($expected, $this->testObject->callFormatValue($value));
+  }
+
+  public static function dataProviderFormatValue(): array {
+    return [
+      'null' => [NULL, 'NULL'],
+      'true' => [TRUE, 'true'],
+      'false' => [FALSE, 'false'],
+      'integer' => [42, '42'],
+      'float' => [3.5, '3.5'],
+      'string' => ['My site', 'My site'],
+      'list' => [['editor', 'reviewer'], '["editor","reviewer"]'],
+      'map' => [['a' => 1], '{"a":1}'],
+    ];
+  }
+
 }
 
 /**
@@ -228,6 +271,14 @@ class StringTraitTestImplementation {
 
   public function callParseNumber(string $value, string $name, ?float $min): float {
     return $this->stringParseNumber($value, $name, $min);
+  }
+
+  public function callNormalizeValue(string $value): mixed {
+    return $this->stringNormalizeValue($value);
+  }
+
+  public function callFormatValue(mixed $value): string {
+    return $this->stringFormatValue($value);
   }
 
 }

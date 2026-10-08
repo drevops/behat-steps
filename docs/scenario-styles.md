@@ -57,7 +57,7 @@ These are 2 jobs, not 1 job done well or badly. Specification - BDD proper - use
 
 ## The vocabulary and the toolbox
 
-The library serves both jobs at once through 1 design rule: every step body is a thin wrapper over a named protected helper. That makes the package 2 products in 1 - the vocabulary (the steps: 1 skin over the helpers) and the toolbox (the helpers themselves). A project that outgrows the raw vocabulary does not leave the library; it stops calling the toolbox from Gherkin and starts calling it from PHP.
+The library serves both jobs at once through 1 design rule: every step body is a thin wrapper over named helpers. That makes the package 2 products in 1 - the vocabulary (the steps: 1 skin over the helpers) and the toolbox (the helpers themselves). A project that outgrows the raw vocabulary does not leave the library; it stops calling the toolbox from Gherkin and starts calling it from PHP.
 
 3 consequences follow:
 

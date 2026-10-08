@@ -11,6 +11,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\HeadingTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
@@ -24,6 +25,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  */
 trait ElementTrait {
 
+  use HeadingTrait;
   use StringTrait;
 
   /**
@@ -65,13 +67,7 @@ trait ElementTrait {
    */
   #[When('I click on the element :selector')]
   public function elementClick(string $selector): void {
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
-
-    $element->click();
+    $this->elementGet($selector)->click();
   }
 
   /**
@@ -168,13 +164,7 @@ trait ElementTrait {
    */
   #[When('I hover over the element :selector')]
   public function elementHover(string $selector): void {
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if ($element === NULL) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
-
-    $element->mouseOver();
+    $this->elementGet($selector)->mouseOver();
   }
 
   /**
@@ -189,11 +179,7 @@ trait ElementTrait {
    */
   #[When('I focus on the element :selector')]
   public function elementFocus(string $selector): void {
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
+    $this->elementGet($selector);
 
     $this->elementExecuteJs($selector, '{{ELEMENT}}.focus();');
   }
@@ -209,7 +195,7 @@ trait ElementTrait {
    */
   #[Then('the heading :heading should exist')]
   public function elementAssertHeadingExists(string $heading): void {
-    if (!$this->elementFindHeading($heading) instanceof NodeElement) {
+    if (!$this->headingFind($this->getSession()->getPage(), $heading) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'heading', 'text', $heading);
     }
   }
@@ -223,7 +209,7 @@ trait ElementTrait {
    */
   #[Then('the heading :heading should not exist')]
   public function elementAssertHeadingNotExists(string $heading): void {
-    if ($this->elementFindHeading($heading) instanceof NodeElement) {
+    if ($this->headingFind($this->getSession()->getPage(), $heading) instanceof NodeElement) {
       throw new ExpectationException(sprintf('The heading "%s" was found on the page "%s".', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
@@ -267,35 +253,7 @@ trait ElementTrait {
    */
   #[Then('the element :selector1 should appear after the element :selector2')]
   public function elementAssertAfterElement(string $selector1, string $selector2): void {
-    $session = $this->getSession();
-    $page = $session->getPage();
-
-    $element1 = $page->find('css', $selector1);
-    $element2 = $page->find('css', $selector2);
-
-    if (!$element1) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector1);
-    }
-    if (!$element2) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector2);
-    }
-
-    $text1 = $element1->getOuterHtml();
-    $text2 = $element2->getOuterHtml();
-    $content = $this->getSession()->getPage()->getOuterHtml();
-
-    $pos1 = strpos((string) $content, (string) $text1);
-    $pos2 = strpos((string) $content, (string) $text2);
-
-    // @codeCoverageIgnoreStart
-    if ($pos1 === FALSE) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector1);
-    }
-    if ($pos2 === FALSE) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector2);
-    }
-    // @codeCoverageIgnoreEnd
-    if ($pos1 <= $pos2) {
+    if ($this->elementGetPosition($selector1) <= $this->elementGetPosition($selector2)) {
       throw new ExpectationException(sprintf('The element "%s" appears before the element "%s".', $selector1, $selector2), $this->getSession()->getDriver());
     }
   }
@@ -641,20 +599,7 @@ trait ElementTrait {
    */
   #[Then('the element :selector should be displayed')]
   public function elementAssertVisible(string $selector): void {
-    $page = $this->getSession()->getPage();
-    $elements = $page->findAll('css', $selector);
-
-    if ($elements === []) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
-
-    foreach ($elements as $element) {
-      if ($element->isVisible()) {
-        return;
-      }
-    }
-
-    throw new ExpectationException(sprintf('The element "%s" is not visible on the page.', $selector), $this->getSession()->getDriver());
+    $this->elementGetVisible($selector);
   }
 
   /**
@@ -666,13 +611,8 @@ trait ElementTrait {
    */
   #[Then('the element :selector should not be displayed')]
   public function elementAssertNotVisible(string $selector): void {
-    $page = $this->getSession()->getPage();
-    $elements = $page->findAll('css', $selector);
-
-    foreach ($elements as $element) {
-      if ($element->isVisible()) {
-        throw new ExpectationException(sprintf('The element "%s" is visible on the page, but it should not be.', $selector), $this->getSession()->getDriver());
-      }
+    if ($this->elementFindVisible($selector) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The element "%s" is visible on the page, but it should not be.', $selector), $this->getSession()->getDriver());
     }
   }
 
@@ -685,7 +625,7 @@ trait ElementTrait {
    */
   #[Then('the element :selector should be displayed within the viewport')]
   public function elementAssertVisuallyVisible(string $selector): void {
-    $this->elementAssertVisible($selector);
+    $this->elementGetVisible($selector);
 
     if (!$this->elementIsVisuallyVisible($selector, 0)) {
       throw new ExpectationException(sprintf('The element "%s" is not displayed within the viewport.', $selector), $this->getSession()->getDriver());
@@ -703,7 +643,8 @@ trait ElementTrait {
   public function elementAssertVisuallyVisibleWithOffset(string $selector, string $offset): void {
     $offset = $this->stringParseInteger($offset, 'offset');
 
-    $this->elementAssertVisible($selector);
+    $this->elementGetVisible($selector);
+
     if (!$this->elementIsVisuallyVisible($selector, $offset)) {
       throw new ExpectationException(sprintf('The element "%s" is not displayed within the viewport with a top offset of %d pixels.', $selector, $offset), $this->getSession()->getDriver());
     }
@@ -755,13 +696,7 @@ trait ElementTrait {
   public function elementAssertChildElementCount(string $parent, string $count, string $selector): void {
     $count = $this->stringParseInteger($count, 'count', 0);
 
-    $parent_element = $this->getSession()->getPage()->find('css', $parent);
-
-    if (!$parent_element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $parent);
-    }
-
-    $actual = count($parent_element->findAll('css', $selector));
+    $actual = count($this->elementGet($parent)->findAll('css', $selector));
 
     if ($actual !== $count) {
       throw new ExpectationException(sprintf('Expected the element "%s" to contain %d element(s) matching "%s", but found %d.', $parent, $count, $selector, $actual), $this->getSession()->getDriver());
@@ -794,22 +729,96 @@ trait ElementTrait {
   }
 
   /**
-   * Find a heading whose text matches exactly.
+   * Get the first element matching a CSS selector.
    *
-   * @param string $heading
-   *   The heading text.
+   * @param string $selector
+   *   The CSS selector.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The element.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When no element matches the selector.
+   */
+  public function elementGet(string $selector): NodeElement {
+    $element = $this->getSession()->getPage()->find('css', $selector);
+
+    if ($element === NULL) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    return $element;
+  }
+
+  /**
+   * Find the first visible element matching a CSS selector.
+   *
+   * @param string $selector
+   *   The CSS selector.
    *
    * @return \Behat\Mink\Element\NodeElement|null
-   *   The matching heading, or NULL when the page has none.
+   *   The first visible element, or NULL when no matching element is visible.
    */
-  public function elementFindHeading(string $heading): ?NodeElement {
-    foreach ($this->getSession()->getPage()->findAll('css', 'h1, h2, h3, h4, h5, h6') as $element) {
-      if (trim($element->getText()) === $heading) {
+  public function elementFindVisible(string $selector): ?NodeElement {
+    foreach ($this->getSession()->getPage()->findAll('css', $selector) as $element) {
+      if ($element->isVisible()) {
         return $element;
       }
     }
 
     return NULL;
+  }
+
+  /**
+   * Get the first visible element matching a CSS selector.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   *
+   * @return \Behat\Mink\Element\NodeElement
+   *   The first visible element.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When no element matches the selector.
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no matching element is visible.
+   */
+  public function elementGetVisible(string $selector): NodeElement {
+    $element = $this->elementFindVisible($selector);
+
+    if ($element instanceof NodeElement) {
+      return $element;
+    }
+
+    if ($this->getSession()->getPage()->findAll('css', $selector) === []) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+
+    throw new ExpectationException(sprintf('The element "%s" is not visible on the page.', $selector), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Get where an element's markup starts within the markup of the page.
+   *
+   * @param string $selector
+   *   The CSS selector of the element.
+   *
+   * @return int
+   *   The offset, in bytes, of the first element matching the selector.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When no element matches the selector.
+   */
+  public function elementGetPosition(string $selector): int {
+    $element = $this->elementGet($selector);
+    $position = strpos((string) $this->getSession()->getPage()->getOuterHtml(), (string) $element->getOuterHtml());
+
+    // @codeCoverageIgnoreStart
+    if ($position === FALSE) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
+    }
+    // @codeCoverageIgnoreEnd
+    return $position;
   }
 
   /**
@@ -898,11 +907,7 @@ trait ElementTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    */
   protected function elementAssertCssProperty(string $selector, string $property, string $value, bool $is_exact, bool $is_inverted): void {
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
+    $this->elementGet($selector);
 
     $property_js = json_encode($this->elementNormalizeCssProperty($property), JSON_UNESCAPED_SLASHES);
     $script = sprintf('return window.getComputedStyle({{ELEMENT}}).getPropertyValue(%s).trim();', $property_js);
@@ -960,15 +965,8 @@ trait ElementTrait {
    * @throws \Behat\Mink\Exception\ExpectationException
    */
   protected function elementAssertStackingOrder(string $selector1, string $selector2, bool $is_above): void {
-    $page = $this->getSession()->getPage();
-
-    if (!$page->find('css', $selector1)) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector1);
-    }
-
-    if (!$page->find('css', $selector2)) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector2);
-    }
+    $this->elementGet($selector1);
+    $this->elementGet($selector2);
 
     [$order, $z1, $z2, $basis] = explode('|', $this->elementResolveStackingOrder($selector1, $selector2), 4);
 
@@ -1144,11 +1142,7 @@ JS;
       throw new \RuntimeException(sprintf('The tolerance must be 0 or greater, but "%d" was given.', $tolerance));
     }
 
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
+    $this->elementGet($selector);
 
     $script = 'var rect = {{ELEMENT}}.getBoundingClientRect(); return rect.top + "|" + rect.height;';
     [$top, $height] = explode('|', (string) $this->elementExecuteJs($selector, $script), 2);
@@ -1185,11 +1179,7 @@ JS;
    * @throws \Behat\Mink\Exception\ExpectationException
    */
   protected function elementAssertKeyboardFocus(string $selector, bool $is_inverted): void {
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
+    $this->elementGet($selector);
 
     $script = <<<JS
       if ({{ELEMENT}} === document.activeElement) {
@@ -1234,11 +1224,7 @@ JS;
    * @throws \Behat\Mink\Exception\ExpectationException
    */
   protected function elementAssertVisibleFocusOutline(string $selector, bool $is_inverted): void {
-    $element = $this->getSession()->getPage()->find('css', $selector);
-
-    if (!$element) {
-      throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
-    }
+    $this->elementGet($selector);
 
     $script = <<<JS
       var s = window.getComputedStyle({{ELEMENT}});

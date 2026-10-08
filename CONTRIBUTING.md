@@ -291,7 +291,16 @@ Withdraw a member that exists only to serve the machinery with `@internal`, nami
  */
 ```
 
-A step body should be a thin wrapper over a named helper, so that every behavior a scenario can reach is also reachable from a project's own step definitions. Write new steps that way, and extract a helper when you touch a step that keeps its logic inline.
+### Thin step bodies
+
+A step body is a thin wrapper over named helpers, so every behavior a scenario can reach is also reachable from a project's own step definitions. A step parses its arguments, calls helpers and guards on what they return. Everything else belongs in a helper.
+
+[tests/phpunit/src/StepBodyTest.php](tests/phpunit/src/StepBodyTest.php) reads every step under `src/Steps` and holds it to that shape:
+
+- **No step calls another step of its trait.** When 2 steps share logic, it moves into a helper both call, typed to what each caller has, so nothing builds a `TableNode` or passes `'1'` just to fit another step's signature. `blockCreateInstance()` hands the block it just created to `blockApplyConfiguration()` instead of making `blockConfigure()` look it up again by label.
+- **No `switch`, `match`, `try`, closure or arrow function.** Each one is logic of its own.
+- **A loop only dispatches.** Its body holds guards and then at most 1 call, as in `foreach ($table->getHash() as $row) { $this->taxonomyCreate($vocabulary, $row); }`.
+- **At most 4 statements, guards aside.** A guard is an `if` with no `else` whose body only throws. A step that needs a fifth statement is usually doing a helper's job.
 
 ## Member ordering within a trait
 

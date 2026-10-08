@@ -14,6 +14,7 @@ use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Exception\AssertionException;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use Drupal\Core\Queue\QueueInterface;
 
 /**
  * Manage and assert Drupal queue state.
@@ -74,22 +75,14 @@ trait QueueTrait {
   public function queueAddItem(string $queue, TableNode $fields): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $values = $fields->getRowsHash();
-    $data = $values['data'] ?? '{}';
+    $data = $fields->getRowsHash()['data'] ?? '{}';
 
     if (!is_string($data)) {
       throw new \RuntimeException('The "data" value must be a single JSON string.');
     }
 
-    $decoded = json_decode($data, TRUE);
-
-    if (json_last_error() !== JSON_ERROR_NONE) {
-      throw new \RuntimeException(sprintf('The "data" value is not valid JSON: %s.', json_last_error_msg()));
-    }
-
-    $this->queueTrackName($queue);
-
-    \Drupal::service('queue')->get($queue)->createItem($decoded);
+    $decoded = $this->queueDecodeData($data);
+    $this->queueGet($queue)->createItem($decoded);
   }
 
   /**
@@ -103,8 +96,7 @@ trait QueueTrait {
   public function queueEmpty(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $this->queueTrackName($queue);
-    $queue_instance = \Drupal::service('queue')->get($queue);
+    $queue_instance = $this->queueGet($queue);
     $queue_instance->deleteQueue();
     $queue_instance->createQueue();
   }
@@ -126,21 +118,10 @@ trait QueueTrait {
 
     $count = $this->stringParseInteger($count, 'count', 0);
 
-    $this->queueTrackName($queue);
-    $queue_instance = \Drupal::service('queue')->get($queue);
-    $worker = \Drupal::service('plugin.manager.queue_worker')->createInstance($queue);
-    $lease_time = $this->queueGetLeaseTime();
+    $processed = $this->queueProcess($queue, $count);
 
-    $processed = 0;
-    while ($processed < $count) {
-      /** @var \stdClass|false $item */
-      $item = $queue_instance->claimItem($lease_time);
-      if (!$item) {
-        throw new \RuntimeException(sprintf('Queue "%s" has no more items to process. Processed %d of %d requested items.', $queue, $processed, $count));
-      }
-      $worker->processItem($item->data);
-      $queue_instance->deleteItem($item);
-      $processed++;
+    if ($processed < $count) {
+      throw new \RuntimeException(sprintf('Queue "%s" has no more items to process. Processed %d of %d requested items.', $queue, $processed, $count));
     }
   }
 
@@ -155,23 +136,8 @@ trait QueueTrait {
   public function queueProcessAll(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $this->queueTrackName($queue);
-    $queue_instance = \Drupal::service('queue')->get($queue);
-    $worker = \Drupal::service('plugin.manager.queue_worker')->createInstance($queue);
-    $lease_time = $this->queueGetLeaseTime();
     $limit = $this->queueGetProcessLimit();
-
-    $processed = 0;
-    while ($processed < $limit) {
-      /** @var \stdClass|false $item */
-      $item = $queue_instance->claimItem($lease_time);
-      if (!$item) {
-        break;
-      }
-      $worker->processItem($item->data);
-      $queue_instance->deleteItem($item);
-      $processed++;
-    }
+    $processed = $this->queueProcess($queue, $limit);
 
     if ($processed >= $limit) {
       throw new \RuntimeException(sprintf('Queue "%s" processing reached the safety limit of %d items.', $queue, $limit));
@@ -195,9 +161,8 @@ trait QueueTrait {
 
     $count = $this->stringParseInteger($count, 'count', 0);
 
-    $this->queueTrackName($queue);
-    $queue_instance = \Drupal::service('queue')->get($queue);
-    $actual = $queue_instance->numberOfItems();
+    $actual = $this->queueGet($queue)->numberOfItems();
+
     if ($actual !== $count) {
       throw new AssertionException(sprintf('Expected the queue "%s" to have %d items, but it has %d.', $queue, $count, $actual));
     }
@@ -214,9 +179,8 @@ trait QueueTrait {
   public function queueAssertEmpty(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $this->queueTrackName($queue);
-    $queue_instance = \Drupal::service('queue')->get($queue);
-    $actual = $queue_instance->numberOfItems();
+    $actual = $this->queueGet($queue)->numberOfItems();
+
     if ($actual !== 0) {
       throw new AssertionException(sprintf('Expected the queue "%s" to be empty, but it has %d items.', $queue, $actual));
     }
@@ -234,6 +198,76 @@ trait QueueTrait {
    */
   public function queueGetLeaseTime(): int {
     return $this->getOptionInt('queue', 'lease_time');
+  }
+
+  /**
+   * Get a queue, which is deleted after the scenario.
+   *
+   * @param string $queue
+   *   The queue name.
+   *
+   * @return \Drupal\Core\Queue\QueueInterface
+   *   The queue.
+   */
+  public function queueGet(string $queue): QueueInterface {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->queueTrackName($queue);
+
+    return \Drupal::service('queue')->get($queue);
+  }
+
+  /**
+   * Process items from a queue with the queue's worker.
+   *
+   * @param string $queue
+   *   The queue name.
+   * @param int $limit
+   *   The most items to process.
+   *
+   * @return int
+   *   The number of items processed, below the limit when the queue ran out.
+   */
+  public function queueProcess(string $queue, int $limit): int {
+    $queue_instance = $this->queueGet($queue);
+    $worker = \Drupal::service('plugin.manager.queue_worker')->createInstance($queue);
+    $lease_time = $this->queueGetLeaseTime();
+
+    $processed = 0;
+    while ($processed < $limit) {
+      /** @var \stdClass|false $item */
+      $item = $queue_instance->claimItem($lease_time);
+      if (!$item) {
+        break;
+      }
+      $worker->processItem($item->data);
+      $queue_instance->deleteItem($item);
+      $processed++;
+    }
+
+    return $processed;
+  }
+
+  /**
+   * Decode the JSON data of a queue item.
+   *
+   * @param string $data
+   *   The JSON data.
+   *
+   * @return mixed
+   *   The decoded data, with objects as associative arrays.
+   *
+   * @throws \RuntimeException
+   *   When the data is not valid JSON.
+   */
+  protected function queueDecodeData(string $data): mixed {
+    $decoded = json_decode($data, TRUE);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+      throw new \RuntimeException(sprintf('The "data" value is not valid JSON: %s.', json_last_error_msg()));
+    }
+
+    return $decoded;
   }
 
   /**

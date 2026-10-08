@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Helper\Web\HeadingTrait;
 
 /**
  * Interact with and assert against named page regions.
@@ -23,6 +24,8 @@ use Behat\Step\When;
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait RegionTrait {
+
+  use HeadingTrait;
 
   /**
    * Click a link within a region.
@@ -133,13 +136,9 @@ trait RegionTrait {
    */
   #[Then('the region :region should contain the heading :heading')]
   public function regionAssertContainsHeading(string $region, string $heading): void {
-    foreach ($this->regionGet($region)->findAll('css', 'h1, h2, h3, h4, h5, h6') as $element) {
-      if (trim($element->getText()) === $heading) {
-        return;
-      }
+    if (!$this->headingFind($this->regionGet($region), $heading) instanceof NodeElement) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('heading in the region "%s"', $region), 'text', $heading);
     }
-
-    throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('heading in the region "%s"', $region), 'text', $heading);
   }
 
   /**
@@ -151,10 +150,8 @@ trait RegionTrait {
    */
   #[Then('the region :region should not contain the heading :heading')]
   public function regionAssertNotContainsHeading(string $region, string $heading): void {
-    foreach ($this->regionGet($region)->findAll('css', 'h1, h2, h3, h4, h5, h6') as $element) {
-      if (trim($element->getText()) === $heading) {
-        throw new ExpectationException(sprintf('The heading "%s" was found in the region "%s" on the page "%s".', $heading, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
-      }
+    if ($this->headingFind($this->regionGet($region), $heading) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The heading "%s" was found in the region "%s" on the page "%s".', $heading, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -263,10 +260,8 @@ trait RegionTrait {
    */
   #[Then('the element :selector in the region :region should not have the value :value')]
   public function regionAssertElementNotEquals(string $selector, string $region, string $value): void {
-    foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
-      if (trim($element->getText()) === $value) {
-        throw new ExpectationException(sprintf('The text "%s" was found in the element "%s" in the region "%s" on the page "%s".', $value, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
-      }
+    if ($this->regionFindElementByText($region, $selector, $value) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The text "%s" was found in the element "%s" in the region "%s" on the page "%s".', $value, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
     }
   }
 
@@ -279,10 +274,8 @@ trait RegionTrait {
    */
   #[Then('the element :selector in the region :region should have the attribute :attribute with the value :value')]
   public function regionAssertElementAttributeEquals(string $selector, string $region, string $attribute, string $value): void {
-    foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
-      if ($element->getAttribute($attribute) === $value) {
-        return;
-      }
+    if ($this->regionFindElementWithAttribute($region, $selector, $attribute, $value) instanceof NodeElement) {
+      return;
     }
 
     throw new ExpectationException(sprintf('The element "%s" in the region "%s" does not have the attribute "%s" with the value "%s" on the page "%s".', $selector, $region, $attribute, $value, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
@@ -364,19 +357,71 @@ trait RegionTrait {
    *   When no matching element carries the text.
    */
   public function regionGetElementByText(string $region, string $selector, string $text): NodeElement {
-    $elements = $this->regionGet($region)->findAll('css', $selector);
+    $element = $this->regionFindElementByText($region, $selector, $text);
 
-    if ($elements === []) {
+    if ($element instanceof NodeElement) {
+      return $element;
+    }
+
+    if ($this->regionGet($region)->findAll('css', $selector) === []) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('element in the region "%s"', $region), 'css', $selector);
     }
 
-    foreach ($elements as $element) {
+    throw new ExpectationException(sprintf('The text "%s" was not found in the element "%s" in the region "%s" on the page "%s".', $text, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Find an element in a region whose attribute holds a value.
+   *
+   * @param string $region
+   *   The region name.
+   * @param string $selector
+   *   The CSS selector for the element.
+   * @param string $attribute
+   *   The name of the attribute.
+   * @param string $value
+   *   The value the attribute holds exactly.
+   *
+   * @return \Behat\Mink\Element\NodeElement|null
+   *   The first matching element, or NULL when none carries the value.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the region name is not mapped or its selector matches nothing.
+   */
+  public function regionFindElementWithAttribute(string $region, string $selector, string $attribute, string $value): ?NodeElement {
+    foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
+      if ($element->getAttribute($attribute) === $value) {
+        return $element;
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Find an element in a region whose text matches exactly.
+   *
+   * @param string $region
+   *   The region name.
+   * @param string $selector
+   *   The CSS selector for the element.
+   * @param string $text
+   *   The text to match, compared with the element's trimmed text.
+   *
+   * @return \Behat\Mink\Element\NodeElement|null
+   *   The first matching element, or NULL when none carries the text.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When the region name is not mapped or its selector matches nothing.
+   */
+  public function regionFindElementByText(string $region, string $selector, string $text): ?NodeElement {
+    foreach ($this->regionGet($region)->findAll('css', $selector) as $element) {
       if (trim($element->getText()) === $text) {
         return $element;
       }
     }
 
-    throw new ExpectationException(sprintf('The text "%s" was not found in the element "%s" in the region "%s" on the page "%s".', $text, $selector, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+    return NULL;
   }
 
 }

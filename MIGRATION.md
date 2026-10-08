@@ -1777,7 +1777,7 @@ Two of the four header assertions were verb-first and two subject-first. The exi
 
 | Trait | Old | New |
 | --- | --- | --- |
-| `Drupal\StateTrait` | `stateNormaliseValue()` | `stateNormalizeValue()` |
+| `Drupal\StateTrait` | `stateNormaliseValue()` | `Helper\Web\StringTrait::stringNormalizeValue()`, as [Step logic moved into shared helpers](#step-logic-moved-into-shared-helpers) describes |
 | `ElementTrait` | `elementNormaliseCssProperty()` | `elementNormalizeCssProperty()` |
 
 ### `Login` and `Logout`, not `LogIn` and `LogOut`
@@ -2139,12 +2139,12 @@ The protected `FieldTrait::fieldFillDatetimeHelper()` is `fieldFillDatetimeInput
 
 ### `ConfigTrait` names its helpers as its siblings do
 
-`ConfigTrait` has 2 protected helpers that its siblings name differently: 1 records what a step is about to change so the teardown can restore it, as `stateStoreOriginalValue()` and `moduleStoreOriginalState()` do, and 1 turns step text into a typed value, as `stateNormalizeValue()` does. A context that overrides one of them renames the override.
+`ConfigTrait` had 2 protected helpers that its siblings name differently: 1 records what a step is about to change so the teardown can restore it, as `stateStoreOriginalValue()` and `moduleStoreOriginalState()` do, and 1 turns step text into a typed value, which `ConfigTrait` and `StateTrait` now share as `Helper\Web\StringTrait::stringNormalizeValue()`. A context that overrides one of them renames the override.
 
 | Trait | Old | New |
 | --- | --- | --- |
 | `Drupal\ConfigTrait` | `configSnapshot()` | `configStoreOriginalData()` |
-| `Drupal\ConfigTrait` | `configCastValue()` | `configNormalizeValue()` |
+| `Drupal\ConfigTrait` | `configCastValue()` | `Helper\Web\StringTrait::stringNormalizeValue()`, as [Step logic moved into shared helpers](#step-logic-moved-into-shared-helpers) describes |
 
 ### `XmlTrait` names its content steps as `JsonTrait` does
 
@@ -2892,3 +2892,57 @@ PHP Fatal error:  Type of FeatureContext::BATCH_WAIT_TIMEOUT must be compatible 
 `QueueTrait` deleted the queues a scenario used only when the scenario was tagged `@queue`, a tag nothing documented, so an untagged scenario left its queue items behind for the next one. The teardown now runs after every scenario, and `@queue` does nothing: remove it from your feature files.
 
 A queue counts as used once any queue step names it, the assertions included, so a scenario that only checks a queue the site filled deletes it as well. To keep the items for a later scenario, tag the scenario that leaves them `@behat-steps-skip:QueueTrait`, or set `queue.enabled` to `FALSE` for the suite.
+
+## Step logic moved into shared helpers
+
+Every step is now a thin wrapper over named helpers, so whatever a scenario can do, a project's own step definitions can do too, by calling the same helpers from PHP. No step calls another step any more: logic 2 steps share lives in a helper both call. The new public helpers are listed in [HELPERS.md](HELPERS.md).
+
+No step text changes. A project needs an edit only where it calls or overrides one of the members below, or asserts one of the messages.
+
+### Members that moved to a helper trait
+
+4 web helper traits are new. `Helper\Web\FixtureDirectoryTrait` resolves and reads fixture files under the Mink `files_path` parameter, `Helper\Web\HeadingTrait` finds a heading in a container, `Helper\Web\JavascriptErrorTrait` holds the JavaScript error registry that `JavascriptTrait` and `DiagnosticsTrait` share, and `Helper\Web\TokenTrait` replaces the tokens in a table for `MappingTrait`, `DateTrait` and `RandomTrait`. Members that did one of these jobs inside a step trait moved to the helper:
+
+| Trait | Old | New |
+| --- | --- | --- |
+| `JavascriptTrait` | `javascriptClearRegistry()` | `Helper\Web\JavascriptErrorTrait::javascriptErrorClear()` |
+| `JavascriptTrait` | `$javascriptErrorRegistry` | `Helper\Web\JavascriptErrorTrait::$javascriptErrorRegistry` |
+| `XmlTrait` | `xmlReadFile()` | `Helper\Web\FixtureDirectoryTrait::fixtureDirectoryReadFile()` |
+| `JsonTrait` | `jsonReadFile()` | `Helper\Web\FixtureDirectoryTrait::fixtureDirectoryReadFile()` |
+| `DropzoneTrait` | `dropzoneResolvePath()` | `Helper\Web\FixtureDirectoryTrait::fixtureDirectoryGetFile()` |
+| `Drupal\ConfigTrait` | `configCastValue()` | `Helper\Web\StringTrait::stringNormalizeValue()` |
+| `Drupal\ConfigTrait` | `configStringifyValue()` | `Helper\Web\StringTrait::stringFormatValue()` |
+| `Drupal\StateTrait` | `stateNormaliseValue()` | `Helper\Web\StringTrait::stringNormalizeValue()` |
+| `Drupal\StateTrait` | `stateStringifyValue()` | `Helper\Web\StringTrait::stringFormatValue()` |
+
+Each of these was `protected`, so only a context that called or overrode one is affected. `Helper\Drupal\FixtureFileTrait::fixtureFileResolve()` and `fixtureFileExpandCompoundCell()` no longer take a `$fixture_path` argument either: they read the directory through `FixtureDirectoryTrait` themselves.
+
+### `fieldAssertExists()` returns nothing
+
+`FieldTrait::fieldAssertExists()` returned the field it found, which made the step double as a lookup. It's a plain assertion now, and `fieldGet()` is the lookup: it returns the field, or throws `ElementNotFoundException` when the page has none.
+
+```php
+// Before.
+$field = $this->fieldAssertExists('Title');
+
+// After.
+$field = $this->fieldGet('Title');
+```
+
+### Behavior
+
+- **A state value holding a JSON object is stored as an array.** `StateTrait` decoded JSON to a `stdClass` while `ConfigTrait` decoded it to an array. Both now share `stringNormalizeValue()`, which decodes to an array, so `the state :name has the value :value` with `{"a":1}` stores `['a' => 1]`.
+- **Draggable Views resolves every title before it writes a weight.** `I save the draggable views items ... in the following order:` used to write each row's weight as it went, so a missing title left the order half-saved. A missing title now fails before anything is written.
+- **A new block instance is configured directly.** `the instance of the block :admin_label exists with the following configuration:` used to look the block up again by its label after creating it, so an existing block carrying the same label could receive the configuration instead. It now configures the block it created, and registers it for removal before configuring it.
+- **A managed file path that leaves the fixture directory is used as given.** A `path` in `the following managed files exist:` that climbs out of `files_path` with `..` no longer resolves against the fixture directory, so it's read relative to the working directory instead.
+
+### Messages
+
+A test that asserts one of these messages needs the new text:
+
+| Step | Before | After |
+| --- | --- | --- |
+| A downloaded-file assertion run before any download | `Downloaded file content has no data.`, `Downloaded file name content has no data.` or `Downloaded file path data is not available.` | `No file has been downloaded. Download a file before asserting on it.` |
+| `the response XML is loaded from the file :filename` and `the response JSON is loaded from the file :filename`, for a missing file | `The file "..." does not exist.` | `The fixture file "..." does not exist.` |
+| The same steps with no `files_path` configured | `The file "..." does not exist.` | `The Mink "files_path" parameter is not configured.` |
+| The same steps with a path that leaves `files_path` | the file outside it was read | `The fixture file "..." is outside the configured "files_path".` |

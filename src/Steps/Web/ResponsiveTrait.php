@@ -151,11 +151,9 @@ trait ResponsiveTrait {
    */
   #[Given('the following responsive breakpoints exist:')]
   public function responsiveSetBreakpointMultiple(TableNode $table): void {
-    $breakpoints = [];
     foreach ($table->getHash() as $row) {
-      $breakpoints[$row['name']] = $row['dimensions'];
+      $this->responsiveSetBreakpoint($row['name'], $row['dimensions']);
     }
-    $this->responsiveSetBreakpoints($breakpoints);
   }
 
   /**
@@ -238,18 +236,36 @@ trait ResponsiveTrait {
    *
    * Custom breakpoints override default breakpoints with the same name.
    *
-   * @param array<string, string> $breakpoints
-   *   Array of breakpoints in format ['name' => 'WIDTHxHEIGHT'].
+   * @param array<int|string, string> $breakpoints
+   *   Array of breakpoints in format ['name' => 'WIDTHxHEIGHT']. PHP stores a
+   *   numeric name as an integer key.
    *
    * @throws \RuntimeException
    *   If breakpoint format is invalid.
    */
   public function responsiveSetBreakpoints(array $breakpoints): void {
     foreach ($breakpoints as $name => $dimensions) {
-      // The extraction throws on an invalid format.
-      $this->responsiveExtractDimensions($dimensions, $name);
-      $this->responsiveCustomBreakpoints[$name] = $dimensions;
+      $this->responsiveSetBreakpoint((string) $name, $dimensions);
     }
+  }
+
+  /**
+   * Set a custom breakpoint.
+   *
+   * A custom breakpoint overrides a default breakpoint with the same name.
+   *
+   * @param string $name
+   *   The breakpoint name.
+   * @param string $dimensions
+   *   The dimensions, in WIDTHxHEIGHT format.
+   *
+   * @throws \RuntimeException
+   *   If the dimensions format is invalid.
+   */
+  public function responsiveSetBreakpoint(string $name, string $dimensions): void {
+    // The extraction throws on an invalid format.
+    $this->responsiveExtractDimensions($dimensions, $name);
+    $this->responsiveCustomBreakpoints[$name] = $dimensions;
   }
 
   /**
@@ -299,7 +315,7 @@ trait ResponsiveTrait {
    *   All breakpoints.
    */
   public function responsiveGetAllBreakpoints(): array {
-    return array_merge($this->responsiveDefaultBreakpoints, $this->responsiveCustomBreakpoints);
+    return array_replace($this->responsiveDefaultBreakpoints, $this->responsiveCustomBreakpoints);
   }
 
   /**

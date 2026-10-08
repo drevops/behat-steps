@@ -43,14 +43,31 @@ trait LanguageTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $row) {
-      $langcode = $row['langcode'] ?? reset($row);
-
-      if (!is_string($langcode) || $langcode === '') {
-        throw new \RuntimeException('Each row must define a non-empty "langcode" value.');
-      }
-
-      $this->entityLifecycleCreateLanguage(new EntityStub('language', NULL, ['langcode' => $langcode]));
+      $this->entityLifecycleCreateLanguage(new EntityStub('language', NULL, ['langcode' => $this->languageParseCode($row)]));
     }
+  }
+
+  /**
+   * Parse the language code from a table row.
+   *
+   * @param array<string, string> $row
+   *   The row, keyed by column header. A row without a "langcode" column
+   *   gives its first value.
+   *
+   * @return string
+   *   The language code.
+   *
+   * @throws \RuntimeException
+   *   When the row holds no language code.
+   */
+  protected function languageParseCode(array $row): string {
+    $langcode = $row['langcode'] ?? reset($row);
+
+    if (!is_string($langcode) || $langcode === '') {
+      throw new \RuntimeException('Each row must define a non-empty "langcode" value.');
+    }
+
+    return $langcode;
   }
 
 }

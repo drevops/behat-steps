@@ -93,6 +93,72 @@ trait StringTrait {
   }
 
   /**
+   * Cast a step argument into the typed value it spells.
+   *
+   * @param string $value
+   *   The raw value captured from the step or table cell.
+   *
+   * @return mixed
+   *   The cast value: a decoded JSON array for array or object input, an
+   *   integer or a float for numeric input, a boolean for "true" or "false",
+   *   NULL for "null", or the original string otherwise.
+   */
+  protected function stringNormalizeValue(string $value): mixed {
+    $trimmed = trim($value);
+
+    if ($trimmed === '') {
+      return $value;
+    }
+
+    $lower = strtolower($trimmed);
+    if ($lower === 'true') {
+      return TRUE;
+    }
+    if ($lower === 'false') {
+      return FALSE;
+    }
+    if ($lower === 'null') {
+      return NULL;
+    }
+
+    if ($trimmed[0] === '{' || $trimmed[0] === '[') {
+      $decoded = json_decode($trimmed, TRUE);
+      if (json_last_error() === JSON_ERROR_NONE) {
+        return $decoded;
+      }
+    }
+
+    if (is_numeric($trimmed)) {
+      return str_contains($trimmed, '.') ? (float) $trimmed : (int) $trimmed;
+    }
+
+    return $value;
+  }
+
+  /**
+   * Format a value as text for a comparison or a failure message.
+   *
+   * @param mixed $value
+   *   The value to format.
+   *
+   * @return string
+   *   "NULL" for NULL, "true" or "false" for a boolean, the value itself for
+   *   any other scalar, and JSON for anything else.
+   */
+  protected function stringFormatValue(mixed $value): string {
+    if ($value === NULL) {
+      return 'NULL';
+    }
+    if (is_bool($value)) {
+      return $value ? 'true' : 'false';
+    }
+    if (is_scalar($value)) {
+      return (string) $value;
+    }
+    return (string) json_encode($value);
+  }
+
+  /**
    * Normalize whitespace in text for comparison.
    *
    * @param string $text

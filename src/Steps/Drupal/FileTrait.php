@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\Entity\File;
@@ -40,6 +41,7 @@ use Symfony\Component\Filesystem\Filesystem;
 trait FileTrait {
 
   use EntityLifecycleTrait;
+  use FixtureDirectoryTrait;
   use QueryTrait;
 
   /**
@@ -60,19 +62,8 @@ trait FileTrait {
 
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $fs = new Filesystem();
-
-    // @codeCoverageIgnoreStart
-    $directory = \Drupal::service('file_system')->realpath('private://');
-    if ($directory && !$fs->exists($directory)) {
-      $fs->mkdir($directory);
-    }
-
-    $directory = \Drupal::service('file_system')->realpath('temporary://');
-    if ($directory && !$fs->exists($directory)) {
-      $fs->mkdir($directory);
-    }
-    // @codeCoverageIgnoreEnd
+    $this->fileEnsureDirectory('private://');
+    $this->fileEnsureDirectory('temporary://');
   }
 
   /**
@@ -107,12 +98,7 @@ trait FileTrait {
         throw new \RuntimeException('Missing required column "path".');
       }
 
-      $path = $hash['path'];
-      $uri = $hash['uri'] ?? NULL;
-      unset($hash['path'], $hash['uri']);
-
-      $stub = new EntityStub('file', NULL, $hash);
-      $this->fileCreateManaged($path, $stub, $uri);
+      $this->fileCreateManaged($hash['path'], $this->fileBuildManagedStub($hash), $hash['uri'] ?? NULL);
     }
   }
 
@@ -144,19 +130,14 @@ trait FileTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $storage = \Drupal::entityTypeManager()->getStorage('file');
-
-    $field_values = $table->getColumn(0);
-    $field_name = array_shift($field_values);
+    $field_name = $table->getRow(0)[0];
 
     if (is_numeric($field_name)) {
       throw new \RuntimeException('The first column should be the field name.');
     }
 
-    $field_name = (string) $field_name;
-
-    foreach ($field_values as $field_value) {
-      $storage->delete($this->fileLoadMultiple([$field_name => (string) $field_value]));
+    foreach (array_slice($table->getColumn(0), 1) as $field_value) {
+      $this->fileDeleteManaged([$field_name => (string) $field_value]);
     }
   }
 
@@ -169,7 +150,7 @@ trait FileTrait {
    */
   #[Given('the unmanaged file at the URI :uri exists')]
   public function fileCreateUnmanaged(string $uri): void {
-    $this->fileCreateUnmanagedWithContent($uri, 'test');
+    $this->fileWriteUnmanaged($uri, 'test');
   }
 
   /**
@@ -181,21 +162,7 @@ trait FileTrait {
    */
   #[Given('the unmanaged file at the URI :uri exists with the content :content')]
   public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $directory = \Drupal::service('file_system')->dirname($uri);
-
-    // @codeCoverageIgnoreStart
-    if (!file_exists($directory)) {
-      $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
-      if (!$is_prepared) {
-        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
-      }
-    }
-    // @codeCoverageIgnoreEnd
-    file_put_contents($uri, $content);
-
-    $this->fileUnmanagedUris[] = $uri;
+    $this->fileWriteUnmanaged($uri, $content);
   }
 
   /**
@@ -239,14 +206,8 @@ trait FileTrait {
    */
   #[Then('an unmanaged file at the URI :uri should contain the value :value')]
   public function fileAssertUnmanagedContains(string $uri, string $value): void {
-    $this->fileAssertUnmanagedExists($uri);
+    $file_content = $this->fileGetUnmanagedContent($uri);
 
-    $file_content = @file_get_contents($uri);
-    // @codeCoverageIgnoreStart
-    if ($file_content === FALSE) {
-      throw new \RuntimeException(sprintf('Unable to read file "%s".', $uri));
-    }
-    // @codeCoverageIgnoreEnd
     if (!str_contains($file_content, $value)) {
       throw new ExpectationException(sprintf('The file content "%s" does not contain "%s".', $file_content, $value), $this->getSession()->getDriver());
     }
@@ -261,7 +222,64 @@ trait FileTrait {
    */
   #[Then('an unmanaged file at the URI :uri should not contain the value :value')]
   public function fileAssertUnmanagedNotContains(string $uri, string $value): void {
-    $this->fileAssertUnmanagedExists($uri);
+    $file_content = $this->fileGetUnmanagedContent($uri);
+
+    if (str_contains($file_content, $value)) {
+      throw new ExpectationException(sprintf('The file content "%s" contains "%s", but it should not.', $file_content, $value), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Write an unmanaged file, creating its directory when it is missing.
+   *
+   * The file is deleted after the scenario.
+   *
+   * @param string $uri
+   *   The file URI.
+   * @param string $content
+   *   The file content.
+   *
+   * @throws \RuntimeException
+   *   When the directory cannot be created.
+   */
+  public function fileWriteUnmanaged(string $uri, string $content): void {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $directory = \Drupal::service('file_system')->dirname($uri);
+
+    // @codeCoverageIgnoreStart
+    if (!file_exists($directory)) {
+      $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
+      if (!$is_prepared) {
+        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
+      }
+    }
+    // @codeCoverageIgnoreEnd
+    file_put_contents($uri, $content);
+
+    $this->fileUnmanagedUris[] = $uri;
+  }
+
+  /**
+   * Get the content of an unmanaged file.
+   *
+   * @param string $uri
+   *   The file URI.
+   *
+   * @return string
+   *   The file content.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When the file does not exist.
+   * @throws \RuntimeException
+   *   When the file cannot be read.
+   */
+  public function fileGetUnmanagedContent(string $uri): string {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    if (!@file_exists($uri)) {
+      throw new ExpectationException(sprintf('The file "%s" does not exist.', $uri), $this->getSession()->getDriver());
+    }
 
     $file_content = @file_get_contents($uri);
     // @codeCoverageIgnoreStart
@@ -269,9 +287,33 @@ trait FileTrait {
       throw new \RuntimeException(sprintf('Unable to read file "%s".', $uri));
     }
     // @codeCoverageIgnoreEnd
-    if (str_contains($file_content, $value)) {
-      throw new ExpectationException(sprintf('The file content "%s" contains "%s", but it should not.', $file_content, $value), $this->getSession()->getDriver());
-    }
+    return $file_content;
+  }
+
+  /**
+   * Build a managed file stub from a set of values.
+   *
+   * @param array<string, string> $values
+   *   The values. The "path" and "uri" values locate the file rather than
+   *   describe it, so the stub leaves them out.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStub
+   *   The file stub.
+   */
+  protected function fileBuildManagedStub(array $values): EntityStub {
+    return new EntityStub('file', NULL, array_diff_key($values, ['path' => TRUE, 'uri' => TRUE]));
+  }
+
+  /**
+   * Delete the managed files that match conditions.
+   *
+   * @param array<string, string> $conditions
+   *   Conditions keyed by field names.
+   */
+  public function fileDeleteManaged(array $conditions): void {
+    $files = $this->fileLoadMultiple($conditions);
+
+    \Drupal::entityTypeManager()->getStorage('file')->delete($files);
   }
 
   /**
@@ -320,13 +362,7 @@ trait FileTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     $path = ltrim($path, '/');
-
-    if (!empty($this->getMinkParameter('files_path'))) {
-      $full_path = rtrim((string) realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . '/' . $path;
-      if (is_file($full_path)) {
-        $path = $full_path;
-      }
-    }
+    $path = $this->fixtureDirectoryFindFile($path) ?? $path;
 
     if (!is_readable($path)) {
       throw new \RuntimeException(sprintf('Unable to find file "%s".', $path));
@@ -359,6 +395,23 @@ trait FileTrait {
     $entity->save();
 
     return $entity;
+  }
+
+  /**
+   * Create the directory a stream wrapper URI points at, when it is missing.
+   *
+   * @param string $uri
+   *   The URI of the directory, such as `private://`.
+   */
+  protected function fileEnsureDirectory(string $uri): void {
+    $directory = \Drupal::service('file_system')->realpath($uri);
+    $fs = new Filesystem();
+
+    if ($directory && !$fs->exists($directory)) {
+      // @codeCoverageIgnoreStart
+      $fs->mkdir($directory);
+      // @codeCoverageIgnoreEnd
+    }
   }
 
   /**

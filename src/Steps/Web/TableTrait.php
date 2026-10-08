@@ -117,13 +117,11 @@ trait TableTrait {
    */
   #[Then('the table :selector should contain the following columns:')]
   public function tableAssertColumns(string $selector, TableNode $table): void {
-    $table_element = $this->tableGet($selector);
-    $actual_headers = $this->tableGetHeaders($table_element);
+    $actual_headers = $this->tableGetHeaders($this->tableGet($selector));
 
     foreach ($table->getColumn(0) as $expected_column) {
-      $expected_column = trim($expected_column);
-      if (!in_array($expected_column, $actual_headers, TRUE)) {
-        throw new ExpectationException(sprintf('The column "%s" was not found in the table "%s". Available columns: %s.', $expected_column, $selector, implode(', ', $actual_headers)), $this->getSession()->getDriver());
+      if (!in_array(trim($expected_column), $actual_headers, TRUE)) {
+        throw new ExpectationException(sprintf('The column "%s" was not found in the table "%s". Available columns: %s.', trim($expected_column), $selector, implode(', ', $actual_headers)), $this->getSession()->getDriver());
       }
     }
   }
@@ -176,25 +174,9 @@ trait TableTrait {
     }
 
     $table = $this->tableGet($selector);
-    $column_index = $this->tableGetColumnIndex($table, $column, $selector);
+    $values = $this->tableGetColumnValues($table, $this->tableGetColumnIndex($table, $column, $selector));
 
-    $values = [];
-    foreach ($this->tableGetRows($table) as $row) {
-      $cells = $row->findAll('css', 'td');
-      if (isset($cells[$column_index])) {
-        $values[] = trim($cells[$column_index]->getText());
-      }
-    }
-
-    $sorted = $values;
-    natcasesort($sorted);
-    $sorted = array_values($sorted);
-
-    if ($direction === 'descending') {
-      $sorted = array_reverse($sorted);
-    }
-
-    if ($values !== $sorted) {
+    if ($values !== $this->tableSortValues($values, $direction)) {
       throw new ExpectationException(sprintf('Expected the table "%s" to be sorted by the column "%s" in %s order. Actual values: %s.', $selector, $column, $direction, implode(', ', $values)), $this->getSession()->getDriver());
     }
   }
@@ -213,35 +195,14 @@ trait TableTrait {
   public function tableAssertRows(string $selector, TableNode $expected_table): void {
     $table = $this->tableGet($selector);
 
-    $expected_headers = $expected_table->getRow(0);
-    $column_indices = [];
-    foreach ($expected_headers as $expected_header) {
-      $column_indices[] = $this->tableGetColumnIndex($table, $expected_header, $selector);
+    // Every column is resolved before any row, so a missing column fails even
+    // for a table of headers alone.
+    foreach ($expected_table->getRow(0) as $expected_header) {
+      $this->tableGetColumnIndex($table, $expected_header, $selector);
     }
 
-    $rows = $this->tableGetRows($table);
-    $expected_rows = $expected_table->getHash();
-
-    foreach ($expected_rows as $row_index => $expected_row) {
-      $is_found = FALSE;
-      foreach ($rows as $actual_row) {
-        $cells = $actual_row->findAll('css', 'td');
-        $is_match = TRUE;
-        foreach ($column_indices as $column_position => $column_index) {
-          $expected_value = $expected_row[$expected_headers[$column_position]];
-          $actual_value = isset($cells[$column_index]) ? trim($cells[$column_index]->getText()) : '';
-          if ($actual_value !== $expected_value) {
-            $is_match = FALSE;
-            break;
-          }
-        }
-        if ($is_match) {
-          $is_found = TRUE;
-          break;
-        }
-      }
-
-      if (!$is_found) {
+    foreach ($expected_table->getHash() as $row_index => $expected_row) {
+      if (!$this->tableFindRowByValues($table, $expected_row, $selector) instanceof NodeElement) {
         throw new ExpectationException(sprintf('The table "%s" does not contain the row %d with the values [%s].', $selector, $row_index + 1, implode(', ', array_values($expected_row))), $this->getSession()->getDriver());
       }
     }
@@ -436,6 +397,92 @@ trait TableTrait {
     }
 
     return (int) $index;
+  }
+
+  /**
+   * Get the texts of a column's cells in the body rows of a table.
+   *
+   * @param \Behat\Mink\Element\NodeElement $table
+   *   The table element.
+   * @param int $column_index
+   *   The 0-based index of the column.
+   *
+   * @return array<int, string>
+   *   The trimmed cell texts, in row order. A row without the cell adds none.
+   */
+  public function tableGetColumnValues(NodeElement $table, int $column_index): array {
+    $values = [];
+
+    foreach ($this->tableGetRows($table) as $row) {
+      $cells = $row->findAll('css', 'td');
+
+      if (isset($cells[$column_index])) {
+        $values[] = trim($cells[$column_index]->getText());
+      }
+    }
+
+    return $values;
+  }
+
+  /**
+   * Find the first body row whose cells hold the given values.
+   *
+   * @param \Behat\Mink\Element\NodeElement $table
+   *   The table element.
+   * @param array<int|string, string> $values
+   *   The expected cell texts, keyed by column header.
+   * @param string $selector
+   *   The table selector for error messages.
+   *
+   * @return \Behat\Mink\Element\NodeElement|null
+   *   The row, or NULL when no body row holds every value.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When a column is not found.
+   */
+  public function tableFindRowByValues(NodeElement $table, array $values, string $selector): ?NodeElement {
+    $column_values = [];
+    foreach ($values as $header => $value) {
+      $column_values[$this->tableGetColumnIndex($table, (string) $header, $selector)] = $value;
+    }
+
+    foreach ($this->tableGetRows($table) as $row) {
+      $cells = $row->findAll('css', 'td');
+      $is_match = TRUE;
+
+      foreach ($column_values as $column_index => $value) {
+        $actual_value = isset($cells[$column_index]) ? trim($cells[$column_index]->getText()) : '';
+
+        if ($actual_value !== $value) {
+          $is_match = FALSE;
+          break;
+        }
+      }
+
+      if ($is_match) {
+        return $row;
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Sort cell texts in natural, case-insensitive order.
+   *
+   * @param array<int, string> $values
+   *   The cell texts.
+   * @param string $direction
+   *   The sort direction: 'ascending' or 'descending'.
+   *
+   * @return array<int, string>
+   *   The sorted texts.
+   */
+  protected function tableSortValues(array $values, string $direction): array {
+    natcasesort($values);
+    $values = array_values($values);
+
+    return $direction === 'descending' ? array_reverse($values) : $values;
   }
 
   /**

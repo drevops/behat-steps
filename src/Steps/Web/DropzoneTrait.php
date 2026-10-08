@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
 
 /**
  * Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
@@ -31,6 +32,8 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
  */
 trait DropzoneTrait {
 
+  use FixtureDirectoryTrait;
+
   /**
    * Drop a single file on the target element.
    *
@@ -42,7 +45,7 @@ trait DropzoneTrait {
    */
   #[When('I drop the file :filename on the dropzone :selector')]
   public function dropzoneDropFile(string $filename, string $selector): void {
-    $this->dropzoneDropFiles($selector, new TableNode([[$filename]]));
+    $this->dropzoneDrop($selector, [$filename]);
   }
 
   /**
@@ -61,6 +64,25 @@ trait DropzoneTrait {
    */
   #[When('I drop the following files on the dropzone :selector:')]
   public function dropzoneDropFiles(string $selector, TableNode $paths): void {
+    $this->dropzoneDrop($selector, $paths->getColumn(0));
+  }
+
+  /**
+   * Drop files on a target element in a single native drop event.
+   *
+   * @param string $selector
+   *   The CSS selector of the drop target.
+   * @param array<int, string> $paths
+   *   The fixture file paths, relative to the Mink "files_path" parameter.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the browser driver cannot run JavaScript.
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When no element matches the selector.
+   * @throws \RuntimeException
+   *   When a fixture file does not exist.
+   */
+  public function dropzoneDrop(string $selector, array $paths): void {
     $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
     $session = $this->getSession();
@@ -71,8 +93,8 @@ trait DropzoneTrait {
     }
 
     $resolved_paths = [];
-    foreach ($paths->getColumn(0) as $row) {
-      $resolved_paths[] = $this->dropzoneResolvePath((string) $row);
+    foreach ($paths as $path) {
+      $resolved_paths[] = $this->fixtureDirectoryGetFile($path);
     }
 
     $token = str_replace('.', '', uniqid('', TRUE));
@@ -132,51 +154,6 @@ trait DropzoneTrait {
       json_encode($holder_ids, JSON_UNESCAPED_SLASHES),
       json_encode($selector, JSON_UNESCAPED_SLASHES)
     ));
-  }
-
-  /**
-   * Resolve a fixture path against the Mink `files_path` parameter.
-   *
-   * @param string $path
-   *   Fixture path, typically a bare filename like `document.pdf`.
-   *
-   * @return string
-   *   Absolute path to the fixture file.
-   *
-   * @throws \RuntimeException
-   *   When the resolved fixture does not exist.
-   */
-  public function dropzoneResolvePath(string $path): string {
-    $path = trim($path);
-
-    if ($path === '') {
-      throw new \RuntimeException('A fixture file path cannot be empty.');
-    }
-
-    $files_path = $this->getMinkParameter('files_path');
-
-    if (empty($files_path)) {
-      throw new \RuntimeException('The Mink "files_path" parameter is not configured.');
-    }
-
-    $resolved_files_path = realpath((string) $files_path);
-    if ($resolved_files_path === FALSE || !is_dir($resolved_files_path)) {
-      throw new \RuntimeException('The Mink "files_path" parameter is invalid or not accessible.');
-    }
-
-    $base = rtrim($resolved_files_path, DIRECTORY_SEPARATOR);
-    $full_path = $base . '/' . ltrim($path, "/\\");
-
-    if (!is_file($full_path)) {
-      throw new \RuntimeException(sprintf('The fixture file "%s" does not exist.', $full_path));
-    }
-
-    $resolved = realpath($full_path);
-    if ($resolved === FALSE || !str_starts_with($resolved, $base . DIRECTORY_SEPARATOR)) {
-      throw new \RuntimeException(sprintf('The fixture file "%s" is outside the configured "files_path".', $path));
-    }
-
-    return $resolved;
   }
 
 }

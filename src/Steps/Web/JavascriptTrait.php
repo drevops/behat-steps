@@ -15,6 +15,7 @@ use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\ExpectationException;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Helper\Web\JavascriptErrorTrait;
 use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
 
 /**
@@ -52,19 +53,13 @@ use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
  */
 trait JavascriptTrait {
 
+  use JavascriptErrorTrait;
   use LastStepTrait;
 
   /**
    * The tag that keeps a scenario collecting JavaScript errors from failing.
    */
   protected const string JAVASCRIPT_ERRORS_TAG = 'js-errors';
-
-  /**
-   * Registry of JavaScript errors collected during scenario execution.
-   *
-   * @var array<string, array<int, array<string, mixed>>>
-   */
-  protected array $javascriptErrorRegistry = [];
 
   /**
    * Current URL stored before each step for change detection.
@@ -86,7 +81,7 @@ trait JavascriptTrait {
    */
   #[BeforeScenario('@javascript')]
   public function javascriptBeforeScenario(BeforeScenarioScope $scope): void {
-    $this->javascriptClearRegistry();
+    $this->javascriptErrorClear();
     $this->javascriptAsserted = FALSE;
 
     if ($this->skipTag(__TRAIT__, $scope)) {
@@ -121,7 +116,7 @@ trait JavascriptTrait {
     $this->javascriptAsserted = FALSE;
 
     if (!$should_assert) {
-      $this->javascriptClearRegistry();
+      $this->javascriptErrorClear();
       return;
     }
 
@@ -129,7 +124,7 @@ trait JavascriptTrait {
       $this->javascriptAssertErrorsNotExist();
     }
     finally {
-      $this->javascriptClearRegistry();
+      $this->javascriptErrorClear();
     }
   }
 
@@ -278,16 +273,11 @@ JS;
    */
   protected function javascriptCollectFromPage(string $url): void {
     try {
-      $errors = $this->getSession()->evaluateScript('return typeof window.jsErrors !== "undefined" ? window.jsErrors : [];');
+      $errors = $this->javascriptErrorReadBuffer();
 
-      if (!empty($errors)) {
-        $this->javascriptErrorRegistry[$url] ??= [];
-
-        foreach ($errors as $error) {
-          $this->javascriptErrorRegistry[$url][] = $error;
-        }
-
-        $this->getSession()->executeScript('window.jsErrors = [];');
+      if ($errors !== []) {
+        $this->javascriptErrorRecord($url, $errors);
+        $this->javascriptErrorClearBuffer();
       }
     }
     // @codeCoverageIgnoreStart
@@ -303,14 +293,16 @@ JS;
    *   If JavaScript errors were detected.
    */
   public function javascriptAssertErrorsNotExist(): void {
-    if (empty($this->javascriptErrorRegistry)) {
+    $registry = $this->javascriptErrorGetAll();
+
+    if ($registry === []) {
       return;
     }
 
     $error_count = 0;
     $message_parts = ['JavaScript errors detected:' . PHP_EOL];
 
-    foreach ($this->javascriptErrorRegistry as $url => $errors) {
+    foreach ($registry as $url => $errors) {
       $error_count += count($errors);
       $message_parts[] = PHP_EOL . 'URL: ' . $url;
 
@@ -327,13 +319,6 @@ JS;
     $message_parts[] = sprintf(PHP_EOL . 'Total errors: %d', $error_count);
 
     throw new ExpectationException(implode(PHP_EOL, $message_parts), $this->getSession()->getDriver());
-  }
-
-  /**
-   * Clear the JavaScript error registry.
-   */
-  protected function javascriptClearRegistry(): void {
-    $this->javascriptErrorRegistry = [];
   }
 
   /**

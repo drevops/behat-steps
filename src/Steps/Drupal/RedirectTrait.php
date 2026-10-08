@@ -61,25 +61,15 @@ trait RedirectTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     foreach ($table->getHash() as $row) {
-      $from = isset($row['from']) ? trim($row['from']) : '';
-      $to = isset($row['to']) ? trim($row['to']) : '';
-
-      if ($from === '') {
+      if (trim($row['from'] ?? '') === '') {
         throw new \RuntimeException('Each redirect row must define a non-empty "from" path.');
       }
 
-      if ($to === '') {
-        throw new \RuntimeException(sprintf('Redirect from "%s" is missing a non-empty "to" value.', $from));
+      if (trim($row['to'] ?? '') === '') {
+        throw new \RuntimeException(sprintf('Redirect from "%s" is missing a non-empty "to" value.', trim($row['from'])));
       }
 
-      $status_code = $this->redirectNormalizeStatusCode($row['status_code'] ?? NULL);
-
-      $redirect = Redirect::create(['status_code' => $status_code]);
-      $redirect->setSource($from);
-      $redirect->setRedirect($to);
-      $redirect->save();
-
-      $this->entityLifecycleRegister($redirect);
+      $this->redirectCreate(trim($row['from']), trim($row['to']), $this->redirectNormalizeStatusCode($row['status_code'] ?? NULL));
     }
   }
 
@@ -101,22 +91,8 @@ trait RedirectTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $storage = \Drupal::entityTypeManager()->getStorage('redirect');
-
     foreach ($table->getColumn(0) as $path) {
-      $source = $this->redirectNormalizeSource($path);
-
-      $ids = $storage->getQuery()
-        ->accessCheck(FALSE)
-        ->condition('redirect_source.path', $source)
-        ->execute();
-
-      if (empty($ids)) {
-        continue;
-      }
-
-      $entities = $storage->loadMultiple($ids);
-      $storage->delete($entities);
+      $this->redirectDelete($path);
     }
   }
 
@@ -145,36 +121,7 @@ trait RedirectTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $storage = \Drupal::entityTypeManager()->getStorage('redirect');
-    $missing = [];
-
-    foreach ($table->getHash() as $row) {
-      $from = isset($row['from']) ? trim($row['from']) : '';
-
-      if ($from === '') {
-        throw new \RuntimeException('Each redirect row must define a non-empty "from" path.');
-      }
-
-      $query = $storage->getQuery()
-        ->accessCheck(FALSE)
-        ->condition('redirect_source.path', $this->redirectNormalizeSource($from));
-
-      $to = isset($row['to']) ? trim($row['to']) : '';
-      if ($to !== '') {
-        $query->condition('redirect_redirect.uri', $this->redirectNormalizeDestination($to));
-      }
-
-      $status_code_raw = isset($row['status_code']) ? trim($row['status_code']) : '';
-      if ($status_code_raw !== '') {
-        $query->condition('status_code', $this->redirectNormalizeStatusCode($status_code_raw));
-      }
-
-      $ids = $query->execute();
-
-      if (empty($ids)) {
-        $missing[] = $this->redirectFormatRow($from, $to, $status_code_raw);
-      }
-    }
+    $missing = $this->redirectGetMissing($table->getHash());
 
     if ($missing !== []) {
       throw new AssertionException(sprintf('The following redirects should exist but were not found: %s.', implode(', ', $missing)));
@@ -198,25 +145,155 @@ trait RedirectTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $storage = \Drupal::entityTypeManager()->getStorage('redirect');
-    $present = [];
-
-    foreach ($table->getColumn(0) as $path) {
-      $source = $this->redirectNormalizeSource($path);
-
-      $ids = $storage->getQuery()
-        ->accessCheck(FALSE)
-        ->condition('redirect_source.path', $source)
-        ->execute();
-
-      if (!empty($ids)) {
-        $present[] = sprintf('"%s"', $path);
-      }
-    }
+    $present = $this->redirectGetPresent($table->getColumn(0));
 
     if ($present !== []) {
       throw new AssertionException(sprintf('The following redirects should not exist but were found: %s.', implode(', ', $present)));
     }
+  }
+
+  /**
+   * Create a redirect.
+   *
+   * The redirect is removed after the scenario.
+   *
+   * @param string $from
+   *   The source path.
+   * @param string $to
+   *   The destination, as an internal path or an external URL.
+   * @param int $status_code
+   *   The HTTP status code.
+   *
+   * @return \Drupal\redirect\Entity\Redirect
+   *   The redirect.
+   */
+  public function redirectCreate(string $from, string $to, int $status_code = 301): Redirect {
+    $redirect = Redirect::create(['status_code' => $status_code]);
+    $redirect->setSource($from);
+    $redirect->setRedirect($to);
+    $redirect->save();
+
+    $this->entityLifecycleRegister($redirect);
+
+    return $redirect;
+  }
+
+  /**
+   * Delete the redirects from a source path.
+   *
+   * @param string $from
+   *   The source path.
+   */
+  public function redirectDelete(string $from): void {
+    $ids = $this->redirectQueryIds($from);
+
+    if ($ids === []) {
+      return;
+    }
+
+    $storage = \Drupal::entityTypeManager()->getStorage('redirect');
+    $storage->delete($storage->loadMultiple($ids));
+  }
+
+  /**
+   * Check whether a redirect exists.
+   *
+   * @param string $from
+   *   The source path.
+   * @param string|null $to
+   *   The destination, or NULL to match any destination.
+   * @param int|null $status_code
+   *   The HTTP status code, or NULL to match any status code.
+   *
+   * @return bool
+   *   TRUE when a redirect matches, FALSE otherwise.
+   */
+  public function redirectExists(string $from, ?string $to = NULL, ?int $status_code = NULL): bool {
+    return $this->redirectQueryIds($from, $to, $status_code) !== [];
+  }
+
+  /**
+   * Query the IDs of the redirects matching a source path.
+   *
+   * @param string $from
+   *   The source path.
+   * @param string|null $to
+   *   The destination, or NULL to match any destination.
+   * @param int|null $status_code
+   *   The HTTP status code, or NULL to match any status code.
+   *
+   * @return array<int|string, int|string>
+   *   The redirect IDs.
+   */
+  protected function redirectQueryIds(string $from, ?string $to = NULL, ?int $status_code = NULL): array {
+    $query = \Drupal::entityTypeManager()->getStorage('redirect')->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('redirect_source.path', $this->redirectNormalizeSource($from));
+
+    if ($to !== NULL) {
+      $query->condition('redirect_redirect.uri', $this->redirectNormalizeDestination($to));
+    }
+
+    if ($status_code !== NULL) {
+      $query->condition('status_code', $status_code);
+    }
+
+    return $query->execute();
+  }
+
+  /**
+   * Get the rows of a redirect table that match no redirect.
+   *
+   * @param array<int, array<string, string>> $rows
+   *   The rows, each with a "from" path and optional "to" and "status_code"
+   *   values. A blank optional value matches any.
+   *
+   * @return array<int, string>
+   *   The unmatched rows, formatted for a failure message.
+   *
+   * @throws \RuntimeException
+   *   When a row has no "from" path, or an invalid status code.
+   */
+  protected function redirectGetMissing(array $rows): array {
+    $missing = [];
+
+    foreach ($rows as $row) {
+      $from = isset($row['from']) ? trim($row['from']) : '';
+
+      if ($from === '') {
+        throw new \RuntimeException('Each redirect row must define a non-empty "from" path.');
+      }
+
+      $to = isset($row['to']) ? trim($row['to']) : '';
+      $status_code = isset($row['status_code']) ? trim($row['status_code']) : '';
+
+      if (!$this->redirectExists($from, $to === '' ? NULL : $to, $status_code === '' ? NULL : $this->redirectNormalizeStatusCode($status_code))) {
+        $missing[] = $this->redirectFormatRow($from, $to, $status_code);
+      }
+    }
+
+    return $missing;
+  }
+
+  /**
+   * Get the source paths that have a redirect.
+   *
+   * @param array<int, string> $paths
+   *   The source paths.
+   *
+   * @return array<int, string>
+   *   The quoted source paths with a redirect.
+   */
+  protected function redirectGetPresent(array $paths): array {
+    $present = [];
+
+    foreach ($paths as $path) {
+      if ($this->redirectExists($path)) {
+        $present[] = sprintf('"%s"', $path);
+      }
+    }
+
+    return $present;
   }
 
   /**

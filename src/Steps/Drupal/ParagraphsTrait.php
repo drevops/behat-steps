@@ -48,19 +48,9 @@ trait ParagraphsTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $this->paragraphsValidateEntityHasField($parent_entity_type, $parent_bundle, $parent_field);
+    $parent_entity = $this->paragraphsGetParentEntity($parent_entity_type, $parent_bundle, $parent_field, $parent_lookup_field, $parent_lookup_value);
 
-    $parent_entity = $this->paragraphsFindEntity($parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value);
-
-    if (!$parent_entity) {
-      throw new \RuntimeException(sprintf('The parent entity of type "%s" and bundle "%s" with the field "%s" and the value "%s" was not found.', $parent_entity_type, $parent_bundle, $parent_lookup_field, $parent_lookup_value));
-    }
-
-    $stub = new EntityStub('paragraph', $paragraph_type, $fields->getRowsHash());
-    $this->entityLifecycleParseFields($stub);
-    $this->paragraphsExpandEntityFields($stub);
-
-    $this->paragraphsAttachFromStubToEntity($parent_entity, $parent_field, $paragraph_type, $stub);
+    $this->paragraphsAttachFromStubToEntity($parent_entity, $parent_field, $paragraph_type, $this->paragraphsBuildStub($paragraph_type, $fields->getRowsHash()));
   }
 
   /**
@@ -136,6 +126,57 @@ trait ParagraphsTrait {
     $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($entity_id);
 
     return $entity instanceof ContentEntityInterface ? $entity : NULL;
+  }
+
+  /**
+   * Get the entity to attach a paragraph to.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   * @param string $bundle
+   *   The bundle name.
+   * @param string $field_name
+   *   The field on the entity that references paragraphs.
+   * @param string $lookup_field
+   *   The field identifying the entity.
+   * @param string $lookup_value
+   *   The value of the identifying field.
+   *
+   * @return \Drupal\Core\Entity\ContentEntityInterface
+   *   The entity.
+   *
+   * @throws \RuntimeException
+   *   When the bundle has no such field, or no entity matches.
+   */
+  public function paragraphsGetParentEntity(string $entity_type, string $bundle, string $field_name, string $lookup_field, string $lookup_value): ContentEntityInterface {
+    $this->paragraphsValidateEntityHasField($entity_type, $bundle, $field_name);
+
+    $entity = $this->paragraphsFindEntity($entity_type, $bundle, $lookup_field, $lookup_value);
+
+    if ($entity === NULL) {
+      throw new \RuntimeException(sprintf('The parent entity of type "%s" and bundle "%s" with the field "%s" and the value "%s" was not found.', $entity_type, $bundle, $lookup_field, $lookup_value));
+    }
+
+    return $entity;
+  }
+
+  /**
+   * Build a paragraph stub from field values.
+   *
+   * @param string $paragraph_type
+   *   The paragraph type.
+   * @param array<string, mixed> $fields
+   *   The field values, keyed by field name.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStub
+   *   The stub, with its field values parsed and expanded.
+   */
+  public function paragraphsBuildStub(string $paragraph_type, array $fields): EntityStub {
+    $stub = new EntityStub('paragraph', $paragraph_type, $fields);
+    $this->entityLifecycleParseFields($stub);
+    $this->paragraphsExpandEntityFields($stub);
+
+    return $stub;
   }
 
   /**

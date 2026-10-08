@@ -275,7 +275,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Downloaded file name content has no data.
+      No file has been downloaded. Download a file before asserting on it.
       """
 
   @test-trait:FileDownloadTrait
@@ -289,7 +289,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Downloaded file name content has no data.
+      No file has been downloaded. Download a file before asserting on it.
       """
 
   @test-trait:FileDownloadTrait
@@ -306,7 +306,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Downloaded file content has no data.
+      No file has been downloaded. Download a file before asserting on it.
       """
 
   @test-trait:FileDownloadTrait,Drupal\ContentTrait
@@ -340,7 +340,7 @@ Feature: Check that FileDownloadTrait works
     When I run "behat --no-colors"
     Then it should fail with an exception:
       """
-      Downloaded file path data is not available.
+      No file has been downloaded. Download a file before asserting on it.
       """
 
   @test-trait:FileDownloadTrait

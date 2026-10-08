@@ -80,7 +80,7 @@ trait EmailTrait {
     $this->emailDebug = Tag::has($scope, self::EMAIL_DEBUG_TAG);
     $this->emailHandlerTypes = Tag::values($scope, self::EMAIL_TAG);
 
-    $this->emailEnableTestSystem();
+    $this->emailEnableCollector();
   }
 
   /**
@@ -98,9 +98,7 @@ trait EmailTrait {
       return;
     }
 
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->emailDisableTestEmailSystem();
+    $this->emailDisableCollector();
   }
 
   /**
@@ -145,29 +143,13 @@ trait EmailTrait {
    */
   #[When('I follow the link with a URL containing :partial_url in the email')]
   public function emailFollowLinkWithUrlContaining(string $partial_url): void {
-    foreach ($this->emailGetCollectedMessages() as $message) {
-      $body = $message['params']['body'] ?? NULL;
+    $link = $this->emailFindLinkContaining($partial_url);
 
-      // A handler that stores a structure in 'params.body' leaves the rendered
-      // text in 'body', so 'body' is read in that case.
-      if (!is_string($body)) {
-        $body = $message['body'] ?? '';
-      }
-
-      if (!is_string($body)) {
-        continue;
-      }
-
-      foreach (static::emailExtractLinks($body) as $link) {
-        if (str_contains($link, $partial_url)) {
-          $this->getSession()->visit($link);
-
-          return;
-        }
-      }
+    if ($link === NULL) {
+      throw new ExpectationException(sprintf('No email contains a link with "%s" in its URL.', $partial_url), $this->getSession()->getDriver());
     }
 
-    throw new ExpectationException(sprintf('No email contains a link with "%s" in its URL.', $partial_url), $this->getSession()->getDriver());
+    $this->getSession()->visit($link);
   }
 
   /**
@@ -196,20 +178,7 @@ trait EmailTrait {
    */
   #[When('I enable the test email system')]
   public function emailEnableTestSystem(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->emailHandlerTypes = array_values(array_unique($this->emailHandlerTypes ?: ['default']));
-
-    foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = static::emailFindMailSystemDefault($type);
-      if (!static::emailFindMailSystemOriginal($type)) {
-        static::emailSetMailSystemOriginal($type, $original_test_system);
-      }
-      $this->emailSetMailSystemDefault($type, 'test_mail_collector');
-    }
-
-    // Clearing on enable lets this step also reset existing mail.
-    $this->emailClearCollectedMessages();
+    $this->emailEnableCollector();
   }
 
   /**
@@ -221,15 +190,7 @@ trait EmailTrait {
    */
   #[When('I disable the test email system')]
   public function emailDisableTestEmailSystem(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = static::emailFindMailSystemOriginal($type);
-      $this->emailSetMailSystemDefault($type, $original_test_system);
-    }
-
-    static::emailDeleteMailSystemOriginal();
-    $this->emailClearCollectedMessages();
+    $this->emailDisableCollector();
   }
 
   /**
@@ -241,15 +202,7 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address')]
   public function emailAssertMessageSentToAddress(string $address): void {
-    foreach ($this->emailGetCollectedMessages() as $message) {
-      $to = $this->stringSplitCommaSeparated((string) $message['to']);
-
-      if (in_array($address, $to, TRUE)) {
-        return;
-      }
-    }
-
-    throw new ExpectationException(sprintf('Unable to find an email that should be sent to "%s" retrieved from test email collector.', $address), $this->getSession()->getDriver());
+    $this->emailAssertMessageExistsToAddress($address);
   }
 
   /**
@@ -283,13 +236,7 @@ trait EmailTrait {
   public function emailAssertMessageCountToAddress(string $count, string $address): void {
     $count = $this->stringParseInteger($count, 'count', 0);
 
-    $actual = 0;
-
-    foreach ($this->emailGetCollectedMessages() as $message) {
-      if (in_array($address, $this->stringSplitCommaSeparated((string) $message['to']), TRUE)) {
-        $actual++;
-      }
-    }
+    $actual = count($this->emailGetMessagesToAddress($address));
 
     if ($actual !== $count) {
       throw new ExpectationException(sprintf('Expected %d email(s) to have been sent to "%s", but %d were found.', $count, $address, $actual), $this->getSession()->getDriver());
@@ -307,13 +254,7 @@ trait EmailTrait {
   public function emailAssertMessageCountWithSubject(string $count, string $subject): void {
     $count = $this->stringParseInteger($count, 'count', 0);
 
-    $actual = 0;
-
-    foreach ($this->emailGetCollectedMessages() as $message) {
-      if ((string) $message['subject'] === $subject) {
-        $actual++;
-      }
-    }
+    $actual = count($this->emailGetMessagesWithSubject($subject));
 
     if ($actual !== $count) {
       throw new ExpectationException(sprintf('Expected %d email(s) to have been sent with the subject "%s", but %d were found.', $count, $subject, $actual), $this->getSession()->getDriver());
@@ -344,26 +285,7 @@ trait EmailTrait {
    */
   #[Then('an email should not be sent to the address :address')]
   public function emailAssertMessageNotSentToAddress(string $address): void {
-    foreach ($this->emailGetCollectedMessages() as $message) {
-      $to = $this->stringSplitCommaSeparated((string) $message['to']);
-      if (in_array($address, $to, TRUE)) {
-        throw new ExpectationException(sprintf('An email was sent to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
-      }
-
-      if (!empty($message['headers']['Cc'] ?? $message['headers']['cc'] ?? NULL)) {
-        $cc = $this->stringSplitCommaSeparated((string) ($message['headers']['Cc'] ?? $message['headers']['cc']));
-        if (in_array($address, $cc, TRUE)) {
-          throw new ExpectationException(sprintf('An email was cc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
-        }
-      }
-
-      if (!empty($message['headers']['Bcc'] ?? $message['headers']['bcc'] ?? NULL)) {
-        $bcc = $this->stringSplitCommaSeparated((string) ($message['headers']['Bcc'] ?? $message['headers']['bcc']));
-        if (in_array($address, $bcc, TRUE)) {
-          throw new ExpectationException(sprintf('An email was bcc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
-        }
-      }
-    }
+    $this->emailAssertMessageNotExistsToAddress($address);
   }
 
   /**
@@ -409,8 +331,8 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address with the content:')]
   public function emailAssertMessageSentToAddressWithContent(string $address, PyStringNode $string): void {
-    $this->emailAssertMessageSentToAddress($address);
-    $this->emailAssertMessageFieldEquals('body', $string);
+    $this->emailAssertMessageExistsToAddress($address);
+    $this->emailAssertMessageExistsWithFieldValue('body', $string, TRUE);
   }
 
   /**
@@ -425,8 +347,8 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address with the content containing:')]
   public function emailAssertMessageSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
-    $this->emailAssertMessageSentToAddress($address);
-    $this->emailAssertMessageFieldContains('body', $string);
+    $this->emailAssertMessageExistsToAddress($address);
+    $this->emailAssertMessageExistsWithFieldValue('body', $string, FALSE);
   }
 
   /**
@@ -441,8 +363,8 @@ trait EmailTrait {
    */
   #[Then('an email should be sent to the address :address with the content not containing:')]
   public function emailAssertMessageSentToAddressNotContains(string $address, PyStringNode $string): void {
-    $this->emailAssertMessageSentToAddress($address);
-    $this->emailAssertMessageFieldNotContains('body', $string);
+    $this->emailAssertMessageExistsToAddress($address);
+    $this->emailAssertMessageNotExistsWithFieldValue('body', $string, FALSE);
   }
 
   /**
@@ -457,8 +379,8 @@ trait EmailTrait {
    */
   #[Then('an email should not be sent to the address :address with the content:')]
   public function emailAssertMessageNotSentToAddressWithContent(string $address, PyStringNode $string): void {
-    $this->emailAssertMessageNotSentToAddress($address);
-    $this->emailAssertMessageFieldNotEquals('body', $string);
+    $this->emailAssertMessageNotExistsToAddress($address);
+    $this->emailAssertMessageNotExistsWithFieldValue('body', $string, TRUE);
   }
 
   /**
@@ -473,8 +395,8 @@ trait EmailTrait {
    */
   #[Then('an email should not be sent to the address :address with the content containing:')]
   public function emailAssertMessageNotSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
-    $this->emailAssertMessageNotSentToAddress($address);
-    $this->emailAssertMessageFieldNotContains('body', $string);
+    $this->emailAssertMessageNotExistsToAddress($address);
+    $this->emailAssertMessageNotExistsWithFieldValue('body', $string, FALSE);
   }
 
   /**
@@ -628,6 +550,44 @@ trait EmailTrait {
     }
 
     throw new ExpectationException(sprintf('The file "%s" is not attached to the email with subject%s "%s".', $filename, $is_partial ? ' containing' : '', $subject), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Switch every handler type to the test mail collector, and clear it.
+   *
+   * The handler types default to `default`. The mail system each type used
+   * before is stored, so emailDisableCollector() can restore it.
+   */
+  public function emailEnableCollector(): void {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->emailHandlerTypes = array_values(array_unique($this->emailHandlerTypes ?: ['default']));
+
+    foreach ($this->emailHandlerTypes as $type) {
+      $original_test_system = static::emailFindMailSystemDefault($type);
+      if (!static::emailFindMailSystemOriginal($type)) {
+        static::emailSetMailSystemOriginal($type, $original_test_system);
+      }
+      $this->emailSetMailSystemDefault($type, 'test_mail_collector');
+    }
+
+    // Clearing on enable also drops mail collected before the switch.
+    $this->emailClearCollectedMessages();
+  }
+
+  /**
+   * Restore the mail system of every handler type, and clear the collector.
+   */
+  public function emailDisableCollector(): void {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    foreach ($this->emailHandlerTypes as $type) {
+      $original_test_system = static::emailFindMailSystemOriginal($type);
+      $this->emailSetMailSystemDefault($type, $original_test_system);
+    }
+
+    static::emailDeleteMailSystemOriginal();
+    $this->emailClearCollectedMessages();
   }
 
   /**
@@ -807,6 +767,65 @@ trait EmailTrait {
   }
 
   /**
+   * Get the collected emails sent to an address.
+   *
+   * @param string $address
+   *   The email address, matched against the "to" recipients only.
+   *
+   * @return array<int|string, array<string, mixed>>
+   *   The email messages, keyed as collected.
+   */
+  public function emailGetMessagesToAddress(string $address): array {
+    return array_filter($this->emailGetCollectedMessages(), fn(array $message): bool => in_array($address, $this->stringSplitCommaSeparated((string) $message['to']), TRUE));
+  }
+
+  /**
+   * Get the collected emails with a subject.
+   *
+   * @param string $subject
+   *   The whole subject, compared case-sensitively.
+   *
+   * @return array<int|string, array<string, mixed>>
+   *   The email messages, keyed as collected.
+   */
+  public function emailGetMessagesWithSubject(string $subject): array {
+    return array_filter($this->emailGetCollectedMessages(), static fn(array $message): bool => (string) $message['subject'] === $subject);
+  }
+
+  /**
+   * Find the first link in a collected email whose URL contains a value.
+   *
+   * @param string $partial_url
+   *   The part of the URL to look for.
+   *
+   * @return string|null
+   *   The link, or NULL when no collected email holds such a link.
+   */
+  public function emailFindLinkContaining(string $partial_url): ?string {
+    foreach ($this->emailGetCollectedMessages() as $message) {
+      $body = $message['params']['body'] ?? NULL;
+
+      // A handler that stores a structure in 'params.body' leaves the rendered
+      // text in 'body', so 'body' is read in that case.
+      if (!is_string($body)) {
+        $body = $message['body'] ?? '';
+      }
+
+      if (!is_string($body)) {
+        continue;
+      }
+
+      foreach (static::emailExtractLinks($body) as $link) {
+        if (str_contains($link, $partial_url)) {
+          return $link;
+        }
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
    * Extract all links from provided string.
    *
    * @param string $string
@@ -822,6 +841,54 @@ trait EmailTrait {
     preg_match_all(sprintf('#%s#i', $pattern), (string) $string, $matches);
 
     return empty($matches[0]) ? [] : $matches[0];
+  }
+
+  /**
+   * Assert that a collected email was sent to an address.
+   *
+   * @param string $address
+   *   The email address, matched against the "to" recipients only.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When no collected email was sent to the address.
+   */
+  protected function emailAssertMessageExistsToAddress(string $address): void {
+    if ($this->emailGetMessagesToAddress($address) === []) {
+      throw new ExpectationException(sprintf('Unable to find an email that should be sent to "%s" retrieved from test email collector.', $address), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that no collected email names an address as a recipient.
+   *
+   * @param string $address
+   *   The email address.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   *   When a collected email names the address as a "to", "cc" or "bcc"
+   *   recipient.
+   */
+  protected function emailAssertMessageNotExistsToAddress(string $address): void {
+    foreach ($this->emailGetCollectedMessages() as $message) {
+      $to = $this->stringSplitCommaSeparated((string) $message['to']);
+      if (in_array($address, $to, TRUE)) {
+        throw new ExpectationException(sprintf('An email was sent to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
+      }
+
+      if (!empty($message['headers']['Cc'] ?? $message['headers']['cc'] ?? NULL)) {
+        $cc = $this->stringSplitCommaSeparated((string) ($message['headers']['Cc'] ?? $message['headers']['cc']));
+        if (in_array($address, $cc, TRUE)) {
+          throw new ExpectationException(sprintf('An email was cc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
+        }
+      }
+
+      if (!empty($message['headers']['Bcc'] ?? $message['headers']['bcc'] ?? NULL)) {
+        $bcc = $this->stringSplitCommaSeparated((string) ($message['headers']['Bcc'] ?? $message['headers']['bcc']));
+        if (in_array($address, $bcc, TRUE)) {
+          throw new ExpectationException(sprintf('An email was bcc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
+        }
+      }
+    }
   }
 
   /**

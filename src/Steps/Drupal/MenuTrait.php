@@ -60,17 +60,7 @@ trait MenuTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $menu_hash) {
-      if (empty($menu_hash['id'])) {
-        $menu_id = strtolower((string) $menu_hash['label']);
-        $menu_id = preg_replace('/[^a-z0-9_]+/', '_', $menu_id);
-        $menu_id = preg_replace('/_+/', '_', (string) $menu_id);
-        $menu_hash['id'] = $menu_id;
-      }
-
-      $menu = Menu::create($menu_hash);
-      $menu->save();
-
-      $this->entityLifecycleRegister($menu);
+      $this->menuCreate($menu_hash);
     }
   }
 
@@ -90,10 +80,7 @@ trait MenuTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     foreach ($table->getColumn(0) as $title) {
-      $menu_link = $this->menuFindLinkByTitle($title, $menu_name);
-      if ($menu_link instanceof MenuLinkContent) {
-        $menu_link->delete();
-      }
+      $this->menuFindLinkByTitle($title, $menu_name)?->delete();
     }
   }
 
@@ -120,28 +107,82 @@ trait MenuTrait {
     }
 
     foreach ($table->getHash() as $menu_link_hash) {
-      $menu_link_hash['menu_name'] = $menu->id();
-      if (isset($menu_link_hash['uri'])) {
-        $menu_link_hash['link'] = [];
-        $menu_link_hash['link']['uri'] = (string) $menu_link_hash['uri'];
-        unset($menu_link_hash['uri']);
-      }
-      if (!empty($menu_link_hash['parent']) && is_string($menu_link_hash['parent'])) {
-        $parent_link = $this->menuFindLinkByTitle($menu_link_hash['parent'], $menu_name);
-        if ($parent_link instanceof MenuLinkContent) {
-          $menu_link_hash['parent'] = 'menu_link_content:' . $parent_link->uuid();
-        }
-        else {
-          unset($menu_link_hash['parent']);
-        }
+      $this->menuCreateLink($menu, $menu_link_hash);
+    }
+  }
+
+  /**
+   * Create a menu.
+   *
+   * The menu is removed after the scenario.
+   *
+   * @param array<string, string> $values
+   *   The menu values. A menu without an "id" takes 1 derived from its
+   *   "label".
+   *
+   * @return \Drupal\system\MenuInterface
+   *   The menu.
+   */
+  public function menuCreate(array $values): MenuInterface {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    if (empty($values['id'])) {
+      $menu_id = strtolower((string) $values['label']);
+      $menu_id = preg_replace('/[^a-z0-9_]+/', '_', $menu_id);
+      $menu_id = preg_replace('/_+/', '_', (string) $menu_id);
+      $values['id'] = $menu_id;
+    }
+
+    $menu = Menu::create($values);
+    $menu->save();
+
+    $this->entityLifecycleRegister($menu);
+
+    return $menu;
+  }
+
+  /**
+   * Create a link in a menu.
+   *
+   * The link is removed after the scenario.
+   *
+   * @param \Drupal\system\MenuInterface $menu
+   *   The menu.
+   * @param array<string, string> $values
+   *   The link values. A "uri" value becomes the link URI, and a "parent"
+   *   value is the title of a link in the same menu.
+   *
+   * @return \Drupal\menu_link_content\Entity\MenuLinkContent
+   *   The menu link.
+   */
+  public function menuCreateLink(MenuInterface $menu, array $values): MenuLinkContent {
+    $values['menu_name'] = $menu->id();
+
+    if (isset($values['uri'])) {
+      $values['link'] = [];
+      $values['link']['uri'] = (string) $values['uri'];
+      unset($values['uri']);
+    }
+
+    if (!empty($values['parent']) && is_string($values['parent'])) {
+      $parent_link = $this->menuFindLinkByTitle($values['parent'], (string) $menu->label());
+      if ($parent_link instanceof MenuLinkContent) {
+        $values['parent'] = 'menu_link_content:' . $parent_link->uuid();
       }
       else {
-        unset($menu_link_hash['parent']);
+        unset($values['parent']);
       }
-      $menu_link = MenuLinkContent::create($menu_link_hash);
-      $menu_link->save();
-      $this->entityLifecycleRegister($menu_link);
     }
+    else {
+      unset($values['parent']);
+    }
+
+    $menu_link = MenuLinkContent::create($values);
+    $menu_link->save();
+
+    $this->entityLifecycleRegister($menu_link);
+
+    return $menu_link;
   }
 
   /**

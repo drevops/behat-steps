@@ -9,6 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\TokenTrait;
 
 /**
  * Replace `{{ Key }}` tokens in step arguments and table cells.
@@ -31,6 +32,8 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait MappingTrait {
+
+  use TokenTrait;
 
   /**
    * Matches 1 `{{ Key }}` token, capturing the still-untrimmed key.
@@ -86,13 +89,7 @@ trait MappingTrait {
       return $table;
     }
 
-    $rows = [];
-
-    foreach ($table->getRows() as $row) {
-      $rows[] = array_map($this->mappingSubstitute(...), $row);
-    }
-
-    return new TableNode($rows);
+    return $this->tokenReplaceInTable($table, $this->mappingSubstitute(...));
   }
 
   /**

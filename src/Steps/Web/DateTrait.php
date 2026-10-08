@@ -9,6 +9,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
 use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Helper\Web\TokenTrait;
 
 /**
  * Convert relative date expressions into timestamps or formatted dates.
@@ -39,6 +40,8 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
 trait DateTrait {
+
+  use TokenTrait;
 
   /**
    * Whether token replacement is active for the current scenario.
@@ -80,16 +83,7 @@ trait DateTrait {
       return $table;
     }
 
-    $rows = [];
-    foreach ($table->getRows() as $hash) {
-      $row = [];
-      foreach ($hash as $cell) {
-        $row[] = static::dateRelativeProcessValue($cell);
-      }
-      $rows[] = $row;
-    }
-
-    return new TableNode($rows);
+    return $this->tokenReplaceInTable($table, static::dateRelativeProcessValue(...));
   }
 
   /**

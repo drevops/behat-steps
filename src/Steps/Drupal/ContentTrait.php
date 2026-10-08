@@ -12,6 +12,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
@@ -92,11 +93,7 @@ trait ContentTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     foreach ($table->getHash() as $node_hash) {
-      $nids = $this->queryNodeIds($content_type, $node_hash);
-
-      $storage = \Drupal::entityTypeManager()->getStorage('node');
-      $entities = $storage->loadMultiple($nids);
-      $storage->delete($entities);
+      $this->contentDelete($content_type, $node_hash);
     }
   }
 
@@ -120,9 +117,9 @@ trait ContentTrait {
    */
   #[Given('the following :content_type content with fields exist:')]
   public function contentCreateMultipleWithFields(string $content_type, TableNode $table): void {
-    $entities = $this->tableTransposeVertical($table);
-    $horizontal_table = $this->tableTransposeHorizontal($entities);
-    $this->contentCreateMultiple($content_type, $horizontal_table);
+    foreach ($this->tableTransposeVertical($table) as $values) {
+      $this->contentCreate($content_type, $values);
+    }
   }
 
   /**
@@ -140,7 +137,7 @@ trait ContentTrait {
   #[Given('the following :content_type content exist:')]
   public function contentCreateMultiple(string $content_type, TableNode $table): void {
     foreach ($table->getHash() as $values) {
-      $this->entityLifecycleCreateNode(new EntityStub('node', $content_type, $values));
+      $this->contentCreate($content_type, $values);
     }
   }
 
@@ -215,24 +212,7 @@ trait ContentTrait {
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $node = $this->contentGetNodeByTitle($content_type, $title);
-
-    $state_is_valid = FALSE;
-    $workflows = Workflow::loadMultiple();
-    foreach ($workflows as $workflow) {
-      $workflow_type_settings = $workflow->get('type_settings');
-      if (in_array($content_type, $workflow_type_settings['entity_types']['node'], TRUE) && isset($workflow_type_settings['states'][$new_state])) {
-        $state_is_valid = TRUE;
-        break;
-      }
-    }
-
-    if (!$state_is_valid) {
-      throw new \RuntimeException(sprintf('State "%s" is not defined in the workflow for "%s" content type.', $new_state, $content_type));
-    }
-
-    $node->set('moderation_state', $new_state);
-    $node->save();
+    $this->contentSetModerationState($this->contentGetNodeByTitle($content_type, $title), $new_state);
   }
 
   /**
@@ -246,18 +226,7 @@ trait ContentTrait {
   public function contentRebuildAccessGrantsWithTitle(string $content_type, string $title): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $node = $this->contentGetNodeByTitle($content_type, $title);
-
-    $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
-
-    // @codeCoverageIgnoreStart
-    if (!$handler instanceof NodeAccessControlHandlerInterface) {
-      throw new \RuntimeException('The node access control handler does not support acquiring grants.');
-    }
-
-    // @codeCoverageIgnoreEnd
-    $grants = $handler->acquireGrants($node);
-    \Drupal::service('node.grant_storage')->write($node, $grants);
+    $this->contentRebuildAccessGrants($this->contentGetNodeByTitle($content_type, $title));
   }
 
   /**
@@ -291,27 +260,11 @@ trait ContentTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $alias = trim($alias);
-
-    if ($alias === '') {
+    if (trim($alias) === '') {
       throw new \RuntimeException(sprintf('Path alias for "%s" content with the title "%s" cannot be empty.', $content_type, $title));
     }
 
-    $node = $this->contentGetNodeByTitle($content_type, $title);
-
-    // The current value carries the 'pid' of the existing alias, so the save
-    // updates that alias rather than adding a second one.
-    $path_value = (array) ($node->get('path')->getValue()[0] ?? []);
-    $path_value['alias'] = '/' . ltrim($alias, '/');
-
-    // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
-    // on save.
-    if ($this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('pathauto')) {
-      $path_value['pathauto'] = 0;
-    }
-
-    $node->set('path', $path_value);
-    $node->save();
+    $this->contentSetPathAlias($this->contentGetNodeByTitle($content_type, $title), $alias);
   }
 
   /**
@@ -445,6 +398,113 @@ trait ContentTrait {
 
     // @codeCoverageIgnoreEnd
     return $node;
+  }
+
+  /**
+   * Create a node of a content type.
+   *
+   * The node is removed after the scenario.
+   *
+   * @param string $content_type
+   *   The content type.
+   * @param array<string, mixed> $values
+   *   The base properties and field values, keyed by name.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created node.
+   */
+  public function contentCreate(string $content_type, array $values): EntityStubInterface {
+    return $this->entityLifecycleCreateNode(new EntityStub('node', $content_type, $values));
+  }
+
+  /**
+   * Delete the nodes of a content type that match conditions.
+   *
+   * @param string $content_type
+   *   The content type.
+   * @param array<string, mixed> $conditions
+   *   Conditions keyed by field names.
+   */
+  public function contentDelete(string $content_type, array $conditions): void {
+    $nids = $this->queryNodeIds($content_type, $conditions);
+
+    $storage = \Drupal::entityTypeManager()->getStorage('node');
+    $storage->delete($storage->loadMultiple($nids));
+  }
+
+  /**
+   * Set the moderation state of a node and save it.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node.
+   * @param string $state
+   *   The moderation state.
+   *
+   * @throws \RuntimeException
+   *   When no workflow for the content type of the node defines the state.
+   */
+  public function contentSetModerationState(NodeInterface $node, string $state): void {
+    $content_type = $node->bundle();
+
+    $state_is_valid = FALSE;
+    $workflows = Workflow::loadMultiple();
+    foreach ($workflows as $workflow) {
+      $workflow_type_settings = $workflow->get('type_settings');
+      if (in_array($content_type, $workflow_type_settings['entity_types']['node'], TRUE) && isset($workflow_type_settings['states'][$state])) {
+        $state_is_valid = TRUE;
+        break;
+      }
+    }
+
+    if (!$state_is_valid) {
+      throw new \RuntimeException(sprintf('State "%s" is not defined in the workflow for "%s" content type.', $state, $content_type));
+    }
+
+    $node->set('moderation_state', $state);
+    $node->save();
+  }
+
+  /**
+   * Rebuild the access grants of a node.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node.
+   */
+  public function contentRebuildAccessGrants(NodeInterface $node): void {
+    $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
+
+    // @codeCoverageIgnoreStart
+    if (!$handler instanceof NodeAccessControlHandlerInterface) {
+      throw new \RuntimeException('The node access control handler does not support acquiring grants.');
+    }
+
+    // @codeCoverageIgnoreEnd
+    $grants = $handler->acquireGrants($node);
+    \Drupal::service('node.grant_storage')->write($node, $grants);
+  }
+
+  /**
+   * Set the path alias of a node, replacing any existing alias.
+   *
+   * @param \Drupal\node\NodeInterface $node
+   *   The node.
+   * @param string $alias
+   *   The alias, with or without its leading slash.
+   */
+  public function contentSetPathAlias(NodeInterface $node, string $alias): void {
+    // The current value carries the 'pid' of the existing alias, so the save
+    // updates that alias rather than adding a second one.
+    $path_value = (array) ($node->get('path')->getValue()[0] ?? []);
+    $path_value['alias'] = '/' . ltrim(trim($alias), '/');
+
+    // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
+    // on save.
+    if ($this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('pathauto')) {
+      $path_value['pathauto'] = 0;
+    }
+
+    $node->set('path', $path_value);
+    $node->save();
   }
 
   /**
