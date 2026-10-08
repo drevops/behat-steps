@@ -2949,11 +2949,11 @@ A test that asserts one of these messages needs the new text:
 
 ## Public surface and placement settled
 
-Whether a project could call a helper, override a method or import a type used to depend on where that member happened to sit. Each of these now follows 1 rule, written down in `CONTRIBUTING.md`, and the changes below are what applying them took. No step text changes, so no `.feature` file needs an edit.
+Whether a project could call a helper, override a method or import a type used to depend on where the code happened to sit. Each of these now follows 1 rule, written down in `CONTRIBUTING.md`, and the changes below are what applying them took. No step text changes, so no `.feature` file needs an edit.
 
 ### Helpers doing the same job share a visibility
 
-Helpers that did the same job in different traits sat on opposite sides of `public`: `jsonGetValue()` was published while `xmlGetFirstNode()` wasn't, and `xmlParse()` and `jsonDecodeLoose()` were published while the content they read wasn't. They're aligned now. The 2 content readers take a `Get` name as they're published, since they take no input for `Resolve` to derive a value from.
+Helpers that did the same job in different traits sat on opposite sides of `public`: `jsonGetValue()` was published while `xmlGetFirstNode()` wasn't, and `xmlParse()` and `jsonDecodeLoose()` were published while the getters for the content they parse weren't. They're aligned now. The 2 content readers take a `Get` name as they're published, since they take no input for `Resolve` to derive a value from.
 
 | Member | Before | After |
 | --- | --- | --- |
