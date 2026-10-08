@@ -2951,6 +2951,19 @@ A test that asserts one of these messages needs the new text:
 
 Whether a project could call a helper, override a method or import a type used to depend on where that member happened to sit. Each of these now follows 1 rule, written down in `CONTRIBUTING.md`, and the changes below are what applying them took. No step text changes, so no `.feature` file needs an edit.
 
+### Helpers doing the same job share a visibility
+
+Helpers that did the same job in different traits sat on opposite sides of `public`: `jsonGetValue()` was published while `xmlGetFirstNode()` wasn't, and `xmlParse()` and `jsonDecodeLoose()` were published while the content they read wasn't. They're aligned now. The 2 content readers take a `Get` name as they're published, since they take no input for `Resolve` to derive a value from.
+
+| Member | Before | After |
+| --- | --- | --- |
+| `XmlTrait::xmlGetFirstNode()` | `protected` | `public` |
+| `XmlTrait::xmlResolveContent()` | `protected` | `public`, renamed `xmlGetContent()` |
+| `JsonTrait::jsonResolveContent()` | `protected` | `public`, renamed `jsonGetContent()` |
+| `Behat\Auth\Authenticator::getLogoutElement()` | `public` | `protected` |
+
+PHP refuses to narrow an inherited method, so a context overriding one of the published methods declares its override `public`, as [The toolbox is now `public`](#the-toolbox-is-now-public) describes. An override of `jsonResolveContent()` is renamed to `jsonGetContent()` as well, or it's never called. Code that called `getLogoutElement()` on the authenticator asks `isLoggedIn()` instead, which is the question the method served.
+
 ### 3 types moved out of the root of `Behat`
 
 `src/Behat` is split into sub-namespaces named for a role or a concern, yet 4 types sat at its root. 3 of them moved to the namespace of their concern. `Tag` stays where it is, since the step traits, the contexts, the listeners and the registries all read tags through it.

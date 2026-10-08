@@ -141,7 +141,7 @@ trait XmlTrait {
    */
   #[Then('the response should be in XML format')]
   public function xmlAssertResponseXml(): void {
-    $parsed = $this->xmlParse($this->xmlResolveContent());
+    $parsed = $this->xmlParse($this->xmlGetContent());
 
     if (!$parsed['loaded'] || $parsed['errors'] !== []) {
       throw new ExpectationException(sprintf('The response is not valid XML: %s.', $this->xmlFormatErrors($parsed['errors'])), $this->getSession()->getDriver());
@@ -161,7 +161,7 @@ trait XmlTrait {
    */
   #[Then('the response should not be in XML format')]
   public function xmlAssertResponseNotXml(): void {
-    $parsed = $this->xmlParse($this->xmlResolveContent());
+    $parsed = $this->xmlParse($this->xmlGetContent());
 
     if ($parsed['loaded'] && $parsed['errors'] === []) {
       throw new ExpectationException('The response is valid XML, but it should not be.', $this->getSession()->getDriver());
@@ -613,12 +613,12 @@ trait XmlTrait {
   }
 
   /**
-   * Resolve the response content to assert against.
+   * Get the response content the XML steps assert against.
    *
    * @return string
    *   The content set by a fixture step, or the live page content.
    */
-  protected function xmlResolveContent(): string {
+  public function xmlGetContent(): string {
     return $this->xmlTestContent ?? (string) $this->getSession()->getPage()->getContent();
   }
 
@@ -988,7 +988,7 @@ trait XmlTrait {
    * @throws \Behat\Mink\Exception\ElementNotFoundException
    *   If no node matches the expression.
    */
-  protected function xmlGetFirstNode(string $element): \DOMNode {
+  public function xmlGetFirstNode(string $element): \DOMNode {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);

@@ -113,7 +113,7 @@ trait JsonTrait {
    */
   #[When('I print the last JSON response')]
   public function jsonPrintLastResponse(): void {
-    $data = $this->jsonDecodeLoose($this->jsonResolveContent());
+    $data = $this->jsonDecodeLoose($this->jsonGetContent());
 
     print (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   }
@@ -131,7 +131,7 @@ trait JsonTrait {
    */
   #[Then('the response should be in JSON format')]
   public function jsonAssertResponseJson(): void {
-    $this->jsonDecodeLoose($this->jsonResolveContent());
+    $this->jsonDecodeLoose($this->jsonGetContent());
   }
 
   /**
@@ -143,7 +143,7 @@ trait JsonTrait {
    */
   #[Then('the response should not be in JSON format')]
   public function jsonAssertResponseNotJson(): void {
-    $content = $this->jsonResolveContent();
+    $content = $this->jsonGetContent();
 
     json_decode((string) $content);
 
@@ -405,12 +405,12 @@ trait JsonTrait {
   }
 
   /**
-   * Resolve the response content to assert against.
+   * Get the response content the JSON steps assert against.
    *
    * @return string
    *   The content set by a fixture step, or the live page content.
    */
-  protected function jsonResolveContent(): string {
+  public function jsonGetContent(): string {
     return $this->jsonTestContent ?? (string) $this->getSession()->getPage()->getContent();
   }
 
@@ -588,7 +588,7 @@ trait JsonTrait {
       // @codeCoverageIgnoreEnd
     }
 
-    $data = $this->jsonDecodeLoose($this->jsonResolveContent());
+    $data = $this->jsonDecodeLoose($this->jsonGetContent());
 
     $schema = json_decode($schema_json);
     if (json_last_error() !== JSON_ERROR_NONE) {

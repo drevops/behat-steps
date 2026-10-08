@@ -301,6 +301,14 @@ Withdraw a member that exists only to serve the machinery with `@internal`, nami
  */
 ```
 
+### The same job has the same visibility
+
+What a project can call shouldn't depend on which trait a helper happens to sit in, so a job published in 1 trait is published in every trait that does it. `xmlGetFirstNode()` is public because `jsonGetValue()` is: both are the lookup a trait's element or path assertions run, and both throw when nothing matches. `xmlGetContent()` and `jsonGetContent()` return the content the steps read, a fixture step's content included, so they're public next to the `xmlParse()` and `jsonDecodeLoose()` that take it.
+
+A helper that only resembles a published one is decided on its own. `metatagResolveUrl()` resolves a URL against the page's origin rather than the base URL `restResolveUrl()` uses, and `metatagFetchUrl()` serves only the hreflang return-link check, where `httpDetachedClient()` already covers fetching a page in general, so both stay protected.
+
+A class follows the same rule among its own members. `Authenticator` is final and replaced through its interfaces, so its 3 page-element getters are all protected.
+
 ### Thin step bodies
 
 A step body is a thin wrapper over named helpers, so every behavior a scenario can reach is also reachable from a project's own step definitions. A step parses its arguments, calls helpers and guards on what they return. Everything else belongs in a helper.

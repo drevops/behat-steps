@@ -228,7 +228,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
   /**
    * Returns the logout element from the page.
    */
-  public function getLogoutElement(): ?NodeElement {
+  protected function getLogoutElement(): ?NodeElement {
     return $this->getSession()->getPage()->findLink($this->getDrupalText('logout'));
   }
 
