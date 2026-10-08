@@ -174,7 +174,9 @@ A lookup's verb says what it does when nothing matches, so a caller knows whethe
 - **`Get`** throws when nothing matches and never returns `NULL`, so its return type excludes `NULL`: `tableGetRowByText()`, `blockGetByLabel()`, `regionGet()`. A consumer override point is a `Get` for the same reason - it always supplies a value.
 - **`Load`** loads a set and returns an empty array when nothing matches, as `userLoadMultiple()` does, or loads a document into the trait's own state, as `xmlLoadDocument()` does. A lookup for 1 item is a `Find` or a `Get`, never a `Load`.
 
-A trait that needs both contracts for one lookup declares the pair, and the `Get` calls the `Find`: `tableGetRowByText()` throws where `tableFindRowByText()` returns `NULL`. `Resolve` isn't a lookup verb. It derives a value from its input, as `restResolveUrl()` turns a relative URL into an absolute one.
+A trait that needs both contracts for one lookup declares the pair, and the `Get` calls the `Find`: `tableGetRowByText()` throws where `tableFindRowByText()` returns `NULL`. `Resolve` isn't a lookup verb. It derives a value from its input, as `restResolveUrl()` turns a relative URL into an absolute one. `Read` isn't one either: it reads a file's contents, as `fixtureDirectoryReadFile()` does, and names nothing else.
+
+When a stored `NULL` and a miss look the same, a yes-or-no question tells them apart: `stateFindValue()` returns `NULL` for both, and `stateExists()` answers which it was. A helper that removes what it returns names the removal instead of a lookup verb, so `watchdogClearErrors()` deletes the errors it hands back and a later call returns only new ones.
 
 A set of entities comes back loaded, never as bare IDs: every `<trait>LoadMultiple()` returns the loaded entities keyed by entity ID, so reading 1 of them tells you what the rest return. When you only need the IDs, call `queryEntityIds()`, the query each `LoadMultiple()` that takes conditions runs before it loads. `webformLoadMultiple()` takes a partial title instead.
 

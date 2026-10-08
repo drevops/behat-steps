@@ -2986,6 +2986,39 @@ Fatal error: Access level to FeatureContext::elementGetScrollIntoViewCenter() mu
 
 Change `protected` to `public` on the override and leave its body as it is. An override of `accessibilityBlankUrls()` is renamed `accessibilityGetBlankUrls()` as well, or it's never called, and it stays `static`, because the suite report calls it from a static hook.
 
+### Lookups are named for what a miss does
+
+5 published helpers used `Read`, a verb that says nothing about a miss, and between them they handled one 4 different ways. Each takes the verb for what it does now. Only the name changes, apart from `stateReadValue()`, which returned 2 answers in 1 array and is 2 helpers now.
+
+| Trait | Old | New | When nothing matches |
+| --- | --- | --- | --- |
+| `Drupal\ConfigTrait` | `configReadStored()` | `configFindStoredValue()` | returns `NULL` |
+| `Drupal\ConfigTrait` | `configReadEffective()` | `configFindEffectiveValue()` | returns `NULL` |
+| `Drupal\DrushTrait` | `drushReadOutput()` | `drushGetOutput()` | throws `\RuntimeException` |
+| `Drupal\StateTrait` | `stateReadValue()` | `stateExists()` and `stateFindValue()` | `stateExists()` returns `FALSE`, `stateFindValue()` returns `NULL` |
+| `Drupal\WatchdogTrait` | `watchdogReadErrors()` | `watchdogClearErrors()` | returns an empty array |
+
+`stateReadValue()` returned `['exists' => ..., 'value' => ...]`, so read each half from its own helper:
+
+```php
+// Before.
+$state = $this->stateReadValue('my_module.launched');
+if (!$state['exists']) {
+  return;
+}
+$value = $state['value'];
+
+// After.
+if (!$this->stateExists('my_module.launched')) {
+  return;
+}
+$value = $this->stateFindValue('my_module.launched');
+```
+
+`watchdogClearErrors()` deletes the errors it returns, exactly as `watchdogReadErrors()` did, and the new name says so.
+
+The snapshots behind the 2 reverting traits share their keys now too. `ConfigTrait::$configOriginalData` stores `exists` and `value` in place of `existed` and `data`, matching `StateTrait::$stateOriginalValues`, so a context reading the property directly renames the keys.
+
 ### 3 types moved out of the root of `Behat`
 
 `src/Behat` is split into sub-namespaces named for a role or a concern, yet 4 types sat at its root. 3 of them moved to the namespace of their concern. `Tag` stays where it is, since the step traits, the contexts, the listeners and the registries all read tags through it.

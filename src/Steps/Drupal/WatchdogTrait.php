@@ -116,7 +116,7 @@ trait WatchdogTrait {
     $this->assertPrerequisites(__TRAIT__, $scope);
 
     if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
-      $this->watchdogReadErrors();
+      $this->watchdogClearErrors();
 
       return;
     }
@@ -143,7 +143,7 @@ trait WatchdogTrait {
     }
 
     if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
-      $this->watchdogReadErrors();
+      $this->watchdogClearErrors();
 
       return;
     }
@@ -166,7 +166,7 @@ trait WatchdogTrait {
    *   If errors at or above the severity threshold were logged.
    */
   public function watchdogAssertErrorsNotExist(string $context): void {
-    $errors = $this->watchdogReadErrors();
+    $errors = $this->watchdogClearErrors();
 
     if ($errors === []) {
       return;
@@ -176,16 +176,16 @@ trait WatchdogTrait {
   }
 
   /**
-   * Read the errors logged since the scenario started, and clear them.
+   * Clear the errors logged since the scenario started, and return them.
    *
-   * Read entries are deleted so a later check in the same scenario returns
-   * only new ones.
+   * The returned entries are deleted, so a later call in the same scenario
+   * returns only new ones.
    *
    * @return array<int, string>
    *   Rendered entries at or above the severity threshold, keyed by their
    *   watchdog id.
    */
-  public function watchdogReadErrors(): array {
+  public function watchdogClearErrors(): array {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $database = Database::getConnection();

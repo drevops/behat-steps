@@ -94,7 +94,7 @@ trait DrushTrait {
    */
   #[When('I print the last drush output')]
   public function drushPrintOutput(): void {
-    print $this->drushReadOutput();
+    print $this->drushGetOutput();
   }
 
   /**
@@ -106,7 +106,7 @@ trait DrushTrait {
    */
   #[Then('the drush output should contain the value :value')]
   public function drushAssertOutputContains(string $value): void {
-    if (!str_contains($this->drushReadOutput(), $this->drushFixArgument($value))) {
+    if (!str_contains($this->drushGetOutput(), $this->drushFixArgument($value))) {
       throw new AssertionException(sprintf('The last drush command output does not contain "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
     }
   }
@@ -120,7 +120,7 @@ trait DrushTrait {
    */
   #[Then('the drush output should not contain the value :value')]
   public function drushAssertOutputNotContains(string $value): void {
-    if (str_contains($this->drushReadOutput(), $this->drushFixArgument($value))) {
+    if (str_contains($this->drushGetOutput(), $this->drushFixArgument($value))) {
       throw new AssertionException(sprintf('The last drush command output contains "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
     }
   }
@@ -134,7 +134,7 @@ trait DrushTrait {
    */
   #[Then('the drush output should match the pattern :pattern')]
   public function drushAssertOutputMatches(string $pattern): void {
-    $output = $this->drushReadOutput();
+    $output = $this->drushGetOutput();
     $result = @preg_match($pattern, $output);
 
     // 'preg_match()' returns FALSE for a malformed pattern, so that case is
@@ -154,7 +154,7 @@ trait DrushTrait {
    * @throws \RuntimeException
    *   When no Drush command has run in this scenario.
    */
-  public function drushReadOutput(): string {
+  public function drushGetOutput(): string {
     if ($this->drushOutput === NULL) {
       throw new \RuntimeException('No drush command has run in this scenario, so there is no output to read.');
     }

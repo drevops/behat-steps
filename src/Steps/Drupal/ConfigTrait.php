@@ -60,7 +60,7 @@ trait ConfigTrait {
    * existed before the first write, so the revert deletes objects the
    * scenario created instead of leaving them empty.
    *
-   * @var array<string, array{existed: bool, data: array<int|string, mixed>}>
+   * @var array<string, array{exists: bool, value: array<int|string, mixed>}>
    */
   protected array $configOriginalData = [];
 
@@ -91,8 +91,8 @@ trait ConfigTrait {
     $backend = $this->backendFor(ConfigCapabilityInterface::class);
 
     foreach ($this->configOriginalData as $name => $snapshot) {
-      if ($snapshot['existed']) {
-        $backend->configSetData($name, $snapshot['data']);
+      if ($snapshot['exists']) {
+        $backend->configSetData($name, $snapshot['value']);
       }
       else {
         $backend->configDelete($name);
@@ -147,7 +147,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name with the key :key should have the value :value')]
   public function configAssertValueEquals(string $name, string $key, string $value): void {
-    $this->configAssertEquals($this->configReadStored($name, $key), $value, TRUE, $name, $key, 'value');
+    $this->configAssertEquals($this->configFindStoredValue($name, $key), $value, TRUE, $name, $key, 'value');
   }
 
   /**
@@ -159,7 +159,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name with the key :key should not have the value :value')]
   public function configAssertValueNotEquals(string $name, string $key, string $value): void {
-    $this->configAssertEquals($this->configReadStored($name, $key), $value, FALSE, $name, $key, 'value');
+    $this->configAssertEquals($this->configFindStoredValue($name, $key), $value, FALSE, $name, $key, 'value');
   }
 
   /**
@@ -171,7 +171,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name with the key :key should contain the value :value')]
   public function configAssertValueContains(string $name, string $key, string $value): void {
-    $this->configAssertContains($this->configReadStored($name, $key), $value, TRUE, $name, $key, 'value');
+    $this->configAssertContains($this->configFindStoredValue($name, $key), $value, TRUE, $name, $key, 'value');
   }
 
   /**
@@ -183,7 +183,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name with the key :key should not contain the value :value')]
   public function configAssertValueNotContains(string $name, string $key, string $value): void {
-    $this->configAssertContains($this->configReadStored($name, $key), $value, FALSE, $name, $key, 'value');
+    $this->configAssertContains($this->configFindStoredValue($name, $key), $value, FALSE, $name, $key, 'value');
   }
 
   /**
@@ -197,7 +197,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name with the key :key should have the effective value :value')]
   public function configAssertEffectiveValueEquals(string $name, string $key, string $value): void {
-    $this->configAssertEquals($this->configReadEffective($name, $key), $value, TRUE, $name, $key, 'effective value');
+    $this->configAssertEquals($this->configFindEffectiveValue($name, $key), $value, TRUE, $name, $key, 'effective value');
   }
 
   /**
@@ -211,7 +211,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name with the key :key should not have the effective value :value')]
   public function configAssertEffectiveValueNotEquals(string $name, string $key, string $value): void {
-    $this->configAssertEquals($this->configReadEffective($name, $key), $value, FALSE, $name, $key, 'effective value');
+    $this->configAssertEquals($this->configFindEffectiveValue($name, $key), $value, FALSE, $name, $key, 'effective value');
   }
 
   /**
@@ -225,7 +225,7 @@ trait ConfigTrait {
    */
   #[Then('the config :name with the key :key should contain the effective value :value')]
   public function configAssertEffectiveValueContains(string $name, string $key, string $value): void {
-    $this->configAssertContains($this->configReadEffective($name, $key), $value, TRUE, $name, $key, 'effective value');
+    $this->configAssertContains($this->configFindEffectiveValue($name, $key), $value, TRUE, $name, $key, 'effective value');
   }
 
   /**
@@ -239,11 +239,13 @@ trait ConfigTrait {
    */
   #[Then('the config :name with the key :key should not contain the effective value :value')]
   public function configAssertEffectiveValueNotContains(string $name, string $key, string $value): void {
-    $this->configAssertContains($this->configReadEffective($name, $key), $value, FALSE, $name, $key, 'effective value');
+    $this->configAssertContains($this->configFindEffectiveValue($name, $key), $value, FALSE, $name, $key, 'effective value');
   }
 
   /**
-   * Read a stored configuration value, ignoring runtime overrides.
+   * Find a stored configuration value, ignoring runtime overrides.
+   *
+   * A key holding NULL returns NULL, as a missing one does.
    *
    * @param string $name
    *   The configuration object name.
@@ -253,12 +255,14 @@ trait ConfigTrait {
    * @return mixed
    *   The stored value, or NULL when the object or key does not exist.
    */
-  public function configReadStored(string $name, string $key): mixed {
+  public function configFindStoredValue(string $name, string $key): mixed {
     return $this->backendFor(ConfigCapabilityInterface::class)->configGetOriginal($name, $key);
   }
 
   /**
-   * Read an effective configuration value, with overrides applied.
+   * Find an effective configuration value, with overrides applied.
+   *
+   * A key holding NULL returns NULL, as a missing one does.
    *
    * @param string $name
    *   The configuration object name.
@@ -268,7 +272,7 @@ trait ConfigTrait {
    * @return mixed
    *   The effective value, or NULL when the object or key does not exist.
    */
-  public function configReadEffective(string $name, string $key): mixed {
+  public function configFindEffectiveValue(string $name, string $key): mixed {
     return $this->backendFor(ConfigCapabilityInterface::class)->configGet($name, $key);
   }
 
@@ -300,8 +304,8 @@ trait ConfigTrait {
 
     $backend = $this->backendFor(ConfigCapabilityInterface::class);
     $this->configOriginalData[$name] = [
-      'existed' => $backend->configExists($name),
-      'data' => $backend->configGetData($name),
+      'exists' => $backend->configExists($name),
+      'value' => $backend->configGetData($name),
     ];
   }
 
