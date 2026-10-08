@@ -83,17 +83,21 @@ Both timeouts are idle timeouts: a slow download that keeps receiving data never
 ### The rules the clients follow
 
 - **The page client applies the settings to every host, as stock Mink does.** It's Mink's own client, so a redirect to a single sign-on provider on another domain, or a visit to another domain of a multi-domain site, gets the same `verify_peer`, `proxy` and `headers` as the site.
-- **The detached and bare clients apply them to the site only.** The options reach a request whose scheme, host and port match `base_url`. Credentials in the URL and the letter case of the host don't matter. A request to any other host gets Symfony's defaults, so `verify_peer: false` for a staging site never relaxes certificate checks on a CDN, and a header meant for the site never reaches a third party.
+- **The detached and bare clients apply them to the site only.** The options reach a request whose scheme, host and port match `base_url`. Credentials in the URL and the letter case of the host don't matter. A request to any other host gets Symfony's defaults plus the step's own options, such as its timeout, so `verify_peer: false` for a staging site never relaxes certificate checks on a CDN, and a header meant for the site never reaches a third party.
 - **A proxy that every host needs belongs in the environment.** Symfony reads `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY` for any request that carries no `proxy` option, so a suite that reaches the internet only through a proxy sets those, and the accessibility engine's fetch from the CDN goes through it too.
 - **A step's own options win over the site's.** A download from the site waits `file_download.timeout` for data even when the session declares a `timeout` of its own.
-- **A `base_url` without a host** applies the options to every request.
-- **A suite without a `browserkit_http` session** sends every request with Symfony's defaults.
+- **A `base_url` without a host** applies the options to every request, and the detached client sends no step headers or credentials.
+- **A suite without a `browserkit_http` session** sends every request with Symfony's defaults and the step's own options.
 - **Every `browserkit_http` session declares the same options.** Mink lets a suite declare any number of named sessions, and more than 1 can use the `browserkit_http` browser driver. The detached and bare clients send with 1 set of options, so the sessions can't carry different ones, and Behat stops at startup rather than pick 1 set silently. Key order doesn't count as a difference. This suite fails:
 
   ```php
   'sessions' => [
-    'default' => ['browserkit_http' => ['http_client_parameters' => ['verify_peer' => FALSE]]],
-    'slow' => ['browserkit_http' => ['http_client_parameters' => ['timeout' => 60]]],
+    'default' => ['browserkit_http' => [
+      'http_client_parameters' => ['verify_peer' => FALSE],
+    ]],
+    'slow' => ['browserkit_http' => [
+      'http_client_parameters' => ['timeout' => 60],
+    ]],
     'selenium2' => ['selenium2' => []],
   ],
   ```
@@ -118,9 +122,11 @@ In a `@javascript` scenario, 2 things talk to the site:
 
 ```
 @javascript scenario
-  visits, clicks, AJAX  ──► browser ────────────► site   set by the browser's capabilities
-  file download,        ──► detached client ────► site   set by http_client_parameters
-  hreflang fetch            (PHP, the sidecar)
+  visits, clicks, AJAX ──► browser ──────────► site
+                           set by the browser's capabilities
+  file download,       ──► detached client ──► site
+  hreflang fetch           (PHP, the sidecar)
+                           set by http_client_parameters
 ```
 
 The browser makes the page's requests, and its capabilities or flags configure them. Some steps still send requests from PHP while the scenario runs, because doing them in the browser would either put the result out of PHP's reach or navigate away from the page. `FileDownloadTrait` is the clearest case: it reads the browser's cookies and downloads the file itself.
@@ -133,8 +139,13 @@ Those PHP requests take their settings from `http_client_parameters`, which only
   'default_session' => 'selenium2',
   'javascript_session' => 'selenium2',
   'sessions' => [
-    'selenium2' => ['selenium2' => ['wd_host' => 'http://localhost:4444/wd/hub']],
-    'browserkit_http' => ['browserkit_http' => ['http_client_parameters' => ['verify_peer' => FALSE, 'verify_host' => FALSE]]],
+    'selenium2' => ['selenium2' => [
+      'wd_host' => 'http://localhost:4444/wd/hub',
+    ]],
+    'browserkit_http' => ['browserkit_http' => ['http_client_parameters' => [
+      'verify_peer' => FALSE,
+      'verify_host' => FALSE,
+    ]]],
   ],
 ]))
 ```
@@ -167,15 +178,18 @@ The page client is a browser capability, and the other 2 come from a factory:
 ```
 WebRawContext
   │
-  ├─ httpPageClient() ───────► browserDriverFor(HttpClientCapabilityInterface)
-  │                              └─► the session's HttpBrowser, through the BrowserKit adapter
-  │                                  (Selenium2, Chrome: UnsupportedDriverActionException)
+  ├─ httpPageClient()
+  │    ──► browserDriverFor(HttpClientCapabilityInterface)
+  │        └─► the session's HttpBrowser, through the BrowserKit adapter
+  │            (Selenium2, Chrome: UnsupportedDriverActionException)
   │
-  ├─ httpDetachedClient() ───► HttpClientFactoryInterface::createDetached(HttpIdentity)
-  │                              └─► a fresh HttpBrowser holding the scenario's identity
+  ├─ httpDetachedClient()
+  │    ──► HttpClientFactoryInterface::createDetached(HttpIdentity)
+  │        └─► a fresh HttpBrowser holding the scenario's identity
   │
-  └─ httpBareClient() ───────► HttpClientFactoryInterface::createBare()
-                                 └─► a fresh HttpBrowser with an empty cookie jar
+  └─ httpBareClient()
+       ──► HttpClientFactoryInterface::createBare()
+           └─► a fresh HttpBrowser with an empty cookie jar
 ```
 
 - **The page client is a browser capability.** Whether one exists depends on the browser driver, so `httpPageClient()` resolves `HttpClientCapabilityInterface` through `browserDriverFor()`, like any other capability. The BrowserKit adapter provides it; the Selenium2 and Chrome adapters don't.
@@ -186,7 +200,10 @@ interface HttpClientFactoryInterface {
 
   public function createBare(array $options = []): AbstractBrowser;
 
-  public function createDetached(HttpIdentity $identity, array $options = []): AbstractBrowser;
+  public function createDetached(
+    HttpIdentity $identity,
+    array $options = [],
+  ): AbstractBrowser;
 
   public function withTransport(callable $decorator): static;
 
@@ -258,7 +275,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class FeatureContext extends DrupalContext {
 
   public function getHttpClientFactory(): HttpClientFactoryInterface {
-    return parent::getHttpClientFactory()->withTransport(static fn(HttpClientInterface $transport): HttpClientInterface => new RetryableHttpClient($transport));
+    return parent::getHttpClientFactory()->withTransport(
+      static fn(HttpClientInterface $transport): HttpClientInterface
+        => new RetryableHttpClient($transport),
+    );
   }
 
 }
@@ -278,7 +298,8 @@ public function sitemapAssertListsPath(string $path): void {
   $content = $browser->getInternalResponse()->getContent();
 
   if (!str_contains($content, $this->locatePath($path))) {
-    throw new ExpectationException(sprintf('The sitemap does not list the path "%s".', $path), $this->getSession()->getDriver());
+    $message = sprintf('The sitemap does not list the path "%s".', $path);
+    throw new ExpectationException($message, $this->getSession()->getDriver());
   }
 }
 ```
@@ -293,14 +314,16 @@ The page stays where the scenario left it, and the sitemap is fetched as the sce
 
 ```php
 public function process(ContainerBuilder $container): void {
-  $container->getDefinition('behat_steps.http_client_factory')->setClass(AcmeHttpClientFactory::class);
+  $container->getDefinition('behat_steps.http_client_factory')
+    ->setClass(AcmeHttpClientFactory::class);
 }
 ```
 
 **Register a browser adapter** that implements `HttpClientCapabilityInterface` to give another browser driver a page client:
 
 ```php
-$this->getBrowserCapabilityResolver()->registerAdapter(AcmeDriverAdapter::class);
+$this->getBrowserCapabilityResolver()
+  ->registerAdapter(AcmeDriverAdapter::class);
 ```
 
 [Capabilities of the browser driver](../MIGRATION.md#capabilities-of-the-browser-driver) covers writing the adapter itself.

@@ -134,7 +134,7 @@ commands:
 
   update-docs:
     aliases: [docs]
-    usage: Lint docs.
+    usage: Update docs.
     cmd: ahoy cli "php docs.php"
 
   test-unit:

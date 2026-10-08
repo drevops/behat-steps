@@ -26,7 +26,7 @@ Every trait that calls a method it does not declare carries a `@phpstan-require-
 A trait answers 3 questions before it acts, each with 1 mechanism, and they are never merged: opt-in (`skipTag(__TRAIT__, $scope)`, reading the `enabled` option and the skip tag), activation (the trait's own tag, such as `@testmode`), and prerequisites (declared in `<prefix>Prerequisites()` through backend capabilities, checked with `assertPrerequisites(__TRAIT__)`, a hook passing its `$scope` as well, or `prerequisitesMet(__TRAIT__)` in a teardown). Opted out returns quietly; an unmet prerequisite fails the scenario. A hook checks prerequisites at scenario start, a step as it runs. Module state goes through `ModuleCapabilityInterface`, never `moduleExists()`. See "Deciding whether a trait acts" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 
-## Installation & Requirements for cosnuming this library
+## Installation & Requirements for consuming this library
 ```bash
 composer require --dev drevops/behat-steps:^3
 ```
@@ -46,9 +46,9 @@ composer require --dev drevops/behat-steps:^3
 - `ahoy copy-files` - Update fixture files to the current build
 - `ahoy update-docs` - Update documentation
 - `ahoy lint-docs` - Check documentation for errors
-- `ahoy lint` - Run linting (if docker-compose.yml exists, otherwise use `composer lint`)
-- `ahoy lint-fix` - Fix linting issues (if docker-compose.yml exists, otherwise use `composer lint-fix`)
-- `ahoy test-unit` - Run unit tests (if docker-compose.yml exists, otherwise use `composer test`)
+- `ahoy lint` - Run linting
+- `ahoy lint-fix` - Fix linting issues
+- `ahoy test-unit` - Run unit tests
 
 ### Fixture Files Management
 
@@ -102,7 +102,7 @@ ahoy copy-files
     (`the media type :media_type`)
   - Any other placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`, `a REST :method request`) also come first
   - A step never opens with a placeholder: `the :content_type content with the title :title should not exist`
-  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, the names in `docs.php`'s `non_descriptive_placeholders()` and `placeholder_synonyms()`, the phrases in `rejected_step_phrases()`, an `I visit` step that names no page or link, a `Then` step that opens with `no`, and a qualifier ending a `Then` step after `exist` or `be <state>`
+  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, the names in `docs.php`'s `non_descriptive_placeholders()` and `placeholder_synonyms()`, the phrases in `rejected_step_phrases()`, an `I visit` step that names its destination in words but no page or link, a `Then` step that opens with `no`, and a qualifier ending a `Then` step after `exist` or `be <state>`
 
 - **Settled Wording**: each idea reads 1 way
   - A step that opens a page reads `I visit the ... page` and names the page: `I visit the :content_type content edit page with the title :title`, never `I edit the ...`
@@ -151,7 +151,7 @@ Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
 
 A failure message names its subject the way its step does, with the article (`The element "..."`, `The config "..." with the key "..."`), or keeps its quantifier when nothing in a set matched (`No hreflang alternate links were found on the page.`), quotes every value it names, the page URL included, ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. See "Failure messages" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-A trait without a Mink session is one that never calls `$this->getSession()` - `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Do not add a session to a trait just to reach `ExpectationException`.
+A trait without a Mink session is one that never calls `$this->getSession()`. The ones that assert are `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Do not add a session to a trait just to reach `ExpectationException`.
 
 In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
 
@@ -171,7 +171,7 @@ In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an ass
   - `an email should be sent to the address "..."`
 
 ## Skipping Trait Hooks
-A trait's hooks are switched off by adding the `@behat-steps-skip:TRAIT_NAME` tag to a scenario or a feature. The tag names the trait, never a hook method, and switches off every hook the trait registers. A skip tag carrying any other value fails the run at scenario start.
+A trait's hooks are switched off by adding the `@behat-steps-skip:TRAIT_NAME` tag to a scenario or a feature. The tag names the trait, never a hook method, and switches off every hook the trait registers. A skip tag whose value is not shaped like a trait name, such as a hook method, fails the run at scenario start.
 
 Example: To skip the hooks of `EmailTrait`, add `@behat-steps-skip:EmailTrait` tag to the feature.
 
@@ -193,7 +193,7 @@ Never call `hasTag()` or `getTags()` directly. Behat 3 strips the `@` from a tag
 - The full list is "Settled style questions" in [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Documentation
-- List of all available steps is produced from trait and method comments and exported into [STEPS.md](STEPS.md)
+- List of all available steps is produced from the traits' step attributes and docblock comments and exported into [STEPS.md](STEPS.md)
 
 ### Updating Steps Documentation
 The [STEPS.md](STEPS.md) documentation is automatically generated from the source code using the [docs.php](docs.php) file. After making changes to step definitions or adding new ones, you should regenerate the documentation:
@@ -205,7 +205,7 @@ The [STEPS.md](STEPS.md) documentation is automatically generated from the sourc
 
 2. Direct PHP execution:
    ```bash
-   php docs.php > STEPS.md
+   php docs.php
    ```
 
 3. Linting the documentation:
@@ -267,8 +267,8 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - `tests/phpunit/src/TestConventionTest.php` enforces all of these; the "Test suite conventions" section of [CONTRIBUTING.md](CONTRIBUTING.md) explains them
 
 ### Step Definition Constraints
-- Documentation tool (`docs.php`) does not support multiple `@When` annotations per method
-- Use a single step annotation and document alternative usage in `@code` examples
+- Documentation tool (`docs.php`) rejects a method carrying more than 1 step attribute (`#[Given]`, `#[When]` or `#[Then]`)
+- Use a single step attribute and document alternative usage in `@code` examples
 - A step method takes exactly the arguments its step binds: a required `string` named after each placeholder, plus a trailing `TableNode` or `PyStringNode` for a step ending in a colon. No default, nullable, numeric or `mixed` parameter, and no flag only PHP callers pass - `tests/phpunit/src/StepArgumentTest.php` enforces it
 - A step parses a numeric placeholder with `stringParseInteger()` or `stringParseNumber()` from `Helper\Web\StringTrait`, which throw `\RuntimeException` naming the argument. It passes the smallest value it accepts as `$min`, unless the helper it hands the value to checks the range itself, as `elementGetNth()` does
 - An optional parameter belongs on a helper, never on a step method. A string parameter left out for "not given" defaults to `NULL` with a nullable type, never to an empty string, while a default that is a real value, such as `$binary = 'drush'`, stays - `tests/phpunit/src/OptionalParameterTest.php` rejects an empty-string default anywhere under `src/`
@@ -298,31 +298,31 @@ When writing @test-trait scenarios that test BehatCliContext functionality (test
 @test-trait:SomeTrait
 Scenario: Test error condition
   Given some behat configuration
-  And scenario steps tagged with "@api @email":
+  And scenario steps tagged with "@email":
     """
     When I send test email to "test@example.com" with:
       '''
       Email body content here
       '''
-    Then an email should be sent
+    Then an email should be sent to the address "test@example.com"
     """
 ```
 
-**How it works**: `BehatCliTrait.php:203` converts `'''` → `"""` after extracting the PyString but before writing the generated feature file, ensuring proper Gherkin syntax.
+**How it works**: `BehatCliTrait::behatCliWriteScenarioSteps()` converts `'''` → `"""` after extracting the PyString but before writing the generated feature file, ensuring proper Gherkin syntax.
 
-**Example test**: See `tests/behat/features/behatcli.feature:131` for a demonstration of nested PyStrings.
+**Example test**: See the "Test nested PyStrings using triple single quotes" scenario in `tests/behat/features/behatcli.feature` for a demonstration of nested PyStrings.
 
 ### Coverage Reports: Two Files to Always Check
 
 **CRITICAL**: When running `ahoy test-bdd-coverage <path>`, TWO separate cobertura.xml files are generated:
 
 1. **`.logs/coverage/behat/cobertura.xml`**
-   - Contains coverage from **@api tests only** (direct execution)
+   - Contains coverage from the **main run only** - every scenario Behat runs directly, without the nested `@test-trait` runs
    - Shows what regular Behat scenarios cover
    - Example: EmailTrait shows 83.63%
 
 2. **`.logs/coverage/behat_cli/cobertura.xml`**
-   - Contains **MERGED coverage** (API tests + @test-trait subprocess tests)
+   - Contains **MERGED coverage** (main run + `@test-trait` subprocess runs)
    - This is the **TRUE total coverage** to report
    - Example: EmailTrait shows 90.06% (correctly higher)
 
@@ -357,7 +357,7 @@ php scripts/check-coverage.php SomeTrait
 # Run tests with coverage
 ahoy test-bdd-coverage tests/behat/features/some_feature.feature
 
-# Check API-only coverage
+# Check main-run coverage
 grep 'class name="DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait"' .logs/coverage/behat/cobertura.xml | grep -o 'line-rate="[^"]*"'
 
 # Check MERGED coverage (THIS IS THE TRUE COVERAGE)
@@ -391,7 +391,7 @@ php scripts/check-coverage.php ResponsiveTrait .logs/coverage/behat/cobertura.xm
 ### Documentation and Code Quality
 - Always run `ahoy update-docs` after adding/modifying step definitions
 - Use `ahoy lint-docs` to verify documentation format
-- Run `ahoy lint` to ensure code passes all quality checks (PHPStan, Rector, Gherkinlint)
+- Run `ahoy lint` to ensure code passes all quality checks (Composer validation, parallel-lint, PHPCS, PHPStan, Rector, Gherkinlint and the layer and trait linters)
 - Run BDD tests with specific tags during development: `ahoy test-bdd -- --tags="@tagname"`
 
 **IMPORTANT: Never Modify Code Quality Tool Configurations**

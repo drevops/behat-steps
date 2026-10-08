@@ -1,6 +1,6 @@
 # Configuration
 
-Everything this package reads arrives through one of 4 channels. Each channel answers a different question, and none of them is a substitute for another.
+Everything this package reads arrives through one of 4 channels, apart from the Mink settings it shares: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, and none of them is a substitute for another.
 
 | Channel | Answers | Scope |
 | --- | --- | --- |
@@ -39,7 +39,8 @@ $api = (new Suite('api'))
   ->withPaths('%paths.base%/tests/behat/features/api')
   ->addContext(ApiContext::class);
 
-// The specification surface: the few domain-language scenarios a stakeholder reads.
+// The specification surface: the few domain-language scenarios a
+// stakeholder reads.
 $spec = (new Suite('spec'))
   ->withPaths('%paths.base%/tests/behat/features/spec')
   ->addContext(SpecContext::class);
@@ -48,7 +49,9 @@ $profile = (new Profile('default'))
   ->withSuite($ui)
   ->withSuite($api)
   ->withSuite($spec)
-  ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => 'web']]));
+  ->withExtension(new Extension(BehatStepsExtension::class, [
+    'drupal' => ['drupal_root' => 'web'],
+  ]));
 
 return (new Config())->withProfile($profile);
 ```
@@ -68,13 +71,19 @@ The extension key in section 2 is read once per profile. A value that has to dif
 ```php
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class, ['fixtures_path' => '%paths.base%/tests/behat/fixtures']);
+  ->addContext(UiContext::class, [
+    'fixtures_path' => '%paths.base%/tests/behat/fixtures',
+  ]);
 ```
 
 ```php
 class UiContext extends WebRawContext {
 
-  public function __construct(protected string $fixtures_path) {
+  public function __construct(
+    protected string $fixtures_path,
+    array $config = [],
+  ) {
+    parent::__construct($config);
   }
 
 }
@@ -92,7 +101,7 @@ $ui = (new Suite('ui'))
   ]);
 ```
 
-A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`; `DrupalContext` extends it and adds `watchdog`, `big_pipe`, `cache`, `queue` and `email` on top. Setting a group no trait in the chain declares is an error at construction, naming what that context does accept.
+A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others; `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. Setting a group no trait in the chain declares is an error at construction, naming what that context does accept.
 
 A context that adds arguments of its own forwards `config` to the parent, and the suite passes both:
 
@@ -101,7 +110,10 @@ class UiContext extends WebRawContext {
 
   use JavascriptTrait;
 
-  public function __construct(protected string $fixtures_path, array $config = []) {
+  public function __construct(
+    protected string $fixtures_path,
+    array $config = [],
+  ) {
     parent::__construct($config);
   }
 
@@ -138,7 +150,7 @@ default:
         drupal_root: web
 ```
 
-[behat.dist.php](../behat.dist.php) in this repository sets every option the package accepts, as a reference.
+[behat.dist.php](../behat.dist.php) in this repository sets every extension option, plus the trait options a project almost always sets, as a reference.
 
 ## 2. The `behat_steps` extension key
 
@@ -240,7 +252,7 @@ Scenario: Content created over the public API is immediately visible
     | title      |
     | Lab report |
   When I visit "/articles"
-  Then the page should contain "Lab report"
+  Then I should see "Lab report"
 ```
 
 The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability - promotion only affects the capabilities the promoted backend actually provides.
@@ -291,15 +303,24 @@ Two options recur, and they are deliberately separate switches:
 
 `fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
 
-Overriding the trait's `<trait>Get<Noun>()` method in the composing context sits outside the chain and replaces the resolution entirely, which remains the escape hatch for anything the configuration cannot express.
+Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in the composing context sits outside the chain and replaces the resolution entirely, which remains the escape hatch for anything the configuration cannot express.
 
 A project writing its own configurable trait declares each option as a `DrevOps\BehatSteps\Behat\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
 
 ```php
 protected function acmeConfigSchema(): array {
   return [
-    new Option('enabled', default: TRUE, description: 'Whether the Acme hook runs.'),
-    new Option('wait_timeout', default: 5000, description: 'How long to wait, in milliseconds.', tags: ['slow' => 30000]),
+    new Option(
+      'enabled',
+      default: TRUE,
+      description: 'Whether the Acme hook runs.',
+    ),
+    new Option(
+      'wait_timeout',
+      default: 5000,
+      description: 'How long to wait, in milliseconds.',
+      tags: ['slow' => 30000],
+    ),
   ];
 }
 ```
@@ -315,13 +336,13 @@ A tag configures one scenario or one feature. A parametrized tag takes its value
 Scenario: Editor publishes a page
 ```
 
-A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines, and `@module:VALUE` for the same module and `@breakpoint:VALUE` take the scenario's value over the feature's. `@backend:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes.
+A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line, and `@behat-steps-skip:VALUE`, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines. `@module:VALUE` for the same module, `@breakpoint:VALUE` and an `@accessibility:VALUE` threshold take the scenario's value over the feature's, while `@accessibility:strict` applies from either line. `@backend:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes.
 
 [//]: # (START_TAGS)
 
 | Tag | Description |
 | --- | --- |
-| `@behat-steps-skip:VALUE` | Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value that is not a trait name fails the run at scenario start. |
+| `@behat-steps-skip:VALUE` | Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value not shaped like a trait name fails the run at scenario start. |
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
 | `@backend:VALUE` | Move the named backend to the front of the configured backend list for the scenario. Repeat the tag to promote several: they keep the configured order among themselves, so the order the tags are written in does not matter. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |
@@ -348,8 +369,8 @@ These vary a run without changing any committed configuration. Nothing else in t
 
 | Variable | Read by | Effect |
 | --- | --- | --- |
-| `BEHAT_STEPS_DISABLE_CLEANUP` | `EntityLifecycleTrait` | Set to `1`, `true`, `yes` or `on` to keep the entities, users and roles a scenario created, instead of deleting them in the teardown. For inspecting the state a failing scenario left behind, not for CI. |
-| `BEHAT_ACCESSIBILITY_PRINT` | `AccessibilityTrait` | Set to any value other than `0` to print a one-line accessibility summary per page to the console. |
-| `COMPOSER_BIN_DIR` | `DrushBackend` | Names the directory the Drush binary is resolved from, before the backend falls back to `vendor/bin/drush` under the working directory. Composer sets it inside its own scripts. |
+| `BEHAT_STEPS_DISABLE_CLEANUP` | `EntityLifecycleTrait`, `AuthTrait` | Set to `1`, `true`, `yes` or `on` to keep the entities, users and roles a scenario created, instead of deleting them in the teardown. The logged-in user also stays logged in for the scenarios that follow. For inspecting the state a failing scenario left behind, not for CI. |
+| `BEHAT_ACCESSIBILITY_PRINT` | `AccessibilityTrait` | Set to any non-empty value other than `0` to print a one-line accessibility summary per page to the console. |
+| `COMPOSER_BIN_DIR` | `DrushBackend` | When `drush.binary` is the bare `drush`, names the directory the Drush binary is resolved from, before the backend falls back to `vendor/bin/drush` under the working directory and then to `drush` on the `PATH`. Composer sets it inside its own scripts. |
 
 `BEHAT_PARAMS` is Behat's own override channel and applies here as it does to any extension: it carries a JSON object merged over the loaded configuration, which is the usual way to point `base_url` or a browser driver's `api_url` somewhere else for one run.
