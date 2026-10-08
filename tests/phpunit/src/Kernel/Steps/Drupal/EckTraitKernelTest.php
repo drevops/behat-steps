@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Kernel test for loading ECK entities through 'EckTrait'.
+ * Kernel test for loading and finding ECK entities through 'EckTrait'.
  */
 #[CoversTrait(EckTrait::class)]
 #[Group('behat')]
@@ -58,6 +58,23 @@ class EckTraitKernelTest extends StepTraitKernelTestBase {
     $this->createEntity('company', 'Shared');
 
     $this->assertSame([], $this->context->eckLoadMultiple('contact', 'person', ['title' => 'Shared']));
+  }
+
+  public function testGetEntityByTitleReturnsTheEntityCreatedLast(): void {
+    $this->createEntity('person', 'Shared');
+    $newest = $this->createEntity('person', 'Shared');
+    $this->createEntity('company', 'Shared');
+
+    $this->assertSame($newest->id(), $this->context->eckGetEntityByTitle('contact', 'person', 'Shared')->id());
+  }
+
+  public function testGetEntityByTitleFailsWhenNothingMatches(): void {
+    $this->createEntity('company', 'Shared');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to find "contact" page "Shared".');
+
+    $this->context->eckGetEntityByTitle('contact', 'person', 'Shared');
   }
 
   protected function createEntity(string $bundle, string $title): EntityInterface {

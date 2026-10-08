@@ -213,6 +213,9 @@ trait TaxonomyTrait {
   /**
    * Visit the action page of the term with a specified name.
    *
+   * When several terms of the vocabulary share the name, the newest is
+   * visited.
+   *
    * @param string $vocabulary
    *   The term vocabulary machine name.
    * @param string $name
@@ -224,16 +227,11 @@ trait TaxonomyTrait {
   public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, ?string $action_subpath = NULL): void {
     $this->taxonomyGetVocabulary($vocabulary);
 
-    $terms = $this->taxonomyLoadMultiple($vocabulary, [
-      'name' => $name,
-    ]);
+    $tid = $this->queryFindNewestEntityId('taxonomy_term', ['name' => $name], $vocabulary);
 
-    if (empty($terms)) {
+    if ($tid === NULL) {
       throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $name, $vocabulary));
     }
-
-    ksort($terms);
-    $tid = end($terms)->id();
 
     $path = $this->locatePath('/taxonomy/term/' . $tid . ($action_subpath ?? ''));
 

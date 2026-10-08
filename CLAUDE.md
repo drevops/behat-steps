@@ -281,6 +281,10 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - A method whose docblock invites an override (`Override to ...`, `Override when ...`, `overrides this method`) is public - `tests/phpunit/src/PublicSurfaceTest.php` fails a protected one
 - A lookup is named for what a miss does: `Find` returns `NULL`, `Get` throws, `Load` returns a set. `Read` only reads a file's contents, as `fixtureDirectoryReadFile()` does, and a helper that removes what it returns names the removal, as `watchdogClearErrors()` does
 
+### Lookups When Several Entities Match
+- A lookup by title, label, name or description that returns 1 entity returns the newest match: `queryFindNewestEntityId()` for a content entity (the highest serial ID, so a re-saved older entity never wins) and `entityLifecycleFindNewest()` for a config entity such as a block or a menu (the one the scenario created last, otherwise the last machine name in natural order). Never pick with `reset()`, `current()`, `end()` or a sort of your own
+- A `... does not exist` step deletes every match, and a step that only checks whether an entity exists checks every match. See "Lookups" in [CONTRIBUTING.md](CONTRIBUTING.md)
+
 ### Nested PyStrings in @test-trait Scenarios
 When writing @test-trait scenarios that test BehatCliContext functionality (tests that run Behat within Behat), nested PyStrings are required when the inner scenario steps themselves accept PyString arguments.
 

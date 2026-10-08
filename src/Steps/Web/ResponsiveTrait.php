@@ -23,6 +23,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * - Tag-based viewport control using `@breakpoint:NAME` tag
  * - Step-based viewport control during scenario execution
  * - Individual width/height control or combined dimensions.
+ * - Every viewport step needs a browser driver that can resize the window, such as the one a `@javascript` scenario runs.
  *
  * Tag-based viewport control:
  * @code
@@ -378,23 +379,17 @@ trait ResponsiveTrait {
    *
    * @return array<string, int>
    *   Array with 'width' and 'height' keys.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the browser driver cannot run JavaScript.
+   * @throws \RuntimeException
+   *   When the browser does not report a dimension as a positive integer.
    */
   public function responsiveGetCurrentDimensions(): array {
-    $default_width = 1280;
-    $default_height = 800;
-
-    try {
-      $width = $this->getSession()->evaluateScript('return window.innerWidth;');
-      $height = $this->getSession()->evaluateScript('return window.innerHeight;');
-
-      return [
-        'width' => $width ?: $default_width,
-        'height' => $height ?: $default_height,
-      ];
-    }
-    catch (\Exception) {
-      return ['width' => $default_width, 'height' => $default_height];
-    }
+    return [
+      'width' => $this->responsiveReadDimension('width', 'return window.innerWidth;'),
+      'height' => $this->responsiveReadDimension('height', 'return window.innerHeight;'),
+    ];
   }
 
   /**
@@ -404,20 +399,44 @@ trait ResponsiveTrait {
    *   The width in pixels.
    * @param int $height
    *   The height in pixels.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the browser driver cannot resize the window.
    */
   public function responsiveResize(int $width, int $height): void {
-    try {
-      if (!$this->getSession()->isStarted()) {
-        // @codeCoverageIgnoreStart
-        $this->getSession()->start();
-        // @codeCoverageIgnoreEnd
-      }
+    if (!$this->getSession()->isStarted()) {
+      // @codeCoverageIgnoreStart
+      $this->getSession()->start();
+      // @codeCoverageIgnoreEnd
+    }
 
-      $this->getSession()->resizeWindow($width, $height, 'current');
+    $this->getSession()->resizeWindow($width, $height, 'current');
+  }
+
+  /**
+   * Read 1 viewport dimension from the browser.
+   *
+   * @param string $name
+   *   The dimension, 'width' or 'height', for the message.
+   * @param string $script
+   *   The script that returns the dimension.
+   *
+   * @return int
+   *   The dimension in pixels.
+   *
+   * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
+   *   When the browser driver cannot run JavaScript.
+   * @throws \RuntimeException
+   *   When the browser does not report the dimension as a positive integer.
+   */
+  protected function responsiveReadDimension(string $name, string $script): int {
+    $value = $this->getSession()->evaluateScript($script);
+
+    if (!is_numeric($value) || (int) $value < 1) {
+      throw new \RuntimeException(sprintf('The browser reported the viewport %s as "%s", but it should be a positive integer.', $name, is_scalar($value) ? (string) $value : get_debug_type($value)));
     }
-    catch (\Exception) {
-      // A browser driver without resize support throws.
-    }
+
+    return (int) $value;
   }
 
 }

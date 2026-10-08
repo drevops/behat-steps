@@ -50,7 +50,7 @@
 | [Drupal\EmailTrait](#drupalemailtrait) | 10 | Test Drupal email functionality with content verification. |
 | [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
-| [Drupal\MenuTrait](#drupalmenutrait) | 4 | Manage Drupal menus and menu links. |
+| [Drupal\MenuTrait](#drupalmenutrait) | 6 | Manage Drupal menus and menu links. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | 5 | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | 4 | Manage Drupal paragraphs entities with structured field data. |
 | [Drupal\QueueTrait](#drupalqueuetrait) | 4 | Manage and assert Drupal queue state. |
@@ -63,9 +63,9 @@
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 3 | Manage Drupal webforms. |
 | [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
-| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 7 | Creates Drupal entities and removes them when the scenario ends. |
+| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 8 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
-| [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a backend. |
+| [Drupal\QueryTrait](#drupalquerytrait) | 3 | Reads Drupal state a step asserts on without going through a backend. |
 
 ### Index of Toolbox helpers
 
@@ -2353,6 +2353,15 @@ Create a link in a menu
 </details>
 
 <details>
+  <summary><code>public function menuDeleteLink(string $menu_name, array $conditions): void</code></summary>
+
+<br/>
+Delete the links of a menu that match conditions
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function menuFindByLabel(string $label): ?MenuInterface</code></summary>
 
 <br/>
@@ -2366,6 +2375,15 @@ Find a menu by its label
 
 <br/>
 Find a menu link by title and menu name
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function menuLoadMultiple(array $conditions = []): array</code></summary>
+
+<br/>
+Load multiple menus with specified conditions
 <br/><br/>
 
 </details>
@@ -2962,6 +2980,15 @@ Creates a taxonomy term
 </details>
 
 <details>
+  <summary><code>public function entityLifecycleFindNewest(array $entities): ?EntityInterface</code></summary>
+
+<br/>
+Find the newest of several entities whose ids carry no creation order
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface</code></summary>
 
 <br/>
@@ -3014,6 +3041,15 @@ Expand fixture file paths for file/image fields on an entity stub
 
 <br/>
 Load the ids of the entities of a type matching the conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function queryFindNewestEntityId(string $entity_type, array $conditions = [], ?string $bundle = NULL): ?string</code></summary>
+
+<br/>
+Find the id of the newest entity of a type matching the conditions
 <br/><br/>
 
 </details>

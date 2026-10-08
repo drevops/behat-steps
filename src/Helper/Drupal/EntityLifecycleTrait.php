@@ -35,7 +35,8 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * Creates Drupal entities and removes them when the scenario ends.
  *
  * Holds the one registry every entity creation writes to, so the teardown
- * walks it in reverse and deletes a node before the term it references.
+ * walks it in reverse and deletes a node before the term it references. The
+ * same registry tells which of several entities the scenario created last.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -298,6 +299,41 @@ trait EntityLifecycleTrait {
   }
 
   /**
+   * Find the newest of several entities whose ids carry no creation order.
+   *
+   * A config entity records no creation time. The entity the scenario created
+   * last wins over any the site already held. Among the rest, the last id in
+   * natural order wins.
+   *
+   * @param array<array-key, T> $entities
+   *   The entities to choose from.
+   *
+   * @return T|null
+   *   The newest entity, or NULL when none is given.
+   *
+   * @template T of \Drupal\Core\Entity\EntityInterface
+   */
+  public function entityLifecycleFindNewest(array $entities): ?EntityInterface {
+    if ($entities === []) {
+      return NULL;
+    }
+
+    foreach (array_reverse($this->entityLifecycleCreatedStubs) as $stub) {
+      $entity = $this->entityLifecycleFindStubEntity($stub, $entities);
+
+      if ($entity instanceof EntityInterface) {
+        return $entity;
+      }
+    }
+
+    // A colliding machine name gains a growing numeric suffix, so natural
+    // order puts 'block_10' after 'block_2'.
+    usort($entities, static fn(EntityInterface $a, EntityInterface $b): int => strnatcmp((string) $a->id(), (string) $b->id()));
+
+    return end($entities);
+  }
+
+  /**
    * Expands a stub's raw Gherkin values into the storage field shape.
    *
    * A table cell is passed as written: a bare scalar, a comma-separated list,
@@ -348,6 +384,37 @@ trait EntityLifecycleTrait {
       'taxonomy_term' => $backend->deleteTerm($stub),
       default => $backend->deleteEntity($stub),
     };
+  }
+
+  /**
+   * Finds the entity a registered stub stands for among several entities.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   A stub from the registry.
+   * @param array<array-key, T> $entities
+   *   The entities to search.
+   *
+   * @return T|null
+   *   The entity, or NULL when the stub stands for none of them.
+   *
+   * @template T of \Drupal\Core\Entity\EntityInterface
+   */
+  protected function entityLifecycleFindStubEntity(EntityStubInterface $stub, array $entities): ?EntityInterface {
+    foreach ($entities as $entity) {
+      if ($stub->getEntityType() !== $entity->getEntityTypeId()) {
+        continue;
+      }
+
+      // A stub from 'entityLifecycleRegister()' holds its id as a value
+      // rather than a saved entity.
+      $id = $stub->getId() ?? $stub->getValue((string) $entity->getEntityType()->getKey('id'));
+
+      if ((string) $id === (string) $entity->id()) {
+        return $entity;
+      }
+    }
+
+    return NULL;
   }
 
   /**

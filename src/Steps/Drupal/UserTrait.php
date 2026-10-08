@@ -778,13 +778,14 @@ trait UserTrait {
    *   When no user with the specified name exists.
    */
   public function userGetByName(string $name): UserInterface {
-    $users = $this->userLoadMultiple(['name' => $name]);
+    $uid = $this->queryFindNewestEntityId('user', ['name' => $name]);
+    $user = $uid === NULL ? NULL : User::load($uid);
 
-    if (empty($users)) {
+    if (!$user instanceof UserInterface) {
       throw new \RuntimeException(sprintf('The user "%s" does not exist.', $name));
     }
 
-    return reset($users);
+    return $user;
   }
 
   /**

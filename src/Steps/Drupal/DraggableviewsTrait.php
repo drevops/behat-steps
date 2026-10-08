@@ -46,6 +46,8 @@ trait DraggableviewsTrait {
   /**
    * Find a node using provided conditions.
    *
+   * When several nodes match, the newest is returned.
+   *
    * @param string $type
    *   The node type.
    * @param array<string, string> $conditions
@@ -55,15 +57,9 @@ trait DraggableviewsTrait {
    *   The found node or NULL.
    */
   public function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface {
-    $nids = $this->queryNodeIds($type, $conditions);
+    $nid = $this->queryFindNewestEntityId('node', $conditions, $type);
 
-    if (empty($nids)) {
-      return NULL;
-    }
-
-    $nid = current($nids);
-
-    return Node::load($nid);
+    return $nid === NULL ? NULL : Node::load($nid);
   }
 
   /**

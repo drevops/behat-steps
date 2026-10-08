@@ -102,6 +102,8 @@ trait ParagraphsTrait {
   /**
    * Find entity.
    *
+   * When several entities match, the newest is returned.
+   *
    * @param string $entity_type
    *   Entity type.
    * @param string $bundle
@@ -115,13 +117,11 @@ trait ParagraphsTrait {
    *   Found entity or NULL if not found.
    */
   public function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface {
-    $entity_ids = $this->queryEntityIds($entity_type, [$field_name => $field_value], $bundle);
+    $entity_id = $this->queryFindNewestEntityId($entity_type, [$field_name => $field_value], $bundle);
 
-    if (empty($entity_ids)) {
+    if ($entity_id === NULL) {
       return NULL;
     }
-
-    $entity_id = array_pop($entity_ids);
 
     $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($entity_id);
 

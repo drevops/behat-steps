@@ -3032,3 +3032,37 @@ The snapshots behind the 2 reverting traits share their keys now too. `ConfigTra
 A context that extends a shipped context picks up the new names for free. A context or service of your own that implements `ParametersAwareInterface` or composes one of the 2 traits updates its imports, and nothing else about them changed.
 
 `grep -rnE 'BehatSteps\\+Behat\\+(ParametersAwareInterface|ParametersTrait|MinkAwareTrait)' <your project>` lists every import and docblock type that still names an old location.
+
+## A lookup by title acts on the newest match
+
+When several entities share the title, label, name or description a step names, the step now acts on the newest of them. The traits used to pick 4 different ways, so a scenario changes only where it has duplicates:
+
+| Trait | Before | After |
+| --- | --- | --- |
+| `Drupal\ContentTrait`, `Drupal\SearchApiTrait` | the node saved most recently, by revision ID | the node created last, by node ID |
+| `Drupal\MenuTrait` (a menu by label, a link by title), `Drupal\DraggableviewsTrait`, `Drupal\EckTrait` | the first match the database returned | the newest match |
+| `Drupal\ParagraphsTrait` (the parent entity) | the last match the database returned | the newest match |
+| `Drupal\BlockTrait` | the last machine name in string order, so `block_9` won over `block_10` | the block the scenario placed last, and otherwise the last machine name in natural order |
+| `Drupal\MediaTrait`, `Drupal\TaxonomyTrait`, `Drupal\ContentBlockTrait` | the newest match | unchanged |
+
+A node saved again after a newer one was created no longer wins: content entities are compared by ID, which only grows when an entity is created. Blocks and menus have machine names instead of numeric IDs, so the one the scenario created last wins over any the site already held.
+
+`the menu :menu_name does not exist` and `the following menu links do not exist in the menu :menu_name:` now remove every menu and every link that matches, as every other `... does not exist` step already did. They used to remove 1.
+
+4 public helpers are new: `Helper\Drupal\QueryTrait::queryFindNewestEntityId()` and `Helper\Drupal\EntityLifecycleTrait::entityLifecycleFindNewest()` pick the newest match, and `Drupal\MenuTrait::menuLoadMultiple()` and `Drupal\MenuTrait::menuDeleteLink()` load and delete every match.
+
+## Viewport steps need a JavaScript browser driver
+
+`ResponsiveTrait` swallowed every browser driver exception. On a browser driver that can't resize the window, its 4 viewport steps passed without doing anything, and `responsiveGetCurrentDimensions()` reported 1280 by 800 whatever the browser held. The steps now fail with Mink's `UnsupportedDriverActionException`, which names the browser driver, and `responsiveGetCurrentDimensions()` throws `\RuntimeException` when the browser doesn't report a positive integer. Tag a scenario that sets the viewport `@javascript`, as `@breakpoint:NAME` already required.
+
+## The top offset leaves space above the element
+
+`the element :selector should be displayed within the viewport with a top offset of :offset pixels` and its negative scrolled `:offset` pixels past the top of the element. They now scroll so the top of the element is `:offset` pixels below the top of the viewport, the space a fixed header of that height covers, and a negative offset scrolls the top of the element above the viewport. To keep what a scenario checked, negate its offset:
+
+```gherkin
+# Before.
+Then the element ".sticky-header" should be displayed within the viewport with a top offset of 200 pixels
+
+# After.
+Then the element ".sticky-header" should be displayed within the viewport with a top offset of -200 pixels
+```

@@ -48,6 +48,16 @@ Feature: Check that ContentTrait works
     When I visit the "page" content page with the title "[TEST] Page title"
     Then I should see "[TEST] Page title"
 
+  Scenario: Assert "When I visit the :content_type content page with the title :title" visits the most recently created content when titles are duplicated
+    Given the following article content exist:
+      | title                          | body              |
+      | [TEST] Duplicate article title | [TEST] Older body |
+      | [TEST] Duplicate article title | [TEST] Newer body |
+    And I log in as a user with the role "administrator"
+    When I visit the "article" content page with the title "[TEST] Duplicate article title"
+    Then I should see "[TEST] Newer body"
+    And I should not see "[TEST] Older body"
+
   @test-trait:Drupal\ContentTrait
   Scenario: Assert negative "When I visit the :content_type content page with the title :title" works as expected for non-existing content type
     Given some behat configuration

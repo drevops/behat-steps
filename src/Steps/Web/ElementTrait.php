@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * - Assert element visibility, attribute values, and viewport positioning.
  * - Execute JavaScript-based interactions with element state verification.
  * - Handle confirmation dialogs and scrolling operations.
+ * - A top offset of N pixels scrolls the top of the element to N pixels below the top of the viewport. A negative offset scrolls it above the viewport.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -635,8 +636,13 @@ trait ElementTrait {
   /**
    * Assert that element with specified CSS is displayed within the viewport with a top offset.
    *
+   * The page is scrolled so the top of the element is the offset below the
+   * top of the viewport, the space a fixed header of that height covers. A
+   * negative offset scrolls the top of the element above the viewport.
+   *
    * @code
-   * Then the element ".sticky-header" should be displayed within the viewport with a top offset of 50 pixels
+   * Then the element "#main-content" should be displayed within the viewport with a top offset of 80 pixels
+   * Then the element ".sticky-header" should be displayed within the viewport with a top offset of -200 pixels
    * @endcode
    */
   #[Then('the element :selector should be displayed within the viewport with a top offset of :offset pixels')]
@@ -653,8 +659,12 @@ trait ElementTrait {
   /**
    * Assert that element with specified CSS is not displayed within the viewport with a top offset.
    *
+   * The page is scrolled so the top of the element is the offset below the
+   * top of the viewport, the space a fixed header of that height covers. A
+   * negative offset scrolls the top of the element above the viewport.
+   *
    * @code
-   * Then the element ".below-fold-content" should not be displayed within the viewport with a top offset of 0 pixels
+   * Then the element ".announcement-bar" should not be displayed within the viewport with a top offset of -200 pixels
    * @endcode
    */
   #[Then('the element :selector should not be displayed within the viewport with a top offset of :offset pixels')]
@@ -1251,7 +1261,9 @@ JS;
    * @param string $selector
    *   CSS query selector.
    * @param int $offset
-   *   Vertical element offset in pixels.
+   *   The distance in pixels from the top of the viewport to the top of the
+   *   element once the page is scrolled to it. A negative offset scrolls the
+   *   top of the element above the viewport.
    *
    * @return mixed
    *   The raw result of the browser evaluation, truthy when the element is
@@ -1259,8 +1271,6 @@ JS;
    */
   public function elementIsVisuallyVisible(string $selector, int $offset) {
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
-    // The contents of this JS function should be copied as-is from the <script>
-    // section at the bottom of tests/behat/fixtures/elements_relative.html.
     $script_function = <<<JS
       function isElemVisible(selector, offset = 0) {
         var failures = [];
@@ -1273,8 +1283,8 @@ JS;
             );
           }
 
-          // Scroll to the element top, accounting for an offset.
-          window.scroll({ top: el.offsetTop + offset });
+          // Scroll to the element top, leaving the offset above it.
+          window.scroll({ top: el.offsetTop - offset });
 
           // Gather visibility constraints.
           const isVisible  = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
@@ -1284,7 +1294,7 @@ JS;
             getComputedStyle(el).position === 'absolute'
           );
           const rect       = el.getBoundingClientRect();
-          onScreen = !(
+          const onScreen   = !(
             rect.left + rect.width <= 0 ||
             rect.top + rect.height <= 0 ||
             rect.left >= window.innerWidth ||

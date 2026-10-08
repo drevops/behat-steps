@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
 use Drupal\system\MenuInterface;
@@ -26,12 +27,13 @@ use Drupal\system\MenuInterface;
 trait MenuTrait {
 
   use EntityLifecycleTrait;
+  use QueryTrait;
 
   /**
-   * Remove a single menu by its label if it exists.
+   * Remove every menu with a label.
    *
    * @param string $menu_name
-   *   The label of the menu to remove.
+   *   The label of the menus to remove.
    *
    * @code
    *   Given the menu "Test Menu" does not exist
@@ -39,8 +41,7 @@ trait MenuTrait {
    */
   #[Given('the menu :menu_name does not exist')]
   public function menuDelete(string $menu_name): void {
-    $menu = $this->menuFindByLabel($menu_name);
-    if ($menu instanceof MenuInterface) {
+    foreach ($this->menuLoadMultiple(['label' => $menu_name]) as $menu) {
       $menu->delete();
     }
   }
@@ -65,7 +66,7 @@ trait MenuTrait {
   }
 
   /**
-   * Remove menu links by title.
+   * Remove every menu link with each of the titles.
    *
    * @code
    * Given the following menu links do not exist in the menu "Main navigation":
@@ -80,7 +81,7 @@ trait MenuTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     foreach ($table->getColumn(0) as $title) {
-      $this->menuFindLinkByTitle($title, $menu_name)?->delete();
+      $this->menuDeleteLink($menu_name, ['title' => $title]);
     }
   }
 
@@ -186,7 +187,52 @@ trait MenuTrait {
   }
 
   /**
+   * Delete the links of a menu that match conditions.
+   *
+   * @param string $menu_name
+   *   The label of the menu.
+   * @param array<string, mixed> $conditions
+   *   Conditions keyed by field names.
+   */
+  public function menuDeleteLink(string $menu_name, array $conditions): void {
+    $menu = $this->menuFindByLabel($menu_name);
+
+    if (!$menu instanceof MenuInterface) {
+      return;
+    }
+
+    $ids = $this->queryEntityIds('menu_link_content', ['menu_name' => $menu->id()] + $conditions);
+
+    if ($ids === []) {
+      return;
+    }
+
+    foreach (MenuLinkContent::loadMultiple($ids) as $menu_link) {
+      $menu_link->delete();
+    }
+  }
+
+  /**
+   * Load multiple menus with specified conditions.
+   *
+   * @param array<string, mixed> $conditions
+   *   Conditions keyed by property names.
+   *
+   * @return array<string, \Drupal\system\MenuInterface>
+   *   The matching menus keyed by ID, or an empty array when none match.
+   */
+  public function menuLoadMultiple(array $conditions = []): array {
+    $ids = $this->queryEntityIds('menu', $conditions);
+
+    return $ids ? Menu::loadMultiple($ids) : [];
+  }
+
+  /**
    * Find a menu by its label.
+   *
+   * When several menus carry the label, the menu the scenario created last is
+   * returned, and otherwise the one with the last machine name in natural
+   * order.
    *
    * @param string $label
    *   The label of the menu.
@@ -195,26 +241,13 @@ trait MenuTrait {
    *   The menu or NULL if not found.
    */
   public function menuFindByLabel(string $label): ?MenuInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-    $entity_type_manager = \Drupal::entityTypeManager();
-    $menu_ids = $entity_type_manager->getStorage('menu')->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('label', $label)
-      ->execute();
-
-    if (empty($menu_ids)) {
-      return NULL;
-    }
-
-    $menu_id = reset($menu_ids);
-
-    return Menu::load($menu_id);
+    return $this->entityLifecycleFindNewest($this->menuLoadMultiple(['label' => $label]));
   }
 
   /**
    * Find a menu link by title and menu name.
+   *
+   * When several links in the menu carry the title, the newest is returned.
    *
    * @param string $title
    *   The title of the menu link.
@@ -225,30 +258,15 @@ trait MenuTrait {
    *   The menu link or NULL if not found.
    */
   public function menuFindLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     $menu = $this->menuFindByLabel($menu_name);
 
     if (!$menu instanceof MenuInterface) {
       return NULL;
     }
 
-    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-    $entity_type_manager = \Drupal::entityTypeManager();
+    $id = $this->queryFindNewestEntityId('menu_link_content', ['menu_name' => $menu->id(), 'title' => $title]);
 
-    $menu_link_ids = $entity_type_manager->getStorage('menu_link_content')->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('menu_name', $menu->id())
-      ->condition('title', $title)
-      ->execute();
-
-    if (empty($menu_link_ids)) {
-      return NULL;
-    }
-
-    $menu_link_id = reset($menu_link_ids);
-
-    return MenuLinkContent::load($menu_link_id);
+    return $id === NULL ? NULL : MenuLinkContent::load($id);
   }
 
   /**
