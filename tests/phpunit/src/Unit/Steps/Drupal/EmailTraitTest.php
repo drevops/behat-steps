@@ -8,7 +8,9 @@ use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
+use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\EmailTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -96,6 +98,46 @@ class EmailTraitTest extends UnitTestCase {
     // The context holds no backend registry, so resolving a backend would
     // throw.
     (new EmailTraitTestImplementation())->emailAfterScenario($this->createAfterScenarioScope(['email']));
+  }
+
+  /**
+   * Tests which tags make the setup hook enable the collector.
+   *
+   * @param array<int, string> $scenario_tags
+   *   Tags declared on the scenario.
+   * @param array<int, string> $feature_tags
+   *   Tags declared on the feature.
+   * @param array<int, string>|null $expected_types
+   *   The handler types the collector is expected to be enabled with, or NULL
+   *   when it is expected to stay off.
+   */
+  #[DataProvider('dataProviderSetupHookEnablesCollector')]
+  public function testSetupHookEnablesCollector(array $scenario_tags, array $feature_tags, ?array $expected_types): void {
+    $drupal = $this->createMock(DrupalBackendInterface::class);
+    $drupal->expects($expected_types === NULL ? $this->never() : $this->once())->method('bootstrap');
+
+    $registry = new BackendRegistry(['drupal' => $drupal]);
+    $registry->setScenarioBackends(['drupal' => 'drupal']);
+
+    $context = new EmailTraitTestImplementation();
+    $context->setBackendRegistry($registry);
+
+    $context->emailBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
+
+    $this->assertSame($expected_types, $context->enabledHandlerTypes);
+  }
+
+  public static function dataProviderSetupHookEnablesCollector(): \Iterator {
+    yield 'no tag' => [[], [], NULL];
+    yield 'another tag' => [['javascript'], [], NULL];
+    yield 'a tag naming no handler type' => [['email:'], [], NULL];
+    yield 'the bare tag' => [['email'], [], []];
+    yield 'a handler type alone' => [['email:contact'], [], ['contact']];
+    yield 'a handler type beside the bare tag' => [['email', 'email:contact'], [], ['contact']];
+    yield 'several handler types' => [['email:contact', 'email:user'], [], ['contact', 'user']];
+    yield 'a handler type on the feature' => [[], ['email:contact'], ['contact']];
+    yield 'handler types on both lines' => [['email:user'], ['email:contact'], ['contact', 'user']];
+    yield 'a handler type in a skipped scenario' => [['email:contact', 'behat-steps-skip:EmailTrait'], [], NULL];
   }
 
   #[DataProvider('dataProviderFindMessageBySubject')]
@@ -254,7 +296,9 @@ class EmailTraitTest extends UnitTestCase {
 /**
  * Test implementation of EmailTrait.
  *
- * Replaces the test email collector with the messages a test supplies.
+ * Replaces the test email collector with the messages a test supplies, and
+ * records the handler types the collector is enabled with instead of
+ * switching the site's mail system.
  */
 class EmailTraitTestImplementation extends WebRawContext {
 
@@ -266,6 +310,20 @@ class EmailTraitTestImplementation extends WebRawContext {
    * @var array<int, array<string, mixed>>
    */
   public array $collectedMessages = [];
+
+  /**
+   * The handler types the collector was enabled with, or NULL when it was not.
+   *
+   * @var array<int, string>|null
+   */
+  public ?array $enabledHandlerTypes = NULL;
+
+  /**
+   * Records the handler types instead of switching the site's mail system.
+   */
+  public function emailEnableCollector(): void {
+    $this->enabledHandlerTypes = $this->emailHandlerTypes;
+  }
 
   /**
    * Returns the messages a test supplied.

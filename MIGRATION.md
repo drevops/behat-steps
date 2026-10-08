@@ -1402,6 +1402,12 @@ When the file is missing, the attachment steps now name it. The old message said
 | Drupal\EmailTrait | No attachments were found in the email with subject .... | The file "..." is not attached to the email with subject "...". |
 | Drupal\EmailTrait | No attachments were found in the email with subject containing "...". | The file "..." is not attached to the email with subject containing "...". |
 
+## `@email:TYPE` collects email without `@email`
+
+`Drupal\EmailTrait` read the handler types from `@email:TYPE` only when the scenario or its feature also carried a bare `@email`, so a scenario tagged `@email:TYPE` alone collected nothing. That tag now enables the test email system by itself, with the handler types it names. `@email @email:TYPE` behaves as before, so the bare tag beside a typed one can go.
+
+A scenario tagged only `@email:TYPE` used to send its mail through the site's own mail system, and now captures it in the test collector. A scenario that relied on that mail leaving the site drops the tag.
+
 ## Page cache steps clear the paths they name
 
 `Given the page cache for the path :path is empty` named 1 path but cleared every page. It invalidated the `http_response` cache tag, and Drupal puts that tag on every cacheable response, so the step emptied the whole internal page cache and the whole dynamic page cache. `Given the page cache for the paths matching :path_pattern is empty` matched its pattern anywhere in the cached URL, so `/news*` also cleared `/archive/news`, and a pattern with no `*` cleared every path that contained it.
