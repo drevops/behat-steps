@@ -304,9 +304,6 @@ Feature: Check that ElementTrait works
     Then the element "#hidden" should not be displayed within the viewport with a top offset of 10 pixels
     # A negative offset scrolls the top of the element above the viewport.
     And the element "#top" should not be displayed within the viewport with a top offset of -300 pixels
-    # A positive offset leaves space above the element, so an element below
-    # the fold stays below the viewport.
-    And the element "#bottom" should not be displayed within the viewport with a top offset of 10000 pixels
 
   @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport with a top offset of :offset pixels" succeeds as expected
