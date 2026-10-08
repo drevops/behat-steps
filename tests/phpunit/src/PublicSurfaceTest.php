@@ -28,6 +28,7 @@ use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
+use DrevOps\BehatSteps\Tests\Fixtures\RedeclaredMethodTrait;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -169,6 +170,16 @@ class PublicSurfaceTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * Assert that a trait's own methods include a composed method it redeclares.
+   */
+  public function testTraitOwnMethodsIncludeRedeclaredMethod(): void {
+    $names = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), static::collectTraitOwnMethods(RedeclaredMethodTrait::class));
+    sort($names);
+
+    $this->assertSame(['redeclaredGet', 'redeclaredGetLabel'], $names);
+  }
+
   #[DataProvider('dataProviderHookMethodsDeclareTheirScope')]
   public function testHookMethodsDeclareTheirScope(string $trait): void {
     $methods = static::collectTraitOwnMethods($trait);
@@ -292,19 +303,12 @@ class PublicSurfaceTest extends UnitTestCase {
    */
   protected static function collectTraitOwnMethods(string $trait): array {
     $reflection = static::reflect($trait);
-    $used_traits = $reflection->getTraits();
-    $own = $reflection->getMethods();
+    $file = $reflection->getFileName();
 
-    $composed = [];
-    foreach ($used_traits as $used_trait) {
-      $methods = $used_trait->getMethods();
-
-      foreach ($methods as $method) {
-        $composed[] = $method->getName();
-      }
-    }
-
-    return array_values(array_filter($own, static fn(\ReflectionMethod $method): bool => !in_array($method->getName(), $composed, TRUE)));
+    // A trait reports the methods of the traits it composes as its own, so a
+    // method counts only when this trait's file declares it. A redeclared
+    // composed method is declared here too.
+    return array_values(array_filter($reflection->getMethods(), static fn(\ReflectionMethod $method): bool => $method->getFileName() === $file));
   }
 
   /**
