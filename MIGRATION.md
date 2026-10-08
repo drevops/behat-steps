@@ -3066,3 +3066,5 @@ Then the element ".sticky-header" should be displayed within the viewport with a
 # After.
 Then the element ".sticky-header" should be displayed within the viewport with a top offset of -200 pixels
 ```
+
+The scroll also targets the element's position in the document now. It used to read `offsetTop`, which is measured from the nearest positioned ancestor, so an element inside a `position: relative` wrapper further down the page was scrolled to the wrong place. `the element :selector should be displayed within the viewport` and its negative, which scroll the same way with no offset, now find such an element where it is.

@@ -328,6 +328,11 @@ JS-based assertions.
     #hover:hover #hover-content {
       display: inline;
     }
+
+    #positioned-ancestor {
+      position: relative;
+      margin-top: 3000px;
+    }
   </style>
 
 
@@ -498,6 +503,12 @@ JS-based assertions.
   <button data-action="edit" data-value="normal" id="btn-normal">Button normal</button>
   <div data-test-id="special'chars" class="test-element">Element with single quote in data attr</div>
   <div data-test-id='special"chars' class="test-element">Element with double quote in data attr</div>
+</div>
+
+<!-- A positioned ancestor below the fold, so the 'offsetTop' of its child
+differs from the child's position in the document. -->
+<div id="positioned-ancestor">
+  <div id="positioned-child">Child of a positioned ancestor</div>
 </div>
 
 <script>

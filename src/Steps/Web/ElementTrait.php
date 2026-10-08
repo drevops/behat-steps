@@ -1283,8 +1283,11 @@ JS;
             );
           }
 
-          // Scroll to the element top, leaving the offset above it.
-          window.scroll({ top: el.offsetTop - offset });
+          // Scroll to the element top, leaving the offset above it. The top is
+          // read from the viewport, because 'offsetTop' is relative to the
+          // nearest positioned ancestor rather than to the document.
+          const documentTop = el.getBoundingClientRect().top + window.scrollY;
+          window.scroll({ top: documentTop - offset });
 
           // Gather visibility constraints.
           const isVisible  = !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);

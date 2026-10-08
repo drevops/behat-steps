@@ -311,6 +311,7 @@ Feature: Check that ElementTrait works
     Then the element "#top" should be displayed within the viewport with a top offset of 10 pixels
     And the element "#top" should be displayed within the viewport with a top offset of 100 pixels
     And the element "#bottom" should be displayed within the viewport with a top offset of 100 pixels
+    And the element "#positioned-child" should be displayed within the viewport with a top offset of 100 pixels
 
   @javascript @phpserver @test-skipped
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport with a top offset of :offset pixels" fails as expected
@@ -333,6 +334,7 @@ Feature: Check that ElementTrait works
     And the element "#top-inner" should be displayed within the viewport
     And the element "#left" should be displayed within the viewport
     And the element "#left-inner" should be displayed within the viewport
+    And the element "#positioned-child" should be displayed within the viewport
     # Accessibility elements visible to screen readers are visible to normal
     # visibility assertion, but visually hidden.
     And the element "#sr-only" should be displayed
