@@ -861,18 +861,16 @@ trait ElementTrait {
     $attribute_value_found = FALSE;
     foreach ($elements as $element) {
       $attribute_value = (string) $element->getAttribute($attribute);
-      if ($attribute_value !== '') {
-        $attribute_found = TRUE;
-        if ($is_exact) {
-          if ($attribute_value === $value) {
-            $attribute_value_found = TRUE;
-            break;
-          }
-        }
-        elseif (str_contains($attribute_value, $value)) {
-          $attribute_value_found = TRUE;
-          break;
-        }
+
+      if ($attribute_value === '') {
+        continue;
+      }
+
+      $attribute_found = TRUE;
+
+      if ($is_exact ? $attribute_value === $value : str_contains($attribute_value, $value)) {
+        $attribute_value_found = TRUE;
+        break;
       }
     }
 

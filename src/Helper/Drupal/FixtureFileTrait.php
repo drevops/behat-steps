@@ -94,16 +94,14 @@ trait FixtureFileTrait {
           continue;
         }
 
-        if (is_array($record)) {
-          if (array_key_exists('target_id', $record)) {
-            $records[$index]['target_id'] = $resolved;
-          }
-          else {
-            $records[$index][0] = $resolved;
-          }
+        if (!is_array($record)) {
+          $records[$index] = $resolved;
+        }
+        elseif (array_key_exists('target_id', $record)) {
+          $records[$index]['target_id'] = $resolved;
         }
         else {
-          $records[$index] = $resolved;
+          $records[$index][0] = $resolved;
         }
 
         $is_mutated = TRUE;
