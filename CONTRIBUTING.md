@@ -282,7 +282,7 @@ The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the 
 
 A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
 
-- It is declared by a trait under `src/Steps` or `src/Helper`, or by a class in `docs.php`'s `TOOLBOX_CLASSES`.
+- It is declared by a trait under `src/Steps` or `src/Helper`, or by a class in `docs.php`'s `TOOLBOX_CLASSES`. A helper is published once, under the trait whose file declares it, never under a trait that composes that one.
 - It is `public`. A `private` member cannot be reached from a composing context and has no place in a trait.
 - It begins with its trait's name, which is the collision rule every trait member follows anyway.
 - It carries no `#[Given]`, `#[When]`, `#[Then]`, `#[Transform]` or hook attribute. Those are registered with Behat and belong to the vocabulary.

@@ -3374,6 +3374,13 @@ EOD);
     $this->assertSame(['requestHeadersSet'], array_column($actual['RequestHeadersTrait']['helpers'], 'name'));
 
     $this->assertContains('entityLifecycleCreateNode', array_column($actual['EntityLifecycleTrait']['helpers'], 'name'));
+
+    // A composed helper trait is published under its own name, so neither a
+    // helper trait nor a step trait composing it repeats it. 'EntityTrait'
+    // shares the 'entity' prefix with the trait it composes.
+    $this->assertNotContains('entityLifecycleCreateNode', array_column($actual['AuthTrait']['helpers'], 'name'));
+    $this->assertNotContains('entityLifecycleCreateNode', array_column($actual['EntityTrait']['helpers'] ?? [], 'name'));
+    $this->assertNotContains('fixtureDirectoryReadFile', array_column($actual['FixtureFileTrait']['helpers'], 'name'));
   }
 
   public function testExtractHelpersResolvesTheTraitCommentAgainstItsContract(): void {

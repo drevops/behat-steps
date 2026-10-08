@@ -48,7 +48,6 @@
 | [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 4 | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 10 | Test Drupal email functionality with content verification. |
-| [Drupal\EntityTrait](#drupalentitytrait) | 7 | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | 4 | Manage Drupal menus and menu links. |
@@ -63,9 +62,9 @@
 | [Drupal\UserTrait](#drupalusertrait) | 12 | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 3 | Manage Drupal webforms. |
-| [Drupal\AuthTrait](#drupalauthtrait) | 13 | Creates users and roles, logs them in, and removes them afterwards. |
+| [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 7 | Creates Drupal entities and removes them when the scenario ends. |
-| [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 6 | Resolves a fixture file path for a file or image field. |
+| [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
 | [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a backend. |
 
 ### Index of Toolbox helpers
@@ -2219,75 +2218,6 @@ Get the collected emails with a subject
 
 </details>
 
-## Drupal\EntityTrait
-
-[Source](src/Steps/Drupal/EntityTrait.php), [Steps](STEPS.md#drupalentitytrait)
-
-> Create entities of a type that has no dedicated trait.
-
-<details>
-  <summary><code>public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates an entity of a type that has no dedicated method
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateLanguage(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a language
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateNode(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a node
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateTerm(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a taxonomy term
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface</code></summary>
-
-<br/>
-Builds the entity-field parser for 1 parsing call
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
-
-<br/>
-Expands a stub's raw Gherkin values into the storage field shape
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleRegister(EntityInterface $entity): void</code></summary>
-
-<br/>
-Registers an entity saved outside the create pipeline for cleanup
-<br/><br/>
-
-</details>
-
 ## Drupal\FileTrait
 
 [Source](src/Steps/Drupal/FileTrait.php), [Steps](STEPS.md#drupalfiletrait)
@@ -2990,69 +2920,6 @@ Logs the current user out
 
 </details>
 
-<details>
-  <summary><code>public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates an entity of a type that has no dedicated method
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateLanguage(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a language
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateNode(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a node
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateTerm(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a taxonomy term
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface</code></summary>
-
-<br/>
-Builds the entity-field parser for 1 parsing call
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
-
-<br/>
-Expands a stub's raw Gherkin values into the storage field shape
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleRegister(EntityInterface $entity): void</code></summary>
-
-<br/>
-Registers an entity saved outside the create pipeline for cleanup
-<br/><br/>
-
-</details>
-
 ## Drupal\EntityLifecycleTrait
 
 [Source](src/Helper/Drupal/EntityLifecycleTrait.php)
@@ -3127,51 +2994,6 @@ Registers an entity saved outside the create pipeline for cleanup
 [Source](src/Helper/Drupal/FixtureFileTrait.php)
 
 > Resolves a fixture file path for a file or image field.
-
-<details>
-  <summary><code>public function fixtureDirectoryFind(): ?string</code></summary>
-
-<br/>
-Find the fixtures directory
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function fixtureDirectoryFindFile(string $path): ?string</code></summary>
-
-<br/>
-Find a file in the fixtures directory
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function fixtureDirectoryGet(): string</code></summary>
-
-<br/>
-Get the fixtures directory
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function fixtureDirectoryGetFile(string $path): string</code></summary>
-
-<br/>
-Get a file in the fixtures directory
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function fixtureDirectoryReadFile(string $path): string</code></summary>
-
-<br/>
-Read a file in the fixtures directory
-<br/><br/>
-
-</details>
 
 <details>
   <summary><code>public function fixtureFileExpandEntityFields(string $entity_type, EntityStubInterface $stub): void</code></summary>

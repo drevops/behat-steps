@@ -956,7 +956,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $trait = $collected['reflection'];
     $context = $collected['context'];
 
-    $helpers = collect_helper_methods($trait, str_replace('Trait', '', $trait_name));
+    $helpers = collect_helper_methods($trait, str_replace('Trait', '', $trait_name), (string) $trait->getFileName());
     if ($helpers === []) {
       continue;
     }
@@ -979,7 +979,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
   foreach (collect_helper_traits($base_path) as $trait_name => $collected) {
     $trait = $collected['reflection'];
     $context = $collected['context'];
-    $helpers = collect_helper_methods($trait, NULL, NULL, helper_trait_contracts($trait, $class_names));
+    $helpers = collect_helper_methods($trait, NULL, (string) $trait->getFileName(), helper_trait_contracts($trait, $class_names));
 
     if ($helpers === []) {
       continue;
