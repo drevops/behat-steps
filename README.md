@@ -6,8 +6,8 @@
 
 <div align="center">
 
-[![GitHub Issues](https://img.shields.io/github/issues/DrevOps/behat-steps.svg)](https://github.com/DrevOps/behat-steps/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/DrevOps/behat-steps.svg)](https://github.com/DrevOps/behat-steps/pulls)
+[![GitHub Issues](https://img.shields.io/github/issues/drevops/behat-steps.svg)](https://github.com/drevops/behat-steps/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/drevops/behat-steps.svg)](https://github.com/drevops/behat-steps/pulls)
 [![Test](https://github.com/drevops/behat-steps/actions/workflows/test.yml/badge.svg)](https://github.com/drevops/behat-steps/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/drevops/behat-steps/graph/badge.svg?token=0UFU5VNNPI)](https://codecov.io/gh/drevops/behat-steps)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/behat-steps)
@@ -25,22 +25,23 @@
 
 ## What is it?
 
-This library is a collection of reusable testing actions and assertions for
-automated testing with [Behat](https://behat.org). It’s designed to help you
-write reliable, readable, and maintainable tests faster.
+This library is a collection of reusable testing actions and assertions for automated testing with [Behat](https://behat.org). It's designed to help you write reliable, readable, and maintainable tests faster.
 
-We provide a set of generic traits that can be used in any PHP project, with
-special support for Drupal through additional step definitions. All methods are
-properly namespaced, so they won’t conflict with your existing custom step
-definitions.
+We provide a set of generic traits that can be used in any PHP project, with special support for Drupal through additional step definitions. All methods are properly namespaced, so they won't conflict with your existing custom step definitions.
 
-Our goal is to make this a go-to library for Behat steps. We maintain solid
-[test coverage](tests/behat/features) to avoid false positives and negatives,
-and follow [clear
-guidelines](CONTRIBUTING.md#steps-format) to keep the step language consistent.
+Our goal is to make this a go-to library for Behat steps. We maintain solid [test coverage](tests/behat/features) to avoid false positives and negatives, and follow [clear guidelines](CONTRIBUTING.md#steps-format) to keep the step language consistent.
 
-We actively maintain this package and welcome [contributions](CONTRIBUTING.md)
-from the community.
+We actively maintain this package and welcome [contributions](CONTRIBUTING.md) from the community.
+
+## Features
+
+- 57 step traits: 28 that work on any website, and 29 that only mean something on a Drupal site.
+- Every step is a thin wrapper over named helpers, so a project's own domain steps call the same code. [HELPERS.md](HELPERS.md) lists the public ones.
+- A step names the capability it needs rather than a backend, so a step whose capability Drush provides, such as clearing caches or creating users, runs through Drush as well as in-process.
+- Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5.
+- BrowserKit, Selenium and Chrome DevTools browser drivers.
+- Entities a scenario creates through its steps are deleted after it, in reverse creation order.
+- AI-maintained architecture documentation in [docs/architecture/](docs/architecture/README.md) via the `update-architecture-docs` skill.
 
 ## Supported versions
 
@@ -82,7 +83,7 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 | [RegionTrait](STEPS.md#regiontrait) | Interact with and assert against named page regions. |
 | [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP response headers. |
 | [ResponsiveTrait](STEPS.md#responsivetrait) | Test responsive layouts with viewport control. |
-| [RestTrait](STEPS.md#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
+| [RestTrait](STEPS.md#resttrait) | Test REST APIs with lightweight steps and no Drupal dependencies. |
 | [TableTrait](STEPS.md#tabletrait) | Interact with HTML table elements and assert their content. |
 | [WaitTrait](STEPS.md#waittrait) | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](STEPS.md#xmltrait) | Assert XML responses with element and attribute checks. |
@@ -134,7 +135,10 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 - [Configuration](docs/configuration.md) - the 4 channels a project configures this package through, and the suite layout to start from.
 - [Scenario styles](docs/scenario-styles.md) - the imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to your own domain steps built on the same helpers.
 - [HTTP clients](docs/http-clients.md) - the 3 clients a step sends its own requests through, where their settings come from, and how to change them.
+- [Architecture](docs/architecture/README.md) - how the layers fit together and how a step travels from a feature file to a browser or a Drupal API, with UML diagrams.
 - [CONTRIBUTING.md](CONTRIBUTING.md) - conventions, layers and the local development setup.
+
+[![Component architecture: the 3 library layers, the consuming project and the runtime around them](docs/architecture/architecture.svg)](docs/architecture/README.md)
 
 ## 📦 Installation
 
@@ -144,7 +148,7 @@ composer require --dev drevops/behat-steps:^3
 
 ### Optional dependencies
 
-To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements (only `behat/behat` and `behat/mink` are required). Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
+To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements (the hard requirements are Behat, Mink with its BrowserKit driver and extension, `drupal/core-utility` and a set of Symfony components). Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
 
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
 - **`@javascript` scenarios** need a JavaScript-capable browser driver - see [JavaScript browser drivers](#javascript-browser-drivers) below.
@@ -158,12 +162,13 @@ The vocabulary sits on one chain. `WebContext` carries every step that drives a 
 ```php
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext(DrupalContext::class);
+  ->addContext(DrupalContext::class)
+  ->addContext(MinkContext::class);
 ```
 
-Registering both is fatal, because `DrupalContext` already carries the 28 web traits and each of their steps would register twice.
+Registering both is fatal, because `DrupalContext` already carries the 28 web traits and each of their steps would register twice. `MinkContext` is Mink's own context: it sits beside either one and brings the base browser steps, such as `I fill in` and `I press`.
 
-That needs no PHP of your own. To pick your own traits instead, extend the root context and compose them ([example](tests/behat/bootstrap/FeatureContext.php)):
+That needs no PHP of your own. To pick your own traits instead, extend the root context and compose them:
 
 ```php
 <?php
@@ -196,22 +201,29 @@ use Behat\Config\Config;
 use Behat\Config\Extension;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
+use Behat\MinkExtension\Context\MinkContext;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
 
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext(DrupalContext::class);
+  ->addContext(DrupalContext::class)
+  ->addContext(MinkContext::class);
 
 $profile = (new Profile('default'))
   ->withSuite($suite)
   ->withExtension(new Extension(BehatStepsExtension::class, [
     'backends' => ['drupal', 'blackbox'],
     'drupal' => ['drupal_root' => 'web'],
+    'steps' => ['message' => ['selectors' => [
+      'success' => '.messages.messages--status',
+    ]]],
   ]));
 
 return (new Config())->withProfile($profile);
 ```
+
+The `steps` entry gives the message steps the selector of the success message, which the scenario below asserts on. Message selectors have no default.
 
 The `backends` list says which backends a scenario may reach, and in what order. A step never names a backend - it names the capability it needs, and the first backend in the list providing that capability answers. See [Backend resolution](docs/configuration.md#backend-resolution).
 
@@ -221,7 +233,7 @@ By default, `DrupalContext` fails any scenario that logs a PHP error, reading th
 
 Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
 
-[behat.dist.php](behat.dist.php) sets every option this package accepts, as a reference, and [docs/configuration.md](docs/configuration.md) documents all 4 configuration channels, including the suite layout to start from.
+[behat.dist.php](behat.dist.php) sets every extension option, plus the trait options a project almost always sets, as a reference, and [docs/configuration.md](docs/configuration.md) documents all 4 configuration channels, including the suite layout to start from.
 
 ### 3. Write a scenario in the shipped vocabulary
 
@@ -253,7 +265,10 @@ No shipped step matches those lines. You write them yourself, over the same help
 ```php
 #[When('I publish a page titled :title')]
 public function publishPage(string $title): void {
-  $this->entityLifecycleCreateNode(new EntityStub('node', 'page', ['title' => $title, 'moderation_state' => 'published']));
+  $this->entityLifecycleCreateNode(new EntityStub('node', 'page', [
+    'title' => $title,
+    'moderation_state' => 'published',
+  ]));
 }
 ```
 
@@ -263,12 +278,9 @@ That is the lifecycle this package is built for: start in the vocabulary for cov
 
 ### JavaScript browser drivers
 
-Steps that require a real browser (used by scenarios tagged `@javascript`) work with any browser driver that runs one: a Selenium/WebDriver browser driver, or a Selenium-less one that talks to Chrome directly over the Chrome DevTools Protocol. Both are exercised by this library's own CI.
+Steps that require a real browser (used by scenarios tagged `@javascript`) work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. Both are exercised by this library's own CI. Another browser driver needs [an adapter registered for it](MIGRATION.md#registering-an-adapter-for-another-browser-driver).
 
-To run `@javascript` scenarios without a Selenium server, add
-[`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension)
-(which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome.
-Its current release requires Behat 3.
+To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension) (which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome. Its current release accepts Behat 3 and 4, though this library's own CI runs it on Behat 3 only.
 
 ```php
 use Behat\Config\Extension;
@@ -280,15 +292,15 @@ $profile
   ->withExtension(new Extension(MinkExtension::class, [
     'browser_name' => 'chrome',
     'javascript_session' => 'chrome',
-    'sessions' => ['chrome' => ['chrome' => ['api_url' => 'http://chrome:9222']]],
+    'sessions' => [
+      'chrome' => ['chrome' => ['api_url' => 'http://chrome:9222']],
+    ],
   ]));
 ```
 
-Any image that exposes a DevTools endpoint works (for example
-[`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell)).
-For local visual debugging you can override `api_url` at runtime via Behat's
-`BEHAT_PARAMS` environment variable - for instance to drive a headed Chrome on
-your host - as long as that browser can reach your site's `base_url`.
+A profile holds 1 entry per extension, so a profile that already registers `MinkExtension` merges these settings into that entry rather than adding a second one.
+
+Any image that exposes a DevTools endpoint works (for example [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell)). For local visual debugging you can override `api_url` at runtime via Behat's `BEHAT_PARAMS` environment variable - for instance to drive a headed Chrome on your host - as long as that browser can reach your site's `base_url`.
 
 ### Exceptions
 
@@ -318,25 +330,17 @@ The cookie with name "session" was not set.
 
 ### Skipping hooks
 
-Several traits carry hooks that run around every scenario or step. One tag
-switches off every hook of a trait:
+Several traits carry hooks that run around every scenario or step. One tag switches off every hook of a trait:
 
 ```gherkin
 @behat-steps-skip:TRAIT
 ```
 
-`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the
-tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag
-naming anything else, such as a hook method, fails the run before the scenario
-starts.
+`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag whose value isn't shaped like a trait name, such as a hook method, fails the run before the scenario starts.
 
 ### Automatic entity cleanup
 
-Every entity a scenario creates - through a creation step, through the backend,
-or through Drupal's API in one of your own steps - is registered on the context
-and deleted in reverse creation order at the end of the scenario, keeping the
-test database clean across long suites. Reverse order means a node comes down
-before the term it references.
+Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, keeping the test database clean across long suites. Reverse order means a node comes down before the term it references.
 
 A step of your own registers what it saved:
 
@@ -344,13 +348,9 @@ A step of your own registers what it saved:
 $this->entityLifecycleRegister($entity);
 ```
 
-To keep **all** entities after a scenario, add
-`@behat-steps-skip:EntityLifecycleTrait` to the scenario or feature.
-`@behat-steps-skip:AuthTrait` does the same for users and roles.
+To keep **all** entities after a scenario, add `@behat-steps-skip:EntityLifecycleTrait` to the scenario or feature. `@behat-steps-skip:AuthTrait` does the same for users and roles.
 
-To keep only entities of a **named type**, add
-`@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example
-`@behat-steps-entity-cleanup-skip:media`). Repeat the tag to keep several types.
+To keep only entities of a **named type**, add `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example `@behat-steps-entity-cleanup-skip:media`). Repeat the tag to keep several types.
 
 ### Several entities with the same title
 
@@ -365,7 +365,7 @@ When several entities share the title, label, name or description a step names, 
 This package follows [semantic versioning](https://semver.org), and 5 surfaces are covered by it. A breaking change to any of them waits for a major release:
 
 - **Step text** - the pattern a scenario matches, listed in [STEPS.md](STEPS.md).
-- **Helpers** - every public method the step traits, the helper traits and `WebRawContext` contribute that is not itself a step, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
+- **Helpers** - every public method the step traits, the helper traits and `WebRawContext` contribute that is not a step, a hook or a transform, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
 - **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md).
 - **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) above.
 - **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
@@ -392,11 +392,9 @@ Regenerate after adding new step traits or updating dependencies.
 For detailed examples, see: vendor/drevops/behat-steps/STEPS.md
 ```
 
-## Development
+## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to
-this project.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local development setup and the linting and testing commands.
 
 ---
-_This repository was created using the [Scaffold](https://getscaffold.dev/)
-project template_
+_This repository was created using the [Scaffold](https://getscaffold.dev/) project template_

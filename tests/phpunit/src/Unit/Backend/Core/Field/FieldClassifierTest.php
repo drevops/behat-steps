@@ -133,7 +133,6 @@ class FieldClassifierTest extends UnitTestCase {
    * Builds an entity-field-manager fixture with 1 field per F-row.
    */
   protected function createEntityFieldManager(): EntityFieldManagerInterface {
-    // Storage stubs for the hasCustomStorage() chain on base definitions.
     $storage_no_custom = $this->createMock(FieldStorageDefinitionInterface::class);
     $storage_no_custom->method('hasCustomStorage')->willReturn(FALSE);
     $storage_with_custom = $this->createMock(FieldStorageDefinitionInterface::class);

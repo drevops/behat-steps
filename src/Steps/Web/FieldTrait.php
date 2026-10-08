@@ -141,10 +141,6 @@ trait FieldTrait {
   /**
    * Fill in a multi-value field widget with a list of values.
    *
-   * Locates the field wrapper by label and counts existing rows. "Add another
-   * item" is clicked as many times as needed, waiting for AJAX between clicks,
-   * and each row is filled in order.
-   *
    * Requires a JavaScript-capable browser driver because the "Add another
    * item" button relies on AJAX.
    *
@@ -193,9 +189,6 @@ JS;
   /**
    * Set value for WYSIWYG field.
    *
-   * A JavaScript-capable browser driver fills the associated WYSIWYG editor;
-   * any other one sets the field value directly.
-   *
    * @code
    * When I fill in the WYSIWYG field "edit-body-0-value" with the value "<p>This is a <strong>formatted</strong> paragraph.</p>"
    * @endcode
@@ -216,9 +209,6 @@ JS;
 
   /**
    * Unselect an option from a select field.
-   *
-   * This is useful for multi-select fields, where a specific option can be
-   * removed while the other selections are kept.
    *
    * @param string $option
    *   The option label or value to unselect.
@@ -320,9 +310,6 @@ JS;
 
   /**
    * Fill in a field identified by CSS selector.
-   *
-   * This step suits a field that cannot be reliably located by label, id, or
-   * name (e.g., dynamically generated fields in Paragraphs or Layout Builder).
    *
    * @code
    * When I fill in the field ".field--name-body textarea" with the value "Hello world"
@@ -503,12 +490,6 @@ JS;
 
   /**
    * Assert that a field is marked as required.
-   *
-   * Checks the `required_marker_selectors` option against the field, then
-   * against the associated label. Next, a `*` character in the label text is
-   * checked, then any descendant of the label matching a selector.
-   *
-   * The default selectors are `.form-required` and `[required]`.
    *
    * @code
    * Then the field "Email" should be required

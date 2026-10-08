@@ -28,8 +28,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Asserts that a scenario runs every step the library registers.
  *
- * Behat resolves a step definition only for a step a scenario runs, so a
- * pattern no scenario reaches can ship unusable without the suite failing.
+ * Behat resolves a step definition only for a step a scenario runs, so an
+ * unreached pattern can ship unusable without the suite failing.
  * CONTRIBUTING.md states the rule.
  */
 #[CoversNothing]

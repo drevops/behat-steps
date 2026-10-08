@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Tests the tag layers of one option.
+ * Tests the tag layers of 1 option.
  */
 #[CoversClass(TagOverrides::class)]
 class TagOverridesTest extends UnitTestCase {

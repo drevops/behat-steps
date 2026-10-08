@@ -269,9 +269,7 @@ function provision(): void {
  * composer.json, and reverted once Composer has applied it.
  *
  * The patches apply to this package's own vendor directory, not to the
- * fixture site. "ahoy lint" runs the root vendor/bin/phpstan, and
- * mglaman/phpstan-drupal reads DRUPAL_ROOT and DRUPAL_VENDOR_ROOT only once
- * patched.
+ * fixture site.
  *
  * @throws \RuntimeException
  *   When composer.json cannot be read or written.
@@ -324,8 +322,7 @@ function provision_apply_patches(): void {
  * Maps the patch files under a directory to the packages they apply to.
  *
  * A patch file sits at "patches/<vendor>/<package>/<name>.patch", so its
- * directory names the package it applies to. The set is iterated rather than
- * listed.
+ * directory names the package it applies to.
  *
  * @param string $directory
  *   Absolute path to the directory holding the patches.
@@ -637,8 +634,7 @@ function provision_widen_contrib(string $directory, string $major): int {
  *
  * Composer installs the contrib code, but Drupal reads
  * core_version_requirement from each extension and does not enable one that
- * excludes the running major. No contrib release declares Drupal 12, so the
- * fixture widens what it received.
+ * excludes the running major.
  *
  * @param string $text
  *   The contents of an info file.

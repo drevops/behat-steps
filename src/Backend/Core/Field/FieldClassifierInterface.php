@@ -8,9 +8,7 @@ namespace DrevOps\BehatSteps\Backend\Core\Field;
  * Classifies Drupal fields into the 9 mutually exclusive F-row categories.
  *
  * Each predicate answers "is this field in F{N}?" for 1 row of the truth
- * table, based only on the field's declaration and storage profile. The
- * classifier does not decide what is done with a classification; that
- * decision belongs to the consumer.
+ * table, based only on the field's declaration and storage profile.
  *
  * See 'src/Backend/Core/Field/README.md' for the full truth table, the
  * example fields per row, the handler-selection sub-table, and how 'Core'

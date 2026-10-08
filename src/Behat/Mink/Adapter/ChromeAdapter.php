@@ -21,8 +21,8 @@ class ChromeAdapter extends BrowserAdapterBase implements CookieCapabilityInterf
    * Keycodes for the keys whose default action must fire.
    *
    * A special key is sent as a down and up pair so the browser performs the
-   * action bound to it; a printable character is sent as a single press so its
-   * text is inserted.
+   * action bound to it. A printable character is sent as a single press so
+   * its text is inserted.
    *
    * @var array<string, int>
    */

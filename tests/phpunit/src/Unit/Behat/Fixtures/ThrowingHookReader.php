@@ -9,7 +9,7 @@ use Behat\Testwork\Environment\Reader\EnvironmentReader;
 use DrevOps\BehatSteps\Behat\Hook\Call\BeforeNodeCreate;
 
 /**
- * Environment reader offering one hook whose callable throws.
+ * Environment reader offering 1 hook whose callable throws.
  */
 class ThrowingHookReader implements EnvironmentReader {
 

@@ -44,9 +44,6 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     $this->assertSame($random, $backend->getRandom());
   }
 
-  /**
-   * Tests that 'bootstrap()' calls the core and flips the bootstrapped flag.
-   */
   public function testBootstrapDelegatesToCore(): void {
     $core = $this->createMock(CoreInterface::class);
     $core->expects($this->once())->method('bootstrap');
@@ -124,9 +121,6 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     $backend->{$backend_method}(...$args);
   }
 
-  /**
-   * Data provider listing every delegating method and its arguments.
-   */
   public static function dataProviderForwardsToCore(): \Iterator {
     $user = new EntityStub('user');
     $node = new EntityStub('node', 'article');

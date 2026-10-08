@@ -19,9 +19,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('drupal')]
 class CoreLookupTest extends UnitTestCase {
 
-  /**
-   * Verifies that fixture classes are autoloaded via autoload-dev.
-   */
   public function testCore99ClassIsAutoloadable(): void {
     $this->assertTrue(
       class_exists(Core99Core::class),
@@ -37,9 +34,6 @@ class CoreLookupTest extends UnitTestCase {
     $this->assertSame('Core99\\Core', $backend->getCore()::MARKER);
   }
 
-  /**
-   * Tests fallback to Core\Core when no version-specific class exists.
-   */
   public function testLookupFallsBackToDefault(): void {
     // Version 50: no Core50 fixture exists, so the chain falls through.
     $backend = $this->createBackendWithVersion(50);

@@ -8,9 +8,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Core\Field;
  * Base unit test for handlers that write uploads through 'file.repository'.
  *
  * Supplies the test doubles the file, image and supported-image handlers
- * share. The doubles are a File entity exposing 'id()', the repository that
- * returns one on write, and an entity type manager whose file storage answers
- * URI lookups.
+ * share.
  *
  * Subclasses build their own container in 'setUp()' from these, registering
  * only the services the handler under test uses.

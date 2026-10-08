@@ -115,10 +115,9 @@ jobs:
             deps: 'lowest'
           # Selenium-less driver legs: run the Behat suite through headless
           # Chrome over the DevTools Protocol to prove the steps are driver
-          # portable. The browser driver is Drupal-version independent, so the
-          # 2 legs take their breadth from the PHP axis. They stay on 'normal'
-          # deps because the Chrome extension hands the driver options that its
-          # own lowest-resolvable driver does not define.
+          # portable. They stay on 'normal' deps - see "Test matrix" in
+          # CONTRIBUTING.md.
+          #
           # The first also carries coverage, so the branches only the Chrome
           # driver reaches are measured and merged with the Selenium2 coverage.
           - php_version: '8.3'
@@ -134,8 +133,8 @@ jobs:
             deps: 'normal'
             driver: 'chrome_headless'
             profile: 'chrome_headless'
-          # The Behat 4 legs have no Chrome leg of their own, because the
-          # Chrome extension has no release that accepts Behat 4.
+          # The Behat 4 legs have no Chrome leg of their own - see "Behat 4
+          # legs" in CONTRIBUTING.md.
           - php_version: '8.3'
             drupal_version: '11'
             behat: '4'
@@ -160,10 +159,8 @@ jobs:
             drupal_version: '11'
             behat: '4'
             deps: 'lowest'
-          # Drupal 12 requires PHP 8.5 and Symfony 8, and the newest Behat 3
-          # caps Symfony at 7, so PHP 8.5 on Behat 4 is the whole Drupal 12
-          # grid. The fixture patches the contrib modules that Drupal 12 and
-          # Symfony 8 broke - see "Drupal versions" in CONTRIBUTING.md.
+          # PHP 8.5 on Behat 4 is the whole Drupal 12 grid - see "Drupal
+          # versions" in CONTRIBUTING.md.
           - php_version: '8.5'
             drupal_version: '12'
             behat: '4'

@@ -312,9 +312,6 @@ class DiagnosticsTraitTestImplementation extends WebRawContext {
 
 /**
  * A minimal fake Mink session whose accessors return values or throw.
- *
- * Assigning a Throwable to one of the *Error properties makes the matching
- * accessor throw, exercising the trait's graceful-degradation paths.
  */
 class DiagnosticsFakeSession extends Session {
 

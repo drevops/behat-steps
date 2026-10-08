@@ -94,16 +94,14 @@ trait FixtureFileTrait {
           continue;
         }
 
-        if (is_array($record)) {
-          if (array_key_exists('target_id', $record)) {
-            $records[$index]['target_id'] = $resolved;
-          }
-          else {
-            $records[$index][0] = $resolved;
-          }
+        if (!is_array($record)) {
+          $records[$index] = $resolved;
+        }
+        elseif (array_key_exists('target_id', $record)) {
+          $records[$index]['target_id'] = $resolved;
         }
         else {
-          $records[$index] = $resolved;
+          $records[$index][0] = $resolved;
         }
 
         $is_mutated = TRUE;
@@ -131,11 +129,8 @@ trait FixtureFileTrait {
    * Rewrite each 'target_id:"path"' segment to embed the fixture path.
    *
    * Only the 'target_id' key is rewritten. A value backed by an existing
-   * managed file, or one that does not resolve to a real file under the
-   * fixtures directory, is left as written.
-   *
-   * Other compound columns such as 'alt' and 'description' are left untouched
-   * so the parser can still process them.
+   * managed file, or resolving to no file under the fixtures directory, is
+   * left as written.
    */
   protected function fixtureFileExpandCompoundCell(string $value): string {
     $callback = function (array $matches): string {

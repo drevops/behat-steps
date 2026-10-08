@@ -88,7 +88,7 @@ class AttributeTest extends UnitTestCase {
    * Lists every hook attribute the reader maps to a call class.
    *
    * @return \Iterator<string, array{class-string}>
-   *   One row per attribute, keyed by description.
+   *   1 row per attribute, keyed by description.
    */
   protected static function listAttributeClasses(): \Iterator {
     yield 'before entity' => [BeforeEntityCreate::class];

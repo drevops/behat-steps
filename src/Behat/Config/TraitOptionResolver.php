@@ -10,9 +10,10 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 /**
  * Resolves the options a context's traits declare.
  *
- * A value is taken from the first of these that sets it: the scenario's tags,
- * the feature's tags, the context's 'config' argument, the extension's 'steps'
- * section, the declaration's own default.
+ * A value is taken from the first layer that sets it. The layers, in
+ * order, are the scenario's tags, the feature's tags, the context's
+ * 'config' argument, the extension's 'steps' section and the declaration's
+ * own default.
  *
  * The configuration layers settle when this object is built. The tag layers
  * are read per option, because the tags belong to whichever scenario is
@@ -41,7 +42,7 @@ final class TraitOptionResolver implements TraitOptionResolverInterface {
    * @param \DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistryInterface $scenarioTagRegistry
    *   The tags the running scenario carries.
    * @param \DrevOps\BehatSteps\Behat\Config\TagOverrides $tagOverrides
-   *   Applies the tag layers of one option.
+   *   Applies the tag layers of 1 option.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
    *   When the 'config' argument names a group or an option no trait declares,
@@ -157,7 +158,7 @@ final class TraitOptionResolver implements TraitOptionResolverInterface {
   }
 
   /**
-   * Layers one set of overrides over the values resolved so far.
+   * Layers 1 set of overrides over the values resolved so far.
    *
    * @param array<string, array<string, mixed>> $resolved
    *   The values resolved so far.

@@ -15,8 +15,10 @@ use Drupal\Core\TypedData\DataReferenceTargetDefinition;
  *
  * The backend ships no handler for this type. Its stored 'target_id' is an id a
  * label cannot supply, so the field shape classifier flags it as an entity
- * reference and 'Core' refuses it at handler resolution rather than relaying a
- * bogus value.
+ * reference.
+ *
+ * 'Core' therefore throws at handler resolution rather than relaying a bogus
+ * value.
  */
 #[FieldType(
   id: 'backend_test_reference',

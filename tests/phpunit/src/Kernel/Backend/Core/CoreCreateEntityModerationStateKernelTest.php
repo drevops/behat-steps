@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Regression test for 'moderation_state' on a stub.
+ * Kernel test for 'moderation_state' on a stub.
  *
  * When a stub carries a computed-writable base field such as
  * 'moderation_state', the backend must skip it entirely. The scalar then

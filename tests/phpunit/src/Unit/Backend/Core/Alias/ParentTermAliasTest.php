@@ -29,9 +29,6 @@ class ParentTermAliasTest extends UnitTestCase {
     $this->assertNotSame('', $alias->getDescription());
   }
 
-  /**
-   * Tests that a resolved parent term replaces the value in place.
-   */
   public function testApplyToStubResolvesParent(): void {
     $alias = new ParentTermAlias(static fn(string $name, string $vid): int => $name === 'Frameworks' && $vid === 'tags' ? 99 : 0);
 
@@ -42,9 +39,6 @@ class ParentTermAliasTest extends UnitTestCase {
     $this->assertSame(99, $stub->getValue('parent'));
   }
 
-  /**
-   * Tests that 'vid' from the stub is used when no bundle is present.
-   */
   public function testApplyToStubFallsBackToVidValue(): void {
     $received_vid = NULL;
     $alias = new ParentTermAlias(static function (string $name, string $vid) use (&$received_vid): int {
@@ -61,9 +55,6 @@ class ParentTermAliasTest extends UnitTestCase {
     $this->assertSame(7, $stub->getValue('parent'));
   }
 
-  /**
-   * Tests that unresolved parents throw and the value is left alone.
-   */
   public function testApplyToStubThrowsOnUnknownParent(): void {
     $alias = new ParentTermAlias(static fn(): ?int => NULL);
 

@@ -17,8 +17,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * A guard names its own trait through '__TRAIT__' and never a hook.
  *
  * A guarded hook either returns when its trait is skipped, or records the
- * answer in a property for the step hooks and transforms of its trait, which
- * see no scenario tags.
+ * answer in a property. That property is for the trait's step hooks and
+ * transforms, which see no scenario tags.
  *
  * A scenario hook that has nothing to switch off is listed in UNGUARDED_HOOKS
  * with the reason, so each one is a reviewed decision.

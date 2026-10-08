@@ -8,14 +8,6 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 /**
  * Implements the 'CreationAliasCapabilityInterface' registry on a backend.
- *
- * Hosts an entity-type-indexed map of registered aliases, exposes the
- * 'getCreationAliases()' lookup, and provides 2 protected dispatchers for
- * create methods: 'applyPreCreateAliases()' before 'Entity::create()' and
- * 'applyPostCreateAliases()' after save.
- *
- * Both dispatchers gate on 'EntityStubInterface::hasValue()', so an alias
- * runs only when the stub carries the key it owns.
  */
 trait CreationAliasRegistryTrait {
 
@@ -30,7 +22,7 @@ trait CreationAliasRegistryTrait {
    * Adds an alias to the registry.
    *
    * Re-registering the same name on the same entity type replaces the
-   * previous entry, so a subclass overrides an alias by registering a new
+   * previous entry. A subclass overrides an alias by registering a new
    * instance after 'parent::' setup.
    *
    * @param \DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface $alias

@@ -9,8 +9,8 @@ use Behat\Gherkin\Node\TableNode;
 /**
  * Replaces tokens in the cells of a step's table argument.
  *
- * Each trait that rewrites tokens in step arguments owns its grammar, its
- * transforms and its skip tag, and shares the walk over a table's cells.
+ * Each trait that rewrites tokens in step arguments owns its grammar,
+ * transforms and skip tag, and shares the walk over a table's cells.
  */
 trait TokenTrait {
 

@@ -685,9 +685,11 @@ class AuthenticatorTest extends UnitTestCase {
    * Tests that a JavaScript session waits for the post-login page.
    *
    * The click returns while the browser still shows the login form, and the
-   * third URL read after it returns the post-login page. The login URL
-   * redirects to the form, so the wait compares against the URL the form was
-   * submitted from. A single visit shows the first check confirmed the login.
+   * third URL read after it returns the post-login page.
+   *
+   * The login URL redirects to the form, so the wait compares against the URL
+   * the form was submitted from. A single visit shows the first check
+   * confirmed the login.
    */
   public function testLoginWaitsForNavigationInJavascriptSession(): void {
     $is_clicked = FALSE;
@@ -781,7 +783,6 @@ class AuthenticatorTest extends UnitTestCase {
 
     $page = $this->createMock(DocumentElement::class);
     $page->method('findButton')->willReturnCallback(static fn(string $text): ?NodeElement => $text === 'Log in' ? $submit : NULL);
-    // logged_in_selector is never found (simulates slow JS).
     $page->method('has')->willReturn(FALSE);
     $page->method('findLink')->willReturn(NULL);
 

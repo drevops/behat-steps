@@ -71,9 +71,6 @@ trait DiagnosticsTrait {
 
   /**
    * Capture re-run coordinates and resolve the opt-out for the scenario.
-   *
-   * The after-step scope exposes no scenario to read a scenario-level skip tag
-   * from, so the opt-out is resolved here.
    */
   #[BeforeScenario]
   public function diagnosticsBeforeScenario(BeforeScenarioScope $scope): void {
@@ -215,10 +212,11 @@ trait DiagnosticsTrait {
    * Return collected JavaScript console error messages.
    *
    * 2 sources are merged and de-duplicated: the registry `JavascriptTrait`
-   * records into, which stays empty when the context does not compose it, and
-   * the live browser buffer its collector populates. The buffer is
-   * best-effort and yields nothing under a browser driver that cannot
-   * evaluate JavaScript.
+   * records into and the live browser buffer its collector populates. The
+   * registry stays empty when the context does not compose `JavascriptTrait`.
+   *
+   * The buffer is best-effort and yields nothing under a browser driver that
+   * cannot evaluate JavaScript.
    *
    * @return array<int, string>
    *   Distinct error messages, in the order first seen.
@@ -230,8 +228,6 @@ trait DiagnosticsTrait {
       $messages = [...$messages, ...$this->javascriptErrorExtractMessages($this->javascriptErrorReadBuffer())];
     }
     catch (\Throwable) {
-      // A non-JavaScript browser driver or an unstarted session has no buffer
-      // to read.
     }
 
     return array_values(array_unique($messages));

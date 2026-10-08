@@ -4,17 +4,19 @@
  * @file
  * Reference documentation generator.
  *
- * This script is the single generator behind every reference document the
- * package publishes. It parses the PHP attributes and docblock comments of the
- * traits under the vocabulary directory and writes:
+ * It parses the PHP attributes and docblock comments of the traits under the
+ * vocabulary directory and writes:
  *
  * - STEPS.md, the step vocabulary, and the step index in README.md.
  * - HELPERS.md, the toolbox a project calls from its own domain steps.
  * - The generated tables in docs/configuration.md.
  *
- * It also validates that the steps read in the documented format, that every
- * published helper carries a summary, that tags resolve against the registry,
- * and that every environment variable the source reads is documented.
+ * It also validates that:
+ *
+ * - The steps read in the documented format.
+ * - Every published helper carries a summary.
+ * - Tags resolve against the registry.
+ * - Every environment variable the source reads is documented.
  *
  * Run with --fail-on-change to fail if the documentation is not up to date.
  * Run with --path=path/to/dir to use another repository root: the autoloader,
@@ -64,8 +66,8 @@ const STEPS_DIRECTORY = 'src/Steps';
 /**
  * Context whose traits are named and sorted without their context prefix.
  *
- * Its traits head the index and their example features carry no name prefix,
- * so the documents lead with the steps a suite uses first.
+ * Its traits head the index, so the documents lead with the steps a suite
+ * uses first. Their example features carry no name prefix.
  */
 const DEFAULT_CONTEXT = 'Web';
 
@@ -1549,8 +1551,6 @@ function validate(array $info): array {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Given step is in the first person but should state a precondition');
       }
 
-      // "I " also sits inside an acronym such as "API ", so the first person is
-      // only established by the step opening with it.
       if (str_starts_with($step, '@When') && !str_starts_with($step, '@When I ')) {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'When step does not start with "I "');
       }
@@ -1852,9 +1852,6 @@ function rejected_step_phrases(): array {
  * words inside a tag name (e.g. `@disable-form-validation`). A `flag` tag
  * stands alone and takes no value.
  *
- * Every special tag is registered here, so validate_tags() can guard its
- * format and keep the separator consistent.
- *
  * @return array<string, array{form: string, description: string}>
  *   Map of tag prefix to its form, one of 'parametrized' or 'flag', and the
  *   one-line description rendered into the configuration reference.
@@ -1863,7 +1860,7 @@ function tag_registry(): array {
   return [
     'behat-steps-skip' => [
       'form' => 'parametrized',
-      'description' => 'Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value that is not a trait name fails the run at scenario start.',
+      'description' => 'Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value not shaped like a trait name fails the run at scenario start.',
     ],
     'behat-steps-entity-cleanup-skip' => [
       'form' => 'parametrized',

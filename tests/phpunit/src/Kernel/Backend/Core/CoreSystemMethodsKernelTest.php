@@ -47,8 +47,8 @@ class CoreSystemMethodsKernelTest extends KernelTestBase {
     parent::setUp();
 
     $this->installEntitySchema('user');
-    // users_data is a legacy schema used by user module uninstall hooks;
-    // install it so moduleUninstall does not crash on missing table.
+    // users_data is a legacy schema used by user module uninstall hooks, so
+    // moduleUninstall crashes on the missing table without it.
     $this->installSchema('user', ['users_data']);
     $this->installConfig(['system', 'language']);
 

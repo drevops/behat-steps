@@ -96,9 +96,6 @@ trait AccessibilityTrait {
    * a live `getcwd()` call. A Drupal bootstrap chdir()s to the docroot, so a
    * live `getcwd()` would resolve the report directory away from the rest of
    * the run's paths.
-   *
-   * The value is captured once at `@BeforeSuite`, before the first scenario,
-   * so it records the directory the run was launched from.
    */
   protected static ?string $accessibilityBaseDir = NULL;
 
@@ -645,9 +642,8 @@ trait AccessibilityTrait {
     ));
 
     $session->wait(30000, 'window.__accessibilityResults !== null');
-    // Serialize to a JSON string in the browser. The result graph is large
-    // and nested, and some browser drivers (e.g. chrome-mink) cannot walk
-    // every property when marshalling a live object.
+    // Some browser drivers cannot marshal every property of a large, nested
+    // live object, so the result is serialized to JSON in the browser.
     $results = json_decode((string) $session->evaluateScript('return JSON.stringify(window.__accessibilityResults);'), TRUE);
 
     if (!is_array($results)) {
@@ -737,7 +733,7 @@ trait AccessibilityTrait {
    * feature tag.
    *
    * @param \Behat\Behat\Hook\Scope\BeforeScenarioScope $scope
-   *   The scenario scope the hook received.
+   *   The scenario scope.
    */
   protected function accessibilityResolveTags(BeforeScenarioScope $scope): void {
     $auto_tag = $this->accessibilityGetAutoTag();
@@ -845,7 +841,7 @@ trait AccessibilityTrait {
   }
 
   /**
-   * Build the human-readable error message for the explicit assertion.
+   * Build the human-readable error message for 1 assessed page.
    *
    * @param string $url
    *   URL of the page that was assessed.
@@ -1206,8 +1202,7 @@ HTML;
    * previous one.
    *
    * The same timestamp is used for the filename and the in-page "generated"
-   * line. It is resolved here so the render methods stay deterministic for
-   * tests.
+   * line. It is resolved here so the render methods stay deterministic.
    */
   protected static function accessibilityWriteAggregateReport(): void {
     if (self::$accessibilityAggregate === []) {

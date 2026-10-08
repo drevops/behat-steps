@@ -7,9 +7,6 @@ namespace DrevOps\BehatSteps\Backend\Core\Field;
 /**
  * Field handler for 'supported_image' fields (supported_image contrib module).
  *
- * Adds the caption and attribution properties the field stores on top of an
- * image item.
- *
  * @see https://www.drupal.org/project/supported_image
  */
 class SupportedImageHandler extends ImageHandler {

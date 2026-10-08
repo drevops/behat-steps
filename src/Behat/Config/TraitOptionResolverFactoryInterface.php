@@ -17,7 +17,7 @@ namespace DrevOps\BehatSteps\Behat\Config;
 interface TraitOptionResolverFactoryInterface {
 
   /**
-   * Builds the resolver of one context.
+   * Builds the resolver of 1 context.
    *
    * @param string $context_class
    *   The context whose traits declare the options.

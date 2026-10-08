@@ -15,9 +15,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel test for AbstractHandler's field-not-found guard.
  *
  * 'Core::getFieldHandler()' validates field existence before instantiating a
- * handler, so the guard is reachable only when a caller constructs a handler
- * directly (e.g. via custom Core subclasses). This test exercises that
- * direct-construction path against a real entity_field.manager service.
+ * handler, so the guard is reachable only through direct construction (e.g.
+ * via custom Core subclasses). This test exercises that direct-construction
+ * path against a real entity_field.manager service.
  */
 #[CoversClass(AbstractHandler::class)]
 #[Group('fields')]

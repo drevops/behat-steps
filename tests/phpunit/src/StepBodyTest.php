@@ -39,9 +39,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Asserts that every step body is a thin wrapper over named helpers.
  *
- * A step parses its arguments, calls helpers, and guards and throws on what
- * they return, so a project's own step definitions reach the same behavior
- * through the helpers. CONTRIBUTING.md states the rule.
+ * A step parses its arguments, calls helpers and guards on their results, so
+ * a project's own steps reach the same behavior through the helpers.
+ * CONTRIBUTING.md states the rule.
  */
 #[CoversNothing]
 class StepBodyTest extends UnitTestCase {

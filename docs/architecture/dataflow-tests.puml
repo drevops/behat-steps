@@ -25,7 +25,7 @@ Prov -> Prov: copy tests/behat/fixtures_drupal/d11 or d12\ninto build/, as DRUPA
 Prov -> Prov: merge the library require + suggest\ninto the fixture composer.json
 Prov -> Prov: drop the packages the selected Behat\nand Drupal majors cannot install
 Prov -> Prov: composer update ~--with behat/behat:^3 or ^4,\nas BEHAT selects; the d12 fixture takes\ndrupal/core from source for core/tests
-Prov -> Prov: on Drupal 12, widen core_version_requirement\nacross the installed contrib extensions
+Prov -> Prov: on Drupal 12, widen core_version_requirement\nacross the installed contrib modules
 Prov -> Site: drush si standard, then copy tests/behat/fixtures/
 activate Site
 Site --> Prov: configuration imported, bootstrap successful

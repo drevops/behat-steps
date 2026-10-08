@@ -23,8 +23,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * Base class for unit tests.
  *
- * The hook scope classes are final, so a test that invokes a hook directly
- * builds a real scope over stubbed collaborators rather than mocking it.
+ * The hook scope classes are final, so a test invoking a hook directly builds
+ * a real scope over stubbed collaborators rather than mocking it.
  */
 abstract class UnitTestCase extends UpstreamUnitTestCase {
 
@@ -36,9 +36,9 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   /**
    * Indicates whether a path under `src/` holds a trait a context composes.
    *
-   * The discovery-driven tests hold conventions for the traits this library
-   * names itself and flattens into a consuming context. Those are the step
-   * vocabulary under `Steps/` and the helpers under `Helper/`.
+   * The library names these traits itself and flattens them into a consuming
+   * context: the step vocabulary under `Steps/` and the helpers under
+   * `Helper/`.
    *
    * The traits under `Behat/` carry the names the framework interfaces
    * dictate, and the backend layer is library code with its own shapes.

@@ -132,9 +132,8 @@ trait MappingTrait {
   /**
    * Flattens the configured groups into a single key to value map.
    *
-   * A group is a way to organize the configuration and takes no part in the
-   * lookup, so a key appearing in 2 groups would make its bare-key token
-   * ambiguous.
+   * Groups organize the configuration and take no part in the lookup, so a
+   * key in 2 groups would make its bare-key token ambiguous.
    *
    * @return array<string, string>
    *   Mapped values keyed by mapping key.

@@ -66,9 +66,6 @@ abstract class FileBackedHandlerKernelTestBase extends FieldHandlerKernelTestBas
 
   /**
    * Returns the highest file id currently in storage.
-   *
-   * A handler that uploads writes a new File, and the test asserts against the
-   * most recent one rather than an id fixed in advance.
    */
   protected function getLatestFileId(): int {
     $ids = \Drupal::entityTypeManager()

@@ -26,7 +26,7 @@ final class TraitOptionResolverFactory implements TraitOptionResolverFactoryInte
   protected ScenarioTagRegistryInterface $scenarioTagRegistry;
 
   /**
-   * Applies the tag layers of one option.
+   * Applies the tag layers of 1 option.
    */
   protected TagOverrides $tagOverrides;
 
@@ -38,7 +38,7 @@ final class TraitOptionResolverFactory implements TraitOptionResolverFactoryInte
    * @param \DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistryInterface|null $scenario_tag_registry
    *   Holds the tags the running scenario carries.
    * @param \DrevOps\BehatSteps\Behat\Config\TagOverrides|null $tag_overrides
-   *   Applies the tag layers of one option.
+   *   Applies the tag layers of 1 option.
    */
   public function __construct(?ConfigSchemaReader $config_schema_reader = NULL, ?ScenarioTagRegistryInterface $scenario_tag_registry = NULL, ?TagOverrides $tag_overrides = NULL) {
     $this->configSchemaReader = $config_schema_reader ?? new ConfigSchemaReader();

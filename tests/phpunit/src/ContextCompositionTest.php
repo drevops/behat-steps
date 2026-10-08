@@ -132,8 +132,8 @@ class ContextCompositionTest extends UnitTestCase {
   /**
    * Assert that a step trait composes every helper member its body calls.
    *
-   * A step trait composes the helpers it calls, so a member reached through
-   * '$this' that no composed helper declares fails only when the step runs.
+   * A member reached through '$this' that no composed helper declares fails
+   * only when the step runs.
    *
    * @param string $directory
    *   The vocabulary directory under 'src/Steps'.
@@ -270,7 +270,7 @@ class ContextCompositionTest extends UnitTestCase {
   }
 
   /**
-   * List the traits declared in one vocabulary directory.
+   * List the traits declared in 1 vocabulary directory.
    *
    * @param string $directory
    *   The directory name under 'src/Steps'.

@@ -20,7 +20,9 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * - Assert element visibility, attribute values, and viewport positioning.
  * - Execute JavaScript-based interactions with element state verification.
  * - Handle confirmation dialogs and scrolling operations.
- * - A top offset of N pixels scrolls the top of the element to N pixels below the top of the viewport. A negative offset scrolls it above the viewport.
+ * - A top offset of N pixels scrolls the top of the element to N pixels
+ *   below the top of the viewport. A negative offset scrolls it above the
+ *   viewport.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */
@@ -73,9 +75,6 @@ trait ElementTrait {
 
   /**
    * Click on the element at the 1-based index among all selector matches.
-   *
-   * Useful when a selector matches several repeated components (cards, rows,
-   * menu items) and only the Nth one should be clicked.
    *
    * @code
    * When I click on the element ".card" with the index 2
@@ -358,9 +357,6 @@ trait ElementTrait {
   /**
    * Assert an element has a computed CSS property containing a value.
    *
-   * Use for multi-part computed values, such as `box-shadow`, `font-family`
-   * or `transition`, where an exact match is brittle.
-   *
    * @code
    * Then the element ".card" should have the CSS property "box-shadow" with a value containing "rgb(0, 0, 0)"
    * @endcode
@@ -477,8 +473,6 @@ trait ElementTrait {
    *
    * The element's top edge must be within 2 pixels of the viewport top; the
    * tolerance covers the sub-pixel offsets that normal rendering produces.
-   * Use the step with an explicit tolerance for layouts that require a
-   * larger one.
    *
    * This asserts where the element currently renders. A scroll beforehand
    * tells a pinned element apart from one that starts at the top of the
@@ -529,9 +523,7 @@ trait ElementTrait {
    * Assert that the element has keyboard focus.
    *
    * Verifies that the element matched by the selector is the current
-   * `document.activeElement`. This is the canonical check for tab-order tests,
-   * skip-link behavior, modal focus traps, autofocus, and focus-after-action
-   * flows.
+   * `document.activeElement`.
    *
    * @code
    * Then the element "#edit-name" should have keyboard focus
@@ -560,11 +552,6 @@ trait ElementTrait {
 
   /**
    * Assert that the element has a visible focus indicator.
-   *
-   * Verifies that the element renders a visible focus indicator via either
-   * a CSS outline (non-`none` outline-style with a width greater than 0) or
-   * a non-`none` box-shadow. Guards WCAG 2.4.7 (Focus Visible) and catches
-   * accidental `outline: none` regressions introduced by stylesheet changes.
    *
    * @code
    * Then the element "#edit-name" should have a visible focus outline
@@ -637,8 +624,10 @@ trait ElementTrait {
    * Assert that element with specified CSS is displayed within the viewport with a top offset.
    *
    * The page is scrolled so the top of the element is the offset below the
-   * top of the viewport, the space a fixed header of that height covers. A
-   * negative offset scrolls the top of the element above the viewport.
+   * top of the viewport. That gap is the space a fixed header of the same
+   * height covers.
+   *
+   * A negative offset scrolls the top of the element above the viewport.
    *
    * @code
    * Then the element "#main-content" should be displayed within the viewport with a top offset of 80 pixels
@@ -660,8 +649,10 @@ trait ElementTrait {
    * Assert that element with specified CSS is not displayed within the viewport with a top offset.
    *
    * The page is scrolled so the top of the element is the offset below the
-   * top of the viewport, the space a fixed header of that height covers. A
-   * negative offset scrolls the top of the element above the viewport.
+   * top of the viewport. That gap is the space a fixed header of the same
+   * height covers.
+   *
+   * A negative offset scrolls the top of the element above the viewport.
    *
    * @code
    * Then the element ".announcement-bar" should not be displayed within the viewport with a top offset of -200 pixels
@@ -861,18 +852,16 @@ trait ElementTrait {
     $attribute_value_found = FALSE;
     foreach ($elements as $element) {
       $attribute_value = (string) $element->getAttribute($attribute);
-      if ($attribute_value !== '') {
-        $attribute_found = TRUE;
-        if ($is_exact) {
-          if ($attribute_value === $value) {
-            $attribute_value_found = TRUE;
-            break;
-          }
-        }
-        elseif (str_contains($attribute_value, $value)) {
-          $attribute_value_found = TRUE;
-          break;
-        }
+
+      if ($attribute_value === '') {
+        continue;
+      }
+
+      $attribute_found = TRUE;
+
+      if ($is_exact ? $attribute_value === $value : str_contains($attribute_value, $value)) {
+        $attribute_value_found = TRUE;
+        break;
       }
     }
 
@@ -962,7 +951,7 @@ trait ElementTrait {
   }
 
   /**
-   * Assert the stacking order of two elements.
+   * Assert the stacking order of 2 elements.
    *
    * @param string $selector1
    *   The CSS selector of the first element.
@@ -1000,7 +989,7 @@ trait ElementTrait {
   }
 
   /**
-   * Resolve the stacking order of two elements in the browser.
+   * Resolve the stacking order of 2 elements in the browser.
    *
    * @param string $selector1
    *   The CSS selector of the first element.

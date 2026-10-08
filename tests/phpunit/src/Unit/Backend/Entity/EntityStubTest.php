@@ -32,9 +32,6 @@ class EntityStubTest extends UnitTestCase {
     $this->assertSame(['title' => 'Hello'], $stub->getValues());
   }
 
-  /**
-   * Tests that the bundle defaults to NULL for entity types without bundles.
-   */
   public function testBundleDefaultsToNull(): void {
     $stub = new EntityStub('user');
 
@@ -58,9 +55,6 @@ class EntityStubTest extends UnitTestCase {
     $this->assertSame(1, $stub->getValue('promote'));
   }
 
-  /**
-   * Tests that 'hasValue()' is true even when the stored value is NULL.
-   */
   public function testHasValueDistinguishesNullFromAbsent(): void {
     $stub = new EntityStub('node', 'article');
     $stub->setValue('title', NULL);
@@ -116,9 +110,6 @@ class EntityStubTest extends UnitTestCase {
     $stub->getSavedEntity();
   }
 
-  /**
-   * Tests that 'getId()' resolves through the saved entity's id() method.
-   */
   public function testGetIdReadsFromSavedEntity(): void {
     $entity = new class() {
 

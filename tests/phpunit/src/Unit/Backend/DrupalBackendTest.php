@@ -65,9 +65,6 @@ class DrupalBackendTest extends UnitTestCase {
     ));
   }
 
-  /**
-   * Data provider listing every capability the Drupal backend must support.
-   */
   public static function dataProviderImplementsCapability(): \Iterator {
     yield 'authentication' => [AuthenticationCapabilityInterface::class];
     yield 'batch' => [BatchCapabilityInterface::class];
@@ -101,9 +98,6 @@ class DrupalBackendTest extends UnitTestCase {
     new FakeVersionDrupalBackend(static::DRUPAL_ROOT, 'default');
   }
 
-  /**
-   * Tests that a root without Drupal's entry files is rejected.
-   */
   public function testDetectMajorVersionRejectsRootWithoutDrupal(): void {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessageMatches('/No Drupal installation found at/');

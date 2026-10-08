@@ -301,8 +301,8 @@ trait BlockTrait {
 
         $block->set('id', $block_id);
 
-        // The label setting is what the label lookups match, so the block
-        // takes the admin label until a configuration replaces it.
+        // The label lookups match the label setting, so the block takes the
+        // admin label until a configuration replaces it.
         $settings = $block->get('settings');
         $settings['label'] = $admin_label;
         $block->set('settings', $settings);

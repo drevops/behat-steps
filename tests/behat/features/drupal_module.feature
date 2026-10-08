@@ -51,8 +51,7 @@ Feature: Check that ModuleTrait works
 
   # The assertions below resolve the Module capability instead of bootstrapping
   # Drupal, so the '@backend:drush' tag reads the module list off a site this
-  # process never boots. Enabling and disabling over Drush is left to the
-  # in-process scenarios above, which do not pay a subprocess per module.
+  # process never boots.
   @backend:drush
   Scenario: Assert an enabled core module over Drush
     Then the module "node" should be enabled
@@ -117,8 +116,6 @@ Feature: Check that ModuleTrait works
 
   # Skip automatic state restoration because this scenario intentionally sets up
   # initial state for the next scenarios to test tag-based restoration.
-  # Without the skip tag, the Given step would store the original state and
-  # restore it at the end, interfering with the cross-scenario test flow.
   @behat-steps-skip:ModuleTrait
   Scenario: Assert module state is restored after scenario changes
     When I log in as a user with the role "administrator"

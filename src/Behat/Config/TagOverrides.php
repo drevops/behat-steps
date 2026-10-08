@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Behat\Config;
 
 /**
- * Applies the tag layers of one option.
+ * Applies the tag layers of 1 option.
  *
  * A declaration names the tags that set it and the value each one sets. The
- * tags arrive in the order the parser produced them, feature tags before
- * scenario tags, so the tag on the narrower node settles the value.
+ * tags are in the parser's order, feature tags before scenario tags, so the
+ * tag on the narrower node settles the value.
  */
 final class TagOverrides {
 

@@ -137,8 +137,6 @@ trait DrushTrait {
     $output = $this->drushGetOutput();
     $result = @preg_match($pattern, $output);
 
-    // 'preg_match()' returns FALSE for a malformed pattern, so that case is
-    // reported apart from an output that did not match.
     if ($result === FALSE) {
       throw new \RuntimeException(sprintf('"%s" is not a valid regular expression: %s.', $pattern, preg_last_error_msg()));
     }

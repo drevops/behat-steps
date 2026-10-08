@@ -35,8 +35,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Tests for the shape of the library's public surface.
  *
- * Visibility marks the API. A public method that Behat does not register is
- * the toolbox, published in HELPERS.md and covered by semantic versioning; a
+ * Visibility marks the API. A public method Behat does not register is the
+ * toolbox, published in HELPERS.md and covered by semantic versioning; a
  * protected one carries no guarantee.
  *
  * A method cannot be narrowed again before the next major, so these tests
@@ -170,9 +170,6 @@ class PublicSurfaceTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Assert that a trait's own methods include a composed method it redeclares.
-   */
   public function testTraitOwnMethodsIncludeRedeclaredMethod(): void {
     $names = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), static::collectTraitOwnMethods(RedeclaredMethodTrait::class));
     sort($names);

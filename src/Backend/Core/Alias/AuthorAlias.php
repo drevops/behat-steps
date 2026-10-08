@@ -10,10 +10,6 @@ use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
 
 /**
  * Resolves a username on a node stub into the corresponding 'uid' value.
- *
- * Reads the value at 'author', looks up the user by name, and writes the
- * user's id to 'uid'. The 'author' key is removed from the stub once
- * resolved. Throws when the username does not match any existing user.
  */
 final class AuthorAlias implements PreCreateAliasInterface {
 

@@ -29,9 +29,6 @@ class RolesAliasTest extends UnitTestCase {
     $this->assertNotSame('', $alias->getDescription());
   }
 
-  /**
-   * Tests that every entry in 'roles' triggers an 'addUserRole()' call.
-   */
   public function testApplyAfterCreateAssignsEachRole(): void {
     $backend = new RecordingUserCapability();
     $alias = new RolesAlias($backend);

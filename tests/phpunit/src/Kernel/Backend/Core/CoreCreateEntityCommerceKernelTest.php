@@ -79,11 +79,12 @@ class CoreCreateEntityCommerceKernelTest extends KernelTestBase {
     $this->installEntitySchema('commerce_product');
     $this->installConfig(['system', 'user', 'filter', 'commerce_store', 'commerce_product']);
 
-    // Import USD so the price-backed product variation type can resolve
-    // its currency; required even when the stub does not set a price.
+    // Importing USD lets the price-backed product variation type resolve its
+    // currency; the import is required even when the stub does not set a
+    // price.
     $this->container->get('commerce_price.currency_importer')->import('USD');
 
-    // Create a default store so products have a resolvable owner context.
+    // A default store gives products a resolvable owner context.
     Store::create([
       'type' => 'online',
       'name' => 'Default',

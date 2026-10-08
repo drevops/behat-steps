@@ -8,7 +8,7 @@ namespace DrevOps\BehatSteps\Helper\Web;
  * Holds the JavaScript errors collected from the pages a scenario visited.
  *
  * A page's error collector buffers each error in `window.jsErrors`. The traits
- * that collect, assert or report the errors read the buffer and the registry
+ * that collect, assert or report the errors read the buffer and registry
  * through this trait, so they share 1 registry per context.
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext

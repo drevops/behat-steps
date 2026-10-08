@@ -9,11 +9,12 @@ namespace DrevOps\BehatSteps\Backend\Core\Field\Parser;
  *
  * Implementations transform a raw map of field-name to cell-text pairs (as
  * returned by 'EntityStubInterface::getValues()') into a final map for
- * 'EntityStubInterface::setValues()'. Each implementation owns all syntactic
- * concerns (CSV multi-value splitting, compound column splitting, inline
- * named-column interpretation, 'field:column' / ':column' multicolumn-header
- * merging) and all field-type semantics (configurable vs base vs ignored vs
- * unknown).
+ * 'EntityStubInterface::setValues()'.
+ *
+ * Each implementation owns all syntactic concerns: CSV multi-value splitting,
+ * compound column splitting, inline named-column interpretation and
+ * 'field:column' / ':column' multicolumn-header merging. It also owns all
+ * field-type semantics: configurable, base, ignored or unknown.
  *
  * Dependencies those decisions require (entity type, classifier) are
  * constructor-injected. Per-call configuration that may vary between stubs

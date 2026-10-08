@@ -14,9 +14,8 @@ interface LanguageCapabilityInterface {
   /**
    * Creates a language.
    *
-   * A language that already exists is left in place and the stub is not
-   * marked saved, so a caller can tell a language it created from one the
-   * site already had.
+   * An existing language is left in place and the stub is not marked saved,
+   * so a caller can tell it from a created one.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   Language stub. Must carry a 'langcode' value.

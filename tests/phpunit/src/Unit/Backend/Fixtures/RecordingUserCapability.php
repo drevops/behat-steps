@@ -11,8 +11,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  * Recording test double for 'UserCapabilityInterface'.
  *
  * Records the roles assigned to a user so a test can assert them without
- * booting a real backend. 'createUser()' returns the stub untouched and
- * 'deleteUser()' does nothing; only 'addUserRole()' records.
+ * booting a real backend.
  */
 class RecordingUserCapability implements UserCapabilityInterface {
 

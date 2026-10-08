@@ -29,17 +29,11 @@ class DrushBackendTest extends UnitTestCase {
     $this->assertContains(BackendInterface::class, $interfaces);
   }
 
-  /**
-   * Tests instantiating the backend with only an alias.
-   */
   public function testWithAlias(): void {
     $backend = new DrushBackend('alias');
     $this->assertSame('alias', $backend->alias, 'The drush alias was not properly set.');
   }
 
-  /**
-   * Tests instantiating the backend with a prefixed alias.
-   */
   public function testWithAliasPrefix(): void {
     $backend = new DrushBackend('@alias');
     $this->assertSame('alias', $backend->alias, 'The drush alias did not remove the "@" prefix.');
@@ -53,9 +47,6 @@ class DrushBackendTest extends UnitTestCase {
     $this->assertSame('0', $backend->alias);
   }
 
-  /**
-   * Tests instantiating the backend with only the root path.
-   */
   public function testWithRoot(): void {
     // The backend only resolves the root with 'realpath()', so the path to this
     // file serves as a root.
@@ -103,9 +94,6 @@ class DrushBackendTest extends UnitTestCase {
     yield 'a root path that does not exist' => [NULL, '/nonexistent/drupal/root', 'No Drupal installation found at /nonexistent/drupal/root.'];
   }
 
-  /**
-   * Tests that 'parseUserId()' extracts the UID from Drush output.
-   */
   #[DataProvider('dataProviderParseUserId')]
   public function testParseUserId(string $drush_output, ?int $expected): void {
     $backend = new ParserExposingDrushBackend('alias');

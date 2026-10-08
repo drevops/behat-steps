@@ -7,9 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures;
 /**
  * Test double for the user object returned by user-lookup closures.
  *
- * Exposes the single 'id()' accessor that alias resolvers read; keeps
- * the surface intentionally small so tests stay coupled only to what
- * the production code calls.
+ * Exposes the single 'id()' accessor that alias resolvers read.
  */
 class FakeUser {
 

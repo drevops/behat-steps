@@ -139,7 +139,7 @@ function layer_files(string $path): array {
  *   Symbols under a forbidden root that the layer may reference.
  *
  * @return array<int, array{line: int, symbol: string}>
- *   One row per reference, in source order.
+ *   1 row per reference, in source order.
  */
 function layer_file_violations(string $file, array $forbidden_roots, array $allowed = []): array {
   $violations = [];

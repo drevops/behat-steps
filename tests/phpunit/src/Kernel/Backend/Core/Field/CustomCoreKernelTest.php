@@ -20,8 +20,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Exercises the 2 extension seams documented on
  * 'Core::registerDefaultFieldHandlers()' against a full Drupal kernel. The
  * test replaces 'Core' with 'ConsumerCore', a fixture outside the
- * 'DrevOps\BehatSteps\Backend' namespace, and proves that its 'Field/'
- * directory scan contributes handlers that run during 'createEntity':
+ * 'DrevOps\BehatSteps\Backend' namespace, and proves its 'Field/' directory
+ * scan contributes handlers that run during 'createEntity':
  *
  *  - 'ConsumerProject\Backend\Field\TextLongHandler' takes 'text_long' over
  *    from 'DefaultHandler', which serves the type when nothing is registered.

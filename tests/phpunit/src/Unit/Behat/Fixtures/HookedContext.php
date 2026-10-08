@@ -13,7 +13,7 @@ use DrevOps\BehatSteps\Behat\Hook\Scope\AfterNodeCreateScope;
 use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 
 /**
- * Context carrying one method per case the attribute reader distinguishes.
+ * Context carrying 1 method per case the attribute reader distinguishes.
  */
 class HookedContext implements Context {
 

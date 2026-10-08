@@ -32,7 +32,10 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
   'selectors' => ['logged_in_selector' => 'body.user-logged-in'],
   'steps' => [
     'wait' => ['ajax_timeout' => 5],
-    'message' => ['selectors' => ['default' => '.messages', 'error' => '.messages--error']],
+    'message' => ['selectors' => [
+      'default' => '.messages',
+      'error' => '.messages--error',
+    ]],
     'mapping' => ['groups' => ['paths' => ['User Login' => '/user/login']]],
   ],
 ]));
@@ -56,7 +59,10 @@ class UiContext extends WebRawContext {
 // After.
 class UiContext extends WebRawContext {
 
-  public function __construct(protected string $fixtures_path, array $config = []) {
+  public function __construct(
+    protected string $fixtures_path,
+    array $config = [],
+  ) {
     parent::__construct($config);
   }
 
@@ -67,7 +73,7 @@ A group or an option the context cannot serve is an error naming what it accepts
 
 ### A trait declares its options as `Option` objects
 
-A project with its own configurable trait returns a list of `DrevOps\BehatSteps\Behat\Config\Option` from its `<prefix>ConfigSchema()` method instead of a map of array shapes. The constructor validates the declaration, so a missing description or a tag list written as a list rather than a map fails when the context is built, with a message naming the declaring method.
+A project with its own configurable trait returns a list of `DrevOps\BehatSteps\Behat\Config\Option` from its `<prefix>ConfigSchema()` method instead of a map of array shapes. The constructor validates the declaration, so an empty description or a tag list written as a list rather than a map fails when the context is built, with a message naming the declaring method.
 
 ```php
 // Before.
@@ -88,8 +94,17 @@ protected function acmeConfigSchema(): array {
 // After.
 protected function acmeConfigSchema(): array {
   return [
-    new Option('enabled', default: TRUE, description: 'Whether the Acme hook runs.'),
-    new Option('wait_timeout', default: 5000, description: 'How long to wait, in milliseconds.', tags: ['slow' => 30000]),
+    new Option(
+      'enabled',
+      default: TRUE,
+      description: 'Whether the Acme hook runs.',
+    ),
+    new Option(
+      'wait_timeout',
+      default: 5000,
+      description: 'How long to wait, in milliseconds.',
+      tags: ['slow' => 30000],
+    ),
   ];
 }
 ```
@@ -148,12 +163,12 @@ Each of the three resolves that decision in a `BeforeScenario` hook, so all thre
 
 ### `BigPipeTrait` reads its timeout from configuration
 
-`BIG_PIPE_DEFAULT_WAIT_TIMEOUT` is gone, and `$bigPipeWaitTimeout` now defaults to `NULL`, meaning "take the configured option". Assigning it still overrides the wait for one scenario.
+`DEFAULT_WAIT_TIMEOUT` is gone, and `$bigPipeWaitTimeout` now defaults to `NULL`, meaning "take the configured option". Assigning it still overrides the wait for one scenario.
 
 | Before | After |
 | --- | --- |
 | `$this->bigPipeWaitTimeout = 2000;` | Unchanged, or `'steps' => ['big_pipe' => ['wait_timeout' => 2000]]` |
-| `self::BIG_PIPE_DEFAULT_WAIT_TIMEOUT` | `'steps' => ['big_pipe' => ['wait_timeout' => 10000]]` |
+| `self::DEFAULT_WAIT_TIMEOUT` | `'steps' => ['big_pipe' => ['wait_timeout' => 10000]]` |
 
 ## Unified step text
 
@@ -168,7 +183,7 @@ Placeholder names, articles and `Given` verbs drifted as traits were added, so t
 
 Placeholder names are part of the contract even when the surrounding words are identical. Behat binds a step argument to the method parameter of the same name, so a rename reaches any context that overrides the step method or calls it directly.
 
-Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their step text is unchanged, but the method signatures are not: `MediaTrait::mediaDeleteType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiRunIndexing()` now take `$content_type` and `$count`.
+Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their placeholder names are unchanged, but the method signatures are not: `MediaTrait::mediaDeleteType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiRunIndexing()` now take `$content_type` and `$count`.
 
 ### CacheTrait
 
@@ -668,7 +683,7 @@ A taxonomy term's name, a role and a file name each had 2 placeholder names: `:t
 | --- | --- | --- |
 | ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport. | The element "..." is not displayed within the viewport. |
 | ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport with a top offset of N pixels. | The element "..." is not displayed within the viewport with a top offset of N pixels. |
-| Drupal\EmailTrait | The link number must be a positive integer, but "..." was provided. | The link index must be a positive integer, but "..." was provided. |
+| Drupal\EmailTrait | The link number must be a positive integer, but "..." was provided. | `The link index must be an integer, but "..." was given.`, or `The link index must be 1 or greater, but "..." was given.` for an integer below 1 |
 | Drupal\EmailTrait | The link with number N was not found among N links. | The link with the index N was not found among N links. |
 
 The 2 viewport messages that end in `, but it should not be.` also changed under [Failure messages read one way](#failure-messages-read-one-way), and their rows there carry the final text.
@@ -679,7 +694,6 @@ Trait-specific packages are no longer hard `require` dependencies. They now live
 
 | Package | Add it to your `require-dev` when you use |
 | --- | --- |
-| `drupal/drupal-extension` | any Drupal trait (`DrevOps\BehatSteps\Steps\Drupal\*`) |
 | `softcreatr/jsonpath` | `JsonTrait` JSON path steps (`the JSON path ... should ...`) |
 
 `@javascript` scenarios need a JavaScript-capable browser driver. The steps work with either of these, so install **one** of them - both run the full `@javascript` suite and both are exercised by this library's CI:
@@ -687,10 +701,10 @@ Trait-specific packages are no longer hard `require` dependencies. They now live
 - `lullabot/mink-selenium2-driver` - drives a Selenium/WebDriver server.
 - `dmore/behat-chrome-extension` - drives headless Chrome directly over the Chrome DevTools Protocol, with no Selenium server.
 
-`behat/behat` and `behat/mink` remain hard `require` dependencies. For example, a project that uses the Drupal traits and runs JavaScript scenarios with headless Chrome adds:
+`behat/behat` and `behat/mink` remain hard `require` dependencies. For example, a project that runs JavaScript scenarios with headless Chrome adds:
 
 ```bash
-composer require --dev drupal/drupal-extension dmore/behat-chrome-extension
+composer require --dev dmore/behat-chrome-extension
 ```
 
 ## Behat extensions registered in the Behat configuration
@@ -739,7 +753,9 @@ $profile
     'base_url' => 'http://your-site.local',
     'sessions' => ['browserkit_http' => ['browserkit_http' => NULL]],
   ]))
-  ->withExtension(new Extension(BehatStepsExtension::class, ['drupal' => ['drupal_root' => 'web']]));
+  ->withExtension(new Extension(BehatStepsExtension::class, [
+    'drupal' => ['drupal_root' => 'web'],
+  ]));
 ```
 
 Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. `guzzle_request_options`, `ajax_timeout`, the 3 `*_driver` keys and the `log_in` and `log_out` text keys are the exceptions; see below, [Capability-based backend resolution](#capability-based-backend-resolution) and [`Login` and `Logout`, not `LogIn` and `LogOut`](#login-and-logout-not-login-and-logout).
@@ -808,7 +824,7 @@ Mink's own extension declares no `ajax_timeout`, so one left under the `mink` ke
 | `'default_driver' => 'blackbox'` | A configuration that declares no `backends` list gets every registered backend, in registration order |
 | `'api_driver' => 'drupal'` | `'backends' => ['drupal', 'blackbox']` |
 | `'drush_driver' => 'drush'` | Add `'drush'` to the `backends` list |
-| `@api` on a scenario | Nothing. A step that needs Drupal resolves `CoreCapabilityInterface` from the configured list |
+| `@api` on a scenario | Nothing. A step resolves the capability it needs, such as `ContentCapabilityInterface`, from the configured list |
 | `@drush` on a scenario | Nothing. `DrushTrait` resolves `DrushCapabilityInterface` |
 
 ```php
@@ -1045,20 +1061,13 @@ The Drupal Extension matched a subject in part and in any case. Here `with the s
 | Before | After |
 | --- | --- |
 | `Given I wait for AJAX to finish` | `When I wait for AJAX to finish` |
-| `When (I )break` | dropped; use a debugger or `When I print last response` (Mink) |
-
-### Metatag
-
-| Before | After |
-| --- | --- |
-| Then the meta robots should include :directive | Then the meta robots should contain :directive |
-| Then the meta robots should not include :directive | Then the meta robots should not contain :directive |
+| `When (I )break` | dropped; use a debugger or `Then print last response` (Mink) |
 
 Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchanged: `Steps\Web\RandomTrait` and `Steps\Web\MappingTrait` carry them, and a context composes the trait instead of registering `RandomContext` or `MappingContext`.
 
 ## Unified entity cleanup
 
-Every entity a creation step or the backend creates is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleAfterScenario` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+Every entity a creation step or the backend creates, except a user or a role, is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleAfterScenario` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second entity registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
 
 An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityLifecycleRegister($entity)`. Without that call the entity survives the scenario.
 
@@ -1093,7 +1102,7 @@ use DrevOps\BehatSteps\Steps\Web\CookieTrait;
 use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
 ```
 
-`DrevOps\BehatSteps\Exception\AssertionException` did not move.
+`DrevOps\BehatSteps\Exception\AssertionException` is new in v4 and sits outside `Steps`; see [Unified assertion exceptions](#unified-assertion-exceptions).
 
 ## The context layer is one chain
 
@@ -1145,15 +1154,15 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 | `Helper\Drupal\AuthTrait` | `authCreateUser()`, `authLogin()`, `authLogout()`, `authIsLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authAfterScenario()` | `Steps\Drupal\UserTrait` |
 | `Helper\Drupal\StaticCacheTrait` | `staticCacheAfterScenario()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
-| `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 9 step traits |
+| `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 11 step traits |
 
 The web half of the library sits under `DrevOps\BehatSteps\Helper\Web` and names nothing Drupal:
 
 | Helper | Holds | Composed by |
 | --- | --- | --- |
 | `Helper\Web\LastStepTrait` | `lastStepSetLine()`, `lastStepReached()` | `WebRawContext` and 3 step traits |
-| `Helper\Web\RequestHeadersTrait` | `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()`, `requestHeadersReset()` | `WebRawContext` and 2 step traits |
-| `Helper\Web\StringTrait` | `stringFixStepArgument()`, `stringNormalizeWhitespace()`, `stringSplitCommaSeparated()`, `stringSlug()` | `WebRawContext` and 6 step traits |
+| `Helper\Web\RequestHeadersTrait` | `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()`, `requestHeadersReset()` | `WebRawContext` and 3 step traits |
+| `Helper\Web\StringTrait` | `stringFixStepArgument()`, `stringNormalizeWhitespace()`, `stringSplitCommaSeparated()`, `stringSlug()` | `WebRawContext` and 20 step traits |
 | `Helper\Web\TableTransposeTrait` | `tableTransposeVertical()`, `tableTransposeHorizontal()` | 5 step traits |
 
 A call or an override in a consumer context is renamed:
@@ -1196,7 +1205,7 @@ class SpecContext extends WebRawContext {
 }
 ```
 
-`UserAwareInterface` declares the four accessors `AuthTrait` implements: `authSetUserRegistry()`, `authGetUserRegistry()`, `authSetAuthenticator()` and `authGetAuthenticator()`. A context composing `AuthTrait` declares the interface so the context initializer injects both services; a context that creates no users declares nothing and neither is built.
+`UserAwareInterface` declares the four accessors `AuthTrait` implements: `authSetUserRegistry()`, `authGetUserRegistry()`, `authSetAuthenticator()` and `authGetAuthenticator()`. A context composing `AuthTrait` declares the interface so the context initializer injects both services; a context that creates no users declares nothing and neither is injected.
 
 Basic authentication is a separate service, because applying credentials to a request needs Mink and a base URL and knows nothing about a Drupal session. `WebRawContext` carries `BasicAuthenticatorInterface` through `setBasicAuthenticator()` and `getBasicAuthenticator()`, and `Authenticator` takes it as a constructor argument to reapply the credentials after a fast logout.
 
@@ -1210,7 +1219,7 @@ Registering either context beside a hand-composed context that already carries o
 
 There is no way to remove an inherited step, so a Drupal project cannot take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
 
-Scoped configuration follows the chain. `WebContext` accepts the `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics` groups, and `DrupalContext` accepts those plus `watchdog`, `big_pipe`, `cache`, `queue` and `email`. A group no trait in the chain declares is an error at construction, naming what that context does accept.
+Scoped configuration follows the chain. `WebContext` accepts the groups its web traits declare, such as `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics`, and `DrupalContext` adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. A group no trait in the chain declares is an error at construction, naming what that context does accept.
 
 `DrupalContext` composes `WatchdogTrait`, so a suite that registers it fails any scenario that logs a PHP error, even if your v3 context never composed the trait. The check reads the `watchdog` table, which only the core `dblog` module creates, and it reads it in the Behat process, so it needs a backend such as `drupal`. On a site without `dblog`, or under a profile that lists no such backend, such as `'backends' => ['drush', 'blackbox']`, every scenario fails at its start until you meet the prerequisite or switch the check off for the profile:
 
@@ -1234,7 +1243,11 @@ A trait states what it needs from the site in a `<prefix>Prerequisites()` method
 protected function acmePrerequisites(): array {
   return [
     Prerequisite::capability(CoreCapabilityInterface::class),
-    Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('acme'), 'the "acme" module from the "drupal/acme" package is enabled'),
+    Prerequisite::check(
+      static fn(ModuleCapabilityInterface $backend): bool
+        => $backend->moduleIsEnabled('acme'),
+      'the "acme" module from the "drupal/acme" package is enabled',
+    ),
   ];
 }
 ```
@@ -1267,7 +1280,7 @@ Shared logic lives in step-free helper traits under `DrevOps\BehatSteps\Helper\W
 | `Steps\Drupal\ContentTrait` | `contentLoadMultiple()` | `Helper\Drupal\QueryTrait::queryNodeIds()` |
 | `Steps\Web\RestTrait` | `$restHeaders` | `Helper\Web\RequestHeadersTrait::$requestHeaders`, read and written through `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()` and `requestHeadersReset()` |
 
-`Steps\Drupal\SearchApiTrait` composed `ContentTrait` and so registered every content step alongside its own; it now reads `queryNodeIds()` off its host and registers only the Search API steps. A context that relied on that indirect composition has to compose `ContentTrait` itself.
+`Steps\Drupal\SearchApiTrait` composed `ContentTrait` and so registered every content step alongside its own; it now composes `Helper\Drupal\QueryTrait` itself, finds the node with `queryFindNewestEntityId()`, and registers only the Search API steps. A context that relied on that indirect composition has to compose `ContentTrait` itself.
 
 `Steps\Drupal\ConfigOverrideTrait` set its `X-Config-No-Override` signal on `RestTrait`'s property when it found one. It writes to the header bag instead. The bag is per context, so a suite that wants the signal on `RestTrait`'s own requests composes both traits into one context rather than registering the two shipped ones; the browser header, the `$_SERVER` entry and the environment variable reach the site either way.
 
@@ -1314,7 +1327,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 Extending `WebRawContext` needs no `use` statement for `LastStepTrait`, `RequestHeadersTrait` or `StringTrait`, which it composes, and composing a step trait needs none for the Drupal helpers: the step trait already composes what it calls.
 
-`requestHeadersSet()`, the two `tableTranspose*()` methods and the entity, authentication and query members a step calls are `public` and published in [HELPERS.md](HELPERS.md). Every other helper stays `protected`.
+`requestHeadersSet()`, the two `tableTranspose*()` methods, `fixtureFileExpandEntityFields()` and the entity, authentication and query members a step calls are `public` and published in [HELPERS.md](HELPERS.md). Every other helper stays `protected`.
 
 ## Trait methods prefixed with their trait name
 
@@ -1464,6 +1477,8 @@ If your project catches an exception from one of these steps, update the type:
 | `Drupal\ModuleTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
 | `Drupal\StateTrait` (all `Then` steps) | `\Exception` | `AssertionException` |
 | `Drupal\RedirectTrait` (`the following redirects should (not) exist:`) | `\Exception` | `AssertionException` |
+| `Drupal\FileTrait` (`an unmanaged file at the URI ... should (not) contain the value ...`, when the file cannot be read) | `\Exception` | `\RuntimeException` |
+| `Drupal\MediaTrait` (the steps that create media, when the bundle is missing or does not exist) | `\Exception` | `\RuntimeException` |
 | `Drupal\QueueTrait` (all `Then` steps) | `ExpectationException` | `AssertionException` |
 | `Drupal\WatchdogTrait` (the check for PHP errors logged during a scenario) | `ExpectationException` | `AssertionException` |
 | `MetatagTrait` (all `Then` steps) | `\Exception` | `ExpectationException`; `ElementNotFoundException` when the meta tag itself is missing; `\RuntimeException` when an hreflang alternate page returns an HTTP error |
@@ -1480,7 +1495,8 @@ If your project catches an exception from one of these steps, update the type:
 | `ElementTrait` (`... with the index ...`, with an index below 1; `... pinned to the top of the viewport within ... pixels`, with a negative tolerance) | `ExpectationException` | `\RuntimeException` |
 | `Drupal\EmailTrait` (`I follow the link with the index ...`, with an index that is not a positive integer) | `ExpectationException` | `\RuntimeException` |
 | `FieldTrait` (`I fill in the WYSIWYG field ...`, when the field has no `id` attribute) | `ExpectationException` | `\RuntimeException` |
-| `XmlTrait` (`I print last XML response`, when the document cannot be serialized) | `ExpectationException` | `\RuntimeException` |
+| `XmlTrait` (`I print the last XML response`, when the document cannot be serialized) | `ExpectationException` | `\RuntimeException` |
+| `XmlTrait` (`the response should match the following DTD:` and `the response should match the DTD in the file ...`, when the response has no root element or cannot be serialized) | `ExpectationException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...` without an element, when nothing has focus) | `ExpectationException` | `\RuntimeException` |
 | `Drupal\BlockTrait` (every `Given the block ...` step, when the block does not exist) | `ExpectationException` | `\RuntimeException` |
 | `WaitTrait` (`I wait for AJAX to finish` and `I wait for ... second(s) for AJAX to finish`, without a JavaScript driver) | `\RuntimeException` | `UnsupportedDriverActionException` |
@@ -1654,7 +1670,7 @@ PHP treats two composed traits declaring the same constant name as a fatal error
 | `AccessibilityTrait::IMPACT_SERIOUS` | `AccessibilityTrait::ACCESSIBILITY_IMPACT_SERIOUS` |
 | `AccessibilityTrait::IMPACT_MODERATE` | `AccessibilityTrait::ACCESSIBILITY_IMPACT_MODERATE` |
 | `AccessibilityTrait::IMPACT_MINOR` | `AccessibilityTrait::ACCESSIBILITY_IMPACT_MINOR` |
-| `Drupal\BigPipeTrait::DEFAULT_WAIT_TIMEOUT` | `Drupal\BigPipeTrait::BIG_PIPE_DEFAULT_WAIT_TIMEOUT` |
+| `Drupal\BigPipeTrait::DEFAULT_WAIT_TIMEOUT` | Removed; read the `big_pipe.wait_timeout` option, as [`BigPipeTrait` reads its timeout from configuration](#bigpipetrait-reads-its-timeout-from-configuration) shows |
 
 ### `FieldTrait` no longer re-exports the keyboard steps
 
@@ -1663,7 +1679,7 @@ PHP treats two composed traits declaring the same constant name as a fatal error
 ```php
 use DrevOps\BehatSteps\Steps\Web\KeyboardTrait;
 
-class FeatureContext extends DrupalContext {
+class FeatureContext extends WebRawContext {
 
   use FieldTrait;
   use KeyboardTrait;
@@ -1693,7 +1709,7 @@ Hook methods used to come in 3 shapes: taking and using the scope, taking and ig
 
 | Property | Type |
 | --- | --- |
-| `Drupal\FileTrait::$filesUnmanagedUris` | `array` |
+| `Drupal\FileTrait::$filesUnmanagedUris`, renamed `$fileUnmanagedUris` | `array` |
 | `Drupal\RedirectTrait::$redirectAllowedStatusCodes` | `array` |
 | `Drupal\WatchdogTrait::$watchdogMessageTypes` | `array` |
 | `Drupal\WatchdogTrait::$watchdogScenarioStartTime` | `?int` |
@@ -1711,7 +1727,7 @@ No step shipped by this library declares `:expectedValue`, so the shipped vocabu
 
 ## One shape per naming idea
 
-Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize" and 2 of "log in", 2 shapes for a consumer override point, 3 lookup verbs that didn't say what a lookup does when nothing matches, 2 word orders for a method that creates an entity, 3 shapes for a method acting on several entities, and assertions that put a qualifier ahead of their predicate, used `Has`, `Includes` or `Present` where the rules say `Equals`, `Contains` or `Exists`, or weren't named as assertions at all. They are members a consumer calls, overrides or implements, so each is renamed rather than aliased. Gherkin step text, step parameter names and method bodies are unchanged, so no `.feature` file needs an edit.
+Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize" and 2 of "log in", 2 shapes for a consumer override point, 3 lookup verbs that didn't say what a lookup does when nothing matches, 2 word orders for a method that creates an entity, 3 shapes for a method acting on several entities, and assertions that put a qualifier ahead of their predicate, used `Has`, `Includes` or `Present` where the rules say `Equals`, `Contains` or `Exists`, or weren't named as assertions at all. They are members a consumer calls, overrides or implements, so each is renamed rather than aliased. Apart from the 2 meta robots steps under [`Contains` and `Exists`, not `Includes` and `Present`](#contains-and-exists-not-includes-and-present), Gherkin step text, step parameter names and method bodies are unchanged, so no other `.feature` file needs an edit.
 
 `CONTRIBUTING.md` states the settled conventions, and `tests/phpunit/src/TraitMethodNamingTest.php` and `tests/phpunit/src/CapabilityMethodNamingTest.php` enforce them.
 
@@ -1826,7 +1842,7 @@ The 2 `MetatagTrait` override points also name what they return, the required ta
 
 `Find`, `Load` and `Get` each named some lookups that return `NULL` when nothing matches and others that throw, sometimes in the same trait: `TableTrait` had a `tableFind()` that threw beside a `tableFindRowByText()` that returned `NULL`. The verb now carries the contract. A `Find` returns `NULL`, a `Get` throws and never returns `NULL`, and a `Load` loads a set, so no lookup for 1 item is named `Load`.
 
-Only the name changes. Each method keeps its body, its parameters, its return type and the exceptions it throws.
+Only the name changes. Each method keeps its body, its parameters, its return type and the exceptions it throws. The exceptions: `userGetByName()` returns `UserInterface` where `userLoadByName()` declared `?UserInterface`, and `metatagFindMetaContent()` names its parameter `$meta_name`.
 
 | Trait | Old | New | When nothing matches |
 | --- | --- | --- | --- |
@@ -2113,7 +2129,7 @@ A method that created, deleted or loaded several entities at once took one of 3 
 
 `webformLoadTemplates()` shipped in v3 as `webformTemplates()`, so its row under [A lookup's verb says what a miss does](#a-lookups-verb-says-what-a-miss-does) maps that name straight to `webformLoadTemplateMultiple()`.
 
-`ContentTrait`, `TaxonomyTrait`, `UserTrait`, `LanguageTrait` and `EntityTrait` had no 1-entity helper to rename: a single node, term, user, language or other entity goes through `entityLifecycleCreateNode()`, `entityLifecycleCreateTerm()`, `authCreateUser()`, `entityLifecycleCreateLanguage()` or `entityLifecycleCreate()`. `userCreateMultiple()`, `languageCreateMultiple()` and `entityCreateMultiple()` already carried the suffix and are unchanged.
+`ContentTrait`, `TaxonomyTrait` and `UserTrait` carry their own 1-entity helpers, `contentCreate()`, `taxonomyCreate()` and `userCreate()`; a single language or other entity goes through `entityLifecycleCreateLanguage()` or `entityLifecycleCreate()`. `userCreateMultiple()`, `languageCreateMultiple()` and `entityCreateMultiple()` are new in v4 and already carry the suffix.
 
 A table step that sets several values takes the suffix too, as `configSetMultiple()` and `stateSetMultiple()` do. `ResponsiveTrait`'s breakpoint table read `FromTable` with a plural noun instead:
 
@@ -2305,7 +2321,8 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 ### Registering an adapter for another browser driver
 
 ```php
-$this->getBrowserCapabilityResolver()->registerAdapter(AcmeDriverAdapter::class);
+$this->getBrowserCapabilityResolver()
+  ->registerAdapter(AcmeDriverAdapter::class);
 ```
 
 An adapter extends `BrowserAdapterBase`, implements the capability interfaces its browser driver can honor, and answers `supports()` for the browser driver it speaks for. A registered adapter is offered each browser driver ahead of the shipped ones.
@@ -2673,7 +2690,9 @@ A Drupal core of your own for one Drupal major is looked up as `DrevOps\BehatSte
 $paths = $this->getDriver('drupal')->getSubDriverPaths();
 
 // After.
-$paths = $this->backendFor(CoreCapabilityInterface::class)->getCore()->getExtensionPathList();
+$paths = $this->backendFor(CoreCapabilityInterface::class)
+  ->getCore()
+  ->getExtensionPathList();
 ```
 
 ### Methods and constants

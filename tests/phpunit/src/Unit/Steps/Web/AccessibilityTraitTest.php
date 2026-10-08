@@ -70,8 +70,8 @@ class AccessibilityTraitTest extends UnitTestCase {
 
     $first = $this->testObject->accessibilityGetJs();
 
-    // A second call is served from the process cache, so the source is read
-    // only once even though the getter would return the same path.
+    // A second call is served from the process cache, so the fixture
+    // rewritten at the same path is never read.
     $this->writeFixture('axe-engine.js', 'CHANGED');
     $second = $this->testObject->accessibilityGetJs();
 
@@ -561,7 +561,10 @@ class AccessibilityTraitTest extends UnitTestCase {
   }
 
   /**
-   * Builds a representative accumulator with 2 scenarios, a shared URL, a blank tab, and mixed-impact findings.
+   * Builds a representative accumulator.
+   *
+   * The accumulator holds 2 scenarios sharing a URL, a blank tab and
+   * mixed-impact findings.
    *
    * @return array<int, array<string, mixed>>
    *   Sample aggregate data in the shape produced by

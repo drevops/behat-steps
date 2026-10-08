@@ -200,8 +200,6 @@ trait FileDownloadTrait {
   /**
    * Download a file and keep it as the scenario's download.
    *
-   * The download assertions read the file kept here.
-   *
    * @param string $url
    *   The URL, absolute or relative to the Mink `base_url`.
    */

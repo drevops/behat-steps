@@ -49,9 +49,6 @@ class CoreCronMethodsTest extends UnitTestCase {
     parent::tearDown();
   }
 
-  /**
-   * Tests that `cronRun()` refreshes `REQUEST_TIME` before running cron.
-   */
   public function testRunCronRefreshesRequestTime(): void {
     $before = time();
     $stale_time = $before - 60;

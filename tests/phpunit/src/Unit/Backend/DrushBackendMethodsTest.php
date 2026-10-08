@@ -17,10 +17,6 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Exercises every 'DrushBackend' public method to guarantee line coverage.
  *
- * Most tests replace 'drush()' with a recorder and assert on the commands it
- * records. The rest run a system binary such as 'echo' through the real
- * 'drush()', or cover 'resolveProjectDrush()' and 'parseArguments()'.
- *
  * The actual Drush binary is never executed here; end-to-end behavior is
  * covered separately.
  */
@@ -308,9 +304,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->assertStringContainsString('--no-ansi', $result);
   }
 
-  /**
-   * Tests that 'resolveProjectDrush()' prefers 'COMPOSER_BIN_DIR'.
-   */
   public function testResolveProjectDrushPrefersComposerBin(): void {
     $binary = $this->writeFixture('bin/drush', '');
     $original = getenv('COMPOSER_BIN_DIR');
@@ -344,9 +337,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Tests that 'drush()' throws a 'RuntimeException' on a non-zero exit.
-   */
   public function testDrushThrowsRuntimeExceptionOnFailure(): void {
     $false = $this->resolveSystemBinary('false');
     if ($false === NULL) {
@@ -435,11 +425,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider: method -> args -> first-expected-drush-command.
-   *
-   * A row may carry a canned Drush response as an optional 4th element.
-   */
   public static function dataProviderInvokesDrush(): \Iterator {
     $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
 
@@ -557,9 +542,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->assertFalse($backend->configExists('missing.object'));
   }
 
-  /**
-   * Tests that deleting a missing configuration object issues no delete.
-   */
   public function testConfigDeleteOfMissingObjectIsNoOp(): void {
     $backend = $this->createBackend();
     $backend->drushExitCode = 1;
@@ -614,9 +596,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->assertSame('{"name":"Original"}', $sets[1]['arguments'][2], 'The restore writes back the data read before the delete.');
   }
 
-  /**
-   * Tests that a whole-object write drops the keys the new data omits.
-   */
   public function testConfigSetDataReplacesRatherThanMerges(): void {
     $backend = $this->createBackend();
     $backend->drushResponse = '{"name":"Original","slogan":"Dropped"}';

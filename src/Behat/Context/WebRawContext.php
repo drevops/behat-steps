@@ -116,7 +116,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    */
   public function __construct(protected array $config = []) {
     // Built here so a mistyped option fails while Behat builds the context,
-    // before any step reads it. The extension's 'steps' section arrives later,
+    // before any step reads it. The extension's 'steps' section is set later,
     // through 'setParameters()'.
     $this->optionResolver = $this->buildOptionResolver();
   }
@@ -641,8 +641,8 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
         return new UnsupportedBackendActionException($this->prerequisiteMessage($trait, $prerequisite, $is_hook, $detail));
       }
 
-      // A capability without a check still reaches its backend, so a later
-      // check runs through that backend.
+      // The backend is resolved even for a capability without a check, so a
+      // later check runs through that backend.
       $backend = $this->anyBackendFor($prerequisite->capability);
 
       if ($prerequisite->check instanceof \Closure && !($prerequisite->check)($backend)) {

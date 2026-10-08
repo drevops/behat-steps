@@ -10,9 +10,7 @@ use DrevOps\BehatSteps\Backend\Core\CoreInterface;
  * Capability: reach Drupal's API in this process.
  *
  * A backend providing this capability has Drupal bootstrapped once it is
- * resolved, so '\Drupal::' statics and the entity API are reachable. A step
- * that calls into Drupal directly requires this capability instead of a
- * backend class.
+ * resolved, so '\Drupal::' statics and the entity API are reachable.
  */
 interface CoreCapabilityInterface {
 

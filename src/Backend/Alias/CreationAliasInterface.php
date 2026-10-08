@@ -8,8 +8,8 @@ namespace DrevOps\BehatSteps\Backend\Alias;
  * Base contract for a creation alias.
  *
  * An alias represents 1 ergonomic stub property that is not a real
- * Drupal field, together with the resolution behavior the backend
- * applies during entity creation. Concrete aliases implement either
+ * Drupal field, with the resolution behavior the backend applies
+ * during entity creation. Concrete aliases implement either
  * 'PreCreateAliasInterface' (to mutate the stub before save) or
  * 'PostCreateAliasInterface' (to act on the entity after save).
  */

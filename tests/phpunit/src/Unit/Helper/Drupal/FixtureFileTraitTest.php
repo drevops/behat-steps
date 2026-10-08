@@ -407,8 +407,6 @@ class FixtureFileTraitTestImplementation extends WebRawContext {
 
   /**
    * {@inheritdoc}
-   *
-   * Overridden to avoid bootstrapping Drupal in unit tests.
    */
   protected function fixtureFileManagedExists(string $basename): bool {
     return in_array($basename, $this->managedBasenames, TRUE);

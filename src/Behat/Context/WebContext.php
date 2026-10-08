@@ -88,8 +88,9 @@ class WebContext extends WebRawContext {
    * Rejects a suite that registers this context and a subclass of it.
    *
    * Both register the same 28 web traits. Behat reports that as a
-   * 'RedundantStepException' naming the first step text it reached. The
-   * exception says nothing about the cause.
+   * 'RedundantStepException' naming the first step text it reached.
+   *
+   * The exception says nothing about the cause.
    *
    * @throws \RuntimeException
    *   When the suite registers 2 contexts that both carry this class.

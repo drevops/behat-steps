@@ -55,7 +55,7 @@ $suite = (new Suite('default'))
   ->addContext(MinkContext::class);
 ```
 
-A Drupal suite needs `DrupalContext` alone: `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because `RandomTrait`, `MappingTrait` and `DateTrait` are inherited from `WebContext`.
+A Drupal suite needs `DrupalContext` alone: `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because `PathTrait`, `RandomTrait`, `MappingTrait` and `DateTrait` are inherited from `WebContext`.
 
 It costs one thing, stated plainly: there is no way to remove an inherited step, so a Drupal project cannot take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
 
@@ -94,7 +94,9 @@ class SpecContext extends WebRawContext {
 
   #[When('I publish a page titled :title')]
   public function publish(string $title): void {
-    $this->entityLifecycleCreateNode(new EntityStub('node', 'page', ['title' => $title]));
+    $this->entityLifecycleCreateNode(new EntityStub('node', 'page', [
+      'title' => $title,
+    ]));
   }
 
 }

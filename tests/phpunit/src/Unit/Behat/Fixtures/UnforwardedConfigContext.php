@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
- * Context whose constructor never reaches the one it inherits.
+ * Context whose constructor never calls the one it inherits.
  */
 class UnforwardedConfigContext extends WebRawContext {
 

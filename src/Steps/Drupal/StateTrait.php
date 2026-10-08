@@ -171,9 +171,6 @@ trait StateTrait {
    * check on the value. A backend that can tell a stored NULL from an absent
    * key then reports it as existing.
    *
-   * `\Drupal::state()->get()` cannot tell the 2 cases apart: it applies the
-   * `??` operator to the loaded value and returns the default for NULL.
-   *
    * @param string $name
    *   The state key name.
    *

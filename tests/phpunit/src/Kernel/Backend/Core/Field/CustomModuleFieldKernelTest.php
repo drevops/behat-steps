@@ -13,8 +13,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test: a contrib module's custom field types through the real backend.
  *
- * The 'backend_field_test' fixture module ships 2 field types the backend has
- * no handler for, standing in for any contrib module that introduces its own
+ * The 'backend_field_test' fixture module ships 2 field types without a
+ * backend handler, standing in for any contrib module that introduces its own
  * field type. Both cases run against the real 'Core' with every built-in
  * handler registered, so the classifier gate is exercised end to end:
  *

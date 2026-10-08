@@ -10,9 +10,9 @@ use DrevOps\BehatSteps\Backend\BackendInterface;
 /**
  * Holds the backends registered with a suite and resolves one by name.
  *
- * 2 kinds of name apply. A backend is registered under the name the
- * extension builds it with ('drupal', 'drush', 'blackbox'), and a suite maps
- * a Gherkin-facing tag name onto one of those.
+ * 2 kinds of name apply: a backend is registered under the name the
+ * extension builds it with ('drupal', 'drush', 'blackbox'). A suite maps a
+ * Gherkin-facing tag name onto one of those.
  *
  * 'getBackend()' takes the tag name, because that is the name a test author
  * writes; 'registerBackend()' takes the registered name.

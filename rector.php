@@ -4,10 +4,6 @@
  * @file
  * Rector configuration.
  *
- * Rector rewrites the sources to PHP 8.3 syntax and to Behat's step, hook and
- * transformation attributes. It also applies the code quality, coding style,
- * dead code, naming, privatization and type declaration sets.
- *
  * @see https://getrector.com/documentation
  * @see https://getrector.com/documentation/set-lists
  */

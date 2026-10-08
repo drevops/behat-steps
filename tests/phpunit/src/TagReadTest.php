@@ -15,9 +15,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Tests that every trait reads tags through the Tag readers, by name.
  *
- * A reader given the scope reads the scenario together with its feature, so a
- * tag on the 'Feature:' line applies to every scenario below it. A tag named
- * in a constant is spelled once, and every read shares the constant.
+ * A reader given the scope reads the scenario with its feature, so a tag on
+ * the 'Feature:' line applies to every scenario below it. A tag named in a
+ * constant is spelled once, and every read shares the constant.
  */
 #[CoversNothing]
 class TagReadTest extends UnitTestCase {

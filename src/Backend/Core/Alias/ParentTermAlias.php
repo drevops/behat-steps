@@ -11,14 +11,9 @@ use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
 /**
  * Resolves a parent term name on a term stub to the parent's 'tid'.
  *
- * Reads the value at 'parent', looks up the term within the stub's
- * vocabulary, and replaces the value in place with the resolved 'tid'.
- * No-ops when the value is empty. Throws when the parent term cannot
- * be found in the target vocabulary.
- *
- * The alias reads the target vocabulary from the stub's typed bundle
- * or from 'vid' (which the 'VocabularyMachineNameAlias' may have
- * populated earlier in the pre-create pipeline).
+ * The alias reads the target vocabulary from the stub's typed bundle or from
+ * 'vid', which 'VocabularyMachineNameAlias' may populate earlier in the
+ * pre-create pipeline.
  */
 final class ParentTermAlias implements PreCreateAliasInterface {
 

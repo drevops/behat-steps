@@ -96,7 +96,7 @@ final readonly class BackendListener implements EventSubscriberInterface {
    * Normalizes the configured list into a tag name to backend name map.
    *
    * A bare entry names a backend whose tag name is the backend name. A keyed
-   * entry gives the tag a name of its own, so the same feature file can run
+   * entry gives the tag its own name, so the same feature file can run
    * against a different backend in another profile.
    *
    * @return array<string, string>
