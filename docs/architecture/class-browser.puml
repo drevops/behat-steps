@@ -30,9 +30,10 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
 
 package "DrevOps\\BehatSteps\\Behat\\Auth" #F3E5F5 {
   class Authenticator {
-    {static} +JAVASCRIPT_NAVIGATION_WAIT : int
+    {static} +JAVASCRIPT_LOGIN_WAIT : int
     --
     #isJavascriptSession() : bool
+    #getLoginSignalWait() : int
     #waitUntil(seconds, condition) : bool
   }
 }
@@ -170,7 +171,7 @@ package "Symfony and Mink" #ECEFF1 {
 
 WebRawContext o--> BrowserCapabilityResolver
 Authenticator o--> BrowserCapabilityResolver : builds its own
-Authenticator ..> JavascriptCapabilityInterface : waits for the post-login\npage when the session has it
+Authenticator ..> JavascriptCapabilityInterface : waits longer for a login\nsignal when the session has it
 WebRawContext o--> HttpClientFactoryInterface
 WebRawContext ..> HttpIdentity : builds from cookies,\nthe header bag and\nthe base_url credentials
 

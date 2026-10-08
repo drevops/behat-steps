@@ -383,9 +383,15 @@ class AuthenticatorTest extends UnitTestCase {
    * Tests that isLoggedIn() polls the homepage for the logged-in selector.
    *
    * The homepage renders no logout link, and the selector appears on the
-   * third check.
+   * third check. A JavaScript session polls even when 'login_wait' is unset.
+   *
+   * @param int|null $login_wait
+   *   The 'login_wait' parameter, or NULL to leave it unset.
+   * @param bool $is_javascript
+   *   Whether the session runs a browser driver that runs JavaScript.
    */
-  public function testIsLoggedInPollsHomepageForLoggedInSelector(): void {
+  #[DataProvider('dataProviderIsLoggedInPollsHomepageForLoggedInSelector')]
+  public function testIsLoggedInPollsHomepageForLoggedInSelector(?int $login_wait, bool $is_javascript): void {
     $checks = 0;
     $session = $this->createNavigatingSessionMock(static function (string $url, string $locator) use (&$checks): bool {
       if ($url !== 'http://localhost/' || $locator !== 'body.logged-in') {
@@ -395,14 +401,21 @@ class AuthenticatorTest extends UnitTestCase {
       $checks++;
 
       return $checks >= 3;
-    });
+    }, NULL, $is_javascript ? $this->createMock(Selenium2Driver::class) : NULL);
 
     $params = static::EXTENSION_PARAMS;
-    $params['login_wait'] = 2;
+    if ($login_wait !== NULL) {
+      $params['login_wait'] = $login_wait;
+    }
 
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
     $this->assertTrue($authenticator->isLoggedIn());
     $this->assertSame(3, $checks);
+  }
+
+  public static function dataProviderIsLoggedInPollsHomepageForLoggedInSelector(): \Iterator {
+    yield 'login_wait set' => [2, FALSE];
+    yield 'JavaScript session without login_wait' => [NULL, TRUE];
   }
 
   public function testIsLoggedInDoesNotPollWhenLoginWaitIsZero(): void {
@@ -714,6 +727,47 @@ class AuthenticatorTest extends UnitTestCase {
   }
 
   /**
+   * Tests that the logged-in selector ends a JavaScript login's wait.
+   *
+   * The URL never changes, as in an AJAX login, and the selector appears on
+   * the third check. The login is confirmed with a single visit, well inside
+   * the JavaScript wait.
+   */
+  public function testLoginEndsNavigationWaitOnLoggedInSelector(): void {
+    $checks = 0;
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log in')->willReturn($this->createMock(NodeElement::class));
+    $page->method('has')->willReturnCallback(static function (string $selector, string $locator) use (&$checks): bool {
+      if ($locator !== 'body.logged-in') {
+        return FALSE;
+      }
+
+      $checks++;
+
+      return $checks >= 3;
+    });
+
+    $session = $this->createSessionMock($page, $this->createMock(Selenium2Driver::class));
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // @phpstan-ignore method.notFound
+    $session->expects($this->once())->method('visit')->with('http://localhost/user/login');
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/login');
+
+    $user_registry = new UserRegistry();
+    $authenticator = $this->createAuthenticator($session, $user_registry);
+
+    $start = microtime(TRUE);
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $elapsed = microtime(TRUE) - $start;
+
+    $this->assertNotFalse($user_registry->getCurrentUser());
+    $this->assertLessThan(Authenticator::JAVASCRIPT_LOGIN_WAIT, $elapsed);
+  }
+
+  /**
    * Tests that login() without login_wait throws when selector is delayed.
    *
    * Demonstrates the race condition: without login_wait, a delayed
@@ -821,8 +875,10 @@ class AuthenticatorTest extends UnitTestCase {
    *   whether that page shows it.
    * @param \ArrayObject<int, string>|null $visited
    *   Collects every URL the session visits, in order.
+   * @param \Behat\Mink\Driver\DriverInterface|null $driver
+   *   The browser driver the session runs.
    */
-  protected function createNavigatingSessionMock(\Closure $shows, ?\ArrayObject $visited = NULL): Session {
+  protected function createNavigatingSessionMock(\Closure $shows, ?\ArrayObject $visited = NULL, ?DriverInterface $driver = NULL): Session {
     $url = '';
     $link = $this->createMock(NodeElement::class);
 
@@ -834,7 +890,7 @@ class AuthenticatorTest extends UnitTestCase {
       return $shows($url, $locator) ? $link : NULL;
     });
 
-    $session = $this->createSessionMock($page);
+    $session = $this->createSessionMock($page, $driver);
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
     // @phpstan-ignore method.notFound

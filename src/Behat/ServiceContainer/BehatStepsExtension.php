@@ -167,7 +167,7 @@ final class BehatStepsExtension implements ExtensionInterface {
         ->integerNode('login_wait')
           ->min(0)
           ->defaultValue(0)
-          ->info(sprintf('Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting. A JavaScript session still waits for the URL to change after the login form is submitted, for up to %d seconds or this value, whichever is larger.', Authenticator::JAVASCRIPT_NAVIGATION_WAIT))
+          ->info(sprintf('Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting. A JavaScript session still waits up to %d seconds, or this value when it is larger, for the browser to leave the login form or show the logged-in selector, and for the logged-in selector or the logout link on the homepage. Each wait ends as soon as its signal appears.', Authenticator::JAVASCRIPT_LOGIN_WAIT))
         ->end()
         ->arrayNode('steps')
           ->info('Default values of the options the step traits declare, keyed by trait group and then by option name. Each group is named after the trait that declares it, so "JavascriptTrait" reads "javascript" and "BigPipeTrait" reads "big_pipe". A group naming a trait none of the registered contexts composes is ignored, so one profile can carry the defaults of every suite.' . PHP_EOL

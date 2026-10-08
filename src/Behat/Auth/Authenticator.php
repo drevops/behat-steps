@@ -28,11 +28,9 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
   use ParametersTrait;
 
   /**
-   * Seconds a JavaScript session waits for the URL to change after a login.
-   *
-   * A 'login_wait' above it is used instead.
+   * Seconds a JavaScript session waits, at least, for a login signal.
    */
-  public const int JAVASCRIPT_NAVIGATION_WAIT = 10;
+  public const int JAVASCRIPT_LOGIN_WAIT = 10;
 
   /**
    * Resolves what the session's browser driver can do.
@@ -99,16 +97,17 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     $form_url = $session->getCurrentUrl();
     $login_element->click();
 
-    $login_wait = (int) $this->getParameter('login_wait');
-
-    // In a JavaScript session, 'click()' can return before the browser loads
-    // the next page, so the wait runs even when 'login_wait' is 0.
-    $navigation_wait = $this->isJavascriptSession() ? max($login_wait, self::JAVASCRIPT_NAVIGATION_WAIT) : $login_wait;
+    $navigation_wait = $this->getLoginSignalWait();
 
     if ($navigation_wait > 0) {
-      $this->waitUntil($navigation_wait, static fn(): bool => $session->getCurrentUrl() !== $form_url);
+      // An AJAX login shows the logged-in selector without leaving the page.
+      $this->waitUntil($navigation_wait, fn(): bool => $session->getCurrentUrl() !== $form_url || $this->hasLoggedInSelector());
     }
 
+    $login_wait = (int) $this->getParameter('login_wait');
+
+    // A theme without the logged-in selector would hold every login for the
+    // whole wait, so these polls run only when 'login_wait' asks for them.
     if ($login_wait > 0) {
       $this->waitUntil($login_wait, static fn(): bool => $session->getPage()->find('css', 'body') !== NULL);
 
@@ -195,10 +194,10 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
 
     // As a last resort, the logged-in selector or a logout link on the
     // homepage means a user is logged in. A theme deferring its header
-    // (Critical CSS or a late JS render) can add either late, so the poll runs
-    // for up to 'login_wait' seconds.
+    // (Critical CSS or a late JS render) can add either late, so the check
+    // polls until one appears.
     $session->visit($this->locatePath('/'));
-    if ($this->waitUntil((int) $this->getParameter('login_wait'), fn(): bool => $this->hasLoggedInSelector() || $this->getLogoutElement() instanceof NodeElement)) {
+    if ($this->waitUntil($this->getLoginSignalWait(), fn(): bool => $this->hasLoggedInSelector() || $this->getLogoutElement() instanceof NodeElement)) {
       return TRUE;
     }
 
@@ -261,6 +260,19 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
    */
   protected function isJavascriptSession(): bool {
     return $this->browserCapabilityResolver->has($this->getSession()->getDriver(), JavascriptCapabilityInterface::class);
+  }
+
+  /**
+   * Returns the seconds to wait for a login signal.
+   *
+   * It is 'login_wait', raised to 'JAVASCRIPT_LOGIN_WAIT' in a JavaScript
+   * session, where the browser can render a page after the call that loads it
+   * returns.
+   */
+  protected function getLoginSignalWait(): int {
+    $login_wait = (int) $this->getParameter('login_wait');
+
+    return $this->isJavascriptSession() ? max($login_wait, self::JAVASCRIPT_LOGIN_WAIT) : $login_wait;
   }
 
   /**
