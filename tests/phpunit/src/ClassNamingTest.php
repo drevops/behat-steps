@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Behat\Context\Initializer\BackendAwareInitializer;
 use DrevOps\BehatSteps\Behat\Registry\UserRegistry;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BackendPass;
 use DrevOps\BehatSteps\Behat\Tag;
@@ -110,7 +111,7 @@ class ClassNamingTest extends UnitTestCase {
     return [
       'class directly under the package' => [Tag::class, TRUE],
       'class in a sub-namespace' => [UserRegistry::class, FALSE],
-      'class in a nested sub-namespace' => ['DrevOps\\BehatSteps\\Behat\\Context\\Initializer\\BackendAwareInitializer', FALSE],
+      'class in a nested sub-namespace' => [BackendAwareInitializer::class, FALSE],
     ];
   }
 
