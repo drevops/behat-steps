@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
+use DrevOps\BehatSteps\Backend\BlackboxBackendInterface;
 use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
@@ -15,7 +17,7 @@ use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Tests that only the managed file steps check for the file module.
+ * Tests the file module checks of the managed file steps and the setup hook.
  */
 #[CoversTrait(FileTrait::class)]
 class FileTraitTest extends UnitTestCase {
@@ -66,6 +68,37 @@ class FileTraitTest extends UnitTestCase {
     $context->fileAssertUnmanagedNotExists(static::$tmp . '/missing.txt');
     $context->fileAssertUnmanagedContains($path, 'debug=true');
     $context->fileAssertUnmanagedNotContains($path, 'debug=false');
+  }
+
+  /**
+   * Tests that the setup hook bootstraps nothing without an in-process backend.
+   *
+   * @param array<string, class-string<\DrevOps\BehatSteps\Backend\BackendInterface>> $backends
+   *   The backend interfaces the scenario lists, keyed by name.
+   */
+  #[DataProvider('dataProviderSetupHookSkipsSuiteWithoutInProcessBackend')]
+  public function testSetupHookSkipsSuiteWithoutInProcessBackend(array $backends): void {
+    $doubles = [];
+
+    foreach ($backends as $name => $interface) {
+      $backend = $this->createMock($interface);
+      $backend->expects($this->never())->method('bootstrap');
+      $doubles[$name] = $backend;
+    }
+
+    $registry = new BackendRegistry($doubles);
+    $registry->setScenarioBackends(array_combine(array_keys($doubles), array_keys($doubles)));
+
+    $context = new FileTraitTestImplementation();
+    $context->setBackendRegistry($registry);
+
+    $context->fileBeforeScenario($this->createBeforeScenarioScope());
+  }
+
+  public static function dataProviderSetupHookSkipsSuiteWithoutInProcessBackend(): \Iterator {
+    yield 'drush' => [['drush' => DrushBackendInterface::class]];
+    yield 'blackbox' => [['blackbox' => BlackboxBackendInterface::class]];
+    yield 'drush and blackbox' => [['drush' => DrushBackendInterface::class, 'blackbox' => BlackboxBackendInterface::class]];
   }
 
   /**

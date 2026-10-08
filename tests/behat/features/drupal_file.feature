@@ -225,3 +225,14 @@ Feature: Check that FileTrait works
       """
     When I run "behat --no-colors"
     Then it should pass
+
+  @test-trait:Drupal\FileTrait
+  Scenario: Assert that a configuration reaching Drupal only through Drush passes
+    Given a configuration listing the backends "drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
