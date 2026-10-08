@@ -724,7 +724,7 @@ trait ElementTrait {
    * }
    * @endcode
    */
-  protected function elementGetScrollIntoViewCenter(): bool {
+  public function elementGetScrollIntoViewCenter(): bool {
     return $this->getOptionBool('element', 'scroll_into_view_center');
   }
 

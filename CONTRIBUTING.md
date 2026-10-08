@@ -148,7 +148,9 @@ A qualifier that the step opens with `with` reads `With` in the name, and a seco
 
 ### Consumer override points
 
-A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityResolveTags()` or `restResolveUrl()`.
+A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and semantic versioning covers it. A project's override relies on the package calling the method at the same point with the same signature, and a protected method promises neither, so a docblock never invites an override of one. `PublicSurfaceTest` fails a protected method whose docblock says `Override to`, `Override when` or `overrides this method`.
+
+A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`, `accessibilityGetBlankUrls()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityFormatUrl()` or `restResolveUrl()`.
 
 ### Helpers carry a verb
 

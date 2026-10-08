@@ -233,7 +233,7 @@ trait AccessibilityTrait {
       return;
     }
 
-    if (!in_array($url, [...static::accessibilityBlankUrls(), $this->accessibilityLastCheckedUrl], TRUE)) {
+    if (!in_array($url, [...static::accessibilityGetBlankUrls(), $this->accessibilityLastCheckedUrl], TRUE)) {
       $this->accessibilityAssess($this->accessibilityGetDefaultRules());
     }
 
@@ -912,7 +912,7 @@ trait AccessibilityTrait {
    *
    * Override to keep the absolute URL or to format it differently.
    */
-  protected function accessibilityFormatUrl(string $url): string {
+  public function accessibilityFormatUrl(string $url): string {
     $base = rtrim((string) $this->getMinkParameter('base_url'), '/');
 
     if ($base === '') {
@@ -938,7 +938,7 @@ trait AccessibilityTrait {
    * @return array<int, string>
    *   URL values to ignore.
    */
-  protected static function accessibilityBlankUrls(): array {
+  public static function accessibilityGetBlankUrls(): array {
     return ['', 'about:blank', 'data:,'];
   }
 
@@ -965,7 +965,7 @@ trait AccessibilityTrait {
    *   Pre-rendered per-URL section markup from
    *   accessibilityRenderHtmlSections().
    */
-  protected function accessibilityRenderHtmlPage(string $sections): string {
+  public function accessibilityRenderHtmlPage(string $sections): string {
     $title = htmlspecialchars($this->accessibilityFeatureName . ' > ' . $this->accessibilityScenarioName, ENT_QUOTES);
     $threshold = htmlspecialchars($this->accessibilityEffectiveThreshold(), ENT_QUOTES);
     $fail_on_incomplete = $this->accessibilityEffectiveFailOnIncomplete() ? 'yes' : 'no';
@@ -1014,7 +1014,7 @@ HTML;
    * to change how each section renders (rare); for branding the
    * surrounding page, override accessibilityRenderHtmlPage() instead.
    */
-  protected function accessibilityRenderHtmlSections(): string {
+  public function accessibilityRenderHtmlSections(): string {
     $body_sections = [];
 
     foreach ($this->accessibilityResults as $result) {
@@ -1248,7 +1248,7 @@ HTML;
    *   violations, incomplete and passes counts, and visiting scenarios.
    */
   protected static function accessibilityAggregatePages(array $aggregate): array {
-    $blank = static::accessibilityBlankUrls();
+    $blank = static::accessibilityGetBlankUrls();
     $pages = [];
 
     foreach ($aggregate as $entry) {
@@ -1372,7 +1372,7 @@ HTML;
     $deduped = static::accessibilityAggregatePages($aggregate);
     $rollup = static::accessibilityAggregateRollup($deduped, static::accessibilityAggregateImpacts($aggregate));
     $totals = $rollup['totals'];
-    $blank = static::accessibilityBlankUrls();
+    $blank = static::accessibilityGetBlankUrls();
 
     $pages = [];
     foreach ($deduped as $url => $page) {
@@ -1489,7 +1489,7 @@ HTML;
    * @param array<string, mixed> $data
    *   Render-ready data from accessibilityAggregateData().
    */
-  protected static function accessibilityRenderAggregate(array $data): string {
+  public static function accessibilityRenderAggregate(array $data): string {
     $issue_list = static function (string $heading, string $css_class, array $issues): string {
       if ($issues === []) {
         return sprintf('<h5>%s</h5><p class="meta">None.</p>', htmlspecialchars($heading, ENT_QUOTES));

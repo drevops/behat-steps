@@ -39,7 +39,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * protected one carries no guarantee.
  *
  * A method cannot be narrowed again before the next major, so these tests
- * hold the 4 conventions below.
+ * hold the 5 conventions below.
  */
 #[CoversNothing]
 class PublicSurfaceTest extends UnitTestCase {
@@ -112,6 +112,61 @@ class PublicSurfaceTest extends UnitTestCase {
 
   public static function dataProviderPublicMethodsAreDocumented(): array {
     return static::discoverTraits();
+  }
+
+  /**
+   * Assert that a method whose docblock invites an override is public.
+   *
+   * An override relies on the package calling the method with the same
+   * signature, which only a published method promises.
+   *
+   * @param string $trait
+   *   Fully qualified trait name.
+   */
+  #[DataProvider('dataProviderOverridePointsArePublic')]
+  public function testOverridePointsArePublic(string $trait): void {
+    $violations = [];
+
+    foreach (static::collectTraitOwnMethods($trait) as $method) {
+      if ($method->isPublic() || !static::isOverrideInvitation((string) $method->getDocComment())) {
+        continue;
+      }
+
+      $violations[] = $trait . '::' . $method->getName();
+    }
+
+    $this->assertSame([], $violations, 'A docblock inviting a project to override a method promises that the package keeps calling it, so the method is public and published in HELPERS.md. Make it public, or reword the docblock.');
+  }
+
+  public static function dataProviderOverridePointsArePublic(): array {
+    return static::discoverTraits();
+  }
+
+  /**
+   * Assert that a docblock inviting an override is told apart from others.
+   *
+   * @param string $comment
+   *   A method docblock.
+   * @param bool $expected
+   *   Whether the docblock invites an override of its own method.
+   */
+  #[DataProvider('dataProviderOverrideInvitationsAreDetected')]
+  public function testOverrideInvitationsAreDetected(string $comment, bool $expected): void {
+    $this->assertSame($expected, static::isOverrideInvitation($comment));
+  }
+
+  public static function dataProviderOverrideInvitationsAreDetected(): array {
+    return [
+      'imperative naming a purpose' => ["/**\n   * Override to brand the report.\n   */", TRUE],
+      'imperative naming a condition' => ["/**\n   * Override when wiring a different engine.\n   */", TRUE],
+      'imperative naming the method' => ["/**\n   * Override this method in the context class.\n   */", TRUE],
+      'consumer overriding the method' => ["/**\n   * A consuming context overrides this method.\n   */", TRUE],
+      'phrase wrapped across 2 lines' => ["/**\n   * Default: the bundled engine. Override\n   * to point at a mirror.\n   */", TRUE],
+      'override of another method' => ["/**\n   * For branding, override accessibilityRenderHtmlPage() instead.\n   */", FALSE],
+      'tag overriding a tag' => ["/**\n   * A scenario tag overrides a feature tag.\n   */", FALSE],
+      'noun' => ["/**\n   * Threshold override resolved from tags.\n   */", FALSE],
+      'no docblock' => ['', FALSE],
+    ];
   }
 
   #[DataProvider('dataProviderHookMethodsDeclareTheirScope')]
@@ -250,6 +305,21 @@ class PublicSurfaceTest extends UnitTestCase {
     }
 
     return array_values(array_filter($own, static fn(\ReflectionMethod $method): bool => !in_array($method->getName(), $composed, TRUE)));
+  }
+
+  /**
+   * Check whether a docblock invites a project to override its method.
+   *
+   * The line breaks are collapsed first, so a phrase wrapped across 2 lines
+   * still matches.
+   *
+   * @param string $comment
+   *   A method docblock.
+   */
+  protected static function isOverrideInvitation(string $comment): bool {
+    $text = (string) preg_replace('/\s*\n\s*\*\s*/', ' ', $comment);
+
+    return preg_match('/\b(?:Override (?:to|when)|[Oo]verrides? this method)\b/', $text) === 1;
   }
 
   /**

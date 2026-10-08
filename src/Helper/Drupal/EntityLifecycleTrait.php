@@ -436,7 +436,7 @@ trait EntityLifecycleTrait {
    * @param string|null $bundle
    *   The bundle, or NULL for an entity type without bundles.
    */
-  protected function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface {
+  public function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface {
     return new EntityFieldParser($entity_type, $classifier, $bundle);
   }
 

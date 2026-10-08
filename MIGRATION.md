@@ -2964,6 +2964,28 @@ Helpers that did the same job in different traits sat on opposite sides of `publ
 
 PHP refuses to narrow an inherited method, so a context overriding one of the published methods declares its override `public`, as [The toolbox is now `public`](#the-toolbox-is-now-public) describes. An override of `jsonResolveContent()` is renamed to `jsonGetContent()` as well, or it's never called. Code that called `getLogoutElement()` on the authenticator asks `isLoggedIn()` instead, which is the question the method served.
 
+### Documented override points are public
+
+7 methods carried a docblock asking a project to override them, yet they were protected, so they were missing from [HELPERS.md](HELPERS.md) and outside semantic versioning. They're public now. `accessibilityBlankUrls()` supplies a value, so it's renamed `accessibilityGetBlankUrls()` to match every other override point that does.
+
+| Member | Before | After |
+| --- | --- | --- |
+| `AccessibilityTrait::accessibilityFormatUrl()` | `protected` | `public` |
+| `AccessibilityTrait::accessibilityBlankUrls()` | `protected static` | `public static`, renamed `accessibilityGetBlankUrls()` |
+| `AccessibilityTrait::accessibilityRenderHtmlPage()` | `protected` | `public` |
+| `AccessibilityTrait::accessibilityRenderHtmlSections()` | `protected` | `public` |
+| `AccessibilityTrait::accessibilityRenderAggregate()` | `protected static` | `public static` |
+| `ElementTrait::elementGetScrollIntoViewCenter()` | `protected` | `public` |
+| `Helper\Drupal\EntityLifecycleTrait::entityLifecycleGetFieldParser()` | `protected` | `public` |
+
+An override declared `protected` no longer loads:
+
+```
+Fatal error: Access level to FeatureContext::elementGetScrollIntoViewCenter() must be public (as in class ...)
+```
+
+Change `protected` to `public` on the override and leave its body as it is. An override of `accessibilityBlankUrls()` is renamed `accessibilityGetBlankUrls()` as well, or it's never called, and it stays `static`, because the suite report calls it from a static hook.
+
 ### 3 types moved out of the root of `Behat`
 
 `src/Behat` is split into sub-namespaces named for a role or a concern, yet 4 types sat at its root. 3 of them moved to the namespace of their concern. `Tag` stays where it is, since the step traits, the contexts, the listeners and the registries all read tags through it.
