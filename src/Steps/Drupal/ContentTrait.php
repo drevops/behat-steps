@@ -359,17 +359,13 @@ trait ContentTrait {
       throw new \RuntimeException(sprintf('The content type "%s" does not exist.', $content_type));
     }
 
-    $nids = $this->queryNodeIds($content_type, [
-      'title' => $title,
-    ]);
+    $nid = $this->queryFindNewestEntityId('node', ['title' => $title], $content_type);
 
-    if (empty($nids)) {
+    if ($nid === NULL) {
       throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
     }
 
-    ksort($nids);
-
-    return (int) end($nids);
+    return (int) $nid;
   }
 
   /**

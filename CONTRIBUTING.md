@@ -180,6 +180,12 @@ When a stored `NULL` and a miss look the same, a yes-or-no question tells them a
 
 A set of entities comes back loaded, never as bare IDs: every `<trait>LoadMultiple()` returns the loaded entities keyed by entity ID, so reading 1 of them tells you what the rest return. When you only need the IDs, call `queryEntityIds()`, the query each `LoadMultiple()` that takes conditions runs before it loads. `webformLoadMultiple()` takes a partial title instead.
 
+When several entities share the title, label, name or description a lookup matches on, a lookup for 1 entity returns the newest, and nothing picks with `reset()`, `current()`, `end()` or a sort of its own:
+
+- A content entity goes through `queryFindNewestEntityId()`. Its serial ID only grows when an entity is created, so the highest ID is the newest even after an older entity is saved again.
+- A config entity, such as a block or a menu, goes through `entityLifecycleFindNewest()`. It prefers the entity the scenario created last, read from the cleanup registry, and otherwise takes the last machine name in natural order, which follows the suffix a colliding machine name gains.
+- A `... does not exist` step deletes every match, and a step that only checks whether an entity exists checks every match. A step that reads or changes 1 entity, `the block :label in the region :region should exist` included, resolves the newest.
+
 `TraitMethodNamingTest` reads each declared return type: a `Find` must allow `NULL`, a `Get` must exclude it, and a `Load` must return `array` or `void`. A `Get` declaring `mixed`, such as `restGetClient()`, leaves the test no type to read, so review holds it to the same rule. The native type can't say what an array holds, so each `LoadMultiple()` has a kernel test under `tests/phpunit/src/Kernel/Steps/Drupal/` that pins its entities and keys instead.
 
 ### The verb comes first

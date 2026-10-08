@@ -53,6 +53,37 @@ trait QueryTrait {
   }
 
   /**
+   * Find the id of the newest entity of a type matching the conditions.
+   *
+   * @param string $entity_type
+   *   The entity type id. Its ids must be serial, as content entity ids are.
+   * @param array<string, mixed> $conditions
+   *   Conditions keyed by field names.
+   * @param string|null $bundle
+   *   Bundle to restrict the query to, or NULL for every bundle.
+   *
+   * @return string|null
+   *   The id of the entity created last, or NULL when no entity matches.
+   *
+   * @throws \RuntimeException
+   *   When a bundle is given for an entity type that declares no bundle key.
+   */
+  public function queryFindNewestEntityId(string $entity_type, array $conditions = [], ?string $bundle = NULL): ?string {
+    $ids = $this->queryEntityIds($entity_type, $conditions, $bundle);
+
+    if ($ids === []) {
+      return NULL;
+    }
+
+    // A serial id grows with each new entity and stays fixed on a re-save, so
+    // the highest id is the newest entity. Natural order compares the ids as
+    // numbers.
+    usort($ids, strnatcmp(...));
+
+    return end($ids);
+  }
+
+  /**
    * Load the ids of the nodes of a content type matching the conditions.
    *
    * @param string $content_type

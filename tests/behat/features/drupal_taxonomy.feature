@@ -155,6 +155,16 @@ Feature: Check that TaxonomyTrait works
     Then the response should contain "200"
     And I should see "Tag1"
 
+  Scenario: Assert "When I visit the :vocabulary term page with the name :name" visits the most recently created term when names are duplicated
+    Given the following "tags" terms exist:
+      | name                  | description                   |
+      | [TEST] Duplicate term | [TEST] Older term description |
+      | [TEST] Duplicate term | [TEST] Newer term description |
+    When I log in as a user with the role "administrator"
+    And I visit the "tags" term page with the name "[TEST] Duplicate term"
+    Then I should see "[TEST] Newer term description"
+    And I should not see "[TEST] Older term description"
+
   @test-trait:Drupal\TaxonomyTrait
   Scenario: Assert negative assertion for "When I visit the :vocabulary term page with the name :name" fails with non-existing vocabulary
     Given some behat configuration

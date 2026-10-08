@@ -414,6 +414,10 @@ trait BlockTrait {
   /**
    * Find a block by its label.
    *
+   * When several blocks carry the label, the block the scenario placed last
+   * is returned, and otherwise the one with the last machine name in natural
+   * order.
+   *
    * @param string $label
    *   The visible label of the block to find.
    *
@@ -431,11 +435,7 @@ trait BlockTrait {
         'settings.label' => $label,
       ]);
 
-    // Machine names gain a numeric suffix on collision, so ordering the keys
-    // ascending puts the most recently created block last.
-    ksort($blocks);
-
-    return empty($blocks) ? NULL : end($blocks);
+    return $this->entityLifecycleFindNewest($blocks);
   }
 
 }

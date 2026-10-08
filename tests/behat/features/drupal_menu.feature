@@ -30,6 +30,36 @@ Feature: Check that MenuTrait works
     And I should not see "Test menu 1 description"
     And I should not see "Test menu 2 description"
 
+  Scenario: Assert "When the menu :menu_name does not exist" removes every menu with the label
+    Given the following menus exist:
+      | id                    | label                 | description                       |
+      | test_duplicate_menu_1 | [TEST] Duplicate menu | Test duplicate menu 1 description |
+      | test_duplicate_menu_2 | [TEST] Duplicate menu | Test duplicate menu 2 description |
+    When the menu "[TEST] Duplicate menu" does not exist
+    And I log in as a user with the role "administrator"
+    And I visit "/admin/structure/menu"
+    Then I should not see "[TEST] Duplicate menu"
+    And I should not see "Test duplicate menu 1 description"
+    And I should not see "Test duplicate menu 2 description"
+
+  Scenario: Assert "When the following menu links do not exist in the menu :menu_name" removes every link with the title
+    Given the following menus exist:
+      | label               | description             |
+      | [TEST] menu 1 title | Test menu 1 description |
+    And the following menu links exist in the menu "[TEST] menu 1 title":
+      | title                 | enabled | uri                     |
+      | [TEST] Duplicate link | 1       | https://www.example.com |
+      | [TEST] Duplicate link | 1       | https://www.example.org |
+      | [TEST] Other link     | 1       | https://www.example.net |
+    When the following menu links do not exist in the menu "[TEST] menu 1 title":
+      | [TEST] Duplicate link |
+    And I log in as a user with the role "administrator"
+    And I visit "/admin/config/development/performance"
+    And I press "Clear all cache"
+    And I visit "/admin/structure/menu/manage/_test_menu_1_title"
+    Then I should not see "[TEST] Duplicate link"
+    And I should see "[TEST] Other link"
+
   Scenario: Assert "When the following menu links exist/do not exist in the menu :menu_name"
     When the following menus exist:
       | label               | description             |

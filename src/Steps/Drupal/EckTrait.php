@@ -138,21 +138,20 @@ trait EckTrait {
    *   The entity title.
    *
    * @return \Drupal\Core\Entity\EntityInterface
-   *   The first entity the query returns.
+   *   The entity created last among those with the title.
    *
    * @throws \RuntimeException
    *   When no entity has the title.
    */
   public function eckGetEntityByTitle(string $entity_type, string $bundle, string $title): EntityInterface {
-    $entities = $this->eckLoadMultiple($entity_type, $bundle, [
-      'title' => $title,
-    ]);
+    $id = $this->queryFindNewestEntityId($entity_type, ['title' => $title], $bundle);
+    $entity = $id === NULL ? NULL : \Drupal::entityTypeManager()->getStorage($entity_type)->load($id);
 
-    if (empty($entities)) {
+    if (!$entity instanceof EntityInterface) {
       throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $entity_type, $title));
     }
 
-    return current($entities);
+    return $entity;
   }
 
   /**

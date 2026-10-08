@@ -302,11 +302,16 @@ Feature: Check that ElementTrait works
   Scenario: Assert step definition "Then the element :selector should not be displayed within the viewport with a top offset of :offset pixels" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#hidden" should not be displayed within the viewport with a top offset of 10 pixels
+    # A negative offset scrolls the top of the element above the viewport.
+    And the element "#top" should not be displayed within the viewport with a top offset of -300 pixels
 
   @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport with a top offset of :offset pixels" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed within the viewport with a top offset of 10 pixels
+    And the element "#top" should be displayed within the viewport with a top offset of 100 pixels
+    And the element "#bottom" should be displayed within the viewport with a top offset of 100 pixels
+    And the element "#positioned-child" should be displayed within the viewport with a top offset of 100 pixels
 
   @javascript @phpserver @test-skipped
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport with a top offset of :offset pixels" fails as expected
@@ -314,23 +319,28 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
-      Then the element "#top" should be displayed within the viewport with a top offset of 1000 pixels
+      Then the element "#top" should be displayed within the viewport with a top offset of -300 pixels
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The element "#top" is not displayed within the viewport with a top offset of 1000 pixels.
+      The element "#top" is not displayed within the viewport with a top offset of -300 pixels.
       """
 
   @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport" and "Then the element :selector should not be displayed within the viewport" succeeds as expected
     Given I visit "http://cli:8888/elements_relative.html"
     Then the element "#top" should be displayed within the viewport
+    And the element "#top-inner" should be displayed within the viewport
+    And the element "#left" should be displayed within the viewport
+    And the element "#left-inner" should be displayed within the viewport
+    And the element "#positioned-child" should be displayed within the viewport
     # Accessibility elements visible to screen readers are visible to normal
     # visibility assertion, but visually hidden.
     And the element "#sr-only" should be displayed
     And the element "#sr-only" should not be displayed within the viewport
     And the element "#sr-only-focusable" should not be displayed within the viewport
+    And the element ".sr-only" should not be displayed within the viewport
 
   @test-trait:ElementTrait @test-skipped
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport" fails as expected
@@ -779,12 +789,12 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/elements_relative.html"
-      Then the element "#top" should be displayed within the viewport with a top offset of 10000 pixels
+      Then the element "#top" should be displayed within the viewport with a top offset of -300 pixels
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The element "#top" is not displayed within the viewport with a top offset of 10000 pixels.
+      The element "#top" is not displayed within the viewport with a top offset of -300 pixels.
       """
 
   @test-trait:ElementTrait

@@ -669,6 +669,7 @@ When I drop the following files on the dropzone ".dropzone":
 >  - Assert element visibility, attribute values, and viewport positioning.
 >  - Execute JavaScript-based interactions with element state verification.
 >  - Handle confirmation dialogs and scrolling operations.
+>  - A top offset of N pixels scrolls the top of the element to N pixels below the top of the viewport. A negative offset scrolls it above the viewport.
 
 
 ### Options
@@ -1221,7 +1222,8 @@ Assert that element with specified CSS is displayed within the viewport with a t
 <br/><br/>
 
 ```gherkin
-Then the element ".sticky-header" should be displayed within the viewport with a top offset of 50 pixels
+Then the element "#main-content" should be displayed within the viewport with a top offset of 80 pixels
+Then the element ".sticky-header" should be displayed within the viewport with a top offset of -200 pixels
 
 ```
 
@@ -1235,7 +1237,7 @@ Assert that element with specified CSS is not displayed within the viewport with
 <br/><br/>
 
 ```gherkin
-Then the element ".below-fold-content" should not be displayed within the viewport with a top offset of 0 pixels
+Then the element ".announcement-bar" should not be displayed within the viewport with a top offset of -200 pixels
 
 ```
 
@@ -3606,6 +3608,7 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 >  - Tag-based viewport control using `@breakpoint:NAME` tag
 >  - Step-based viewport control during scenario execution
 >  - Individual width/height control or combined dimensions.
+>  - Every viewport step needs a browser driver that can resize the window, such as the one a `@javascript` scenario runs.
 >  
 >  Tag-based viewport control:
 >  ```
@@ -6548,7 +6551,7 @@ Then the "image" media with the name "Test media image" should not exist
   <summary><code>@Given the menu :menu_name does not exist</code></summary>
 
 <br/>
-Remove a single menu by its label if it exists
+Remove every menu with a label
 <br/><br/>
 
 ```gherkin
@@ -6579,7 +6582,7 @@ Given the following menus exist:
   <summary><code>@Given the following menu links do not exist in the menu :menu_name:</code></summary>
 
 <br/>
-Remove menu links by title
+Remove every menu link with each of the titles
 <br/><br/>
 
 ```gherkin

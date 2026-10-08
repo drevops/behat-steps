@@ -47,6 +47,23 @@ Feature: Check that BlockTrait works
     Then the block "[TEST] Duplicate Label" in the region "footer_top" should exist
     And the block "[TEST] Duplicate Label" in the region "content" should not exist
 
+  Scenario: Assert that the most recently placed block wins when blocks from 2 plugins share a label
+    Given the block "[TEST] Duplicate Label" does not exist
+    And the instance of the block "User account menu" exists with the following configuration:
+      | label         | [TEST] Duplicate Label |
+      | label_display | 1                      |
+      | region        | content                |
+      | status        | 1                      |
+    And the instance of the block "Powered by Drupal" exists with the following configuration:
+      | label         | [TEST] Duplicate Label |
+      | label_display | 1                      |
+      | region        | footer_top             |
+      | status        | 1                      |
+    Then the block "[TEST] Duplicate Label" in the region "footer_top" should exist
+    And the block "[TEST] Duplicate Label" in the region "content" should not exist
+    Given the block "[TEST] Duplicate Label" does not exist
+    Then the block "[TEST] Duplicate Label" should not exist
+
   @test-trait:Drupal\BlockTrait
   Scenario: Assert "block should exist" fails for non-existing block
     Given some behat configuration

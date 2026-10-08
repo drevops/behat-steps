@@ -261,6 +261,9 @@ trait MediaTrait {
   /**
    * Visit the action page of the media with a specified name.
    *
+   * When several media items of the type share the name, the newest is
+   * visited.
+   *
    * @param string $media_type
    *   The media type.
    * @param string $name
@@ -270,16 +273,16 @@ trait MediaTrait {
    *   NULL for the media page.
    */
   public function mediaVisitActionPageWithName(string $media_type, string $name, ?string $action_subpath = NULL): void {
-    $media = $this->mediaLoadMultiple($media_type, [
-      'name' => $name,
-    ]);
+    $this->backendFor(CoreCapabilityInterface::class);
 
-    if (empty($media)) {
+    $this->assertPrerequisites(__TRAIT__);
+
+    $mid = $this->queryFindNewestEntityId('media', ['name' => $name], $media_type);
+
+    if ($mid === NULL) {
       throw new \RuntimeException(sprintf('Unable to find "%s" media with the name "%s".', $media_type, $name));
     }
 
-    ksort($media);
-    $mid = end($media)->id();
     $path = $this->locatePath('/media/' . $mid . ($action_subpath ?? ''));
 
     $this->getSession()->visit($path);

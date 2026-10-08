@@ -116,21 +116,12 @@ trait SearchApiTrait {
    *   The node title.
    *
    * @return \Drupal\node\NodeInterface|null
-   *   The node with the highest revision ID among those with the title, or
-   *   NULL when none has it.
+   *   The newest node among those with the title, or NULL when none has it.
    */
   public function searchApiFindNodeByTitle(string $content_type, string $title): ?NodeInterface {
-    $nids = $this->queryNodeIds($content_type, [
-      'title' => $title,
-    ]);
+    $nid = $this->queryFindNewestEntityId('node', ['title' => $title], $content_type);
 
-    if (empty($nids)) {
-      return NULL;
-    }
-
-    ksort($nids);
-
-    return Node::load(end($nids));
+    return $nid === NULL ? NULL : Node::load($nid);
   }
 
   /**

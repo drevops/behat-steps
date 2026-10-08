@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Kernel test for loading content blocks through 'ContentBlockTrait'.
+ * Kernel test for loading and finding content blocks through 'ContentBlockTrait'.
  */
 #[CoversTrait(ContentBlockTrait::class)]
 #[Group('behat')]
@@ -56,6 +56,23 @@ class ContentBlockTraitKernelTest extends StepTraitKernelTestBase {
     $this->createContentBlock('other', 'Shared');
 
     $this->assertSame([], $this->context->contentBlockLoadMultiple('basic', ['info' => 'Shared']));
+  }
+
+  public function testGetByDescriptionReturnsTheContentBlockCreatedLast(): void {
+    $this->createContentBlock('basic', 'Shared');
+    $newest = $this->createContentBlock('basic', 'Shared');
+    $this->createContentBlock('other', 'Shared');
+
+    $this->assertSame($newest->id(), $this->context->contentBlockGetByDescription('basic', 'Shared')->id());
+  }
+
+  public function testGetByDescriptionFailsWhenNothingMatches(): void {
+    $this->createContentBlock('other', 'Shared');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to find "basic" content block with the description "Shared".');
+
+    $this->context->contentBlockGetByDescription('basic', 'Shared');
   }
 
   protected function createContentBlock(string $content_block_type, string $info): BlockContentInterface {

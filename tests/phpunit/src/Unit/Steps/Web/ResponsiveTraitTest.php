@@ -401,12 +401,17 @@ class ResponsiveTraitTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderGetCurrentDimensions')]
-  public function testGetCurrentDimensions(?int $width, ?int $height, array $expected): void {
+  public function testGetCurrentDimensions(mixed $width, mixed $height, array $expected, ?string $expected_message = NULL): void {
     $session = $this->attachSession();
     $session->method('evaluateScript')->willReturnMap([
       ['return window.innerWidth;', $width],
       ['return window.innerHeight;', $height],
     ]);
+
+    if ($expected_message) {
+      $this->expectException(\RuntimeException::class);
+      $this->expectExceptionMessage($expected_message);
+    }
 
     $this->assertSame($expected, $this->testObject->responsiveGetCurrentDimensions());
   }
@@ -414,15 +419,20 @@ class ResponsiveTraitTest extends UnitTestCase {
   public static function dataProviderGetCurrentDimensions(): array {
     return [
       'reported by the browser' => [1024, 768, ['width' => 1024, 'height' => 768]],
-      'not reported by the browser' => [NULL, NULL, ['width' => 1280, 'height' => 800]],
+      'reported as numeric strings' => ['1024', '768', ['width' => 1024, 'height' => 768]],
+      'width not reported' => [NULL, 768, [], 'The browser reported the viewport width as "null", but it should be a positive integer.'],
+      'height reported as 0' => [1024, 0, [], 'The browser reported the viewport height as "0", but it should be a positive integer.'],
+      'width reported as text' => ['wide', 768, [], 'The browser reported the viewport width as "wide", but it should be a positive integer.'],
     ];
   }
 
-  public function testGetCurrentDimensionsWithoutJavascript(): void {
+  public function testGetCurrentDimensionsFailsWithoutJavascript(): void {
     $session = $this->attachSession();
-    $session->method('evaluateScript')->willThrowException(new UnsupportedDriverActionException('Evaluating scripts is not supported by %s', $this->createStub(DriverInterface::class)));
+    $session->method('evaluateScript')->willThrowException(new UnsupportedDriverActionException('JS is not supported by %s', $this->createStub(DriverInterface::class)));
 
-    $this->assertSame(['width' => 1280, 'height' => 800], $this->testObject->responsiveGetCurrentDimensions());
+    $this->expectException(UnsupportedDriverActionException::class);
+
+    $this->testObject->responsiveGetCurrentDimensions();
   }
 
   public function testResize(): void {
@@ -432,9 +442,12 @@ class ResponsiveTraitTest extends UnitTestCase {
     $this->testObject->responsiveResize(1920, 1080);
   }
 
-  public function testResizeWithoutResizeSupport(): void {
+  public function testResizeFailsWithoutResizeSupport(): void {
     $session = $this->attachSession();
-    $session->expects($this->once())->method('resizeWindow')->willThrowException(new UnsupportedDriverActionException('Resizing windows is not supported by %s', $this->createStub(DriverInterface::class)));
+    $session->expects($this->once())->method('resizeWindow')->willThrowException(new UnsupportedDriverActionException('Window resizing is not supported by %s', $this->createStub(DriverInterface::class)));
+
+    $this->expectException(UnsupportedDriverActionException::class);
+    $this->expectExceptionMessage('Window resizing is not supported by');
 
     $this->testObject->responsiveResize(1920, 1080);
   }

@@ -227,13 +227,25 @@ Feature: Check that ResponsiveTrait works
     When I am on "http://cli:8888/javascript_clean1.html"
     And I set the viewport to the breakpoint "mobile_portrait"
 
-  @phpserver
-  Scenario: Viewport steps without JavaScript driver should not throw exceptions
-    When I am on "http://cli:8888/javascript_clean1.html"
-    And I set the viewport to the breakpoint "mobile_portrait"
-    And I set the viewport to "1920" by "1080"
-    And I set the viewport width to "1280"
-    And I set the viewport height to "1024"
+  @test-trait:ResponsiveTrait
+  Scenario Outline: A viewport step without a JavaScript browser driver should throw exception
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I am on "http://cli:8888/javascript_clean1.html"
+      And <step>
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "Behat\Mink\Exception\UnsupportedDriverActionException" exception:
+      """
+      <message>
+      """
+    Examples:
+      | step                                                   | message                             |
+      | I set the viewport to the breakpoint "mobile_portrait" | Window resizing is not supported by |
+      | I set the viewport to "1920" by "1080"                 | Window resizing is not supported by |
+      | I set the viewport width to "1280"                     | JS is not supported by              |
+      | I set the viewport height to "1024"                    | JS is not supported by              |
 
   @javascript @phpserver
   Scenario: Resize before visiting any page should start session

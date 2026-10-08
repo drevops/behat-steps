@@ -209,23 +209,20 @@ trait ContentBlockTrait {
    *   The block description.
    *
    * @return \Drupal\block_content\BlockContentInterface
-   *   The content block with the highest ID.
+   *   The content block created last.
    *
    * @throws \RuntimeException
    *   When no content block of the type has the description.
    */
   public function contentBlockGetByDescription(string $content_block_type, string $description): BlockContentInterface {
-    $content_blocks = $this->contentBlockLoadMultiple($content_block_type, [
-      'info' => $description,
-    ]);
+    $id = $this->queryFindNewestEntityId('block_content', ['info' => $description], $content_block_type);
+    $content_block = $id === NULL ? NULL : BlockContent::load($id);
 
-    if (empty($content_blocks)) {
+    if (!$content_block instanceof BlockContentInterface) {
       throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $content_block_type, $description));
     }
 
-    ksort($content_blocks);
-
-    return end($content_blocks);
+    return $content_block;
   }
 
   /**
