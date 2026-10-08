@@ -613,7 +613,7 @@ trait XmlTrait {
   }
 
   /**
-   * Get the response content the XML steps assert against.
+   * Get the response content, or the content a fixture step set in its place.
    *
    * @return string
    *   The content set by a fixture step, or the live page content.

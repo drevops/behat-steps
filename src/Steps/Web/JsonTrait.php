@@ -405,7 +405,7 @@ trait JsonTrait {
   }
 
   /**
-   * Get the response content the JSON steps assert against.
+   * Get the response content, or the content a fixture step set in its place.
    *
    * @return string
    *   The content set by a fixture step, or the live page content.

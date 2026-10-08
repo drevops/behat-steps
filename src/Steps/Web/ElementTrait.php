@@ -717,7 +717,6 @@ trait ElementTrait {
    * Override this method in the context class to change the behavior:
    * @code
    * class FeatureContext extends DrupalContext {
-   *   use ElementTrait;
    *   public function elementGetScrollIntoViewCenter(): bool {
    *     return FALSE;
    *   }

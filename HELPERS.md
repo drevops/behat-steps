@@ -579,7 +579,6 @@ Whether to scroll elements to the center of the viewport
 
 ```
 class FeatureContext extends DrupalContext {
-  use ElementTrait;
   public function elementGetScrollIntoViewCenter(): bool {
     return FALSE;
   }
@@ -865,7 +864,7 @@ Decode JSON content as loosely-typed data
   <summary><code>public function jsonGetContent(): string</code></summary>
 
 <br/>
-Get the response content the JSON steps assert against
+Get the response content, or the content a fixture step set in its place
 <br/><br/>
 
 </details>
@@ -1621,7 +1620,7 @@ Get the feed element of an Atom response
   <summary><code>public function xmlGetContent(): string</code></summary>
 
 <br/>
-Get the response content the XML steps assert against
+Get the response content, or the content a fixture step set in its place
 <br/><br/>
 
 </details>
