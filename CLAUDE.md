@@ -7,7 +7,9 @@ This repository contains Behat step definitions for PHP projects (with specializ
 
 Source files are located in the `src` directory. Each trait is organized into a separate file, and the steps are defined within those files.
 
-The step vocabulary lives under `src/Steps/`, split into `Web/` (`DrevOps\BehatSteps\Steps\Web`) and `Drupal/` (`DrevOps\BehatSteps\Steps\Drupal`). The directory a trait sits in is its context, and `docs.php` reads it from there. The helper traits under `src/Helper/` split the same way, into `Web/` and `Drupal/`, so a trait's half is legible from its path. The backend layer under `src/Backend/` and both helper halves are library code, not vocabulary.
+The step vocabulary lives under `src/Steps/`, split into `Web/` (`DrevOps\BehatSteps\Steps\Web`) and `Drupal/` (`DrevOps\BehatSteps\Steps\Drupal`). The directory a trait sits in is its context, and `docs.php` reads it from there. Placement follows the subject: `Web/` holds steps that mean something on any site, and `Drupal/` holds steps that only mean something on a Drupal site, whether they reach a backend or only drive the page, as `BatchTrait` and `BigPipeTrait` do. The helper traits under `src/Helper/` split the same way, into `Web/` and `Drupal/`, so a trait's half is legible from its path. The backend layer under `src/Backend/` and both helper halves are library code, not vocabulary.
+
+Every type under `src/Behat/` sits in the sub-namespace named for its role or concern, never at its root, and `Tag` is the 1 exception because every layer reads tags through it. `ClassNamingTest` fails any other root type. The contracts the context initializer injects through (`BackendAwareInterface`, `ParametersAwareInterface`, `UserAwareInterface`) sit in `Context/`; `ParametersTrait` sits in `Config/` and `MinkAwareTrait` in `Mink/`, so no container service imports `Context/`.
 
 `src/Behat/Context/` is one chain: `WebRawContext` carries the plumbing and 3 of the web helper traits without registering steps, `WebContext` extends it and composes every trait under `src/Steps/Web/`, and `DrupalContext` extends that and composes every trait under `src/Steps/Drupal/`.
 
@@ -272,6 +274,12 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - An optional parameter belongs on a helper, never on a step method. A string parameter left out for "not given" defaults to `NULL` with a nullable type, never to an empty string, while a default that is a real value, such as `$binary = 'drush'`, stays - `tests/phpunit/src/OptionalParameterTest.php` rejects an empty-string default anywhere under `src/`
 - A step body is a thin wrapper over named helpers: it parses its arguments, calls helpers and guards on what they return. No step calls another step of its trait, holds a `switch`, `match`, `try` or closure, or runs a loop doing more than guarding and 1 call, and none runs more than 4 statements besides its guards - `tests/phpunit/src/StepBodyTest.php` enforces it. See "Thin step bodies" in [CONTRIBUTING.md](CONTRIBUTING.md)
 - Always provide both imperative (content) and continuous (activeForm) task descriptions
+
+### Public surface
+- A `public` helper is published in [HELPERS.md](HELPERS.md) and covered by semantic versioning; a `protected` one promises nothing
+- A job published in 1 trait is published in every trait that does it: `xmlGetFirstNode()` is public because `jsonGetValue()` is. A helper serving only its own trait's machinery stays protected
+- A method whose docblock invites an override (`Override to ...`, `Override when ...`, `overrides this method`) is public - `tests/phpunit/src/PublicSurfaceTest.php` fails a protected one
+- A lookup is named for what a miss does: `Find` returns `NULL`, `Get` throws, `Load` returns a set. `Read` only reads a file's contents, as `fixtureDirectoryReadFile()` does, and a helper that removes what it returns names the removal, as `watchdogClearErrors()` does
 
 ### Nested PyStrings in @test-trait Scenarios
 When writing @test-trait scenarios that test BehatCliContext functionality (tests that run Behat within Behat), nested PyStrings are required when the inner scenario steps themselves accept PyString arguments.
