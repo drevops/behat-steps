@@ -47,7 +47,7 @@ deactivate Collect
 Main -> Extract: read the members off each trait
 activate Extract
 Extract -> Extract: vocabulary: public methods prefixed with\nthe trait name that carry a step attribute
-Extract -> Extract: toolbox: the other public methods, minus\nhooks, transformations and anything @internal
+Extract -> Extract: toolbox: the other public methods the trait's\nown file declares, minus hooks, transformations\nand anything @internal
 Extract -> Extract: add TOOLBOX_CLASSES, whose own public\nmethods carry no trait-name prefix
 Extract -> Extract: parse each docblock for the description\nand the @code example, following\n{@inheritdoc} to its declaration
 Extract -> Extract: read each trait's option and prerequisite\ndeclarations through ConfigSchemaReader and\nPrerequisiteReader, the readers the runtime uses

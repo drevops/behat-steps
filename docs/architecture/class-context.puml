@@ -2,7 +2,8 @@
 ' drevops/behat-steps - the context chain, its services, the helper traits
 ' and 3 representative step traits, plus the exceptions a failing step throws.
 ' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
-' DrupalContext.php, BackendAwareInterface.php, UserAwareInterface.php,
+' DrupalContext.php, BackendAwareInterface.php, ParametersAwareInterface.php,
+' UserAwareInterface.php, Initializer/BackendAwareInitializer.php,
 ' src/Behat/Config/, src/Behat/Prerequisite/, src/Behat/Registry/,
 ' src/Behat/Auth/, src/Behat/Listener/, src/Helper/Web/, src/Helper/Drupal/,
 ' src/Steps/Web/PathTrait.php, src/Steps/Web/CommandTrait.php,
@@ -60,9 +61,28 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
     +authGetAuthenticator() : AuthenticatorInterface
   }
 
+  interface ParametersAwareInterface {
+    +setParameters(parameters) : void
+    +getParameter(name) : mixed
+  }
+
+  interface BackendAwareInterface {
+    +setBackendRegistry(registry) : void
+    +setHookDispatcher(dispatcher) : void
+    +setBasicAuthenticator(authenticator) : void
+    +setHttpClientFactory(factory) : void
+    +setOptionResolverFactory(factory) : void
+    --
+    getters for the registry, the basic
+    authenticator, the HTTP client factory
+    and the option resolver
+  }
+
   WebRawContext <|-- WebContext
   WebContext <|-- DrupalContext
   UserAwareInterface <|.. DrupalContext
+  ParametersAwareInterface <|-- BackendAwareInterface
+  BackendAwareInterface <|.. WebRawContext
 }
 
 package "Behat\\MinkExtension\\Context" #ECEFF1 {
@@ -143,6 +163,13 @@ package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
     +apply(group, option, value, tags) : mixed
   }
 
+  class ParametersTrait <<trait>> {
+    +setParameters(parameters) : void
+    +getParameter(name) : mixed
+    +getDrupalText(name) : string
+    +getDrupalSelector(name) : string
+  }
+
   TraitOptionResolverFactoryInterface ..> TraitOptionResolverInterface : builds
   TraitOptionResolverInterface o--> Option
   TraitOptionResolverInterface o--> TagOverrides
@@ -151,6 +178,7 @@ package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
   TraitOptionResolverFactoryInterface -[hidden]down- TraitOptionResolverInterface
   Option -[hidden]down- ConfigSchemaReader
   ConfigSchemaReader -[hidden]down- TagOverrides
+  TagOverrides -[hidden]down- ParametersTrait
 }
 
 package "DrevOps\\BehatSteps\\Behat\\Prerequisite" #F3E5F5 {
@@ -316,6 +344,7 @@ package "Steps\\Drupal" #E3F2FD {
 WebRawContext ..> RequestHeadersTrait : composes
 WebRawContext ..> StringTrait : composes
 WebRawContext ..> LastStepTrait : composes
+WebRawContext ..> ParametersTrait : composes
 AuthTrait ..> EntityLifecycleTrait : composes
 
 PathTrait ..> RawMinkContext : requires
@@ -416,6 +445,17 @@ note bottom of TraitOptionResolverInterface
   A skip tag names a trait. skipTag() reads it together with
   the trait's enabled option, and SkipTagListener fails the
   run at scenario start on a value that is not a trait name.
+end note
+
+note bottom of ParametersTrait
+  Reads the extension parameters: interface text,
+  selectors and login settings. Authenticator, a
+  container service, composes it as well, so it sits
+  in Config and no service imports Behat\\Context.
+
+  Its methods fill ParametersAwareInterface, which
+  sits with the contexts, because the initializer
+  checks for it on a context.
 end note
 
 note bottom of PrerequisiteReader
