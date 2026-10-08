@@ -4,19 +4,19 @@
 
 | Class | Helpers | Description |
 | --- | --- | --- |
-| [AccessibilityTrait](#accessibilitytrait) | 16 | Assess accessibility of rendered pages. |
+| [AccessibilityTrait](#accessibilitytrait) | 21 | Assess accessibility of rendered pages. |
 | [BasicAuthTrait](#basicauthtrait) | 1 | Keep HTTP basic authentication applied across session resets. |
 | [CommandTrait](#commandtrait) | 2 | Run local shell commands and assert on their result. |
 | [CookieTrait](#cookietrait) | 4 | Verify and inspect browser cookies. |
 | [DateTrait](#datetrait) | 3 | Convert relative date expressions into timestamps or formatted dates. |
 | [DiagnosticsTrait](#diagnosticstrait) | 12 | Append on-failure diagnostics to the failure message of any failed step. |
 | [DropzoneTrait](#dropzonetrait) | 1 | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
-| [ElementTrait](#elementtrait) | 7 | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [ElementTrait](#elementtrait) | 8 | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | 13 | Manipulate form fields and verify widget functionality. |
 | [FileDownloadTrait](#filedownloadtrait) | 7 | Test file download functionality with content verification. |
 | [IframeTrait](#iframetrait) | 1 | Switch between iframes and the root document. |
 | [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
-| [JsonTrait](#jsontrait) | 6 | Assert JSON responses with path and schema checks. |
+| [JsonTrait](#jsontrait) | 7 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
 | [MetatagTrait](#metatagtrait) | 14 | Assert `<meta>` tags and head/SEO markup in page markup. |
@@ -28,7 +28,7 @@
 | [RestTrait](#resttrait) | 2 | Lightweight REST API testing with no Drupal dependencies. |
 | [TableTrait](#tabletrait) | 10 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
-| [XmlTrait](#xmltrait) | 7 | Assert XML responses with element and attribute checks. |
+| [XmlTrait](#xmltrait) | 9 | Assert XML responses with element and attribute checks. |
 | [FixtureDirectoryTrait](#fixturedirectorytrait) | 5 | Resolves fixture files in the directory Mink's `files_path` parameter names. |
 | [HeadingTrait](#headingtrait) | 1 | Finds a heading by its text within the page or an element of it. |
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
@@ -48,7 +48,6 @@
 | [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 4 | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 10 | Test Drupal email functionality with content verification. |
-| [Drupal\EntityTrait](#drupalentitytrait) | 6 | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | 4 | Manage Drupal menus and menu links. |
@@ -57,15 +56,15 @@
 | [Drupal\QueueTrait](#drupalqueuetrait) | 4 | Manage and assert Drupal queue state. |
 | [Drupal\RedirectTrait](#drupalredirecttrait) | 3 | Manage Drupal redirect entities provided by the contrib `redirect` module. |
 | [Drupal\SearchApiTrait](#drupalsearchapitrait) | 3 | Run Drupal Search API indexing and cron hooks. |
-| [Drupal\StateTrait](#drupalstatetrait) | 2 | Manage and assert Drupal State API values with automatic revert. |
+| [Drupal\StateTrait](#drupalstatetrait) | 3 | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | 6 | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | 2 | Configure Drupal Testmode module for controlled testing scenarios. |
 | [Drupal\UserTrait](#drupalusertrait) | 12 | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 3 | Manage Drupal webforms. |
-| [Drupal\AuthTrait](#drupalauthtrait) | 12 | Creates users and roles, logs them in, and removes them afterwards. |
-| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 6 | Creates Drupal entities and removes them when the scenario ends. |
-| [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 6 | Resolves a fixture file path for a file or image field. |
+| [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
+| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 7 | Creates Drupal entities and removes them when the scenario ends. |
+| [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
 | [Drupal\QueryTrait](#drupalquerytrait) | 2 | Reads Drupal state a step asserts on without going through a backend. |
 
 ### Index of Toolbox helpers
@@ -110,10 +109,28 @@ Read the engine source once from the given location
 </details>
 
 <details>
+  <summary><code>public function accessibilityFormatUrl(string $url): string</code></summary>
+
+<br/>
+Format a page URL for display in reports and gate messages
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function accessibilityGetAutoTag(): string</code></summary>
 
 <br/>
 Return the base tag name that enables automatic mode (no `@` prefix)
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public static function accessibilityGetBlankUrls(): array</code></summary>
+
+<br/>
+Return URL values that represent a blank tab rather than a real page
 <br/><br/>
 
 </details>
@@ -213,6 +230,33 @@ Return the absolute directory used to write per-scenario reports
 
 <br/>
 Normalize raw engine output into the canonical shape used by the trait
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public static function accessibilityRenderAggregate(array $data): string</code></summary>
+
+<br/>
+Render the entire aggregate report from prepared data
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function accessibilityRenderHtmlPage(string $sections): string</code></summary>
+
+<br/>
+Wrap the per-URL sections in a standalone HTML page
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function accessibilityRenderHtmlSections(): string</code></summary>
+
+<br/>
+Render the per-URL section markup (1 `<section>` per visited URL)
 <br/><br/>
 
 </details>
@@ -527,6 +571,23 @@ Get where an element's markup starts within the markup of the page
 </details>
 
 <details>
+  <summary><code>public function elementGetScrollIntoViewCenter(): bool</code></summary>
+
+<br/>
+Whether to scroll elements to the center of the viewport
+<br/><br/>
+
+```
+class FeatureContext extends DrupalContext {
+  public function elementGetScrollIntoViewCenter(): bool {
+    return FALSE;
+  }
+}
+```
+
+</details>
+
+<details>
   <summary><code>public function elementGetVisible(string $selector): NodeElement</code></summary>
 
 <br/>
@@ -795,6 +856,15 @@ Decode a JSON string into an array
 
 <br/>
 Decode JSON content as loosely-typed data
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function jsonGetContent(): string</code></summary>
+
+<br/>
+Get the response content, or the content a fixture step set in its place
 <br/><br/>
 
 </details>
@@ -1547,6 +1617,24 @@ Get the feed element of an Atom response
 </details>
 
 <details>
+  <summary><code>public function xmlGetContent(): string</code></summary>
+
+<br/>
+Get the response content, or the content a fixture step set in its place
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function xmlGetFirstNode(string $element): DOMNode</code></summary>
+
+<br/>
+Return the first node matching an XPath expression
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function xmlGetRssChannel(): DOMElement</code></summary>
 
 <br/>
@@ -1779,19 +1867,19 @@ Get the cache bin used for the page cache
 > Assert and set stored Drupal configuration values with automatic revert.
 
 <details>
-  <summary><code>public function configReadEffective(string $name, string $key): mixed</code></summary>
+  <summary><code>public function configFindEffectiveValue(string $name, string $key): mixed</code></summary>
 
 <br/>
-Read an effective configuration value, with overrides applied
+Find an effective configuration value, with overrides applied
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function configReadStored(string $name, string $key): mixed</code></summary>
+  <summary><code>public function configFindStoredValue(string $name, string $key): mixed</code></summary>
 
 <br/>
-Read a stored configuration value, ignoring runtime overrides
+Find a stored configuration value, ignoring runtime overrides
 <br/><br/>
 
 </details>
@@ -1974,7 +2062,7 @@ Return the backend that runs Drush commands
 </details>
 
 <details>
-  <summary><code>public function drushReadOutput(): string</code></summary>
+  <summary><code>public function drushGetOutput(): string</code></summary>
 
 <br/>
 Return the output of the most recent Drush command
@@ -2125,66 +2213,6 @@ Get the collected emails sent to an address
 
 <br/>
 Get the collected emails with a subject
-<br/><br/>
-
-</details>
-
-## Drupal\EntityTrait
-
-[Source](src/Steps/Drupal/EntityTrait.php), [Steps](STEPS.md#drupalentitytrait)
-
-> Create entities of a type that has no dedicated trait.
-
-<details>
-  <summary><code>public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates an entity of a type that has no dedicated method
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateLanguage(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a language
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateNode(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a node
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateTerm(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a taxonomy term
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
-
-<br/>
-Expands a stub's raw Gherkin values into the storage field shape
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleRegister(EntityInterface $entity): void</code></summary>
-
-<br/>
-Registers an entity saved outside the create pipeline for cleanup
 <br/><br/>
 
 </details>
@@ -2550,10 +2578,19 @@ Track a node in the search indexes, then index 1 item on each
 > Manage and assert Drupal State API values with automatic revert.
 
 <details>
-  <summary><code>public function stateReadValue(string $name): array</code></summary>
+  <summary><code>public function stateExists(string $name): bool</code></summary>
 
 <br/>
-Read a state value, distinguishing stored NULL from a missing key
+Determine whether a state key exists, a key holding NULL included
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function stateFindValue(string $name): mixed</code></summary>
+
+<br/>
+Find a state value
 <br/><br/>
 
 </details>
@@ -2781,10 +2818,10 @@ Assert no errors at or above the severity threshold were logged
 </details>
 
 <details>
-  <summary><code>public function watchdogReadErrors(): array</code></summary>
+  <summary><code>public function watchdogClearErrors(): array</code></summary>
 
 <br/>
-Read the errors logged since the scenario started, and clear them
+Clear the errors logged since the scenario started, and return them
 <br/><br/>
 
 </details>
@@ -2882,60 +2919,6 @@ Logs the current user out
 
 </details>
 
-<details>
-  <summary><code>public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates an entity of a type that has no dedicated method
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateLanguage(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a language
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateNode(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a node
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleCreateTerm(EntityStubInterface $stub): EntityStubInterface</code></summary>
-
-<br/>
-Creates a taxonomy term
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
-
-<br/>
-Expands a stub's raw Gherkin values into the storage field shape
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleRegister(EntityInterface $entity): void</code></summary>
-
-<br/>
-Registers an entity saved outside the create pipeline for cleanup
-<br/><br/>
-
-</details>
-
 ## Drupal\EntityLifecycleTrait
 
 [Source](src/Helper/Drupal/EntityLifecycleTrait.php)
@@ -2979,6 +2962,15 @@ Creates a taxonomy term
 </details>
 
 <details>
+  <summary><code>public function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface</code></summary>
+
+<br/>
+Builds the entity-field parser for 1 parsing call
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
 
 <br/>
@@ -3001,51 +2993,6 @@ Registers an entity saved outside the create pipeline for cleanup
 [Source](src/Helper/Drupal/FixtureFileTrait.php)
 
 > Resolves a fixture file path for a file or image field.
-
-<details>
-  <summary><code>public function fixtureDirectoryFind(): ?string</code></summary>
-
-<br/>
-Find the fixtures directory
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function fixtureDirectoryFindFile(string $path): ?string</code></summary>
-
-<br/>
-Find a file in the fixtures directory
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function fixtureDirectoryGet(): string</code></summary>
-
-<br/>
-Get the fixtures directory
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function fixtureDirectoryGetFile(string $path): string</code></summary>
-
-<br/>
-Get a file in the fixtures directory
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function fixtureDirectoryReadFile(string $path): string</code></summary>
-
-<br/>
-Read a file in the fixtures directory
-<br/><br/>
-
-</details>
 
 <details>
   <summary><code>public function fixtureFileExpandEntityFields(string $entity_type, EntityStubInterface $stub): void</code></summary>

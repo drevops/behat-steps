@@ -148,7 +148,9 @@ A qualifier that the step opens with `with` reads `With` in the name, and a seco
 
 ### Consumer override points
 
-A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityResolveTags()` or `restResolveUrl()`.
+A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and semantic versioning covers it. A project's override relies on the package calling the method at the same point with the same signature, and a protected method promises neither, so a docblock never invites an override of one. `PublicSurfaceTest` fails a protected method whose docblock says `Override to`, `Override when` or `overrides this method`.
+
+A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`, `accessibilityGetBlankUrls()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityFormatUrl()` or `restResolveUrl()`.
 
 ### Helpers carry a verb
 
@@ -172,7 +174,9 @@ A lookup's verb says what it does when nothing matches, so a caller knows whethe
 - **`Get`** throws when nothing matches and never returns `NULL`, so its return type excludes `NULL`: `tableGetRowByText()`, `blockGetByLabel()`, `regionGet()`. A consumer override point is a `Get` for the same reason - it always supplies a value.
 - **`Load`** loads a set and returns an empty array when nothing matches, as `userLoadMultiple()` does, or loads a document into the trait's own state, as `xmlLoadDocument()` does. A lookup for 1 item is a `Find` or a `Get`, never a `Load`.
 
-A trait that needs both contracts for one lookup declares the pair, and the `Get` calls the `Find`: `tableGetRowByText()` throws where `tableFindRowByText()` returns `NULL`. `Resolve` isn't a lookup verb. It derives a value from its input, as `restResolveUrl()` turns a relative URL into an absolute one.
+A trait that needs both contracts for one lookup declares the pair, and the `Get` calls the `Find`: `tableGetRowByText()` throws where `tableFindRowByText()` returns `NULL`. `Resolve` isn't a lookup verb. It derives a value from its input, as `restResolveUrl()` turns a relative URL into an absolute one. `Read` isn't one either: it reads a file's contents, as `fixtureDirectoryReadFile()` does, and names nothing else.
+
+When a stored `NULL` and a miss look the same, a yes-or-no question tells them apart: `stateFindValue()` returns `NULL` for both, and `stateExists()` answers which it was. A helper that removes what it returns names the removal instead of a lookup verb, so `watchdogClearErrors()` deletes the errors it hands back and a later call returns only new ones.
 
 A set of entities comes back loaded, never as bare IDs: every `<trait>LoadMultiple()` returns the loaded entities keyed by entity ID, so reading 1 of them tells you what the rest return. When you only need the IDs, call `queryEntityIds()`, the query each `LoadMultiple()` that takes conditions runs before it loads. `webformLoadMultiple()` takes a partial title instead.
 
@@ -212,6 +216,16 @@ A class name states the role the class plays, so a reader can tell a lookup tabl
 A namespace follows the same rule. It's named for the role its classes share, as `Registry` and `Listener` are, or for the concern they serve, as `Auth` and `Config` are, so the registries live in `Behat\Registry` and the authenticators in `Behat\Auth`. `ClassNamingTest` fails a class or a namespace under `src/Behat` whose name ends in `Manager`, `Handler`, `Helper` or `Service`.
 
 An accessor is named for what it returns, after its trait prefix where one applies: `getBackendRegistry()`, `authGetUserRegistry()`. A name and its return type cannot disagree, so renaming a class renames its accessors with it.
+
+### Every type sits in a sub-namespace
+
+A type goes in the sub-namespace of its role or concern, never at the root of `src/Behat`, even when several sub-namespaces build on it:
+
+- **The contracts the context initializer injects through sit with the contexts.** `BackendAwareInterface`, `ParametersAwareInterface` and `UserAwareInterface` are all in `Behat\Context`, and `BackendAwareInterface` extends `ParametersAwareInterface`.
+- **A trait sits with the concern it serves, not with the contract its methods fill.** `ParametersTrait` reads the extension's configuration, so it's in `Behat\Config`, and the authenticator composes it from there as a context does. That keeps every container service clear of `Behat\Context`. `MinkAwareTrait` gives a container service the Mink session a context has, so it's in `Behat\Mink`.
+- **`Tag` is the 1 type at the root.** The step traits, the contexts, the listeners and the registries all read tags through it, so no sub-namespace owns it.
+
+`ClassNamingTest` fails any other type directly under `src/Behat`. Adding 1 there means adding it to `ROOT_TYPES`, with the reason no sub-namespace owns it.
 
 ### A capability wrapper is not a class
 
@@ -268,7 +282,7 @@ The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the 
 
 A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
 
-- It is declared by a trait under `src/Steps` or `src/Helper`, or by a class in `docs.php`'s `TOOLBOX_CLASSES`.
+- It is declared by a trait under `src/Steps` or `src/Helper`, or by a class in `docs.php`'s `TOOLBOX_CLASSES`. A helper is published once, under the trait whose file declares it, never under a trait that composes that one.
 - It is `public`. A `private` member cannot be reached from a composing context and has no place in a trait.
 - It begins with its trait's name, which is the collision rule every trait member follows anyway.
 - It carries no `#[Given]`, `#[When]`, `#[Then]`, `#[Transform]` or hook attribute. Those are registered with Behat and belong to the vocabulary.
@@ -290,6 +304,14 @@ Withdraw a member that exists only to serve the machinery with `@internal`, nami
  *   Injection point called by the context initializer.
  */
 ```
+
+### The same job has the same visibility
+
+What a project can call shouldn't depend on which trait a helper happens to sit in, so a job published in 1 trait is published in every trait that does it. `xmlGetFirstNode()` is public because `jsonGetValue()` is: both are the lookup a trait's element or path assertions run, and both throw when nothing matches. `xmlGetContent()` and `jsonGetContent()` return the content the steps read, a fixture step's content included, so they're public next to the `xmlParse()` and `jsonDecodeLoose()` that take it.
+
+A helper that only resembles a published one is decided on its own. `metatagResolveUrl()` resolves a URL against the page's origin rather than the base URL `restResolveUrl()` uses, and `metatagFetchUrl()` serves only the hreflang return-link check, where `httpDetachedClient()` already covers fetching a page in general, so both stay protected.
+
+A class follows the same rule among its own members. `Authenticator` is final and replaced through its interfaces, so its 3 page-element getters are all protected.
 
 ### Thin step bodies
 
@@ -372,9 +394,9 @@ The harness steps keep their own wording, placeholders, patterns and signatures 
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Backend`.
 
 - **`src/Backend`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Registry/` holds the backend, user and scenario tag registries, `Auth/` holds the authenticator and the basic authenticator, `Context/` holds the 3 context classes, `Mink/` holds the browser capabilities, their adapters and the `browserkit_http` browser driver factory, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator.
+- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Registry/` holds the backend, user and scenario tag registries, `Auth/` holds the authenticator and the basic authenticator, `Context/` holds the 3 context classes and the contracts their initializer injects through, `Config/` holds option resolution and `ParametersTrait`, which reads the extension parameters, `Mink/` holds the browser capabilities, their adapters, the `browserkit_http` browser driver factory and `MinkAwareTrait`, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator.
 - **`src/Helper`** holds the step-free traits a step trait and a context both compose, split into `Web/` (last-step tracking, the request header bag, string shaping, table transposition) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, direct queries). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened.
-- **`src/Steps`** is the step vocabulary - traits a context mixes in. `Web/` holds the ones that drive a page, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
+- **`src/Steps`** is the step vocabulary - traits a context mixes in. Placement follows the subject: `Web/` holds the steps that mean something on any site, and `Drupal/` the ones that only mean something on a Drupal site, whether they reach a backend or only drive the page. The directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under, so a project testing a site that isn't Drupal extends `WebContext` and gets no step it can't use.
 
 `Context/` is one chain. `WebRawContext` carries the plumbing, composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`) and registers no steps; `WebContext` extends it and composes every trait under `Steps/Web`; `DrupalContext` extends that and composes every trait under `Steps/Drupal`. `ContextCompositionTest` holds that directory-to-context coverage in both directions, and holds the chain to one composition of each trait, because a subclass re-composing a parent's trait registers its steps twice.
 
@@ -388,7 +410,7 @@ A trait's directory is its classification, so nothing has to be declared twice: 
 
 A step is only as portable as the backend behind it, so each trait falls into one of four bands. Which band a trait is in decides which capability its steps resolve, and therefore which suites can run them.
 
-- **Nothing.** Every trait under `src/Steps/Web` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any backend, against any site, with no Drupal at all.
+- **Nothing.** Every trait under `src/Steps/Web` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any backend, against any site, with no Drupal at all. `BatchTrait` and `BigPipeTrait` need nothing from a backend either, and sit under `src/Steps/Drupal` because only a Drupal site renders the batch progress bar and the BigPipe placeholders they wait for.
 - **Extension configuration, but no backend.** `MessageTrait`, `RegionTrait` and `MappingTrait` read the `selectors`, `regions` and `mappings` maps that `BehatStepsExtension` injects, and `BasicAuthTrait` reads the basic authenticator. They need the extension registered, not a bootstrapped site.
 - **A narrow capability.** `CacheTrait`'s clear and cron steps, `DrushTrait` and the user and content creation steps resolve one named capability (`CacheCapabilityInterface`, `CronCapabilityInterface`, `DrushCapabilityInterface`, `UserCapabilityInterface`, `ContentCapabilityInterface`, `RoleCapabilityInterface`). They work on any backend implementing it, which for most is the Drush backend as well as the in-process one.
 - **Drupal's API in this process.** Every other trait under `src/Steps/Drupal` calls into `\Drupal::` directly, which only a backend that bootstraps Drupal in-process can serve. Those steps resolve `CoreCapabilityInterface`.

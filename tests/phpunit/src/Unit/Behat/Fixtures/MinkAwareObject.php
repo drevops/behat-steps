@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 
-use DrevOps\BehatSteps\Behat\MinkAwareTrait;
+use DrevOps\BehatSteps\Behat\Mink\MinkAwareTrait;
 
 /**
  * Minimal host for 'MinkAwareTrait'.

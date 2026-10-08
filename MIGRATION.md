@@ -2946,3 +2946,89 @@ A test that asserts one of these messages needs the new text:
 | `the response XML is loaded from the file :filename` and `the response JSON is loaded from the file :filename`, for a missing file | `The file "..." does not exist.` | `The fixture file "..." does not exist.` |
 | The same steps with no `files_path` configured | `The file "..." does not exist.` | `The Mink "files_path" parameter is not configured.` |
 | The same steps with a path that leaves `files_path` | the file outside it was read | `The fixture file "..." is outside the configured "files_path".` |
+
+## Public surface and placement settled
+
+Whether a project could call a helper, override a method or import a type used to depend on where the code happened to sit. Each of these now follows 1 rule, written down in `CONTRIBUTING.md`, and the changes below are what applying them took. No step text changes, so no `.feature` file needs an edit.
+
+### Helpers doing the same job share a visibility
+
+Helpers that did the same job in different traits sat on opposite sides of `public`: `jsonGetValue()` was published while `xmlGetFirstNode()` wasn't, and `xmlParse()` and `jsonDecodeLoose()` were published while the getters for the content they parse weren't. They're aligned now. The 2 content readers take a `Get` name as they're published, since they take no input for `Resolve` to derive a value from.
+
+| Member | Before | After |
+| --- | --- | --- |
+| `XmlTrait::xmlGetFirstNode()` | `protected` | `public` |
+| `XmlTrait::xmlResolveContent()` | `protected` | `public`, renamed `xmlGetContent()` |
+| `JsonTrait::jsonResolveContent()` | `protected` | `public`, renamed `jsonGetContent()` |
+| `Behat\Auth\Authenticator::getLogoutElement()` | `public` | `protected` |
+
+PHP refuses to narrow an inherited method, so a context overriding one of the published methods declares its override `public`, as [The toolbox is now `public`](#the-toolbox-is-now-public) describes. An override of `jsonResolveContent()` is renamed to `jsonGetContent()` as well, or it's never called. Code that called `getLogoutElement()` on the authenticator asks `isLoggedIn()` instead, which is the question the method served.
+
+### Documented override points are public
+
+7 methods carried a docblock asking a project to override them, yet they were protected, so they were missing from [HELPERS.md](HELPERS.md) and outside semantic versioning. They're public now. `accessibilityBlankUrls()` supplies a value, so it's renamed `accessibilityGetBlankUrls()` to match every other override point that does.
+
+| Member | Before | After |
+| --- | --- | --- |
+| `AccessibilityTrait::accessibilityFormatUrl()` | `protected` | `public` |
+| `AccessibilityTrait::accessibilityBlankUrls()` | `protected static` | `public static`, renamed `accessibilityGetBlankUrls()` |
+| `AccessibilityTrait::accessibilityRenderHtmlPage()` | `protected` | `public` |
+| `AccessibilityTrait::accessibilityRenderHtmlSections()` | `protected` | `public` |
+| `AccessibilityTrait::accessibilityRenderAggregate()` | `protected static` | `public static` |
+| `ElementTrait::elementGetScrollIntoViewCenter()` | `protected` | `public` |
+| `Helper\Drupal\EntityLifecycleTrait::entityLifecycleGetFieldParser()` | `protected` | `public` |
+
+An override declared `protected` no longer loads:
+
+```
+Fatal error: Access level to FeatureContext::elementGetScrollIntoViewCenter() must be public (as in class ...)
+```
+
+Change `protected` to `public` on the override and leave its body as it is. An override of `accessibilityBlankUrls()` is renamed `accessibilityGetBlankUrls()` as well, or it's never called, and it stays `static`, because the suite report calls it from a static hook.
+
+### Lookups are named for what a miss does
+
+5 published helpers used `Read`, a verb that says nothing about a miss, and between them they handled one 4 different ways. Each takes the verb for what it does now. Only the name changes, apart from `stateReadValue()`, which returned 2 answers in 1 array and is 2 helpers now.
+
+| Trait | Old | New | When nothing matches |
+| --- | --- | --- | --- |
+| `Drupal\ConfigTrait` | `configReadStored()` | `configFindStoredValue()` | returns `NULL` |
+| `Drupal\ConfigTrait` | `configReadEffective()` | `configFindEffectiveValue()` | returns `NULL` |
+| `Drupal\DrushTrait` | `drushReadOutput()` | `drushGetOutput()` | throws `\RuntimeException` |
+| `Drupal\StateTrait` | `stateReadValue()` | `stateExists()` and `stateFindValue()` | `stateExists()` returns `FALSE`, `stateFindValue()` returns `NULL` |
+| `Drupal\WatchdogTrait` | `watchdogReadErrors()` | `watchdogClearErrors()` | returns an empty array |
+
+`stateReadValue()` returned `['exists' => ..., 'value' => ...]`, so read each half from its own helper:
+
+```php
+// Before.
+$state = $this->stateReadValue('my_module.launched');
+if (!$state['exists']) {
+  return;
+}
+$value = $state['value'];
+
+// After.
+if (!$this->stateExists('my_module.launched')) {
+  return;
+}
+$value = $this->stateFindValue('my_module.launched');
+```
+
+`watchdogClearErrors()` deletes the errors it returns, exactly as `watchdogReadErrors()` did, and the new name says so.
+
+The snapshots behind the 2 reverting traits share their keys now too. `ConfigTrait::$configOriginalData` stores `exists` and `value` in place of `existed` and `data`, matching `StateTrait::$stateOriginalValues`, so a context reading the property directly renames the keys.
+
+### 3 types moved out of the root of `Behat`
+
+`src/Behat` is split into sub-namespaces named for a role or a concern, yet 4 types sat at its root. 3 of them moved to the namespace of their concern. `Tag` stays where it is, since the step traits, the contexts, the listeners and the registries all read tags through it.
+
+| Before | After |
+| --- | --- |
+| `DrevOps\BehatSteps\Behat\ParametersAwareInterface` | `DrevOps\BehatSteps\Behat\Context\ParametersAwareInterface` |
+| `DrevOps\BehatSteps\Behat\ParametersTrait` | `DrevOps\BehatSteps\Behat\Config\ParametersTrait` |
+| `DrevOps\BehatSteps\Behat\MinkAwareTrait` | `DrevOps\BehatSteps\Behat\Mink\MinkAwareTrait` |
+
+A context that extends a shipped context picks up the new names for free. A context or service of your own that implements `ParametersAwareInterface` or composes one of the 2 traits updates its imports, and nothing else about them changed.
+
+`grep -rnE 'BehatSteps\\+Behat\\+(ParametersAwareInterface|ParametersTrait|MinkAwareTrait)' <your project>` lists every import and docblock type that still names an old location.

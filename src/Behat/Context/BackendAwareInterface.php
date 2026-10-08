@@ -10,7 +10,6 @@ use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverInterface;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
-use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
 
 /**

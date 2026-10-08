@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Behat\Auth;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Mink;
-use DrevOps\BehatSteps\Behat\MinkAwareTrait;
+use DrevOps\BehatSteps\Behat\Mink\MinkAwareTrait;
 
 /**
  * Applies webserver-level HTTP Basic authentication to the Mink session.

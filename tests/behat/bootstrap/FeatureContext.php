@@ -45,7 +45,7 @@ class FeatureContext extends DrupalContext {
    * generated trait-tag context composes that trait beside the trait under
    * test, and 2 traits declaring the same method collide.
    */
-  protected function elementGetScrollIntoViewCenter(): bool {
+  public function elementGetScrollIntoViewCenter(): bool {
     return $this->testElementScrollCenter;
   }
 

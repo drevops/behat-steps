@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Behat;
+namespace DrevOps\BehatSteps\Behat\Mink;
 
 use Behat\Mink\Mink;
 use Behat\Mink\Session;

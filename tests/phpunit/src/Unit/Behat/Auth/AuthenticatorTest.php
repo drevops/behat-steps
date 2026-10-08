@@ -558,14 +558,17 @@ class AuthenticatorTest extends UnitTestCase {
     $authenticator->fastLogout();
   }
 
-  public function testGetLogoutElement(): void {
-    $link = $this->createMock(NodeElement::class);
+  public function testIsLoggedInFindsLogoutLinkByConfiguredText(): void {
     $page = $this->createMock(DocumentElement::class);
-    $page->method('findLink')->with('Log out')->willReturn($link);
+    $page->method('has')->willReturn(FALSE);
+    $page->expects($this->atLeastOnce())->method('findLink')->with('Log out')->willReturn($this->createMock(NodeElement::class));
 
     $session = $this->createSessionMock($page);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+
     $authenticator = $this->createAuthenticator($session);
-    $this->assertSame($link, $authenticator->getLogoutElement());
+    $this->assertTrue($authenticator->isLoggedIn());
   }
 
   /**

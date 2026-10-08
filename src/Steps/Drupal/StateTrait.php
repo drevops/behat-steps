@@ -138,13 +138,12 @@ trait StateTrait {
    */
   #[Then('the state :name should have the value :value')]
   public function stateAssertValueEquals(string $name, string $value): void {
-    $state_value = $this->stateReadValue($name);
-    if (!$state_value['exists']) {
+    if (!$this->stateExists($name)) {
       throw new AssertionException(sprintf('The state "%s" does not exist, but it should have the value "%s".', $name, $value));
     }
 
     $expected = $this->stringNormalizeValue($value);
-    $actual_stringified = $this->stringFormatValue($state_value['value']);
+    $actual_stringified = $this->stringFormatValue($this->stateFindValue($name));
     $expected_stringified = $this->stringFormatValue($expected);
     if ($actual_stringified !== $expected_stringified) {
       throw new AssertionException(sprintf('The state "%s" has the value "%s", but it should have the value "%s".', $name, $actual_stringified, $expected_stringified));
@@ -160,14 +159,13 @@ trait StateTrait {
    */
   #[Then('the state :name should not exist')]
   public function stateAssertNotExists(string $name): void {
-    $state_value = $this->stateReadValue($name);
-    if ($state_value['exists']) {
-      throw new AssertionException(sprintf('The state "%s" exists with the value "%s", but it should not exist.', $name, $this->stringFormatValue($state_value['value'])));
+    if ($this->stateExists($name)) {
+      throw new AssertionException(sprintf('The state "%s" exists with the value "%s", but it should not exist.', $name, $this->stringFormatValue($this->stateFindValue($name))));
     }
   }
 
   /**
-   * Read a state value, distinguishing stored NULL from a missing key.
+   * Determine whether a state key exists, a key holding NULL included.
    *
    * Existence is read through the backend's `stateExists()`, not from a NULL
    * check on the value. A backend that can tell a stored NULL from an absent
@@ -179,17 +177,27 @@ trait StateTrait {
    * @param string $name
    *   The state key name.
    *
-   * @return array{exists: bool, value: mixed}
-   *   An associative array with `exists` (bool) and `value` (mixed).
+   * @return bool
+   *   TRUE when the key exists.
    */
-  public function stateReadValue(string $name): array {
-    $backend = $this->backendFor(StateCapabilityInterface::class);
+  public function stateExists(string $name): bool {
+    return $this->backendFor(StateCapabilityInterface::class)->stateExists($name);
+  }
 
-    if (!$backend->stateExists($name)) {
-      return ['exists' => FALSE, 'value' => NULL];
-    }
-
-    return ['exists' => TRUE, 'value' => $backend->stateGet($name)];
+  /**
+   * Find a state value.
+   *
+   * A missing key and a key holding NULL both return NULL, and
+   * stateExists() tells the 2 apart.
+   *
+   * @param string $name
+   *   The state key name.
+   *
+   * @return mixed
+   *   The value, or NULL when the key does not exist.
+   */
+  public function stateFindValue(string $name): mixed {
+    return $this->backendFor(StateCapabilityInterface::class)->stateGet($name);
   }
 
   /**
@@ -216,7 +224,8 @@ trait StateTrait {
       return;
     }
 
-    $this->stateOriginalValues[$name] = $this->stateReadValue($name);
+    $exists = $this->stateExists($name);
+    $this->stateOriginalValues[$name] = ['exists' => $exists, 'value' => $exists ? $this->stateFindValue($name) : NULL];
   }
 
   /**

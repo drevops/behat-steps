@@ -1,8 +1,8 @@
 @startuml
 ' drevops/behat-steps - layered component architecture.
 ' Traced from composer.json, src/Steps/, src/Helper/Web/, src/Helper/Drupal/,
-' src/Behat/, src/Behat/Mink/, src/Behat/Http/, src/Backend/,
-' behat.php, scripts/lint-layers.php.
+' src/Behat/, src/Behat/Auth/, src/Behat/Config/, src/Behat/Mink/,
+' src/Behat/Http/, src/Backend/, behat.php, scripts/lint-layers.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -21,7 +21,7 @@ package "drevops/behat-steps" {
 
   package "Vocabulary - src/Steps" #E3F2FD {
     component "Steps\\Web\n28 traits, Mink only" as WebSteps
-    component "Steps\\Drupal\n29 traits, need a backend" as DrupalSteps
+    component "Steps\\Drupal\n29 traits, Drupal sites only,\nmost through a backend" as DrupalSteps
   }
 
   package "Helpers - src/Helper" #F3E5F5 {
@@ -36,7 +36,7 @@ package "drevops/behat-steps" {
     component "Registries\nsrc/Behat/Registry: backend,\nuser, scenario tags" as Registries
     component "Authenticators\nsrc/Behat/Auth: user login,\nHTTP Basic credentials" as Authenticators
     component "Listeners\nbackend order and scenario tags,\nskip tags that name no trait" as Listeners
-    component "Config\nschema reader, option resolver,\ntag overrides" as OptionConfig
+    component "Config\nschema reader, option resolver,\ntag overrides, parameter reads" as OptionConfig
     component "BrowserKitFactory\nbuilds every browserkit_http\nsession as Mink does,\nrecords its options" as BrowserKit
     component "Browser capabilities\nsrc/Behat/Mink: resolver,\n5 capabilities, 3 adapters" as BrowserCaps
     component "HTTP clients\nsrc/Behat/Http: factory, identity,\nthe shared transport" as HttpClients
@@ -101,6 +101,8 @@ OptionConfig -[hidden]down- Prereq
 
 Authenticators --> Registries : current user,\nbackend session
 Authenticators --> BrowserCaps : whether the session\nruns JavaScript
+Authenticators ..> OptionConfig : login text and\nselectors
+Authenticators --> Mink : log in through\nthe session
 Registries --> BackendIface : resolves by capability
 DrupalBe ..|> BackendIface
 DrushBe ..|> BackendIface

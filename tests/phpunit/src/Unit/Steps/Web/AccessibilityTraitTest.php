@@ -47,7 +47,7 @@ class AccessibilityTraitTest extends UnitTestCase {
   public function testFormatUrl(string $base_url, string $url, string $expected): void {
     $this->testObject->setMinkParameter('base_url', $base_url);
 
-    $this->assertSame($expected, $this->testObject->callFormatUrl($url));
+    $this->assertSame($expected, $this->testObject->accessibilityFormatUrl($url));
   }
 
   public static function dataProviderFormatUrl(): array {
@@ -429,7 +429,7 @@ class AccessibilityTraitTest extends UnitTestCase {
       ],
     ];
 
-    $html = AccessibilityTraitTestImplementation::callRenderAggregate($data);
+    $html = AccessibilityTraitTestImplementation::accessibilityRenderAggregate($data);
 
     $this->assertStringContainsString('<div class="card crit"><span class="num">1</span><span class="lbl">critical</span></div>', $html);
     $this->assertStringContainsString('<span class="vtype critical">image-alt <b>2</b></span>', $html);
@@ -557,7 +557,7 @@ class AccessibilityTraitTest extends UnitTestCase {
    *   Fixed generation timestamp.
    */
   protected static function renderSample(array $aggregate, string $generated): string {
-    return AccessibilityTraitTestImplementation::callRenderAggregate(AccessibilityTraitTestImplementation::callAggregateData($aggregate, $generated));
+    return AccessibilityTraitTestImplementation::accessibilityRenderAggregate(AccessibilityTraitTestImplementation::callAggregateData($aggregate, $generated));
   }
 
   /**
@@ -771,10 +771,6 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
    */
   public int $engineReads = 0;
 
-  public function callFormatUrl(string $url): string {
-    return $this->accessibilityFormatUrl($url);
-  }
-
   /**
    * Returns the mode and gate overrides the tags resolved to.
    *
@@ -811,10 +807,6 @@ class AccessibilityTraitTestImplementation extends WebRawContext {
 
   public static function callAggregateData(array $aggregate, string $generated): array {
     return static::accessibilityAggregateData($aggregate, $generated);
-  }
-
-  public static function callRenderAggregate(array $data): string {
-    return static::accessibilityRenderAggregate($data);
   }
 
   public static function callAggregatePages(array $aggregate): array {
