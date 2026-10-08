@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Behat;
+namespace DrevOps\BehatSteps\Tests\Unit\Behat\Config;
 
-use DrevOps\BehatSteps\Behat\ParametersTrait;
+use DrevOps\BehatSteps\Behat\Config\ParametersTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ParametersAwareObject;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;

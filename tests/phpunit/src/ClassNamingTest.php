@@ -13,15 +13,29 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Asserts that every class and namespace under `src/Behat` is named for a role.
  *
- * CONTRIBUTING.md states the rule.
+ * Every class also sits in a sub-namespace, apart from the ones listed in
+ * ROOT_TYPES. CONTRIBUTING.md states both rules.
  */
 #[CoversNothing]
 class ClassNamingTest extends UnitTestCase {
 
   /**
+   * The namespace `src/Behat` maps to.
+   */
+  protected const BEHAT_NAMESPACE = 'DrevOps\\BehatSteps\\Behat\\';
+
+  /**
    * Suffixes that would describe every class in the package equally well.
    */
   protected const GENERIC_SUFFIXES = ['Manager', 'Handler', 'Helper', 'Service'];
+
+  /**
+   * Types that sit directly under `src/Behat`.
+   *
+   * `Tag` is read by the step traits, the contexts, the listeners and the
+   * registries alike, so no sub-namespace owns it.
+   */
+  protected const ROOT_TYPES = [Tag::class];
 
   /**
    * Assert that a class and every namespace holding it are named for a role.
@@ -65,6 +79,42 @@ class ClassNamingTest extends UnitTestCase {
   }
 
   /**
+   * Assert that a class sits in a sub-namespace named for its role or concern.
+   *
+   * @param string $class
+   *   The fully qualified name of a class, interface or trait.
+   */
+  #[DataProvider('dataProviderClassSitsInSubNamespace')]
+  public function testClassSitsInSubNamespace(string $class): void {
+    $this->assertTrue(!static::isAtRoot($class) || in_array($class, static::ROOT_TYPES, TRUE), sprintf('%s sits directly under src/Behat. Move it to the sub-namespace named for its role or concern, as CONTRIBUTING.md describes.', $class));
+  }
+
+  public static function dataProviderClassSitsInSubNamespace(): array {
+    return static::discoverBehatClasses();
+  }
+
+  /**
+   * Assert that a class directly under `src/Behat` is told apart.
+   *
+   * @param string $class
+   *   A fully qualified class name.
+   * @param bool $expected
+   *   Whether the class sits directly under `src/Behat`.
+   */
+  #[DataProvider('dataProviderRootClassesAreDetected')]
+  public function testRootClassesAreDetected(string $class, bool $expected): void {
+    $this->assertSame($expected, static::isAtRoot($class));
+  }
+
+  public static function dataProviderRootClassesAreDetected(): array {
+    return [
+      'class directly under the package' => [Tag::class, TRUE],
+      'class in a sub-namespace' => [UserRegistry::class, FALSE],
+      'class in a nested sub-namespace' => ['DrevOps\\BehatSteps\\Behat\\Context\\Initializer\\BackendAwareInitializer', FALSE],
+    ];
+  }
+
+  /**
    * Return every class, interface and trait under `src/Behat`, keyed by name.
    *
    * @return array<string, array{string}>
@@ -82,7 +132,7 @@ class ClassNamingTest extends UnitTestCase {
       }
 
       $relative = substr($file->getPathname(), strlen($root) + 1, -strlen('.php'));
-      $class = 'DrevOps\\BehatSteps\\Behat\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
+      $class = static::BEHAT_NAMESPACE . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
 
       $classes[$class] = [$class];
     }
@@ -103,6 +153,16 @@ class ClassNamingTest extends UnitTestCase {
    */
   protected static function collectGenericNames(string $class): array {
     return array_values(array_filter(explode('\\', $class), static::isGeneric(...)));
+  }
+
+  /**
+   * Check whether a class sits directly under `src/Behat`.
+   *
+   * @param string $class
+   *   A fully qualified class name under `src/Behat`.
+   */
+  protected static function isAtRoot(string $class): bool {
+    return !str_contains(substr($class, strlen(static::BEHAT_NAMESPACE)), '\\');
   }
 
   /**

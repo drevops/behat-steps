@@ -12,10 +12,10 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Mink;
 use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Behat\Config\ParametersTrait;
 use DrevOps\BehatSteps\Behat\Mink\BrowserCapabilityResolver;
 use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
-use DrevOps\BehatSteps\Behat\MinkAwareTrait;
-use DrevOps\BehatSteps\Behat\ParametersTrait;
+use DrevOps\BehatSteps\Behat\Mink\MinkAwareTrait;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 

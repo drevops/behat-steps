@@ -10,9 +10,9 @@ use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Context\BackendAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\Initializer\BackendAwareInitializer;
+use DrevOps\BehatSteps\Behat\Context\ParametersAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
-use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -38,7 +38,7 @@ class BackendAwareInitializerTest extends UnitTestCase {
   }
 
   public function testParametersAwareContextReceivesOnlyParameters(): void {
-    /** @var \Behat\Behat\Context\Context&\DrevOps\BehatSteps\Behat\ParametersAwareInterface&\PHPUnit\Framework\MockObject\MockObject $context */
+    /** @var \Behat\Behat\Context\Context&\DrevOps\BehatSteps\Behat\Context\ParametersAwareInterface&\PHPUnit\Framework\MockObject\MockObject $context */
     $context = $this->createMockForIntersectionOfInterfaces([Context::class, ParametersAwareInterface::class]);
     $context->expects($this->once())->method('setParameters')->with(static::PARAMETERS);
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Behat;
+namespace DrevOps\BehatSteps\Tests\Unit\Behat\Mink;
 
 use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use Behat\Mink\WebAssert;
-use DrevOps\BehatSteps\Behat\MinkAwareTrait;
+use DrevOps\BehatSteps\Behat\Mink\MinkAwareTrait;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\MinkAwareObject;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;

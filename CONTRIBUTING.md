@@ -213,6 +213,16 @@ A namespace follows the same rule. It's named for the role its classes share, as
 
 An accessor is named for what it returns, after its trait prefix where one applies: `getBackendRegistry()`, `authGetUserRegistry()`. A name and its return type cannot disagree, so renaming a class renames its accessors with it.
 
+### Every type sits in a sub-namespace
+
+A type goes in the sub-namespace of its role or concern, never at the root of `src/Behat`, even when several sub-namespaces build on it:
+
+- **The contracts the context initializer injects through sit with the contexts.** `BackendAwareInterface`, `ParametersAwareInterface` and `UserAwareInterface` are all in `Behat\Context`, and `BackendAwareInterface` extends `ParametersAwareInterface`.
+- **A trait sits with the concern it serves, not with the contract it implements.** `ParametersTrait` reads the extension's configuration, so it's in `Behat\Config`, and the authenticator composes it from there as a context does. That keeps every container service clear of `Behat\Context`. `MinkAwareTrait` gives a container service the Mink session a context has, so it's in `Behat\Mink`.
+- **`Tag` is the 1 type at the root.** The step traits, the contexts, the listeners and the registries all read tags through it, so no sub-namespace owns it.
+
+`ClassNamingTest` fails any other type directly under `src/Behat`. Adding 1 there means adding it to `ROOT_TYPES`, with the reason no sub-namespace owns it.
+
 ### A capability wrapper is not a class
 
 Do not write a class whose only job is to forward to a capability interface. The capability interface already is the abstraction, and a trait reaches it through `backendFor(SomeCapabilityInterface::class)` on `WebRawContext`. A wrapper adds a second name for the same contract, a second place to keep in step, and nothing else - which is why the one that existed was never wired into the container.
@@ -372,7 +382,7 @@ The harness steps keep their own wording, placeholders, patterns and signatures 
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Backend`.
 
 - **`src/Backend`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Registry/` holds the backend, user and scenario tag registries, `Auth/` holds the authenticator and the basic authenticator, `Context/` holds the 3 context classes, `Mink/` holds the browser capabilities, their adapters and the `browserkit_http` browser driver factory, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator.
+- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Registry/` holds the backend, user and scenario tag registries, `Auth/` holds the authenticator and the basic authenticator, `Context/` holds the 3 context classes and the contracts their initializer injects through, `Config/` holds option resolution and `ParametersTrait`, which reads the extension parameters, `Mink/` holds the browser capabilities, their adapters, the `browserkit_http` browser driver factory and `MinkAwareTrait`, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator.
 - **`src/Helper`** holds the step-free traits a step trait and a context both compose, split into `Web/` (last-step tracking, the request header bag, string shaping, table transposition) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, direct queries). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened.
 - **`src/Steps`** is the step vocabulary - traits a context mixes in. `Web/` holds the ones that drive a page, `Drupal/` the ones that need a Drupal site, and the directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under.
 

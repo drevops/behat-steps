@@ -2946,3 +2946,21 @@ A test that asserts one of these messages needs the new text:
 | `the response XML is loaded from the file :filename` and `the response JSON is loaded from the file :filename`, for a missing file | `The file "..." does not exist.` | `The fixture file "..." does not exist.` |
 | The same steps with no `files_path` configured | `The file "..." does not exist.` | `The Mink "files_path" parameter is not configured.` |
 | The same steps with a path that leaves `files_path` | the file outside it was read | `The fixture file "..." is outside the configured "files_path".` |
+
+## Public surface and placement settled
+
+Whether a project could call a helper, override a method or import a type used to depend on where that member happened to sit. Each of these now follows 1 rule, written down in `CONTRIBUTING.md`, and the changes below are what applying them took. No step text changes, so no `.feature` file needs an edit.
+
+### 3 types moved out of the root of `Behat`
+
+`src/Behat` is split into sub-namespaces named for a role or a concern, yet 4 types sat at its root. 3 of them moved to the namespace of their concern. `Tag` stays where it is, since the step traits, the contexts, the listeners and the registries all read tags through it.
+
+| Before | After |
+| --- | --- |
+| `DrevOps\BehatSteps\Behat\ParametersAwareInterface` | `DrevOps\BehatSteps\Behat\Context\ParametersAwareInterface` |
+| `DrevOps\BehatSteps\Behat\ParametersTrait` | `DrevOps\BehatSteps\Behat\Config\ParametersTrait` |
+| `DrevOps\BehatSteps\Behat\MinkAwareTrait` | `DrevOps\BehatSteps\Behat\Mink\MinkAwareTrait` |
+
+A context that extends a shipped context picks up the new names for free. A context or service of your own that implements `ParametersAwareInterface` or composes one of the 2 traits updates its imports, and nothing else about them changed.
+
+`grep -rnE 'BehatSteps\\+Behat\\+(ParametersAwareInterface|ParametersTrait|MinkAwareTrait)' <your project>` lists every import and docblock type that still names an old location.

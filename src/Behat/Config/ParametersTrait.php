@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Behat;
+namespace DrevOps\BehatSteps\Behat\Config;
 
 /**
  * Provides access to the extension parameters.

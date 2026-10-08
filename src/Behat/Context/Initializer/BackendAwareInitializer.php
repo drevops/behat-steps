@@ -11,9 +11,9 @@ use DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Context\BackendAwareInterface;
+use DrevOps\BehatSteps\Behat\Context\ParametersAwareInterface;
 use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
-use DrevOps\BehatSteps\Behat\ParametersAwareInterface;
 use DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 
