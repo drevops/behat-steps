@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Auth;
 
 use Behat\Mink\Driver\DriverInterface;
+use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\DriverException;
@@ -283,6 +284,58 @@ class AuthenticatorTest extends UnitTestCase {
     yield 'nothing found means not logged in' => [TRUE, FALSE, FALSE, FALSE, FALSE];
   }
 
+  /**
+   * Tests which page of the fallback decides whether a user is logged in.
+   *
+   * The current page shows neither signal, as when the post-login page had
+   * not loaded at the time of the first check.
+   *
+   * @param array<string, array<int, string>> $pages
+   *   The selectors and link texts each page shows, keyed by URL.
+   * @param bool $expected
+   *   Whether the user is expected to be logged in.
+   * @param array<int, string> $expected_visits
+   *   The URLs expected to be visited, in order.
+   */
+  #[DataProvider('dataProviderIsLoggedInAfterNavigation')]
+  public function testIsLoggedInAfterNavigation(array $pages, bool $expected, array $expected_visits): void {
+    $visited = new \ArrayObject();
+    $session = $this->createNavigatingSessionMock(static fn(string $url, string $locator): bool => in_array($locator, $pages[$url] ?? [], TRUE), $visited);
+
+    $authenticator = $this->createAuthenticator($session);
+
+    $this->assertSame($expected, $authenticator->isLoggedIn());
+    $this->assertSame($expected_visits, $visited->getArrayCopy());
+  }
+
+  public static function dataProviderIsLoggedInAfterNavigation(): \Iterator {
+    yield 'logged-in selector on the page the login URL leads to' => [
+      ['http://localhost/user/login' => ['body.logged-in']],
+      TRUE,
+      ['http://localhost/user/login'],
+    ];
+    yield 'logged-in selector on a homepage without a logout link' => [
+      ['http://localhost/' => ['body.logged-in']],
+      TRUE,
+      ['http://localhost/user/login', 'http://localhost/'],
+    ];
+    yield 'logout link on the homepage' => [
+      ['http://localhost/' => ['Log out']],
+      TRUE,
+      ['http://localhost/user/login', 'http://localhost/'],
+    ];
+    yield 'login form on the page the login URL leads to' => [
+      ['http://localhost/user/login' => ['form#user-login']],
+      FALSE,
+      ['http://localhost/user/login'],
+    ];
+    yield 'neither signal on any page' => [
+      [],
+      FALSE,
+      ['http://localhost/user/login', 'http://localhost/'],
+    ];
+  }
+
   public function testIsLoggedInReturnsFalseWhenPageNotAvailable(): void {
     $session = $this->createMock(Session::class);
     $session->method('isStarted')->willReturn(TRUE);
@@ -324,6 +377,45 @@ class AuthenticatorTest extends UnitTestCase {
     $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
     $this->assertTrue($authenticator->isLoggedIn());
     $this->assertGreaterThanOrEqual(3, $call_count);
+  }
+
+  /**
+   * Tests that isLoggedIn() polls the homepage for the logged-in selector.
+   *
+   * The homepage renders no logout link, and the selector appears on the
+   * third check. A JavaScript session polls even when 'login_wait' is unset.
+   *
+   * @param int|null $login_wait
+   *   The 'login_wait' parameter, or NULL to leave it unset.
+   * @param bool $is_javascript
+   *   Whether the session runs a browser driver that runs JavaScript.
+   */
+  #[DataProvider('dataProviderIsLoggedInPollsHomepageForLoggedInSelector')]
+  public function testIsLoggedInPollsHomepageForLoggedInSelector(?int $login_wait, bool $is_javascript): void {
+    $checks = 0;
+    $session = $this->createNavigatingSessionMock(static function (string $url, string $locator) use (&$checks): bool {
+      if ($url !== 'http://localhost/' || $locator !== 'body.logged-in') {
+        return FALSE;
+      }
+
+      $checks++;
+
+      return $checks >= 3;
+    }, NULL, $is_javascript ? $this->createMock(Selenium2Driver::class) : NULL);
+
+    $params = static::EXTENSION_PARAMS;
+    if ($login_wait !== NULL) {
+      $params['login_wait'] = $login_wait;
+    }
+
+    $authenticator = $this->createAuthenticator($session, NULL, NULL, $params);
+    $this->assertTrue($authenticator->isLoggedIn());
+    $this->assertSame(3, $checks);
+  }
+
+  public static function dataProviderIsLoggedInPollsHomepageForLoggedInSelector(): \Iterator {
+    yield 'login_wait set' => [2, FALSE];
+    yield 'JavaScript session without login_wait' => [NULL, TRUE];
   }
 
   public function testIsLoggedInDoesNotPollWhenLoginWaitIsZero(): void {
@@ -373,17 +465,13 @@ class AuthenticatorTest extends UnitTestCase {
   }
 
   public function testIsLoggedInHandlesDriverException(): void {
-    $page = $this->createMock(DocumentElement::class);
-    $page->method('has')->willReturnCallback(static function ($selector, $locator): true {
-      if ($locator === 'body.logged-in') {
-            throw new DriverException('Not loaded');
+    $session = $this->createNavigatingSessionMock(static function (string $url, string $locator): bool {
+      if ($url === '') {
+        throw new DriverException('Not loaded');
       }
-        return TRUE;
-    });
 
-    $session = $this->createSessionMock($page);
-    // @phpstan-ignore method.notFound
-    $session->method('isStarted')->willReturn(TRUE);
+      return $locator === 'form#user-login';
+    });
 
     $authenticator = $this->createAuthenticator($session);
     // The login form is found, so the call returns FALSE rather than throwing.
@@ -480,6 +568,11 @@ class AuthenticatorTest extends UnitTestCase {
     $this->assertSame($link, $authenticator->getLogoutElement());
   }
 
+  /**
+   * Tests that a session without JavaScript never polls after the click.
+   *
+   * The URL is read once, before the click.
+   */
   public function testLoginSkipsWaitWhenLoginWaitIsZero(): void {
     $submit = $this->createMock(NodeElement::class);
 
@@ -491,7 +584,7 @@ class AuthenticatorTest extends UnitTestCase {
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
     // @phpstan-ignore method.notFound
-    $session->method('getCurrentUrl')->willReturn('http://localhost/user/login');
+    $session->expects($this->once())->method('getCurrentUrl')->willReturn('http://localhost/user/login');
 
     $params = static::EXTENSION_PARAMS;
     $params['login_wait'] = 0;
@@ -509,8 +602,8 @@ class AuthenticatorTest extends UnitTestCase {
     $page->method('has')->willReturnCallback(static function (string $selector, string $locator) use (&$call_count): bool {
       if ($locator === 'body.logged-in') {
         $call_count++;
-        // The first 2 calls return FALSE (during the wait loop and the
-        // isLoggedIn() check), then TRUE.
+        // The first 2 calls return FALSE, so the wait polls before the
+        // selector appears.
         return $call_count > 2;
       }
       return FALSE;
@@ -566,11 +659,15 @@ class AuthenticatorTest extends UnitTestCase {
       return $find_count >= 3 ? $page : NULL;
     });
 
+    $url_call_count = 0;
     $session = $this->createSessionMock($page);
     // @phpstan-ignore method.notFound
     $session->method('isStarted')->willReturn(TRUE);
     // @phpstan-ignore method.notFound
-    $session->method('getCurrentUrl')->willReturn('http://localhost/user/1');
+    $session->method('getCurrentUrl')->willReturnCallback(static function () use (&$url_call_count): string {
+      $url_call_count++;
+      return $url_call_count <= 1 ? 'http://localhost/user/login' : 'http://localhost/user/1';
+    });
 
     $params = static::EXTENSION_PARAMS;
     $params['login_wait'] = 2;
@@ -579,6 +676,95 @@ class AuthenticatorTest extends UnitTestCase {
     $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
 
     $this->assertGreaterThanOrEqual(3, $find_count);
+  }
+
+  /**
+   * Tests that a JavaScript session waits for the post-login page.
+   *
+   * The click returns while the browser still shows the login form, and the
+   * third URL read after it returns the post-login page. The login URL
+   * redirects to the form, so the wait compares against the URL the form was
+   * submitted from. A single visit shows the first check confirmed the login.
+   */
+  public function testLoginWaitsForNavigationInJavascriptSession(): void {
+    $is_clicked = FALSE;
+    $reads = 0;
+
+    $submit = $this->createMock(NodeElement::class);
+    $submit->method('click')->willReturnCallback(static function () use (&$is_clicked): void {
+      $is_clicked = TRUE;
+    });
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log in')->willReturn($submit);
+
+    $session = $this->createSessionMock($page, $this->createMock(Selenium2Driver::class));
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // @phpstan-ignore method.notFound
+    $session->expects($this->once())->method('visit')->with('http://localhost/user');
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturnCallback(static function () use (&$is_clicked, &$reads): string {
+      if (!$is_clicked) {
+        return 'http://localhost/user/login';
+      }
+
+      $reads++;
+
+      return $reads >= 3 ? 'http://localhost/user/1' : 'http://localhost/user/login';
+    });
+
+    $page->method('has')->willReturnCallback(static fn(string $selector, string $locator): bool => $locator === 'body.logged-in' && $session->getCurrentUrl() === 'http://localhost/user/1');
+
+    $params = static::EXTENSION_PARAMS;
+    $params['text']['login_url'] = '/user';
+
+    $user_registry = new UserRegistry();
+    $authenticator = $this->createAuthenticator($session, $user_registry, NULL, $params);
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+
+    $this->assertNotFalse($user_registry->getCurrentUser());
+  }
+
+  /**
+   * Tests that the logged-in selector ends a JavaScript login's wait.
+   *
+   * The URL never changes, as in an AJAX login, and the selector appears on
+   * the third check. The login is confirmed with a single visit, well inside
+   * the JavaScript wait.
+   */
+  public function testLoginEndsNavigationWaitOnLoggedInSelector(): void {
+    $checks = 0;
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('findButton')->with('Log in')->willReturn($this->createMock(NodeElement::class));
+    $page->method('has')->willReturnCallback(static function (string $selector, string $locator) use (&$checks): bool {
+      if ($locator !== 'body.logged-in') {
+        return FALSE;
+      }
+
+      $checks++;
+
+      return $checks >= 3;
+    });
+
+    $session = $this->createSessionMock($page, $this->createMock(Selenium2Driver::class));
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // @phpstan-ignore method.notFound
+    $session->expects($this->once())->method('visit')->with('http://localhost/user/login');
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturn('http://localhost/user/login');
+
+    $user_registry = new UserRegistry();
+    $authenticator = $this->createAuthenticator($session, $user_registry);
+
+    $start = microtime(TRUE);
+    $authenticator->login(new EntityStub('user', NULL, ['name' => 'admin', 'pass' => 'password']));
+    $elapsed = microtime(TRUE) - $start;
+
+    $this->assertNotFalse($user_registry->getCurrentUser());
+    $this->assertLessThan(Authenticator::JAVASCRIPT_LOGIN_WAIT, $elapsed);
   }
 
   /**
@@ -672,10 +858,51 @@ class AuthenticatorTest extends UnitTestCase {
     $this->assertFalse($user_registry->getCurrentUser());
   }
 
-  protected function createSessionMock(?DocumentElement $page = NULL): Session {
+  protected function createSessionMock(?DocumentElement $page = NULL, ?DriverInterface $driver = NULL): Session {
     $session = $this->createMock(Session::class);
     $session->method('getPage')->willReturn($page ?? $this->createMock(DocumentElement::class));
-    $session->method('getDriver')->willReturn($this->createMock(DriverInterface::class));
+    $session->method('getDriver')->willReturn($driver ?? $this->createMock(DriverInterface::class));
+    return $session;
+  }
+
+  /**
+   * Creates a started session whose page depends on the URL last visited.
+   *
+   * The session starts with no page loaded, at an empty URL.
+   *
+   * @param \Closure(string, string): bool $shows
+   *   Receives the current URL and a CSS selector or link text, and returns
+   *   whether that page shows it.
+   * @param \ArrayObject<int, string>|null $visited
+   *   Collects every URL the session visits, in order.
+   * @param \Behat\Mink\Driver\DriverInterface|null $driver
+   *   The browser driver the session runs.
+   */
+  protected function createNavigatingSessionMock(\Closure $shows, ?\ArrayObject $visited = NULL, ?DriverInterface $driver = NULL): Session {
+    $url = '';
+    $link = $this->createMock(NodeElement::class);
+
+    $page = $this->createMock(DocumentElement::class);
+    $page->method('has')->willReturnCallback(static function (string $selector, string $locator) use (&$url, $shows): bool {
+      return $shows($url, $locator);
+    });
+    $page->method('findLink')->willReturnCallback(static function (string $locator) use (&$url, $shows, $link): ?NodeElement {
+      return $shows($url, $locator) ? $link : NULL;
+    });
+
+    $session = $this->createSessionMock($page, $driver);
+    // @phpstan-ignore method.notFound
+    $session->method('isStarted')->willReturn(TRUE);
+    // @phpstan-ignore method.notFound
+    $session->method('getCurrentUrl')->willReturnCallback(static function () use (&$url): string {
+      return $url;
+    });
+    // @phpstan-ignore method.notFound
+    $session->method('visit')->willReturnCallback(static function (string $target) use (&$url, $visited): void {
+      $url = $target;
+      $visited?->append($target);
+    });
+
     return $session;
   }
 
