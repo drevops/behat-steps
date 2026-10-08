@@ -13,9 +13,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel round-trip test for ImageHandler via the Core backend.
  *
- * ImageHandler reads an image file, writes it to public:// via the
- * file.repository service, and emits 1 record per delta keyed by
- * 'target_id', 'alt' and 'title'.
+ * ImageHandler reads an image file and writes it to public:// via the
+ * file.repository service. It emits 1 record per delta keyed by 'target_id',
+ * 'alt' and 'title'.
  */
 #[CoversClass(ImageHandler::class)]
 #[Group('fields')]

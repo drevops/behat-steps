@@ -84,7 +84,7 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
   }
 
   public static function dataProviderDeclaredCapabilities(): \Iterator {
-    // A BrowserKit driver is an HTTP client, not a browser: it carries
+    // A BrowserKit driver drives an HTTP client, not a browser: it carries
     // cookies, exposes its client and sets headers, but runs no script.
     yield 'browserkit' => [
       BrowserKitDriver::class,
@@ -101,9 +101,6 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Tests that an unknown driver provides nothing and raises when resolved.
-   */
   public function testUnknownDriverProvidesNothing(): void {
     $driver = $this->createMock(DriverInterface::class);
     $resolver = new BrowserCapabilityResolver();
@@ -116,9 +113,6 @@ class BrowserCapabilityResolverTest extends UnitTestCase {
     $resolver->resolve($driver, CookieCapabilityInterface::class);
   }
 
-  /**
-   * Tests that a driver with other capabilities fails to resolve one it lacks.
-   */
   public function testResolveRefusesCapabilityTheDriverLacks(): void {
     $driver = $this->createMock(BrowserKitDriver::class);
     $resolver = new BrowserCapabilityResolver();

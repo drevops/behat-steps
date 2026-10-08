@@ -267,7 +267,7 @@ class TraitOptionResolverTest extends UnitTestCase {
   }
 
   /**
-   * Declares one option of each shape the resolution has to read.
+   * Declares 1 option of each shape the resolution has to read.
    *
    * @return array<string, array<string, \DrevOps\BehatSteps\Behat\Config\Option>>
    *   Options keyed by group name and then by option name.

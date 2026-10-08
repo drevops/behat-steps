@@ -53,8 +53,8 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
 
     $this->assertFieldRoundTripViaBackend('field_author', ['Doe, Jane']);
 
-    // Pin the component split explicitly: the mutated-stub round-trip would
-    // still pass if the handler swapped the 2 components.
+    // The mutated-stub round-trip would still pass if the handler swapped the
+    // 2 components, so the split is asserted explicitly.
     $stub = new EntityStub('entity_test', 'entity_test', [
       'name' => 'pinned',
       'field_author' => ['Doe, Jane'],
@@ -81,7 +81,7 @@ class NameHandlerKernelTest extends FieldHandlerKernelTestBase {
       ['Dr', 'Jane', 'Doe'],
     ]);
 
-    // Pin the positional mapping: the values must fill the 3 enabled
+    // The positional mapping is pinned: the values must fill the 3 enabled
     // components in canonical order and leave the disabled ones empty.
     $stub = new EntityStub('entity_test', 'entity_test', [
       'name' => 'pinned',

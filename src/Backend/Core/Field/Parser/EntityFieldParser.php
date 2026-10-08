@@ -13,7 +13,7 @@ use DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception\ParseException;
  *
  * Implements a syntax with a single uniform escape mechanism (double
  * quotes) for compound values. Cells fall into 2 modes detected by the
- * value form, not by the spacing of separators:
+ * value form:
  *
  *   Scalar mode (no top-level 'key:"...' or 'key:[...]' pattern):
  *     - Plain text or comma-separated list of items.
@@ -192,11 +192,11 @@ final class EntityFieldParser implements EntityFieldParserInterface {
   /**
    * Returns TRUE when the cell is in compound mode.
    *
-   * Compound mode is detected by the presence of a top-level
-   * 'key:"...' or 'key:[...]' pattern - i.e. an identifier, optional
-   * whitespace, ':', optional whitespace, then '"' or '['. The scan skips
-   * quoted strings and bracketed tokens, so an embedded pattern inside a
-   * quoted scalar does not trigger compound mode.
+   * Compound mode is detected by a top-level 'key:"...' or 'key:[...]'
+   * pattern: an identifier, optional whitespace, ':', optional whitespace,
+   * then '"' or '['. The scan skips quoted strings and bracketed tokens, so
+   * an embedded pattern inside a quoted scalar does not trigger compound
+   * mode.
    */
   protected function detectCompoundMode(string $cell): bool {
     $length = strlen($cell);

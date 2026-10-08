@@ -571,7 +571,6 @@ trait EmailTrait {
       $this->emailSetMailSystemDefault($type, 'test_mail_collector');
     }
 
-    // Clearing on enable also drops mail collected before the switch.
     $this->emailClearCollectedMessages();
   }
 

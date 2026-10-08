@@ -37,8 +37,9 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  *
  * Configuration objects touched by the set steps are snapshotted on first
  * write and restored after the scenario. An existing object is reset to its
- * original data, and an object that did not exist is deleted. Skip the revert
- * with `@behat-steps-skip:ConfigTrait`.
+ * original data, and an object that did not exist is deleted.
+ *
+ * Skip the revert with `@behat-steps-skip:ConfigTrait`.
  *
  * @code
  * Scenario: Assert configured values

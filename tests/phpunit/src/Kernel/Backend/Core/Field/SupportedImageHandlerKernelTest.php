@@ -43,8 +43,8 @@ class SupportedImageHandlerKernelTest extends FileBackedHandlerKernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    // caption_format/attribution_format reference a filter format id; define a
-    // plain_text format so the round-trip values validate.
+    // caption_format/attribution_format reference a filter format id, so the
+    // round-trip values validate only against an existing plain_text format.
     FilterFormat::create(['format' => 'plain_text', 'name' => 'Plain text'])->save();
   }
 

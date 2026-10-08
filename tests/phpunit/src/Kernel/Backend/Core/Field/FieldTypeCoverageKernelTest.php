@@ -117,8 +117,8 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
    *
    * DefaultHandler relays a field verbatim only when every stored property is
    * a plain scalar. The field shape classifier flags an entity-reference target
-   * or a complex/nested value, and Core throws for those when it would
-   * otherwise fall back to the default.
+   * or a complex/nested value, and Core throws for those instead of falling
+   * back to the default.
    */
   protected function isDefaultHandlerSafe(string $type): bool {
     try {
@@ -141,7 +141,7 @@ class FieldTypeCoverageKernelTest extends FieldHandlerKernelTestBase {
    * Guards against DefaultHandler being mistakenly matched as a "handler".
    *
    * The handler registry never lists DefaultHandler explicitly; it is the
-   * fallback. Were it registered, isHandlerRegistered() would mark every
+   * fallback. If it were registered, isHandlerRegistered() would mark every
    * DefaultHandler-safe type as handled and hide real gaps.
    */
   public function testDefaultHandlerIsNotRegistered(): void {

@@ -10,11 +10,6 @@ use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
 
 /**
  * Assigns roles to a user after the user has been created.
- *
- * Reads the 'roles' value (expected to be an array of role machine
- * names or labels) and calls 'addUserRole()' for each entry on the
- * backend supplied at construction. No-ops when the value is missing or
- * not an array.
  */
 final readonly class RolesAlias implements PostCreateAliasInterface {
 

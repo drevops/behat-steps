@@ -1,7 +1,3 @@
-##
-# Configuration file for PHPStan static code checking, see https://phpstan.org .
-#
-
 parameters:
 
   level: 7
@@ -40,16 +36,14 @@ parameters:
   ignoreErrors:
     # The backend layer boots Drupal and then reaches into the container it
     # booted. Its classes are constructed before that container exists, so
-    # they have no services to be injected with and static \Drupal:: calls
-    # are the access pattern the layer is built on. Scoped to src/Backend so
-    # the rule still covers the step vocabulary.
+    # they use static \Drupal:: calls instead of injected services.
     -
       identifier: globalDrupalDependencyInjection.useDependencyInjection
       path: src/Backend/*
     -
       messages:
         - '#.*no value type specified in iterable type.*#'
-        # Unit tests are not aware of the classes which are not loaded during tests.
+        # The classes declaring these methods are not loaded during unit tests.
         - '#.*Call to an undefined method.*Session\(\).*#'
         - '#.*Call to an undefined method.*getMinkParameter\(\).*#'
         - '#.*Call to an undefined method.*getDriver\(\).*#'
@@ -61,9 +55,8 @@ parameters:
         # information specified in comment docblocks.
         - tests/behat/fixtures_drupal/d11/web/modules/custom
         - tests/behat/fixtures_drupal/d12/web/modules/custom
-        # Since tests and data providers do not have to have parameter docblocks,
-        # it is not possible to specify the type of the parameter, so we ignore
-        # this error.
+        # Tests and data providers need no parameter docblocks, so their
+        # parameter types cannot be specified.
         - tests/phpunit/*
       reportUnmatched: false
 

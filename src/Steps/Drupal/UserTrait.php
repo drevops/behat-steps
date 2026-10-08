@@ -93,9 +93,10 @@ trait UserTrait {
   /**
    * Create users from a table of field values.
    *
-   * Each row becomes 1 user; each column is a base property or a field. A
-   * `roles` column takes a comma-separated list, assigned after the account is
-   * saved. A row without a `pass` column gets a random password.
+   * Each row becomes 1 user; each column is a base property or a field.
+   *
+   * A `roles` column takes a comma-separated list, assigned after the account
+   * is saved. A row without a `pass` column gets a random password.
    *
    * @code
    *   Given the following users exist:

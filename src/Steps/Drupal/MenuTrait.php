@@ -118,7 +118,7 @@ trait MenuTrait {
    * The menu is removed after the scenario.
    *
    * @param array<string, string> $values
-   *   The menu values. A menu without an "id" takes 1 derived from its
+   *   The menu values. A menu without an "id" takes an ID derived from its
    *   "label".
    *
    * @return \Drupal\system\MenuInterface

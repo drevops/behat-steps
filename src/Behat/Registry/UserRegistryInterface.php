@@ -90,7 +90,7 @@ interface UserRegistryInterface {
    * and surrounding whitespace on either side is ignored.
    *
    * @param string $role
-   *   A single role, or several roles as one comma-separated string.
+   *   A single role, or several roles as 1 comma-separated string.
    *
    * @return bool
    *   TRUE when the current user holds every role named in the query.

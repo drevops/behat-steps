@@ -221,7 +221,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Creates the field classifier instance for this Core.
    *
    * Subclasses override this method when they ship a version-specific
-   * classifier. The default returns the base 'FieldClassifier'.
+   * classifier.
    */
   protected function createFieldClassifier(): FieldClassifierInterface {
     return new FieldClassifier($this->getEntityFieldManager());
@@ -242,7 +242,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Creates the field shape classifier instance for this Core.
    *
    * Subclasses override this method when they ship a version-specific value
-   * shape classifier. The default returns the base 'FieldShapeClassifier'.
+   * shape classifier.
    */
   protected function createFieldShapeClassifier(): FieldShapeClassifierInterface {
     return new FieldShapeClassifier();
@@ -335,10 +335,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $definition = $this->loadEntityTypeDefinition($entity_type);
 
     // The id key and bundle key identify the record, so neither enters the
-    // handler pipeline. On 'commerce_product' the bundle key 'type' is also
-    // a base entity_reference field, and EntityReferenceHandler would
-    // replace the scalar with ['target_id' => ...], corrupting the stub's
-    // later bundle lookups.
+    // handler pipeline. EntityReferenceHandler would turn an entity_reference
+    // bundle value, such as 'type' on 'commerce_product', into
+    // ['target_id' => ...] and break later bundle lookups on the stub.
     $skip = array_filter([$definition->getKey('id'), $definition->getKey('bundle')]);
 
     $bundle = $this->resolveBundle($stub);
@@ -388,11 +387,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * Resolves an entity type definition, rethrowing with an actionable message.
-   *
-   * Drupal's EntityTypeManager throws 'PluginNotFoundException' with text like
-   * "The 'xyz' plugin does not exist". That text describes the plugin
-   * system, not the backend-level error a scenario author sees, so the
-   * wrapper names the entity type argument instead.
    *
    * @param string $entity_type
    *   Entity type id to load.
@@ -470,9 +464,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       throw new \RuntimeException(sprintf('Cannot create content because provided content type %s does not exist.', $type));
     }
 
-    // 'Node::create()' reads the bundle from the 'type' values key, so a
-    // bundle set only through the typed 'bundle' constructor argument is
-    // copied there.
     if (!$stub->hasValue('type')) {
       $stub->setValue('type', $type);
     }
@@ -852,8 +843,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function placeBlock(EntityStubInterface $stub): EntityStubInterface {
-    // Block config entities require an id, so one is generated when the
-    // caller did not supply it.
     if (!$stub->hasValue('id') || $stub->getValue('id') === '') {
       $stub->setValue('id', strtolower($this->random->name(8, TRUE)));
     }
@@ -937,10 +926,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $types = [];
 
     foreach ($fields as $field_name => $field) {
-      // See src/Backend/Core/Field/README.md. Only F1, F5 and F9 enter the
-      // expansion pipeline. F5 is also scoped to the bundle when known;
-      // otherwise a configurable field storage attached only to other
-      // bundles would enter the type map and fail in
+      // Only F1, F5 and F9 enter the expansion pipeline (see
+      // src/Backend/Core/Field/README.md), and F5 is scoped to the bundle
+      // when known. Without that scope, a configurable field storage
+      // attached only to other bundles would enter the type map and fail in
       // AbstractHandler::__construct().
       $is_base_standard = $this->getFieldClassifier()->fieldIsBaseStandard($entity_type, $field_name);
       $is_configurable = $this->getFieldClassifier()->fieldIsConfigurable($entity_type, $field_name)
@@ -998,9 +987,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * Returns a non-empty langcode string from the stub or throws.
-   *
-   * A 'NULL' or '""' langcode passed through to Drupal's storage layer
-   * surfaces as an opaque storage error.
    */
   protected function resolveLangcode(EntityStubInterface $stub): string {
     $langcode = $stub->getValue('langcode');
@@ -1129,8 +1115,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       throw new \RuntimeException(sprintf('Cannot create an entity of type "%s" because it declares no id key.', $entity_type));
     }
 
-    // storage->create() reads the bundle under the entity type's own bundle
-    // key, so the typed bundle property is copied into the values bag there.
     if ($bundle_key && !$stub->hasValue($bundle_key) && $stub->getBundle() !== NULL) {
       $stub->setValue($bundle_key, $stub->getBundle());
     }
@@ -1149,9 +1133,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->create($stub->getValues());
     $entity->save();
 
-    // The id is stored under the entity type's own id key ('uid' for user,
-    // 'nid' for node, 'tid' for term, 'id' for entity_test and others), so
-    // the stub round-trips through deleteEntity().
     $stub->setValue($id_key, $entity->id());
     $stub->markSaved($entity);
 
@@ -1168,10 +1149,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     if (!$entity instanceof EntityInterface) {
       $id_key = $this->loadEntityTypeDefinition($entity_type)->getKey('id');
 
-      // Without this guard a missing id key would silently reach
-      // storage->load(NULL). 'hasValue()' alone is not enough: a stored NULL
-      // passes the "is set" check and triggers a Drupal assertion error
-      // inside 'EntityStorageBase::load()'.
       if (!is_string($id_key) || !$stub->hasValue($id_key)) {
         throw new \RuntimeException(sprintf(
           'Cannot delete an entity of type "%s" from a stub without the id key "%s" set.',
@@ -1377,8 +1354,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * Stores the original value for a piece of configuration.
-   *
-   * If an original value has previously been stored, it is not updated.
    *
    * @param string $name
    *   The name of the configuration.

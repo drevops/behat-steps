@@ -40,9 +40,6 @@ class DrupalBackendCreationAliasesTest extends UnitTestCase {
     $this->assertSame([], $backend->getCreationAliases('node'));
   }
 
-  /**
-   * Tests that 'getCreationAliases()' delegates to an alias-capable core.
-   */
   public function testGetCreationAliasesDelegatesToCore(): void {
     $alias = new RolesAlias($this->createStubUserCapability());
     $alias_capable_core = $this->createMock(AliasCapableCoreInterface::class);

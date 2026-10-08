@@ -97,9 +97,9 @@ class TestConventionTest extends UnitTestCase {
   /**
    * Assert that a run-time static reference goes through 'static::'.
    *
-   * 'self::' stays where late static binding has nothing to resolve: in a
-   * constant expression, where PHP rejects 'static::', and on a final class,
-   * a final member or a private member, where Rector requires 'self::'.
+   * 'self::' stays where late static binding has nothing to resolve. PHP
+   * rejects 'static::' in a constant expression, and Rector requires 'self::'
+   * on a final class, a final member or a private member.
    *
    * @param string $file
    *   The file to check.
@@ -125,8 +125,8 @@ class TestConventionTest extends UnitTestCase {
    * Assert that a test helper names its action with a verb.
    *
    * A test, a data provider, a lifecycle method and an override take their
-   * names from PHPUnit or from the method they override, so only the helpers
-   * a class declares itself are read.
+   * names from PHPUnit or from the method they override. Only the helpers a
+   * class declares itself are read.
    *
    * @param class-string $class
    *   The test class to check.
@@ -232,9 +232,8 @@ class TestConventionTest extends UnitTestCase {
   /**
    * Assert that a unit test writes its fixtures through 'writeFixture()'.
    *
-   * The helper writes into the per-test workspace that 'tearDown()' removes,
-   * so a fixture lasts no longer than its test, whether the test passes or
-   * fails.
+   * The helper writes into the per-test workspace 'tearDown()' removes, so a
+   * fixture lasts no longer than its test, whether it passes or fails.
    *
    * @param string $file
    *   The file to check.
@@ -774,9 +773,9 @@ class TestConventionTest extends UnitTestCase {
   /**
    * Determine whether a method's source sits inside a class body.
    *
-   * A method a trait supplies reports the composing class as its declarer,
-   * and a trait declared in the same file shares its file name too, so the
-   * lines tell them apart.
+   * A method a trait supplies reports the composing class as its declarer. A
+   * trait declared in the same file shares its file name too, so the lines
+   * tell them apart.
    *
    * @param \ReflectionMethod $method
    *   The method.
@@ -850,8 +849,8 @@ class TestConventionTest extends UnitTestCase {
    * Collect the reflections in PHP code written in the wrong form.
    *
    * A variable passed to 'new \ReflectionClass()' skips the narrowing
-   * 'reflect()' does, and a '::class' constant passed to 'reflect()' loses
-   * the class type 'new \ReflectionClass()' keeps.
+   * 'reflect()' does. A '::class' constant passed to 'reflect()' loses the
+   * class type 'new \ReflectionClass()' keeps.
    *
    * @param string $code
    *   The PHP code, opening tag included.

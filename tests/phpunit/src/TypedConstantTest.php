@@ -10,8 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Asserts that every constant declared under `src/` carries a native type.
  *
- * CONTRIBUTING.md states the rule. Rector's 'AddTypeToConstRector' types a
- * constant only in a final class, so this test holds the rest.
+ * CONTRIBUTING.md states the rule.
  */
 #[CoversNothing]
 class TypedConstantTest extends UnitTestCase {

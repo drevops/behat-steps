@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Tests\Fixtures;
 /**
  * A stream that can be stat'ed and read, but never written.
  *
- * The provisioning script reports a write it could not make, and the suite
- * runs as root, where file permissions stop nothing. A path under this
- * protocol passes is_file(), chmod() and file_get_contents(), then fails
+ * File permissions do not restrict a process running as root, so a read-only
+ * file cannot reliably simulate a failed write. A path under this protocol
+ * passes is_file(), chmod() and file_get_contents(), then fails
  * file_put_contents().
  *
  * PHP calls the handler methods by the names below, so they cannot be renamed.

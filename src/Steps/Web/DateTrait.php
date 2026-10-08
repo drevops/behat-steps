@@ -50,9 +50,6 @@ trait DateTrait {
 
   /**
    * Resolves whether the current scenario replaces tokens.
-   *
-   * A transform receives no scope, so the resolution happens here and the
-   * transforms read the result.
    */
   #[BeforeScenario]
   public function dateBeforeScenario(BeforeScenarioScope $scope): void {
@@ -89,9 +86,6 @@ trait DateTrait {
   /**
    * Process date values to convert relative timestamps to actual values.
    *
-   * Public API: a composing context may call this directly to resolve a token
-   * outside a step.
-   *
    * Possible formats:
    * [relative:OFFSET]
    * [relative:OFFSET#FORMAT]
@@ -110,7 +104,7 @@ trait DateTrait {
    *
    * @note An absent `$now` resolves to the current minute, not a fixed time of
    * day. A formatted return value whose offset crosses midnight can then fall
-   * on a different day than the scenario expects.
+   * on a different day than intended.
    */
   public static function dateRelativeProcessValue(string $value, ?int $now = NULL): string {
     if (!static::dateRelativeStringHasToken($value)) {

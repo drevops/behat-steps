@@ -25,7 +25,7 @@
 | [RandomTrait](#randomtrait) | 10 | Replace random-value tokens in step arguments and table cells. |
 | [RegionTrait](#regiontrait) | 4 | Interact with and assert against named page regions. |
 | [ResponsiveTrait](#responsivetrait) | 7 | Test responsive layouts with viewport control. |
-| [RestTrait](#resttrait) | 2 | Lightweight REST API testing with no Drupal dependencies. |
+| [RestTrait](#resttrait) | 2 | Test REST APIs with lightweight steps and no Drupal dependencies. |
 | [TableTrait](#tabletrait) | 10 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 9 | Assert XML responses with element and attribute checks. |
@@ -1425,7 +1425,7 @@ Set custom breakpoints
 
 [Source](src/Steps/Web/RestTrait.php), [Steps](STEPS.md#resttrait)
 
-> Lightweight REST API testing with no Drupal dependencies.
+> Test REST APIs with lightweight steps and no Drupal dependencies.
 
 <details>
   <summary><code>public function restGetClient(): mixed</code></summary>

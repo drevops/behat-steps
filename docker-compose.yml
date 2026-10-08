@@ -94,7 +94,6 @@ services:
     depends_on:
       - cli
 
-  # Helper container to wait for services to become available.
   wait_dependencies:
     image: drevops/docker-wait-for-dependencies:26.10.0@sha256:0a44e138673116e9cfa3e94dd4df29c97f56c0b8f0fdee58c1dc123dd9b52b08
     depends_on:

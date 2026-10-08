@@ -21,8 +21,6 @@ trait IframeTrait {
   /**
    * Switch to an iframe identified by CSS selector.
    *
-   * Handles unnamed iframes by auto-assigning a name via JavaScript.
-   *
    * @code
    * When I switch to the iframe "iframe.payment-form"
    * When I switch to the iframe "#recaptcha iframe"

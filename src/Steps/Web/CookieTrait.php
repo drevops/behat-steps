@@ -249,8 +249,8 @@ trait CookieTrait {
   public function cookieGetAll(): array {
     $cookies = $this->browserDriverFor(CookieCapabilityInterface::class)->cookieGetAll();
 
-    // The capability returns URL-encoded values; a step compares against the
-    // literal written in the feature.
+    // The capability returns URL-encoded values, so each value is decoded to
+    // its literal form.
     foreach ($cookies as &$cookie) {
       $cookie['value'] = rawurldecode($cookie['value']);
     }

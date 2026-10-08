@@ -303,8 +303,6 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     $arguments = $key !== NULL ? [$name, $key] : [$name];
     $result = $this->drushResult('config:get', $arguments, $options);
 
-    // A missing object is an error to Drush but an absent value to Drupal's
-    // config API, and the capability contract matches the API.
     if ($result->exitCode !== 0) {
       return NULL;
     }
@@ -702,8 +700,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * Parses the user id from drush 'user:information' output.
    *
    * Supports both the legacy key-value format ("User ID : 123") and the
-   * Drush 12+ table format where the ID is the first numeric value in the
-   * data row.
+   * Drush 12+ table format. In the table format, the ID is the first numeric
+   * value in the data row.
    */
   protected function parseUserId(string $info): ?int {
     if (preg_match('/User ID\s+:\s+(\d+)/', $info, $matches) === 1) {

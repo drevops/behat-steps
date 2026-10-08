@@ -10,8 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Asserts that every empty class-like and function body is written as '{}'.
  *
- * CONTRIBUTING.md states the rule. No installed coding standard has a sniff
- * for it, so this test holds it.
+ * CONTRIBUTING.md states the rule.
  */
 #[CoversNothing]
 class EmptyBodyTest extends UnitTestCase {

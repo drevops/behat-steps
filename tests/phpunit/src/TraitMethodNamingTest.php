@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Asserts that trait method names follow the library's naming conventions.
  *
  * Traits are mixed into a single consumer context, so an unprefixed method
- * name can collide with a method of the same name from another trait.
+ * name can collide with a same-named method from another trait.
  *
  * The remaining conventions keep 1 shape per idea, so that a consumer can
  * derive a name rather than look it up. CONTRIBUTING.md states them.
@@ -188,8 +188,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    * Assert that an `Assert` method fails with an assertion exception.
    *
    * A method that throws only `\RuntimeException` guards an argument or a
-   * precondition, so it is named for what it does rather than as an
-   * assertion.
+   * precondition, so it is named for what it does, not as an assertion.
    *
    * @param class-string $trait
    *   The trait to check.
@@ -309,8 +308,8 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Assert that a step reading "should not" carries `Not` in its method name.
    *
-   * A step that names a state of its own, such as "should be disabled", is
-   * not a negation, so its method names that state instead.
+   * A step naming a state of its own, such as "should be disabled", is not a
+   * negation, so its method names that state instead.
    *
    * @param class-string $trait
    *   The trait to check.
@@ -406,7 +405,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   /**
    * Assert that `Has` names something the subject holds.
    *
-   * A value compared against reads `Equals` or `Contains`, so in an assertion
+   * A value compared against reads `Equals` or `Contains`. In an assertion,
    * `Has` is followed by neither `Content`, `Value` or `Text`, nor by a
    * `With` or `Containing` value qualifier.
    *
@@ -657,8 +656,8 @@ class TraitMethodNamingTest extends UnitTestCase {
    *
    * The verb comes before the entity it acts on, so a name carrying one of
    * them opens with it. A hook is named for its event, as
-   * `contentBeforeNodeCreate()` is, and a `Visit` method names the page it
-   * opens, as `contentVisitDeletePageWithTitle()` does, so neither is read.
+   * `contentBeforeNodeCreate()` is, and a `Visit` method for its page, as
+   * `contentVisitDeletePageWithTitle()` is, so neither is read.
    *
    * @param class-string $trait
    *   The trait to check.
@@ -812,7 +811,7 @@ class TraitMethodNamingTest extends UnitTestCase {
    * Collect the methods a trait declares whose name opens with a verb.
    *
    * The verb is the word right after the trait prefix, so 'tableGetRows'
-   * opens with 'Get' and a name such as 'tableGetter' opens with no verb.
+   * opens with 'Get' and 'tableGetter' opens with no verb.
    *
    * @param class-string $trait
    *   The trait to read.

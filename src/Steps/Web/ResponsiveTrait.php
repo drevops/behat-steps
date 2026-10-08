@@ -23,7 +23,8 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * - Tag-based viewport control using `@breakpoint:NAME` tag
  * - Step-based viewport control during scenario execution
  * - Individual width/height control or combined dimensions.
- * - Every viewport step needs a browser driver that can resize the window, such as the one a `@javascript` scenario runs.
+ * - Every viewport step needs a browser driver that can resize the window,
+ *   such as the one a `@javascript` scenario runs.
  *
  * Tag-based viewport control:
  * @code
@@ -320,7 +321,7 @@ trait ResponsiveTrait {
   }
 
   /**
-   * Find the breakpoint that the @breakpoint tag of one node names.
+   * Find the breakpoint that the @breakpoint tag of 1 node names.
    *
    * @param \Behat\Gherkin\Node\TaggedNodeInterface $node
    *   The scenario or the feature to read.

@@ -23,9 +23,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('fields')]
 class CoreFieldMethodsTest extends UnitTestCase {
 
-  /**
-   * Tests that 'getEntityFieldTypes()' returns configurable and F1 base fields.
-   */
   public function testGetEntityFieldTypesIncludesF1AndF5AndExcludesF3(): void {
     $core = $this->createCore();
     $result = $core->getEntityFieldTypes('node');

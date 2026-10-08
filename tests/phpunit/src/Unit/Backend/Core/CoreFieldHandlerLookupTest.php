@@ -68,9 +68,6 @@ class CoreFieldHandlerLookupTest extends UnitTestCase {
     $this->assertInstanceOf(DefaultHandler::class, $handler);
   }
 
-  /**
-   * Tests that 'getFieldHandler()' throws when the field is not resolvable.
-   */
   public function testThrowsWhenFieldIsMissing(): void {
     $core = new FieldTypeMapCore(__DIR__, 'default', []);
 

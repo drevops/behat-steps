@@ -47,8 +47,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    *   The URI for the Drupal installation.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   Thrown when the Drupal installation is not found in the given root path,
-   *   or when its core version string has no numeric major or one below 11.
+   *   Thrown when no Drupal installation is found at the root path, or when
+   *   its core major version is not numeric or below 11.
    */
   public function __construct(string $drupal_root, protected readonly string $uri) {
     $resolved = realpath($drupal_root);

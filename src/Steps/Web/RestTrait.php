@@ -16,7 +16,7 @@ use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 /**
- * Lightweight REST API testing with no Drupal dependencies.
+ * Test REST APIs with lightweight steps and no Drupal dependencies.
  *
  * - Set HTTP headers for subsequent requests.
  * - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
@@ -153,9 +153,6 @@ trait RestTrait {
 
   /**
    * Convert stored headers to the server array format for BrowserKit.
-   *
-   * Header names are uppercased, hyphens replaced with underscores, and
-   * prefixed with 'HTTP_' (except 'Content-Type' and 'Content-Length').
    *
    * @return array<string, string>
    *   The server array.

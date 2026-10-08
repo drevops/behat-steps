@@ -72,9 +72,6 @@ trait CommandTrait {
   /**
    * Run a shell command.
    *
-   * The command runs through the system shell; its standard output, error
-   * output, and exit code are captured for subsequent assertions.
-   *
    * @code
    * When I run the command "php -v"
    * When I run the command "./vendor/bin/phpunit --version"

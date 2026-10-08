@@ -8,7 +8,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 
 /**
- * Context whose declaration method names one option twice.
+ * Context whose declaration method names 1 option twice.
  */
 class DuplicateOptionConfigContext extends WebRawContext {
 

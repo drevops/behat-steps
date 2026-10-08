@@ -148,8 +148,8 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
     $deltas = $stub->getValue($field_name);
     $this->assertIsList($deltas, sprintf('Field "%s" expanded to keyed values rather than a list of deltas.', $field_name));
 
-    // Assert the stored delta count matches the stub; the per-delta loop
-    // alone would not detect a handler that duplicates or appends deltas.
+    // The per-delta loop alone would not detect a handler that duplicates or
+    // appends deltas.
     $field_items = $reloaded->get($field_name);
     $this->assertCount(
       count($deltas),

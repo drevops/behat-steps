@@ -30,9 +30,6 @@ class AuthorAliasTest extends UnitTestCase {
     $this->assertNotSame('', $alias->getDescription());
   }
 
-  /**
-   * Tests that a known username resolves to 'uid' and removes 'author'.
-   */
   public function testApplyToStubResolvesKnownUser(): void {
     $alias = new AuthorAlias(static fn(string $name): object => new FakeUser(42));
 
@@ -45,9 +42,6 @@ class AuthorAliasTest extends UnitTestCase {
     $this->assertSame('Hello', $stub->getValue('title'));
   }
 
-  /**
-   * Tests that an unknown username throws and leaves the stub alone.
-   */
   public function testApplyToStubThrowsOnUnknownUser(): void {
     $alias = new AuthorAlias(static fn(): ?object => NULL);
 

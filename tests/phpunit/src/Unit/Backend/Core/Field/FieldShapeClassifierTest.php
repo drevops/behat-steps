@@ -21,9 +21,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('fields')]
 class FieldShapeClassifierTest extends UnitTestCase {
 
-  /**
-   * Tests entity-reference detection by a DataReferenceTargetDefinition.
-   */
   public function testFieldIsEntityReference(): void {
     $classifier = new FieldShapeClassifier();
 

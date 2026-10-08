@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests permission label and machine name conversion in the Core backend.
+ * Tests permission label and machine name conversion in 'Core'.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

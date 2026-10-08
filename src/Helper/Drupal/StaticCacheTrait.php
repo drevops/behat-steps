@@ -19,7 +19,7 @@ trait StaticCacheTrait {
    * Clears static caches.
    *
    * Only a scenario that resolved a cache-capable backend can have populated a
-   * static cache, so no backend is resolved for a scenario that did not.
+   * static cache, so no backend is resolved for any other scenario.
    */
   #[AfterScenario]
   public function staticCacheAfterScenario(AfterScenarioScope $scope): void {

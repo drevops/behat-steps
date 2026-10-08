@@ -107,7 +107,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     $login_wait = (int) $this->getParameter('login_wait');
 
     // A theme without the logged-in selector would hold every login for the
-    // whole wait, so these polls run only when 'login_wait' asks for them.
+    // whole wait, so these polls run only when 'login_wait' is above 0.
     if ($login_wait > 0) {
       $this->waitUntil($login_wait, static fn(): bool => $session->getPage()->find('css', 'body') !== NULL);
 

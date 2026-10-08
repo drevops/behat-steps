@@ -15,8 +15,8 @@ interface KeyboardCapabilityInterface {
    * @param string $xpath
    *   XPath of the element to trigger the key on.
    * @param string $key
-   *   The key to trigger. A special key arrives as its control character or
-   *   its name, such as "\t" for tab or 'page-up'.
+   *   The key to trigger. A special key is given as its control character
+   *   or its name, such as "\t" for tab or 'page-up'.
    */
   public function keyboardTriggerKey(string $xpath, string $key): void;
 

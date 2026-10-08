@@ -28,7 +28,7 @@
 | [RegionTrait](#regiontrait) | Interact with and assert against named page regions. |
 | [ResponseTrait](#responsetrait) | Verify HTTP response headers. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
-| [RestTrait](#resttrait) | Lightweight REST API testing with no Drupal dependencies. |
+| [RestTrait](#resttrait) | Test REST APIs with lightweight steps and no Drupal dependencies. |
 | [TableTrait](#tabletrait) | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | Assert XML responses with element and attribute checks. |
@@ -669,7 +669,9 @@ When I drop the following files on the dropzone ".dropzone":
 >  - Assert element visibility, attribute values, and viewport positioning.
 >  - Execute JavaScript-based interactions with element state verification.
 >  - Handle confirmation dialogs and scrolling operations.
->  - A top offset of N pixels scrolls the top of the element to N pixels below the top of the viewport. A negative offset scrolls it above the viewport.
+>  - A top offset of N pixels scrolls the top of the element to N pixels
+>  below the top of the viewport. A negative offset scrolls it above the
+>  viewport.
 
 
 ### Options
@@ -3608,8 +3610,9 @@ Then the response header "Connection" should not contain the value "Keep-Alive"
 >  - Tag-based viewport control using `@breakpoint:NAME` tag
 >  - Step-based viewport control during scenario execution
 >  - Individual width/height control or combined dimensions.
->  - Every viewport step needs a browser driver that can resize the window, such as the one a `@javascript` scenario runs.
->  
+>  - Every viewport step needs a browser driver that can resize the window,
+>  such as the one a `@javascript` scenario runs.
+>  <br/><br/>
 >  Tag-based viewport control:
 >  ```
 >  @javascript @breakpoint:mobile_portrait
@@ -3726,7 +3729,7 @@ When I set the viewport to "375" by "667"
 
 [Source](src/Steps/Web/RestTrait.php), [Example](tests/behat/features/rest.feature)
 
->  Lightweight REST API testing with no Drupal dependencies.
+>  Test REST APIs with lightweight steps and no Drupal dependencies.
 >  - Set HTTP headers for subsequent requests.
 >  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
 >  - Assert response status codes and body content.
@@ -4052,9 +4055,9 @@ Then the link "Delete" in the row containing "Article title" should not exist
 >  - Wait for jQuery and Drupal AJAX activity to settle, on demand or around
 >  every step that navigates or submits.
 >  <br/><br/>
->  A wait on `jQuery.active` alone misses the updates Drupal renders through
->  `Drupal.ajax`, so an assertion following a click can read the page before
->  the update applies. The wait here watches both.
+>  A wait on `jQuery.active` alone misses `Drupal.ajax` updates, so an
+>  assertion following a click can read the page before the update applies.
+>  The wait here watches both.
 >  <br/><br/>
 >  Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
 
@@ -4969,8 +4972,9 @@ When I run cron
 >  <br/><br/>
 >  Configuration objects touched by the set steps are snapshotted on first
 >  write and restored after the scenario. An existing object is reset to its
->  original data, and an object that did not exist is deleted. Skip the revert
->  with `@behat-steps-skip:ConfigTrait`.
+>  original data, and an object that did not exist is deleted.
+>  <br/><br/>
+>  Skip the revert with `@behat-steps-skip:ConfigTrait`.
 >  <br/><br/>
 >  ```
 >  Scenario: Assert configured values

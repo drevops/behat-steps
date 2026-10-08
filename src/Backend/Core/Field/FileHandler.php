@@ -59,8 +59,7 @@ class FileHandler extends AbstractHandler {
    * Reads the id from a saved file entity.
    *
    * The parameter is typed 'object' so a unit-test double need not implement
-   * Drupal's File entity contract. The 'method_exists()' guard is the only
-   * check on 'id()'.
+   * Drupal's File entity contract.
    *
    * @param object $file
    *   A File entity, or a File-compatible stub in tests.

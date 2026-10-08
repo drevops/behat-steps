@@ -34,7 +34,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
 /**
  * Creates Drupal entities and removes them when the scenario ends.
  *
- * Holds the one registry every entity creation writes to, so the teardown
+ * Holds the registry every entity creation writes to, so the teardown
  * walks it in reverse and deletes a node before the term it references. The
  * same registry tells which of several entities the scenario created last.
  *
@@ -301,9 +301,10 @@ trait EntityLifecycleTrait {
   /**
    * Find the newest of several entities whose ids carry no creation order.
    *
-   * A config entity records no creation time. The entity the scenario created
-   * last wins over any the site already held. Among the rest, the last id in
-   * natural order wins.
+   * A config entity records no creation time.
+   *
+   * The entity the scenario created last wins over any the site already held.
+   * Among the rest, the last id in natural order wins.
    *
    * @param array<array-key, T> $entities
    *   The entities to choose from.

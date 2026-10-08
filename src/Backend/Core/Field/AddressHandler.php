@@ -48,9 +48,6 @@ class AddressHandler extends AbstractHandler {
    * {@inheritdoc}
    */
   protected function doExpand(array $records): array {
-    // 'available_countries' is empty when the field accepts every country,
-    // and 'reset([])' returns FALSE, which would store a boolean. In that
-    // case 'country_code' stays unset and the field's own default applies.
     $available = $this->fieldConfig->getSettings()['available_countries'] ?? [];
 
     foreach ($records as &$record) {

@@ -258,7 +258,7 @@ class FileDownloadTraitTest extends UnitTestCase {
   }
 
   /**
-   * Download a ZIP archive holding a report and a logo.
+   * Downloads a ZIP archive holding a report and a logo.
    */
   protected function loadZip(): void {
     $path = static::$tmp . '/source.zip';

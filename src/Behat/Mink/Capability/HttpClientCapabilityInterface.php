@@ -11,7 +11,7 @@ use Symfony\Component\BrowserKit\AbstractBrowser;
  *
  * A request sent through that browser becomes the page the session holds. A
  * browser driver controlling a real browser has no such browser in PHP, so
- * only a browser driver that is itself an HTTP client provides this.
+ * only a browser driver wrapping an HTTP client provides this.
  *
  * @see \DrevOps\BehatSteps\Behat\Context\WebRawContext::httpPageClient()
  */

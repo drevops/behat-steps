@@ -5,8 +5,7 @@
  * Trait composition check.
  *
  * A trait's directory determines its kind: 'src/Steps' holds the step
- * vocabulary and 'src/Helper' holds the plumbing shared by step traits. Each
- * is split into a 'Web' and a 'Drupal' half.
+ * vocabulary and 'src/Helper' holds the plumbing shared by step traits.
  *
  * This script reads both trees and fails when a step trait composes another
  * step trait, or when a helper trait registers Gherkin.
@@ -75,7 +74,7 @@ function lint_traits(array $options = []): void {
  *   Absolute path to the repository root.
  *
  * @return array<string, array{kind: string, composed: array<int, string>, members: array<int, string>}>
- *   One entry per trait, sorted by short name.
+ *   1 entry per trait, sorted by short name.
  */
 function traits_collect(string $base_path): array {
   $traits = [];
@@ -197,7 +196,7 @@ function traits_name(?int $type, string $text): ?string {
  *   The traits to check, keyed by short name.
  *
  * @return array<int, string>
- *   One row per violation, in trait order.
+ *   1 row per violation, in trait order.
  */
 function traits_violations(array $traits): array {
   $violations = [];

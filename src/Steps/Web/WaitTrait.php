@@ -24,9 +24,9 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * - Wait for jQuery and Drupal AJAX activity to settle, on demand or around
  *   every step that navigates or submits.
  *
- * A wait on `jQuery.active` alone misses the updates Drupal renders through
- * `Drupal.ajax`, so an assertion following a click can read the page before
- * the update applies. The wait here watches both.
+ * A wait on `jQuery.active` alone misses `Drupal.ajax` updates, so an
+ * assertion following a click can read the page before the update applies.
+ * The wait here watches both.
  *
  * Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
  *

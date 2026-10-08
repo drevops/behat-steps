@@ -223,7 +223,7 @@ final class BehatStepsExtension implements ExtensionInterface {
   }
 
   /**
-   * Registers the first-party factory behind Mink's 'browserkit_http' driver.
+   * Registers the first-party factory for the 'browserkit_http' browser driver.
    *
    * Mink keys its driver factories by driver name, so this registration
    * replaces Mink's own. Behat initializes every extension before it builds
@@ -249,10 +249,10 @@ final class BehatStepsExtension implements ExtensionInterface {
    * Puts this package's document element in place of Mink's own.
    *
    * The alias must be installed before Mink autoloads the class it replaces,
-   * so the check reads declared classes only and an already-declared name is
+   * so the check reads declared classes only. An already-declared name is
    * left alone.
    *
-   * A Behat run loads this extension while the container is built, before
+   * Behat loads this extension while the container is built, before
    * any element is requested from Mink, so the replacement holds for the
    * session. A process that loaded Mink's class first, such as this package's
    * PHPUnit suite, keeps Mink's behavior, which affects only page-text
@@ -493,7 +493,7 @@ final class BehatStepsExtension implements ExtensionInterface {
 
       // Resolution lowercases a name, so 2 entries differing only by case
       // would collapse into 1 and the later would silently replace the
-      // earlier in the order.
+      // earlier.
       if (isset($seen[$tag])) {
         throw new InvalidConfigurationException(sprintf('The "backends" list under "%s" names "%s" twice. A name is matched without regard to case, so it may appear only once.', self::CONFIG_KEY, $tag));
       }

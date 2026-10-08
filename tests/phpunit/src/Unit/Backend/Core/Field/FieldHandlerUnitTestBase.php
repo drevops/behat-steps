@@ -10,17 +10,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Base unit test for field handlers.
- *
- * Subclasses supply 'createHandler()' and 'dataProviderExpand()'.
- *
- * Data provider rows have the shape:
- *   [input, expected, exception_class_or_NULL, expected_message_or_NULL]
- *
- *   - On the happy path: 'expected' is the asserted storage shape;
- *     'exception_class' is NULL.
- *   - On the error path: 'expected' is NULL and 'exception_class' is the
- *     class that must be thrown ('expected_message' optionally pins a
- *     substring).
  */
 abstract class FieldHandlerUnitTestBase extends UnitTestCase {
 

@@ -78,9 +78,6 @@ class BlackboxBackendTest extends UnitTestCase {
     ));
   }
 
-  /**
-   * Data provider listing every capability BlackboxBackend must not declare.
-   */
   public static function dataProviderDoesNotImplementCapability(): \Iterator {
     yield 'authentication' => [AuthenticationCapabilityInterface::class];
     yield 'batch' => [BatchCapabilityInterface::class];

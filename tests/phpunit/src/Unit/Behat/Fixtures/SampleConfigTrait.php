@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures;
 use DrevOps\BehatSteps\Behat\Config\Option;
 
 /**
- * Trait declaring one option of each shape the resolution has to read.
+ * Trait declaring 1 option of each shape the resolution has to read.
  */
 trait SampleConfigTrait {
 

@@ -453,7 +453,7 @@ class ResponsiveTraitTest extends UnitTestCase {
   }
 
   /**
-   * Attach a started session double to the test object.
+   * Attaches a started session double to the test object.
    *
    * @return \Behat\Mink\Session&\PHPUnit\Framework\MockObject\MockObject
    *   The session the test object reads.

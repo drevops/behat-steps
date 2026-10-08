@@ -96,7 +96,7 @@ Feature: Check that ConfigTrait works
     Then the config "behat_steps_test.ephemeral" with the key "foo" should not have the value "bar"
 
   # The steps below resolve the Config capability instead of bootstrapping
-  # Drupal, so the '@backend:drush' tag promotes the Drush backend and the same
+  # Drupal. The '@backend:drush' tag promotes the Drush backend, so the same
   # step text runs against a site this process never boots.
   @backend:drush
   Scenario: Set and assert a stored string config value over Drush

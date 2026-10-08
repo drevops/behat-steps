@@ -36,7 +36,7 @@ class BooleanHandlerKernelTest extends FieldHandlerKernelTestBase {
    * Tests that a canonical word or a configured label round-trips.
    *
    * Site builders often customize the labels, such as 'Published' and 'Draft'
-   * on a publishing workflow field, so a scenario must be able to use them.
+   * on a workflow field, so a scenario must be able to use them.
    *
    * @param array<string, string> $field_settings
    *   The field settings, carrying the configured labels.

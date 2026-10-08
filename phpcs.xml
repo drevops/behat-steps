@@ -2,7 +2,6 @@
 <ruleset name="custom">
     <description>Custom PHPCS standard.</description>
 
-    <!-- Coding standard. -->
     <rule ref="Drupal">
         <exclude name="Drupal.Files.LineLength.TooLong"/>
     </rule>
@@ -31,18 +30,15 @@
     <file>tests/behat/fixtures_drupal/d12/web/modules/custom</file>
     <file>tests/phpunit/src</file>
 
-    <!-- Exclude circleci config files. -->
     <exclude-pattern>circle\.yml</exclude-pattern>
     <exclude-pattern>.circle\/config\.yml</exclude-pattern>
 
-    <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
         <exclude-pattern>*.Test\.php</exclude-pattern>
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
         <exclude-pattern>*.test</exclude-pattern>
     </rule>
 
-    <!-- Allow missing function names in tests. -->
     <rule ref="Drupal.Commenting.FunctionComment.Missing">
         <exclude-pattern>*.Test\.php</exclude-pattern>
         <exclude-pattern>*.TestCase\.php</exclude-pattern>

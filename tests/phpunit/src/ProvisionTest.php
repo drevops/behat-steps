@@ -10,10 +10,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests the fixture site provisioning script.
- *
- * This test covers the logic that shapes the build: the Composer merge, the
- * paths it rebases, the patch map, and the 2 rewrites that a Drupal 12 build
- * depends on.
  */
 #[CoversFunction('provision_append_settings')]
 #[CoversFunction('provision_behat_packages')]
@@ -398,9 +394,9 @@ class ProvisionTest extends UnitTestCase {
   /**
    * Assert that a package the fixture pins is left out of "require-dev".
    *
-   * Named in both sections, the package resolves to the lower of the 2
-   * constraints under "--prefer-lowest", which can fall outside the range the
-   * fixture pins.
+   * Named in both sections, the package resolves to the lower constraint
+   * under "--prefer-lowest", which can fall outside the range the fixture
+   * pins.
    */
   public function testMergeComposerDropsDevPackageTheFixturePins(): void {
     $merged = provision_merge_composer(static::buildPackageConfig(), static::buildFixtureConfig());

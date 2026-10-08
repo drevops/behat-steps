@@ -47,8 +47,6 @@ trait JsonTrait {
 
   /**
    * Hash of the currently decoded JSON content.
-   *
-   * Used to detect when page content changes and data needs re-decoding.
    */
   protected ?string $jsonContentHash = NULL;
 

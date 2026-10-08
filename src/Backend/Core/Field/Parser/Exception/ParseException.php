@@ -14,8 +14,7 @@ namespace DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception;
  *   - A human-readable message and an optional suggested fix.
  *
  * The exception message returned by 'getMessage()' is a multi-line string
- * containing the cell, a caret line, and a description; suitable for
- * surfacing directly in a Behat run.
+ * containing the cell, a caret line, and a description.
  */
 class ParseException extends \RuntimeException {
 

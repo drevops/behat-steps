@@ -9,7 +9,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
- * Builds the 'browserkit_http' driver and records its connection options.
+ * Builds the 'browserkit_http' browser driver and records its connection options.
  *
  * Each session is built exactly as Mink builds it, on a client of its own that
  * applies the session's 'http_client_parameters' to every host. The options
@@ -30,7 +30,7 @@ final class BrowserKitFactory extends UpstreamBrowserKitFactory {
    * {@inheritdoc}
    *
    * @param array<array-key, mixed> $config
-   *   Driver configuration.
+   *   Browser driver configuration.
    */
   public function buildDriver(array $config): Definition {
     $options = $config['http_client_parameters'] ?? [];

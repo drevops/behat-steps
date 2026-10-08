@@ -16,7 +16,7 @@ use DrevOps\BehatSteps\Steps\Web\XmlTrait;
 /**
  * Composes every trait that runs on Mink's own base context.
  *
- * A trait listed here is one a project can compose without the library's own
+ * A project can compose each trait listed here without the library's own
  * context.
  */
 class BareMinkContext extends RawMinkContext {

@@ -34,9 +34,6 @@ class DrushBackendCreationAliasesTest extends UnitTestCase {
     $this->assertInstanceOf(RolesAlias::class, $aliases['roles']);
   }
 
-  /**
-   * Tests that Drush ships no node/term aliases by default.
-   */
   public function testNoContentAliasesByDefault(): void {
     $backend = new DrushBackend('test-alias');
 

@@ -49,8 +49,6 @@ trait XmlTrait {
 
   /**
    * Hash of the currently loaded XML content.
-   *
-   * Used to detect when page content changes and document needs reloading.
    */
   protected ?string $xmlContentHash = NULL;
 

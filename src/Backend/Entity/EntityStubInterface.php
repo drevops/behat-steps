@@ -8,8 +8,7 @@ namespace DrevOps\BehatSteps\Backend\Entity;
  * Contract for the typed envelope used during entity create/cleanup flows.
  *
  * Holds the desired-state values before save, the saved Drupal entity once
- * the backend populates it, and the bundle context the field-handler
- * pipeline needs for storage resolution.
+ * the backend populates it, and the bundle context for storage resolution.
  */
 interface EntityStubInterface {
 

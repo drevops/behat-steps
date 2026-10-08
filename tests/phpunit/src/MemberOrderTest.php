@@ -14,8 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Asserts that every trait lays its members out in the documented order.
  *
  * A reader looking for a trait's hooks, its steps or its helpers finds them
- * in the same place in every file. CONTRIBUTING.md states the layout; this
- * test holds it.
+ * in the same place in every file. CONTRIBUTING.md states the layout.
  *
  * The order is settled between groups only; members inside 1 group stay in
  * whatever order reads best.

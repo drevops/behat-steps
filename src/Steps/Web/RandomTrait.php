@@ -316,9 +316,6 @@ trait RandomTrait {
   /**
    * Dispatches to the type-specific generator.
    *
-   * 'randomNormalizeArgs()' has already validated the args, so the casts are
-   * safe.
-   *
    * @param string $type
    *   The generator type extracted from the token.
    * @param list<string> $args

@@ -158,8 +158,6 @@ trait CacheTrait {
 
     $backend = \Drupal::cache($bin);
 
-    // Only the database backend can list its entries, so any other backend is
-    // emptied whole.
     if (!$backend instanceof DatabaseBackend) {
       $backend->deleteAll();
 

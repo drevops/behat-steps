@@ -138,8 +138,7 @@ trait BigPipeTrait {
    * Set the no-JS cookie for a scenario with server-side rendering enabled.
    *
    * A browser driver that runs JavaScript replaces the placeholders itself, so
-   * the cookie is only for the ones that do not. 'setCookie()' is idempotent,
-   * so re-applying it on every step costs nothing.
+   * the cookie is only for the ones that do not.
    */
   protected function bigPipeApplyServerRenderCookie(): void {
     if (!$this->bigPipeServerRenderEnabled) {
