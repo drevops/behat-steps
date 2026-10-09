@@ -1033,12 +1033,12 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `Then the following (e)mail(s) should have been sent:` | `Then the email field :field should contain:` |
 | `Then the following (e)mail(s) should have been sent to :to:` | `Then an email should be sent to the address :address with the content:` |
 | `Then the following (e)mail(s) should have been sent with the subject :subject:` | `Then the email field :field should be:` against `subject` |
-| `Then the following (e)mail(s) should have been sent to :to with the subject :subject:` | the two steps above, combined |
+| `Then the following (e)mail(s) should have been sent to :to with the subject :subject:` | the 2 steps above |
 | `Then the following new (e)mail(s) should have been sent...` | clear the queue, then use the non-`new` step |
 | `Then there should be a total of :count (e)mail(s) sent` | `Then the number of sent emails should be :count` |
 | `Then there should be a total of :count (e)mail(s) sent to :to` | `Then the number of emails sent to the address :address should be :count` |
 | `Then there should be a total of :count (e)mail(s) sent with the subject :subject` | `Then the number of emails sent with the subject :subject should be :count` |
-| `Then there should be a total of :count (e)mail(s) sent to :to with the subject :subject` | no combined step: after `When I clear the test email system queue`, use the 2 count steps above |
+| `Then there should be a total of :count (e)mail(s) sent to :to with the subject :subject` | the 2 count steps above |
 | `Then there should be a total of :count new (e)mail(s) sent...` | clear the queue, then use the non-`new` step |
 | `Then (a )(an )(e)mail(s) should have been sent with the attachment(s) :attachments` | `Then the file :filename should be attached to the email with the subject :subject` |
 | `Then (a )(an )(e)mail(s) should have been sent to :to with the attachment(s) :attachments` | as above |
@@ -1046,8 +1046,16 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `Then (a )(an )(e)mail(s) should have been sent to :to with the subject :subject and the attachment(s) :attachments` | as above |
 | `When I follow the link to :urlFragment from the email`, or `from the mail` | `When I follow the link with a URL containing :partial_url in the email` |
 | `When I follow the link to :urlFragment from the email to :to`, or `from the mail to :to` | as above |
-| `When I follow the link to :urlFragment from the email with the subject :subject`, or `from the mail with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
+| `When I follow the link to :urlFragment from the email with the subject :subject`, or `from the mail with the subject :subject` | as above, or `When I follow the link with the index :index in the email with the subject :subject` to keep the subject |
 | `When I follow the link to :urlFragment from the email to :to with the subject :subject`, or `from the mail to :to with the subject :subject` | as above |
+
+Several Drupal Extension mail steps held 2 conditions to the same email, such as a recipient and a subject, or a subject and a link URL. No 4.x step does, so each row above keeps 1 of the conditions or checks each with its own step, and 2 steps can pass on 2 different emails. Clearing the queue right before the action that sends the mail usually leaves just that email, which closes the gap. Where it doesn't, a step of your own holds both conditions to 1 email through the public helpers in [HELPERS.md](HELPERS.md). `emailGetMessagesToAddress()` and `emailGetMessagesWithSubject()` key each message as collected, so the emails that match both are:
+
+```php
+$messages = array_intersect_key($this->emailGetMessagesToAddress($address), $this->emailGetMessagesWithSubject($subject));
+```
+
+For a link, `emailFindMessageBySubject()` finds the email and `emailExtractLinks()` lists the links in its body.
 
 The Drupal Extension matched a subject in part and in any case. Here `with the subject :subject` compares the whole subject, so a scenario that relied on a partial match moves to `with a subject containing :partial_subject` and writes the subject's own case. [Email subject steps match the way they read](#email-subject-steps-match-the-way-they-read) has the details.
 
