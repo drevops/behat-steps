@@ -379,7 +379,7 @@ The Behat harness in `tests/behat/bootstrap/` - `FeatureContext`, `FeatureContex
 
 - **Tags**: a tag is read through `Tag::has()` or `Tag::values()`, passing the scope and a constant that names the tag, and no hook attribute filters on a tag. A feature hook has no scenario, so it passes the feature.
 - **Numbers**: a numeric step argument is parsed with `stringParseInteger()`, so `sleep for five seconds` fails instead of sleeping for 0 seconds.
-- **Hooks**: a hook is named `<prefix><Event>` and declared before the steps.
+- **Hooks**: a hook is named `<prefix><Event>` and declared before the steps. `FeatureContextTrait`, `FeatureContext` and the context `BehatCliTrait` generates share the `test` prefix, and `BehatCliTrait` itself uses `behatCli`. A prefix holds 1 hook per event, so a second job on an event runs from a helper that hook calls, as `testBeforeScenario()` runs `testStopSessions()` and then `testShortenBigPipeWait()`.
 - **Constants**: every constant declares a native type.
 
 The harness steps keep their own wording, placeholders, patterns and signatures rather than follow [Steps format](#steps-format) and [Step arguments](#step-arguments). They aren't published, and renaming one means editing every `.feature` line that uses it: every `@test-trait` scenario runs `some behat configuration` and `scenario steps:` or `scenario steps tagged with "...":`. `BehatCliContext.php` holds none of these conventions, because it's kept in step with an upstream copy.

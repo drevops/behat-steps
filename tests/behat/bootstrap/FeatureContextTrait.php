@@ -44,26 +44,22 @@ trait FeatureContextTrait {
   protected const string TEST_ERRORCLEANUP_TAG = 'test-errorcleanup';
 
   /**
+   * The tag that shortens the BigPipe wait timeout.
+   */
+  protected const string TEST_BIGPIPE_TIMEOUT_TAG = 'test-bigpipe-timeout';
+
+  /**
    * Whether to use center scroll alignment for testing.
    */
   protected bool $testElementScrollCenter = TRUE;
 
   /**
-   * Stop Mink sessions before scenarios that will spawn sub-processes.
-   *
-   * Mink keeps the Selenium2/Chrome connection open after a @javascript
-   * scenario in the parent process, so a child process hangs while it opens
-   * its own.
-   *
-   * @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession()
+   * Prepare the scenario the harness tags ask for.
    */
   #[BeforeScenario]
   public function testBeforeScenario(BeforeScenarioScope $scope): void {
-    if (Tag::values($scope, self::TEST_TRAIT_TAG) === []) {
-      return;
-    }
-
-    $this->getMink()->stopSessions();
+    $this->testStopSessions($scope);
+    $this->testShortenBigPipeWait($scope);
   }
 
   /**
@@ -564,6 +560,38 @@ trait FeatureContextTrait {
     for ($i = 0; $i < $count; $i++) {
       $queue_instance->createItem(['data' => 'test_item_' . $i]);
     }
+  }
+
+  /**
+   * Stop Mink sessions before a scenario that spawns a nested Behat run.
+   *
+   * Mink keeps the Selenium2/Chrome connection open after a @javascript
+   * scenario in the parent process, so a child process hangs while it opens
+   * its own.
+   *
+   * @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession()
+   */
+  protected function testStopSessions(BeforeScenarioScope $scope): void {
+    if (Tag::values($scope, self::TEST_TRAIT_TAG) === []) {
+      return;
+    }
+
+    $this->getMink()->stopSessions();
+  }
+
+  /**
+   * Shorten the BigPipe wait timeout for the timeout coverage scenario.
+   *
+   * Scenarios tagged '@test-bigpipe-timeout' use a short timeout so they can
+   * exercise the wait timing out quickly; every other scenario keeps the
+   * trait's default.
+   */
+  protected function testShortenBigPipeWait(BeforeScenarioScope $scope): void {
+    if (!Tag::has($scope, self::TEST_BIGPIPE_TIMEOUT_TAG)) {
+      return;
+    }
+
+    $this->bigPipeWaitTimeout = 2000;
   }
 
 }
