@@ -156,7 +156,7 @@ package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
     the only piece that reflects
   }
 
-  class TagOverrides {
+  class TagOverrideResolver {
     {static} +SKIP_TAG_PREFIX : string
     {static} +SKIP_TAG_VALUE_PATTERN : string
     --
@@ -172,13 +172,13 @@ package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
 
   TraitOptionResolverFactoryInterface ..> TraitOptionResolverInterface : builds
   TraitOptionResolverInterface o--> Option
-  TraitOptionResolverInterface o--> TagOverrides
+  TraitOptionResolverInterface o--> TagOverrideResolver
   ConfigSchemaReader ..> Option : reads
 
   TraitOptionResolverFactoryInterface -[hidden]down- TraitOptionResolverInterface
   Option -[hidden]down- ConfigSchemaReader
-  ConfigSchemaReader -[hidden]down- TagOverrides
-  TagOverrides -[hidden]down- ParametersTrait
+  ConfigSchemaReader -[hidden]down- TagOverrideResolver
+  TagOverrideResolver -[hidden]down- ParametersTrait
 }
 
 package "DrevOps\\BehatSteps\\Behat\\Prerequisite" #F3E5F5 {

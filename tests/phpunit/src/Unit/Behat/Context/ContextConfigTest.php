@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context;
 
 use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistry;
@@ -85,7 +85,7 @@ class ContextConfigTest extends UnitTestCase {
     $context = new ConfigurableContext();
     $registry = new ScenarioTagRegistry();
 
-    $context->setOptionResolverFactory(new TraitOptionResolverFactory(new ConfigSchemaReader(), $registry, new TagOverrides()));
+    $context->setOptionResolverFactory(new TraitOptionResolverFactory(new ConfigSchemaReader(), $registry, new TagOverrideResolver()));
     $registry->setTags(['sample-off']);
 
     $this->assertFalse($context->getOptionBool('sample', 'enabled'));
@@ -132,7 +132,7 @@ class ContextConfigTest extends UnitTestCase {
     $registry = new ScenarioTagRegistry();
     $registry->setTags($tags);
 
-    $context->setOptionResolverFactory(new TraitOptionResolverFactory(new ConfigSchemaReader(), $registry, new TagOverrides()));
+    $context->setOptionResolverFactory(new TraitOptionResolverFactory(new ConfigSchemaReader(), $registry, new TagOverrideResolver()));
 
     $this->assertSame($expected, $context->callSkipTag($trait, $this->createBeforeScenarioScope($tags)));
   }

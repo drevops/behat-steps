@@ -4,18 +4,23 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Behat\Auth\Authenticator;
+use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Context\Initializer\BackendAwareInitializer;
+use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Behat\Registry\UserRegistry;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BackendPass;
 use DrevOps\BehatSteps\Behat\Tag;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Asserts that every class and namespace under `src/Behat` is named for a role.
  *
- * Every class also sits in a sub-namespace, apart from the ones listed in
- * ROOT_TYPES. CONTRIBUTING.md states both rules.
+ * Every class the container builds ends in a role suffix, and every class
+ * sits in a sub-namespace, apart from the ones listed in ROOT_TYPES.
+ * CONTRIBUTING.md states the rules.
  */
 #[CoversNothing]
 class ClassNamingTest extends UnitTestCase {
@@ -29,6 +34,14 @@ class ClassNamingTest extends UnitTestCase {
    * Suffixes that would describe every class in the package equally well.
    */
   protected const GENERIC_SUFFIXES = ['Manager', 'Handler', 'Helper', 'Service'];
+
+  /**
+   * Suffixes naming the role of a class the container builds.
+   *
+   * A registry holds things and looks them up, and every other suffix is an
+   * agent noun for what the service does.
+   */
+  protected const ROLE_SUFFIXES = ['Authenticator', 'Factory', 'Initializer', 'Listener', 'Reader', 'Registry', 'Resolver', 'Selector'];
 
   /**
    * Types that sit directly under `src/Behat`.
@@ -76,6 +89,45 @@ class ClassNamingTest extends UnitTestCase {
       'generic namespace and class' => ['DrevOps\\BehatSteps\\Behat\\Service\\MailHelper', ['Service', 'MailHelper']],
       'generic word opening a name' => [BackendPass::class, []],
       'generic word inside a name' => ['DrevOps\\BehatSteps\\Behat\\Mink\\HandlerAwareTrait', []],
+    ];
+  }
+
+  /**
+   * Assert that a class the container builds ends in a role suffix.
+   *
+   * @param string $class
+   *   The fully qualified name of a class the service definitions name.
+   */
+  #[DataProvider('dataProviderServiceIsNamedForItsRole')]
+  public function testServiceIsNamedForItsRole(string $class): void {
+    $this->assertTrue(static::hasRoleSuffix($class), sprintf('%s is a container service named neither as a registry nor as an agent noun, against the convention in CONTRIBUTING.md. Name it for its role, adding a new suffix to ROLE_SUFFIXES.', $class));
+  }
+
+  public static function dataProviderServiceIsNamedForItsRole(): array {
+    return static::discoverServiceClasses();
+  }
+
+  /**
+   * Assert that a role suffix is told apart from a name that states no role.
+   *
+   * @param string $class
+   *   A fully qualified class name.
+   * @param bool $expected
+   *   Whether the name ends in a role suffix.
+   */
+  #[DataProvider('dataProviderRoleSuffixesAreDetected')]
+  public function testRoleSuffixesAreDetected(string $class, bool $expected): void {
+    $this->assertSame($expected, static::hasRoleSuffix($class));
+  }
+
+  public static function dataProviderRoleSuffixesAreDetected(): array {
+    return [
+      'registry' => [UserRegistry::class, TRUE],
+      'agent noun' => [Authenticator::class, TRUE],
+      'factory' => [HttpClientFactory::class, TRUE],
+      'value' => [Option::class, FALSE],
+      'plural noun' => ['DrevOps\\BehatSteps\\Behat\\Config\\TagOverrides', FALSE],
+      'suffix inside a name' => ['DrevOps\\BehatSteps\\Behat\\Config\\ReaderSettings', FALSE],
     ];
   }
 
@@ -141,6 +193,47 @@ class ClassNamingTest extends UnitTestCase {
     ksort($classes);
 
     return $classes;
+  }
+
+  /**
+   * Return every class the extension's service definitions name, keyed by name.
+   *
+   * @return array<string, array{string}>
+   *   Fully qualified class names, as data provider rows.
+   */
+  protected static function discoverServiceClasses(): array {
+    $definitions = Yaml::parseFile(dirname(__DIR__, 3) . '/src/Behat/ServiceContainer/config/services.yml');
+    $parameters = is_array($definitions) && is_array($definitions['parameters'] ?? NULL) ? $definitions['parameters'] : [];
+
+    $classes = [];
+
+    foreach ($parameters as $name => $value) {
+      if (str_ends_with((string) $name, '.class') && is_string($value)) {
+        $classes[$value] = [$value];
+      }
+    }
+
+    ksort($classes);
+
+    return $classes;
+  }
+
+  /**
+   * Check whether a class name ends in a role suffix.
+   *
+   * @param string $class
+   *   A fully qualified class name.
+   */
+  protected static function hasRoleSuffix(string $class): bool {
+    $short_name = substr($class, (int) strrpos($class, '\\') + 1);
+
+    foreach (static::ROLE_SUFFIXES as $suffix) {
+      if (str_ends_with($short_name, $suffix)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**

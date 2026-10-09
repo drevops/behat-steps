@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Config;
 
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -13,8 +13,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Tests the tag layers of 1 option.
  */
-#[CoversClass(TagOverrides::class)]
-class TagOverridesTest extends UnitTestCase {
+#[CoversClass(TagOverrideResolver::class)]
+class TagOverrideResolverTest extends UnitTestCase {
 
   /**
    * Tests which tag settles the value of an option that declares bindings.
@@ -28,7 +28,7 @@ class TagOverridesTest extends UnitTestCase {
   public function testBoundTags(array $tags, mixed $expected): void {
     $option = new Option('fail_on_errors', default: TRUE, description: 'An option.', tags: ['errors-off' => FALSE, 'errors-on' => TRUE]);
 
-    $this->assertSame($expected, (new TagOverrides())->apply('sample', $option, TRUE, $tags));
+    $this->assertSame($expected, (new TagOverrideResolver())->apply('sample', $option, TRUE, $tags));
   }
 
   public static function dataProviderBoundTags(): \Iterator {
@@ -42,7 +42,7 @@ class TagOverridesTest extends UnitTestCase {
   public function testAnOptionWithNoBindingIgnoresEveryTag(): void {
     $option = new Option('label', default: 'a default', description: 'An option.');
 
-    $this->assertSame('a default', (new TagOverrides())->apply('sample', $option, 'a default', ['anything']));
+    $this->assertSame('a default', (new TagOverrideResolver())->apply('sample', $option, 'a default', ['anything']));
   }
 
   /**
@@ -59,7 +59,7 @@ class TagOverridesTest extends UnitTestCase {
   public function testSkipTagBinding(string $group, array $tags, bool $expected): void {
     $option = new Option('enabled', default: TRUE, description: 'An option.');
 
-    $this->assertSame($expected, (new TagOverrides())->apply($group, $option, TRUE, $tags));
+    $this->assertSame($expected, (new TagOverrideResolver())->apply($group, $option, TRUE, $tags));
   }
 
   public static function dataProviderSkipTagBinding(): \Iterator {
@@ -77,10 +77,10 @@ class TagOverridesTest extends UnitTestCase {
 
   public function testTheDeclaredBindingsSurviveTheSkipTagBinding(): void {
     $option = new Option('enabled', default: TRUE, description: 'An option.', tags: ['sample-off' => FALSE]);
-    $overrides = new TagOverrides();
+    $resolver = new TagOverrideResolver();
 
-    $this->assertFalse($overrides->apply('sample', $option, TRUE, ['sample-off']));
-    $this->assertFalse($overrides->apply('sample', $option, TRUE, ['behat-steps-skip:SampleTrait']));
+    $this->assertFalse($resolver->apply('sample', $option, TRUE, ['sample-off']));
+    $this->assertFalse($resolver->apply('sample', $option, TRUE, ['behat-steps-skip:SampleTrait']));
   }
 
 }

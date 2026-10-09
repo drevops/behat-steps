@@ -202,10 +202,15 @@ The method for 1 entity is the same name without the suffix, so nothing carries 
 
 ## Class naming conventions
 
-A class name states the role the class plays, so a reader can tell a lookup table apart from a service that acts without opening the file. Two shapes cover everything under `src/Behat`:
+A class name states the role the class plays, so a reader can tell a lookup table, a service that acts and a value apart without opening the file. 3 shapes cover the classes under `src/Behat` that name their own role:
 
 - **`<Noun>Registry`** holds things and looks them up. `BackendRegistry` registers backends and resolves one by capability; `UserRegistry` stores the users a scenario created and tracks the current one.
-- **An agent noun** performs an action. `Authenticator` logs a user in and out; `BasicAuthenticator` applies HTTP Basic credentials to a session.
+- **An agent noun** performs an action. `Authenticator` logs a user in and out, `BasicAuthenticator` applies HTTP Basic credentials to a session, and `TagOverrideResolver` settles the value an option takes under a scenario's tags. A factory is named the same way, as `HttpClientFactory` is.
+- **A plain noun** names a value. `Option` declares 1 option, `Prerequisite` 1 prerequisite, and `HttpIdentity` carries the identity a detached browser sends. `Tag` and `GroupName` hold no state: each names the value its static methods read or derive.
+
+Every other class takes the name of the framework type it extends or implements. The contexts end in `Context` and the hook scopes in `Scope`, while `BehatStepsExtension`, `BackendPass`, `ClassGenerator` and `DocumentElement` follow Behat, Symfony and Mink. An interface ends in `Interface` and a trait in `Trait`.
+
+A class the container builds is a registry or an agent noun, because a value is never a service. `ClassNamingTest` fails one in `services.yml` whose name doesn't end in a suffix from its `ROLE_SUFFIXES`, so a service named for a new role adds that suffix there in the same change.
 
 `Manager` is not a role, so it names nothing. Do not reach for it, or for `Handler`, `Helper` or `Service` as a class suffix under `src/Behat` - each would describe every class there equally well.
 

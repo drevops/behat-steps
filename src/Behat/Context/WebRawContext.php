@@ -14,7 +14,7 @@ use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Behat\Config\Option;
 use DrevOps\BehatSteps\Behat\Config\ParametersTrait;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactoryInterface;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverInterface;
@@ -542,7 +542,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
   protected function skipTag(string $trait, ScenarioScope $scope): bool {
     $name = $this->traitName($trait);
 
-    if (Tag::has($scope, TagOverrides::SKIP_TAG_PREFIX . $name)) {
+    if (Tag::has($scope, TagOverrideResolver::SKIP_TAG_PREFIX . $name)) {
       return TRUE;
     }
 
@@ -684,7 +684,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
     $group = $this->getOptionResolver()->groupFor($name);
 
     if ($group !== NULL) {
-      $message .= sprintf(' Meet the prerequisite, or switch %s off with the "%s.%s" option or the "@%s%s" tag.', $name, $group, Option::ENABLED, TagOverrides::SKIP_TAG_PREFIX, $name);
+      $message .= sprintf(' Meet the prerequisite, or switch %s off with the "%s.%s" option or the "@%s%s" tag.', $name, $group, Option::ENABLED, TagOverrideResolver::SKIP_TAG_PREFIX, $name);
     }
 
     return $message;

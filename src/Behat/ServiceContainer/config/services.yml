@@ -5,7 +5,7 @@ parameters:
   behat_steps.user_registry.class: DrevOps\BehatSteps\Behat\Registry\UserRegistry
   behat_steps.scenario_tag_registry.class: DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistry
   behat_steps.config.schema_reader.class: DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader
-  behat_steps.config.tag_overrides.class: DrevOps\BehatSteps\Behat\Config\TagOverrides
+  behat_steps.config.tag_override_resolver.class: DrevOps\BehatSteps\Behat\Config\TagOverrideResolver
   behat_steps.config.resolver_factory.class: DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory
   behat_steps.http_client_factory.class: DrevOps\BehatSteps\Behat\Http\HttpClientFactory
   behat_steps.context.initializer.class: DrevOps\BehatSteps\Behat\Context\Initializer\BackendAwareInitializer
@@ -42,14 +42,14 @@ services:
     class: "%behat_steps.scenario_tag_registry.class%"
   behat_steps.config.schema_reader:
     class: "%behat_steps.config.schema_reader.class%"
-  behat_steps.config.tag_overrides:
-    class: "%behat_steps.config.tag_overrides.class%"
+  behat_steps.config.tag_override_resolver:
+    class: "%behat_steps.config.tag_override_resolver.class%"
   behat_steps.config.resolver_factory:
     class: "%behat_steps.config.resolver_factory.class%"
     arguments:
       - "@behat_steps.config.schema_reader"
       - "@behat_steps.scenario_tag_registry"
-      - "@behat_steps.config.tag_overrides"
+      - "@behat_steps.config.tag_override_resolver"
   behat_steps.http_client_factory:
     class: "%behat_steps.http_client_factory.class%"
     arguments:

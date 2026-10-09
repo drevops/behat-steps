@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Config;
 
 use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolverFactory;
 use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistry;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\ConfigurableContext;
@@ -27,7 +27,7 @@ class TraitOptionResolverFactoryTest extends UnitTestCase {
 
   public function testTheResolverReadsTheRegistryItWasBuiltWith(): void {
     $registry = new ScenarioTagRegistry();
-    $factory = new TraitOptionResolverFactory(new ConfigSchemaReader(), $registry, new TagOverrides());
+    $factory = new TraitOptionResolverFactory(new ConfigSchemaReader(), $registry, new TagOverrideResolver());
 
     $resolver = $factory->create(ConfigurableContext::class, [], []);
     $registry->setTags(['sample-off']);

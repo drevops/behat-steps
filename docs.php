@@ -32,7 +32,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
 use DrevOps\BehatSteps\Behat\Config\GroupName;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
@@ -836,7 +836,7 @@ function render_trait_options(string $trait_name, mixed $options): string {
     $tags = array_keys($option->tags);
 
     if ($option->name === Option::ENABLED) {
-      $tags[] = TagOverrides::SKIP_TAG_PREFIX . $trait_name;
+      $tags[] = TagOverrideResolver::SKIP_TAG_PREFIX . $trait_name;
     }
 
     $tags = array_map(static fn(string $tag): string => '`@' . $tag . '`', $tags);

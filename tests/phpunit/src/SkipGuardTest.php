@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Tests;
 
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -111,7 +111,7 @@ class SkipGuardTest extends UnitTestCase {
         continue;
       }
 
-      if ($token[0] === T_CONSTANT_ENCAPSED_STRING && str_contains($token[1], TagOverrides::SKIP_TAG_PREFIX)) {
+      if ($token[0] === T_CONSTANT_ENCAPSED_STRING && str_contains($token[1], TagOverrideResolver::SKIP_TAG_PREFIX)) {
         $violations[] = sprintf('Line %d reads a skip tag directly.', $token[2]);
       }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Config;
 
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
 use DrevOps\BehatSteps\Behat\Config\TraitOptionResolver;
 use DrevOps\BehatSteps\Behat\Registry\ScenarioTagRegistry;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -51,7 +51,7 @@ class TraitOptionResolverTest extends UnitTestCase {
   }
 
   public function testContextDeclaringNothingSaysSo(): void {
-    $resolver = new TraitOptionResolver(static::CONTEXT, [], [], [], new ScenarioTagRegistry(), new TagOverrides());
+    $resolver = new TraitOptionResolver(static::CONTEXT, [], [], [], new ScenarioTagRegistry(), new TagOverrideResolver());
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('declares the option "sample.enabled". Declared options: none.');
@@ -117,7 +117,7 @@ class TraitOptionResolverTest extends UnitTestCase {
 
   public function testTheTagsAreReadOnEveryAccess(): void {
     $registry = new ScenarioTagRegistry();
-    $resolver = new TraitOptionResolver(static::CONTEXT, static::declareOptions(), [], [], $registry, new TagOverrides());
+    $resolver = new TraitOptionResolver(static::CONTEXT, static::declareOptions(), [], [], $registry, new TagOverrideResolver());
 
     $this->assertTrue($resolver->bool('sample', 'enabled'));
 
@@ -172,7 +172,7 @@ class TraitOptionResolverTest extends UnitTestCase {
     $this->expectException(InvalidConfigurationException::class);
     $this->expectExceptionMessage('Unknown option group "sample" for context "' . static::CONTEXT . '". This context accepts: none.');
 
-    new TraitOptionResolver(static::CONTEXT, [], ['sample' => ['enabled' => FALSE]], [], new ScenarioTagRegistry(), new TagOverrides());
+    new TraitOptionResolver(static::CONTEXT, [], ['sample' => ['enabled' => FALSE]], [], new ScenarioTagRegistry(), new TagOverrideResolver());
   }
 
   /**
@@ -263,7 +263,7 @@ class TraitOptionResolverTest extends UnitTestCase {
     $registry = new ScenarioTagRegistry();
     $registry->setTags($tags);
 
-    return new TraitOptionResolver(static::CONTEXT, static::declareOptions(), $config, $steps, $registry, new TagOverrides());
+    return new TraitOptionResolver(static::CONTEXT, static::declareOptions(), $config, $steps, $registry, new TagOverrideResolver());
   }
 
   /**
