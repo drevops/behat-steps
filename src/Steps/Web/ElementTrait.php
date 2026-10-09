@@ -32,6 +32,11 @@ trait ElementTrait {
   use StringTrait;
 
   /**
+   * The tolerance, in pixels, for a top edge to be at the top of the viewport.
+   */
+  protected const int ELEMENT_TOP_EDGE_TOLERANCE = 2;
+
+  /**
    * Accept confirmation dialogs appearing on the page.
    *
    * @code
@@ -438,14 +443,18 @@ trait ElementTrait {
   /**
    * Assert that the element is at the top of the viewport.
    *
+   * The element's top edge must be within 2 pixels of the viewport top. An
+   * element that is not rendered is not at the top.
+   *
    * @code
    * Then the element "#header" should be at the top of the viewport
    * @endcode
    */
   #[Then('the element :selector should be at the top of the viewport')]
   public function elementAssertElementAtTopOfViewport(string $selector): void {
-    $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); return (rect.top >= 0 && rect.top <= window.innerHeight);');
-    if (!$result) {
+    $top = $this->elementFindTopEdge($selector);
+
+    if ($top === NULL || abs($top) > self::ELEMENT_TOP_EDGE_TOLERANCE) {
       throw new ExpectationException(sprintf('The element "%s" is not at the top of the viewport.', $selector), $this->getSession()->getDriver());
     }
   }
@@ -487,7 +496,7 @@ trait ElementTrait {
    */
   #[Then('the element :selector should be pinned to the top of the viewport')]
   public function elementAssertPinnedToTop(string $selector): void {
-    $this->elementAssertPinnedToTopWithin($selector, 2, FALSE);
+    $this->elementAssertPinnedToTopWithin($selector, self::ELEMENT_TOP_EDGE_TOLERANCE, FALSE);
   }
 
   /**
@@ -516,7 +525,7 @@ trait ElementTrait {
    */
   #[Then('the element :selector should not be pinned to the top of the viewport')]
   public function elementAssertNotPinnedToTop(string $selector): void {
-    $this->elementAssertPinnedToTopWithin($selector, 2, TRUE);
+    $this->elementAssertPinnedToTopWithin($selector, self::ELEMENT_TOP_EDGE_TOLERANCE, TRUE);
   }
 
   /**
@@ -652,7 +661,8 @@ trait ElementTrait {
    * top of the viewport. That gap is the space a fixed header of the same
    * height covers.
    *
-   * A negative offset scrolls the top of the element above the viewport.
+   * A negative offset scrolls the top of the element above the viewport. A
+   * selector that matches no element is not displayed.
    *
    * @code
    * Then the element ".announcement-bar" should not be displayed within the viewport with a top offset of -200 pixels
@@ -670,7 +680,8 @@ trait ElementTrait {
   /**
    * Assert that element with specified CSS is visually hidden on page.
    *
-   * Visually hidden means either:
+   * Visually hidden means one of:
+   * - no element matches the selector.
    * - element is not rendered in the layout (i.e., CSS is "display: none").
    * - element is rendered in the layout, but not visible to the viewer (i.e.,
    *   when one of the screen reader-only techniques is used).
@@ -1140,14 +1151,9 @@ JS;
       throw new \RuntimeException(sprintf('The tolerance must be 0 or greater, but "%d" was given.', $tolerance));
     }
 
-    $this->elementGet($selector);
+    $top = $this->elementFindTopEdge($selector);
 
-    $script = 'var rect = {{ELEMENT}}.getBoundingClientRect(); return rect.top + "|" + rect.height;';
-    [$top, $height] = explode('|', (string) $this->elementExecuteJs($selector, $script), 2);
-
-    // An element that is not rendered reports a 0 by 0 box at the origin,
-    // which would otherwise read as pinned.
-    if ((float) $height <= 0) {
+    if ($top === NULL) {
       if ($is_inverted) {
         return;
       }
@@ -1155,7 +1161,7 @@ JS;
       throw new ExpectationException(sprintf('Expected the element "%s" to be pinned to the top of the viewport, but it is not rendered.', $selector), $this->getSession()->getDriver());
     }
 
-    $is_pinned = abs((float) $top) <= $tolerance;
+    $is_pinned = abs($top) <= $tolerance;
 
     if (!$is_inverted && !$is_pinned) {
       throw new ExpectationException(sprintf('Expected the element "%s" to be pinned to the top of the viewport within %d pixel(s), but its top edge is at %s pixels.', $selector, $tolerance, $top), $this->getSession()->getDriver());
@@ -1164,6 +1170,35 @@ JS;
     if ($is_inverted && $is_pinned) {
       throw new ExpectationException(sprintf('Expected the element "%s" to not be pinned to the top of the viewport, but its top edge is at %s pixels.', $selector, $top), $this->getSession()->getDriver());
     }
+  }
+
+  /**
+   * Find the distance from the top of the viewport to an element's top edge.
+   *
+   * @param string $selector
+   *   The CSS selector.
+   *
+   * @return float|null
+   *   The distance in pixels from the top of the viewport to the top edge of
+   *   the first matching element, negative above the viewport, or NULL when
+   *   the element is not rendered.
+   *
+   * @throws \Behat\Mink\Exception\ElementNotFoundException
+   *   When no element matches the selector.
+   */
+  protected function elementFindTopEdge(string $selector): ?float {
+    $this->elementGet($selector);
+
+    $script = 'var rect = {{ELEMENT}}.getBoundingClientRect(); return rect.top + "|" + rect.height;';
+    [$top, $height] = explode('|', (string) $this->elementExecuteJs($selector, $script), 2);
+
+    // An element that is not rendered reports a 0 by 0 box at the origin,
+    // which would otherwise read as being at the top.
+    if ((float) $height <= 0) {
+      return NULL;
+    }
+
+    return (float) $top;
   }
 
   /**
@@ -1255,15 +1290,22 @@ JS;
    *   top of the element above the viewport.
    *
    * @return mixed
-   *   The raw result of the browser evaluation, truthy when the element is
-   *   displayed within the viewport.
+   *   The raw result of the browser evaluation: truthy when every element
+   *   matching the selector is displayed within the viewport, and falsy when
+   *   no element matches.
    */
   public function elementIsVisuallyVisible(string $selector, int $offset) {
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
     $script_function = <<<JS
       function isElemVisible(selector, offset = 0) {
+        var elements = document.querySelectorAll(selector);
+
+        if (elements.length === 0) {
+          return false;
+        }
+
         var failures = [];
-        document.querySelectorAll(selector).forEach(function (el) {
+        elements.forEach(function (el) {
           // Inject a style to disable scrollbars for more consistent results.
           if (document.querySelectorAll('head #relative_style').length === 0) {
             document.querySelector('head').insertAdjacentHTML(
