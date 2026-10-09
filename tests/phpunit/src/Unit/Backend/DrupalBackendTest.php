@@ -52,7 +52,7 @@ class DrupalBackendTest extends UnitTestCase {
   }
 
   /**
-   * Tests that DrupalBackend advertises every capability.
+   * Tests that DrupalBackend advertises every capability its interface covers.
    *
    * @param string $capability_class
    *   The capability interface name.

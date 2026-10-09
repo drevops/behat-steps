@@ -22,7 +22,8 @@ interface PostCreateAliasInterface extends CreationAliasInterface {
    *   The stub used to create the entity. Must already carry a value under
    *   'getName()'.
    * @param object $entity
-   *   The Drupal entity that was just persisted.
+   *   The entity that was just persisted, or a placeholder object carrying
+   *   only its id when the entity was saved in another process.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException
    *   When the value cannot be applied.
