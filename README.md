@@ -154,7 +154,7 @@ composer require --dev drevops/behat-steps:^4 behat/behat:^4 friends-of-behat/mi
 
 A project whose `minimum-stability` already admits alpha releases gets Behat 4 from the first command.
 
-This package replaces `drupal/drupal-extension` and `drupal/drupal-driver` and conflicts with both, so remove them from your project first. The [migration guide](MIGRATION.md#drupaldrupal-extension-and-drupaldrupal-driver-conflict-with-this-package) has the commands.
+This package replaces `drupal/drupal-extension` and `drupal/drupal-driver` and conflicts with both, so Composer won't install it while your project still requires either one. The [migration guide](MIGRATION.md#requirements) shows how to remove them.
 
 ### Optional dependencies
 
