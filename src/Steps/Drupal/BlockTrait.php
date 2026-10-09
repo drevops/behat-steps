@@ -148,6 +148,8 @@ trait BlockTrait {
   /**
    * Remove a visibility condition from the specified block.
    *
+   * A block that does not carry the condition is left unchanged.
+   *
    * @param string $label
    *   Label identifying the block.
    * @param string $condition
@@ -159,7 +161,7 @@ trait BlockTrait {
    */
   #[Given('the block :label has the condition :condition removed')]
   public function blockRemoveVisibilityCondition(string $label, string $condition): void {
-    $this->blockSetVisibilityCondition($this->blockGetByLabel($label), $condition, []);
+    $this->blockUnsetVisibilityCondition($this->blockGetByLabel($label), $condition);
   }
 
   /**
@@ -385,6 +387,31 @@ trait BlockTrait {
   public function blockSetVisibilityCondition(Block $block, string $condition, array $configuration): void {
     $configuration['id'] = $condition;
     $block->setVisibilityConfig($condition, $configuration);
+
+    $block->save();
+  }
+
+  /**
+   * Remove a visibility condition from a block and save it.
+   *
+   * Nothing is removed from a block that does not carry the condition.
+   *
+   * @param \Drupal\block\Entity\Block $block
+   *   The block.
+   * @param string $condition
+   *   The condition plugin ID.
+   *
+   * @throws \RuntimeException
+   *   When no condition plugin has the ID.
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   *   When the block cannot be saved.
+   */
+  public function blockUnsetVisibilityCondition(Block $block, string $condition): void {
+    if (!\Drupal::service('plugin.manager.condition')->hasDefinition($condition)) {
+      throw new \RuntimeException(sprintf('The condition "%s" does not exist.', $condition));
+    }
+
+    $block->getVisibilityConditions()->removeInstanceId($condition);
 
     $block->save();
   }

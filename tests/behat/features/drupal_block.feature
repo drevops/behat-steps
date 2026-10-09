@@ -245,6 +245,24 @@ Feature: Check that BlockTrait works
       The block "Non-existent Block Label" does not exist.
       """
 
+  @test-trait:Drupal\BlockTrait
+  Scenario: Assert "block has condition removed" fails for an unknown condition
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the instance of the block "User account menu" exists with the following configuration:
+        | label         | [TEST] User Account Menu |
+        | label_display | 1                        |
+        | region        | content                  |
+        | status        | 1                        |
+      And the block "[TEST] User Account Menu" has the condition "request_paths" removed
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The condition "request_paths" does not exist.
+      """
+
   Scenario: Move block from one region to another
     Given the instance of the block "User account menu" exists with the following configuration:
       | label         | [TEST] User Account Menu |
