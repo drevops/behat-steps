@@ -235,6 +235,29 @@ Feature: Behat CLI context
       The "drivers" setting under "behat_steps" moved to "backends".
       """
 
+  Scenario: An entity creation hook declared with an argument fails the run
+    Given a file named "features/bootstrap/FeatureContext.php" with:
+      """
+      <?php
+      use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+      use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
+      class FeatureContext extends WebRawContext {
+        #[BeforeNodeCreate('article')]
+        public static function alterArticle(): void {}
+      }
+      """
+    And a file named "features/drupal_bootstrap.feature" with:
+      """
+      Feature: Homepage
+        Scenario: Anonymous user visits homepage
+          Given I go to the homepage
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      The "#[BeforeNodeCreate]" attribute on "FeatureContext::alterArticle()" takes no argument. The hook runs for every entity created in its scope, so read the entity from "$scope->getStub()" and return early for one it does not handle.
+      """
+
   Scenario: A skip tag naming a hook rather than a trait fails at scenario start
     Given a file named "features/drupal_bootstrap.feature" with:
       """
@@ -248,3 +271,28 @@ Feature: Behat CLI context
       """
       The "@behat-steps-skip:emailAfterScenario" tag does not name a trait. A skip tag takes the name of the trait whose hooks it switches off, as in "@behat-steps-skip:JavascriptTrait".
       """
+
+  Scenario: A skip tag naming a trait no context composes fails at scenario start
+    Given a file named "features/drupal_bootstrap.feature" with:
+      """
+      Feature: Content
+        @behat-steps-skip:PahtTrait
+        Scenario: A scenario skips a misspelled trait
+          Given I go to the homepage
+      """
+    When I run "behat --no-colors"
+    Then it should fail with:
+      """
+      The "@behat-steps-skip:PahtTrait" tag names no trait a context of the "default" suite composes, so it would switch nothing off. Check the trait name for a typo, or remove the tag.
+      """
+
+  Scenario: A skip tag naming a trait a context composes passes
+    Given a file named "features/drupal_bootstrap.feature" with:
+      """
+      Feature: Content
+        @behat-steps-skip:PathTrait
+        Scenario: A scenario skips a composed trait
+          Given I go to the homepage
+      """
+    When I run "behat --no-colors"
+    Then it should pass

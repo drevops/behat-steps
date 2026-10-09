@@ -27,9 +27,10 @@ participant "Mink session" as Mink
 
 Behat -> SkipListener: BeforeScenarioTested
 activate SkipListener
-alt every "@behat-steps-skip:" tag names a trait
+SkipListener -> SkipListener: collect the traits the environment's context\nclasses compose, through their parent classes\nand other traits, once per list of classes
+alt every "@behat-steps-skip:" tag names a trait\na context of the suite composes
   SkipListener --> Behat: continue
-else one names a hook or anything else
+else one names a hook, a misspelled trait\nor a trait no context composes
   SkipListener -> Behat: throw RuntimeException,\nthe run stops before any hook
 end
 deactivate SkipListener

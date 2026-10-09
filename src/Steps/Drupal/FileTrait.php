@@ -56,7 +56,9 @@ trait FileTrait {
    */
   #[BeforeScenario]
   public function fileBeforeScenario(BeforeScenarioScope $scope): void {
-    if ($this->skipTag(__TRAIT__, $scope)) {
+    // The directories are created through Drupal's API, which a suite listing
+    // no in-process backend cannot reach.
+    if ($this->skipTag(__TRAIT__, $scope) || !$this->getBackendRegistry()->hasCapability(CoreCapabilityInterface::class)) {
       return;
     }
 

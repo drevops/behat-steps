@@ -51,6 +51,9 @@ final class HookAttributeReader implements AttributeReader {
    *   The context class name.
    * @param \ReflectionMethod $method
    *   The reflected method.
+   *
+   * @throws \RuntimeException
+   *   When an entity creation hook attribute is declared with an argument.
    */
   public function readCallees(string $contextClass, \ReflectionMethod $method): array {
     $attributes = $method->getAttributes(DrupalHookInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
@@ -62,8 +65,13 @@ final class HookAttributeReader implements AttributeReader {
         continue;
       }
 
-      $hook = $attribute->newInstance();
-      $callees[] = new $hook_call_class($hook->getFilterString(), [$contextClass, $method->getName()]);
+      $hook = new $hook_call_class([$contextClass, $method->getName()]);
+
+      if ($attribute->getArguments() !== []) {
+        throw new \RuntimeException(sprintf('The "#[%s]" attribute on "%s::%s()" takes no argument. The hook runs for every entity created in its scope, so read the entity from "$scope->getStub()" and return early for one it does not handle.', $hook->getName(), $contextClass, $method->getName()));
+      }
+
+      $callees[] = $hook;
     }
 
     return $callees;

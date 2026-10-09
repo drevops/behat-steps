@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Hook;
 
-use Behat\Behat\Context\Context;
-use Behat\Testwork\Environment\Environment;
-use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use Behat\Testwork\Hook\FilterableHook;
 use DrevOps\BehatSteps\Behat\Hook\Call\AfterEntityCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\AfterNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\AfterTermCreate;
@@ -16,7 +14,6 @@ use DrevOps\BehatSteps\Behat\Hook\Call\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\BeforeTermCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\BeforeUserCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\EntityHook;
-use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\HookedContext;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -37,7 +34,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class CallTest extends UnitTestCase {
 
   /**
-   * Tests the name and scope each hook call reports.
+   * Tests each hook call's name and scope, and that it takes no filter.
    *
    * @param class-string<\DrevOps\BehatSteps\Behat\Hook\Call\EntityHook> $call_class
    *   The hook call to build.
@@ -48,11 +45,11 @@ class CallTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderNameAndScope')]
   public function testNameAndScope(string $call_class, string $expected_name, string $expected_scope): void {
-    $call = new $call_class(NULL, HookedContext::beforeNode(...));
+    $call = new $call_class(HookedContext::beforeNode(...));
 
     $this->assertSame($expected_name, $call->getName());
     $this->assertSame($expected_scope, $call->getScopeName());
-    $this->assertNull($call->getFilterString());
+    $this->assertNotInstanceOf(FilterableHook::class, $call);
   }
 
   public static function dataProviderNameAndScope(): \Iterator {
@@ -66,30 +63,10 @@ class CallTest extends UnitTestCase {
     yield 'after user' => [AfterUserCreate::class, 'AfterUserCreate', 'user.create.after'];
   }
 
-  public function testAnUnfilteredHookMatchesTheScope(): void {
-    $call = new BeforeNodeCreate(NULL, HookedContext::beforeNode(...));
-
-    $this->assertTrue($call->filterMatches($this->createScope()));
-  }
-
-  public function testFilteredHookMatchesNothing(): void {
-    $call = new BeforeNodeCreate('@api', HookedContext::beforeNode(...));
-
-    $this->assertSame('@api', $call->getFilterString());
-    $this->assertFalse($call->filterMatches($this->createScope()));
-  }
-
   public function testTheDescriptionIsCarried(): void {
-    $call = new BeforeNodeCreate(NULL, HookedContext::beforeNode(...), 'Alters node values.');
+    $call = new BeforeNodeCreate(HookedContext::beforeNode(...), 'Alters node values.');
 
     $this->assertSame('Alters node values.', $call->getDescription());
-  }
-
-  /**
-   * Builds a scope to filter a hook against.
-   */
-  protected function createScope(): BeforeNodeCreateScope {
-    return new BeforeNodeCreateScope($this->createMock(Environment::class), $this->createMock(Context::class), new EntityStub('node'));
   }
 
 }

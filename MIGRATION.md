@@ -1088,6 +1088,43 @@ To skip cleanup of every registered entity at once, use `@behat-steps-skip:Entit
 
 `@behat-steps-skip:FileTrait` now keeps only the unmanaged files `FileTrait` created; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
 
+## Entity creation hooks take no argument
+
+The entity creation hook attributes, such as `#[BeforeNodeCreate]` and `#[AfterEntityCreate]`, accepted an argument, and a hook declared with one never ran: it matched no entity at all. The attributes take no argument now, and a hook declared with one fails the run while Behat reads the context:
+
+```
+The "#[BeforeNodeCreate]" attribute on "FeatureContext::alterArticle()" takes no argument. The hook runs for every entity created in its scope, so read the entity from "$scope->getStub()" and return early for one it does not handle.
+```
+
+A hook meant for some entities only checks the stub itself:
+
+```php
+// Before.
+#[BeforeNodeCreate('article')]
+public function alterArticle(BeforeNodeCreateScope $scope): void {
+  // ...
+}
+
+// After.
+#[BeforeNodeCreate]
+public function alterArticle(BeforeNodeCreateScope $scope): void {
+  if ($scope->getStub()->getBundle() !== 'article') {
+    return;
+  }
+
+  // ...
+}
+```
+
+Once the argument is gone, the hook runs for the first time, so check that its body still does what it was written to do.
+
+`FilterStringTrait` and `DrupalHookInterface::getFilterString()` are gone. `EntityHook` extends `RuntimeHook` rather than `RuntimeFilterableHook`, so a hook call carries no filter string, and each call under `Behat\Hook\Call` takes the callable as its first constructor argument:
+
+| Before | After |
+| --- | --- |
+| `new BeforeNodeCreate(NULL, $callable)` | `new BeforeNodeCreate($callable)` |
+| `new BeforeNodeCreate(NULL, $callable, $description)` | `new BeforeNodeCreate($callable, $description)` |
+
 ## Trait namespaces re-rooted under `Steps`
 
 The step vocabulary now lives in one subtree, split by the context each trait needs. Generic traits moved from `DrevOps\BehatSteps\` to `DrevOps\BehatSteps\Steps\Web\`, and Drupal traits from `DrevOps\BehatSteps\Drupal\` to `DrevOps\BehatSteps\Steps\Drupal\`. The trait names themselves are unchanged, so a consumer context only has to update its `use` statements:
@@ -1401,6 +1438,12 @@ When the file is missing, the attachment steps now name it. The old message said
 | --- | --- | --- |
 | Drupal\EmailTrait | No attachments were found in the email with subject .... | The file "..." is not attached to the email with subject "...". |
 | Drupal\EmailTrait | No attachments were found in the email with subject containing "...". | The file "..." is not attached to the email with subject containing "...". |
+
+## `@email:TYPE` collects email without `@email`
+
+`Drupal\EmailTrait` read the handler types from `@email:TYPE` only when the scenario or its feature also carried a bare `@email`, so a scenario tagged `@email:TYPE` alone collected nothing. That tag now enables the test email system by itself, with the handler types it names. `@email @email:TYPE` behaves as before, so the bare tag beside a typed one can go.
+
+A scenario tagged only `@email:TYPE` used to send its mail through the site's own mail system, and now captures it in the test collector. A scenario that relied on that mail leaving the site drops the tag.
 
 ## Page cache steps clear the paths they name
 
@@ -2479,6 +2522,14 @@ A skip tag carrying anything but a trait name fails the run at scenario start, n
 ```
 The "@behat-steps-skip:emailAfterScenario" tag does not name a trait. A skip tag takes the name of the trait whose hooks it switches off, as in "@behat-steps-skip:JavascriptTrait".
 ```
+
+A skip tag naming a trait that no context of the suite composes fails the same way, so a misspelled trait name can't quietly leave the trait's hooks running:
+
+```
+The "@behat-steps-skip:EmialTrait" tag names no trait a context of the "default" suite composes, so it would switch nothing off. Check the trait name for a typo, or remove the tag.
+```
+
+A trait counts as composed when a context uses it directly, through a parent class or through another trait, so `@behat-steps-skip:EntityLifecycleTrait` works in a suite that registers `DrupalContext`. The name has to match the trait's own, case included. A feature that 2 suites share, carrying a skip tag for a trait only 1 suite's contexts compose, fails in the other suite. Drop the tag and switch the trait off with its `enabled` option instead, in the `config` argument of the context that composes it.
 
 Replace each hook-method tag with its trait's:
 

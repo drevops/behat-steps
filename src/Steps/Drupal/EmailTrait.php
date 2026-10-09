@@ -71,14 +71,16 @@ trait EmailTrait {
       return;
     }
 
-    if (!Tag::has($scope, self::EMAIL_TAG)) {
+    $handler_types = Tag::values($scope, self::EMAIL_TAG);
+
+    if (!Tag::has($scope, self::EMAIL_TAG) && $handler_types === []) {
       return;
     }
 
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->emailDebug = Tag::has($scope, self::EMAIL_DEBUG_TAG);
-    $this->emailHandlerTypes = Tag::values($scope, self::EMAIL_TAG);
+    $this->emailHandlerTypes = $handler_types;
 
     $this->emailEnableCollector();
   }

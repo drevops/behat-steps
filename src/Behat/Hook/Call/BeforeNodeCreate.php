@@ -14,15 +14,13 @@ final class BeforeNodeCreate extends EntityHook {
   /**
    * Initializes the hook.
    *
-   * @param string|null $filter_string
-   *   The filter string the hook was declared with.
    * @param array{class-string<\Behat\Behat\Context\Context>, string}|callable $callable
    *   The context method to call.
    * @param string|null $description
    *   A human readable description of the hook.
    */
-  public function __construct(?string $filter_string, array|callable $callable, ?string $description = NULL) {
-    parent::__construct(NodeScope::BEFORE, $filter_string, $callable, $description);
+  public function __construct(array|callable $callable, ?string $description = NULL) {
+    parent::__construct(NodeScope::BEFORE, $callable, $description);
   }
 
   /**

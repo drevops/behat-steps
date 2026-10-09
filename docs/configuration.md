@@ -342,7 +342,7 @@ A tag on the `Feature:` line applies to every scenario in that feature. Where a 
 
 | Tag | Description |
 | --- | --- |
-| `@behat-steps-skip:VALUE` | Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value not shaped like a trait name fails the run at scenario start. |
+| `@behat-steps-skip:VALUE` | Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value not shaped like a trait name, or naming a trait no context of the suite composes, fails the run at scenario start. |
 | `@behat-steps-entity-cleanup-skip:VALUE` | Keep entities of the named entity type after the scenario. Repeat the tag to keep several types. |
 | `@backend:VALUE` | Move the named backend to the front of the configured backend list for the scenario. Repeat the tag to promote several: they keep the configured order among themselves, so the order the tags are written in does not matter. The tag reorders the list; it never adds to it. |
 | `@module:VALUE` | Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards. |

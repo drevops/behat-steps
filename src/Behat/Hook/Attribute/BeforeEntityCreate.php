@@ -8,8 +8,4 @@ namespace DrevOps\BehatSteps\Behat\Hook\Attribute;
  * Attribute for methods to run before a generic entity is created.
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-final class BeforeEntityCreate implements DrupalHookInterface {
-
-  use FilterStringTrait;
-
-}
+final class BeforeEntityCreate implements DrupalHookInterface {}

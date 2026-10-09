@@ -871,6 +871,18 @@ Feature: Check that EmailTrait works
       Test content with custom handler type
       """
 
+  @email:default
+  Scenario: As a developer, I want the handler type tag to enable the test email system on its own
+    When I send test email to "test@example.com" with:
+      """
+      Test content with the handler type tag alone
+      """
+    Then an email should be sent to the address "test@example.com"
+    And the email field "body" should contain:
+      """
+      Test content with the handler type tag alone
+      """
+
   @email
   Scenario: The mailsystem formatter should not be overridden when test email system is enabled
     Then the mailsystem formatter should be "php_mail"

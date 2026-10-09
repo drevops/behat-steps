@@ -336,7 +336,7 @@ Several traits carry hooks that run around every scenario or step. One tag switc
 @behat-steps-skip:TRAIT
 ```
 
-`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag whose value isn't shaped like a trait name, such as a hook method, fails the run before the scenario starts.
+`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag whose value isn't shaped like a trait name, such as a hook method, or that names a trait none of your suite's contexts compose, such as a misspelled one, fails the run before the scenario starts.
 
 ### Automatic entity cleanup
 

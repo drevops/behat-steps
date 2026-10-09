@@ -30,10 +30,12 @@ class HookedContext implements Context {
   public function afterNode(AfterNodeCreateScope $scope): void {}
 
   /**
-   * Hook declared with a filter string.
+   * Hook declared with an argument, which an entity hook does not take.
+   *
+   * @phpstan-ignore attribute.noConstructor
    */
   #[AfterEntityCreate('@api')]
-  public static function filtered(): void {}
+  public static function withArgument(): void {}
 
   /**
    * Method carrying 2 entity hooks at once.
