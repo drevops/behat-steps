@@ -115,7 +115,8 @@ jobs:
             deps: 'lowest'
           # Selenium-less driver legs: run the Behat suite through headless
           # Chrome over the DevTools Protocol to prove the steps are driver
-          # portable. They stay on 'normal' deps - see "Test matrix" in
+          # portable. They stay on 'normal' deps, and between them they cover
+          # every PHP version and both Behat majors - see "Test matrix" in
           # CONTRIBUTING.md.
           #
           # The first also carries coverage, so the branches only the Chrome
@@ -133,8 +134,12 @@ jobs:
             deps: 'normal'
             driver: 'chrome_headless'
             profile: 'chrome_headless'
-          # The Behat 4 legs have no Chrome leg of their own - see "Behat 4
-          # legs" in CONTRIBUTING.md.
+          - php_version: '8.4'
+            drupal_version: '11'
+            behat: '4'
+            deps: 'normal'
+            driver: 'chrome_headless'
+            profile: 'chrome_headless'
           - php_version: '8.3'
             drupal_version: '11'
             behat: '4'

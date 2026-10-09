@@ -280,7 +280,7 @@ That is the lifecycle this package is built for: start in the vocabulary for cov
 
 Steps that require a real browser (used by scenarios tagged `@javascript`) work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. Both are exercised by this library's own CI. Another browser driver needs [an adapter registered for it](MIGRATION.md#registering-an-adapter-for-another-browser-driver).
 
-To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension) (which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome. Its current release accepts Behat 3 and 4, though this library's own CI runs it on Behat 3 only.
+To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension) (which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both.
 
 ```php
 use Behat\Config\Extension;

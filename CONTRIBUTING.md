@@ -705,7 +705,7 @@ The job provisions before it lints, and PHPStan needs it to. `ahoy lint` points 
 | Legs | What they prove |
 |---|---|
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 3 | The library works across the supported PHP range against both the newest and the oldest resolvable dependencies. The `lowest` legs are what hold the Behat 3.33 floor. |
-| 2 x `chrome_headless` | The steps drive a browser without Selenium, over the Chrome DevTools Protocol. That browser driver is Drupal-version independent, so the 2 legs take their breadth from the PHP axis. Both stay on `normal` deps: `dmore/behat-chrome-extension` hands the browser driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
+| `chrome_headless` x Drupal 11 x `normal`: PHP 8.3 and 8.5 on Behat 3, PHP 8.4 on Behat 4 | The steps drive a browser without Selenium, over the Chrome DevTools Protocol, on both Behat majors. That browser driver is Drupal-version independent, so the 3 legs take their breadth from the PHP axis, 1 version each. All 3 stay on `normal` deps: `dmore/behat-chrome-extension` hands the browser driver `domWaitTimeout` and `socketTimeout`, which the oldest `dmore/chrome-mink-driver` it accepts does not define, so a `lowest` resolution cannot boot Chrome at all. |
 | PHP 8.3 / 8.4 / 8.5 x Drupal 11 x `normal` / `lowest` x Behat 4 | The same unit, kernel and Behat suites pass on Behat 4. See [Behat 4 legs](#behat-4-legs). |
 | PHP 8.5 x Drupal 12 x `normal` / `lowest` x Behat 4 | The next core major, on a patched contrib set. See [Drupal versions](#drupal-versions). |
 
@@ -715,9 +715,9 @@ Coverage is produced on 1 Selenium leg and 1 `chrome_headless` leg, both on Beha
 
 ### Behat 4 legs
 
-Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.php](scripts/provision.php) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`, and removes `dmore/behat-chrome-extension`, so Behat 4 has no `chrome_headless` leg.
+Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.php](scripts/provision.php) narrows the `composer.json` constraint with `composer update --with="behat/behat:^4"`. `dmore/behat-chrome-extension` accepts Behat 4 from 1.5.0, the floor `composer.json` sets, so it stays in the build and the PHP 8.4 leg runs the suite under `chrome_headless`.
 
-On Drupal 11 it also removes `dvdoug/behat-code-coverage`, which accepts Behat 4 only from 5.5. That release, and 5.4 before it, needs `phpunit/php-code-coverage` 12, while Drupal 11's `drupal/core-dev` holds the fixture on PHPUnit 11.5, which requires `^11.0.12`. The fixture therefore resolves 5.3.7, the newest release that still takes PHPUnit 11, and that one caps `behat/behat` at `^3`. The `composer.json` constraint is open at `^5.3.7`, so the repository root, running PHPUnit 12, does install 5.5 - only the Drupal 11 fixture is held back. [behat.php](behat.php) registers the coverage extension only when it is installed.
+On Drupal 11 it removes `dvdoug/behat-code-coverage`, which accepts Behat 4 only from 5.5. That release, and 5.4 before it, needs `phpunit/php-code-coverage` 12, while Drupal 11's `drupal/core-dev` holds the fixture on PHPUnit 11.5, which requires `^11.0.12`. The fixture therefore resolves 5.3.7, the newest release that still takes PHPUnit 11, and that one caps `behat/behat` at `^3`. The `composer.json` constraint is open at `^5.3.7`, so the repository root, running PHPUnit 12, does install 5.5 - only the Drupal 11 fixture is held back. [behat.php](behat.php) registers the coverage extension only when it is installed.
 
 Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup. The branch ruleset requires checks by name, so renaming a leg means updating the required checks on `4.x` to match.
 
@@ -738,8 +738,9 @@ Drupal 12 constrains its own grid hard:
 
 - Drupal 12 requires PHP 8.5, so PHP 8.3 and PHP 8.4 are out.
 - Drupal 12 requires Symfony 8, and the newest Behat 3 release still requires `symfony/yaml ^5.4 || ^6.4 || ^7.0`, so Behat 3 is out. `behat/behat` 4.0 accepts Symfony 8.
-- Provisioning removes `dmore/behat-chrome-extension` on Behat 4, so `chrome_headless` is out.
 - Drupal 12 raises the database floor to MariaDB 10.11, which is why [docker-compose.yml](docker-compose.yml) runs `uselagoon/mariadb-10.11-drupal`. Drupal 11 asks for 10.6 or newer, so one image serves both majors.
+
+The grid has no `chrome_headless` leg. The Chrome browser driver doesn't depend on the core major, so the Behat 4 Chrome leg on Drupal 11 covers it, and the Drupal 12 legs still run every `@javascript` scenario through Selenium.
 
 Building the Drupal 12 fixture takes 3 requirements the Drupal 11 fixture does not share:
 

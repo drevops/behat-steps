@@ -207,8 +207,8 @@ class ProvisionTest extends UnitTestCase {
   public static function dataProviderBehatPackagesListsTheRemovals(): array {
     return [
       'behat 3 removes nothing' => ['3', '11', []],
-      'behat 4 drops the chrome extension and the coverage driver' => ['4', '11', ['dmore/behat-chrome-extension', 'dvdoug/behat-code-coverage']],
-      'drupal 12 brings a phpunit the coverage driver accepts' => ['4', '12', ['dmore/behat-chrome-extension']],
+      'behat 4 on drupal 11 drops the coverage extension' => ['4', '11', ['dvdoug/behat-code-coverage']],
+      'drupal 12 brings a phpunit the coverage extension accepts' => ['4', '12', []],
     ];
   }
 

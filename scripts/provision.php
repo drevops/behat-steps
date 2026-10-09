@@ -512,20 +512,13 @@ function provision_write(string $file, string $contents, int $flags = 0): void {
  *   The packages to remove before the install.
  */
 function provision_behat_packages(string $behat, string $drupal_version): array {
-  if ($behat !== '4') {
-    return [];
-  }
-
-  // 'dmore/behat-chrome-extension' has no release that accepts Behat 4.
-  $packages = ['dmore/behat-chrome-extension'];
-
   // Every 'dvdoug/behat-code-coverage' release that accepts Behat 4 needs
   // 'phpunit/php-code-coverage' 12, which PHPUnit 11 rules out.
-  if ((int) $drupal_version < PROVISION_DRUPAL_NEXT_MAJOR) {
-    $packages[] = 'dvdoug/behat-code-coverage';
+  if ($behat === '4' && (int) $drupal_version < PROVISION_DRUPAL_NEXT_MAJOR) {
+    return ['dvdoug/behat-code-coverage'];
   }
 
-  return $packages;
+  return [];
 }
 
 /**
