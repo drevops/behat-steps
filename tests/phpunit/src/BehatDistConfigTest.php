@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Behat;
+namespace DrevOps\BehatSteps\Tests;
 
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Environment\UninitializedContextEnvironment;
@@ -13,7 +13,6 @@ use Behat\Testwork\Suite\GenericSuite;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
-use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -128,7 +127,7 @@ class BehatDistConfigTest extends UnitTestCase {
    * Loads the configuration the reference file returns.
    */
   protected static function loadConfig(): Config {
-    $config = require dirname(__DIR__, 5) . '/behat.dist.php';
+    $config = require dirname(__DIR__, 3) . '/behat.dist.php';
 
     if (!$config instanceof Config) {
       self::fail('behat.dist.php does not return a Behat configuration.');

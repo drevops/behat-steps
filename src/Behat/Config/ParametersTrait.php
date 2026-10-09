@@ -71,6 +71,7 @@ trait ParametersTrait {
    */
   public function getDrupalText(string $name): string {
     $text = $this->getParameter('text');
+
     if (!isset($text[$name])) {
       throw new \RuntimeException(sprintf('No such Drupal string: %s.', $name));
     }
@@ -92,6 +93,7 @@ trait ParametersTrait {
    */
   public function getDrupalSelector(string $name): string {
     $selectors = $this->getParameter('selectors');
+
     if (!isset($selectors[$name])) {
       throw new \RuntimeException(sprintf('No such selector configured: %s.', $name));
     }

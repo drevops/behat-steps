@@ -118,6 +118,7 @@ class UserRegistryTest extends UnitTestCase {
   #[DataProvider('dataProviderHasUsers')]
   public function testHasUsers(array $users, bool $expected): void {
     $registry = new UserRegistry();
+
     foreach ($users as $user) {
       $registry->addUser($user);
     }

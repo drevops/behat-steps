@@ -445,6 +445,7 @@ class PublicSurfaceTest extends UnitTestCase {
     if ($file === FALSE) {
       return '';
     }
+
     // @codeCoverageIgnoreEnd
     $lines = file($file) ?: [];
 

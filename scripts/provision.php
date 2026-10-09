@@ -136,6 +136,7 @@ PHP;
 if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'provision.php') {
   provision();
 }
+
 // @codeCoverageIgnoreEnd
 
 /**

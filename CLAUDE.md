@@ -187,6 +187,7 @@ Never call `hasTag()` or `getTags()` directly. Behat 3 strips the `@` from a tag
 - Line breaks: `"\n"` to split or match text the code received, `PHP_EOL` for console output, messages and generated docs. A break spliced into a nowdoc or heredoc template stays `"\n"`
 - Paths are built with `/`. `DIRECTORY_SEPARATOR` only compares against, splits or trims a path the platform returned (`realpath()`, `getcwd()`, `getFileName()`, a directory iterator)
 - A closure that never touches `$this` is `static` (`SlevomatCodingStandard.Functions.StaticClosure`), and an empty class or function body is `{}` (`EmptyBodyTest`)
+- A control structure has a blank line above and below it unless it's the first or last statement in its block (`ControlStructureSpacingTest`). An inline comment, a `@codeCoverageIgnoreEnd` marker included, sits against the statement below it, so the blank line goes above the comment
 - A single-word boolean takes `is_` (`$is_found`). A caught exception is `$exception`, a directory `$directory`, a restored value `$original`, a test's expected message `$expected_message`, and a dynamic call is `->{$method}()`
 - A concrete class under `src/` is `final` unless a project extends it. The extension points (the contexts, the backends, `Core`, the field handlers, the browser adapters, `HttpClientFactory` and `DocumentElement`) are listed in `EXTENSION_POINTS` in `ExtensionPointTest`, and a final class keeps its members `protected`. See "Final classes" in [CONTRIBUTING.md](CONTRIBUTING.md)
 - Every constant under `src/` declares a native type, `public const string NAME = 'value';` (`TypedConstantTest`)
@@ -260,6 +261,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 
 ### Unit Test Conventions
 - A unit test extends `UnitTestCase` (a kernel test extends `KernelTestBase`), writes fixtures through `writeFixture()` into `static::$tmp`, and reflects a class held in a variable through `static::reflect()`; a `::class` constant goes to `new \ReflectionClass()`
+- A test sits under `Unit/` or `Kernel/` at the path mirroring the `src/` file it tests; one with no `src/` counterpart, such as a convention test or a `#[CoversNothing]` test, sits at the root of `tests/phpunit/src/`
 - Static members are reached through `static::`; `self::` stays only in a constant expression, in a final or anonymous class, or on a final or private member, such as PHPUnit's `self::fail()`
 - A test helper opens with a verb from `TestConventionTest::HELPER_VERBS`; a yes-or-no helper opens with `is` or `has`
 - A test double's test-only methods are `call<Method>()` to run a protected method and `test<Accessor>()` to read or write protected state; everything else on a double overrides a production method

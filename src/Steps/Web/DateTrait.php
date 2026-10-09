@@ -120,6 +120,7 @@ trait DateTrait {
       $offset = $matches[1];
 
       $timestamp = strtotime($offset, $now);
+
       if ($timestamp === FALSE) {
         throw new \RuntimeException(sprintf('The relative date offset cannot be evaluated: "%s".', $offset));
       }

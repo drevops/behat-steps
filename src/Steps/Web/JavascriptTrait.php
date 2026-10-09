@@ -108,7 +108,7 @@ trait JavascriptTrait {
   #[AfterScenario('@javascript')]
   public function javascriptAfterScenario(AfterScenarioScope $scope): void {
     $should_assert = $this->javascriptEnabled
-      && $this->getOptionBool('javascript', 'fail_on_errors')
+      && $this->javascriptGetFailOnErrors()
       && !$this->javascriptAsserted
       && !$scope->getTestResult()->isPassed();
 
@@ -141,6 +141,7 @@ trait JavascriptTrait {
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
     }
+
     // @codeCoverageIgnoreEnd
     try {
       $this->javascriptCurrentUrl = $this->getSession()->getCurrentUrl();
@@ -175,6 +176,7 @@ trait JavascriptTrait {
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
     }
+
     // @codeCoverageIgnoreEnd
     try {
       $current_url = $this->getSession()->getCurrentUrl();
@@ -189,8 +191,9 @@ trait JavascriptTrait {
     // @codeCoverageIgnoreStart
     catch (\Exception) {
     }
+
     // @codeCoverageIgnoreEnd
-    if (!$this->getOptionBool('javascript', 'fail_on_errors') || !$this->lastStepReached($scope)) {
+    if (!$this->javascriptGetFailOnErrors() || !$this->lastStepReached($scope)) {
       return;
     }
 
@@ -319,6 +322,13 @@ JS;
     $message_parts[] = sprintf(PHP_EOL . 'Total errors: %d', $error_count);
 
     throw new ExpectationException(implode(PHP_EOL, $message_parts), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Return TRUE if a scenario that collected a console error should fail.
+   */
+  public function javascriptGetFailOnErrors(): bool {
+    return $this->getOptionBool('javascript', 'fail_on_errors');
   }
 
   /**

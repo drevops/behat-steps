@@ -53,6 +53,7 @@ trait MediaTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
+
     if ($type_entity) {
       $type_entity->delete();
     }
@@ -330,6 +331,7 @@ trait MediaTrait {
     }
 
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('media');
+
     if (!array_key_exists($bundle, $bundles)) {
       throw new \RuntimeException(sprintf('Cannot create media because provided bundle "%s" does not exist.', $bundle));
     }

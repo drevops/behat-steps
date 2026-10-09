@@ -8,7 +8,7 @@ use Behat\Behat\Context\Environment\ContextEnvironment;
 use Behat\Behat\EventDispatcher\Event\BeforeScenarioTested;
 use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
 use DrevOps\BehatSteps\Behat\Tag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -52,17 +52,17 @@ final class SkipTagListener implements EventSubscriberInterface {
    *   the name of a trait no context of the suite composes.
    */
   public function validateSkipTags(BeforeScenarioTested $event): void {
-    $bare = rtrim(TagOverrides::SKIP_TAG_PREFIX, ':');
+    $bare = rtrim(TagOverrideResolver::SKIP_TAG_PREFIX, ':');
 
     foreach (Tag::all($event) as $tag) {
-      if ($tag !== $bare && !str_starts_with($tag, TagOverrides::SKIP_TAG_PREFIX)) {
+      if ($tag !== $bare && !str_starts_with($tag, TagOverrideResolver::SKIP_TAG_PREFIX)) {
         continue;
       }
 
-      $trait = substr($tag, strlen(TagOverrides::SKIP_TAG_PREFIX));
+      $trait = substr($tag, strlen(TagOverrideResolver::SKIP_TAG_PREFIX));
 
-      if (preg_match(TagOverrides::SKIP_TAG_VALUE_PATTERN, $trait) !== 1) {
-        throw new \RuntimeException(sprintf('The "@%s" tag does not name a trait. A skip tag takes the name of the trait whose hooks it switches off, as in "@%sJavascriptTrait".', $tag, TagOverrides::SKIP_TAG_PREFIX));
+      if (preg_match(TagOverrideResolver::SKIP_TAG_VALUE_PATTERN, $trait) !== 1) {
+        throw new \RuntimeException(sprintf('The "@%s" tag does not name a trait. A skip tag takes the name of the trait whose hooks it switches off, as in "@%sJavascriptTrait".', $tag, TagOverrideResolver::SKIP_TAG_PREFIX));
       }
 
       $environment = $event->getEnvironment();

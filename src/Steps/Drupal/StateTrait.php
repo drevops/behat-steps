@@ -145,6 +145,7 @@ trait StateTrait {
     $expected = $this->stringNormalizeValue($value);
     $actual_stringified = $this->stringFormatValue($this->stateFindValue($name));
     $expected_stringified = $this->stringFormatValue($expected);
+
     if ($actual_stringified !== $expected_stringified) {
       throw new AssertionException(sprintf('The state "%s" has the value "%s", but it should have the value "%s".', $name, $actual_stringified, $expected_stringified));
     }

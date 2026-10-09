@@ -33,7 +33,7 @@ class DrupalBackendCreationAliasesTest extends UnitTestCase {
   /**
    * Tests that 'getCreationAliases()' returns '[]' for a non-alias core.
    */
-  public function testGetCreationAliasesReturnsEmptyForLegacyCore(): void {
+  public function testGetCreationAliasesReturnsEmptyForNonAliasCore(): void {
     $core = $this->createMock(CoreInterface::class);
     $backend = $this->createBackendWithCore($core);
 

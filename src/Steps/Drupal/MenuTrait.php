@@ -167,6 +167,7 @@ trait MenuTrait {
 
     if (!empty($values['parent']) && is_string($values['parent'])) {
       $parent_link = $this->menuFindLinkByTitle($values['parent'], (string) $menu->label());
+
       if ($parent_link instanceof MenuLinkContent) {
         $values['parent'] = 'menu_link_content:' . $parent_link->uuid();
       }

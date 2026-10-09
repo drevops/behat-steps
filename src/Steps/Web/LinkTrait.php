@@ -207,6 +207,7 @@ trait LinkTrait {
 
     if ($selector !== NULL) {
       $element = $page->find('css', $selector);
+
       if (!$element) {
         throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
       }
@@ -216,12 +217,14 @@ trait LinkTrait {
     }
 
     $link_element = $element->findLink($link);
+
     if (!$link_element) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'text', $link);
     }
 
     $pattern = '/' . preg_quote($href, '/') . '/';
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
+
     if (preg_match($pattern, (string) $link_element->getAttribute('href')) !== 1) {
       throw new ExpectationException(sprintf('The link href "%s" does not match the specified href "%s".', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }
@@ -264,12 +267,14 @@ trait LinkTrait {
     }
 
     $link_element = $element->findLink($link);
+
     if (!$link_element) {
       return;
     }
 
     $pattern = '/' . preg_quote($href, '/') . '/';
     $pattern = str_contains($href, '*') ? str_replace('\*', '.*', $pattern) : $pattern;
+
     if (preg_match($pattern, (string) $link_element->getAttribute('href')) === 1) {
       throw new ExpectationException(sprintf('The link href "%s" matches the specified href "%s", but it should not.', $link_element->getAttribute('href'), $href), $this->getSession()->getDriver());
     }

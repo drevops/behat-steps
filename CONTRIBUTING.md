@@ -142,6 +142,8 @@ A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and 
 
 A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`, `accessibilityGetBlankUrls()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityFormatUrl()` or `restResolveUrl()`.
 
+A trait reads each of its options inside a public `<trait>Get...()` method and nowhere else, so a project can override any option a hook or a step acts on: `watchdogAfterStep()` asks `watchdogGetFailOnErrors()` rather than reading `watchdog.fail_on_errors` itself, and `mappingGetFlattened()` builds on `mappingGetGroups()`. The `enabled` option is the exception, because `skipTag()` reads it, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes. `OptionDeclarationsTest` fails an option read anywhere else.
+
 ### Helpers carry a verb
 
 Every published helper names what it does with a verb: `messageGetSelector()`, not `messageSelector()`. A yes-or-no question takes `Is` or `Has`, as in `authIsLoggedIn()` and `metatagResponseHasNoindexHeader()`. A verb in the trait prefix counts, as `query` does in `queryEntityIds()`.
@@ -202,10 +204,15 @@ The method for 1 entity is the same name without the suffix, so nothing carries 
 
 ## Class naming conventions
 
-A class name states the role the class plays, so a reader can tell a lookup table apart from a service that acts without opening the file. Two shapes cover everything under `src/Behat`:
+A class name states the role the class plays, so a reader can tell a lookup table, a service that acts and a value apart without opening the file. 3 shapes cover the classes under `src/Behat` that name their own role:
 
 - **`<Noun>Registry`** holds things and looks them up. `BackendRegistry` registers backends and resolves one by capability; `UserRegistry` stores the users a scenario created and tracks the current one.
-- **An agent noun** performs an action. `Authenticator` logs a user in and out; `BasicAuthenticator` applies HTTP Basic credentials to a session.
+- **An agent noun** performs an action. `Authenticator` logs a user in and out, `BasicAuthenticator` applies HTTP Basic credentials to a session, and `TagOverrideResolver` settles the value an option takes under a scenario's tags. A factory is named the same way, as `HttpClientFactory` is.
+- **A plain noun** names a value. `Option` declares 1 option, `Prerequisite` 1 prerequisite, and `HttpIdentity` carries the identity a detached browser sends. `Tag` and `GroupName` hold no state: each names the value its static methods read or derive.
+
+Every other class takes the name of the framework type it extends or implements. The contexts end in `Context` and the hook scopes in `Scope`, while `BehatStepsExtension`, `BackendPass`, `ClassGenerator` and `DocumentElement` follow Behat, Symfony and Mink. An interface ends in `Interface` and a trait in `Trait`.
+
+A class the container builds is a registry or an agent noun, because a value is never a service. `ClassNamingTest` fails one in `services.yml` whose name doesn't end in a suffix from its `ROLE_SUFFIXES`, so a service named for a new role adds that suffix there in the same change.
 
 `Manager` is not a role, so it names nothing. Do not reach for it, or for `Handler`, `Helper` or `Service` as a class suffix under `src/Behat` - each would describe every class there equally well.
 
@@ -351,6 +358,7 @@ Each of these has 1 answer. Write new code this way, and where a tool holds the 
 - **Paths**: a path is built with `/`, which PHP accepts on every platform: `$directory . '/' . $file`, `__DIR__ . '/fixtures'`. `DIRECTORY_SEPARATOR` only compares against, splits or trims a path the platform returned - from `realpath()`, `getcwd()`, `getFileName()` or a directory iterator - because on Windows that path holds backslashes.
 - **Closures**: a closure or arrow function that never touches `$this` is `static`. `SlevomatCodingStandard.Functions.StaticClosure` fails the rest in `ahoy lint`, and `ahoy lint-fix` adds the keyword. The sniff can't see a closure that calls an instance method through `self::` or `static::`, which still needs `$this`, so check those by hand.
 - **Empty bodies**: an empty class, interface, trait, enum, function or closure body is `{}` on its declaration line, a promoted constructor's included: `) {}`. `tests/phpunit/src/EmptyBodyTest.php` enforces it.
+- **Control structures**: an `if`, `foreach`, `for`, `while`, `do`, `switch` or `try` statement has a blank line above it and below it, except where it's the first or last statement in its block or its `case`. The coding standard allows no blank line after an inline comment, so a comment between 2 statements, a `@codeCoverageIgnoreEnd` marker included, sits against the statement below it, and the blank line goes above the comment. `tests/phpunit/src/ControlStructureSpacingTest.php` enforces the blank lines and `ahoy lint` the comment placement.
 - **Constant types**: every constant under `src/` declares its native type, in a class, an interface or a trait alike: `public const string CONFIG_KEY = 'behat_steps';`. A subclass that redeclares one declares the same type, or PHP refuses to load it. `tests/phpunit/src/TypedConstantTest.php` enforces it.
 - **Booleans**: a single-word boolean local or parameter reads as a question with `is_`: `$is_found`, `$is_exact`, `$is_strict`. `has_` names something held, as in `$has_title`, and `should_` an expectation, as in `$should_match`. A test's expected value stays `$expected` whatever its type.
 - **Local names**: a caught exception is `$exception`. A directory path is `$directory`, and a qualified one keeps the short suffix, as in `$features_dir`, matching the `report_dir` and `temp_dir` options. The stub a create call returns is `$created`, a value saved to be restored is `$original` or `$original_<what>`, a `\ReflectionProperty` is `$property` or `$<name>_property`, never `_prop`, and a test's expected exception message is `$expected_message`.
@@ -362,9 +370,10 @@ Each of these has 1 answer. Write new code this way, and where a tool holds the 
 
 ## Test suite conventions
 
-The PHPUnit suite under `tests/phpunit/src/` holds each of these in 1 form. [tests/phpunit/src/TestConventionTest.php](tests/phpunit/src/TestConventionTest.php) enforces all 7.
+The PHPUnit suite under `tests/phpunit/src/` holds each of these in 1 form. [tests/phpunit/src/TestConventionTest.php](tests/phpunit/src/TestConventionTest.php) enforces all 8.
 
 - **Base class**: a unit test extends `UnitTestCase`, directly or through a base that does, and a kernel test extends Drupal's `KernelTestBase`. `UnitTestCase` gives each test a workspace that `tearDown()` removes, along with the hook scope builders and the helpers below, so call `parent::setUp()` and `parent::tearDown()` when you override them.
+- **Placement**: a test with no counterpart in `src/` sits at the root of `tests/phpunit/src/`, as [Unit and kernel tests](#unit-and-kernel-tests) describes. A test that declares `#[CoversNothing]` has none, so it never sits under `Unit/` or `Kernel/`: `BehatDistConfigTest` reads `behat.dist.php`, and the convention tests read the whole source tree.
 - **Fixtures**: a unit test writes a fixture through `writeFixture()`, which creates the parent directories inside that workspace, and reads the workspace path from `static::$tmp`. Nothing calls `file_put_contents()`, `touch()` or `copy()` itself, so no fixture outlives its test or lands in the repository. An empty directory is the one thing `writeFixture()` can't make, and `mkdir()` stays for it.
 - **Reflection**: a class held in a variable, whether a name a test discovered or an object, is reflected through `static::reflect()`, which narrows a string to a class string. A `::class` constant goes to `new \ReflectionClass()`, which keeps the class type PHPStan reads.
 - **Static members**: a test reaches a static member through `static::`, so a subclass that redeclares it is honored, the same way a trait does. `self::` stays where late static binding has nothing to resolve: in a constant expression such as a property default or a constant value, where PHP rejects `static::`; on a final class, a final member or a private member, where Rector's `ConvertStaticToSelfRector` requires it; and in an anonymous class, which nothing can extend. `self::fail()` is the common case, because PHPUnit declares its assertions final.
@@ -378,7 +387,7 @@ The Behat harness in `tests/behat/bootstrap/` - `FeatureContext`, `FeatureContex
 
 - **Tags**: a tag is read through `Tag::has()` or `Tag::values()`, passing the scope and a constant that names the tag, and no hook attribute filters on a tag. A feature hook has no scenario, so it passes the feature.
 - **Numbers**: a numeric step argument is parsed with `stringParseInteger()`, so `sleep for five seconds` fails instead of sleeping for 0 seconds.
-- **Hooks**: a hook is named `<prefix><Event>` and declared before the steps.
+- **Hooks**: a hook is named `<prefix><Event>` and declared before the steps. `FeatureContextTrait`, `FeatureContext` and the context `BehatCliTrait` generates share the `test` prefix, and `BehatCliTrait` itself uses `behatCli`. A prefix holds 1 hook per event, so a second job on an event runs from a helper that hook calls, as `testBeforeScenario()` runs `testStopSessions()` and then `testShortenBigPipeWait()`.
 - **Constants**: every constant declares a native type.
 
 The harness steps keep their own wording, placeholders, patterns and signatures rather than follow [Steps format](#steps-format) and [Step arguments](#step-arguments). They aren't published, and renaming one means editing every `.feature` line that uses it: every `@test-trait` scenario runs `some behat configuration` and `scenario steps:` or `scenario steps tagged with "...":`. `BehatCliContext.php` holds none of these conventions, because it's kept in step with an upstream copy.

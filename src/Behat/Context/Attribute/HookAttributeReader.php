@@ -59,8 +59,10 @@ final class HookAttributeReader implements AttributeReader {
     $attributes = $method->getAttributes(DrupalHookInterface::class, \ReflectionAttribute::IS_INSTANCEOF);
 
     $callees = [];
+
     foreach ($attributes as $attribute) {
       $hook_call_class = self::ATTRIBUTE_MAP[$attribute->getName()] ?? NULL;
+
       if ($hook_call_class === NULL) {
         continue;
       }

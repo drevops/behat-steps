@@ -33,9 +33,11 @@ class Time implements TimeInterface {
    */
   public function getRequestTime(): int {
     $override = $this->state->get(self::STATE_KEY);
+
     if (is_numeric($override)) {
       return (int) $override;
     }
+
     return (int) $this->coreTime->getRequestTime();
   }
 
@@ -44,9 +46,11 @@ class Time implements TimeInterface {
    */
   public function getRequestMicroTime(): float {
     $override = $this->state->get(self::STATE_KEY);
+
     if (is_numeric($override)) {
       return (float) $override;
     }
+
     return (float) $this->coreTime->getRequestMicroTime();
   }
 
@@ -55,9 +59,11 @@ class Time implements TimeInterface {
    */
   public function getCurrentTime(): int {
     $override = $this->state->get(self::STATE_KEY);
+
     if (is_numeric($override)) {
       return (int) $override;
     }
+
     return (int) $this->coreTime->getCurrentTime();
   }
 
@@ -66,9 +72,11 @@ class Time implements TimeInterface {
    */
   public function getCurrentMicroTime(): float {
     $override = $this->state->get(self::STATE_KEY);
+
     if (is_numeric($override)) {
       return (float) $override;
     }
+
     return (float) $this->coreTime->getCurrentMicroTime();
   }
 

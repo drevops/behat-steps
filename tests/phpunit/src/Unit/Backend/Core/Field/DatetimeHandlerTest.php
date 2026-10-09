@@ -144,6 +144,7 @@ class DatetimeHandlerTest extends FieldHandlerUnitTestBase {
     }
 
     $core_path = InstalledVersions::getInstallPath('drupal/core');
+
     if ($core_path === NULL) {
       return FALSE;
     }

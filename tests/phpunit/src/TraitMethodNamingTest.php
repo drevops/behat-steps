@@ -114,6 +114,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $prefix = static::deriveTraitPrefix($reflection->getShortName());
 
     $violations = [];
+
     foreach (static::collectTraitOwnMethodNames($trait, $file) as $name) {
       if (static::hasPrefix($name, $prefix)) {
         continue;
@@ -148,6 +149,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       $name = $method->getName();
       $is_assertion = $method->getAttributes(Then::class) !== [] || (!static::isRegistered($method) && str_starts_with(static::readDocblockSummary($method), 'Assert'));
@@ -199,6 +201,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderAssertionsFailWithAssertionException')]
   public function testAssertionsFailWithAssertionException(string $trait, string $file): void {
     $violations = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       $thrown = static::collectThrownExceptionNames($method);
 
@@ -282,6 +285,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderNegativeMirrorsPositive')]
   public function testNegativeMirrorsPositive(string $trait, string $file): void {
     $names = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       foreach ($method->getAttributes(Then::class) as $attribute) {
         $names[(string) $attribute->newInstance()->getPattern()] = $method->getName();
@@ -289,6 +293,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     }
 
     $violations = [];
+
     foreach ($names as $step => $name) {
       $positive = $names[preg_replace('/ should not /', ' should ', $step, 1)] ?? NULL;
 
@@ -320,6 +325,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderNegativeStepsCarryNot')]
   public function testNegativeStepsCarryNot(string $trait, string $file): void {
     $violations = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       foreach ($method->getAttributes(Then::class) as $attribute) {
         $step = (string) $attribute->newInstance()->getPattern();
@@ -356,6 +362,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       foreach ($method->getAttributes(When::class) as $attribute) {
         $step = (string) $attribute->newInstance()->getPattern();
@@ -500,6 +507,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderFindReturnsNullable')]
   public function testFindReturnsNullable(string $trait, string $file): void {
     $violations = [];
+
     foreach (static::collectTraitOwnMethodsWithVerb($trait, $file, 'Find') as $method) {
       $type = $method->getReturnType();
 
@@ -531,6 +539,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderGetNeverReturnsNull')]
   public function testGetNeverReturnsNull(string $trait, string $file): void {
     $violations = [];
+
     foreach (static::collectTraitOwnMethodsWithVerb($trait, $file, 'Get') as $method) {
       $type = $method->getReturnType();
 
@@ -562,6 +571,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderLoadReturnsSet')]
   public function testLoadReturnsSet(string $trait, string $file): void {
     $violations = [];
+
     foreach (static::collectTraitOwnMethodsWithVerb($trait, $file, 'Load') as $method) {
       $type = $method->getReturnType();
 
@@ -594,6 +604,7 @@ class TraitMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderHelpersCarryVerb')]
   public function testHelpersCarryVerb(string $trait, string $file): void {
     $violations = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       if (!$method->isPublic() || static::isRegistered($method)) {
         continue;
@@ -629,6 +640,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       foreach ($method->getAttributes() as $attribute) {
         $name = $attribute->getName();
@@ -670,6 +682,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       $words = static::splitWordsAfterPrefix($method->getName(), $prefix);
 
@@ -704,6 +717,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $violations = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       $words = static::splitWordsAfterPrefix($method->getName(), $prefix);
       $verb = $words[0] ?? '';
@@ -743,6 +757,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $files = [];
 
     $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator((string) $root));
+
     foreach ($iterator as $file) {
       if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
         continue;
@@ -780,6 +795,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $methods = static::reflect($trait)->getMethods();
 
     $own = [];
+
     foreach ($methods as $method) {
       // A trait that composes another trait reports the composed methods too,
       // so only the methods declared in this file are the trait's own.
@@ -828,6 +844,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     $prefix = static::deriveTraitPrefix(static::reflect($trait)->getShortName());
 
     $matched = [];
+
     foreach (static::collectTraitOwnMethods($trait, $file) as $method) {
       $name = $method->getName();
 

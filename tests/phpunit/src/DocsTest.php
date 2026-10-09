@@ -95,6 +95,7 @@ class DocsTest extends UnitTestCase {
     // eval(). The Drupal fixture traits are loaded from the test's temporary
     // directory instead, so they resolve to the correct context.
     $fixture_files = glob($this->getFixturesDir() . '/Web/*.php');
+
     if ($fixture_files !== FALSE) {
       foreach ($fixture_files as $fixture_file) {
         require_once $fixture_file;
@@ -505,8 +506,10 @@ EOD,
               }
               else {
                 $example = is_string($method['example']) ? $method['example'] : (string) $method['example'];
+
                 if (!empty($example)) {
                   $example_lines = explode("\n", $example);
+
                   foreach ($example_lines as $line) {
                     if (!empty(trim($line))) {
                       $this->assertStringContainsString($line, $actual);
@@ -2424,6 +2427,7 @@ EOD,
       // @phpcs:disable Drupal.Functions.DiscouragedFunctions.Discouraged
       eval($class_code);
     }
+
     return $class_name;
   }
 
@@ -3089,14 +3093,14 @@ EOD,
       ],
       'DirtyTrait' => [
         'name' => 'DirtyTrait',
-        'description_full' => 'Legacy `@accessibility-critical` form.',
+        'description_full' => 'Hyphenated `@accessibility-critical` form.',
         'methods' => [
           ['example' => '@module-help'],
         ],
       ],
       // No 'name' key - the array key is used as the label.
       'NoNameTrait' => [
-        'description_full' => 'Old `@watchdog-foo`.',
+        'description_full' => 'Hyphenated `@watchdog-foo`.',
       ],
       // No 'description_full' - only the example is scanned.
       'NoDescTrait' => [

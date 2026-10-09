@@ -309,6 +309,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
    */
   public function testDrushExecutesBinaryAndReturnsOutput(): void {
     $echo = $this->resolveSystemBinary('echo');
+
     if ($echo === NULL) {
       $this->markTestSkipped('echo binary is not available on this system.');
     }
@@ -324,6 +325,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   public function testDrushAlwaysEmitsNoAnsiFlag(): void {
     $echo = $this->resolveSystemBinary('echo');
+
     if ($echo === NULL) {
       $this->markTestSkipped('echo binary is not available on this system.');
     }
@@ -362,6 +364,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
     }
     finally {
       chdir($original_cwd);
+
       if ($original_composer !== FALSE) {
         putenv('COMPOSER_BIN_DIR=' . $original_composer);
       }
@@ -370,6 +373,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   public function testDrushThrowsRuntimeExceptionOnFailure(): void {
     $false = $this->resolveSystemBinary('false');
+
     if ($false === NULL) {
       $this->markTestSkipped('false binary is not available on this system.');
     }

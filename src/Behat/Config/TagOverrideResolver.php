@@ -11,7 +11,7 @@ namespace DrevOps\BehatSteps\Behat\Config;
  * tags are in the parser's order, feature tags before scenario tags, so the
  * tag on the narrower node settles the value.
  */
-final class TagOverrides {
+final class TagOverrideResolver {
 
   /**
    * Prefix of the tag that switches off every hook of a trait.

@@ -220,6 +220,7 @@ trait TableTrait {
   #[Then('the row containing :partial_text should contain the following:')]
   public function tableAssertRowContainsMultiple(string $partial_text, TableNode $table): void {
     $actual_text = $this->tableGetRowByText($partial_text)->getText();
+
     foreach ($table->getColumn(0) as $expected_text) {
       if (!str_contains((string) $actual_text, $expected_text)) {
         throw new ExpectationException(sprintf('The row containing "%s" does not contain the text "%s".', $partial_text, $expected_text), $this->getSession()->getDriver());
@@ -442,6 +443,7 @@ trait TableTrait {
    */
   public function tableFindRowByValues(NodeElement $table, array $values, string $selector): ?NodeElement {
     $column_values = [];
+
     foreach ($values as $header => $value) {
       $column_values[$this->tableGetColumnIndex($table, (string) $header, $selector)] = $value;
     }

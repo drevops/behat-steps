@@ -25,6 +25,7 @@ class CapabilityMethodNamingTest extends UnitTestCase {
   #[DataProvider('dataProviderCreateOpensName')]
   public function testCreateOpensName(string $interface): void {
     $violations = [];
+
     foreach (static::reflect($interface)->getMethods() as $method) {
       $name = $method->getName();
       preg_match_all('/[A-Z][a-z0-9]*/', ucfirst($name), $words);
@@ -57,6 +58,7 @@ class CapabilityMethodNamingTest extends UnitTestCase {
     $reflection = static::reflect($interface);
 
     $violations = [];
+
     foreach ($reflection->getMethods() as $method) {
       $name = $method->getName();
 
@@ -90,6 +92,7 @@ class CapabilityMethodNamingTest extends UnitTestCase {
     $files = glob(dirname(__DIR__, 3) . '/src/Backend/Capability/*Interface.php') ?: [];
 
     $interfaces = [];
+
     foreach ($files as $file) {
       $name = basename($file, '.php');
       $interfaces[$name] = ['DrevOps\\BehatSteps\\Backend\\Capability\\' . $name];

@@ -32,7 +32,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
 use DrevOps\BehatSteps\Behat\Config\GroupName;
 use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Config\TagOverrides;
+use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
 use DrevOps\BehatSteps\Behat\Context\WebContext;
 use DrevOps\BehatSteps\Behat\Context\WebRawContext;
@@ -114,6 +114,7 @@ if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'docs.php') {
   $options = getopt('', ['fail-on-change', 'path::']);
   main($options);
 }
+
 // @codeCoverageIgnoreEnd
 
 /**
@@ -141,9 +142,11 @@ function main(array $options = []): void {
 
   if (!empty($errors)) {
     echo 'Errors found:' . PHP_EOL;
+
     foreach ($errors as $error) {
       echo $error;
     }
+
     exit(1);
   }
 
@@ -174,12 +177,14 @@ function main(array $options = []): void {
     $path = $base_path . '/' . $file;
 
     $contents = file_get_contents($path);
+
     if ($contents === FALSE) {
       printf('Failed to read %s.' . PHP_EOL, $file);
       exit(1);
     }
 
     $replaced = $contents;
+
     foreach ($regions as $region) {
       $replaced = replace_content($replaced, $region[0], $region[1], $region[2]);
     }
@@ -250,20 +255,25 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
 
   if (is_dir($traits_path)) {
     $contexts = scandir($traits_path) ?: [];
+
     foreach ($contexts as $context) {
       $context_path = $traits_path . '/' . $context;
+
       if (!is_dir($context_path) || $context === '.' || $context === '..') {
         continue;
       }
 
       $context_files = scandir($context_path) ?: [];
+
       foreach ($context_files as $context_file) {
         $context_file_path = $context_path . '/' . $context_file;
+
         if (is_file($context_file_path) && file_declares_trait($context_file_path)) {
           $traits_files[] = basename($context_file, '.php');
         }
       }
     }
+
     sort($traits_files);
   }
 
@@ -299,6 +309,7 @@ function collect_step_traits(array $class_names, array $exclude = [], string $ba
       if (!$trait_file_path) {
         throw new \RuntimeException(sprintf('Trait %s does not have a file path', $trait_name));
       }
+
       // @codeCoverageIgnoreEnd
       $relative_path = str_replace($base_path . DIRECTORY_SEPARATOR . STEPS_DIRECTORY . DIRECTORY_SEPARATOR, '', $trait_file_path);
       $context = explode(DIRECTORY_SEPARATOR, $relative_path)[0];
@@ -413,6 +424,7 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
       }
 
       $steps = extract_method_steps($method);
+
       if (empty($steps)) {
         continue;
       }
@@ -513,6 +525,7 @@ function parse_class_comment(string $trait_name, string $comment): array {
   if (count($lines) > 1 && empty($lines[0])) {
     array_shift($lines);
   }
+
   if (count($lines) > 1 && empty($lines[count($lines) - 1])) {
     array_pop($lines);
   }
@@ -549,6 +562,7 @@ function parse_class_comment(string $trait_name, string $comment): array {
   }
 
   $description = $lines[0];
+
   if (empty($description)) {
     throw new \RuntimeException(sprintf('Class comment for %s is empty', $trait_name));
   }
@@ -593,6 +607,7 @@ function parse_method_comment(string $comment): ?array {
   $lines = explode("\n", $comment);
 
   $example_start = FALSE;
+
   foreach ($lines as $line) {
     $line = str_replace('/*', '', $line);
     $line = str_replace('/**', '', $line);
@@ -634,19 +649,24 @@ function parse_method_comment(string $comment): ?array {
   if (!empty($return['example'])) {
     $lines = explode(PHP_EOL, $return['example']);
     $first_line = '';
+
     foreach ($lines as $line) {
       if ($line !== '') {
         $first_line = $line;
         break;
       }
     }
+
     $indentation = strspn($first_line, ' ');
+
     foreach ($lines as $key => $line) {
       $line = rtrim($line);
+
       if (strlen($line) > $indentation) {
         $lines[$key] = substr($line, $indentation);
       }
     }
+
     $return['example'] = implode(PHP_EOL, $lines);
   }
 
@@ -670,11 +690,14 @@ function extract_method_steps(\ReflectionMethod $method): array {
   ];
 
   $steps = [];
+
   foreach ($step_classes as $class => $prefix) {
     $attributes = $method->getAttributes($class);
+
     foreach ($attributes as $attribute) {
       $args = $attribute->getArguments();
       $pattern = $args[0] ?? $args['pattern'] ?? NULL;
+
       if ($pattern !== NULL) {
         $steps[] = $prefix . ' ' . $pattern;
       }
@@ -682,6 +705,7 @@ function extract_method_steps(\ReflectionMethod $method): array {
   }
 
   $sorted = [];
+
   foreach (['@Given', '@When', '@Then'] as $step_prefix) {
     foreach ($steps as $step) {
       if (str_starts_with($step, $step_prefix)) {
@@ -812,7 +836,7 @@ function render_trait_options(string $trait_name, mixed $options): string {
     $tags = array_keys($option->tags);
 
     if ($option->name === Option::ENABLED) {
-      $tags[] = TagOverrides::SKIP_TAG_PREFIX . $trait_name;
+      $tags[] = TagOverrideResolver::SKIP_TAG_PREFIX . $trait_name;
     }
 
     $tags = array_map(static fn(string $tag): string => '`@' . $tag . '`', $tags);
@@ -959,6 +983,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $context = $collected['context'];
 
     $helpers = collect_helper_methods($trait, str_replace('Trait', '', $trait_name), (string) $trait->getFileName());
+
     if ($helpers === []) {
       continue;
     }
@@ -1008,10 +1033,12 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     // A composed helper trait is published under its own name, so the context
     // reports only what its own file declares.
     $helpers = collect_helper_methods($reflection, NULL, (string) $reflection->getFileName());
+
     // @codeCoverageIgnoreStart
     if ($helpers === []) {
       continue;
     }
+
     // @codeCoverageIgnoreEnd
     $class_info = [
       'name' => $short_name,
@@ -1135,6 +1162,7 @@ function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = 
     }
 
     $comment = resolve_inherited_comment($method, $contracts);
+
     if (comment_is_internal($comment)) {
       continue;
     }
@@ -1177,6 +1205,7 @@ function resolve_inherited_comment(\ReflectionMethod $method, array $contracts =
   $candidates = array_merge($contracts, array_values($declaring->getInterfaces()));
 
   $parent = $declaring->getParentClass();
+
   if ($parent instanceof \ReflectionClass) {
     array_unshift($candidates, $parent);
   }
@@ -1187,6 +1216,7 @@ function resolve_inherited_comment(\ReflectionMethod $method, array $contracts =
     }
 
     $inherited = (string) $candidate->getMethod($method->getName())->getDocComment();
+
     if ($inherited !== '' && stripos($inherited, '{@inheritdoc}') === FALSE) {
       return $inherited;
     }
@@ -1269,6 +1299,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     $was_list = FALSE;
     $in_code_block = FALSE;
     $code_block = '';
+
     foreach ($lines as $line) {
       $trimmed_line = trim($line);
 
@@ -1301,6 +1332,7 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
         else {
           $description_full .= $line . PHP_EOL;
         }
+
         $was_list = FALSE;
       }
       else {
@@ -1322,9 +1354,11 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     $content_output[$context] .= render_trait_options($trait, $class_info['options'] ?? []);
     // @phpstan-ignore-next-line
     $index_rows_path = '#' . heading_anchor((string) $class_info['name_contextual']);
+
     if ($path_for_links) {
       $index_rows_path = $path_for_links . $index_rows_path;
     }
+
     // @phpstan-ignore-next-line
     $index_rows[$context][] = [
       // @phpstan-ignore-next-line
@@ -1381,6 +1415,7 @@ EOT;
   );
 
   $index_output = '';
+
   foreach ($index_rows as $index_rows_context_name => $index_rows_contextual) {
     $index_output .= sprintf('### Index of %s steps', $index_rows_context_name) . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
@@ -1428,12 +1463,14 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     $helpers = is_array($class_info['helpers']) ? $class_info['helpers'] : [];
 
     $src_file = (string) $class_info['source'];
+
     if (!file_exists($base_path . '/' . $src_file)) {
       throw new \RuntimeException(sprintf('Source file %s does not exist', $base_path . '/' . $src_file));
     }
 
     $steps_anchor = $class_info['steps_anchor'] ?? NULL;
     $links = sprintf('[Source](%s)', $src_file);
+
     if (is_string($steps_anchor)) {
       $links .= sprintf(', [Steps](STEPS.md#%s)', $steps_anchor);
     }
@@ -1470,6 +1507,7 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
   $index_rows = array_merge([DEFAULT_CONTEXT => $index_rows[DEFAULT_CONTEXT]], array_diff_key($index_rows, [DEFAULT_CONTEXT => []]));
 
   $output = '';
+
   foreach ($index_rows as $index_context => $rows) {
     $output .= sprintf('### Index of %s helpers', $index_context) . PHP_EOL . PHP_EOL;
     $output .= array_to_markdown_table(['Class', 'Helpers', 'Description'], $rows) . PHP_EOL . PHP_EOL;
@@ -1708,6 +1746,7 @@ function validate_step_patterns(array $info): array {
   }
 
   $examples = [];
+
   foreach ($steps as $step) {
     foreach ($step['examples'] as $example) {
       $examples[$example] ??= $step['label'];
@@ -1986,6 +2025,7 @@ function extension_option_rows(array $nodes, ?string $prefix = NULL): array {
     $children = $node instanceof ArrayNode && !$node instanceof PrototypedArrayNode ? $node->getChildren() : [];
 
     $default = '-';
+
     if ($node->isRequired()) {
       $default = 'required';
     }
@@ -2077,17 +2117,20 @@ function validate_env_vars(string $base_path = __DIR__): array {
 
   $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \FilesystemIterator::SKIP_DOTS));
   $files = [];
+
   foreach ($iterator as $file) {
     if ($file instanceof \SplFileInfo && $file->getExtension() === 'php') {
       $files[] = $file->getPathname();
     }
   }
+
   sort($files);
 
   foreach ($files as $file) {
     // Comments carry examples of what a consuming project reads, which is a
     // different contract from what this source reads.
     $code = '';
+
     foreach (token_get_all((string) file_get_contents($file)) as $token) {
       if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], TRUE)) {
         continue;
@@ -2130,8 +2173,10 @@ function extract_tags(string $text): array {
   preg_match_all('/(?<![\w@])@([a-zA-Z0-9][a-zA-Z0-9:!._-]*)/', $text, $matches);
 
   $tags = [];
+
   foreach ($matches[1] as $tag) {
     $tag = rtrim($tag, '.,;');
+
     if ($tag !== '') {
       $tags[$tag] = $tag;
     }
@@ -2206,9 +2251,11 @@ function validate_tags(array $info, string $base_path = __DIR__): array {
     $label = is_string($class_info['name'] ?? NULL) ? $class_info['name'] : (string) $trait;
 
     $texts = [];
+
     if (is_string($class_info['description_full'] ?? NULL)) {
       $texts[] = $class_info['description_full'];
     }
+
     foreach ((is_array($class_info['methods'] ?? NULL) ? $class_info['methods'] : []) as $method) {
       if (is_array($method) && is_string($method['example'] ?? NULL)) {
         $texts[] = $method['example'];
@@ -2218,6 +2265,7 @@ function validate_tags(array $info, string $base_path = __DIR__): array {
     foreach ($texts as $text) {
       foreach (extract_tags($text) as $tag) {
         $message = validate_tag($tag, $registry);
+
         if ($message !== NULL) {
           $errors[$label . '|' . $tag] = sprintf('  %s - Tag %s' . PHP_EOL, $label, $message);
         }
@@ -2226,17 +2274,22 @@ function validate_tags(array $info, string $base_path = __DIR__): array {
   }
 
   $features_dir = $base_path . '/tests/behat/features';
+
   if (is_dir($features_dir)) {
     foreach (glob($features_dir . '/*.feature') ?: [] as $file) {
       $contents = file_get_contents($file);
+
       // @codeCoverageIgnoreStart
       if ($contents === FALSE) {
         continue;
       }
+
       // @codeCoverageIgnoreEnd
       $relative = 'tests/behat/features/' . basename($file);
+
       foreach (extract_tags($contents) as $tag) {
         $message = validate_tag($tag, $registry);
+
         if ($message !== NULL) {
           $errors[$relative . '|' . $tag] = sprintf('  %s - Tag %s' . PHP_EOL, $relative, $message);
         }
@@ -2262,12 +2315,15 @@ function camel_to_snake(string $string, string $separator = '_'): string {
   $string = preg_replace_callback('/([^0-9])(\d+)/', static fn(array $matches): string => $matches[1] . $separator . $matches[2], $string);
 
   $replacements = [];
+
   foreach (mb_str_split((string) $string) as $key => $char) {
     $lower_case_char = mb_strtolower($char);
+
     if ($lower_case_char !== $char && $key !== 0) {
       $replacements[$char] = $separator . $char;
     }
   }
+
   $string = str_replace(array_keys($replacements), array_values($replacements), $string);
 
   $string = trim($string, $separator);

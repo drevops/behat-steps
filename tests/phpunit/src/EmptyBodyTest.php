@@ -16,29 +16,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class EmptyBodyTest extends UnitTestCase {
 
   /**
-   * Paths the coding standard checks, relative to the repository root.
-   */
-  protected const PATHS = [
-    'docs.php',
-    'scripts',
-    'src',
-    'tests/behat/bootstrap',
-    'tests/behat/fixtures_drupal/d11/web/modules/custom',
-    'tests/behat/fixtures_drupal/d12/web/modules/custom',
-    'tests/phpunit/src',
-  ];
-
-  /**
-   * Files kept in step with an upstream copy, so never reformatted.
-   */
-  protected const EXCLUDED = ['tests/behat/bootstrap/BehatCliContext.php'];
-
-  /**
-   * Extensions of the files holding PHP.
-   */
-  protected const EXTENSIONS = ['engine', 'inc', 'install', 'module', 'php', 'profile', 'theme'];
-
-  /**
    * Tests that a file writes every empty body as '{}'.
    *
    * @param string $file
@@ -52,7 +29,7 @@ class EmptyBodyTest extends UnitTestCase {
   }
 
   public static function dataProviderEmptyBodiesAreBracePairs(): array {
-    return static::discoverFiles();
+    return static::discoverCodingStandardFiles();
   }
 
   /**
@@ -145,43 +122,6 @@ class EmptyBodyTest extends UnitTestCase {
    */
   protected static function isPadded(array $tokens, int $index): bool {
     return ($tokens[$index + 1] ?? NULL)?->is(T_WHITESPACE) === TRUE && ($tokens[$index + 2] ?? NULL)?->id === ord('}');
-  }
-
-  /**
-   * Return every file the coding standard checks, keyed by relative path.
-   *
-   * @return array<string, array{string}>
-   *   Paths relative to the repository root, as data provider rows.
-   */
-  protected static function discoverFiles(): array {
-    $root = dirname(__DIR__, 3);
-    $files = [];
-
-    foreach (static::PATHS as $path) {
-      if (is_file($root . '/' . $path)) {
-        $files[$path] = [$path];
-
-        continue;
-      }
-
-      $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root . '/' . $path, \FilesystemIterator::SKIP_DOTS));
-
-      foreach ($iterator as $file) {
-        if (!$file instanceof \SplFileInfo || !in_array($file->getExtension(), static::EXTENSIONS, TRUE)) {
-          continue;
-        }
-
-        $relative = str_replace(DIRECTORY_SEPARATOR, '/', substr($file->getPathname(), strlen($root) + 1));
-
-        if (!in_array($relative, static::EXCLUDED, TRUE)) {
-          $files[$relative] = [$relative];
-        }
-      }
-    }
-
-    ksort($files);
-
-    return $files;
   }
 
 }

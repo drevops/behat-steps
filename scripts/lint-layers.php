@@ -53,6 +53,7 @@ if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'lint-layers.php') {
   $options = getopt('', ['path::']);
   lint_layers($options);
 }
+
 // @codeCoverageIgnoreEnd
 
 /**

@@ -85,6 +85,7 @@ trait KeyboardTrait {
     if ($chars === FALSE) {
       throw new \RuntimeException('Unable to split provided string into characters.');
     }
+
     // @codeCoverageIgnoreEnd
     foreach ($chars as $char) {
       $this->keyboardPressKeyOnElementSingle($char, $selector);
@@ -211,6 +212,7 @@ JS;
       if (!$element) {
         throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
       }
+
       // @codeCoverageIgnoreEnd
       $keyboard->keyboardTriggerKey($element->getXpath(), $char);
     }

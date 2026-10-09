@@ -209,6 +209,7 @@ trait ModalTrait {
     foreach ($this->modalGetSelectors() as $selector) {
       foreach ($page->findAll('css', $selector) as $candidate) {
         $first_match ??= $candidate;
+
         if ($candidate->isVisible()) {
           return $candidate;
         }
@@ -336,6 +337,7 @@ trait ModalTrait {
   protected function modalFindElementIn(NodeElement $parent, array $selectors): ?NodeElement {
     foreach ($selectors as $selector) {
       $element = $parent->find('css', $selector);
+
       if ($element !== NULL) {
         return $element;
       }

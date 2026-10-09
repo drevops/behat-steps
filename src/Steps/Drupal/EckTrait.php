@@ -179,6 +179,7 @@ trait EckTrait {
     $this->backendFor(ContentCapabilityInterface::class)->createEntity($stub);
 
     $saved = $stub->getSavedEntity();
+
     if ($saved instanceof EntityInterface) {
       $this->entityLifecycleRegister($saved);
     }

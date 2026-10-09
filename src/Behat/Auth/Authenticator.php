@@ -88,6 +88,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     $page->fillField($this->getDrupalText('password_field'), $pass);
 
     $login_element = $this->getLoginElement($page);
+
     if (!$login_element instanceof NodeElement) {
       throw new ElementNotFoundException($session->getDriver(), 'submit button', 'css', 'login form');
     }
@@ -163,6 +164,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     }
 
     $page = $session->getPage();
+
     if ($page === NULL) {
       return FALSE;
     }
@@ -180,6 +182,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     // The current page can predate the login, so the check repeats on the page
     // the login URL leads to.
     $session->visit($this->locatePath($this->getDrupalText('login_url')));
+
     if ($this->hasLoggedInSelector()) {
       return TRUE;
     }
@@ -197,6 +200,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     // (Critical CSS or a late JS render) can add either late, so the check
     // polls until one appears.
     $session->visit($this->locatePath('/'));
+
     if ($this->waitUntil($this->getLoginSignalWait(), fn(): bool => $this->hasLoggedInSelector() || $this->getLogoutElement() instanceof NodeElement)) {
       return TRUE;
     }
@@ -213,6 +217,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
    */
   public function fastLogout(): void {
     $session = $this->getSession();
+
     if ($session->isStarted()) {
       $session->reset();
       // Resetting clears request headers, including basic auth, so requests

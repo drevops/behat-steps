@@ -280,6 +280,7 @@ trait ElementTrait {
     if ($pos1 === FALSE) {
       throw new ExpectationException(sprintf('The text "%s" was not found.', $text1), $this->getSession()->getDriver());
     }
+
     if ($pos2 === FALSE) {
       throw new ExpectationException(sprintf('The text "%s" was not found.', $text2), $this->getSession()->getDriver());
     }
@@ -472,6 +473,7 @@ trait ElementTrait {
   #[Then('the element :selector should be centered in the viewport')]
   public function elementAssertElementCenteredInViewport(string $selector): void {
     $result = $this->elementExecuteJs($selector, 'var rect = {{ELEMENT}}.getBoundingClientRect(); var elementCenter = rect.top + rect.height / 2; var viewportThird = window.innerHeight / 3; return (elementCenter >= viewportThird && elementCenter <= viewportThird * 2);');
+
     if (!$result) {
       throw new ExpectationException(sprintf('The element "%s" is not centered in the viewport.', $selector), $this->getSession()->getDriver());
     }
@@ -828,6 +830,7 @@ trait ElementTrait {
     if ($position === FALSE) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'element', 'css', $selector);
     }
+
     // @codeCoverageIgnoreEnd
     return $position;
   }
@@ -861,6 +864,7 @@ trait ElementTrait {
 
     $attribute_found = FALSE;
     $attribute_value_found = FALSE;
+
     foreach ($elements as $element) {
       $attribute_value = (string) $element->getAttribute($attribute);
 
@@ -1407,6 +1411,7 @@ JS;
     if (!str_contains($script, '{{ELEMENT}}')) {
       throw new \RuntimeException('The script must contain the {{ELEMENT}} token to reference the element.');
     }
+
     // @codeCoverageIgnoreEnd
     $selector_js = json_encode($selector, JSON_UNESCAPED_SLASHES);
 

@@ -39,6 +39,7 @@ if (!file_exists($coverage_file)) {
 }
 
 $xml = simplexml_load_file($coverage_file);
+
 if ($xml === FALSE) {
   echo sprintf('Error: Failed to parse coverage file: %s' . PHP_EOL, $coverage_file);
   exit(1);
@@ -62,6 +63,7 @@ foreach ($classes as $class) {
   echo sprintf('Line rate: %s (%s%%)' . PHP_EOL . PHP_EOL, $line_rate, $percentage);
 
   $uncovered = [];
+
   if (property_exists($class->lines, 'line') && $class->lines->line !== NULL) {
     foreach ($class->lines->line as $line) {
       if ((string) $line['hits'] === '0') {
@@ -71,6 +73,7 @@ foreach ($classes as $class) {
   }
 
   echo 'Uncovered lines:' . PHP_EOL;
+
   if (!empty($uncovered)) {
     echo implode(', ', $uncovered) . PHP_EOL;
   }

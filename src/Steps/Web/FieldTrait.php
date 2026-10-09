@@ -230,6 +230,7 @@ JS;
     if (is_array($option_value) || is_bool($option_value)) {
       throw new \RuntimeException(sprintf('Unexpected option value type for "%s" in select "%s".', $option, $selector));
     }
+
     // @codeCoverageIgnoreEnd
     $this->fieldUnselectValue($this->fieldGetSelect($selector), (string) $option_value);
   }
@@ -340,6 +341,7 @@ JS;
   #[When('I fill in the datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetime(string $label, string $date, string $time): void {
     $this->fieldFillDatetimeInput($label, 'value', 'date', $date);
+
     if ($time !== '') {
       $this->fieldFillDatetimeInput($label, 'value', 'time', $time);
     }
@@ -382,6 +384,7 @@ JS;
   #[When('I fill in the start datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetimeStart(string $label, string $date, string $time): void {
     $this->fieldFillDatetimeInput($label, 'value', 'date', $date);
+
     if ($time !== '') {
       $this->fieldFillDatetimeInput($label, 'value', 'time', $time);
     }
@@ -400,6 +403,7 @@ JS;
   #[When('I fill in the end datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetimeEnd(string $label, string $date, string $time): void {
     $this->fieldFillDatetimeInput($label, 'end_value', 'date', $date);
+
     if ($time !== '') {
       $this->fieldFillDatetimeInput($label, 'end_value', 'time', $time);
     }
@@ -685,6 +689,7 @@ JS;
 
     if ($wrapper === NULL) {
       $first_input = $page->findField($field);
+
       if ($first_input !== NULL) {
         $wrapper = $first_input->find('xpath', 'ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]');
         $wrapper ??= $first_input->find('xpath', 'ancestor::*[contains(@class, "field-multiple-table") or (@data-drupal-selector and starts-with(@data-drupal-selector, "edit-"))][1]');
@@ -699,6 +704,7 @@ JS;
     // [1][value]; entity reference widgets use [0][target_id].
     $existing_inputs = $wrapper->findAll('xpath', './/input[contains(@name, "[value]") or contains(@name, "[target_id]")]');
     $existing_count = count($existing_inputs);
+
     if ($existing_count === 0) {
       $existing_inputs = $wrapper->findAll('xpath', './/input[@type="text"]');
       $existing_count = count($existing_inputs);
@@ -711,22 +717,28 @@ JS;
 
     for ($i = 0; $i < $clicks_needed; $i++) {
       $add_more = NULL;
+
       foreach ($this->fieldGetAddMoreButtonSelectors() as $css_selector) {
         $add_more = $wrapper->find('css', $css_selector);
+
         if ($add_more !== NULL) {
           break;
         }
       }
+
       $add_more ??= $wrapper->find('xpath', './/input[@type="submit" and (contains(@name, "_add_more") or contains(@value, "Add another"))] | .//button[contains(@name, "_add_more") or contains(normalize-space(.), "Add another")]');
+
       if ($add_more === NULL) {
         throw new ElementNotFoundException($this->getSession()->getDriver(), '"Add another item" button', 'css', implode(', ', $this->fieldGetAddMoreButtonSelectors()));
       }
+
       $add_more->press();
       $this->getSession()->wait(5000, '(typeof jQuery === "undefined") || (0 === jQuery.active && 0 === jQuery(\':animated\').length)');
     }
 
     // Re-collect input rows now that any new rows have been added.
     $inputs = $wrapper->findAll('xpath', './/input[contains(@name, "[value]") or contains(@name, "[target_id]")]');
+
     if (count($inputs) === 0) {
       $inputs = $wrapper->findAll('xpath', './/input[@type="text"]');
     }
@@ -735,6 +747,7 @@ JS;
       if (!isset($inputs[$index])) {
         throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('input row of the multi-value field "%s"', $field), 'index', (string) $index);
       }
+
       $inputs[$index]->setValue($value);
     }
   }
@@ -763,6 +776,7 @@ JS;
     $driver = $this->getSession()->getDriver();
 
     $element_id = $element->getAttribute('id');
+
     if ($element_id === NULL || $element_id === '') {
       throw new \RuntimeException('WYSIWYG field must have an ID attribute.');
     }
@@ -773,6 +787,7 @@ JS;
     $parent_element = $element->getParent();
 
     $is_ckeditor_4 = !empty($driver->find($parent_element->getXpath() . "/div[contains(@class,'cke')]"));
+
     if ($is_ckeditor_4) {
       $script = <<<JS
         CKEDITOR.instances[{$element_id_js}].setData({$value_js});
@@ -792,6 +807,7 @@ JS;
         })();
 JS;
     }
+
     $this->getSession()->executeScript($script);
   }
 
@@ -817,6 +833,7 @@ JS;
     if (!is_array($current_values)) {
       $current_values = $current_values ? [$current_values] : [];
     }
+
     // @codeCoverageIgnoreEnd
     $select_field->setValue(array_values(array_filter(array_diff($current_values, [$value]), is_string(...))));
   }
@@ -990,6 +1007,7 @@ JS;
 
     $field_id = $field_element->getAttribute('id');
     $label = NULL;
+
     if ($field_id !== NULL && $field_id !== '') {
       $label = $page->find('xpath', sprintf('//label[@for=%s]', $this->fieldXpathLiteral($field_id)));
     }
@@ -1063,9 +1081,11 @@ JS;
     if (!str_contains($value, "'")) {
       return "'" . $value . "'";
     }
+
     if (!str_contains($value, '"')) {
       return '"' . $value . '"';
     }
+
     $parts = explode("'", $value);
     return "concat('" . implode("', \"'\", '", $parts) . "')";
   }

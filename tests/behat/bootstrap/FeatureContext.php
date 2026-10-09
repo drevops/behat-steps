@@ -10,10 +10,7 @@
 
 declare(strict_types=1);
 
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use Behat\Hook\BeforeScenario;
 use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Tag;
 
 /**
  * Defines application features from the specific context.
@@ -21,11 +18,6 @@ use DrevOps\BehatSteps\Behat\Tag;
 class FeatureContext extends DrupalContext {
 
   use FeatureContextTrait;
-
-  /**
-   * The tag that shortens the BigPipe wait timeout.
-   */
-  protected const string TEST_BIGPIPE_TIMEOUT_TAG = 'test-bigpipe-timeout';
 
   /**
    * Override dateGetNow() method to return a preset value for testing.
@@ -63,18 +55,6 @@ class FeatureContext extends DrupalContext {
    */
   public function accessibilityGetReportDir(): string {
     return dirname((string) $this->getMinkParameter('files_path'), 3) . '/.logs/test_results/accessibility';
-  }
-
-  /**
-   * Shorten the BigPipe wait timeout for the timeout coverage scenario.
-   *
-   * Scenarios tagged '@test-bigpipe-timeout' use a short timeout so they can
-   * exercise the wait timing out quickly; every other scenario keeps the trait's
-   * default.
-   */
-  #[BeforeScenario]
-  public function bigPipeSetWaitTimeout(BeforeScenarioScope $scope): void {
-    $this->bigPipeWaitTimeout = Tag::has($scope, self::TEST_BIGPIPE_TIMEOUT_TAG) ? 2000 : NULL;
   }
 
 }

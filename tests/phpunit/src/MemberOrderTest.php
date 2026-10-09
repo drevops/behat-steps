@@ -129,16 +129,19 @@ class MemberOrderTest extends UnitTestCase {
     }
 
     $constants = $reflection->getReflectionConstants();
+
     foreach ($constants as $constant) {
       $members[] = static::locate($lines, static::buildConstantDeclarationPattern($constant->getName()), $constant->getName(), static::GROUP_CONSTANT);
     }
 
     $properties = $reflection->getProperties();
+
     foreach ($properties as $property) {
       $members[] = static::locate($lines, '/^\s*(public|protected|private)\s+(static\s+)?[^(){}]*\$' . preg_quote($property->getName(), '/') . '\s*(=|;)/', '$' . $property->getName(), static::GROUP_PROPERTY);
     }
 
     $methods = $reflection->getMethods();
+
     foreach ($methods as $method) {
       if (realpath((string) $method->getFileName()) !== $file) {
         continue;

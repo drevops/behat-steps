@@ -212,9 +212,11 @@ EOL;
     $content = strtr((string) $content, ["'''" => '"""']);
 
     $content_lines = explode("\n", $content);
+
     foreach ($content_lines as $key => $content_line) {
       $content_lines[$key] = str_repeat(' ', 4) . trim($content_line);
     }
+
     $content = implode("\n", $content_lines);
 
     $tokens = [
@@ -432,9 +434,11 @@ EOL;
     $has_valid_exception = str_contains((string) $output, ' (Behat\\Mink\\Exception\\ExpectationException)')
       || str_contains((string) $output, ' (Behat\\Mink\\Exception\\ElementNotFoundException)')
       || str_contains((string) $output, ' (DrevOps\\BehatSteps\\Exception\\AssertionException)');
+
     if (!$has_valid_exception) {
       throw new \RuntimeException('The output does not contain an assertion exception string as expected.');
     }
+
     if (str_contains((string) $output, ' (RuntimeException)')) {
       throw new \RuntimeException('The output contains "(RuntimeException)" string but it should not.');
     }
@@ -443,10 +447,12 @@ EOL;
   #[Then('it should fail with an exception:')]
   public function behatCliAssertFailWithException(PyStringNode $expected_message): void {
     $this->itShouldPassOrFailWith('fail', $expected_message);
+
     // A non-assertion failure is a \RuntimeException.
     if (!str_contains($this->getOutput(), ' (RuntimeException)')) {
       throw new \RuntimeException('The output does not contain an "(RuntimeException)" string as expected.');
     }
+
     if (str_contains($this->getOutput(), ' (Exception)')) {
       throw new \RuntimeException('The output contains "(Exception)" string but it should not.');
     }
@@ -455,6 +461,7 @@ EOL;
   #[Then('it should fail with a :exception exception:')]
   public function behatCliAssertFailWithCustomException(string $exception, PyStringNode $expected_message): void {
     $this->itShouldPassOrFailWith('fail', $expected_message);
+
     if (!str_contains($this->getOutput(), ' (' . $exception . ')')) {
       throw new \RuntimeException(sprintf('The output does not contain an "(%s)" string as expected.', $exception));
     }
@@ -518,9 +525,11 @@ EOL;
   protected function behatCliCopyFixtures() {
     $fixture_path = 'tests/behat/fixtures';
     $fixture_path_abs = static::behatCliGetRootPath() . '/' . $fixture_path;
+
     if (is_dir($fixture_path_abs)) {
       $dst = $this->workingDir . '/' . $fixture_path;
       mkdir($dst, 0777, TRUE);
+
       foreach (glob($fixture_path_abs . '/*') as $file) {
         // Subdirectories are skipped for speed.
         if (is_file($file)) {

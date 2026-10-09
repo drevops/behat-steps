@@ -197,9 +197,11 @@ trait WebformTrait {
 
     $storage = \Drupal::entityTypeManager()->getStorage('webform');
     $attempts = 0;
+
     do {
       $candidate = $machine_name . '_' . random_int(1000, 9999);
       $attempts++;
+
       if ($attempts > 50) {
         throw new \RuntimeException(sprintf('Unable to generate a unique webform machine name for "%s" after 50 attempts.', $title));
       }

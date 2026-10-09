@@ -44,26 +44,22 @@ trait FeatureContextTrait {
   protected const string TEST_ERRORCLEANUP_TAG = 'test-errorcleanup';
 
   /**
+   * The tag that shortens the BigPipe wait timeout.
+   */
+  protected const string TEST_BIGPIPE_TIMEOUT_TAG = 'test-bigpipe-timeout';
+
+  /**
    * Whether to use center scroll alignment for testing.
    */
   protected bool $testElementScrollCenter = TRUE;
 
   /**
-   * Stop Mink sessions before scenarios that will spawn sub-processes.
-   *
-   * Mink keeps the Selenium2/Chrome connection open after a @javascript
-   * scenario in the parent process, so a child process hangs while it opens
-   * its own.
-   *
-   * @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession()
+   * Apply the harness tags of the scenario.
    */
   #[BeforeScenario]
   public function testBeforeScenario(BeforeScenarioScope $scope): void {
-    if (Tag::values($scope, self::TEST_TRAIT_TAG) === []) {
-      return;
-    }
-
-    $this->getMink()->stopSessions();
+    $this->testStopSessions($scope);
+    $this->testShortenBigPipeWait($scope);
   }
 
   /**
@@ -76,6 +72,7 @@ trait FeatureContextTrait {
     }
 
     $database = Database::getConnection();
+
     if ($database->schema()->tableExists('watchdog')) {
       $database->truncate('watchdog')->execute();
     }
@@ -164,6 +161,7 @@ trait FeatureContextTrait {
     $current = $this->responsiveGetCurrentDimensions();
     $expected = $this->stringParseInteger($width, 'width', 1);
     $tolerance = 20;
+
     if (abs($current['width'] - $expected) > $tolerance) {
       throw new \RuntimeException(sprintf('Expected viewport width within %dpx of %d, but got %d.', $tolerance, $expected, $current['width']));
     }
@@ -212,8 +210,10 @@ trait FeatureContextTrait {
     $cookie_list = [];
 
     $driver = $this->getSession()->getDriver();
+
     if ($driver instanceof Selenium2Driver) {
       $cookies = $driver->getWebDriverSession()->getAllCookies();
+
       foreach ($cookies as $cookie) {
         $cookie_list[$cookie['name']] = $cookie['value'];
       }
@@ -240,6 +240,7 @@ trait FeatureContextTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $database = Database::getConnection();
+
     if ($database->schema()->tableExists('watchdog')) {
       $database->truncate('watchdog')->execute();
     }
@@ -307,6 +308,7 @@ trait FeatureContextTrait {
 
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
+
     if ($module_handler->moduleExists($name)) {
       return;
     }
@@ -335,6 +337,7 @@ trait FeatureContextTrait {
 
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
+
     if (!$module_handler->moduleExists($name)) {
       throw new \RuntimeException(sprintf('Module "%s" does not exist.', $name));
     }
@@ -472,6 +475,7 @@ trait FeatureContextTrait {
 
     $file_name = basename($file_name);
     $files = $this->fileLoadMultiple(['filename' => $file_name]);
+
     if (empty($files)) {
       throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
     }
@@ -490,6 +494,7 @@ trait FeatureContextTrait {
   public function testAssertFileObjectNotExists(string $file_name): void {
     $file_name = basename($file_name);
     $files = $this->fileLoadMultiple(['filename' => $file_name]);
+
     if ($files) {
       throw new \Exception(sprintf('"%s" file does exist in DB, but it should not', $file_name));
     }
@@ -517,6 +522,7 @@ trait FeatureContextTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $formatter = \Drupal::config('mailsystem.settings')->get('defaults.formatter');
+
     if ($formatter !== $expected) {
       throw new \Exception(sprintf('Expected mailsystem formatter to be "%s", but got "%s".', $expected, $formatter));
     }
@@ -550,9 +556,42 @@ trait FeatureContextTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $queue_instance = \Drupal::service('queue')->get($queue);
+
     for ($i = 0; $i < $count; $i++) {
       $queue_instance->createItem(['data' => 'test_item_' . $i]);
     }
+  }
+
+  /**
+   * Stop Mink sessions before a scenario that spawns a nested Behat run.
+   *
+   * Mink keeps the Selenium2/Chrome connection open after a @javascript
+   * scenario in the parent process, so a child process hangs while it opens
+   * its own.
+   *
+   * @see \Behat\MinkExtension\Listener\SessionsListener::prepareDefaultMinkSession()
+   */
+  protected function testStopSessions(BeforeScenarioScope $scope): void {
+    if (Tag::values($scope, self::TEST_TRAIT_TAG) === []) {
+      return;
+    }
+
+    $this->getMink()->stopSessions();
+  }
+
+  /**
+   * Shorten the BigPipe wait timeout for the timeout coverage scenario.
+   *
+   * Scenarios tagged '@test-bigpipe-timeout' use a short timeout so they can
+   * exercise the wait timing out quickly; every other scenario keeps the
+   * trait's default.
+   */
+  protected function testShortenBigPipeWait(BeforeScenarioScope $scope): void {
+    if (!Tag::has($scope, self::TEST_BIGPIPE_TIMEOUT_TAG)) {
+      return;
+    }
+
+    $this->bigPipeWaitTimeout = 2000;
   }
 
 }

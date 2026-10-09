@@ -34,6 +34,29 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   protected const COMPOSED_TRAIT_ROOTS = ['Helper', 'Steps'];
 
   /**
+   * Paths the coding standard checks, relative to the repository root.
+   */
+  protected const CODING_STANDARD_PATHS = [
+    'docs.php',
+    'scripts',
+    'src',
+    'tests/behat/bootstrap',
+    'tests/behat/fixtures_drupal/d11/web/modules/custom',
+    'tests/behat/fixtures_drupal/d12/web/modules/custom',
+    'tests/phpunit/src',
+  ];
+
+  /**
+   * Files kept in step with an upstream copy, so never reformatted.
+   */
+  protected const CODING_STANDARD_EXCLUDED = ['tests/behat/bootstrap/BehatCliContext.php'];
+
+  /**
+   * Extensions of the files holding PHP.
+   */
+  protected const PHP_EXTENSIONS = ['engine', 'inc', 'install', 'module', 'php', 'profile', 'theme'];
+
+  /**
    * Indicates whether a path under `src/` holds a trait a context composes.
    *
    * The library names these traits itself and flattens them into a consuming
@@ -67,6 +90,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
 
     $traits = [];
+
     foreach ($files as $file) {
       if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
         continue;
@@ -104,6 +128,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
 
     $types = [];
+
     foreach ($files as $file) {
       if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
         continue;
@@ -161,6 +186,43 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     ksort($classes);
 
     return $classes;
+  }
+
+  /**
+   * Return every file the coding standard checks, keyed by relative path.
+   *
+   * @return array<string, array{string}>
+   *   Paths relative to the repository root, as data provider rows.
+   */
+  protected static function discoverCodingStandardFiles(): array {
+    $root = dirname(__DIR__, 3);
+    $files = [];
+
+    foreach (static::CODING_STANDARD_PATHS as $path) {
+      if (is_file($root . '/' . $path)) {
+        $files[$path] = [$path];
+
+        continue;
+      }
+
+      $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root . '/' . $path, \FilesystemIterator::SKIP_DOTS));
+
+      foreach ($iterator as $file) {
+        if (!$file instanceof \SplFileInfo || !in_array($file->getExtension(), static::PHP_EXTENSIONS, TRUE)) {
+          continue;
+        }
+
+        $relative = str_replace(DIRECTORY_SEPARATOR, '/', substr($file->getPathname(), strlen($root) + 1));
+
+        if (!in_array($relative, static::CODING_STANDARD_EXCLUDED, TRUE)) {
+          $files[$relative] = [$relative];
+        }
+      }
+    }
+
+    ksort($files);
+
+    return $files;
   }
 
   /**

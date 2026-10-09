@@ -203,6 +203,7 @@ trait SearchApiTrait {
     if (empty($indexes)) {
       throw new \RuntimeException('No active search indexes found.');
     }
+
     // @codeCoverageIgnoreEnd
     foreach ($indexes as $index) {
       $index->indexItems($count);

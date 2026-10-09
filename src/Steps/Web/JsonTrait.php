@@ -260,6 +260,7 @@ trait JsonTrait {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     $result = @preg_match($pattern, (string) $actual);
+
     if ($result === FALSE) {
       throw new \RuntimeException(sprintf('The regular expression "%s" is invalid.', $pattern));
     }
@@ -281,6 +282,7 @@ trait JsonTrait {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
     $result = @preg_match($pattern, (string) $actual);
+
     if ($result === FALSE) {
       throw new \RuntimeException(sprintf('The regular expression "%s" is invalid.', $pattern));
     }
@@ -589,6 +591,7 @@ trait JsonTrait {
     $data = $this->jsonDecodeLoose($this->jsonGetContent());
 
     $schema = json_decode($schema_json);
+
     if (json_last_error() !== JSON_ERROR_NONE) {
       throw new \RuntimeException(sprintf('The provided JSON schema is not valid JSON: %s.', json_last_error_msg()));
     }
@@ -598,6 +601,7 @@ trait JsonTrait {
 
     if (!$validator->isValid()) {
       $messages = [];
+
       foreach ($validator->getErrors() as $error) {
         $messages[] = sprintf('[%s] %s', $error['property'], $error['message']);
       }
