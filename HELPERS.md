@@ -39,7 +39,7 @@
 | Class | Helpers | Description |
 | --- | --- | --- |
 | [Drupal\BigPipeTrait](#drupalbigpipetrait) | 2 | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
-| [Drupal\BlockTrait](#drupalblocktrait) | 5 | Manage Drupal blocks. |
+| [Drupal\BlockTrait](#drupalblocktrait) | 6 | Manage Drupal blocks. |
 | [Drupal\CacheTrait](#drupalcachetrait) | 2 | Invalidate Drupal caches and run cron from within a scenario. |
 | [Drupal\ConfigTrait](#drupalconfigtrait) | 3 | Assert and set stored Drupal configuration values with automatic revert. |
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | 4 | Manage Drupal content blocks. |
@@ -61,7 +61,7 @@
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | 2 | Configure Drupal Testmode module for controlled testing scenarios. |
 | [Drupal\UserTrait](#drupalusertrait) | 12 | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
-| [Drupal\WebformTrait](#drupalwebformtrait) | 3 | Manage Drupal webforms. |
+| [Drupal\WebformTrait](#drupalwebformtrait) | 4 | Manage Drupal webforms. |
 | [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 8 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
@@ -1836,6 +1836,15 @@ Set a visibility condition on a block and save it
 
 </details>
 
+<details>
+  <summary><code>public function blockUnsetVisibilityCondition(Block $block, string $condition): void</code></summary>
+
+<br/>
+Remove a visibility condition from a block and save it
+<br/><br/>
+
+</details>
+
 ## Drupal\CacheTrait
 
 [Source](src/Steps/Drupal/CacheTrait.php), [Steps](STEPS.md#drupalcachetrait)
@@ -2584,7 +2593,7 @@ Index items on every active search index
   <summary><code>public function searchApiIndexNode(NodeInterface $node): void</code></summary>
 
 <br/>
-Track a node in the search indexes, then index 1 item on each
+Track a node in the search indexes, then index it on each
 <br/><br/>
 
 </details>
@@ -2855,6 +2864,15 @@ Clear the errors logged since the scenario started, and return them
 
 <br/>
 Create a webform as a copy of a template
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function webformFindTemplateByTitle(string $title): ?WebformInterface</code></summary>
+
+<br/>
+Find the newest webform template whose title contains the given string
 <br/><br/>
 
 </details>
