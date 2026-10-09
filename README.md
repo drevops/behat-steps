@@ -47,7 +47,7 @@ We actively maintain this package and welcome [contributions](CONTRIBUTING.md) f
 
 | Version | Behat | Drupal | PHP | Support |
 | --- | --- | --- | --- | --- |
-| 4.x | 3.33+, 4 | 11, 12 | 8.3, 8.4, 8.5 | Active development |
+| 4.x | 3.33+, 4 | 11, 12 | 8.3, 8.4, 8.5 | The current major. Receives new features, bugfixes and security updates. |
 | 3.x | 3 | 10, 11 | 8.2, 8.3, 8.4, 8.5 | The current minor is LTS until 1 July 2027 and receives bugfixes and security updates only. |
 | 2.x | 3 | 9, 10 | 8.2+ | Unsupported |
 
@@ -143,8 +143,16 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 ## 📦 Installation
 
 ```bash
-composer require --dev drevops/behat-steps:^3
+composer require --dev drevops/behat-steps:^4
 ```
+
+With `minimum-stability: stable`, Composer's default, that installs Behat 3. Behat 4 needs `friends-of-behat/mink-extension` 3, which has only an alpha release so far, and Composer takes a stability flag such as `@alpha` only from your own `composer.json`. To install on Behat 4, ask for both:
+
+```bash
+composer require --dev drevops/behat-steps:^4 behat/behat:^4 friends-of-behat/mink-extension:^3.0@alpha
+```
+
+A project whose `minimum-stability` already admits alpha releases gets Behat 4 from the first command.
 
 ### Optional dependencies
 
@@ -280,7 +288,7 @@ That is the lifecycle this package is built for: start in the vocabulary for cov
 
 Steps that require a real browser (used by scenarios tagged `@javascript`) work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. Both are exercised by this library's own CI. Another browser driver needs [an adapter registered for it](MIGRATION.md#registering-an-adapter-for-another-browser-driver).
 
-To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension) (which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome. Its current release accepts Behat 3 and 4, though this library's own CI runs it on Behat 3 only.
+To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension) (which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both.
 
 ```php
 use Behat\Config\Extension;

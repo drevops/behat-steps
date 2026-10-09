@@ -28,7 +28,7 @@ A trait answers 3 questions before it acts, each with 1 mechanism, and they are 
 
 ## Installation & Requirements for consuming this library
 ```bash
-composer require --dev drevops/behat-steps:^3
+composer require --dev drevops/behat-steps:^4
 ```
 
 ## Development of this project
