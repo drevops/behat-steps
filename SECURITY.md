@@ -2,11 +2,12 @@
 
 ## Supported versions
 
-Security fixes are released for the `3.x` series only. Earlier series are available on the `1.x` and `2.x` branches but receive no security updates, so upgrade to `3.x` to stay supported. [MIGRATION.md](MIGRATION.md) documents the changes between `3.x` and `4.x`.
+Security fixes are released for the `4.x` series, and for the latest `3.x` minor until 1 July 2027. Earlier series are available on the `1.x` and `2.x` branches but receive no security updates. [MIGRATION.md](MIGRATION.md) documents the changes between `3.x` and `4.x`.
 
 | Version | Supported |
 | --- | --- |
-| 3.x | Yes |
+| 4.x | Yes |
+| 3.x | The latest minor, until 1 July 2027 |
 | 2.x | No |
 | 1.x | No |
 

@@ -47,7 +47,7 @@ We actively maintain this package and welcome [contributions](CONTRIBUTING.md) f
 
 | Version | Behat | Drupal | PHP | Support |
 | --- | --- | --- | --- | --- |
-| 4.x | 3.33+, 4 | 11, 12 | 8.3, 8.4, 8.5 | Active development |
+| 4.x | 3.33+, 4 | 11, 12 | 8.3, 8.4, 8.5 | The current major. Receives new features, bugfixes and security updates. |
 | 3.x | 3 | 10, 11 | 8.2, 8.3, 8.4, 8.5 | The current minor is LTS until 1 July 2027 and receives bugfixes and security updates only. |
 | 2.x | 3 | 9, 10 | 8.2+ | Unsupported |
 
@@ -143,8 +143,16 @@ See [MIGRATION.md](MIGRATION.md) for migration guides.
 ## 📦 Installation
 
 ```bash
-composer require --dev drevops/behat-steps:^3
+composer require --dev drevops/behat-steps:^4
 ```
+
+With `minimum-stability: stable`, Composer's default, that installs Behat 3. Behat 4 needs `friends-of-behat/mink-extension` 3, which has only an alpha release so far, and Composer takes a stability flag such as `@alpha` only from your own `composer.json`. To install on Behat 4, ask for both:
+
+```bash
+composer require --dev drevops/behat-steps:^4 behat/behat:^4 friends-of-behat/mink-extension:^3.0@alpha
+```
+
+A project whose `minimum-stability` already admits alpha releases gets Behat 4 from the first command.
 
 ### Optional dependencies
 
