@@ -3093,14 +3093,14 @@ EOD,
       ],
       'DirtyTrait' => [
         'name' => 'DirtyTrait',
-        'description_full' => 'Legacy `@accessibility-critical` form.',
+        'description_full' => 'Hyphenated `@accessibility-critical` form.',
         'methods' => [
           ['example' => '@module-help'],
         ],
       ],
       // No 'name' key - the array key is used as the label.
       'NoNameTrait' => [
-        'description_full' => 'Old `@watchdog-foo`.',
+        'description_full' => 'Hyphenated `@watchdog-foo`.',
       ],
       // No 'description_full' - only the example is scanned.
       'NoDescTrait' => [
