@@ -154,6 +154,8 @@ composer require --dev drevops/behat-steps:^4 behat/behat:^4 friends-of-behat/mi
 
 A project whose `minimum-stability` already admits alpha releases gets Behat 4 from the first command.
 
+This package replaces `drupal/drupal-extension` and `drupal/drupal-driver` and conflicts with both, so remove them from your project first. The [migration guide](MIGRATION.md#drupaldrupal-extension-and-drupaldrupal-driver-conflict-with-this-package) has the commands.
+
 ### Optional dependencies
 
 To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements (the hard requirements are Behat, Mink with its BrowserKit driver and extension, `drupal/core-utility` and a set of Symfony components). Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:

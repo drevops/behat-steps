@@ -682,6 +682,17 @@ composer require --dev lullabot/mink-selenium2-driver
 
 `dmore/behat-chrome-extension` is the alternative that drives headless Chrome with no Selenium server, from 1.5.0 on Behat 4; install 1 of the 2. `softcreatr/jsonpath` and `justinrainbow/json-schema` stay optional, as they were in 3.14.
 
+## `drupal/drupal-extension` and `drupal/drupal-driver` conflict with this package
+
+This package now replaces both. Its own Behat extension and step traits take over from `drupal/drupal-extension`, and its Drupal, Drush and Blackbox backends from `drupal/drupal-driver`. It conflicts with every version of both, so Composer won't install it beside either one. Remove the extension before updating this package:
+
+```bash
+composer remove --dev drupal/drupal-extension
+composer require --dev drevops/behat-steps:^4
+```
+
+`drupal/drupal-driver` usually arrives through the extension and leaves with it. If your own `composer.json` requires it, add it to the `composer remove` command. Any other package that requires either one blocks the update too, and Composer's error names it.
+
 ## Behat extensions registered in the Behat configuration
 
 3.14 asked a Drupal project to install `drupal/drupal-extension` for its Drupal traits. 4.0 doesn't use it, so remove it from your `composer.json`. Its Mink extension is replaced by Mink's own, and its Drupal extension by the one this package supplies:
