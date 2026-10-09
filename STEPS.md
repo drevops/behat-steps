@@ -2965,8 +2965,9 @@ Then the following Twitter Card tags should exist:
 >  - Interact with modal buttons.
 >  
 >  Supports multiple modal implementations (jQuery UI dialogs, Bootstrap
->  modals, native HTML dialog element, custom modals) via overridable
->  selector methods. All steps require a JavaScript-enabled browser driver.
+>  modals, native HTML dialog element, custom modals) through the
+>  `modal.selectors`, `modal.content_selectors` and `modal.close_selectors`
+>  options. All steps require a JavaScript-enabled browser driver.
 
 
 ### Options
@@ -4672,7 +4673,7 @@ Given the block "My block" has the following configuration:
   <summary><code>@Given the block :label does not exist</code></summary>
 
 <br/>
-Remove a block specified by label
+Remove every block in the default theme with the label
 <br/><br/>
 
 ```gherkin
@@ -6134,10 +6135,10 @@ Then the file "report.xlsx" should be attached to the email with a subject conta
 >  Create entities of a type that has no dedicated trait.
 >  - Create entities of any type from a table of field values.
 >  
->  Covers types such as `commerce_product`, `group` or `paragraph`, where a
->  dedicated trait would add vocabulary without adding behavior. Entities
->  created here are removed after the scenario along with every other entity
->  the scenario created.
+>  Covers types such as `commerce_product` or `group`, where a dedicated trait
+>  would add vocabulary without adding behavior. Entities created here are
+>  removed after the scenario along with every other entity the scenario
+>  created.
 >  <br/><br/>
 >  Skip cleanup for 1 type with tag:
 >  `@behat-steps-entity-cleanup-skip:commerce_product`.
@@ -7280,7 +7281,7 @@ Then the vocabulary "topics" with the name "Topics" should exist
   <summary><code>@Then the vocabulary :vocabulary should not exist</code></summary>
 
 <br/>
-Assert that a vocabulary with a specific name does not exist
+Assert that a vocabulary does not exist by machine name
 <br/><br/>
 
 ```gherkin
