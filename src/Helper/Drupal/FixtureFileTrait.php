@@ -11,8 +11,8 @@ use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
 /**
  * Resolves a fixture file path for a file or image field.
  *
- * A feature names a fixture by its basename, and the stored value has to be
- * a path the site can read.
+ * A feature names a fixture by its path relative to the fixtures directory,
+ * and the stored value has to be a path the site can read.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
  */

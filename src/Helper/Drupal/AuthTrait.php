@@ -57,7 +57,7 @@ trait AuthTrait {
    * The role cleanup runs even when removing the users throws, and that
    * failure is rethrown afterwards.
    *
-   * 'BEHAT_STEPS_DISABLE_CLEANUP' leaves the failing scenario's state intact,
+   * 'BEHAT_STEPS_DISABLE_CLEANUP' leaves each scenario's state intact,
    * session included, so the early-return guard skips the logout as well.
    * Later scenarios in the same run inherit that login.
    *
