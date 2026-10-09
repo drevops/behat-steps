@@ -17,7 +17,7 @@
 | [IframeTrait](#iframetrait) | 1 | Switch between iframes and the root document. |
 | [JavascriptTrait](#javascripttrait) | 2 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 7 | Assert JSON responses with path and schema checks. |
-| [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
+| [MappingTrait](#mappingtrait) | 3 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
 | [MetatagTrait](#metatagtrait) | 14 | Assert `<meta>` tags and head/SEO markup in page markup. |
 | [ModalTrait](#modaltrait) | 9 | Interact with and assert modals. |
@@ -919,6 +919,15 @@ Run a JSONPath expression against the decoded response
 [Source](src/Steps/Web/MappingTrait.php), [Steps](STEPS.md#mappingtrait)
 
 > Replace `{{ Key }}` tokens in step arguments and table cells.
+
+<details>
+  <summary><code>public function mappingGetGroups(): array</code></summary>
+
+<br/>
+Return the configured mapping groups
+<br/><br/>
+
+</details>
 
 <details>
   <summary><code>public function mappingGetValue(string $name): string</code></summary>

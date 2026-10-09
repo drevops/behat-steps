@@ -130,6 +130,16 @@ trait MappingTrait {
   }
 
   /**
+   * Return the configured mapping groups.
+   *
+   * @return array<array-key, mixed>
+   *   Each group's key to value map, keyed by group name.
+   */
+  public function mappingGetGroups(): array {
+    return $this->getOptionArray('mapping', 'groups');
+  }
+
+  /**
    * Flattens the configured groups into a single key to value map.
    *
    * Groups organize the configuration and take no part in the lookup, so a
@@ -142,7 +152,7 @@ trait MappingTrait {
    *   When the same key appears in more than 1 group.
    */
   protected function mappingGetFlattened(): array {
-    $groups = $this->getOptionArray('mapping', 'groups');
+    $groups = $this->mappingGetGroups();
     $flat = [];
     $origins = [];
 

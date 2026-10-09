@@ -142,7 +142,7 @@ A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and 
 
 A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`, `accessibilityGetBlankUrls()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityFormatUrl()` or `restResolveUrl()`.
 
-A trait reads each of its options inside a `<trait>Get...()` method and nowhere else, so a project can override any option a hook or a step acts on: `watchdogAfterStep()` asks `watchdogGetFailOnErrors()` rather than reading `watchdog.fail_on_errors` itself. The `enabled` option is the exception, because `skipTag()` reads it, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes. `OptionDeclarationsTest` fails an option read anywhere else.
+A trait reads each of its options inside a public `<trait>Get...()` method and nowhere else, so a project can override any option a hook or a step acts on: `watchdogAfterStep()` asks `watchdogGetFailOnErrors()` rather than reading `watchdog.fail_on_errors` itself, and `mappingGetFlattened()` builds on `mappingGetGroups()`. The `enabled` option is the exception, because `skipTag()` reads it, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes. `OptionDeclarationsTest` fails an option read anywhere else.
 
 ### Helpers carry a verb
 
