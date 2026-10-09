@@ -158,7 +158,7 @@ trait TaxonomyTrait {
   }
 
   /**
-   * Assert that a vocabulary with a specific name does not exist.
+   * Assert that a vocabulary does not exist by machine name.
    *
    * @code
    * Then the vocabulary "topics" should not exist

@@ -64,7 +64,7 @@ trait BlockTrait {
   }
 
   /**
-   * Remove a block specified by label.
+   * Remove every block in the default theme with the label.
    *
    * @param string $label
    *   The label of the block.

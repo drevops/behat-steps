@@ -54,8 +54,8 @@ final readonly class RolesAlias implements PostCreateAliasInterface {
 
     foreach ($roles as $role) {
       // EntityReferenceHandler expands 'roles' into records like
-      // ['target_id' => 'editor'], so the record is unwrapped back to the
-      // role name the caller supplied.
+      // ['target_id' => 'editor'], so the record is unwrapped to the machine
+      // name the handler resolved.
       if (is_array($role) && array_key_exists('target_id', $role)) {
         $role = $role['target_id'];
       }

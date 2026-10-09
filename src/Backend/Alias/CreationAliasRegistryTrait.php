@@ -73,7 +73,8 @@ trait CreationAliasRegistryTrait {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub used to create the entity.
    * @param object $entity
-   *   The entity that was just saved.
+   *   The entity that was just saved, or a placeholder object carrying only
+   *   its id when the entity was saved in another process.
    * @param string $entity_type
    *   The Drupal entity type id whose aliases should run.
    */

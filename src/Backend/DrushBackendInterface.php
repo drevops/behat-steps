@@ -17,8 +17,9 @@ use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 /**
  * Contract for the Drush-based backend.
  *
- * Interacts with the site by shelling out to Drush. Supports the subset of
- * operations that Drush services natively through its built-in commands.
+ * Interacts with the site by running Drush as a subprocess. Supports the
+ * subset of operations that Drush services natively through its built-in
+ * commands.
  */
 interface DrushBackendInterface extends
   BackendInterface,

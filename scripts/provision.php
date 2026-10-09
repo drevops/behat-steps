@@ -393,7 +393,8 @@ function provision_with_env(string $command, array $env): string {
 /**
  * Runs a command, streaming its output.
  *
- * Every external binary the script calls goes through here.
+ * Every external binary the script calls goes through here, except the
+ * checks in provision_confirm().
  *
  * @param string $command
  *   The command to run.

@@ -2410,7 +2410,7 @@ Find a menu by its label
   <summary><code>public function menuFindLinkByTitle(string $title, string $menu_name): ?MenuLinkContent</code></summary>
 
 <br/>
-Find a menu link by title and menu name
+Find a menu link by title and menu label
 <br/><br/>
 
 </details>

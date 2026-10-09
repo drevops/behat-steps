@@ -6,9 +6,6 @@ namespace DrevOps\BehatSteps\Helper\Web;
 
 /**
  * String shaping and step argument parsing shared across the step vocabulary.
- *
- * This is an internal trait and should not be used directly in step
- * definitions.
  */
 trait StringTrait {
 

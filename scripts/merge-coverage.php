@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Merge coverage files from subprocess Behat runs into the main coverage file.
+ * Merge coverage files from subprocess Behat runs with the main coverage file.
  *
  * Usage:
  * php merge-coverage.php [coverage_root_path].
@@ -10,8 +10,9 @@
  * Where coverage_root_path is the optional path to the coverage root directory.
  * Defaults to '/app/.logs/coverage'.
  *
- * The script also generates Cobertura and HTML reports from the merged
- * coverage data.
+ * The merged coverage is written to 'behat_cli/phpcov.php' under the
+ * coverage root, and the Cobertura and HTML reports generated from it go to
+ * 'behat_cli/' as well.
  */
 
 declare(strict_types=1);

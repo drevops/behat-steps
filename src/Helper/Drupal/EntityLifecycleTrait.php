@@ -280,8 +280,8 @@ trait EntityLifecycleTrait {
    * Registers an entity saved outside the create pipeline for cleanup.
    *
    * An entity saved through Drupal's API rather than the backend is added to
-   * the same reverse-order teardown. Only the type and id are kept, so
-   * cleanup reloads the entity and tolerates a row the scenario already
+   * the same reverse-order teardown. Only the type, bundle and id are kept,
+   * so cleanup reloads the entity and tolerates a row the scenario already
    * deleted.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity

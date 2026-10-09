@@ -23,7 +23,8 @@ use DrevOps\BehatSteps\Backend\Core\CoreInterface;
 /**
  * Contract for the full-featured Drupal backend.
  *
- * Bootstraps Drupal in-process and supports every capability.
+ * Bootstraps Drupal in-process. The contract covers every capability except
+ * 'DrushCapabilityInterface' and 'CreationAliasCapabilityInterface'.
  */
 interface DrupalBackendInterface extends
   BackendInterface,
