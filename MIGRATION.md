@@ -3044,7 +3044,7 @@ The scroll also targets the element's position in the document now. It used to r
 
 ## Steps and backends do what their text and contracts say
 
-6 steps and 3 capability methods did something other than what their step text or docblock said. Each one does what it says now. A scenario changes only where it leaned on the old behavior, and each part below says what to look for.
+6 steps and 3 capability methods did something other than what their step text or docblock said. Each one does what it says now. A scenario changes only where it leaned on the old behavior, and each part below says what to look for. Each heading gives the step's 4.x text; [Unified step text](#unified-step-text) and the 3 sections after it map the 3.14 wording.
 
 ### `the element :selector should be at the top of the viewport`
 
@@ -3078,21 +3078,21 @@ The step now removes the condition and leaves a block without it unchanged, thro
 
 The step tracked the node, then indexed whichever item came next in each index, which was the named node only when nothing else was waiting. It now indexes the named node's own items on every enabled index that includes the node, and leaves everything else queued. It fails with `\RuntimeException` when no enabled index includes the node (`No active search index includes the "..." content with the title "...".`), where it used to fail only when no index was enabled at all.
 
-A scenario that relied on the step to push some other queued item into the index runs `I run search indexing for :count item(s)` as well. `Drupal\SearchApiTrait::searchApiIndexNode()` changes the same way, and an index that fails to index the node now throws Search API's `SearchApiException` rather than logging it.
+A scenario that relied on the step to push some other queued item into the index runs `I run search indexing for :count item(s)` as well. A PHP call to `Drupal\SearchApiTrait::searchApiIndexContent()` changes the same way, and the new public helper `searchApiIndexNode()` indexes a node object it's given. An index that fails to index the node now throws Search API's `SearchApiException` rather than logging it.
 
 ### `the webform :title exists from the template :template`
 
-When several templates matched, the step cloned the one with the first machine name in string order. It now clones the newest, as every lookup for 1 entity does: the template the scenario created last, and otherwise the one with the last machine name in natural order. The new public helper `Drupal\WebformTrait::webformFindTemplateByTitle()` does the lookup. A scenario with 1 matching template sees no change.
+When several templates matched, the step cloned the first one sorted by title, then by machine name. It now clones the newest, as every lookup for 1 entity does: the template the scenario created last, and otherwise the one with the last machine name in natural order. The new public helper `Drupal\WebformTrait::webformFindTemplateByTitle()` does the lookup. A scenario with 1 matching template sees no change.
 
 ### Capability contracts
 
-3 capability methods promised more than a shipped backend delivered. Each contract now matches what every shipped backend does.
+3 capability methods that the Drupal Driver declared promised more than a shipped backend delivered. Each contract now matches what every shipped backend does.
 
 | Method | Before | After |
 | --- | --- | --- |
 | `CacheCapabilityInterface::cacheClear()` | Took a cache bin to clear, which no backend honored | Takes no argument and clears every cache |
-| `UserCapabilityInterface::addUserRole()` | A role label worked on the in-process backend only | The Drush backend resolves a label as well, through `drush role:list` |
-| `RoleCapabilityInterface::createRole()` | Promised permission labels, which `drush role:perm:add` rejects | Takes permission machine names. The in-process backend still converts a label |
+| `UserCapabilityInterface::userAddRole()`, now `addUserRole()` | A role label worked on the in-process backend only | The Drush backend resolves a label as well, through `drush role:list` |
+| `RoleCapabilityInterface::roleCreate()`, now `createRole()` | Promised permission labels, which `drush role:perm:add` rejects | Takes permission machine names. The in-process backend still converts a label |
 
 A call that passed a type to `cacheClear()` drops it:
 
@@ -3104,4 +3104,6 @@ $backend->cacheClear('all');
 $backend->cacheClear();
 ```
 
-A backend of your own that implements `cacheClear(?string $type = NULL)` keeps loading, because an extra optional parameter is compatible with the interface, so drop the parameter whenever it suits. A project that calls `createRole()` with permission labels on any backend but the in-process one passes the machine names instead.
+The same goes for `cacheClear('drush')`, which made the Drupal Driver's `DrushDriver` clear only Drush's own cache: it now rebuilds every cache, like any other call.
+
+A backend of your own that implements `cacheClear(?string $type = NULL)` keeps loading, because an extra optional parameter is compatible with the interface, so drop the parameter whenever it suits. A project that called `roleCreate()` with permission labels on any backend but the in-process one passes machine names to `createRole()` instead.
