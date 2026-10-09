@@ -358,7 +358,7 @@ class AuthenticatorTest extends UnitTestCase {
    * Simulates the Critical CSS / late JS race: the logged-in selector never
    * appears, and the login form is absent because the user is logged in. The
    * logout link appears only after several polls, so with login_wait > 0 the
-   * third-resort check keeps polling.
+   * last-resort check keeps polling.
    */
   public function testIsLoggedInPollsForLogoutLinkWhenLoginWaitSet(): void {
     $link = $this->createMock(NodeElement::class);

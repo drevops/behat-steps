@@ -3030,7 +3030,7 @@ EOD,
       // Valid: bare forms of otherwise-parametrized tags.
       'bare accessibility' => ['accessibility', NULL],
       'bare email' => ['email', NULL],
-      // Valid: standalone flag tags whose names contain hyphens.
+      // Valid: standalone flag tags, with or without a hyphen in the name.
       'flag disable form validation' => ['disable-form-validation', NULL],
       'flag js errors' => ['js-errors', NULL],
       'flag download' => ['download', NULL],
