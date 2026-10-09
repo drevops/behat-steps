@@ -14,10 +14,10 @@ use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
  *
  * - Create entities of any type from a table of field values.
  *
- * Covers types such as `commerce_product`, `group` or `paragraph`, where a
- * dedicated trait would add vocabulary without adding behavior. Entities
- * created here are removed after the scenario along with every other entity
- * the scenario created.
+ * Covers types such as `commerce_product` or `group`, where a dedicated trait
+ * would add vocabulary without adding behavior. Entities created here are
+ * removed after the scenario along with every other entity the scenario
+ * created.
  *
  * Skip cleanup for 1 type with tag:
  * `@behat-steps-entity-cleanup-skip:commerce_product`.

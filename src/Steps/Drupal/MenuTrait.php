@@ -246,14 +246,14 @@ trait MenuTrait {
   }
 
   /**
-   * Find a menu link by title and menu name.
+   * Find a menu link by title and menu label.
    *
    * When several links in the menu carry the title, the newest is returned.
    *
    * @param string $title
    *   The title of the menu link.
    * @param string $menu_name
-   *   The name of the menu.
+   *   The label of the menu.
    *
    * @return \Drupal\menu_link_content\Entity\MenuLinkContent|null
    *   The menu link or NULL if not found.
