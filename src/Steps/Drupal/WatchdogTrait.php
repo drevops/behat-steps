@@ -115,7 +115,7 @@ trait WatchdogTrait {
 
     $this->assertPrerequisites(__TRAIT__, $scope);
 
-    if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
+    if (!$this->watchdogGetFailOnErrors()) {
       $this->watchdogClearErrors();
 
       return;
@@ -142,7 +142,7 @@ trait WatchdogTrait {
       return;
     }
 
-    if (!$this->getOptionBool('watchdog', 'fail_on_errors')) {
+    if (!$this->watchdogGetFailOnErrors()) {
       $this->watchdogClearErrors();
 
       return;
@@ -226,6 +226,13 @@ trait WatchdogTrait {
     }
 
     return $errors;
+  }
+
+  /**
+   * Return TRUE if a scenario that logged an error should fail.
+   */
+  public function watchdogGetFailOnErrors(): bool {
+    return $this->getOptionBool('watchdog', 'fail_on_errors');
   }
 
   /**

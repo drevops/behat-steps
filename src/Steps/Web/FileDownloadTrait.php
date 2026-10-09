@@ -419,7 +419,7 @@ trait FileDownloadTrait {
    *   Array of downloaded file information.
    */
   public function fileDownloadProcess(string $url, array $options = []): array {
-    $browser = $this->httpDetachedClient($options + ['timeout' => $this->getOptionInt('file_download', 'timeout')]);
+    $browser = $this->httpDetachedClient($options + ['timeout' => $this->fileDownloadGetTimeout()]);
     $browser->setMaxRedirects(10);
 
     try {
@@ -525,6 +525,13 @@ trait FileDownloadTrait {
    */
   public function fileDownloadGetTempDir(): string {
     return $this->getOptionString('file_download', 'temp_dir');
+  }
+
+  /**
+   * Get the time, in seconds, a file download may wait for data.
+   */
+  public function fileDownloadGetTimeout(): int {
+    return $this->getOptionInt('file_download', 'timeout');
   }
 
   /**

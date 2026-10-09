@@ -13,9 +13,9 @@
 | [DropzoneTrait](#dropzonetrait) | 1 | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
 | [ElementTrait](#elementtrait) | 8 | Interact with HTML elements using CSS selectors and DOM attributes. |
 | [FieldTrait](#fieldtrait) | 13 | Manipulate form fields and verify widget functionality. |
-| [FileDownloadTrait](#filedownloadtrait) | 7 | Test file download functionality with content verification. |
+| [FileDownloadTrait](#filedownloadtrait) | 8 | Test file download functionality with content verification. |
 | [IframeTrait](#iframetrait) | 1 | Switch between iframes and the root document. |
-| [JavascriptTrait](#javascripttrait) | 1 | Automatically detect JavaScript errors during test execution. |
+| [JavascriptTrait](#javascripttrait) | 2 | Automatically detect JavaScript errors during test execution. |
 | [JsonTrait](#jsontrait) | 7 | Assert JSON responses with path and schema checks. |
 | [MappingTrait](#mappingtrait) | 2 | Replace `{{ Key }}` tokens in step arguments and table cells. |
 | [MessageTrait](#messagetrait) | 3 | Assert status, error, warning and success messages rendered on the page. |
@@ -60,7 +60,7 @@
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | 6 | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | 2 | Configure Drupal Testmode module for controlled testing scenarios. |
 | [Drupal\UserTrait](#drupalusertrait) | 12 | Manage Drupal users with role and permission assignments. |
-| [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 2 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+| [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 3 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 4 | Manage Drupal webforms. |
 | [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 8 | Creates Drupal entities and removes them when the scenario ends. |
@@ -771,6 +771,15 @@ Get temp download dir
 </details>
 
 <details>
+  <summary><code>public function fileDownloadGetTimeout(): int</code></summary>
+
+<br/>
+Get the time, in seconds, a file download may wait for data
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function fileDownloadLoad(string $url): void</code></summary>
 
 <br/>
@@ -823,6 +832,15 @@ Get the name of an iframe, assigning one when it has none
 
 <br/>
 Assert that no JavaScript errors were collected
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function javascriptGetFailOnErrors(): bool</code></summary>
+
+<br/>
+Return TRUE if a scenario that collected a console error should fail
 <br/><br/>
 
 </details>
@@ -2849,6 +2867,15 @@ Assert no errors at or above the severity threshold were logged
 
 <br/>
 Clear the errors logged since the scenario started, and return them
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function watchdogGetFailOnErrors(): bool</code></summary>
+
+<br/>
+Return TRUE if a scenario that logged an error should fail
 <br/><br/>
 
 </details>

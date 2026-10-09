@@ -108,13 +108,51 @@ class OptionDeclarationsTest extends UnitTestCase {
   }
 
   public static function dataProviderDeclarationsAreReadUnderTheTraitGroup(): array {
-    $data = [];
+    return static::buildDeclaringTraitRows();
+  }
 
-    foreach (static::listDeclaringTraits() as $trait) {
-      $data[static::reflect($trait)->getShortName()] = [$trait];
-    }
+  /**
+   * Tests that a trait reads its options through its own accessors.
+   *
+   * An option read anywhere else gives a project no method to override it
+   * with. The 'enabled' option is read by 'skipTag()' instead.
+   *
+   * @param class-string $trait
+   *   The step trait to read.
+   */
+  #[DataProvider('dataProviderOptionsAreReadThroughAccessors')]
+  public function testOptionsAreReadThroughAccessors(string $trait): void {
+    $short_name = static::reflect($trait)->getShortName();
+    $accessor_prefix = lcfirst(substr($short_name, 0, -strlen(GroupName::TRAIT_SUFFIX))) . 'Get';
+    $outliers = array_values(array_filter(static::listOptionReaders($trait), static fn(string $method): bool => !str_starts_with($method, $accessor_prefix)));
 
-    return $data;
+    $this->assertSame([], $outliers, sprintf('%s reads an option outside a %s...() accessor, in %s(). Read it through an accessor, as CONTRIBUTING.md describes.', $short_name, $accessor_prefix, implode('() and ', $outliers)));
+  }
+
+  public static function dataProviderOptionsAreReadThroughAccessors(): array {
+    return static::buildDeclaringTraitRows();
+  }
+
+  /**
+   * Tests that the methods reading an option are found.
+   *
+   * @param class-string $trait
+   *   The step trait to read.
+   * @param array<int, string> $expected
+   *   The methods expected to read an option, sorted.
+   */
+  #[DataProvider('dataProviderOptionReadersAreFound')]
+  public function testOptionReadersAreFound(string $trait, array $expected): void {
+    $this->assertSame($expected, static::listOptionReaders($trait));
+  }
+
+  public static function dataProviderOptionReadersAreFound(): array {
+    return [
+      'an accessor' => [WaitTrait::class, ['waitGetAjaxTimeout']],
+      'an accessor per option' => [FileDownloadTrait::class, ['fileDownloadGetTempDir', 'fileDownloadGetTimeout']],
+      'an accessor read by 2 hooks' => [WatchdogTrait::class, ['watchdogGetFailOnErrors']],
+      'only the enabled option' => [BasicAuthTrait::class, []],
+    ];
   }
 
   public function testEveryGroupTheRuntimeReadsBelongsToOneTrait(): void {
@@ -157,6 +195,53 @@ class OptionDeclarationsTest extends UnitTestCase {
     sort($traits);
 
     return $traits;
+  }
+
+  /**
+   * Builds a data provider row for every trait that declares options.
+   *
+   * @return array<string, array{class-string}>
+   *   Trait names, keyed by their short name.
+   */
+  protected static function buildDeclaringTraitRows(): array {
+    $rows = [];
+
+    foreach (static::listDeclaringTraits() as $trait) {
+      $rows[static::reflect($trait)->getShortName()] = [$trait];
+    }
+
+    return $rows;
+  }
+
+  /**
+   * Lists the methods a trait declares that read an option.
+   *
+   * @param class-string $trait
+   *   The trait to read.
+   *
+   * @return array<int, string>
+   *   The method names, sorted.
+   */
+  protected static function listOptionReaders(string $trait): array {
+    $reflection = static::reflect($trait);
+    $lines = file((string) $reflection->getFileName()) ?: [];
+    $readers = [];
+
+    foreach ($reflection->getMethods() as $method) {
+      if ($method->getFileName() !== $reflection->getFileName()) {
+        continue;
+      }
+
+      $body = implode('', array_slice($lines, (int) $method->getStartLine() - 1, (int) $method->getEndLine() - (int) $method->getStartLine() + 1));
+
+      if (preg_match('/->getOption(?:Bool|Int|Float|String|Array)?\(/', $body) === 1) {
+        $readers[] = $method->getName();
+      }
+    }
+
+    sort($readers);
+
+    return $readers;
   }
 
   /**

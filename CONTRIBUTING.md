@@ -142,6 +142,8 @@ A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and 
 
 A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`, `accessibilityGetBlankUrls()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityFormatUrl()` or `restResolveUrl()`.
 
+A trait reads each of its options inside a `<trait>Get...()` method and nowhere else, so a project can override any option a hook or a step acts on: `watchdogAfterStep()` asks `watchdogGetFailOnErrors()` rather than reading `watchdog.fail_on_errors` itself. The `enabled` option is the exception, because `skipTag()` reads it, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes. `OptionDeclarationsTest` fails an option read anywhere else.
+
 ### Helpers carry a verb
 
 Every published helper names what it does with a verb: `messageGetSelector()`, not `messageSelector()`. A yes-or-no question takes `Is` or `Has`, as in `authIsLoggedIn()` and `metatagResponseHasNoindexHeader()`. A verb in the trait prefix counts, as `query` does in `queryEntityIds()`.

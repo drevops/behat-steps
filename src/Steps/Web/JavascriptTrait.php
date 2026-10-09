@@ -108,7 +108,7 @@ trait JavascriptTrait {
   #[AfterScenario('@javascript')]
   public function javascriptAfterScenario(AfterScenarioScope $scope): void {
     $should_assert = $this->javascriptEnabled
-      && $this->getOptionBool('javascript', 'fail_on_errors')
+      && $this->javascriptGetFailOnErrors()
       && !$this->javascriptAsserted
       && !$scope->getTestResult()->isPassed();
 
@@ -193,7 +193,7 @@ trait JavascriptTrait {
     }
 
     // @codeCoverageIgnoreEnd
-    if (!$this->getOptionBool('javascript', 'fail_on_errors') || !$this->lastStepReached($scope)) {
+    if (!$this->javascriptGetFailOnErrors() || !$this->lastStepReached($scope)) {
       return;
     }
 
@@ -322,6 +322,13 @@ JS;
     $message_parts[] = sprintf(PHP_EOL . 'Total errors: %d', $error_count);
 
     throw new ExpectationException(implode(PHP_EOL, $message_parts), $this->getSession()->getDriver());
+  }
+
+  /**
+   * Return TRUE if a scenario that collected a console error should fail.
+   */
+  public function javascriptGetFailOnErrors(): bool {
+    return $this->getOptionBool('javascript', 'fail_on_errors');
   }
 
   /**
