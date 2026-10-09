@@ -449,7 +449,7 @@ A new step that touches `\Drupal::` calls `$this->backendFor(CoreCapabilityInter
 `composer.json` declares `behat/behat: ^3.33.0 || ^4.0` and `friends-of-behat/mink-extension: ^2.7.5 || ^3.0@alpha`, so the library installs on either Behat major. Behat 4 needs Mink extension 3, which has only an alpha release so far, and Composer applies an inline stability flag only to the root package's own requirements. So the `@alpha` lets this repository resolve Behat 4 and does nothing for a consumer:
 
 - A project on the default `stable` minimum stability resolves Behat 3 with Mink extension 2.7. It gets Behat 4 by requiring `behat/behat:^4` and `friends-of-behat/mink-extension:^3.0@alpha` itself, as the installation section of the [README](README.md) shows.
-- A project whose minimum stability admits alpha releases can resolve Behat 4 with the Mink extension alpha, and a project requiring only this library does, with or without `prefer-stable`. Nothing pins the major, though, so the project's other requirements can still settle it on Behat 3. Requiring `behat/behat:^4` is what guarantees Behat 4.
+- A project whose minimum stability admits alpha releases can resolve Behat 4 with the Mink extension alpha, as a project requiring only this library does under `prefer-stable`. Nothing pins the major, though, so the project's other requirements can still settle it on Behat 3. Requiring `behat/behat:^4` is what guarantees Behat 4.
 
 Working on this repository makes it the root package, so its own flag applies: a plain `composer install` here resolves Behat 4.0 with Mink extension 3.0.0-ALPHA.1, and provisioning narrows the fixture to the major each leg runs.
 
