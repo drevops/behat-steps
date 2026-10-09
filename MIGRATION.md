@@ -1,33 +1,60 @@
 # Migration guide
 
+This guide takes a project from behat-steps 3.14 to 4.0. Every "before" name in it is one a 3.14 project had: from this package, or from the Drupal Extension 6 and Drupal Driver 3 that its Drupal traits built on, which 4.0 no longer uses.
+
 ## Per-trait configuration
 
-Every configurable trait now declares its options in a `<prefix>ConfigSchema()` method returning `Option` objects, and the extension carries their profile-wide defaults under a new `steps` section. Each group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe`, `FileDownloadTrait` reads `file_download`. [STEPS.md](STEPS.md) lists the options of each trait beside its steps.
+Trait options are new in v4. 3.x tuned a trait by overriding a `Get` method in your `FeatureContext`, such as `modalGetSelectors()`, `tableGetHeaderSelector()` or `queueGetProcessLimit()`. Those methods are still there and now return the matching option, so an override still wins; [The toolbox is now `public`](#the-toolbox-is-now-public) covers the visibility it needs. The option itself can be set without code: for a profile under the extension's `steps` section, for 1 context through its `config` argument, and, where the option declares a tag, for 1 feature or scenario. Each group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe`, `FileDownloadTrait` reads `file_download`. [STEPS.md](STEPS.md) lists the options of each trait beside its steps, and [Trait options](docs/configuration.md#trait-options) covers how a trait of your own declares and reads one.
 
 An option resolves through the declaration default, then `behat_steps: steps:`, then the context's `config` argument, then the feature tag, then the scenario tag.
 
-### Three options moved out of the extension root
+### 3 Drupal Extension settings moved under `steps`
 
-They are read only by a trait, never by a container service, so they became overridable per context.
+`ajax_timeout`, `selectors: messages:` and `mappings` sat at the root of the `Drupal\DrupalExtension` settings. Only a trait reads them, never a container service, so they moved under `steps`, where a context can override them as well.
 
-| Before | After |
+| Before, under `Drupal\DrupalExtension` | After, under `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` |
 | --- | --- |
-| `'ajax_timeout' => 5` | `'steps' => ['wait' => ['ajax_timeout' => 5]]` |
-| `'selectors' => ['messages' => [...]]` | `'steps' => ['message' => ['selectors' => [...]]]` |
-| `'mappings' => ['paths' => [...]]` | `'steps' => ['mapping' => ['groups' => ['paths' => [...]]]]` |
+| `ajax_timeout` | `steps.wait.ajax_timeout` |
+| `selectors.messages` | `steps.message.selectors` |
+| `mappings` | `steps.mapping.groups` |
+
+```yaml
+# Before.
+default:
+  extensions:
+    Drupal\DrupalExtension:
+      ajax_timeout: 5
+      selectors:
+        messages:
+          default: '.messages'
+          error: '.messages--error'
+        logged_in_selector: 'body.user-logged-in'
+      mappings:
+        paths:
+          User Login: /user/login
+
+# After.
+default:
+  extensions:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+      selectors:
+        logged_in_selector: 'body.user-logged-in'
+      steps:
+        wait:
+          ajax_timeout: 5
+        message:
+          selectors:
+            default: '.messages'
+            error: '.messages--error'
+        mapping:
+          groups:
+            paths:
+              User Login: /user/login
+```
+
+The same settings in `behat.php`, which Behat 4 requires:
 
 ```php
-// Before.
-$profile->withExtension(new Extension(BehatStepsExtension::class, [
-  'ajax_timeout' => 5,
-  'selectors' => [
-    'messages' => ['default' => '.messages', 'error' => '.messages--error'],
-    'logged_in_selector' => 'body.user-logged-in',
-  ],
-  'mappings' => ['paths' => ['User Login' => '/user/login']],
-]));
-
-// After.
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
   'selectors' => ['logged_in_selector' => 'body.user-logged-in'],
   'steps' => [
@@ -41,15 +68,17 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-The other `selectors` keys, `login_form_selector` and `logged_in_selector`, stay where they are: a container service reads them. A `selectors: messages:` left behind fails the container build with a message naming its new path, because the `selectors` node keeps the keys it does not declare and would otherwise accept it and never read it.
+The other `selectors` keys, `login_form_selector` and `logged_in_selector`, stay under `selectors`: a container service reads them. A `selectors: messages:` left behind fails the container build with a message naming its new path, because the `selectors` node keeps the keys it doesn't declare and would otherwise accept it and never read it. An `ajax_timeout` or a `mappings` left at the root fails it too, with `Unrecognized option "ajax_timeout" under "behat_steps"`.
 
 ### `WebRawContext` takes a `config` argument
 
-`WebRawContext::__construct(array $config = [])` is the new constructor, and every shipped and consuming context inherits it without redeclaring one. A context that already declares a constructor adds the parameter and forwards it:
+`WebRawContext::__construct(array $config = [])` takes the trait options that differ between 2 contexts of one profile, and every shipped and consuming context inherits it without redeclaring one. The Drupal Extension's `RawDrupalContext` declared no constructor, so a 3.x context that declares its own never called a parent one. Once it extends `WebRawContext`, `WebContext` or `DrupalContext`, it adds the parameter and forwards it:
 
 ```php
 // Before.
-class UiContext extends WebRawContext {
+use Drupal\DrupalExtension\Context\RawDrupalContext;
+
+class UiContext extends RawDrupalContext {
 
   public function __construct(protected string $fixtures_path) {
   }
@@ -57,6 +86,8 @@ class UiContext extends WebRawContext {
 }
 
 // After.
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+
 class UiContext extends WebRawContext {
 
   public function __construct(
@@ -69,70 +100,13 @@ class UiContext extends WebRawContext {
 }
 ```
 
+A constructor that doesn't forward it fails as soon as a hook or a step reads an option, with `UiContext declares a constructor that does not call parent::__construct(), so its "config" argument was never set. Add "array $config = []" to the constructor and forward it.` [Context constructor arguments](docs/configuration.md#context-constructor-arguments) shows how a suite passes `config`.
+
 A group or an option the context cannot serve is an error naming what it accepts, so a typo fails while Behat builds the context. The extension's `steps` section is read permissively instead: a group there may name a trait only one of the registered contexts composes.
-
-### A trait declares its options as `Option` objects
-
-A project with its own configurable trait returns a list of `DrevOps\BehatSteps\Behat\Config\Option` from its `<prefix>ConfigSchema()` method instead of a map of array shapes. The constructor validates the declaration, so an empty description or a tag list written as a list rather than a map fails when the context is built, with a message naming the declaring method.
-
-```php
-// Before.
-protected function acmeConfigSchema(): array {
-  return [
-    'enabled' => [
-      'default' => TRUE,
-      'description' => 'Whether the Acme hook runs.',
-    ],
-    'wait_timeout' => [
-      'default' => 5000,
-      'description' => 'How long to wait, in milliseconds.',
-      'tags' => ['slow' => 30000],
-    ],
-  ];
-}
-
-// After.
-protected function acmeConfigSchema(): array {
-  return [
-    new Option(
-      'enabled',
-      default: TRUE,
-      description: 'Whether the Acme hook runs.',
-    ),
-    new Option(
-      'wait_timeout',
-      default: 5000,
-      description: 'How long to wait, in milliseconds.',
-      tags: ['slow' => 30000],
-    ),
-  ];
-}
-```
-
-### An option is read at the type it was declared with
-
-`getOption()` no longer returns `mixed` for a declared type, and no longer takes a `ScenarioScope`. A read names the type the declaration defaults to, so a caller neither casts nor guards what it gets back, and a read naming the wrong type fails with a message naming both.
-
-| Before | After |
-| --- | --- |
-| `(bool) $this->getOption('acme', 'enabled')` | `$this->getOptionBool('acme', 'enabled')` |
-| `(int) $this->getOption('acme', 'wait_timeout')` | `$this->getOptionInt('acme', 'wait_timeout')` |
-| `(float) $this->getOption('acme', 'ratio')` | `$this->getOptionFloat('acme', 'ratio')` |
-| `(string) $this->getOption('acme', 'label')` | `$this->getOptionString('acme', 'label')` |
-| `(array) $this->getOption('acme', 'selectors')` | `$this->getOptionArray('acme', 'selectors')` |
-| `$this->getOption('acme', 'enabled', $scope)` | `$this->getOptionBool('acme', 'enabled')` |
-
-`getOption()` stays for an option whose declaration defaults to `NULL` and so names no type.
-
-Dropping the scope also removes an asymmetry. The two tag layers used to be read only when a scope was passed, which a hook has and a step does not, so a tag that set an option worked in a hook and silently did nothing in a step. The tags of the running scenario are now published once when the scenario starts, and every read sees them. A trait that resolved a tag-bound option in a `BeforeScenario` hook and cached it on a property for a step hook to read can drop the property and read the option where it is used.
-
-### Option resolution is a service a project can replace
-
-`WebRawContext` delegates to a `TraitOptionResolverInterface` built by the `behat_steps.config.resolver_factory` service. Registering another `TraitOptionResolverFactoryInterface` under that id replaces resolution for every context, in place of overriding the protected methods the base class used to carry. A context implementing `BackendAwareInterface` directly rather than extending `WebRawContext` adds `setOptionResolverFactory()` and `getOptionResolver()`.
 
 ### `getMapping()` became `mappingGetValue()`
 
-The mapping lookup moved off `ParametersTrait` and onto `MappingTrait`, which is where the groups it reads are now configured. A context that calls it directly renames the call; a context that only uses the `{{ Key }}` token is unaffected.
+The mapping lookup moved off the Drupal Extension's `ParametersTrait`, which `RawDrupalContext` composed, and onto `MappingTrait`, which is where the groups it reads are now configured. A context that calls it directly composes `MappingTrait`, or extends `WebContext` or `DrupalContext`, and renames the call. A context that only uses the `{{ Key }}` token changes no code: `MappingTrait` reads the same token the Drupal Extension's `MappingContext` did.
 
 | Before | After |
 | --- | --- |
@@ -140,7 +114,7 @@ The mapping lookup moved off `ParametersTrait` and onto `MappingTrait`, which is
 
 ### `@error` no longer disables the Watchdog check
 
-`WatchdogTrait` and `JavascriptTrait` each split their single switch into two independent options, which the existing tags now map onto.
+`WatchdogTrait` and `JavascriptTrait` each read 2 independent options, `enabled` and `fail_on_errors`, and their tags map onto them. `JavascriptTrait`'s tags mean what they meant in 3.x. `WatchdogTrait`'s don't: in 3.x, `@error` and the 2 hook-method skip tags, `@behat-steps-skip:watchdogSetScenario` and `@behat-steps-skip:watchdogAfterStep`, all switched the check off. [One skip tag per trait](#one-skip-tag-per-trait) maps those 2 to `@behat-steps-skip:WatchdogTrait`.
 
 | Switch | Extension or context | Scenario tag |
 | --- | --- | --- |
@@ -155,11 +129,11 @@ The mapping lookup moved off `ParametersTrait` and onto `MappingTrait`, which is
 
 ### Three transform traits can be switched off
 
-`RandomTrait`, `MappingTrait` and `DateTrait` register suite-wide `#[Transform]` callbacks, which used to rewrite every matching step argument and table cell in the run with no way to opt out. `@behat-steps-skip:RandomTrait` silently did nothing; it now suppresses the transform, as do `@behat-steps-skip:MappingTrait` and `@behat-steps-skip:DateTrait` and the matching `enabled` option.
+`DateTrait`, `RandomTrait` and `MappingTrait` register suite-wide `#[Transform]` callbacks. In 3.x, `DateTrait` rewrote every matching step argument and table cell in the run with no way to opt out, and the `[?name:type]` and `{{ Key }}` tokens came from the Drupal Extension's `RandomContext` and `MappingContext`, which a suite either registered or didn't. `@behat-steps-skip:DateTrait`, `@behat-steps-skip:RandomTrait` and `@behat-steps-skip:MappingTrait` now switch a transform off for a scenario or a feature, and each trait's `enabled` option switches it off for a profile or a context.
 
-Each of the three resolves that decision in a `BeforeScenario` hook, so all three now require the composing context to extend `WebRawContext`. `DateTrait` and `RandomTrait` previously composed into any class.
+Each of the 3 resolves that decision in a `BeforeScenario` hook, so each needs a context extending `WebRawContext`. In 3.x, `DateTrait` composed into any class, and `RandomContext` and `MappingContext` were contexts of their own.
 
-`ModalTrait`, `TableTrait`, `ElementTrait` and `CommandTrait` require `WebRawContext` for the same reason: they read a declared option.
+`ModalTrait`, `TableTrait`, `ElementTrait` and `CommandTrait` need `WebRawContext` for the same reason: they read a declared option. In 3.x, `CommandTrait` composed into any class and the other 3 needed only Mink's `RawMinkContext`. [Four traits now need the library's context](#four-traits-now-need-the-librarys-context) names the web traits that still run on `RawMinkContext`; every other one now needs `WebRawContext`.
 
 ### `BigPipeTrait` reads its timeout from configuration
 
@@ -183,7 +157,7 @@ Placeholder names, articles and `Given` verbs drifted as traits were added, so t
 
 Placeholder names are part of the contract even when the surrounding words are identical. Behat binds a step argument to the method parameter of the same name, so a rename reaches any context that overrides the step method or calls it directly.
 
-Three steps were relying on Behat's positional fallback because their parameter never matched their placeholder. Their placeholder names are unchanged, but the method signatures are not: `MediaTrait::mediaDeleteType()` now takes `$media_type`, and `SearchApiTrait::searchApiIndexContent()` and `searchApiRunIndexing()` now take `$content_type` and `$count`.
+3 steps relied on Behat's positional fallback because their parameter never matched their placeholder. Their placeholder names are unchanged, but the method signatures are not: `MediaTrait::mediaRemoveType()`, now `mediaDeleteType()`, takes `$media_type` where it took `$type`, `SearchApiTrait::searchApiIndexContent()` takes `$content_type` where it took `$type`, and `searchApiDoIndex()`, now `searchApiRunIndexing()`, takes `$count` where it took `$limit`.
 
 ### CacheTrait
 
@@ -396,7 +370,7 @@ Three steps were relying on Behat's positional fallback because their parameter 
 
 ## I-prefixed step text and placeholder types
 
-A further six steps changed, on two conventions the unification pass above did not cover: a `Given` or `Then` step does not begin with `I`, and a placeholder names the value's role rather than its type. The two sets do not overlap - check both when upgrading.
+6 more steps change under 2 further conventions: a `Given` or `Then` step does not begin with `I`, and a placeholder names the value's role rather than its type. None of them is listed under [Unified step text](#unified-step-text), so check both sections when upgrading.
 
 A `Given` step states a precondition rather than narrating an action, so it does not begin with `I`:
 
@@ -419,11 +393,11 @@ Placeholders name the value's role rather than its type, so `:number` became `:o
 | `Then the element :selector should be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should be displayed within the viewport with a top offset of :offset pixels` |
 | `Then the element :selector should not be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should not be displayed within the viewport with a top offset of :offset pixels` |
 
-This also renames the `$number` argument of `ElementTrait::elementAssertVisuallyVisibleWithOffset()` and `ElementTrait::elementAssertNotVisuallyVisibleWithOffset()` to `$offset`, which matters only if you call either method with named arguments.
+This also renames the `$number` argument of `ElementTrait::elementAssertIsVisuallyVisibleWithOffset()` and `ElementTrait::elementAssertIsNotVisuallyVisibleWithOffset()` to `$offset`. The methods themselves become `elementAssertVisuallyVisibleWithOffset()` and `elementAssertNotVisuallyVisibleWithOffset()` under [Negation is spelled `Not`, in one slot](#negation-is-spelled-not-in-one-slot), and `$offset` is a `string` (see [Signatures](#signatures)), so a context that overrides or calls either method updates it.
 
 ## Step text follows the documented grammar
 
-The passes above still left steps that broke the step-text rules in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). They follow those rules now. Only the wording and the placeholder names changed. The one behavior tied to a placeholder name, `[relative:...]` token expansion, is described below the rules.
+The steps below broke the step-text rules in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format) and follow them now. Only the wording and the placeholder names changed. The one behavior tied to a placeholder name, `[relative:...]` token expansion, is described below the rules.
 
 - A placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the dropzone :selector`. A bundle still comes before the entity noun it qualifies (`the :media_type media`), and a count before its unit (`:count item(s)`).
 - Every noun takes an article: `on the element :element`, `to the URL :url`, `the system time`, `the last XML response`.
@@ -433,14 +407,14 @@ The passes above still left steps that broke the step-text rules in [CONTRIBUTIN
 - A partial match reads `a <thing> containing :partial_<thing>`, as the cookie steps already did. The table row steps find a row by part of its text, so they read `the row containing :partial_text`, and their methods take `$partial_text` where they took `$row_text`.
 - `:param` became `:name`, the placeholder every other named thing uses, and an email link's position became `:index`, as it is in `I follow the link :link with the index :index`.
 
-Where a pass above already renamed a step, its row there now carries the final text instead of being repeated here, so each v3 step maps straight to its v4 form. That covers the query parameter, meta tag and table row steps, and the XML comparisons. Steps that are new in v4 changed only in the [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary).
+Each v3 step is listed once, in the first of these sections whose rules change it, and its row gives the v4 text directly. The query parameter, meta tag and table row steps, and the XML comparisons, are under [Unified step text](#unified-step-text). Steps that are new in v4 have no row here: the Drupal Extension steps they replace are in the [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary).
 
-A renamed placeholder renames the method parameter behind it, because Behat binds a step argument to the parameter of the same name. That matters only to a context that overrides one of these methods or calls it with named arguments. 2 steps changed a placeholder name and nothing else, so their feature files need no edit:
+A renamed placeholder renames the method parameter behind it, because Behat binds a step argument to the parameter of the same name. 2 steps changed a placeholder name and nothing else, so their feature files need no edit. Their methods are renamed too, under [A qualifier on an action is `With`](#a-qualifier-on-an-action-is-with), and take `$index` as a `string` (see [Signatures](#signatures)), so a context that overrides or calls either method updates it:
 
 | Method | Before | After |
 | --- | --- | --- |
-| `ElementTrait::elementFollowLinkWithIndex()` | `$text` | `$link` |
-| `ElementTrait::elementPressButtonWithIndex()` | `$label` | `$button` |
+| `ElementTrait::elementFollowLinkByIndex()`, now `elementFollowLinkWithIndex()` | `$text` | `$link` |
+| `ElementTrait::elementPressButtonByIndex()`, now `elementPressButtonWithIndex()` | `$label` | `$button` |
 
 `DateTrait` expands `[relative:...]` tokens in `:partial_value` arguments as well as in `:value`, `:datetime` and `:expected_value` ones. The region, row and command output assertions now take `:value`, so a token in their argument is expanded rather than compared as written.
 
@@ -598,17 +572,18 @@ A renamed placeholder renames the method parameter behind it, because Behat bind
 
 ## One wording per step idea
 
-A handful of ideas still read 2 ways after the passes above. Most navigation steps said `I visit the ... page`, while 2 dropped `page` and 3 said `I edit the ...` although they only open the edit form. A click was `I click on` in some traits and `I click` in others, the viewport was both `the viewport` and `a viewport`, a `<select>` was both `the select` and `the select element`, an email address was `:address` in one trait and `:mail` in another, and an email that must not be sent was both `an email should not be sent` and `no emails should have been sent`. Each idea now reads 1 way:
+A handful of ideas read 2 ways in v3. Most navigation steps said `I visit the ... page`, while 2 dropped `page` and 3 said `I edit ...` although they only open the edit form. This library's click steps said `I click on` and the Drupal Extension's said `I click`, the viewport was both `the viewport` and `a viewport`, a `<select>` was both `the select` and `the select element`, an email address was `:address` in one trait and `:mail` in another, an email that must not be sent was both `an email should not be sent` and `no emails should have been sent`, and the meta robots steps said `include` where the rest of the vocabulary says `contain`. Each idea now reads 1 way:
 
 - A step that opens a page reads `I visit the ... page` and names the page it opens.
 - A click reads `I click on the ...`.
 - The viewport is `the viewport`, and a `<select>` is `the select :selector`.
-- An email address is `:address` everywhere, and an email link's position reads `WithIndex` in the method names, as it already did in the step text.
+- An email address is `:address` everywhere, and an email link's position reads `with the index :index` in the step text and `WithIndex` in the method names.
 - An email that must not be sent reads `an email should not be sent`, as the 2 content checks already did, so each negative pairs with the positive `an email should be sent ...`.
+- Containment reads `contain`.
 
 `ahoy lint-docs` and `TraitMethodNamingTest` reject the replaced forms, so they don't come back.
 
-The media, ECK and content block navigation steps and the 2 viewport offset steps were already renamed by a pass above, so their rows there carry the final text. `I click on the link :link in the region :region` and `I click on the link :link in the row containing :partial_text` are new in v4, so only their [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary) rows change. The steps below changed in this pass alone.
+The media and content block navigation steps are listed under [Unified step text](#unified-step-text), the ECK navigation steps under [Step text follows the documented grammar](#step-text-follows-the-documented-grammar), and the 2 viewport offset steps under [I-prefixed step text and placeholder types](#i-prefixed-step-text-and-placeholder-types). `I click on the link :link in the region :region` and `I click on the link :link in the row containing :partial_text` are new in v4: they replace the Drupal Extension's `I follow/click :link in the :region( region)` and `I click :link in the :rowText row`, as the [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary) shows. The steps below are listed only here.
 
 ### ElementTrait
 
@@ -623,7 +598,7 @@ The media, ECK and content block navigation steps and the 2 viewport offset step
 | --- | --- |
 | `Then no emails should have been sent` | `Then an email should not be sent` |
 
-`Then no emails should have been sent to the :address` changed in an earlier pass, so its row under [Unified step text](#unified-step-text) carries the final text.
+`Then no emails should have been sent to the :address` is listed under [Unified step text](#unified-step-text).
 
 ### FieldTrait
 
@@ -634,9 +609,16 @@ The media, ECK and content block navigation steps and the 2 viewport offset step
 | `Then the option :option should be selected within the select element :selector` | `Then the option :option within the select :selector should be selected` |
 | `Then the option :option should not be selected within the select element :selector` | `Then the option :option within the select :selector should not be selected` |
 
+### MetatagTrait
+
+| Before | After |
+| --- | --- |
+| `Then the meta robots should include :directive` | `Then the meta robots should contain :directive` |
+| `Then the meta robots should not include :directive` | `Then the meta robots should not contain :directive` |
+
 ### Method names
 
-A method behind a navigation step opens with `Visit` and names the page the way its step does, and `Drupal\EmailTrait` names a link's position `WithIndex`, as `ElementTrait` already did. Rename any call or override in a consumer context:
+A method behind a navigation step opens with `Visit` and names the page the way its step does, and `Drupal\EmailTrait` names a link's position `WithIndex`, as `ElementTrait` now does too: its 3 `ByIndex` methods are listed under [A qualifier on an action is `With`](#a-qualifier-on-an-action-is-with). Rename any call or override in a consumer context:
 
 | Trait | Old | New |
 | --- | --- | --- |
@@ -658,24 +640,25 @@ A method behind a navigation step opens with `Visit` and names the page the way 
 
 `userEditProfile()` and `userDeleteProfile()` never edited or deleted anything: like the rest of the table, they open a page. The protected helper behind the 2 email link steps is listed under [Only an assertion is named `Assert`](#only-an-assertion-is-named-assert).
 
-`the user with the email :address should exist` and its negative took `:mail`. Their step text is unchanged, so no feature file needs an edit, but the parameter behind the placeholder is renamed. That matters only to a context that overrides either method or calls it with named arguments:
+`the user with the email :address should exist` and its negative took `:mail`. Their step text is unchanged, so no feature file needs an edit, but the parameter behind the placeholder is renamed. The methods are renamed too, under [A qualifier on an action is `With`](#a-qualifier-on-an-action-is-with), so a context that overrides or calls either method updates its name as well:
 
 | Method | Before | After |
 | --- | --- | --- |
-| `UserTrait::userAssertExistsWithMail()` | `$mail` | `$address` |
-| `UserTrait::userAssertNotExistsWithMail()` | `$mail` | `$address` |
+| `UserTrait::userAssertExistsByMail()`, now `userAssertExistsWithMail()` | `$mail` | `$address` |
+| `UserTrait::userAssertNotExistsByMail()`, now `userAssertNotExistsWithMail()` | `$mail` | `$address` |
 
-A taxonomy term's name, a role and a file name each had 2 placeholder names: `:term_name` where every other named entity reads `:name`, `:role_name` beside its own `:roles`, and `:file_name` or `:path` where the XML and JSON steps read `:filename`. Each now has 1. A placeholder name never appears in a feature file, so no `.feature` file changes, but the parameter behind each placeholder is renamed:
+A taxonomy term's name, a role and a file name each had 2 placeholder names: `:term_name` where every other named entity reads `:name`, `:role_name` beside its own `:roles`, and `:file_name` or `:path` where the XML and JSON steps read `:filename`. Each now has 1. A placeholder name never appears in a feature file, so the placeholder rename alone changes no `.feature` file, but the parameter behind each placeholder is renamed:
 
 | Method | Before | After |
 | --- | --- | --- |
-| `TaxonomyTrait::taxonomyVisitTermPageWithName()`, `taxonomyVisitTermEditPageWithName()`, `taxonomyVisitTermDeletePageWithName()`, `taxonomyVisitActionPageWithName()` | `$term_name` | `$name` |
-| `TaxonomyTrait::taxonomyAssertTermExistsWithName()`, `taxonomyAssertTermNotExistsWithName()` | `$term_name` | `$name` |
+| `TaxonomyTrait::taxonomyVisitTermPageWithName()`, `taxonomyVisitTermEditPageWithName()`, `taxonomyVisitTermDeletePageWithName()`, `taxonomyVisitActionPageWithName()` | `$vocabulary_machine_name`, `$term_name` | `$vocabulary`, `$name` |
+| `TaxonomyTrait::taxonomyAssertTermExistsByName()`, `taxonomyAssertTermNotExistsByName()`, now `taxonomyAssertTermExistsWithName()`, `taxonomyAssertTermNotExistsWithName()` | `$term_name`, `$vocabulary_machine_name` | `$name`, `$vocabulary` |
 | `UserTrait::userCreateRole()` | `$role_name` | `$role` |
-| `EmailTrait::emailAssertMessageContainsAttachmentWithSubject()`, `emailAssertMessageContainsAttachmentWithSubjectContaining()` | `$file_name` | `$filename` |
+| `EmailTrait::emailAssertMessageContainsAttachmentWithName()`, now `emailAssertMessageContainsAttachmentWithSubject()` | `$file_name` | `$filename` |
+| `EmailTrait::emailAssertMessageContainsAttachmentWithSubjectContaining()` | `$file_name`, `$subject` | `$filename`, `$partial_subject` |
 | `DropzoneTrait::dropzoneDropFile()` | `$path` | `$filename` |
 
-`FileTrait::fileAssertUnmanagedContains()` and `fileAssertUnmanagedNotContains()` take `$value` where they took `$content`, because their steps now read `the value :value`, as the `FileTrait` table under [Unified step text](#unified-step-text) shows.
+`FileTrait::fileAssertUnmanagedHasContent()` and `fileAssertUnmanagedHasNoContent()`, now `fileAssertUnmanagedContains()` and `fileAssertUnmanagedNotContains()`, take `$value` where they took `$content`, because their steps now read `the value :value`, as the `FileTrait` table under [Unified step text](#unified-step-text) shows.
 
 ### Failure messages
 
@@ -683,33 +666,25 @@ A taxonomy term's name, a role and a file name each had 2 placeholder names: `:t
 | --- | --- | --- |
 | ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport. | The element "..." is not displayed within the viewport. |
 | ElementTrait | Element(s) defined by "..." selector is not displayed within a viewport with a top offset of N pixels. | The element "..." is not displayed within the viewport with a top offset of N pixels. |
-| Drupal\EmailTrait | The link number must be a positive integer, but "..." was provided. | `The link index must be an integer, but "..." was given.`, or `The link index must be 1 or greater, but "..." was given.` for an integer below 1 |
 | Drupal\EmailTrait | The link with number N was not found among N links. | The link with the index N was not found among N links. |
 
-The 2 viewport messages that end in `, but it should not be.` also changed under [Failure messages read one way](#failure-messages-read-one-way), and their rows there carry the final text.
+The 2 negative viewport messages, which ended in `, but should not be.`, are listed under [Failure messages read one way](#failure-messages-read-one-way), and the link number message under [A step method takes only what its step binds](#a-step-method-takes-only-what-its-step-binds).
 
-## Optional dependencies moved to `require-dev` and `suggest`
+## Requirements
 
-Trait-specific packages are no longer hard `require` dependencies. They now live in `require-dev` (so this library's own test suite still runs) and `suggest`, matching the existing treatment of `justinrainbow/json-schema`. Projects that relied on transitive installation must add the packages they use to their own `composer.json`.
+4.0 needs PHP 8.3 or newer, where 3.14 ran on 8.2, and a Drupal site on Drupal 11 or 12: its `drupal/core-utility` requirement can't be met by Drupal 10's core. It installs on Behat 3 or Behat 4, where 3.14 refused Behat 4. Behat 4 also needs `friends-of-behat/mink-extension` 3, which has only an alpha release so far, so the installation section of the [README](README.md) shows how to require both.
 
-| Package | Add it to your `require-dev` when you use |
-| --- | --- |
-| `softcreatr/jsonpath` | `JsonTrait` JSON path steps (`the JSON path ... should ...`) |
-
-`@javascript` scenarios need a JavaScript-capable browser driver. The steps work with either of these, so install **one** of them - both run the full `@javascript` suite and both are exercised by this library's CI:
-
-- `lullabot/mink-selenium2-driver` - drives a Selenium/WebDriver server.
-- `dmore/behat-chrome-extension` - drives headless Chrome directly over the Chrome DevTools Protocol, with no Selenium server.
-
-`behat/behat` and `behat/mink` remain hard `require` dependencies. For example, a project that runs JavaScript scenarios with headless Chrome adds:
+`drupal/drupal-extension` is no longer needed (see [Behat extensions registered in the Behat configuration](#behat-extensions-registered-in-the-behat-configuration)), and removing it removes the packages it required. A Drupal project that never required `lullabot/mink-selenium2-driver` itself got it from the Drupal Extension, so a suite that runs `@javascript` scenarios through Selenium now requires the driver directly:
 
 ```bash
-composer require --dev dmore/behat-chrome-extension
+composer require --dev lullabot/mink-selenium2-driver
 ```
+
+`dmore/behat-chrome-extension` is the alternative that drives headless Chrome with no Selenium server, from 1.5.0 on Behat 4; install 1 of the 2. `softcreatr/jsonpath` and `justinrainbow/json-schema` stay optional, as they were in 3.14.
 
 ## Behat extensions registered in the Behat configuration
 
-`drupal/drupal-extension` is no longer a dependency. Its Mink extension is replaced by Mink's own, and its Drupal extension by the one this package supplies:
+3.14 asked a Drupal project to install `drupal/drupal-extension` for its Drupal traits. 4.0 doesn't use it, so remove it from your `composer.json`. Its Mink extension is replaced by Mink's own, and its Drupal extension by the one this package supplies:
 
 | Old | New |
 | --- | --- |
@@ -758,7 +733,32 @@ $profile
   ]));
 ```
 
-Every option under them - `base_url`, `files_path`, `javascript_session`, `selenium2`, `browserkit_http`, `drupal_root` - is set exactly as before. `guzzle_request_options`, `ajax_timeout`, the 3 `*_driver` keys and the `log_in` and `log_out` text keys are the exceptions; see below, [Capability-based backend resolution](#capability-based-backend-resolution) and [`Login` and `Logout`, not `LogIn` and `LogOut`](#login-and-logout-not-login-and-logout).
+The Mink options, such as `base_url`, `files_path`, `javascript_session`, `selenium2` and `browserkit_http`, carry over under `Behat\MinkExtension`. Most `Drupal\DrupalExtension` settings carry over under `BehatStepsExtension` with the same name and value: `blackbox`, `drupal`, `drush`, `regions`, `login_field`, `login_wait`, the `text` keys other than `log_in` and `log_out`, and `selectors: login_form_selector` and `selectors: logged_in_selector`. These don't:
+
+| 3.14 | 4.0 |
+| --- | --- |
+| `Drupal\DrupalExtension`: `default_driver`, `api_driver`, `drush_driver` | `backends`, see [Capability-based backend resolution](#capability-based-backend-resolution) |
+| `Drupal\DrupalExtension`: `ajax_timeout`, `selectors: messages:`, `mappings` | under `steps`, see [3 Drupal Extension settings moved under `steps`](#3-drupal-extension-settings-moved-under-steps) |
+| `Drupal\DrupalExtension`: `text: log_in:`, `text: log_out:` | `text: login:`, `text: logout:`, see [`Login` and `Logout`, not `LogIn` and `LogOut`](#login-and-logout-not-login-and-logout) |
+| `Drupal\DrupalExtension`: `region_map`, the spelling Drupal Extension 6.0 still accepted | `regions` |
+| `Drupal\DrupalExtension`: `suppress_deprecations` | Nothing. Remove it |
+| `Drupal\MinkExtension`: `guzzle_request_options` under a `browserkit_http` session | `http_client_parameters`, below |
+
+A key left under its old name fails the container build: `region_map`, `suppress_deprecations` and the `*_driver` keys with an `Unrecognized option` error, and `selectors: messages:`, `text: log_in:` and `text: log_out:` with a message naming the new key. The `regions` map keeps its shape, so the region steps resolve the same names as before:
+
+```yaml
+# Before.
+Drupal\DrupalExtension:
+  regions:
+    Header: '#header'
+    Content: '#main'
+
+# After.
+DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+  regions:
+    Header: '#header'
+    Content: '#main'
+```
 
 `BehatStepsExtension` registers its own factory behind `browserkit_http` with whichever Mink extension the suite registers. The factory builds every `browserkit_http` session exactly as Mink does, on Mink's own `HttpBrowser`, and records the session's options for the requests steps send from PHP, which go through 1 shared Symfony HttpClient transport. Drupal's `DrupalTestBrowser` and Guzzle are no longer used, so `guzzle_request_options` gives way to Mink's own `http_client_parameters`, which takes [Symfony HttpClient options](https://symfony.com/doc/current/http_client.html):
 
@@ -797,27 +797,9 @@ The Guzzle options a suite most often sets map across like this:
 
 The page applies the options to every host, as it did with Guzzle. The requests steps send from PHP apply them to `base_url` only, and every `browserkit_http` session has to declare the same ones; [HTTP clients](docs/http-clients.md) explains both rules.
 
-`ajax_timeout` moves from the `mink` key, where `Drupal\MinkExtension` accepted it, to the `wait` group under `steps` (see [Per-trait configuration](#per-trait-configuration)):
-
-```yaml
-# Before.
-extensions:
-  Drupal\MinkExtension:
-    ajax_timeout: 10
-
-# After.
-extensions:
-  DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
-    steps:
-      wait:
-        ajax_timeout: 10
-```
-
-Mink's own extension declares no `ajax_timeout`, so one left under the `mink` key fails the container build with an `Unrecognized option "ajax_timeout"` error.
-
 ## Capability-based backend resolution
 
-`@api` no longer selects a backend, and the `default_driver`, `api_driver` and `drush_driver` options are replaced by one `backends` list under `behat_steps`. That list names the backends a scenario may reach, in precedence order, and a step resolves the backend by the capability it needs.
+The Drupal Extension's `@api` tag no longer selects a driver, and its `default_driver`, `api_driver` and `drush_driver` settings are replaced by 1 `backends` list under `behat_steps`. That list names the backends a scenario may reach, in precedence order, and a step resolves the backend by the capability it needs.
 
 | Before | After |
 | --- | --- |
@@ -829,7 +811,9 @@ Mink's own extension declares no `ajax_timeout`, so one left under the `mink` ke
 
 ```php
 // Before.
-$profile->withExtension(new Extension(BehatStepsExtension::class, [
+use Drupal\DrupalExtension\ServiceContainer\DrupalExtension;
+
+$profile->withExtension(new Extension(DrupalExtension::class, [
   'default_driver' => 'blackbox',
   'api_driver' => 'drupal',
   'drush_driver' => 'drush',
@@ -838,6 +822,8 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 
 // After.
+use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
   'backends' => ['drupal', 'drush', 'blackbox'],
   'drupal' => ['drupal_root' => 'web'],
@@ -859,16 +845,17 @@ Scenario: The cache is cleared over the command line
   Given the cache is empty
 ```
 
-Two consequences are worth checking in an existing project:
+3 consequences are worth checking in an existing project:
 
 - **A step that used to fail for a missing `@api` now succeeds.** The tag no longer gates anything, so a scenario that reached a Drupal step without it used to throw and now runs. Where that gate was load-bearing, run those scenarios under a profile whose `backends` list excludes the Drupal backend.
-- **`RawContext::assertDrupal()` is gone.** A custom step that called it calls `$this->backendFor(CoreCapabilityInterface::class);` instead. `RawContext::getDriver()` becomes `WebRawContext::getBackend()`, which takes a name and no longer defaults to "the current driver"; a call with no argument becomes `backendFor()` naming the capability the caller needs.
+- **Hooks that skipped a scenario without `@api` now run in it.** 3.14 ran the scenario hooks of `ConfigTrait`, `ConfigOverrideTrait`, `EmailTrait`, `FileTrait`, `ModuleTrait`, `StateTrait`, `TestmodeTrait`, `TimeTrait` and `WatchdogTrait` only in `@api` scenarios, and so did its entity cleanup and the Drupal Extension's static cache reset. They now run in every scenario of a context that composes their trait: the watchdog check, for one, reads the log after a scenario that never carried `@api`, and fails the scenario at its start when the profile lists no backend that can read the log.
+- **`RawDrupalContext::getDriver()` is gone.** With no argument it returned the driver `@api` had selected. Its replacement, `WebRawContext::getBackend()`, takes a backend's name and has no default, so a call with no argument becomes `backendFor()` naming the capability the caller needs. A custom step that needs Drupal bootstrapped calls `$this->backendFor(CoreCapabilityInterface::class);`.
 
 ## DrupalExtension step text mapped to the v4 vocabulary
 
 The Drupal Extension's contexts are gone. Their behavior lives in the step traits, re-expressed in the one grammar the docs linter enforces: tuple placeholders, no regex, no optional words, and a `Then` that starts with the subject rather than `I`.
 
-The suite registers `Behat\MinkExtension\Context\MinkContext` for the base browser vocabulary, so `I am on`, `I go to`, `I should see`, `I fill in`, `I press`, `I follow`, `I check`, `I select`, `I attach the file`, `the response status code should be` and the other upstream Mink steps are unchanged. The table below covers only the steps the Drupal Extension added on top.
+Register Mink's own `Behat\MinkExtension\Context\MinkContext` where the suite registered the Drupal Extension's `MinkContext`, which extended it. It brings the base browser vocabulary, so `I am on`, `I go to`, `I should see`, `I fill in`, `I press`, `I follow`, `I check`, `I select`, `I attach the file`, `the response status code should be` and the other upstream Mink steps are unchanged. The table below covers only the steps the Drupal Extension added on top.
 
 ### Session and users
 
@@ -883,6 +870,21 @@ The suite registers `Behat\MinkExtension\Context\MinkContext` for the base brows
 | `Given I am logged in as a user with the :permissions permission(s)` | `When I log in as a user with the permission(s) :permissions` |
 | `Given I am logged in as :name` | `When I log in as the user :name` |
 | `Given the following users:` | `Given the following users exist:` |
+
+A context that called or overrode one of the Drupal Extension's `DrupalContext` methods behind these steps moves to the `Drupal\UserTrait` method behind the new step:
+
+| Old `DrupalContext` method | New `Drupal\UserTrait` method |
+| --- | --- |
+| `createAndLoginUserWithRole()` (protected) | `userCreateAndLogin()` |
+| `iAmLoggedInAs()` | `userLoginAs()` |
+| `iAmLoggedInAsUserWithPermissions()` | `userLoginWithPermissions()` |
+| `iAmLoggedInAsUserWithRole()`, `iAmLoggedInAsRole()` | `userLoginWithRoles()` |
+| `iAmLoggedInAsUserWithRoleAndFields()` | `userLoginWithRolesAndFields()` |
+| `iLogOut()` | `userLogout()` |
+| `iAmAnonymous()`, `iAmNotLoggedIn()` | `userLogoutSession()` |
+| `createUsers()` | `userCreateMultiple()` |
+
+An override of one of the old methods isn't called in v4. Move its logic to an override of the new method.
 
 ### Content, terms, entities and languages
 
@@ -904,6 +906,15 @@ The suite registers `Behat\MinkExtension\Context\MinkContext` for the base brows
 | `Given I am viewing a/an :vocabulary term with the name :name` | as above |
 | `Then I should be able to edit the :type` | `Given the following :content_type content exist:`, `When I visit the :content_type content edit page with the title :title`, `Then the response status code should be 200` |
 | `Then I should be able to edit the :type content` | as above |
+
+The table steps' methods move the same way:
+
+| Old method | New method |
+| --- | --- |
+| `DrupalContext::createNodes()` | `Drupal\ContentTrait::contentCreateMultiple()` |
+| `DrupalContext::createTerms()`, which 3.x's `Drupal\TaxonomyTrait` overrode | `Drupal\TaxonomyTrait::taxonomyCreateMultiple()` |
+| `DrupalContext::createEntities()` | `Drupal\EntityTrait::entityCreateMultiple()` |
+| `DrupalContext::createLanguages()` | `Drupal\LanguageTrait::languageCreateMultiple()` |
 
 ### Cache, cron, batch and queues
 
@@ -1027,12 +1038,16 @@ The Drupal Extension's `new` mail family tracked messages sent since the previou
 | `Then there should be a total of :count (e)mail(s) sent` | `Then the number of sent emails should be :count` |
 | `Then there should be a total of :count (e)mail(s) sent to :to` | `Then the number of emails sent to the address :address should be :count` |
 | `Then there should be a total of :count (e)mail(s) sent with the subject :subject` | `Then the number of emails sent with the subject :subject should be :count` |
+| `Then there should be a total of :count (e)mail(s) sent to :to with the subject :subject` | no combined step: after `When I clear the test email system queue`, use the 2 count steps above |
 | `Then there should be a total of :count new (e)mail(s) sent...` | clear the queue, then use the non-`new` step |
 | `Then (a )(an )(e)mail(s) should have been sent with the attachment(s) :attachments` | `Then the file :filename should be attached to the email with the subject :subject` |
 | `Then (a )(an )(e)mail(s) should have been sent to :to with the attachment(s) :attachments` | as above |
-| `When I follow the link to :urlFragment from the (e)mail` | `When I follow the link with a URL containing :partial_url in the email` |
-| `When I follow the link to :urlFragment from the (e)mail to :to` | as above |
-| `When I follow the link to :urlFragment from the (e)mail with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
+| `Then (a )(an )(e)mail(s) should have been sent with the subject :subject and the attachment(s) :attachments` | `Then the file :filename should be attached to the email with the subject :subject`, once per attachment |
+| `Then (a )(an )(e)mail(s) should have been sent to :to with the subject :subject and the attachment(s) :attachments` | as above |
+| `When I follow the link to :urlFragment from the email`, or `from the mail` | `When I follow the link with a URL containing :partial_url in the email` |
+| `When I follow the link to :urlFragment from the email to :to`, or `from the mail to :to` | as above |
+| `When I follow the link to :urlFragment from the email with the subject :subject`, or `from the mail with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
+| `When I follow the link to :urlFragment from the email to :to with the subject :subject`, or `from the mail to :to with the subject :subject` | as above |
 
 The Drupal Extension matched a subject in part and in any case. Here `with the subject :subject` compares the whole subject, so a scenario that relied on a partial match moves to `with a subject containing :partial_subject` and writes the subject's own case. [Email subject steps match the way they read](#email-subject-steps-match-the-way-they-read) has the details.
 
@@ -1065,32 +1080,35 @@ The Drupal Extension matched a subject in part and in any case. Here `with the s
 
 Random-value tokens (`[?name:type]`) and mapping tokens (`{{ Key }}`) are unchanged: `Steps\Web\RandomTrait` and `Steps\Web\MappingTrait` carry them, and a context composes the trait instead of registering `RandomContext` or `MappingContext`.
 
+### `Drupal\OverrideTrait` is gone
+
+3.x's `Drupal\OverrideTrait` adjusted 3 of the Drupal Extension's steps and bootstrapped Drupal ahead of every `@api` scenario. Each of those behaviors has a replacement:
+
+- Its `createNodes()` and `createUsers()` deleted the nodes and users a table named before creating them. The v4 steps create without deleting, so a scenario that relied on it adds `Given the following :content_type content do not exist:` or `Given the following users do not exist:` first.
+- Its `iAmLoggedInAsUserWithRole()` logged out for the `anonymous` and `anonymous user` roles instead of creating a user. Write `Given the user is anonymous` for those.
+- Its `overrideBootstrapDrupal()` hook has no counterpart: a step bootstraps Drupal through the backend it resolves.
+
 ## Unified entity cleanup
 
-Every entity a creation step or the backend creates, except a user or a role, is registered on `Helper\Drupal\EntityLifecycleTrait` and deleted in reverse creation order by one `entityLifecycleAfterScenario` hook. Every trait that creates an entity composes that helper, and trait flattening is idempotent, so however many of them a context carries there is still one registry and one hook. There is no second entity registry and no exclusion list, so a node, a term and a media item created in one scenario come down in the order that respects the references between them.
+3.14 tore a scenario's entities down in 2 hooks. The Drupal Extension's `RawDrupalContext::cleanEntities()` deleted the nodes, terms and languages its creation methods made, and this package's `entityCleanupAfterScenario()` deleted the entities its traits registered, leaving out the types in `ENTITY_CLEANUP_EXCLUDED_TYPES` so that the 2 never deleted the same one. Both are now 1 `entityLifecycleAfterScenario` hook on `Helper\Drupal\EntityLifecycleTrait`. Every entity a creation step or the backend creates, except a user or a role, is registered there and deleted in reverse creation order. There is no second registry and no exclusion list, so a node, a term and a media item created in 1 scenario come down in the order that respects the references between them. The users and roles `cleanUsers()` and `cleanRoles()` removed are `Helper\Drupal\AuthTrait`'s now.
 
-An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, which it does with `$this->entityLifecycleRegister($entity)`. Without that call the entity survives the scenario.
+The hook runs after every scenario, where `entityCleanupAfterScenario()` ran only after an `@api` one.
 
-The per-trait cleanup skip tags have been removed. Replace them as follows:
+An entity a project saves through Drupal's API in its own step joins that teardown only when the step registers it, with `$this->entityLifecycleRegister($entity)` in place of `entityRegister()`. Without that call the entity survives the scenario.
 
-| Removed tag                                    | Replacement                                                                                          |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `@behat-steps-skip:mediaAfterScenario`         | `@behat-steps-entity-cleanup-skip:media`                                                             |
-| `@behat-steps-skip:contentBlockAfterScenario`  | `@behat-steps-entity-cleanup-skip:block_content`                                                     |
-| `@behat-steps-skip:paragraphsAfterScenario`    | `@behat-steps-entity-cleanup-skip:paragraph`                                                         |
-| `@behat-steps-skip:eckAfterScenario`           | `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID`                                                    |
-| `@behat-steps-skip:menuAfterScenario`          | `@behat-steps-entity-cleanup-skip:menu` and/or `@behat-steps-entity-cleanup-skip:menu_link_content`  |
-| `@behat-steps-skip:redirectAfterScenario`      | `@behat-steps-entity-cleanup-skip:redirect`                                                          |
-| `@behat-steps-skip:blockAfterScenario`         | `@behat-steps-entity-cleanup-skip:block`                                                             |
-| `@behat-steps-skip:webformAfterScenario`       | `@behat-steps-entity-cleanup-skip:webform`                                                           |
+| 3.14 | 4.0 |
+| --- | --- |
+| `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:EntityLifecycleTrait` |
+| `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` | Unchanged. It now keeps `node`, `taxonomy_term` and `language` entities too, and it's read on the `Feature:` line as well as on the scenario |
+| `@behat-steps-skip:fileAfterScenario` | `@behat-steps-skip:FileTrait`, which also skips creating the private and temporary directories. `@behat-steps-entity-cleanup-skip:file` still keeps the managed files |
+| `BEHAT_DRUPALEXTENSION_DISABLE_CLEANUP=1` | `BEHAT_STEPS_DISABLE_CLEANUP=1` |
+| `@no-file-cleanup` | Nothing: 4.0 doesn't delete the files a scenario uploads with Mink's `I attach the file` step, so Drupal renames a later upload of the same name, as `image_0.png` |
 
-To skip cleanup of every registered entity at once, use `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:AuthTrait` to keep the users and roles a scenario created.
-
-`@behat-steps-skip:FileTrait` now keeps only the unmanaged files `FileTrait` created; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
+`@behat-steps-skip:AuthTrait` keeps the users and roles a scenario created, which no 3.14 tag could do.
 
 ## Trait namespaces re-rooted under `Steps`
 
-The step vocabulary now lives in one subtree, split by the context each trait needs. Generic traits moved from `DrevOps\BehatSteps\` to `DrevOps\BehatSteps\Steps\Web\`, and Drupal traits from `DrevOps\BehatSteps\Drupal\` to `DrevOps\BehatSteps\Steps\Drupal\`. The trait names themselves are unchanged, so a consumer context only has to update its `use` statements:
+The step vocabulary now lives in one subtree, split by the context each trait needs. Generic traits moved from `DrevOps\BehatSteps\` to `DrevOps\BehatSteps\Steps\Web\`, and Drupal traits from `DrevOps\BehatSteps\Drupal\` to `DrevOps\BehatSteps\Steps\Drupal\`. The trait names themselves are unchanged, apart from the 2 `HelperTrait`s, which [became concern-named traits](#the-2-helpertraits-became-concern-named-traits), and `Drupal\OverrideTrait`, which [is gone](#drupaloverridetrait-is-gone). A consumer context updates its `use` statements, and [The context layer is one chain](#the-context-layer-is-one-chain) covers the class it extends:
 
 ```php
 // Before.
@@ -1106,7 +1124,7 @@ use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
 
 ## The context layer is one chain
 
-`RawContext` used to carry the Drupal entity lifecycle, so a non-Drupal project extending it inherited a class that knew about taxonomy vocabularies. It is gone. `WebRawContext` is the root, and each class below it adds one half of the vocabulary:
+A 3.14 context extended the Drupal Extension's `DrupalContext` or `RawDrupalContext`, which carried the Drupal entity lifecycle, or Mink's `RawMinkContext` on a site that isn't Drupal. 4.0 ships a chain of its own instead: `WebRawContext` is the root, and each class below it adds 1 half of the vocabulary:
 
 ```
         Behat\MinkExtension\Context\RawMinkContext
@@ -1124,11 +1142,15 @@ use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
 | `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
 
-A context that extended `RawContext` extends `WebRawContext` instead:
+A 3.14 context that extended Mink's `RawMinkContext` or the Drupal Extension's `RawDrupalContext` to compose this package's traits extends `WebRawContext` instead. One that extended the Drupal Extension's `DrupalContext` can extend 4.0's `DrupalContext`, and drops the `use` lines for the traits it already composes:
 
 ```php
 // Before.
-class UiContext extends RawContext {
+use Behat\MinkExtension\Context\RawMinkContext;
+use DrevOps\BehatSteps\JavascriptTrait;
+use DrevOps\BehatSteps\WaitTrait;
+
+class UiContext extends RawMinkContext {
 
   use JavascriptTrait;
   use WaitTrait;
@@ -1136,6 +1158,10 @@ class UiContext extends RawContext {
 }
 
 // After.
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Steps\Web\JavascriptTrait;
+use DrevOps\BehatSteps\Steps\Web\WaitTrait;
+
 class UiContext extends WebRawContext {
 
   use JavascriptTrait;
@@ -1146,7 +1172,7 @@ class UiContext extends WebRawContext {
 
 ### The Drupal lifecycle moved into concern-named helpers
 
-Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\Helper\Drupal`, split by concern rather than gathered into one class. Every member carries its trait's prefix:
+What the Drupal Extension's `RawDrupalContext` and 3.14's `Drupal\HelperTrait` provided for creating and removing entities, users and roles moved under `DrevOps\BehatSteps\Helper\Drupal`, split by concern rather than gathered into 1 class. Every member carries its trait's prefix:
 
 | Helper | Holds | Composed by |
 | --- | --- | --- |
@@ -1154,7 +1180,7 @@ Everything `RawContext` declared about Drupal moved under `DrevOps\BehatSteps\He
 | `Helper\Drupal\AuthTrait` | `authCreateUser()`, `authLogin()`, `authLogout()`, `authIsLoggedIn()`, `authGetUserRegistry()`, `authSetUserRegistry()`, `authGetAuthenticator()`, `authSetAuthenticator()`, `authAfterScenario()` | `Steps\Drupal\UserTrait` |
 | `Helper\Drupal\StaticCacheTrait` | `staticCacheAfterScenario()` | `Steps\Drupal\CacheTrait` |
 | `Helper\Drupal\FixtureFileTrait` | the 5 `fixtureFile*()` methods | `ContentTrait`, `MediaTrait` |
-| `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryNodeIds()` | 11 step traits |
+| `Helper\Drupal\QueryTrait` | `queryEntityIds()`, `queryFindNewestEntityId()`, `queryNodeIds()` | 11 step traits |
 
 The web half of the library sits under `DrevOps\BehatSteps\Helper\Web` and names nothing Drupal:
 
@@ -1167,33 +1193,38 @@ The web half of the library sits under `DrevOps\BehatSteps\Helper\Web` and names
 
 A call or an override in a consumer context is renamed:
 
-| Old `RawContext` member | New member |
+| Old member | New member |
 | --- | --- |
-| `nodeCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateNode()` |
-| `termCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateTerm()` |
-| `entityCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreate()` |
-| `languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateLanguage()` |
-| `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
-| `parseEntityFields()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleParseFields()` |
-| `cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAfterScenario()` |
-| `alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleBeforeNodeCreate()` |
-| `userCreate()` | `Helper\Drupal\AuthTrait::authCreateUser()` |
-| `login()` | `Helper\Drupal\AuthTrait::authLogin()` |
-| `logout()` | `Helper\Drupal\AuthTrait::authLogout()` |
-| `loggedIn()` | `Helper\Drupal\AuthTrait::authIsLoggedIn()` |
-| `getUserManager()` | `Helper\Drupal\AuthTrait::authGetUserRegistry()` |
-| `setUserManager()` | `Helper\Drupal\AuthTrait::authSetUserRegistry()` |
-| `cleanUsers()` | `Helper\Drupal\AuthTrait::authCleanUsers()` |
-| `cleanRoles()` | `Helper\Drupal\AuthTrait::authCleanRoles()` |
-| `clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheAfterScenario()` |
+| `RawDrupalContext::nodeCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateNode()` |
+| `RawDrupalContext::termCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateTerm()` |
+| `RawDrupalContext::entityCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreate()` |
+| `RawDrupalContext::languageCreate()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleCreateLanguage()` |
+| `RawDrupalContext::parseEntityFields()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleParseFields()` |
+| `RawDrupalContext::alterNodeParameters()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleBeforeNodeCreate()` |
+| `RawDrupalContext::cleanEntities()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAfterScenario()` |
+| `Drupal\HelperTrait::entityCleanupAfterScenario()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleAfterScenario()` |
+| `Drupal\HelperTrait::entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
+| `Drupal\HelperTrait::entityRegisterId()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()`, passing the loaded entity rather than its type and id |
+| `RawDrupalContext::$createdStubs`, `Drupal\HelperTrait::$entityRegistry` | `Helper\Drupal\EntityLifecycleTrait::$entityLifecycleCreatedStubs`, which holds entity stubs |
+| `RawDrupalContext::userCreate()` | `Helper\Drupal\AuthTrait::authCreateUser()` |
+| `RawDrupalContext::login()` | `Helper\Drupal\AuthTrait::authLogin()` |
+| `RawDrupalContext::logout()` | `Helper\Drupal\AuthTrait::authLogout()` |
+| `RawDrupalContext::loggedIn()` | `Helper\Drupal\AuthTrait::authIsLoggedIn()` |
+| `RawDrupalContext::getUserManager()` | `Helper\Drupal\AuthTrait::authGetUserRegistry()` |
+| `RawDrupalContext::setUserManager()` | `Helper\Drupal\AuthTrait::authSetUserRegistry()` |
+| `RawDrupalContext::getAuthenticationManager()` | `Helper\Drupal\AuthTrait::authGetAuthenticator()` |
+| `RawDrupalContext::setAuthenticationManager()` | `Helper\Drupal\AuthTrait::authSetAuthenticator()` |
+| `RawDrupalContext::cleanUsers()` | `Helper\Drupal\AuthTrait::authCleanUsers()` |
+| `RawDrupalContext::cleanRoles()` | `Helper\Drupal\AuthTrait::authCleanRoles()` |
+| `RawDrupalContext::clearStaticCaches()` | `Helper\Drupal\StaticCacheTrait::staticCacheAfterScenario()` |
 
-Three of those names were also skip tags. A skip tag names a trait rather than a method, so `@behat-steps-skip:cleanEntities` becomes `@behat-steps-skip:EntityLifecycleTrait`, and `@behat-steps-skip:cleanUsers` and `@behat-steps-skip:cleanRoles` both become `@behat-steps-skip:AuthTrait`.
+`cleanEntities()`, `cleanUsers()` and `cleanRoles()` were hooks, and in 3.14 they read no tag: only the `BEHAT_DRUPALEXTENSION_DISABLE_CLEANUP` environment variable switched them off. [Unified entity cleanup](#unified-entity-cleanup) lists what keeps a scenario's entities, users and roles now.
 
 `authCleanUsers()` and `authCleanRoles()` take no parameters, aren't hooks, and are protected. `authAfterScenario()` is the hook. It runs them users first, and still runs the role cleanup when removing the users fails. When both fail, it throws 1 `\RuntimeException` that names both. An override of either drops its `@AfterScenario` annotation or `#[AfterScenario]` attribute, or it runs twice.
 
 The roles a scenario creates are recorded in `AuthTrait::$authRoles`, which `authCleanRoles()` deletes. 3.x recorded them in the Drupal Extension's `RawDrupalContext::$roles`, so a context that read `$this->roles` reads `$this->authRoles`.
 
-A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where the old `RawContext` ran it for every suite. A context extending `DrupalContext` needs no change.
+A step trait composes what its own body calls, so the teardown travels with the traits that create the thing being torn down. A context that composes no entity-creating trait runs no entity teardown, where `RawDrupalContext` ran its `clean*()` hooks for every context extending it. 4.0's `DrupalContext` composes every entity-creating trait, so a context extending it runs the whole teardown.
 
 A context that wants one concern without the Drupal vocabulary composes that helper alone:
 
@@ -1211,7 +1242,7 @@ Basic authentication is a separate service, because applying credentials to a re
 
 ### One context registers, not two
 
-`DrupalContext` used to ship 7 of the Drupal traits and 10 of the web ones. It now extends `WebContext` and composes all 29 `Steps\Drupal` traits on top of its 28 web ones, so `$suite->addContext(DrupalContext::class)` alone gives a Drupal suite all 57 step traits.
+A 3.14 suite registered the Drupal Extension's contexts, such as `DrupalContext`, `MinkContext`, `MessageContext` and `DrushContext`, beside a context of its own that composed this package's traits. 4.0's `DrupalContext` extends `WebContext` and composes all 29 `Steps\Drupal` traits on top of its 28 web ones, so `$suite->addContext(DrupalContext::class)` alone gives a Drupal suite all 57 step traits, which carry the Drupal Extension's vocabulary as [DrupalExtension step text mapped to the v4 vocabulary](#drupalextension-step-text-mapped-to-the-v4-vocabulary) shows.
 
 Registering `WebContext` beside `DrupalContext` is fatal, because the 28 web traits would register their steps twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names the real mistake rather than letting Behat report a `RedundantStepException` about an arbitrary step.
 
@@ -1233,11 +1264,11 @@ Setting `fail_on_errors` to `FALSE` or tagging a scenario `@error` doesn't cover
 
 Every trait that reaches beyond its own methods states what it needs from its host. A web trait carries `@phpstan-require-extends`, naming `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all it touches and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reads a backend or the extension configuration. A Drupal trait carries the same annotation and composes the helper traits its body calls, rather than requiring them of its host.
 
-Composition is unchanged at run time, but a project running PHPStan gets an error when a context uses a trait without extending the class or declaring the interface that trait needs. The fix is to extend the named class and declare the named interface, which is what the trait already assumed.
+A 3.14 context that composed these traits onto Mink's `RawMinkContext` or the Drupal Extension's `RawDrupalContext` fails at run time once a trait calls a member only `WebRawContext` declares, such as the `skipTag()` its hooks open with, and a project running PHPStan sees the same mismatch reported up front. The fix is to extend the named class and declare the named interface.
 
 ## A trait declares its prerequisites
 
-A trait states what it needs from the site in a `<prefix>Prerequisites()` method, named like its `<prefix>ConfigSchema()`, and each prerequisite goes through a backend capability rather than a query of its own. The module checks the step traits ran through `queryAssertModuleEnabled()` moved onto these declarations, and [STEPS.md](STEPS.md) lists each trait's prerequisites beside its options.
+A trait states what it needs from the site in a `<prefix>Prerequisites()` method, named like its `<prefix>ConfigSchema()`, and each prerequisite goes through a backend capability rather than a query of its own. The module checks the step traits ran through `helperAssertModuleEnabled()` moved onto these declarations, and [STEPS.md](STEPS.md) lists each trait's prerequisites beside its options.
 
 ```php
 protected function acmePrerequisites(): array {
@@ -1256,14 +1287,14 @@ A step checks them with `$this->assertPrerequisites(__TRAIT__)`, a setup hook wi
 
 | Before | After |
 | --- | --- |
-| `$this->queryAssertModuleEnabled('acme', 'drupal/acme')` in a step | Declare the module in `<prefix>Prerequisites()` and call `$this->assertPrerequisites(__TRAIT__)` |
+| `$this->helperAssertModuleEnabled('acme', 'drupal/acme')` in a step | Declare the module in `<prefix>Prerequisites()` and call `$this->assertPrerequisites(__TRAIT__)` |
 | `\Drupal::moduleHandler()->moduleExists('acme')` to adapt to an optional module | `$this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('acme')` |
 
-The message for a missing module changes with it. `The "webform" module is not enabled. Add "drupal/webform" to the consumer project's composer.json and enable the module as part of the site setup.` becomes `WebformTrait requires that the "webform" module from the "drupal/webform" package is enabled, which does not hold.`, so a test asserting the old text needs the new one.
+The message for a missing module changes with it. `The "redirect" module is not enabled. Add "drupal/redirect" to the consumer project's composer.json and enable the module as part of the site setup.` becomes `RedirectTrait requires that the "redirect" module from the "drupal/redirect" package is enabled, which does not hold.`, and the core form, `The "menu_link_content" module is not enabled. Enable it as part of the site setup; it ships with Drupal core.`, becomes `MenuTrait requires that the core "menu_link_content" module is enabled, for the menu link steps, which does not hold.`, so a test asserting the old text needs the new one. `SearchApiTrait` and `DraggableviewsTrait` change the same way, and `WebformTrait`, which checked nothing in 3.14, now fails with the same shape of message.
 
 `FileTrait`, `MediaTrait` and `TaxonomyTrait` declare the core module they build on, so on a site without it a step fails with `MediaTrait requires that the core "media" module is enabled, which does not hold.` rather than with whatever Drupal threw first. `FileTrait` checks `file` in its managed file steps only, so the unmanaged file steps keep working without it, and `TaxonomyTrait`'s term creation goes through the content capability and checks nothing.
 
-`TestmodeTrait` still checks the `testmode` module when a `@testmode` scenario starts, but it no longer checks it again when the scenario ends: the teardown disables test mode only if the scenario enabled it.
+`TestmodeTrait` checks the `testmode` module when a `@testmode` scenario starts, where 3.14 called the module's `Testmode` class without checking, and its teardown disables test mode only if the scenario enabled it.
 
 ## A trait's directory classifies it
 
@@ -1277,29 +1308,24 @@ Shared logic lives in step-free helper traits under `DrevOps\BehatSteps\Helper\W
 
 | Trait | Old | New |
 | --- | --- | --- |
-| `Steps\Drupal\ContentTrait` | `contentLoadMultiple()` | `Helper\Drupal\QueryTrait::queryNodeIds()` |
-| `Steps\Web\RestTrait` | `$restHeaders` | `Helper\Web\RequestHeadersTrait::$requestHeaders`, read and written through `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()` and `requestHeadersReset()` |
+| `Drupal\ContentTrait` | `contentLoadMultiple()` | `Helper\Drupal\QueryTrait::queryNodeIds()` |
+| `RestTrait` | `$restHeaders` | `Helper\Web\RequestHeadersTrait::$requestHeaders`, read and written through `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()` and `requestHeadersReset()` |
 
-`Steps\Drupal\SearchApiTrait` composed `ContentTrait` and so registered every content step alongside its own; it now composes `Helper\Drupal\QueryTrait` itself, finds the node with `queryFindNewestEntityId()`, and registers only the Search API steps. A context that relied on that indirect composition has to compose `ContentTrait` itself.
+`Drupal\SearchApiTrait` composed `ContentTrait` and so registered every content step alongside its own; it now composes `Helper\Drupal\QueryTrait` itself, finds the node with `queryFindNewestEntityId()`, and registers only the Search API steps. A context that relied on that indirect composition has to compose `ContentTrait` itself. `FieldTrait` composed `KeyboardTrait` the same way; [`FieldTrait` no longer re-exports the keyboard steps](#fieldtrait-no-longer-re-exports-the-keyboard-steps) covers it.
 
-`Steps\Drupal\ConfigOverrideTrait` set its `X-Config-No-Override` signal on `RestTrait`'s property when it found one. It writes to the header bag instead. The bag is per context, so a suite that wants the signal on `RestTrait`'s own requests composes both traits into one context rather than registering the two shipped ones; the browser header, the `$_SERVER` entry and the environment variable reach the site either way.
+`Drupal\ConfigOverrideTrait` set its `X-Config-No-Override` signal on `RestTrait`'s property when it found one. It writes to the header bag instead. The bag is per context, so a suite that wants the signal on `RestTrait`'s own requests composes both traits into one context rather than registering the two shipped ones; the browser header, the `$_SERVER` entry and the environment variable reach the site either way.
 
 A helper trait composed by a step trait and by the context under it holds one slot of state, so both reach the same bag.
 
-### The two `HelperTrait`s became 6 concern-named traits
+### The 2 `HelperTrait`s became concern-named traits
 
-`Steps\Web\HelperTrait` and `Steps\Drupal\HelperTrait` are gone. Their members live under `DrevOps\BehatSteps\Helper\Web` and `DrevOps\BehatSteps\Helper\Drupal`, each trait named for the one concern it holds, and every method carries its own trait's prefix in place of the shared `helper` one:
+3.14's `DrevOps\BehatSteps\HelperTrait` and `DrevOps\BehatSteps\Drupal\HelperTrait` are gone. Their members live under `DrevOps\BehatSteps\Helper\Web` and `DrevOps\BehatSteps\Helper\Drupal`, each trait named for the 1 concern it holds, and every method carries its own trait's prefix in place of the shared `helper` one. The entity registry members of `Drupal\HelperTrait` are in [The Drupal lifecycle moved into concern-named helpers](#the-drupal-lifecycle-moved-into-concern-named-helpers):
 
 | Old member | New member |
 | --- | --- |
 | `helperSetLastStepLine()` | `Helper\Web\LastStepTrait::lastStepSetLine()` |
 | `helperIsLastStep()` | `Helper\Web\LastStepTrait::lastStepReached()` |
 | `$helperLastStepLine` | `Helper\Web\LastStepTrait::$lastStepLine` |
-| `helperSetRequestHeader()` | `Helper\Web\RequestHeadersTrait::requestHeadersSet()` |
-| `helperUnsetRequestHeader()` | `Helper\Web\RequestHeadersTrait::requestHeadersUnset()` |
-| `helperGetRequestHeaders()` | `Helper\Web\RequestHeadersTrait::requestHeadersAll()` |
-| `helperResetRequestHeaders()` | `Helper\Web\RequestHeadersTrait::requestHeadersReset()` |
-| `$helperRequestHeaders` | `Helper\Web\RequestHeadersTrait::$requestHeaders` |
 | `helperFixStepArgument()` | `Helper\Web\StringTrait::stringFixStepArgument()` |
 | `helperNormalizeWhitespace()` | `Helper\Web\StringTrait::stringNormalizeWhitespace()` |
 | `helperSplitCommaSeparated()` | `Helper\Web\StringTrait::stringSplitCommaSeparated()` |
@@ -1312,14 +1338,13 @@ A helper trait composed by a step trait and by the context under it holds one sl
 | `helperExpandCompoundCellFixtures()` | `Helper\Drupal\FixtureFileTrait::fixtureFileExpandCompoundCell()` |
 | `helperResolveFixtureFile()` | `Helper\Drupal\FixtureFileTrait::fixtureFileResolve()` |
 | `helperManagedFileExists()` | `Helper\Drupal\FixtureFileTrait::fixtureFileManagedExists()` |
-| `helperLoadNodeIds()` | `Helper\Drupal\QueryTrait::queryNodeIds()` |
 | `helperAssertModuleEnabled()` | A `<prefix>Prerequisites()` declaration checked by `assertPrerequisites(__TRAIT__)`, as [A trait declares its prerequisites](#a-trait-declares-its-prerequisites) shows |
 
 A context that composed a `HelperTrait` to reach one of these composes the trait holding it instead:
 
 ```php
 // Before.
-use DrevOps\BehatSteps\Steps\Web\HelperTrait;
+use DrevOps\BehatSteps\HelperTrait;
 
 // After.
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
@@ -1327,7 +1352,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
 
 Extending `WebRawContext` needs no `use` statement for `LastStepTrait`, `RequestHeadersTrait` or `StringTrait`, which it composes, and composing a step trait needs none for the Drupal helpers: the step trait already composes what it calls.
 
-`requestHeadersSet()`, the two `tableTranspose*()` methods, `fixtureFileExpandEntityFields()` and the entity, authentication and query members a step calls are `public` and published in [HELPERS.md](HELPERS.md). Every other helper stays `protected`.
+`requestHeadersSet()`, the 2 `tableTranspose*()` methods, `fixtureFileExpandEntityFields()`, the `FixtureDirectoryTrait` and `HeadingTrait` members, and the entity, authentication and query members a step calls are `public` and published in [HELPERS.md](HELPERS.md). Every other helper method, hooks aside, stays `protected`.
 
 ## Trait methods prefixed with their trait name
 
@@ -1337,7 +1362,6 @@ Every method a trait contributes now begins with the trait's own name, so that t
 | --- | --- | --- |
 | `Drupal\DraggableviewsTrait` | `draggableViewsSaveBundleOrder()` | `draggableviewsSaveBundleOrder()` |
 | `Drupal\DraggableviewsTrait` | `draggableViewsFindNode()` | `draggableviewsFindNode()` |
-| `Drupal\HelperTrait` | `entityRegister()` | `Helper\Drupal\EntityLifecycleTrait::entityLifecycleRegister()` |
 | `Drupal\MenuTrait` | `loadMenuByLabel()` | `menuFindByLabel()` |
 | `Drupal\MenuTrait` | `loadMenuLinkByTitle()` | `menuFindLinkByTitle()` |
 | `WaitTrait` | `waitWaitForSeconds()` | `waitSeconds()` |
@@ -1356,7 +1380,7 @@ Gherkin step text is unchanged, so feature files need no edit for the renames ab
 | `Then the current URL should not have the query parameter :name` | passes | fails |
 | `Then the current URL should not have the query parameter :name with the value :value` | passes | fails for the value `0` |
 
-A scenario that asserted a falsy parameter away with `Then the current URL should not have the query parameter "filter"` now needs to name the value it excludes:
+A scenario that asserted a falsy parameter away with `Then current url should not have the "filter" parameter` now needs to name the value it excludes:
 
 ```gherkin
 Then the current URL should not have the query parameter "filter" with the value "recent"
@@ -1364,13 +1388,13 @@ Then the current URL should not have the query parameter "filter" with the value
 
 ## A value of `0` is not empty
 
-A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other: `Given the password for the user :name is "0"` sets the password instead of failing with `Password must not be empty.`, an attribute whose value is `0` counts as present for the `the element :selector with the attribute :attribute ...` steps, an iframe named `0` is switched to by name, a WYSIWYG field with the id `0` is filled through its id, and `fileCreateEntity()` honors a destination URI of `0`. A `drush` backend configured with an alias or root path of `0` is likewise read as configured.
+A few checks read a string with `empty()`, which treats the string `0` as absent. They compare against the empty string now, so `0` is a value like any other: `Given the password for the user :name is "0"` sets the password instead of failing with `Password must not be empty.`, an attribute whose value is `0` counts as present for the `the element :selector with the attribute :attribute ...` steps, a WYSIWYG field with the id `0` is filled through its id, and `fileCreateEntity()` honors a destination URI of `0`. The Drush backend likewise reads an alias or root path of `0` as configured, where the Drupal Driver's `DrushDriver` read it as missing.
 
 ## Email subject steps match the way they read
 
-4 `Drupal\EmailTrait` steps pick an email by its subject. They matched it 2 different ways, and neither was what the step text says. `with the subject :subject` settled for the first email whose subject contained the text, after collapsing whitespace. `with a subject containing :partial_subject` ignored case.
+4 `Drupal\EmailTrait` steps pick an email by its subject. They matched it 2 different ways, and neither was what the step text says. `with the subject :subject` settled for the first email whose subject contained the text, after collapsing whitespace. `with the subject containing :subject`, now `with a subject containing :partial_subject`, ignored case.
 
-Both now follow the grammar in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). `with the subject` names the whole subject, which is how `the number of emails sent with the subject :subject should be :count` already compared it. `a subject containing` matches part of it, case-sensitively, like every other `containing` step.
+Both now follow the grammar in [CONTRIBUTING.md](CONTRIBUTING.md#steps-format). `with the subject` names the whole subject, as `the number of emails sent with the subject :subject should be :count` does. `a subject containing` matches part of it, case-sensitively, like every other `containing` step.
 
 | Step | Before | After |
 | --- | --- | --- |
@@ -1385,8 +1409,8 @@ A scenario that named only part of a subject switches to the `containing` step, 
 
 ```gherkin
 # Before.
-When I follow the link with the index "1" in the email with the subject "Verification"
-Then the file "report.xlsx" should be attached to the email with a subject containing "monthly report"
+When I follow link number "1" in the email with the subject "Verification"
+Then the file "report.xlsx" should be attached to the email with the subject containing "monthly report"
 
 # After.
 When I follow the link with the index "1" in the email with a subject containing "Verification"
@@ -1404,7 +1428,7 @@ When the file is missing, the attachment steps now name it. The old message said
 
 ## Page cache steps clear the paths they name
 
-`Given the page cache for the path :path is empty` named 1 path but cleared every page. It invalidated the `http_response` cache tag, and Drupal puts that tag on every cacheable response, so the step emptied the whole internal page cache and the whole dynamic page cache. `Given the page cache for the paths matching :path_pattern is empty` matched its pattern anywhere in the cached URL, so `/news*` also cleared `/archive/news`, and a pattern with no `*` cleared every path that contained it.
+`Given the page cache for the path :path has been cleared` named 1 path but cleared every page. It invalidated the `http_response` cache tag, and Drupal puts that tag on every cacheable response, so the step emptied the whole internal page cache and the whole dynamic page cache. `Given the page cache for the paths matching :path_pattern has been cleared` matched its pattern anywhere in the cached URL, so `/news*` also cleared `/archive/news`, and a pattern with no `*` cleared every path that contained it.
 
 Both steps now delete the internal page cache entries whose path matches. The match ignores the host, the query string and the request format, so clearing `/about` clears `/about?page=2` too. A pattern matches the whole path, and `*` matches any run of characters, `/` included.
 
@@ -1420,7 +1444,7 @@ A scenario that leaned on the old reach, to refresh a path it didn't name or a p
 
 ```gherkin
 # Before.
-Given the page cache for the path "/about" is empty
+Given the page cache for the path "/about" has been cleared
 
 # After: every internal page cache entry.
 Given the page cache for the paths matching "/*" is empty
@@ -1498,8 +1522,8 @@ If your project catches an exception from one of these steps, update the type:
 | `XmlTrait` (`I print the last XML response`, when the document cannot be serialized) | `ExpectationException` | `\RuntimeException` |
 | `XmlTrait` (`the response should match the following DTD:` and `the response should match the DTD in the file ...`, when the response has no root element or cannot be serialized) | `ExpectationException` | `\RuntimeException` |
 | `KeyboardTrait` (`I press the key(s) ...` without an element, when nothing has focus) | `ExpectationException` | `\RuntimeException` |
-| `Drupal\BlockTrait` (every `Given the block ...` step, when the block does not exist) | `ExpectationException` | `\RuntimeException` |
-| `WaitTrait` (`I wait for AJAX to finish` and `I wait for ... second(s) for AJAX to finish`, without a JavaScript driver) | `\RuntimeException` | `UnsupportedDriverActionException` |
+| `Drupal\BlockTrait` (the `Given the block :label ...` steps that change a block, when the block does not exist) | `ExpectationException` | `\RuntimeException` |
+| `WaitTrait` (`I wait for ... second(s) for AJAX to finish`, without a JavaScript driver) | `\RuntimeException` | `UnsupportedDriverActionException` |
 | `FieldTrait` (`I fill in the multi-value field ...`, without a JavaScript driver) | `\RuntimeException` | `UnsupportedDriverActionException` |
 
 14 failure messages changed along with their type:
@@ -1521,16 +1545,16 @@ If your project catches an exception from one of these steps, update the type:
 | `the meta tag should exist with the following attributes:` | `Meta tag with specified attributes was not found: {...}.` | `Meta tag with attributes "{...}" not found.` |
 | `the meta tag :name should not contain any HTML tags` | `Meta tag with name or property "..." not found.` | `Meta tag with name\|property "..." not found.` |
 
-The same rule now covers the backend layer and the Behat services under `src/Behat`, which used to throw `\InvalidArgumentException` and plain `\Exception` for an invalid argument or an unmet prerequisite. If your project calls a backend or one of those services directly and catches on the type, update it:
+The same rule now covers the backend layer and the Behat services, which 4.0 carries in place of the Drupal Driver and the Drupal Extension. In 3.x those classes threw `\InvalidArgumentException` and plain `\Exception` for an invalid argument or an unmet prerequisite. If your project calls one of them directly and catches on the type, update it:
 
 | Class | Was | Now |
 | --- | --- | --- |
-| `Backend\Core\Core` (an unknown entity type, bundle, vocabulary, user, language, severity or handler class) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
-| `Backend\Core\Field\*Handler` (a malformed field value, an unreadable file, a missing referenced entity) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
-| `Behat\Registry\BackendRegistry::getBackend()` and `setScenarioBackends()` | `\InvalidArgumentException` | `\RuntimeException` |
-| `Behat\Registry\UserRegistry::getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
-| `Behat\Selector\RegionSelector::translateToXPath()` | `\InvalidArgumentException` | `\RuntimeException` |
-| `Backend\Exception\CreationAliasResolutionException` | extends `\InvalidArgumentException` | extends `Backend\Exception\Exception` |
+| `Drupal\Driver\Core\Core`, now `Backend\Core\Core` (an unknown entity type, bundle, vocabulary, language or handler class) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
+| `Drupal\Driver\Core\Field\*Handler`, now `Backend\Core\Field\*Handler` (a malformed field value, an unreadable file, a missing referenced entity) | `\InvalidArgumentException` / `\Exception` | `\RuntimeException` |
+| `Drupal\DrupalExtension\Manager\DriverManager::getDriver()` and `setDefaultDriverName()`, now `Behat\Registry\BackendRegistry::getBackend()` and `setScenarioBackends()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Drupal\DrupalExtension\Manager\DrupalUserManager::getUser()`, now `Behat\Registry\UserRegistry::getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Drupal\DrupalExtension\Selector\RegionSelector::translateToXPath()`, now `Behat\Selector\RegionSelector::translateToXPath()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `Drupal\Driver\Exception\CreationAliasResolutionException`, now `Backend\Exception\CreationAliasResolutionException` | extends `\InvalidArgumentException` | extends `Backend\Exception\Exception` |
 
 `CreationAliasResolutionException` is no longer a `\LogicException`, so a `catch (\InvalidArgumentException)` or `catch (\LogicException)` no longer catches it; catch the class itself.
 
@@ -1639,7 +1663,7 @@ A handful of trait members exposed more than the surrounding code intended. Each
 
 ### The toolbox is now `public`
 
-Visibility marks the API: a `public` method that Behat does not register is the toolbox, listed in [HELPERS.md](HELPERS.md) and covered by semantic versioning, and a `protected` one is an implementation detail. 162 helpers a project calls from its own step definitions were promoted to `public` for this, and the rest stayed `protected`.
+Visibility marks the API: a `public` method that Behat does not register is the toolbox, listed in [HELPERS.md](HELPERS.md) and covered by semantic versioning, and a `protected` one is an implementation detail. Helpers a project calls from its own step definitions were promoted to `public` for this, and the rest stayed `protected`.
 
 PHP refuses to narrow an inherited method, so a context that overrides one of the promoted helpers as `protected` no longer loads:
 
@@ -1658,7 +1682,7 @@ Neither method is a step or a hook, and both were only ever called from step met
 | `KeyboardTrait::keyboardPressKeyOnElementSingle()` | `public` | `protected` |
 | `FileDownloadTrait::fileDownloadAssertLinkPresent()` | `public` | `protected` |
 
-`DateTrait::dateRelativeProcessValue()` and `ResponsiveTrait::responsiveSetBreakpoints()` stay public and are now documented as API in their docblocks. `DateTrait` also stays static on purpose: `dateGetNow()` is the supported seam for pinning the clock, and overriding it in your `FeatureContext` works as before under that name, which [Consumer override points are `Get`-prefixed](#consumer-override-points-are-get-prefixed) lists against the old `dateNow()`.
+`DateTrait::dateRelativeProcessValue()` and `ResponsiveTrait::responsiveSetBreakpoints()` stay public and are now documented as API in their docblocks. `DateTrait` also stays static on purpose: `dateGetNow()` is the supported seam for pinning the clock. A 3.x override of `protected static function dateNow()` renames to `dateGetNow()`, as [Consumer override points are `Get`-prefixed](#consumer-override-points-are-get-prefixed) lists, and declares it `public static`.
 
 ### Constants carry their trait prefix
 
@@ -1693,15 +1717,21 @@ Hook methods used to come in 3 shapes: taking and using the scope, taking and ig
 
 | Hook | New signature |
 | --- | --- |
-| `AccessibilityTrait::accessibilityAfterSuite()` | `(AfterSuiteScope $scope)` |
-| `AccessibilityTrait::accessibilityBeforeSuite()` | `(BeforeSuiteScope $scope)` |
 | `CommandTrait::commandAfterScenario()` | `(AfterScenarioScope $scope)` |
 | `CommandTrait::commandBeforeScenario()` | `(BeforeScenarioScope $scope)` |
-| `Drupal\BigPipeTrait::bigPipeBeforeStep()` | `(BeforeStepScope $scope)` |
 | `JsonTrait::jsonAfterScenario()` | `(AfterScenarioScope $scope)` |
 | `JsonTrait::jsonBeforeScenario()` | `(BeforeScenarioScope $scope)` |
 | `XmlTrait::xmlAfterScenario()` | `(AfterScenarioScope $scope)` |
 | `XmlTrait::xmlBeforeScenario()` | `(BeforeScenarioScope $scope)` |
+
+2 hooks that changed name also gained the parameter: `bigPipeWaitBeforeStep()` and `accessibilityAggregateRender()`. [A hook is named for its event](#a-hook-is-named-for-its-event) gives their new names and signatures.
+
+2 protected helpers changed signature too, so an override of either takes the new one:
+
+| Method | 3.x | v4 |
+| --- | --- | --- |
+| `AccessibilityTrait::accessibilityResolveTags()` | `(array $tags)` | `(BeforeScenarioScope $scope)` |
+| `Drupal\EmailTrait::emailSetMailSystemDefault()` | `static (string $type, mixed $value)` | `(string $type, mixed $value)`, no longer `static` |
 
 ### Properties declare native types
 
@@ -1727,7 +1757,7 @@ No step shipped by this library declares `:expectedValue`, so the shipped vocabu
 
 ## One shape per naming idea
 
-Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize" and 2 of "log in", 2 shapes for a consumer override point, 3 lookup verbs that didn't say what a lookup does when nothing matches, 2 word orders for a method that creates an entity, 3 shapes for a method acting on several entities, and assertions that put a qualifier ahead of their predicate, used `Has`, `Includes` or `Present` where the rules say `Equals`, `Contains` or `Exists`, or weren't named as assertions at all. They are members a consumer calls, overrides or implements, so each is renamed rather than aliased. Apart from the 2 meta robots steps under [`Contains` and `Exists`, not `Includes` and `Present`](#contains-and-exists-not-includes-and-present), Gherkin step text, step parameter names and method bodies are unchanged, so no other `.feature` file needs an edit.
+Method names carried 6 shapes for "assert the negative", 2 spellings of "normalize" and 2 of "log in", 2 shapes for a consumer override point, 3 lookup verbs that didn't say what a lookup does when nothing matches, 2 word orders for a method that creates an entity, 3 shapes for a method acting on several entities, and assertions that put a qualifier ahead of their predicate, used `Has`, `Includes` or `Present` where the rules say `Equals`, `Contains` or `Exists`, or weren't named as assertions at all. They are members a consumer calls, overrides or implements, so each is renamed rather than aliased. These renames leave Gherkin step text alone, apart from the 2 meta robots steps, whose rows are under [One wording per step idea](#one-wording-per-step-idea). Where a renamed method's step text, placeholders or behavior changed between 3.x and v4 for another reason, another section of this guide lists it.
 
 `CONTRIBUTING.md` states the settled conventions, and `tests/phpunit/src/TraitMethodNamingTest.php` and `tests/phpunit/src/CapabilityMethodNamingTest.php` enforce them.
 
@@ -1766,11 +1796,11 @@ Method names carried 6 shapes for "assert the negative", 2 spellings of "normali
 | `XmlTrait` | `xmlAssertResponseIsXml()` | `xmlAssertResponseXml()` |
 | `XmlTrait` | `xmlAssertResponseIsNotXml()` | `xmlAssertResponseNotXml()` |
 
-`ElementTrait::elementAssertPinnedToTop()` appears on both sides of that table. The public step took the name once its copula was dropped, and the protected helper that backs all three pinned-to-top steps moved to `elementAssertPinnedToTopWithin()`, after the tolerance it takes.
+`ElementTrait::elementAssertPinnedToTop()` appears on both sides of that table. The public step took the name once its copula was dropped, and the protected helper that backs all 3 pinned-to-top steps moved to `elementAssertPinnedToTopWithin()`, after the tolerance it takes. A 3.x call to the helper doesn't fail: it reaches the step, and PHP drops the 2 extra arguments, so it asserts that the element is pinned within 2 pixels, whatever tolerance and direction it passed. Move each call to `elementAssertPinnedToTopWithin()`.
 
 The file, watchdog, JavaScript and path rows point straight at the names [`Has` names something the subject holds](#has-names-something-the-subject-holds) settles on.
 
-Three `Drupal\EmailTrait` methods asserted an exact match under names that gave no way to derive one from the other. They now carry the `Equals` predicate the rest of the library uses.
+3 `Drupal\EmailTrait` methods asserted an exact match under names that gave no way to derive one from the other. They now carry the `Equals` predicate the rest of the library uses.
 
 | Old | New |
 | --- | --- |
@@ -1795,27 +1825,23 @@ Two of the four header assertions were verb-first and two subject-first. The exi
 | --- | --- | --- |
 | `Drupal\StateTrait` | `stateNormaliseValue()` | `Helper\Web\StringTrait::stringNormalizeValue()`, as [Step logic moved into shared helpers](#step-logic-moved-into-shared-helpers) describes |
 | `ElementTrait` | `elementNormaliseCssProperty()` | `elementNormalizeCssProperty()` |
+| `Drupal\Driver\Core\Field\AbstractHandler`, now `Backend\Core\Field\AbstractHandler` | `normalise()` | `normalize()` |
+
+A field handler of your own that overrides `normalise()` isn't called any more, and nothing reports it, until the override is renamed `normalize()`.
 
 ### `Login` and `Logout`, not `LogIn` and `LogOut`
 
-Logging in and out is spelled as 1 word in every name, as `authLogin()`, `FastLogoutInterface` and the `login_url` key already spelled it. Step text keeps the verb, so `When I log in as the user :name` is unchanged.
+Logging in and out is spelled as 1 word in every name, as the Drupal Extension's `RawDrupalContext::login()`, `FastLogoutInterface` and `login_url` key already spelled it. Step text keeps the 2-word verb, as in `When I log in as the user :name`.
 
 | Where | Old | New |
 | --- | --- | --- |
-| `Behat\Auth\AuthenticatorInterface` | `logIn()` | `login()` |
-| `Behat\Auth\AuthenticatorInterface` | `logOut()` | `logout()` |
-| `Behat\Auth\AuthenticatorInterface` | `loggedIn()` | `isLoggedIn()` |
-| `Drupal\UserTrait` | `userCreateAndLogIn()` | `userCreateAndLogin()` |
-| `Drupal\UserTrait` | `userLogInAs()` | `userLoginAs()` |
-| `Drupal\UserTrait` | `userLogInWithPermissions()` | `userLoginWithPermissions()` |
-| `Drupal\UserTrait` | `userLogInWithRoles()` | `userLoginWithRoles()` |
-| `Drupal\UserTrait` | `userLogInWithRolesAndFields()` | `userLoginWithRolesAndFields()` |
-| `Drupal\UserTrait` | `userLogOut()` | `userLogout()` |
-| `Drupal\UserTrait` | `userLogOutSession()` | `userLogoutSession()` |
-| `BehatStepsExtension` | `text: log_in:` | `text: login:` |
-| `BehatStepsExtension` | `text: log_out:` | `text: logout:` |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManagerInterface`, now `Behat\Auth\AuthenticatorInterface` | `logIn()` | `login()` |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManagerInterface`, now `Behat\Auth\AuthenticatorInterface` | `logOut()` | `logout()` |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManagerInterface`, now `Behat\Auth\AuthenticatorInterface` | `loggedIn()` | `isLoggedIn()` |
+| `Drupal\DrupalExtension` configuration, now `BehatStepsExtension` | `text: log_in:` | `text: login:` |
+| `Drupal\DrupalExtension` configuration, now `BehatStepsExtension` | `text: log_out:` | `text: logout:` |
 
-PHP matches method names without regard to case, so only 3 rows need an edit. A custom authenticator that declares `loggedIn()` fails to load until it declares `isLoggedIn()`, and a `log_in` or `log_out` key under `text` fails the container build with a message naming its replacement. The other rows change case only, so existing calls and overrides keep working.
+PHP matches method names without regard to case, so the `logIn()` and `logOut()` rows need no edit of their own: only the interface they're declared on is renamed. A custom authentication manager that declares `loggedIn()` fails to load until it declares `isLoggedIn()`, and a `log_in` or `log_out` key under `text` fails the container build with a message naming its replacement. The methods behind the Drupal Extension's session steps are listed under [Session and users](#session-and-users).
 
 ### Consumer override points are `Get`-prefixed
 
@@ -1838,11 +1864,13 @@ A documented override point that supplies a value now reads `<trait>Get<Noun>()`
 
 The 2 `MetatagTrait` override points also name what they return, the required tags, since `OpenGraphRequired` on its own isn't a noun.
 
+An override is a method of your own that the trait calls, so one left under its 3.x name isn't called any more, and nothing reports it: a `dateNow()` that pinned the clock stops pinning it. Rename each override, and declare it `public`, as [The toolbox is now `public`](#the-toolbox-is-now-public) describes.
+
 ### A lookup's verb says what a miss does
 
 `Find`, `Load` and `Get` each named some lookups that return `NULL` when nothing matches and others that throw, sometimes in the same trait: `TableTrait` had a `tableFind()` that threw beside a `tableFindRowByText()` that returned `NULL`. The verb now carries the contract. A `Find` returns `NULL`, a `Get` throws and never returns `NULL`, and a `Load` loads a set, so no lookup for 1 item is named `Load`.
 
-Only the name changes. Each method keeps its body, its parameters, its return type and the exceptions it throws. The exceptions: `userGetByName()` returns `UserInterface` where `userLoadByName()` declared `?UserInterface`, and `metatagFindMetaContent()` names its parameter `$meta_name`.
+The last column is each method's v4 contract. Besides the name, `userGetByName()` returns `UserInterface` where `userLoadByName()` declared `?UserInterface`, `metatagFindMetaContent()` names its parameter `$meta_name` where it took `$name`, and `fileDownloadGetLink()` is protected where `fileDownloadAssertLinkPresent()` was public. 2 of them throw differently from 3.x: `tableGet()` throws `ElementNotFoundException` where `tableFind()` threw `ExpectationException`, and `elementGetNth()` throws `\RuntimeException` for an index below 1 where `elementFindNthOrFail()` threw `ExpectationException`. The lookups by title or label pick the newest match, as [A lookup by title acts on the newest match](#a-lookup-by-title-acts-on-the-newest-match) describes, and some of their messages changed, as [Failure messages read one way](#failure-messages-read-one-way) lists.
 
 | Trait | Old | New | When nothing matches |
 | --- | --- | --- | --- |
@@ -1859,7 +1887,7 @@ Only the name changes. Each method keeps its body, its parameters, its return ty
 | `DiagnosticsTrait` | `diagnosticsGetStatusCode()` | `diagnosticsFindStatusCode()` | returns `NULL` |
 | `DiagnosticsTrait` | `diagnosticsGetUrl()` | `diagnosticsFindUrl()` | returns `NULL` |
 | `ElementTrait` | `elementFindNthOrFail()` | `elementGetNth()` | throws `ElementNotFoundException`, or `ExpectationException` past the last match |
-| `FileDownloadTrait` | `fileDownloadAssertLinkPresent()` (protected) | `fileDownloadGetLink()` | throws `ElementNotFoundException` |
+| `FileDownloadTrait` | `fileDownloadAssertLinkPresent()` | `fileDownloadGetLink()` (protected) | throws `ElementNotFoundException` |
 | `JsonTrait` | `jsonResolveSingle()` (protected) | `jsonGetValue()` | throws `ExpectationException` |
 | `JsonTrait` | `jsonResolveScalar()` (protected) | `jsonGetScalar()` | throws `ExpectationException` |
 | `MetatagTrait` | `metatagGetCanonicalHref()` | `metatagFindCanonicalHref()` | returns `NULL` |
@@ -1967,7 +1995,7 @@ The step text follows the method: `the meta robots should include :directive` is
 
 ### An assertion names its predicate
 
-An assertion says what it asserts after its subject: a compared value reads `Equals`, a set that must be present reads `Exist`, validity reads `Valid` after the subject, and a check the subject must pass reads `Passes`, as `commandAssertOutputEquals()`, `metatagAssertHreflangValid()` and `accessibilityAssertCurrentPagePasses()` do. 9 assertions named no predicate or put `Valid` ahead of the subject. Step text is unchanged.
+An assertion says what it asserts after its subject: a compared value reads `Equals`, a set that must be present reads `Exist`, validity reads `Valid` after the subject, and a check the subject must pass reads `Passes`, as `commandAssertOutputEquals()`, `metatagAssertHreflangValid()` and `accessibilityAssertCurrentPagePasses()` do. 9 assertions named no predicate or put `Valid` ahead of the subject. The renames change no step text. The step behind `accessibilityAssertCurrentPagePassesForTags()` changed for another reason, as [Step text follows the documented grammar](#step-text-follows-the-documented-grammar) lists.
 
 | Trait | Old | New |
 | --- | --- | --- |
@@ -2005,46 +2033,44 @@ The protected `Drupal\EmailTrait::emailAssertLinkNumber()`, `CommandTrait::comma
 
 ### A hook is named for its event
 
-A hook method reads `<prefix><Event>`, so `configBeforeScenario()` and `contentBeforeNodeCreate()` already told the reader when they run. The hooks that were named for what they do take the same shape. A skip tag names a trait, not a hook, so no tag changes.
+A hook method reads `<prefix><Event>`, so `configBeforeScenario()` and `contentBeforeNodeCreate()` already told the reader when they run. The hooks that were named for what they do take the same shape. A skip tag names a trait now, not a hook, so a 3.x tag that named one of these hooks moves to its trait's tag, as [One skip tag per trait](#one-skip-tag-per-trait) lists.
 
 | Trait | Old | New |
 | --- | --- | --- |
-| Drupal\TimeTrait | timeCleanup() | timeAfterScenario() |
-| Drupal\WatchdogTrait | watchdogSetScenario() | watchdogBeforeScenario() |
-| Drupal\BigPipeTrait | bigPipeWaitBeforeStep() | bigPipeBeforeStep() |
-| AccessibilityTrait | accessibilitySetupScenario() | accessibilityBeforeScenario() |
-| AccessibilityTrait | accessibilityAutoAssess() | accessibilityAfterStep() |
-| AccessibilityTrait | accessibilityFinalizeScenario() | accessibilityAfterScenario() |
-| AccessibilityTrait | accessibilityAggregateRender() | accessibilityAfterSuite() |
+| `Drupal\TimeTrait` | `timeCleanup()` | `timeAfterScenario()` |
+| `Drupal\WatchdogTrait` | `watchdogSetScenario()` | `watchdogBeforeScenario()` |
+| `Drupal\BigPipeTrait` | `bigPipeWaitBeforeStep()` | `bigPipeBeforeStep(BeforeStepScope $scope)` |
+| `AccessibilityTrait` | `accessibilitySetupScenario()` | `accessibilityBeforeScenario()` |
+| `AccessibilityTrait` | `accessibilityAutoAssess()` | `accessibilityAfterStep()` |
+| `AccessibilityTrait` | `accessibilityFinalizeScenario()` | `accessibilityAfterScenario()` |
+| `AccessibilityTrait` | `accessibilityAggregateRender()` | `accessibilityAfterSuite(AfterSuiteScope $scope)` |
 
 `AccessibilityTrait` registered 2 `BeforeSuite` hooks, so neither could take the event's name. `accessibilityBeforeSuite()` is the hook now, and it runs `accessibilityCaptureBaseDir()` and then `accessibilityAggregateReset()`. Both keep their 3.x names and their parameterless signatures, but they aren't hooks anymore and they're protected. An override drops the `#[BeforeSuite]` attribute it copied from 3.x, or it runs twice.
 
 ### A bundle parameter is named after its entity type
 
-A helper that takes a bundle names the parameter after the entity type, as the step placeholders do. 2 `Drupal\ContentBlockTrait` helpers took `$type`; a call that passes the argument by name renames it.
+A helper that takes a bundle names the parameter after the entity type, as the step placeholders do. 4 helpers named it otherwise; a call that passes the argument by name renames it.
 
 | Method | Before | After |
 | --- | --- | --- |
-| `contentBlockCreate()` | `string $type, array $values` | `string $content_block_type, array $values` |
-| `contentBlockLoadMultiple()` | `string $type, array $conditions = []` | `string $content_block_type, array $conditions = []` |
+| `ContentBlockTrait::contentBlockCreateSingle()`, now `contentBlockCreate()` | `string $type, array $values` | `string $content_block_type, array $values` |
+| `ContentBlockTrait::contentBlockLoadMultiple()` | `string $type, array $conditions = []` | `string $content_block_type, array $conditions = []` |
+| `MediaTrait::mediaLoadMultiple()` | `string $type, array $conditions = []` | `string $media_type, array $conditions = []` |
+| `TaxonomyTrait::taxonomyLoadMultiple()` | `string $vocabulary_machine_name, array $conditions = []` | `string $vocabulary, array $conditions = []` |
 
-`contentBlockCreate()` is the 1-entity helper that was `contentBlockCreateSingle()`, renamed under [A method acting on several entities ends in `Multiple`](#a-method-acting-on-several-entities-ends-in-multiple).
+`contentBlockCreateSingle()` is `contentBlockCreate()` in v4, and the 3.x `contentBlockCreate()` step is `contentBlockCreateMultiple()`, both renamed under [A method acting on several entities ends in `Multiple`](#a-method-acting-on-several-entities-ends-in-multiple). `taxonomyVisitActionPageWithName()` renamed its bundle parameter as well, as the `TaxonomyTrait` row under [Method names](#method-names) lists.
 
 ### A create or delete method names the verb first
 
-A method that created an entity put the verb and the noun in either order. The step traits read verb-first, as `contentCreateWithFields()` did, while the entity lifecycle helper, `EckTrait` and every backend capability read noun-first, as `entityLifecycleNodeCreate()` and `nodeCreate()` did. The verb now comes first everywhere: a trait method puts it right after its prefix, and a capability method opens with it.
+A method that created an entity put the verb and the noun in either order. The step traits read verb-first, as `contentCreateWithFields()` did, while the Drupal Extension's `RawDrupalContext`, `EckTrait` and every Drupal Driver capability read noun-first, as `RawDrupalContext::nodeCreate()` and `ContentCapabilityInterface::nodeCreate()` did. The verb now comes first everywhere: a trait method puts it right after its prefix, and a capability method opens with it.
 
 | Trait | Old | New |
 | --- | --- | --- |
-| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleNodeCreate()` | `entityLifecycleCreateNode()` |
-| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleTermCreate()` | `entityLifecycleCreateTerm()` |
-| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleLanguageCreate()` | `entityLifecycleCreateLanguage()` |
-| `Helper\Drupal\AuthTrait` | `authUserCreate()` | `authCreateUser()` |
 | `Drupal\EckTrait` | `eckEntitiesCreate()` | `eckCreateMultiple()` |
 | `Drupal\MenuTrait` | `menuLinksCreate()` | `menuCreateLinkMultiple()` |
 | `Drupal\MenuTrait` | `menuLinksDelete()` | `menuDeleteLinkMultiple()` |
 
-`entityLifecycleCreate()` already read verb-first and is unchanged. The 3 steps at the bottom also act on several entities, so they take the `Multiple` the next section describes. The `RawContext` rows in [The Drupal lifecycle moved into concern-named helpers](#the-drupal-lifecycle-moved-into-concern-named-helpers) point straight at the new names.
+The 3 steps in the table also act on several entities, so they take the `Multiple` the next section describes. The Drupal Extension's `RawDrupalContext::nodeCreate()`, `termCreate()`, `languageCreate()`, `entityCreate()` and `userCreate()` read noun-first too; their verb-first replacements, such as `entityLifecycleCreateNode()` and `authCreateUser()`, are listed under [The Drupal lifecycle moved into concern-named helpers](#the-drupal-lifecycle-moved-into-concern-named-helpers).
 
 The verb that deletes is `Delete`. 3 `does not exist` steps said `Remove` instead, and `ContentTrait` repeated the noun its prefix already carries:
 
@@ -2054,7 +2080,7 @@ The verb that deletes is `Delete`. 3 `does not exist` steps said `Remove` instea
 | `Drupal\ContentTrait` | `contentRemoveContentType()` | `contentDeleteType()` |
 | `Drupal\MediaTrait` | `mediaRemoveType()` | `mediaDeleteType()` |
 
-A capability interface that creates an entity now reads one way, so its delete, place and role methods move with its create methods. A backend of your own renames the methods it implements; `DrupalBackend`, `DrushBackend` and `Core` already have.
+A capability interface that creates an entity now reads one way, so its delete, place and role methods move with its create methods. A Drupal Driver driver of your own that implements one of these interfaces, a backend in v4, renames the methods it implements; the shipped `DrupalBackend`, `DrushBackend` and `Core` already use the new names.
 
 | Interface | Old | New |
 | --- | --- | --- |
@@ -2076,7 +2102,7 @@ A capability interface that creates an entity now reads one way, so its delete, 
 | `RoleCapabilityInterface` | `roleCreate()` | `createRole()` |
 | `RoleCapabilityInterface` | `roleDelete()` | `deleteRole()` |
 
-The config, state, module, mail, cache and cron capabilities keep their names. So do the entity-create hooks, because a hook is named for its event: `BeforeNodeCreate`, `AfterTermCreate` and the rest are unchanged.
+The authentication, config, module, mail, cache and cron capabilities keep their method names. So do the entity-create hooks, because a hook is named for its event: `BeforeNodeCreate`, `AfterTermCreate` and the rest are unchanged. `StateCapabilityInterface` is new in v4 and names its methods the way the config capability does.
 
 ### An action method names its step's verb first
 
@@ -2095,7 +2121,6 @@ A method that created, deleted or loaded several entities at once took one of 3 
 
 | Trait | Old | New |
 | --- | --- | --- |
-| `Drupal\ContentTrait` | `contentCreate()` | `contentCreateMultiple()` |
 | `Drupal\ContentTrait` | `contentCreateWithFields()` | `contentCreateMultipleWithFields()` |
 | `Drupal\ContentTrait` | `contentDelete()` | `contentDeleteMultiple()` |
 | `Drupal\ContentBlockTrait` | `contentBlockCreate()` | `contentBlockCreateMultiple()` |
@@ -2116,20 +2141,37 @@ A method that created, deleted or loaded several entities at once took one of 3 
 | `Drupal\MenuTrait` | `menuDeleteSingle()` | `menuDelete()` |
 | `Drupal\RedirectTrait` | `redirectCreate()` | `redirectCreateMultiple()` |
 | `Drupal\RedirectTrait` | `redirectDelete()` | `redirectDeleteMultiple()` |
-| `Drupal\TaxonomyTrait` | `taxonomyCreate()` | `taxonomyCreateMultiple()` |
 | `Drupal\TaxonomyTrait` | `taxonomyCreateWithFields()` | `taxonomyCreateMultipleWithFields()` |
 | `Drupal\TaxonomyTrait` | `taxonomyDeleteTerms()` | `taxonomyDeleteMultiple()` |
 | `Drupal\UserTrait` | `userCreateWithFields()` | `userCreateMultipleWithFields()` |
 | `Drupal\UserTrait` | `userCreateRoles()` | `userCreateRoleMultiple()` |
 | `Drupal\UserTrait` | `userDelete()` | `userDeleteMultiple()` |
 | `Drupal\WebformTrait` | `webformLoadAll()` | `webformLoadMultiple()` |
-| `Drupal\WebformTrait` | `webformLoadTemplates()` | `webformLoadTemplateMultiple()` |
 
-`mediaCreate()`, `contentBlockCreate()` and `fileCreateManaged()` appear on both sides of that table. The step over a table took the `Multiple` name, and the 1-entity helper beside it took the name the step freed. Their parameters differ, so a call left on the old name fails with a `TypeError` rather than reaching the wrong method quietly.
+10 of the 3.x names in that table now belong to a different method. Each 3.x step over a table took the `Multiple` name, and the name it freed went to a helper that acts on 1 entity: the renamed `Single` helper for `mediaCreate()`, `contentBlockCreate()` and `fileCreateManaged()`, and a helper new in v4 for the other 7. A call left on a 3.x name reaches that helper:
 
-`webformLoadTemplates()` shipped in v3 as `webformTemplates()`, so its row under [A lookup's verb says what a miss does](#a-lookups-verb-says-what-a-miss-does) maps that name straight to `webformLoadTemplateMultiple()`.
+| 3.x method | v4 method of the same name | A call left on the 3.x name |
+| --- | --- | --- |
+| `Drupal\ContentTrait::contentDelete(string $content_type, TableNode $table)` | `contentDelete(string $content_type, array $conditions)` | fails with a `TypeError` |
+| `Drupal\ContentBlockTrait::contentBlockCreate(string $type, TableNode $content_block_table)` | `contentBlockCreate(string $content_block_type, array $values)` | fails with a `TypeError` |
+| `Drupal\ContentBlockTrait::contentBlockDelete(string $type, TableNode $content_block_table)` | `contentBlockDelete(string $content_block_type, array $conditions)` | fails with a `TypeError` |
+| `Drupal\FileTrait::fileCreateManaged(TableNode $table)` | `fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL)` | fails with an `ArgumentCountError` |
+| `Drupal\MediaTrait::mediaCreate(string $media_type, TableNode $table)` | `mediaCreate(EntityStubInterface $stub)` | fails with a `TypeError` |
+| `Drupal\MediaTrait::mediaDelete(string $media_type, TableNode $table)` | `mediaDelete(string $media_type, array $conditions)` | fails with a `TypeError` |
+| `Drupal\MenuTrait::menuCreate(TableNode $table)` | `menuCreate(array $values)` | fails with a `TypeError` |
+| `Drupal\RedirectTrait::redirectCreate(TableNode $table)` | `redirectCreate(string $from, string $to, int $status_code = 301)` | fails with an `ArgumentCountError` |
+| `Drupal\RedirectTrait::redirectDelete(TableNode $table)` | `redirectDelete(string $from)` | runs without an error and deletes nothing |
+| `Drupal\UserTrait::userDelete(TableNode $table)` | `userDelete(array $values)` | fails with a `TypeError` |
 
-`ContentTrait`, `TaxonomyTrait` and `UserTrait` carry their own 1-entity helpers, `contentCreate()`, `taxonomyCreate()` and `userCreate()`; a single language or other entity goes through `entityLifecycleCreateLanguage()` or `entityLifecycleCreate()`. `userCreateMultiple()`, `languageCreateMultiple()` and `entityCreateMultiple()` are new in v4 and already carry the suffix.
+`TableNode` implements `Stringable`, so where the v4 method takes a `string` first, PHP's default coercive mode turns the table into its text instead of rejecting it. `fileCreateManaged()` and `redirectCreate()` then fail on the argument that's missing, and `redirectDelete()` looks for a redirect whose source is the table's text, finds none, and returns. In a file that declares `strict_types=1`, all 3 fail with a `TypeError` instead. 3.x's `Drupal\OverrideTrait` called `contentDelete()` and `userDelete()` with a table, so a context that copied its overrides carries 2 of these calls.
+
+2 more 3.x names reach a different method in v4. `ElementTrait::elementAssertPinnedToTop()` went the other way, from a protected helper to a public step, and a 3.x call to it runs without an error, as [Negation is spelled `Not`, in one slot](#negation-is-spelled-not-in-one-slot) explains. The Drupal Extension's `RawDrupalContext::userCreate(EntityStubInterface $stub)` is `authCreateUser()` now, and on the shipped `DrupalContext` the old name reaches `Drupal\UserTrait::userCreate(array $values)`, so a leftover `$this->userCreate($stub)` fails with a `TypeError`.
+
+An override that keeps a 3.x signature fails too. On a context that extends a shipped one, PHP rejects the declaration as incompatible with the v4 method when the class loads. On a context that composes the trait itself, an override of one of the 10 names above replaces the v4 helper, so the `Multiple` step that calls the helper fails with a `TypeError`. Search a project for each name above before upgrading.
+
+`WebformTrait::webformTemplates()` is `webformLoadTemplateMultiple()` as well; its row is under [A lookup's verb says what a miss does](#a-lookups-verb-says-what-a-miss-does).
+
+`ContentTrait`, `TaxonomyTrait` and `UserTrait` carry their own 1-entity helpers, `contentCreate()`, `taxonomyCreate()` and `userCreate()`; a single language or other entity goes through `entityLifecycleCreateLanguage()` or `entityLifecycleCreate()`. `userCreate()` takes field values, so it isn't the Drupal Extension's `RawDrupalContext::userCreate()`, which took a stub and is `authCreateUser()` now. `contentCreateMultiple()`, `taxonomyCreateMultiple()`, `userCreateMultiple()`, `languageCreateMultiple()` and `entityCreateMultiple()` replace the Drupal Extension's `DrupalContext` creation methods, as the [DrupalExtension mapping](#drupalextension-step-text-mapped-to-the-v4-vocabulary) lists.
 
 A table step that sets several values takes the suffix too, as `configSetMultiple()` and `stateSetMultiple()` do. `ResponsiveTrait`'s breakpoint table read `FromTable` with a plural noun instead:
 
@@ -2147,7 +2189,7 @@ A single-word boolean parameter takes an `is_` prefix, as `$is_partial` and `$is
 
 `emailAssertMessageHeaderContains()`, `emailAssertMessageFieldContains()`, `emailAssertMessageFieldNotContains()` and `emailClearTestQueue()` lost their flag instead, as [A step method takes only what its step binds](#a-step-method-takes-only-what-its-step-binds) lists.
 
-`Helper\Drupal\AuthTrait::authLogout()`, which replaces `RawContext::logout()`, takes `$is_fast` where `logout()` took `$fast`.
+`Helper\Drupal\AuthTrait::authLogout()`, which replaces the Drupal Extension's `RawDrupalContext::logout()`, takes `$is_fast` where `logout()` took `$fast`.
 
 ### A method is named for what it does, not `Helper`
 
@@ -2164,7 +2206,7 @@ The protected `FieldTrait::fieldFillDatetimeHelper()` is `fieldFillDatetimeInput
 
 ### `XmlTrait` names its content steps as `JsonTrait` does
 
-`XmlTrait` and `JsonTrait` register the same 2 `Given` steps, 1 loading the response body from a fixture file and 1 taking it from a PyString. `JsonTrait` names them `jsonSetContentFromFile()` and `jsonSetContent()`, while `XmlTrait` added `Response`, which every step in the trait acts on, and `Direct`, which names nothing in its step. Step text is unchanged.
+`XmlTrait` and `JsonTrait` register the same 2 `Given` steps, 1 loading the response body from a fixture file and 1 taking it from a PyString. `JsonTrait` names them `jsonSetContentFromFile()` and `jsonSetContent()`, while `XmlTrait` added `Response`, which every step in the trait acts on, and `Direct`, which names nothing in its step. Their step text changed as well, as the `XmlTrait` table under [Unified step text](#unified-step-text) lists.
 
 | Trait | Old | New |
 | --- | --- | --- |
@@ -2173,91 +2215,72 @@ The protected `FieldTrait::fieldFillDatetimeHelper()` is `fieldFillDatetimeInput
 
 ## A class is named for the role it plays
 
-5 classes under `Behat\Manager` shared a `Manager` suffix while playing 3 different roles, so nothing in a name told a lookup table apart from a service that acts. The suffix is replaced by a 2-part rule: a `*Registry` holds things and looks them up, and anything that performs an action takes an agent noun.
+The Drupal Extension kept 4 classes in `Drupal\DrupalExtension\Manager` that shared a `Manager` suffix while playing 3 different roles, so nothing in a name told a lookup table apart from a service that acts. Their replacements follow a 2-part rule: a `*Registry` holds things and looks them up, and anything that performs an action takes an agent noun. The registries live in `DrevOps\BehatSteps\Behat\Registry`, and the authenticators and `FastLogoutInterface` in `DrevOps\BehatSteps\Behat\Auth`.
 
-| Old | Role | New |
+| Drupal Extension 6.1 | Role | 4.x |
 | --- | --- | --- |
-| `Behat\Manager\DriverManager` | registers backends, resolves one by capability, tracks the scenario's order | `Behat\Registry\BackendRegistry` |
-| `Behat\Manager\UserManager` | stores the users a scenario created, tracks the current one | `Behat\Registry\UserRegistry` |
-| `Behat\Manager\AuthenticationManager` | logs a user in and out, holds a Drupal session | `Behat\Auth\Authenticator` |
-| `Behat\Manager\BasicAuthManager` | derives credentials from `base_url`, applies them to Mink | `Behat\Auth\BasicAuthenticator` |
+| `Drupal\DrupalExtension\Manager\DriverManager` | registers backends, resolves one by capability, tracks the scenario's order | `Behat\Registry\BackendRegistry` |
+| `Drupal\DrupalExtension\Manager\DrupalUserManager` | stores the users a scenario created, tracks the current one | `Behat\Registry\UserRegistry` |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManager` | logs a user in and out, holds a Drupal session | `Behat\Auth\Authenticator` |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManager`, its basic authentication | derives credentials from `base_url`, applies them to Mink | `Behat\Auth\BasicAuthenticator` |
+
+`DrupalAuthenticationManager` implemented `DrupalAuthenticationManagerInterface`, `FastLogoutInterface` and `BasicAuthInterface` at once. 4.x splits it in 2: `Authenticator` implements `AuthenticatorInterface` and `FastLogoutInterface`, and `BasicAuthenticator` implements `BasicAuthenticatorInterface`. The 4th class, `DrupalMailManager`, has no replacement, as [`DrupalMailManager` is gone](#drupalmailmanager-is-gone) explains.
 
 Each interface travels with its class:
 
-| Old | New |
+| Drupal Extension 6.1 | 4.x |
 | --- | --- |
-| `DriverManagerInterface` | `BackendRegistryInterface` |
-| `UserManagerInterface` | `UserRegistryInterface` |
-| `AuthenticationManagerInterface` | `AuthenticatorInterface` |
-| `BasicAuthInterface` | `BasicAuthenticatorInterface` |
-
-`FastLogoutInterface` keeps its name. It describes a capability rather than a role.
-
-A context implements `BackendAwareInterface` or `UserAwareInterface`, so the 8 accessors those interfaces declare are renamed too. A project that composes `AuthTrait` or extends any shipped context inherits the new names for free; one that calls them from its own step definitions renames the calls.
-
-| Interface | Old | New |
-| --- | --- | --- |
-| `BackendAwareInterface` | `setDriverManager()` | `setBackendRegistry()` |
-| `BackendAwareInterface` | `getDriverManager()` | `getBackendRegistry()` |
-| `BackendAwareInterface` | `setBasicAuthManager()` | `setBasicAuthenticator()` |
-| `BackendAwareInterface` | `getBasicAuthManager()` | `getBasicAuthenticator()` |
-| `UserAwareInterface` | `authSetUserManager()` | `authSetUserRegistry()` |
-| `UserAwareInterface` | `authGetUserManager()` | `authGetUserRegistry()` |
-| `UserAwareInterface` | `authSetManager()` | `authSetAuthenticator()` |
-| `UserAwareInterface` | `authGetManager()` | `authGetAuthenticator()` |
-
-The service ids and the `*.class` parameters that let a suite swap an implementation follow the classes.
-
-| Old | New |
-| --- | --- |
-| `behat_steps.driver_manager` | `behat_steps.backend_registry` |
-| `behat_steps.user_manager` | `behat_steps.user_registry` |
-| `behat_steps.authentication_manager` | `behat_steps.authenticator` |
-| `behat_steps.basic_auth_manager` | `behat_steps.basic_authenticator` |
-
-### `Behat\Manager` split into `Behat\Registry` and `Behat\Auth`
-
-The class renames left `Manager` in 1 place: the namespace the classes shared, which named no role any of them plays. The 3 registries now live in `Behat\Registry`, and the 2 authenticators and `FastLogoutInterface` in `Behat\Auth`. Every class keeps its own name, so the namespace is the whole change:
+| `Drupal\DrupalExtension\Manager\DriverManagerInterface` | `Behat\Registry\BackendRegistryInterface` |
+| `Drupal\DrupalExtension\Manager\DrupalUserManagerInterface` | `Behat\Registry\UserRegistryInterface` |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManagerInterface` | `Behat\Auth\AuthenticatorInterface` |
+| `Drupal\DrupalExtension\Manager\BasicAuthInterface` | `Behat\Auth\BasicAuthenticatorInterface` |
+| `Drupal\DrupalExtension\Manager\FastLogoutInterface` | `Behat\Auth\FastLogoutInterface` |
 
 ```php
 // Before.
-use DrevOps\BehatSteps\Behat\Manager\UserRegistryInterface;
+use Drupal\DrupalExtension\Manager\DrupalUserManagerInterface;
 
 // After.
 use DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface;
 ```
 
-| Old | New |
+`FastLogoutInterface` keeps its short name. It describes a capability rather than a role. [`Login` and `Logout`, not `LogIn` and `LogOut`](#login-and-logout-not-login-and-logout) lists the methods `AuthenticatorInterface` renames, and [Methods and constants](#methods-and-constants) the ones `BackendRegistryInterface` renames. `BasicAuthenticatorInterface` adds `findCredentials()`, as [Steps send their own requests through 3 HTTP clients](#steps-send-their-own-requests-through-3-http-clients) describes.
+
+`DrupalAwareInterface`, which `RawDrupalContext` implemented, declared the accessors a context used to reach these services. 4.x splits it in 2: `BackendAwareInterface`, which `WebRawContext` implements, and `UserAwareInterface`, which a context composing `AuthTrait` declares. A context that extends a shipped context inherits the new names, and one that calls the old accessors from its own step definitions renames the calls. One that implemented `DrupalAwareInterface` by hand implements the 2 new interfaces instead, with the new types in its accessor signatures, or PHP refuses to load it; `BackendAwareInterface` also declares the accessors for the HTTP client factory, option resolution and basic authentication, which had no 3.x counterpart.
+
+| Drupal Extension 6.1 | 4.x |
 | --- | --- |
-| `Behat\Manager\BackendRegistry` | `Behat\Registry\BackendRegistry` |
-| `Behat\Manager\BackendRegistryInterface` | `Behat\Registry\BackendRegistryInterface` |
-| `Behat\Manager\UserRegistry` | `Behat\Registry\UserRegistry` |
-| `Behat\Manager\UserRegistryInterface` | `Behat\Registry\UserRegistryInterface` |
-| `Behat\Manager\ScenarioTagRegistry` | `Behat\Registry\ScenarioTagRegistry` |
-| `Behat\Manager\ScenarioTagRegistryInterface` | `Behat\Registry\ScenarioTagRegistryInterface` |
-| `Behat\Manager\Authenticator` | `Behat\Auth\Authenticator` |
-| `Behat\Manager\AuthenticatorInterface` | `Behat\Auth\AuthenticatorInterface` |
-| `Behat\Manager\BasicAuthenticator` | `Behat\Auth\BasicAuthenticator` |
-| `Behat\Manager\BasicAuthenticatorInterface` | `Behat\Auth\BasicAuthenticatorInterface` |
-| `Behat\Manager\FastLogoutInterface` | `Behat\Auth\FastLogoutInterface` |
+| `DrupalAwareInterface::setDrupal()` | `BackendAwareInterface::setBackendRegistry()` |
+| `DrupalAwareInterface::getDrupal()` | `BackendAwareInterface::getBackendRegistry()` |
+| `DrupalAwareInterface::setDispatcher()` | `BackendAwareInterface::setHookDispatcher()` |
+| `DrupalAwareInterface::setAuthenticationManager()` | `UserAwareInterface::authSetAuthenticator()` |
+| `DrupalAwareInterface::getAuthenticationManager()` | `UserAwareInterface::authGetAuthenticator()` |
 
-A context that composes `AuthTrait` or extends a shipped context picks up the new types for free. One that implements `BackendAwareInterface` or `UserAwareInterface` by hand names these types in its accessor signatures, and PHP refuses to load it until they match the interface again.
+`getUserManager()` and `setUserManager()` are listed under [The Drupal lifecycle moved into concern-named helpers](#the-drupal-lifecycle-moved-into-concern-named-helpers), which also describes the `setBasicAuthenticator()` and `getBasicAuthenticator()` pair basic authentication gets on `BackendAwareInterface`.
 
-The service ids and their `*.class` parameters keep their names; only the default class each parameter holds moves. A suite that swaps in its own registry or authenticator through one of those parameters keeps the parameter as it is and updates the imports in its own class.
+The service ids and the `*.class` parameters that let a suite swap an implementation follow the classes:
 
-`grep -rnE 'BehatSteps\\+Behat\\+Manager' <your project>` lists every import, docblock type and container parameter that still names the old namespace.
+| Drupal Extension 6.1 | 4.x |
+| --- | --- |
+| `drupal.drupal` | `behat_steps.backend_registry` |
+| `drupal.user_manager` | `behat_steps.user_registry` |
+| `drupal.authentication_manager` | `behat_steps.authenticator` |
 
-### `MailManager` is gone
+`drupal.drupal.class` becomes `behat_steps.backend_registry.class`, and so on for the other 2. Basic authentication is a service of its own, `behat_steps.basic_authenticator`, so a suite that swapped `drupal.authentication_manager.class` for a class that also applied basic auth now registers 2 classes, through `behat_steps.authenticator.class` and `behat_steps.basic_authenticator.class`. Each implements the interface, because the shipped classes are `final`, as [Classes are final unless a project extends them](#classes-are-final-unless-a-project-extends-them) shows.
 
-`MailManager` forwarded to `MailCapabilityInterface` and added nothing: `stopCollectingMail()` called `mailStopCollecting()`, `getMail()` called `mailGet()`, `clearMail()` called `mailClear()`, and `startCollectingMail()` called `mailStartCollecting()` and then cleared. Nothing registered it as a service, and `EmailTrait` resolves `CoreCapabilityInterface` directly rather than asking for the mail capability at all, which is why the class was never wired.
+`grep -rnE 'DrupalExtension\\+Manager|DrupalAwareInterface|drupal\.(drupal|user_manager|authentication_manager)' <your project>` lists every import, docblock type and container name that still names the Drupal Extension's.
+
+### `DrupalMailManager` is gone
+
+The Drupal Extension's `DrupalMailManager` forwarded to `MailCapabilityInterface` and added nothing: `startCollectingMail()` called `mailStartCollecting()` and then `mailClear()`, `stopCollectingMail()` called `mailStopCollecting()`, `getMail()` called `mailGet()`, `clearMail()` called `mailClear()`, and `disableMail()` and `enableMail()` called `startCollectingMail()` and `stopCollectingMail()`. Only `RawMailContext::getMailManager()` built it, for the Drupal Extension's mail steps. Their replacement, `EmailTrait`, resolves `CoreCapabilityInterface` and swaps the mail system itself, as [Mail](#mail) describes, so nothing in 4.x needs the class.
 
 That is the general rule, not a one-off: a class that only wraps a capability interface is not written, because the capability interface already is the abstraction. A trait reaches a capability through `backendFor(SomeCapabilityInterface::class)` on `WebRawContext`.
 
-A project that constructed `MailManager` itself calls the capability instead:
+A project that built a `DrupalMailManager` itself, or called `getMailManager()`, calls the capability instead:
 
 ```php
 // Before.
-$mail = new MailManager($backend);
+$mail = new DrupalMailManager($this->getDriver());
 $mail->startCollectingMail();
 $messages = $mail->getMail();
 
@@ -2268,7 +2291,7 @@ $backend->mailClear();
 $messages = $backend->mailGet();
 ```
 
-`MailManagerInterface` is removed with the class.
+`DrupalMailManagerInterface` is removed with the class.
 
 ## Capabilities of the browser driver
 
@@ -2286,13 +2309,13 @@ The Drupal half of the vocabulary resolves its backends by capability. The brows
 
 `WebRawContext` exposes the pair the Drupal side already has: `browserDriverFor()` returns the adapter or raises `UnsupportedDriverActionException` naming the capability, and `browserDriverHas()` answers the same question as a boolean for a step that degrades gracefully instead of failing.
 
-### `JavascriptSupportTrait` is gone
+### `helperIsJavascriptSupported()` asks the capability
 
-`javascriptSupportAvailable()` probed the browser driver by evaluating `true` in the browser, so every call paid a round trip to answer a question that cannot change during a scenario. A custom step that called it asks the capability instead:
+3.x's `helperIsJavascriptSupported()` probed the browser driver by evaluating `true` in the browser, so every call paid a round trip to answer a question that cannot change during a scenario. A custom step that called it asks the capability instead:
 
 ```php
 // Before.
-if (!$this->javascriptSupportAvailable()) {
+if (!$this->helperIsJavascriptSupported()) {
   return;
 }
 
@@ -2310,13 +2333,13 @@ $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
 ### Four traits now need the library's context
 
-`CookieTrait`, `DropzoneTrait`, `IframeTrait` and `KeyboardTrait` resolve a browser capability, so they need `WebRawContext` and no longer compose onto Mink's own `RawMinkContext`. A context composing one of them extends `DrevOps\BehatSteps\Behat\Context\WebRawContext`. `JsonTrait`, `LinkTrait`, `PathTrait`, `RegionTrait`, `ResponseTrait`, `ResponsiveTrait` and `XmlTrait` still run on the bare Mink context. `MetatagTrait` needs `WebRawContext` too, for its HTTP client; see [Steps send their own requests through 3 HTTP clients](#steps-send-their-own-requests-through-3-http-clients).
+`CookieTrait`, `DropzoneTrait`, `IframeTrait` and `KeyboardTrait` resolve a browser capability, so they need `WebRawContext` and no longer compose onto Mink's own `RawMinkContext`. A context composing one of them extends `DrevOps\BehatSteps\Behat\Context\WebRawContext`. `JsonTrait`, `LinkTrait`, `PathTrait`, `ResponseTrait`, `ResponsiveTrait` and `XmlTrait` still run on the bare Mink context, and so does `RegionTrait`, which is new in 4.x; every other web trait needs `WebRawContext`. `MetatagTrait` needs it too, for its HTTP client; see [Steps send their own requests through 3 HTTP clients](#steps-send-their-own-requests-through-3-http-clients).
 
 ### Three steps now fail naming the capability
 
-`I wait for the modal to appear`, `I drop the following files on the dropzone :selector:` and `I switch to the iframe :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole `wait_timeout` and then report that the modal had not appeared.
+`I wait for the modal to appear`, `I drop the following files on the dropzone :selector:` and `I switch to the iframe :selector` performed work only a browser can do without checking for one first. Each now raises `UnsupportedDriverActionException` naming the capability. The modal step is the visible improvement: it used to spend its whole timeout, 3 seconds by default, and then report that the modal had not appeared.
 
-`I press the key ...` and `I wait for :seconds second(s) for AJAX to finish` still raise on a browser driver that cannot serve them, with the capability named in place of a hardcoded list of browser drivers.
+`I press the key ...` still raises `UnsupportedDriverActionException` on a browser driver that cannot serve it, naming the capability where it named "Selenium2 or Chrome". `I wait for :seconds second(s) for AJAX to finish` now raises `UnsupportedDriverActionException` naming the capability too, where it threw `\RuntimeException` naming the browser driver's class, so a test that caught `\RuntimeException` there catches the new type instead.
 
 ### Registering an adapter for another browser driver
 
@@ -2345,19 +2368,15 @@ The download timeout moves from a hardcoded 120 seconds to the `file_download.ti
 
 `MetatagTrait` fetches the hreflang alternates through the detached client, so the return-link check works on a site behind basic auth or a login. That makes it need `WebRawContext`, like the traits in [Four traits now need the library's context](#four-traits-now-need-the-librarys-context). `AccessibilityTrait` fetches its engine through the bare client, which takes the site's connection settings only for requests to `base_url`.
 
-3 signatures change for code that implements or calls them directly:
+`BasicAuthenticatorInterface`, which replaces the Drupal Extension's `BasicAuthInterface`, adds `findCredentials()`, which returns the credentials the `base_url` carries. It takes over from the protected `resolveBasicAuth()` in `DrupalAuthenticationManager`, so a class implementing the interface adds it.
 
-- `HttpClientCapabilityInterface::httpClient()` declares `AbstractBrowser` in place of `object`, so an adapter implementing it narrows its return type to match.
-- `RestTrait::restGetClient()` returns the page client, the same browser as before.
-- `BasicAuthenticatorInterface` gains `findCredentials()`, which returns the credentials the `base_url` carries. It takes over from the protected `resolveBasicAuth()` in `BasicAuthenticator`, and a class implementing the interface adds it.
-
-`guzzlehttp/guzzle` and `webflo/drupal-finder` are no longer dependencies, while `symfony/browser-kit`, `symfony/http-client` and `symfony/mime` are. A project that calls Guzzle directly requires it itself.
+This package now requires `symfony/browser-kit`, `symfony/http-client` and `symfony/mime`. `webflo/drupal-finder` came in with `drupal/drupal-extension`, so a project that drops the Drupal Extension and calls drupal-finder directly requires it itself.
 
 ## Drupal capabilities cover the config, module and state steps
 
-The config, module and state steps resolved `CoreCapabilityInterface` - "bootstrap Drupal in this process" - and then reached into the container, so they ran only on the in-process backend. They now name the capability they need and run on any backend providing it, including Drush.
+In 3.x the config, module and state steps called `\Drupal::configFactory()`, `\Drupal::moduleHandler()` and `\Drupal::state()` directly, so they ran only where the Drupal API driver had bootstrapped Drupal in the Behat process. They now name the capability they need and run on any backend providing it, including Drush.
 
-A project with its own backend implementing these capabilities adds the methods below. A project using only the shipped backends needs no change.
+A project with its own backend implementing these capabilities adds the methods below, and declares `configGet()` and `configGetOriginal()` with `?string $key = NULL` where the Drupal Driver's `ConfigCapabilityInterface` took `string $key = ''`. A project using only the shipped backends needs no change.
 
 | Interface | Added |
 | --- | --- |
@@ -2367,9 +2386,9 @@ A project with its own backend implementing these capabilities adds the methods 
 
 ### The Drush backend stores config values correctly
 
-`DrushBackend::configSet()` asked Drush for `--input-format=json`, which `drush config:set` does not parse - only `yaml` does. Every value the backend wrote was stored as its own JSON encoding, so a string landed with its quotes around it and an array landed as a JSON string rather than an array. A project that seeded config through the Drush backend and worked around the mangled values can drop the workaround.
+The Drupal Driver's `DrushDriver::configSet()` asked Drush for `--input-format=json`, which `drush config:set` does not parse - only `yaml` does. Every value it wrote was stored as its own JSON encoding, so a string landed with its quotes around it and an array landed as a JSON string rather than an array. `DrushBackend::configSet()` passes `--input-format=yaml`, so a project that seeded config through the Drush driver and worked around the mangled values can drop the workaround.
 
-Two smaller corrections come with it. A keyed `configGet()` returned Drush's `{"<name>:<key>": value}` envelope instead of the value. And `configGetOriginal()` was the same call as `configGet()`, so the stored and effective reads the config steps distinguish collapsed into one; the effective read now passes `--include-overridden` and the stored read does not.
+2 smaller corrections come with it. A keyed `configGet()` returned Drush's `{"<name>:<key>": value}` envelope instead of the value. And `configGetOriginal()` was the same call as `configGet()`, so the stored and effective reads the config steps distinguish collapsed into one; the effective read now passes `--include-overridden` and the stored read does not.
 
 ## The Drush backend needs Drush 13
 
@@ -2384,17 +2403,19 @@ The Drush backend supports Drush 13, the first release that runs Drupal 11, and 
 | `deleteUser()` | `user-cancel` | `user:cancel` |
 | `addUserRole()` | `user-add-role` | `user:role:add` |
 
+The method names are the ones [A create or delete method names the verb first](#a-create-or-delete-method-names-the-verb-first) settles on; the Drupal Driver named the last 3 `userCreate()`, `userDelete()` and `userAddRole()`.
+
 `cacheClear()` no longer runs `cache-clear drush` ahead of `cache:rebuild`. Drush 13 keeps no cache of its own, so that command cleared nothing, and Drush 14 rejects the `drush` cache type, so every cache clear over Drush failed there. `cacheClear()` now runs `cache:rebuild` alone.
 
-A project that extends `DrushBackend` and matches the command names it issues, in an override of `drush()` or `drushResult()`, matches the names in the right-hand column.
+A project that extended the Drupal Driver's `DrushDriver` and matched the command names it issues, in an override of `drush()` or `drushResult()`, extends `DrushBackend` and matches the names in the right-hand column.
 
 ## The Drush backend reads `NULL` as an unset alias or root
 
-`NULL` is the only value meaning the Drush backend wasn't given an alias or a root path. The extension used to pass `FALSE` for an unset `alias` or `root`, PHP turned it into an empty string, and `DrushBackend` read an empty string as missing too. It now passes `NULL`, so the `behat_steps.backend.drush.alias` and `behat_steps.backend.drush.root` container parameters hold `NULL` when unset, and the constructor throws a `BootstrapException` for an empty alias or root path:
+`NULL` is the only value meaning the Drush backend wasn't given an alias or a root path. The Drupal Extension passed `FALSE` for an unset `alias` or `root`, PHP turned it into an empty string, and the Drupal Driver's `DrushDriver` read an empty string as missing too. `BehatStepsExtension` passes `NULL`, so the `behat_steps.backend.drush.alias` and `behat_steps.backend.drush.root` container parameters, the Drupal Extension's `drupal.driver.drush.alias` and `drupal.driver.drush.root`, hold `NULL` when unset, and the `DrushBackend` constructor throws a `BootstrapException` for an empty alias or root path:
 
 ```php
 // Before.
-$backend = new DrushBackend('', 'web');
+$driver = new DrushDriver('', 'web');
 
 // After.
 $backend = new DrushBackend(NULL, 'web');
@@ -2432,13 +2453,13 @@ A create flags the stub as saved only when the backend holds the created entity.
 
 The shipped backends keep the delete contract throughout. The Drush backend's `deleteRole()` and `deleteUser()` no longer fail for a role or user that's already gone, and the in-process `deleteUser()` no longer reports "The user account ... does not exist." for one.
 
-A stub that names no entity at all is a malformed argument rather than a miss, so a delete still throws `\RuntimeException` for it. The in-process `deleteNode()` and `deleteTerm()` now do this too, for a stub that's neither saved nor carries a `nid` or `tid` value, as `deleteUser()` and `deleteBlock()` already did. A stub whose id names nothing is still a no-op.
+A stub that names no entity at all is a malformed argument rather than a miss, so a delete throws `\RuntimeException` for it. The in-process `deleteNode()`, `deleteTerm()` and `deleteUser()` now do this for a stub that's neither saved nor carries a `nid`, `tid` or `uid` value, where the Drupal Driver's `nodeDelete()` and `termDelete()` did nothing and its `userDelete()` passed an empty id to `user_cancel()`. `deleteBlock()` throws `\RuntimeException` for a stub without an `id`, where `blockDelete()` threw `\InvalidArgumentException`. A stub whose id names nothing is still a no-op.
 
 ## Every `LoadMultiple()` returns loaded entities
 
-5 of the 6 `<trait>LoadMultiple()` helpers returned entity IDs, while `userLoadMultiple()` returned loaded users. You couldn't tell from 1 signature what the next would hand back. All 6 now return the loaded entities keyed by entity ID, or an empty array when nothing matches. `userLoadMultiple()` already worked this way, so it's unchanged.
+6 of the 7 `<trait>LoadMultiple()` helpers returned entity IDs, while `userLoadMultiple()` returned loaded users. You couldn't tell from 1 signature what the next would hand back. `contentLoadMultiple()` became `Helper\Drupal\QueryTrait::queryNodeIds()`, as [Step traits no longer compose other step traits](#step-traits-no-longer-compose-other-step-traits) lists, and the other 5 now return the loaded entities keyed by entity ID, or an empty array when nothing matches. `userLoadMultiple()` already worked this way, so it's unchanged.
 
-`webformLoadMultiple()` and `webformLoadTemplateMultiple()` joined the family when [A method acting on several entities ends in `Multiple`](#a-method-acting-on-several-entities-ends-in-multiple) renamed them. They always returned loaded webforms keyed by ID, so only their names changed.
+`webformLoadMultiple()` and `webformLoadTemplateMultiple()` joined the family when 3.x's `webformLoadAll()` and `webformTemplates()` were renamed, as [A method acting on several entities ends in `Multiple`](#a-method-acting-on-several-entities-ends-in-multiple) and [A lookup's verb says what a miss does](#a-lookups-verb-says-what-a-miss-does) list. They always returned loaded webforms keyed by ID, so only their names changed.
 
 | Trait | Method | Returned | Returns now |
 | --- | --- | --- | --- |
@@ -2484,19 +2505,12 @@ Replace each hook-method tag with its trait's:
 
 | Tag | Replacement |
 | --- | --- |
-| `@behat-steps-skip:authCleanRoles` | `@behat-steps-skip:AuthTrait` |
-| `@behat-steps-skip:authCleanUsers` | `@behat-steps-skip:AuthTrait` |
-| `@behat-steps-skip:basicAuthBeforeScenario` | `@behat-steps-skip:BasicAuthTrait` |
-| `@behat-steps-skip:cleanEntities` | `@behat-steps-skip:EntityLifecycleTrait` |
-| `@behat-steps-skip:cleanRoles` | `@behat-steps-skip:AuthTrait` |
-| `@behat-steps-skip:cleanUsers` | `@behat-steps-skip:AuthTrait` |
 | `@behat-steps-skip:configAfterScenario` | `@behat-steps-skip:ConfigTrait` |
 | `@behat-steps-skip:configOverrideBeforeScenario` | `@behat-steps-skip:ConfigOverrideTrait` |
 | `@behat-steps-skip:configOverrideBeforeStep` | `@behat-steps-skip:ConfigOverrideTrait` |
 | `@behat-steps-skip:emailAfterScenario` | `@behat-steps-skip:EmailTrait` |
 | `@behat-steps-skip:emailBeforeScenario` | `@behat-steps-skip:EmailTrait` |
 | `@behat-steps-skip:entityCleanupAfterScenario` | `@behat-steps-skip:EntityLifecycleTrait` |
-| `@behat-steps-skip:entityLifecycleCleanAll` | `@behat-steps-skip:EntityLifecycleTrait` |
 | `@behat-steps-skip:fileAfterScenario` | `@behat-steps-skip:FileTrait` |
 | `@behat-steps-skip:fileBeforeScenario` | `@behat-steps-skip:FileTrait` |
 | `@behat-steps-skip:fileDownloadAfterScenario` | `@behat-steps-skip:FileDownloadTrait` |
@@ -2513,14 +2527,13 @@ Replace each hook-method tag with its trait's:
 | `@behat-steps-skip:watchdogAfterStep` | `@behat-steps-skip:WatchdogTrait` |
 | `@behat-steps-skip:watchdogSetScenario` | `@behat-steps-skip:WatchdogTrait` |
 
-The per-type cleanup tags listed under [Unified entity cleanup](#unified-entity-cleanup), such as `@behat-steps-skip:mediaAfterScenario`, fail the same way. Their replacements are unchanged.
+The Drupal Extension's user, role and entity cleanup read no skip tag: only the `BEHAT_DRUPALEXTENSION_DISABLE_CLEANUP` environment variable switched it off, for the whole run. That variable is `BEHAT_STEPS_DISABLE_CLEANUP` now, and `@behat-steps-skip:AuthTrait` and `@behat-steps-skip:EntityLifecycleTrait` switch the same cleanup off for 1 scenario or feature.
+
+A per-type cleanup tag left over from before 3.12, such as `@behat-steps-skip:mediaAfterScenario`, which 3.14 already ignored, fails the same way; `@behat-steps-entity-cleanup-skip:media` is its replacement.
 
 ### A tag now reaches every hook of its trait
 
-For most traits the replacement does exactly what the old tag did, because the trait has one hook to switch off or both of its tags had the same effect: `ConfigTrait`, `ConfigOverrideTrait`, `QueueTrait`, `RestTrait`, `StateTrait`, `TimeTrait` and `WatchdogTrait`. The rest reach further than a single hook tag did:
-
-- A tag that skipped a trait's teardown alone now skips its setup as well. `@behat-steps-skip:EmailTrait` keeps an `@email` scenario from enabling the test email system, not only from disabling it afterwards. A scenario that wants the collector without the teardown enables it itself with `When I enable the test email system`. `FileTrait` (the private and temporary directories), `FileDownloadTrait` (the download directory), `ModuleTrait` (the `@module:` tags) and `TestmodeTrait` (the `@testmode` tag) work the same way.
-- `@behat-steps-skip:AuthTrait` keeps both the users and the roles a scenario created, where the 2 were separate tags.
+For most traits the replacement does exactly what the old tag did, because the trait has one hook to switch off or both of its tags had the same effect: `ConfigTrait`, `ConfigOverrideTrait`, `QueueTrait`, `RestTrait`, `StateTrait`, `TimeTrait` and `WatchdogTrait`. The rest reach further than a single hook tag did. A tag that skipped a trait's teardown alone now skips its setup as well: `@behat-steps-skip:EmailTrait` keeps an `@email` scenario from enabling the test email system, not only from disabling it afterwards. A scenario that wants the collector without the teardown enables it itself with `When I enable the test email system`. `FileTrait` (the private and temporary directories), `FileDownloadTrait` (the download directory), `ModuleTrait` (the `@module:` tags) and `TestmodeTrait` (the `@testmode` tag) work the same way. `@behat-steps-skip:EntityLifecycleTrait` also keeps the nodes, terms and languages a scenario created, which `@behat-steps-skip:entityCleanupAfterScenario` left to the Drupal Extension's cleanup.
 
 ### `I enable the test email system` works without `@email`
 
@@ -2528,11 +2541,11 @@ The step enabled nothing in a scenario without an `@email` tag, because only the
 
 ### A guard of your own names its trait
 
-A trait of your own that guards a hook with `skipTag()` passes `__TRAIT__`, which resolves to the trait the code is written in:
+A trait of your own that guarded a hook on a skip tag, as the 3.x traits did, calls `skipTag()` with `__TRAIT__`, which resolves to the trait the code is written in. `skipTag()` is on `WebRawContext`, so the context composing the trait extends it.
 
 ```php
 // Before.
-if ($this->skipTag(__FUNCTION__, $scope)) {
+if ($scope->getScenario()->hasTag('behat-steps-skip:' . __FUNCTION__)) {
   return;
 }
 
@@ -2542,11 +2555,9 @@ if ($this->skipTag(__TRAIT__, $scope)) {
 }
 ```
 
-`TraitOptionResolverInterface::groupFor()` resolves a trait name only, so a resolver of your own drops any matching of hook-method names against a group's prefix.
-
 ## Tags on the `Feature:` line apply to every scenario
 
-7 traits read their tags from the scenario alone, so a tag on the `Feature:` line switched some traits on and did nothing for others. `@javascript` there turned on `WaitTrait`'s waits, while `@email` there left `EmailTrait`'s collector off. Every hook now reads the scenario's tags together with its feature's, the way Behat's own tag filters, the `@behat-steps-skip:` tags and the option tags already did.
+7 traits read their tags from the scenario alone, so a tag on the `Feature:` line switched some traits on and did nothing for others. `@javascript` there turned on `JavascriptTrait`'s error collection, because Behat's own hook filter reads both lines, while `@email` there left `EmailTrait`'s collector off. Every hook now reads the scenario's tags together with its feature's. So does every `@behat-steps-skip:` tag: most 3.x traits read theirs from the scenario alone too, so a skip tag on the `Feature:` line now switches its trait off for every scenario below it.
 
 | Trait | Tags now read on the `Feature:` line |
 | --- | --- |
@@ -2554,9 +2565,9 @@ if ($this->skipTag(__TRAIT__, $scope)) {
 | `Drupal\ModuleTrait` | `@module:NAME`, `@module:!NAME` |
 | `Drupal\TestmodeTrait` | `@testmode` |
 | `Drupal\WatchdogTrait` | `@watchdog:TYPE` |
-| `Web\FieldTrait` | `@disable-form-validation` |
-| `Web\FileDownloadTrait` | `@download` |
-| `Web\ResponsiveTrait` | `@breakpoint:NAME`, and the `@javascript` it requires |
+| `FieldTrait` | `@disable-form-validation` |
+| `FileDownloadTrait` | `@download` |
+| `ResponsiveTrait` | `@breakpoint:NAME`, and the `@javascript` it requires |
 
 Where both lines carry the same kind of tag:
 
@@ -2582,108 +2593,48 @@ A tag that was only meant for some of the scenarios in a feature moves down onto
 
 ## Drupal, Drush and Blackbox are backends, not drivers
 
-Mink owns the word "driver" across the Behat ecosystem, and this package used it for a second thing: the Drupal, Drush and Blackbox backends a step resolves a capability from. So `$this->getDriver('drupal')` and `$this->getSession()->getDriver()` returned 2 unrelated objects, and only a naming rule told them apart. The backends now carry their own name, and "driver" in this package only ever means Mink's browser driver.
+Mink owns the word "driver" across the Behat ecosystem, and the Drupal Extension and the Drupal Driver used it for a second thing: the Drupal, Drush and Blackbox backends a step reaches the site through. So `$this->getDriver('drupal')` and `$this->getSession()->getDriver()` returned 2 unrelated objects, and only a naming rule told them apart. This package carries the Drupal Driver's classes under its own `Backend` namespace, the backends carry their own name, and "driver" in this package only ever means Mink's browser driver.
 
-Apart from 1 removed interface, it's a rename: behavior stays the same, and no step text changes. Configuration and feature files fail until they're renamed, and PHP that calls a renamed class or method fails on the missing name. The service container is the exception: a parameter, service tag or service id under its old name can go unread without an error, so [Service ids and parameters](#service-ids-and-parameters) lists what to check.
-
-### Configuration and tags
-
-The `drivers` list is now the `backends` list, and the `@driver:` tag is now the `@backend:` tag. The entries and the names they carry stay the same.
-
-```php
-// Before.
-$profile->withExtension(new Extension(BehatStepsExtension::class, [
-  'drivers' => ['api' => 'drupal', 'drush', 'blackbox'],
-  'drupal' => ['drupal_root' => 'web'],
-  'drush' => ['root' => 'web'],
-]));
-
-// After.
-$profile->withExtension(new Extension(BehatStepsExtension::class, [
-  'backends' => ['api' => 'drupal', 'drush', 'blackbox'],
-  'drupal' => ['drupal_root' => 'web'],
-  'drush' => ['root' => 'web'],
-]));
-```
-
-In `behat.yml`:
-
-```yaml
-# Before.
-default:
-  extensions:
-    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
-      drivers: [drupal, drush, blackbox]
-
-# After.
-default:
-  extensions:
-    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
-      backends: [drupal, drush, blackbox]
-```
-
-In feature files:
-
-```gherkin
-# Before.
-@driver:drush
-Scenario: The cache is cleared over the command line
-
-# After.
-@backend:drush
-Scenario: The cache is cleared over the command line
-```
-
-Neither old name is quietly ignored. A `drivers` key fails the container build:
-
-```
-The "drivers" setting under "behat_steps" moved to "backends". Rename the key; its entries are unchanged.
-```
-
-A `@driver:` tag on a scenario or on its feature fails the scenario at its start:
-
-```
-The "@driver:drush" tag moved to "@backend:drush". Rename the tag; the name it carries is unchanged.
-```
-
-`grep -rn '@driver:' <your features directory>` lists every tag that needs the rename.
+Most of it is a rename, and no step text changes. PHP that names a renamed class or method fails on the missing name. The service container is the exception: a parameter, service tag or service id under its old name can go unread without an error, so [Service ids and parameters](#service-ids-and-parameters) lists what to check. Where behavior changed too, the sections above say so, such as [The Drush backend needs Drush 13](#the-drush-backend-needs-drush-13) and [Capability creates return the stub, deletes tolerate a miss](#capability-creates-return-the-stub-deletes-tolerate-a-miss).
 
 ### Namespaces, classes and interfaces
 
-Everything under `DrevOps\BehatSteps\Driver` moved to `DrevOps\BehatSteps\Backend`. The capability interfaces, `Core`, the field handlers, `EntityStub` and the creation aliases keep their own names, so for them the namespace is the whole change:
+Everything the Drupal Driver kept under `Drupal\Driver` moved to `DrevOps\BehatSteps\Backend`, so `drupal/drupal-driver` is no longer needed. The capability interfaces, `Core`, the field handlers, `EntityStub`, the creation aliases and the other exceptions keep their own names, so for them the namespace is the whole change:
 
 ```php
 // Before.
-use DrevOps\BehatSteps\Driver\Capability\CoreCapabilityInterface;
+use Drupal\Driver\Capability\ConfigCapabilityInterface;
 
 // After.
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ConfigCapabilityInterface;
 ```
 
-The names that said "driver" change as well:
+Besides `SubDriverFinderInterface`, below, 5 types have no counterpart: `WatchdogCapabilityInterface`, whose `watchdogFetch()` neither this package nor the Drupal Extension called, and the `ColorFieldTypeHandler`, `TextHandler`, `TextLongHandler` and `TextWithSummaryHandler` field handlers, whose field types fall back to `DefaultHandler`. `DrupalDriverInterface::getCore()` and `getDrupalVersion()` moved to `CoreCapabilityInterface`, so `DrupalBackendInterface` declares only `setCore()`. The capability methods that create or delete an entity are renamed, as [A create or delete method names the verb first](#a-create-or-delete-method-names-the-verb-first) lists.
+
+The names that said "driver" change as well, and so do the Drupal Extension classes that registered and selected the drivers:
 
 | Before | After |
 | --- | --- |
-| `Driver\DriverInterface` | `Backend\BackendInterface` |
-| `Driver\DrupalDriver` | `Backend\DrupalBackend` |
-| `Driver\DrupalDriverInterface` | `Backend\DrupalBackendInterface` |
-| `Driver\DrushDriver` | `Backend\DrushBackend` |
-| `Driver\DrushDriverInterface` | `Backend\DrushBackendInterface` |
-| `Driver\BlackboxDriver` | `Backend\BlackboxBackend` |
-| `Driver\BlackboxDriverInterface` | `Backend\BlackboxBackendInterface` |
-| `Driver\Exception\UnsupportedDriverActionException` | `Backend\Exception\UnsupportedBackendActionException` |
-| `Behat\Manager\DriverRegistry` | `Behat\Registry\BackendRegistry` |
-| `Behat\Manager\DriverRegistryInterface` | `Behat\Registry\BackendRegistryInterface` |
-| `Behat\Context\DriverAwareInterface` | `Behat\Context\BackendAwareInterface` |
-| `Behat\Context\Initializer\DriverAwareInitializer` | `Behat\Context\Initializer\BackendAwareInitializer` |
-| `Behat\Listener\DriverListener` | `Behat\Listener\BackendListener` |
-| `Behat\ServiceContainer\DriverPass` | `Behat\ServiceContainer\BackendPass` |
+| `Drupal\Driver\DriverInterface` | `Backend\BackendInterface` |
+| `Drupal\Driver\DrupalDriver` | `Backend\DrupalBackend` |
+| `Drupal\Driver\DrupalDriverInterface` | `Backend\DrupalBackendInterface` |
+| `Drupal\Driver\DrushDriver` | `Backend\DrushBackend` |
+| `Drupal\Driver\DrushDriverInterface` | `Backend\DrushBackendInterface` |
+| `Drupal\Driver\BlackboxDriver` | `Backend\BlackboxBackend` |
+| `Drupal\Driver\BlackboxDriverInterface` | `Backend\BlackboxBackendInterface` |
+| `Drupal\Driver\Exception\UnsupportedDriverActionException` | `Backend\Exception\UnsupportedBackendActionException` |
+| `Drupal\DrupalExtension\Context\DrupalAwareInterface` | `Behat\Context\BackendAwareInterface`, with the user accessors on `Behat\Context\UserAwareInterface` |
+| `Drupal\DrupalExtension\Context\Initializer\DrupalAwareInitializer` | `Behat\Context\Initializer\BackendAwareInitializer` |
+| `Drupal\DrupalExtension\Listener\DriverListener` | `Behat\Listener\BackendListener` |
+| `Drupal\DrupalExtension\Compiler\DriverPass` | `Behat\ServiceContainer\BackendPass` |
+
+`DriverManager` and its interface are in [A class is named for the role it plays](#a-class-is-named-for-the-role-it-plays).
 
 `BackendInterface` and `UnsupportedBackendActionException` no longer share a short name with Mink's `DriverInterface` and `UnsupportedDriverActionException`, so a file that imported Mink's under an alias to tell a pair apart can drop the alias.
 
-A Drupal core of your own for one Drupal major is looked up as `DrevOps\BehatSteps\Backend\Core{N}\Core`, where `{N}` is the major version, so a class in the old namespace moves with the rest.
+A Drupal core of your own for one Drupal major is looked up as `DrevOps\BehatSteps\Backend\Core{N}\Core`, where the Drupal Driver looked it up as `Drupal\Driver\Core{N}\Core`, so a class of your own in that namespace moves with the rest.
 
-`Driver\SubDriverFinderInterface` and `DrupalDriver::getSubDriverPaths()` are gone. They served the Drupal Extension's subcontext discovery, which this package doesn't do. Code that read the extension paths asks the in-process backend's core:
+`Drupal\Driver\SubDriverFinderInterface` and `DrupalDriver::getSubDriverPaths()` are gone. They served the Drupal Extension's subcontext discovery, which this package doesn't do. Code that read the extension paths asks the in-process backend's core:
 
 ```php
 // Before.
@@ -2699,66 +2650,66 @@ $paths = $this->backendFor(CoreCapabilityInterface::class)
 
 | Class | Before | After |
 | --- | --- | --- |
-| `WebRawContext` | `driverFor()` | `backendFor()` |
-| `WebRawContext` | `anyDriverFor()` (protected) | `anyBackendFor()` |
-| `WebRawContext` | `getDriver()` | `getBackend()` |
-| `WebRawContext`, `BackendAwareInterface` | `getDriverRegistry()` | `getBackendRegistry()` |
-| `WebRawContext`, `BackendAwareInterface` | `setDriverRegistry()` | `setBackendRegistry()` |
-| `BackendRegistryInterface` | `registerDriver()` | `registerBackend()` |
-| `BackendRegistryInterface` | `getDrivers()` | `getBackends()` |
-| `BackendRegistryInterface` | `getDriver()` | `getBackend()` |
-| `BackendRegistryInterface` | `getDriverFor()` | `getBackendFor()` |
-| `BackendRegistryInterface` | `getResolvedDriverFor()` | `getResolvedBackendFor()` |
-| `BackendRegistryInterface` | `setScenarioDrivers()` | `setScenarioBackends()` |
-| `BackendRegistryInterface` | `getScenarioDrivers()` | `getScenarioBackends()` |
-| `Backend\Exception\Exception` | `getDriver()` | `getBackend()` |
-| `BackendListener` | `prepareScenarioDrivers()` | `prepareScenarioBackends()` |
-| `BackendListener` | `configuredDrivers()` (protected) | `configuredBackends()` |
-| `BackendListener` | `promotedDrivers()` (protected) | `promotedBackends()` |
-| `BackendListener` | `DRIVER_TAG_PREFIX` | `BACKEND_TAG_PREFIX` |
-| `BackendPass` | `DRIVER_TAG` | `BACKEND_TAG` |
-| `BehatStepsExtension` | `DRIVERS_PARAMETER` | `BACKENDS_PARAMETER` |
-| `BehatStepsExtension` | `processDriverPass()` (protected) | `processBackendPass()` |
-| `BehatStepsExtension` | `processDrivers()` (protected) | `processBackends()` |
-| `BehatStepsExtension` | `validateDriverEntry()` (protected) | `validateBackendEntry()` |
-| `Steps\Drupal\DrushTrait` | `drushGetDriver()` | `drushGetBackend()` |
-| `Helper\Drupal\EntityLifecycleTrait` | `entityLifecycleGetContentDriver()` (protected) | `entityLifecycleGetContentBackend()` |
+| `DriverManagerInterface`, now `BackendRegistryInterface` | `registerDriver()` | `registerBackend()` |
+| `DriverManagerInterface`, now `BackendRegistryInterface` | `getDrivers()` | `getBackends()` |
+| `DriverManagerInterface`, now `BackendRegistryInterface` | `getDriver()` | `getBackend()`, which takes a name; `getBackendFor()` resolves one by capability |
+| `DriverManagerInterface`, now `BackendRegistryInterface` | `setDefaultDriverName()` | `setScenarioBackends()`, which takes the scenario's ordered list |
+| `Drupal\Driver\Exception\Exception`, now `Backend\Exception\Exception` | `getDriver()` | `getBackend()` |
+| `DriverListener`, now `BackendListener` | `prepareDefaultDrupalDriver()` | `prepareScenarioBackends()` |
+| `RawDrupalContext`, now `Helper\Drupal\EntityLifecycleTrait` | `getContentDriver()` (protected) | `entityLifecycleGetContentBackend()` |
 
-A parameter named `$driver` that held a backend is now `$backend`. That only matters to a call that passes it by name, such as `userAssignRoles(driver: ...)`.
+`RawDrupalContext::getDriver()` is in [Capability-based backend resolution](#capability-based-backend-resolution), and `getDrupal()` and `setDrupal()` are in [A class is named for the role it plays](#a-class-is-named-for-the-role-it-plays).
+
+A parameter named `$driver` that held a driver is now `$backend`, and `DriverManager`'s `$drivers` is `BackendRegistry`'s `$backends`. That only matters to a call that passes it by name, such as `new UnsupportedBackendActionException($message, backend: $backend)`, which the Drupal Driver's `UnsupportedDriverActionException` took as `driver:`.
 
 ### Service ids and parameters
 
-| Before | After |
+| Drupal Extension 6.1 | 4.x |
 | --- | --- |
-| `behat_steps.driver_registry` | `behat_steps.backend_registry` |
-| `behat_steps.driver.drupal` | `behat_steps.backend.drupal` |
-| `behat_steps.driver.drush` | `behat_steps.backend.drush` |
-| `behat_steps.driver.blackbox` | `behat_steps.backend.blackbox` |
-| `behat_steps.driver.core` | `behat_steps.backend.core` |
-| `behat_steps.driver.random` | `behat_steps.backend.random` |
-| `behat_steps.listener.driver` | `behat_steps.listener.backend` |
-| The `behat_steps.driver` service tag | The `behat_steps.backend` service tag |
-| `behat_steps.drivers` | `behat_steps.backends` |
+| `drupal.driver.drupal` | `behat_steps.backend.drupal` |
+| `drupal.driver.drush` | `behat_steps.backend.drush` |
+| `drupal.driver.blackbox` | `behat_steps.backend.blackbox` |
+| `drupal.driver.core` | `behat_steps.backend.core` |
+| `drupal.driver.random` | `behat_steps.backend.random` |
+| `drupal.listener.driver` | `behat_steps.listener.backend` |
+| `drupal.context.initializer` | `behat_steps.context.initializer` |
+| `drupal.context.loader.attribute` | `behat_steps.context.attribute_reader` |
+| `drupal.region_selector` | `behat_steps.region_selector` |
+| The `drupal.parameters` parameter | The `behat_steps.parameters` parameter |
+| The `drupal.regions` parameter | The `behat_steps.regions` parameter |
+| The `drupal.driver` service tag | The `behat_steps.backend` service tag |
+| The `drupal.core` service tag | The `behat_steps.core` service tag |
 
-The parameters follow their service: `behat_steps.driver_registry.class` becomes `behat_steps.backend_registry.class`, `behat_steps.driver.drush.binary` becomes `behat_steps.backend.drush.binary`, and so on for every `.class`, `drupal_root`, `alias`, `binary` and `root` parameter. Unlike the configuration key, a parameter under its old name isn't rejected - it's just never read again - so a suite that swaps an implementation through one should check it renamed it.
+`drupal.drupal`, `drupal.user_manager` and `drupal.authentication_manager` are in [A class is named for the role it plays](#a-class-is-named-for-the-role-it-plays). `drupal.random` and `drupal.context.environment.reader` have no counterpart: in the Drupal Extension 6.1 nothing used the first, and the second added no contexts.
 
-An old service id is only loud where something requires it. An `@behat_steps.driver_registry` argument or a `getDefinition()` call fails the container build on the missing service, though Symfony's message doesn't mention the rename. A `hasDefinition()` check or a service defined under an old id is as quiet as a parameter.
+The parameters follow their service: `drupal.driver.drupal.class` becomes `behat_steps.backend.drupal.class`, `drupal.driver.drush.binary` becomes `behat_steps.backend.drush.binary`, and so on for every `.class`, `drupal_root`, `alias`, `binary` and `root` parameter. 4 don't follow the pattern:
+
+| Drupal Extension 6.1 | 4.x |
+| --- | --- |
+| `drupal.listener.drivers.class` | `behat_steps.listener.backend.class` |
+| `drupal.random.class` | `behat_steps.random.class` |
+| `drupal.context.attribute.reader.class` | `behat_steps.context.attribute_reader.class` |
+| `drupal.context.region_selector.class` | `behat_steps.region_selector.class` |
+
+A parameter under its old name isn't rejected - it's just never read again - so a suite that swaps an implementation through one should check it renamed it.
+
+An old service id is only loud where something requires it. A `@drupal.driver.drush` argument or a `getDefinition()` call fails the container build on the missing service, though Symfony's message doesn't mention the rename. A `hasDefinition()` check or a service defined under an old id is as quiet as a parameter.
 
 A backend of your own registers by tagging its service `behat_steps.backend`, with the name it answers to as the alias:
 
 ```yaml
 # Before.
 tags:
-  - { name: behat_steps.driver, alias: acme-jsonapi }
+  - { name: drupal.driver, alias: acme-jsonapi }
 
 # After.
 tags:
   - { name: behat_steps.backend, alias: acme-jsonapi }
 ```
 
-A service still tagged `behat_steps.driver` isn't registered at all. When the `backends` list names it, the container build fails with `The "backends" list under "behat_steps" names the backend "acme-jsonapi", which is not registered.` Without a `backends` list it's left out of the scenario's order, so each step resolves the first remaining backend that provides its capability, or fails with `No backend provides "..."` when none does.
+A service still tagged `drupal.driver` isn't registered at all. When the `backends` list names it, the container build fails with `The "backends" list under "behat_steps" names the backend "acme-jsonapi", which is not registered. Registered backends: ...`. Without a `backends` list it's left out of the scenario's order, so each step resolves the first remaining backend that provides its capability, or fails with `No backend provides "..."` when none does.
 
-`grep -rnE 'behat_steps\.(listener\.)?driver' <your extension directory>` lists every container name that needs the rename: parameters, service ids and tags.
+`grep -rnE 'drupal\.(drupal|driver|core|listener|context|region_selector|parameters|regions|user_manager|authentication_manager|random)' <your extension directory>` lists every Drupal Extension container name your extension still uses: parameters, service ids and tags.
 
 ### Messages
 
@@ -2766,10 +2717,10 @@ A failure that names the concept now says "backend", so a test that asserts one 
 
 | Before | After |
 | --- | --- |
-| `No driver provides "...". Drivers available to this scenario, in order: ...` | `No backend provides "...". Backends available to this scenario, in order: ...` |
-| `... requires that a driver in the scenario's list provides "...", which does not hold.` | `... requires that a backend in the scenario's list provides "...", which does not hold.` |
-| `The "@driver:..." tag names a driver that the configured driver list does not hold.` | `The "@backend:..." tag names a backend that the configured backend list does not hold.` |
-| `Driver "..." is not registered. Registered drivers: ...` | `Backend "..." is not registered. Registered backends: ...` |
+| `The active Drupal driver "..." does not support ...` | `No backend provides "...". Backends available to this scenario, in order: ...` |
+| `Driver "..." is not registered` | `Backend "..." is not registered. Registered backends: ...` |
+
+The second is a `\RuntimeException` where `DriverManager` threw `\InvalidArgumentException`.
 
 ## A step method takes only what its step binds
 
@@ -2788,14 +2739,15 @@ The count must be 0 or greater, but "-1" was given.
 
 | Steps | `abc` before | `abc` now |
 | --- | --- | --- |
-| Every step whose method took an `int`: the queue, email, table and element counts, the element index, tolerance and offset steps, and `the REST response status code should be :code` | Behat's `Type error: ... must be of type int, string given` | `\RuntimeException` |
+| Every step whose method took an `int`: the queue, table and element counts, the element index, tolerance and offset steps, and `the REST response status code should be :code` | Behat's `Type error: ... must be of type int, string given` | `\RuntimeException` |
 | `I wait for :seconds second(s)`, `I wait for :seconds second(s) for AJAX to finish` and `I run search indexing for :count item(s)` | read as `0` | `\RuntimeException` |
+| `the number of sent emails should be :count` and the 2 other email count steps, which replace the Drupal Extension's `there should be a total of :count (e)mail(s) sent` family | read as `0`, and `no`, `a` and `an` read as `0`, `1` and `1` | `\RuntimeException`; write the number |
 | `the XML element :element should have :count element(s)` and `I set the system time to the value :value` | read as `0` | `\RuntimeException` |
 | `I set the viewport width to :width`, `I set the viewport height to :height` and `I set the viewport to :width by :height` | read as `0`, and the resize failed without a word | `\RuntimeException` |
 
 PHP's coercion was looser than the `int` type suggested: `1e3` read as 1000, and `3.5` read as 3 with a deprecation notice, which only failed the step where PHP reports deprecations. Both now fail with `\RuntimeException`.
 
-A value below what a step accepts fails the same way: a count below 0, a link index below 1, a viewport width or height below 1, a wait below 0 seconds and a command duration below 0. An element index below 1 and a negative tolerance already failed this way and still do.
+A value below what a step accepts fails the same way: a count below 0, a link index below 1, a viewport width or height below 1, a wait below 0 seconds and a command duration below 0. An element index below 1 and a negative tolerance keep their messages, and throw `\RuntimeException` where 3.x threw `ExpectationException`, as [Unified assertion exceptions](#unified-assertion-exceptions) lists.
 
 ### Messages
 
@@ -2805,40 +2757,39 @@ A test that asserts one of these messages needs the new text:
 | --- | --- | --- |
 | `the command exit code should be :code` | `The expected exit code must be an integer, but got "...".` | `The exit code must be an integer, but "..." was given.` |
 | `the command should complete in less than :seconds second(s)` and `... more than :seconds second(s)` | `The expected duration must be numeric, but got "...".` | `The duration must be a number, but "..." was given.` |
-| `I follow the link with the index :index ...`, both forms | `The link number must be a positive integer, but "..." was provided.` | `The link index must be an integer, but "..." was given.`, or `The link index must be 1 or greater, but "..." was given.` for an integer below 1 |
+| `I follow link number :link_number in the email ...`, both forms, now `I follow the link with the index :index in the email ...` | `The link number must be a positive integer, but "..." was provided.` | `The link index must be an integer, but "..." was given.`, or `The link index must be 1 or greater, but "..." was given.` for an integer below 1 |
 | `the JSON path :path should have :count element(s)` | `The expected element count "..." is not a valid non-negative integer.` | `The count must be an integer, but "..." was given.`, or `The count must be 0 or greater, but "..." was given.` for an integer below 0 |
 
 ### Signatures
 
-The methods are listed under their 4.x names; [One shape per naming idea](#one-shape-per-naming-idea) lists the renames. PHP that calls one of these methods passes a string where it passed an `int`, or calls the method in the last column.
+Each method is listed under its 3.14 name, followed by its 4.x name where they differ; [Trait methods prefixed with their trait name](#trait-methods-prefixed-with-their-trait-name) and [One shape per naming idea](#one-shape-per-naming-idea) list the renames. PHP that calls one of these methods passes a string where it passed an `int`, or calls the method in the last column.
 
 | Method | Before | After |
 | --- | --- | --- |
 | `Drupal\QueueTrait::queueProcessItems()`, `queueAssertItemCount()` | `int $count` | `string $count` |
-| `Drupal\EmailTrait::emailAssertMessageCount()`, `emailAssertMessageCountToAddress()`, `emailAssertMessageCountWithSubject()` | `int $count` | `string $count` |
-| `Drupal\SearchApiTrait::searchApiRunIndexing()` | `string\|int $limit` | `string $count` |
+| `Drupal\SearchApiTrait::searchApiDoIndex()`, now `searchApiRunIndexing()` | `string\|int $limit` | `string $count` |
 | `TableTrait::tableAssertRowCount()`, `tableAssertColumnCount()` | `int $count` | `string $count` |
-| `RestTrait::restAssertResponseStatusCodeEquals()` | `int $code` | `string $code` |
-| `ElementTrait::elementClickWithIndex()`, `elementFollowLinkWithIndex()`, `elementPressButtonWithIndex()` | `int $index` | `string $index` |
-| `ElementTrait::elementAssertPinnedToTopWithTolerance()` | `int $tolerance` | `string $tolerance` |
-| `ElementTrait::elementAssertVisuallyVisibleWithOffset()`, `elementAssertNotVisuallyVisibleWithOffset()` | `int $number` | `string $offset` |
+| `RestTrait::restAssertResponseStatusCode()`, now `restAssertResponseStatusCodeEquals()` | `int $code` | `string $code` |
+| `ElementTrait::elementClickByIndex()`, `elementFollowLinkByIndex()`, `elementPressButtonByIndex()`, now `elementClickWithIndex()`, `elementFollowLinkWithIndex()`, `elementPressButtonWithIndex()` | `int $index` | `string $index` |
+| `ElementTrait::elementAssertIsPinnedToTopWithTolerance()`, now `elementAssertPinnedToTopWithTolerance()` | `int $tolerance` | `string $tolerance` |
+| `ElementTrait::elementAssertIsVisuallyVisibleWithOffset()`, `elementAssertIsNotVisuallyVisibleWithOffset()`, now `elementAssertVisuallyVisibleWithOffset()`, `elementAssertNotVisuallyVisibleWithOffset()` | `int $number` | `string $offset` |
 | `ElementTrait::elementAssertChildElementCount()` | `int $count` | `string $count` |
-| `ElementTrait::elementAssertExistsWithAttributeValue()` and the 3 other attribute value steps | `mixed $value` | `string $value` or `string $partial_value` |
-| `ElementTrait::elementAssertNotVisuallyVisible()` | `int $offset = 0` | no `$offset`; call `elementAssertNotVisuallyVisibleWithOffset()` |
-| `WaitTrait::waitSeconds()` | `string\|int $seconds` | `string $seconds` |
-| `WaitTrait::waitForAjax()` | `string\|int $seconds` | `string $seconds`; PHP holding an `int` calls the new `waitForAjaxWithin(int $seconds)` |
+| `ElementTrait::elementAssertAttributeWithValueExists()` and the 3 other attribute value steps, now `elementAssertExistsWithAttributeValue()` and its 3 siblings | `mixed $value` | `string $value` or `string $partial_value` |
+| `ElementTrait::elementAssertIsVisuallyHidden()`, now `elementAssertNotVisuallyVisible()` | `int $offset = 0` | no `$offset`; call `elementAssertNotVisuallyVisibleWithOffset()` |
+| `WaitTrait::waitWaitForSeconds()`, now `waitSeconds()` | `string\|int $seconds` | `string $seconds` |
+| `WaitTrait::waitForAjaxToFinish()`, now `waitForAjax()` | `string\|int $seconds` | `string $seconds`; PHP holding an `int` calls the new `waitForAjaxWithin(int $seconds)` |
 | `FieldTrait::fieldFillColor()` | `?string $value = NULL` | `string $value` |
 | `KeyboardTrait::keyboardPressKeyOnElement()`, `keyboardPressKeysOnElement()` | `?string $selector` | `string $selector`; for the focused element, call `keyboardPressKey()` or `keyboardPressKeys()` |
-| `LinkTrait::linkAssertExistsWithHrefWithinElement()`, `linkAssertNotExistsWithHrefWithinElement()` | `?string $selector` | `string $selector`; for the whole page, call `linkAssertExistsWithHref()` or `linkAssertNotExistsWithHref()` |
+| `LinkTrait::linkAssertTextWithHrefWithinElementExists()`, `linkAssertTextWithHrefWithinElementNotExists()`, now `linkAssertExistsWithHrefWithinElement()`, `linkAssertNotExistsWithHrefWithinElement()` | `?string $selector` | `string $selector`; for the whole page, call `linkAssertExistsWithHref()` or `linkAssertNotExistsWithHref()` |
 | `Drupal\EmailTrait::emailClearTestQueue()` | `bool $force = FALSE` | no `$force`; `emailClearCollectedMessages()` clears the collected messages without the check |
 | `Drupal\EmailTrait::emailAssertMessageHeaderContains()` | `bool $exact = FALSE` | no `$exact`; for `TRUE`, call `emailAssertMessageHeaderEquals()` |
 | `Drupal\EmailTrait::emailAssertMessageFieldContains()` | `bool $exact = FALSE` | no `$exact`; for `TRUE`, call `emailAssertMessageFieldEquals()` |
 | `Drupal\EmailTrait::emailAssertMessageFieldNotContains()` | `bool $exact = FALSE` | no `$exact`; for `TRUE`, call `emailAssertMessageFieldNotEquals()` |
 | `Drupal\FileTrait::fileCreateUnmanaged()` | `string $content = 'test'` | no `$content`; call `fileCreateUnmanagedWithContent()` |
 
-An override of one of these methods in your `FeatureContext` takes the new signature, or PHP reports it as incompatible with the trait's.
+An override of one of these methods in your `FeatureContext` takes the 4.x name and the new signature, or PHP reports it as incompatible with the trait's.
 
-A call that still passes a removed argument doesn't fail, because PHP drops an extra argument without a word: `fileCreateUnmanaged($uri, 'Hello')` writes `test`, `emailAssertMessageFieldContains($field, $string, TRUE)` compares with whitespace collapsed, and `elementAssertNotVisuallyVisible($selector, 10)` checks an offset of 0. Move each one to the method in the last column. PHPStan reports every such call as a method invoked with more parameters than it takes.
+A call that still passes a removed argument doesn't fail, because PHP drops an extra argument without a word: `fileCreateUnmanaged($uri, 'Hello')` writes `test`, `emailAssertMessageFieldContains($field, $string, TRUE)` compares with whitespace collapsed, and `elementAssertNotVisuallyVisible($selector, 10)`, the 4.x name of `elementAssertIsVisuallyHidden()`, checks an offset of 0. Move each one to the method in the last column. PHPStan reports every such call as a method invoked with more parameters than it takes.
 
 ### Optional string parameters default to `NULL`
 
@@ -2857,50 +2808,47 @@ A call that leaves the subpath out, or passes `''`, opens the same page as befor
 
 A class a project isn't meant to extend is `final` now, so the classes left open are the ones built for it: the 3 contexts, the backends, `Core`, the field handlers, the browser adapters, `HttpClientFactory` and `DocumentElement`. [Final classes](CONTRIBUTING.md#final-classes) says why each of those stays open.
 
-A class of your own that extends one of the classes below no longer loads:
+A class of your own that extended one of the Drupal Extension 6.1 or Drupal Driver 3.3 classes below can't follow it into 4.x by changing its parent, because the class that replaces it is `final`:
 
 ```
 PHP Fatal error:  Class Acme\AcmeAuthenticator cannot extend final class DrevOps\BehatSteps\Behat\Auth\Authenticator
 ```
 
-| Namespace | Now `final` |
+| 3.x class | 4.x class, now `final` |
 | --- | --- |
-| `Backend\Alias` | `RolesAlias` |
-| `Backend\Core\Alias` | `AuthorAlias`, `ParentTermAlias`, `VocabularyMachineNameAlias` |
-| `Backend\Core\Field` | `FieldClassifier`, `FieldShapeClassifier` |
-| `Backend\Core\Field\Parser` | `EntityFieldParser` |
-| `Backend\Core\Field\Parser\Exception` | `MultipleParseException` |
-| `Backend\Exception` | `BootstrapException`, `CreationAliasResolutionException`, `UnsupportedBackendActionException` |
-| `Behat\Auth` | `Authenticator`, `BasicAuthenticator` |
-| `Behat\Config` | `ConfigSchemaReader`, `TagOverrides`, `TraitOptionResolver`, `TraitOptionResolverFactory` |
-| `Behat\Context\Attribute` | `HookAttributeReader` |
-| `Behat\Context\Initializer` | `BackendAwareInitializer` |
-| `Behat\Generator` | `ClassGenerator` |
-| `Behat\Hook\Call` | `AfterEntityCreate`, `AfterNodeCreate`, `AfterTermCreate`, `AfterUserCreate`, `BeforeEntityCreate`, `BeforeNodeCreate`, `BeforeTermCreate`, `BeforeUserCreate` |
-| `Behat\Http` | `HttpIdentity` |
-| `Behat\Listener` | `BackendListener`, `SkipTagListener` |
-| `Behat\Mink` | `BrowserCapabilityResolver` |
-| `Behat\Mink\ServiceContainer\Driver` | `BrowserKitFactory` |
-| `Behat\Prerequisite` | `PrerequisiteReader` |
-| `Behat\Registry` | `BackendRegistry`, `ScenarioTagRegistry`, `UserRegistry` |
-| `Behat\Selector` | `RegionSelector` |
-| `Behat\ServiceContainer` | `BackendPass`, `BehatStepsExtension` |
-| `Exception` | `AssertionException` |
+| `Drupal\Driver\Alias\RolesAlias` | `Backend\Alias\RolesAlias` |
+| `Drupal\Driver\Core\Alias\AuthorAlias`, `ParentTermAlias`, `VocabularyMachineNameAlias` | `Backend\Core\Alias\AuthorAlias`, `ParentTermAlias`, `VocabularyMachineNameAlias` |
+| `Drupal\Driver\Core\Field\FieldClassifier`, `FieldShapeClassifier` | `Backend\Core\Field\FieldClassifier`, `FieldShapeClassifier` |
+| `Drupal\DrupalExtension\Parser\Exception\MultipleParseException` | `Backend\Core\Field\Parser\Exception\MultipleParseException` |
+| `Drupal\Driver\Exception\BootstrapException`, `CreationAliasResolutionException`, `UnsupportedDriverActionException` | `Backend\Exception\BootstrapException`, `CreationAliasResolutionException`, `UnsupportedBackendActionException` |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManager` | `Behat\Auth\Authenticator`, and `Behat\Auth\BasicAuthenticator` for its basic authentication |
+| `Drupal\DrupalExtension\Context\Attribute\HookAttributeReader` | `Behat\Context\Attribute\HookAttributeReader` |
+| `Drupal\DrupalExtension\Context\Initializer\DrupalAwareInitializer` | `Behat\Context\Initializer\BackendAwareInitializer` |
+| `Drupal\DrupalExtension\Generator\ClassGenerator` | `Behat\Generator\ClassGenerator` |
+| `Drupal\DrupalExtension\Hook\Call\AfterEntityCreate` and the 7 other `Before*Create` and `After*Create` calls | `Behat\Hook\Call\AfterEntityCreate` and the same 7 |
+| `Drupal\DrupalExtension\Listener\DriverListener` | `Behat\Listener\BackendListener` |
+| `Drupal\MinkExtension\ServiceContainer\Driver\BrowserKitFactory` | `Behat\Mink\ServiceContainer\Driver\BrowserKitFactory` |
+| `Drupal\DrupalExtension\Manager\DriverManager` | `Behat\Registry\BackendRegistry` |
+| `Drupal\DrupalExtension\Manager\DrupalUserManager` | `Behat\Registry\UserRegistry` |
+| `Drupal\DrupalExtension\Selector\RegionSelector` | `Behat\Selector\RegionSelector` |
+| `Drupal\DrupalExtension\Compiler\DriverPass` | `Behat\ServiceContainer\BackendPass` |
+| `Drupal\DrupalExtension\ServiceContainer\DrupalExtension` | `Behat\ServiceContainer\BehatStepsExtension` |
 
-Where one of these classes has an interface, implement the interface instead. A suite that swaps in its own registry or authenticator through a `*.class` parameter implements `BackendRegistryInterface`, `ScenarioTagRegistryInterface`, `UserRegistryInterface`, `AuthenticatorInterface` with `FastLogoutInterface`, or `BasicAuthenticatorInterface`. A creation alias of your own implements `PreCreateAliasInterface` or `PostCreateAliasInterface`, and option resolution is replaced through `TraitOptionResolverFactoryInterface`, as [Option resolution is a service a project can replace](#option-resolution-is-a-service-a-project-can-replace) describes.
+The classes 4.x adds are `final` from the start: `Behat\Config\ConfigSchemaReader`, `TagOverrides`, `TraitOptionResolver` and `TraitOptionResolverFactory`, `Behat\Http\HttpIdentity`, `Behat\Listener\SkipTagListener`, `Behat\Mink\BrowserCapabilityResolver`, `Behat\Prerequisite\PrerequisiteReader`, `Behat\Registry\ScenarioTagRegistry` and `Exception\AssertionException`. `Backend\Core\Field\Parser\EntityFieldParser` stays `final`, as the Drupal Extension's `EntityFieldParser` was.
+
+Where one of these classes has an interface, implement the interface instead. A suite that swaps in its own registry or authenticator through a `*.class` parameter implements `BackendRegistryInterface`, `ScenarioTagRegistryInterface`, `UserRegistryInterface`, `AuthenticatorInterface` with `FastLogoutInterface`, or `BasicAuthenticatorInterface`. A creation alias of your own implements `PreCreateAliasInterface` or `PostCreateAliasInterface`, and option resolution is replaced through `TraitOptionResolverFactoryInterface`, as [Trait options](docs/configuration.md#trait-options) describes.
 
 PHPUnit can't double a final class either, so a test that built a mock of one of these fails with `Class "..." is declared "final" and cannot be doubled`. Double its interface instead.
 
-2 constructor parameters are named after their types now, which only matters to a call that passes them by name:
+1 constructor parameter is named after its type now, which only matters to a call that passes it by name:
 
 | Constructor | Before | After |
 | --- | --- | --- |
-| `Backend\Alias\RolesAlias::__construct()` | `$backend` | `$userCapability` |
-| `Behat\Context\Initializer\BackendAwareInitializer::__construct()` | `$optionResolverFactory` | `$traitOptionResolverFactory` |
+| `Drupal\Driver\Alias\RolesAlias::__construct()`, now `Backend\Alias\RolesAlias::__construct()` | `$driver` | `$userCapability` |
 
 ### Constants declare native types
 
-Every constant under `src/` declares its type now, as `public const string CONFIG_KEY = 'behat_steps';` does, and every value is unchanged. PHP holds a redeclared constant to the type it inherits, so a class of your own that redeclares one of them, such as a `FeatureContext` redeclaring a constant of a trait its parent composes, declares the same type:
+Every constant under `src/` declares its type, as `public const string CONFIG_KEY = 'behat_steps';` does. None of the 6 constants 3.14 declared carries over under its name: [Constants carry their trait prefix](#constants-carry-their-trait-prefix) lists the 4 `IMPACT_*` renames and the removed `DEFAULT_WAIT_TIMEOUT`, and `Drupal\HelperTrait::ENTITY_CLEANUP_EXCLUDED_TYPES` has no successor. PHP holds a redeclared constant to the type it inherits, so a constant of your own that shares its name with one your context now inherits, such as a `BATCH_WAIT_TIMEOUT` in a `FeatureContext` that extends `DrupalContext`, declares the same type:
 
 ```
 PHP Fatal error:  Type of FeatureContext::BATCH_WAIT_TIMEOUT must be compatible with DrupalContext::BATCH_WAIT_TIMEOUT of type int
@@ -2934,7 +2882,7 @@ No step text changes. A project needs an edit only where it calls or overrides o
 | `Drupal\StateTrait` | `stateNormaliseValue()` | `Helper\Web\StringTrait::stringNormalizeValue()` |
 | `Drupal\StateTrait` | `stateStringifyValue()` | `Helper\Web\StringTrait::stringFormatValue()` |
 
-Each of these was `protected`, so only a context that called or overrode one is affected. `Helper\Drupal\FixtureFileTrait::fixtureFileResolve()` and `fixtureFileExpandCompoundCell()` no longer take a `$fixture_path` argument either: they read the directory through `FixtureDirectoryTrait` themselves.
+Each of these was `protected`, so only a context that called or overrode one is affected. `Drupal\HelperTrait::helperResolveFixtureFile()` and `helperExpandCompoundCellFixtures()`, now `Helper\Drupal\FixtureFileTrait::fixtureFileResolve()` and `fixtureFileExpandCompoundCell()`, no longer take a `$fixture_path` argument either: they read the directory through `FixtureDirectoryTrait` themselves.
 
 ### `fieldAssertExists()` returns nothing
 
@@ -2962,7 +2910,7 @@ A test that asserts one of these messages needs the new text:
 | Step | Before | After |
 | --- | --- | --- |
 | A downloaded-file assertion run before any download | `Downloaded file content has no data.`, `Downloaded file name content has no data.` or `Downloaded file path data is not available.` | `No file has been downloaded. Download a file before asserting on it.` |
-| `the response XML is loaded from the file :filename` and `the response JSON is loaded from the file :filename`, for a missing file | `The file "..." does not exist.` | `The fixture file "..." does not exist.` |
+| `the response XML is loaded from the file :filename`, `the response JSON is loaded from the file :filename` and the 4 `the response should match the ... in the file :filename` steps, for a missing file | `The file "..." does not exist.` | `The fixture file "..." does not exist.` |
 | The same steps with no `files_path` configured | `The file "..." does not exist.` | `The Mink "files_path" parameter is not configured.` |
 | The same steps with a path that leaves `files_path` | the file outside it was read | `The fixture file "..." is outside the configured "files_path".` |
 
@@ -2972,20 +2920,18 @@ Whether a project could call a helper, override a method or import a type used t
 
 ### Helpers doing the same job share a visibility
 
-Helpers that did the same job in different traits sat on opposite sides of `public`: `jsonGetValue()` was published while `xmlGetFirstNode()` wasn't, and `xmlParse()` and `jsonDecodeLoose()` were published while the getters for the content they parse weren't. They're aligned now. The 2 content readers take a `Get` name as they're published, since they take no input for `Resolve` to derive a value from.
+2 members change visibility. `JsonTrait::jsonResolveContent()` was `protected`, and it's now `public` like the new `XmlTrait::xmlGetContent()`, which does the same job for XML. Both take a `Get` name, since they take no input for `Resolve` to derive a value from. The Drupal Extension published its authentication manager's `getLogoutElement()`, which only served the manager's own logout check, and `Behat\Auth\Authenticator` keeps it `protected`.
 
 | Member | Before | After |
 | --- | --- | --- |
-| `XmlTrait::xmlGetFirstNode()` | `protected` | `public` |
-| `XmlTrait::xmlResolveContent()` | `protected` | `public`, renamed `xmlGetContent()` |
 | `JsonTrait::jsonResolveContent()` | `protected` | `public`, renamed `jsonGetContent()` |
-| `Behat\Auth\Authenticator::getLogoutElement()` | `public` | `protected` |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManager::getLogoutElement()` | `public` | `protected`, on `Behat\Auth\Authenticator` |
 
-PHP refuses to narrow an inherited method, so a context overriding one of the published methods declares its override `public`, as [The toolbox is now `public`](#the-toolbox-is-now-public) describes. An override of `jsonResolveContent()` is renamed to `jsonGetContent()` as well, or it's never called. Code that called `getLogoutElement()` on the authenticator asks `isLoggedIn()` instead, which is the question the method served.
+An override of `jsonResolveContent()` is renamed to `jsonGetContent()`, since nothing calls the old name. It's declared `public` as well, because PHP refuses to narrow an inherited method, as [The toolbox is now `public`](#the-toolbox-is-now-public) describes. Code that called `getLogoutElement()` on the authentication manager asks `isLoggedIn()` instead, the 4.x name of its `loggedIn()`, which is the question the method served.
 
 ### Documented override points are public
 
-7 methods carried a docblock asking a project to override them, yet they were protected, so they were missing from [HELPERS.md](HELPERS.md) and outside semantic versioning. They're public now. `accessibilityBlankUrls()` supplies a value, so it's renamed `accessibilityGetBlankUrls()` to match every other override point that does.
+7 methods carried a docblock asking a project to override them, yet they were protected, so they sat outside the API that semantic versioning covers. They're public now and listed in [HELPERS.md](HELPERS.md). 3 of them take a new name too: `accessibilityBlankUrls()` and `elementScrollIntoViewCenter()` supply a value, so they read `Get` like every other override point that does, and the Drupal Extension's `getFieldParser()` moved to the helper trait that builds entities and took its prefix.
 
 | Member | Before | After |
 | --- | --- | --- |
@@ -2994,8 +2940,8 @@ PHP refuses to narrow an inherited method, so a context overriding one of the pu
 | `AccessibilityTrait::accessibilityRenderHtmlPage()` | `protected` | `public` |
 | `AccessibilityTrait::accessibilityRenderHtmlSections()` | `protected` | `public` |
 | `AccessibilityTrait::accessibilityRenderAggregate()` | `protected static` | `public static` |
-| `ElementTrait::elementGetScrollIntoViewCenter()` | `protected` | `public` |
-| `Helper\Drupal\EntityLifecycleTrait::entityLifecycleGetFieldParser()` | `protected` | `public` |
+| `ElementTrait::elementScrollIntoViewCenter()` | `protected` | `public`, renamed `elementGetScrollIntoViewCenter()` |
+| `Drupal\DrupalExtension\Context\RawDrupalContext::getFieldParser()` | `protected` | `public`, renamed `Helper\Drupal\EntityLifecycleTrait::entityLifecycleGetFieldParser()` |
 
 An override declared `protected` no longer loads:
 
@@ -3003,19 +2949,18 @@ An override declared `protected` no longer loads:
 Fatal error: Access level to FeatureContext::elementGetScrollIntoViewCenter() must be public (as in class ...)
 ```
 
-Change `protected` to `public` on the override and leave its body as it is. An override of `accessibilityBlankUrls()` is renamed `accessibilityGetBlankUrls()` as well, or it's never called, and it stays `static`, because the suite report calls it from a static hook.
+Change `protected` to `public` on the override and leave its body as it is. An override of `accessibilityBlankUrls()`, `elementScrollIntoViewCenter()` or `getFieldParser()` takes the new name as well. Under its old name nothing calls it and nothing reports it, so a `FeatureContext` that switched centered scrolling off the way the 3.x `elementScrollIntoViewCenter()` docblock showed scrolls to the center again until the override is renamed. `accessibilityGetBlankUrls()` stays `static`, because the suite report calls it from a static hook.
 
 ### Lookups are named for what a miss does
 
-5 published helpers used `Read`, a verb that says nothing about a miss, and between them they handled one 4 different ways. Each takes the verb for what it does now. Only the name changes, apart from `stateReadValue()`, which returned 2 answers in 1 array and is 2 helpers now.
+4 helpers used `Read`, a verb that says nothing about a miss, and between them they handled one 3 different ways. Each takes the verb for what it does now. The 3 that 3.x kept `protected` are published as well, so an override of one is renamed and declared `public`. Otherwise only the name changes, apart from `stateReadValue()`, which returned 2 answers in 1 array and is 2 helpers now.
 
 | Trait | Old | New | When nothing matches |
 | --- | --- | --- | --- |
-| `Drupal\ConfigTrait` | `configReadStored()` | `configFindStoredValue()` | returns `NULL` |
-| `Drupal\ConfigTrait` | `configReadEffective()` | `configFindEffectiveValue()` | returns `NULL` |
-| `Drupal\DrushTrait` | `drushReadOutput()` | `drushGetOutput()` | throws `\RuntimeException` |
-| `Drupal\StateTrait` | `stateReadValue()` | `stateExists()` and `stateFindValue()` | `stateExists()` returns `FALSE`, `stateFindValue()` returns `NULL` |
-| `Drupal\WatchdogTrait` | `watchdogReadErrors()` | `watchdogClearErrors()` | returns an empty array |
+| `Drupal\ConfigTrait` | `configReadStored()` (protected) | `configFindStoredValue()` | returns `NULL` |
+| `Drupal\ConfigTrait` | `configReadEffective()` (protected) | `configFindEffectiveValue()` | returns `NULL` |
+| `Drupal\DrupalExtension\Context\DrushContext` | `readDrushOutput()` | `Drupal\DrushTrait::drushGetOutput()` | throws `\RuntimeException` |
+| `Drupal\StateTrait` | `stateReadValue()` (protected) | `stateExists()` and `stateFindValue()` | `stateExists()` returns `FALSE`, `stateFindValue()` returns `NULL` |
 
 `stateReadValue()` returned `['exists' => ..., 'value' => ...]`, so read each half from its own helper:
 
@@ -3034,23 +2979,23 @@ if (!$this->stateExists('my_module.launched')) {
 $value = $this->stateFindValue('my_module.launched');
 ```
 
-`watchdogClearErrors()` deletes the errors it returns, exactly as `watchdogReadErrors()` did, and the new name says so.
+`WatchdogTrait::watchdogClearErrors()` is new: it returns the errors logged since the scenario started and deletes them, which 3.x did only inside `watchdogAssertNoErrors()`.
 
 The snapshots behind the 2 reverting traits share their keys now too. `ConfigTrait::$configOriginalData` stores `exists` and `value` in place of `existed` and `data`, matching `StateTrait::$stateOriginalValues`, so a context reading the property directly renames the keys.
 
-### 3 types moved out of the root of `Behat`
+### 3 Drupal Extension types moved into `Behat`
 
-`src/Behat` is split into sub-namespaces named for a role or a concern, yet 4 types sat at its root. 3 of them moved to the namespace of their concern. `Tag` stays where it is, since the step traits, the contexts, the listeners and the registries all read tags through it.
+The Drupal Extension kept `ParametersAwareInterface`, `ParametersTrait` and `MinkAwareTrait` at the root of `Drupal\DrupalExtension`. Their 4.x versions sit in the sub-namespace of their concern:
 
 | Before | After |
 | --- | --- |
-| `DrevOps\BehatSteps\Behat\ParametersAwareInterface` | `DrevOps\BehatSteps\Behat\Context\ParametersAwareInterface` |
-| `DrevOps\BehatSteps\Behat\ParametersTrait` | `DrevOps\BehatSteps\Behat\Config\ParametersTrait` |
-| `DrevOps\BehatSteps\Behat\MinkAwareTrait` | `DrevOps\BehatSteps\Behat\Mink\MinkAwareTrait` |
+| `Drupal\DrupalExtension\ParametersAwareInterface` | `DrevOps\BehatSteps\Behat\Context\ParametersAwareInterface` |
+| `Drupal\DrupalExtension\ParametersTrait` | `DrevOps\BehatSteps\Behat\Config\ParametersTrait` |
+| `Drupal\DrupalExtension\MinkAwareTrait` | `DrevOps\BehatSteps\Behat\Mink\MinkAwareTrait` |
 
-A context that extends a shipped context picks up the new names for free. A context or service of your own that implements `ParametersAwareInterface` or composes one of the 2 traits updates its imports, and nothing else about them changed.
+A context that extends a shipped context picks up the new names for free. A context or service of your own that implements `ParametersAwareInterface` or composes one of the 2 traits updates its imports. `ParametersTrait` no longer carries `getMapping()`, as [`getMapping()` became `mappingGetValue()`](#getmapping-became-mappinggetvalue) describes, and `MinkAwareTrait` no longer carries `saveScreenshot()`; a context still inherits it from Mink's `RawMinkContext`. The other members are unchanged.
 
-`grep -rnE 'BehatSteps\\+Behat\\+(ParametersAwareInterface|ParametersTrait|MinkAwareTrait)' <your project>` lists every import and docblock type that still names an old location.
+`grep -rnE 'DrupalExtension\\+(ParametersAwareInterface|ParametersTrait|MinkAwareTrait)' <your project>` lists every import and docblock type that still names an old location.
 
 ## A lookup by title acts on the newest match
 
@@ -3058,13 +3003,12 @@ When several entities share the title, label, name or description a step names, 
 
 | Trait | Before | After |
 | --- | --- | --- |
-| `Drupal\ContentTrait`, `Drupal\SearchApiTrait` | the node saved most recently, by revision ID | the node created last, by node ID |
+| `Drupal\ContentTrait`, `Drupal\SearchApiTrait`, `Drupal\MediaTrait`, `Drupal\TaxonomyTrait`, `Drupal\ContentBlockTrait` | the entity saved most recently, by revision ID | the entity created last, by ID |
 | `Drupal\MenuTrait` (a menu by label, a link by title), `Drupal\DraggableviewsTrait`, `Drupal\EckTrait` | the first match the database returned | the newest match |
 | `Drupal\ParagraphsTrait` (the parent entity) | the last match the database returned | the newest match |
 | `Drupal\BlockTrait` | the last machine name in string order, so `block_9` won over `block_10` | the block the scenario placed last, and otherwise the last machine name in natural order |
-| `Drupal\MediaTrait`, `Drupal\TaxonomyTrait`, `Drupal\ContentBlockTrait` | the newest match | unchanged |
 
-A node saved again after a newer one was created no longer wins: content entities are compared by ID, which only grows when an entity is created. Blocks and menus have machine names instead of numeric IDs, so the one the scenario created last wins over any the site already held.
+An entity saved again after a newer one was created no longer wins: content entities are compared by ID, which only grows when an entity is created. Blocks and menus have machine names instead of numeric IDs, so the one the scenario created last wins over any the site already held.
 
 `the menu :menu_name does not exist` and `the following menu links do not exist in the menu :menu_name:` now remove every menu and every link that matches, as every other `... does not exist` step already did. They used to remove 1.
 
@@ -3080,11 +3024,13 @@ A node saved again after a newer one was created no longer wins: content entitie
 
 ```gherkin
 # Before.
-Then the element ".sticky-header" should be displayed within the viewport with a top offset of 200 pixels
+Then the element ".sticky-header" should be displayed within a viewport with a top offset of 200 pixels
 
 # After.
 Then the element ".sticky-header" should be displayed within the viewport with a top offset of -200 pixels
 ```
+
+The step reads `the viewport` now, as [I-prefixed step text and placeholder types](#i-prefixed-step-text-and-placeholder-types) lists.
 
 The scroll also targets the element's position in the document now. It used to read `offsetTop`, which is measured from the nearest positioned ancestor, so an element inside a `position: relative` wrapper further down the page was scrolled to the wrong place. `the element :selector should be displayed within the viewport` and its negative, which scroll the same way with no offset, now find such an element where it is.
 
