@@ -31,8 +31,9 @@ class HookedContext implements Context {
 
   /**
    * Hook declared with an argument, which an entity hook does not take.
+   *
+   * @phpstan-ignore attribute.noConstructor
    */
-  // @phpstan-ignore attribute.noConstructor
   #[AfterEntityCreate('@api')]
   public static function withArgument(): void {}
 

@@ -103,11 +103,11 @@ class EmailTraitTest extends UnitTestCase {
   /**
    * Tests which tags make the setup hook enable the collector.
    *
-   * @param array<int, string> $scenario_tags
+   * @param list<string> $scenario_tags
    *   Tags declared on the scenario.
-   * @param array<int, string> $feature_tags
+   * @param list<string> $feature_tags
    *   Tags declared on the feature.
-   * @param array<int, string>|null $expected_types
+   * @param list<string>|null $expected_types
    *   The handler types the collector is expected to be enabled with, or NULL
    *   when it is expected to stay off.
    */
