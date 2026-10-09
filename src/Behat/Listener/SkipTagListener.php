@@ -67,7 +67,7 @@ final class SkipTagListener implements EventSubscriberInterface {
 
       $environment = $event->getEnvironment();
 
-      if (!$environment instanceof ContextEnvironment || isset($this->findComposedTraits($environment)[$trait])) {
+      if (!$environment instanceof ContextEnvironment || isset($this->collectComposedTraits($environment)[$trait])) {
         continue;
       }
 
@@ -76,7 +76,9 @@ final class SkipTagListener implements EventSubscriberInterface {
   }
 
   /**
-   * Finds the short names of every trait the suite's contexts compose.
+   * Collects the short names of every trait the suite's contexts compose.
+   *
+   * A trait composed by a parent class or by another trait counts as well.
    *
    * @param \Behat\Behat\Context\Environment\ContextEnvironment $environment
    *   The environment holding the suite's context classes.
@@ -84,27 +86,14 @@ final class SkipTagListener implements EventSubscriberInterface {
    * @return array<string, true>
    *   The short trait names, as keys.
    */
-  protected function findComposedTraits(ContextEnvironment $environment): array {
+  protected function collectComposedTraits(ContextEnvironment $environment): array {
     $classes = $environment->getContextClasses();
     $key = implode(' ', $classes);
 
-    $this->composedTraits[$key] ??= $this->collectComposedTraits($classes);
+    if (isset($this->composedTraits[$key])) {
+      return $this->composedTraits[$key];
+    }
 
-    return $this->composedTraits[$key];
-  }
-
-  /**
-   * Collects the short names of the traits a list of classes composes.
-   *
-   * A trait composed by a parent class or by another trait counts as well.
-   *
-   * @param array<int, string> $classes
-   *   The context classes.
-   *
-   * @return array<string, true>
-   *   The short trait names, as keys.
-   */
-  protected function collectComposedTraits(array $classes): array {
     $pending = [];
 
     foreach ($classes as $class) {
@@ -128,6 +117,8 @@ final class SkipTagListener implements EventSubscriberInterface {
       $separator = strrpos($trait, '\\');
       $names[$separator === FALSE ? $trait : substr($trait, $separator + 1)] = TRUE;
     }
+
+    $this->composedTraits[$key] = $names;
 
     return $names;
   }
