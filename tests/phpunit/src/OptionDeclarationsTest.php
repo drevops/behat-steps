@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Unit\Steps;
+namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
 use DrevOps\BehatSteps\Behat\Config\GroupName;
@@ -36,7 +36,6 @@ use DrevOps\BehatSteps\Steps\Web\RandomTrait;
 use DrevOps\BehatSteps\Steps\Web\RestTrait;
 use DrevOps\BehatSteps\Steps\Web\TableTrait;
 use DrevOps\BehatSteps\Steps\Web\WaitTrait;
-use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 

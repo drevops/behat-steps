@@ -14,10 +14,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * Asserts that the test suite follows the settled test conventions.
  *
- * Each rule has 1 check: the base a test extends, how a test reaches a static
- * member, how a test helper is named, how a test double names its test-only
- * methods and itself, and how a unit test writes a fixture and reflects a
- * class.
+ * Each rule has 1 check: the base a test extends, where a test covering
+ * nothing sits, how a test reaches a static member, how a test helper is
+ * named, how a test double names its test-only methods and itself, and how a
+ * unit test writes a fixture and reflects a class.
  *
  * CONTRIBUTING.md states the rules.
  */
@@ -91,6 +91,26 @@ class TestConventionTest extends UnitTestCase {
   }
 
   public static function dataProviderTestsExtendTheirSuiteBase(): array {
+    return array_diff_key(static::discoverTestClasses(), [UnitTestCase::class => TRUE]);
+  }
+
+  /**
+   * Assert that a test covering nothing sits at the root of the suite tree.
+   *
+   * The suite directories mirror 'src/', so a test with no counterpart there
+   * has no directory under them.
+   *
+   * @param class-string $class
+   *   The test class to check.
+   */
+  #[DataProvider('dataProviderTestsCoveringNothingSitAtTheRoot')]
+  public function testTestsCoveringNothingSitAtTheRoot(string $class): void {
+    $is_at_root = !str_contains(substr($class, strlen(__NAMESPACE__) + 1), '\\');
+
+    $this->assertTrue($is_at_root || static::reflect($class)->getAttributes(CoversNothing::class) === [], sprintf('%s covers nothing but sits in a suite directory, against the convention in CONTRIBUTING.md. Move it to the root of tests/phpunit/src/.', $class));
+  }
+
+  public static function dataProviderTestsCoveringNothingSitAtTheRoot(): array {
     return array_diff_key(static::discoverTestClasses(), [UnitTestCase::class => TRUE]);
   }
 
