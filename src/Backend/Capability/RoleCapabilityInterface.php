@@ -15,7 +15,7 @@ interface RoleCapabilityInterface {
    * Creates a role with the given permissions.
    *
    * @param array<string> $permissions
-   *   Permission machine names or labels.
+   *   Permission machine names.
    * @param string|null $id
    *   Optional role machine name. If omitted, a random lowercase id is
    *   generated.

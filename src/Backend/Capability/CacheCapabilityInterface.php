@@ -10,12 +10,9 @@ namespace DrevOps\BehatSteps\Backend\Capability;
 interface CacheCapabilityInterface {
 
   /**
-   * Clears Drupal caches.
-   *
-   * @param string|null $type
-   *   Cache bin to clear. NULL or 'all' clears everything.
+   * Clears every Drupal cache.
    */
-  public function cacheClear(?string $type = NULL): void;
+  public function cacheClear(): void;
 
   /**
    * Clears static caches.

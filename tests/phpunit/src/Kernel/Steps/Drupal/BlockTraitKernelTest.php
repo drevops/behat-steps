@@ -26,7 +26,7 @@ class BlockTraitKernelTest extends StepTraitKernelTestBase {
    *
    * @var array<string>
    */
-  protected static $modules = ['system', 'user', 'block'];
+  protected static $modules = ['system', 'user', 'block', 'path_alias'];
 
   /**
    * {@inheritdoc}
@@ -91,6 +91,57 @@ class BlockTraitKernelTest extends StepTraitKernelTestBase {
     $this->createSiteBlock('stark_shared', 'Shared');
 
     $this->assertNull($this->context->blockFindByLabel('Missing'));
+  }
+
+  public function testUnsetVisibilityConditionRemovesOnlyTheCondition(): void {
+    $block = $this->context->blockCreate('Powered by Drupal');
+    $this->context->blockSetVisibilityCondition($block, 'request_path', ['pages' => '/user/*']);
+    $this->context->blockSetVisibilityCondition($block, 'user_role', ['roles' => ['authenticated' => 'authenticated']]);
+
+    $this->context->blockUnsetVisibilityCondition($block, 'request_path');
+
+    $this->assertFalse($block->getVisibilityConditions()->has('request_path'), 'The block no longer carries the condition.');
+    $this->assertSame(['user_role'], array_keys($this->loadBlock((string) $block->id())->getVisibility()), 'The saved block keeps only the other condition.');
+  }
+
+  public function testUnsetVisibilityConditionLeavesTheBlockWithoutTheConditionUnchanged(): void {
+    $block = $this->context->blockCreate('Powered by Drupal');
+
+    $this->context->blockUnsetVisibilityCondition($block, 'request_path');
+
+    $this->assertFalse($block->getVisibilityConditions()->has('request_path'), 'The condition was not added.');
+    $this->assertSame([], $this->loadBlock((string) $block->id())->getVisibility());
+  }
+
+  public function testUnsetVisibilityConditionRejectsAnUnknownCondition(): void {
+    $block = $this->context->blockCreate('Powered by Drupal');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The condition "request_paths" does not exist.');
+
+    $this->context->blockUnsetVisibilityCondition($block, 'request_paths');
+  }
+
+  public function testRemoveVisibilityConditionRemovesTheConditionByLabel(): void {
+    $block = $this->context->blockCreate('Powered by Drupal');
+    $this->context->blockSetVisibilityCondition($block, 'request_path', ['pages' => '/user/*']);
+
+    $this->context->blockRemoveVisibilityCondition('Powered by Drupal', 'request_path');
+
+    $this->assertSame([], $this->loadBlock((string) $block->id())->getVisibility());
+  }
+
+  /**
+   * Loads a saved block.
+   *
+   * @param string $id
+   *   The block id.
+   */
+  protected function loadBlock(string $id): Block {
+    $block = Block::load($id);
+    $this->assertInstanceOf(Block::class, $block);
+
+    return $block;
   }
 
   /**

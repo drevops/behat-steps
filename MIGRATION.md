@@ -2384,7 +2384,7 @@ The Drush backend supports Drush 13, the first release that runs Drupal 11, and 
 | `deleteUser()` | `user-cancel` | `user:cancel` |
 | `addUserRole()` | `user-add-role` | `user:role:add` |
 
-`cacheClear()` no longer runs `cache-clear drush` ahead of `cache:rebuild`. Drush 13 keeps no cache of its own, so that command cleared nothing, and Drush 14 rejects the `drush` cache type, so every cache clear over Drush failed there. `cacheClear()` now runs `cache:rebuild` alone, and `cacheClear('drush')` runs no command.
+`cacheClear()` no longer runs `cache-clear drush` ahead of `cache:rebuild`. Drush 13 keeps no cache of its own, so that command cleared nothing, and Drush 14 rejects the `drush` cache type, so every cache clear over Drush failed there. `cacheClear()` now runs `cache:rebuild` alone.
 
 A project that extends `DrushBackend` and matches the command names it issues, in an override of `drush()` or `drushResult()`, matches the names in the right-hand column.
 
@@ -3087,3 +3087,67 @@ Then the element ".sticky-header" should be displayed within the viewport with a
 ```
 
 The scroll also targets the element's position in the document now. It used to read `offsetTop`, which is measured from the nearest positioned ancestor, so an element inside a `position: relative` wrapper further down the page was scrolled to the wrong place. `the element :selector should be displayed within the viewport` and its negative, which scroll the same way with no offset, now find such an element where it is.
+
+## Steps and backends do what their text and contracts say
+
+6 steps and 3 capability methods did something other than what their step text or docblock said. Each one does what it says now. A scenario changes only where it leaned on the old behavior, and each part below says what to look for.
+
+### `the element :selector should be at the top of the viewport`
+
+The step passed for any element whose top edge sat somewhere in the viewport, so an element halfway down the screen counted as being at the top. It now passes only when the element's top edge is within 2 pixels of the viewport top, the same tolerance `the element :selector should be pinned to the top of the viewport` uses, and an element that isn't rendered fails it. A selector that matches nothing fails with `ElementNotFoundException`, like every other element assertion, where it used to fail with a JavaScript error from the browser driver.
+
+`I scroll to the element :selector` centers the element by default, so a scenario that scrolled and then checked "at the top" only passed because the check was loose. Assert the position the scroll actually leaves:
+
+```gherkin
+# Before.
+When I scroll to the element "#main-content"
+Then the element "#main-content" should be at the top of the viewport
+
+# After: the default scroll centers the element.
+When I scroll to the element "#main-content"
+Then the element "#main-content" should be centered in the viewport
+```
+
+A scenario that only needs the element on screen asserts `the element :selector should be displayed within the viewport` instead.
+
+### `the element :selector should not be displayed within the viewport`
+
+A selector that matched nothing read as displayed, so the negative step and its `with a top offset of :offset pixels` form failed on it. Nothing matching now means nothing is displayed, and both pass. `ElementTrait::elementIsVisuallyVisible()` returns a falsy value for such a selector. The positive steps fail on it with `ElementNotFoundException`, as they did before.
+
+### `the block :label has the condition :condition removed`
+
+The step reset the condition to its defaults instead of removing it, and added the condition to a block that didn't carry it. Drupal drops a condition left at its defaults when the block saves, so for the conditions core ships, the saved block came out the same. A condition whose configuration doesn't return to its defaults stayed on the block, though.
+
+The step now removes the condition and leaves a block without it unchanged, through the new public helper `Drupal\BlockTrait::blockUnsetVisibilityCondition()`. A condition ID that names no condition plugin fails with `\RuntimeException` (`The condition "..." does not exist.`), where Drupal's `PluginNotFoundException` used to surface.
+
+### `I add the :content_type content with the title :title to the search index`
+
+The step tracked the node, then indexed whichever item came next in each index, which was the named node only when nothing else was waiting. It now indexes the named node's own items on every enabled index that includes the node, and leaves everything else queued. It fails with `\RuntimeException` when no enabled index includes the node (`No active search index includes the "..." content with the title "...".`), where it used to fail only when no index was enabled at all.
+
+A scenario that relied on the step to push some other queued item into the index runs `I run search indexing for :count item(s)` as well. `Drupal\SearchApiTrait::searchApiIndexNode()` changes the same way, and an index that fails to index the node now throws Search API's `SearchApiException` rather than logging it.
+
+### `the webform :title exists from the template :template`
+
+When several templates matched, the step cloned the one with the first machine name in string order. It now clones the newest, as every lookup for 1 entity does: the template the scenario created last, and otherwise the one with the last machine name in natural order. The new public helper `Drupal\WebformTrait::webformFindTemplateByTitle()` does the lookup. A scenario with 1 matching template sees no change.
+
+### Capability contracts
+
+3 capability methods promised more than a shipped backend delivered. Each contract now matches what every shipped backend does.
+
+| Method | Before | After |
+| --- | --- | --- |
+| `CacheCapabilityInterface::cacheClear()` | Took a cache bin to clear, which no backend honored | Takes no argument and clears every cache |
+| `UserCapabilityInterface::addUserRole()` | A role label worked on the in-process backend only | The Drush backend resolves a label as well, through `drush role:list` |
+| `RoleCapabilityInterface::createRole()` | Promised permission labels, which `drush role:perm:add` rejects | Takes permission machine names. The in-process backend still converts a label |
+
+A call that passed a type to `cacheClear()` drops it:
+
+```php
+// Before.
+$backend->cacheClear('all');
+
+// After.
+$backend->cacheClear();
+```
+
+A backend of your own that implements `cacheClear(?string $type = NULL)` keeps loading, because an extra optional parameter is compatible with the interface, so drop the parameter whenever it suits. A project that calls `createRole()` with permission labels on any backend but the in-process one passes the machine names instead.

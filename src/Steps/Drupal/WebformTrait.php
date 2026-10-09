@@ -52,6 +52,10 @@ trait WebformTrait {
   /**
    * Clone a webform template into a new webform with the given title.
    *
+   * When several templates match, the newest is cloned: the template the
+   * scenario created last, and otherwise the one with the last machine name
+   * in natural order.
+   *
    * @param string $title
    *   The title for the new webform.
    * @param string $template
@@ -67,13 +71,13 @@ trait WebformTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $templates = $this->webformLoadTemplateMultiple($template);
+    $source = $this->webformFindTemplateByTitle($template);
 
-    if (empty($templates)) {
+    if (!$source instanceof WebformInterface) {
       throw new \RuntimeException(sprintf('No webform template matching "%s" was found.', $template));
     }
 
-    $this->webformCreateFromTemplate($title, reset($templates));
+    $this->webformCreateFromTemplate($title, $source);
   }
 
   /**
@@ -100,6 +104,22 @@ trait WebformTrait {
     $this->entityLifecycleRegister($clone);
 
     return $clone;
+  }
+
+  /**
+   * Find the newest webform template whose title contains the given string.
+   *
+   * The template the scenario created last wins, and otherwise the one with
+   * the last machine name in natural order.
+   *
+   * @param string $title
+   *   The title string to search for (CONTAINS match).
+   *
+   * @return \Drupal\webform\WebformInterface|null
+   *   The newest matching template, or NULL when none matches.
+   */
+  public function webformFindTemplateByTitle(string $title): ?WebformInterface {
+    return $this->entityLifecycleFindNewest($this->webformLoadTemplateMultiple($title));
   }
 
   /**

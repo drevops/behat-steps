@@ -183,8 +183,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function cacheClear(?string $type = NULL): void {
-    $this->getCore()->cacheClear($type);
+  public function cacheClear(): void {
+    $this->getCore()->cacheClear();
   }
 
   /**

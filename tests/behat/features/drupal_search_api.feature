@@ -28,6 +28,20 @@ Feature: Check that SearchApiTrait works
     Then I should see "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
     And I should not see "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
 
+  Scenario: Assert "When I add the :content_type content with the title :title to the search index" indexes only the named content
+    Given the following article content exist:
+      | title                                      | moderation_state |
+      | [MYTEST] QUEUEDARTICLE TESTUNIQUEQUEUETEXT | published        |
+      | [MYTEST] NAMEDARTICLE TESTUNIQUEQUEUETEXT  | published        |
+    And I log in as a user with the role "administrator"
+    When I add the "article" content with the title "[MYTEST] NAMEDARTICLE TESTUNIQUEQUEUETEXT" to the search index
+
+    When I go to "/search"
+    And I fill in "edit-search-api-fulltext" with "TESTUNIQUEQUEUETEXT"
+    And I press "edit-submit-search"
+    Then I should see "[MYTEST] NAMEDARTICLE TESTUNIQUEQUEUETEXT"
+    And I should not see "[MYTEST] QUEUEDARTICLE TESTUNIQUEQUEUETEXT"
+
   @testmode
   Scenario: Assert "When I add the :content_type content with the title :title to the search index" works as expected with test mode
     Given the following article content exist:

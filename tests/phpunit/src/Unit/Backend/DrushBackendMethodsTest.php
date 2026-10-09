@@ -53,26 +53,13 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->addToAssertionCount(1);
   }
 
-  /**
-   * Tests that a cache clear rebuilds Drupal's caches in 1 command.
-   *
-   * @param string|null $type
-   *   The cache type to clear.
-   */
-  #[DataProvider('dataProviderCacheClearRebuilds')]
-  public function testCacheClearRebuilds(?string $type): void {
+  public function testCacheClearRebuilds(): void {
     $backend = $this->createBackend();
 
-    $backend->cacheClear($type);
+    $backend->cacheClear();
 
     $this->assertSame(['cache:rebuild'], array_column($backend->invocations, 'command'));
     $this->assertSame([], $backend->invocations[0]['arguments']);
-  }
-
-  public static function dataProviderCacheClearRebuilds(): \Iterator {
-    yield 'no type' => [NULL];
-    yield 'all' => ['all'];
-    yield 'a single bin' => ['render'];
   }
 
   public function testCacheClearStaticIsNoop(): void {
@@ -96,6 +83,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
   public function testCreateUserWithRolesInvokesRoleAssignment(): void {
     $backend = $this->createBackend();
     $backend->drushResponse = "User ID   :   7\nUser name :   bob\n";
+    $backend->drushResponses = ['role:list' => static::buildRoleListOutput(['editor' => 'Editor', 'reviewer' => 'Reviewer'])];
 
     $user = new EntityStub('user', NULL, [
       'name' => 'bob',
@@ -261,12 +249,55 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $backend->deleteUser(new EntityStub('user'));
   }
 
-  public function testCacheClearDrushIssuesNoCommand(): void {
+  /**
+   * Tests that a role is assigned by the machine name its name or label has.
+   *
+   * @param string $role
+   *   The role machine name or label passed to 'addUserRole()'.
+   * @param string $expected_rid
+   *   The machine name 'user:role:add' must receive.
+   */
+  #[DataProvider('dataProviderAddUserRoleResolvesTheRole')]
+  public function testAddUserRoleResolvesTheRole(string $role, string $expected_rid): void {
     $backend = $this->createBackend();
+    $backend->drushResponses = ['role:list' => static::buildRoleListOutput(['content_editor' => 'Content editor', 'editor' => 'Reviewer', 'reviewer' => 'Editor'])];
 
-    $backend->cacheClear('drush');
+    $backend->addUserRole(new EntityStub('user', NULL, ['name' => 'alice']), $role);
 
-    $this->assertSame([], $backend->invocations);
+    $this->assertSame(['role:list', 'user:role:add'], array_column($backend->invocations, 'command'));
+    $this->assertSame(['format' => 'json'], $backend->invocations[0]['options']);
+    $this->assertSame([$expected_rid, 'alice'], $backend->invocations[1]['arguments']);
+  }
+
+  public static function dataProviderAddUserRoleResolvesTheRole(): \Iterator {
+    yield 'machine name' => ['content_editor', 'content_editor'];
+    yield 'machine name in another case' => ['Content_Editor', 'content_editor'];
+    yield 'label' => ['Content editor', 'content_editor'];
+    yield 'label in another case' => ['CONTENT EDITOR', 'content_editor'];
+    yield 'machine name before the label of another role' => ['editor', 'editor'];
+  }
+
+  /**
+   * Tests that a role no machine name or label names is not assigned.
+   *
+   * @param string $role_list
+   *   The output 'role:list' returns.
+   */
+  #[DataProvider('dataProviderAddUserRoleThrowsOnUnknownRole')]
+  public function testAddUserRoleThrowsOnUnknownRole(string $role_list): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['role:list' => $role_list];
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No role "Ghost" exists.');
+
+    $backend->addUserRole(new EntityStub('user', NULL, ['name' => 'alice']), 'Ghost');
+  }
+
+  public static function dataProviderAddUserRoleThrowsOnUnknownRole(): \Iterator {
+    yield 'other roles' => [static::buildRoleListOutput(['editor' => 'Editor'])];
+    yield 'no roles' => ['{}'];
+    yield 'output that is not JSON' => ['Drush printed a warning.'];
   }
 
   /**
@@ -431,7 +462,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
     yield 'cacheClear' => ['cacheClear', [], 'cache:rebuild'];
     yield 'createUser' => ['createUser', [$user], 'user:create', "User ID   :   9\n"];
     yield 'deleteUser' => ['deleteUser', [$user], 'user:cancel'];
-    yield 'addUserRole' => ['addUserRole', [$user, 'admin'], 'user:role:add'];
+    yield 'addUserRole' => ['addUserRole', [$user, 'admin'], 'role:list', static::buildRoleListOutput(['admin' => 'Admin'])];
     yield 'cronRun' => ['cronRun', [], 'core:cron'];
     yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm:install'];
     yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm:uninstall'];
@@ -641,6 +672,22 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   protected function createBackend(): RecordingDrushBackend {
     return new RecordingDrushBackend('alias');
+  }
+
+  /**
+   * Builds the output 'drush role:list --format=json' prints for roles.
+   *
+   * @param array<string, string> $labels
+   *   The role labels keyed by machine name.
+   */
+  protected static function buildRoleListOutput(array $labels): string {
+    $roles = [];
+
+    foreach ($labels as $rid => $label) {
+      $roles[$rid] = ['rid' => $rid, 'label' => $label, 'perms' => []];
+    }
+
+    return (string) json_encode($roles);
   }
 
 }

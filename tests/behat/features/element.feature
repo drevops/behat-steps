@@ -254,9 +254,9 @@ Feature: Check that ElementTrait works
   Scenario: Assert selectors with quotes in attribute values work correctly
     Given I visit "http://cli:8888/elements_relative.html"
     When I scroll to the element "button[data-action='save']"
-    Then the element "button[data-action='save']" should be at the top of the viewport
+    Then the element "button[data-action='save']" should be centered in the viewport
     When I scroll to the element "button[data-action='delete']"
-    Then the element "button[data-action='delete']" should be at the top of the viewport
+    Then the element "button[data-action='delete']" should be centered in the viewport
     When I trigger the JS event "click" on the element "button[data-action='edit']"
 
   @javascript @phpserver
@@ -304,6 +304,8 @@ Feature: Check that ElementTrait works
     Then the element "#hidden" should not be displayed within the viewport with a top offset of 10 pixels
     # A negative offset scrolls the top of the element above the viewport.
     And the element "#top" should not be displayed within the viewport with a top offset of -300 pixels
+    # A selector that matches no element is not displayed.
+    And the element "#nonexistent" should not be displayed within the viewport with a top offset of 10 pixels
 
   @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport with a top offset of :offset pixels" succeeds as expected
@@ -341,6 +343,8 @@ Feature: Check that ElementTrait works
     And the element "#sr-only" should not be displayed within the viewport
     And the element "#sr-only-focusable" should not be displayed within the viewport
     And the element ".sr-only" should not be displayed within the viewport
+    # A selector that matches no element is not displayed.
+    And the element "#nonexistent" should not be displayed within the viewport
 
   @test-trait:ElementTrait @test-skipped
   Scenario: Assert step definition "Then the element :selector should be displayed within the viewport" fails as expected
@@ -725,6 +729,48 @@ Feature: Check that ElementTrait works
     Then it should fail with an error:
       """
       The element "#bottom" is not at the top of the viewport.
+      """
+
+  @test-trait:ElementTrait
+  Scenario: Assert "Then the element :selector should be at the top of the viewport" fails when the element is in the viewport below its top
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I visit "http://cli:8888/elements_relative.html"
+      Then the element "#top-inner" should be at the top of the viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The element "#top-inner" is not at the top of the viewport.
+      """
+
+  @test-trait:ElementTrait
+  Scenario: Assert "Then the element :selector should be at the top of the viewport" fails when the element is not rendered
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I visit "http://cli:8888/elements_relative.html"
+      Then the element "#hidden" should be at the top of the viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The element "#hidden" is not at the top of the viewport.
+      """
+
+  @test-trait:ElementTrait
+  Scenario: Assert "Then the element :selector should be at the top of the viewport" fails when the element does not exist
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      Given I visit "http://cli:8888/elements_relative.html"
+      Then the element "#nonexistent" should be at the top of the viewport
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element matching css "#nonexistent" not found.
       """
 
   @test-trait:ElementTrait

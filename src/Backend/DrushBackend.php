@@ -146,15 +146,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
   /**
    * {@inheritdoc}
-   *
-   * Drush 13 and later keep no cache of their own, so the 'drush' type clears
-   * nothing. Every other type rebuilds all of Drupal's caches.
    */
-  public function cacheClear(?string $type = NULL): void {
-    if ($type === 'drush') {
-      return;
-    }
-
+  public function cacheClear(): void {
     $this->drush('cache:rebuild');
   }
 
@@ -536,10 +529,48 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    */
   public function addUserRole(EntityStubInterface $stub, string $role): void {
     $arguments = [
-      $role,
+      $this->resolveRoleId($role),
       (string) $stub->getValue('name'),
     ];
     $this->drush('user:role:add', $arguments);
+  }
+
+  /**
+   * Resolves a role machine name or label to the role's machine name.
+   *
+   * 'user:role:add' takes only a machine name, so a label is looked up in the
+   * roles 'role:list' reports. Both match regardless of case, and a machine
+   * name matches before a label.
+   *
+   * @param string $role
+   *   The role machine name or label.
+   *
+   * @return string
+   *   The role machine name.
+   *
+   * @throws \RuntimeException
+   *   When no role has the machine name or the label.
+   */
+  protected function resolveRoleId(string $role): string {
+    $roles = json_decode(trim($this->drush('role:list', [], ['format' => 'json'])), TRUE);
+    $roles = is_array($roles) ? $roles : [];
+    $needle = mb_strtolower($role);
+
+    foreach (array_keys($roles) as $rid) {
+      if (mb_strtolower((string) $rid) === $needle) {
+        return (string) $rid;
+      }
+    }
+
+    foreach ($roles as $rid => $row) {
+      $label = is_array($row) ? ($row['label'] ?? NULL) : NULL;
+
+      if (is_string($label) && mb_strtolower($label) === $needle) {
+        return (string) $rid;
+      }
+    }
+
+    throw new \RuntimeException(sprintf('No role "%s" exists.', $role));
   }
 
   /**

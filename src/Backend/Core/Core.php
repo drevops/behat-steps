@@ -441,7 +441,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function cacheClear(?string $type = NULL): void {
+  public function cacheClear(): void {
     drupal_flush_all_caches();
     $this->allPermissions = NULL;
   }
@@ -536,6 +536,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * {@inheritdoc}
+   *
+   * A permission given by its label is granted by its machine name.
    */
   public function createRole(array $permissions, ?string $id = NULL, ?string $label = NULL): EntityStubInterface {
     $rid = $id ?? strtolower($this->random->name(8, TRUE));
