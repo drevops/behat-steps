@@ -12,6 +12,9 @@ use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Helper\Web\StringTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
+use Drupal\search_api\IndexInterface;
+use Drupal\search_api\Plugin\search_api\datasource\ContentEntityTrackingManager;
+use Drupal\search_api\Utility\Utility;
 
 /**
  * Run Drupal Search API indexing and cron hooks.
@@ -29,6 +32,9 @@ trait SearchApiTrait {
 
   /**
    * Index a node of a specific content type with a specific title.
+   *
+   * Only that node is indexed, so other items waiting in an index stay
+   * queued. The step fails when no active search index includes the node.
    *
    * @code
    * When I add the "article" content with the title "Test Article" to the search index
@@ -125,15 +131,57 @@ trait SearchApiTrait {
   }
 
   /**
-   * Track a node in the search indexes, then index 1 item on each.
+   * Track a node in the search indexes, then index it on each.
+   *
+   * Only the node's own items are indexed, so other items waiting in an index
+   * stay queued. An index that does not include the node is skipped.
    *
    * @param \Drupal\node\NodeInterface $node
    *   The node.
+   *
+   * @throws \RuntimeException
+   *   When no active search index includes the node.
+   * @throws \Drupal\search_api\SearchApiException
+   *   When an index fails to index the node.
    */
   public function searchApiIndexNode(NodeInterface $node): void {
-    search_api_entity_insert($node);
+    /** @var \Drupal\search_api\Plugin\search_api\datasource\ContentEntityTrackingManager $tracking_manager */
+    $tracking_manager = \Drupal::service('search_api.entity_datasource.tracking_manager');
+    $tracking_manager->entityInsert($node);
 
-    $this->searchApiIndexItems(1);
+    $indexes = array_filter($tracking_manager->getIndexesForEntity($node), static fn(IndexInterface $index): bool => $index->status());
+
+    if ($indexes === []) {
+      throw new \RuntimeException(sprintf('No active search index includes the "%s" content with the title "%s".', $node->bundle(), $node->label()));
+    }
+
+    foreach ($indexes as $index) {
+      $index->indexSpecificItems($index->loadItemsMultiple($this->searchApiGetNodeItemIds($index, $node)));
+    }
+  }
+
+  /**
+   * Get the IDs of the items a node is indexed as on a search index.
+   *
+   * @param \Drupal\search_api\IndexInterface $index
+   *   The search index.
+   * @param \Drupal\node\NodeInterface $node
+   *   The node.
+   *
+   * @return list<string>
+   *   The item ID of each translation of the node in a language the index
+   *   includes.
+   */
+  protected function searchApiGetNodeItemIds(IndexInterface $index, NodeInterface $node): array {
+    $raw_ids = [];
+
+    foreach ($node->getTranslationLanguages() as $language) {
+      $raw_ids[] = ContentEntityTrackingManager::formatItemId('node', (string) $node->id(), $language->getId());
+    }
+
+    $raw_ids = ContentEntityTrackingManager::filterValidItemIds($index, 'entity:node', $raw_ids);
+
+    return array_values(array_map(static fn(string $raw_id): string => Utility::createCombinedId('entity:node', $raw_id), $raw_ids));
   }
 
   /**
