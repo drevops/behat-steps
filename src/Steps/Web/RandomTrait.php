@@ -270,7 +270,7 @@ trait RandomTrait {
   }
 
   /**
-   * Validates 'int' args (0 args for full range, or 2 integer bounds).
+   * Validates 'int' args (0 args for 0 to PHP_INT_MAX, or 2 integer bounds).
    *
    * @param list<string> $args
    *   Raw args parsed from the token literal.

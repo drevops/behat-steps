@@ -47,7 +47,7 @@ trait WaitTrait {
   protected bool $waitAroundSteps = FALSE;
 
   /**
-   * Resolve whether this scenario waits for AJAX around every step.
+   * Resolve whether this scenario waits for AJAX around page-changing steps.
    *
    * Step scopes carry no scenario tags, so the decision is made here and read
    * by the step hooks below.

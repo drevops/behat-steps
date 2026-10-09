@@ -1062,8 +1062,8 @@ trait ElementTrait {
             return true;
           }
 
-          // A flex or grid item takes part in its parent's stacking context
-          // when it carries a z-index, whether or not it is positioned.
+          // A flex or grid item creates a stacking context when it carries a
+          // z-index, whether or not it is positioned.
           var parent = el.parentElement;
           if (parent && style.zIndex !== 'auto') {
             var parentDisplay = window.getComputedStyle(parent).display;

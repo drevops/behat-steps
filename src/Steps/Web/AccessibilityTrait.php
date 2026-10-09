@@ -236,10 +236,10 @@ trait AccessibilityTrait {
       $this->accessibilityAssess($this->accessibilityGetDefaultRules());
     }
 
-    // A failed step has already failed the scenario, so gating it as well
-    // would report a violation from a page the step left incomplete. The gate
-    // runs whether or not this step assessed a new page, because a last step
-    // that does not navigate still ends the scenario.
+    // A failed step has already failed the scenario, so the gate is left to
+    // accessibilityAfterScenario(), which still reports this page's
+    // violations. The gate runs whether or not this step assessed a new page,
+    // because a last step that does not navigate still ends the scenario.
     if (!$scope->getTestResult()->isPassed() || !$this->lastStepReached($scope)) {
       return;
     }

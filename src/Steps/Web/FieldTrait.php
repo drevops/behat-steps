@@ -1096,7 +1096,7 @@ JS;
    * A selector that matches no form raises no error.
    *
    * @param string|null $selector
-   *   The CSS selector for form(s). If NULL, disables all forms on page.
+   *   The CSS selector for form(s), or NULL for every form on the page.
    */
   public function fieldDisableFormValidation(?string $selector = NULL): void {
     $selector ??= 'form';
