@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Behat\Context\Attribute;
 
 use DrevOps\BehatSteps\Behat\Context\Attribute\HookAttributeReader;
-use DrevOps\BehatSteps\Behat\Hook\Call\AfterEntityCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\AfterNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Call\BeforeNodeCreate;
-use DrevOps\BehatSteps\Behat\Hook\Scope\EntityScopeInterface;
 use DrevOps\BehatSteps\Behat\Hook\Scope\NodeScope;
 use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\HookedContext;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -50,12 +48,11 @@ class HookAttributeReaderTest extends UnitTestCase {
     $this->assertSame('afterNode', $reflection->getName());
   }
 
-  public function testTheFilterStringIsCarriedOntoTheCall(): void {
-    $callees = $this->read('filtered');
+  public function testAnAttributeDeclaredWithAnArgumentFails(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('The "#[AfterEntityCreate]" attribute on "%s::withArgument()" takes no argument. The hook runs for every entity created in its scope, so read the entity from "$scope->getStub()" and return early for one it does not handle.', HookedContext::class));
 
-    $this->assertInstanceOf(AfterEntityCreate::class, $callees[0]);
-    $this->assertSame('@api', $callees[0]->getFilterString());
-    $this->assertSame(EntityScopeInterface::AFTER, $callees[0]->getScopeName());
+    $this->read('withArgument');
   }
 
   public function testMethodMayCarryMoreThanOneHook(): void {

@@ -1088,6 +1088,43 @@ To skip cleanup of every registered entity at once, use `@behat-steps-skip:Entit
 
 `@behat-steps-skip:FileTrait` now keeps only the unmanaged files `FileTrait` created; managed file entities it creates are cleaned up by the shared registry and can be kept with `@behat-steps-entity-cleanup-skip:file`.
 
+## Entity creation hooks take no argument
+
+The entity creation hook attributes, such as `#[BeforeNodeCreate]` and `#[AfterEntityCreate]`, accepted an argument, and a hook declared with one never ran: it matched no entity at all. The attributes take no argument now, and a hook declared with one fails the run while Behat reads the context:
+
+```
+The "#[BeforeNodeCreate]" attribute on "FeatureContext::alterArticle()" takes no argument. The hook runs for every entity created in its scope, so read the entity from "$scope->getStub()" and return early for one it does not handle.
+```
+
+A hook meant for some entities only checks the stub itself:
+
+```php
+// Before.
+#[BeforeNodeCreate('article')]
+public function alterArticle(BeforeNodeCreateScope $scope): void {
+  // ...
+}
+
+// After.
+#[BeforeNodeCreate]
+public function alterArticle(BeforeNodeCreateScope $scope): void {
+  if ($scope->getStub()->getBundle() !== 'article') {
+    return;
+  }
+
+  // ...
+}
+```
+
+Once the argument is gone, the hook runs for the first time, so check that its body still does what it was written to do.
+
+`FilterStringTrait` and `DrupalHookInterface::getFilterString()` are gone. `EntityHook` extends `RuntimeHook` rather than `RuntimeFilterableHook`, so a hook call carries no filter string, and each call under `Behat\Hook\Call` takes the callable as its first constructor argument:
+
+| Before | After |
+| --- | --- |
+| `new BeforeNodeCreate(NULL, $callable)` | `new BeforeNodeCreate($callable)` |
+| `new BeforeNodeCreate(NULL, $callable, $description)` | `new BeforeNodeCreate($callable, $description)` |
+
 ## Trait namespaces re-rooted under `Steps`
 
 The step vocabulary now lives in one subtree, split by the context each trait needs. Generic traits moved from `DrevOps\BehatSteps\` to `DrevOps\BehatSteps\Steps\Web\`, and Drupal traits from `DrevOps\BehatSteps\Drupal\` to `DrevOps\BehatSteps\Steps\Drupal\`. The trait names themselves are unchanged, so a consumer context only has to update its `use` statements:

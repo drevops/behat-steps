@@ -13,10 +13,8 @@ use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeTermCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeUserCreate;
 use DrevOps\BehatSteps\Behat\Hook\Attribute\DrupalHookInterface;
-use DrevOps\BehatSteps\Behat\Hook\Attribute\FilterStringTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -30,39 +28,21 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversClass(BeforeNodeCreate::class)]
 #[CoversClass(BeforeTermCreate::class)]
 #[CoversClass(BeforeUserCreate::class)]
-#[CoversTrait(FilterStringTrait::class)]
 class AttributeTest extends UnitTestCase {
 
   /**
-   * Tests that an attribute declared without arguments carries no filter.
+   * Tests that every attribute is a marker that takes no argument.
    *
    * @param class-string<\DrevOps\BehatSteps\Behat\Hook\Attribute\DrupalHookInterface> $attribute_class
    *   The attribute to build.
    */
-  #[DataProvider('dataProviderFilterStringDefaultsToNone')]
-  public function testFilterStringDefaultsToNone(string $attribute_class): void {
-    $attribute = new $attribute_class();
-
-    $this->assertInstanceOf(DrupalHookInterface::class, $attribute);
-    $this->assertNull($attribute->getFilterString());
+  #[DataProvider('dataProviderAttributeTakesNoArgument')]
+  public function testAttributeTakesNoArgument(string $attribute_class): void {
+    $this->assertInstanceOf(DrupalHookInterface::class, new $attribute_class());
+    $this->assertNull(static::reflect($attribute_class)->getConstructor());
   }
 
-  public static function dataProviderFilterStringDefaultsToNone(): \Iterator {
-    yield from static::listAttributeClasses();
-  }
-
-  /**
-   * Tests that a declared filter string is readable off the attribute.
-   *
-   * @param class-string<\DrevOps\BehatSteps\Behat\Hook\Attribute\DrupalHookInterface> $attribute_class
-   *   The attribute to build.
-   */
-  #[DataProvider('dataProviderFilterStringIsReadBack')]
-  public function testFilterStringIsReadBack(string $attribute_class): void {
-    $this->assertSame('@api', (new $attribute_class('@api'))->getFilterString());
-  }
-
-  public static function dataProviderFilterStringIsReadBack(): \Iterator {
+  public static function dataProviderAttributeTakesNoArgument(): \Iterator {
     yield from static::listAttributeClasses();
   }
 
