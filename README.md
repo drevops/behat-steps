@@ -152,7 +152,7 @@ With `minimum-stability: stable`, Composer's default, that installs Behat 3. Beh
 composer require --dev drevops/behat-steps:^4 behat/behat:^4 friends-of-behat/mink-extension:^3.0@alpha
 ```
 
-A project whose `minimum-stability` already admits alpha releases gets Behat 4 from the first command.
+A project whose `minimum-stability` already admits alpha releases can get Behat 4 from the first command, but nothing in it pins the major. Require `behat/behat:^4`, as above, when the suite needs Behat 4.
 
 ### Optional dependencies
 
