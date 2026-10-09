@@ -54,7 +54,7 @@ trait FeatureContextTrait {
   protected bool $testElementScrollCenter = TRUE;
 
   /**
-   * Prepare the scenario the harness tags ask for.
+   * Apply the harness tags of the scenario.
    */
   #[BeforeScenario]
   public function testBeforeScenario(BeforeScenarioScope $scope): void {
