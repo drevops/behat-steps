@@ -2523,6 +2523,14 @@ A skip tag carrying anything but a trait name fails the run at scenario start, n
 The "@behat-steps-skip:emailAfterScenario" tag does not name a trait. A skip tag takes the name of the trait whose hooks it switches off, as in "@behat-steps-skip:JavascriptTrait".
 ```
 
+A skip tag naming a trait that no context of the suite composes fails the same way, so a misspelled trait name can't quietly leave the trait's hooks running:
+
+```
+The "@behat-steps-skip:EmialTrait" tag names no trait a context of the "default" suite composes, so it would switch nothing off. Check the trait name for a typo, or remove the tag.
+```
+
+A trait counts as composed when a context uses it directly, through a parent class or through another trait, so `@behat-steps-skip:EntityLifecycleTrait` works in a suite that registers `DrupalContext`. The name has to match the trait's own, case included. A feature that 2 suites share, carrying a skip tag for a trait only 1 suite's contexts compose, fails in the other suite. Drop the tag and switch the trait off with its `enabled` option instead, in the `config` argument of the context that composes it.
+
 Replace each hook-method tag with its trait's:
 
 | Tag | Replacement |

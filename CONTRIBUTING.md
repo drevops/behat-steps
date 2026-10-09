@@ -483,7 +483,7 @@ A reader also takes a single node, for a hook that ranks the 2 lines itself: `Re
 
 ## Skipping a trait's hooks
 
-A consumer switches a trait's hooks off with `@behat-steps-skip:<TraitName>` on a scenario or a feature, or for a whole profile or context with the trait's `enabled` option. The tag names a trait and never a hook, and it switches off every hook that trait registers. `SkipTagListener` fails the run at scenario start on a skip tag whose value is not shaped like a trait name, such as a hook method or a name without the `Trait` suffix. It checks the shape only, so a misspelled trait name still switches nothing off.
+A consumer switches a trait's hooks off with `@behat-steps-skip:<TraitName>` on a scenario or a feature, or for a whole profile or context with the trait's `enabled` option. The tag names a trait and never a hook, and it switches off every hook that trait registers. `SkipTagListener` fails the run at scenario start on a skip tag whose value is not shaped like a trait name, such as a hook method or a name without the `Trait` suffix, and on one naming a trait that no context of the suite composes, directly, through a parent class or through another trait. A misspelled trait name would otherwise switch nothing off. The name has to match the trait's own, case included.
 
 A scenario hook asks the guard in 1 of 2 shapes, naming its own trait. A hook that acts returns when its trait is skipped:
 

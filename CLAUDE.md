@@ -171,7 +171,7 @@ In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an ass
   - `an email should be sent to the address "..."`
 
 ## Skipping Trait Hooks
-A trait's hooks are switched off by adding the `@behat-steps-skip:TRAIT_NAME` tag to a scenario or a feature. The tag names the trait, never a hook method, and switches off every hook the trait registers. A skip tag whose value is not shaped like a trait name, such as a hook method, fails the run at scenario start.
+A trait's hooks are switched off by adding the `@behat-steps-skip:TRAIT_NAME` tag to a scenario or a feature. The tag names the trait, never a hook method, and switches off every hook the trait registers. A skip tag whose value is not shaped like a trait name, such as a hook method, or that names a trait no context of the suite composes, fails the run at scenario start.
 
 Example: To skip the hooks of `EmailTrait`, add `@behat-steps-skip:EmailTrait` tag to the feature.
 
