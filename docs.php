@@ -15,7 +15,7 @@
  *
  * - The steps read in the documented format.
  * - Every published helper carries a summary.
- * - Tags resolve against the registry.
+ * - Registered parametrized tags use `:` as their value separator.
  * - Every environment variable the source reads is documented.
  *
  * Run with --fail-on-change to fail if the documentation is not up to date.
@@ -958,8 +958,8 @@ function heading_anchor(string $name): string {
 /**
  * Parse the toolbox helpers from the class.
  *
- * A helper is a method a project calls from its own domain steps: one carrying
- * no Behat attribute and no '@internal' tag.
+ * A helper is a public method a project calls from its own domain steps: one
+ * carrying no Behat attribute and no '@internal' tag.
  *
  * @param array<int, class-string> $class_names
  *   The classes documenting the vocabulary, 1 per context.

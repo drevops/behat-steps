@@ -176,8 +176,8 @@ function layer_file_violations(string $file, array $forbidden_roots, array $allo
  * Reads the symbol a token refers to, if it refers to one.
  *
  * Qualified names cover imports, type declarations and inline references. A
- * single-quoted literal shaped like a qualified name is included too: the
- * compiler does not resolve it, but the autoloader does.
+ * string literal without interpolation shaped like a qualified name is
+ * included too: the compiler does not resolve it, but the autoloader does.
  *
  * Comments and docblocks are not code, so a prose mention of Behat is not a
  * reference.
