@@ -444,7 +444,8 @@ note bottom of TraitOptionResolverInterface
 
   A skip tag names a trait. skipTag() reads it together with
   the trait's enabled option, and SkipTagListener fails the
-  run at scenario start on a value that is not a trait name.
+  run at scenario start on a value that names no trait a
+  context of the suite composes.
 end note
 
 note bottom of ParametersTrait

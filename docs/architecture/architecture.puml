@@ -35,7 +35,7 @@ package "drevops/behat-steps" {
     component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
     component "Registries\nsrc/Behat/Registry: backend,\nuser, scenario tags" as Registries
     component "Authenticators\nsrc/Behat/Auth: user login,\nHTTP Basic credentials" as Authenticators
-    component "Listeners\nbackend order and scenario tags,\nskip tags that name no trait" as Listeners
+    component "Listeners\nbackend order and scenario tags,\nskip tags that name no trait\nthe suite composes" as Listeners
     component "Config\nschema reader, option resolver,\ntag overrides, parameter reads" as OptionConfig
     component "BrowserKitFactory\nbuilds every browserkit_http\nsession as Mink does,\nrecords its options" as BrowserKit
     component "Browser capabilities\nsrc/Behat/Mink: resolver,\n5 capabilities, 3 adapters" as BrowserCaps
