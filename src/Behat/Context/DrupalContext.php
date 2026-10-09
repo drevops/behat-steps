@@ -46,8 +46,8 @@ use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
  * create entities also compose the entity teardown.
  *
  * A trait for a contrib module resolves nothing until one of its steps runs,
- * and then fails with a message naming the module. Composing all of them
- * therefore costs a project nothing.
+ * and that step fails with a message naming the module only when the module
+ * is not enabled. Composing all of them therefore costs a project nothing.
  *
  * Registering this context beside 'WebContext' is fatal, because the 28 web
  * traits would register their steps twice. 'WebContext::assertOneContext()'
