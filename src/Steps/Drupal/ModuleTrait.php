@@ -228,6 +228,7 @@ trait ModuleTrait {
     if ($this->moduleIsEnabled($module)) {
       return;
     }
+
     // @codeCoverageIgnoreEnd
     if (!$this->moduleIsPresent($module)) {
       throw new \RuntimeException(sprintf('Cannot enable module "%s": module is not installed.', $module));
@@ -257,6 +258,7 @@ trait ModuleTrait {
     if (!$this->moduleIsEnabled($module)) {
       return;
     }
+
     // @codeCoverageIgnoreEnd
     // @codeCoverageIgnoreStart
     try {

@@ -24,6 +24,7 @@ use SebastianBergmann\CodeCoverage\Report\Html\Facade;
 // they unserialize only against that installation. The fixture's autoloader
 // is therefore preferred over the project's own.
 $autoloader = __DIR__ . '/../build/vendor/autoload.php';
+
 if (!file_exists($autoloader)) {
   $autoloader = __DIR__ . '/../vendor/autoload.php';
 }
@@ -60,6 +61,7 @@ if (!$main_coverage instanceof CodeCoverage) {
 }
 
 $subprocess_files = [];
+
 if (is_dir(SOURCE_SUBPROCESS_COVERAGE_DIR)) {
   $subprocess_files = glob(SOURCE_SUBPROCESS_COVERAGE_DIR . '/*.php');
 }
@@ -74,6 +76,7 @@ echo 'Merging ' . count($subprocess_files) . ' subprocess coverage files...' . P
 foreach ($subprocess_files as $file) {
   try {
     $subprocess_coverage = include $file;
+
     if ($subprocess_coverage instanceof CodeCoverage) {
       $main_coverage->merge($subprocess_coverage);
       echo '  Merged: ' . basename($file) . PHP_EOL;
@@ -85,6 +88,7 @@ foreach ($subprocess_files as $file) {
 }
 
 $output_dir = dirname(OUTPUT_MERGED_COVERAGE_FILE);
+
 if (!is_dir($output_dir)) {
   mkdir($output_dir, 0755, TRUE);
 }

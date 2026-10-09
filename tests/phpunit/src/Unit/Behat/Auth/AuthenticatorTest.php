@@ -97,6 +97,7 @@ class AuthenticatorTest extends UnitTestCase {
     $session->method('isStarted')->willReturn(TRUE);
 
     $params = static::EXTENSION_PARAMS;
+
     if ($login_field !== NULL) {
       $params['login_field'] = $login_field;
     }
@@ -259,12 +260,15 @@ class AuthenticatorTest extends UnitTestCase {
     $page = $this->createMock(DocumentElement::class);
 
     $has_map = [];
+
     if ($session_started) {
       $has_map[] = ['css', 'body.logged-in', $has_logged_in_selector];
+
       if (!$has_logged_in_selector) {
         $has_map[] = ['css', 'form#user-login', $has_login_form];
       }
     }
+
     $page->method('has')->willReturnMap($has_map);
     $page->method('findLink')->willReturn($has_logout_link ? $this->createMock(NodeElement::class) : NULL);
 
@@ -404,6 +408,7 @@ class AuthenticatorTest extends UnitTestCase {
     }, NULL, $is_javascript ? $this->createMock(Selenium2Driver::class) : NULL);
 
     $params = static::EXTENSION_PARAMS;
+
     if ($login_wait !== NULL) {
       $params['login_wait'] = $login_wait;
     }
@@ -609,12 +614,14 @@ class AuthenticatorTest extends UnitTestCase {
         // selector appears.
         return $call_count > 2;
       }
+
       return FALSE;
     });
     $page->method('find')->willReturnCallback(static function (string $selector, string $locator) use ($page): ?DocumentElement {
       if ($locator === 'body') {
         return $page;
       }
+
       return NULL;
     });
 

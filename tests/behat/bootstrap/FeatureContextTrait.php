@@ -76,6 +76,7 @@ trait FeatureContextTrait {
     }
 
     $database = Database::getConnection();
+
     if ($database->schema()->tableExists('watchdog')) {
       $database->truncate('watchdog')->execute();
     }
@@ -164,6 +165,7 @@ trait FeatureContextTrait {
     $current = $this->responsiveGetCurrentDimensions();
     $expected = $this->stringParseInteger($width, 'width', 1);
     $tolerance = 20;
+
     if (abs($current['width'] - $expected) > $tolerance) {
       throw new \RuntimeException(sprintf('Expected viewport width within %dpx of %d, but got %d.', $tolerance, $expected, $current['width']));
     }
@@ -212,8 +214,10 @@ trait FeatureContextTrait {
     $cookie_list = [];
 
     $driver = $this->getSession()->getDriver();
+
     if ($driver instanceof Selenium2Driver) {
       $cookies = $driver->getWebDriverSession()->getAllCookies();
+
       foreach ($cookies as $cookie) {
         $cookie_list[$cookie['name']] = $cookie['value'];
       }
@@ -240,6 +244,7 @@ trait FeatureContextTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $database = Database::getConnection();
+
     if ($database->schema()->tableExists('watchdog')) {
       $database->truncate('watchdog')->execute();
     }
@@ -307,6 +312,7 @@ trait FeatureContextTrait {
 
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
+
     if ($module_handler->moduleExists($name)) {
       return;
     }
@@ -335,6 +341,7 @@ trait FeatureContextTrait {
 
     /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
     $module_handler = \Drupal::service('module_handler');
+
     if (!$module_handler->moduleExists($name)) {
       throw new \RuntimeException(sprintf('Module "%s" does not exist.', $name));
     }
@@ -472,6 +479,7 @@ trait FeatureContextTrait {
 
     $file_name = basename($file_name);
     $files = $this->fileLoadMultiple(['filename' => $file_name]);
+
     if (empty($files)) {
       throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
     }
@@ -490,6 +498,7 @@ trait FeatureContextTrait {
   public function testAssertFileObjectNotExists(string $file_name): void {
     $file_name = basename($file_name);
     $files = $this->fileLoadMultiple(['filename' => $file_name]);
+
     if ($files) {
       throw new \Exception(sprintf('"%s" file does exist in DB, but it should not', $file_name));
     }
@@ -517,6 +526,7 @@ trait FeatureContextTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $formatter = \Drupal::config('mailsystem.settings')->get('defaults.formatter');
+
     if ($formatter !== $expected) {
       throw new \Exception(sprintf('Expected mailsystem formatter to be "%s", but got "%s".', $expected, $formatter));
     }
@@ -550,6 +560,7 @@ trait FeatureContextTrait {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $queue_instance = \Drupal::service('queue')->get($queue);
+
     for ($i = 0; $i < $count; $i++) {
       $queue_instance->createItem(['data' => 'test_item_' . $i]);
     }

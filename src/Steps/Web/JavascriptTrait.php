@@ -141,6 +141,7 @@ trait JavascriptTrait {
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
     }
+
     // @codeCoverageIgnoreEnd
     try {
       $this->javascriptCurrentUrl = $this->getSession()->getCurrentUrl();
@@ -175,6 +176,7 @@ trait JavascriptTrait {
     if (!$this->browserDriverHas(JavascriptCapabilityInterface::class)) {
       return;
     }
+
     // @codeCoverageIgnoreEnd
     try {
       $current_url = $this->getSession()->getCurrentUrl();
@@ -189,6 +191,7 @@ trait JavascriptTrait {
     // @codeCoverageIgnoreStart
     catch (\Exception) {
     }
+
     // @codeCoverageIgnoreEnd
     if (!$this->getOptionBool('javascript', 'fail_on_errors') || !$this->lastStepReached($scope)) {
       return;

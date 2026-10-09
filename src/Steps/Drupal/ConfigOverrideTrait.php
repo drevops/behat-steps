@@ -162,6 +162,7 @@ trait ConfigOverrideTrait {
     catch (\Exception) {
       return;
     }
+
     // @codeCoverageIgnoreEnd
     if ($has_capability) {
       $this->browserDriverFor(RequestHeaderCapabilityInterface::class)->requestHeaderSet('X-Config-No-Override', '');

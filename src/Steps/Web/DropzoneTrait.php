@@ -93,12 +93,14 @@ trait DropzoneTrait {
     }
 
     $resolved_paths = [];
+
     foreach ($paths as $path) {
       $resolved_paths[] = $this->fixtureDirectoryGetFile($path);
     }
 
     $token = str_replace('.', '', uniqid('', TRUE));
     $holder_ids = [];
+
     foreach (array_keys($resolved_paths) as $index) {
       $holder_ids[] = 'behat_dropzone_holder_' . $token . '_' . $index;
     }

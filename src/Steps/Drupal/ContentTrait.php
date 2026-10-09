@@ -444,8 +444,10 @@ trait ContentTrait {
 
     $state_is_valid = FALSE;
     $workflows = Workflow::loadMultiple();
+
     foreach ($workflows as $workflow) {
       $workflow_type_settings = $workflow->get('type_settings');
+
       if (in_array($content_type, $workflow_type_settings['entity_types']['node'], TRUE) && isset($workflow_type_settings['states'][$state])) {
         $state_is_valid = TRUE;
         break;

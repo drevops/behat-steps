@@ -78,6 +78,7 @@ trait FileTrait {
     if ($this->skipTag(__TRAIT__, $scope)) {
       return;
     }
+
     foreach ($this->fileUnmanagedUris as $uri) {
       @unlink($uri);
     }
@@ -252,10 +253,12 @@ trait FileTrait {
     // @codeCoverageIgnoreStart
     if (!file_exists($directory)) {
       $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
+
       if (!$is_prepared) {
         throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
       }
     }
+
     // @codeCoverageIgnoreEnd
     file_put_contents($uri, $content);
 
@@ -284,10 +287,12 @@ trait FileTrait {
     }
 
     $file_content = @file_get_contents($uri);
+
     // @codeCoverageIgnoreStart
     if ($file_content === FALSE) {
       throw new \RuntimeException(sprintf('Unable to read file "%s".', $uri));
     }
+
     // @codeCoverageIgnoreEnd
     return $file_content;
   }
@@ -371,10 +376,12 @@ trait FileTrait {
     }
 
     $destination = 'public://' . basename($path);
+
     if ($uri !== NULL && $uri !== '') {
       $destination = $uri;
       $directory = dirname($destination);
       $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
+
       // @codeCoverageIgnoreStart
       if (!$is_prepared) {
         throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
@@ -383,10 +390,12 @@ trait FileTrait {
     }
 
     $content = file_get_contents($path);
+
     // @codeCoverageIgnoreStart
     if ($content === FALSE) {
       throw new \RuntimeException(sprintf('Unable to read file "%s".', $path));
     }
+
     // @codeCoverageIgnoreEnd
     $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
 

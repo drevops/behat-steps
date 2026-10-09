@@ -134,11 +134,13 @@ class DaterangeHandlerTest extends FieldHandlerUnitTestBase {
     }
 
     $core_path = InstalledVersions::getInstallPath('drupal/core');
+
     if ($core_path === NULL) {
       return FALSE;
     }
 
     $interface_file = $core_path . '/modules/datetime/src/Plugin/Field/FieldType/DateTimeItemInterface.php';
+
     if (!is_file($interface_file)) {
       return FALSE;
     }

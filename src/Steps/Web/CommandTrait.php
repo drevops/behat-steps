@@ -316,15 +316,18 @@ trait CommandTrait {
       }
 
       $read = [];
+
       if (!feof($pipes[1])) {
         $read[] = $pipes[1];
       }
+
       if (!feof($pipes[2])) {
         $read[] = $pipes[2];
       }
 
       $write = NULL;
       $except = NULL;
+
       if (stream_select($read, $write, $except, 1) === FALSE) {
         // @codeCoverageIgnoreStart
         break;
@@ -333,6 +336,7 @@ trait CommandTrait {
 
       foreach ($read as $stream) {
         $chunk = fread($stream, 8192);
+
         if ($chunk === FALSE) {
           // @codeCoverageIgnoreStart
           continue;

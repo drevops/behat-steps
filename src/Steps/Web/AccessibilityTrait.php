@@ -221,9 +221,11 @@ trait AccessibilityTrait {
 
     try {
       $session = $this->getSession();
+
       if (!$session->isStarted()) {
         return;
       }
+
       $url = $session->getCurrentUrl();
     }
     catch (\Throwable) {
@@ -268,9 +270,11 @@ trait AccessibilityTrait {
     }
 
     $directory = $this->accessibilityGetReportDir();
+
     if (!is_dir($directory)) {
       mkdir($directory, 0777, TRUE);
     }
+
     $slug = $this->stringSlug($this->accessibilityFeatureName) . '__' . $this->stringSlug($this->accessibilityScenarioName);
     file_put_contents($directory . '/' . $slug . '.html', $this->accessibilityRenderHtml());
     file_put_contents($directory . '/junit-' . $slug . '.xml', $this->accessibilityRenderJunit());
@@ -374,6 +378,7 @@ trait AccessibilityTrait {
       foreach ($this->accessibilityFilterViolations($result['result']['violations'] ?? [], $threshold) as $violation) {
         $messages[] = sprintf('  violation [%s] %s on %s', $violation['impact'] ?? 'unknown', $violation['id'] ?? '', $display_url);
       }
+
       if ($check_incomplete) {
         foreach ($result['result']['incomplete'] ?? [] as $issue) {
           $messages[] = sprintf('  incomplete [%s] %s on %s', $issue['impact'] ?? 'unknown', $issue['id'] ?? '', $display_url);
@@ -522,6 +527,7 @@ trait AccessibilityTrait {
   protected static function accessibilityCaptureBaseDir(): void {
     if (self::$accessibilityBaseDir === NULL) {
       $cwd = getcwd();
+
       if ($cwd !== FALSE) {
         self::$accessibilityBaseDir = $cwd;
       }
@@ -684,6 +690,7 @@ trait AccessibilityTrait {
     foreach (['violations', 'incomplete'] as $bucket) {
       foreach ($raw[$bucket] ?? [] as $issue) {
         $impact = strtolower((string) ($issue['impact'] ?? ''));
+
         switch ($impact) {
           case 'critical':
             $impact = self::ACCESSIBILITY_IMPACT_CRITICAL;
@@ -702,6 +709,7 @@ trait AccessibilityTrait {
         }
 
         $nodes = [];
+
         foreach ($issue['nodes'] ?? [] as $node) {
           $nodes[] = [
             'target' => (array) ($node['target'] ?? []),
@@ -794,14 +802,17 @@ trait AccessibilityTrait {
 
     $impacts = $this->accessibilityGetImpacts();
     $threshold_pos = array_search($threshold, $impacts, TRUE);
+
     if ($threshold_pos === FALSE) {
       return $violations;
     }
 
     $filtered = [];
+
     foreach ($violations as $violation) {
       $impact = strtolower((string) ($violation['impact'] ?? ''));
       $pos = array_search($impact, $impacts, TRUE);
+
       if ($pos !== FALSE && $pos <= $threshold_pos) {
         $filtered[] = $violation;
       }
@@ -864,9 +875,11 @@ trait AccessibilityTrait {
     foreach ($violations as $violation) {
       $lines[] = sprintf('  violation [%s] %s - %s', $violation['impact'] ?? 'unknown', $violation['id'], $violation['help']);
       $lines[] = sprintf('    %s', $violation['helpUrl']);
+
       foreach ($violation['nodes'] ?? [] as $node) {
         $lines[] = sprintf('    -> %s', static::accessibilityStringifyTarget($node['target'] ?? []));
         $html = trim((string) ($node['html'] ?? ''));
+
         if ($html !== '') {
           $lines[] = sprintf('       %s', mb_strimwidth($html, 0, 160, '...'));
         }
@@ -876,6 +889,7 @@ trait AccessibilityTrait {
     foreach ($incomplete as $issue) {
       $lines[] = sprintf('  incomplete [%s] %s - %s', $issue['impact'] ?? 'unknown', $issue['id'], $issue['help']);
       $lines[] = sprintf('    %s', $issue['helpUrl']);
+
       foreach ($issue['nodes'] ?? [] as $node) {
         $lines[] = sprintf('    -> %s', static::accessibilityStringifyTarget($node['target'] ?? []));
       }
@@ -1047,6 +1061,7 @@ HTML;
     }
 
     $out = sprintf('<h3>%s</h3>', htmlspecialchars($heading, ENT_QUOTES));
+
     foreach ($issues as $issue) {
       $impact = strtolower((string) ($issue['impact'] ?? 'unknown'));
       $impact_safe = htmlspecialchars($impact, ENT_QUOTES);
@@ -1065,6 +1080,7 @@ HTML;
         $html = htmlspecialchars(trim((string) ($node['html'] ?? '')), ENT_QUOTES);
         $out .= sprintf('<div class="node"><strong>%s</strong><br><code>%s</code></div>', $target, $html);
       }
+
       $out .= '</div>';
     }
 
@@ -1175,6 +1191,7 @@ HTML;
     self::$accessibilityAggregateReportDir = $directory;
 
     $results = [];
+
     foreach ($this->accessibilityResults as $result) {
       $results[] = [
         'url' => $this->accessibilityFormatUrl((string) $result['url']),
@@ -1210,6 +1227,7 @@ HTML;
     }
 
     $directory = self::$accessibilityAggregateReportDir ?? (getcwd() ?: '.') . '/.logs/test_results/accessibility';
+
     if (!is_dir($directory)) {
       mkdir($directory, 0777, TRUE);
     }
@@ -1370,8 +1388,10 @@ HTML;
     $blank = static::accessibilityGetBlankUrls();
 
     $pages = [];
+
     foreach ($deduped as $url => $page) {
       $chips = [];
+
       foreach ($page['violations'] ?? [] as $violation) {
         $chips[] = [
           'id' => (string) ($violation['id'] ?? 'unknown'),
@@ -1379,6 +1399,7 @@ HTML;
           'count' => count($violation['nodes'] ?? []),
         ];
       }
+
       $pages[] = [
         'url' => (string) $url,
         'violations' => $chips,
@@ -1389,6 +1410,7 @@ HTML;
     }
 
     $rules = [];
+
     foreach ($rollup['rules'] as $rule_id => $rule) {
       $rules[] = [
         'id' => (string) $rule_id,
@@ -1401,13 +1423,17 @@ HTML;
     }
 
     $scenarios = [];
+
     foreach ($aggregate as $entry) {
       $detail = [];
+
       foreach ($entry['results'] ?? [] as $result) {
         $url = (string) ($result['url'] ?? '');
+
         if (in_array($url, $blank, TRUE)) {
           continue;
         }
+
         $detail[] = [
           'url' => $url,
           'rules' => (string) ($result['rules'] ?? ''),
@@ -1418,6 +1444,7 @@ HTML;
           'incomplete' => static::accessibilityAggregateFindings($result['result']['incomplete'] ?? []),
         ];
       }
+
       $scenarios[] = [
         'feature' => (string) ($entry['feature'] ?? ''),
         'scenario' => (string) ($entry['scenario'] ?? ''),
@@ -1453,12 +1480,14 @@ HTML;
 
     foreach ($issues as $issue) {
       $nodes = [];
+
       foreach ($issue['nodes'] ?? [] as $node) {
         $nodes[] = [
           'target' => static::accessibilityStringifyTarget($node['target'] ?? []),
           'html' => trim((string) ($node['html'] ?? '')),
         ];
       }
+
       $findings[] = [
         'impact' => strtolower((string) ($issue['impact'] ?? 'unknown')),
         'id' => (string) ($issue['id'] ?? ''),
@@ -1491,6 +1520,7 @@ HTML;
       }
 
       $parts = [sprintf('<h5>%s</h5>', htmlspecialchars($heading, ENT_QUOTES))];
+
       foreach ($issues as $issue) {
         $impact = htmlspecialchars((string) ($issue['impact'] ?? 'unknown'), ENT_QUOTES);
         $issue_html = sprintf('<div class="issue %s"><span class="impact %s">%s</span><span class="rule-id">%s</span> &mdash; %s', htmlspecialchars($css_class, ENT_QUOTES), $impact, $impact, htmlspecialchars((string) ($issue['id'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($issue['help'] ?? ''), ENT_QUOTES));
@@ -1522,14 +1552,18 @@ HTML;
       . '</section>';
 
     $rows = [];
+
     foreach ($data['pages'] ?? [] as $page) {
       $chips = [];
+
       foreach ($page['violations'] ?? [] as $chip) {
         $chips[] = sprintf('<span class="vtype %s">%s <b>%d</b></span>', htmlspecialchars((string) ($chip['impact'] ?? self::ACCESSIBILITY_IMPACT_MINOR), ENT_QUOTES), htmlspecialchars((string) ($chip['id'] ?? 'unknown'), ENT_QUOTES), (int) ($chip['count'] ?? 0));
       }
+
       $vtypes = $chips === [] ? '<span class="muted">&mdash;</span>' : implode('', $chips);
       $rows[] = sprintf('<tr class="%s"><td class="url">%s</td><td class="vtypes">%s</td><td class="n">%d</td><td class="n">%d</td><td class="muted">%s</td></tr>', $chips === [] ? 'good' : 'bad', htmlspecialchars((string) ($page['url'] ?? ''), ENT_QUOTES), $vtypes, (int) ($page['incomplete'] ?? 0), (int) ($page['passes'] ?? 0), htmlspecialchars((string) ($page['scenarios'] ?? ''), ENT_QUOTES));
     }
+
     $pages_section = '<section><h2>Pages assessed</h2><p class="meta">Each URL is listed once, even when several scenarios visit it. Violations are broken down by rule, with the number of affected elements.</p>'
       . '<table><thead><tr><th>URL</th><th>Violations by type</th><th>Incomplete</th><th>Passes</th><th>Seen in scenarios</th></tr></thead><tbody>'
       . implode('', $rows) . '</tbody></table></section>';
@@ -1539,26 +1573,34 @@ HTML;
     }
     else {
       $blocks = [];
+
       foreach ($data['rules'] ?? [] as $rule) {
         $nodes = [];
+
         foreach ($rule['nodes'] ?? [] as $node) {
           $nodes[] = sprintf('<div class="node"><div class="where"><code>%s</code> &middot; <span class="muted">%s</span></div><pre>%s</pre></div>', htmlspecialchars((string) ($node['target'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($node['url'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($node['html'] ?? ''), ENT_QUOTES));
         }
+
         $impact = htmlspecialchars((string) ($rule['impact'] ?? self::ACCESSIBILITY_IMPACT_MINOR), ENT_QUOTES);
         $docs = ((string) ($rule['helpUrl'] ?? '')) !== '' ? sprintf(' &middot; <a href="%s" target="_blank" rel="noopener">docs</a>', htmlspecialchars((string) $rule['helpUrl'], ENT_QUOTES)) : '';
         $blocks[] = sprintf('<div class="rule"><h3><span class="impact %s">%s</span> <span class="rule-id">%s</span></h3><p class="meta">%s &middot; affects %d page(s) &middot; %d element(s)%s</p>%s</div>', $impact, $impact, htmlspecialchars((string) ($rule['id'] ?? 'unknown'), ENT_QUOTES), htmlspecialchars((string) ($rule['help'] ?? ''), ENT_QUOTES), (int) ($rule['page_count'] ?? 0), count($rule['nodes'] ?? []), $docs, implode('', $nodes));
       }
+
       $rules_section = '<section><h2>Violations by rule</h2><p class="meta">Highest impact first.</p>' . implode('', $blocks) . '</section>';
     }
 
     $detail = [];
+
     foreach ($data['scenarios'] ?? [] as $scenario) {
       $sections = [];
+
       foreach ($scenario['pages'] ?? [] as $page) {
         $sections[] = sprintf('<div class="page-detail"><h4>%s</h4><p class="meta">Rules: <code>%s</code> &middot; %d violations &middot; %d incomplete &middot; %d passes</p>%s%s</div>', htmlspecialchars((string) ($page['url'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($page['rules'] ?? ''), ENT_QUOTES), (int) ($page['violation_count'] ?? 0), (int) ($page['incomplete_count'] ?? 0), (int) ($page['passes_count'] ?? 0), $issue_list('Violations', 'violation', $page['violations'] ?? []), $issue_list('Incomplete (needs human review)', 'incomplete', $page['incomplete'] ?? []));
       }
+
       $detail[] = sprintf('<div class="scenario"><h3>%s <span class="muted">%s</span></h3><p class="meta">threshold: <code>%s</code> &middot; fail on incomplete: <code>%s</code></p>%s</div>', htmlspecialchars((string) ($scenario['scenario'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($scenario['feature'] ?? ''), ENT_QUOTES), htmlspecialchars((string) ($scenario['threshold'] ?? ''), ENT_QUOTES), ($scenario['fail_on_incomplete'] ?? FALSE) ? 'yes' : 'no', implode('', $sections));
     }
+
     $scenarios_section = '<section><h2>Per-scenario detail</h2><p class="meta">Every page each scenario assessed, in order, with its full findings embedded.</p>' . implode('', $detail) . '</section>';
 
     $generated = htmlspecialchars((string) ($data['generated'] ?? ''), ENT_QUOTES);

@@ -47,6 +47,7 @@ class StepArgumentTest extends UnitTestCase {
 
     foreach (static::collectStepMethods($trait) as [$method, $pattern]) {
       $parameters = [];
+
       foreach ($method->getParameters() as $parameter) {
         $parameters[$parameter->getName()] = $parameter;
       }

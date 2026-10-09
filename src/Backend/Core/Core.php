@@ -763,6 +763,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       if ($drupal_base_url['port']) {
         $_SERVER['HTTP_HOST'] .= ':' . $drupal_base_url['port'];
       }
+
       $_SERVER['SERVER_PORT'] = $drupal_base_url['port'];
 
       if (array_key_exists('path', $drupal_base_url)) {
@@ -781,10 +782,13 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $conf_path = DrupalKernel::findSitePath(Request::createFromGlobals());
     $conf_file = $this->drupalRoot . sprintf('/%s/settings.php', $conf_path);
+
     if (!file_exists($conf_file)) {
       throw new BootstrapException(sprintf('Could not find a Drupal settings.php file at "%s".', $conf_file));
     }
+
     $drushrc_file = $this->drupalRoot . sprintf('/%s/drushrc.php', $conf_path);
+
     if (file_exists($drushrc_file)) {
       require_once $drushrc_file;
     }

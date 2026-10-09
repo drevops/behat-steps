@@ -130,6 +130,7 @@ trait DiagnosticsTrait {
 
     if ($this->diagnosticsGetShowUrl()) {
       $url = $this->diagnosticsFindUrl();
+
       if ($url !== NULL) {
         $lines[] = 'URL: ' . $url;
       }
@@ -137,6 +138,7 @@ trait DiagnosticsTrait {
 
     if ($this->diagnosticsGetShowStatusCode()) {
       $status = $this->diagnosticsFindStatusCode();
+
       if ($status !== NULL) {
         $lines[] = 'HTTP status: ' . $status;
       }
@@ -144,6 +146,7 @@ trait DiagnosticsTrait {
 
     if ($this->diagnosticsGetShowBrowserDriver()) {
       $driver = $this->diagnosticsFindBrowserDriverName();
+
       if ($driver !== NULL) {
         $lines[] = 'Browser driver: ' . $driver;
       }
@@ -151,6 +154,7 @@ trait DiagnosticsTrait {
 
     if ($this->diagnosticsGetShowJsErrors()) {
       $errors = $this->diagnosticsGetJsErrors();
+
       if ($errors !== []) {
         $lines[] = 'JS console errors: ' . implode('; ', $errors);
       }
@@ -158,6 +162,7 @@ trait DiagnosticsTrait {
 
     if ($this->diagnosticsGetShowRerun()) {
       $rerun = $this->diagnosticsFindRerunCommand();
+
       if ($rerun !== NULL) {
         $lines[] = 'Re-run: ' . $rerun;
       }

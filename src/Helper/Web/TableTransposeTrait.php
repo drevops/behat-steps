@@ -50,6 +50,7 @@ trait TableTransposeTrait {
     }
 
     $first_row = $rows[0];
+
     if (count($first_row) < 2) {
       throw new \RuntimeException('Vertical table must have at least 2 columns (field name and value).');
     }

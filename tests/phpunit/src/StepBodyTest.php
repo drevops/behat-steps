@@ -188,6 +188,7 @@ class StepBodyTest extends UnitTestCase {
     $finder = new NodeFinder();
 
     $violations = [];
+
     foreach ($steps as $name => $method) {
       foreach ($finder->findInstanceOf($method->stmts ?? [], MethodCall::class) as $call) {
         if (!$call->var instanceof Variable || $call->var->name !== 'this' || !$call->name instanceof Identifier) {
@@ -218,10 +219,12 @@ class StepBodyTest extends UnitTestCase {
     $finder = new NodeFinder();
 
     $violations = [];
+
     foreach (static::readStepMethods($source) as $name => $method) {
       $statements = $method->stmts ?? [];
 
       $reasons = [];
+
       foreach ($finder->find($statements, static fn(Node $node): bool => $node instanceof Switch_ || $node instanceof Match_ || $node instanceof TryCatch || $node instanceof Closure || $node instanceof ArrowFunction) as $node) {
         $reasons[] = static::describeConstruct($node);
       }
@@ -260,6 +263,7 @@ class StepBodyTest extends UnitTestCase {
     $statements = (new NodeTraverser(new NameResolver()))->traverse($statements);
 
     $steps = [];
+
     foreach ((new NodeFinder())->findInstanceOf($statements, ClassMethod::class) as $method) {
       foreach ($method->attrGroups as $group) {
         foreach ($group->attrs as $attribute) {
@@ -349,6 +353,7 @@ class StepBodyTest extends UnitTestCase {
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
 
     $paths = [];
+
     foreach ($files as $file) {
       if (!$file instanceof \SplFileInfo || $file->getExtension() !== 'php') {
         continue;

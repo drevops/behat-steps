@@ -149,6 +149,7 @@ trait WatchdogTrait {
     }
 
     $context = sprintf('during scenario "%s" (line %s)', $this->watchdogScenarioTitle, $this->watchdogScenarioLine);
+
     if ($scope->getTestResult()->isPassed()) {
       $context = sprintf('during the teardown of scenario "%s" (line %s), which "behat --rerun" cannot record', $this->watchdogScenarioTitle, $this->watchdogScenarioLine);
     }
@@ -202,6 +203,7 @@ trait WatchdogTrait {
     }
 
     $errors = [];
+
     if (!defined('WATCHDOG_WARNING')) {
       define('WATCHDOG_WARNING', 4);
     }
@@ -212,6 +214,7 @@ trait WatchdogTrait {
         unset($entries[$key]);
         continue;
       }
+
       $error->variables = unserialize($error->variables);
       $errors[$error->wid] = print_r($error, TRUE);
     }

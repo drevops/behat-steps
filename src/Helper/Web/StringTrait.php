@@ -111,18 +111,22 @@ trait StringTrait {
     }
 
     $lower = strtolower($trimmed);
+
     if ($lower === 'true') {
       return TRUE;
     }
+
     if ($lower === 'false') {
       return FALSE;
     }
+
     if ($lower === 'null') {
       return NULL;
     }
 
     if ($trimmed[0] === '{' || $trimmed[0] === '[') {
       $decoded = json_decode($trimmed, TRUE);
+
       if (json_last_error() === JSON_ERROR_NONE) {
         return $decoded;
       }
@@ -149,12 +153,15 @@ trait StringTrait {
     if ($value === NULL) {
       return 'NULL';
     }
+
     if (is_bool($value)) {
       return $value ? 'true' : 'false';
     }
+
     if (is_scalar($value)) {
       return (string) $value;
     }
+
     return (string) json_encode($value);
   }
 

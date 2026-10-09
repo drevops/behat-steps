@@ -610,6 +610,7 @@ trait UserTrait {
     $role = trim($role);
 
     $existing_role = Role::load($rid);
+
     if ($existing_role) {
       $existing_role->delete();
     }
@@ -630,6 +631,7 @@ trait UserTrait {
     if ($saved !== SAVED_NEW) {
       throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
     }
+
     // @codeCoverageIgnoreEnd
     $this->authRoles[] = (string) $role_entity->id();
 

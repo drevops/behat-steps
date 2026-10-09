@@ -179,6 +179,7 @@ trait XmlTrait {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
+
     if ($nodes === FALSE || $nodes->length === 0) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
@@ -197,6 +198,7 @@ trait XmlTrait {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
+
     if ($nodes !== FALSE && $nodes->length > 0) {
       throw new ExpectationException(sprintf('The XML element "%s" was found, but it should not exist.', $element), $this->getSession()->getDriver());
     }
@@ -215,6 +217,7 @@ trait XmlTrait {
     $node = $this->xmlGetFirstNode($element);
 
     $actual_text = trim($node->textContent);
+
     if ($actual_text !== $value) {
       throw new ExpectationException(sprintf('The XML element "%s" content is "%s", but expected "%s".', $element, $actual_text, $value), $this->getSession()->getDriver());
     }
@@ -233,6 +236,7 @@ trait XmlTrait {
     $node = $this->xmlGetFirstNode($element);
 
     $actual_text = trim($node->textContent);
+
     if ($actual_text === $value) {
       throw new ExpectationException(sprintf('The XML element "%s" content is "%s", but it should not be.', $element, $actual_text), $this->getSession()->getDriver());
     }
@@ -251,6 +255,7 @@ trait XmlTrait {
     $node = $this->xmlGetFirstNode($element);
 
     $actual_text = $node->textContent;
+
     if (!str_contains($actual_text, $value)) {
       throw new ExpectationException(sprintf('The XML element "%s" does not contain "%s". Actual content: "%s".', $element, $value, trim($actual_text)), $this->getSession()->getDriver());
     }
@@ -269,6 +274,7 @@ trait XmlTrait {
     $node = $this->xmlGetFirstNode($element);
 
     $actual_text = $node->textContent;
+
     if (str_contains($actual_text, $value)) {
       throw new ExpectationException(sprintf('The XML element "%s" contains "%s", but it should not.', $element, $value), $this->getSession()->getDriver());
     }
@@ -285,6 +291,7 @@ trait XmlTrait {
   #[Then('the XML attribute :attribute on the element :element should exist')]
   public function xmlAssertAttributeExists(string $attribute, string $element): void {
     $node = $this->xmlGetFirstNode($element);
+
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
@@ -301,6 +308,7 @@ trait XmlTrait {
   #[Then('the XML attribute :attribute on the element :element should not exist')]
   public function xmlAssertAttributeNotExists(string $attribute, string $element): void {
     $node = $this->xmlGetFirstNode($element);
+
     if ($node instanceof \DOMElement && $node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was found, but it should not exist.', $attribute, $element), $this->getSession()->getDriver());
     }
@@ -317,11 +325,13 @@ trait XmlTrait {
   #[Then('the XML attribute :attribute on the element :element should be equal to the value :value')]
   public function xmlAssertAttributeEquals(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
+
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
 
     $actual_value = $node->getAttribute($attribute);
+
     if ($actual_value !== $value) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" is "%s", but expected "%s".', $attribute, $element, $actual_value, $value), $this->getSession()->getDriver());
     }
@@ -338,11 +348,13 @@ trait XmlTrait {
   #[Then('the XML attribute :attribute on the element :element should not be equal to the value :value')]
   public function xmlAssertAttributeNotEquals(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
+
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
 
     $actual_value = $node->getAttribute($attribute);
+
     if ($actual_value === $value) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" is "%s", but it should not be.', $attribute, $element, $actual_value), $this->getSession()->getDriver());
     }
@@ -359,11 +371,13 @@ trait XmlTrait {
   #[Then('the XML attribute :attribute on the element :element should contain the value :value')]
   public function xmlAssertAttributeContains(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
+
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
 
     $actual_value = $node->getAttribute($attribute);
+
     if (!str_contains($actual_value, $value)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" does not contain "%s". Actual value: "%s".', $attribute, $element, $value, $actual_value), $this->getSession()->getDriver());
     }
@@ -380,11 +394,13 @@ trait XmlTrait {
   #[Then('the XML attribute :attribute on the element :element should not contain the value :value')]
   public function xmlAssertAttributeNotContains(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
+
     if (!$node instanceof \DOMElement || !$node->hasAttribute($attribute)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" was not found.', $attribute, $element), $this->getSession()->getDriver());
     }
 
     $actual_value = $node->getAttribute($attribute);
+
     if (str_contains($actual_value, $value)) {
       throw new ExpectationException(sprintf('The XML attribute "%s" on element "%s" contains "%s", but it should not.', $attribute, $element, $value), $this->getSession()->getDriver());
     }
@@ -664,6 +680,7 @@ trait XmlTrait {
     $this->xmlXpath = new \DOMXPath($this->xmlDocument);
 
     $namespaces = $this->xmlExtractNamespaces();
+
     foreach ($namespaces as $prefix => $uri) {
       if (is_string($prefix) && $prefix !== '') {
         $this->xmlXpath->registerNamespace($prefix, $uri);
@@ -684,6 +701,7 @@ trait XmlTrait {
       if ($this->xmlDocument === NULL) {
         $this->xmlLoadDocument($this->xmlTestContent);
       }
+
       return;
     }
 
@@ -742,6 +760,7 @@ trait XmlTrait {
    */
   protected function xmlFormatErrors(array $errors): string {
     $messages = [];
+
     foreach ($errors as $error) {
       $messages[] = sprintf('[Line %d] %s', $error->line, trim($error->message));
     }
@@ -808,6 +827,7 @@ trait XmlTrait {
     $this->xmlEnsureDocument();
 
     $root = $this->xmlDocument->documentElement;
+
     if (!$root instanceof \DOMElement) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException('The response has no root element to validate against the DTD.');
@@ -815,6 +835,7 @@ trait XmlTrait {
     }
 
     $body = $this->xmlDocument->saveXML($root);
+
     if ($body === FALSE) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException('Failed to serialize the response for DTD validation.');
@@ -860,6 +881,7 @@ trait XmlTrait {
     $this->xmlEnsureDocument();
 
     $root = $this->xmlDocument->documentElement;
+
     if (!$root instanceof \DOMElement || $root->localName !== 'rss') {
       throw new ExpectationException('The response is not a valid RSS feed: the root element must be "rss".', $this->getSession()->getDriver());
     }
@@ -869,6 +891,7 @@ trait XmlTrait {
     }
 
     $channels = $this->xmlDirectChildElements($root, 'channel');
+
     if (count($channels) !== 1) {
       throw new ExpectationException('The response is not a valid RSS feed: the "rss" element must contain exactly one "channel" element.', $this->getSession()->getDriver());
     }
@@ -889,6 +912,7 @@ trait XmlTrait {
     $this->xmlEnsureDocument();
 
     $root = $this->xmlDocument->documentElement;
+
     if (!$root instanceof \DOMElement || $root->localName !== 'feed' || $root->namespaceURI !== self::XML_ATOM_NAMESPACE) {
       throw new ExpectationException('The response is not a valid Atom feed: the root element must be "feed" in the Atom namespace.', $this->getSession()->getDriver());
     }
@@ -990,11 +1014,13 @@ trait XmlTrait {
     $this->xmlEnsureDocument();
 
     $nodes = $this->xmlXpath->query($element);
+
     if ($nodes === FALSE || $nodes->length === 0) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'XML element', 'xpath', $element);
     }
 
     $node = $nodes->item(0);
+
     if (!$node instanceof \DOMNode) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException(sprintf('The XML element "%s" is not a valid node.', $element));

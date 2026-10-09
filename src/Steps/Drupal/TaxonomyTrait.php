@@ -151,6 +151,7 @@ trait TaxonomyTrait {
     }
 
     $actual_name = $vocab->get('name');
+
     if ($actual_name !== $name) {
       throw new ExpectationException(sprintf('The vocabulary "%s" exists with a name "%s", but expected "%s".', $vocabulary, $actual_name, $name), $this->getSession()->getDriver());
     }

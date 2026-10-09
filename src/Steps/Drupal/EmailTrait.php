@@ -273,6 +273,7 @@ trait EmailTrait {
   #[Then('an email should not be sent')]
   public function emailAssertMessageNotSent(): void {
     $messages = $this->emailGetCollectedMessages();
+
     if (count($messages) > 0) {
       throw new ExpectationException('An email was sent, but it should not have been:' . PHP_EOL . print_r($messages, TRUE), $this->getSession()->getDriver());
     }
@@ -515,6 +516,7 @@ trait EmailTrait {
     else {
       throw new \RuntimeException('No body found in email.');
     }
+
     // @codeCoverageIgnoreEnd
     $links = static::emailExtractLinks($body);
 
@@ -567,9 +569,11 @@ trait EmailTrait {
 
     foreach ($this->emailHandlerTypes as $type) {
       $original_test_system = static::emailFindMailSystemDefault($type);
+
       if (!static::emailFindMailSystemOriginal($type)) {
         static::emailSetMailSystemOriginal($type, $original_test_system);
       }
+
       $this->emailSetMailSystemDefault($type, 'test_mail_collector');
     }
 
@@ -653,6 +657,7 @@ trait EmailTrait {
     if (!$query instanceof StatementInterface) {
       throw new \RuntimeException('The test email collector could not be read from the key_value store.');
     }
+
     // @codeCoverageIgnoreEnd
     $messages = array_map(unserialize(...), $query->fetchAllKeyed());
 
@@ -667,6 +672,7 @@ trait EmailTrait {
         printf('----------------------------------------' . PHP_EOL);
         printf('Email message number: %s' . PHP_EOL, $index);
         printf('----------------------------------------' . PHP_EOL);
+
         foreach ($fields as $field) {
           printf('Field: %s' . PHP_EOL, $field);
           printf('Value: %s' . PHP_EOL, $messages[$index][$field] ?? '<EMPTY>');
@@ -702,6 +708,7 @@ trait EmailTrait {
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field "%s" was specified for assertion.', $field));
     }
+
     $string = (string) $string;
     $string = $is_exact ? $string : $this->stringNormalizeWhitespace($string);
 
@@ -872,12 +879,14 @@ trait EmailTrait {
   protected function emailAssertMessageNotExistsToAddress(string $address): void {
     foreach ($this->emailGetCollectedMessages() as $message) {
       $to = $this->stringSplitCommaSeparated((string) $message['to']);
+
       if (in_array($address, $to, TRUE)) {
         throw new ExpectationException(sprintf('An email was sent to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
       }
 
       if (!empty($message['headers']['Cc'] ?? $message['headers']['cc'] ?? NULL)) {
         $cc = $this->stringSplitCommaSeparated((string) ($message['headers']['Cc'] ?? $message['headers']['cc']));
+
         if (in_array($address, $cc, TRUE)) {
           throw new ExpectationException(sprintf('An email was cc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
         }
@@ -885,6 +894,7 @@ trait EmailTrait {
 
       if (!empty($message['headers']['Bcc'] ?? $message['headers']['bcc'] ?? NULL)) {
         $bcc = $this->stringSplitCommaSeparated((string) ($message['headers']['Bcc'] ?? $message['headers']['bcc']));
+
         if (in_array($address, $bcc, TRUE)) {
           throw new ExpectationException(sprintf('An email was bcc\'ed to "%s" retrieved from test email collector, but it should not have been.', $address), $this->getSession()->getDriver());
         }
@@ -961,6 +971,7 @@ trait EmailTrait {
     if (!in_array($field, ['subject', 'body', 'to', 'from', 'cc', 'bcc'], TRUE)) {
       throw new \RuntimeException(sprintf('Invalid email field "%s" was specified for assertion.', $field));
     }
+
     $string = (string) $string;
     $string = $is_exact ? $string : $this->stringNormalizeWhitespace($string);
 

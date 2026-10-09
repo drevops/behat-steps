@@ -40,6 +40,7 @@ if (basename((string) $_SERVER['SCRIPT_FILENAME']) === 'lint-traits.php') {
   $options = getopt('', ['path::']);
   lint_traits($options);
 }
+
 // @codeCoverageIgnoreEnd
 
 /**

@@ -234,12 +234,15 @@ trait QueueTrait {
     $lease_time = $this->queueGetLeaseTime();
 
     $processed = 0;
+
     while ($processed < $limit) {
       /** @var \stdClass|false $item */
       $item = $queue_instance->claimItem($lease_time);
+
       if (!$item) {
         break;
       }
+
       $worker->processItem($item->data);
       $queue_instance->deleteItem($item);
       $processed++;

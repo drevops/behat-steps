@@ -290,6 +290,7 @@ trait BlockTrait {
     /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
     $block_manager = \Drupal::service('plugin.manager.block');
     $definitions = $block_manager->getDefinitions();
+
     foreach ($definitions as $plugin_id => $definition) {
       if ((string) $definition['admin_label'] === $admin_label) {
         $default_theme = \Drupal::config('system.theme')->get('default');
@@ -338,6 +339,7 @@ trait BlockTrait {
    */
   public function blockApplyConfiguration(Block $block, array $configuration): void {
     $settings = $block->get('settings');
+
     foreach ($configuration as $field => $value) {
       switch ($field) {
         case 'label':
@@ -358,6 +360,7 @@ trait BlockTrait {
           else {
             throw new \RuntimeException('Expected region as string.');
           }
+
           // @codeCoverageIgnoreEnd
           break;
 

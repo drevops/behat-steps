@@ -214,10 +214,13 @@ trait FileDownloadTrait {
     if (!$this->fileDownloadDownloadedFileInfo['file_path']) {
       throw new \RuntimeException(sprintf('Unable to download file from URL "%s".', $url));
     }
+
     $file_data = file_get_contents($this->fileDownloadDownloadedFileInfo['file_path']);
+
     if ($file_data === FALSE) {
       throw new \RuntimeException('Unable to load content for downloaded file from temporary local file.');
     }
+
     // @codeCoverageIgnoreEnd
     $this->fileDownloadDownloadedFileInfo['content'] = $file_data;
   }
@@ -263,6 +266,7 @@ trait FileDownloadTrait {
     $zip = $this->fileDownloadOpenZip();
 
     $errors = [];
+
     foreach ($names as $name) {
       if (!$this->fileDownloadZipHasEntry($zip, $name, $is_partial)) {
         $errors[] = $is_partial ? sprintf('Unable to find any file partially named "%s" in archive.', $name) : sprintf('Unable to find file "%s" in archive.', $name);
@@ -289,6 +293,7 @@ trait FileDownloadTrait {
     $zip = $this->fileDownloadOpenZip();
 
     $errors = [];
+
     foreach ($names as $name) {
       if ($this->fileDownloadZipHasEntry($zip, $name, $is_partial)) {
         $errors[] = $is_partial ? sprintf('Found file partially named "%s" in archive, but it should not.', $name) : sprintf('Found file "%s" in archive, but it should not.', $name);
@@ -363,6 +368,7 @@ trait FileDownloadTrait {
     if (!class_exists('\ZipArchive')) {
       throw new \RuntimeException('ZIP extension is not enabled for PHP.');
     }
+
     // @codeCoverageIgnoreEnd
     $this->fileDownloadRequireDownload();
 
@@ -370,6 +376,7 @@ trait FileDownloadTrait {
     if (empty($this->fileDownloadDownloadedFileInfo) || empty($this->fileDownloadDownloadedFileInfo['content_type'])) {
       throw new \RuntimeException('Downloaded file information does not have content type data.');
     }
+
     // @codeCoverageIgnoreEnd
     $file_name = $this->fileDownloadDownloadedFileInfo['file_name'] ?? '';
     $has_zip_extension = str_ends_with(strtolower($file_name), '.zip');
@@ -383,6 +390,7 @@ trait FileDownloadTrait {
 
     $zip = new \ZipArchive();
     $result = $zip->open($this->fileDownloadDownloadedFileInfo['file_path']);
+
     if ($result !== TRUE) {
       if ($result === \ZipArchive::ER_NOZIP) {
         throw new ExpectationException('The downloaded file is not a valid ZIP file.', $this->getSession()->getDriver());
@@ -442,6 +450,7 @@ trait FileDownloadTrait {
     $headers['file_name'] = empty($headers['file_name']) && !empty($url_file_name) ? $url_file_name : $headers['file_name'];
 
     $file_path = empty($headers['file_name']) ? tempnam($directory, 'behat') : $directory . '/' . $headers['file_name'];
+
     if (!$file_path) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException('Unable to create temp file for downloaded content.');
@@ -451,6 +460,7 @@ trait FileDownloadTrait {
     $file_name = basename($file_path);
 
     $written = file_put_contents($file_path, $content);
+
     if ($written === FALSE) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException(sprintf('Unable to write downloaded content into file "%s".', $file_path));
@@ -493,6 +503,7 @@ trait FileDownloadTrait {
    */
   protected function fileDownloadPrepareTempDir(): void {
     $fs = new Filesystem();
+
     if (!$fs->exists($this->fileDownloadGetTempDir())) {
       $fs->mkdir($this->fileDownloadGetTempDir());
     }
@@ -503,6 +514,7 @@ trait FileDownloadTrait {
    */
   protected function fileDownloadRemoveTempDir(): void {
     $fs = new Filesystem();
+
     if ($fs->exists($this->fileDownloadGetTempDir())) {
       $fs->remove($this->fileDownloadGetTempDir());
     }

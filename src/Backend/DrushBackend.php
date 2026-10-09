@@ -236,6 +236,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
         // Restoring failed as well. The write failure below is the error
         // reported, so the restore failure is discarded.
       }
+
       // @codeCoverageIgnoreEnd
       throw $exception;
     }
@@ -715,11 +716,13 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    */
   protected function resolveProjectDrush(string $fallback): string {
     $composer_bin = getenv('COMPOSER_BIN_DIR');
+
     if ($composer_bin && file_exists($composer_bin . '/drush')) {
       return $composer_bin . '/drush';
     }
 
     $cwd = getcwd();
+
     if ($cwd && file_exists($cwd . '/vendor/bin/drush')) {
       return $cwd . '/vendor/bin/drush';
     }

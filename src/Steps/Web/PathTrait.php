@@ -185,6 +185,7 @@ trait PathTrait {
     if ($current_url === '') {
       throw new \RuntimeException('Current path is empty.');
     }
+
     // @codeCoverageIgnoreEnd
     $current_path = parse_url($current_url, PHP_URL_PATH);
 
@@ -192,6 +193,7 @@ trait PathTrait {
     if ($current_path === FALSE) {
       throw new \RuntimeException('Current path is not a valid URL.');
     }
+
     // @codeCoverageIgnoreEnd
     return (string) $current_path;
   }

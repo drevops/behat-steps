@@ -94,6 +94,7 @@ trait RandomTrait {
     }
 
     $steps = array_merge($steps, $scope->getScenario()->getSteps());
+
     foreach ($steps as $step) {
       $haystack = $step->getText();
       $step_argument = $step->getArguments();
@@ -158,6 +159,7 @@ trait RandomTrait {
 
     $patterns = [];
     $replacements = [];
+
     foreach ($matches[0] as $literal) {
       $patterns[] = '#' . preg_quote($literal) . '#';
       $replacements[] = (string) $this->randomResolveLiteral($literal);

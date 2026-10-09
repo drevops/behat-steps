@@ -426,6 +426,7 @@ final class BehatStepsExtension implements ExtensionInterface {
     $cwd = (string) getcwd();
 
     $candidate = $cwd . '/' . $binary;
+
     if (file_exists($candidate)) {
       return $candidate;
     }
@@ -433,6 +434,7 @@ final class BehatStepsExtension implements ExtensionInterface {
     // Probe the parent directory, which covers a working directory 1 level
     // deep such as a Drupal root inside a project.
     $candidate = dirname($cwd) . '/' . $binary;
+
     if (file_exists($candidate)) {
       return $candidate;
     }
