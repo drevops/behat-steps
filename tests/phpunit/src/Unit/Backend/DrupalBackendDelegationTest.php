@@ -134,7 +134,7 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'deleteUser' => ['deleteUser', [$user], 'deleteUser'];
     yield 'addUserRole' => ['addUserRole', [$user, 'admin'], 'addUserRole'];
     yield 'processBatch' => ['processBatch', [], 'processBatch'];
-    yield 'cacheClear' => ['cacheClear', ['all'], 'cacheClear'];
+    yield 'cacheClear' => ['cacheClear', [], 'cacheClear'];
     yield 'cacheClearStatic' => ['cacheClearStatic', [], 'cacheClearStatic'];
     yield 'createNode' => ['createNode', [$node], 'createNode'];
     yield 'deleteNode' => ['deleteNode', [$node], 'deleteNode'];

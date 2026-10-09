@@ -28,6 +28,15 @@ class RecordingDrushBackend extends DrushBackend {
   public string $drushResponse = '';
 
   /**
+   * Canned responses keyed by the command they answer.
+   *
+   * A command without an entry gets 'drushResponse'.
+   *
+   * @var array<string, string>
+   */
+  public array $drushResponses = [];
+
+  /**
    * The canned exit code to return from stubbed 'drushResult()' calls.
    */
   public int $drushExitCode = 0;
@@ -54,7 +63,7 @@ class RecordingDrushBackend extends DrushBackend {
       throw new \RuntimeException(sprintf('Drush command "%s" exited with code 1.', $command));
     }
 
-    return $this->drushResponse;
+    return $this->drushResponses[$command] ?? $this->drushResponse;
   }
 
   /**
@@ -63,7 +72,7 @@ class RecordingDrushBackend extends DrushBackend {
   public function drushResult(string $command, array $arguments = [], array $options = []): DrushResult {
     $this->record($command, $arguments, $options);
 
-    return new DrushResult($this->drushExitCode, $this->drushResponse, '');
+    return new DrushResult($this->drushExitCode, $this->drushResponses[$command] ?? $this->drushResponse, '');
   }
 
   /**

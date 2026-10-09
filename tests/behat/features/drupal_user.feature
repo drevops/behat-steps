@@ -337,6 +337,13 @@ Feature: Check that UserTrait works
       | drush_user | drush_user@myexample.com | content_editor |
     Then the user "drush_user" should have the role "content_editor" assigned
 
+  @backend:drush
+  Scenario: Assert "Given the following users exist:" assigns a role named by its label over Drush
+    Given the following users exist:
+      | name             | mail                           | roles          |
+      | drush_label_user | drush_label_user@myexample.com | Content editor |
+    Then the user "drush_label_user" should have the role "content_editor" assigned
+
   @test-trait:Drupal\UserTrait
   Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing single role
     Given some behat configuration

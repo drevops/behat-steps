@@ -102,6 +102,29 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->assertNull(Role::load($role_id));
   }
 
+  public function testAddUserRoleAssignsTheRoleByLabel(): void {
+    $stub = new EntityStub('user', NULL, [
+      'name' => 'labelled',
+      'mail' => 'labelled@example.com',
+      'pass' => 'pw',
+    ]);
+    $this->core->createUser($stub);
+    $this->core->createRole([], 'content_editor', 'Content editor');
+
+    $this->core->addUserRole($stub, 'Content editor');
+
+    $account = User::load($stub->getValue('uid'));
+    $this->assertInstanceOf(User::class, $account);
+    $this->assertContains('content_editor', $account->getRoles());
+  }
+
+  public function testCreateRoleGrantsThePermissionGivenByLabel(): void {
+    $role = Role::load($this->core->createRole(['View user information'])->getValue('id'));
+
+    $this->assertInstanceOf(Role::class, $role);
+    $this->assertSame(['access user profiles'], $role->getPermissions());
+  }
+
   public function testAddUserRoleThrowsOnUnknownRole(): void {
     $stub = new EntityStub('user', NULL, [
       'name' => 'ghost',
