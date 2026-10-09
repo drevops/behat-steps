@@ -674,7 +674,13 @@ The 2 negative viewport messages, which ended in `, but should not be.`, are lis
 
 4.0 needs PHP 8.3 or newer, where 3.14 ran on 8.2, and a Drupal site on Drupal 11 or 12: its `drupal/core-utility` requirement can't be met by Drupal 10's core. It installs on Behat 3 or Behat 4, where 3.14 refused Behat 4. Behat 4 also needs `friends-of-behat/mink-extension` 3, which has only an alpha release so far, so the installation section of the [README](README.md) shows how to require both.
 
-`drupal/drupal-extension` is no longer needed (see [Behat extensions registered in the Behat configuration](#behat-extensions-registered-in-the-behat-configuration)), and removing it removes the packages it required. A Drupal project that never required `lullabot/mink-selenium2-driver` itself got it from the Drupal Extension, so a suite that runs `@javascript` scenarios through Selenium now requires the driver directly:
+4.0 replaces `drupal/drupal-extension` and `drupal/drupal-driver` (see [Behat extensions registered in the Behat configuration](#behat-extensions-registered-in-the-behat-configuration)) and conflicts with every version of both, so Composer won't install it while your project requires either one. Remove the extension before updating, and name `drupal/drupal-driver` in the same command if your `composer.json` requires it directly:
+
+```bash
+composer remove --dev drupal/drupal-extension
+```
+
+Removing the extension removes the packages it required. Any other package that requires either one blocks the update too, and Composer's error names it. A Drupal project that never required `lullabot/mink-selenium2-driver` itself got it from the Drupal Extension, so a suite that runs `@javascript` scenarios through Selenium now requires the driver directly:
 
 ```bash
 composer require --dev lullabot/mink-selenium2-driver
