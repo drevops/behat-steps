@@ -14,7 +14,7 @@
         "symfony/browser-kit": "^6.4.3 || ^7.3",
         "symfony/config": "^6.4.3 || ^7.3",
         "drupal/mailsystem": "^4.5",
-        "drupal/draggableviews": "^2.1.4",
+        "drupal/draggableviews": "^2.1.5",
         "drupal/dynamic_entity_reference": "^3.2.3",
         "drupal/eck": "^2.1.0@beta",
         "drupal/paragraphs": "^1.23.0",
