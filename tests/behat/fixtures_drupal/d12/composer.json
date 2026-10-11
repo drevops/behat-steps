@@ -229,6 +229,7 @@
             "drush -r web config-set system.site uuid 5b4646a8-ed7b-453c-b5b6-78196271f41b -y --uri=http://nginx",
             "drush -r web updb -y --uri=http://nginx",
             "drush -r web cim --source=../config/sync -y --uri=http://nginx",
+            "drush -r web entity:delete node --bundle=draggableviews_demo -y --uri=http://nginx",
             "drush -r web cr -y --uri=http://nginx",
             "drush -r web pm:enable mysite_core -y --uri=http://nginx"
         ]
