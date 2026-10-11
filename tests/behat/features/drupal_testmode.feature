@@ -5,14 +5,14 @@ Feature: Ensure TestmodeTrait works.
 
   Background:
     Given the following article content:
-      | title              |
-      | Article 1          |
-      | Article 2          |
-      | Article 3          |
-      | Article 4          |
-      | Article 5          |
-      | [MYTEST] Article 6 |
-      | [MYTEST] Article 7 |
+      | title              | changed |
+      | Article 1          | now     |
+      | Article 2          | now     |
+      | Article 3          | now     |
+      | Article 4          | now     |
+      | Article 5          | now     |
+      | [MYTEST] Article 6 | -1 hour |
+      | [MYTEST] Article 7 | -1 hour |
 
   @api
   Scenario: Assert visiting test content page without test mode will put the required content on the second page
