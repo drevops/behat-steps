@@ -63,6 +63,8 @@ trait DateTrait {
   #[Transform(':value')]
   #[Transform(':partial_value')]
   #[Transform(':expected_value')]
+  #[Transform(':text')]
+  #[Transform(':content')]
   public function dateRelativeTransformValue(string $value): string {
     if (!$this->dateEnabled) {
       return $value;

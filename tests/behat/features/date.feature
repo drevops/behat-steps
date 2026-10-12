@@ -47,6 +47,15 @@ Feature: Check that DateTrait works
     Then the response status code should be 200
     And I should see "[TEST] Article relative 65 seconds 2024-07-15 12:01:05"
 
+  Scenario: Assert that relative date works in text transform
+    When I run the command "echo 2014-07-15"
+    Then the command output should contain "[relative:-10 years#Y-m-d]"
+    And the command output should be "[relative:-10 years#Y-m-d]"
+
+  Scenario: Assert that relative date works in content transform
+    Given the unmanaged file at the URI "public://relative-date.txt" exists with the content "[relative:-10 years#Y-m-d]"
+    Then an unmanaged file at the URI "public://relative-date.txt" should contain "2014-07-15"
+
   @phpserver
   Scenario: Assert that relative date works in partial value transform
     When I visit "http://cli:8888/cookies.html"

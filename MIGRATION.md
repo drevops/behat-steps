@@ -786,18 +786,18 @@ The Drupal Extension's contexts are gone, and the step traits carry their vocabu
 | `Given the following :vocabulary terms:` | `Given the following :vocabulary terms exist:` | |
 | `Given the following :type entities:` | `Given the following :entity_type entities exist:` | |
 | `Given the/these (following )languages are available:` | `Given the following languages exist:` | |
-| `Given a/an :type with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given a/an :type content with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing a/an :type with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing a/an :type content with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing a/an :type with the following fields:` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing a/an :type content with the following fields:` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing my :type with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table an `author` column |
-| `Given I am viewing my :type content with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table an `author` column |
-| `Given a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:`<br>`When I visit the :vocabulary term page with the name :name` | |
-| `Given I am viewing a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:`<br>`When I visit the :vocabulary term page with the name :name` | |
-| `Then I should be able to edit the :type` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content edit page with the title :title`<br>`Then the response status code should be 200` | |
-| `Then I should be able to edit the :type content` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content edit page with the title :title`<br>`Then the response status code should be 200` | |
+| `Given a/an :type with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table a `title` column holding `:title`, and pass the same title to the second step |
+| `Given a/an :type content with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table a `title` column holding `:title`, and pass the same title to the second step |
+| `Given I am viewing a/an :type with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table a `title` column holding `:title`, and pass the same title to the second step |
+| `Given I am viewing a/an :type content with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table a `title` column holding `:title`, and pass the same title to the second step |
+| `Given I am viewing a/an :type with the following fields:` | `Given the following :content_type content with fields exists:`<br>`When I visit the :content_type content page with the title :title` | The first step takes the field table as it is, 1 field per row; pass its `title` to the second step |
+| `Given I am viewing a/an :type content with the following fields:` | `Given the following :content_type content with fields exists:`<br>`When I visit the :content_type content page with the title :title` | The first step takes the field table as it is, 1 field per row; pass its `title` to the second step |
+| `Given I am viewing my :type with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table a `title` column holding `:title` and an `author` column naming the logged-in user, and pass the same title to the second step |
+| `Given I am viewing my :type content with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table a `title` column holding `:title` and an `author` column naming the logged-in user, and pass the same title to the second step |
+| `Given a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:`<br>`When I visit the :vocabulary term page with the name :name` | Give the table a `name` column holding `:name`, and pass the same name to the second step |
+| `Given I am viewing a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:`<br>`When I visit the :vocabulary term page with the name :name` | Give the table a `name` column holding `:name`, and pass the same name to the second step |
+| `Then I should be able to edit the :type` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content edit page with the title :title`<br>`Then the response status code should be 200` | Give the table a `title` column, and pass the same title to the second step |
+| `Then I should be able to edit the :type content` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content edit page with the title :title`<br>`Then the response status code should be 200` | Give the table a `title` column, and pass the same title to the second step |
 
 #### Cache, cron, batch and queues
 
@@ -1103,7 +1103,7 @@ An entity saved again after a newer one was created no longer wins: content enti
 
 ### Relative dates
 
-`DateTrait` expands `[relative:...]` tokens in `:partial_value` arguments as well as in `:value`, `:datetime` and `:expected_value` ones. The region, row and command output assertions take `:value` now, so a token in their argument is expanded rather than compared as written.
+`DateTrait` expands `[relative:...]` tokens in `:partial_value`, `:text` and `:content` arguments as well as in `:value`, `:datetime` and `:expected_value` ones. A token in the text a region, a row, the modal, the REST response, the command output or the drush output is checked for, or in an unmanaged file's content, is now expanded rather than compared as written.
 
 `DateTrait` registers its transform as `#[Transform(':expected_value')]`, where 3.14 registered `#[Transform(':expectedValue')]`. No shipped step declares `:expectedValue`, so only a step of your own that declares it and relies on the expansion changes: rename its placeholder to `:expected_value`.
 
