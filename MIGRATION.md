@@ -741,6 +741,7 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | --- | --- |
 | `Given a REST header :name with value :value` | `Given the REST header :name has the value :value` |
 | `When I send a REST :method request to :url with body:` | `When I send a REST :method request to :url with the body:` |
+| `Then the REST response should contain :text` | `Then the REST response should contain :value` |
 
 #### SearchApiTrait
 
@@ -1850,6 +1851,10 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `AccessibilityTrait::accessibilityAggregateRollup()` | `array $pages` | `array $pages, array $impacts = []` |
 | `AccessibilityTrait::accessibilityResolveTags()` | `array $tags` | `BeforeScenarioScope $scope` |
 | `CommandTrait::commandAfterScenario()` | No parameters | `AfterScenarioScope $scope` |
+| `CommandTrait::commandAssertErrorOutputContains()` | `string $text` | `string $value` |
+| `CommandTrait::commandAssertOutputContains()` | `string $text` | `string $value` |
+| `CommandTrait::commandAssertOutputEquals()` | `string $text` | `string $value` |
+| `CommandTrait::commandAssertOutputNotContains()` | `string $text` | `string $value` |
 | `CommandTrait::commandBeforeScenario()` | No parameters | `BeforeScenarioScope $scope` |
 | `ContentBlockTrait::contentBlockAssertTypeExists()` | `string $type` | `string $content_block_type` |
 | `ContentBlockTrait::contentBlockLoadMultiple()` | `string $type, array $conditions = []` | `string $content_block_type, array $conditions = []` |
@@ -1892,6 +1897,7 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `ResponseTrait::responseAssertHeaderNotContains()` | `string $header_name, string $header_value` | `string $name, string $value` |
 | `ResponsiveTrait::responsiveExtractDimensions()` | `?string $name = NULL` | `?string $breakpoint = NULL` |
 | `ResponsiveTrait::responsiveGetBreakpoint()` | `string $name` | `string $breakpoint` |
+| `RestTrait::restAssertResponseContains()` | `string $text` | `string $value` |
 | `SearchApiTrait::searchApiIndexContent()` | `string $type` | `string $content_type` |
 | `TableTrait::tableAssertColumnCount()` | `int $count` | `string $count` |
 | `TableTrait::tableAssertRowCount()` | `int $count` | `string $count` |
