@@ -51,7 +51,17 @@ We actively maintain this package and welcome [contributions](CONTRIBUTING.md) f
 | 3.x | 3 | 10, 11 | 8.2, 8.3, 8.4, 8.5 | The current minor is LTS until 1 July 2027 and receives bugfixes and security updates only. |
 | 2.x | 3 | 9, 10 | 8.2+ | Unsupported |
 
-See [MIGRATION.md](MIGRATION.md) to migrate a project from 3.x to 4.x.
+### Migrating from 3.x
+
+[MIGRATION.md](MIGRATION.md) takes a project from 3.14 to 4.0, in the order an upgrade meets each change. An AI coding agent can apply it for you: the [`migrate-behat-steps`](.claude/skills/migrate-behat-steps/SKILL.md) skill walks it through your Composer requirements, Behat configuration, contexts, your own PHP and your feature files, then reports everything it changed and everything it left for you to check.
+
+Composer installs this package without the repository's `.claude/` directory, so the skill isn't in `vendor/`. Paste this into your agent from your project's root, on a clean branch, so `git diff` shows the whole migration:
+
+```text
+Fetch https://raw.githubusercontent.com/drevops/behat-steps/4.x/.claude/skills/migrate-behat-steps/SKILL.md and follow it to migrate this project from drevops/behat-steps 3.x to 4.x. If you support skills, save it as .claude/skills/migrate-behat-steps/SKILL.md first, so the migration can run again.
+```
+
+Add "Start with a dry run." to the prompt to read the agent's report before it changes anything.
 
 ## Available steps
 
