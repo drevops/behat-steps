@@ -58,7 +58,7 @@ We actively maintain this package and welcome [contributions](CONTRIBUTING.md) f
 Composer installs this package without the repository's `.claude/` directory, so the skill isn't in `vendor/`. Paste this into your agent from your project's root, on a clean branch, so `git diff` shows the whole migration:
 
 ```text
-Fetch https://raw.githubusercontent.com/drevops/behat-steps/4.x/.claude/skills/migrate-behat-steps/SKILL.md and follow it to migrate this project from drevops/behat-steps 3.x to 4.x. If you support skills, save it as .claude/skills/migrate-behat-steps/SKILL.md first, so the migration can run again.
+Fetch https://raw.githubusercontent.com/drevops/behat-steps/main/.claude/skills/migrate-behat-steps/SKILL.md and follow it to migrate this project from drevops/behat-steps 3.x to 4.x. If you support skills, save it as .claude/skills/migrate-behat-steps/SKILL.md first, so the migration can run again.
 ```
 
 ## Available steps
