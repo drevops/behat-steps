@@ -10,8 +10,9 @@ Every table follows the same conventions, so a tool can apply it as written:
 
 - A mapping table reads left to right. The `3.14` column holds what a 3.14 project used, and the `4.0` column holds what replaces it. A `Notes` column, where a table has one, says what else changes.
 - `Removed` alone in a `4.0` cell means nothing replaces the name, and the notes say what to do instead.
-- Step text is written the way Behat registers it, keyword included. `:name` is a placeholder, a word in parentheses such as `(s)` or `( region)` is optional, and `a/an` lists alternatives. A `4.0` cell listing several steps on separate lines replaces 1 step with that sequence.
-- A method is written `Owner::method()`, where the owner is the short name of the trait, class or interface that declares it. Tables of classes give fully qualified names.
+- Step text is written the way Behat registers it, keyword included. `:name` is a placeholder, a word in parentheses such as `(s)` or `( region)` is optional, `a/an` lists alternatives, and a step ending in `...` stands for every step that starts with the text before it. A `4.0` cell listing several steps on separate lines replaces 1 step with that sequence.
+- A placeholder carries its value from the `3.14` step to the `4.0` one. A name in both cells is the same value, and a renamed placeholder keeps its role, as `:rowText` does when it becomes `:partial_text`, so values pair by meaning, never by position. A placeholder the `4.0` step doesn't name drops its value, and the new step no longer checks it.
+- A method is written `Owner::method()`, where the owner is the short name of the trait, class or interface that declares it. Tables of classes give fully qualified names, and a part in angle brackets, such as `<Name>` or `<N>`, stands for the same part on both sides of a row.
 - In a failure message, `...` stands for a value and `N` for a number.
 
 ## Requirements
@@ -253,10 +254,11 @@ Scenario: The cache is cleared over the command line
   Given the cache is empty
 ```
 
-Removing `@api` changes 2 things to check in an existing project:
+Removing `@api` changes 3 things to check in an existing project:
 
 - A step that used to fail for a missing `@api` now runs, because the tag no longer gates anything. Where that gate mattered, run those scenarios under a profile whose `backends` list excludes the Drupal backend.
 - Hooks that skipped a scenario without `@api` now run in it. 3.14 ran the scenario hooks of `ConfigTrait`, `ConfigOverrideTrait`, `EmailTrait`, `FileTrait`, `ModuleTrait`, `StateTrait`, `TestmodeTrait`, `TimeTrait` and `WatchdogTrait` only in `@api` scenarios, and so did its entity cleanup and the Drupal Extension's static cache reset. They now run in every scenario of a context that composes their trait. The watchdog check, for one, reads the log after a scenario that never carried `@api`, and fails the scenario at its start when the profile lists no backend that can read the log.
+- A suite or profile that filters on `@api`, such as `filters: { tags: '@api' }` or `'~@api'`, filters on a tag no scenario carries, so it runs none of its scenarios or all of them. Select those scenarios with a profile and its own `backends` list instead.
 
 ### Trait options
 
@@ -787,7 +789,7 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 ### Drupal Extension steps
 
-The Drupal Extension's contexts are gone, and the step traits carry their vocabulary in this package's grammar. The steps Mink's `MinkContext` registers keep their text and aren't listed, as [Contexts to register](#contexts-to-register) describes. A row noted "Mink's step" maps to one of them.
+The Drupal Extension's contexts are gone, and the step traits carry their vocabulary in this package's grammar. The steps Mink's `MinkContext` registers keep their text and aren't listed, as [Contexts to register](#contexts-to-register) describes. A row noted "Mink's step" maps to one of them. Mink registers its steps as regular expressions, so each value in one goes in double quotes, apart from a status code, which is a bare number: `Then the response status code should be 200`.
 
 #### Session and users
 
@@ -2053,6 +2055,8 @@ if ($this->skipTag(__TRAIT__, $scope)) {
   return;
 }
 ```
+
+The skip tags in your feature files then name the trait instead of the hook method, as `@behat-steps-skip:AcmeTrait` does. A tag that still names a hook method fails the run, as [Skip tags](#skip-tags) shows.
 
 A trait states what it needs from the site in a `<prefix>Prerequisites()` method, named like its `<prefix>ConfigSchema()`, and each prerequisite goes through a backend capability rather than a query of its own. A step checks them with `$this->assertPrerequisites(__TRAIT__)`, a setup hook with `$this->assertPrerequisites(__TRAIT__, $scope)`, and a teardown asks `$this->prerequisitesMet(__TRAIT__)` instead, so it never replaces a failure the scenario already recorded.
 
