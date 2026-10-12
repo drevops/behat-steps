@@ -6,7 +6,7 @@ New here? [docs/architecture/](docs/architecture/README.md) walks through how th
 
 ## Steps format
 
-A step is a sentence a person reads in a feature file, right next to Mink's own steps. The vocabulary has 2 goals: every step reads as plain English once the values are filled in, and every idea reads the same way in every trait. Read a step aloud before you settle on it, and check it against its siblings. `ahoy lint-docs` checks only what [STEPS.md](STEPS.md) needs to render: 1 step per method, an example that matches it, and no 2 steps matching the same text. The rules below are held in review, and when a rule and natural English disagree, the English wins.
+A step is a sentence a person reads in a feature file, right next to Mink's own steps. The vocabulary has 2 goals: every step reads as plain English once the values are filled in, and every idea reads the same way in every trait. Read a step aloud before you settle on it, and check it against its siblings. `ahoy lint-docs` checks the rules below that hold without judging the English, as each of them notes, along with 1 step per method and an example that matches its own step and no other. The rest is held in review, and when a rule and natural English disagree, the English wins.
 
 - **General guidelines**:
   - Avoid using regular expressions to define a step definition. Use tuple format instead for better clarity and maintainability.
@@ -23,12 +23,12 @@ A step is a sentence a person reads in a feature file, right next to Mink's own 
   - One concept gets one name across every trait, so reuse an existing name before inventing a synonym: `:name` for anything identified by its name, `:index` for a 1-based position, `:value` for a value, `:address` for an email address.
   - A name the site's configuration defines sits before its noun, the way people say it: `the :queue queue`, `the :module module`, `the :region region`, `the :roles role(s)`, `the :permissions permission(s)`, `the :breakpoint breakpoint`, `the :condition condition`, `the :new_state state`, `the :view_id view`, `the :menu_name menu`, `the :vocabulary vocabulary`, `the :content_type content type`, `the :media_type media type`. A bundle sits before the entity noun it qualifies (`the :media_type media`, `the :vocabulary term`), and so do a count before its unit (`:count item(s)`) and a closed-set qualifier (`in :direction order`, `a REST :method request`).
   - Anything else follows its noun: a label, a title, the name of an entity or a user, free text, a selector, a path, a URL, a key, an event, a header, a field name, or a config or state key. `the link :link`, `the element :selector`, `the field :field`, `the user :name`, `the config :name with the key :key`.
-  - Every countable noun takes an article, an acronym is uppercase (`URL`, `ECK`, `REST`, `JSON`, `XML`, `JS`, `AJAX`, `CSS`, `HTML`, `WYSIWYG`), and a step never opens with a placeholder: `the :content_type content with the title :title should not exist`.
+  - Every countable noun takes an article, an acronym is uppercase (`URL`, `ECK`, `REST`, `JSON`, `XML`, `JS`, `AJAX`, `CSS`, `HTML`, `WYSIWYG`), and a step never opens with a placeholder: `the :content_type content with the title :title should not exist`. `ahoy lint-docs` rejects a step that opens with a placeholder.
   - `the` names 1 identified thing, and `a` or `an` names any thing that matches: `the cookie with the name :name`, `the unmanaged file at the URI :uri`, but `a cookie with a name containing :partial_name` and `an email should have been sent to the address :address`.
   - Name a value only where the verb doesn't. After `contain`, `be`, `be equal to`, `match`, `to` and `by`, it reads bare: `the drush output should contain :text`. `the value :value` follows `have` (`should have the value :value`) and a noun it qualifies (`the attribute :attribute with the value :value`), and it's never `the :value value`. A JSON path or an XML node compares with `should be equal to`, which keeps `should be` free for `the JSON path :path should be null`; everything else that equals a value reads `should be :value`.
-  - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is for text a person reads on the page, or a whole body with no named target: `I should see :text in the :region region`, `the command output should contain :text`.
-  - A partial match reads `a <thing> containing :partial_<thing>`, as in `a cookie with a name containing :partial_name`.
-  - Placeholder names are `snake_case`, spelled out rather than abbreviated (`:name`, not `:param`), and identical to the method parameter, because Behat binds a step argument by name.
+  - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is for text a person reads on the page, or a whole body with no named target: `I should see :text in the :region region`, `the command output should contain :text`. `ahoy lint-docs` rejects `:text` after `should` in a step that names its target before it.
+  - A partial match reads `a <thing> containing :partial_<thing>`, as in `a cookie with a name containing :partial_name`. `ahoy lint-docs` rejects a placeholder after `containing` without the `partial_` prefix.
+  - Placeholder names are `snake_case`, spelled out rather than abbreviated (`:name`, not `:param`), and identical to the method parameter, because Behat binds a step argument by name. `ahoy lint-docs` rejects a name that isn't `snake_case` and the names listed in `docs.php`'s `non_descriptive_placeholders()` and `placeholder_synonyms()`.
 
 - **Settled wording**: each idea reads 1 way, even where another phrasing would read just as well.
   - A step that opens a page reads `I visit the ... page` and names the page it opens: `I visit the :content_type content edit page with the title :title`. It never reads `I edit the ...`, because the step only navigates. A page has 1 name everywhere: `the profile page of the user :name`, `my own profile page`.
@@ -40,9 +40,11 @@ A step is a sentence a person reads in a feature file, right next to Mink's own 
   - The viewport is `the viewport`, never `a viewport`. A `<select>` is `the select :selector`, never `the select element :selector`.
   - A state reads `is <state>` in a `Given` and `should be <state>` in a `Then`: `the block :label is enabled`, `the field :field should be disabled`. A state word is never a placeholder.
   - "Nothing in this set matched" reads `no <plural>`: `no emails should have been sent`. A claim about 1 named or described thing negates with `should not`: `the block :label should not exist`.
+  - `ahoy lint-docs` rejects the replaced phrases listed in `docs.php`'s `rejected_step_phrases()`, and an `I visit` step that names its destination in words but no page or link (`I visit :path` is exempt).
 
 - **`Given`**:
   - Defines test prerequisites - conditions or data that must exist before the test runs.
+  - Names a table it takes with `the following`, which `ahoy lint-docs` checks.
   - States a fact, about the world or about the person: `the :module module is enabled`, `I am logged in as a user with the :roles role(s)`. A fact about the person opens with `I am`.
   - Uses words like `exists`, `have` and `is`. A precondition that is an event already done takes the perfect tense: `the cache has been cleared`.
   - Never narrates an action, which is a `When`'s job, so there's no `Given I click ...`.
@@ -50,15 +52,16 @@ A step is a sentence a person reads in a feature file, right next to Mink's own 
 
 - **`When`**:
   - Describes an action and contains an action verb.
-  - Uses the format `When I <verb>`.
+  - Uses the format `When I <verb>`, which `ahoy lint-docs` checks.
 
 - **`Then`**:
   - Specifies an assertion with `should` or `should not`.
   - A check on what a person reads on the page, found by its text, reads `I should see ...` or `I should not see ...`: messages, text, headings, buttons, links and the modal, on the page or in a region, a row or the modal. `Then I should see the success message :message`, `Then I should see :text in the modal`, `Then I should see the text :text1 after the text :text2`.
   - Any other assertion starts with the entity it asserts on: a target named by a selector, a property such as an href or a CSS value, a form control's state, or something off the page such as config, a queue, an email or a response. `Then the link with the title :title should exist`, `Then the :queue queue should be empty`.
   - An assertion about an event already done takes the perfect tense: `an email should have been sent to the address :address`, `no emails should have been sent`.
-  - A qualifier that narrows the entity, such as `in the :region region`, `within the select :selector` or `on the element :element`, reads with it, before `should`: `the element :selector in the :region region should exist`, not `the element :selector should exist in the :region region`. A qualifier of the predicate's own object stays with the object, as in `the response should match the XSD schema in the file :filename`, and a step that takes a table or a PyString still names it last: `the meta tag should exist with the following attributes:`.
-  - Methods should include the `Assert` prefix, e.g., `userAssertHasRoles()`.
+  - A qualifier that narrows the entity, such as `in the :region region`, `within the select :selector` or `on the element :element`, reads with it, before `should`: `the element :selector in the :region region should exist`, not `the element :selector should exist in the :region region`. A qualifier of the predicate's own object stays with the object, as in `the response should match the XSD schema in the file :filename`, and a step that takes a table or a PyString still names it last: `the meta tag should exist with the following attributes:`. `ahoy lint-docs` rejects a qualifier that ends the step after `exist` or `be <state>`.
+  - Methods should include the `Assert` prefix, e.g., `userAssertHasRoles()`, and never `Should`.
+  - `ahoy lint-docs` rejects a `Then` without `should`, one without `the`, `a`, `an` or `no`, and a method name without `Assert` or with `Should`.
 
 ## Step arguments
 

@@ -69,7 +69,7 @@ ahoy copy-files
 
 ## Steps Format Guidelines
 
-Step wording is a guide held in review, not a lint. Its 2 goals are that every step reads as plain English and every idea reads the same way in every trait. `docs.php` gathers the steps into STEPS.md and checks only that each method registers 1 step with an example that matches it. Read a step aloud with real values filled in and compare it with its siblings; when a rule and natural English disagree, the English wins. The full guide is "Steps format" in [CONTRIBUTING.md](CONTRIBUTING.md).
+Step wording is mostly a guide held in review. Its 2 goals are that every step reads as plain English and every idea reads the same way in every trait. `docs.php` gathers the steps into STEPS.md and checks the rules that hold without judging the English (listed under "Checked by `ahoy lint-docs`" below). Read a step aloud with real values filled in and compare it with its siblings; when a rule and natural English disagree, the English wins. The full guide is "Steps format" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 - **General Guidelines**:
   - Use tuple format instead of regular expressions
@@ -126,6 +126,8 @@ Step wording is a guide held in review, not a lint. Its 2 goals are that every s
   - An assertion about an event already done takes the perfect tense: `an email should have been sent to the address :address`
   - A qualifier that narrows the asserted entity reads with it, before `should`: `the element :selector in the :region region should exist`. A qualifier of the predicate's object stays with it (`should match the XSD schema in the file :filename`), and a table or PyString argument still comes last: `the meta tag should exist with the following attributes:`
   - Methods should include the `Assert` prefix
+
+- **Checked by `ahoy lint-docs`**: 1 step per method; an example matching its own step and no other; a table `Given` without `the following`; a `When` not opening with `I `; a `Then` without `should`, without `the`, `a`, `an` or `no`, or from a method without `Assert` or with `Should`; a qualifier ending a `Then` after `exist` or `be <state>`; a placeholder that isn't `snake_case`, is named in `docs.php`'s `non_descriptive_placeholders()` or `placeholder_synonyms()`, follows `containing` without the `partial_` prefix, or opens the step; `:text` compared against a named target; the phrases in `rejected_step_phrases()`; and an `I visit` step that names its destination in words but no page or link
 
 ## Exception Types
 

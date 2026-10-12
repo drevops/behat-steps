@@ -62,13 +62,18 @@ deactivate Extract
 Main -> Validate: validate the vocabulary, the toolbox,\nthe tags and the environment
 activate Validate
 note right of Validate
-  One step attribute per method, an
-  example is mandatory and must match
-  its own step and no other, every
-  published helper needs a summary,
-  tags must match tag_registry(), every
-  getenv() name must be documented.
-  No check reads a step's wording.
+  When opens with "I ", Then needs
+  "should" and an Assert method name,
+  a table Given names "the following",
+  a placeholder is a descriptive
+  snake_case name and never opens the
+  step, one step attribute per method,
+  an example is mandatory and must
+  match its own step and no other,
+  every published helper needs a
+  summary, tags must match
+  tag_registry(), every getenv() name
+  must be documented
 end note
 alt errors found
   Validate --> Main: error list

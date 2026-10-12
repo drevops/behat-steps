@@ -47,6 +47,9 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('extract_info')]
 #[CoversFunction('parse_class_comment')]
 #[CoversFunction('tag_registry')]
+#[CoversFunction('non_descriptive_placeholders')]
+#[CoversFunction('placeholder_synonyms')]
+#[CoversFunction('rejected_step_phrases')]
 #[CoversFunction('extract_tags')]
 #[CoversFunction('validate_tag')]
 #[CoversFunction('validate_tags')]
@@ -1112,6 +1115,693 @@ EOD,
         ],
         ['  TestTrait::testMethod - Multiple steps found' . PHP_EOL],
       ],
+      'given without following' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given items:'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - Missing "following" in the step' . PHP_EOL],
+      ],
+      'when without I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@When click on button'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - When step does not start with "I "' . PHP_EOL],
+      ],
+      'then without assert in method' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Then the page should contain "text"'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - Missing "Assert" in the method name' . PHP_EOL],
+      ],
+      'then with should in method' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertShouldMethod',
+                'steps' => ['@Then the page should contain "text"'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertShouldMethod - Assert method contains "Should", but it should not.' . PHP_EOL],
+      ],
+      'then without should in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the page contains "text"'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Missing "should" in the step' . PHP_EOL],
+      ],
+      'then without the/a/an/no' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then page should contain "text"'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Missing "the", "a", "an" or "no" in the step' . PHP_EOL],
+      ],
+      'then opening with an' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then an email should not be sent'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'then negated with no' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then no emails should have been sent to the address :address'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'given starting with I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@Given I am logged in as the user :name'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'then starting with I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then I should see the modal'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'when with an acronym containing I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@When the Search API cron runs'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - When step does not start with "I "' . PHP_EOL],
+      ],
+      'when in the first person' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@When I run the Search API cron'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'bare category placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the content :type should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Non-descriptive placeholder ":type" in the step' . PHP_EOL],
+      ],
+      'non-descriptive placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :selector should be displayed with an offset of :number pixels'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Non-descriptive placeholder ":number" in the step' . PHP_EOL],
+      ],
+      'camel case placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the :stringValue element should be displayed'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":stringValue" in the step is not snake_case' . PHP_EOL],
+      ],
+      'numbered placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :selector1 should stack above the element :selector2'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'descriptive placeholders in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :parent should contain :count elements matching :selector'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'configured name preceding its noun' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the :queue queue should be empty'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'abbreviated placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the current URL should have the query parameter :param'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Non-descriptive placeholder ":param" in the step' . PHP_EOL],
+      ],
+      'bare value placeholder in step' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the JSON path :path should be equal to :value'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'partial match placeholder without the partial prefix' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then a cookie with a name containing :name should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":name" after "containing" in the step is not prefixed with "partial_"' . PHP_EOL],
+      ],
+      'partial match placeholder with the partial prefix' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then a cookie with a name containing :partial_name should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'text compared against a named target' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the region :region should contain the text :text'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Placeholder ":text" in the step compares against a named target but should be ":value"' . PHP_EOL],
+      ],
+      'text compared against a whole body' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the modal should contain :text'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'text identifying the asserted entity' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then the element :selector with the text :text in the region :region should have the attribute :attribute with the value :value'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'step opening with a placeholder' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMethod',
+                'steps' => ['@Then :content_type content with the title :title should not exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testAssertMethod - Step starts with a placeholder but should start with the noun it names' . PHP_EOL],
+      ],
+      'placeholder synonyms in steps' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMailMethod',
+                'steps' => ['@Then the user with the email :mail should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertEmailMethod',
+                'steps' => ['@Then an email should be sent to the address :email'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testFollowMethod',
+                'steps' => ['@When I follow the link with the index :link_number in the email'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  TestTrait::testAssertMailMethod - Placeholder ":mail" in the step is a synonym of ":address"' . PHP_EOL,
+          '  TestTrait::testAssertEmailMethod - Placeholder ":email" in the step is a synonym of ":address"' . PHP_EOL,
+          '  TestTrait::testFollowMethod - Placeholder ":link_number" in the step is a synonym of ":index"' . PHP_EOL,
+        ],
+      ],
+      'rejected phrases in steps' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testEditMethod',
+                'steps' => ['@When I edit the :content_type content with the title :title'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testClickMethod',
+                'steps' => ['@When I click the link :link'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertViewportMethod',
+                'steps' => ['@Then the element :selector should be displayed within a viewport'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSelectMethod',
+                'steps' => ['@Then the option :option within the select element :selector should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  TestTrait::testEditMethod - Step reads "I edit the" but should read "I visit the ... edit page"' . PHP_EOL,
+          '  TestTrait::testClickMethod - Step reads "I click the" but should read "I click on the"' . PHP_EOL,
+          '  TestTrait::testAssertViewportMethod - Step reads "a viewport" but should read "the viewport"' . PHP_EOL,
+          '  TestTrait::testAssertSelectMethod - Step reads "the select element" but should read "the select"' . PHP_EOL,
+        ],
+      ],
+      'settled phrases in steps' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testClickMethod',
+                'steps' => ['@When I click on the link :link in the region :region'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertViewportMethod',
+                'steps' => ['@Then the element :selector should be displayed within the viewport'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSelectMethod',
+                'steps' => ['@Then the option :option within the select :selector should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'qualifier after the predicate' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertRegionMethod',
+                'steps' => ['@Then the link :link should exist in the region :region'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSelectMethod',
+                'steps' => ['@Then the option :option should be selected within the select :selector'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertRegionNounMethod',
+                'steps' => ['@Then the link :link should exist in the :region region'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertMenuMethod',
+                'steps' => ['@Then the link :link should not exist in the :menu_name menu'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [
+          '  TestTrait::testAssertRegionMethod - Qualifier follows the predicate but should precede "should" with the subject it narrows' . PHP_EOL,
+          '  TestTrait::testAssertSelectMethod - Qualifier follows the predicate but should precede "should" with the subject it narrows' . PHP_EOL,
+          '  TestTrait::testAssertRegionNounMethod - Qualifier follows the predicate but should precede "should" with the subject it narrows' . PHP_EOL,
+          '  TestTrait::testAssertMenuMethod - Qualifier follows the predicate but should precede "should" with the subject it narrows' . PHP_EOL,
+        ],
+      ],
+      'qualifier with the subject, after an object or naming a table' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertRegionMethod',
+                'steps' => ['@Then the link :link in the region :region should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertRegionNounMethod',
+                'steps' => ['@Then the link :link in the :region region should exist'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertTableMethod',
+                'steps' => ['@Then the meta tag should exist with the following attributes:'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertViewportMethod',
+                'steps' => ['@Then the element :selector should be displayed within the viewport with a top offset of :offset pixels'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testAssertSchemaMethod',
+                'steps' => ['@Then the response should match the XSD schema in the file :filename'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
+      'navigation step naming no page' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testVisitMethod',
+                'steps' => ['@When I visit the :media_type media with the name :name'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testVisitMethod - Navigation step does not name the page it opens, as in "I visit the ... page"' . PHP_EOL],
+      ],
+      'navigation steps naming a page, a link or a path' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testVisitPageMethod',
+                'steps' => ['@When I visit the :media_type media edit page with the name :name'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testVisitLinkMethod',
+                'steps' => ['@When I visit the password reset link for the user :name'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testVisitPathMethod',
+                'steps' => ['@When I visit :path'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+              ],
+            ],
+          ],
+        ],
+        [],
+      ],
       'missing example' => [
         [
           'TestTrait' => [
@@ -1137,7 +1827,7 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testMethod',
-                'steps' => ['@Given step one', '@Given step two'],
+                'steps' => ['@Then page contains "text"'],
                 'description' => 'Test method description',
                 'example' => '',
               ],
@@ -1145,7 +1835,9 @@ EOD,
           ],
         ],
         [
-          '  TestTrait::testMethod - Multiple steps found' . PHP_EOL,
+          '  TestTrait::testMethod - Missing "Assert" in the method name' . PHP_EOL,
+          '  TestTrait::testMethod - Missing "should" in the step' . PHP_EOL,
+          '  TestTrait::testMethod - Missing "the", "a", "an" or "no" in the step' . PHP_EOL,
           '  TestTrait::testMethod - Missing example' . PHP_EOL,
         ],
       ],
@@ -2100,6 +2792,50 @@ EOD,
     }
 
     $this->assertSame([], $missing, 'A tag a trait names in a constant is documented in tag_registry().');
+  }
+
+  public function testNonDescriptivePlaceholders(): void {
+    $placeholders = non_descriptive_placeholders();
+
+    $this->assertContains('number', $placeholders);
+    $this->assertContains('param', $placeholders);
+    $this->assertNotContains('count', $placeholders);
+
+    // Names are compared against the placeholders extracted from a step
+    // pattern, which carry no leading colon.
+    foreach ($placeholders as $placeholder) {
+      $this->assertStringStartsNotWith(':', $placeholder);
+    }
+  }
+
+  public function testPlaceholderSynonyms(): void {
+    $synonyms = placeholder_synonyms();
+
+    $this->assertSame('address', $synonyms['mail'] ?? NULL);
+    $this->assertSame('index', $synonyms['link_number'] ?? NULL);
+
+    foreach ($synonyms as $synonym => $name) {
+      $this->assertStringStartsNotWith(':', $synonym);
+      $this->assertStringStartsNotWith(':', $name);
+
+      // A name to use that is itself rejected fails validation as well.
+      $this->assertArrayNotHasKey($name, $synonyms);
+      $this->assertNotContains($name, non_descriptive_placeholders());
+    }
+  }
+
+  public function testRejectedStepPhrases(): void {
+    $phrases = rejected_step_phrases();
+
+    $this->assertSame('I click on the ', $phrases['I click the '] ?? NULL);
+    $this->assertSame(' the viewport', $phrases[' a viewport'] ?? NULL);
+
+    // A replacement containing a rejected phrase fails validation as well.
+    foreach ($phrases as $replacement) {
+      foreach (array_keys($phrases) as $rejected) {
+        $this->assertStringNotContainsString($rejected, $replacement);
+      }
+    }
   }
 
   #[DataProvider('dataProviderValidateTag')]
