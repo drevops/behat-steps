@@ -35,10 +35,10 @@ trait TableTrait {
    * Click a link within a row.
    *
    * @code
-   * When I click on the link "Edit" in the row containing "Article title"
+   * When I follow the link "Edit" in the row containing "Article title"
    * @endcode
    */
-  #[When('I click on the link :link in the row containing :partial_text')]
+  #[When('I follow the link :link in the row containing :partial_text')]
   public function tableClickLinkInRow(string $link, string $partial_text): void {
     $element = $this->tableGetRowByText($partial_text)->findLink($link);
 
@@ -163,11 +163,11 @@ trait TableTrait {
    * Assert that a table is sorted by a column in a specific direction.
    *
    * @code
-   * Then the table ".mytable" should be sorted by the column "Title" in "ascending" order
-   * Then the table ".mytable" should be sorted by the column "Date" in "descending" order
+   * Then the table ".mytable" should be sorted by "Title" in "ascending" order
+   * Then the table ".mytable" should be sorted by "Date" in "descending" order
    * @endcode
    */
-  #[Then('the table :selector should be sorted by the column :column in :direction order')]
+  #[Then('the table :selector should be sorted by :column in :direction order')]
   public function tableAssertSortOrder(string $selector, string $column, string $direction): void {
     if ($direction !== 'ascending' && $direction !== 'descending') {
       throw new \RuntimeException(sprintf('Invalid sort direction "%s". Use "ascending" or "descending".', $direction));
@@ -212,12 +212,12 @@ trait TableTrait {
    * Assert that a table row containing a text has the expected values.
    *
    * @code
-   * Then the row containing "Article title" should contain the following:
+   * Then I should see the following text in the row containing "Article title":
    *   | Published |
    *   | admin     |
    * @endcode
    */
-  #[Then('the row containing :partial_text should contain the following:')]
+  #[Then('I should see the following text in the row containing :partial_text:')]
   public function tableAssertRowContainsMultiple(string $partial_text, TableNode $table): void {
     $actual_text = $this->tableGetRowByText($partial_text)->getText();
 
@@ -229,34 +229,34 @@ trait TableTrait {
   }
 
   /**
-   * Assert that a row contains a value.
+   * Assert that a row contains a string.
    *
    * @code
-   * Then the row containing "Article title" should contain the value "Published"
+   * Then I should see the text "Published" in the row containing "Article title"
    * @endcode
    */
-  #[Then('the row containing :partial_text should contain the value :value')]
-  public function tableAssertRowContains(string $partial_text, string $value): void {
+  #[Then('I should see the text :text in the row containing :partial_text')]
+  public function tableAssertRowContains(string $partial_text, string $text): void {
     $row = $this->tableGetRowByText($partial_text);
 
-    if (!str_contains($row->getText(), $value)) {
-      throw new ExpectationException(sprintf('The row containing "%s" does not contain the text "%s".', $partial_text, $value), $this->getSession()->getDriver());
+    if (!str_contains($row->getText(), $text)) {
+      throw new ExpectationException(sprintf('The row containing "%s" does not contain the text "%s".', $partial_text, $text), $this->getSession()->getDriver());
     }
   }
 
   /**
-   * Assert that a row does not contain a value.
+   * Assert that a row does not contain a string.
    *
    * @code
-   * Then the row containing "Article title" should not contain the value "Unpublished"
+   * Then I should not see the text "Unpublished" in the row containing "Article title"
    * @endcode
    */
-  #[Then('the row containing :partial_text should not contain the value :value')]
-  public function tableAssertRowNotContains(string $partial_text, string $value): void {
+  #[Then('I should not see the text :text in the row containing :partial_text')]
+  public function tableAssertRowNotContains(string $partial_text, string $text): void {
     $row = $this->tableGetRowByText($partial_text);
 
-    if (str_contains($row->getText(), $value)) {
-      throw new ExpectationException(sprintf('The row containing "%s" contains the text "%s".', $partial_text, $value), $this->getSession()->getDriver());
+    if (str_contains($row->getText(), $text)) {
+      throw new ExpectationException(sprintf('The row containing "%s" contains the text "%s".', $partial_text, $text), $this->getSession()->getDriver());
     }
   }
 
@@ -264,10 +264,10 @@ trait TableTrait {
    * Assert that a row contains the link.
    *
    * @code
-   * Then the link "Edit" in the row containing "Article title" should exist
+   * Then I should see the link "Edit" in the row containing "Article title"
    * @endcode
    */
-  #[Then('the link :link in the row containing :partial_text should exist')]
+  #[Then('I should see the link :link in the row containing :partial_text')]
   public function tableAssertLinkExistsInRow(string $link, string $partial_text): void {
     if (!$this->tableGetRowByText($partial_text)->findLink($link) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), sprintf('link in the row containing "%s"', $partial_text), 'id|title|alt|text', $link);
@@ -278,10 +278,10 @@ trait TableTrait {
    * Assert that a row does not contain the link.
    *
    * @code
-   * Then the link "Delete" in the row containing "Article title" should not exist
+   * Then I should not see the link "Delete" in the row containing "Article title"
    * @endcode
    */
-  #[Then('the link :link in the row containing :partial_text should not exist')]
+  #[Then('I should not see the link :link in the row containing :partial_text')]
   public function tableAssertLinkNotExistsInRow(string $link, string $partial_text): void {
     if ($this->tableGetRowByText($partial_text)->findLink($link) instanceof NodeElement) {
       throw new ExpectationException(sprintf('The row containing "%s" has the link "%s".', $partial_text, $link), $this->getSession()->getDriver());

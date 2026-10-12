@@ -23,7 +23,7 @@ Feature: Check that BigPipeTrait works
     And I install a "big_pipe" module
     When I visit "/"
     Then cookie "big_pipe_nojs" exists
-    When I log in as the user "administrator_user"
+    When I am logged in as "administrator_user"
     And I visit "/"
     Then cookie "big_pipe_nojs" exists
 

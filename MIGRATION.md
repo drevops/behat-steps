@@ -251,7 +251,7 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ```gherkin
 @backend:drush
 Scenario: The cache is cleared over the command line
-  Given the cache is empty
+  Given the cache has been cleared
 ```
 
 Removing `@api` changes 3 things to check in an existing project:
@@ -455,34 +455,16 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Then the current page should pass accessibility checks for tags :rules` | `Then the current page should pass accessibility checks for the tags :tags` |
+| `Then the current page should pass accessibility checks` | `Then the page should pass accessibility checks` |
+| `Then the current page should pass accessibility checks for tags :rules` | `Then the page should pass accessibility checks for the tags :tags` |
 
 #### BlockTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given the block :label has the :condition condition removed` | `Given the block :label has the condition :condition removed` |
-| `Given the block :label has the following :condition condition configuration:` | `Given the block :label has the condition :condition with the following configuration:` |
 | `Given the instance of :admin_label block exists with the following configuration:` | `Given the instance of the block :admin_label exists with the following configuration:` |
-| `Then the block :label should exist in the :region region` | `Then the block :label in the region :region should exist` |
-| `Then the block :label should not exist in the :region region` | `Then the block :label in the region :region should not exist` |
-
-#### CacheTrait
-
-| 3.14 | 4.0 |
-| --- | --- |
-| `Given the page cache for the path :path has been cleared` | `Given the page cache for the path :path is empty` |
-| `Given the page cache for the paths matching :path_pattern has been cleared` | `Given the page cache for the paths matching :path_pattern is empty` |
-| `Given the render cache has been cleared` | `Given the render cache is empty` |
-
-#### CommandTrait
-
-| 3.14 | 4.0 |
-| --- | --- |
-| `Then the command error output should contain :text` | `Then the command error output should contain the value :value` |
-| `Then the command output should be :text` | `Then the command output should be equal to the value :value` |
-| `Then the command output should contain :text` | `Then the command output should contain the value :value` |
-| `Then the command output should not contain :text` | `Then the command output should not contain the value :value` |
+| `Then the block :label should exist in the :region region` | `Then the block :label in the :region region should exist` |
+| `Then the block :label should not exist in the :region region` | `Then the block :label in the :region region should not exist` |
 
 #### ConfigTrait
 
@@ -491,11 +473,11 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | `Given the config :name key :key has the value :value` | `Given the config :name with the key :key has the value :value` |
 | `Given the following config values:` | `Given the following config values exist:` |
 | `Then the config :name key :key should contain the effective value :value` | `Then the config :name with the key :key should contain the effective value :value` |
-| `Then the config :name key :key should contain the value :value` | `Then the config :name with the key :key should contain the value :value` |
+| `Then the config :name key :key should contain the value :value` | `Then the config :name with the key :key should contain :value` |
 | `Then the config :name key :key should have the effective value :value` | `Then the config :name with the key :key should have the effective value :value` |
 | `Then the config :name key :key should have the value :value` | `Then the config :name with the key :key should have the value :value` |
 | `Then the config :name key :key should not contain the effective value :value` | `Then the config :name with the key :key should not contain the effective value :value` |
-| `Then the config :name key :key should not contain the value :value` | `Then the config :name with the key :key should not contain the value :value` |
+| `Then the config :name key :key should not contain the value :value` | `Then the config :name with the key :key should not contain :value` |
 | `Then the config :name key :key should not have the effective value :value` | `Then the config :name with the key :key should not have the effective value :value` |
 | `Then the config :name key :key should not have the value :value` | `Then the config :name with the key :key should not have the value :value` |
 
@@ -507,16 +489,14 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | `Given the following :type content blocks exist:` | `Given the following :content_block_type content blocks exist:` |
 | `Given the following :type content blocks with fields:` | `Given the following :content_block_type content blocks with fields exist:` |
 | `When I edit the :type content block with the description :description` | `When I visit the :content_block_type content block edit page with the description :description` |
-| `Then the content block type :type should exist` | `Then the content block type :content_block_type should exist` |
+| `Then the content block type :type should exist` | `Then the :content_block_type content block type should exist` |
 
 #### ContentTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given the following :content_type content does not exist:` | `Given the following :content_type content do not exist:` |
-| `Given the following :type content with fields:` | `Given the following :content_type content with fields exist:` |
-| `When I change the moderation state of the :content_type content with the title :title to the :new_state state` | `When I change the moderation state of the :content_type content with the title :title to the state :new_state` |
-| `When I set the path alias of the :content_type content with the title :title to :alias` | `When I set the path alias of the :content_type content with the title :title to the alias :alias` |
+| `Given the content type :content_type does not exist` | `Given the :content_type content type does not exist` |
+| `Given the following :type content with fields:` | `Given the following :content_type content with fields exists:` |
 | `Then :content_type content with the title :title should be published` | `Then the :content_type content with the title :title should be published` |
 | `Then :content_type content with the title :title should not be published` | `Then the :content_type content with the title :title should not be published` |
 | `Then :content_type content with the title :title should not exist` | `Then the :content_type content with the title :title should not exist` |
@@ -525,7 +505,7 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `When I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:` | `When I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:` |
+| `When I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:` | `When I save the draggable views items of the :view_id view and the :view_display_id display for the :content_type content in the following order:` |
 
 #### DropzoneTrait
 
@@ -538,8 +518,10 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `When I edit eck :bundle :entity_type entity with the title :title` | `When I visit the eck :bundle :entity_type entity edit page with the title :title` |
-| `When I visit eck :bundle :entity_type entity with the title :title` | `When I visit the eck :bundle :entity_type entity page with the title :title` |
+| `Given the following eck :bundle :entity_type entities do not exist:` | `Given the following ECK :bundle :entity_type entities do not exist:` |
+| `Given the following eck :bundle :entity_type entities exist:` | `Given the following ECK :bundle :entity_type entities exist:` |
+| `When I edit eck :bundle :entity_type entity with the title :title` | `When I visit the ECK :bundle :entity_type entity edit page with the title :title` |
+| `When I visit eck :bundle :entity_type entity with the title :title` | `When I visit the ECK :bundle :entity_type entity page with the title :title` |
 
 #### ElementTrait
 
@@ -557,6 +539,7 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | `Then the element :selector should not have the CSS property :property with the value containing :value` | `Then the element :selector should not have the CSS property :property with a value containing :partial_value` |
 | `Then the element :selector with the attribute :attribute and the value containing :value should exist` | `Then the element :selector with the attribute :attribute and a value containing :partial_value should exist` |
 | `Then the element :selector with the attribute :attribute and the value containing :value should not exist` | `Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist` |
+| `Then the text :text1 should appear after the text :text2` | `Then I should see the text :text1 after the text :text2` |
 
 #### EmailTrait
 
@@ -564,39 +547,44 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | --- | --- |
 | `When I follow link number :link_number in the email with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
 | `When I follow link number :link_number in the email with the subject containing :subject` | `When I follow the link with the index :index in the email with a subject containing :partial_subject` |
-| `Then an email should be sent to the :address` | `Then an email should be sent to the address :address` |
-| `Then no emails should have been sent` | `Then an email should not be sent` |
-| `Then no emails should have been sent to the :address` | `Then an email should not be sent to the address :address` |
+| `Then an email should be sent to the :address` | `Then an email should have been sent to the address :address` |
+| `Then an email should be sent to the address :address with the content containing:` | `Then an email should have been sent to the address :address with the content containing:` |
+| `Then an email should be sent to the address :address with the content not containing:` | `Then an email should have been sent to the address :address with the content not containing:` |
+| `Then an email should be sent to the address :address with the content:` | `Then an email should have been sent to the address :address with the content:` |
+| `Then an email should not be sent to the address :address with the content containing:` | `Then no emails should have been sent to the address :address with the content containing:` |
+| `Then an email should not be sent to the address :address with the content:` | `Then no emails should have been sent to the address :address with the content:` |
+| `Then no emails should have been sent to the :address` | `Then no emails should have been sent to the address :address` |
 | `Then the email header :header should exactly be:` | `Then the email header :header should be:` |
 | `Then the file :file_name should be attached to the email with the subject :subject` | `Then the file :filename should be attached to the email with the subject :subject` |
 | `Then the file :file_name should be attached to the email with the subject containing :subject` | `Then the file :filename should be attached to the email with a subject containing :partial_subject` |
 
 #### FieldTrait
 
-| 3.14 | 4.0 |
-| --- | --- |
-| `Given browser validation for the form :selector is disabled` | `Given the browser validation for the form :selector is disabled` |
-| `When I fill in the WYSIWYG field :field with the :value` | `When I fill in the WYSIWYG field :field with the value :value` |
-| `When I fill in the date part of the datetime field :label with :date` | `When I fill in the date part of the datetime field :label with the date :date` |
-| `When I fill in the datetime field :label with date :date and time :time` | `When I fill in the datetime field :label with the date :date and the time :time` |
-| `When I fill in the end datetime field :label with date :date and time :time` | `When I fill in the end datetime field :label with the date :date and the time :time` |
-| `When I fill in the field :selector with :value` | `When I fill in the field :selector with the value :value` |
-| `When I fill in the start datetime field :label with date :date and time :time` | `When I fill in the start datetime field :label with the date :date and the time :time` |
-| `When I fill in the time part of the datetime field :label with :time` | `When I fill in the time part of the datetime field :label with the time :time` |
-| `When I unselect :option from :selector` | `When I unselect the option :option from the select :selector` |
-| `Then the field :name should exist` | `Then the field :field should exist` |
-| `Then the field :name should have :enabled_or_disabled state` | `Then the field :field should have the :enabled_or_disabled state` |
-| `Then the field :name should not exist` | `Then the field :field should not exist` |
-| `Then the option :option should be selected within the select element :selector` | `Then the option :option within the select :selector should be selected` |
-| `Then the option :option should exist within the select element :selector` | `Then the option :option within the select :selector should exist` |
-| `Then the option :option should not be selected within the select element :selector` | `Then the option :option within the select :selector should not be selected` |
-| `Then the option :option should not exist within the select element :selector` | `Then the option :option within the select :selector should not exist` |
+| 3.14 | 4.0 | Notes |
+| --- | --- | --- |
+| `Given browser validation for the form :selector is disabled` | `Given the browser validation for the form :selector is disabled` | |
+| `When I fill in the WYSIWYG field :field with the :value` | `When I fill in the WYSIWYG field :field with :value` | |
+| `When I fill in the color field :field with the value :value` | `When I fill in the color field :field with :value` | |
+| `When I fill in the datetime field :label with date :date and time :time` | `When I fill in the datetime field :label with the date :date and the time :time` | |
+| `When I fill in the end datetime field :label with date :date and time :time` | `When I fill in the end datetime field :label with the date :date and the time :time` | |
+| `When I fill in the start datetime field :label with date :date and time :time` | `When I fill in the start datetime field :label with the date :date and the time :time` | |
+| `When I unselect :option from :selector` | `When I unselect the option :option from the select :selector` | |
+| `Then the field :name should exist` | `Then the field :field should exist` | |
+| `Then the field :name should have :enabled_or_disabled state` | `Then the field :field should be enabled` | For the `disabled` state, the step is `Then the field :field should be disabled`. Any other value used to assert an enabled field |
+| `Then the field :name should not exist` | `Then the field :field should not exist` | |
+| `Then the option :option should be selected within the select element :selector` | `Then the option :option within the select :selector should be selected` | |
+| `Then the option :option should exist within the select element :selector` | `Then the option :option within the select :selector should exist` | |
+| `Then the option :option should not be selected within the select element :selector` | `Then the option :option within the select :selector should not be selected` | |
+| `Then the option :option should not exist within the select element :selector` | `Then the option :option within the select :selector should not exist` | |
 
 #### FileDownloadTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
 | `Then the downloaded file name should contain :file_name_part` | `Then the downloaded file name should contain :partial_name` |
+| `Then the downloaded file should be a zip archive containing the following files named:` | `Then the downloaded file should be a zip archive containing files with the following names:` |
+| `Then the downloaded file should be a zip archive containing the following files partially named:` | `Then the downloaded file should be a zip archive containing files with the following partial names:` |
+| `Then the downloaded file should be a zip archive not containing the following files partially named:` | `Then the downloaded file should be a zip archive not containing files with the following partial names:` |
 
 #### FileTrait
 
@@ -604,8 +592,6 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | --- | --- |
 | `Given the following managed files:` | `Given the following managed files exist:` |
 | `Given the unmanaged file at the URI :uri exists with :content` | `Given the unmanaged file at the URI :uri exists with the content :content` |
-| `Then an unmanaged file at the URI :uri should contain :content` | `Then an unmanaged file at the URI :uri should contain the value :value` |
-| `Then an unmanaged file at the URI :uri should not contain :content` | `Then an unmanaged file at the URI :uri should not contain the value :value` |
 
 #### IframeTrait
 
@@ -620,16 +606,18 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | `Given the response JSON content is the following:` | `Given the response JSON is the following:` |
 | `Given the response JSON from the file :filename` | `Given the response JSON is loaded from the file :filename` |
 | `When I print last JSON response` | `When I print the last JSON response` |
-| `Then the JSON path :path should be equal to :value` | `Then the JSON path :path should be equal to the value :value` |
-| `Then the JSON path :path should contain :value` | `Then the JSON path :path should contain the value :value` |
-| `Then the JSON path :path should not be equal to :value` | `Then the JSON path :path should not be equal to the value :value` |
-| `Then the JSON path :path should not contain :value` | `Then the JSON path :path should not contain the value :value` |
+
+#### LinkTrait
+
+| 3.14 | 4.0 |
+| --- | --- |
+| `When I click on the link with the title :title` | `When I follow the link with the title :title` |
 
 #### MediaTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given :media_type media type does not exist` | `Given the media type :media_type does not exist` |
+| `Given :media_type media type does not exist` | `Given the :media_type media type does not exist` |
 | `Given the following :bundle media with fields:` | `Given the following :media_type media with fields exist:` |
 | `Given the following media :media_type do not exist:` | `Given the following :media_type media do not exist:` |
 | `Given the following media :media_type exist:` | `Given the following :media_type media exist:` |
@@ -637,66 +625,54 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | `When I visit the media :media_type delete page with the name :name` | `When I visit the :media_type media delete page with the name :name` |
 | `When I visit the media :media_type revisions page with the name :name` | `When I visit the :media_type media revisions page with the name :name` |
 | `When I visit the media :media_type with the name :name` | `When I visit the :media_type media page with the name :name` |
-| `Then the :media_type media type should exist` | `Then the media type :media_type should exist` |
-| `Then the :media_type media type should not exist` | `Then the media type :media_type should not exist` |
 
 #### MenuTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
+| `Given the following menu links do not exist in the menu :menu_name:` | `Given the following menu links do not exist in the :menu_name menu:` |
+| `Given the following menu links exist in the menu :menu_name:` | `Given the following menu links exist in the :menu_name menu:` |
 | `Given the following menus:` | `Given the following menus exist:` |
+| `Given the menu :menu_name does not exist` | `Given the :menu_name menu does not exist` |
 
 #### MetatagTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
 | `Then the :metaName meta tag should not contain any HTML tags` | `Then the meta tag :name should not contain any HTML tags` |
-| `Then the meta robots should include :directive` | `Then the meta robots should contain :directive` |
-| `Then the meta robots should not include :directive` | `Then the meta robots should not contain :directive` |
+| `Then the meta robots should include :directive` | `Then the robots meta tag should contain :directive` |
+| `Then the meta robots should not include :directive` | `Then the robots meta tag should not contain :directive` |
 
 #### ModalTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
 | `When I click on :selector in the modal` | `When I click on the element :selector in the modal` |
-| `Then I should not see the modal` | `Then the modal should not be displayed` |
-| `Then I should see the modal` | `Then the modal should be displayed` |
+| `Then the modal should contain :text` | `Then I should see :text in the modal` |
+| `Then the modal should not contain :text` | `Then I should not see :text in the modal` |
 
-#### ModuleTrait
+#### ParagraphsTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given the :module module is disabled` | `Given the module :module is disabled` |
-| `Given the :module module is enabled` | `Given the module :module is enabled` |
-| `Then the :module module should be disabled` | `Then the module :module should be disabled` |
-| `Then the :module module should be enabled` | `Then the module :module should be enabled` |
+| `Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:` | `Given the following fields for the :paragraph_type paragraph exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:` |
 
 #### PathTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given the basic authentication with the username :username and the password :password` | `Given the basic authentication has the username :username and the password :password` |
-| `Then current url should have the :param parameter` | `Then the current URL should have the query parameter :name` |
-| `Then current url should have the :param parameter with the :value value` | `Then the current URL should have the query parameter :name with the value :value` |
-| `Then current url should not have the :param parameter` | `Then the current URL should not have the query parameter :name` |
-| `Then current url should not have the :param parameter with the :value value` | `Then the current URL should not have the query parameter :name with the value :value` |
-
-#### QueueTrait
-
-| 3.14 | 4.0 |
-| --- | --- |
-| `Given the :queue queue is empty` | `Given the queue :queue is empty` |
-| `When I process :count item(s) from the :queue queue` | `When I process :count item(s) from the queue :queue` |
-| `When I process the :queue queue` | `When I process the queue :queue` |
-| `Then the :queue queue should be empty` | `Then the queue :queue should be empty` |
-| `Then the :queue queue should have :count item(s)` | `Then the queue :queue should have :count item(s)` |
+| `Given the basic authentication with the username :username and the password :password` | `Given I am using basic authentication with the username :username and the password :password` |
+| `Then current url should have the :param parameter` | `Then the URL should have the query parameter :name` |
+| `Then current url should have the :param parameter with the :value value` | `Then the URL should have the query parameter :name with the value :value` |
+| `Then current url should not have the :param parameter` | `Then the URL should not have the query parameter :name` |
+| `Then current url should not have the :param parameter with the :value value` | `Then the URL should not have the query parameter :name with the value :value` |
 
 #### ResponseTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Then the response header :header_name should contain the value :header_value` | `Then the response header :name should contain the value :value` |
-| `Then the response header :header_name should not contain the value :header_value` | `Then the response header :name should not contain the value :value` |
+| `Then the response header :header_name should contain the value :header_value` | `Then the response header :name should contain :value` |
+| `Then the response header :header_name should not contain the value :header_value` | `Then the response header :name should not contain :value` |
 | `Then the response should contain the header :header_name` | `Then the response should contain the header :name` |
 | `Then the response should not contain the header :header_name` | `Then the response should not contain the header :name` |
 
@@ -705,15 +681,13 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | 3.14 | 4.0 |
 | --- | --- |
 | `Given the following responsive breakpoints:` | `Given the following responsive breakpoints exist:` |
-| `When I set the viewport to the :breakpoint breakpoint` | `When I set the viewport to the breakpoint :breakpoint` |
 
 #### RestTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
 | `Given a REST header :name with value :value` | `Given the REST header :name has the value :value` |
-| `When I send a REST :method request to :url` | `When I send a REST :method request to the URL :url` |
-| `When I send a REST :method request to :url with body:` | `When I send a REST :method request to the URL :url with the body:` |
+| `When I send a REST :method request to :url with body:` | `When I send a REST :method request to :url with the body:` |
 
 #### StateTrait
 
@@ -725,8 +699,7 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Then the :rowText row should contain the following:` | `Then the row containing :partial_text should contain the following:` |
-| `Then the table :selector should be sorted by :column in :direction order` | `Then the table :selector should be sorted by the column :column in :direction order` |
+| `Then the :rowText row should contain the following:` | `Then I should see the following text in the row containing :partial_text:` |
 
 #### TaxonomyTrait
 
@@ -737,17 +710,17 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | `When I visit the :vocabulary_machine_name term delete page with the name :term_name` | `When I visit the :vocabulary term delete page with the name :name` |
 | `When I visit the :vocabulary_machine_name term edit page with the name :term_name` | `When I visit the :vocabulary term edit page with the name :name` |
 | `When I visit the :vocabulary_machine_name term page with the name :term_name` | `When I visit the :vocabulary term page with the name :name` |
-| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist` | `Then the taxonomy term :name from the vocabulary :vocabulary should exist` |
-| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist` | `Then the taxonomy term :name from the vocabulary :vocabulary should not exist` |
-| `Then the vocabulary :machine_name should not exist` | `Then the vocabulary :vocabulary should not exist` |
-| `Then the vocabulary :machine_name with the name :name should exist` | `Then the vocabulary :vocabulary with the name :name should exist` |
+| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should exist` | `Then the :vocabulary term with the name :name should exist` |
+| `Then the taxonomy term :term_name from the vocabulary :vocabulary_machine_name should not exist` | `Then the :vocabulary term with the name :name should not exist` |
+| `Then the vocabulary :machine_name should not exist` | `Then the :vocabulary vocabulary should not exist` |
+| `Then the vocabulary :machine_name with the name :name should exist` | `Then the :vocabulary vocabulary with the name :name should exist` |
 
 #### TimeTrait
 
 | 3.14 | 4.0 |
 | --- | --- |
 | `When I reset system time` | `When I reset the system time` |
-| `When I set system time to :value` | `When I set the system time to the value :value` |
+| `When I set system time to :value` | `When I set the system time to :value` |
 
 #### UserTrait
 
@@ -755,11 +728,16 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | --- | --- |
 | `Given the following roles:` | `Given the following roles exist:` |
 | `Given the following users with fields:` | `Given the following users with fields exist:` |
-| `Given the role :role_name with the permissions :permissions` | `Given the role :role has the permissions :permissions` |
+| `Given the role :role_name with the permissions :permissions` | `Given the :role role has the :permissions permission(s)` |
 | `When I visit :name user profile delete page` | `When I visit the profile delete page of the user :name` |
 | `When I visit :name user profile edit page` | `When I visit the profile edit page of the user :name` |
 | `When I visit :name user profile page` | `When I visit the profile page of the user :name` |
+| `When I visit my own user profile delete page` | `When I visit my own profile delete page` |
+| `When I visit my own user profile edit page` | `When I visit my own profile edit page` |
+| `When I visit my own user profile page` | `When I visit my own profile page` |
 | `When I visit the password reset link for :name` | `When I visit the password reset link for the user :name` |
+| `Then the user :name should have the role(s) :roles assigned` | `Then the user :name should have the :roles role(s)` |
+| `Then the user :name should not have the role(s) :roles assigned` | `Then the user :name should not have the :roles role(s)` |
 | `Then the user with the email :mail should exist` | `Then the user with the email :address should exist` |
 | `Then the user with the email :mail should not exist` | `Then the user with the email :address should not exist` |
 
@@ -767,7 +745,7 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given a webform :title from template :template` | `Given the webform :title exists from the template :template` |
+| `Given a webform :title from template :template` | `Given the webform :title has been created from the template :template` |
 
 #### XmlTrait
 
@@ -776,71 +754,64 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | `Given the response content from the file :filename` | `Given the response XML is loaded from the file :filename` |
 | `Given the response content is the following:` | `Given the response XML is the following:` |
 | `When I print last XML response` | `When I print the last XML response` |
-| `Then the XML attribute :attribute on element :element should be equal to :text` | `Then the XML attribute :attribute on the element :element should be equal to the value :value` |
+| `Then the XML attribute :attribute on element :element should be equal to :text` | `Then the XML attribute :attribute on the element :element should be equal to :value` |
 | `Then the XML attribute :attribute on element :element should exist` | `Then the XML attribute :attribute on the element :element should exist` |
-| `Then the XML attribute :attribute on element :element should not be equal to :text` | `Then the XML attribute :attribute on the element :element should not be equal to the value :value` |
+| `Then the XML attribute :attribute on element :element should not be equal to :text` | `Then the XML attribute :attribute on the element :element should not be equal to :value` |
 | `Then the XML attribute :attribute on element :element should not exist` | `Then the XML attribute :attribute on the element :element should not exist` |
-| `Then the XML attribute :attribute_name on element :element should contain :text` | `Then the XML attribute :attribute on the element :element should contain the value :value` |
-| `Then the XML attribute :attribute_name on element :element should not contain :text` | `Then the XML attribute :attribute on the element :element should not contain the value :value` |
-| `Then the XML element :element should be equal to :text` | `Then the XML element :element should be equal to the value :value` |
-| `Then the XML element :element should contain :text` | `Then the XML element :element should contain the value :value` |
-| `Then the XML element :element should not be equal to :text` | `Then the XML element :element should not be equal to the value :value` |
-| `Then the XML element :element should not contain :text` | `Then the XML element :element should not contain the value :value` |
+| `Then the XML attribute :attribute_name on element :element should contain :text` | `Then the XML attribute :attribute on the element :element should contain :value` |
+| `Then the XML attribute :attribute_name on element :element should not contain :text` | `Then the XML attribute :attribute on the element :element should not contain :value` |
+| `Then the XML element :element should be equal to :text` | `Then the XML element :element should be equal to :value` |
+| `Then the XML element :element should contain :text` | `Then the XML element :element should contain :value` |
+| `Then the XML element :element should not be equal to :text` | `Then the XML element :element should not be equal to :value` |
+| `Then the XML element :element should not contain :text` | `Then the XML element :element should not contain :value` |
 
 ### Drupal Extension steps
 
-The Drupal Extension's contexts are gone, and the step traits carry their vocabulary in this package's grammar. The steps Mink's `MinkContext` registers keep their text and aren't listed, as [Contexts to register](#contexts-to-register) describes. A row noted "Mink's step" maps to one of them. Mink registers its steps as regular expressions, so each value in one goes in double quotes, apart from a status code, which is a bare number: `Then the response status code should be 200`.
+The Drupal Extension's contexts are gone, and the step traits carry their vocabulary. A Drupal Extension step that 4.0 registers with the same text isn't listed. The steps Mink's `MinkContext` registers keep their text and aren't listed either, as [Contexts to register](#contexts-to-register) describes. A row noted "Mink's step" maps to one of them. Mink registers its steps as regular expressions, so each value in one goes in double quotes, apart from a status code, which is a bare number: `Then the response status code should be 200`.
 
 #### Session and users
 
 | 3.14 | 4.0 | Notes |
 | --- | --- | --- |
-| `Given I am an anonymous user` | `Given the user is anonymous` | |
-| `Given I am not logged in` | `Given the user is anonymous` | |
-| `When I log out` | `When I log out` | |
-| `Given I am logged in as a user with the :role role(s)` | `When I log in as a user with the role(s) :roles` | For the `anonymous` or `anonymous user` role, which 3.14's `OverrideTrait` turned into a logout, write `Given the user is anonymous` |
-| `Given I am logged in as a/an :role` | `When I log in as a user with the role(s) :roles` | |
-| `Given I am logged in as a user with the :role role(s) and I have the following fields:` | `When I log in as a user with the role(s) :roles and the following fields:` | |
-| `Given I am logged in as a user with the :permissions permission(s)` | `When I log in as a user with the permission(s) :permissions` | |
-| `Given I am logged in as :name` | `When I log in as the user :name` | |
+| `Given I am not logged in` | `Given I am an anonymous user` | |
+| `Given I am logged in as a user with the :role role(s)` | `Given I am logged in as a user with the :roles role(s)` | For the `anonymous` or `anonymous user` role, which 3.14's `OverrideTrait` turned into a logout, write `Given I am an anonymous user` |
+| `Given I am logged in as a/an :role` | `Given I am logged in as a user with the :roles role(s)` | |
 | `Given the following users:` | `Given the following users exist:` | 3.14's `OverrideTrait` deleted the users the table named before creating them. The 4.0 step doesn't, so a scenario that relied on it adds `Given the following users do not exist:` first |
 
 #### Content, terms, entities and languages
 
 | 3.14 | 4.0 | Notes |
 | --- | --- | --- |
-| `Given the following :type content:` | `Given the following :content_type content exist:` | 3.14's `OverrideTrait` deleted the nodes the table named before creating them. The 4.0 step doesn't, so a scenario that relied on it adds `Given the following :content_type content do not exist:` first |
+| `Given the following :type content:` | `Given the following :content_type content exists:` | 3.14's `OverrideTrait` deleted the nodes the table named before creating them. The 4.0 step doesn't, so a scenario that relied on it adds `Given the following :content_type content does not exist:` first |
 | `Given the following :vocabulary terms:` | `Given the following :vocabulary terms exist:` | |
 | `Given the following :type entities:` | `Given the following :entity_type entities exist:` | |
 | `Given the/these (following )languages are available:` | `Given the following languages exist:` | |
-| `Given a/an :type with the title :title` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given a/an :type content with the title :title` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing a/an :type with the title :title` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing a/an :type content with the title :title` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing a/an :type with the following fields:` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing a/an :type content with the following fields:` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content page with the title :title` | |
-| `Given I am viewing my :type with the title :title` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content page with the title :title` | Give the table an `author` column |
-| `Given I am viewing my :type content with the title :title` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content page with the title :title` | Give the table an `author` column |
+| `Given a/an :type with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
+| `Given a/an :type content with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
+| `Given I am viewing a/an :type with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
+| `Given I am viewing a/an :type content with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
+| `Given I am viewing a/an :type with the following fields:` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
+| `Given I am viewing a/an :type content with the following fields:` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | |
+| `Given I am viewing my :type with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table an `author` column |
+| `Given I am viewing my :type content with the title :title` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content page with the title :title` | Give the table an `author` column |
 | `Given a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:`<br>`When I visit the :vocabulary term page with the name :name` | |
 | `Given I am viewing a/an :vocabulary term with the name :name` | `Given the following :vocabulary terms exist:`<br>`When I visit the :vocabulary term page with the name :name` | |
-| `Then I should be able to edit the :type` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content edit page with the title :title`<br>`Then the response status code should be 200` | |
-| `Then I should be able to edit the :type content` | `Given the following :content_type content exist:`<br>`When I visit the :content_type content edit page with the title :title`<br>`Then the response status code should be 200` | |
+| `Then I should be able to edit the :type` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content edit page with the title :title`<br>`Then the response status code should be 200` | |
+| `Then I should be able to edit the :type content` | `Given the following :content_type content exists:`<br>`When I visit the :content_type content edit page with the title :title`<br>`Then the response status code should be 200` | |
 
 #### Cache, cron, batch and queues
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given the cache has been cleared` | `Given the cache is empty` |
 | `Given I run cron` | `When I run cron` |
 | `Given I wait for the batch job to finish` | `When I wait for the batch job to finish` |
-| `Given the following item is in the system queue:` | `Given the following item is in the queue :queue:` |
+| `Given the following item is in the system queue:` | `Given the following item is in the :queue queue:` |
 
 #### Navigation, buttons, headings and fields
 
 | 3.14 | 4.0 | Notes |
 | --- | --- | --- |
 | `Given I am at :path` | `When I visit :path`<br>`Then the response status code should be 200` | |
-| `When I visit :path` | `When I visit :path` | |
 | `When I click :link` | `When I follow :link` | Mink's step |
 | `Given for :field I enter :value` | `When I fill in :field with :value` | Mink's step |
 | `Given I enter :value for :field` | `When I fill in :value for :field` | Mink's step |
@@ -856,45 +827,39 @@ The Drupal Extension's contexts are gone, and the step traits carry their vocabu
 | `Then I should not get a :code HTTP response` | `Then the response status code should not be :code` | Mink's step |
 | `Then I should see the text :text` | `Then I should see :text` | Mink's step |
 | `Then I should not see the text :text` | `Then I should not see :text` | Mink's step |
-| `Then I should see the link :link` | `Then the link :link with the href :href should exist` | Also matches the target, so supply the URL the link points at |
-| `Then I should not see the link :link` | `Then the link :link with the href :href should not exist` | Also matches the target, so supply the URL the link points at |
 | `Then I should not visibly see the link :link` | `Then the element :selector should not be displayed` | |
-| `Then I should see the button :button` | `Then the button :button should exist` | |
-| `Then I should see the :button button` | `Then the button :button should exist` | |
-| `Then I should not see the button :button` | `Then the button :button should not exist` | |
-| `Then I should not see the :button button` | `Then the button :button should not exist` | |
-| `Then I should see the heading :heading` | `Then the heading :heading should exist` | |
-| `Then I should not see the heading :heading` | `Then the heading :heading should not exist` | |
+| `Then I should see the :button button` | `Then I should see the button :button` | |
+| `Then I should not see the :button button` | `Then I should not see the button :button` | |
 
 #### Regions
 
-The region steps drop the optional `( region)` suffix. An action names the region last, and an assertion names it with the subject it narrows, before `should`.
+The region steps name the region the way the Drupal Extension did, with `region` always after it. An action names what it acts on (`the link`, `the button`, `the field`, `the checkbox`), and a link is followed rather than clicked. `I should see :text` drops `the text`. A step about an element named by a selector starts with the element and names the region with it, before `should`.
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `When I follow/click :link in the :region( region)` | `When I click on the link :link in the region :region` |
-| `Given I press :button in the :region( region)` | `When I press the button :button in the region :region` |
-| `Given I fill in :field with :value in the :region( region)` | `When I fill in the field :field with the value :value in the region :region` |
-| `Given I fill in :value for :field in the :region( region)` | `When I fill in the field :field with the value :value in the region :region` |
-| `Given I check :locator in the :region( region)` | `When I check the checkbox :checkbox in the region :region` |
-| `Given I uncheck :checkbox in the :region( region)` | `When I uncheck the checkbox :checkbox in the region :region` |
-| `Then I should see( the text) :text in the :region( region)` | `Then the region :region should contain the value :value` |
-| `Then I should not see( the text) :text in the :region( region)` | `Then the region :region should not contain the value :value` |
-| `Then I should see the heading :heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
-| `Then I should see the :heading heading in the :region( region)` | `Then the region :region should contain the heading :heading` |
-| `Then I should see the link :link in the :region( region)` | `Then the link :link in the region :region should exist` |
-| `Then I should not see the link :link in the :region( region)` | `Then the link :link in the region :region should not exist` |
-| `Then I should see the button :button in the :region( region)` | `Then the button :button in the region :region should exist` |
-| `Then I should see the :button button in the :region( region)` | `Then the button :button in the region :region should exist` |
-| `Then I should not see the button :button in the :region( region)` | `Then the button :button in the region :region should not exist` |
-| `Then I should not see the :button button in the :region( region)` | `Then the button :button in the region :region should not exist` |
-| `Then I should see the :tag element in the :region( region)` | `Then the element :selector in the region :region should exist` |
-| `Then I should not see the :tag element in the :region( region)` | `Then the element :selector in the region :region should not exist` |
-| `Then I should see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should have the value :value` |
-| `Then I should not see :text in the :tag element in the :region( region)` | `Then the element :selector in the region :region should not have the value :value` |
-| `Then I should see the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector in the region :region should have the attribute :attribute with the value :value` |
-| `Then I should see :text in the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector with the text :text in the region :region should have the attribute :attribute with the value :value` |
-| `Then I should see :text in the :tag element with the :property CSS property set to :value in the :region( region)` | `Then the element :selector with the text :text in the region :region should have the CSS property :property with the value :value` |
+| `When I follow/click :link in the :region( region)` | `When I follow the link :link in the :region region` |
+| `Given I press :button in the :region( region)` | `When I press the button :button in the :region region` |
+| `Given I fill in :field with :value in the :region( region)` | `When I fill in the field :field with :value in the :region region` |
+| `Given I fill in :value for :field in the :region( region)` | `When I fill in the field :field with :value in the :region region` |
+| `Given I check :locator in the :region( region)` | `When I check the checkbox :checkbox in the :region region` |
+| `Given I uncheck :checkbox in the :region( region)` | `When I uncheck the checkbox :checkbox in the :region region` |
+| `Then I should see( the text) :text in the :region( region)` | `Then I should see :text in the :region region` |
+| `Then I should not see( the text) :text in the :region( region)` | `Then I should not see :text in the :region region` |
+| `Then I should see the heading :heading in the :region( region)` | `Then I should see the heading :heading in the :region region` |
+| `Then I should see the :heading heading in the :region( region)` | `Then I should see the heading :heading in the :region region` |
+| `Then I should see the link :link in the :region( region)` | `Then I should see the link :link in the :region region` |
+| `Then I should not see the link :link in the :region( region)` | `Then I should not see the link :link in the :region region` |
+| `Then I should see the button :button in the :region( region)` | `Then I should see the button :button in the :region region` |
+| `Then I should see the :button button in the :region( region)` | `Then I should see the button :button in the :region region` |
+| `Then I should not see the button :button in the :region( region)` | `Then I should not see the button :button in the :region region` |
+| `Then I should not see the :button button in the :region( region)` | `Then I should not see the button :button in the :region region` |
+| `Then I should see the :tag element in the :region( region)` | `Then the element :selector in the :region region should exist` |
+| `Then I should not see the :tag element in the :region( region)` | `Then the element :selector in the :region region should not exist` |
+| `Then I should see :text in the :tag element in the :region( region)` | `Then the element :selector in the :region region should have the value :value` |
+| `Then I should not see :text in the :tag element in the :region( region)` | `Then the element :selector in the :region region should not have the value :value` |
+| `Then I should see the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector in the :region region should have the attribute :attribute with the value :value` |
+| `Then I should see :text in the :tag element with the :attribute attribute set to :value in the :region( region)` | `Then the element :selector with the text :text in the :region region should have the attribute :attribute with the value :value` |
+| `Then I should see :text in the :tag element with the :property CSS property set to :value in the :region( region)` | `Then the element :selector with the text :text in the :region region should have the CSS property :property with the value :value` |
 
 #### Messages
 
@@ -902,31 +867,25 @@ The `( containing)` variants are gone: every message step matches on a substring
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Then I should see the message( containing) :message` | `Then the message :message should exist` |
-| `Then I should not see the message( containing) :message` | `Then the message :message should not exist` |
-| `Then I should see the error message( containing) :message` | `Then the error message :message should exist` |
-| `Then I should not see the error message( containing) :message` | `Then the error message :message should not exist` |
-| `Then I should see the success message( containing) :message` | `Then the success message :message should exist` |
-| `Then I should not see the success message( containing) :message` | `Then the success message :message should not exist` |
-| `Then I should see the warning message( containing) :message` | `Then the warning message :message should exist` |
-| `Then I should not see the warning message( containing) :message` | `Then the warning message :message should not exist` |
-| `Then I should see the following error message(s):` | `Then the following error messages should exist:` |
-| `Then I should not see the following error messages:` | `Then the following error messages should not exist:` |
-| `Then I should see the following success messages:` | `Then the following success messages should exist:` |
-| `Then I should not see the following success messages:` | `Then the following success messages should not exist:` |
-| `Then I should see the following warning message(s):` | `Then the following warning messages should exist:` |
-| `Then I should not see the following warning messages:` | `Then the following warning messages should not exist:` |
+| `Then I should see the message( containing) :message` | `Then I should see the message :message` |
+| `Then I should not see the message( containing) :message` | `Then I should not see the message :message` |
+| `Then I should see the error message( containing) :message` | `Then I should see the error message :message` |
+| `Then I should not see the error message( containing) :message` | `Then I should not see the error message :message` |
+| `Then I should see the success message( containing) :message` | `Then I should see the success message :message` |
+| `Then I should not see the success message( containing) :message` | `Then I should not see the success message :message` |
+| `Then I should see the warning message( containing) :message` | `Then I should see the warning message :message` |
+| `Then I should not see the warning message( containing) :message` | `Then I should not see the warning message :message` |
 
 #### Table rows
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given I click :link in the :rowText row` | `When I click on the link :link in the row containing :partial_text` |
+| `Given I click :link in the :rowText row` | `When I follow the link :link in the row containing :partial_text` |
 | `Given I press :button in the :rowText row` | `When I press the button :button in the row containing :partial_text` |
-| `Then I should see the text :text in the :rowText row` | `Then the row containing :partial_text should contain the value :value` |
-| `Then I should not see the text :text in the :rowText row` | `Then the row containing :partial_text should not contain the value :value` |
-| `Then I should see the :link in the :rowText row` | `Then the link :link in the row containing :partial_text should exist` |
-| `Then I should not see the :link in the :rowText row` | `Then the link :link in the row containing :partial_text should not exist` |
+| `Then I should see the text :text in the :rowText row` | `Then I should see the text :text in the row containing :partial_text` |
+| `Then I should not see the text :text in the :rowText row` | `Then I should not see the text :text in the row containing :partial_text` |
+| `Then I should see the :link in the :rowText row` | `Then I should see the link :link in the row containing :partial_text` |
+| `Then I should not see the :link in the :rowText row` | `Then I should not see the link :link in the row containing :partial_text` |
 
 #### Mail
 
@@ -937,9 +896,9 @@ The `( containing)` variants are gone: every message step matches on a substring
 | `When I send the following mail:` | Removed | Trigger the site behavior that sends the mail |
 | `When I send the following email:` | Removed | Trigger the site behavior that sends the mail |
 | `Then the following (e)mail(s) should have been sent:` | `Then the email field :field should contain:` | |
-| `Then the following (e)mail(s) should have been sent to :to:` | `Then an email should be sent to the address :address with the content:` | |
+| `Then the following (e)mail(s) should have been sent to :to:` | `Then an email should have been sent to the address :address with the content:` | |
 | `Then the following (e)mail(s) should have been sent with the subject :subject:` | `Then the email field :field should be:` | Name `subject` as the field |
-| `Then the following (e)mail(s) should have been sent to :to with the subject :subject:` | `Then an email should be sent to the address :address with the content:`<br>`Then the email field :field should be:` | Name `subject` as the field of the second step |
+| `Then the following (e)mail(s) should have been sent to :to with the subject :subject:` | `Then an email should have been sent to the address :address with the content:`<br>`Then the email field :field should be:` | Name `subject` as the field of the second step |
 | `Then the following new (e)mail(s) should have been sent...` | Removed | Clear the queue before the action, then use the matching step without `new` |
 | `Then there should be a total of :count (e)mail(s) sent` | `Then the number of sent emails should be :count` | |
 | `Then there should be a total of :count (e)mail(s) sent to :to` | `Then the number of emails sent to the address :address should be :count` | |
@@ -984,10 +943,6 @@ The Drupal Extension matched a subject in part and in any case. `with the subjec
 | `Given I run drush :command :arguments` | `When I run the drush command :command with the arguments :arguments` |
 | `Given I run the failing drush command :command` | `When I run the failing drush command :command` |
 | `Given I run the failing drush command :command :arguments` | `When I run the failing drush command :command with the arguments :arguments` |
-| `When I print the last drush output` | `When I print the last drush output` |
-| `Then the drush output should contain :output` | `Then the drush output should contain the value :value` |
-| `Then the drush output should not contain :output` | `Then the drush output should not contain the value :value` |
-| `Then the drush output should match :regex` | `Then the drush output should match the pattern :pattern` |
 
 #### AJAX and debugging
 
@@ -1115,7 +1070,7 @@ The count must be 0 or greater, but "-1" was given.
 | Every step whose method took an `int`: the queue, table and element counts, the element index, tolerance and offset steps, and `the REST response status code should be :code` | Behat's `Type error: ... must be of type int, string given` | `\RuntimeException` |
 | `I wait for :seconds second(s)`, `I wait for :seconds second(s) for AJAX to finish` and `I run search indexing for :count item(s)` | Read as `0` | `\RuntimeException` |
 | `the number of sent emails should be :count` and the 2 other email count steps | Read as `0`, and `no`, `a` and `an` read as `0`, `1` and `1` | `\RuntimeException`; write the number |
-| `the XML element :element should have :count element(s)` and `I set the system time to the value :value` | Read as `0` | `\RuntimeException` |
+| `the XML element :element should have :count element(s)` and `I set the system time to :value` | Read as `0` | `\RuntimeException` |
 | `I set the viewport width to :width`, `I set the viewport height to :height` and `I set the viewport to :width by :height` | Read as `0`, and the resize failed without a word | `\RuntimeException` |
 
 PHP's coercion was looser than the `int` type suggested: `1e3` read as 1000, and `3.5` read as 3 with a deprecation notice, which only failed the step where PHP reports deprecations. Both now fail with `\RuntimeException`. A value below what a step accepts fails the same way: a count below 0, a link index below 1, a viewport width or height below 1, a wait below 0 seconds and a command duration below 0.
@@ -1140,11 +1095,11 @@ When several entities share the title, label, name or description a step names, 
 | `MenuTrait` (a menu by label, a link by title), `DraggableviewsTrait`, `EckTrait` | The first match the database returned | The newest match |
 | `ParagraphsTrait` (the parent entity) | The last match the database returned | The newest match |
 | `BlockTrait` | The last machine name in string order, so `block_9` won over `block_10` | The block the scenario placed last, otherwise the last machine name in natural order |
-| `WebformTrait` (`the webform :title exists from the template :template`) | The first template sorted by title, then by machine name | The template the scenario created last, otherwise the one with the last machine name in natural order |
+| `WebformTrait` (`the webform :title has been created from the template :template`) | The first template sorted by title, then by machine name | The template the scenario created last, otherwise the one with the last machine name in natural order |
 
 An entity saved again after a newer one was created no longer wins: content entities are compared by ID, which only grows when an entity is created. Blocks and menus have machine names instead of numeric IDs, so the one the scenario created last wins over any the site already held.
 
-`the menu :menu_name does not exist` and `the following menu links do not exist in the menu :menu_name:` now remove every menu and every link that matches, as every other `... does not exist` step already did. They used to remove 1.
+`the :menu_name menu does not exist` and `the following menu links do not exist in the :menu_name menu:` now remove every menu and every link that matches, as every other `... does not exist` step already did. They used to remove 1.
 
 ### Relative dates
 
@@ -1158,15 +1113,15 @@ An entity saved again after a newer one was created no longer wins: content enti
 
 | Step | `?filter=0` in 3.14 | `?filter=0` in 4.0 |
 | --- | --- | --- |
-| `Then the current URL should have the query parameter :name` | Fails | Passes |
-| `Then the current URL should have the query parameter :name with the value :value` | Fails | Passes for the value `0` |
-| `Then the current URL should not have the query parameter :name` | Passes | Fails |
-| `Then the current URL should not have the query parameter :name with the value :value` | Passes | Fails for the value `0` |
+| `Then the URL should have the query parameter :name` | Fails | Passes |
+| `Then the URL should have the query parameter :name with the value :value` | Fails | Passes for the value `0` |
+| `Then the URL should not have the query parameter :name` | Passes | Fails |
+| `Then the URL should not have the query parameter :name with the value :value` | Passes | Fails for the value `0` |
 
 A scenario that asserted a falsy parameter away with `Then current url should not have the "filter" parameter` names the value it excludes:
 
 ```gherkin
-Then the current URL should not have the query parameter "filter" with the value "recent"
+Then the URL should not have the query parameter "filter" with the value "recent"
 ```
 
 ### Email
@@ -1196,15 +1151,15 @@ Then the file "report.xlsx" should be attached to the email with a subject conta
 
 ### Page cache
 
-`Given the page cache for the path :path is empty` named 1 path but cleared every page: it invalidated the `http_response` cache tag, which Drupal puts on every cacheable response, so it emptied the whole internal page cache and the whole dynamic page cache. `Given the page cache for the paths matching :path_pattern is empty` matched its pattern anywhere in the cached URL, so `/news*` also cleared `/archive/news`, and a pattern with no `*` cleared every path that contained it.
+`Given the page cache for the path :path has been cleared` named 1 path but cleared every page: it invalidated the `http_response` cache tag, which Drupal puts on every cacheable response, so it emptied the whole internal page cache and the whole dynamic page cache. `Given the page cache for the paths matching :path_pattern has been cleared` matched its pattern anywhere in the cached URL, so `/news*` also cleared `/archive/news`, and a pattern with no `*` cleared every path that contained it.
 
 Both steps now delete the internal page cache entries whose path matches. The match ignores the host, the query string and the request format, so clearing `/about` clears `/about?page=2` too. A pattern matches the whole path, from its first character, and `*` matches any run of characters, `/` included, so a site served under a base path includes it, as in `/subdir/news*`. That holds on the database backend, which holds the page cache by default and is the only cache backend that can list its entries. A page cache bin on Redis, Memcache or any other backend is emptied whole instead, so the steps never leave a stale entry behind.
 
 | Step | 3.14 | 4.0 |
 | --- | --- | --- |
-| `Given the page cache for the path "/about" is empty` | Empties the internal and dynamic page caches for every path | Deletes the internal page cache entries for `/about` |
-| `Given the page cache for the paths matching "/news*" is empty` | Deletes every entry whose URL contains `/news` | Deletes the entries whose path starts with `/news` |
-| `Given the page cache for the paths matching "/news" is empty` | Deletes every entry whose URL contains `/news` | Deletes the entries for `/news` |
+| `Given the page cache for the path "/about" has been cleared` | Empties the internal and dynamic page caches for every path | Deletes the internal page cache entries for `/about` |
+| `Given the page cache for the paths matching "/news*" has been cleared` | Deletes every entry whose URL contains `/news` | Deletes the entries whose path starts with `/news` |
+| `Given the page cache for the paths matching "/news" has been cleared` | Deletes every entry whose URL contains `/news` | Deletes the entries for `/news` |
 
 A scenario that leaned on the old reach, to refresh a path it didn't name or a page the dynamic page cache serves to a logged-in user, switches to a step that says what it clears:
 
@@ -1213,10 +1168,10 @@ A scenario that leaned on the old reach, to refresh a path it didn't name or a p
 Given the page cache for the path "/about" has been cleared
 
 # After: every internal page cache entry.
-Given the page cache for the paths matching "/*" is empty
+Given the page cache for the paths matching "/*" has been cleared
 
 # After: every cache bin, the dynamic page cache included.
-Given the cache is empty
+Given the cache has been cleared
 ```
 
 A path or a pattern carrying a query string or a fragment fails with `The path "..." must not contain a query string or a fragment.`, or `The path pattern "..."` for a pattern. A cached path never holds either, so the argument could only match nothing; drop the query string, since the step covers every query string of the path already. A missing cache table only means nothing is cached yet, so both steps pass where the pattern step used to fail. They fail when the cache bin itself doesn't exist, which is the case when the `page_cache` module isn't enabled.
@@ -1247,7 +1202,7 @@ Then the element "#main-content" should be centered in the viewport
 
 ### Blocks
 
-- `the block :label has the condition :condition removed` reset the condition to its defaults instead of removing it, and added the condition to a block that didn't carry it. Drupal drops a condition left at its defaults when the block saves, so for the conditions core ships, the saved block came out the same, but a condition whose configuration doesn't return to its defaults stayed on the block. The step now removes the condition and leaves a block without it unchanged. A condition ID that names no condition plugin fails with `\RuntimeException` (`The condition "..." does not exist.`), where Drupal's `PluginNotFoundException` used to surface.
+- `the block :label has the :condition condition removed` reset the condition to its defaults instead of removing it, and added the condition to a block that didn't carry it. Drupal drops a condition left at its defaults when the block saves, so for the conditions core ships, the saved block came out the same, but a condition whose configuration doesn't return to its defaults stayed on the block. The step now removes the condition and leaves a block without it unchanged. A condition ID that names no condition plugin fails with `\RuntimeException` (`The condition "..." does not exist.`), where Drupal's `PluginNotFoundException` used to surface.
 - `the instance of the block :admin_label exists with the following configuration:` looked the block up again by its label after creating it, so an existing block with the same label could receive the configuration. It now configures the block it created, and registers it for removal before configuring it.
 
 ### Search API
@@ -1452,6 +1407,7 @@ Rename every call and every override. An override left under a 3.14 name is a me
 | `ElementTrait::elementPressButtonByIndex()` | `ElementTrait::elementPressButtonWithIndex()` | `string $label, int $index` is `string $button, string $index` |
 | `ElementTrait::elementScrollIntoViewCenter()` | `ElementTrait::elementGetScrollIntoViewCenter()` | Override point; now `public` |
 | `FieldTrait::fieldAssertColorFieldHasValue()` | `FieldTrait::fieldAssertColorFieldEquals()` | |
+| `FieldTrait::fieldAssertState()` | `FieldTrait::fieldAssertEnabled()` | Takes only `string $field`. For the `disabled` state, call `FieldTrait::fieldAssertDisabled()` |
 | `FieldTrait::fieldCheckboxCheck()` | `FieldTrait::fieldCheckCheckbox()` | |
 | `FieldTrait::fieldCheckboxUncheck()` | `FieldTrait::fieldUncheckCheckbox()` | |
 | `FieldTrait::fieldFillDatetimeHelper()` | `FieldTrait::fieldFillDatetimeInput()` | Protected |
@@ -1564,8 +1520,8 @@ Rename every call and every override. An override left under a 3.14 name is a me
 | `EmailTrait::emailFollowLinkNumberWithSubjectContaining()` | `EmailTrait::emailFollowLinkWithIndexWithSubjectContaining()` | `$link_number, $subject` is `$index, $partial_subject` |
 | `EmailTrait::emailGetMailSystemDefault()` | `EmailTrait::emailFindMailSystemDefault()` | Returns `NULL` when nothing matches; still `protected static` |
 | `EmailTrait::emailGetMailSystemOriginal()` | `EmailTrait::emailFindMailSystemOriginal()` | Returns `NULL` when nothing matches; still `protected static` |
-| `FileTrait::fileAssertUnmanagedHasContent()` | `FileTrait::fileAssertUnmanagedContains()` | `$content` is `$value` |
-| `FileTrait::fileAssertUnmanagedHasNoContent()` | `FileTrait::fileAssertUnmanagedNotContains()` | `$content` is `$value` |
+| `FileTrait::fileAssertUnmanagedHasContent()` | `FileTrait::fileAssertUnmanagedContains()` | |
+| `FileTrait::fileAssertUnmanagedHasNoContent()` | `FileTrait::fileAssertUnmanagedNotContains()` | |
 | `FileTrait::fileCreateManaged()` | `FileTrait::fileCreateManagedMultiple()` | The 3.14 name now belongs to another method |
 | `FileTrait::fileCreateManagedSingle()` | `FileTrait::fileCreateManaged()` | `EntityStub $stub` is `EntityStubInterface $stub`; now `public` |
 | `FileTrait::fileDeleteManagedFiles()` | `FileTrait::fileDeleteManagedMultiple()` | |
@@ -1827,10 +1783,6 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `AccessibilityTrait::accessibilityAggregateRollup()` | `array $pages` | `array $pages, array $impacts = []` |
 | `AccessibilityTrait::accessibilityResolveTags()` | `array $tags` | `BeforeScenarioScope $scope` |
 | `CommandTrait::commandAfterScenario()` | No parameters | `AfterScenarioScope $scope` |
-| `CommandTrait::commandAssertErrorOutputContains()` | `string $text` | `string $value` |
-| `CommandTrait::commandAssertOutputContains()` | `string $text` | `string $value` |
-| `CommandTrait::commandAssertOutputEquals()` | `string $text` | `string $value` |
-| `CommandTrait::commandAssertOutputNotContains()` | `string $text` | `string $value` |
 | `CommandTrait::commandBeforeScenario()` | No parameters | `BeforeScenarioScope $scope` |
 | `ContentBlockTrait::contentBlockAssertTypeExists()` | `string $type` | `string $content_block_type` |
 | `ContentBlockTrait::contentBlockLoadMultiple()` | `string $type, array $conditions = []` | `string $content_block_type, array $conditions = []` |
@@ -1847,7 +1799,6 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `EmailTrait::emailSetMailSystemDefault()` | `static` | Not `static` |
 | `FieldTrait::fieldAssertExists()` | `string $name`, returns `NodeElement` | `string $field`, returns nothing; `fieldGet()` returns the field, as the example below shows |
 | `FieldTrait::fieldAssertNotExists()` | `string $name` | `string $field` |
-| `FieldTrait::fieldAssertState()` | `string $name` | `string $field` |
 | `FieldTrait::fieldFillColor()` | `?string $value = NULL`, returns `mixed` | `string $value`, returns nothing |
 | `FileDownloadTrait::fileDownloadAssertFileNameContains()` | `string $file_name_part` | `string $partial_name` |
 | `FileDownloadTrait::fileDownloadProcess()` | `CURLOPT_*` options | Symfony HttpClient options; see [HTTP clients](#http-clients) |
@@ -2340,7 +2291,7 @@ $this->fileDownloadProcess($url, [CURLOPT_USERAGENT => 'acme']);
 $this->fileDownloadProcess($url, ['headers' => ['User-Agent' => 'acme']]);
 ```
 
-The download timeout moves from a hardcoded 120 seconds to the `file_download.timeout` option. The download no longer passes the session's cookies itself, because the detached client carries them, along with the headers steps set and the basic authentication credentials. A download from a route behind basic authentication now works after `the basic authentication has the username :username and the password :password`.
+The download timeout moves from a hardcoded 120 seconds to the `file_download.timeout` option. The download no longer passes the session's cookies itself, because the detached client carries them, along with the headers steps set and the basic authentication credentials. A download from a route behind basic authentication now works after `I am using basic authentication with the username :username and the password :password`.
 
 `MetatagTrait` fetches the hreflang alternates through the detached client, so the return-link check works on a site behind basic authentication or a login. `AccessibilityTrait` fetches its engine through the bare client, which takes the site's connection settings only for requests to `base_url`.
 

@@ -42,17 +42,17 @@ Feature: Check that ResponseTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the response header :name should contain the value :value" works
+  Scenario: Assert "Then the response header :name should contain :value" works
     When I go to "http://cli:8888/elements.html"
-    Then the response header "Content-Type" should contain the value "text/html"
+    Then the response header "Content-Type" should contain "text/html"
 
   @test-trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :name should contain the value :value" fails with an error for missing header
+  Scenario: Assert that negative assertion for "Then the response header :name should contain :value" fails with an error for missing header
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "/"
-      Then the response header "NonExistingHeader" should contain the value "text/html; charset=utf-8"
+      Then the response header "NonExistingHeader" should contain "text/html; charset=utf-8"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -61,12 +61,12 @@ Feature: Check that ResponseTrait works
       """
 
   @test-trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :name should contain the value :value" fails with an error for invalid header value
+  Scenario: Assert that negative assertion for "Then the response header :name should contain :value" fails with an error for invalid header value
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "/"
-      Then the response header "Content-Type" should contain the value "nonexistingvalue"
+      Then the response header "Content-Type" should contain "nonexistingvalue"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:
@@ -75,17 +75,17 @@ Feature: Check that ResponseTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the response header :name should not contain the value :value" works
+  Scenario: Assert "Then the response header :name should not contain :value" works
     When I go to "http://cli:8888/elements.html"
-    Then the response header "Content-Type" should not contain the value "nonexistingvalue"
+    Then the response header "Content-Type" should not contain "nonexistingvalue"
 
   @test-trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :name should not contain the value :value" fails with an error for missing header
+  Scenario: Assert that negative assertion for "Then the response header :name should not contain :value" fails with an error for missing header
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "/"
-      Then the response header "NonExistingHeader" should not contain the value "nonexistingvalue"
+      Then the response header "NonExistingHeader" should not contain "nonexistingvalue"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -94,12 +94,12 @@ Feature: Check that ResponseTrait works
       """
 
   @test-trait:ResponseTrait
-  Scenario: Assert that negative assertion for "Then the response header :name should not contain the value :value" fails with an error for invalid header value
+  Scenario: Assert that negative assertion for "Then the response header :name should not contain :value" fails with an error for invalid header value
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "/"
-      Then the response header "Content-Type" should not contain the value "text/html; charset=utf-8"
+      Then the response header "Content-Type" should not contain "text/html; charset=utf-8"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ExpectationException" exception:

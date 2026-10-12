@@ -8,18 +8,18 @@ Feature: Check that MappingTrait works
   # strips them from the generated feature file.
 
   Scenario: Assert that a mapping token resolves in a step argument
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "{{ User Login }}"
     Then the path should be "/user/login"
 
   Scenario: Assert that a mapping token resolves without surrounding whitespace
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "{{User Registration}}"
     Then the path should be "/user/register"
 
   @phpserver
   Scenario: Assert that a mapping token and a random token resolve in one table
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/form1.html"
     And I fill in the following:
       | username | [?person]        |

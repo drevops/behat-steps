@@ -208,11 +208,11 @@ trait XmlTrait {
    * Assert that an XML element content equals specified text.
    *
    * @code
-   * Then the XML element "//title" should be equal to the value "The Great Adventure"
-   * Then the XML element "/library/book[1]/author" should be equal to the value "John Doe"
+   * Then the XML element "//title" should be equal to "The Great Adventure"
+   * Then the XML element "/library/book[1]/author" should be equal to "John Doe"
    * @endcode
    */
-  #[Then('the XML element :element should be equal to the value :value')]
+  #[Then('the XML element :element should be equal to :value')]
   public function xmlAssertElementEquals(string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -227,11 +227,11 @@ trait XmlTrait {
    * Assert that an XML element content does not equal specified text.
    *
    * @code
-   * Then the XML element "//title" should not be equal to the value "Wrong Title"
-   * Then the XML element "/library/book[1]/author" should not be equal to the value "Wrong Author"
+   * Then the XML element "//title" should not be equal to "Wrong Title"
+   * Then the XML element "/library/book[1]/author" should not be equal to "Wrong Author"
    * @endcode
    */
-  #[Then('the XML element :element should not be equal to the value :value')]
+  #[Then('the XML element :element should not be equal to :value')]
   public function xmlAssertElementNotEquals(string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -246,11 +246,11 @@ trait XmlTrait {
    * Assert that an XML element contains specified text.
    *
    * @code
-   * Then the XML element "//description" should contain the value "sample book"
-   * Then the XML element "/library/book[1]/description" should contain the value "detailed"
+   * Then the XML element "//description" should contain "sample book"
+   * Then the XML element "/library/book[1]/description" should contain "detailed"
    * @endcode
    */
-  #[Then('the XML element :element should contain the value :value')]
+  #[Then('the XML element :element should contain :value')]
   public function xmlAssertElementContains(string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -265,11 +265,11 @@ trait XmlTrait {
    * Assert that an XML element does not contain specified text.
    *
    * @code
-   * Then the XML element "//description" should not contain the value "nonexistent"
-   * Then the XML element "/library/book[1]/title" should not contain the value "wrong"
+   * Then the XML element "//description" should not contain "nonexistent"
+   * Then the XML element "/library/book[1]/title" should not contain "wrong"
    * @endcode
    */
-  #[Then('the XML element :element should not contain the value :value')]
+  #[Then('the XML element :element should not contain :value')]
   public function xmlAssertElementNotContains(string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -318,11 +318,11 @@ trait XmlTrait {
    * Assert that an XML attribute value equals specified text.
    *
    * @code
-   * Then the XML attribute "id" on the element "//book" should be equal to the value "123"
-   * Then the XML attribute "category" on the element "/library/book[1]" should be equal to the value "fiction"
+   * Then the XML attribute "id" on the element "//book" should be equal to "123"
+   * Then the XML attribute "category" on the element "/library/book[1]" should be equal to "fiction"
    * @endcode
    */
-  #[Then('the XML attribute :attribute on the element :element should be equal to the value :value')]
+  #[Then('the XML attribute :attribute on the element :element should be equal to :value')]
   public function xmlAssertAttributeEquals(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -341,11 +341,11 @@ trait XmlTrait {
    * Assert that an XML attribute value does not equal specified text.
    *
    * @code
-   * Then the XML attribute "id" on the element "//book" should not be equal to the value "999"
-   * Then the XML attribute "category" on the element "/library/book[1]" should not be equal to the value "science"
+   * Then the XML attribute "id" on the element "//book" should not be equal to "999"
+   * Then the XML attribute "category" on the element "/library/book[1]" should not be equal to "science"
    * @endcode
    */
-  #[Then('the XML attribute :attribute on the element :element should not be equal to the value :value')]
+  #[Then('the XML attribute :attribute on the element :element should not be equal to :value')]
   public function xmlAssertAttributeNotEquals(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -364,11 +364,11 @@ trait XmlTrait {
    * Assert that an XML attribute value contains specified text.
    *
    * @code
-   * Then the XML attribute "category" on the element "//book" should contain the value "fic"
-   * Then the XML attribute "id" on the element "/library/book[1]" should contain the value "12"
+   * Then the XML attribute "category" on the element "//book" should contain "fic"
+   * Then the XML attribute "id" on the element "/library/book[1]" should contain "12"
    * @endcode
    */
-  #[Then('the XML attribute :attribute on the element :element should contain the value :value')]
+  #[Then('the XML attribute :attribute on the element :element should contain :value')]
   public function xmlAssertAttributeContains(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -387,11 +387,11 @@ trait XmlTrait {
    * Assert that an XML attribute value does not contain specified text.
    *
    * @code
-   * Then the XML attribute "category" on the element "//book" should not contain the value "science"
-   * Then the XML attribute "id" on the element "/library/book[1]" should not contain the value "999"
+   * Then the XML attribute "category" on the element "//book" should not contain "science"
+   * Then the XML attribute "id" on the element "/library/book[1]" should not contain "999"
    * @endcode
    */
-  #[Then('the XML attribute :attribute on the element :element should not contain the value :value')]
+  #[Then('the XML attribute :attribute on the element :element should not contain :value')]
   public function xmlAssertAttributeNotContains(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 

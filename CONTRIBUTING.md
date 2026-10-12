@@ -6,53 +6,57 @@ New here? [docs/architecture/](docs/architecture/README.md) walks through how th
 
 ## Steps format
 
-A consistent steps format is essential for the readability and maintainability of tests. Follow these guidelines:
+A step is a sentence a person reads in a feature file, right next to Mink's own steps. Write it so it reads as plain English once the values are filled in, and read it aloud before you settle on it. `ahoy lint-docs` checks only what [STEPS.md](STEPS.md) needs to render: 1 step per method, an example that matches it, and no 2 steps matching the same text. The rules below are held in review, and when a rule and natural English disagree, the English wins.
 
-- **General Guidelines**:
+- **General guidelines**:
   - Avoid using regular expressions to define a step definition. Use tuple format instead for better clarity and maintainability.
   - Use descriptive placeholder names to help users quickly understand the expected value: `content_type` instead of `type`.
   - Use `the following` for tabled content.
   - For anything identified by a property, use `with`: <code>Then the link <b>with</b> the title :title should exist</code>
-  - Avoid optional words like `(the|a)`. Provide a single form instead to ensure consistency. The `(s)` plural token is the exception: a step whose noun agrees with a count or a list keeps it, as in `:count row(s)` and `the role(s) :roles`, so both forms read naturally.
-  - Omit unnecessary suffixes like `on the page` since it is implied.
+  - Avoid optional words like `(the|a)`. Provide a single form instead to ensure consistency. The `(s)` plural token is the exception: a step whose noun agrees with a count or a list keeps it, as in `:count row(s)` and `the :roles role(s)`, so both forms read naturally.
+  - Omit suffixes that add nothing, such as `on the page` or `assigned`: `the user :name should have the :roles role(s)`.
+  - Read like Mink: first person for what the person does and sees, and a bare value after a verb, as in `I should see "Welcome"` and `I fill in "Title" with "Launch"`.
+  - Keep the wording a step already has when it follows these rules. Every rename costs each project an edit in its feature files and a row in [MIGRATION.md](MIGRATION.md).
   - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it for methods and `tests/phpunit/src/PublicSurfaceTest.php` for constants, which carry the prefix in upper snake case. Review holds properties to it.
 
 - **Placeholders**:
-  - One concept gets one name across every trait, so reuse an existing name before inventing a synonym: `:name` for anything identified by its name, `:index` for a 1-based position, `:value` for a value, `:address` for an email address. `ahoy lint-docs` rejects the synonyms listed in `docs.php`'s `placeholder_synonyms()`.
-  - A placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a bundle before the entity noun it qualifies (`the :media_type media`), a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`) come first.
-  - Every noun takes an article, `URL` is uppercase, and a step never opens with a placeholder: `the :content_type content with the title :title should not exist`.
-  - A value reads `the value :value`, never `the :value value` or a bare `:value`.
-  - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is only for a step asserting on a whole body with no named target, such as `the modal should contain :text`.
+  - One concept gets one name across every trait, so reuse an existing name before inventing a synonym: `:name` for anything identified by its name, `:index` for a 1-based position, `:value` for a value, `:address` for an email address.
+  - A name the site's configuration defines sits before its noun, the way people say it: `the :queue queue`, `the :module module`, `the :region region`, `the :roles role(s)`, `the :permissions permission(s)`, `the :breakpoint breakpoint`, `the :condition condition`, `the :new_state state`, `the :view_id view`, `the :menu_name menu`, `the :vocabulary vocabulary`, `the :content_type content type`, `the :media_type media type`. A bundle sits before the entity noun it qualifies (`the :media_type media`, `the :vocabulary term`), and so do a count before its unit (`:count item(s)`) and a closed-set qualifier (`in :direction order`, `a REST :method request`).
+  - Anything else follows its noun: a label, a title, the name of an entity or a user, free text, a selector, a path, a URL, a key, an event, a header, a field name, or a config or state key. `the link :link`, `the element :selector`, `the field :field`, `the user :name`, `the config :name with the key :key`.
+  - Every countable noun takes an article, an acronym is uppercase (`URL`, `ECK`, `REST`, `JSON`, `XML`, `JS`, `AJAX`, `CSS`, `HTML`, `WYSIWYG`), and a step never opens with a placeholder: `the :content_type content with the title :title should not exist`.
+  - Name a value only where the verb doesn't. After `contain`, `be`, `be equal to`, `match`, `to` and `by`, it reads bare: `the drush output should contain :text`. `the value :value` follows `have` (`should have the value :value`) and a noun it qualifies (`the attribute :attribute with the value :value`), and it's never `the :value value`. `should be equal to` stands in for `should be` only where `should be` would also match a state word, as `the JSON path :path should be null` does.
+  - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is for text a person reads on the page, or a whole body with no named target: `I should see :text in the :region region`, `the command output should contain :text`.
   - A partial match reads `a <thing> containing :partial_<thing>`, as in `a cookie with a name containing :partial_name`.
   - Placeholder names are `snake_case`, spelled out rather than abbreviated (`:name`, not `:param`), and identical to the method parameter, because Behat binds a step argument by name.
 
 - **Settled wording**: each idea reads 1 way, even where another phrasing would read just as well.
-  - A step that opens a page reads `I visit the ... page` and names the page it opens: `I visit the :content_type content edit page with the title :title`. It never reads `I edit the ...`, because the step only navigates.
-  - A click reads `I click on the ...`: `I click on the link :link in the region :region`.
-  - The viewport is `the viewport`, never `a viewport`.
-  - A `<select>` is `the select :selector`, never `the select element :selector`.
-  - An assertion negates with `should not`, never with the determiner `no` or the perfect tense: `an email should not be sent`, not `no emails should have been sent`.
-  - `ahoy lint-docs` rejects the replaced phrases, listed in `docs.php`'s `rejected_step_phrases()`, an `I visit` step that names its destination in words but no page or link (`I visit :path` is exempt), and a `Then` step that opens with `no`.
+  - A step that opens a page reads `I visit the ... page` and names the page it opens: `I visit the :content_type content edit page with the title :title`. It never reads `I edit the ...`, because the step only navigates. A page has 1 name everywhere: `the profile page of the user :name`, `my own profile page`.
+  - An action names the kind of thing it acts on: `I press the button :button`, `I follow the link :link`, `I fill in the field :field with :value`, `I check the checkbox :checkbox`, `I unselect the option :option from the select :selector`.
+  - A link is followed, an element is clicked on, and a button or a key is pressed: `I follow the link :link in the :region region`, `I click on the element :selector`, `I press the key :key`.
+  - An entity is found the same way in every trait: `the :content_type content with the title :title`, `the :media_type media with the name :name`, `the :vocabulary term with the name :name`.
+  - The page, the URL and the path are the ones the browser is on, so they're never `the current ...`: `the page should be indexable`, `the URL should have the query parameter :name`.
+  - The viewport is `the viewport`, never `a viewport`. A `<select>` is `the select :selector`, never `the select element :selector`.
+  - A state reads `is <state>` in a `Given` and `should be <state>` in a `Then`: `the block :label is enabled`, `the field :field should be disabled`. A state word is never a placeholder.
+  - "Nothing in this set matched" reads `no <plural>`: `no emails should have been sent`. A claim about 1 named or described thing negates with `should not`: `the block :label should not exist`.
 
 - **`Given`**:
   - Defines test prerequisites - conditions or data that must exist before the test runs.
-  - Use words like `exists` or `have`.
-  - Avoid using `should` or `should not` (these are reserved for assertions).
-  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. A precondition is a fact about the world, not something the person does.
+  - States a fact, about the world or about the person: `the :module module is enabled`, `I am logged in as a user with the :roles role(s)`. A fact about the person opens with `I am`.
+  - Uses words like `exists`, `have` and `is`. A precondition that is an event already done takes the perfect tense: `the cache has been cleared`.
+  - Never narrates an action, which is a `When`'s job, so there's no `Given I click ...`.
+  - Avoids `should` and `should not`, which are reserved for assertions.
 
 - **`When`**:
-  - Describes an action and must contain an action verb.
-  - Use the format `When I <verb>`. The step must start with `I` followed by a space - the first person is what separates an action from a precondition.
+  - Describes an action and contains an action verb.
+  - Uses the format `When I <verb>`.
 
 - **`Then`**:
-  - Specifies assertions and expectations.
-  - Use `should` and `should not` to clearly indicate assertions.
-  - Start the step with the entity being asserted, e.g., `Then the link with the title :title should exist`.
-  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. Start with the entity being asserted.
-  - A qualifier that narrows the entity, such as `in the region :region`, `within the select :selector` or `on the element :element`, reads with it, before `should`: `the link :link in the region :region should exist`, not `the link :link should exist in the region :region`. A qualifier of the predicate's own object stays with the object, as in `the response should match the XSD schema in the file :filename`, and a step that takes a table or a PyString still names it last: `the meta tag should exist with the following attributes:`. `ahoy lint-docs` rejects a qualifier that ends the step after `exist` or `be <state>`.
+  - Specifies an assertion with `should` or `should not`.
+  - A check on what a person reads on the page, found by its text, reads `I should see ...` or `I should not see ...`: messages, text, headings, buttons, links and the modal, on the page or in a region, a row or the modal. `Then I should see the success message :message`, `Then I should see :text in the modal`, `Then I should see the text :text1 after the text :text2`.
+  - Any other assertion starts with the entity it asserts on: a target named by a selector, a property such as an href or a CSS value, a form control's state, or something off the page such as config, a queue, an email or a response. `Then the link with the title :title should exist`, `Then the :queue queue should be empty`.
+  - An assertion about an event already done takes the perfect tense: `an email should have been sent to the address :address`, `no emails should have been sent`.
+  - A qualifier that narrows the entity, such as `in the :region region`, `within the select :selector` or `on the element :element`, reads with it, before `should`: `the element :selector in the :region region should exist`, not `the element :selector should exist in the :region region`. A qualifier of the predicate's own object stays with the object, as in `the response should match the XSD schema in the file :filename`, and a step that takes a table or a PyString still names it last: `the meta tag should exist with the following attributes:`.
   - Methods should include the `Assert` prefix, e.g., `userAssertHasRoles()`.
-
-We have some automated checks for the steps format. Run `ahoy lint-docs` to validate the format of the steps.
 
 ## Step arguments
 
@@ -85,7 +89,7 @@ When leaving out a helper's string argument means "not given", the parameter def
 
 A project's own tests assert on failure messages, so each one reads 1 way:
 
-- It names what it reports about the way its step does, with the article: `the element :selector` fails with `The element "..." is not displayed within the viewport.`, and `the config :name with the key :key` with `The config "..." with the key "..." ...`. A message reporting that nothing in a set matched keeps its quantifier, as `No hreflang alternate links were found on the page.` does.
+- It names what it reports about with the noun its step uses and the article: `the element :selector` fails with `The element "..." is not displayed within the viewport.`, and `the config :name with the key :key` with `The config "..." with the key "..." ...`. A step that puts a configured name before its noun still reports the noun first, so `the :queue queue should be empty` fails with `Expected the queue "..." to be empty, ...`. A message reporting that nothing in a set matched keeps its quantifier, as `No hreflang alternate links were found on the page.` does.
 - It quotes every value it names in double quotes, the page URL included, and puts the noun before the value: `the attribute "..."`, not `the "..." attribute`.
 - It ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`.
 
@@ -105,7 +109,7 @@ An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` dir
   - Singular subjects → `Exists` or `NotExists` (e.g., `fieldAssertExists()`, `taxonomyAssertVocabularyNotExists()`)
   - Plural subjects → `Exist` or `NotExist` (e.g., `redirectAssertExist()`)
 - **Containment**: always `Contains` or `NotContains`, never `Includes` (e.g., `xmlAssertElementContains()`, `responseAssertHeaderNotContains()`)
-- **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`. The subject is what the step asserts about, so `the row containing :partial_text should contain the value :value` is `tableAssertRowContains()`, not `tableAssertTextInRow()`.
+- **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`. The subject is what the step asserts about, so `I should see the text :text in the row containing :partial_text` is `tableAssertRowContains()`, not `tableAssertTextInRow()`.
 - **Qualifiers last**: a qualifier that narrows the subject, opened by a word such as `With`, `By`, `In`, `Within`, `Of` or `Containing`, follows the predicate, as in `mediaAssertExistsWithName()` and `blockAssertNotExistsInRegion()`. That keeps the slot after the subject free for `Not`: `cookieAssertNotExistsWithName()`, not `cookieAssertWithNameNotExists()`.
 - **`Has` names something the subject holds**, as in `userAssertHasRoles()` and `elementAssertHasKeyboardFocus()`. It never stands in for another predicate: a value compared against reads `Equals` or `Contains` (`stateAssertValueEquals()`, not `stateAssertHasValue()`), and entries that must be absent read `NotExist` (`watchdogAssertErrorsNotExist()`).
 - **No copula**: `Assert` already states that the subject is something, so `Is` is dropped - `elementAssertVisible()`, not `elementAssertIsVisible()`.
@@ -126,7 +130,7 @@ A check that throws `\RuntimeException` on a bad step argument or a missing prec
 | `elementAssertIsVisuallyHidden()` | `elementAssertNotVisuallyVisible()` |
 | `metatagAssertWithAttributesNotExists()` | `metatagAssertNotExistsWithAttributes()` |
 
-The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out. A method follows its step, so a step reading `should not` takes `Not`, while a step that names a state of its own takes that state's word: `the module :module should be disabled` is `moduleAssertDisabled()` and `the command should fail` is `commandAssertFailure()`, because the step asserts that state rather than negating another. `TraitMethodNamingTest` fails a `should not` step whose method carries no `Not`, and pairs every `should not` step with its `should` twin in the same trait, failing a pair whose method names differ by anything but `Not`.
+The determiner `No`, the copula `Is`, an antonym standing in for a negation, and `DoesNot` or `DoNot` are all out. A method follows its step, so a step reading `should not` takes `Not`, while a step that names a state of its own takes that state's word: `the :module module should be disabled` is `moduleAssertDisabled()` and `the command should fail` is `commandAssertFailure()`, because the step asserts that state rather than negating another. `TraitMethodNamingTest` fails a `should not` step whose method carries no `Not`, and pairs every `should not` step with its `should` twin in the same trait, failing a pair whose method names differ by anything but `Not`.
 
 ### Actions
 
@@ -176,7 +180,7 @@ When several entities share the title, label, name or description a lookup match
 
 - A content entity goes through `queryFindNewestEntityId()`. Its serial ID only grows when an entity is created, so the highest ID is the newest even after an older entity is saved again.
 - A config entity, such as a block or a menu, goes through `entityLifecycleFindNewest()`. It prefers the entity the scenario created last, read from the cleanup registry, and otherwise takes the last machine name in natural order, which follows the suffix a colliding machine name gains.
-- A `... does not exist` step deletes every match, and a step that only checks whether an entity exists checks every match. A step that reads or changes 1 entity, `the block :label in the region :region should exist` included, resolves the newest.
+- A `... does not exist` step deletes every match, and a step that only checks whether an entity exists checks every match. A step that reads or changes 1 entity, `the block :label in the :region region should exist` included, resolves the newest.
 
 `TraitMethodNamingTest` reads each declared return type: a `Find` must allow `NULL`, a `Get` must exclude it, and a `Load` must return `array` or `void`. A `Get` declaring `mixed`, such as `restGetClient()`, leaves the test no type to read, so review holds it to the same rule. The native type can't say what an array holds, so each `LoadMultiple()` has a kernel test under `tests/phpunit/src/Kernel/Steps/Drupal/` that pins its entities and keys instead.
 
@@ -190,7 +194,7 @@ An entity-create hook is named for its event, so `BeforeNodeCreate` and `content
 
 ### Several entities at once end in `Multiple`
 
-A method that creates, deletes or loads several entities at once ends in `Multiple`, the way Drupal's own `loadMultiple()` does: `contentCreateMultiple()` for `the following :content_type content exist:`, `taxonomyDeleteMultiple()` for `the following :vocabulary terms do not exist:`, and `userLoadMultiple()` for a set. A `With` qualifier still comes last, so the vertical-table step is `contentCreateMultipleWithFields()`.
+A method that creates, deletes or loads several entities at once ends in `Multiple`, the way Drupal's own `loadMultiple()` does: `contentCreateMultiple()` for `the following :content_type content exists:`, `taxonomyDeleteMultiple()` for `the following :vocabulary terms do not exist:`, and `userLoadMultiple()` for a set. A `With` qualifier still comes last, so the vertical-table step is `contentCreateMultipleWithFields()`.
 
 The method for 1 entity is the same name without the suffix, so nothing carries `Single`: `mediaCreate()` saves 1 media item, and `mediaCreateMultiple()` saves the rows of a table. The noun stays singular, so it's `userCreateRoleMultiple()`, not `userCreateRoles()`.
 
@@ -200,7 +204,7 @@ The method for 1 entity is the same name without the suffix, so nothing carries 
 
 `Normalize`, not `Normalise`, in method names and in prose.
 
-`Login` and `Logout`, not `LogIn` and `LogOut`, in method, interface and configuration key names alike: `authLogin()`, `FastLogoutInterface`, `login_url`. Step text and prose keep the verb, so a step reads `When I log in as the user :name`. `TraitMethodNamingTest` checks the trait methods, and review holds interfaces and configuration keys to the same spelling.
+`Login` and `Logout`, not `LogIn` and `LogOut`, in method, interface and configuration key names alike: `authLogin()`, `FastLogoutInterface`, `login_url`. Step text and prose keep the verb, so the steps read `Given I am logged in as :name` and `When I log out`. `TraitMethodNamingTest` checks the trait methods, and review holds interfaces and configuration keys to the same spelling.
 
 ## Class naming conventions
 
@@ -672,7 +676,7 @@ Traits with no Drupal dependency are tested against those files served by a PHP 
 @phpserver
 Scenario: Assert that a heading exists
   When I visit "http://cli:8888/elements.html"
-  Then the heading "Element Testing Page" should exist
+  Then I should see the heading "Element Testing Page"
 ```
 
 The server runs for the duration of a tagged scenario and serves `tests/behat/fixtures` at its root, so an edited fixture applies on the next run.

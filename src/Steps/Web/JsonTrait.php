@@ -187,11 +187,11 @@ trait JsonTrait {
    * Assert that the value at a JSONPath equals the expected value.
    *
    * @code
-   * Then the JSON path "$.name" should be equal to the value "John Doe"
-   * Then the JSON path "$.age" should be equal to the value "42"
+   * Then the JSON path "$.name" should be equal to "John Doe"
+   * Then the JSON path "$.age" should be equal to "42"
    * @endcode
    */
-  #[Then('the JSON path :path should be equal to the value :value')]
+  #[Then('the JSON path :path should be equal to :value')]
   public function jsonAssertPathEquals(string $path, string $value): void {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
@@ -204,10 +204,10 @@ trait JsonTrait {
    * Assert that the value at a JSONPath does not equal the expected value.
    *
    * @code
-   * Then the JSON path "$.name" should not be equal to the value "Jane Doe"
+   * Then the JSON path "$.name" should not be equal to "Jane Doe"
    * @endcode
    */
-  #[Then('the JSON path :path should not be equal to the value :value')]
+  #[Then('the JSON path :path should not be equal to :value')]
   public function jsonAssertPathNotEquals(string $path, string $value): void {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
@@ -220,10 +220,10 @@ trait JsonTrait {
    * Assert that the value at a JSONPath contains the expected text.
    *
    * @code
-   * Then the JSON path "$.name" should contain the value "John"
+   * Then the JSON path "$.name" should contain "John"
    * @endcode
    */
-  #[Then('the JSON path :path should contain the value :value')]
+  #[Then('the JSON path :path should contain :value')]
   public function jsonAssertPathContains(string $path, string $value): void {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
@@ -236,10 +236,10 @@ trait JsonTrait {
    * Assert that the value at a JSONPath does not contain the expected text.
    *
    * @code
-   * Then the JSON path "$.name" should not contain the value "Jane"
+   * Then the JSON path "$.name" should not contain "Jane"
    * @endcode
    */
-  #[Then('the JSON path :path should not contain the value :value')]
+  #[Then('the JSON path :path should not contain :value')]
   public function jsonAssertPathNotContains(string $path, string $value): void {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 

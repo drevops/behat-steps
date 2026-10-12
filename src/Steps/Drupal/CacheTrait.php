@@ -31,10 +31,10 @@ trait CacheTrait {
    * Clear every cache bin.
    *
    * @code
-   * Given the cache is empty
+   * Given the cache has been cleared
    * @endcode
    */
-  #[Given('the cache is empty')]
+  #[Given('the cache has been cleared')]
   public function cacheClearAll(): void {
     $this->backendFor(CacheCapabilityInterface::class)->cacheClear();
   }
@@ -50,10 +50,10 @@ trait CacheTrait {
    * it is emptied whole.
    *
    * @code
-   * Given the page cache for the path "/about" is empty
+   * Given the page cache for the path "/about" has been cleared
    * @endcode
    */
-  #[Given('the page cache for the path :path is empty')]
+  #[Given('the page cache for the path :path has been cleared')]
   public function cacheClearPagePath(string $path): void {
     $this->cacheDeletePagePath($path);
   }
@@ -70,10 +70,10 @@ trait CacheTrait {
    * entries, so it is emptied whole.
    *
    * @code
-   * Given the page cache for the paths matching "/news*" is empty
+   * Given the page cache for the paths matching "/news*" has been cleared
    * @endcode
    */
-  #[Given('the page cache for the paths matching :path_pattern is empty')]
+  #[Given('the page cache for the paths matching :path_pattern has been cleared')]
   public function cacheClearPagePathWildcard(string $path_pattern): void {
     $this->cacheDeletePagePath($path_pattern, TRUE);
   }
@@ -82,10 +82,10 @@ trait CacheTrait {
    * Clear the render cache.
    *
    * @code
-   * Given the render cache is empty
+   * Given the render cache has been cleared
    * @endcode
    */
-  #[Given('the render cache is empty')]
+  #[Given('the render cache has been cleared')]
   public function cacheClearRender(): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

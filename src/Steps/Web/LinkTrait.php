@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
@@ -13,7 +14,8 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
 /**
  * Verify link elements with attribute and content assertions.
  *
- * - Find links by title, or by text and href, optionally within an element.
+ * - Find links by text, by title, or by text and href, optionally within an
+ *   element.
  * - Assert link existence and href match.
  * - Assert absolute and relative link paths.
  *
@@ -27,10 +29,10 @@ trait LinkTrait {
    * Click on the link with a title.
    *
    * @code
-   * When I click on the link with the title "Return to site content"
+   * When I follow the link with the title "Return to site content"
    * @endcode
    */
-  #[When('I click on the link with the title :title')]
+  #[When('I follow the link with the title :title')]
   public function linkClickWithTitle(string $title): void {
     $title = $this->stringFixStepArgument($title);
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
@@ -40,6 +42,36 @@ trait LinkTrait {
     }
 
     $element->click();
+  }
+
+  /**
+   * Assert that a link exists.
+   *
+   * Matches by id, title, alt or text.
+   *
+   * @code
+   * Then I should see the link "About us"
+   * @endcode
+   */
+  #[Then('I should see the link :link')]
+  public function linkAssertExists(string $link): void {
+    if (!$this->getSession()->getPage()->findLink($link) instanceof NodeElement) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'id|title|alt|text', $link);
+    }
+  }
+
+  /**
+   * Assert that a link does not exist.
+   *
+   * @code
+   * Then I should not see the link "Admin"
+   * @endcode
+   */
+  #[Then('I should not see the link :link')]
+  public function linkAssertNotExists(string $link): void {
+    if ($this->getSession()->getPage()->findLink($link) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The link "%s" was found on the page "%s".', $link, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+    }
   }
 
   /**

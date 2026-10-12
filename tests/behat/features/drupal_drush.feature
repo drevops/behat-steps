@@ -4,40 +4,40 @@ Feature: Check that DrushTrait works
   So that users can cover behavior that only the CLI exposes
 
   Scenario: Assert "When I run the drush command :command" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I run the drush command "status"
-    Then the drush output should contain the value "Drupal version"
-    And the drush output should not contain the value "no such command"
-    And the drush output should match the pattern "/Drupal version/"
+    Then the drush output should contain "Drupal version"
+    And the drush output should not contain "no such command"
+    And the drush output should match "/Drupal version/"
 
   Scenario: Assert "When I run the drush command :command with the arguments :arguments" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I run the drush command "config:get" with the arguments "system.site"
-    Then the drush output should contain the value "Drush Site-Install"
+    Then the drush output should contain "Drush Site-Install"
 
   Scenario: Assert "When I run the failing drush command :command" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I run the failing drush command "pm:uninstall no_such_module"
-    Then the drush output should contain the value "no_such_module"
+    Then the drush output should contain "no_such_module"
 
   Scenario: Assert "When I run the failing drush command :command with the arguments :arguments" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I run the failing drush command "pm:uninstall" with the arguments "no_such_module"
-    Then the drush output should contain the value "no_such_module"
-    And the drush output should not contain the value "is not defined"
+    Then the drush output should contain "no_such_module"
+    And the drush output should not contain "is not defined"
 
   Scenario: Assert "When I print the last drush output" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I run the drush command "status" with the arguments "--field=drupal-version"
     And I print the last drush output
-    Then the drush output should match the pattern "/^\d+\.\d+/"
+    Then the drush output should match "/^\d+\.\d+/"
 
   @test-trait:Drupal\DrushTrait
   Scenario: Assert that reading output before running a command fails
     Given some behat configuration
     And scenario steps:
       """
-      Then the drush output should contain the value "anything"
+      Then the drush output should contain "anything"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

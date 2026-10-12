@@ -165,10 +165,10 @@ trait FieldTrait {
    * Fill value for color field.
    *
    * @code
-   * When I fill in the color field "#edit-text-color" with the value "#3366FF"
+   * When I fill in the color field "#edit-text-color" with "#3366FF"
    * @endcode
    */
-  #[When('I fill in the color field :field with the value :value')]
+  #[When('I fill in the color field :field with :value')]
   public function fieldFillColor(string $field, string $value): void {
     $field_js = json_encode($field, JSON_UNESCAPED_SLASHES);
     $value_js = json_encode($value, JSON_UNESCAPED_SLASHES);
@@ -190,10 +190,10 @@ JS;
    * Set value for WYSIWYG field.
    *
    * @code
-   * When I fill in the WYSIWYG field "edit-body-0-value" with the value "<p>This is a <strong>formatted</strong> paragraph.</p>"
+   * When I fill in the WYSIWYG field "edit-body-0-value" with "<p>This is a <strong>formatted</strong> paragraph.</p>"
    * @endcode
    */
-  #[When('I fill in the WYSIWYG field :field with the value :value')]
+  #[When('I fill in the WYSIWYG field :field with :value')]
   public function fieldFillWysiwyg(string $field, string $value): void {
     $field = $this->stringFixStepArgument($field);
     $value = $this->stringFixStepArgument($value);
@@ -313,11 +313,11 @@ JS;
    * Fill in a field identified by CSS selector.
    *
    * @code
-   * When I fill in the field ".field--name-body textarea" with the value "Hello world"
-   * When I fill in the field "#edit-field-custom-0-value" with the value "Test value"
+   * When I fill in the field ".field--name-body textarea" with "Hello world"
+   * When I fill in the field "#edit-field-custom-0-value" with "Test value"
    * @endcode
    */
-  #[When('I fill in the field :selector with the value :value')]
+  #[When('I fill in the field :selector with :value')]
   public function fieldFillField(string $selector, string $value): void {
     $field = $this->getSession()->getPage()->find('css', $selector);
 
@@ -351,10 +351,10 @@ JS;
    * Fill in the date part of a datetime field.
    *
    * @code
-   * When I fill in the date part of the datetime field "Event date" with the date "2024-01-15"
+   * When I fill in the date part of the datetime field "Event date" with "2024-01-15"
    * @endcode
    */
-  #[When('I fill in the date part of the datetime field :label with the date :date')]
+  #[When('I fill in the date part of the datetime field :label with :date')]
   public function fieldFillDatetimeDate(string $label, string $date): void {
     $this->fieldFillDatetimeInput($label, 'value', 'date', $date);
   }
@@ -363,10 +363,10 @@ JS;
    * Fill in the time part of a datetime field.
    *
    * @code
-   * When I fill in the time part of the datetime field "Event date" with the time "14:30:00"
+   * When I fill in the time part of the datetime field "Event date" with "14:30:00"
    * @endcode
    */
-  #[When('I fill in the time part of the datetime field :label with the time :time')]
+  #[When('I fill in the time part of the datetime field :label with :time')]
   public function fieldFillDatetimeTime(string $label, string $time): void {
     $this->fieldFillDatetimeInput($label, 'value', 'time', $time);
   }
@@ -470,25 +470,30 @@ JS;
   }
 
   /**
-   * Assert whether the field has a state.
+   * Assert that a field is enabled.
    *
    * @code
-   * Then the field "Body" should have the "disabled" state
-   * Then the field "field_body" should have the "disabled" state
-   * Then the field "Tags" should have the "enabled" state
-   * Then the field "field_tags" should have the "not enabled" state
+   * Then the field "Tags" should be enabled
    * @endcode
    */
-  #[Then('the field :field should have the :enabled_or_disabled state')]
-  public function fieldAssertState(string $field, string $enabled_or_disabled): void {
-    $field_element = $this->fieldGet($field);
-
-    if ($enabled_or_disabled === 'disabled' && !$field_element->hasAttribute('disabled')) {
-      throw new ExpectationException(sprintf('The field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
-    }
-
-    if ($enabled_or_disabled !== 'disabled' && $field_element->hasAttribute('disabled')) {
+  #[Then('the field :field should be enabled')]
+  public function fieldAssertEnabled(string $field): void {
+    if ($this->fieldGet($field)->hasAttribute('disabled')) {
       throw new ExpectationException(sprintf('The field "%s" should not be disabled, but it is.', $field), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * Assert that a field is disabled.
+   *
+   * @code
+   * Then the field "Body" should be disabled
+   * @endcode
+   */
+  #[Then('the field :field should be disabled')]
+  public function fieldAssertDisabled(string $field): void {
+    if (!$this->fieldGet($field)->hasAttribute('disabled')) {
+      throw new ExpectationException(sprintf('The field "%s" should be disabled, but it is not.', $field), $this->getSession()->getDriver());
     }
   }
 

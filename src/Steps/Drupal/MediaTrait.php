@@ -43,10 +43,10 @@ trait MediaTrait {
    * Remove media type.
    *
    * @code
-   * Given the media type "video" does not exist
+   * Given the "video" media type does not exist
    * @endcode
    */
-  #[Given('the media type :media_type does not exist')]
+  #[Given('the :media_type media type does not exist')]
   public function mediaDeleteType(string $media_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -187,10 +187,10 @@ trait MediaTrait {
    * Assert that a media type exists.
    *
    * @code
-   * Then the media type "image" should exist
+   * Then the "image" media type should exist
    * @endcode
    */
-  #[Then('the media type :media_type should exist')]
+  #[Then('the :media_type media type should exist')]
   public function mediaAssertTypeExists(string $media_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -207,10 +207,10 @@ trait MediaTrait {
    * Assert that a media type does not exist.
    *
    * @code
-   * Then the media type "test_type" should not exist
+   * Then the "test_type" media type should not exist
    * @endcode
    */
-  #[Then('the media type :media_type should not exist')]
+  #[Then('the :media_type media type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

@@ -62,10 +62,10 @@ trait TimeTrait {
    *   The time value as Unix timestamp.
    *
    * @code
-   *   When I set the system time to the value "1737849900"
+   *   When I set the system time to "1737849900"
    * @endcode
    */
-  #[When('I set the system time to the value :value')]
+  #[When('I set the system time to :value')]
   public function timeSet(string $value): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

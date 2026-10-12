@@ -139,10 +139,10 @@ trait TaxonomyTrait {
    * Assert that a vocabulary with a specific name exists.
    *
    * @code
-   * Then the vocabulary "topics" with the name "Topics" should exist
+   * Then the "topics" vocabulary with the name "Topics" should exist
    * @endcode
    */
-  #[Then('the vocabulary :vocabulary with the name :name should exist')]
+  #[Then('the :vocabulary vocabulary with the name :name should exist')]
   public function taxonomyAssertVocabularyExists(string $vocabulary, string $name): void {
     $vocab = $this->taxonomyFindVocabulary($vocabulary);
 
@@ -161,10 +161,10 @@ trait TaxonomyTrait {
    * Assert that a vocabulary does not exist by machine name.
    *
    * @code
-   * Then the vocabulary "topics" should not exist
+   * Then the "topics" vocabulary should not exist
    * @endcode
    */
-  #[Then('the vocabulary :vocabulary should not exist')]
+  #[Then('the :vocabulary vocabulary should not exist')]
   public function taxonomyAssertVocabularyNotExists(string $vocabulary): void {
     if ($this->taxonomyFindVocabulary($vocabulary) !== NULL) {
       throw new ExpectationException(sprintf('The vocabulary "%s" exists, but it should not.', $vocabulary), $this->getSession()->getDriver());
@@ -175,10 +175,10 @@ trait TaxonomyTrait {
    * Assert that a taxonomy term exists by name.
    *
    * @code
-   * Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
+   * Then the "Fruits" term with the name "Apple" should exist
    * @endcode
    */
-  #[Then('the taxonomy term :name from the vocabulary :vocabulary should exist')]
+  #[Then('the :vocabulary term with the name :name should exist')]
   public function taxonomyAssertTermExistsWithName(string $name, string $vocabulary): void {
     $this->taxonomyGetVocabulary($vocabulary);
 
@@ -195,10 +195,10 @@ trait TaxonomyTrait {
    * Assert that a taxonomy term does not exist by name.
    *
    * @code
-   * Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
+   * Then the "Fruits" term with the name "Apple" should not exist
    * @endcode
    */
-  #[Then('the taxonomy term :name from the vocabulary :vocabulary should not exist')]
+  #[Then('the :vocabulary term with the name :name should not exist')]
   public function taxonomyAssertTermNotExistsWithName(string $name, string $vocabulary): void {
     $this->taxonomyGetVocabulary($vocabulary);
 

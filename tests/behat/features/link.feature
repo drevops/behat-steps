@@ -40,7 +40,7 @@ Feature: Check that LinkTrait works
     When I visit "http://cli:8888/links.html"
     Then the link with the title "Link title one" should exist
     And the link with the title "Some non-existing title" should not exist
-    And I click on the link with the title "Link title one"
+    And I follow the link with the title "Link title one"
 
   @phpserver
   Scenario: Assert link is absolute or not
@@ -48,13 +48,52 @@ Feature: Check that LinkTrait works
     Then the link "Absolute Link One" should be an absolute link
     And the link "Relative Link One" should not be an absolute link
 
+  @phpserver
+  Scenario: Assert "Then I should see the link :link" works as expected
+    When I visit "http://cli:8888/links.html"
+    Then I should see the link "Absolute Link One"
+    And I should see the link "Link title one"
+
+  @phpserver
+  Scenario: Assert "Then I should not see the link :link" works as expected
+    When I visit "http://cli:8888/links.html"
+    Then I should not see the link "RandomLinkText"
+
   @test-trait:LinkTrait
-  Scenario: Assert that negative assertion for "I click on the link with the title :title" fails with an error
+  Scenario: Assert "Then I should see the link :link" fails when no link matches
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/links.html"
-      When I click on the link with the title "Some non-existing title"
+      Then I should see the link "RandomLinkText"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Link with id|title|alt|text "RandomLinkText" not found.
+      """
+
+  @test-trait:LinkTrait
+  Scenario: Assert "Then I should not see the link :link" fails when the link exists
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/links.html"
+      Then I should not see the link "Absolute Link One"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The link "Absolute Link One" was found on the page "http://cli:8888/links.html".
+      """
+
+  @test-trait:LinkTrait
+  Scenario: Assert that negative assertion for "I follow the link with the title :title" fails with an error
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/links.html"
+      When I follow the link with the title "Some non-existing title"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

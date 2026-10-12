@@ -98,30 +98,30 @@ trait DrushTrait {
   }
 
   /**
-   * Assert that the last Drush output contains the value.
+   * Assert that the last Drush output contains the text.
    *
    * @code
-   * Then the drush output should contain the value "Drupal version"
+   * Then the drush output should contain "Drupal version"
    * @endcode
    */
-  #[Then('the drush output should contain the value :value')]
-  public function drushAssertOutputContains(string $value): void {
-    if (!str_contains($this->drushGetOutput(), $this->drushFixArgument($value))) {
-      throw new AssertionException(sprintf('The last drush command output does not contain "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
+  #[Then('the drush output should contain :text')]
+  public function drushAssertOutputContains(string $text): void {
+    if (!str_contains($this->drushGetOutput(), $this->drushFixArgument($text))) {
+      throw new AssertionException(sprintf('The last drush command output does not contain "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $text, $this->drushOutput));
     }
   }
 
   /**
-   * Assert that the last Drush output does not contain the value.
+   * Assert that the last Drush output does not contain the text.
    *
    * @code
-   * Then the drush output should not contain the value "error"
+   * Then the drush output should not contain "error"
    * @endcode
    */
-  #[Then('the drush output should not contain the value :value')]
-  public function drushAssertOutputNotContains(string $value): void {
-    if (str_contains($this->drushGetOutput(), $this->drushFixArgument($value))) {
-      throw new AssertionException(sprintf('The last drush command output contains "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
+  #[Then('the drush output should not contain :text')]
+  public function drushAssertOutputNotContains(string $text): void {
+    if (str_contains($this->drushGetOutput(), $this->drushFixArgument($text))) {
+      throw new AssertionException(sprintf('The last drush command output contains "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $text, $this->drushOutput));
     }
   }
 
@@ -129,10 +129,10 @@ trait DrushTrait {
    * Assert that the last Drush output matches the pattern.
    *
    * @code
-   * Then the drush output should match the pattern "/Drupal [0-9]+/"
+   * Then the drush output should match "/Drupal [0-9]+/"
    * @endcode
    */
-  #[Then('the drush output should match the pattern :pattern')]
+  #[Then('the drush output should match :pattern')]
   public function drushAssertOutputMatches(string $pattern): void {
     $output = $this->drushGetOutput();
     $result = @preg_match($pattern, $output);

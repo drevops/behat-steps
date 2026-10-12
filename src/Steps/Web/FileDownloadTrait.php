@@ -156,13 +156,13 @@ trait FileDownloadTrait {
    * Assert the downloaded file should be a zip archive containing specific files.
    *
    * @code
-   * Then the downloaded file should be a zip archive containing the following files named:
+   * Then the downloaded file should be a zip archive containing files with the following names:
    *   | document.pdf |
    *   | image.jpg    |
    *   | data.csv     |
    * @endcode
    */
-  #[Then('the downloaded file should be a zip archive containing the following files named:')]
+  #[Then('the downloaded file should be a zip archive containing files with the following names:')]
   public function fileDownloadAssertZipContains(TableNode $files): void {
     $this->fileDownloadAssertZipContainsFiles($files->getColumn(0), FALSE);
   }
@@ -171,13 +171,13 @@ trait FileDownloadTrait {
    * Assert the downloaded file should be a zip archive containing files with partial names.
    *
    * @code
-   * Then the downloaded file should be a zip archive containing the following files partially named:
+   * Then the downloaded file should be a zip archive containing files with the following partial names:
    *   | report |
    *   | data   |
    *   | image  |
    * @endcode
    */
-  #[Then('the downloaded file should be a zip archive containing the following files partially named:')]
+  #[Then('the downloaded file should be a zip archive containing files with the following partial names:')]
   public function fileDownloadAssertZipContainsPartial(TableNode $files): void {
     $this->fileDownloadAssertZipContainsFiles($files->getColumn(0), TRUE);
   }
@@ -186,13 +186,13 @@ trait FileDownloadTrait {
    * Assert the downloaded file is a zip archive not containing files with partial names.
    *
    * @code
-   * Then the downloaded file should be a zip archive not containing the following files partially named:
+   * Then the downloaded file should be a zip archive not containing files with the following partial names:
    *   | confidential |
    *   | private      |
    *   | draft        |
    * @endcode
    */
-  #[Then('the downloaded file should be a zip archive not containing the following files partially named:')]
+  #[Then('the downloaded file should be a zip archive not containing files with the following partial names:')]
   public function fileDownloadAssertZipNotContainsPartial(TableNode $files): void {
     $this->fileDownloadAssertZipNotContainsFiles($files->getColumn(0), TRUE);
   }

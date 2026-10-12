@@ -167,10 +167,10 @@ trait ConfigTrait {
    * Assert that a stored configuration value contains an expected value.
    *
    * @code
-   * Then the config "system.site" with the key "name" should contain the value "site"
+   * Then the config "system.site" with the key "name" should contain "site"
    * @endcode
    */
-  #[Then('the config :name with the key :key should contain the value :value')]
+  #[Then('the config :name with the key :key should contain :value')]
   public function configAssertValueContains(string $name, string $key, string $value): void {
     $this->configAssertContains($this->configFindStoredValue($name, $key), $value, TRUE, $name, $key, 'value');
   }
@@ -179,10 +179,10 @@ trait ConfigTrait {
    * Assert that a stored configuration value does not contain a value.
    *
    * @code
-   * Then the config "system.site" with the key "name" should not contain the value "xyz"
+   * Then the config "system.site" with the key "name" should not contain "xyz"
    * @endcode
    */
-  #[Then('the config :name with the key :key should not contain the value :value')]
+  #[Then('the config :name with the key :key should not contain :value')]
   public function configAssertValueNotContains(string $name, string $key, string $value): void {
     $this->configAssertContains($this->configFindStoredValue($name, $key), $value, FALSE, $name, $key, 'value');
   }

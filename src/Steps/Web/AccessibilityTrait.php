@@ -300,10 +300,10 @@ trait AccessibilityTrait {
    * Assert that the current page passes accessibility checks.
    *
    * @code
-   * Then the current page should pass accessibility checks
+   * Then the page should pass accessibility checks
    * @endcode
    */
-  #[Then('the current page should pass accessibility checks')]
+  #[Then('the page should pass accessibility checks')]
   public function accessibilityAssertCurrentPagePasses(): void {
     $rules = $this->accessibilityGetDefaultRules();
 
@@ -314,10 +314,10 @@ trait AccessibilityTrait {
    * Assert that the current page passes accessibility checks for given tags.
    *
    * @code
-   * Then the current page should pass accessibility checks for the tags "wcag2a"
+   * Then the page should pass accessibility checks for the tags "wcag2a"
    * @endcode
    */
-  #[Then('the current page should pass accessibility checks for the tags :tags')]
+  #[Then('the page should pass accessibility checks for the tags :tags')]
   public function accessibilityAssertCurrentPagePassesForTags(string $tags): void {
     $this->accessibilityAssertResultPasses($this->accessibilityAssess($tags), $tags);
   }

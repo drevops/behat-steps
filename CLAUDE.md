@@ -68,69 +68,61 @@ ahoy copy-files
 ```
 
 ## Steps Format Guidelines
+
+Step wording is a guide held in review, not a lint. `docs.php` gathers the steps into STEPS.md and checks only that each method registers 1 step with an example that matches it. Read a step aloud with real values filled in; when a rule and natural English disagree, the English wins. The full guide is "Steps format" in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 - **General Guidelines**:
   - Use tuple format instead of regular expressions
   - Use descriptive placeholder names
   - Use `the following` for tabled content
   - Use `with` for properties: `Then the link with the title :title should exist`
-  - Avoid optional words like `(the|a)`, except the `(s)` plural token, which a
-    noun agreeing with a count or a list keeps: `:count row(s)`, `the role(s)
-    :roles`
-  - Omit unnecessary suffixes like `on the page`
+  - Avoid optional words like `(the|a)`, except the `(s)` plural token, which a noun agreeing with a count or a list keeps: `:count row(s)`, `the :roles role(s)`
+  - Omit suffixes that add nothing, such as `on the page` or `assigned`
+  - Read like Mink: first person for what the person does and sees, and a bare value after a verb (`I should see "Welcome"`, `I fill in "Title" with "Launch"`)
+  - Keep the wording a step already has when it follows these rules; every rename is an edit in each project's features and a row in `MIGRATION.md`
   - Method names should begin with the trait name: `userAssertHasRoles()`
 
-- **Placeholder Names**: one concept gets one name across every trait. Reusing a
-  name that already exists is always preferred over inventing a synonym.
-  - Placeholder names are `snake_case` and match the method parameter name
-    exactly - Behat binds the argument by name, so a mismatch only surfaces at
-    run time
-  - A step that names its target (`:element`, `:path`, `:key`, `:field`)
-    compares against `:value`; `:text` is only for steps asserting on a whole
-    body with no named target, such as `the modal should contain :text`
-  - A bundle placeholder is named after its entity type - `:content_type`,
-    `:media_type`, `:content_block_type`, `:vocabulary` - unless the step is
-    deliberately entity-agnostic, where `:bundle` is correct
+- **Placeholder Names**: one concept gets one name across every trait. Reusing a name that already exists is always preferred over inventing a synonym.
+  - Placeholder names are `snake_case` and match the method parameter name exactly - Behat binds the argument by name, so a mismatch only surfaces at run time
+  - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`; `:text` is for text a person reads on the page or a whole body with no named target, such as `I should see :text in the :region region` and `the command output should contain :text`
+  - A bundle placeholder is named after its entity type - `:content_type`, `:media_type`, `:content_block_type`, `:vocabulary` - unless the step is deliberately entity-agnostic, where `:bundle` is correct
   - A partial match reads `:partial_<thing>`, as in `:partial_name`
   - An email address is `:address` and a 1-based position is `:index`
 
 - **Articles and Word Order**:
-  - Every noun takes an article, and `URL` is uppercase
-  - A named value reads `the value :value`, never `the :value value` or a bare
-    `:value`
-  - A bundle placeholder qualifying an entity noun comes before it
-    (`the :media_type media`); one that is itself the subject follows its noun
-    (`the media type :media_type`)
-  - Any other placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`, `a REST :method request`) also come first
+  - Every countable noun takes an article, and an acronym is uppercase: `URL`, `ECK`, `REST`, `JSON`, `XML`, `JS`, `AJAX`, `CSS`, `HTML`, `WYSIWYG`
+  - A name the site's configuration defines sits before its noun: `the :queue queue`, `the :module module`, `the :region region`, `the :roles role(s)`, `the :permissions permission(s)`, `the :breakpoint breakpoint`, `the :condition condition`, `the :new_state state`, `the :view_id view`, `the :menu_name menu`, `the :vocabulary vocabulary`, `the :content_type content type`, `the :media_type media type`. So do a bundle qualifying an entity noun (`the :media_type media`, `the :vocabulary term`), a count before its unit (`:count item(s)`) and a closed-set qualifier (`in :direction order`, `a REST :method request`)
+  - Anything else follows its noun: a label, a title, an entity's or a user's name, free text, a selector, a path, a URL, a key, an event, a header, a field name, or a config or state key (`the link :link`, `the element :selector`, `the user :name`, `the config :name with the key :key`)
+  - Name a value only where the verb doesn't: `should contain :value`, `should be equal to :value` and `to :value` read bare, while `should have the value :value` and `the attribute :attribute with the value :value` keep the noun; never `the :value value`. `should be equal to` replaces `should be` only where `should be` would also match a state word (`the JSON path :path should be null`)
   - A step never opens with a placeholder: `the :content_type content with the title :title should not exist`
-  - `ahoy lint-docs` rejects a placeholder followed by a word repeating its name (`:queue queue`), a `:value` not reading `the value :value`, a placeholder after `containing` without the `partial_` prefix, `:text` compared against a named target, a step opening with a placeholder, the names in `docs.php`'s `non_descriptive_placeholders()` and `placeholder_synonyms()`, the phrases in `rejected_step_phrases()`, an `I visit` step that names its destination in words but no page or link, a `Then` step that opens with `no`, and a qualifier ending a `Then` step after `exist` or `be <state>`
 
 - **Settled Wording**: each idea reads 1 way
-  - A step that opens a page reads `I visit the ... page` and names the page: `I visit the :content_type content edit page with the title :title`, never `I edit the ...`
+  - A step that opens a page reads `I visit the ... page` and names the page: `I visit the :content_type content edit page with the title :title`, never `I edit the ...`. A page has 1 name everywhere: `the profile page of the user :name`, `my own profile page`
   - Its method opens with `Visit` and names the page as the step does: `contentVisitEditPageWithTitle()`, `userVisitProfileEditPage()`. `TraitMethodNamingTest` enforces it
-  - A click reads `I click on the ...`, the viewport is `the viewport`, and a `<select>` is `the select :selector`
+  - An action names what it acts on: `I press the button :button`, `I follow the link :link`, `I fill in the field :field with :value`, `I check the checkbox :checkbox`, `I unselect the option :option from the select :selector`
+  - A link is followed, an element is clicked on, a button or a key is pressed; the viewport is `the viewport`, and a `<select>` is `the select :selector`
+  - An entity is found the same way in every trait: `the :content_type content with the title :title`, `the :media_type media with the name :name`, `the :vocabulary term with the name :name`
+  - The page, the URL and the path are never `the current ...`
+  - A state reads `is <state>` in a Given and `should be <state>` in a Then (`the field :field should be disabled`); a state word is never a placeholder
   - A second `with` qualifier on an action repeats `With` in the method name, in step-text order: `emailFollowLinkWithIndexWithSubjectContaining()`
-  - An assertion negates with `should not`, never with the determiner `no` or the perfect tense: `an email should not be sent`, not `no emails should have been sent`
+  - "Nothing in this set matched" reads `no <plural>`: `no emails should have been sent`. A claim about 1 named thing negates with `should not`
 
 - **Given Steps**:
   - Define test prerequisites
-  - State a fact in the present tense: `<subject> <verb> <complement>`. A
-    verbless step, a bare noun phrase, or the perfect tense (`has been cleared`)
-    is not a Given
-  - Use words like `exists` or `have`; `is`/`are` plus an adjective is also
-    correct where it mirrors the matching `should be ...` assertion
-  - Avoid using `should` or `should not`
-  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step
+  - State a fact, about the world or about the person: `the :module module is enabled`, `I am logged in as a user with the :roles role(s)`. A fact about the person opens with `I am`
+  - Use words like `exists`, `have` or `is`; a precondition that is an event already done takes the perfect tense: `the cache has been cleared`
+  - Never narrate an action, which is a When's job, and avoid `should` or `should not`
 
 - **When Steps**:
   - Describe an action with an action verb
-  - Use the format `When I <verb>` - the step must start with `I` followed by a space
+  - Use the format `When I <verb>`
 
 - **Then Steps**:
-  - Specify assertions and expectations
-  - Use `should` and `should not` for assertions
-  - Start with the entity being asserted
-  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step
-  - A qualifier that narrows the asserted entity reads with it, before `should`: `the link :link in the region :region should exist`. A qualifier of the predicate's object stays with it (`should match the XSD schema in the file :filename`), and a table or PyString argument still comes last: `the meta tag should exist with the following attributes:`
+  - Specify assertions and expectations with `should` and `should not`
+  - A check on what a person reads on the page, found by its text, reads `I should see ...`: messages, text, headings, buttons, links and the modal, on the page or in a region, a row or the modal
+  - Any other assertion starts with the entity being asserted: a target named by a selector, a property, a form control's state, or something off the page, as in `the :queue queue should be empty`
+  - An assertion about an event already done takes the perfect tense: `an email should have been sent to the address :address`
+  - A qualifier that narrows the asserted entity reads with it, before `should`: `the element :selector in the :region region should exist`. A qualifier of the predicate's object stays with it (`should match the XSD schema in the file :filename`), and a table or PyString argument still comes last: `the meta tag should exist with the following attributes:`
   - Methods should include the `Assert` prefix
 
 ## Exception Types
@@ -149,7 +141,7 @@ Which exception a step throws is part of the public contract - consumers catch o
 
 Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
 
-A failure message names its subject the way its step does, with the article (`The element "..."`, `The config "..." with the key "..."`), or keeps its quantifier when nothing in a set matched (`No hreflang alternate links were found on the page.`), quotes every value it names, the page URL included, ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. See "Failure messages" in [CONTRIBUTING.md](CONTRIBUTING.md).
+A failure message names its subject with the noun its step uses and the article, noun before the value even where the step puts a configured name first (`The element "..."`, `The config "..." with the key "..."`, `Expected the queue "..."`), or keeps its quantifier when nothing in a set matched (`No hreflang alternate links were found on the page.`), quotes every value it names, the page URL included, ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. See "Failure messages" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 A trait without a Mink session is one that never calls `$this->getSession()`. The ones that assert are `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Do not add a session to a trait just to reach `ExpectationException`.
 
@@ -158,7 +150,7 @@ In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an ass
 ## Common Behat Step Patterns
 - Block assertions:
   - `the block "..." should exist`
-  - `the block "..." in the region "..." should exist`
+  - `the block "..." in the "..." region should exist`
 
 - Content block operations:
   - `the content block type "..." should exist`
@@ -306,7 +298,7 @@ Scenario: Test error condition
       '''
       Email body content here
       '''
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     """
 ```
 

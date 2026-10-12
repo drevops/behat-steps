@@ -5,13 +5,13 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should have :count row(s)" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should have 3 rows
 
   @phpserver
   Scenario: Assert "Then the table :selector should have :count row(s)" works with single row
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-single" should have 1 row
 
@@ -20,7 +20,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
       Then the table ".nonexistent" should have 1 row
       """
@@ -35,7 +35,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should have 99 rows
       """
@@ -65,13 +65,13 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should have :count column(s)" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should have 3 columns
 
   @phpserver
   Scenario: Assert "Then the table :selector should have :count column(s)" works with different table
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-desc" should have 2 columns
 
@@ -80,7 +80,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should have 99 columns
       """
@@ -105,7 +105,7 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should contain the following columns:" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should contain the following columns:
       | Name     |
@@ -117,7 +117,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should contain the following columns:
         | NonExistent |
@@ -130,7 +130,7 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should be empty" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-empty" should be empty
 
@@ -139,7 +139,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should be empty
       """
@@ -151,7 +151,7 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should not be empty" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should not be empty
 
@@ -160,7 +160,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
       Then the table ".table-empty" should not be empty
       """
@@ -171,25 +171,25 @@ Feature: Check that TableTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" works with ascending order
-    Given the user is anonymous
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with ascending order
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
-    Then the table ".table-asc" should be sorted by the column "Name" in "ascending" order
+    Then the table ".table-asc" should be sorted by "Name" in "ascending" order
 
   @phpserver
-  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" works with descending order
-    Given the user is anonymous
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" works with descending order
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
-    Then the table ".table-desc" should be sorted by the column "Name" in "descending" order
+    Then the table ".table-desc" should be sorted by "Name" in "descending" order
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" fails with invalid direction
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails with invalid direction
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the table ".table-asc" should be sorted by the column "Name" in "invalid" order
+      Then the table ".table-asc" should be sorted by "Name" in "invalid" order
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -198,13 +198,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" fails when not sorted
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when not sorted
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the table ".table-desc" should be sorted by the column "Name" in "ascending" order
+      Then the table ".table-desc" should be sorted by "Name" in "ascending" order
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -213,13 +213,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the table :selector should be sorted by the column :column in :direction order" fails when column not found
+  Scenario: Assert "Then the table :selector should be sorted by :column in :direction order" fails when column not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the table ".table-asc" should be sorted by the column "NonExistent" in "ascending" order
+      Then the table ".table-asc" should be sorted by "NonExistent" in "ascending" order
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -229,7 +229,7 @@ Feature: Check that TableTrait works
 
   @phpserver
   Scenario: Assert "Then the table :selector should contain the following rows:" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     Then the table ".table-asc" should contain the following rows:
       | Name       | Status   |
@@ -241,7 +241,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
       Then the table ".table-asc" should contain the following rows:
         | Name         |
@@ -254,21 +254,21 @@ Feature: Check that TableTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the row containing :partial_text should contain the following:" works as expected
-    Given the user is anonymous
+  Scenario: Assert "Then I should see the following text in the row containing :partial_text:" works as expected
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
-    Then the row containing "Alpha item" should contain the following:
+    Then I should see the following text in the row containing "Alpha item":
       | Type A  |
       | Active  |
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row containing :partial_text should contain the following:" fails when row not found
+  Scenario: Assert "Then I should see the following text in the row containing :partial_text:" fails when row not found
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the row containing "NonExistent" should contain the following:
+      Then I should see the following text in the row containing "NonExistent":
         | some text |
       """
     When I run "behat --no-colors"
@@ -278,13 +278,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row containing :partial_text should contain the following:" fails when text not found in row
+  Scenario: Assert "Then I should see the following text in the row containing :partial_text:" fails when text not found in row
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the row containing "Alpha item" should contain the following:
+      Then I should see the following text in the row containing "Alpha item":
         | NonExistent |
       """
     When I run "behat --no-colors"
@@ -294,42 +294,42 @@ Feature: Check that TableTrait works
       """
 
   @phpserver
-  Scenario: Assert "When I click on the link :link in the row containing :partial_text" works as expected
-    Given the user is anonymous
+  Scenario: Assert "When I follow the link :link in the row containing :partial_text" works as expected
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
-    And I click on the link "Edit" in the row containing "Epsilon record"
-    Then the current URL should have the query parameter "edit" with the value "epsilon"
+    And I follow the link "Edit" in the row containing "Epsilon record"
+    Then the URL should have the query parameter "edit" with the value "epsilon"
 
   @phpserver
   Scenario: Assert "When I press the button :button in the row containing :partial_text" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
     And I press the button "Remove" in the row containing "Epsilon record"
-    Then the current URL should have the query parameter "remove" with the value "epsilon"
+    Then the URL should have the query parameter "remove" with the value "epsilon"
 
   @phpserver
-  Scenario: Assert "Then the row containing :partial_text should contain the value :value" works as expected
-    Given the user is anonymous
+  Scenario: Assert "Then I should see the text :text in the row containing :partial_text" works as expected
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
-    Then the row containing "Delta record" should contain the value "Draft"
-    And the row containing "Delta record" should not contain the value "Published"
-    And the row containing "Delta" should contain the value "Draft"
+    Then I should see the text "Draft" in the row containing "Delta record"
+    And I should not see the text "Published" in the row containing "Delta record"
+    And I should see the text "Draft" in the row containing "Delta"
 
   @phpserver
-  Scenario: Assert "Then the link :link in the row containing :partial_text should exist" works as expected
-    Given the user is anonymous
+  Scenario: Assert "Then I should see the link :link in the row containing :partial_text" works as expected
+    Given I am an anonymous user
     When I visit "http://cli:8888/table.html"
-    Then the link "Edit" in the row containing "Delta record" should exist
-    And the link "Edit" in the row containing "Zeta record" should not exist
+    Then I should see the link "Edit" in the row containing "Delta record"
+    And I should not see the link "Edit" in the row containing "Zeta record"
 
   @test-trait:TableTrait
-  Scenario: Assert "When I click on the link :link in the row containing :partial_text" fails when the row has no such link
+  Scenario: Assert "When I follow the link :link in the row containing :partial_text" fails when the row has no such link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      And I click on the link "Edit" in the row containing "Zeta record"
+      And I follow the link "Edit" in the row containing "Zeta record"
       """
     When I run "behat --no-colors"
     Then it should fail with a "Behat\Mink\Exception\ElementNotFoundException" exception:
@@ -342,7 +342,7 @@ Feature: Check that TableTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
       And I press the button "Remove" in the row containing "Zeta record"
       """
@@ -353,13 +353,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row containing :partial_text should contain the value :value" fails when no row has the text
+  Scenario: Assert "Then I should see the text :text in the row containing :partial_text" fails when no row has the text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the row containing "Omega record" should contain the value "Draft"
+      Then I should see the text "Draft" in the row containing "Omega record"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -368,13 +368,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row containing :partial_text should contain the value :value" fails when the row lacks the value
+  Scenario: Assert "Then I should see the text :text in the row containing :partial_text" fails when the row lacks the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the row containing "Delta record" should contain the value "Published"
+      Then I should see the text "Published" in the row containing "Delta record"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -383,13 +383,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the row containing :partial_text should not contain the value :value" fails when the row has the value
+  Scenario: Assert "Then I should not see the text :text in the row containing :partial_text" fails when the row has the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the row containing "Delta record" should not contain the value "Draft"
+      Then I should not see the text "Draft" in the row containing "Delta record"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -398,13 +398,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the link :link in the row containing :partial_text should exist" fails when the row has no such link
+  Scenario: Assert "Then I should see the link :link in the row containing :partial_text" fails when the row has no such link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the link "Edit" in the row containing "Zeta record" should exist
+      Then I should see the link "Edit" in the row containing "Zeta record"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -413,13 +413,13 @@ Feature: Check that TableTrait works
       """
 
   @test-trait:TableTrait
-  Scenario: Assert "Then the link :link in the row containing :partial_text should not exist" fails when the row has the link
+  Scenario: Assert "Then I should not see the link :link in the row containing :partial_text" fails when the row has the link
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/table.html"
-      Then the link "Edit" in the row containing "Delta record" should not exist
+      Then I should not see the link "Edit" in the row containing "Delta record"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

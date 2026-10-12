@@ -4,7 +4,7 @@ Feature: Check that DateTrait works
   So that users can create time-based test scenarios independent of current date
 
   Scenario: Assert that relative date works in value transform
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the "administrator" role
     When I go to "node/add/article"
     And I fill in "Title" with "[TEST] Article 1 first [relative:-10 years#Y-m-d] and second [relative:-9 years#Y-m-d]"
     And I select "Published" from "edit-moderation-state-0-state"
@@ -13,7 +13,7 @@ Feature: Check that DateTrait works
     And I should see "[TEST] Article 1 first 2014-07-15 and second 2015-07-15"
 
   Scenario: Assert that relative date works in table transform
-    Given the following "article" content exist:
+    Given the following "article" content exists:
       | title            | created              | status | moderation_state |
       | [TEST] Article 1 | [relative:-10 years] | 1      | published        |
     When I visit the "article" content page with the title "[TEST] Article 1"
@@ -21,7 +21,7 @@ Feature: Check that DateTrait works
     And I should see "201"
 
   Scenario: Assert that relative date works in table transform for seconds
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the "administrator" role
     When I go to "node/add/article"
     And I fill in "Title" with "[TEST] Article relative 5 seconds [relative:5 seconds#Y-m-d H:i:s]"
     And I select "Published" from "edit-moderation-state-0-state"
@@ -30,7 +30,7 @@ Feature: Check that DateTrait works
     And I should see "[TEST] Article relative 5 seconds 2024-07-15 12:00:05"
 
   Scenario: Assert that relative date works in table transform for seconds under a minute
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the "administrator" role
     When I go to "node/add/article"
     And I fill in "Title" with "[TEST] Article relative 30 seconds [relative:30 seconds#Y-m-d H:i:s]"
     And I select "Published" from "edit-moderation-state-0-state"
@@ -39,7 +39,7 @@ Feature: Check that DateTrait works
     And I should see "[TEST] Article relative 30 seconds 2024-07-15 12:00:30"
 
   Scenario: Assert that relative date works in table transform for seconds over a minute
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the "administrator" role
     When I go to "node/add/article"
     And I fill in "Title" with "[TEST] Article relative 65 seconds [relative:65 seconds#Y-m-d H:i:s]"
     And I select "Published" from "edit-moderation-state-0-state"

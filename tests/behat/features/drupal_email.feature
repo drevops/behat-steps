@@ -12,7 +12,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three of the test email content
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Line two of the test email content
@@ -27,7 +27,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three   with   tabs and    spaces
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Line two of the test email content
@@ -62,9 +62,9 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three of the test email content
       """
-    Then an email should be sent to the address "test@example.com"
-    And an email should be sent to the address "test@example.com"
-    And an email should not be sent to the address "test3@example.com"
+    Then an email should have been sent to the address "test@example.com"
+    And an email should have been sent to the address "test@example.com"
+    And no emails should have been sent to the address "test3@example.com"
     And the email header "Content-Type" should contain:
       """
       text/plain
@@ -82,7 +82,7 @@ Feature: Check that EmailTrait works
       Test email content line two
       Test email content line three
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email header "Content-Type" should be:
       """
       text/plain; charset=utf-8; format=flowed; delsp=yes
@@ -100,7 +100,7 @@ Feature: Check that EmailTrait works
       Test email content line two
       Test email content line three
       """
-    Then an email should be sent to the address "test@example.com" with the content:
+    Then an email should have been sent to the address "test@example.com" with the content:
       """
       Test email content line one
       Test email content line two
@@ -115,7 +115,7 @@ Feature: Check that EmailTrait works
       Test email content line two
       Test email content line three
       """
-    Then an email should be sent to the address "test@example.com" with the content containing:
+    Then an email should have been sent to the address "test@example.com" with the content containing:
       """
       content line tw
       """
@@ -128,7 +128,7 @@ Feature: Check that EmailTrait works
       Test email content line two
       Test email content line three
       """
-    Then an email should be sent to the address "test@example.com" with the content not containing:
+    Then an email should have been sent to the address "test@example.com" with the content not containing:
       """
       content line four
       """
@@ -141,7 +141,7 @@ Feature: Check that EmailTrait works
       Test email content line two
       Test email content line three
       """
-    Then an email should not be sent to the address "test@example.com" with the content:
+    Then no emails should have been sent to the address "test@example.com" with the content:
       """
       Test email content line one-one
       Test email content line two-two
@@ -156,7 +156,7 @@ Feature: Check that EmailTrait works
       Test email content line two
       Test email content line three
       """
-    Then an email should not be sent to the address "test@example.com" with the content containing:
+    Then no emails should have been sent to the address "test@example.com" with the content containing:
       """
       content line four
       """
@@ -169,7 +169,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three of the test email content
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Line two of the test email content
@@ -188,7 +188,7 @@ Feature: Check that EmailTrait works
       Line two of the test email content
       Line three of the test email content
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Line two of the test email content
@@ -212,7 +212,7 @@ Feature: Check that EmailTrait works
       "<content>"
       Line two of the test email content
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
 
     And I follow the link with the index "<index>" in the email with the subject "Test Email"
     Then the response status code should be 200
@@ -232,7 +232,7 @@ Feature: Check that EmailTrait works
       """
       Here is your link: http://example.com/reset-password
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     When I follow the link with the index 1 in the email with a subject containing "Test Email"
     Then I should be on "http://example.com/reset-password"
 
@@ -268,21 +268,21 @@ Feature: Check that EmailTrait works
 
   @email
   Scenario: As a developer, I want to know that no emails assertions works as expected
-    Given an email should not be sent
+    Given no emails should have been sent
     When I send test email to "test@example.com" with
       """
       Line one of the test email content
       "<content>"
       Line two of the test email content
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
 
     When I clear the test email system queue
-    Then an email should not be sent
+    Then no emails should have been sent
 
   @email
   Scenario: As a developer, I want to manually enable the test email system and verify it works
-    Given an email should not be sent
+    Given no emails should have been sent
     And I enable the test email system
     And I send test email to "test@example.com" with
       """
@@ -290,7 +290,7 @@ Feature: Check that EmailTrait works
       Test email content line two
       Test email content line three
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Test email content line two
@@ -310,7 +310,7 @@ Feature: Check that EmailTrait works
       Test email content line three
       """
     When I disable the test email system
-    Then an email should not be sent
+    Then no emails should have been sent
 
   @email
   Scenario: As a developer, I want to verify that an email contains an attachment
@@ -318,7 +318,7 @@ Feature: Check that EmailTrait works
       """
       This email contains an attachment.
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email field "subject" should be:
       """
       Email with Attachment
@@ -331,17 +331,17 @@ Feature: Check that EmailTrait works
       """
       This email contains an attachment.
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the file "example.pdf" should be attached to the email with a subject containing "with Attachment"
 
   @email
   Scenario: As a developer, I want error when no emails sent but some expected
-    Given an email should not be sent
+    Given no emails should have been sent
     When I send test email to "test@example.com" with:
       """
       Test content
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
 
   @email
   Scenario: As a developer, I want to verify no emails sent to address assertion passes when address not used
@@ -349,7 +349,7 @@ Feature: Check that EmailTrait works
       """
       Test content
       """
-    Then an email should not be sent to the address "wrong@example.com"
+    Then no emails should have been sent to the address "wrong@example.com"
 
   @email
   Scenario: As a developer, I want to verify no emails sent to CC address assertion passes when address not used
@@ -357,7 +357,7 @@ Feature: Check that EmailTrait works
       """
       Test content with CC
       """
-    Then an email should not be sent to the address "wrong@example.com"
+    Then no emails should have been sent to the address "wrong@example.com"
 
   @email
   Scenario: As a developer, I want to verify no emails sent to BCC address assertion passes when address not used
@@ -365,7 +365,7 @@ Feature: Check that EmailTrait works
       """
       Test content with BCC
       """
-    Then an email should not be sent to the address "wrong@example.com"
+    Then no emails should have been sent to the address "wrong@example.com"
 
   @email @debug
   Scenario: As a developer, I want to verify email debug output is triggered with @debug tag
@@ -373,7 +373,7 @@ Feature: Check that EmailTrait works
       """
       Debug test content
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Debug test content
@@ -384,8 +384,8 @@ Feature: Check that EmailTrait works
     Given some behat configuration
     And scenario steps tagged with "@email":
       """
-      When I log in as a user with the role "administrator"
-      Then an email should be sent to the address "test@example.com"
+      Given I am logged in as a user with the "administrator" role
+      Then an email should have been sent to the address "test@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -415,7 +415,7 @@ Feature: Check that EmailTrait works
         '''
         Test content with CC
         '''
-      Then an email should not be sent to the address "cc@example.com"
+      Then no emails should have been sent to the address "cc@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -432,7 +432,7 @@ Feature: Check that EmailTrait works
         '''
         Test content with BCC
         '''
-      Then an email should not be sent to the address "bcc@example.com"
+      Then no emails should have been sent to the address "bcc@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -625,7 +625,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then an email should not be sent
+      Then no emails should have been sent
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -642,7 +642,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then an email should not be sent to the address "test@example.com"
+      Then no emails should have been sent to the address "test@example.com"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -839,7 +839,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then an email should be sent to the address "test@example.com"
+      Then an email should have been sent to the address "test@example.com"
       When I disable the test email system
       """
     When I run "behat --no-colors"
@@ -854,7 +854,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then an email should be sent to the address "test@example.com"
+      Then an email should have been sent to the address "test@example.com"
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -865,7 +865,7 @@ Feature: Check that EmailTrait works
       """
       Test content with custom handler type
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Test content with custom handler type
@@ -877,7 +877,7 @@ Feature: Check that EmailTrait works
       """
       Test content with the handler type tag alone
       """
-    Then an email should be sent to the address "test@example.com"
+    Then an email should have been sent to the address "test@example.com"
     And the email field "body" should contain:
       """
       Test content with the handler type tag alone
@@ -899,7 +899,7 @@ Feature: Check that EmailTrait works
             '''
             Test content
             '''
-          Then an email should be sent to the address "test@example.com"
+          Then an email should have been sent to the address "test@example.com"
 
         Scenario: A later scenario finds the test email system disabled
           When I clear the test email system queue
@@ -1058,14 +1058,14 @@ Feature: Check that EmailTrait works
             '''
             First scenario content
             '''
-          Then an email should be sent to the address "first@example.com"
+          Then an email should have been sent to the address "first@example.com"
 
         Scenario: Second scenario collects email
           When I send test email to "second@example.com" with:
             '''
             Second scenario content
             '''
-          Then an email should be sent to the address "second@example.com"
+          Then an email should have been sent to the address "second@example.com"
       """
     When I run "behat --no-colors"
     Then it should pass with:

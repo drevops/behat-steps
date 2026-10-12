@@ -4,16 +4,16 @@ Feature: Check that ParagraphsTrait works
   So that users can test paragraph field functionality
 
   Background:
-    When I log in as a user with the role "administrator"
-    And the following "landing_page" content do not exist:
+    Given I am logged in as a user with the "administrator" role
+    And the following "landing_page" content does not exist:
       | title                 |
       | [TEST] Landing page 1 |
-    And the following landing_page content exist:
+    And the following landing_page content exists:
       | title                 |
       | [TEST] Landing page 1 |
 
-  Scenario: Assert "Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:"
-    When the following fields for the paragraph "text" exist in the field "field_paragraph" within the "landing_page" "node" identified by the field "title" and the value "[TEST] Landing page 1":
+  Scenario: Assert "Given the following fields for the :paragraph_type paragraph exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:"
+    When the following fields for the "text" paragraph exist in the field "field_paragraph" within the "landing_page" "node" identified by the field "title" and the value "[TEST] Landing page 1":
       | field_paragraph_title       | My paragraph title   |
       | field_paragraph_body:value  | My paragraph message |
       | field_paragraph_body:format | full_html            |
@@ -22,11 +22,11 @@ Feature: Check that ParagraphsTrait works
     And I should see "My paragraph message"
 
   @test-trait:Drupal\ParagraphsTrait
-  Scenario: Assert that negative assertion for "Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:" fails with an error on non-existing parent field
+  Scenario: Assert that negative assertion for "Given the following fields for the :paragraph_type paragraph exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:" fails with an error on non-existing parent field
     Given some behat configuration
     And scenario steps:
       """
-      When the following fields for the paragraph "text" exist in the field "field_non_existing_paragraph" within the "landing_page" "node" identified by the field "title" and the value "[TEST] Landing page 1":
+      When the following fields for the "text" paragraph exist in the field "field_non_existing_paragraph" within the "landing_page" "node" identified by the field "title" and the value "[TEST] Landing page 1":
         | field_paragraph_title | My paragraph title |
       """
     When I run "behat --no-colors"
@@ -36,11 +36,11 @@ Feature: Check that ParagraphsTrait works
       """
 
   @test-trait:Drupal\ParagraphsTrait
-  Scenario: Assert that negative assertion for "Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:" fails with an error on non-existing parent entity
+  Scenario: Assert that negative assertion for "Given the following fields for the :paragraph_type paragraph exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:" fails with an error on non-existing parent entity
     Given some behat configuration
     And scenario steps:
       """
-      When the following fields for the paragraph "text" exist in the field "field_paragraph" within the "landing_page" "node" identified by the field "title" and the value "[TEST] Non-existing landing page":
+      When the following fields for the "text" paragraph exist in the field "field_paragraph" within the "landing_page" "node" identified by the field "title" and the value "[TEST] Non-existing landing page":
         | field_paragraph_title | My paragraph title |
       """
     When I run "behat --no-colors"

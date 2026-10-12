@@ -52,10 +52,10 @@ trait ResponseTrait {
    * Assert that a response contains a header with a specified name and value.
    *
    * @code
-   * Then the response header "Connection" should contain the value "Keep-Alive"
+   * Then the response header "Connection" should contain "Keep-Alive"
    * @endcode
    */
-  #[Then('the response header :name should contain the value :value')]
+  #[Then('the response header :name should contain :value')]
   public function responseAssertHeaderContains(string $name, string $value): void {
     $header = $this->getSession()->getResponseHeader($name);
 
@@ -70,10 +70,10 @@ trait ResponseTrait {
    * Assert a response does not contain a header with a specified name and value.
    *
    * @code
-   * Then the response header "Connection" should not contain the value "Keep-Alive"
+   * Then the response header "Connection" should not contain "Keep-Alive"
    * @endcode
    */
-  #[Then('the response header :name should not contain the value :value')]
+  #[Then('the response header :name should not contain :value')]
   public function responseAssertHeaderNotContains(string $name, string $value): void {
     $header = $this->getSession()->getResponseHeader($name);
 

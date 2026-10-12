@@ -43,8 +43,8 @@ Feature: Check that ConfigOverrideTrait works
     Given the following users exist:
       | name      | mail                  | roles         | status |
       | test_user | test_user@example.com | administrator | 1      |
-    When I log in as the user "test_user"
-    And I visit "/mysite_core/test-config-no-override-header"
+    And I am logged in as "test_user"
+    When I visit "/mysite_core/test-config-no-override-header"
     Then the response status code should be 200
     And the response should contain "system.site"
 
@@ -59,7 +59,7 @@ Feature: Check that ConfigOverrideTrait works
     Given the following users exist:
       | name       | mail                   | roles         | status |
       | test_user2 | test_user2@example.com | administrator | 1      |
-    When I log in as the user "test_user2"
-    And I visit "/mysite_core/test-config-no-override-header"
+    And I am logged in as "test_user2"
+    When I visit "/mysite_core/test-config-no-override-header"
     Then the response status code should be 200
     And the response should not contain "system.site"

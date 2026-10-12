@@ -196,13 +196,13 @@ trait EmailTrait {
   }
 
   /**
-   * Assert that an email should be sent to an address.
+   * Assert that an email was sent to an address.
    *
    * @code
-   * Then an email should be sent to the address "user@example.com"
+   * Then an email should have been sent to the address "user@example.com"
    * @endcode
    */
-  #[Then('an email should be sent to the address :address')]
+  #[Then('an email should have been sent to the address :address')]
   public function emailAssertMessageSentToAddress(string $address): void {
     $this->emailAssertMessageExistsToAddress($address);
   }
@@ -267,10 +267,10 @@ trait EmailTrait {
    * Assert that no email was sent.
    *
    * @code
-   * Then an email should not be sent
+   * Then no emails should have been sent
    * @endcode
    */
-  #[Then('an email should not be sent')]
+  #[Then('no emails should have been sent')]
   public function emailAssertMessageNotSent(): void {
     $messages = $this->emailGetCollectedMessages();
 
@@ -283,10 +283,10 @@ trait EmailTrait {
    * Assert that no email was sent to an address.
    *
    * @code
-   * Then an email should not be sent to the address "user@example.com"
+   * Then no emails should have been sent to the address "user@example.com"
    * @endcode
    */
-  #[Then('an email should not be sent to the address :address')]
+  #[Then('no emails should have been sent to the address :address')]
   public function emailAssertMessageNotSentToAddress(string $address): void {
     $this->emailAssertMessageNotExistsToAddress($address);
   }
@@ -322,81 +322,81 @@ trait EmailTrait {
   }
 
   /**
-   * Assert that an email should be sent to an address with the exact content in the body.
+   * Assert that an email was sent to an address with the exact content in the body.
    *
    * @code
-   * Then an email should be sent to the address "user@example.com" with the content:
+   * Then an email should have been sent to the address "user@example.com" with the content:
    * """
    * Welcome to our site!
    * Click the link below to verify your account.
    * """
    * @endcode
    */
-  #[Then('an email should be sent to the address :address with the content:')]
+  #[Then('an email should have been sent to the address :address with the content:')]
   public function emailAssertMessageSentToAddressWithContent(string $address, PyStringNode $string): void {
     $this->emailAssertMessageExistsToAddress($address);
     $this->emailAssertMessageExistsWithFieldValue('body', $string, TRUE);
   }
 
   /**
-   * Assert that an email should be sent to an address with the body containing specific content.
+   * Assert that an email was sent to an address with the body containing specific content.
    *
    * @code
-   * Then an email should be sent to the address "user@example.com" with the content containing:
+   * Then an email should have been sent to the address "user@example.com" with the content containing:
    * """
    * verification link
    * """
    * @endcode
    */
-  #[Then('an email should be sent to the address :address with the content containing:')]
+  #[Then('an email should have been sent to the address :address with the content containing:')]
   public function emailAssertMessageSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
     $this->emailAssertMessageExistsToAddress($address);
     $this->emailAssertMessageExistsWithFieldValue('body', $string, FALSE);
   }
 
   /**
-   * Assert that an email should be sent to an address with the body not containing specific content.
+   * Assert that an email was sent to an address with the body not containing specific content.
    *
    * @code
-   * Then an email should be sent to the address "user@example.com" with the content not containing:
+   * Then an email should have been sent to the address "user@example.com" with the content not containing:
    * """
    * password
    * """
    * @endcode
    */
-  #[Then('an email should be sent to the address :address with the content not containing:')]
+  #[Then('an email should have been sent to the address :address with the content not containing:')]
   public function emailAssertMessageSentToAddressNotContains(string $address, PyStringNode $string): void {
     $this->emailAssertMessageExistsToAddress($address);
     $this->emailAssertMessageNotExistsWithFieldValue('body', $string, FALSE);
   }
 
   /**
-   * Assert that an email should not be sent to an address with the exact content in the body.
+   * Assert that no email was sent to an address with the exact content in the body.
    *
    * @code
-   * Then an email should not be sent to the address "wrong@example.com" with the content:
+   * Then no emails should have been sent to the address "wrong@example.com" with the content:
    * """
    * Welcome to our site!
    * """
    * @endcode
    */
-  #[Then('an email should not be sent to the address :address with the content:')]
+  #[Then('no emails should have been sent to the address :address with the content:')]
   public function emailAssertMessageNotSentToAddressWithContent(string $address, PyStringNode $string): void {
     $this->emailAssertMessageNotExistsToAddress($address);
     $this->emailAssertMessageNotExistsWithFieldValue('body', $string, TRUE);
   }
 
   /**
-   * Assert that an email should not be sent to an address with the body containing specific content.
+   * Assert that no email was sent to an address with the body containing specific content.
    *
    * @code
-   * Then an email should not be sent to the address "wrong@example.com" with the content containing:
+   * Then no emails should have been sent to the address "wrong@example.com" with the content containing:
    * """
    * verification link
    * """
    * @endcode
    */
-  #[Then('an email should not be sent to the address :address with the content containing:')]
+  #[Then('no emails should have been sent to the address :address with the content containing:')]
   public function emailAssertMessageNotSentToAddressWithContentContaining(string $address, PyStringNode $string): void {
     $this->emailAssertMessageNotExistsToAddress($address);
     $this->emailAssertMessageNotExistsWithFieldValue('body', $string, FALSE);

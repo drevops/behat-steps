@@ -195,10 +195,10 @@ trait ElementTrait {
    * Matches the text of any `h1` to `h6` element exactly.
    *
    * @code
-   * Then the heading "Latest news" should exist
+   * Then I should see the heading "Latest news"
    * @endcode
    */
-  #[Then('the heading :heading should exist')]
+  #[Then('I should see the heading :heading')]
   public function elementAssertHeadingExists(string $heading): void {
     if (!$this->headingFind($this->getSession()->getPage(), $heading) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'heading', 'text', $heading);
@@ -209,10 +209,10 @@ trait ElementTrait {
    * Assert that no heading with the text exists.
    *
    * @code
-   * Then the heading "Admin" should not exist
+   * Then I should not see the heading "Admin"
    * @endcode
    */
-  #[Then('the heading :heading should not exist')]
+  #[Then('I should not see the heading :heading')]
   public function elementAssertHeadingNotExists(string $heading): void {
     if ($this->headingFind($this->getSession()->getPage(), $heading) instanceof NodeElement) {
       throw new ExpectationException(sprintf('The heading "%s" was found on the page "%s".', $heading, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
@@ -225,10 +225,10 @@ trait ElementTrait {
    * Matches by id, name, title, alt or value.
    *
    * @code
-   * Then the button "Save" should exist
+   * Then I should see the button "Save"
    * @endcode
    */
-  #[Then('the button :button should exist')]
+  #[Then('I should see the button :button')]
   public function elementAssertButtonExists(string $button): void {
     if (!$this->getSession()->getPage()->findButton($button) instanceof NodeElement) {
       throw new ElementNotFoundException($this->getSession()->getDriver(), 'button', 'id|name|title|alt|value', $button);
@@ -239,10 +239,10 @@ trait ElementTrait {
    * Assert that a button does not exist.
    *
    * @code
-   * Then the button "Delete" should not exist
+   * Then I should not see the button "Delete"
    * @endcode
    */
-  #[Then('the button :button should not exist')]
+  #[Then('I should not see the button :button')]
   public function elementAssertButtonNotExists(string $button): void {
     if ($this->getSession()->getPage()->findButton($button) instanceof NodeElement) {
       throw new ExpectationException(sprintf('The button "%s" was found on the page "%s".', $button, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
@@ -267,10 +267,10 @@ trait ElementTrait {
    * Assert that one text string appears after another on the page.
    *
    * @code
-   * Then the text "Welcome" should appear after the text "Home"
+   * Then I should see the text "Welcome" after the text "Home"
    * @endcode
    */
-  #[Then('the text :text1 should appear after the text :text2')]
+  #[Then('I should see the text :text1 after the text :text2')]
   public function elementAssertTextAfterText(string $text1, string $text2): void {
     $content = $this->getSession()->getPage()->getText();
 

@@ -8,12 +8,12 @@ Feature: Check that LanguageTrait works
   # entity cleanup is told to leave languages to the module uninstall.
   @module:language @behat-steps-entity-cleanup-skip:language
   Scenario: Assert "Given the following languages exist:" works as expected
-    Given the module "language" is enabled
+    Given the "language" module is enabled
     And the following languages exist:
       | langcode |
       | fr       |
-    When I log in as a user with the role "administrator"
-    And I visit "/admin/config/regional/language"
+    And I am logged in as a user with the "administrator" role
+    When I visit "/admin/config/regional/language"
     Then I should see "French"
 
   @test-trait:Drupal\LanguageTrait

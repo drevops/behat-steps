@@ -117,10 +117,10 @@ trait UserTrait {
    * Log the current user out so the session is anonymous.
    *
    * @code
-   * Given the user is anonymous
+   * Given I am an anonymous user
    * @endcode
    */
-  #[Given('the user is anonymous')]
+  #[Given('I am an anonymous user')]
   public function userLogoutSession(): void {
     $this->authLogout(TRUE);
   }
@@ -195,10 +195,10 @@ trait UserTrait {
    * Create a single role with specified permissions.
    *
    * @code
-   * Given the role "Content Manager" has the permissions "access content, create article content, edit any article content"
+   * Given the "Content Manager" role has the "access content, create article content, edit any article content" permissions
    * @endcode
    */
-  #[Given('the role :role has the permissions :permissions')]
+  #[Given('the :role role has the :permissions permission(s)')]
   public function userCreateRole(string $role, string $permissions): void {
     $this->userCreateRoleWithPermissions($role, $this->stringSplitCommaSeparated($permissions));
   }
@@ -231,11 +231,11 @@ trait UserTrait {
    * role is implied by having an account, so it is not assigned.
    *
    * @code
-   * When I log in as a user with the role "editor"
-   * When I log in as a user with the roles "editor, admin"
+   * Given I am logged in as a user with the "editor" role
+   * Given I am logged in as a user with the "editor, admin" roles
    * @endcode
    */
-  #[When('I log in as a user with the role(s) :roles')]
+  #[Given('I am logged in as a user with the :roles role(s)')]
   public function userLoginWithRoles(string $roles): void {
     $this->userCreateAndLogin($roles);
   }
@@ -244,12 +244,12 @@ trait UserTrait {
    * Create a user with the roles and fields, and log in as them.
    *
    * @code
-   *   When I log in as a user with the role "editor" and the following fields:
+   *   Given I am logged in as a user with the "editor" role and I have the following fields:
    *     | field_user_name    | John  |
    *     | field_user_surname | Smith |
    * @endcode
    */
-  #[When('I log in as a user with the role(s) :roles and the following fields:')]
+  #[Given('I am logged in as a user with the :roles role(s) and I have the following fields:')]
   public function userLoginWithRolesAndFields(string $roles, TableNode $fields): void {
     $this->userCreateAndLogin($roles, $fields->getRowsHash());
   }
@@ -260,11 +260,11 @@ trait UserTrait {
    * Several permissions are given as a comma-separated list.
    *
    * @code
-   * When I log in as a user with the permission "administer nodes"
-   * When I log in as a user with the permissions "administer nodes, access content"
+   * Given I am logged in as a user with the "administer nodes" permission
+   * Given I am logged in as a user with the "administer nodes, access content" permissions
    * @endcode
    */
-  #[When('I log in as a user with the permission(s) :permissions')]
+  #[Given('I am logged in as a user with the :permissions permission(s)')]
   public function userLoginWithPermissions(string $permissions): void {
     $stub = $this->userCreateWithPermissions(array_filter($this->stringSplitCommaSeparated($permissions)));
 
@@ -275,10 +275,10 @@ trait UserTrait {
    * Log in as an existing user created earlier in the scenario.
    *
    * @code
-   * When I log in as the user "[TEST] user1"
+   * Given I am logged in as "[TEST] user1"
    * @endcode
    */
-  #[When('I log in as the user :name')]
+  #[Given('I am logged in as :name')]
   public function userLoginAs(string $name): void {
     $this->authLogin($this->authGetUserRegistry()->getUser($name));
   }
@@ -311,10 +311,10 @@ trait UserTrait {
    * Visit the profile page of the current user.
    *
    * @code
-   * When I visit my own user profile page
+   * When I visit my own profile page
    * @endcode
    */
-  #[When('I visit my own user profile page')]
+  #[When('I visit my own profile page')]
   public function userVisitOwnProfilePage(): void {
     $this->userVisitActionPage('current');
   }
@@ -335,10 +335,10 @@ trait UserTrait {
    * Visit the profile edit page of the current user.
    *
    * @code
-   * When I visit my own user profile edit page
+   * When I visit my own profile edit page
    * @endcode
    */
-  #[When('I visit my own user profile edit page')]
+  #[When('I visit my own profile edit page')]
   public function userVisitOwnProfileEditPage(): void {
     $this->userVisitActionPage('current', '/edit');
   }
@@ -359,10 +359,10 @@ trait UserTrait {
    * Visit the profile delete page of the current user.
    *
    * @code
-   * When I visit my own user profile delete page
+   * When I visit my own profile delete page
    * @endcode
    */
-  #[When('I visit my own user profile delete page')]
+  #[When('I visit my own profile delete page')]
   public function userVisitOwnProfileDeletePage(): void {
     $this->userVisitActionPage('current', '/cancel');
   }
@@ -404,10 +404,10 @@ trait UserTrait {
    * Assert that a user has roles assigned.
    *
    * @code
-   * Then the user "John" should have the roles "administrator, editor" assigned
+   * Then the user "John" should have the "administrator, editor" roles
    * @endcode
    */
-  #[Then('the user :name should have the role(s) :roles assigned')]
+  #[Then('the user :name should have the :roles role(s)')]
   public function userAssertHasRoles(string $name, string $roles): void {
     $user = $this->userGetByName($name);
 
@@ -422,10 +422,10 @@ trait UserTrait {
    * Assert that a user does not have roles assigned.
    *
    * @code
-   * Then the user "John" should not have the roles "administrator, editor" assigned
+   * Then the user "John" should not have the "administrator, editor" roles
    * @endcode
    */
-  #[Then('the user :name should not have the role(s) :roles assigned')]
+  #[Then('the user :name should not have the :roles role(s)')]
   public function userAssertNotHasRoles(string $name, string $roles): void {
     $user = $this->userGetByName($name);
 

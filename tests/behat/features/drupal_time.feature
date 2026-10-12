@@ -3,12 +3,12 @@ Feature: Check that TimeTrait works
   Scenario: Assert system time can be overridden
     When I go to "/mysite_core/test-time"
     Then I should not see "1737849900"
-    When I set the system time to the value "1737849900"
+    When I set the system time to "1737849900"
     And I go to "/mysite_core/test-time"
     Then I should see "1737849900"
 
   Scenario: Assert system time can be reset
-    When I set the system time to the value "1737849900"
+    When I set the system time to "1737849900"
     And I go to "/mysite_core/test-time"
     Then I should see "1737849900"
     When I reset the system time
@@ -20,11 +20,11 @@ Feature: Check that TimeTrait works
     Then I should not see "1737849900"
 
   @test-trait:Drupal\TimeTrait
-  Scenario: Assert that "When I set the system time to the value :value" fails when the value is not an integer
+  Scenario: Assert that "When I set the system time to :value" fails when the value is not an integer
     Given some behat configuration
     And scenario steps:
       """
-      When I set the system time to the value "tomorrow"
+      When I set the system time to "tomorrow"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

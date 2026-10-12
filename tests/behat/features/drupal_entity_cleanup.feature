@@ -57,11 +57,11 @@ Feature: Check that automatic entity cleanup works
     Given the following "tags" terms exist:
       | name                 |
       | [TEST] Cleanup term  |
-    And the following "page" content exist:
+    And the following "page" content exists:
       | title                   | status |
       | [TEST] Cleanup page     | 1      |
-    Then the taxonomy term "[TEST] Cleanup term" from the vocabulary "tags" should exist
+    Then the "tags" term with the name "[TEST] Cleanup term" should exist
 
   Scenario: Entities of several types are all deleted at teardown
-    Then the taxonomy term "[TEST] Cleanup term" from the vocabulary "tags" should not exist
+    Then the "tags" term with the name "[TEST] Cleanup term" should not exist
     And the "page" content with the title "[TEST] Cleanup page" should not exist

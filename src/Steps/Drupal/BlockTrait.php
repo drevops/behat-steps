@@ -135,12 +135,12 @@ trait BlockTrait {
    *   Configuration for the visibility condition.
    *
    * @code
-   *   Given the block "My block" has the condition "request_path" with the following configuration:
+   *   Given the block "My block" has the following "request_path" condition configuration:
    *     | pages  | /node/1\r\n/about |
    *     | negate | 0                 |
    * @endcode
    */
-  #[Given('the block :label has the condition :condition with the following configuration:')]
+  #[Given('the block :label has the following :condition condition configuration:')]
   public function blockConfigureVisibilityCondition(string $label, string $condition, TableNode $fields): void {
     $this->blockSetVisibilityCondition($this->blockGetByLabel($label), $condition, $fields->getRowsHash());
   }
@@ -156,10 +156,10 @@ trait BlockTrait {
    *   The type of visibility condition to remove.
    *
    * @code
-   *   Given the block "My block" has the condition "request_path" removed
+   *   Given the block "My block" has the "request_path" condition removed
    * @endcode
    */
-  #[Given('the block :label has the condition :condition removed')]
+  #[Given('the block :label has the :condition condition removed')]
   public function blockRemoveVisibilityCondition(string $label, string $condition): void {
     $this->blockUnsetVisibilityCondition($this->blockGetByLabel($label), $condition);
   }
@@ -217,13 +217,13 @@ trait BlockTrait {
    *   The region to check for the block
    *
    * @code
-   *   Then the block "My block" in the region "content" should exist
+   *   Then the block "My block" in the "content" region should exist
    * @endcode
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no block with the specified label is found in the given region.
    */
-  #[Then('the block :label in the region :region should exist')]
+  #[Then('the block :label in the :region region should exist')]
   public function blockAssertExistsInRegion(string $label, string $region): void {
     $block = $this->blockFindByLabel($label);
 
@@ -247,13 +247,13 @@ trait BlockTrait {
    *   The region to check for the block
    *
    * @code
-   *   Then the block "My block" in the region "content" should not exist
+   *   Then the block "My block" in the "content" region should not exist
    * @endcode
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When block with the specified label is found in the given region.
    */
-  #[Then('the block :label in the region :region should not exist')]
+  #[Then('the block :label in the :region region should not exist')]
   public function blockAssertNotExistsInRegion(string $label, string $region): void {
     $block = $this->blockFindByLabel($label);
 

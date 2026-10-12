@@ -204,15 +204,15 @@ trait FileTrait {
    * Assert that an unmanaged file exists and has specified content.
    *
    * @code
-   * Then an unmanaged file at the URI "public://config.txt" should contain the value "debug=true"
+   * Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
    * @endcode
    */
-  #[Then('an unmanaged file at the URI :uri should contain the value :value')]
-  public function fileAssertUnmanagedContains(string $uri, string $value): void {
+  #[Then('an unmanaged file at the URI :uri should contain :content')]
+  public function fileAssertUnmanagedContains(string $uri, string $content): void {
     $file_content = $this->fileGetUnmanagedContent($uri);
 
-    if (!str_contains($file_content, $value)) {
-      throw new ExpectationException(sprintf('The file content "%s" does not contain "%s".', $file_content, $value), $this->getSession()->getDriver());
+    if (!str_contains($file_content, $content)) {
+      throw new ExpectationException(sprintf('The file content "%s" does not contain "%s".', $file_content, $content), $this->getSession()->getDriver());
     }
   }
 
@@ -220,15 +220,15 @@ trait FileTrait {
    * Assert that an unmanaged file exists and does not have specified content.
    *
    * @code
-   * Then an unmanaged file at the URI "public://config.txt" should not contain the value "debug=false"
+   * Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
    * @endcode
    */
-  #[Then('an unmanaged file at the URI :uri should not contain the value :value')]
-  public function fileAssertUnmanagedNotContains(string $uri, string $value): void {
+  #[Then('an unmanaged file at the URI :uri should not contain :content')]
+  public function fileAssertUnmanagedNotContains(string $uri, string $content): void {
     $file_content = $this->fileGetUnmanagedContent($uri);
 
-    if (str_contains($file_content, $value)) {
-      throw new ExpectationException(sprintf('The file content "%s" contains "%s", but it should not.', $file_content, $value), $this->getSession()->getDriver());
+    if (str_contains($file_content, $content)) {
+      throw new ExpectationException(sprintf('The file content "%s" contains "%s", but it should not.', $file_content, $content), $this->getSession()->getDriver());
     }
   }
 

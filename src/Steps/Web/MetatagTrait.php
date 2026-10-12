@@ -185,11 +185,11 @@ trait MetatagTrait {
    * "follow" never matches a "nofollow" directive.
    *
    * @code
-   * Then the meta robots should contain "noindex"
-   * Then the meta robots should contain "nofollow"
+   * Then the robots meta tag should contain "noindex"
+   * Then the robots meta tag should contain "nofollow"
    * @endcode
    */
-  #[Then('the meta robots should contain :directive')]
+  #[Then('the robots meta tag should contain :directive')]
   public function metatagAssertRobotsContains(string $directive): void {
     $directives = $this->metatagGetRobotsDirectives();
 
@@ -202,11 +202,11 @@ trait MetatagTrait {
    * Assert the robots meta tag does not contain a directive.
    *
    * @code
-   * Then the meta robots should not contain "noindex"
-   * Then the meta robots should not contain "nofollow"
+   * Then the robots meta tag should not contain "noindex"
+   * Then the robots meta tag should not contain "nofollow"
    * @endcode
    */
-  #[Then('the meta robots should not contain :directive')]
+  #[Then('the robots meta tag should not contain :directive')]
   public function metatagAssertRobotsNotContains(string $directive): void {
     $directives = $this->metatagGetRobotsDirectives();
 
