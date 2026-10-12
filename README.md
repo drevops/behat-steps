@@ -51,7 +51,7 @@ We actively maintain this package and welcome [contributions](CONTRIBUTING.md) f
 | 3.x | 3 | 10, 11 | 8.2, 8.3, 8.4, 8.5 | The current minor is LTS until 1 July 2027 and receives bugfixes and security updates only. |
 | 2.x | 3 | 9, 10 | 8.2+ | Unsupported |
 
-See [MIGRATION.md](MIGRATION.md) for migration guides.
+See [MIGRATION.md](MIGRATION.md) to migrate a project from 3.x to 4.x.
 
 ## Available steps
 
