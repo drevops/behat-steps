@@ -157,14 +157,14 @@ In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an ass
   - `the block "..." in the "..." region should exist`
 
 - Content block operations:
-  - `the content block type "..." should exist`
+  - `the "..." content block type should exist`
   - `the following "..." content blocks exist:`
   - `I visit the "..." content block edit page with the description "..."`
 
 - Email testing:
   - `I enable the test email system`
   - `I clear the test email system queue`
-  - `an email should be sent to the address "..."`
+  - `an email should have been sent to the address "..."`
 
 ## Skipping Trait Hooks
 A trait's hooks are switched off by adding the `@behat-steps-skip:TRAIT_NAME` tag to a scenario or a feature. The tag names the trait, never a hook method, and switches off every hook the trait registers. A skip tag whose value is not shaped like a trait name, such as a hook method, or that names a trait no context of the suite composes, fails the run at scenario start.
