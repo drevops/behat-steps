@@ -2460,6 +2460,20 @@ EOD,
     extract_info([$class_name], [], $setup['base_path']);
   }
 
+  /**
+   * Tests that extract_info() names the step whose actor tag is unknown.
+   */
+  public function testExtractInfoUnknownActor(): void {
+    $setup = $this->setUpExtractInfoTest(['UnknownActorTrait']);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('UnknownActorTrait::unknownActorAssertKnown(): Unknown actor tag "@actor:interactive". Use "@actor:person" or "@actor:system".');
+
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    extract_info([$class_name], [], $setup['base_path']);
+  }
+
   public function testExtractInfoWithSubdirectory(): void {
     $trait_name = 'DrupalTrait';
     $setup = $this->setUpExtractInfoTest([$trait_name], 'Drupal');

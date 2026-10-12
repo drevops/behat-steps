@@ -430,7 +430,12 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
         continue;
       }
 
-      $parsed_comment = parse_method_comment((string) $method->getDocComment());
+      try {
+        $parsed_comment = parse_method_comment((string) $method->getDocComment());
+      }
+      catch (\RuntimeException $exception) {
+        throw new \RuntimeException(sprintf('%s::%s(): %s', $trait_name, $method->getName(), $exception->getMessage()), $exception->getCode(), $exception);
+      }
 
       if (!isset($parsed_comment['actor'])) {
         throw new \RuntimeException(sprintf('Missing actor tag on %s::%s(). Add "@actor:%s" to its docblock.', $trait_name, $method->getName(), implode('" or "@actor:', STEP_ACTORS)));

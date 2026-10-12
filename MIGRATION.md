@@ -930,7 +930,7 @@ The `( containing)` variants are gone: every message step matches on a substring
 
 #### Mail
 
-`EmailTrait` collects mail through Drupal's test mail collector. A scenario enables collection with the `@email` tag or with `When I enable the test email system`, and the assertions read the collected messages. The Drupal Extension's `new` steps tracked the messages sent since the previous assertion. `When I clear the test email system queue` replaces them: run it before the action that sends the mail, and the collector holds only what that action sends.
+`EmailTrait` collects mail through Drupal's test mail collector. A scenario enables collection with the `@email` tag or with `When the test email system is enabled`, and the assertions read the collected messages. The Drupal Extension's `new` steps tracked the messages sent since the previous assertion. `When the test email system queue is cleared` replaces them: run it before the action that sends the mail, and the collector holds only what that action sends.
 
 | 3.14 | 4.0 | Notes |
 | --- | --- | --- |
@@ -1055,7 +1055,7 @@ The "@behat-steps-skip:EmialTrait" tag names no trait a context of the "default"
 
 A trait counts as composed when a context uses it directly, through a parent class or through another trait, so `@behat-steps-skip:EntityLifecycleTrait` works in a suite that registers `DrupalContext`. The name has to match the trait's own, case included. A feature that 2 suites share, carrying a skip tag for a trait only 1 suite's contexts compose, fails in the other suite: drop the tag and switch the trait off with its `enabled` option instead, in the `config` argument of the context that composes it.
 
-The trait's tag reaches every hook of its trait. For `ConfigTrait`, `ConfigOverrideTrait`, `QueueTrait`, `RestTrait`, `StateTrait`, `TimeTrait` and `WatchdogTrait`, it does exactly what the hook-method tag did, because the trait has 1 hook to switch off or both of its tags had the same effect. For the others, a tag that skipped the teardown alone now skips the setup as well. `@behat-steps-skip:EmailTrait`, for one, keeps an `@email` scenario from enabling the test email system, not only from disabling it afterwards, and a scenario that wants the collector without the teardown enables it with `When I enable the test email system`.
+The trait's tag reaches every hook of its trait. For `ConfigTrait`, `ConfigOverrideTrait`, `QueueTrait`, `RestTrait`, `StateTrait`, `TimeTrait` and `WatchdogTrait`, it does exactly what the hook-method tag did, because the trait has 1 hook to switch off or both of its tags had the same effect. For the others, a tag that skipped the teardown alone now skips the setup as well. `@behat-steps-skip:EmailTrait`, for one, keeps an `@email` scenario from enabling the test email system, not only from disabling it afterwards, and a scenario that wants the collector without the teardown enables it with `When the test email system is enabled`.
 
 ### Tags on the `Feature:` line
 
@@ -1109,9 +1109,9 @@ The count must be 0 or greater, but "-1" was given.
 | Steps | `abc` in 3.14 | `abc` in 4.0 |
 | --- | --- | --- |
 | Every step whose method took an `int`: the queue, table and element counts, the element index, tolerance and offset steps, and `the REST response status code should be :code` | Behat's `Type error: ... must be of type int, string given` | `\RuntimeException` |
-| `I wait for :seconds second(s)`, `I wait for :seconds second(s) for AJAX to finish` and `I run search indexing for :count item(s)` | Read as `0` | `\RuntimeException` |
-| `the number of sent emails should be :count` and the 2 other email count steps | Read as `0`, and `no`, `a` and `an` read as `0`, `1` and `1` | `\RuntimeException`; write the number |
-| `the XML element :element should have :count element(s)` and `I set the system time to :value` | Read as `0` | `\RuntimeException` |
+| `I wait for :seconds second(s)`, `I wait for :seconds second(s) for AJAX to finish` and `search indexing runs for :count item(s)` | Read as `0` | `\RuntimeException` |
+| `the number of emails sent should be :count` and the 2 other email count steps | Read as `0`, and `no`, `a` and `an` read as `0`, `1` and `1` | `\RuntimeException`; write the number |
+| `the XML element :element should have :count element(s)` and `the system time is set to :value` | Read as `0` | `\RuntimeException` |
 | `I set the viewport width to :width`, `I set the viewport height to :height` and `I set the viewport to :width by :height` | Read as `0`, and the resize failed without a word | `\RuntimeException` |
 
 PHP's coercion was looser than the `int` type suggested: `1e3` read as 1000, and `3.5` read as 3 with a deprecation notice, which only failed the step where PHP reports deprecations. Both now fail with `\RuntimeException`. A value below what a step accepts fails the same way: a count below 0, a link index below 1, a viewport width or height below 1, a wait below 0 seconds and a command duration below 0.
@@ -1188,7 +1188,7 @@ When I follow the link with the index "1" in the email with a subject containing
 Then the file "report.xlsx" should be attached to the email with a subject containing "Monthly Report"
 ```
 
-`When I enable the test email system` enabled nothing in a scenario without an `@email` tag, because only the hook reading that tag named a handler. It now falls back to the `default` handler, as a bare `@email` does, and the collector it enables is disabled once the scenario finishes, unless `@behat-steps-skip:EmailTrait` switches the hooks off.
+`When I enable the test email system`, which 4.0 reads `When the test email system is enabled`, enabled nothing in a scenario without an `@email` tag, because only the hook reading that tag named a handler. It now falls back to the `default` handler, as a bare `@email` does, and the collector it enables is disabled once the scenario finishes, unless `@behat-steps-skip:EmailTrait` switches the hooks off.
 
 ### Page cache
 
@@ -1248,9 +1248,9 @@ Then the element "#main-content" should be centered in the viewport
 
 ### Search API
 
-`I add the :content_type content with the title :title to the search index` tracked the node, then indexed whichever item came next in each index, which was the named node only when nothing else was waiting. It now indexes the named node's own items on every enabled index that includes the node, and leaves everything else queued. It fails with `\RuntimeException` when no enabled index includes the node (`No active search index includes the "..." content with the title "...".`), where it used to fail only when no index was enabled at all. An index that fails to index the node throws Search API's `SearchApiException` rather than logging it.
+`I add the :content_type content with the title :title to the search index`, which 4.0 reads `the :content_type content with the title :title is indexed`, tracked the node, then indexed whichever item came next in each index, which was the named node only when nothing else was waiting. It now indexes the named node's own items on every enabled index that includes the node, and leaves everything else queued. It fails with `\RuntimeException` when no enabled index includes the node (`No active search index includes the "..." content with the title "...".`), where it used to fail only when no index was enabled at all. An index that fails to index the node throws Search API's `SearchApiException` rather than logging it.
 
-A scenario that relied on the step to push another queued item into the index runs `I run search indexing for :count item(s)` as well. A PHP call to `SearchApiTrait::searchApiIndexContent()` changes the same way.
+A scenario that relied on the step to push another queued item into the index runs `search indexing runs for :count item(s)` as well. A PHP call to `SearchApiTrait::searchApiIndexContent()` changes the same way.
 
 ### Queues
 
@@ -1271,7 +1271,7 @@ A scenario that relied on the step to push another queued item into the index ru
 - A `path` in `the following managed files exist:` that climbs out of `files_path` with `..` no longer resolves against the fixture directory, so it's read relative to the working directory instead.
 - `the response XML is loaded from the file :filename`, `the response JSON is loaded from the file :filename` and the 4 `the response should match the ... in the file :filename` steps fail for a path that leaves `files_path`, with `The fixture file "..." is outside the configured "files_path".`, where 3.14 read the file outside it.
 - A state value holding a JSON object is stored as an array. `StateTrait` decoded JSON to a `stdClass` while `ConfigTrait` decoded it to an array, and both now share `stringNormalizeValue()`, so `the state :name has the value :value` with `{"a":1}` stores `['a' => 1]`.
-- `I save the draggable views items ... in the following order:` resolves every title before it writes a weight. It used to write each row's weight as it went, so a missing title left the order half-saved. A missing title now fails before anything is written.
+- `the draggable views items ... are saved in the following order:` resolves every title before it writes a weight. It used to write each row's weight as it went, so a missing title left the order half-saved. A missing title now fails before anything is written.
 
 ### Prerequisites
 
@@ -2112,7 +2112,7 @@ Which exception a step throws follows 1 rule now, because a project catches on t
 | `RedirectTrait` | `the following redirects should (not) exist:` | `\Exception` | `AssertionException` |
 | `StateTrait` | Every `Then` step | `\Exception` | `AssertionException` |
 | `TableTrait` | Any table step, when the table or the row is missing | `ExpectationException` | `ElementNotFoundException` |
-| `TableTrait` | `the table ... should be sorted by the column ... in ... order`, with a direction other than `ascending` or `descending` | `ExpectationException` | `\RuntimeException` |
+| `TableTrait` | `the table ... should be sorted by ... in ... order`, with a direction other than `ascending` or `descending` | `ExpectationException` | `\RuntimeException` |
 | `WaitTrait` | `I wait for ... second(s) for AJAX to finish`, without a JavaScript browser driver | `\RuntimeException` | `UnsupportedDriverActionException` |
 | `WatchdogTrait` | The check for PHP errors logged during a scenario | `ExpectationException` | `AssertionException` |
 | `XmlTrait` | `the response should be in XML format` | `\RuntimeException` | `ExpectationException` |
