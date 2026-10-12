@@ -116,10 +116,10 @@ trait DrushTrait {
    *
    * @actor:system
    */
-  #[Then('the drush output should contain :text')]
-  public function drushAssertOutputContains(string $text): void {
-    if (!str_contains($this->drushGetOutput(), $this->drushFixArgument($text))) {
-      throw new AssertionException(sprintf('The last drush command output does not contain "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $text, $this->drushOutput));
+  #[Then('the drush output should contain :value')]
+  public function drushAssertOutputContains(string $value): void {
+    if (!str_contains($this->drushGetOutput(), $this->drushFixArgument($value))) {
+      throw new AssertionException(sprintf('The last drush command output does not contain "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
     }
   }
 
@@ -132,10 +132,10 @@ trait DrushTrait {
    *
    * @actor:system
    */
-  #[Then('the drush output should not contain :text')]
-  public function drushAssertOutputNotContains(string $text): void {
-    if (str_contains($this->drushGetOutput(), $this->drushFixArgument($text))) {
-      throw new AssertionException(sprintf('The last drush command output contains "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $text, $this->drushOutput));
+  #[Then('the drush output should not contain :value')]
+  public function drushAssertOutputNotContains(string $value): void {
+    if (str_contains($this->drushGetOutput(), $this->drushFixArgument($value))) {
+      throw new AssertionException(sprintf('The last drush command output contains "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
     }
   }
 

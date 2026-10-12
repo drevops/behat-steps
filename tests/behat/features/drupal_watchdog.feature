@@ -207,7 +207,7 @@ Feature: Check that WatchdogTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the "dblog" module is disabled
+      Given the module "dblog" is disabled
       When I visit "/"
       """
     When I run "behat --no-colors"

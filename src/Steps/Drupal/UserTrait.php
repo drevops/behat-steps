@@ -209,12 +209,12 @@ trait UserTrait {
    * Create a single role with specified permissions.
    *
    * @code
-   * Given the "Content Manager" role has the "access content, create article content, edit any article content" permissions
+   * Given the role "Content Manager" has the permissions "access content, create article content, edit any article content"
    * @endcode
    *
    * @actor:system
    */
-  #[Given('the :role role has the :permissions permission(s)')]
+  #[Given('the role :role has the permission(s) :permissions')]
   public function userCreateRole(string $role, string $permissions): void {
     $this->userCreateRoleWithPermissions($role, $this->stringSplitCommaSeparated($permissions));
   }
@@ -249,13 +249,13 @@ trait UserTrait {
    * role is implied by having an account, so it is not assigned.
    *
    * @code
-   * Given I am logged in as a user with the "editor" role
-   * Given I am logged in as a user with the "editor, admin" roles
+   * Given I am logged in as a user with the role "editor"
+   * Given I am logged in as a user with the roles "editor, admin"
    * @endcode
    *
    * @actor:person
    */
-  #[Given('I am logged in as a user with the :roles role(s)')]
+  #[Given('I am logged in as a user with the role(s) :roles')]
   public function userLoginWithRoles(string $roles): void {
     $this->userCreateAndLogin($roles);
   }
@@ -264,14 +264,14 @@ trait UserTrait {
    * Create a user with the roles and fields, and log in as them.
    *
    * @code
-   *   Given I am logged in as a user with the "editor" role and I have the following fields:
+   *   Given I am logged in as a user with the role "editor" and I have the following fields:
    *     | field_user_name    | John  |
    *     | field_user_surname | Smith |
    * @endcode
    *
    * @actor:person
    */
-  #[Given('I am logged in as a user with the :roles role(s) and I have the following fields:')]
+  #[Given('I am logged in as a user with the role(s) :roles and I have the following fields:')]
   public function userLoginWithRolesAndFields(string $roles, TableNode $fields): void {
     $this->userCreateAndLogin($roles, $fields->getRowsHash());
   }
@@ -282,13 +282,13 @@ trait UserTrait {
    * Several permissions are given as a comma-separated list.
    *
    * @code
-   * Given I am logged in as a user with the "administer nodes" permission
-   * Given I am logged in as a user with the "administer nodes, access content" permissions
+   * Given I am logged in as a user with the permission "administer nodes"
+   * Given I am logged in as a user with the permissions "administer nodes, access content"
    * @endcode
    *
    * @actor:person
    */
-  #[Given('I am logged in as a user with the :permissions permission(s)')]
+  #[Given('I am logged in as a user with the permission(s) :permissions')]
   public function userLoginWithPermissions(string $permissions): void {
     $stub = $this->userCreateWithPermissions(array_filter($this->stringSplitCommaSeparated($permissions)));
 
@@ -448,12 +448,12 @@ trait UserTrait {
    * Assert that a user has roles assigned.
    *
    * @code
-   * Then the user "John" should have the "administrator, editor" roles
+   * Then the user "John" should have the roles "administrator, editor" assigned
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the user :name should have the :roles role(s)')]
+  #[Then('the user :name should have the role(s) :roles assigned')]
   public function userAssertHasRoles(string $name, string $roles): void {
     $user = $this->userGetByName($name);
 
@@ -468,12 +468,12 @@ trait UserTrait {
    * Assert that a user does not have roles assigned.
    *
    * @code
-   * Then the user "John" should not have the "administrator, editor" roles
+   * Then the user "John" should not have the roles "administrator, editor" assigned
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the user :name should not have the :roles role(s)')]
+  #[Then('the user :name should not have the role(s) :roles assigned')]
   public function userAssertNotHasRoles(string $name, string $roles): void {
     $user = $this->userGetByName($name);
 

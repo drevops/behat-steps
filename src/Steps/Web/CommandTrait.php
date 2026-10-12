@@ -165,12 +165,12 @@ trait CommandTrait {
    *
    * @actor:system
    */
-  #[Then('the command output should contain :text')]
-  public function commandAssertOutputContains(string $text): void {
+  #[Then('the command output should contain :value')]
+  public function commandAssertOutputContains(string $value): void {
     $this->commandRequireRun();
 
-    if (!str_contains($this->commandStdout, $text)) {
-      throw new AssertionException(sprintf('Expected the command output to contain "%s", but it did not. Actual output: %s.', $text, $this->commandStdout));
+    if (!str_contains($this->commandStdout, $value)) {
+      throw new AssertionException(sprintf('Expected the command output to contain "%s", but it did not. Actual output: %s.', $value, $this->commandStdout));
     }
   }
 
@@ -186,12 +186,12 @@ trait CommandTrait {
    *
    * @actor:system
    */
-  #[Then('the command output should not contain :text')]
-  public function commandAssertOutputNotContains(string $text): void {
+  #[Then('the command output should not contain :value')]
+  public function commandAssertOutputNotContains(string $value): void {
     $this->commandRequireRun();
 
-    if (str_contains($this->commandStdout, $text)) {
-      throw new AssertionException(sprintf('Expected the command output to not contain "%s", but it did. Actual output: %s.', $text, $this->commandStdout));
+    if (str_contains($this->commandStdout, $value)) {
+      throw new AssertionException(sprintf('Expected the command output to not contain "%s", but it did. Actual output: %s.', $value, $this->commandStdout));
     }
   }
 
@@ -209,12 +209,12 @@ trait CommandTrait {
    *
    * @actor:system
    */
-  #[Then('the command output should be :text')]
-  public function commandAssertOutputEquals(string $text): void {
+  #[Then('the command output should be :value')]
+  public function commandAssertOutputEquals(string $value): void {
     $this->commandRequireRun();
 
-    if (trim($this->commandStdout) !== trim($text)) {
-      throw new AssertionException(sprintf('Expected the command output to be "%s", but got "%s".', trim($text), trim($this->commandStdout)));
+    if (trim($this->commandStdout) !== trim($value)) {
+      throw new AssertionException(sprintf('Expected the command output to be "%s", but got "%s".', trim($value), trim($this->commandStdout)));
     }
   }
 
@@ -230,12 +230,12 @@ trait CommandTrait {
    *
    * @actor:system
    */
-  #[Then('the command error output should contain :text')]
-  public function commandAssertErrorOutputContains(string $text): void {
+  #[Then('the command error output should contain :value')]
+  public function commandAssertErrorOutputContains(string $value): void {
     $this->commandRequireRun();
 
-    if (!str_contains($this->commandStderr, $text)) {
-      throw new AssertionException(sprintf('Expected the command error output to contain "%s", but it did not. Actual error output: %s.', $text, $this->commandStderr));
+    if (!str_contains($this->commandStderr, $value)) {
+      throw new AssertionException(sprintf('Expected the command error output to contain "%s", but it did not. Actual error output: %s.', $value, $this->commandStderr));
     }
   }
 

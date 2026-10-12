@@ -88,12 +88,12 @@ trait ModuleTrait {
    * Enable a module.
    *
    * @code
-   * Given the "ctools" module is enabled
+   * Given the module "ctools" is enabled
    * @endcode
    *
    * @actor:system
    */
-  #[Given('the :module module is enabled')]
+  #[Given('the module :module is enabled')]
   public function moduleEnsureEnabled(string $module): void {
     $this->moduleSetEnabled($module, TRUE);
   }
@@ -102,12 +102,12 @@ trait ModuleTrait {
    * Disable a module.
    *
    * @code
-   * Given the "shield" module is disabled
+   * Given the module "shield" is disabled
    * @endcode
    *
    * @actor:system
    */
-  #[Given('the :module module is disabled')]
+  #[Given('the module :module is disabled')]
   public function moduleEnsureDisabled(string $module): void {
     $this->moduleSetEnabled($module, FALSE);
   }
@@ -152,12 +152,12 @@ trait ModuleTrait {
    * Assert that a module is enabled.
    *
    * @code
-   * Then the "ctools" module should be enabled
+   * Then the module "ctools" should be enabled
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the :module module should be enabled')]
+  #[Then('the module :module should be enabled')]
   public function moduleAssertEnabled(string $module): void {
     if (!$this->moduleIsEnabled($module)) {
       throw new AssertionException(sprintf('The module "%s" is not enabled, but it should be.', $module));
@@ -168,12 +168,12 @@ trait ModuleTrait {
    * Assert that a module is disabled.
    *
    * @code
-   * Then the "shield" module should be disabled
+   * Then the module "shield" should be disabled
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the :module module should be disabled')]
+  #[Then('the module :module should be disabled')]
   public function moduleAssertDisabled(string $module): void {
     if ($this->moduleIsEnabled($module)) {
       throw new AssertionException(sprintf('The module "%s" is enabled, but it should not be.', $module));

@@ -201,13 +201,13 @@ trait JsonTrait {
    * Assert that the value at a JSONPath equals the expected value.
    *
    * @code
-   * Then the JSON path "$.name" should be equal to "John Doe"
-   * Then the JSON path "$.age" should be equal to "42"
+   * Then the JSON path "$.name" should have the value "John Doe"
+   * Then the JSON path "$.age" should have the value "42"
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the JSON path :path should be equal to :value')]
+  #[Then('the JSON path :path should have the value :value')]
   public function jsonAssertPathEquals(string $path, string $value): void {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 
@@ -220,12 +220,12 @@ trait JsonTrait {
    * Assert that the value at a JSONPath does not equal the expected value.
    *
    * @code
-   * Then the JSON path "$.name" should not be equal to "Jane Doe"
+   * Then the JSON path "$.name" should not have the value "Jane Doe"
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the JSON path :path should not be equal to :value')]
+  #[Then('the JSON path :path should not have the value :value')]
   public function jsonAssertPathNotEquals(string $path, string $value): void {
     $actual = $this->jsonScalarToString($this->jsonGetScalar($path));
 

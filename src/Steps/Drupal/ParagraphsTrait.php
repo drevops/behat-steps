@@ -35,7 +35,7 @@ trait ParagraphsTrait {
    * Create a paragraph of the given type with fields within an existing entity.
    *
    * @code
-   * Given the following fields for the "text" paragraph exist in the field "field_component" within the "landing_page" "node" identified by the field "title" and the value "My landing page":
+   * Given the following fields for the "text" paragraph exist in the field "field_component" within the "landing_page" "node" entity with the value "My landing page" in the field "title":
    *   | field_paragraph_title           | My paragraph title   |
    *   | field_paragraph_longtext:value  | My paragraph message |
    *   | field_paragraph_longtext:format | full_html            |
@@ -44,7 +44,7 @@ trait ParagraphsTrait {
    *
    * @actor:system
    */
-  #[Given('the following fields for the :paragraph_type paragraph exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:')]
+  #[Given('the following fields for the :paragraph_type paragraph exist in the field :parent_field within the :parent_bundle :parent_entity_type entity with the value :parent_lookup_value in the field :parent_lookup_field:')]
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

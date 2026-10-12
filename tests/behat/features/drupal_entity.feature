@@ -7,7 +7,7 @@ Feature: Check that EntityTrait works
     Given the following "block_content" entities exist:
       | info                | type  |
       | [TEST] Basic block  | basic |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit "/admin/content/block"
     Then I should see "[TEST] Basic block"
 
@@ -20,13 +20,13 @@ Feature: Check that EntityTrait works
     Given the following "block_content" entities exist:
       | info               | type  |
       | [TEST] Kept block  | basic |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit "/admin/content/block"
     Then I should see "[TEST] Kept block"
 
   Scenario: An entity kept by the per-type skip tag survives teardown and is removed manually
     Given the following "basic" content blocks do not exist:
       | [TEST] Kept block |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit "/admin/content/block"
     Then I should not see "[TEST] Kept block"

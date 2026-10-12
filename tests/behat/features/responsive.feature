@@ -6,12 +6,12 @@ Feature: Check that ResponsiveTrait works
   @javascript @phpserver
   Scenario: Resize viewport to default breakpoints
     When I am on "http://cli:8888/javascript_clean1.html"
-    And I set the viewport to the "mobile_portrait" breakpoint
-    And I set the viewport to the "mobile_landscape" breakpoint
-    And I set the viewport to the "tablet_portrait" breakpoint
-    And I set the viewport to the "tablet_landscape" breakpoint
-    And I set the viewport to the "laptop" breakpoint
-    And I set the viewport to the "desktop" breakpoint
+    And I set the viewport to the breakpoint "mobile_portrait"
+    And I set the viewport to the breakpoint "mobile_landscape"
+    And I set the viewport to the breakpoint "tablet_portrait"
+    And I set the viewport to the breakpoint "tablet_landscape"
+    And I set the viewport to the breakpoint "laptop"
+    And I set the viewport to the breakpoint "desktop"
 
   @javascript @phpserver
   Scenario: Set custom viewport dimensions
@@ -47,15 +47,15 @@ Feature: Check that ResponsiveTrait works
   @javascript @phpserver
   Scenario: Step-based breakpoint should resize viewport
     When I am on "http://cli:8888/javascript_clean1.html"
-    And I set the viewport to the "tablet_landscape" breakpoint
+    And I set the viewport to the breakpoint "tablet_landscape"
     Then the viewport should have the width of "1024"
 
   @javascript @phpserver
   Scenario: Test multiple breakpoints in sequence
     When I am on "http://cli:8888/javascript_clean1.html"
-    And I set the viewport to the "mobile_portrait" breakpoint
-    And I set the viewport to the "tablet_portrait" breakpoint
-    And I set the viewport to the "desktop" breakpoint
+    And I set the viewport to the breakpoint "mobile_portrait"
+    And I set the viewport to the breakpoint "tablet_portrait"
+    And I set the viewport to the breakpoint "desktop"
 
   @test-trait:ResponsiveTrait
   Scenario: Invalid breakpoint should throw exception
@@ -65,7 +65,7 @@ Feature: Check that ResponsiveTrait works
       @javascript @phpserver
       Scenario: Test invalid breakpoint
         When I am on "http://cli:8888/javascript_clean1.html"
-        And I set the viewport to the "non_existent_breakpoint" breakpoint
+        And I set the viewport to the breakpoint "non_existent_breakpoint"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -165,8 +165,8 @@ Feature: Check that ResponsiveTrait works
       | iphone_12  | 390x844    |
       | 4k_display | 3840x2160  |
     When I am on "http://cli:8888/javascript_clean1.html"
-    And I set the viewport to the "iphone_12" breakpoint
-    And I set the viewport to the "4k_display" breakpoint
+    And I set the viewport to the breakpoint "iphone_12"
+    And I set the viewport to the breakpoint "4k_display"
 
   @test-trait:ResponsiveTrait
   Scenario: Invalid custom breakpoint format should throw exception
@@ -225,7 +225,7 @@ Feature: Check that ResponsiveTrait works
       | name            | dimensions |
       | mobile_portrait | 375x812    |
     When I am on "http://cli:8888/javascript_clean1.html"
-    And I set the viewport to the "mobile_portrait" breakpoint
+    And I set the viewport to the breakpoint "mobile_portrait"
 
   @test-trait:ResponsiveTrait
   Scenario Outline: A viewport step without a JavaScript browser driver should throw exception
@@ -242,7 +242,7 @@ Feature: Check that ResponsiveTrait works
       """
     Examples:
       | step                                                   | message                             |
-      | I set the viewport to the "mobile_portrait" breakpoint | Window resizing is not supported by |
+      | I set the viewport to the breakpoint "mobile_portrait" | Window resizing is not supported by |
       | I set the viewport to "1920" by "1080"                 | Window resizing is not supported by |
       | I set the viewport width to "1280"                     | JS is not supported by              |
       | I set the viewport height to "1024"                    | JS is not supported by              |

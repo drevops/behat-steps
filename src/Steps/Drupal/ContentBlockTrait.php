@@ -139,12 +139,12 @@ trait ContentBlockTrait {
    * Assert that a content block type exists.
    *
    * @code
-   * Then the "Search" content block type should exist
+   * Then the content block type "Search" should exist
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the :content_block_type content block type should exist')]
+  #[Then('the content block type :content_block_type should exist')]
   public function contentBlockAssertTypeExists(string $content_block_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

@@ -167,7 +167,7 @@ Feature: Behat CLI context
       """
       Feature: Content
         Scenario: A scenario in a blackbox-only configuration reaches for Drupal
-          Given the "article" content type does not exist
+          Given the content type "article" does not exist
       """
     When I run "behat --no-colors"
     Then it should fail with:

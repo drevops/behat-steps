@@ -3,19 +3,19 @@ Feature: Check that MetatagTrait works
   I want to provide tools to verify metatags on pages
   So that users can test SEO implementation
 
-  Scenario: Assert that "Then the meta tag should exist with the following attributes:" step works as expected
+  Scenario: Assert that "Then the meta tag with the following attributes should exist:" step works as expected
     When I visit "/"
-    Then the meta tag should exist with the following attributes:
+    Then the meta tag with the following attributes should exist:
       | name    | MobileOptimized |
       | content | width           |
 
   @test-trait:MetatagTrait
-  Scenario: Assert that negative assertion for "Then the meta tag should exist with the following attributes:" fails with an error
+  Scenario: Assert that negative assertion for "Then the meta tag with the following attributes should exist:" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       When I visit "/"
-      Then the meta tag should exist with the following attributes:
+      Then the meta tag with the following attributes should exist:
         | name    | Non_Existing |
         | content | width        |
       """
@@ -25,19 +25,19 @@ Feature: Check that MetatagTrait works
       Meta tag with attributes "{"name":"Non_Existing","content":"width"}" not found.
       """
 
-  Scenario: Assert that "Then the meta tag should not exist with the following attributes:" step works as expected
+  Scenario: Assert that "Then the meta tag with the following attributes should not exist:" step works as expected
     When I visit "/"
-    Then the meta tag should not exist with the following attributes:
+    Then the meta tag with the following attributes should not exist:
       | name    | Non_Existing |
       | content | width        |
 
   @test-trait:MetatagTrait
-  Scenario: Assert that negative assertion for "Then the meta tag should not exist with the following attributes:" fails with an error
+  Scenario: Assert that negative assertion for "Then the meta tag with the following attributes should not exist:" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       When I visit "/"
-      Then the meta tag should not exist with the following attributes:
+      Then the meta tag with the following attributes should not exist:
         | name    | MobileOptimized |
         | content | width           |
       """

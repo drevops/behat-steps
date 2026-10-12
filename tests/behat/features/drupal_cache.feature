@@ -32,7 +32,7 @@ Feature: Check that CacheTrait works
     Then the response header "X-Drupal-Cache" should contain "HIT"
 
   Scenario: Assert "Given the render cache has been cleared" clears the render cache
-    Given I am logged in as a user with the "administrator" role and I have the following fields:
+    Given I am logged in as a user with the role "administrator" and I have the following fields:
       | name | cache_render_admin |
     And the render cache has been cleared
     When I go to "/user"
@@ -41,7 +41,7 @@ Feature: Check that CacheTrait works
   Scenario: Assert "When cron runs" runs cron
     Given the watchdog is cleared
     When cron runs
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     And I go to "/admin/reports/dblog"
     Then I should see "Cron run completed."
 
@@ -61,7 +61,7 @@ Feature: Check that CacheTrait works
   Scenario: Assert "When cron runs" runs cron over Drush
     Given the watchdog is cleared
     When cron runs
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     And I go to "/admin/reports/dblog"
     Then I should see "Cron run completed."
 

@@ -151,12 +151,12 @@ trait TaxonomyTrait {
    * Assert that a vocabulary with a specific name exists.
    *
    * @code
-   * Then the "topics" vocabulary with the name "Topics" should exist
+   * Then the vocabulary "topics" with the name "Topics" should exist
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the :vocabulary vocabulary with the name :name should exist')]
+  #[Then('the vocabulary :vocabulary with the name :name should exist')]
   public function taxonomyAssertVocabularyExists(string $vocabulary, string $name): void {
     $vocab = $this->taxonomyFindVocabulary($vocabulary);
 
@@ -175,12 +175,12 @@ trait TaxonomyTrait {
    * Assert that a vocabulary does not exist by machine name.
    *
    * @code
-   * Then the "topics" vocabulary should not exist
+   * Then the vocabulary "topics" should not exist
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the :vocabulary vocabulary should not exist')]
+  #[Then('the vocabulary :vocabulary should not exist')]
   public function taxonomyAssertVocabularyNotExists(string $vocabulary): void {
     if ($this->taxonomyFindVocabulary($vocabulary) !== NULL) {
       throw new ExpectationException(sprintf('The vocabulary "%s" exists, but it should not.', $vocabulary), $this->getSession()->getDriver());

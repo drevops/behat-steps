@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Fixtures\Web;
 
+use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -77,6 +78,6 @@ trait MultiMethodTrait {
    * @actor:system
    */
   #[Given('the following items exist:')]
-  public function multiMethodGivenItemsExist(): void {}
+  public function multiMethodGivenItemsExist(TableNode $items): void {}
 
 }

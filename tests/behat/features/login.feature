@@ -5,14 +5,14 @@ Feature: Login
   So that users can verify access to secured resources
 
   Scenario: Administrator user logs in
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I go to "admin"
     Then I should be on "/admin"
     And I save screenshot
 
   @javascript
   Scenario: Administrator user logs in using a real browser
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I go to "admin"
     Then I should be on "/admin"
     And I save screenshot
@@ -29,7 +29,7 @@ Feature: Login
     And some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -44,7 +44,7 @@ Feature: Login
     And some behat configuration
     And scenario steps tagged with "@javascript":
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -59,7 +59,7 @@ Feature: Login
     And some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

@@ -64,12 +64,12 @@ trait ContentTrait {
    * Delete content type.
    *
    * @code
-   * Given the "article" content type does not exist
+   * Given the content type "article" does not exist
    * @endcode
    *
    * @actor:system
    */
-  #[Given('the :content_type content type does not exist')]
+  #[Given('the content type :content_type does not exist')]
   public function contentDeleteType(string $content_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -223,12 +223,12 @@ trait ContentTrait {
    * Change moderation state of a content with the specified title.
    *
    * @code
-   * When the moderation state of the "article" content with the title "Test article" changes to the "published" state
+   * When the moderation state of the "article" content with the title "Test article" changes to the state "published"
    * @endcode
    *
    * @actor:system
    */
-  #[When('the moderation state of the :content_type content with the title :title changes to the :new_state state')]
+  #[When('the moderation state of the :content_type content with the title :title changes to the state :new_state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

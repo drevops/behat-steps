@@ -10,7 +10,7 @@ Feature: Check that SearchApiTrait works
       | title                                        | moderation_state |
       | [MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT | published        |
       | [MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT     | draft            |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     And I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
     And I press "edit-submit-search"
@@ -33,7 +33,7 @@ Feature: Check that SearchApiTrait works
       | title                                      | moderation_state |
       | [MYTEST] QUEUEDARTICLE TESTUNIQUEQUEUETEXT | published        |
       | [MYTEST] NAMEDARTICLE TESTUNIQUEQUEUETEXT  | published        |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When the "article" content with the title "[MYTEST] NAMEDARTICLE TESTUNIQUEQUEUETEXT" is indexed
 
     When I go to "/search"
@@ -48,7 +48,7 @@ Feature: Check that SearchApiTrait works
       | title                           | moderation_state |
       | TESTPUBLISHEDARTICLE 1          | published        |
       | [MYTEST] TESTPUBLISHEDARTICLE 2 | published        |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When the "article" content with the title "TESTPUBLISHEDARTICLE 1" is indexed
     And the "article" content with the title "[MYTEST] TESTPUBLISHEDARTICLE 2" is indexed
 
@@ -64,7 +64,7 @@ Feature: Check that SearchApiTrait works
       | [MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT | published        |
       | [MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT | published        |
       | [MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT | draft            |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
 
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
@@ -122,7 +122,7 @@ Feature: Check that SearchApiTrait works
       | title                                    | moderation_state |
       | [MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT | published        |
       | [MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT | published        |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
 
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUECRONTEXT"

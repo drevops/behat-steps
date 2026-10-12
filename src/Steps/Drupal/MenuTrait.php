@@ -36,12 +36,12 @@ trait MenuTrait {
    *   The label of the menus to remove.
    *
    * @code
-   *   Given the "Test Menu" menu does not exist
+   *   Given the menu "Test Menu" does not exist
    * @endcode
    *
    * @actor:system
    */
-  #[Given('the :menu_name menu does not exist')]
+  #[Given('the menu :menu_name does not exist')]
   public function menuDelete(string $menu_name): void {
     foreach ($this->menuLoadMultiple(['label' => $menu_name]) as $menu) {
       $menu->delete();
@@ -73,14 +73,14 @@ trait MenuTrait {
    * Remove every menu link with each of the titles.
    *
    * @code
-   * Given the following menu links do not exist in the "Main navigation" menu:
+   * Given the following menu links do not exist in the menu "Main navigation":
    *   | About Us     |
    *   | Contact      |
    * @endcode
    *
    * @actor:system
    */
-  #[Given('the following menu links do not exist in the :menu_name menu:')]
+  #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuDeleteLinkMultiple(string $menu_name, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -95,7 +95,7 @@ trait MenuTrait {
    * Create menu links.
    *
    * @code
-   * Given the following menu links exist in the "Main navigation" menu:
+   * Given the following menu links exist in the menu "Main navigation":
    *   | title           | enabled | uri                     | parent       |
    *   | Products        | 1       | /products               |              |
    *   | Latest Products | 1       | /products/latest        | Products     |
@@ -103,7 +103,7 @@ trait MenuTrait {
    *
    * @actor:system
    */
-  #[Given('the following menu links exist in the :menu_name menu:')]
+  #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuCreateLinkMultiple(string $menu_name, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

@@ -259,7 +259,7 @@ The imperative style spells the interaction out and needs no PHP of your own, so
 
 ```gherkin
 Scenario: Editor publishes a page
-  Given I am logged in as a user with the "editor" role
+  Given I am logged in as a user with the role "editor"
   When I visit "/node/add/page"
   And I fill in "Title" with "About us"
   And I press "Save"

@@ -32,14 +32,14 @@ trait MetatagTrait {
    * Assert that a meta tag with specific attributes and values exists.
    *
    * @code
-   * Then the meta tag should exist with the following attributes:
+   * Then the meta tag with the following attributes should exist:
    *   | name    | description          |
    *   | content | My page description  |
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the meta tag should exist with the following attributes:')]
+  #[Then('the meta tag with the following attributes should exist:')]
   public function metatagAssertExistsWithAttributes(TableNode $table): void {
     $attributes = $table->getRowsHash();
 
@@ -52,14 +52,14 @@ trait MetatagTrait {
    * Assert that a meta tag with specific attributes and values does not exist.
    *
    * @code
-   * Then the meta tag should not exist with the following attributes:
+   * Then the meta tag with the following attributes should not exist:
    *   | name    | nonexistent          |
    *   | content | Some content         |
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the meta tag should not exist with the following attributes:')]
+  #[Then('the meta tag with the following attributes should not exist:')]
   public function metatagAssertNotExistsWithAttributes(TableNode $table): void {
     $attributes = $table->getRowsHash();
 

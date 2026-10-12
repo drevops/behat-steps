@@ -12,7 +12,7 @@ Feature: Check that UserTrait works
       | authenticated_user_blocked | authenticated_user_blocked@myexample.com |               | 0      |
 
   Scenario: Assert "Given the following users do not exist:" by name
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     And user "authenticated_user" should exist
     And user "non_existing" should not exist
     When the following users do not exist:
@@ -23,7 +23,7 @@ Feature: Check that UserTrait works
     And user "non_existing" should not exist
 
   Scenario: Assert "Given the following users do not exist:" by email
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     And user "authenticated_user" should exist
     And user "non_existing" should not exist
     When the following users do not exist:
@@ -161,7 +161,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit the profile page of the user :name" for existing user
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit the profile page of the user "authenticated_user"
     Then the response status code should be 200
 
@@ -170,7 +170,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the profile page of the user "non_existing"
       """
     When I run "behat --no-colors"
@@ -180,15 +180,15 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit my own profile page" for existing user
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit my own profile page
     Then the response status code should be 200
 
-  Scenario: Assert "Given I am logged in as a user with the :roles role(s) and I have the following fields:" works as expected
-    Given I am logged in as a user with the "content_editor" role and I have the following fields:
+  Scenario: Assert "Given I am logged in as a user with the role(s) :roles and I have the following fields:" works as expected
+    Given I am logged in as a user with the role "content_editor" and I have the following fields:
       | name | [TEST] fields_user      |
       | mail | fields_user@example.com |
-    Then the user "[TEST] fields_user" should have the "content_editor" role
+    Then the user "[TEST] fields_user" should have the role "content_editor" assigned
     And the user with the email "fields_user@example.com" should exist
     When I visit my own profile page
     Then the response status code should be 200
@@ -208,7 +208,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit the profile edit page of the user :name" for existing user
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit the profile edit page of the user "authenticated_user"
     Then the response status code should be 200
 
@@ -217,7 +217,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the profile edit page of the user "non_existing"
       """
     When I run "behat --no-colors"
@@ -227,7 +227,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit my own profile edit page" for existing user
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit my own profile edit page
     Then the response status code should be 200
 
@@ -245,7 +245,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit the profile delete page of the user :name" for existing user
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit the profile delete page of the user "authenticated_user"
     Then the response status code should be 200
 
@@ -254,7 +254,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the profile delete page of the user "non_existing"
       """
     When I run "behat --no-colors"
@@ -264,7 +264,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit my own profile delete page" for existing user
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit my own profile delete page
     Then the response status code should be 200
 
@@ -291,7 +291,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the password reset link for the user "non_existing"
       """
     When I run "behat --no-colors"
@@ -318,14 +318,14 @@ Feature: Check that UserTrait works
       Current user is not logged in.
       """
 
-  Scenario: Assert "Then the user :name should have the :roles role(s)" works
+  Scenario: Assert "Then the user :name should have the role(s) :roles assigned" works
     Given the following users exist:
       | name           | roles                         |
       | single_role    | administrator                 |
       | multiple_roles | administrator, content_editor |
-    Then the user "single_role" should have the "administrator" role
-    And the user "multiple_roles" should have the "administrator, content_editor" role
-    And the user "multiple_roles" should have the "administrator,content_editor" role
+    Then the user "single_role" should have the role "administrator" assigned
+    And the user "multiple_roles" should have the role "administrator, content_editor" assigned
+    And the user "multiple_roles" should have the role "administrator,content_editor" assigned
 
   # User creation resolves the User capability instead of bootstrapping Drupal,
   # so '@backend:drush' creates the users, assigns their roles and deletes them
@@ -335,17 +335,17 @@ Feature: Check that UserTrait works
     Given the following users exist:
       | name       | mail                     | roles          |
       | drush_user | drush_user@myexample.com | content_editor |
-    Then the user "drush_user" should have the "content_editor" role
+    Then the user "drush_user" should have the role "content_editor" assigned
 
   @backend:drush
   Scenario: Assert "Given the following users exist:" assigns a role named by its label over Drush
     Given the following users exist:
       | name             | mail                           | roles          |
       | drush_label_user | drush_label_user@myexample.com | Content editor |
-    Then the user "drush_label_user" should have the "content_editor" role
+    Then the user "drush_label_user" should have the role "content_editor" assigned
 
   @test-trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should have the :roles role(s)" fails for missing single role
+  Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing single role
     Given some behat configuration
     And scenario steps:
       """
@@ -353,7 +353,7 @@ Feature: Check that UserTrait works
         | name           | roles                         |
         | single_role    | administrator                 |
         | multiple_roles | administrator, content_editor |
-      Then the user "single_role" should have the "content_editor" role
+      Then the user "single_role" should have the role "content_editor" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -362,7 +362,7 @@ Feature: Check that UserTrait works
       """
 
   @test-trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should have the :roles role(s)" fails for missing multiple roles
+  Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for missing multiple roles
     Given some behat configuration
     And scenario steps:
       """
@@ -370,7 +370,7 @@ Feature: Check that UserTrait works
         | name           | roles                         |
         | single_role    | administrator                 |
         | multiple_roles | administrator, content_editor |
-      Then the user "single_role" should have the "administrator, content_editor" roles
+      Then the user "single_role" should have the roles "administrator, content_editor" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -379,11 +379,11 @@ Feature: Check that UserTrait works
       """
 
   @test-trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should have the :roles role(s)" fails for non-existing user
+  Scenario: Assert "Then the user :name should have the role(s) :roles assigned" fails for non-existing user
     Given some behat configuration
     And scenario steps:
       """
-      Then the user "non_existing" should have the "administrator" role
+      Then the user "non_existing" should have the role "administrator" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -391,23 +391,23 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  Scenario: Assert "Then the user :name should not have the :roles role(s)" works
+  Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" works
     Given the following users exist:
       | name        | roles         |
       | single_role | administrator |
-    Then the user "single_role" should not have the "content_editor" role
-    And the user "single_role" should not have the "content_editor, content_approver" roles
-    And the user "single_role" should not have the "content_editor,content_approver" role
+    Then the user "single_role" should not have the role "content_editor" assigned
+    And the user "single_role" should not have the roles "content_editor, content_approver" assigned
+    And the user "single_role" should not have the role "content_editor,content_approver" assigned
 
   @test-trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should not have the :roles role(s)" fails for having a single role
+  Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for having a single role
     Given some behat configuration
     And scenario steps:
       """
       Given the following users exist:
         | name           | roles                         |
         | single_role    | administrator                 |
-      Then the user "single_role" should not have the "administrator" role
+      Then the user "single_role" should not have the role "administrator" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -416,14 +416,14 @@ Feature: Check that UserTrait works
       """
 
   @test-trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should not have the :roles role(s)" fails for missing multiple roles
+  Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for missing multiple roles
     Given some behat configuration
     And scenario steps:
       """
       Given the following users exist:
         | name           | roles                                           |
         | single_role    | administrator, content_editor, content_approver |
-      Then the user "single_role" should not have the "administrator, content_editor" roles
+      Then the user "single_role" should not have the roles "administrator, content_editor" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -432,11 +432,11 @@ Feature: Check that UserTrait works
       """
 
   @test-trait:Drupal\UserTrait
-  Scenario: Assert "Then the user :name should not have the :roles role(s)" fails for non-existing user
+  Scenario: Assert "Then the user :name should not have the role(s) :roles assigned" fails for non-existing user
     Given some behat configuration
     And scenario steps:
       """
-      Then the user "non_existing" should not have the "administrator" role
+      Then the user "non_existing" should not have the role "administrator" assigned
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -502,16 +502,16 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  Scenario: Assert "Given the :role role has the :permissions permission(s)" works
-    Given the "Content Manager" role has the "access content, create article content" permissions
-    And I am logged in as a user with the "administrator" role
+  Scenario: Assert "Given the role :role has the permission(s) :permissions" works
+    Given the role "Content Manager" has the permissions "access content, create article content"
+    And I am logged in as a user with the role "administrator"
     When I visit "/admin/people/roles"
     Then I should see "Content Manager"
 
-  Scenario: Assert "Given the :role role has the :permissions permission(s)" replaces existing role
-    Given the "Editor" role has the "access content" permissions
-    And the "Editor" role has the "access content, create article content" permissions
-    And I am logged in as a user with the "administrator" role
+  Scenario: Assert "Given the role :role has the permission(s) :permissions" replaces existing role
+    Given the role "Editor" has the permissions "access content"
+    And the role "Editor" has the permissions "access content, create article content"
+    And I am logged in as a user with the role "administrator"
     When I visit "/admin/people/roles"
     Then I should see "Editor"
 
@@ -520,7 +520,7 @@ Feature: Check that UserTrait works
       | name             | permissions                              |
       | Content Editor   | access content, create article content   |
       | Content Approver | access content, edit any article content |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit "/admin/people/roles"
     Then I should see "Content Editor"
     And I should see "Content Approver"
@@ -529,7 +529,7 @@ Feature: Check that UserTrait works
     Given the following roles exist:
       | name           | permissions |
       | Limited Editor |             |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit "/admin/people/roles"
     Then I should see "Limited Editor"
 
@@ -549,7 +549,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Create single user with vertical field format
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     And the following users with fields exist:
       | name   | [TEST] vertical_user |
       | mail   | vertical@example.com |
@@ -558,7 +558,7 @@ Feature: Check that UserTrait works
     Then I should see "[TEST] vertical_user"
 
   Scenario: Create multiple users with vertical field format
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     And the following users with fields exist:
       | name   | [TEST] vuser1      | [TEST] vuser2      | [TEST] vuser3      |
       | mail   | vuser1@example.com | vuser2@example.com | vuser3@example.com |

@@ -122,12 +122,12 @@ trait RestTrait {
    *
    * @actor:system
    */
-  #[Then('the REST response should contain :text')]
-  public function restAssertResponseContains(string $text): void {
+  #[Then('the REST response should contain :value')]
+  public function restAssertResponseContains(string $value): void {
     $content = $this->getSession()->getPage()->getContent();
 
-    if (!str_contains((string) $content, $text)) {
-      throw new ExpectationException(sprintf('The REST response does not contain "%s".', $text), $this->getSession()->getDriver());
+    if (!str_contains((string) $content, $value)) {
+      throw new ExpectationException(sprintf('The REST response does not contain "%s".', $value), $this->getSession()->getDriver());
     }
   }
 

@@ -7,14 +7,14 @@ Feature: Check that BlockTrait works
     Given the block "[TEST] User Account Menu" does not exist
 
   Scenario: Create a block instance, disable and enable it
-    Given the instance of the block "User account menu" exists with the following configuration:
+    Given the instance of the block "User account menu" with the following configuration exists:
       | label         | [TEST] User Account Menu |
       | label_display | 1                        |
       | region        | content                  |
       | status        | 1                        |
     Then the block "[TEST] User Account Menu" should exist
     Then the block "Other random block" should not exist
-    And the block "[TEST] User Account Menu" in the "content" region should exist
+    And the block "[TEST] User Account Menu" in the region "content" should exist
     When I visit "/"
     Then I should see "[TEST] User Account Menu"
 
@@ -34,33 +34,33 @@ Feature: Check that BlockTrait works
 
   Scenario: Assert that the most recently created block wins when two share a label
     Given the block "[TEST] Duplicate Label" does not exist
-    And the instance of the block "User account menu" exists with the following configuration:
+    And the instance of the block "User account menu" with the following configuration exists:
       | label         | [TEST] Duplicate Label |
       | label_display | 1                      |
       | region        | content                |
       | status        | 1                      |
-    And the instance of the block "User account menu" exists with the following configuration:
+    And the instance of the block "User account menu" with the following configuration exists:
       | label         | [TEST] Duplicate Label |
       | label_display | 1                      |
       | region        | footer_top             |
       | status        | 1                      |
-    Then the block "[TEST] Duplicate Label" in the "footer_top" region should exist
-    And the block "[TEST] Duplicate Label" in the "content" region should not exist
+    Then the block "[TEST] Duplicate Label" in the region "footer_top" should exist
+    And the block "[TEST] Duplicate Label" in the region "content" should not exist
 
   Scenario: Assert that the most recently placed block wins when blocks from 2 plugins share a label
     Given the block "[TEST] Duplicate Label" does not exist
-    And the instance of the block "User account menu" exists with the following configuration:
+    And the instance of the block "User account menu" with the following configuration exists:
       | label         | [TEST] Duplicate Label |
       | label_display | 1                      |
       | region        | content                |
       | status        | 1                      |
-    And the instance of the block "Powered by Drupal" exists with the following configuration:
+    And the instance of the block "Powered by Drupal" with the following configuration exists:
       | label         | [TEST] Duplicate Label |
       | label_display | 1                      |
       | region        | footer_top             |
       | status        | 1                      |
-    Then the block "[TEST] Duplicate Label" in the "footer_top" region should exist
-    And the block "[TEST] Duplicate Label" in the "content" region should not exist
+    Then the block "[TEST] Duplicate Label" in the region "footer_top" should exist
+    And the block "[TEST] Duplicate Label" in the region "content" should not exist
     Given the block "[TEST] Duplicate Label" does not exist
     Then the block "[TEST] Duplicate Label" should not exist
 
@@ -82,7 +82,7 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the instance of the block "User account menu" exists with the following configuration:
+      Given the instance of the block "User account menu" with the following configuration exists:
         | label         | [TEST] User Account Menu |
         | label_display | 1                        |
         | region        | content                  |
@@ -100,7 +100,7 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Then the block "Non-existent Block Label" in the "content" region should exist
+      Then the block "Non-existent Block Label" in the region "content" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -113,12 +113,12 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the instance of the block "User account menu" exists with the following configuration:
+      Given the instance of the block "User account menu" with the following configuration exists:
         | label         | [TEST] User Account Menu |
         | label_display | 1                        |
         | region        | content                  |
         | status        | 1                        |
-      Then the block "[TEST] User Account Menu" in the "sidebar" region should exist
+      Then the block "[TEST] User Account Menu" in the region "sidebar" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -131,7 +131,7 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Then the block "Non-existent Block Label" in the "content" region should not exist
+      Then the block "Non-existent Block Label" in the region "content" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -144,12 +144,12 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the instance of the block "User account menu" exists with the following configuration:
+      Given the instance of the block "User account menu" with the following configuration exists:
         | label         | [TEST] User Account Menu |
         | label_display | 1                        |
         | region        | content                  |
         | status        | 1                        |
-      Then the block "[TEST] User Account Menu" in the "content" region should not exist
+      Then the block "[TEST] User Account Menu" in the region "content" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -198,13 +198,13 @@ Feature: Check that BlockTrait works
       """
 
   Scenario: Configure visibility conditions for a block
-    Given the instance of the block "User account menu" exists with the following configuration:
+    Given the instance of the block "User account menu" with the following configuration exists:
       | label         | [TEST] User Account Menu |
       | label_display | 1                        |
       | region        | content                  |
       | status        | 1                        |
 
-    Given the block "[TEST] User Account Menu" has the following "request_path" condition configuration:
+    Given the block "[TEST] User Account Menu" has the condition "request_path" with the following configuration:
       | pages | /user/* |
 
     When I visit "/"
@@ -213,7 +213,7 @@ Feature: Check that BlockTrait works
     When I visit "/user"
     Then I should see "[TEST] User Account Menu"
 
-    Given the block "[TEST] User Account Menu" has the "request_path" condition removed
+    Given the block "[TEST] User Account Menu" has the condition "request_path" removed
     And the cache has been cleared
     When I visit "/"
     Then I should see "[TEST] User Account Menu"
@@ -223,7 +223,7 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the block "Non-existent Block Label" has the following "request_path" condition configuration:
+      Given the block "Non-existent Block Label" has the condition "request_path" with the following configuration:
         | pages | /user/* |
       """
     When I run "behat --no-colors"
@@ -237,7 +237,7 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the block "Non-existent Block Label" has the "request_path" condition removed
+      Given the block "Non-existent Block Label" has the condition "request_path" removed
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -250,12 +250,12 @@ Feature: Check that BlockTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given the instance of the block "User account menu" exists with the following configuration:
+      Given the instance of the block "User account menu" with the following configuration exists:
         | label         | [TEST] User Account Menu |
         | label_display | 1                        |
         | region        | content                  |
         | status        | 1                        |
-      And the block "[TEST] User Account Menu" has the "request_paths" condition removed
+      And the block "[TEST] User Account Menu" has the condition "request_paths" removed
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -264,24 +264,24 @@ Feature: Check that BlockTrait works
       """
 
   Scenario: Move block from one region to another
-    Given the instance of the block "User account menu" exists with the following configuration:
+    Given the instance of the block "User account menu" with the following configuration exists:
       | label         | [TEST] User Account Menu |
       | label_display | 1                        |
       | region        | content                  |
       | status        | 1                        |
-    Then the block "[TEST] User Account Menu" in the "content" region should exist
+    Then the block "[TEST] User Account Menu" in the region "content" should exist
 
     Given the block "[TEST] User Account Menu" has the following configuration:
       | region | header |
-    Then the block "[TEST] User Account Menu" in the "header" region should exist
-    And the block "[TEST] User Account Menu" in the "content" region should not exist
+    Then the block "[TEST] User Account Menu" in the region "header" should exist
+    And the block "[TEST] User Account Menu" in the region "content" should not exist
 
   @test-trait:Drupal\BlockTrait
   Scenario: Assert "block instance exists" fails for non-existing block type
     Given some behat configuration
     And scenario steps:
       """
-      Given the instance of the block "Non-existent Block Type" exists with the following configuration:
+      Given the instance of the block "Non-existent Block Type" with the following configuration exists:
         | label         | [TEST] User Account Menu |
         | label_display | 1                        |
         | region        | content                  |
@@ -295,7 +295,7 @@ Feature: Check that BlockTrait works
 
   @behat-steps-entity-cleanup-skip:block
   Scenario: Blocks are not automatically cleaned up when skip tag is used
-    Given the instance of the block "User account menu" exists with the following configuration:
+    Given the instance of the block "User account menu" with the following configuration exists:
       | label         | [TEST] Skip Cleanup Block |
       | label_display | 1                         |
       | region        | content                   |

@@ -69,71 +69,41 @@ ahoy copy-files
 
 ## Steps Format Guidelines
 
-Step wording is mostly a guide held in review. Its 2 goals are that every step reads as plain English and every idea reads the same way in every trait. `docs.php` gathers the steps into STEPS.md and checks the rules that hold without judging the English (listed under "Checked by `ahoy lint-docs`" below). Read a step aloud with real values filled in and compare it with its siblings; when a rule and natural English disagree, the English wins. The full guide is "Steps format" in [CONTRIBUTING.md](CONTRIBUTING.md).
+A step is 1 plain English sentence. Every step follows every rule below, and a step that doesn't fit a rule is reworded rather than exempted. `ahoy lint-docs` checks the rules marked (lint). The same list is "Steps format" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-- **General Guidelines**:
-  - Use tuple format instead of regular expressions
-  - Use descriptive placeholder names
-  - Use `the following` for tabled content, with a plain plural for the rows: `the following users exist:`, `I should see the following error messages:`
-  - Use `with` for properties: `Then the link with the title :title should exist`
-  - Avoid optional words like `(the|a)`, except the `(s)` plural token, which a noun agreeing with a count or a comma-separated list in 1 argument keeps: `:count row(s)`, `the :roles role(s)`
-  - Omit suffixes that add nothing, such as `on the page` or `assigned`
-  - Read like Mink: a value after a verb reads bare (`I should see "Welcome"`, `I fill in "Title" with "Launch"`); whether a step says "I" follows from its actor
-  - When 2 wordings follow these rules equally well, keep the one the step already has; a rename costs each project an edit in its features and a row in `MIGRATION.md`, so it has to make the vocabulary more consistent or more readable
-  - Method names should begin with the trait name: `userAssertHasRoles()`
+**Who acts**
 
-- **Placeholder Names**: one concept gets one name across every trait. Reusing a name that already exists is always preferred over inventing a synonym.
-  - Placeholder names are `snake_case` and match the method parameter name exactly - Behat binds the argument by name, so a mismatch only surfaces at run time
-  - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`; `:text` is for text a person reads on the page or a whole body with no named target, such as `I should see :text in the :region region` and `the command output should contain :text`
-  - A bundle placeholder is named after its entity type - `:content_type`, `:media_type`, `:content_block_type`, `:vocabulary` - unless the step is deliberately entity-agnostic, where `:bundle` is correct
-  - A partial match reads `:partial_<thing>`, as in `:partial_name`
-  - An email address is `:address` and a 1-based position is `:index`
+1. Every step method's docblock declares `@actor:person` or `@actor:system`, on its own line after the last `@endcode` with a blank line before it. It's `person` when a person does or sees the step through the browser, a terminal or an HTTP client, and `system` otherwise. (lint)
+2. A `person` step starts with `I`, and a `system` step starts with its subject: `Given I am logged in as the user "jane"`, `When cron runs`. (lint)
 
-- **Articles and Word Order**:
-  - Every countable noun takes an article, and an acronym is uppercase: `URL`, `ECK`, `REST`, `JSON`, `XML`, `JS`, `AJAX`, `CSS`, `HTML`, `WYSIWYG`
-  - `the` names 1 identified thing and `a`/`an` names any thing that matches: `the cookie with the name :name`, `the unmanaged file at the URI :uri`, but `a cookie with a name containing :partial_name`, `an email should have been sent`
-  - A name the site's configuration defines sits before its noun: `the :queue queue`, `the :module module`, `the :region region`, `the :roles role(s)`, `the :permissions permission(s)`, `the :breakpoint breakpoint`, `the :condition condition`, `the :new_state state`, `the :view_id view`, `the :menu_name menu`, `the :vocabulary vocabulary`, `the :content_type content type`, `the :media_type media type`. So do a bundle qualifying an entity noun (`the :media_type media`, `the :vocabulary term`), a count before its unit (`:count item(s)`) and a closed-set qualifier (`in :direction order`, `a REST :method request`)
-  - Anything else follows its noun: a label, a title, an entity's or a user's name, free text, a selector, a path, a URL, a key, an event, a header, a field name, or a config or state key (`the link :link`, `the element :selector`, `the user :name`, `the config :name with the key :key`)
-  - Name a value only where the verb doesn't: `should contain :value`, `should be equal to :value` and `to :value` read bare, while `should have the value :value` and `the attribute :attribute with the value :value` keep the noun; never `the :value value`. A JSON path or an XML node compares with `should be equal to`, keeping `should be` free for `the JSON path :path should be null`; anything else that equals a value reads `should be :value`
-  - A step never opens with a placeholder: `the :content_type content with the title :title should not exist`
+**Given, When, Then**
 
-- **Settled Wording**: each idea reads 1 way
-  - A step that opens a page reads `I visit the ... page` and names the page: `I visit the :content_type content edit page with the title :title`, never `I edit the ...`. A page has 1 name everywhere: `the profile page of the user :name`, `my own profile page`
-  - Its method opens with `Visit` and names the page as the step does: `contentVisitEditPageWithTitle()`, `userVisitProfileEditPage()`. `TraitMethodNamingTest` enforces it
-  - An action names what it acts on: `I press the button :button`, `I follow the link :link`, `I fill in the field :field with :value`, `I check the checkbox :checkbox`, `I unselect the option :option from the select :selector`
-  - A link is followed, an element is clicked on, a button or a key is pressed; the viewport is `the viewport`, and a `<select>` is `the select :selector`
-  - An entity is found the same way in every trait: `the :content_type content with the title :title`, `the :media_type media with the name :name`, `the :vocabulary term with the name :name`; a user is `the user :name` everywhere
-  - Steps that count the same thing share 1 word order: `the number of emails sent should be :count`, `the number of emails sent to the address :address should be :count`
-  - The page, the URL and the path are never `the current ...`
-  - A state reads `is <state>` in a Given and `should be <state>` in a Then (`the field :field should be disabled`); a state word is never a placeholder
-  - A second `with` qualifier on an action repeats `With` in the method name, in step-text order: `emailFollowLinkWithIndexWithSubjectContaining()`
-  - "Nothing in this set matched" reads `no <plural>`: `no emails should have been sent`. A claim about 1 named thing negates with `should not`
+3. `Given` puts the system under test into the state the scenario needs, and its wording names that state: `Given the module "node" is enabled` enables the module. Not `Given I enable the module "node"`.
+4. `When` is the action or the event under test: `When I press the button "Save"`, `When cron runs`.
+5. `Then` checks with `should` or `should not`, and no other step uses them: `Then the queue "default" should be empty`. (lint)
+6. Something already done takes the perfect tense: `Given the cache has been cleared`, `Then an email should have been sent to the address "jane@example.com"`.
 
-- **Actor**: every step method's docblock carries `@actor:person` or `@actor:system` on its own line after the last `@endcode`, a blank line before it and next to `@javascript` where present
-  - `person`: a person does or observes the step through something they operate - the browser, or a terminal or HTTP client they type into - so it reads in the first person: `Given I am logged in as the user :name`, `When I run the drush command :command`, `Then I should see :text in the modal`
-  - `system`: the site, its data or the test set-up acts or is checked, nobody operates anything, so the step names its subject: `Given the :module module is enabled`, `When cron runs`, `Then the :queue queue should be empty`
-  - Interactivity decides, not where the step runs: `the element :selector should exist` runs in the browser but is `system`; `I run the drush command :command` goes through Drush but is `person`
-  - `docs.php` throws a `\RuntimeException` naming the method for a step with no tag, an unknown value or 2 tags
+**Values**
 
-- **Given Steps**:
-  - Set up what the scenario starts from: the step does the work (creates content, enables a module, logs in) and its wording names the result
-  - Read as a state of the site or of the person, as the actor says: `the :module module is enabled`, `I am logged in as a user with the :roles role(s)`, `I accept all confirmation dialogs`
-  - Use words like `exists`, `have` or `is`; a precondition that is an event already done takes the perfect tense: `the cache has been cleared`
-  - Never narrate a single action, which is a When's job, and avoid `should` or `should not`
+7. A value that says which one goes after its noun: `the user "jane"`, `the config "system.site"`, `in the region "header"`. Not `the "header" region`. (lint)
+8. A value that says what kind or how many goes before its noun: `the "article" content`, `3 items`, `in ascending order`, `a REST "POST" request`. Not `the content "article"`. `kind_placeholders()` in `docs.php` lists the placeholders that do this. (lint)
+9. Any other property that picks a thing out reads `with the <property> <value>`, right after the thing. A thing with a kind before it gets its name this way too: `the link with the title "Home page"`, `the "article" content with the title "Hello"`. Not `the "article" content "Hello"`. (lint)
+10. A place or a destination takes its preposition, right after the thing: `the element "#logo" in the region "header"`, `sent to the address "a@example.com"`.
+11. The value a step checks comes straight after its verb: `should be "/about"`, `should contain "site"`. A thing that holds a value takes `have the value`: `the state "x" should have the value "1"`. (lint)
+12. `the` names the one you mean, and `a`, `an` or `no` names any that match: `the cookie "SESS"`, `a cookie with a name containing "SE"`, `no emails should have been sent`.
 
-- **When Steps**:
-  - Describe the action or the event the scenario is about
-  - A person's action reads `When I <verb>`; an event the site runs on its own names it: `When cron runs`, `When the :queue queue is processed`
+**Words**
 
-- **Then Steps**:
-  - Specify assertions and expectations with `should` and `should not`
-  - A check on what a person reads on the page, found by its text, is `person` and reads `I should see ...`: messages, text, headings, buttons, links and the modal, on the page or in a region, a row or the modal
-  - Any other assertion is `system` and starts with the entity being asserted: a target named by a selector, a property, a form control's state, or something off the page, as in `the :queue queue should be empty`
-  - An assertion about an event already done takes the perfect tense: `an email should have been sent to the address :address`
-  - A qualifier that narrows the asserted entity reads with it, before `should`: `the element :selector in the :region region should exist`. A qualifier of the predicate's object stays with it (`should match the XSD schema in the file :filename`), and a table or PyString argument still comes last: `the meta tag should exist with the following attributes:`
-  - Methods should include the `Assert` prefix
+13. Each action has 1 verb: follow a link, click on an element, press a button or a key, fill in a field, check a checkbox, select an option, visit a page. (lint)
+14. A state is a word, never a value: `is enabled` in a `Given`, `should be enabled` in a `Then`.
+15. A count of what a thing holds reads `should have 3 <things>`. A count of events reads `the number of <events> should be 3`. (lint)
+16. A step that takes a table introduces it with `the following <noun>:`, as in `Given the following users exist:`. (lint)
+17. A step never starts with a value, writes acronyms in capitals, and never uses a phrase from `rejected_step_phrases()` in `docs.php`, such as `the current`. `step_acronyms()` lists the acronyms. (lint)
 
-- **Checked by `ahoy lint-docs`**: 1 step per method; an example matching its own step and no other; a `person` step not opening with `I ` and a `system` step opening with it; a table `Given` without `the following`; a `Then` without `should`, without `the`, `a`, `an` or `no`, or from a method without `Assert` or with `Should`; a qualifier ending a `Then` after `exist` or `be <state>`; a placeholder that isn't `snake_case`, is named in `docs.php`'s `non_descriptive_placeholders()` or `placeholder_synonyms()`, follows `containing` without the `partial_` prefix, or opens the step; `:text` compared against a named target; the phrases in `rejected_step_phrases()`; and an `I visit` step that names its destination in words but no page or link
+**Names**
+
+18. A step is words and placeholders, never a regular expression. A placeholder is `snake_case`, matches its method parameter and has 1 name per idea: `:name`, `:value`, `:count`, `:index`, `:address`, and `:partial_<name>` for a partial match. `:text` is only for text on the page. `non_descriptive_placeholders()` and `placeholder_synonyms()` in `docs.php` list the names it rejects. (lint)
+19. A step method's name starts with its trait's name, uses `Assert` in a `Then` and `Visit` when it opens a page, and carries 1 step. (lint) The rest of a method's name follows "Method naming conventions" in [CONTRIBUTING.md](CONTRIBUTING.md), such as a second `with` qualifier repeating `With`: `emailFollowLinkWithIndexWithSubjectContaining()`.
 
 ## Exception Types
 
@@ -151,7 +121,7 @@ Which exception a step throws is part of the public contract - consumers catch o
 
 Never throw plain `\Exception` or `\InvalidArgumentException` from `src/`.
 
-A failure message names its subject with the noun its step uses and the article, noun before the value even where the step puts a configured name first (`The element "..."`, `The config "..." with the key "..."`, `Expected the queue "..."`), or keeps its quantifier when nothing in a set matched (`No hreflang alternate links were found on the page.`), quotes every value it names, the page URL included, ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. See "Failure messages" in [CONTRIBUTING.md](CONTRIBUTING.md).
+A failure message names its subject with the noun its step uses and the article, noun before the value (`The element "..."`, `The config "..." with the key "..."`, `Expected the queue "..."`), or keeps its quantifier when nothing in a set matched (`No hreflang alternate links were found on the page.`), quotes every value it names, the page URL included, ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`. See "Failure messages" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 A trait without a Mink session is one that never calls `$this->getSession()`. The ones that assert are `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Do not add a session to a trait just to reach `ExpectationException`.
 
@@ -160,10 +130,10 @@ In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an ass
 ## Common Behat Step Patterns
 - Block assertions:
   - `the block "..." should exist`
-  - `the block "..." in the "..." region should exist`
+  - `the block "..." in the region "..." should exist`
 
 - Content block operations:
-  - `the "..." content block type should exist`
+  - `the content block type "..." should exist`
   - `the following "..." content blocks exist:`
   - `I visit the "..." content block edit page with the description "..."`
 

@@ -247,7 +247,7 @@ Feature: Check that FieldTrait works
     Given the following page content exists:
       | title             |
       | [TEST] Page title |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Page title"
     When I fill in the WYSIWYG field "Body" with "[TEST] body"
     And I fill in the WYSIWYG field "Description" with "[TEST] description"
@@ -260,7 +260,7 @@ Feature: Check that FieldTrait works
     Given the following page content exists:
       | title                       |
       | [TEST-JS-Driver] Page title |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST-JS-Driver] Page title"
     When I fill in the WYSIWYG field "Body" with "[TEST-JS-Driver] body"
     And I fill in the WYSIWYG field "Description" with "[TEST-JS-Driver] description"
@@ -269,19 +269,19 @@ Feature: Check that FieldTrait works
     And I should see "[TEST-JS-Driver] description"
 
   Scenario: Assert that a select has/has not an option
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit "/admin/config/regional/settings"
     Then the option "AU" within the select "site_default_country" should exist
     And the option "DUMMY-COUNTRY" within the select "site_default_country" should not exist
 
   Scenario: Assert that a select option is selected
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit "/admin/config/regional/settings"
     Then the option "UTC" within the select "date_default_timezone" should exist
     And the option "UTC" within the select "date_default_timezone" should be selected
 
   Scenario: Assert that a select option is not selected
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit "/admin/config/regional/settings"
     Then the option "Australia/Sydney" within the select "date_default_timezone" should exist
     And the option "Australia/Sydney" within the select "date_default_timezone" should not be selected
@@ -291,7 +291,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "non_existent_select" should exist
       """
@@ -306,7 +306,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "INVALID_OPTION" within the select "date_default_timezone" should exist
       """
@@ -321,7 +321,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "date_default_timezone" should not exist
       """
@@ -336,7 +336,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "non_existent_select" should be selected
       """
@@ -351,7 +351,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "INVALID_OPTION" within the select "date_default_timezone" should not be selected
       """
@@ -366,7 +366,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "date_default_timezone" should not be selected
       """
@@ -381,7 +381,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "non_existent_select" should not exist
       """
@@ -396,7 +396,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "INVALID_OPTION" within the select "date_default_timezone" should be selected
       """
@@ -411,7 +411,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "Australia/Sydney" within the select "date_default_timezone" should be selected
       """
@@ -426,7 +426,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "non_existent_select" should not be selected
       """
@@ -670,7 +670,7 @@ Feature: Check that FieldTrait works
     Given the following page content exists:
       | title                     |
       | [TEST] Datetime test page |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Datetime test page"
     And I fill in the datetime field "Event date" with the date "2024-01-15" and the time "14:30:00"
     And I press "Save"
@@ -681,7 +681,7 @@ Feature: Check that FieldTrait works
     Given the following page content exists:
       | title                          |
       | [TEST] Datetime separate steps |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Datetime separate steps"
     And I fill in the date part of the datetime field "Event date" with "2024-02-20"
     And I fill in the time part of the datetime field "Event date" with "15:45:00"
@@ -693,7 +693,7 @@ Feature: Check that FieldTrait works
     Given the following page content exists:
       | title                      |
       | [TEST] Date only test page |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Date only test page"
     And I fill in the datetime field "Event date only" with the date "2024-03-10" and the time ""
     And I press "Save"
@@ -704,7 +704,7 @@ Feature: Check that FieldTrait works
     Given the following page content exists:
       | title                      |
       | [TEST] Date part test page |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Date part test page"
     And I fill in the date part of the datetime field "Event date only" with "2024-04-05"
     And I press "Save"
@@ -715,7 +715,7 @@ Feature: Check that FieldTrait works
     Given the following page content exists:
       | title                      |
       | [TEST] Daterange test page |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Daterange test page"
     And I fill in the start datetime field "Event period" with the date "2024-06-01" and the time "09:00:00"
     And I fill in the end datetime field "Event period" with the date "2024-06-05" and the time "17:00:00"
@@ -727,7 +727,7 @@ Feature: Check that FieldTrait works
     Given the following page content exists:
       | title                                |
       | [TEST] Daterange date only test page |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Daterange date only test page"
     And I fill in the start datetime field "Event period date only" with the date "2024-07-10" and the time ""
     And I fill in the end datetime field "Event period date only" with the date "2024-07-15" and the time ""
@@ -739,7 +739,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I go to "node/add/page"
       And I fill in the datetime field "Non-existent field" with the date "2024-01-01" and the time "12:00:00"
       """
@@ -754,7 +754,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I go to "node/add/page"
       And I fill in the date part of the datetime field "Non-existent field" with "2024-01-01"
       """
@@ -769,7 +769,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I go to "node/add/page"
       And I fill in the time part of the datetime field "Non-existent field" with "12:00:00"
       """
@@ -784,7 +784,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I go to "node/add/page"
       And I fill in the start datetime field "Non-existent range" with the date "2024-01-01" and the time ""
       """
@@ -799,7 +799,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I go to "node/add/page"
       And I fill in the end datetime field "Non-existent range" with the date "2024-01-05" and the time ""
       """
@@ -811,7 +811,7 @@ Feature: Check that FieldTrait works
 
   @javascript
   Scenario: Fill in multi-value field with more values than existing rows
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I go to "node/add/page"
     And I fill in "Title" with "[TEST] Multi-value tags"
     And I fill in the multi-value field "Test tags" with the following values:
@@ -827,7 +827,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript":
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I go to "node/add/page"
       And I fill in the multi-value field "Non-existent multi field" with the following values:
         | value |

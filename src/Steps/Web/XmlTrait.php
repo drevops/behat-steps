@@ -222,13 +222,13 @@ trait XmlTrait {
    * Assert that an XML element content equals specified text.
    *
    * @code
-   * Then the XML element "//title" should be equal to "The Great Adventure"
-   * Then the XML element "/library/book[1]/author" should be equal to "John Doe"
+   * Then the XML element "//title" should have the value "The Great Adventure"
+   * Then the XML element "/library/book[1]/author" should have the value "John Doe"
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the XML element :element should be equal to :value')]
+  #[Then('the XML element :element should have the value :value')]
   public function xmlAssertElementEquals(string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -243,13 +243,13 @@ trait XmlTrait {
    * Assert that an XML element content does not equal specified text.
    *
    * @code
-   * Then the XML element "//title" should not be equal to "Wrong Title"
-   * Then the XML element "/library/book[1]/author" should not be equal to "Wrong Author"
+   * Then the XML element "//title" should not have the value "Wrong Title"
+   * Then the XML element "/library/book[1]/author" should not have the value "Wrong Author"
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the XML element :element should not be equal to :value')]
+  #[Then('the XML element :element should not have the value :value')]
   public function xmlAssertElementNotEquals(string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -344,13 +344,13 @@ trait XmlTrait {
    * Assert that an XML attribute value equals specified text.
    *
    * @code
-   * Then the XML attribute "id" on the element "//book" should be equal to "123"
-   * Then the XML attribute "category" on the element "/library/book[1]" should be equal to "fiction"
+   * Then the XML attribute "id" on the element "//book" should have the value "123"
+   * Then the XML attribute "category" on the element "/library/book[1]" should have the value "fiction"
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the XML attribute :attribute on the element :element should be equal to :value')]
+  #[Then('the XML attribute :attribute on the element :element should have the value :value')]
   public function xmlAssertAttributeEquals(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 
@@ -369,13 +369,13 @@ trait XmlTrait {
    * Assert that an XML attribute value does not equal specified text.
    *
    * @code
-   * Then the XML attribute "id" on the element "//book" should not be equal to "999"
-   * Then the XML attribute "category" on the element "/library/book[1]" should not be equal to "science"
+   * Then the XML attribute "id" on the element "//book" should not have the value "999"
+   * Then the XML attribute "category" on the element "/library/book[1]" should not have the value "science"
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the XML attribute :attribute on the element :element should not be equal to :value')]
+  #[Then('the XML attribute :attribute on the element :element should not have the value :value')]
   public function xmlAssertAttributeNotEquals(string $attribute, string $element, string $value): void {
     $node = $this->xmlGetFirstNode($element);
 

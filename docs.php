@@ -27,6 +27,7 @@
 declare(strict_types=1);
 
 use Behat\Behat\Definition\Pattern\Policy\TurnipPatternPolicy;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
@@ -446,6 +447,7 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
         'description' => $parsed_comment['description'],
         'example' => $parsed_comment['example'],
         'actor' => $parsed_comment['actor'],
+        'takes_table' => method_takes_table($method),
         'name' => $method->getName(),
       ];
     }
@@ -745,6 +747,30 @@ function extract_method_steps(\ReflectionMethod $method): array {
   }
 
   return $sorted;
+}
+
+/**
+ * Check whether a step method takes a table.
+ *
+ * A step taking a table and one taking a block of text both end with a colon,
+ * so the type of the last parameter tells them apart.
+ *
+ * @param \ReflectionMethod $method
+ *   The reflection method.
+ *
+ * @return bool
+ *   TRUE when the last parameter is a table.
+ */
+function method_takes_table(\ReflectionMethod $method): bool {
+  $parameters = $method->getParameters();
+
+  if ($parameters === []) {
+    return FALSE;
+  }
+
+  $type = end($parameters)->getType();
+
+  return $type instanceof \ReflectionNamedType && $type->getName() === TableNode::class;
 }
 
 /**
@@ -1594,6 +1620,9 @@ function validate(array $info): array {
   $non_descriptive_placeholders = non_descriptive_placeholders();
   $placeholder_synonyms = placeholder_synonyms();
   $rejected_step_phrases = rejected_step_phrases();
+  $kind_placeholders = kind_placeholders();
+  $acronyms = step_acronyms();
+  $determiners = ['the', 'a', 'an', 'no', 'following'];
 
   foreach ($info as $class_info) {
     $class_name = is_string($class_info['name']) ? $class_info['name'] : '';
@@ -1611,8 +1640,12 @@ function validate(array $info): array {
 
       $step = (string) $method['steps'][0];
 
-      if (str_starts_with($step, '@Given') && str_ends_with($step, ':') && !str_contains($step, 'following')) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "following" in the step');
+      if (isset($method['takes_table']) && $method['takes_table'] === TRUE && !str_contains($step, ' the following ')) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "the following" before the table the step takes');
+      }
+
+      if (preg_match('/^@(?:Given|When) /', $step) === 1 && str_contains($step, ' should ')) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Step uses "should", but only a Then step checks');
       }
 
       $actor = isset($method['actor']) && is_string($method['actor']) ? $method['actor'] : NULL;
@@ -1645,10 +1678,8 @@ function validate(array $info): array {
 
         // A qualifier after "exist" or "be <state>" narrows the subject. One after
         // a predicate's own object, as in "should match the XSD schema in the
-        // file :filename", narrows that object, so it stays. The name follows
-        // its noun or precedes a noun repeating it, as in "in the row :row"
-        // and "in the :region region".
-        if (preg_match('/ should (?:not )?(?:exist|be [a-z]+) (?:in|within|on|at|from) the (?:[a-z]+ )*(?::[a-z_]+|:([a-z]+)[a-z_]* \1)$/', $step) === 1) {
+        // file :filename", narrows that object, so it stays.
+        if (preg_match('/ should (?:not )?(?:exist|be [a-z]+) (?:in|within|on|at|from|with) the (?:[a-z]+ )*:[a-z_]+$/', $step) === 1) {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Qualifier follows the predicate but should precede "should" with the subject it narrows');
         }
       }
@@ -1675,8 +1706,13 @@ function validate(array $info): array {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Step starts with a placeholder but should start with the noun it names');
       }
 
+      if (preg_match('/^@(?:Given|When|Then) \//', $step) === 1) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Step is a regular expression but should be words and placeholders');
+      }
+
+      // The trailing space lets a phrase that ends with one match at the end.
       foreach ($rejected_step_phrases as $rejected => $replacement) {
-        if (str_contains($step, $rejected)) {
+        if (str_contains($step . ' ', $rejected)) {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Step reads "%s" but should read "%s"', trim($rejected), trim($replacement)));
         }
       }
@@ -1695,12 +1731,63 @@ function validate(array $info): array {
         }
       }
 
-      // A placeholder before "should" names the asserted target, so what the
-      // step compares against it is a value rather than a whole body of text.
-      [$subject, $predicate] = array_pad(explode(' should ', $step, 2), 2, '');
+      if (preg_match('/ (?:exists?|should (?:not )?exist) with the following /', $step) === 1) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Table follows the verb but should follow the thing it describes, as in "the meta tag with the following attributes should exist:"');
+      }
 
-      if (preg_match('/:[a-zA-Z_]/', $subject) === 1 && preg_match('/:text\b/', $predicate) === 1) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Placeholder ":text" in the step compares against a named target but should be ":value"');
+      $tokens = explode(' ', (string) preg_replace('/^@(?:Given|When|Then) /', '', $step));
+      $is_kind = static fn(string $token): bool => preg_match('/^:([a-zA-Z_][a-zA-Z0-9_]*)/', $token, $match) === 1 && in_array($match[1], $kind_placeholders, TRUE);
+
+      foreach ($tokens as $index => $token) {
+        if ($index === 0 || preg_match('/^:([a-zA-Z_][a-zA-Z0-9_]*)/', $token, $placeholder_match) !== 1) {
+          continue;
+        }
+
+        $placeholder = $placeholder_match[1];
+        $previous = $tokens[$index - 1];
+
+        // A placeholder after an article or another placeholder sits before its
+        // noun, where only a kind or a count goes.
+        if (!$is_kind($token) && (in_array($previous, $determiners, TRUE) || str_starts_with($previous, ':'))) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" sits before its noun but says which one, so it should follow the noun', $placeholder));
+        }
+        elseif (placeholder_precedes_own_noun($placeholder, array_slice($tokens, $index + 1, 3))) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" sits before the noun it names, so it should follow it', $placeholder));
+        }
+
+        if ($index >= 2 && !str_starts_with($previous, ':') && $is_kind($tokens[$index - 2])) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" follows a noun with a kind before it, so it should read "with the <property> :%s"', $placeholder, $placeholder));
+        }
+
+        // A thing with no kind before its noun takes its name right after it,
+        // so "with the name" is only for a noun such as "the :vocabulary term".
+        if ($index >= 4 && array_slice($tokens, $index - 3, 3) === ['with', 'the', 'name']) {
+          $before = $index - 4;
+
+          while ($before > 0 && preg_match('/^[a-z]+$/', $tokens[$before]) === 1 && !in_array($tokens[$before], $determiners, TRUE)) {
+            $before--;
+          }
+
+          if (!$is_kind($tokens[$before])) {
+            $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Step reads "with the name", but a name should follow its noun, as in "the cookie :name"');
+          }
+        }
+
+        if (preg_match('/^text\d*$/', $placeholder) === 1 && $actor !== 'person' && $previous !== 'text') {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" is for text on the page, so a step checking anything else should use ":value"', $placeholder));
+        }
+      }
+
+      if (preg_match('/\b(?!(?:have|has|with|and)\b)([a-z]+) the value :/', $step, $named_value) === 1) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Step reads "%s the value", but a value after a verb reads bare and only "have" takes "the value"', $named_value[1]));
+      }
+
+      preg_match_all('/\b(' . implode('|', $acronyms) . ')\b/i', (string) preg_replace('/:[a-zA-Z_][a-zA-Z0-9_]*/', '', $step), $acronym_matches);
+
+      foreach ($acronym_matches[1] as $acronym) {
+        if ($acronym !== strtoupper($acronym)) {
+          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Acronym "%s" in the step should be uppercase', $acronym));
+        }
       }
 
       if (empty($method['example'])) {
@@ -1823,6 +1910,35 @@ function extract_step_examples(string $example): array {
 }
 
 /**
+ * Check whether a placeholder sits right before the noun it is named after.
+ *
+ * The noun is 1 to 3 words joined with "_", as in ":media_type media type",
+ * and a "(s)" plural token or the colon ending a step is not part of it.
+ *
+ * @param string $placeholder
+ *   The placeholder name, without the leading colon.
+ * @param array<int, string> $words
+ *   The up to 3 words that follow the placeholder in the step.
+ *
+ * @return bool
+ *   TRUE when the words name the placeholder's own noun.
+ */
+function placeholder_precedes_own_noun(string $placeholder, array $words): bool {
+  $words = array_map(static fn(string $word): string => str_replace('(s)', '', rtrim($word, ':')), $words);
+  $word_count = count($words);
+
+  for ($length = 1; $length <= $word_count; $length++) {
+    $noun = implode('_', array_slice($words, 0, $length));
+
+    if ($noun === $placeholder || str_ends_with($placeholder, '_' . $noun)) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
  * Placeholder names that name a value's type or abbreviate its role.
  *
  * A placeholder is the only description a step gives of what a consumer must
@@ -1874,6 +1990,36 @@ function placeholder_synonyms(): array {
 }
 
 /**
+ * Placeholder names that say what kind or how many, so they precede a noun.
+ *
+ * Every other placeholder says which one and follows its noun, as in "the
+ * user :name", while these come first, as in "the :content_type content",
+ * ":count item(s)" and "a REST :method request".
+ *
+ * @return array<int, string>
+ *   List of placeholder names, without the leading colon.
+ */
+function kind_placeholders(): array {
+  return [
+    'bundle',
+    'content_block_type',
+    'content_type',
+    'count',
+    'direction',
+    'entity_type',
+    'media_type',
+    'method',
+    'offset',
+    'paragraph_type',
+    'parent_bundle',
+    'parent_entity_type',
+    'seconds',
+    'tolerance',
+    'vocabulary',
+  ];
+}
+
+/**
  * Phrases the step vocabulary rejects in favor of 1 settled form.
  *
  * A step containing a key fails validation, and the error names the value as
@@ -1885,9 +2031,43 @@ function placeholder_synonyms(): array {
 function rejected_step_phrases(): array {
   return [
     'I click the ' => 'I click on the ',
+    'I click on the link ' => 'I follow the link ',
+    'I click on the button ' => 'I press the button ',
+    'I press the link ' => 'I follow the link ',
+    'I follow the button ' => 'I press the button ',
     'I edit the ' => 'I visit the ... edit page',
+    ' the current ' => ' the ',
     ' a viewport' => ' the viewport',
     'the select element ' => 'the select ',
+    ' be equal to ' => ' have the value ',
+    ' contain :count ' => ' have :count ',
+  ];
+}
+
+/**
+ * Acronyms a step writes in capitals.
+ *
+ * A step containing one of these in any other case fails validation.
+ *
+ * @return array<int, string>
+ *   List of acronyms.
+ */
+function step_acronyms(): array {
+  return [
+    'AJAX',
+    'CSS',
+    'DTD',
+    'ECK',
+    'HTML',
+    'HTTP',
+    'JS',
+    'JSON',
+    'REST',
+    'URI',
+    'URL',
+    'WYSIWYG',
+    'XML',
+    'XSD',
   ];
 }
 

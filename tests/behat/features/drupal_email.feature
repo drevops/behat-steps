@@ -384,7 +384,7 @@ Feature: Check that EmailTrait works
     Given some behat configuration
     And scenario steps tagged with "@email":
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then an email should have been sent to the address "test@example.com"
       """
     When I run "behat --no-colors"

@@ -15,7 +15,7 @@ Feature: Check that EckTrait works
       | [TEST] ECK test1 | Test text field | T2                   |
 
   Scenario: Assert "I visit the ECK :bundle :entity_type entity page with the title :title" works as expected
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit the ECK "test_bundle" "test_entity_type" entity page with the title "[TEST] ECK test1"
     Then I should see "[TEST] ECK test1"
     And I should see "T2"
@@ -25,7 +25,7 @@ Feature: Check that EckTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the ECK "test_bundle" "test_entity_type" entity page with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
@@ -35,7 +35,7 @@ Feature: Check that EckTrait works
       """
 
   Scenario: Assert "When I visit the ECK :bundle :entity_type entity edit page with the title :title" works as expected
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit the ECK "test_bundle" "test_entity_type" entity edit page with the title "[TEST] ECK test1"
     Then I should see "Edit test bundle [TEST] ECK test1"
 
@@ -44,7 +44,7 @@ Feature: Check that EckTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the ECK "test_bundle" "test_entity_type" entity edit page with the title "[TEST] ECK Entity non-existing"
       """
     When I run "behat --no-colors"
@@ -58,7 +58,7 @@ Feature: Check that EckTrait works
     Given the following ECK "test_bundle" "test_entity_type" entities exist:
       | title                   | field_test_text   |
       | [TEST] Skip Cleanup ECK | Skip cleanup test |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the ECK "test_bundle" "test_entity_type" entity page with the title "[TEST] Skip Cleanup ECK"
     Then I should see "[TEST] Skip Cleanup ECK"
     Given the following ECK "test_bundle" "test_entity_type" entities do not exist:
@@ -70,6 +70,6 @@ Feature: Check that EckTrait works
       | title                     | field_test_text     |
       | [TEST] Auto Cleanup ECK 1 | Auto cleanup test 1 |
       | [TEST] Auto Cleanup ECK 2 | Auto cleanup test 2 |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the ECK "test_bundle" "test_entity_type" entity page with the title "[TEST] Auto Cleanup ECK 1"
     Then I should see "[TEST] Auto Cleanup ECK 1"

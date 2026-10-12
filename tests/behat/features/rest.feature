@@ -22,7 +22,7 @@ Feature: Check that RestTrait works
     When I send a REST "GET" request to "/"
     Then the REST response status code should be 200
 
-  Scenario: Assert "Then the REST response should contain :text" works
+  Scenario: Assert "Then the REST response should contain :value" works
     When I send a REST "GET" request to "/"
     Then the REST response should contain "html"
 
@@ -54,7 +54,7 @@ Feature: Check that RestTrait works
       """
 
   @test-trait:RestTrait
-  Scenario: Assert that negative assertion for "Then the REST response should contain :text" fails with an error
+  Scenario: Assert that negative assertion for "Then the REST response should contain :value" fails with an error
     Given some behat configuration
     And scenario steps:
       """

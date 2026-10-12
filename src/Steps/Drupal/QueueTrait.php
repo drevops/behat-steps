@@ -67,13 +67,13 @@ trait QueueTrait {
    * receives the same shape it would receive in production.
    *
    * @code
-   * Given the following item is in the "myqueue" queue:
+   * Given the following item is in the queue "myqueue":
    *   | data | {"nid":1} |
    * @endcode
    *
    * @actor:system
    */
-  #[Given('the following item is in the :queue queue:')]
+  #[Given('the following item is in the queue :queue:')]
   public function queueAddItem(string $queue, TableNode $fields): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -91,12 +91,12 @@ trait QueueTrait {
    * Empty a queue.
    *
    * @code
-   * Given the "myqueue" queue is empty
+   * Given the queue "myqueue" is empty
    * @endcode
    *
    * @actor:system
    */
-  #[Given('the :queue queue is empty')]
+  #[Given('the queue :queue is empty')]
   public function queueEmpty(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -109,16 +109,16 @@ trait QueueTrait {
    * Process a specific number of items from a queue.
    *
    * @code
-   * When the "myqueue" queue processes 5 items
+   * When the queue "myqueue" processes 5 items
    * @endcode
    *
    * @code
-   * When the "myqueue" queue processes 1 item
+   * When the queue "myqueue" processes 1 item
    * @endcode
    *
    * @actor:system
    */
-  #[When('the :queue queue processes :count item(s)')]
+  #[When('the queue :queue processes :count item(s)')]
   public function queueProcessItems(string $count, string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -135,12 +135,12 @@ trait QueueTrait {
    * Process all items from a queue.
    *
    * @code
-   * When the "myqueue" queue is processed
+   * When the queue "myqueue" is processed
    * @endcode
    *
    * @actor:system
    */
-  #[When('the :queue queue is processed')]
+  #[When('the queue :queue is processed')]
   public function queueProcessAll(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -156,16 +156,16 @@ trait QueueTrait {
    * Assert that a queue has a specific number of items.
    *
    * @code
-   * Then the "myqueue" queue should have 5 items
+   * Then the queue "myqueue" should have 5 items
    * @endcode
    *
    * @code
-   * Then the "myqueue" queue should have 1 item
+   * Then the queue "myqueue" should have 1 item
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the :queue queue should have :count item(s)')]
+  #[Then('the queue :queue should have :count item(s)')]
   public function queueAssertItemCount(string $queue, string $count): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -182,12 +182,12 @@ trait QueueTrait {
    * Assert that a queue is empty.
    *
    * @code
-   * Then the "myqueue" queue should be empty
+   * Then the queue "myqueue" should be empty
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the :queue queue should be empty')]
+  #[Then('the queue :queue should be empty')]
   public function queueAssertEmpty(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

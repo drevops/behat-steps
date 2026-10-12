@@ -11,17 +11,17 @@ Feature: Check that TaxonomyTrait works
       | Tag2 |
       | Tag3 |
 
-  Scenario: Assert "Then the :vocabulary vocabulary with the name :name should exist" works
-    Given I am logged in as a user with the "administrator" role
-    Then the "tags" vocabulary with the name "Tags" should exist
+  Scenario: Assert "Then the vocabulary :vocabulary with the name :name should exist" works
+    Given I am logged in as a user with the role "administrator"
+    Then the vocabulary "tags" with the name "Tags" should exist
 
   @test-trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the :vocabulary vocabulary with the name :name should exist" works with non-existing vocabulary
+  Scenario: Assert negative assertion for "Then the vocabulary :vocabulary with the name :name should exist" works with non-existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
-      Then the "nonexisting" vocabulary with the name "Nonexisting" should exist
+      Given I am logged in as a user with the role "administrator"
+      Then the vocabulary "nonexisting" with the name "Nonexisting" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -30,12 +30,12 @@ Feature: Check that TaxonomyTrait works
       """
 
   @test-trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the :vocabulary vocabulary with the name :name should exist" works with existing vocabulary but incorrect name
+  Scenario: Assert negative assertion for "Then the vocabulary :vocabulary with the name :name should exist" works with existing vocabulary but incorrect name
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
-      Then the "tags" vocabulary with the name "Invalidname" should exist
+      Given I am logged in as a user with the role "administrator"
+      Then the vocabulary "tags" with the name "Invalidname" should exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -43,17 +43,17 @@ Feature: Check that TaxonomyTrait works
       The vocabulary "tags" exists with a name "Tags", but expected "Invalidname".
       """
 
-  Scenario: Assert "Then the :vocabulary vocabulary should not exist" works
-    Given I am logged in as a user with the "administrator" role
-    Then the "nonexisting" vocabulary should not exist
+  Scenario: Assert "Then the vocabulary :vocabulary should not exist" works
+    Given I am logged in as a user with the role "administrator"
+    Then the vocabulary "nonexisting" should not exist
 
   @test-trait:Drupal\TaxonomyTrait
-  Scenario: Assert negative assertion for "Then the :vocabulary vocabulary should not exist" works with existing vocabulary
+  Scenario: Assert negative assertion for "Then the vocabulary :vocabulary should not exist" works with existing vocabulary
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
-      Then the "tags" vocabulary should not exist
+      Given I am logged in as a user with the role "administrator"
+      Then the vocabulary "tags" should not exist
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -62,7 +62,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   Scenario: Assert "Then the :vocabulary term with the name :name should exist" works
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     Then the "tags" term with the name "Tag1" should exist
 
   @test-trait:Drupal\TaxonomyTrait
@@ -70,7 +70,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then the "nonexisting" term with the name "Tag" should exist
       """
     When I run "behat --no-colors"
@@ -84,7 +84,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then the "tags" term with the name "Nonexisting" should exist
       """
     When I run "behat --no-colors"
@@ -94,7 +94,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   Scenario: Assert "Then the :vocabulary term with the name :name should not exist" works
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     Then the "tags" term with the name "Nonexisting" should not exist
 
   @test-trait:Drupal\TaxonomyTrait
@@ -102,7 +102,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then the "nonexisting" term with the name "Nonexisting" should not exist
       """
     When I run "behat --no-colors"
@@ -116,7 +116,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       Then the "tags" term with the name "Tag1" should not exist
       """
     When I run "behat --no-colors"
@@ -150,7 +150,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   Scenario: Assert "When I visit the :vocabulary term page with the name :name" works
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit the "tags" term page with the name "Tag1"
     Then the response should contain "200"
     And I should see "Tag1"
@@ -160,7 +160,7 @@ Feature: Check that TaxonomyTrait works
       | name                  | description                   |
       | [TEST] Duplicate term | [TEST] Older term description |
       | [TEST] Duplicate term | [TEST] Newer term description |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I visit the "tags" term page with the name "[TEST] Duplicate term"
     Then I should see "[TEST] Newer term description"
     And I should not see "[TEST] Older term description"
@@ -170,7 +170,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the "nonexisting" term page with the name "Tag1"
       """
     When I run "behat --no-colors"
@@ -184,7 +184,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the "tags" term page with the name "Nonexisting"
       """
     When I run "behat --no-colors"
@@ -194,7 +194,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   Scenario: Assert "When I visit the :vocabulary term edit page with the name :name" works
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit the "tags" term edit page with the name "Tag1"
     Then the response should contain "200"
     And the "name[0][value]" field should contain "Tag1"
@@ -204,7 +204,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the "nonexisting" term edit page with the name "Tag1"
       """
     When I run "behat --no-colors"
@@ -218,7 +218,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the "tags" term edit page with the name "Nonexisting"
       """
     When I run "behat --no-colors"
@@ -228,7 +228,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   Scenario: Assert "When I visit the :vocabulary term delete page with the name :name" works
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I visit the "tags" term delete page with the name "Tag1"
     Then the response should contain "200"
     And I should see "Tag1"
@@ -238,7 +238,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the "nonexisting" term delete page with the name "Tag1"
       """
     When I run "behat --no-colors"
@@ -252,7 +252,7 @@ Feature: Check that TaxonomyTrait works
     Given some behat configuration
     And scenario steps:
       """
-      Given I am logged in as a user with the "administrator" role
+      Given I am logged in as a user with the role "administrator"
       When I visit the "tags" term delete page with the name "Nonexisting"
       """
     When I run "behat --no-colors"
@@ -262,7 +262,7 @@ Feature: Check that TaxonomyTrait works
       """
 
   Scenario: Create single taxonomy term with vertical field format
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     And the following tags terms with fields exist:
       | name        | [TEST] Vertical Tag  |
       | description | Vertical format term |
@@ -270,7 +270,7 @@ Feature: Check that TaxonomyTrait works
     Then I should see "[TEST] Vertical Tag"
 
   Scenario: Create multiple taxonomy terms with vertical field format
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     And the following tags terms with fields exist:
       | name        | [TEST] V-Tag 1      | [TEST] V-Tag 2       | [TEST] V-Tag 3      |
       | description | First vertical term | Second vertical term | Third vertical term |

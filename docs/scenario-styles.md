@@ -8,7 +8,7 @@ The same behavior can be scripted 2 ways. The first is the imperative style - th
 
 ```gherkin
 Scenario: Editor publishes a page
-  Given I am logged in as a user with the "editor" role
+  Given I am logged in as a user with the role "editor"
   When I visit "/node/add/page"
   And I fill in "Title" with "About us"
   And I select "Published" from "Save as"

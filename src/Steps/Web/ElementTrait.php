@@ -767,12 +767,12 @@ trait ElementTrait {
    * Assert the number of elements matching a selector within a parent element.
    *
    * @code
-   * Then the element "#main-nav" should contain 3 elements matching ".menu-item"
+   * Then the element "#main-nav" should have 3 elements matching ".menu-item"
    * @endcode
    *
    * @actor:system
    */
-  #[Then('the element :parent should contain :count element(s) matching :selector')]
+  #[Then('the element :parent should have :count element(s) matching :selector')]
   public function elementAssertChildElementCount(string $parent, string $count, string $selector): void {
     $count = $this->stringParseInteger($count, 'count', 0);
 

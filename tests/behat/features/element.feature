@@ -890,9 +890,9 @@ Feature: Check that ElementTrait works
     Then I should see "Link Testing Fixture"
 
   @phpserver
-  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" counts matches within a parent
+  Scenario: Assert "Then the element :parent should have :count element(s) matching :selector" counts matches within a parent
     When I visit "http://cli:8888/elements.html"
-    Then the element "#nth-parent" should contain 3 elements matching ".nth-child"
+    Then the element "#nth-parent" should have 3 elements matching ".nth-child"
 
   @test-trait:ElementTrait
   Scenario: Assert index-based interaction fails when the index is below 1
@@ -925,8 +925,8 @@ Feature: Check that ElementTrait works
       | When I click on the element ".nth-child" with the index "second"                                      | The index must be an integer, but "second" was given.  |
       | When I follow the link "Repeated link" with the index "2.0"                                           | The index must be an integer, but "2.0" was given.     |
       | When I press the button "Submit" with the index "x"                                                   | The index must be an integer, but "x" was given.       |
-      | Then the element "#nth-parent" should contain "three" elements matching ".nth-child"                  | The count must be an integer, but "three" was given.   |
-      | Then the element "#nth-parent" should contain -1 elements matching ".nth-child"                       | The count must be 0 or greater, but "-1" was given.    |
+      | Then the element "#nth-parent" should have "three" elements matching ".nth-child"                  | The count must be an integer, but "three" was given.   |
+      | Then the element "#nth-parent" should have -1 elements matching ".nth-child"                       | The count must be 0 or greater, but "-1" was given.    |
       | Then the element "#top" should be displayed within the viewport with a top offset of "ten" pixels     | The offset must be an integer, but "ten" was given.    |
       | Then the element "#top" should not be displayed within the viewport with a top offset of "1e3" pixels | The offset must be an integer, but "1e3" was given.    |
       | Then the element "#pinned-header" should be pinned to the top of the viewport within "5px" pixels     | The tolerance must be an integer, but "5px" was given. |
@@ -960,12 +960,12 @@ Feature: Check that ElementTrait works
       """
 
   @test-trait:ElementTrait
-  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails on a count mismatch
+  Scenario: Assert "Then the element :parent should have :count element(s) matching :selector" fails on a count mismatch
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the element "#nth-parent" should contain 5 elements matching ".nth-child"
+      Then the element "#nth-parent" should have 5 elements matching ".nth-child"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -974,12 +974,12 @@ Feature: Check that ElementTrait works
       """
 
   @test-trait:ElementTrait
-  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails when the parent is missing
+  Scenario: Assert "Then the element :parent should have :count element(s) matching :selector" fails when the parent is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the element "#does-not-exist" should contain 1 element matching ".nth-child"
+      Then the element "#does-not-exist" should have 1 element matching ".nth-child"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

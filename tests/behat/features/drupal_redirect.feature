@@ -47,7 +47,7 @@ Feature: Check that RedirectTrait works
     Given the following redirects exist:
       | from   | to                                |
       | /promo | https://example.com/promo-landing |
-    And I am logged in as a user with the "administrator" role
+    And I am logged in as a user with the role "administrator"
     When I go to "/admin/config/search/redirect"
     Then I should see "promo"
 
