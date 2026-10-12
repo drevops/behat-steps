@@ -213,10 +213,10 @@ trait EmailTrait {
    * Counts every collected message since the queue was last cleared.
    *
    * @code
-   * Then the number of sent emails should be 2
+   * Then the number of emails sent should be 2
    * @endcode
    */
-  #[Then('the number of sent emails should be :count')]
+  #[Then('the number of emails sent should be :count')]
   public function emailAssertMessageCount(string $count): void {
     $count = $this->stringParseInteger($count, 'count', 0);
 

@@ -69,17 +69,17 @@ ahoy copy-files
 
 ## Steps Format Guidelines
 
-Step wording is a guide held in review, not a lint. `docs.php` gathers the steps into STEPS.md and checks only that each method registers 1 step with an example that matches it. Read a step aloud with real values filled in; when a rule and natural English disagree, the English wins. The full guide is "Steps format" in [CONTRIBUTING.md](CONTRIBUTING.md).
+Step wording is a guide held in review, not a lint. Its 2 goals are that every step reads as plain English and every idea reads the same way in every trait. `docs.php` gathers the steps into STEPS.md and checks only that each method registers 1 step with an example that matches it. Read a step aloud with real values filled in and compare it with its siblings; when a rule and natural English disagree, the English wins. The full guide is "Steps format" in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 - **General Guidelines**:
   - Use tuple format instead of regular expressions
   - Use descriptive placeholder names
-  - Use `the following` for tabled content
+  - Use `the following` for tabled content, with a plain plural for the rows: `the following users exist:`, `I should see the following error messages:`
   - Use `with` for properties: `Then the link with the title :title should exist`
-  - Avoid optional words like `(the|a)`, except the `(s)` plural token, which a noun agreeing with a count or a list keeps: `:count row(s)`, `the :roles role(s)`
+  - Avoid optional words like `(the|a)`, except the `(s)` plural token, which a noun agreeing with a count or a comma-separated list in 1 argument keeps: `:count row(s)`, `the :roles role(s)`
   - Omit suffixes that add nothing, such as `on the page` or `assigned`
   - Read like Mink: first person for what the person does and sees, and a bare value after a verb (`I should see "Welcome"`, `I fill in "Title" with "Launch"`)
-  - Keep the wording a step already has when it follows these rules; every rename is an edit in each project's features and a row in `MIGRATION.md`
+  - When 2 wordings follow these rules equally well, keep the one the step already has; a rename costs each project an edit in its features and a row in `MIGRATION.md`, so it has to make the vocabulary more consistent or more readable
   - Method names should begin with the trait name: `userAssertHasRoles()`
 
 - **Placeholder Names**: one concept gets one name across every trait. Reusing a name that already exists is always preferred over inventing a synonym.
@@ -91,9 +91,10 @@ Step wording is a guide held in review, not a lint. `docs.php` gathers the steps
 
 - **Articles and Word Order**:
   - Every countable noun takes an article, and an acronym is uppercase: `URL`, `ECK`, `REST`, `JSON`, `XML`, `JS`, `AJAX`, `CSS`, `HTML`, `WYSIWYG`
+  - `the` names 1 identified thing and `a`/`an` names any thing that matches: `the cookie with the name :name`, `the unmanaged file at the URI :uri`, but `a cookie with a name containing :partial_name`, `an email should have been sent`
   - A name the site's configuration defines sits before its noun: `the :queue queue`, `the :module module`, `the :region region`, `the :roles role(s)`, `the :permissions permission(s)`, `the :breakpoint breakpoint`, `the :condition condition`, `the :new_state state`, `the :view_id view`, `the :menu_name menu`, `the :vocabulary vocabulary`, `the :content_type content type`, `the :media_type media type`. So do a bundle qualifying an entity noun (`the :media_type media`, `the :vocabulary term`), a count before its unit (`:count item(s)`) and a closed-set qualifier (`in :direction order`, `a REST :method request`)
   - Anything else follows its noun: a label, a title, an entity's or a user's name, free text, a selector, a path, a URL, a key, an event, a header, a field name, or a config or state key (`the link :link`, `the element :selector`, `the user :name`, `the config :name with the key :key`)
-  - Name a value only where the verb doesn't: `should contain :value`, `should be equal to :value` and `to :value` read bare, while `should have the value :value` and `the attribute :attribute with the value :value` keep the noun; never `the :value value`. `should be equal to` replaces `should be` only where `should be` would also match a state word (`the JSON path :path should be null`)
+  - Name a value only where the verb doesn't: `should contain :value`, `should be equal to :value` and `to :value` read bare, while `should have the value :value` and `the attribute :attribute with the value :value` keep the noun; never `the :value value`. A JSON path or an XML node compares with `should be equal to`, keeping `should be` free for `the JSON path :path should be null`; anything else that equals a value reads `should be :value`
   - A step never opens with a placeholder: `the :content_type content with the title :title should not exist`
 
 - **Settled Wording**: each idea reads 1 way
@@ -101,7 +102,8 @@ Step wording is a guide held in review, not a lint. `docs.php` gathers the steps
   - Its method opens with `Visit` and names the page as the step does: `contentVisitEditPageWithTitle()`, `userVisitProfileEditPage()`. `TraitMethodNamingTest` enforces it
   - An action names what it acts on: `I press the button :button`, `I follow the link :link`, `I fill in the field :field with :value`, `I check the checkbox :checkbox`, `I unselect the option :option from the select :selector`
   - A link is followed, an element is clicked on, a button or a key is pressed; the viewport is `the viewport`, and a `<select>` is `the select :selector`
-  - An entity is found the same way in every trait: `the :content_type content with the title :title`, `the :media_type media with the name :name`, `the :vocabulary term with the name :name`
+  - An entity is found the same way in every trait: `the :content_type content with the title :title`, `the :media_type media with the name :name`, `the :vocabulary term with the name :name`; a user is `the user :name` everywhere
+  - Steps that count the same thing share 1 word order: `the number of emails sent should be :count`, `the number of emails sent to the address :address should be :count`
   - The page, the URL and the path are never `the current ...`
   - A state reads `is <state>` in a Given and `should be <state>` in a Then (`the field :field should be disabled`); a state word is never a placeholder
   - A second `with` qualifier on an action repeats `With` in the method name, in step-text order: `emailFollowLinkWithIndexWithSubjectContaining()`

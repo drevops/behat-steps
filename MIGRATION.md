@@ -501,6 +501,17 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | `Then :content_type content with the title :title should not be published` | `Then the :content_type content with the title :title should not be published` |
 | `Then :content_type content with the title :title should not exist` | `Then the :content_type content with the title :title should not exist` |
 
+#### CookieTrait
+
+| 3.14 | 4.0 |
+| --- | --- |
+| `Then a cookie with the name :name and a value containing :partial_value should exist` | `Then the cookie with the name :name and a value containing :partial_value should exist` |
+| `Then a cookie with the name :name and a value containing :partial_value should not exist` | `Then the cookie with the name :name and a value containing :partial_value should not exist` |
+| `Then a cookie with the name :name and the value :value should exist` | `Then the cookie with the name :name and the value :value should exist` |
+| `Then a cookie with the name :name and the value :value should not exist` | `Then the cookie with the name :name and the value :value should not exist` |
+| `Then a cookie with the name :name should exist` | `Then the cookie with the name :name should exist` |
+| `Then a cookie with the name :name should not exist` | `Then the cookie with the name :name should not exist` |
+
 #### DraggableviewsTrait
 
 | 3.14 | 4.0 |
@@ -592,6 +603,10 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | --- | --- |
 | `Given the following managed files:` | `Given the following managed files exist:` |
 | `Given the unmanaged file at the URI :uri exists with :content` | `Given the unmanaged file at the URI :uri exists with the content :content` |
+| `Then an unmanaged file at the URI :uri should contain :content` | `Then the unmanaged file at the URI :uri should contain :content` |
+| `Then an unmanaged file at the URI :uri should exist` | `Then the unmanaged file at the URI :uri should exist` |
+| `Then an unmanaged file at the URI :uri should not contain :content` | `Then the unmanaged file at the URI :uri should not contain :content` |
+| `Then an unmanaged file at the URI :uri should not exist` | `Then the unmanaged file at the URI :uri should not exist` |
 
 #### IframeTrait
 
@@ -776,6 +791,7 @@ The Drupal Extension's contexts are gone, and the step traits carry their vocabu
 | `Given I am not logged in` | `Given I am an anonymous user` | |
 | `Given I am logged in as a user with the :role role(s)` | `Given I am logged in as a user with the :roles role(s)` | For the `anonymous` or `anonymous user` role, which 3.14's `OverrideTrait` turned into a logout, write `Given I am an anonymous user` |
 | `Given I am logged in as a/an :role` | `Given I am logged in as a user with the :roles role(s)` | |
+| `Given I am logged in as :name` | `Given I am logged in as the user :name` | |
 | `Given the following users:` | `Given the following users exist:` | 3.14's `OverrideTrait` deleted the users the table named before creating them. The 4.0 step doesn't, so a scenario that relied on it adds `Given the following users do not exist:` first |
 
 #### Content, terms, entities and languages
@@ -875,6 +891,8 @@ The `( containing)` variants are gone: every message step matches on a substring
 | `Then I should not see the success message( containing) :message` | `Then I should not see the success message :message` |
 | `Then I should see the warning message( containing) :message` | `Then I should see the warning message :message` |
 | `Then I should not see the warning message( containing) :message` | `Then I should not see the warning message :message` |
+| `Then I should see the following error message(s):` | `Then I should see the following error messages:` |
+| `Then I should see the following warning message(s):` | `Then I should see the following warning messages:` |
 
 #### Table rows
 
@@ -900,7 +918,7 @@ The `( containing)` variants are gone: every message step matches on a substring
 | `Then the following (e)mail(s) should have been sent with the subject :subject:` | `Then the email field :field should be:` | Name `subject` as the field |
 | `Then the following (e)mail(s) should have been sent to :to with the subject :subject:` | `Then an email should have been sent to the address :address with the content:`<br>`Then the email field :field should be:` | Name `subject` as the field of the second step |
 | `Then the following new (e)mail(s) should have been sent...` | Removed | Clear the queue before the action, then use the matching step without `new` |
-| `Then there should be a total of :count (e)mail(s) sent` | `Then the number of sent emails should be :count` | |
+| `Then there should be a total of :count (e)mail(s) sent` | `Then the number of emails sent should be :count` | |
 | `Then there should be a total of :count (e)mail(s) sent to :to` | `Then the number of emails sent to the address :address should be :count` | |
 | `Then there should be a total of :count (e)mail(s) sent with the subject :subject` | `Then the number of emails sent with the subject :subject should be :count` | |
 | `Then there should be a total of :count (e)mail(s) sent to :to with the subject :subject` | `Then the number of emails sent to the address :address should be :count`<br>`Then the number of emails sent with the subject :subject should be :count` | |

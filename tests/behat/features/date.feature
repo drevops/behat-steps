@@ -54,11 +54,11 @@ Feature: Check that DateTrait works
 
   Scenario: Assert that relative date works in content transform
     Given the unmanaged file at the URI "public://relative-date.txt" exists with the content "[relative:-10 years#Y-m-d]"
-    Then an unmanaged file at the URI "public://relative-date.txt" should contain "2014-07-15"
+    Then the unmanaged file at the URI "public://relative-date.txt" should contain "2014-07-15"
 
   @phpserver
   Scenario: Assert that relative date works in partial value transform
     When I visit "http://cli:8888/cookies.html"
     And I set a test cookie with name "testdate" and value "[relative:-10 years#Y-m-d]"
-    Then a cookie with the name "testdate" and the value "2014-07-15" should exist
-    And a cookie with the name "testdate" and a value containing "[relative:-10 years#Y-m]" should exist
+    Then the cookie with the name "testdate" and the value "2014-07-15" should exist
+    And the cookie with the name "testdate" and a value containing "[relative:-10 years#Y-m]" should exist

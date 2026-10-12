@@ -354,42 +354,42 @@ Then the command should complete in more than 1 second
 
 
 <details>
-  <summary><code>@Then a cookie with the name :name should exist</code></summary>
+  <summary><code>@Then the cookie with the name :name should exist</code></summary>
 
 <br/>
 Assert that a cookie exists
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "session_id" should exist
+Then the cookie with the name "session_id" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name and the value :value should exist</code></summary>
+  <summary><code>@Then the cookie with the name :name and the value :value should exist</code></summary>
 
 <br/>
 Assert that a cookie exists with a specific value
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "language" and the value "en" should exist
+Then the cookie with the name "language" and the value "en" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name and a value containing :partial_value should exist</code></summary>
+  <summary><code>@Then the cookie with the name :name and a value containing :partial_value should exist</code></summary>
 
 <br/>
 Assert that a cookie exists with a value containing a partial value
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "preferences" and a value containing "darkmode" should exist
+Then the cookie with the name "preferences" and a value containing "darkmode" should exist
 
 ```
 
@@ -438,42 +438,42 @@ Then a cookie with a name containing "user" and a value containing "admin" shoul
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name should not exist</code></summary>
+  <summary><code>@Then the cookie with the name :name should not exist</code></summary>
 
 <br/>
 Assert that a cookie does not exist
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "old_session" should not exist
+Then the cookie with the name "old_session" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name and the value :value should not exist</code></summary>
+  <summary><code>@Then the cookie with the name :name and the value :value should not exist</code></summary>
 
 <br/>
 Assert that a cookie with a specific value does not exist
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "language" and the value "fr" should not exist
+Then the cookie with the name "language" and the value "fr" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name and a value containing :partial_value should not exist</code></summary>
+  <summary><code>@Then the cookie with the name :name and a value containing :partial_value should not exist</code></summary>
 
 <br/>
 Assert that a cookie with a value containing a partial value does not exist
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "preferences" and a value containing "lightmode" should not exist
+Then the cookie with the name "preferences" and a value containing "lightmode" should not exist
 
 ```
 
@@ -2656,7 +2656,7 @@ Then I should not see the warning message "deprecated"
 </details>
 
 <details>
-  <summary><code>@Then I should see the following error message(s):</code></summary>
+  <summary><code>@Then I should see the following error messages:</code></summary>
 
 <br/>
 Assert that every error message in the table is present
@@ -2672,7 +2672,7 @@ Then I should see the following error messages:
 </details>
 
 <details>
-  <summary><code>@Then I should not see the following error message(s):</code></summary>
+  <summary><code>@Then I should not see the following error messages:</code></summary>
 
 <br/>
 Assert that no error message in the table is present
@@ -2687,7 +2687,7 @@ Then I should not see the following error messages:
 </details>
 
 <details>
-  <summary><code>@Then I should see the following success message(s):</code></summary>
+  <summary><code>@Then I should see the following success messages:</code></summary>
 
 <br/>
 Assert that every success message in the table is present
@@ -2702,7 +2702,7 @@ Then I should see the following success messages:
 </details>
 
 <details>
-  <summary><code>@Then I should not see the following success message(s):</code></summary>
+  <summary><code>@Then I should not see the following success messages:</code></summary>
 
 <br/>
 Assert that no success message in the table is present
@@ -2717,7 +2717,7 @@ Then I should not see the following success messages:
 </details>
 
 <details>
-  <summary><code>@Then I should see the following warning message(s):</code></summary>
+  <summary><code>@Then I should see the following warning messages:</code></summary>
 
 <br/>
 Assert that every warning message in the table is present
@@ -2732,7 +2732,7 @@ Then I should see the following warning messages:
 </details>
 
 <details>
-  <summary><code>@Then I should not see the following warning message(s):</code></summary>
+  <summary><code>@Then I should not see the following warning messages:</code></summary>
 
 <br/>
 Assert that no warning message in the table is present
@@ -5883,14 +5883,14 @@ Then an email should have been sent to the address "user@example.com"
 </details>
 
 <details>
-  <summary><code>@Then the number of sent emails should be :count</code></summary>
+  <summary><code>@Then the number of emails sent should be :count</code></summary>
 
 <br/>
 Assert the number of emails sent
 <br/><br/>
 
 ```gherkin
-Then the number of sent emails should be 2
+Then the number of emails sent should be 2
 
 ```
 
@@ -6293,56 +6293,56 @@ Given the unmanaged file at the URI "public://data.txt" exists with the content 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should exist</code></summary>
+  <summary><code>@Then the unmanaged file at the URI :uri should exist</code></summary>
 
 <br/>
 Assert that an unmanaged file with specified URI exists
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://sample.txt" should exist
+Then the unmanaged file at the URI "public://sample.txt" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should not exist</code></summary>
+  <summary><code>@Then the unmanaged file at the URI :uri should not exist</code></summary>
 
 <br/>
 Assert that an unmanaged file with specified URI does not exist
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://temp.txt" should not exist
+Then the unmanaged file at the URI "public://temp.txt" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should contain :content</code></summary>
+  <summary><code>@Then the unmanaged file at the URI :uri should contain :content</code></summary>
 
 <br/>
 Assert that an unmanaged file exists and has specified content
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
+Then the unmanaged file at the URI "public://config.txt" should contain "debug=true"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should not contain :content</code></summary>
+  <summary><code>@Then the unmanaged file at the URI :uri should not contain :content</code></summary>
 
 <br/>
 Assert that an unmanaged file exists and does not have specified content
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
+Then the unmanaged file at the URI "public://config.txt" should not contain "debug=false"
 
 ```
 
@@ -7637,14 +7637,14 @@ Given I am logged in as a user with the "administer nodes, access content" permi
 </details>
 
 <details>
-  <summary><code>@Given I am logged in as :name</code></summary>
+  <summary><code>@Given I am logged in as the user :name</code></summary>
 
 <br/>
 Log in as an existing user created earlier in the scenario
 <br/><br/>
 
 ```gherkin
-Given I am logged in as "[TEST] user1"
+Given I am logged in as the user "[TEST] user1"
 
 ```
 

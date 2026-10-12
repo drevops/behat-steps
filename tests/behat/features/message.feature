@@ -14,7 +14,7 @@ Feature: Check that MessageTrait works
     And I should not see the success message "Unrecognized username or password."
     And I should not see the warning message "Unrecognized username or password."
 
-  Scenario: Assert "Then I should see the following error message(s):" works as expected
+  Scenario: Assert "Then I should see the following error messages:" works as expected
     Given I am an anonymous user
     When I visit "/user/login"
     And I press "Log in"
@@ -49,7 +49,7 @@ Feature: Check that MessageTrait works
     And I should not see the error message "Article has been created."
 
   @phpserver
-  Scenario: Assert "Then I should see the following success message(s):" works as expected
+  Scenario: Assert "Then I should see the following success messages:" works as expected
     When I visit "http://cli:8888/messages.html"
     Then I should see the following success messages:
       | Article has been created. |
@@ -59,7 +59,7 @@ Feature: Check that MessageTrait works
       | The file could not be uploaded. |
 
   @phpserver
-  Scenario: Assert "Then I should see the following warning message(s):" works as expected
+  Scenario: Assert "Then I should see the following warning messages:" works as expected
     When I visit "http://cli:8888/messages.html"
     Then I should see the following warning messages:
       | This action cannot be undone.    |
@@ -111,7 +111,7 @@ Feature: Check that MessageTrait works
       """
 
   @test-trait:MessageTrait
-  Scenario: Assert "Then I should see the following success message(s):" fails when one message is missing
+  Scenario: Assert "Then I should see the following success messages:" fails when one message is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -127,7 +127,7 @@ Feature: Check that MessageTrait works
       """
 
   @test-trait:MessageTrait
-  Scenario: Assert "Then I should not see the following success message(s):" fails when one message is present
+  Scenario: Assert "Then I should not see the following success messages:" fails when one message is present
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -143,7 +143,7 @@ Feature: Check that MessageTrait works
       """
 
   @test-trait:MessageTrait
-  Scenario: Assert "Then I should see the following warning message(s):" fails when one message is missing
+  Scenario: Assert "Then I should see the following warning messages:" fails when one message is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
@@ -159,7 +159,7 @@ Feature: Check that MessageTrait works
       """
 
   @test-trait:MessageTrait
-  Scenario: Assert "Then I should not see the following warning message(s):" fails when one message is present
+  Scenario: Assert "Then I should not see the following warning messages:" fails when one message is present
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """

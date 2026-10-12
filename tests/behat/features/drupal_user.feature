@@ -282,7 +282,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit the password reset link for the user :name" works
-    Given I am logged in as "authenticated_user"
+    Given I am logged in as the user "authenticated_user"
     When I visit the password reset link for the user "authenticated_user"
     Then the response status code should be 200
 
@@ -301,7 +301,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit my own password reset link" works
-    Given I am logged in as "authenticated_user"
+    Given I am logged in as the user "authenticated_user"
     When I visit my own password reset link
     Then the response status code should be 200
 

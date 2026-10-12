@@ -172,10 +172,10 @@ trait FileTrait {
    * Assert that an unmanaged file with specified URI exists.
    *
    * @code
-   * Then an unmanaged file at the URI "public://sample.txt" should exist
+   * Then the unmanaged file at the URI "public://sample.txt" should exist
    * @endcode
    */
-  #[Then('an unmanaged file at the URI :uri should exist')]
+  #[Then('the unmanaged file at the URI :uri should exist')]
   public function fileAssertUnmanagedExists(string $uri): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -188,10 +188,10 @@ trait FileTrait {
    * Assert that an unmanaged file with specified URI does not exist.
    *
    * @code
-   * Then an unmanaged file at the URI "public://temp.txt" should not exist
+   * Then the unmanaged file at the URI "public://temp.txt" should not exist
    * @endcode
    */
-  #[Then('an unmanaged file at the URI :uri should not exist')]
+  #[Then('the unmanaged file at the URI :uri should not exist')]
   public function fileAssertUnmanagedNotExists(string $uri): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -204,10 +204,10 @@ trait FileTrait {
    * Assert that an unmanaged file exists and has specified content.
    *
    * @code
-   * Then an unmanaged file at the URI "public://config.txt" should contain "debug=true"
+   * Then the unmanaged file at the URI "public://config.txt" should contain "debug=true"
    * @endcode
    */
-  #[Then('an unmanaged file at the URI :uri should contain :content')]
+  #[Then('the unmanaged file at the URI :uri should contain :content')]
   public function fileAssertUnmanagedContains(string $uri, string $content): void {
     $file_content = $this->fileGetUnmanagedContent($uri);
 
@@ -220,10 +220,10 @@ trait FileTrait {
    * Assert that an unmanaged file exists and does not have specified content.
    *
    * @code
-   * Then an unmanaged file at the URI "public://config.txt" should not contain "debug=false"
+   * Then the unmanaged file at the URI "public://config.txt" should not contain "debug=false"
    * @endcode
    */
-  #[Then('an unmanaged file at the URI :uri should not contain :content')]
+  #[Then('the unmanaged file at the URI :uri should not contain :content')]
   public function fileAssertUnmanagedNotContains(string $uri, string $content): void {
     $file_content = $this->fileGetUnmanagedContent($uri);
 

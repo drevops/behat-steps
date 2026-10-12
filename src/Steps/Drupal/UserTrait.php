@@ -275,10 +275,10 @@ trait UserTrait {
    * Log in as an existing user created earlier in the scenario.
    *
    * @code
-   * Given I am logged in as "[TEST] user1"
+   * Given I am logged in as the user "[TEST] user1"
    * @endcode
    */
-  #[Given('I am logged in as :name')]
+  #[Given('I am logged in as the user :name')]
   public function userLoginAs(string $name): void {
     $this->authLogin($this->authGetUserRegistry()->getUser($name));
   }

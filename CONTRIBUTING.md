@@ -6,17 +6,17 @@ New here? [docs/architecture/](docs/architecture/README.md) walks through how th
 
 ## Steps format
 
-A step is a sentence a person reads in a feature file, right next to Mink's own steps. Write it so it reads as plain English once the values are filled in, and read it aloud before you settle on it. `ahoy lint-docs` checks only what [STEPS.md](STEPS.md) needs to render: 1 step per method, an example that matches it, and no 2 steps matching the same text. The rules below are held in review, and when a rule and natural English disagree, the English wins.
+A step is a sentence a person reads in a feature file, right next to Mink's own steps. The vocabulary has 2 goals: every step reads as plain English once the values are filled in, and every idea reads the same way in every trait. Read a step aloud before you settle on it, and check it against its siblings. `ahoy lint-docs` checks only what [STEPS.md](STEPS.md) needs to render: 1 step per method, an example that matches it, and no 2 steps matching the same text. The rules below are held in review, and when a rule and natural English disagree, the English wins.
 
 - **General guidelines**:
   - Avoid using regular expressions to define a step definition. Use tuple format instead for better clarity and maintainability.
   - Use descriptive placeholder names to help users quickly understand the expected value: `content_type` instead of `type`.
-  - Use `the following` for tabled content.
+  - Use `the following` for tabled content, with a plain plural for the rows: `the following users exist:`, `I should see the following error messages:`.
   - For anything identified by a property, use `with`: <code>Then the link <b>with</b> the title :title should exist</code>
-  - Avoid optional words like `(the|a)`. Provide a single form instead to ensure consistency. The `(s)` plural token is the exception: a step whose noun agrees with a count or a list keeps it, as in `:count row(s)` and `the :roles role(s)`, so both forms read naturally.
+  - Avoid optional words like `(the|a)`. Provide a single form instead to ensure consistency. The `(s)` plural token is the exception: a step whose noun agrees with a count or a comma-separated list in 1 argument keeps it, as in `:count row(s)` and `the :roles role(s)`, so both forms read naturally.
   - Omit suffixes that add nothing, such as `on the page` or `assigned`: `the user :name should have the :roles role(s)`.
   - Read like Mink: first person for what the person does and sees, and a bare value after a verb, as in `I should see "Welcome"` and `I fill in "Title" with "Launch"`.
-  - Keep the wording a step already has when it follows these rules. Every rename costs each project an edit in its feature files and a row in [MIGRATION.md](MIGRATION.md).
+  - When 2 wordings follow these rules equally well, keep the one the step already has. A rename costs each project an edit in its feature files and a row in [MIGRATION.md](MIGRATION.md), so it has to make the vocabulary more consistent or more readable.
   - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it for methods and `tests/phpunit/src/PublicSurfaceTest.php` for constants, which carry the prefix in upper snake case. Review holds properties to it.
 
 - **Placeholders**:
@@ -24,7 +24,8 @@ A step is a sentence a person reads in a feature file, right next to Mink's own 
   - A name the site's configuration defines sits before its noun, the way people say it: `the :queue queue`, `the :module module`, `the :region region`, `the :roles role(s)`, `the :permissions permission(s)`, `the :breakpoint breakpoint`, `the :condition condition`, `the :new_state state`, `the :view_id view`, `the :menu_name menu`, `the :vocabulary vocabulary`, `the :content_type content type`, `the :media_type media type`. A bundle sits before the entity noun it qualifies (`the :media_type media`, `the :vocabulary term`), and so do a count before its unit (`:count item(s)`) and a closed-set qualifier (`in :direction order`, `a REST :method request`).
   - Anything else follows its noun: a label, a title, the name of an entity or a user, free text, a selector, a path, a URL, a key, an event, a header, a field name, or a config or state key. `the link :link`, `the element :selector`, `the field :field`, `the user :name`, `the config :name with the key :key`.
   - Every countable noun takes an article, an acronym is uppercase (`URL`, `ECK`, `REST`, `JSON`, `XML`, `JS`, `AJAX`, `CSS`, `HTML`, `WYSIWYG`), and a step never opens with a placeholder: `the :content_type content with the title :title should not exist`.
-  - Name a value only where the verb doesn't. After `contain`, `be`, `be equal to`, `match`, `to` and `by`, it reads bare: `the drush output should contain :text`. `the value :value` follows `have` (`should have the value :value`) and a noun it qualifies (`the attribute :attribute with the value :value`), and it's never `the :value value`. `should be equal to` stands in for `should be` only where `should be` would also match a state word, as `the JSON path :path should be null` does.
+  - `the` names 1 identified thing, and `a` or `an` names any thing that matches: `the cookie with the name :name`, `the unmanaged file at the URI :uri`, but `a cookie with a name containing :partial_name` and `an email should have been sent to the address :address`.
+  - Name a value only where the verb doesn't. After `contain`, `be`, `be equal to`, `match`, `to` and `by`, it reads bare: `the drush output should contain :text`. `the value :value` follows `have` (`should have the value :value`) and a noun it qualifies (`the attribute :attribute with the value :value`), and it's never `the :value value`. A JSON path or an XML node compares with `should be equal to`, which keeps `should be` free for `the JSON path :path should be null`; everything else that equals a value reads `should be :value`.
   - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is for text a person reads on the page, or a whole body with no named target: `I should see :text in the :region region`, `the command output should contain :text`.
   - A partial match reads `a <thing> containing :partial_<thing>`, as in `a cookie with a name containing :partial_name`.
   - Placeholder names are `snake_case`, spelled out rather than abbreviated (`:name`, not `:param`), and identical to the method parameter, because Behat binds a step argument by name.
@@ -33,7 +34,8 @@ A step is a sentence a person reads in a feature file, right next to Mink's own 
   - A step that opens a page reads `I visit the ... page` and names the page it opens: `I visit the :content_type content edit page with the title :title`. It never reads `I edit the ...`, because the step only navigates. A page has 1 name everywhere: `the profile page of the user :name`, `my own profile page`.
   - An action names the kind of thing it acts on: `I press the button :button`, `I follow the link :link`, `I fill in the field :field with :value`, `I check the checkbox :checkbox`, `I unselect the option :option from the select :selector`.
   - A link is followed, an element is clicked on, and a button or a key is pressed: `I follow the link :link in the :region region`, `I click on the element :selector`, `I press the key :key`.
-  - An entity is found the same way in every trait: `the :content_type content with the title :title`, `the :media_type media with the name :name`, `the :vocabulary term with the name :name`.
+  - An entity is found the same way in every trait: `the :content_type content with the title :title`, `the :media_type media with the name :name`, `the :vocabulary term with the name :name`, and a user is `the user :name` everywhere, as in `I am logged in as the user :name`.
+  - Steps that count the same thing share 1 word order: `the number of emails sent should be :count`, `the number of emails sent to the address :address should be :count`.
   - The page, the URL and the path are the ones the browser is on, so they're never `the current ...`: `the page should be indexable`, `the URL should have the query parameter :name`.
   - The viewport is `the viewport`, never `a viewport`. A `<select>` is `the select :selector`, never `the select element :selector`.
   - A state reads `is <state>` in a `Given` and `should be <state>` in a `Then`: `the block :label is enabled`, `the field :field should be disabled`. A state word is never a placeholder.
@@ -204,7 +206,7 @@ The method for 1 entity is the same name without the suffix, so nothing carries 
 
 `Normalize`, not `Normalise`, in method names and in prose.
 
-`Login` and `Logout`, not `LogIn` and `LogOut`, in method, interface and configuration key names alike: `authLogin()`, `FastLogoutInterface`, `login_url`. Step text and prose keep the verb, so the steps read `Given I am logged in as :name` and `When I log out`. `TraitMethodNamingTest` checks the trait methods, and review holds interfaces and configuration keys to the same spelling.
+`Login` and `Logout`, not `LogIn` and `LogOut`, in method, interface and configuration key names alike: `authLogin()`, `FastLogoutInterface`, `login_url`. Step text and prose keep the verb, so the steps read `Given I am logged in as the user :name` and `When I log out`. `TraitMethodNamingTest` checks the trait methods, and review holds interfaces and configuration keys to the same spelling.
 
 ## Class naming conventions
 

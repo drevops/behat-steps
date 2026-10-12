@@ -130,7 +130,7 @@ trait MessageTrait {
    *   | Password field is required |
    * @endcode
    */
-  #[Then('I should see the following error message(s):')]
+  #[Then('I should see the following error messages:')]
   public function messageAssertErrorsExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
       $this->messageAssertExistsOfType(trim($message), 'error');
@@ -145,7 +145,7 @@ trait MessageTrait {
    *   | Access denied |
    * @endcode
    */
-  #[Then('I should not see the following error message(s):')]
+  #[Then('I should not see the following error messages:')]
   public function messageAssertErrorsNotExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
       $this->messageAssertNotExistsOfType(trim($message), 'error');
@@ -160,7 +160,7 @@ trait MessageTrait {
    *   | Article has been created |
    * @endcode
    */
-  #[Then('I should see the following success message(s):')]
+  #[Then('I should see the following success messages:')]
   public function messageAssertSuccessesExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
       $this->messageAssertExistsOfType(trim($message), 'success');
@@ -175,7 +175,7 @@ trait MessageTrait {
    *   | Changes saved |
    * @endcode
    */
-  #[Then('I should not see the following success message(s):')]
+  #[Then('I should not see the following success messages:')]
   public function messageAssertSuccessesNotExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
       $this->messageAssertNotExistsOfType(trim($message), 'success');
@@ -190,7 +190,7 @@ trait MessageTrait {
    *   | This action cannot be undone |
    * @endcode
    */
-  #[Then('I should see the following warning message(s):')]
+  #[Then('I should see the following warning messages:')]
   public function messageAssertWarningsExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
       $this->messageAssertExistsOfType(trim($message), 'warning');
@@ -205,7 +205,7 @@ trait MessageTrait {
    *   | deprecated |
    * @endcode
    */
-  #[Then('I should not see the following warning message(s):')]
+  #[Then('I should not see the following warning messages:')]
   public function messageAssertWarningsNotExist(TableNode $messages): void {
     foreach ($messages->getColumn(0) as $message) {
       $this->messageAssertNotExistsOfType(trim($message), 'warning');

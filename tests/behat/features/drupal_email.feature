@@ -259,7 +259,7 @@ Feature: Check that EmailTrait works
       """
       Third email
       """
-    Then the number of sent emails should be 3
+    Then the number of emails sent should be 3
     And the number of emails sent to the address "test@example.com" should be 2
     And the number of emails sent to the address "test2@example.com" should be 1
     And the number of emails sent to the address "test4@example.com" should be 0
@@ -985,7 +985,7 @@ Feature: Check that EmailTrait works
         '''
         Test content
         '''
-      Then the number of sent emails should be 2
+      Then the number of emails sent should be 2
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -1041,7 +1041,7 @@ Feature: Check that EmailTrait works
       """
     Examples:
       | step                                                                     | message                                             |
-      | the number of sent emails should be "two"                                | The count must be an integer, but "two" was given.  |
+      | the number of emails sent should be "two"                                | The count must be an integer, but "two" was given.  |
       | the number of emails sent to the address "test@example.com" should be -1 | The count must be 0 or greater, but "-1" was given. |
       | the number of emails sent with the subject "Test Email" should be "1.0"  | The count must be an integer, but "1.0" was given.  |
 
