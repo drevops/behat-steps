@@ -134,6 +134,7 @@ Configures Drupal scaffold files to be placed in `web/` directory.
         "drush -r web ev \"\\Drupal::entityTypeManager()->getStorage('shortcut_set')->load('default')->delete();\" --uri=http://nginx || true",
         "drush -r web updb -y --uri=http://nginx",
         "drush -r web cim --source=../config/sync -y --uri=http://nginx",
+        "drush -r web entity:delete node --bundle=draggableviews_demo -y --uri=http://nginx",
         "drush -r web cr -y --uri=http://nginx",
         "drush -r web pm:enable mysite_core -y --uri=http://nginx"
     ]
@@ -145,8 +146,9 @@ Configures Drupal scaffold files to be placed in `web/` directory.
 2. Deletes the default shortcut set (prevents import conflicts)
 3. Runs database updates (`updb`)
 4. Imports all configuration from `config/sync/` (`cim`)
-5. Clears cache (`cr`)
-6. Enables the `mysite_core` custom module
+5. Deletes the sample nodes the `draggableviews_demo` module creates on install (scenarios expect a site with no content)
+6. Clears cache (`cr`)
+7. Enables the `mysite_core` custom module
 
 #### 6. Config: allow-plugins
 ```json
