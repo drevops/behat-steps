@@ -246,6 +246,103 @@ EOD,
           'example' => '',
         ],
       ],
+      'actor person' => [
+        <<<'EOD'
+/**
+ * This is a description.
+ *
+ * @code
+ * When I press "Save"
+ * @endcode
+ *
+ * @actor:person
+ */
+EOD,
+        [
+          'description' => 'This is a description.',
+          'example' => 'When I press "Save"' . PHP_EOL,
+          'actor' => 'person',
+        ],
+      ],
+      'actor system grouped with javascript' => [
+        <<<'EOD'
+/**
+ * This is a description.
+ *
+ * @code
+ * When cron runs
+ * @endcode
+ *
+ * @actor:system
+ * @javascript
+ */
+EOD,
+        [
+          'description' => 'This is a description.',
+          'example' => 'When cron runs' . PHP_EOL,
+          'actor' => 'system',
+        ],
+      ],
+      'actor inside the example' => [
+        <<<'EOD'
+/**
+ * This is a description.
+ *
+ * @code
+ * @actor:person
+ * @endcode
+ */
+EOD,
+        [
+          'description' => 'This is a description.',
+          'example' => '@actor:person' . PHP_EOL,
+        ],
+      ],
+      'unknown actor' => [
+        <<<'EOD'
+/**
+ * This is a description.
+ *
+ * @actor:interactive
+ */
+EOD,
+        NULL,
+        'Unknown actor tag "@actor:interactive". Use "@actor:person" or "@actor:system".',
+      ],
+      'empty actor' => [
+        <<<'EOD'
+/**
+ * This is a description.
+ *
+ * @actor:
+ */
+EOD,
+        NULL,
+        'Unknown actor tag "@actor:".',
+      ],
+      'actor without a value' => [
+        <<<'EOD'
+/**
+ * This is a description.
+ *
+ * @actor
+ */
+EOD,
+        NULL,
+        'Unknown actor tag "@actor".',
+      ],
+      'repeated actor' => [
+        <<<'EOD'
+/**
+ * This is a description.
+ *
+ * @actor:person
+ * @actor:system
+ */
+EOD,
+        NULL,
+        'Repeated actor tag "@actor:system". A step has 1 actor.',
+      ],
     ];
 
   }
@@ -1132,7 +1229,7 @@ EOD,
         ],
         ['  TestTrait::testMethod - Missing "following" in the step' . PHP_EOL],
       ],
-      'when without I' => [
+      'person step without I' => [
         [
           'TestTrait' => [
             'name' => 'TestTrait',
@@ -1143,11 +1240,30 @@ EOD,
                 'steps' => ['@When click on button'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
+                'actor' => 'person',
               ],
             ],
           ],
         ],
-        ['  TestTrait::testMethod - When step does not start with "I "' . PHP_EOL],
+        ['  TestTrait::testMethod - Actor is "person" but the step does not start with "I "' . PHP_EOL],
+      ],
+      'system step starting with I' => [
+        [
+          'TestTrait' => [
+            'name' => 'TestTrait',
+            'methods' => [
+              [
+                'class_name' => 'TestTrait',
+                'name' => 'testMethod',
+                'steps' => ['@When I run cron'],
+                'description' => 'Test method description',
+                'example' => 'Example text',
+                'actor' => 'system',
+              ],
+            ],
+          ],
+        ],
+        ['  TestTrait::testMethod - Actor is "system" but the step starts with "I "' . PHP_EOL],
       ],
       'then without assert in method' => [
         [
@@ -1262,6 +1378,7 @@ EOD,
                 'steps' => ['@Given I am logged in as the user :name'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
+                'actor' => 'person',
               ],
             ],
           ],
@@ -1279,13 +1396,14 @@ EOD,
                 'steps' => ['@Then I should see the modal'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
+                'actor' => 'person',
               ],
             ],
           ],
         ],
         [],
       ],
-      'when with an acronym containing I' => [
+      'system when without I' => [
         [
           'TestTrait' => [
             'name' => 'TestTrait',
@@ -1296,13 +1414,14 @@ EOD,
                 'steps' => ['@When the Search API cron runs'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
+                'actor' => 'system',
               ],
             ],
           ],
         ],
-        ['  TestTrait::testMethod - When step does not start with "I "' . PHP_EOL],
+        [],
       ],
-      'when in the first person' => [
+      'person when in the first person' => [
         [
           'TestTrait' => [
             'name' => 'TestTrait',
@@ -1310,9 +1429,10 @@ EOD,
               [
                 'class_name' => 'TestTrait',
                 'name' => 'testMethod',
-                'steps' => ['@When I run the Search API cron'],
+                'steps' => ['@When I run the drush command :command'],
                 'description' => 'Test method description',
                 'example' => 'Example text',
+                'actor' => 'person',
               ],
             ],
           ],
@@ -2290,6 +2410,9 @@ EOD,
     $this->assertArrayHasKey('steps', $result[$trait_name]['methods'][3]);
     $this->assertStringContainsString('@Then', $result[$trait_name]['methods'][3]['steps'][0]);
 
+    $this->assertSame('system', $result[$trait_name]['methods'][0]['actor']);
+    $this->assertSame('person', $result[$trait_name]['methods'][2]['actor']);
+
     $pystring_method = $result[$trait_name]['methods'][4];
     $this->assertIsString($pystring_method['example']);
     $this->assertStringContainsString('"""', $pystring_method['example']);
@@ -2321,6 +2444,20 @@ EOD,
 
     /** @var class-string $class_name */
     extract_info([$class_name], [], $paths['base_path']);
+  }
+
+  /**
+   * Tests that extract_info() rejects a step that declares no actor.
+   */
+  public function testExtractInfoMissingActor(): void {
+    $setup = $this->setUpExtractInfoTest(['MissingActorTrait']);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Missing actor tag on MissingActorTrait::missingActorAssertDeclared(). Add "@actor:person" or "@actor:system" to its docblock.');
+
+    /** @var class-string $class_name */
+    $class_name = $setup['class_name'];
+    extract_info([$class_name], [], $setup['base_path']);
   }
 
   public function testExtractInfoWithSubdirectory(): void {

@@ -33,6 +33,8 @@ trait HelperSampleTrait {
    * @code
    * Then the sample should pass
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the sample should pass')]
   public function helperSampleAssertTest(): void {}

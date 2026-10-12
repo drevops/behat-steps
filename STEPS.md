@@ -681,28 +681,28 @@ When I drop the following files on the dropzone ".dropzone":
 | `element.scroll_into_view_center` | boolean | `TRUE` | - | Center an element in the viewport when scrolling to it, rather than aligning it to the top. |
 
 <details>
-  <summary><code>@Given confirmation dialogs are accepted</code></summary>
+  <summary><code>@Given I accept all confirmation dialogs</code></summary>
 
 <br/>
 Accept confirmation dialogs appearing on the page
 <br/><br/>
 
 ```gherkin
-Given confirmation dialogs are accepted
+Given I accept all confirmation dialogs
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given confirmation dialogs are declined</code></summary>
+  <summary><code>@Given I decline all confirmation dialogs</code></summary>
 
 <br/>
 Do not accept confirmation dialogs appearing on the page
 <br/><br/>
 
 ```gherkin
-Given confirmation dialogs are declined
+Given I decline all confirmation dialogs
 
 ```
 
@@ -765,14 +765,14 @@ When I press the button "Delete" with the index 2
 </details>
 
 <details>
-  <summary><code>@When I trigger the JS event :event on the element :selector</code></summary>
+  <summary><code>@When the JS event :event is triggered on the element :selector</code></summary>
 
 <br/>
 Trigger a JS event on the element defined by the selector
 <br/><br/>
 
 ```gherkin
-When I trigger the JS event "click" on the element "#submit-button"
+When the JS event "click" is triggered on the element "#submit-button"
 
 ```
 
@@ -4910,14 +4910,14 @@ Given the render cache has been cleared
 </details>
 
 <details>
-  <summary><code>@When I run cron</code></summary>
+  <summary><code>@When cron runs</code></summary>
 
 <br/>
 Run cron
 <br/><br/>
 
 ```gherkin
-When I run cron
+When cron runs
 
 ```
 
@@ -5427,56 +5427,56 @@ When I visit the "article" content revisions page with the title "Test article"
 </details>
 
 <details>
-  <summary><code>@When I change the moderation state of the :content_type content with the title :title to the :new_state state</code></summary>
+  <summary><code>@When the moderation state of the :content_type content with the title :title changes to the :new_state state</code></summary>
 
 <br/>
 Change moderation state of a content with the specified title
 <br/><br/>
 
 ```gherkin
-When I change the moderation state of the "article" content with the title "Test article" to the "published" state
+When the moderation state of the "article" content with the title "Test article" changes to the "published" state
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I rebuild the access grants for the :content_type content with the title :title</code></summary>
+  <summary><code>@When the access grants for the :content_type content with the title :title are rebuilt</code></summary>
 
 <br/>
 Rebuild node access grants for a content with the specified title
 <br/><br/>
 
 ```gherkin
-When I rebuild the access grants for the "article" content with the title "My article"
+When the access grants for the "article" content with the title "My article" are rebuilt
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I rebuild the access grants for all content</code></summary>
+  <summary><code>@When the access grants for all content are rebuilt</code></summary>
 
 <br/>
 Rebuild node access grants for all content
 <br/><br/>
 
 ```gherkin
-When I rebuild the access grants for all content
+When the access grants for all content are rebuilt
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I set the path alias of the :content_type content with the title :title to :alias</code></summary>
+  <summary><code>@When the path alias of the :content_type content with the title :title is set to :alias</code></summary>
 
 <br/>
 Set the path alias of a content with the specified title
 <br/><br/>
 
 ```gherkin
-When I set the path alias of the "article" content with the title "Test article" to "/my-test-article"
+When the path alias of the "article" content with the title "Test article" is set to "/my-test-article"
 
 ```
 
@@ -5540,14 +5540,14 @@ Then the "page" content with the title "Test page" should not be published
 | The "draggableviews" module from the "drupal/draggableviews" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
-  <summary><code>@When I save the draggable views items of the :view_id view and the :view_display_id display for the :content_type content in the following order:</code></summary>
+  <summary><code>@When the draggable views items of the :view_id view and the :view_display_id display for the :content_type content are saved in the following order:</code></summary>
 
 <br/>
 Save the order of the Draggable Views items
 <br/><br/>
 
 ```gherkin
-When I save the draggable views items of the "draggableviews_demo" view and the "page_1" display for the "article" content in the following order:
+When the draggable views items of the "draggableviews_demo" view and the "page_1" display for the "article" content are saved in the following order:
   | First Article  |
   | Second Article |
   | Third Article  |
@@ -5785,14 +5785,14 @@ When I visit the ECK "contact" "contact_type" entity edit page with the title "T
 | `email.enabled` | boolean | `TRUE` | `@behat-steps-skip:EmailTrait` | Collect email for an `@email` scenario and clear the queue around it. |
 
 <details>
-  <summary><code>@When I clear the test email system queue</code></summary>
+  <summary><code>@When the test email system queue is cleared</code></summary>
 
 <br/>
 Clear test email system queue
 <br/><br/>
 
 ```gherkin
-When I clear the test email system queue
+When the test email system queue is cleared
 
 ```
 
@@ -5841,28 +5841,28 @@ When I follow the link with the index "1" in the email with a subject containing
 </details>
 
 <details>
-  <summary><code>@When I enable the test email system</code></summary>
+  <summary><code>@When the test email system is enabled</code></summary>
 
 <br/>
 Enable the test email system
 <br/><br/>
 
 ```gherkin
-When I enable the test email system
+When the test email system is enabled
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I disable the test email system</code></summary>
+  <summary><code>@When the test email system is disabled</code></summary>
 
 <br/>
 Disable test email system
 <br/><br/>
 
 ```gherkin
-When I disable the test email system
+When the test email system is disabled
 
 ```
 
@@ -6885,29 +6885,29 @@ Given the "myqueue" queue is empty
 </details>
 
 <details>
-  <summary><code>@When I process :count item(s) from the :queue queue</code></summary>
+  <summary><code>@When the :queue queue processes :count item(s)</code></summary>
 
 <br/>
 Process a specific number of items from a queue
 <br/><br/>
 
 ```gherkin
-When I process 5 items from the "myqueue" queue
-When I process 1 item from the "myqueue" queue
+When the "myqueue" queue processes 5 items
+When the "myqueue" queue processes 1 item
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I process the :queue queue</code></summary>
+  <summary><code>@When the :queue queue is processed</code></summary>
 
 <br/>
 Process all items from a queue
 <br/><br/>
 
 ```gherkin
-When I process the "myqueue" queue
+When the "myqueue" queue is processed
 
 ```
 
@@ -7046,57 +7046,57 @@ Then the following redirects should not exist:
 | The "search_api" module from the "drupal/search_api" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
-  <summary><code>@When I add the :content_type content with the title :title to the search index</code></summary>
+  <summary><code>@When the :content_type content with the title :title is indexed</code></summary>
 
 <br/>
 Index a node of a specific content type with a specific title
 <br/><br/>
 
 ```gherkin
-When I add the "article" content with the title "Test Article" to the search index
+When the "article" content with the title "Test Article" is indexed
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I run search indexing for :count item(s)</code></summary>
+  <summary><code>@When search indexing runs for :count item(s)</code></summary>
 
 <br/>
 Run indexing for a specific number of items
 <br/><br/>
 
 ```gherkin
-When I run search indexing for 5 items
-When I run search indexing for 1 item
+When search indexing runs for 5 items
+When search indexing runs for 1 item
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I run the Search API cron</code></summary>
+  <summary><code>@When the Search API cron runs</code></summary>
 
 <br/>
 Run the Search API module cron hook
 <br/><br/>
 
 ```gherkin
-When I run the Search API cron
+When the Search API cron runs
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I run the Search API Solr cron</code></summary>
+  <summary><code>@When the Search API Solr cron runs</code></summary>
 
 <br/>
 Run the Search API Solr module cron hook
 <br/><br/>
 
 ```gherkin
-When I run the Search API Solr cron
+When the Search API Solr cron runs
 
 ```
 
@@ -7408,28 +7408,28 @@ Then the "Fruits" term with the name "Apple" should not exist
 | `time.enabled` | boolean | `TRUE` | `@behat-steps-skip:TimeTrait` | Restore the site clock after a scenario that moved it. |
 
 <details>
-  <summary><code>@When I set the system time to :value</code></summary>
+  <summary><code>@When the system time is set to :value</code></summary>
 
 <br/>
 Sets the system time for testing
 <br/><br/>
 
 ```gherkin
-When I set the system time to "1737849900"
+When the system time is set to "1737849900"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I reset the system time</code></summary>
+  <summary><code>@When the system time is reset</code></summary>
 
 <br/>
 Resets the system time to real time
 <br/><br/>
 
 ```gherkin
-When I reset the system time
+When the system time is reset
 
 ```
 

@@ -14,6 +14,7 @@
  * It also validates that:
  *
  * - The steps read in the documented format.
+ * - Every step declares its actor, and its wording matches it.
  * - Every published helper carries a summary.
  * - Registered parametrized tags use `:` as their value separator.
  * - Every environment variable the source reads is documented.
@@ -61,6 +62,15 @@ const STEPS_DIRECTORY = 'src/Steps';
  * uses first. Their example features carry no name prefix.
  */
 const DEFAULT_CONTEXT = 'Web';
+
+/**
+ * Values the "@actor:<value>" tag of a step docblock accepts.
+ *
+ * "person" marks a step a person performs or observes through something they
+ * operate, so it reads in the first person. "system" marks a step about the
+ * site or the test set-up, so it does not.
+ */
+const STEP_ACTORS = ['person', 'system'];
 
 /**
  * Attribute namespaces that mark a method as registered with Behat.
@@ -421,10 +431,16 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
       }
 
       $parsed_comment = parse_method_comment((string) $method->getDocComment());
+
+      if (!isset($parsed_comment['actor'])) {
+        throw new \RuntimeException(sprintf('Missing actor tag on %s::%s(). Add "@actor:%s" to its docblock.', $trait_name, $method->getName(), implode('" or "@actor:', STEP_ACTORS)));
+      }
+
       $methods_by_keyword[explode(' ', $steps[0], 2)[0]][] = [
         'steps' => $steps,
-        'description' => $parsed_comment['description'] ?? '',
-        'example' => $parsed_comment['example'] ?? '',
+        'description' => $parsed_comment['description'],
+        'example' => $parsed_comment['example'],
+        'actor' => $parsed_comment['actor'],
         'name' => $method->getName(),
       ];
     }
@@ -577,13 +593,18 @@ function parse_class_comment(string $trait_name, string $comment): array {
 /**
  * Parse comment.
  *
- * Extracts description and example from the docblock comment.
+ * Extracts description, example and the "@actor" tag from the docblock
+ * comment. A tag inside the example is part of the example.
  *
  * @param string $comment
  *   The comment.
  *
  * @return array<string, string>|null
- *   Array of 'description' and 'example' keys or NULL if the comment is empty.
+ *   Array of 'description' and 'example' keys, plus 'actor' when the comment
+ *   declares one, or NULL if the comment is empty.
+ *
+ * @throws \RuntimeException
+ *   When the example is not closed, or the actor tag is unknown or repeated.
  */
 function parse_method_comment(string $comment): ?array {
   if (empty($comment)) {
@@ -613,6 +634,19 @@ function parse_method_comment(string $comment): ?array {
     }
     elseif (str_starts_with($line, '@endcode')) {
       $example_start = FALSE;
+    }
+    elseif (!$example_start && str_starts_with($line, '@actor')) {
+      $actor = substr($line, strlen('@actor:'));
+
+      if (!str_starts_with($line, '@actor:') || !in_array($actor, STEP_ACTORS, TRUE)) {
+        throw new \RuntimeException(sprintf('Unknown actor tag "%s". Use "@actor:%s".', $line, implode('" or "@actor:', STEP_ACTORS)));
+      }
+
+      if (isset($return['actor'])) {
+        throw new \RuntimeException(sprintf('Repeated actor tag "%s". A step has 1 actor.', $line));
+      }
+
+      $return['actor'] = $actor;
     }
     else {
       if (!$example_start && empty($line)) {
@@ -1576,8 +1610,15 @@ function validate(array $info): array {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "following" in the step');
       }
 
-      if (str_starts_with($step, '@When') && !str_starts_with($step, '@When I ')) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'When step does not start with "I "');
+      $actor = isset($method['actor']) && is_string($method['actor']) ? $method['actor'] : NULL;
+      $is_first_person = preg_match('/^@(?:Given|When|Then) I /', $step) === 1;
+
+      if ($actor === 'person' && !$is_first_person) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Actor is "person" but the step does not start with "I "');
+      }
+
+      if ($actor === 'system' && $is_first_person) {
+        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Actor is "system" but the step starts with "I "');
       }
 
       if (str_starts_with($step, '@Then')) {

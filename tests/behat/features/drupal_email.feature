@@ -181,7 +181,7 @@ Feature: Check that EmailTrait works
 
   @email
   Scenario: As a developer, I want to know that test email system queue clearing step is working
-    Given I enable the test email system
+    Given the test email system is enabled
     And I send test email to "test@example.com" with
       """
       Line one of the test email content
@@ -197,7 +197,7 @@ Feature: Check that EmailTrait works
       """
       Line four of the test email content
       """
-    When I clear the test email system queue
+    When the test email system queue is cleared
     Then the email field "body" should not contain:
       """
       Line two of the test email content
@@ -277,13 +277,13 @@ Feature: Check that EmailTrait works
       """
     Then an email should have been sent to the address "test@example.com"
 
-    When I clear the test email system queue
+    When the test email system queue is cleared
     Then no emails should have been sent
 
   @email
   Scenario: As a developer, I want to manually enable the test email system and verify it works
     Given no emails should have been sent
-    And I enable the test email system
+    And the test email system is enabled
     And I send test email to "test@example.com" with
       """
       Test email content line one
@@ -302,14 +302,14 @@ Feature: Check that EmailTrait works
 
   @email
   Scenario: As a developer, I want to manually disable the test email system and verify it works
-    Given I enable the test email system
+    Given the test email system is enabled
     And I send test email to "test@example.com" with
       """
       Test email content line one
       Test email content line two
       Test email content line three
       """
-    When I disable the test email system
+    When the test email system is disabled
     Then no emails should have been sent
 
   @email
@@ -398,7 +398,7 @@ Feature: Check that EmailTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I clear the test email system queue
+      When the test email system queue is cleared
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -834,13 +834,13 @@ Feature: Check that EmailTrait works
     Given some behat configuration
     And scenario steps tagged with "@email @behat-steps-skip:EmailTrait":
       """
-      When I enable the test email system
+      When the test email system is enabled
       And I send test email to "test@example.com" with:
         '''
         Test content
         '''
       Then an email should have been sent to the address "test@example.com"
-      When I disable the test email system
+      When the test email system is disabled
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -894,7 +894,7 @@ Feature: Check that EmailTrait works
       """
       Feature: Stub feature
         Scenario: A scenario enables the test email system with the step
-          When I enable the test email system
+          When the test email system is enabled
           And I send test email to "test@example.com" with:
             '''
             Test content
@@ -902,7 +902,7 @@ Feature: Check that EmailTrait works
           Then an email should have been sent to the address "test@example.com"
 
         Scenario: A later scenario finds the test email system disabled
-          When I clear the test email system queue
+          When the test email system queue is cleared
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -919,7 +919,7 @@ Feature: Check that EmailTrait works
     Given some behat configuration
     And scenario steps tagged with "@email @behat-steps-skip:EmailTrait":
       """
-      When I clear the test email system queue
+      When the test email system queue is cleared
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

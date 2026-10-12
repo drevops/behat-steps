@@ -26,6 +26,7 @@ trait IframeTrait {
    * When I switch to the iframe "#recaptcha iframe"
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I switch to the iframe :selector')]
@@ -41,6 +42,8 @@ trait IframeTrait {
    * @code
    * When I switch to the root document
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I switch to the root document')]
   public function iframeSwitchToRootDocument(): void {

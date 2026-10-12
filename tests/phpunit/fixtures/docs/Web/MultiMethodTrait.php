@@ -19,6 +19,8 @@ trait MultiMethodTrait {
    * @code
    * Then the result should be visible
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the result should be visible')]
   public function multiMethodAssertResultVisible(): void {}
@@ -29,6 +31,8 @@ trait MultiMethodTrait {
    * @code
    * Given the following items:
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following items:')]
   public function multiMethodGivenItems(): void {}
@@ -39,6 +43,8 @@ trait MultiMethodTrait {
    * @code
    * When I click on "Submit"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I click on :button')]
   public function multiMethodClickButton(): void {}
@@ -52,6 +58,8 @@ trait MultiMethodTrait {
    * Expected content
    * """
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the content should contain:')]
   public function multiMethodAssertContentContains(): void {}
@@ -65,6 +73,8 @@ trait MultiMethodTrait {
    *   | one   | 1     |
    *   | two   | 2     |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following items exist:')]
   public function multiMethodGivenItemsExist(): void {}

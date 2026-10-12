@@ -31,6 +31,8 @@ trait MessageTrait {
    * @code
    * Then I should see the message "Changes saved"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the message :message')]
   public function messageAssertExists(string $message): void {
@@ -43,6 +45,8 @@ trait MessageTrait {
    * @code
    * Then I should not see the message "Access denied"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the message :message')]
   public function messageAssertNotExists(string $message): void {
@@ -55,6 +59,8 @@ trait MessageTrait {
    * @code
    * Then I should see the error message "Username field is required"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the error message :message')]
   public function messageAssertErrorExists(string $message): void {
@@ -67,6 +73,8 @@ trait MessageTrait {
    * @code
    * Then I should not see the error message "Access denied"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the error message :message')]
   public function messageAssertErrorNotExists(string $message): void {
@@ -79,6 +87,8 @@ trait MessageTrait {
    * @code
    * Then I should see the success message "Article has been created"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the success message :message')]
   public function messageAssertSuccessExists(string $message): void {
@@ -91,6 +101,8 @@ trait MessageTrait {
    * @code
    * Then I should not see the success message "Changes saved"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the success message :message')]
   public function messageAssertSuccessNotExists(string $message): void {
@@ -103,6 +115,8 @@ trait MessageTrait {
    * @code
    * Then I should see the warning message "This action cannot be undone"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the warning message :message')]
   public function messageAssertWarningExists(string $message): void {
@@ -115,6 +129,8 @@ trait MessageTrait {
    * @code
    * Then I should not see the warning message "deprecated"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the warning message :message')]
   public function messageAssertWarningNotExists(string $message): void {
@@ -129,6 +145,8 @@ trait MessageTrait {
    *   | Username field is required |
    *   | Password field is required |
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the following error messages:')]
   public function messageAssertErrorsExist(TableNode $messages): void {
@@ -144,6 +162,8 @@ trait MessageTrait {
    * Then I should not see the following error messages:
    *   | Access denied |
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the following error messages:')]
   public function messageAssertErrorsNotExist(TableNode $messages): void {
@@ -159,6 +179,8 @@ trait MessageTrait {
    * Then I should see the following success messages:
    *   | Article has been created |
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the following success messages:')]
   public function messageAssertSuccessesExist(TableNode $messages): void {
@@ -174,6 +196,8 @@ trait MessageTrait {
    * Then I should not see the following success messages:
    *   | Changes saved |
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the following success messages:')]
   public function messageAssertSuccessesNotExist(TableNode $messages): void {
@@ -189,6 +213,8 @@ trait MessageTrait {
    * Then I should see the following warning messages:
    *   | This action cannot be undone |
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the following warning messages:')]
   public function messageAssertWarningsExist(TableNode $messages): void {
@@ -204,6 +230,8 @@ trait MessageTrait {
    * Then I should not see the following warning messages:
    *   | deprecated |
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the following warning messages:')]
   public function messageAssertWarningsNotExist(TableNode $messages): void {

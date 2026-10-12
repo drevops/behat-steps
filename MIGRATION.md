@@ -497,6 +497,10 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | --- | --- |
 | `Given the content type :content_type does not exist` | `Given the :content_type content type does not exist` |
 | `Given the following :type content with fields:` | `Given the following :content_type content with fields exists:` |
+| `When I change the moderation state of the :content_type content with the title :title to the :new_state state` | `When the moderation state of the :content_type content with the title :title changes to the :new_state state` |
+| `When I rebuild the access grants for all content` | `When the access grants for all content are rebuilt` |
+| `When I rebuild the access grants for the :content_type content with the title :title` | `When the access grants for the :content_type content with the title :title are rebuilt` |
+| `When I set the path alias of the :content_type content with the title :title to :alias` | `When the path alias of the :content_type content with the title :title is set to :alias` |
 | `Then :content_type content with the title :title should be published` | `Then the :content_type content with the title :title should be published` |
 | `Then :content_type content with the title :title should not be published` | `Then the :content_type content with the title :title should not be published` |
 | `Then :content_type content with the title :title should not exist` | `Then the :content_type content with the title :title should not exist` |
@@ -516,7 +520,7 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `When I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:` | `When I save the draggable views items of the :view_id view and the :view_display_id display for the :content_type content in the following order:` |
+| `When I save the draggable views items of the view :view_id and the display :view_display_id for the :bundle content in the following order:` | `When the draggable views items of the :view_id view and the :view_display_id display for the :content_type content are saved in the following order:` |
 
 #### DropzoneTrait
 
@@ -538,10 +542,10 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given I accept all confirmation dialogs` | `Given confirmation dialogs are accepted` |
-| `Given I do not accept any confirmation dialogs` | `Given confirmation dialogs are declined` |
+| `Given I do not accept any confirmation dialogs` | `Given I decline all confirmation dialogs` |
 | `When I follow the link :text with the index :index` | `When I follow the link :link with the index :index` |
 | `When I press the button :label with the index :index` | `When I press the button :button with the index :index` |
+| `When I trigger the JS event :event on the element :selector` | `When the JS event :event is triggered on the element :selector` |
 | `Then the element :selector should be displayed within a viewport` | `Then the element :selector should be displayed within the viewport` |
 | `Then the element :selector should be displayed within a viewport with a top offset of :number pixels` | `Then the element :selector should be displayed within the viewport with a top offset of :offset pixels` |
 | `Then the element :selector should have the CSS property :property with the value containing :value` | `Then the element :selector should have the CSS property :property with a value containing :partial_value` |
@@ -556,6 +560,9 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 | 3.14 | 4.0 |
 | --- | --- |
+| `When I clear the test email system queue` | `When the test email system queue is cleared` |
+| `When I disable the test email system` | `When the test email system is disabled` |
+| `When I enable the test email system` | `When the test email system is enabled` |
 | `When I follow link number :link_number in the email with the subject :subject` | `When I follow the link with the index :index in the email with the subject :subject` |
 | `When I follow link number :link_number in the email with the subject containing :subject` | `When I follow the link with the index :index in the email with a subject containing :partial_subject` |
 | `Then an email should be sent to the :address` | `Then an email should have been sent to the address :address` |
@@ -682,6 +689,13 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | `Then current url should not have the :param parameter` | `Then the URL should not have the query parameter :name` |
 | `Then current url should not have the :param parameter with the :value value` | `Then the URL should not have the query parameter :name with the value :value` |
 
+#### QueueTrait
+
+| 3.14 | 4.0 |
+| --- | --- |
+| `When I process :count item(s) from the :queue queue` | `When the :queue queue processes :count item(s)` |
+| `When I process the :queue queue` | `When the :queue queue is processed` |
+
 #### ResponseTrait
 
 | 3.14 | 4.0 |
@@ -703,6 +717,15 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | --- | --- |
 | `Given a REST header :name with value :value` | `Given the REST header :name has the value :value` |
 | `When I send a REST :method request to :url with body:` | `When I send a REST :method request to :url with the body:` |
+
+#### SearchApiTrait
+
+| 3.14 | 4.0 |
+| --- | --- |
+| `When I add the :content_type content with the title :title to the search index` | `When the :content_type content with the title :title is indexed` |
+| `When I run search indexing for :count item(s)` | `When search indexing runs for :count item(s)` |
+| `When I run the Search API Solr cron` | `When the Search API Solr cron runs` |
+| `When I run the Search API cron` | `When the Search API cron runs` |
 
 #### StateTrait
 
@@ -734,8 +757,8 @@ A placeholder name never appears in a feature file, so a row that only renames a
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `When I reset system time` | `When I reset the system time` |
-| `When I set system time to :value` | `When I set the system time to :value` |
+| `When I reset system time` | `When the system time is reset` |
+| `When I set system time to :value` | `When the system time is set to :value` |
 
 #### UserTrait
 
@@ -819,7 +842,7 @@ The Drupal Extension's contexts are gone, and the step traits carry their vocabu
 
 | 3.14 | 4.0 |
 | --- | --- |
-| `Given I run cron` | `When I run cron` |
+| `Given I run cron` | `When cron runs` |
 | `Given I wait for the batch job to finish` | `When I wait for the batch job to finish` |
 | `Given the following item is in the system queue:` | `Given the following item is in the :queue queue:` |
 

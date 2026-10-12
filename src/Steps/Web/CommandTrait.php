@@ -76,6 +76,8 @@ trait CommandTrait {
    * When I run the command "php -v"
    * When I run the command "./vendor/bin/phpunit --version"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I run the command :command')]
   public function commandRun(string $command): void {
@@ -96,6 +98,8 @@ trait CommandTrait {
    * When I run the command "php -v"
    * Then the command should succeed
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the command should succeed')]
   public function commandAssertSuccess(): void {
@@ -115,6 +119,8 @@ trait CommandTrait {
    * When I run the command "phpcs --standard=NonExisting"
    * Then the command should fail
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the command should fail')]
   public function commandAssertFailure(): void {
@@ -132,6 +138,8 @@ trait CommandTrait {
    * When I run the command "php -r 'exit(3);'"
    * Then the command exit code should be 3
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the command exit code should be :code')]
   public function commandAssertExitCodeEquals(string $code): void {
@@ -154,6 +162,8 @@ trait CommandTrait {
    * When I run the command "echo hello"
    * Then the command output should contain "hello"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the command output should contain :text')]
   public function commandAssertOutputContains(string $text): void {
@@ -173,6 +183,8 @@ trait CommandTrait {
    * When I run the command "echo hello"
    * Then the command output should not contain "goodbye"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the command output should not contain :text')]
   public function commandAssertOutputNotContains(string $text): void {
@@ -194,6 +206,8 @@ trait CommandTrait {
    * When I run the command "echo hello"
    * Then the command output should be "hello"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the command output should be :text')]
   public function commandAssertOutputEquals(string $text): void {
@@ -213,6 +227,8 @@ trait CommandTrait {
    * When I run the command "ls /nonexistent"
    * Then the command error output should contain "No such file"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the command error output should contain :text')]
   public function commandAssertErrorOutputContains(string $text): void {
@@ -230,6 +246,8 @@ trait CommandTrait {
    * When I run the command "echo hello"
    * Then the command should complete in less than 5 seconds
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the command should complete in less than :seconds second(s)')]
   public function commandAssertDurationLessThan(string $seconds): void {
@@ -249,6 +267,8 @@ trait CommandTrait {
    * When I run the command "sleep 2"
    * Then the command should complete in more than 1 second
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the command should complete in more than :seconds second(s)')]
   public function commandAssertDurationMoreThan(string $seconds): void {

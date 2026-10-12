@@ -29,6 +29,8 @@ trait PathTrait {
    * @code
    * Given I am using basic authentication with the username "myusername" and the password "mypassword"
    * @endcode
+   *
+   * @actor:person
    */
   #[Given('I am using basic authentication with the username :username and the password :password')]
   public function pathSetBasicAuth(string $username, string $password): void {
@@ -49,6 +51,8 @@ trait PathTrait {
    * When I visit "/about-us"
    * When I visit "https://example.com/about-us"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit :path')]
   public function pathVisit(string $path): void {
@@ -61,6 +65,8 @@ trait PathTrait {
    * @code
    * When I go back
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I go back')]
   public function pathGoBack(): void {
@@ -77,6 +83,8 @@ trait PathTrait {
    * Then the path should be "/"
    * Then the path should be "<front>"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the path should be :path')]
   public function pathAssertCurrent(string $path): void {
@@ -95,6 +103,8 @@ trait PathTrait {
    * Then the path should not be "/"
    * Then the path should not be "<front>"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the path should not be :path')]
   public function pathAssertNotCurrent(string $path): void {
@@ -109,6 +119,8 @@ trait PathTrait {
    * @code
    * Then the URL should have the query parameter "filter"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the URL should have the query parameter :name')]
   public function pathAssertUrlParameterExists(string $name): void {
@@ -121,6 +133,8 @@ trait PathTrait {
    * @code
    * Then the URL should have the query parameter "filter" with the value "recent"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the URL should have the query parameter :name with the value :value')]
   public function pathAssertUrlParameterEquals(string $name, string $value): void {
@@ -137,6 +151,8 @@ trait PathTrait {
    * @code
    * Then the URL should not have the query parameter "filter"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the URL should not have the query parameter :name')]
   public function pathAssertUrlParameterNotExists(string $name): void {
@@ -155,6 +171,8 @@ trait PathTrait {
    * @code
    * Then the URL should not have the query parameter "filter" with the value "recent"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the URL should not have the query parameter :name with the value :value')]
   public function pathAssertUrlParameterNotEquals(string $name, string $value): void {

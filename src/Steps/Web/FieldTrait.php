@@ -126,6 +126,8 @@ trait FieldTrait {
    * And I press "Save"
    * Then I should see "Title field is required"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the browser validation for the form :selector is disabled')]
   public function fieldDisableFormBrowserValidation(string $selector): void {
@@ -151,6 +153,8 @@ trait FieldTrait {
    *   | Behat   |
    *   | Testing |
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the multi-value field :field with the following values:')]
   public function fieldFillMultiValue(string $field, TableNode $table): void {
@@ -167,6 +171,8 @@ trait FieldTrait {
    * @code
    * When I fill in the color field "#edit-text-color" with "#3366FF"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the color field :field with :value')]
   public function fieldFillColor(string $field, string $value): void {
@@ -192,6 +198,8 @@ JS;
    * @code
    * When I fill in the WYSIWYG field "edit-body-0-value" with "<p>This is a <strong>formatted</strong> paragraph.</p>"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the WYSIWYG field :field with :value')]
   public function fieldFillWysiwyg(string $field, string $value): void {
@@ -219,6 +227,8 @@ JS;
    *   When I unselect the option "Administrator" from the select "edit-roles"
    *   When I unselect the option "Option B" from the select "field_multi_select"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I unselect the option :option from the select :selector')]
   public function fieldUnselectOption(string $option, string $selector): void {
@@ -247,6 +257,8 @@ JS;
    *   When I clear the select "edit-roles"
    *   When I clear the select "field_multi_select"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I clear the select :selector')]
   public function fieldClearSelect(string $selector): void {
@@ -265,6 +277,8 @@ JS;
    *   When I check the checkbox "Checkbox label"
    *   When I check the checkbox "edit-field-terms-0-value"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I check the checkbox :selector')]
   public function fieldCheckCheckbox(string $selector): void {
@@ -283,6 +297,8 @@ JS;
    *   When I uncheck the checkbox "Checkbox label"
    *   When I uncheck the checkbox "edit-field-terms-0-value"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I uncheck the checkbox :selector')]
   public function fieldUncheckCheckbox(string $selector): void {
@@ -301,6 +317,8 @@ JS;
    *   When I choose the radio button "Option A"
    *   When I choose the radio button "edit-field-choice-option-a"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I choose the radio button :selector')]
   public function fieldChooseRadioButton(string $selector): void {
@@ -316,6 +334,8 @@ JS;
    * When I fill in the field ".field--name-body textarea" with "Hello world"
    * When I fill in the field "#edit-field-custom-0-value" with "Test value"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the field :selector with :value')]
   public function fieldFillField(string $selector, string $value): void {
@@ -337,6 +357,8 @@ JS;
    * When I fill in the datetime field "Event date" with the date "2024-01-15" and the time "14:30:00"
    * When I fill in the datetime field "Event date" with the date "2024-01-15" and the time ""
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetime(string $label, string $date, string $time): void {
@@ -353,6 +375,8 @@ JS;
    * @code
    * When I fill in the date part of the datetime field "Event date" with "2024-01-15"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the date part of the datetime field :label with :date')]
   public function fieldFillDatetimeDate(string $label, string $date): void {
@@ -365,6 +389,8 @@ JS;
    * @code
    * When I fill in the time part of the datetime field "Event date" with "14:30:00"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the time part of the datetime field :label with :time')]
   public function fieldFillDatetimeTime(string $label, string $time): void {
@@ -380,6 +406,8 @@ JS;
    * When I fill in the start datetime field "Event period" with the date "2024-01-15" and the time "14:30:00"
    * When I fill in the start datetime field "Event period" with the date "2024-01-15" and the time ""
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the start datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetimeStart(string $label, string $date, string $time): void {
@@ -399,6 +427,8 @@ JS;
    * When I fill in the end datetime field "Event period" with the date "2024-01-20" and the time "18:00:00"
    * When I fill in the end datetime field "Event period" with the date "2024-01-20" and the time ""
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the end datetime field :label with the date :date and the time :time')]
   public function fieldFillDatetimeEnd(string $label, string $date, string $time): void {
@@ -415,6 +445,8 @@ JS;
    * @code
    * Then the field "Name" should be empty
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the field :field should be empty')]
   public function fieldAssertEmpty(string $field): void {
@@ -431,6 +463,8 @@ JS;
    * @code
    * Then the field "Name" should not be empty
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the field :field should not be empty')]
   public function fieldAssertNotEmpty(string $field): void {
@@ -448,6 +482,8 @@ JS;
    * Then the field "Body" should exist
    * Then the field "field_body" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the field :field should exist')]
   public function fieldAssertExists(string $field): void {
@@ -461,6 +497,8 @@ JS;
    * Then the field "Body" should not exist
    * Then the field "field_body" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the field :field should not exist')]
   public function fieldAssertNotExists(string $field): void {
@@ -475,6 +513,8 @@ JS;
    * @code
    * Then the field "Tags" should be enabled
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the field :field should be enabled')]
   public function fieldAssertEnabled(string $field): void {
@@ -489,6 +529,8 @@ JS;
    * @code
    * Then the field "Body" should be disabled
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the field :field should be disabled')]
   public function fieldAssertDisabled(string $field): void {
@@ -503,6 +545,8 @@ JS;
    * @code
    * Then the field "Email" should be required
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the field :field should be required')]
   public function fieldAssertRequired(string $field): void {
@@ -519,6 +563,8 @@ JS;
    * @code
    * Then the field "Nickname" should not be required
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the field :field should not be required')]
   public function fieldAssertNotRequired(string $field): void {
@@ -535,6 +581,8 @@ JS;
    * @code
    * Then the color field "#edit-background-color" should have the value "#FF5733"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the color field :field should have the value :value')]
   public function fieldAssertColorFieldEquals(string $field, string $value): void {
@@ -561,6 +609,8 @@ JS;
    * @code
    * Then the option "Administrator" within the select "edit-roles" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the option :option within the select :selector should exist')]
   public function fieldAssertSelectOptionExists(string $selector, string $option): void {
@@ -573,6 +623,8 @@ JS;
    * @code
    * Then the option "Guest" within the select "edit-roles" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the option :option within the select :selector should not exist')]
   public function fieldAssertSelectOptionNotExists(string $selector, string $option): void {
@@ -587,6 +639,8 @@ JS;
    * @code
    * Then the option "Administrator" within the select "edit-roles" should be selected
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the option :option within the select :selector should be selected')]
   public function fieldAssertSelectOptionSelected(string $option, string $selector): void {
@@ -601,6 +655,8 @@ JS;
    * @code
    * Then the option "Editor" within the select "edit-roles" should not be selected
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the option :option within the select :selector should not be selected')]
   public function fieldAssertSelectOptionNotSelected(string $option, string $selector): void {
@@ -619,6 +675,8 @@ JS;
    *   Then the radio button "Option A" should be selected
    *   Then the radio button "edit-field-choice-option-a" should be selected
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the radio button :selector should be selected')]
   public function fieldAssertRadioSelected(string $selector): void {
@@ -639,6 +697,8 @@ JS;
    *   Then the radio button "Option B" should not be selected
    *   Then the radio button "edit-field-choice-option-b" should not be selected
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the radio button :selector should not be selected')]
   public function fieldAssertRadioNotSelected(string $selector): void {

@@ -77,6 +77,8 @@ trait JsonTrait {
    * @code
    * Given the response JSON is loaded from the file "json_valid.json"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the response JSON is loaded from the file :filename')]
   public function jsonSetContentFromFile(string $filename): void {
@@ -95,6 +97,8 @@ trait JsonTrait {
    *   {"name": "John Doe", "roles": ["admin", "editor"]}
    *   """
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the response JSON is the following:')]
   public function jsonSetContent(PyStringNode $content): void {
@@ -108,6 +112,8 @@ trait JsonTrait {
    * @code
    * When I print the last JSON response
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I print the last JSON response')]
   public function jsonPrintLastResponse(): void {
@@ -126,6 +132,8 @@ trait JsonTrait {
    * Given the response JSON is loaded from the file "json_valid.json"
    * Then the response should be in JSON format
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should be in JSON format')]
   public function jsonAssertResponseJson(): void {
@@ -138,6 +146,8 @@ trait JsonTrait {
    * @code
    * Then the response should not be in JSON format
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should not be in JSON format')]
   public function jsonAssertResponseNotJson(): void {
@@ -157,6 +167,8 @@ trait JsonTrait {
    * Then the JSON path "$.name" should exist
    * Then the JSON path "$.user.roles[0]" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should exist')]
   public function jsonAssertPathExists(string $path): void {
@@ -173,6 +185,8 @@ trait JsonTrait {
    * @code
    * Then the JSON path "$.nonexistent" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should not exist')]
   public function jsonAssertPathNotExists(string $path): void {
@@ -190,6 +204,8 @@ trait JsonTrait {
    * Then the JSON path "$.name" should be equal to "John Doe"
    * Then the JSON path "$.age" should be equal to "42"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should be equal to :value')]
   public function jsonAssertPathEquals(string $path, string $value): void {
@@ -206,6 +222,8 @@ trait JsonTrait {
    * @code
    * Then the JSON path "$.name" should not be equal to "Jane Doe"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should not be equal to :value')]
   public function jsonAssertPathNotEquals(string $path, string $value): void {
@@ -222,6 +240,8 @@ trait JsonTrait {
    * @code
    * Then the JSON path "$.name" should contain "John"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should contain :value')]
   public function jsonAssertPathContains(string $path, string $value): void {
@@ -238,6 +258,8 @@ trait JsonTrait {
    * @code
    * Then the JSON path "$.name" should not contain "Jane"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should not contain :value')]
   public function jsonAssertPathNotContains(string $path, string $value): void {
@@ -254,6 +276,8 @@ trait JsonTrait {
    * @code
    * Then the JSON path "$.email" should match "/^[^@]+@example\.com$/"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should match :pattern')]
   public function jsonAssertPathMatches(string $path, string $pattern): void {
@@ -276,6 +300,8 @@ trait JsonTrait {
    * @code
    * Then the JSON path "$.email" should not match "/^admin@/"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should not match :pattern')]
   public function jsonAssertPathNotMatches(string $path, string $pattern): void {
@@ -298,6 +324,8 @@ trait JsonTrait {
    * @code
    * Then the JSON path "$.deleted_at" should be null
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should be null')]
   public function jsonAssertPathNull(string $path): void {
@@ -314,6 +342,8 @@ trait JsonTrait {
    * @code
    * Then the JSON path "$.active" should be true
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should be true')]
   public function jsonAssertPathTrue(string $path): void {
@@ -330,6 +360,8 @@ trait JsonTrait {
    * @code
    * Then the JSON path "$.disabled" should be false
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should be false')]
   public function jsonAssertPathFalse(string $path): void {
@@ -350,6 +382,8 @@ trait JsonTrait {
    * Then the JSON path "$.items" should have "3" elements
    * Then the JSON path "$.user" should have "2" elements
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the JSON path :path should have :count element(s)')]
   public function jsonAssertPathCount(string $path, string $count): void {
@@ -377,6 +411,8 @@ trait JsonTrait {
    *   {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}}}
    *   """
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should match the following JSON schema:')]
   public function jsonAssertMatchesSchema(PyStringNode $schema): void {
@@ -389,6 +425,8 @@ trait JsonTrait {
    * @code
    * Then the response should match the JSON schema in the file "json_schema.json"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should match the JSON schema in the file :filename')]
   public function jsonAssertMatchesSchemaFromFile(string $filename): void {

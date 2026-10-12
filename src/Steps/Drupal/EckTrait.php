@@ -39,6 +39,8 @@ trait EckTrait {
    *   | Snook  | Fish                    | Marine fish     | 10  |
    *   | ...    | ...                     | ...             | ... |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following ECK :bundle :entity_type entities exist:')]
   public function eckCreateMultiple(string $bundle, string $entity_type, TableNode $table): void {
@@ -64,6 +66,8 @@ trait EckTrait {
    *   | title           |
    *   | Entity label    |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following ECK :bundle :entity_type entities do not exist:')]
   public function eckDeleteMultiple(string $bundle, string $entity_type, TableNode $table): void {
@@ -82,6 +86,8 @@ trait EckTrait {
    * @code
    * When I visit the ECK "contact" "contact_type" entity page with the title "Test contact"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the ECK :bundle :entity_type entity page with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
@@ -98,6 +104,8 @@ trait EckTrait {
    * @code
    * When I visit the ECK "contact" "contact_type" entity edit page with the title "Test contact"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the ECK :bundle :entity_type entity edit page with the title :title')]
   public function eckVisitEntityEditPageWithTitle(string $bundle, string $entity_type, string $title): void {

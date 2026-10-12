@@ -40,12 +40,13 @@ trait ElementTrait {
    * Accept confirmation dialogs appearing on the page.
    *
    * @code
-   * Given confirmation dialogs are accepted
+   * Given I accept all confirmation dialogs
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
-  #[Given('confirmation dialogs are accepted')]
+  #[Given('I accept all confirmation dialogs')]
   public function elementAcceptConfirmation(): void {
     $this->getSession()->getDriver()->executeScript('window.confirm = function(){return true;};');
   }
@@ -54,12 +55,13 @@ trait ElementTrait {
    * Do not accept confirmation dialogs appearing on the page.
    *
    * @code
-   * Given confirmation dialogs are declined
+   * Given I decline all confirmation dialogs
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
-  #[Given('confirmation dialogs are declined')]
+  #[Given('I decline all confirmation dialogs')]
   public function elementDeclineConfirmation(): void {
     $this->getSession()->getDriver()->executeScript('window.confirm = function(){return false;};');
   }
@@ -71,6 +73,7 @@ trait ElementTrait {
    * When I click on the element ".button"
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I click on the element :selector')]
@@ -85,6 +88,7 @@ trait ElementTrait {
    * When I click on the element ".card" with the index 2
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I click on the element :selector with the index :index')]
@@ -101,6 +105,8 @@ trait ElementTrait {
    * @code
    * When I follow the link "Read more" with the index 2
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I follow the link :link with the index :index')]
   public function elementFollowLinkWithIndex(string $link, string $index): void {
@@ -116,6 +122,8 @@ trait ElementTrait {
    * @code
    * When I press the button "Delete" with the index 2
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I press the button :button with the index :index')]
   public function elementPressButtonWithIndex(string $button, string $index): void {
@@ -129,10 +137,12 @@ trait ElementTrait {
    * Trigger a JS event on the element defined by the selector.
    *
    * @code
-   * When I trigger the JS event "click" on the element "#submit-button"
+   * When the JS event "click" is triggered on the element "#submit-button"
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I trigger the JS event :event on the element :selector')]
+  #[When('the JS event :event is triggered on the element :selector')]
   public function elementTriggerEvent(string $event, string $selector): void {
     $event_js = json_encode($event, JSON_UNESCAPED_SLASHES);
     $this->elementExecuteJs($selector, sprintf('var event = new Event(%s, { bubbles: true }); {{ELEMENT}}.dispatchEvent(event); return true;', $event_js));
@@ -148,6 +158,8 @@ trait ElementTrait {
    * @code
    * When I scroll to the element "#footer"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I scroll to the element :selector')]
   public function elementScrollTo(string $selector): void {
@@ -166,6 +178,8 @@ trait ElementTrait {
    * When I hover over the element ".menu-item"
    * When I hover over the element "#tooltip-trigger"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I hover over the element :selector')]
   public function elementHover(string $selector): void {
@@ -180,6 +194,7 @@ trait ElementTrait {
    * When I focus on the element ".form-text"
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I focus on the element :selector')]
@@ -197,6 +212,8 @@ trait ElementTrait {
    * @code
    * Then I should see the heading "Latest news"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the heading :heading')]
   public function elementAssertHeadingExists(string $heading): void {
@@ -211,6 +228,8 @@ trait ElementTrait {
    * @code
    * Then I should not see the heading "Admin"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the heading :heading')]
   public function elementAssertHeadingNotExists(string $heading): void {
@@ -227,6 +246,8 @@ trait ElementTrait {
    * @code
    * Then I should see the button "Save"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the button :button')]
   public function elementAssertButtonExists(string $button): void {
@@ -241,6 +262,8 @@ trait ElementTrait {
    * @code
    * Then I should not see the button "Delete"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the button :button')]
   public function elementAssertButtonNotExists(string $button): void {
@@ -255,6 +278,8 @@ trait ElementTrait {
    * @code
    * Then the element "body" should appear after the element "head"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector1 should appear after the element :selector2')]
   public function elementAssertAfterElement(string $selector1, string $selector2): void {
@@ -269,6 +294,8 @@ trait ElementTrait {
    * @code
    * Then I should see the text "Welcome" after the text "Home"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the text :text1 after the text :text2')]
   public function elementAssertTextAfterText(string $text1, string $text2): void {
@@ -296,6 +323,8 @@ trait ElementTrait {
    * @code
    * Then the element "#main-content" with the attribute "class" and the value "content-wrapper" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector with the attribute :attribute and the value :value should exist')]
   public function elementAssertExistsWithAttributeValue(string $selector, string $attribute, string $value): void {
@@ -308,6 +337,8 @@ trait ElementTrait {
    * @code
    * Then the element "#main-content" with the attribute "class" and a value containing "content" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector with the attribute :attribute and a value containing :partial_value should exist')]
   public function elementAssertExistsWithAttributeContainingValue(string $selector, string $attribute, string $partial_value): void {
@@ -320,6 +351,8 @@ trait ElementTrait {
    * @code
    * Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector with the attribute :attribute and the value :value should not exist')]
   public function elementAssertNotExistsWithAttributeValue(string $selector, string $attribute, string $value): void {
@@ -332,6 +365,8 @@ trait ElementTrait {
    * @code
    * Then the element "#main-content" with the attribute "class" and a value containing "hidden" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector with the attribute :attribute and a value containing :partial_value should not exist')]
   public function elementAssertNotExistsWithAttributeContainingValue(string $selector, string $attribute, string $partial_value): void {
@@ -353,6 +388,7 @@ trait ElementTrait {
    * Then the element ".button" should have the CSS property "background-color" with the value "rgb(0, 0, 255)"
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should have the CSS property :property with the value :value')]
@@ -367,6 +403,7 @@ trait ElementTrait {
    * Then the element ".card" should have the CSS property "box-shadow" with a value containing "rgb(0, 0, 0)"
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should have the CSS property :property with a value containing :partial_value')]
@@ -381,6 +418,7 @@ trait ElementTrait {
    * Then the element ".button" should not have the CSS property "display" with the value "none"
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should not have the CSS property :property with the value :value')]
@@ -395,6 +433,7 @@ trait ElementTrait {
    * Then the element ".card" should not have the CSS property "box-shadow" with a value containing "inset"
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should not have the CSS property :property with a value containing :partial_value')]
@@ -420,6 +459,7 @@ trait ElementTrait {
    * Then the element "#modal" should stack above the element "#page-header"
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector1 should stack above the element :selector2')]
@@ -434,6 +474,7 @@ trait ElementTrait {
    * Then the element "#page-header" should stack below the element "#modal"
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector1 should stack below the element :selector2')]
@@ -450,6 +491,8 @@ trait ElementTrait {
    * @code
    * Then the element "#header" should be at the top of the viewport
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector should be at the top of the viewport')]
   public function elementAssertElementAtTopOfViewport(string $selector): void {
@@ -469,6 +512,8 @@ trait ElementTrait {
    * @code
    * Then the element "#content" should be centered in the viewport
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector should be centered in the viewport')]
   public function elementAssertElementCenteredInViewport(string $selector): void {
@@ -494,6 +539,7 @@ trait ElementTrait {
    * Then the element "#header" should be pinned to the top of the viewport
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should be pinned to the top of the viewport')]
@@ -508,6 +554,7 @@ trait ElementTrait {
    * Then the element "#header" should be pinned to the top of the viewport within 10 pixels
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should be pinned to the top of the viewport within :tolerance pixels')]
@@ -523,6 +570,7 @@ trait ElementTrait {
    * Then the element "#header" should not be pinned to the top of the viewport
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should not be pinned to the top of the viewport')]
@@ -540,6 +588,7 @@ trait ElementTrait {
    * Then the element "#edit-name" should have keyboard focus
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should have keyboard focus')]
@@ -554,6 +603,7 @@ trait ElementTrait {
    * Then the element "#edit-name" should not have keyboard focus
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should not have keyboard focus')]
@@ -568,6 +618,7 @@ trait ElementTrait {
    * Then the element "#edit-name" should have a visible focus outline
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should have a visible focus outline')]
@@ -582,6 +633,7 @@ trait ElementTrait {
    * Then the element "#decorative-icon" should not have a visible focus outline
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector should not have a visible focus outline')]
@@ -595,6 +647,8 @@ trait ElementTrait {
    * @code
    * Then the element ".alert-success" should be displayed
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector should be displayed')]
   public function elementAssertVisible(string $selector): void {
@@ -607,6 +661,8 @@ trait ElementTrait {
    * @code
    * Then the element ".error-message" should not be displayed
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector should not be displayed')]
   public function elementAssertNotVisible(string $selector): void {
@@ -621,6 +677,8 @@ trait ElementTrait {
    * @code
    * Then the element ".hero-banner" should be displayed within the viewport
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector should be displayed within the viewport')]
   public function elementAssertVisuallyVisible(string $selector): void {
@@ -644,6 +702,8 @@ trait ElementTrait {
    * Then the element "#main-content" should be displayed within the viewport with a top offset of 80 pixels
    * Then the element ".sticky-header" should be displayed within the viewport with a top offset of -200 pixels
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector should be displayed within the viewport with a top offset of :offset pixels')]
   public function elementAssertVisuallyVisibleWithOffset(string $selector, string $offset): void {
@@ -669,6 +729,8 @@ trait ElementTrait {
    * @code
    * Then the element ".announcement-bar" should not be displayed within the viewport with a top offset of -200 pixels
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector should not be displayed within the viewport with a top offset of :offset pixels')]
   public function elementAssertNotVisuallyVisibleWithOffset(string $selector, string $offset): void {
@@ -691,6 +753,8 @@ trait ElementTrait {
    * @code
    * Then the element ".visually-hidden" should not be displayed within the viewport
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector should not be displayed within the viewport')]
   public function elementAssertNotVisuallyVisible(string $selector): void {
@@ -705,6 +769,8 @@ trait ElementTrait {
    * @code
    * Then the element "#main-nav" should contain 3 elements matching ".menu-item"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :parent should contain :count element(s) matching :selector')]
   public function elementAssertChildElementCount(string $parent, string $count, string $selector): void {

@@ -4,8 +4,8 @@ Feature: Check that SearchApiTrait works
   I want to provide tools to index and search content
   So that users can test search functionality
 
-  Scenario: Assert "When I add the :content_type content with the title :title to the search index" works as expected
-    When I run search indexing for 10 items
+  Scenario: Assert "When the :content_type content with the title :title is indexed" works as expected
+    When search indexing runs for 10 items
     And the following article content exists:
       | title                                        | moderation_state |
       | [MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT | published        |
@@ -17,8 +17,8 @@ Feature: Check that SearchApiTrait works
     Then I should not see "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
     And I should not see "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
 
-    When I add the "article" content with the title "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT" to the search index
-    And I add the "article" content with the title "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT" to the search index
+    When the "article" content with the title "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT" is indexed
+    And the "article" content with the title "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT" is indexed
 
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
@@ -28,13 +28,13 @@ Feature: Check that SearchApiTrait works
     Then I should see "[MYTEST] TESTPUBLISHEDARTICLE TESTUNIQUETEXT"
     And I should not see "[MYTEST] TESTDRAFTARTICLE TESTUNIQUETEXT"
 
-  Scenario: Assert "When I add the :content_type content with the title :title to the search index" indexes only the named content
+  Scenario: Assert "When the :content_type content with the title :title is indexed" indexes only the named content
     Given the following article content exists:
       | title                                      | moderation_state |
       | [MYTEST] QUEUEDARTICLE TESTUNIQUEQUEUETEXT | published        |
       | [MYTEST] NAMEDARTICLE TESTUNIQUEQUEUETEXT  | published        |
     And I am logged in as a user with the "administrator" role
-    When I add the "article" content with the title "[MYTEST] NAMEDARTICLE TESTUNIQUEQUEUETEXT" to the search index
+    When the "article" content with the title "[MYTEST] NAMEDARTICLE TESTUNIQUEQUEUETEXT" is indexed
 
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUEQUEUETEXT"
@@ -43,14 +43,14 @@ Feature: Check that SearchApiTrait works
     And I should not see "[MYTEST] QUEUEDARTICLE TESTUNIQUEQUEUETEXT"
 
   @testmode
-  Scenario: Assert "When I add the :content_type content with the title :title to the search index" works as expected with test mode
+  Scenario: Assert "When the :content_type content with the title :title is indexed" works as expected with test mode
     Given the following article content exists:
       | title                           | moderation_state |
       | TESTPUBLISHEDARTICLE 1          | published        |
       | [MYTEST] TESTPUBLISHEDARTICLE 2 | published        |
     And I am logged in as a user with the "administrator" role
-    When I add the "article" content with the title "TESTPUBLISHEDARTICLE 1" to the search index
-    And I add the "article" content with the title "[MYTEST] TESTPUBLISHEDARTICLE 2" to the search index
+    When the "article" content with the title "TESTPUBLISHEDARTICLE 1" is indexed
+    And the "article" content with the title "[MYTEST] TESTPUBLISHEDARTICLE 2" is indexed
 
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTPUBLISHEDARTICLE"
@@ -58,7 +58,7 @@ Feature: Check that SearchApiTrait works
     Then I should not see "TESTPUBLISHEDARTICLE 1"
     And I should see "[MYTEST] TESTPUBLISHEDARTICLE 2"
 
-  Scenario: Assert "When I run search indexing for :count item(s)" works as expected
+  Scenario: Assert "When search indexing runs for :count item(s)" works as expected
     Given the following article content exists:
       | title                                     | moderation_state |
       | [MYTEST] INDEXTESTARTICLE1 TESTUNIQUETEXT | published        |
@@ -73,7 +73,7 @@ Feature: Check that SearchApiTrait works
     And I should not see "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
     And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
-    When I run search indexing for 1 item
+    When search indexing runs for 1 item
 
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
@@ -82,7 +82,7 @@ Feature: Check that SearchApiTrait works
     And I should not see "[MYTEST] INDEXTESTARTICLE2 TESTUNIQUETEXT"
     And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
-    When I run search indexing for 2 items
+    When search indexing runs for 2 items
 
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUETEXT"
@@ -92,11 +92,11 @@ Feature: Check that SearchApiTrait works
     And I should not see "[MYTEST] INDEXTESTARTICLE3 TESTUNIQUETEXT"
 
   @test-trait:Drupal\SearchApiTrait
-  Scenario: Assert "When I add the :content_type content with the title :title to the search index" fails when content not found
+  Scenario: Assert "When the :content_type content with the title :title is indexed" fails when content not found
     Given some behat configuration
     And scenario steps:
       """
-      When I add the "article" content with the title "Non-existent article" to the search index
+      When the "article" content with the title "Non-existent article" is indexed
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -105,11 +105,11 @@ Feature: Check that SearchApiTrait works
       """
 
   @test-trait:Drupal\SearchApiTrait
-  Scenario: Assert "When I run search indexing for :count item(s)" fails when the count is not an integer
+  Scenario: Assert "When search indexing runs for :count item(s)" fails when the count is not an integer
     Given some behat configuration
     And scenario steps:
       """
-      When I run search indexing for "all" items
+      When search indexing runs for "all" items
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -117,7 +117,7 @@ Feature: Check that SearchApiTrait works
       The count must be an integer, but "all" was given.
       """
 
-  Scenario: Assert "When I run the Search API cron" works as expected
+  Scenario: Assert "When the Search API cron runs" works as expected
     Given the following article content exists:
       | title                                    | moderation_state |
       | [MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT | published        |
@@ -130,7 +130,7 @@ Feature: Check that SearchApiTrait works
     Then I should not see "[MYTEST] CRONARTICLE1 TESTUNIQUECRONTEXT"
     And I should not see "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
 
-    When I run the Search API cron
+    When the Search API cron runs
 
     When I go to "/search"
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUECRONTEXT"
@@ -139,5 +139,5 @@ Feature: Check that SearchApiTrait works
     And I should see "[MYTEST] CRONARTICLE2 TESTUNIQUECRONTEXT"
 
   @module:!search_api_solr
-  Scenario: Assert "When I run the Search API Solr cron" is a no-op when Solr module is not enabled
-    When I run the Search API Solr cron
+  Scenario: Assert "When the Search API Solr cron runs" is a no-op when Solr module is not enabled
+    When the Search API Solr cron runs

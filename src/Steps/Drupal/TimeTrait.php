@@ -62,10 +62,12 @@ trait TimeTrait {
    *   The time value as Unix timestamp.
    *
    * @code
-   *   When I set the system time to "1737849900"
+   *   When the system time is set to "1737849900"
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I set the system time to :value')]
+  #[When('the system time is set to :value')]
   public function timeSet(string $value): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -80,10 +82,12 @@ trait TimeTrait {
    * Resets the system time to real time.
    *
    * @code
-   * When I reset the system time
+   * When the system time is reset
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I reset the system time')]
+  #[When('the system time is reset')]
   public function timeReset(): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

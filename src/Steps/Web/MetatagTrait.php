@@ -36,6 +36,8 @@ trait MetatagTrait {
    *   | name    | description          |
    *   | content | My page description  |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the meta tag should exist with the following attributes:')]
   public function metatagAssertExistsWithAttributes(TableNode $table): void {
@@ -54,6 +56,8 @@ trait MetatagTrait {
    *   | name    | nonexistent          |
    *   | content | Some content         |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the meta tag should not exist with the following attributes:')]
   public function metatagAssertNotExistsWithAttributes(TableNode $table): void {
@@ -74,6 +78,8 @@ trait MetatagTrait {
    * Then the meta tag "og:description" should not contain any HTML tags
    * Then the meta tag "description" should not contain any HTML tags
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the meta tag :name should not contain any HTML tags')]
   public function metatagAssertNotContainsHtml(string $name): void {
@@ -101,6 +107,8 @@ trait MetatagTrait {
    * Then the canonical URL should be "https://example.com/about"
    * Then the canonical URL should be "/about"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the canonical URL should be :url')]
   public function metatagAssertCanonicalEquals(string $url): void {
@@ -121,6 +129,8 @@ trait MetatagTrait {
    * @code
    * Then the canonical URL should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the canonical URL should exist')]
   public function metatagAssertCanonicalExists(): void {
@@ -137,6 +147,8 @@ trait MetatagTrait {
    * @code
    * Then the canonical URL should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the canonical URL should not exist')]
   public function metatagAssertCanonicalNotExists(): void {
@@ -156,6 +168,8 @@ trait MetatagTrait {
    * @code
    * Then the page should be indexable
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the page should be indexable')]
   public function metatagAssertIndexable(): void {
@@ -170,6 +184,8 @@ trait MetatagTrait {
    * @code
    * Then the page should not be indexable
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the page should not be indexable')]
   public function metatagAssertNotIndexable(): void {
@@ -188,6 +204,8 @@ trait MetatagTrait {
    * Then the robots meta tag should contain "noindex"
    * Then the robots meta tag should contain "nofollow"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the robots meta tag should contain :directive')]
   public function metatagAssertRobotsContains(string $directive): void {
@@ -205,6 +223,8 @@ trait MetatagTrait {
    * Then the robots meta tag should not contain "noindex"
    * Then the robots meta tag should not contain "nofollow"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the robots meta tag should not contain :directive')]
   public function metatagAssertRobotsNotContains(string $directive): void {
@@ -226,6 +246,8 @@ trait MetatagTrait {
    * @code
    * Then the hreflang alternates should be valid
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the hreflang alternates should be valid')]
   public function metatagAssertHreflangValid(): void {
@@ -241,6 +263,8 @@ trait MetatagTrait {
    * @code
    * Then the hreflang alternates should have reciprocal return links
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the hreflang alternates should have reciprocal return links')]
   public function metatagAssertHreflangReciprocal(): void {
@@ -259,6 +283,8 @@ trait MetatagTrait {
    * @code
    * Then the Open Graph tags should be valid
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the Open Graph tags should be valid')]
   public function metatagAssertOpenGraphValid(): void {
@@ -274,6 +300,8 @@ trait MetatagTrait {
    *   | og:image |
    *   | og:url   |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the following Open Graph tags should exist:')]
   public function metatagAssertOpenGraphTagsExist(TableNode $table): void {
@@ -289,6 +317,8 @@ trait MetatagTrait {
    * @code
    * Then the Twitter Card tags should be valid
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the Twitter Card tags should be valid')]
   public function metatagAssertTwitterCardValid(): void {
@@ -303,6 +333,8 @@ trait MetatagTrait {
    *   | twitter:card  |
    *   | twitter:title |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the following Twitter Card tags should exist:')]
   public function metatagAssertTwitterCardTagsExist(TableNode $table): void {

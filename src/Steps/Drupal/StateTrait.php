@@ -87,6 +87,8 @@ trait StateTrait {
    * @code
    * Given the state "my_module.launched" has the value "1"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the state :name has the value :value')]
   public function stateSet(string $name, string $value): void {
@@ -99,6 +101,8 @@ trait StateTrait {
    * @code
    * Given the state "my_module.launched" does not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the state :name does not exist')]
   public function stateDelete(string $name): void {
@@ -115,6 +119,8 @@ trait StateTrait {
    *   | my_module.launched     | 1     |
    *   | my_module.feature_flag | 0     |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following state values exist:')]
   public function stateSetMultiple(TableNode $table): void {
@@ -135,6 +141,8 @@ trait StateTrait {
    * @code
    * Then the state "my_module.launched" should have the value "1"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the state :name should have the value :value')]
   public function stateAssertValueEquals(string $name, string $value): void {
@@ -157,6 +165,8 @@ trait StateTrait {
    * @code
    * Then the state "my_module.launched" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the state :name should not exist')]
   public function stateAssertNotExists(string $name): void {

@@ -33,6 +33,8 @@ trait RegionTrait {
    * @code
    * When I follow the link "Read more" in the "content" region
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I follow the link :link in the :region region')]
   public function regionClickLink(string $link, string $region): void {
@@ -51,6 +53,8 @@ trait RegionTrait {
    * @code
    * When I press the button "Save" in the "sidebar" region
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I press the button :button in the :region region')]
   public function regionPressButton(string $button, string $region): void {
@@ -69,6 +73,8 @@ trait RegionTrait {
    * @code
    * When I fill in the field "Search" with "test" in the "header" region
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I fill in the field :field with :value in the :region region')]
   public function regionFillField(string $field, string $value, string $region): void {
@@ -81,6 +87,8 @@ trait RegionTrait {
    * @code
    * When I check the checkbox "Published" in the "content" region
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I check the checkbox :checkbox in the :region region')]
   public function regionCheckField(string $checkbox, string $region): void {
@@ -93,6 +101,8 @@ trait RegionTrait {
    * @code
    * When I uncheck the checkbox "Promoted" in the "content" region
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I uncheck the checkbox :checkbox in the :region region')]
   public function regionUncheckField(string $checkbox, string $region): void {
@@ -105,6 +115,8 @@ trait RegionTrait {
    * @code
    * Then I should see "Welcome" in the "content" region
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see :text in the :region region')]
   public function regionAssertContainsText(string $region, string $text): void {
@@ -119,6 +131,8 @@ trait RegionTrait {
    * @code
    * Then I should not see "Error" in the "content" region
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see :text in the :region region')]
   public function regionAssertNotContainsText(string $region, string $text): void {
@@ -133,6 +147,8 @@ trait RegionTrait {
    * @code
    * Then I should see the heading "Latest news" in the "sidebar" region
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the heading :heading in the :region region')]
   public function regionAssertContainsHeading(string $region, string $heading): void {
@@ -147,6 +163,8 @@ trait RegionTrait {
    * @code
    * Then I should not see the heading "Admin" in the "sidebar" region
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the heading :heading in the :region region')]
   public function regionAssertNotContainsHeading(string $region, string $heading): void {
@@ -161,6 +179,8 @@ trait RegionTrait {
    * @code
    * Then I should see the link "About us" in the "footer" region
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the link :link in the :region region')]
   public function regionAssertLinkExists(string $link, string $region): void {
@@ -175,6 +195,8 @@ trait RegionTrait {
    * @code
    * Then I should not see the link "Admin" in the "footer" region
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the link :link in the :region region')]
   public function regionAssertLinkNotExists(string $link, string $region): void {
@@ -189,6 +211,8 @@ trait RegionTrait {
    * @code
    * Then I should see the button "Save" in the "content" region
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the button :button in the :region region')]
   public function regionAssertButtonExists(string $button, string $region): void {
@@ -203,6 +227,8 @@ trait RegionTrait {
    * @code
    * Then I should not see the button "Delete" in the "content" region
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the button :button in the :region region')]
   public function regionAssertButtonNotExists(string $button, string $region): void {
@@ -217,6 +243,8 @@ trait RegionTrait {
    * @code
    * Then the element "blockquote" in the "content" region should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector in the :region region should exist')]
   public function regionAssertElementExists(string $selector, string $region): void {
@@ -231,6 +259,8 @@ trait RegionTrait {
    * @code
    * Then the element "blockquote" in the "content" region should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector in the :region region should not exist')]
   public function regionAssertElementNotExists(string $selector, string $region): void {
@@ -245,6 +275,8 @@ trait RegionTrait {
    * @code
    * Then the element "h2" in the "content" region should have the value "News"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector in the :region region should have the value :value')]
   public function regionAssertElementEquals(string $selector, string $region, string $value): void {
@@ -257,6 +289,8 @@ trait RegionTrait {
    * @code
    * Then the element "h2" in the "content" region should not have the value "News"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector in the :region region should not have the value :value')]
   public function regionAssertElementNotEquals(string $selector, string $region, string $value): void {
@@ -271,6 +305,8 @@ trait RegionTrait {
    * @code
    * Then the element "img" in the "content" region should have the attribute "alt" with the value "Logo"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector in the :region region should have the attribute :attribute with the value :value')]
   public function regionAssertElementAttributeEquals(string $selector, string $region, string $attribute, string $value): void {
@@ -287,6 +323,8 @@ trait RegionTrait {
    * @code
    * Then the element "a" with the text "Home" in the "header" region should have the attribute "href" with the value "/"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the element :selector with the text :text in the :region region should have the attribute :attribute with the value :value')]
   public function regionAssertElementAttributeEqualsWithText(string $selector, string $text, string $region, string $attribute, string $value): void {
@@ -304,6 +342,7 @@ trait RegionTrait {
    * Then the element "span" with the text "New" in the "content" region should have the CSS property "color" with the value "rgb(255, 0, 0)"
    * @endcode
    *
+   * @actor:system
    * @javascript
    */
   #[Then('the element :selector with the text :text in the :region region should have the CSS property :property with the value :value')]

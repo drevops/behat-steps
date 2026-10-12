@@ -31,6 +31,8 @@ trait LinkTrait {
    * @code
    * When I follow the link with the title "Return to site content"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I follow the link with the title :title')]
   public function linkClickWithTitle(string $title): void {
@@ -52,6 +54,8 @@ trait LinkTrait {
    * @code
    * Then I should see the link "About us"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the link :link')]
   public function linkAssertExists(string $link): void {
@@ -66,6 +70,8 @@ trait LinkTrait {
    * @code
    * Then I should not see the link "Admin"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the link :link')]
   public function linkAssertNotExists(string $link): void {
@@ -83,6 +89,8 @@ trait LinkTrait {
    * Then the link "About us" with the href "/about-us" should exist
    * Then the link "About us" with the href "/about*" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link with the href :href should exist')]
   public function linkAssertExistsWithHref(string $link, string $href): void {
@@ -98,6 +106,8 @@ trait LinkTrait {
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
    * Then the link "About us" with the href "/about*" within the element ".main-nav" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link with the href :href within the element :selector should exist')]
   public function linkAssertExistsWithHrefWithinElement(string $link, string $href, string $selector): void {
@@ -113,6 +123,8 @@ trait LinkTrait {
    * Then the link "About us" with the href "/about-us" should not exist
    * Then the link "About us" with the href "/about*" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link with the href :href should not exist')]
   public function linkAssertNotExistsWithHref(string $link, string $href): void {
@@ -128,6 +140,8 @@ trait LinkTrait {
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
    * Then the link "About us" with the href "/about*" within the element ".main-nav" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link with the href :href within the element :selector should not exist')]
   public function linkAssertNotExistsWithHrefWithinElement(string $link, string $href, string $selector): void {
@@ -140,6 +154,8 @@ trait LinkTrait {
    * @code
    * Then the link with the title "Return to site content" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link with the title :title should exist')]
   public function linkAssertExistsWithTitle(string $title): void {
@@ -158,6 +174,8 @@ trait LinkTrait {
    * @code
    * Then the link with the title "Some non-existing title" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link with the title :title should not exist')]
   public function linkAssertNotExistsWithTitle(string $title): void {
@@ -176,6 +194,8 @@ trait LinkTrait {
    * @code
    * Then the link "my-link-title" should be an absolute link
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link should be an absolute link')]
   public function linkAssertAbsolute(string $link): void {
@@ -198,6 +218,8 @@ trait LinkTrait {
    * @code
    * Then the link "Return to site content" should not be an absolute link
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link should not be an absolute link')]
   public function linkAssertNotAbsolute(string $link): void {

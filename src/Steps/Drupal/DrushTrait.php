@@ -35,6 +35,8 @@ trait DrushTrait {
    * @code
    * When I run the drush command "status"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I run the drush command :command')]
   public function drushRun(string $command): void {
@@ -51,6 +53,8 @@ trait DrushTrait {
    * When I run the drush command "pm:list" with the arguments "--status=enabled"
    * When I run the drush command "config:get" with the arguments "system.site uuid"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I run the drush command :command with the arguments :arguments')]
   public function drushRunWithArguments(string $command, string $arguments): void {
@@ -67,6 +71,8 @@ trait DrushTrait {
    * @code
    * When I run the failing drush command "pm:uninstall no_such_module"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I run the failing drush command :command')]
   public function drushRunFailing(string $command): void {
@@ -79,6 +85,8 @@ trait DrushTrait {
    * @code
    * When I run the failing drush command "pm:uninstall" with the arguments "no_such_module"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I run the failing drush command :command with the arguments :arguments')]
   public function drushRunFailingWithArguments(string $command, string $arguments): void {
@@ -91,6 +99,8 @@ trait DrushTrait {
    * @code
    * When I print the last drush output
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I print the last drush output')]
   public function drushPrintOutput(): void {
@@ -103,6 +113,8 @@ trait DrushTrait {
    * @code
    * Then the drush output should contain "Drupal version"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the drush output should contain :text')]
   public function drushAssertOutputContains(string $text): void {
@@ -117,6 +129,8 @@ trait DrushTrait {
    * @code
    * Then the drush output should not contain "error"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the drush output should not contain :text')]
   public function drushAssertOutputNotContains(string $text): void {
@@ -131,6 +145,8 @@ trait DrushTrait {
    * @code
    * Then the drush output should match "/Drupal [0-9]+/"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the drush output should match :pattern')]
   public function drushAssertOutputMatches(string $pattern): void {

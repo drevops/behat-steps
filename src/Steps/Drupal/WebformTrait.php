@@ -35,6 +35,8 @@ trait WebformTrait {
    * @code
    *   Given the webform "Test form" does not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the webform :title does not exist')]
   public function webformDelete(string $title): void {
@@ -64,6 +66,8 @@ trait WebformTrait {
    * @code
    *   Given the webform "My contact form" has been created from the template "Contact"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the webform :title has been created from the template :template')]
   public function webformCloneTemplate(string $title, string $template): void {

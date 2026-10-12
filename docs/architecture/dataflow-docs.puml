@@ -49,20 +49,23 @@ activate Extract
 Extract -> Extract: vocabulary: public methods prefixed with\nthe trait name that carry a step attribute
 Extract -> Extract: toolbox: the other public methods the trait's\nown file declares, minus hooks, transformations\nand anything @internal
 Extract -> Extract: add TOOLBOX_CLASSES, whose own public\nmethods carry no trait-name prefix
-Extract -> Extract: parse each docblock for the description\nand the @code example, following\n{@inheritdoc} to its declaration
+Extract -> Extract: parse each docblock for the description,\nthe @code example and the @actor tag,\nfollowing {@inheritdoc} to its declaration
 Extract -> Extract: read each trait's option and prerequisite\ndeclarations through ConfigSchemaReader and\nPrerequisiteReader, the readers the runtime uses
 Extract --> Main: step info and helper info
 note right of Extract
   A malformed declaration throws the
-  runtime's own message, so it fails
-  generation instead of being documented.
+  runtime's own message, and a step with
+  no @actor tag throws too, so either
+  fails generation instead of being
+  documented.
 end note
 deactivate Extract
 
 Main -> Validate: validate the vocabulary, the toolbox,\nthe tags and the environment
 activate Validate
 note right of Validate
-  When opens with "I ", Then needs
+  A person step opens with "I " and a
+  system step does not, Then needs
   "should" and an Assert method name,
   a table Given names "the following",
   a placeholder is a descriptive

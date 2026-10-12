@@ -216,22 +216,22 @@ Feature: Check that ElementTrait works
   Scenario: Assert trigger event on element
     Given I visit "http://cli:8888/elements_relative.html"
     Then I should not see an ".overlay-visible" element
-    When I trigger the JS event "click" on the element "#overlay-off-canvas-trigger"
+    When the JS event "click" is triggered on the element "#overlay-off-canvas-trigger"
     Then I should see an ".overlay-visible" element
 
   @javascript @phpserver
-  Scenario: Assert "Given confirmation dialogs are accepted" works
+  Scenario: Assert "Given I accept all confirmation dialogs" works
     Given I visit "http://cli:8888/elements_relative.html"
-    And confirmation dialogs are accepted
+    And I accept all confirmation dialogs
     Then I should see the button "Test confirm"
     And I should not see the button "You pressed OK!"
     When I press "Test confirm"
     Then I should see the button "You pressed OK!"
 
   @javascript @phpserver
-  Scenario: Assert "Given confirmation dialogs are declined" works
+  Scenario: Assert "Given I decline all confirmation dialogs" works
     Given I visit "http://cli:8888/elements_relative.html"
-    And confirmation dialogs are declined
+    And I decline all confirmation dialogs
     Then I should see the button "Test confirm"
     And I should not see the button "You canceled!"
     When I press "Test confirm"
@@ -257,7 +257,7 @@ Feature: Check that ElementTrait works
     Then the element "button[data-action='save']" should be centered in the viewport
     When I scroll to the element "button[data-action='delete']"
     Then the element "button[data-action='delete']" should be centered in the viewport
-    When I trigger the JS event "click" on the element "button[data-action='edit']"
+    When the JS event "click" is triggered on the element "button[data-action='edit']"
 
   @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed" succeeds as expected

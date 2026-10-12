@@ -26,6 +26,8 @@ trait KeyboardTrait {
    * When I press the key "a"
    * When I press the key "tab"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I press the key :key')]
   public function keyboardPressKey(string $key): void {
@@ -39,6 +41,8 @@ trait KeyboardTrait {
    * When I press the key "a" on the element "#edit-title"
    * When I press the key "tab" on the element "#edit-title"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I press the key :key on the element :selector')]
   public function keyboardPressKeyOnElement(string $key, string $selector): void {
@@ -51,6 +55,8 @@ trait KeyboardTrait {
    * @code
    * When I press the keys "abc"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I press the keys :keys')]
   public function keyboardPressKeys(string $keys): void {
@@ -63,6 +69,8 @@ trait KeyboardTrait {
    * @code
    * When I press the keys "abc" on the element "#edit-title"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I press the keys :keys on the element :selector')]
   public function keyboardPressKeysOnElement(string $keys, string $selector): void {

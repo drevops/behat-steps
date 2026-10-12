@@ -78,7 +78,7 @@ Step wording is mostly a guide held in review. Its 2 goals are that every step r
   - Use `with` for properties: `Then the link with the title :title should exist`
   - Avoid optional words like `(the|a)`, except the `(s)` plural token, which a noun agreeing with a count or a comma-separated list in 1 argument keeps: `:count row(s)`, `the :roles role(s)`
   - Omit suffixes that add nothing, such as `on the page` or `assigned`
-  - Read like Mink: first person for what the person does and sees, and a bare value after a verb (`I should see "Welcome"`, `I fill in "Title" with "Launch"`)
+  - Read like Mink: a value after a verb reads bare (`I should see "Welcome"`, `I fill in "Title" with "Launch"`); whether a step says "I" follows from its actor
   - When 2 wordings follow these rules equally well, keep the one the step already has; a rename costs each project an edit in its features and a row in `MIGRATION.md`, so it has to make the vocabulary more consistent or more readable
   - Method names should begin with the trait name: `userAssertHasRoles()`
 
@@ -109,25 +109,31 @@ Step wording is mostly a guide held in review. Its 2 goals are that every step r
   - A second `with` qualifier on an action repeats `With` in the method name, in step-text order: `emailFollowLinkWithIndexWithSubjectContaining()`
   - "Nothing in this set matched" reads `no <plural>`: `no emails should have been sent`. A claim about 1 named thing negates with `should not`
 
+- **Actor**: every step method's docblock carries `@actor:person` or `@actor:system` on its own line after the last `@endcode`, a blank line before it and next to `@javascript` where present
+  - `person`: a person does or observes the step through something they operate - the browser, or a terminal or HTTP client they type into - so it reads in the first person: `Given I am logged in as the user :name`, `When I run the drush command :command`, `Then I should see :text in the modal`
+  - `system`: the site, its data or the test set-up acts or is checked, nobody operates anything, so the step names its subject: `Given the :module module is enabled`, `When cron runs`, `Then the :queue queue should be empty`
+  - Interactivity decides, not where the step runs: `the element :selector should exist` runs in the browser but is `system`; `I run the drush command :command` goes through Drush but is `person`
+  - `docs.php` throws a `\RuntimeException` naming the method for a step with no tag, an unknown value or 2 tags
+
 - **Given Steps**:
-  - Define test prerequisites
-  - State a fact, about the world or about the person: `the :module module is enabled`, `I am logged in as a user with the :roles role(s)`. A fact about the person opens with `I am`
+  - Set up what the scenario starts from: the step does the work (creates content, enables a module, logs in) and its wording names the result
+  - Read as a state of the site or of the person, as the actor says: `the :module module is enabled`, `I am logged in as a user with the :roles role(s)`, `I accept all confirmation dialogs`
   - Use words like `exists`, `have` or `is`; a precondition that is an event already done takes the perfect tense: `the cache has been cleared`
-  - Never narrate an action, which is a When's job, and avoid `should` or `should not`
+  - Never narrate a single action, which is a When's job, and avoid `should` or `should not`
 
 - **When Steps**:
-  - Describe an action with an action verb
-  - Use the format `When I <verb>`
+  - Describe the action or the event the scenario is about
+  - A person's action reads `When I <verb>`; an event the site runs on its own names it: `When cron runs`, `When the :queue queue is processed`
 
 - **Then Steps**:
   - Specify assertions and expectations with `should` and `should not`
-  - A check on what a person reads on the page, found by its text, reads `I should see ...`: messages, text, headings, buttons, links and the modal, on the page or in a region, a row or the modal
-  - Any other assertion starts with the entity being asserted: a target named by a selector, a property, a form control's state, or something off the page, as in `the :queue queue should be empty`
+  - A check on what a person reads on the page, found by its text, is `person` and reads `I should see ...`: messages, text, headings, buttons, links and the modal, on the page or in a region, a row or the modal
+  - Any other assertion is `system` and starts with the entity being asserted: a target named by a selector, a property, a form control's state, or something off the page, as in `the :queue queue should be empty`
   - An assertion about an event already done takes the perfect tense: `an email should have been sent to the address :address`
   - A qualifier that narrows the asserted entity reads with it, before `should`: `the element :selector in the :region region should exist`. A qualifier of the predicate's object stays with it (`should match the XSD schema in the file :filename`), and a table or PyString argument still comes last: `the meta tag should exist with the following attributes:`
   - Methods should include the `Assert` prefix
 
-- **Checked by `ahoy lint-docs`**: 1 step per method; an example matching its own step and no other; a table `Given` without `the following`; a `When` not opening with `I `; a `Then` without `should`, without `the`, `a`, `an` or `no`, or from a method without `Assert` or with `Should`; a qualifier ending a `Then` after `exist` or `be <state>`; a placeholder that isn't `snake_case`, is named in `docs.php`'s `non_descriptive_placeholders()` or `placeholder_synonyms()`, follows `containing` without the `partial_` prefix, or opens the step; `:text` compared against a named target; the phrases in `rejected_step_phrases()`; and an `I visit` step that names its destination in words but no page or link
+- **Checked by `ahoy lint-docs`**: 1 step per method; an example matching its own step and no other; a `person` step not opening with `I ` and a `system` step opening with it; a table `Given` without `the following`; a `Then` without `should`, without `the`, `a`, `an` or `no`, or from a method without `Assert` or with `Should`; a qualifier ending a `Then` after `exist` or `be <state>`; a placeholder that isn't `snake_case`, is named in `docs.php`'s `non_descriptive_placeholders()` or `placeholder_synonyms()`, follows `containing` without the `partial_` prefix, or opens the step; `:text` compared against a named target; the phrases in `rejected_step_phrases()`; and an `I visit` step that names its destination in words but no page or link
 
 ## Exception Types
 
@@ -162,8 +168,8 @@ In `@test-trait:` scenarios, `Then it should fail with an error:` asserts an ass
   - `I visit the "..." content block edit page with the description "..."`
 
 - Email testing:
-  - `I enable the test email system`
-  - `I clear the test email system queue`
+  - `the test email system is enabled`
+  - `the test email system queue is cleared`
   - `an email should have been sent to the address "..."`
 
 ## Skipping Trait Hooks

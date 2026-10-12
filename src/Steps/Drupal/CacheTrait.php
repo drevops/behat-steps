@@ -33,6 +33,8 @@ trait CacheTrait {
    * @code
    * Given the cache has been cleared
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the cache has been cleared')]
   public function cacheClearAll(): void {
@@ -52,6 +54,8 @@ trait CacheTrait {
    * @code
    * Given the page cache for the path "/about" has been cleared
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the page cache for the path :path has been cleared')]
   public function cacheClearPagePath(string $path): void {
@@ -72,6 +76,8 @@ trait CacheTrait {
    * @code
    * Given the page cache for the paths matching "/news*" has been cleared
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the page cache for the paths matching :path_pattern has been cleared')]
   public function cacheClearPagePathWildcard(string $path_pattern): void {
@@ -84,6 +90,8 @@ trait CacheTrait {
    * @code
    * Given the render cache has been cleared
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the render cache has been cleared')]
   public function cacheClearRender(): void {
@@ -96,10 +104,12 @@ trait CacheTrait {
    * Run cron.
    *
    * @code
-   * When I run cron
+   * When cron runs
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I run cron')]
+  #[When('cron runs')]
   public function cacheRunCron(): void {
     if (!$this->backendFor(CronCapabilityInterface::class)->cronRun()) {
       throw new \RuntimeException('Cron did not run. Another cron run may still hold the lock.');

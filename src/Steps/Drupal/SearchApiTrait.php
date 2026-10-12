@@ -37,10 +37,12 @@ trait SearchApiTrait {
    * queued. The step fails when no active search index includes the node.
    *
    * @code
-   * When I add the "article" content with the title "Test Article" to the search index
+   * When the "article" content with the title "Test Article" is indexed
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I add the :content_type content with the title :title to the search index')]
+  #[When('the :content_type content with the title :title is indexed')]
   public function searchApiIndexContent(string $content_type, string $title): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -59,11 +61,13 @@ trait SearchApiTrait {
    * Run indexing for a specific number of items.
    *
    * @code
-   * When I run search indexing for 5 items
-   * When I run search indexing for 1 item
+   * When search indexing runs for 5 items
+   * When search indexing runs for 1 item
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I run search indexing for :count item(s)')]
+  #[When('search indexing runs for :count item(s)')]
   public function searchApiRunIndexing(string $count): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -76,10 +80,12 @@ trait SearchApiTrait {
    * Run the Search API module cron hook.
    *
    * @code
-   * When I run the Search API cron
+   * When the Search API cron runs
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I run the Search API cron')]
+  #[When('the Search API cron runs')]
   public function searchApiRunCron(): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -95,10 +101,12 @@ trait SearchApiTrait {
    * requires `search_api` to be enabled.
    *
    * @code
-   * When I run the Search API Solr cron
+   * When the Search API Solr cron runs
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I run the Search API Solr cron')]
+  #[When('the Search API Solr cron runs')]
   public function searchApiRunSolrCron(): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

@@ -80,6 +80,8 @@ trait XmlTrait {
    * @code
    * Given the response XML is loaded from the file "xml_valid.xml"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the response XML is loaded from the file :filename')]
   public function xmlSetContentFromFile(string $filename): void {
@@ -98,6 +100,8 @@ trait XmlTrait {
    *   <?xml version="1.0"?><root><item>value</item></root>
    *   """
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the response XML is the following:')]
   public function xmlSetContent(PyStringNode $content): void {
@@ -111,6 +115,8 @@ trait XmlTrait {
    * @code
    * When I print the last XML response
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I print the last XML response')]
   public function xmlPrintLastResponse(): void {
@@ -136,6 +142,8 @@ trait XmlTrait {
    * Given the response XML is loaded from the file "xml_valid.xml"
    * Then the response should be in XML format
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should be in XML format')]
   public function xmlAssertResponseXml(): void {
@@ -156,6 +164,8 @@ trait XmlTrait {
    * Given the response XML is loaded from the file "xml_invalid.xml"
    * Then the response should not be in XML format
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should not be in XML format')]
   public function xmlAssertResponseNotXml(): void {
@@ -173,6 +183,8 @@ trait XmlTrait {
    * Then the XML element "//book" should exist
    * Then the XML element "/library/book[@id='123']" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML element :element should exist')]
   public function xmlAssertElementExists(string $element): void {
@@ -192,6 +204,8 @@ trait XmlTrait {
    * Then the XML element "//nonexistent" should not exist
    * Then the XML element "/library/book[@id='999']" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML element :element should not exist')]
   public function xmlAssertElementNotExists(string $element): void {
@@ -211,6 +225,8 @@ trait XmlTrait {
    * Then the XML element "//title" should be equal to "The Great Adventure"
    * Then the XML element "/library/book[1]/author" should be equal to "John Doe"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML element :element should be equal to :value')]
   public function xmlAssertElementEquals(string $element, string $value): void {
@@ -230,6 +246,8 @@ trait XmlTrait {
    * Then the XML element "//title" should not be equal to "Wrong Title"
    * Then the XML element "/library/book[1]/author" should not be equal to "Wrong Author"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML element :element should not be equal to :value')]
   public function xmlAssertElementNotEquals(string $element, string $value): void {
@@ -249,6 +267,8 @@ trait XmlTrait {
    * Then the XML element "//description" should contain "sample book"
    * Then the XML element "/library/book[1]/description" should contain "detailed"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML element :element should contain :value')]
   public function xmlAssertElementContains(string $element, string $value): void {
@@ -268,6 +288,8 @@ trait XmlTrait {
    * Then the XML element "//description" should not contain "nonexistent"
    * Then the XML element "/library/book[1]/title" should not contain "wrong"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML element :element should not contain :value')]
   public function xmlAssertElementNotContains(string $element, string $value): void {
@@ -287,6 +309,8 @@ trait XmlTrait {
    * Then the XML attribute "id" on the element "//book" should exist
    * Then the XML attribute "category" on the element "/library/book[1]" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML attribute :attribute on the element :element should exist')]
   public function xmlAssertAttributeExists(string $attribute, string $element): void {
@@ -304,6 +328,8 @@ trait XmlTrait {
    * Then the XML attribute "nonexistent" on the element "//book" should not exist
    * Then the XML attribute "missing" on the element "/library/book[1]" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML attribute :attribute on the element :element should not exist')]
   public function xmlAssertAttributeNotExists(string $attribute, string $element): void {
@@ -321,6 +347,8 @@ trait XmlTrait {
    * Then the XML attribute "id" on the element "//book" should be equal to "123"
    * Then the XML attribute "category" on the element "/library/book[1]" should be equal to "fiction"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML attribute :attribute on the element :element should be equal to :value')]
   public function xmlAssertAttributeEquals(string $attribute, string $element, string $value): void {
@@ -344,6 +372,8 @@ trait XmlTrait {
    * Then the XML attribute "id" on the element "//book" should not be equal to "999"
    * Then the XML attribute "category" on the element "/library/book[1]" should not be equal to "science"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML attribute :attribute on the element :element should not be equal to :value')]
   public function xmlAssertAttributeNotEquals(string $attribute, string $element, string $value): void {
@@ -367,6 +397,8 @@ trait XmlTrait {
    * Then the XML attribute "category" on the element "//book" should contain "fic"
    * Then the XML attribute "id" on the element "/library/book[1]" should contain "12"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML attribute :attribute on the element :element should contain :value')]
   public function xmlAssertAttributeContains(string $attribute, string $element, string $value): void {
@@ -390,6 +422,8 @@ trait XmlTrait {
    * Then the XML attribute "category" on the element "//book" should not contain "science"
    * Then the XML attribute "id" on the element "/library/book[1]" should not contain "999"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML attribute :attribute on the element :element should not contain :value')]
   public function xmlAssertAttributeNotContains(string $attribute, string $element, string $value): void {
@@ -413,6 +447,8 @@ trait XmlTrait {
    * Then the XML element "//library" should have "3" elements
    * Then the XML element "/library" should have "3" elements
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML element :element should have :count element(s)')]
   public function xmlAssertElementCount(string $element, string $count): void {
@@ -431,6 +467,8 @@ trait XmlTrait {
    * @code
    * Then the XML should use the namespace "http://example.com/custom"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML should use the namespace :namespace')]
   public function xmlAssertNamespaceExists(string $namespace): void {
@@ -449,6 +487,8 @@ trait XmlTrait {
    * @code
    * Then the XML should not use the namespace "http://example.com/nonexistent"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the XML should not use the namespace :namespace')]
   public function xmlAssertNamespaceNotExists(string $namespace): void {
@@ -473,6 +513,8 @@ trait XmlTrait {
    *   </xs:schema>
    *   """
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should match the following XSD schema:')]
   public function xmlAssertMatchesXsd(PyStringNode $schema): void {
@@ -485,6 +527,8 @@ trait XmlTrait {
    * @code
    * Then the response should match the XSD schema in the file "xml_schema.xsd"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should match the XSD schema in the file :filename')]
   public function xmlAssertMatchesXsdFromFile(string $filename): void {
@@ -503,6 +547,8 @@ trait XmlTrait {
    *   <!ELEMENT note (#PCDATA)>
    *   """
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should match the following DTD:')]
   public function xmlAssertMatchesDtd(PyStringNode $dtd): void {
@@ -518,6 +564,8 @@ trait XmlTrait {
    * @code
    * Then the response should match the DTD in the file "xml_schema.dtd"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should match the DTD in the file :filename')]
   public function xmlAssertMatchesDtdFromFile(string $filename): void {
@@ -535,6 +583,8 @@ trait XmlTrait {
    *   </element>
    *   """
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should match the following RelaxNG schema:')]
   public function xmlAssertMatchesRelaxNg(PyStringNode $schema): void {
@@ -547,6 +597,8 @@ trait XmlTrait {
    * @code
    * Then the response should match the RelaxNG schema in the file "xml_schema.rng"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should match the RelaxNG schema in the file :filename')]
   public function xmlAssertMatchesRelaxNgFromFile(string $filename): void {
@@ -563,6 +615,8 @@ trait XmlTrait {
    * @code
    * Then the response should be a valid RSS feed
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should be a valid RSS feed')]
   public function xmlAssertRssFeedValid(): void {
@@ -590,6 +644,8 @@ trait XmlTrait {
    * @code
    * Then the response should be a valid Atom feed
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should be a valid Atom feed')]
   public function xmlAssertAtomFeedValid(): void {

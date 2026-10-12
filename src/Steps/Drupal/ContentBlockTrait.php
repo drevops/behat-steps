@@ -43,6 +43,8 @@ trait ContentBlockTrait {
    *   | [TEST] Contact Form  |
    * @endcode
    *
+   * @actor:system
+   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the entity cannot be deleted.
    */
@@ -78,6 +80,8 @@ trait ContentBlockTrait {
    *     | [TEST] Footer Contact | 1      | Call us at 555-1234    |
    *     | [TEST] Copyright      | 1      | © 2023 Example Company |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following :content_block_type content blocks exist:')]
   public function contentBlockCreateMultiple(string $content_block_type, TableNode $content_block_table): void {
@@ -103,6 +107,8 @@ trait ContentBlockTrait {
    *     | body   | First block content   | Second block content  |
    *     | status | 1                     | 1                     |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following :content_block_type content blocks with fields exist:')]
   public function contentBlockCreateMultipleWithFields(string $content_block_type, TableNode $table): void {
@@ -119,6 +125,8 @@ trait ContentBlockTrait {
    * @code
    * When I visit the "basic" content block edit page with the description "[TEST] Footer Block"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :content_block_type content block edit page with the description :description')]
   public function contentBlockVisitEditPageWithDescription(string $content_block_type, string $description): void {
@@ -133,6 +141,8 @@ trait ContentBlockTrait {
    * @code
    * Then the "Search" content block type should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the :content_block_type content block type should exist')]
   public function contentBlockAssertTypeExists(string $content_block_type): void {

@@ -93,6 +93,8 @@ trait FileTrait {
    *   | document.pdf | public://document.pdf  | 1      |
    *   | image.jpg    | public://images/pic.jpg| 1      |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following managed files exist:')]
   public function fileCreateManagedMultiple(TableNode $table): void {
@@ -126,6 +128,8 @@ trait FileTrait {
    *   | public://myfile.jpg    |
    *   | public://otherfile.jpg |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following managed files do not exist:')]
   public function fileDeleteManagedMultiple(TableNode $table): void {
@@ -150,6 +154,8 @@ trait FileTrait {
    * @code
    * Given the unmanaged file at the URI "public://sample.txt" exists
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the unmanaged file at the URI :uri exists')]
   public function fileCreateUnmanaged(string $uri): void {
@@ -162,6 +168,8 @@ trait FileTrait {
    * @code
    * Given the unmanaged file at the URI "public://data.txt" exists with the content "Sample content"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the unmanaged file at the URI :uri exists with the content :content')]
   public function fileCreateUnmanagedWithContent(string $uri, string $content): void {
@@ -174,6 +182,8 @@ trait FileTrait {
    * @code
    * Then the unmanaged file at the URI "public://sample.txt" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the unmanaged file at the URI :uri should exist')]
   public function fileAssertUnmanagedExists(string $uri): void {
@@ -190,6 +200,8 @@ trait FileTrait {
    * @code
    * Then the unmanaged file at the URI "public://temp.txt" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the unmanaged file at the URI :uri should not exist')]
   public function fileAssertUnmanagedNotExists(string $uri): void {
@@ -206,6 +218,8 @@ trait FileTrait {
    * @code
    * Then the unmanaged file at the URI "public://config.txt" should contain "debug=true"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the unmanaged file at the URI :uri should contain :content')]
   public function fileAssertUnmanagedContains(string $uri, string $content): void {
@@ -222,6 +236,8 @@ trait FileTrait {
    * @code
    * Then the unmanaged file at the URI "public://config.txt" should not contain "debug=false"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the unmanaged file at the URI :uri should not contain :content')]
   public function fileAssertUnmanagedNotContains(string $uri, string $content): void {

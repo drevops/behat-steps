@@ -302,6 +302,8 @@ trait AccessibilityTrait {
    * @code
    * Then the page should pass accessibility checks
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the page should pass accessibility checks')]
   public function accessibilityAssertCurrentPagePasses(): void {
@@ -316,6 +318,8 @@ trait AccessibilityTrait {
    * @code
    * Then the page should pass accessibility checks for the tags "wcag2a"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the page should pass accessibility checks for the tags :tags')]
   public function accessibilityAssertCurrentPagePassesForTags(string $tags): void {

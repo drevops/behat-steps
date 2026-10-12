@@ -41,6 +41,7 @@ trait DropzoneTrait {
    * When I drop the file "document.pdf" on the dropzone ".dropzone"
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I drop the file :filename on the dropzone :selector')]
@@ -60,6 +61,7 @@ trait DropzoneTrait {
    *   | text.txt     |
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I drop the following files on the dropzone :selector:')]

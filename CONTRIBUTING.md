@@ -15,7 +15,7 @@ A step is a sentence a person reads in a feature file, right next to Mink's own 
   - For anything identified by a property, use `with`: <code>Then the link <b>with</b> the title :title should exist</code>
   - Avoid optional words like `(the|a)`. Provide a single form instead to ensure consistency. The `(s)` plural token is the exception: a step whose noun agrees with a count or a comma-separated list in 1 argument keeps it, as in `:count row(s)` and `the :roles role(s)`, so both forms read naturally.
   - Omit suffixes that add nothing, such as `on the page` or `assigned`: `the user :name should have the :roles role(s)`.
-  - Read like Mink: first person for what the person does and sees, and a bare value after a verb, as in `I should see "Welcome"` and `I fill in "Title" with "Launch"`.
+  - Read like Mink: a value after a verb reads bare, as in `I should see "Welcome"` and `I fill in "Title" with "Launch"`. Whether a step says "I" follows from its actor, below.
   - When 2 wordings follow these rules equally well, keep the one the step already has. A rename costs each project an edit in its feature files and a row in [MIGRATION.md](MIGRATION.md), so it has to make the vocabulary more consistent or more readable.
   - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it for methods and `tests/phpunit/src/PublicSurfaceTest.php` for constants, which carry the prefix in upper snake case. Review holds properties to it.
 
@@ -42,22 +42,42 @@ A step is a sentence a person reads in a feature file, right next to Mink's own 
   - "Nothing in this set matched" reads `no <plural>`: `no emails should have been sent`. A claim about 1 named or described thing negates with `should not`: `the block :label should not exist`.
   - `ahoy lint-docs` rejects the replaced phrases listed in `docs.php`'s `rejected_step_phrases()`, and an `I visit` step that names its destination in words but no page or link (`I visit :path` is exempt).
 
+- **Actor**: every step declares who acts in it with an `@actor:person` or `@actor:system` tag in its docblock, and its wording follows from the tag.
+  - `person`: a person does or observes the step through something they operate - the browser, or a terminal or an HTTP client they type into. The step reads in the first person: `Given I am logged in as the user :name`, `When I press the button :button`, `When I run the drush command :command`, `Then I should see the success message :message`.
+  - `system`: the site, its data or the test set-up acts or is checked, and nobody operates anything. The step names its subject instead: `Given the :module module is enabled`, `When cron runs`, `When the :queue queue is processed`, `Then the :queue queue should be empty`.
+  - The test is interactivity, not where the step runs. `the element :selector should exist` runs in the browser, but nobody operates an element by its selector, so it is `system`. `When I run the drush command :command` reaches the site through Drush, but a person types the command, so it is `person`.
+  - The tag sits on its own line after the last `@endcode`, with a blank line before it, alongside `@javascript` where a step has one:
+
+    ```php
+    /**
+     * Process all items from a queue.
+     *
+     * @code
+     * When the "default" queue is processed
+     * @endcode
+     *
+     * @actor:system
+     */
+    ```
+
+  - `docs.php` throws a `\RuntimeException` naming the method when a step has no tag, an unknown value or 2 tags, and `ahoy lint-docs` rejects a `person` step that does not start with `I ` and a `system` step that does.
+
 - **`Given`**:
-  - Defines test prerequisites - conditions or data that must exist before the test runs.
+  - Sets up what the scenario starts from: the step does the work, such as creating content, enabling a module or logging in, and its wording names the result.
   - Names a table it takes with `the following`, which `ahoy lint-docs` checks.
-  - States a fact, about the world or about the person: `the :module module is enabled`, `I am logged in as a user with the :roles role(s)`. A fact about the person opens with `I am`.
+  - Reads as a state of the site or of the person, as its actor says: `the :module module is enabled`, `I am logged in as a user with the :roles role(s)`, `I accept all confirmation dialogs`.
   - Uses words like `exists`, `have` and `is`. A precondition that is an event already done takes the perfect tense: `the cache has been cleared`.
-  - Never narrates an action, which is a `When`'s job, so there's no `Given I click ...`.
+  - Never narrates a single action, which is a `When`'s job, so there's no `Given I click ...`.
   - Avoids `should` and `should not`, which are reserved for assertions.
 
 - **`When`**:
-  - Describes an action and contains an action verb.
-  - Uses the format `When I <verb>`, which `ahoy lint-docs` checks.
+  - Describes the action or the event the scenario is about.
+  - A person's action reads `When I <verb>`: `When I press the button :button`. An event the site runs on its own names it: `When cron runs`, `When the :queue queue is processed`.
 
 - **`Then`**:
   - Specifies an assertion with `should` or `should not`.
-  - A check on what a person reads on the page, found by its text, reads `I should see ...` or `I should not see ...`: messages, text, headings, buttons, links and the modal, on the page or in a region, a row or the modal. `Then I should see the success message :message`, `Then I should see :text in the modal`, `Then I should see the text :text1 after the text :text2`.
-  - Any other assertion starts with the entity it asserts on: a target named by a selector, a property such as an href or a CSS value, a form control's state, or something off the page such as config, a queue, an email or a response. `Then the link with the title :title should exist`, `Then the :queue queue should be empty`.
+  - A check on what a person reads on the page, found by its text, is `person` and reads `I should see ...` or `I should not see ...`: messages, text, headings, buttons, links and the modal, on the page or in a region, a row or the modal. `Then I should see the success message :message`, `Then I should see :text in the modal`, `Then I should see the text :text1 after the text :text2`.
+  - Any other assertion is `system` and starts with the entity it asserts on: a target named by a selector, a property such as an href or a CSS value, a form control's state, or something off the page such as config, a queue, an email or a response. `Then the link with the title :title should exist`, `Then the :queue queue should be empty`.
   - An assertion about an event already done takes the perfect tense: `an email should have been sent to the address :address`, `no emails should have been sent`.
   - A qualifier that narrows the entity, such as `in the :region region`, `within the select :selector` or `on the element :element`, reads with it, before `should`: `the element :selector in the :region region should exist`, not `the element :selector should exist in the :region region`. A qualifier of the predicate's own object stays with the object, as in `the response should match the XSD schema in the file :filename`, and a step that takes a table or a PyString still names it last: `the meta tag should exist with the following attributes:`. `ahoy lint-docs` rejects a qualifier that ends the step after `exist` or `be <state>`.
   - Methods should include the `Assert` prefix, e.g., `userAssertHasRoles()`, and never `Should`.

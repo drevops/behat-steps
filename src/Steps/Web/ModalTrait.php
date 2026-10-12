@@ -35,6 +35,7 @@ trait ModalTrait {
    * When I close the modal
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I close the modal')]
@@ -63,6 +64,7 @@ trait ModalTrait {
    * When I click on the element "Cancel" in the modal
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I click on the element :selector in the modal')]
@@ -77,6 +79,7 @@ trait ModalTrait {
    * When I wait for the modal to appear
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I wait for the modal to appear')]
@@ -91,6 +94,7 @@ trait ModalTrait {
    * Then I should see the modal
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[Then('I should see the modal')]
@@ -109,6 +113,7 @@ trait ModalTrait {
    * Then I should not see the modal
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[Then('I should not see the modal')]
@@ -127,6 +132,7 @@ trait ModalTrait {
    * Then I should see "Welcome message" in the modal
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[Then('I should see :text in the modal')]
@@ -145,6 +151,7 @@ trait ModalTrait {
    * Then I should not see "Error message" in the modal
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[Then('I should not see :text in the modal')]

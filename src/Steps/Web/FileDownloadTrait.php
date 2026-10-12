@@ -84,6 +84,8 @@ trait FileDownloadTrait {
    * When I download the file from the URL "/files/document.pdf"
    * When I download the file from the URL "http://example.com/files/report.xlsx"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I download the file from the URL :url')]
   public function fileDownloadFrom(string $url): void {
@@ -97,6 +99,8 @@ trait FileDownloadTrait {
    * When I download the file from the link "Download PDF"
    * When I download the file from the link "Get Report"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I download the file from the link :link')]
   public function fileDownloadFromLink(string $link): void {
@@ -112,6 +116,8 @@ trait FileDownloadTrait {
    * Financial Report 2023
    * """
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the downloaded file should contain:')]
   public function fileDownloadAssertFileContains(PyStringNode $string): void {
@@ -126,6 +132,8 @@ trait FileDownloadTrait {
    * @code
    * Then the downloaded file name should be "report.pdf"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the downloaded file name should be :name')]
   public function fileDownloadAssertFileNameEquals(string $name): void {
@@ -142,6 +150,8 @@ trait FileDownloadTrait {
    * @code
    * Then the downloaded file name should contain "report"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the downloaded file name should contain :partial_name')]
   public function fileDownloadAssertFileNameContains(string $partial_name): void {
@@ -161,6 +171,8 @@ trait FileDownloadTrait {
    *   | image.jpg    |
    *   | data.csv     |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the downloaded file should be a zip archive containing files with the following names:')]
   public function fileDownloadAssertZipContains(TableNode $files): void {
@@ -176,6 +188,8 @@ trait FileDownloadTrait {
    *   | data   |
    *   | image  |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the downloaded file should be a zip archive containing files with the following partial names:')]
   public function fileDownloadAssertZipContainsPartial(TableNode $files): void {
@@ -191,6 +205,8 @@ trait FileDownloadTrait {
    *   | private      |
    *   | draft        |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the downloaded file should be a zip archive not containing files with the following partial names:')]
   public function fileDownloadAssertZipNotContainsPartial(TableNode $files): void {

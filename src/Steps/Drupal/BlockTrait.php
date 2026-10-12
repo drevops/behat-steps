@@ -35,6 +35,8 @@ trait BlockTrait {
    *   | region        | content  |
    *   | status        | 1        |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the instance of the block :admin_label exists with the following configuration:')]
   public function blockCreateInstance(string $admin_label, TableNode $fields): void {
@@ -57,6 +59,8 @@ trait BlockTrait {
    *     | region        | content |
    *     | status        | 1       |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the block :label has the following configuration:')]
   public function blockConfigure(string $label, TableNode $fields): void {
@@ -72,6 +76,8 @@ trait BlockTrait {
    * @code
    *   Given the block "My block" does not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the block :label does not exist')]
   public function blockDelete(string $label): void {
@@ -89,6 +95,8 @@ trait BlockTrait {
    * @code
    *   Given the block "My block" is enabled
    * @endcode
+   *
+   * @actor:system
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
@@ -111,6 +119,8 @@ trait BlockTrait {
    * @code
    *   Given the block "My block" is disabled
    * @endcode
+   *
+   * @actor:system
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    *   When the block cannot be saved.
@@ -139,6 +149,8 @@ trait BlockTrait {
    *     | pages  | /node/1\r\n/about |
    *     | negate | 0                 |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the block :label has the following :condition condition configuration:')]
   public function blockConfigureVisibilityCondition(string $label, string $condition, TableNode $fields): void {
@@ -158,6 +170,8 @@ trait BlockTrait {
    * @code
    *   Given the block "My block" has the "request_path" condition removed
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the block :label has the :condition condition removed')]
   public function blockRemoveVisibilityCondition(string $label, string $condition): void {
@@ -173,6 +187,8 @@ trait BlockTrait {
    * @code
    *   Then the block "My block" should exist
    * @endcode
+   *
+   * @actor:system
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no block with the specified label is found.
@@ -195,6 +211,8 @@ trait BlockTrait {
    * @code
    *   Then the block "My block" should not exist
    * @endcode
+   *
+   * @actor:system
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When block with the specified label is found.
@@ -219,6 +237,8 @@ trait BlockTrait {
    * @code
    *   Then the block "My block" in the "content" region should exist
    * @endcode
+   *
+   * @actor:system
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When no block with the specified label is found in the given region.
@@ -249,6 +269,8 @@ trait BlockTrait {
    * @code
    *   Then the block "My block" in the "content" region should not exist
    * @endcode
+   *
+   * @actor:system
    *
    * @throws \Behat\Mink\Exception\ExpectationException
    *   When block with the specified label is found in the given region.

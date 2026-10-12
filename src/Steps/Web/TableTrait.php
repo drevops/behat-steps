@@ -37,6 +37,8 @@ trait TableTrait {
    * @code
    * When I follow the link "Edit" in the row containing "Article title"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I follow the link :link in the row containing :partial_text')]
   public function tableClickLinkInRow(string $link, string $partial_text): void {
@@ -55,6 +57,8 @@ trait TableTrait {
    * @code
    * When I press the button "Remove" in the row containing "Article title"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I press the button :button in the row containing :partial_text')]
   public function tablePressButtonInRow(string $button, string $partial_text): void {
@@ -73,6 +77,8 @@ trait TableTrait {
    * @code
    * Then the table ".mytable" should have 5 rows
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the table :selector should have :count row(s)')]
   public function tableAssertRowCount(string $selector, string $count): void {
@@ -92,6 +98,8 @@ trait TableTrait {
    * @code
    * Then the table ".mytable" should have 5 columns
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the table :selector should have :count column(s)')]
   public function tableAssertColumnCount(string $selector, string $count): void {
@@ -114,6 +122,8 @@ trait TableTrait {
    *   | Author |
    *   | Status |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the table :selector should contain the following columns:')]
   public function tableAssertColumns(string $selector, TableNode $table): void {
@@ -132,6 +142,8 @@ trait TableTrait {
    * @code
    * Then the table ".mytable" should be empty
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the table :selector should be empty')]
   public function tableAssertEmpty(string $selector): void {
@@ -149,6 +161,8 @@ trait TableTrait {
    * @code
    * Then the table ".mytable" should not be empty
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the table :selector should not be empty')]
   public function tableAssertNotEmpty(string $selector): void {
@@ -166,6 +180,8 @@ trait TableTrait {
    * Then the table ".mytable" should be sorted by "Title" in "ascending" order
    * Then the table ".mytable" should be sorted by "Date" in "descending" order
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the table :selector should be sorted by :column in :direction order')]
   public function tableAssertSortOrder(string $selector, string $column, string $direction): void {
@@ -190,6 +206,8 @@ trait TableTrait {
    *   | Article 1 | Published |
    *   | Article 2 | Draft     |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the table :selector should contain the following rows:')]
   public function tableAssertRows(string $selector, TableNode $expected_table): void {
@@ -216,6 +234,8 @@ trait TableTrait {
    *   | Published |
    *   | admin     |
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the following text in the row containing :partial_text:')]
   public function tableAssertRowContainsMultiple(string $partial_text, TableNode $table): void {
@@ -234,6 +254,8 @@ trait TableTrait {
    * @code
    * Then I should see the text "Published" in the row containing "Article title"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the text :text in the row containing :partial_text')]
   public function tableAssertRowContains(string $partial_text, string $text): void {
@@ -250,6 +272,8 @@ trait TableTrait {
    * @code
    * Then I should not see the text "Unpublished" in the row containing "Article title"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the text :text in the row containing :partial_text')]
   public function tableAssertRowNotContains(string $partial_text, string $text): void {
@@ -266,6 +290,8 @@ trait TableTrait {
    * @code
    * Then I should see the link "Edit" in the row containing "Article title"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should see the link :link in the row containing :partial_text')]
   public function tableAssertLinkExistsInRow(string $link, string $partial_text): void {
@@ -280,6 +306,8 @@ trait TableTrait {
    * @code
    * Then I should not see the link "Delete" in the row containing "Article title"
    * @endcode
+   *
+   * @actor:person
    */
   #[Then('I should not see the link :link in the row containing :partial_text')]
   public function tableAssertLinkNotExistsInRow(string $link, string $partial_text): void {

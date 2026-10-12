@@ -59,6 +59,8 @@ trait UserTrait {
    *    | john@example.com |
    *    | jane@example.com |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following users do not exist:')]
   public function userDeleteMultiple(TableNode $table): void {
@@ -82,6 +84,8 @@ trait UserTrait {
    *     | mail  | user1@example.com    | user2@example.com    |
    *     | roles | editor               | author               |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following users with fields exist:')]
   public function userCreateMultipleWithFields(TableNode $table): void {
@@ -103,6 +107,8 @@ trait UserTrait {
    *     | name         | mail              | roles  |
    *     | [TEST] user1 | user1@example.com | editor |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following users exist:')]
   public function userCreateMultiple(TableNode $table): void {
@@ -119,6 +125,8 @@ trait UserTrait {
    * @code
    * Given I am an anonymous user
    * @endcode
+   *
+   * @actor:person
    */
   #[Given('I am an anonymous user')]
   public function userLogoutSession(): void {
@@ -131,6 +139,8 @@ trait UserTrait {
    * @code
    * Given the password for the user "John" is "password"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the password for the user :name is :password')]
   public function userSetPassword(string $name, string $password): void {
@@ -153,6 +163,8 @@ trait UserTrait {
    * @code
    * Given the last access time for the user "John" is "1732319174"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the last access time for the user :name is :datetime')]
   public function userSetLastAccessTime(string $name, string $datetime): void {
@@ -177,6 +189,8 @@ trait UserTrait {
    * @code
    * Given the last login time for the user "John" is "1732319174"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the last login time for the user :name is :datetime')]
   public function userSetLastLoginTime(string $name, string $datetime): void {
@@ -197,6 +211,8 @@ trait UserTrait {
    * @code
    * Given the "Content Manager" role has the "access content, create article content, edit any article content" permissions
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the :role role has the :permissions permission(s)')]
   public function userCreateRole(string $role, string $permissions): void {
@@ -212,6 +228,8 @@ trait UserTrait {
    *   | Content Editor    | access content, create article content   |
    *   | Content Approver  | access content, edit any article content |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following roles exist:')]
   public function userCreateRoleMultiple(TableNode $table): void {
@@ -234,6 +252,8 @@ trait UserTrait {
    * Given I am logged in as a user with the "editor" role
    * Given I am logged in as a user with the "editor, admin" roles
    * @endcode
+   *
+   * @actor:person
    */
   #[Given('I am logged in as a user with the :roles role(s)')]
   public function userLoginWithRoles(string $roles): void {
@@ -248,6 +268,8 @@ trait UserTrait {
    *     | field_user_name    | John  |
    *     | field_user_surname | Smith |
    * @endcode
+   *
+   * @actor:person
    */
   #[Given('I am logged in as a user with the :roles role(s) and I have the following fields:')]
   public function userLoginWithRolesAndFields(string $roles, TableNode $fields): void {
@@ -263,6 +285,8 @@ trait UserTrait {
    * Given I am logged in as a user with the "administer nodes" permission
    * Given I am logged in as a user with the "administer nodes, access content" permissions
    * @endcode
+   *
+   * @actor:person
    */
   #[Given('I am logged in as a user with the :permissions permission(s)')]
   public function userLoginWithPermissions(string $permissions): void {
@@ -277,6 +301,8 @@ trait UserTrait {
    * @code
    * Given I am logged in as the user "[TEST] user1"
    * @endcode
+   *
+   * @actor:person
    */
   #[Given('I am logged in as the user :name')]
   public function userLoginAs(string $name): void {
@@ -289,6 +315,8 @@ trait UserTrait {
    * @code
    * When I log out
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I log out')]
   public function userLogout(): void {
@@ -301,6 +329,8 @@ trait UserTrait {
    * @code
    * When I visit the profile page of the user "John"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the profile page of the user :name')]
   public function userVisitProfilePage(string $name): void {
@@ -313,6 +343,8 @@ trait UserTrait {
    * @code
    * When I visit my own profile page
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit my own profile page')]
   public function userVisitOwnProfilePage(): void {
@@ -325,6 +357,8 @@ trait UserTrait {
    * @code
    * When I visit the profile edit page of the user "John"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the profile edit page of the user :name')]
   public function userVisitProfileEditPage(string $name): void {
@@ -337,6 +371,8 @@ trait UserTrait {
    * @code
    * When I visit my own profile edit page
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit my own profile edit page')]
   public function userVisitOwnProfileEditPage(): void {
@@ -349,6 +385,8 @@ trait UserTrait {
    * @code
    * When I visit the profile delete page of the user "John"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the profile delete page of the user :name')]
   public function userVisitProfileDeletePage(string $name): void {
@@ -361,6 +399,8 @@ trait UserTrait {
    * @code
    * When I visit my own profile delete page
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit my own profile delete page')]
   public function userVisitOwnProfileDeletePage(): void {
@@ -374,6 +414,8 @@ trait UserTrait {
    * When I visit the password reset link for the user "admin"
    * When I visit the password reset link for the user "test_user"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the password reset link for the user :name')]
   public function userVisitPasswordResetLink(string $name): void {
@@ -387,6 +429,8 @@ trait UserTrait {
    * @code
    * When I visit my own password reset link
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit my own password reset link')]
   public function userVisitOwnPasswordResetLink(): void {
@@ -406,6 +450,8 @@ trait UserTrait {
    * @code
    * Then the user "John" should have the "administrator, editor" roles
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the user :name should have the :roles role(s)')]
   public function userAssertHasRoles(string $name, string $roles): void {
@@ -424,6 +470,8 @@ trait UserTrait {
    * @code
    * Then the user "John" should not have the "administrator, editor" roles
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the user :name should not have the :roles role(s)')]
   public function userAssertNotHasRoles(string $name, string $roles): void {
@@ -444,6 +492,8 @@ trait UserTrait {
    * @code
    * Then the user with the email "alice@example.com" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the user with the email :address should exist')]
   public function userAssertExistsWithMail(string $address): void {
@@ -460,6 +510,8 @@ trait UserTrait {
    * @code
    * Then the user with the email "alice@example.com" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the user with the email :address should not exist')]
   public function userAssertNotExistsWithMail(string $address): void {
@@ -474,6 +526,8 @@ trait UserTrait {
    * @code
    * Then the user "John" should be blocked
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the user :name should be blocked')]
   public function userAssertBlocked(string $name): void {
@@ -490,6 +544,8 @@ trait UserTrait {
    * @code
    * Then the user "John" should not be blocked
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the user :name should not be blocked')]
   public function userAssertNotBlocked(string $name): void {

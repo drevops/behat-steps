@@ -90,6 +90,8 @@ trait ModuleTrait {
    * @code
    * Given the "ctools" module is enabled
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the :module module is enabled')]
   public function moduleEnsureEnabled(string $module): void {
@@ -102,6 +104,8 @@ trait ModuleTrait {
    * @code
    * Given the "shield" module is disabled
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the :module module is disabled')]
   public function moduleEnsureDisabled(string $module): void {
@@ -116,6 +120,8 @@ trait ModuleTrait {
    *   | ctools |
    *   | views  |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following modules are enabled:')]
   public function moduleEnsureEnabledMultiple(TableNode $modules_table): void {
@@ -132,6 +138,8 @@ trait ModuleTrait {
    *   | shield           |
    *   | stage_file_proxy |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following modules are disabled:')]
   public function moduleEnsureDisabledMultiple(TableNode $modules_table): void {
@@ -146,6 +154,8 @@ trait ModuleTrait {
    * @code
    * Then the "ctools" module should be enabled
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the :module module should be enabled')]
   public function moduleAssertEnabled(string $module): void {
@@ -160,6 +170,8 @@ trait ModuleTrait {
    * @code
    * Then the "shield" module should be disabled
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the :module module should be disabled')]
   public function moduleAssertDisabled(string $module): void {
@@ -176,6 +188,8 @@ trait ModuleTrait {
    *   | ctools |
    *   | views  |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the following modules should be enabled:')]
   public function moduleAssertEnabledMultiple(TableNode $modules_table): void {
@@ -194,6 +208,8 @@ trait ModuleTrait {
    *   | shield           |
    *   | stage_file_proxy |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the following modules should be disabled:')]
   public function moduleAssertDisabledMultiple(TableNode $modules_table): void {

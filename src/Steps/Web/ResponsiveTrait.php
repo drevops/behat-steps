@@ -150,6 +150,8 @@ trait ResponsiveTrait {
    *   | iphone_12  | 390x844    |
    *   | 4k_display | 3840x2160  |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following responsive breakpoints exist:')]
   public function responsiveSetBreakpointMultiple(TableNode $table): void {
@@ -165,6 +167,8 @@ trait ResponsiveTrait {
    * When I set the viewport to the "mobile_portrait" breakpoint
    * When I set the viewport to the "desktop" breakpoint
    * @endcode
+   *
+   * @actor:person
    *
    * @param string $breakpoint
    *   The breakpoint name.
@@ -185,6 +189,8 @@ trait ResponsiveTrait {
    * When I set the viewport width to "768"
    * @endcode
    *
+   * @actor:person
+   *
    * @param string $width
    *   The width in pixels.
    */
@@ -204,6 +210,8 @@ trait ResponsiveTrait {
    * When I set the viewport height to "900"
    * @endcode
    *
+   * @actor:person
+   *
    * @param string $height
    *   The height in pixels.
    */
@@ -222,6 +230,8 @@ trait ResponsiveTrait {
    * When I set the viewport to "1920" by "1080"
    * When I set the viewport to "375" by "667"
    * @endcode
+   *
+   * @actor:person
    *
    * @param string $width
    *   The width in pixels.

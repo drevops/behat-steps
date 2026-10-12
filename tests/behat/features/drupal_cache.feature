@@ -38,9 +38,9 @@ Feature: Check that CacheTrait works
     When I go to "/user"
     Then I should see "cache_render_admin"
 
-  Scenario: Assert "When I run cron" runs cron
+  Scenario: Assert "When cron runs" runs cron
     Given the watchdog is cleared
-    When I run cron
+    When cron runs
     And I am logged in as a user with the "administrator" role
     And I go to "/admin/reports/dblog"
     Then I should see "Cron run completed."
@@ -58,9 +58,9 @@ Feature: Check that CacheTrait works
     Then the response header "X-Drupal-Cache" should contain "MISS"
 
   @backend:drush
-  Scenario: Assert "When I run cron" runs cron over Drush
+  Scenario: Assert "When cron runs" runs cron over Drush
     Given the watchdog is cleared
-    When I run cron
+    When cron runs
     And I am logged in as a user with the "administrator" role
     And I go to "/admin/reports/dblog"
     Then I should see "Cron run completed."

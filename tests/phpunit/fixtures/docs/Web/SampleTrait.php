@@ -17,6 +17,8 @@ trait SampleTrait {
    * @code
    * Then the test should pass
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the test should pass')]
   public function sampleAssertTest(): void {}

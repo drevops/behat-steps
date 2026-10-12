@@ -41,6 +41,8 @@ trait ParagraphsTrait {
    *   | field_paragraph_longtext:format | full_html            |
    *   | ...                             | ...                  |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following fields for the :paragraph_type paragraph exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:')]
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {

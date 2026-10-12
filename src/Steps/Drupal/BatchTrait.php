@@ -30,6 +30,7 @@ trait BatchTrait {
    * When I wait for the batch job to finish
    * @endcode
    *
+   * @actor:person
    * @javascript
    */
   #[When('I wait for the batch job to finish')]

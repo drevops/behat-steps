@@ -22,6 +22,8 @@ trait ResponseTrait {
    * @code
    * Then the response should contain the header "Connection"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should contain the header :name')]
   public function responseAssertHeaderExists(string $name): void {
@@ -38,6 +40,8 @@ trait ResponseTrait {
    * @code
    * Then the response should not contain the header "Connection"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response should not contain the header :name')]
   public function responseAssertHeaderNotExists(string $name): void {
@@ -54,6 +58,8 @@ trait ResponseTrait {
    * @code
    * Then the response header "Connection" should contain "Keep-Alive"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response header :name should contain :value')]
   public function responseAssertHeaderContains(string $name, string $value): void {
@@ -72,6 +78,8 @@ trait ResponseTrait {
    * @code
    * Then the response header "Connection" should not contain "Keep-Alive"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the response header :name should not contain :value')]
   public function responseAssertHeaderNotContains(string $name, string $value): void {

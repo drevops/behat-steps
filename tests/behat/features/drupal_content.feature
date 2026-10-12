@@ -194,24 +194,24 @@ Feature: Check that ContentTrait works
       Unable to find "page" content with title "[TEST] Non-existing".
       """
 
-  Scenario: Assert "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected
+  Scenario: Assert "When the moderation state of the :content_type content with the title :title changes to the :new_state state" works as expected
     Given the following page content exists:
       | title             | moderation_state |
       | [TEST] Page title | draft            |
     And I am an anonymous user
     When I visit the "page" content page with the title "[TEST] Page title"
     Then the response status code should be 403
-    When I change the moderation state of the "page" content with the title "[TEST] Page title" to the "published" state
+    When the moderation state of the "page" content with the title "[TEST] Page title" changes to the "published" state
     And I visit the "page" content page with the title "[TEST] Page title"
     Then the response status code should be 200
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for non-existing content type
+  Scenario: Assert negative "When the moderation state of the :content_type content with the title :title changes to the :new_state state" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I change the moderation state of the "non_existing" content with the title "[TEST] Page title" to the "published" state
+      When the moderation state of the "non_existing" content with the title "[TEST] Page title" changes to the "published" state
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -220,12 +220,12 @@ Feature: Check that ContentTrait works
       """
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for non-existing content
+  Scenario: Assert negative "When the moderation state of the :content_type content with the title :title changes to the :new_state state" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I change the moderation state of the "page" content with the title "[TEST] Non-existing" to the "published" state
+      When the moderation state of the "page" content with the title "[TEST] Non-existing" changes to the "published" state
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -234,7 +234,7 @@ Feature: Check that ContentTrait works
       """
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I change the moderation state of the :content_type content with the title :title to the :new_state state" works as expected for a node without moderation state enabled
+  Scenario: Assert negative "When the moderation state of the :content_type content with the title :title changes to the :new_state state" works as expected for a node without moderation state enabled
     Given some behat configuration
     And scenario steps:
       """
@@ -242,7 +242,7 @@ Feature: Check that ContentTrait works
         | title             |
         | [TEST] Page title |
       And I am logged in as a user with the "administrator" role
-      When I change the moderation state of the "landing_page" content with the title "[TEST] Page title" to the "published" state
+      When the moderation state of the "landing_page" content with the title "[TEST] Page title" changes to the "published" state
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -317,31 +317,31 @@ Feature: Check that ContentTrait works
       The "page" content with the title "[TEST] Exists page" should not exist, but it does (nid:
       """
 
-  Scenario: Assert "When I rebuild the access grants for the :content_type content with the title :title" works as expected
+  Scenario: Assert "When the access grants for the :content_type content with the title :title are rebuilt" works as expected
     Given the following page content exists:
       | title                    |
       | [TEST] Grants page title |
     And I am logged in as a user with the "administrator" role
-    When I rebuild the access grants for the "page" content with the title "[TEST] Grants page title"
+    When the access grants for the "page" content with the title "[TEST] Grants page title" are rebuilt
     And I visit the "page" content page with the title "[TEST] Grants page title"
     Then I should see "[TEST] Grants page title"
 
-  Scenario: Assert "When I rebuild the access grants for all content" works as expected
+  Scenario: Assert "When the access grants for all content are rebuilt" works as expected
     Given the following page content exists:
       | title                        |
       | [TEST] Grants all page title |
     And I am logged in as a user with the "administrator" role
-    When I rebuild the access grants for all content
+    When the access grants for all content are rebuilt
     And I visit the "page" content page with the title "[TEST] Grants all page title"
     Then I should see "[TEST] Grants all page title"
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I rebuild the access grants for the :content_type content with the title :title" works as expected for non-existing content
+  Scenario: Assert negative "When the access grants for the :content_type content with the title :title are rebuilt" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I rebuild the access grants for the "page" content with the title "[TEST] Non-existing"
+      When the access grants for the "page" content with the title "[TEST] Non-existing" are rebuilt
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -401,35 +401,35 @@ Feature: Check that ContentTrait works
     Then I should see "[TEST] Compound subdirectory file"
     And the response should contain ".pdf"
 
-  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected
+  Scenario: Assert "When the path alias of the :content_type content with the title :title is set to :alias" works as expected
     Given the following page content exists:
       | title                   |
       | [TEST] Alias page title |
     And I am logged in as a user with the "administrator" role
-    When I set the path alias of the "page" content with the title "[TEST] Alias page title" to "/test-custom-alias"
+    When the path alias of the "page" content with the title "[TEST] Alias page title" is set to "/test-custom-alias"
     And I go to "test-custom-alias"
     Then the response status code should be 200
     And I should see "[TEST] Alias page title"
 
-  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for an alias without a leading slash
+  Scenario: Assert "When the path alias of the :content_type content with the title :title is set to :alias" works as expected for an alias without a leading slash
     Given the following page content exists:
       | title                            |
       | [TEST] Alias no slash page title |
     And I am logged in as a user with the "administrator" role
-    When I set the path alias of the "page" content with the title "[TEST] Alias no slash page title" to "test-no-slash-alias"
+    When the path alias of the "page" content with the title "[TEST] Alias no slash page title" is set to "test-no-slash-alias"
     And I go to "test-no-slash-alias"
     Then the response status code should be 200
     And I should see "[TEST] Alias no slash page title"
 
-  Scenario: Assert "When I set the path alias of the :content_type content with the title :title to :alias" replaces an existing alias instead of adding a second one
+  Scenario: Assert "When the path alias of the :content_type content with the title :title is set to :alias" replaces an existing alias instead of adding a second one
     Given the following page content exists:
       | title                            |
       | [TEST] Alias replaced page title |
     And I am logged in as a user with the "administrator" role
-    When I set the path alias of the "page" content with the title "[TEST] Alias replaced page title" to "/test-alias-first"
+    When the path alias of the "page" content with the title "[TEST] Alias replaced page title" is set to "/test-alias-first"
     And I go to "test-alias-first"
     Then the response status code should be 200
-    When I set the path alias of the "page" content with the title "[TEST] Alias replaced page title" to "/test-alias-second"
+    When the path alias of the "page" content with the title "[TEST] Alias replaced page title" is set to "/test-alias-second"
     And I go to "test-alias-second"
     Then the response status code should be 200
     And the path should be "/test-alias-second"
@@ -437,12 +437,12 @@ Feature: Check that ContentTrait works
     Then the path should be "/test-alias-second"
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for non-existing content type
+  Scenario: Assert negative "When the path alias of the :content_type content with the title :title is set to :alias" works as expected for non-existing content type
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I set the path alias of the "non_existing" content with the title "[TEST] Page title" to "/test-alias"
+      When the path alias of the "non_existing" content with the title "[TEST] Page title" is set to "/test-alias"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -451,12 +451,12 @@ Feature: Check that ContentTrait works
       """
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for non-existing content
+  Scenario: Assert negative "When the path alias of the :content_type content with the title :title is set to :alias" works as expected for non-existing content
     Given some behat configuration
     And scenario steps:
       """
       Given I am logged in as a user with the "administrator" role
-      When I set the path alias of the "page" content with the title "[TEST] Non-existing" to "/test-alias"
+      When the path alias of the "page" content with the title "[TEST] Non-existing" is set to "/test-alias"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -465,14 +465,14 @@ Feature: Check that ContentTrait works
       """
 
   @test-trait:Drupal\ContentTrait
-  Scenario: Assert negative "When I set the path alias of the :content_type content with the title :title to :alias" works as expected for an empty alias
+  Scenario: Assert negative "When the path alias of the :content_type content with the title :title is set to :alias" works as expected for an empty alias
     Given some behat configuration
     And scenario steps:
       """
       Given the following page content exists:
         | title                         |
         | [TEST] Empty alias page title |
-      When I set the path alias of the "page" content with the title "[TEST] Empty alias page title" to ""
+      When the path alias of the "page" content with the title "[TEST] Empty alias page title" is set to ""
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

@@ -50,6 +50,8 @@ trait RestTrait {
    * Given the REST header "Accept" has the value "application/json"
    * Given the REST header "Authorization" has the value "Bearer abc123"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the REST header :name has the value :value')]
   public function restSetHeader(string $name, string $value): void {
@@ -63,6 +65,8 @@ trait RestTrait {
    * When I send a REST "GET" request to "/api/resource"
    * When I send a REST "DELETE" request to "/api/resource/1"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I send a REST :method request to :url')]
   public function restSendRequest(string $method, string $url): void {
@@ -79,6 +83,8 @@ trait RestTrait {
    *   {"name": "example"}
    *   """
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I send a REST :method request to :url with the body:')]
   public function restSendRequestWithBody(string $method, string $url, PyStringNode $body): void {
@@ -93,6 +99,8 @@ trait RestTrait {
    * Then the REST response status code should be 200
    * Then the REST response status code should be 404
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the REST response status code should be :code')]
   public function restAssertResponseStatusCodeEquals(string $code): void {
@@ -111,6 +119,8 @@ trait RestTrait {
    * @code
    * Then the REST response should contain "success"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the REST response should contain :text')]
   public function restAssertResponseContains(string $text): void {

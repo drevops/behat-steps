@@ -109,6 +109,8 @@ trait ConfigTrait {
    * @code
    * Given the config "system.site" with the key "page.front" has the value "/node"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the config :name with the key :key has the value :value')]
   public function configSet(string $name, string $key, string $value): void {
@@ -125,6 +127,8 @@ trait ConfigTrait {
    *   | mymodule.settings | api.endpoint | https://api.example.com |
    *   | mymodule.settings | roles        | ["editor","reviewer"]   |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following config values exist:')]
   public function configSetMultiple(TableNode $table): void {
@@ -145,6 +149,8 @@ trait ConfigTrait {
    * @code
    * Then the config "system.site" with the key "name" should have the value "My site"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the config :name with the key :key should have the value :value')]
   public function configAssertValueEquals(string $name, string $key, string $value): void {
@@ -157,6 +163,8 @@ trait ConfigTrait {
    * @code
    * Then the config "system.site" with the key "name" should not have the value "Wrong"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the config :name with the key :key should not have the value :value')]
   public function configAssertValueNotEquals(string $name, string $key, string $value): void {
@@ -169,6 +177,8 @@ trait ConfigTrait {
    * @code
    * Then the config "system.site" with the key "name" should contain "site"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the config :name with the key :key should contain :value')]
   public function configAssertValueContains(string $name, string $key, string $value): void {
@@ -181,6 +191,8 @@ trait ConfigTrait {
    * @code
    * Then the config "system.site" with the key "name" should not contain "xyz"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the config :name with the key :key should not contain :value')]
   public function configAssertValueNotContains(string $name, string $key, string $value): void {
@@ -195,6 +207,8 @@ trait ConfigTrait {
    * @code
    * Then the config "system.site" with the key "name" should have the effective value "Overridden"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the config :name with the key :key should have the effective value :value')]
   public function configAssertEffectiveValueEquals(string $name, string $key, string $value): void {
@@ -209,6 +223,8 @@ trait ConfigTrait {
    * @code
    * Then the config "system.site" with the key "name" should not have the effective value "Wrong"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the config :name with the key :key should not have the effective value :value')]
   public function configAssertEffectiveValueNotEquals(string $name, string $key, string $value): void {
@@ -223,6 +239,8 @@ trait ConfigTrait {
    * @code
    * Then the config "system.site" with the key "name" should contain the effective value "Over"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the config :name with the key :key should contain the effective value :value')]
   public function configAssertEffectiveValueContains(string $name, string $key, string $value): void {
@@ -237,6 +255,8 @@ trait ConfigTrait {
    * @code
    * Then the config "system.site" with the key "name" should not contain the effective value "xyz"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the config :name with the key :key should not contain the effective value :value')]
   public function configAssertEffectiveValueNotContains(string $name, string $key, string $value): void {
