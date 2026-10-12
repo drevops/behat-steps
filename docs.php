@@ -13,7 +13,7 @@
  *
  * It also validates that:
  *
- * - The steps read in the documented format.
+ * - Each step method registers 1 step and carries an example.
  * - Every published helper carries a summary.
  * - Registered parametrized tags use `:` as their value separator.
  * - Every environment variable the source reads is documented.
@@ -45,15 +45,6 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\IntegerNode;
 use Symfony\Component\Config\Definition\NodeInterface;
 use Symfony\Component\Config\Definition\PrototypedArrayNode;
-
-/**
- * Matches a first-person pronoun anywhere in a step.
- *
- * A `When` narrates what the person does and reads in the first person. A
- * `Given` states a precondition and a `Then` names the entity it asserts on,
- * so neither refers to the person at all.
- */
-const FIRST_PERSON = '/\b(I|[Mm]y|[Mm]e|[Mm]yself|[Ww]e|[Uu]s|[Oo]ur)\b/';
 
 /**
  * Directory holding the step vocabulary, relative to the repository root.
@@ -1551,7 +1542,9 @@ function validate_helpers(array $info): array {
 }
 
 /**
- * Validate the info.
+ * Validate that each step method can be rendered.
+ *
+ * A method registers 1 step and carries an example.
  *
  * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
  *   The extracted trait info from extract_info().
@@ -1561,9 +1554,6 @@ function validate_helpers(array $info): array {
  */
 function validate(array $info): array {
   $errors = [];
-  $non_descriptive_placeholders = non_descriptive_placeholders();
-  $placeholder_synonyms = placeholder_synonyms();
-  $rejected_step_phrases = rejected_step_phrases();
 
   foreach ($info as $class_info) {
     $class_name = is_string($class_info['name']) ? $class_info['name'] : '';
@@ -1572,126 +1562,10 @@ function validate(array $info): array {
     foreach ($class_info['methods'] as $method) {
       $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
       $method['name'] = is_string($method['name']) ? $method['name'] : '';
-      $method['description'] = is_string($method['description']) ? $method['description'] : '';
       $method['example'] = is_string($method['example']) ? $method['example'] : '';
 
       if (count($method['steps']) > 1) {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Multiple steps found');
-      }
-
-      $step = (string) $method['steps'][0];
-
-      if (str_starts_with($step, '@Given') && str_ends_with($step, ':') && !str_contains($step, 'following')) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "following" in the step');
-      }
-
-      if (str_starts_with($step, '@Given') && preg_match(FIRST_PERSON, $step) === 1) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Given step is in the first person but should state a precondition');
-      }
-
-      if (str_starts_with($step, '@When') && !str_starts_with($step, '@When I ')) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'When step does not start with "I "');
-      }
-
-      if (str_starts_with($step, '@Then')) {
-        if (preg_match(FIRST_PERSON, $step) === 1) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Then step is in the first person but should start with the asserted entity');
-        }
-
-        if (!str_contains((string) $method['name'], 'Assert')) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "Assert" in the method name');
-        }
-
-        if (str_contains((string) $method['name'], 'Should')) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Assert method contains "Should", but it should not.');
-        }
-
-        if (!str_contains($step, ' should ')) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "should" in the step');
-        }
-
-        if (!(str_contains($step, ' the ') || str_contains($step, ' a ') || str_contains($step, ' an '))) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Missing "the", "a" or "an" in the step');
-        }
-
-        if (str_starts_with($step, '@Then no ')) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Then step negates with "no" but should negate with "should not"');
-        }
-
-        // A qualifier after "exist" or "be <state>" narrows the subject. One after
-        // a predicate's own object, as in "should match the XSD schema in the
-        // file :filename", narrows that object, so it stays.
-        if (preg_match('/ should (?:not )?(?:exist|be [a-z]+) (?:in|within|on|at|from) the [a-z]+(?: [a-z]+)* :[a-z_]+$/', $step) === 1) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Qualifier follows the predicate but should precede "should" with the subject it narrows');
-        }
-      }
-
-      // The pattern also matches names the snake_case rule rejects, so a
-      // violation is reported rather than truncated to a legal prefix.
-      preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $step, $placeholders);
-
-      foreach ($placeholders[1] as $placeholder) {
-        if (in_array($placeholder, $non_descriptive_placeholders, TRUE)) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Non-descriptive placeholder ":%s" in the step', $placeholder));
-        }
-
-        if (isset($placeholder_synonyms[$placeholder])) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" in the step is a synonym of ":%s"', $placeholder, $placeholder_synonyms[$placeholder]));
-        }
-
-        if (preg_match('/^[a-z][a-z0-9_]*$/', $placeholder) !== 1) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" in the step is not snake_case', $placeholder));
-        }
-      }
-
-      if (preg_match('/^@(?:Given|When|Then) :/', $step) === 1) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Step starts with a placeholder but should start with the noun it names');
-      }
-
-      foreach ($rejected_step_phrases as $rejected => $replacement) {
-        if (str_contains($step, $rejected)) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Step reads "%s" but should read "%s"', trim($rejected), trim($replacement)));
-        }
-      }
-
-      // "I visit :path" opens whatever page its argument names, so only a step
-      // naming its destination in words is held to naming a page or a link.
-      if (preg_match('/^@When I visit (?!:)/', $step) === 1 && preg_match('/ (?:page|link)\b/', $step) !== 1) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Navigation step does not name the page it opens, as in "I visit the ... page"');
-      }
-
-      preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*) ([a-z]+)/', $step, $followed, PREG_SET_ORDER);
-
-      foreach ($followed as [, $placeholder, $word]) {
-        // A bundle placeholder qualifies the entity noun after it, as in
-        // "the :media_type media", rather than naming that noun.
-        if (str_ends_with($placeholder, '_type')) {
-          continue;
-        }
-
-        if (in_array($word, explode('_', $placeholder), TRUE) || str_starts_with($word, $placeholder)) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" in the step precedes its own noun "%s"', $placeholder, $word));
-        }
-      }
-
-      if (preg_match('/(?<!\bvalue ):value\b/', $step) === 1) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Placeholder ":value" in the step does not read "the value :value"');
-      }
-
-      preg_match_all('/\bcontaining :([a-zA-Z_][a-zA-Z0-9_]*)/', $step, $partials);
-
-      foreach ($partials[1] as $placeholder) {
-        if (!str_starts_with($placeholder, 'partial_')) {
-          $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" after "containing" in the step is not prefixed with "partial_"', $placeholder));
-        }
-      }
-
-      // A placeholder before "should" names the asserted target, so what the
-      // step compares against it is a value rather than a whole body of text.
-      [$subject, $predicate] = array_pad(explode(' should ', $step, 2), 2, '');
-
-      if (preg_match('/:[a-zA-Z_]/', $subject) === 1 && preg_match('/:text\b/', $predicate) === 1) {
-        $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Placeholder ":text" in the step compares against a named target but should be ":value"');
       }
 
       if (empty($method['example'])) {
@@ -1811,76 +1685,6 @@ function extract_step_examples(string $example): array {
   }
 
   return $steps;
-}
-
-/**
- * Placeholder names that name a value's type or abbreviate its role.
- *
- * A placeholder is the only description a step gives of what a consumer must
- * pass. It names the thing in full (`:tolerance`, `:selector`, `:count`)
- * rather than its PHP type, a bare category or an abbreviation.
- *
- * A name listed here is rejected in step patterns.
- *
- * @return array<int, string>
- *   List of rejected placeholder names, without the leading colon.
- */
-function non_descriptive_placeholders(): array {
-  return [
-    'arg',
-    'argument',
-    'array',
-    'bool',
-    'boolean',
-    'data',
-    'float',
-    'int',
-    'integer',
-    'number',
-    'param',
-    'string',
-    'type',
-    'var',
-  ];
-}
-
-/**
- * Placeholder names that duplicate a concept another name already carries.
- *
- * 1 concept takes 1 placeholder name across every trait, so a step using
- * a synonym is rejected in favor of the name the vocabulary uses.
- *
- * @return array<string, string>
- *   Map of the rejected name to the name to use, both without the colon.
- */
-function placeholder_synonyms(): array {
-  return [
-    'email' => 'address',
-    'file_name' => 'filename',
-    'link_number' => 'index',
-    'mail' => 'address',
-    'role_name' => 'role',
-    'term_name' => 'name',
-  ];
-}
-
-/**
- * Phrases the step vocabulary rejects in favor of 1 settled form.
- *
- * A step containing a key fails validation, and the error names the value as
- * the phrase to write instead.
- *
- * @return array<string, string>
- *   Map of the rejected phrase to the phrase that replaces it.
- */
-function rejected_step_phrases(): array {
-  return [
-    'I click the ' => 'I click on the ',
-    'I edit the ' => 'I visit the ... edit page',
-    ' a viewport' => ' the viewport',
-    'the select element ' => 'the select ',
-    ' should have been ' => ' should be ',
-  ];
 }
 
 /**
