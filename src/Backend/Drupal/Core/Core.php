@@ -1327,7 +1327,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *
    * A type the record already holds keeps its recorded handler, because a
    * run that stopped before restoring it left the real handler there and the
-   * collector in 'system.mail'.
+   * collector in 'system.mail'. A type that holds the collector with no
+   * record is recorded as it stands, so the stop restores what the site held
+   * rather than a guess at what another run replaced.
    */
   public function mailStartCollecting(array $handler_types = ['default']): void {
     if ($handler_types === []) {

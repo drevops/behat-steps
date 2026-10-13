@@ -99,6 +99,18 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
     $this->assertSame(['default' => 'php_mail'], $this->config('system.mail')->get('interface'));
   }
 
+  public function testMailStopCollectingRestoresTheCollectorTheSiteAlreadyHeld(): void {
+    $this->config('system.mail')->set('interface', ['default' => 'test_mail_collector'])->save();
+
+    $this->core->mailStartCollecting();
+    $this->assertSame(['default' => 'test_mail_collector'], $this->config('system.mail_original')->get('interface'), 'The handler the site held is recorded as it stands.');
+
+    $this->core->mailStopCollecting();
+
+    $this->assertSame(['default' => 'test_mail_collector'], $this->config('system.mail')->get('interface'));
+    $this->assertTrue($this->config('system.mail_original')->isNew());
+  }
+
   public function testMailStopCollectingDoesNothingWithoutRecord(): void {
     $this->config('system.mail')->set('interface', ['default' => 'php_mail'])->save();
 
@@ -194,6 +206,18 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
 
     $restored = \Drupal::configFactory()->get('mailsystem.settings')->get();
     $this->assertSame($original['defaults']['sender'], $restored['defaults']['sender']);
+  }
+
+  public function testMailCollectionRestoresTheMailsystemSenderTheSiteAlreadyHeld(): void {
+    \Drupal::service('module_installer')->install(['mailsystem']);
+    $this->config('mailsystem.settings')->set('defaults.sender', 'test_mail_collector')->save();
+
+    $this->core->mailStartCollecting();
+    $this->assertSame(['sender' => 'test_mail_collector'], $this->config('system.mail_original')->get('mailsystem'), 'The sender the site held is recorded as it stands.');
+
+    $this->core->mailStopCollecting();
+
+    $this->assertSame('test_mail_collector', $this->config('mailsystem.settings')->get('defaults.sender'));
   }
 
 }
