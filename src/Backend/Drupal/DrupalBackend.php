@@ -309,8 +309,50 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function updateEntity(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->updateEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityValues(string $entity_type, int|string $id, array $fields): array {
+    return $this->getCore()->getEntityValues($entity_type, $id, $fields);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function deleteEntity(EntityStubInterface $stub): void {
     $this->getCore()->deleteEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createConfigEntity(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->createConfigEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateConfigEntity(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->updateConfigEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteConfigEntity(EntityStubInterface $stub): void {
+    $this->getCore()->deleteConfigEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function duplicateConfigEntity(EntityStubInterface $source, array $overrides): EntityStubInterface {
+    return $this->getCore()->duplicateConfigEntity($source, $overrides);
   }
 
   /**

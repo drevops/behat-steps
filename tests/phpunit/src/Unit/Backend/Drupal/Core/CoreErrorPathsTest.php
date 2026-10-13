@@ -117,7 +117,7 @@ class CoreErrorPathsTest extends UnitTestCase {
   #[DataProvider('dataProviderStubMethodRejectsEmptyId')]
   public function testStubMethodRejectsEmptyId(string $method, mixed $id): void {
     $core = $this->createCore();
-    $this->setUpEntityTypeManager('widget', 'id');
+    $this->setUpEntityTypeManager('widget', 'id', TRUE);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/Cannot resolve an entity of type "widget" from a stub with an empty id key "id"/');
@@ -126,7 +126,7 @@ class CoreErrorPathsTest extends UnitTestCase {
   }
 
   public static function dataProviderStubMethodRejectsEmptyId(): \Iterator {
-    foreach (['deleteEntity', 'getEntityUrl'] as $method) {
+    foreach (['deleteEntity', 'getEntityUrl', 'updateEntity'] as $method) {
       yield $method . ' with an empty string' => [$method, ''];
       yield $method . ' with null' => [$method, NULL];
       yield $method . ' with an array' => [$method, []];
@@ -142,17 +142,18 @@ class CoreErrorPathsTest extends UnitTestCase {
   #[DataProvider('dataProviderStubMethodRejectsMissingIdKey')]
   public function testStubMethodRejectsMissingIdKey(string $method): void {
     $core = $this->createCore();
-    $this->setUpEntityTypeManager('widget', 'id');
+    $this->setUpEntityTypeManager('widget', 'id', TRUE);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot resolve an entity of type "widget" from a stub without the id key "id" set.');
 
-    $core->{$method}(new EntityStub('widget'));
+    $core->{$method}(new EntityStub('widget', NULL, ['name' => 'A name']));
   }
 
   public static function dataProviderStubMethodRejectsMissingIdKey(): \Iterator {
     yield 'deleteEntity' => ['deleteEntity'];
     yield 'getEntityUrl' => ['getEntityUrl'];
+    yield 'updateEntity' => ['updateEntity'];
   }
 
   /**
@@ -181,6 +182,60 @@ class CoreErrorPathsTest extends UnitTestCase {
   }
 
   /**
+   * Tests that the content methods reject an entity type without fields.
+   *
+   * @param string $method
+   *   The 'Core' method to call.
+   * @param array<int, mixed> $args
+   *   The arguments to call it with.
+   * @param string $expected_message
+   *   The message the method throws.
+   */
+  #[DataProvider('dataProviderContentMethodsRejectEntityTypeWithoutFields')]
+  public function testContentMethodsRejectEntityTypeWithoutFields(string $method, array $args, string $expected_message): void {
+    $core = $this->createCore();
+    $this->setUpEntityTypeManager('widget', 'id');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $core->{$method}(...$args);
+  }
+
+  public static function dataProviderContentMethodsRejectEntityTypeWithoutFields(): \Iterator {
+    yield 'updateEntity' => ['updateEntity', [new EntityStub('widget', NULL, ['id' => 'a'])], 'Cannot update an entity of type "widget" because it is not a content entity type.'];
+    yield 'getEntityValues' => ['getEntityValues', ['widget', 'a', ['label']], 'Cannot read the values of an entity of type "widget" because it is not a content entity type.'];
+  }
+
+  /**
+   * Tests that the config entity methods reject a type stored otherwise.
+   *
+   * @param string $method
+   *   The 'Core' method to call.
+   * @param array<int, mixed> $args
+   *   The arguments to call it with.
+   */
+  #[DataProvider('dataProviderConfigEntityMethodsRejectOtherEntityTypes')]
+  public function testConfigEntityMethodsRejectOtherEntityTypes(string $method, array $args): void {
+    $core = $this->createCore();
+    $this->setUpEntityTypeManager('widget', 'id', TRUE);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Entity type "widget" is not a config entity type.');
+
+    $core->{$method}(...$args);
+  }
+
+  public static function dataProviderConfigEntityMethodsRejectOtherEntityTypes(): \Iterator {
+    $stub = new EntityStub('widget', NULL, ['id' => 'a']);
+
+    yield 'createConfigEntity' => ['createConfigEntity', [$stub]];
+    yield 'updateConfigEntity' => ['updateConfigEntity', [$stub]];
+    yield 'deleteConfigEntity' => ['deleteConfigEntity', [$stub]];
+    yield 'duplicateConfigEntity' => ['duplicateConfigEntity', [$stub, ['id' => 'b']]];
+  }
+
+  /**
    * Builds a 'Core' instance pointed at a valid path.
    *
    * None of the error paths under test reach the filesystem, so any existing
@@ -197,10 +252,14 @@ class CoreErrorPathsTest extends UnitTestCase {
    *   The entity type id the mocked definition answers for.
    * @param string|false $id_key
    *   What 'getKey("id")' returns, mirroring Drupal's 'string|false' contract.
+   * @param bool $is_fieldable
+   *   Whether the entity class of the type has fields, as a content entity
+   *   class does.
    */
-  protected function setUpEntityTypeManager(string $entity_type, string|false $id_key): void {
+  protected function setUpEntityTypeManager(string $entity_type, string|false $id_key, bool $is_fieldable = FALSE): void {
     $definition = $this->createMock(EntityTypeInterface::class);
     $definition->method('getKey')->willReturnMap([['bundle', FALSE], ['id', $id_key]]);
+    $definition->method('entityClassImplements')->willReturn($is_fieldable);
 
     $entity_type_manager = $this->createMock(EntityTypeManagerInterface::class);
     $entity_type_manager->method('getDefinition')->with($entity_type)->willReturn($definition);

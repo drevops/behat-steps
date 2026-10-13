@@ -129,6 +129,7 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     $language = new EntityStub('language', NULL, ['langcode' => 'fr']);
     $block = new EntityStub('block');
     $block_content = new EntityStub('block_content', 'basic');
+    $config_entity = new EntityStub('menu', NULL, ['id' => 'footer']);
 
     yield 'createUser' => ['createUser', [$user], 'createUser'];
     yield 'deleteUser' => ['deleteUser', [$user], 'deleteUser'];
@@ -158,7 +159,13 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'stateDelete' => ['stateDelete', ['my.key'], 'stateDelete'];
     yield 'stateExists' => ['stateExists', ['my.key'], 'stateExists'];
     yield 'createEntity' => ['createEntity', [$entity], 'createEntity'];
+    yield 'updateEntity' => ['updateEntity', [$entity], 'updateEntity'];
+    yield 'getEntityValues' => ['getEntityValues', ['node', 5, ['title']], 'getEntityValues'];
     yield 'deleteEntity' => ['deleteEntity', [$entity], 'deleteEntity'];
+    yield 'createConfigEntity' => ['createConfigEntity', [$config_entity], 'createConfigEntity'];
+    yield 'updateConfigEntity' => ['updateConfigEntity', [$config_entity], 'updateConfigEntity'];
+    yield 'deleteConfigEntity' => ['deleteConfigEntity', [$config_entity], 'deleteConfigEntity'];
+    yield 'duplicateConfigEntity' => ['duplicateConfigEntity', [$config_entity, ['id' => 'footer_copy']], 'duplicateConfigEntity'];
     yield 'findEntityIds' => ['findEntityIds', ['node', ['title' => 'Shared'], 'page'], 'findEntityIds'];
     yield 'placeBlock' => ['placeBlock', [$block], 'placeBlock'];
     yield 'deleteBlock' => ['deleteBlock', [$block], 'deleteBlock'];

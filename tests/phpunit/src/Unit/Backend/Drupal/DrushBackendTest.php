@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
@@ -52,6 +53,7 @@ class DrushBackendTest extends UnitTestCase {
   public static function dataProviderDoesNotImplementCapability(): \Iterator {
     yield 'authentication' => [AuthenticationCapabilityInterface::class];
     yield 'block' => [BlockCapabilityInterface::class];
+    yield 'config entity' => [ConfigEntityCapabilityInterface::class];
     yield 'content' => [ContentCapabilityInterface::class];
     yield 'core' => [CoreCapabilityInterface::class];
     yield 'entity lookup' => [EntityLookupCapabilityInterface::class];

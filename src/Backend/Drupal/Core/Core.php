@@ -26,12 +26,15 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Cache\DatabaseBackend;
 use Drupal\Core\Config\Config;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Config\Entity\ConfigEntityStorageInterface;
 use Drupal\Core\Database\Statement\FetchAs;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Routing\RouteObjectInterface;
@@ -1344,6 +1347,81 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * {@inheritdoc}
+   *
+   * The entity is loaded again rather than taken from a saved stub, so a
+   * change made since the stub was saved is kept.
+   */
+  public function updateEntity(EntityStubInterface $stub): EntityStubInterface {
+    $entity_type = $stub->getEntityType();
+    $definition = $this->loadEntityTypeDefinition($entity_type);
+
+    if (!$definition->entityClassImplements(FieldableEntityInterface::class)) {
+      throw new \RuntimeException(sprintf('Cannot update an entity of type "%s" because it is not a content entity type.', $entity_type));
+    }
+
+    $id = $this->resolveStubId($stub);
+    $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($id);
+
+    if (!$entity instanceof FieldableEntityInterface) {
+      throw new \RuntimeException(sprintf('Cannot update the entity of type "%s" with the id "%s" because it does not exist.', $entity_type, $id));
+    }
+
+    $identifying_keys = [$definition->getKey('id'), $definition->getKey('bundle')];
+    $values = array_diff_key($stub->getValues(), array_flip(array_filter($identifying_keys, is_string(...))));
+
+    // Every field is checked before any is set, so a typo in 1 value leaves
+    // the entity unchanged.
+    foreach (array_keys($values) as $field_name) {
+      if (!$entity->hasField($field_name)) {
+        throw new \RuntimeException(sprintf('Cannot update the entity of type "%s" with the id "%s" because it has no field "%s".', $entity_type, $id, $field_name));
+      }
+    }
+
+    // The stub need not name a bundle, so the values expand against the
+    // bundle of the loaded entity.
+    $expanded = new EntityStub($entity_type, $entity->bundle(), $values);
+    $this->expandEntityFields($expanded);
+
+    foreach ($expanded->getValues() as $field_name => $value) {
+      $entity->set($field_name, $value);
+      $stub->setValue($field_name, $value);
+    }
+
+    $entity->save();
+    $stub->markSaved($entity);
+
+    return $stub;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityValues(string $entity_type, int|string $id, array $fields): array {
+    if (!$this->loadEntityTypeDefinition($entity_type)->entityClassImplements(FieldableEntityInterface::class)) {
+      throw new \RuntimeException(sprintf('Cannot read the values of an entity of type "%s" because it is not a content entity type.', $entity_type));
+    }
+
+    $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($id);
+
+    if (!$entity instanceof FieldableEntityInterface) {
+      return [];
+    }
+
+    $values = [];
+
+    foreach ($fields as $field_name) {
+      if (!$entity->hasField($field_name)) {
+        throw new \RuntimeException(sprintf('Cannot read the entity of type "%s" with the id "%s" because it has no field "%s".', $entity_type, $id, $field_name));
+      }
+
+      $values[$field_name] = $entity->get($field_name)->getValue();
+    }
+
+    return $values;
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function deleteEntity(EntityStubInterface $stub): void {
     $entity = $this->findStubEntity($stub);
@@ -1397,6 +1475,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Reads the id a stub carries under its entity type's id key.
    *
+   * Falls back to the id of the saved entity when the stub has no value under
+   * the id key.
+   *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub.
    *
@@ -1404,24 +1485,136 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *   The id.
    *
    * @throws \RuntimeException
-   *   When the entity type declares no id key, or the stub holds no usable
-   *   value under it.
+   *   When the stub holds no usable value under the id key and no saved
+   *   entity with an id.
    */
   protected function resolveStubId(EntityStubInterface $stub): int|string {
     $entity_type = $stub->getEntityType();
-    $id_key = $this->loadEntityTypeDefinition($entity_type)->getKey('id');
+    $id_key = (string) $this->loadEntityTypeDefinition($entity_type)->getKey('id');
+    $has_id_value = $id_key !== '' && $stub->hasValue($id_key);
 
-    if (!is_string($id_key) || !$stub->hasValue($id_key)) {
-      throw new \RuntimeException(sprintf('Cannot resolve an entity of type "%s" from a stub without the id key "%s" set.', $entity_type, (string) $id_key));
+    if (!$has_id_value && $stub->getId() === NULL) {
+      throw new \RuntimeException(sprintf('Cannot resolve an entity of type "%s" from a stub without the id key "%s" set.', $entity_type, $id_key));
     }
 
-    $id = $stub->getValue($id_key);
+    $id = $has_id_value ? $stub->getValue($id_key) : $stub->getId();
 
     if ((!is_int($id) && !is_string($id)) || $id === '') {
       throw new \RuntimeException(sprintf('Cannot resolve an entity of type "%s" from a stub with an empty id key "%s".', $entity_type, $id_key));
     }
 
     return $id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createConfigEntity(EntityStubInterface $stub): EntityStubInterface {
+    $storage = $this->getConfigEntityStorage($stub->getEntityType());
+
+    $entity = $storage->create($stub->getValues());
+    $entity->save();
+
+    $stub->setValue((string) $storage->getEntityType()->getKey('id'), $entity->id());
+    $stub->markSaved($entity);
+
+    return $stub;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateConfigEntity(EntityStubInterface $stub): EntityStubInterface {
+    $entity_type = $stub->getEntityType();
+    $storage = $this->getConfigEntityStorage($entity_type);
+    $id_key = (string) $storage->getEntityType()->getKey('id');
+
+    $id = $this->resolveStubId($stub);
+    $entity = $storage->loadOverrideFree($id);
+
+    if (!$entity instanceof ConfigEntityInterface) {
+      throw new \RuntimeException(sprintf('Cannot update the entity of type "%s" with the id "%s" because it does not exist.', $entity_type, $id));
+    }
+
+    foreach ($stub->getValues() as $key => $value) {
+      if ($key !== $id_key) {
+        $entity->set($key, $value);
+      }
+    }
+
+    $entity->save();
+    $stub->markSaved($entity);
+
+    return $stub;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteConfigEntity(EntityStubInterface $stub): void {
+    $storage = $this->getConfigEntityStorage($stub->getEntityType());
+    $id = $this->resolveStubId($stub);
+    $entity = $storage->load($id);
+
+    if ($entity instanceof EntityInterface) {
+      $entity->delete();
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function duplicateConfigEntity(EntityStubInterface $source, array $overrides): EntityStubInterface {
+    $entity_type = $source->getEntityType();
+    $storage = $this->getConfigEntityStorage($entity_type);
+    $id_key = (string) $storage->getEntityType()->getKey('id');
+
+    $id = $this->resolveStubId($source);
+    $new_id = $overrides[$id_key] ?? NULL;
+
+    if ((!is_int($new_id) && !is_string($new_id)) || $new_id === '') {
+      throw new \RuntimeException(sprintf('Cannot duplicate the entity of type "%s" with the id "%s" without a new id under "%s".', $entity_type, $id, $id_key));
+    }
+
+    $original = $storage->loadOverrideFree($id);
+
+    if (!$original instanceof ConfigEntityInterface) {
+      throw new \RuntimeException(sprintf('Cannot duplicate the entity of type "%s" with the id "%s" because it does not exist.', $entity_type, $id));
+    }
+
+    $copy = $original->createDuplicate();
+
+    foreach ($overrides as $key => $value) {
+      $copy->set($key, $value);
+    }
+
+    $copy->save();
+
+    return (new EntityStub($entity_type, NULL, $overrides))->markSaved($copy);
+  }
+
+  /**
+   * Returns the storage of a config entity type.
+   *
+   * @param string $entity_type
+   *   The entity type id.
+   *
+   * @return \Drupal\Core\Config\Entity\ConfigEntityStorageInterface
+   *   The storage.
+   *
+   * @throws \RuntimeException
+   *   When the entity type is unknown, or is not a config entity type.
+   */
+  protected function getConfigEntityStorage(string $entity_type): ConfigEntityStorageInterface {
+    $this->loadEntityTypeDefinition($entity_type);
+
+    $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
+
+    if (!$storage instanceof ConfigEntityStorageInterface) {
+      throw new \RuntimeException(sprintf('Entity type "%s" is not a config entity type.', $entity_type));
+    }
+
+    return $storage;
   }
 
   /**
