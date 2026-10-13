@@ -61,7 +61,7 @@ Behat binds every placeholder as a string, and a Turnip pattern can't make a pla
 
 ### Numbers
 
-A step that needs a number parses its placeholder with `Helper\Web\StringTrait` before it uses the value:
+A step that needs a number parses its placeholder with `Steps\Helper\Web\StringTrait` before it uses the value:
 
 ```php
 #[Then('the table :selector should have :count row(s)')]
