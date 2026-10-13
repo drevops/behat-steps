@@ -96,6 +96,7 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   interface BatchCapabilityInterface
   interface BlockCapabilityInterface
   interface ConfigCapabilityInterface
+  interface ConfigEntityCapabilityInterface
   interface CoreCapabilityInterface
   interface DraggableviewsCapabilityInterface
   interface DrushCapabilityInterface
@@ -113,7 +114,8 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
 
   BatchCapabilityInterface -[hidden]down- BlockCapabilityInterface
   BlockCapabilityInterface -[hidden]down- ConfigCapabilityInterface
-  ConfigCapabilityInterface -[hidden]down- CoreCapabilityInterface
+  ConfigCapabilityInterface -[hidden]down- ConfigEntityCapabilityInterface
+  ConfigEntityCapabilityInterface -[hidden]down- CoreCapabilityInterface
   CoreCapabilityInterface -[hidden]down- DraggableviewsCapabilityInterface
   DraggableviewsCapabilityInterface -[hidden]down- DrushCapabilityInterface
 
@@ -156,6 +158,7 @@ BackendInterface --> RandomGeneratorInterface : getRandom
 BackendInterface <|-- DrupalBackendInterface
 BackendInterface <|-- DrushBackendInterface
 DrupalBackendInterface ..|> AuthenticationCapabilityInterface
+DrupalBackendInterface ..|> ConfigEntityCapabilityInterface
 DrupalBackendInterface ..|> ContentCapabilityInterface
 DrupalBackendInterface ..|> CoreCapabilityInterface
 DrupalBackendInterface ..|> EntityLookupCapabilityInterface
@@ -166,7 +169,7 @@ DrushBackendInterface ..|> ModuleCapabilityInterface
 DrushBackendInterface ..|> QueueCapabilityInterface
 
 DrupalBackend --> CoreInterface : getCore
-Core --> EntityStubInterface : creates and loads
+Core --> EntityStubInterface : creates, updates\nand deletes from
 
 note right of BlackboxBackend
   Implements the base contract only, so it
@@ -177,7 +180,7 @@ note right of BlackboxBackend
 end note
 
 note bottom of DrupalBackendInterface
-  DrupalBackendInterface extends 25 capability
+  DrupalBackendInterface extends 26 capability
   interfaces and DrushBackendInterface 12, of
   which DrushCapabilityInterface is its own.
   Only a few edges are drawn here. A backend
