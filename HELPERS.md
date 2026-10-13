@@ -47,13 +47,13 @@
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | 3 | Order items in the Drupal Draggable Views. |
 | [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 4 | Manage Drupal ECK entities with custom type and bundle creation. |
-| [Drupal\EmailTrait](#drupalemailtrait) | 10 | Test Drupal email functionality with content verification. |
+| [Drupal\EmailTrait](#drupalemailtrait) | 11 | Test Drupal email functionality with content verification. |
 | [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
 | [Drupal\MenuTrait](#drupalmenutrait) | 6 | Manage Drupal menus and menu links. |
 | [Drupal\ModuleTrait](#drupalmoduletrait) | 5 | Enable and disable Drupal modules with automatic state restoration. |
 | [Drupal\ParagraphsTrait](#drupalparagraphstrait) | 4 | Manage Drupal paragraphs entities with structured field data. |
-| [Drupal\QueueTrait](#drupalqueuetrait) | 4 | Manage and assert Drupal queue state. |
+| [Drupal\QueueTrait](#drupalqueuetrait) | 5 | Manage and assert Drupal queue state. |
 | [Drupal\RedirectTrait](#drupalredirecttrait) | 3 | Manage Drupal redirect entities provided by the contrib `redirect` module. |
 | [Drupal\SearchApiTrait](#drupalsearchapitrait) | 3 | Run Drupal Search API indexing and cron hooks. |
 | [Drupal\StateTrait](#drupalstatetrait) | 3 | Manage and assert Drupal State API values with automatic revert. |
@@ -65,7 +65,7 @@
 | [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
 | [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 8 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
-| [Drupal\QueryTrait](#drupalquerytrait) | 3 | Reads Drupal state a step asserts on without going through a backend. |
+| [Drupal\QueryTrait](#drupalquerytrait) | 3 | Finds the entities a step reads, asserts on or deletes. |
 
 ### Index of Toolbox helpers
 
@@ -2164,6 +2164,15 @@ Load multiple entities with specified type and conditions
 > Test Drupal email functionality with content verification.
 
 <details>
+  <summary><code>public function emailCollectorIsEnabled(string $type = 'default'): bool</code></summary>
+
+<br/>
+Check whether the collector has replaced a handler type
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function emailDisableCollector(): void</code></summary>
 
 <br/>
@@ -2524,6 +2533,15 @@ Get the entity to attach a paragraph to
 > Manage and assert Drupal queue state.
 
 <details>
+  <summary><code>public function queueClear(string $queue): void</code></summary>
+
+<br/>
+Delete every item of a queue, leaving the queue in place
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function queueGet(string $queue): QueueInterface</code></summary>
 
 <br/>
@@ -2785,7 +2803,7 @@ Create a user carrying the roles and extra fields, and log in as them
 </details>
 
 <details>
-  <summary><code>public function userCreateRoleWithPermissions(string $role, array $permissions): RoleInterface</code></summary>
+  <summary><code>public function userCreateRoleWithPermissions(string $role, array $permissions): EntityStubInterface</code></summary>
 
 <br/>
 Create a role with permissions, replacing a role with the same ID
@@ -3088,7 +3106,7 @@ Expand fixture file paths for file/image fields on an entity stub
 
 [Source](src/Steps/Helper/Drupal/QueryTrait.php)
 
-> Reads Drupal state a step asserts on without going through a backend.
+> Finds the entities a step reads, asserts on or deletes.
 
 <details>
   <summary><code>public function queryEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array</code></summary>

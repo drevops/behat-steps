@@ -350,6 +350,7 @@ WebRawContext ..> StringTrait : composes
 WebRawContext ..> LastStepTrait : composes
 WebRawContext ..> ParametersTrait : composes
 AuthTrait ..> EntityLifecycleTrait : composes
+FixtureFileTrait ..> QueryTrait : composes
 
 PathTrait ..> RawMinkContext : requires
 PathTrait ..> RequestHeadersTrait : composes
