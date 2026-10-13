@@ -20,7 +20,7 @@ package "DrevOps\\BehatSteps" #E3F2FD {
   class WebRawContext {
     +getBackend(name) : BackendInterface
     +backendFor(capability) : object
-    +getRandom() : Random
+    +getRandom() : RandomGeneratorInterface
     +getOption(group, key) : mixed
     +getOptionBool(group, key) : bool
     +getOptionInt(group, key) : int

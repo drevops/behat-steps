@@ -81,7 +81,7 @@ alt the step only needs the browser
   Mink --> Trait: current URL
   deactivate Mink
 else the step needs Drupal
-  Trait -> Registry: backendFor(ContentCapabilityInterface)
+  Trait -> Registry: backendFor(NodeCapabilityInterface)
   activate Registry
   alt a backend in the scenario's order implements it
     Registry -> Backend: bootstrap, the first time only

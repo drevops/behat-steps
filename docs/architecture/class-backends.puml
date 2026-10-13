@@ -1,7 +1,7 @@
 @startuml
 ' drevops/behat-steps - the Behat-free backend layer and its capability model.
 ' Traced from src/Backend/BackendInterface.php, BlackboxBackendInterface.php,
-' BlackboxBackend.php, src/Backend/Capability/,
+' BlackboxBackend.php, src/Backend/Capability/, src/Backend/Random/,
 ' src/Backend/Drupal/DrupalBackendInterface.php, DrushBackendInterface.php,
 ' DrupalBackend.php, DrushBackend.php, src/Backend/Drupal/Capability/,
 ' src/Backend/Drupal/Core/, src/Backend/Entity/,
@@ -28,7 +28,7 @@ package "DrevOps\\BehatSteps\\Extension\\Registry" #F3E5F5 {
 
 package "DrevOps\\BehatSteps\\Backend" #E8F5E9 {
   interface BackendInterface {
-    +getRandom() : Random
+    +getRandom() : RandomGeneratorInterface
     +bootstrap() : void
     +isBootstrapped() : bool
   }
@@ -38,6 +38,18 @@ package "DrevOps\\BehatSteps\\Backend" #E8F5E9 {
 
   BackendInterface <|-- BlackboxBackendInterface
   BlackboxBackendInterface <|.. BlackboxBackend
+}
+
+package "DrevOps\\BehatSteps\\Backend\\Random" #E8F5E9 {
+  interface RandomGeneratorInterface {
+    +string(length, unique, validator) : string
+    +name(length, unique) : string
+    +machineName(length, unique) : string
+    +word(length) : string
+  }
+  class RandomGenerator
+
+  RandomGeneratorInterface <|.. RandomGenerator
 }
 
 package "DrevOps\\BehatSteps\\Backend\\Capability" #E8F5E9 {
@@ -85,14 +97,18 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   interface CoreCapabilityInterface
   interface DrushCapabilityInterface
   interface ModuleCapabilityInterface
+  interface NodeCapabilityInterface
   interface StateCapabilityInterface
+  interface TermCapabilityInterface
 
   BatchCapabilityInterface -[hidden]down- BlockCapabilityInterface
   BlockCapabilityInterface -[hidden]down- ConfigCapabilityInterface
   ConfigCapabilityInterface -[hidden]down- CoreCapabilityInterface
+  CoreCapabilityInterface -[hidden]down- DrushCapabilityInterface
 
-  DrushCapabilityInterface -[hidden]down- ModuleCapabilityInterface
-  ModuleCapabilityInterface -[hidden]down- StateCapabilityInterface
+  ModuleCapabilityInterface -[hidden]down- NodeCapabilityInterface
+  NodeCapabilityInterface -[hidden]down- StateCapabilityInterface
+  StateCapabilityInterface -[hidden]down- TermCapabilityInterface
 }
 
 package "DrevOps\\BehatSteps\\Backend\\Drupal\\Core" #E8F5E9 {
@@ -117,12 +133,14 @@ package "DrevOps\\BehatSteps\\Backend\\Entity" #E8F5E9 {
 }
 
 BackendRegistry o--> BackendInterface : registered by name
+BackendInterface --> RandomGeneratorInterface : getRandom
 
 BackendInterface <|-- DrupalBackendInterface
 BackendInterface <|-- DrushBackendInterface
 DrupalBackendInterface ..|> AuthenticationCapabilityInterface
 DrupalBackendInterface ..|> ContentCapabilityInterface
 DrupalBackendInterface ..|> CoreCapabilityInterface
+DrupalBackendInterface ..|> NodeCapabilityInterface
 DrushBackendInterface ..|> DrushCapabilityInterface
 DrushBackendInterface ..|> ModuleCapabilityInterface
 
@@ -138,17 +156,16 @@ note right of BlackboxBackend
 end note
 
 note bottom of DrupalBackendInterface
-  DrupalBackendInterface extends 14 capability
+  DrupalBackendInterface extends 16 capability
   interfaces and DrushBackendInterface 9, of
   which DrushCapabilityInterface is its own.
   Only a few edges are drawn here.
 
   The root of src/Backend references no Drupal
-  class beyond the random generator; everything
-  that is Drupal's sits under Backend\\Drupal.
-  BackendRegistry walks the scenario's backend
-  order and returns the first instance of the
-  capability a step asked for, bootstrapping
-  only that one.
+  class; everything that is Drupal's sits under
+  Backend\\Drupal. BackendRegistry walks the
+  scenario's backend order and returns the first
+  instance of the capability a step asked for,
+  bootstrapping only that one.
 end note
 @enduml

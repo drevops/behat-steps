@@ -1308,7 +1308,7 @@ A trait checks what it needs before a step acts, and fails with a message naming
 | --- | --- | --- |
 | `ContentTrait`, `DraggableviewsTrait`, `MenuTrait`, `RedirectTrait`, `SearchApiTrait` | Checked its module, with a message of its own | Checks the same module, with the prerequisite message |
 | `EckTrait`, `ParagraphsTrait`, `WebformTrait` | Checked nothing | Fails without the `eck`, `paragraphs` or `webform` module |
-| `MediaTrait`, `TaxonomyTrait` | Checked nothing, and failed with whatever Drupal threw first | Fails without the core `media` or `taxonomy` module. `TaxonomyTrait`'s term creation goes through the content capability and checks nothing |
+| `MediaTrait`, `TaxonomyTrait` | Checked nothing, and failed with whatever Drupal threw first | Fails without the core `media` or `taxonomy` module. `TaxonomyTrait`'s term creation goes through the term capability and checks nothing |
 | `FileTrait` | Checked nothing | Its managed file steps fail without the core `file` module; the unmanaged file steps keep working without it |
 | `TestmodeTrait` | Called the module's `Testmode` class without checking | Checks the `testmode` module when a `@testmode` scenario starts, and its teardown disables test mode only if the scenario enabled it |
 | `WatchdogTrait` | Ran only in `@api` scenarios | Needs the core `dblog` module and an in-process backend, and fails the scenario at its start without them, as [Contexts to register](#contexts-to-register) explains |
@@ -1320,7 +1320,7 @@ Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\Beh
 | 3.14 | 4.0 | Notes |
 | --- | --- | --- |
 | `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\<Name>` | `EntityStub`, the creation alias contracts, the exceptions and the capabilities any backend may provide: `Authentication`, `Cache`, `Content`, `Cron`, `CreationAlias`, `Language`, `Mail`, `Role` and `User` |
-| `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\Drupal\<Name>` | `Core`, the field handlers and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `Core`, `Drush`, `Module` and `State` |
+| `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\Drupal\<Name>` | `Core`, the field handlers and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `Core`, `Drush`, `Module`, `Node`, `State` and `Term` |
 | `Drupal\Driver\DriverInterface` | `DrevOps\BehatSteps\Backend\BackendInterface` | |
 | `Drupal\Driver\DrupalDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackend` | |
 | `Drupal\Driver\DrupalDriverInterface` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface` | Declares only `setCore()`; `getCore()` and `getDrupalVersion()` moved to `CoreCapabilityInterface` |
@@ -1779,10 +1779,10 @@ A backend of your own that implements one of these interfaces renames the method
 | `BlockCapabilityInterface::blockPlace()` | `BlockCapabilityInterface::placeBlock()` | |
 | `ContentCapabilityInterface::entityCreate()` | `ContentCapabilityInterface::createEntity()` | |
 | `ContentCapabilityInterface::entityDelete()` | `ContentCapabilityInterface::deleteEntity()` | |
-| `ContentCapabilityInterface::nodeCreate()` | `ContentCapabilityInterface::createNode()` | |
-| `ContentCapabilityInterface::nodeDelete()` | `ContentCapabilityInterface::deleteNode()` | Throws `\RuntimeException` for a stub that's neither saved nor carries a `nid`, where it did nothing |
-| `ContentCapabilityInterface::termCreate()` | `ContentCapabilityInterface::createTerm()` | |
-| `ContentCapabilityInterface::termDelete()` | `ContentCapabilityInterface::deleteTerm()` | Returns `void` where it returned `bool`. Throws `\RuntimeException` for a stub that's neither saved nor carries a `tid`, where it did nothing |
+| `ContentCapabilityInterface::nodeCreate()` | `NodeCapabilityInterface::createNode()` | Under `DrevOps\BehatSteps\Backend\Drupal\Capability`; see [Backend contracts](#backend-contracts) |
+| `ContentCapabilityInterface::nodeDelete()` | `NodeCapabilityInterface::deleteNode()` | Under `DrevOps\BehatSteps\Backend\Drupal\Capability`. Throws `\RuntimeException` for a stub that's neither saved nor carries a `nid`, where it did nothing |
+| `ContentCapabilityInterface::termCreate()` | `TermCapabilityInterface::createTerm()` | Under `DrevOps\BehatSteps\Backend\Drupal\Capability`; see [Backend contracts](#backend-contracts) |
+| `ContentCapabilityInterface::termDelete()` | `TermCapabilityInterface::deleteTerm()` | Under `DrevOps\BehatSteps\Backend\Drupal\Capability`. Returns `void` where it returned `bool`. Throws `\RuntimeException` for a stub that's neither saved nor carries a `tid`, where it did nothing |
 | `LanguageCapabilityInterface::languageCreate()` | `LanguageCapabilityInterface::createLanguage()` | Returns the stub, left unsaved for a language that already exists, where it returned `FALSE` for one |
 | `LanguageCapabilityInterface::languageDelete()` | `LanguageCapabilityInterface::deleteLanguage()` | Does nothing for a language that doesn't exist, where it threw |
 | `RoleCapabilityInterface::roleCreate()` | `RoleCapabilityInterface::createRole()` | Returns a `user_role` stub carrying `id` and `label` where it returned the role's machine name. Takes permission machine names, because `drush role:perm:add` rejects labels; the in-process backend still converts a label |
@@ -1927,10 +1927,14 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `XmlTrait::xmlAssertElementNotContains()` | `string $text` | `string $value` |
 | `XmlTrait::xmlAssertElementNotEquals()` | `string $text` | `string $value` |
 | `XmlTrait::xmlBeforeScenario()` | No parameters | `BeforeScenarioScope $scope` |
+| `WebRawContext::getRandom()` | Returns `Drupal\Component\Utility\Random` | Returns `RandomGeneratorInterface`; see [Backend contracts](#backend-contracts) |
+| `BackendInterface::getRandom()` | Returns `Drupal\Component\Utility\Random` | Returns `RandomGeneratorInterface`; see [Backend contracts](#backend-contracts) |
+| `BlackboxBackend::__construct()` | `?Random $random = NULL` | `?RandomGeneratorInterface $random = NULL` |
 | `CacheCapabilityInterface::cacheClear()` | A cache bin | No parameters; see [Backend contracts](#backend-contracts) |
 | `ConfigCapabilityInterface::configGet()` | `string $key = ''` | `?string $key = NULL` |
 | `ConfigCapabilityInterface::configGetOriginal()` | `string $key = ''` | `?string $key = NULL` |
-| `DrushBackend::__construct()` | An empty string for an unset alias or root | `NULL` for an unset alias or root; an empty string throws `BootstrapException` |
+| `Core::__construct()` | `?Random $random = NULL` | `?RandomGeneratorInterface $random = NULL` |
+| `DrushBackend::__construct()` | An empty string for an unset alias or root; `?Random $random = NULL` | `NULL` for an unset alias or root; an empty string throws `BootstrapException`. `?RandomGeneratorInterface $random = NULL` |
 | `RolesAlias::__construct()` | `$driver` | `$userCapability` |
 | `UnsupportedBackendActionException::__construct()` | `driver:` named argument | `backend:` named argument |
 
@@ -2234,6 +2238,38 @@ $paths = $this->backendFor(CoreCapabilityInterface::class)
   ->getExtensionPathList();
 ```
 
+`createNode()`, `deleteNode()`, `createTerm()` and `deleteTerm()` sit on `NodeCapabilityInterface` and `TermCapabilityInterface` under `DrevOps\BehatSteps\Backend\Drupal\Capability`, beside the other capabilities only a Drupal backend provides, and `ContentCapabilityInterface` keeps `createEntity()` and `deleteEntity()`, the 2 that apply to any backend. A backend of your own that creates nodes or terms declares the 2 interfaces, and a step of your own names the capability that holds the method it calls:
+
+```php
+// A node.
+$this->backendFor(NodeCapabilityInterface::class)->createNode($stub);
+
+// A term.
+$this->backendFor(TermCapabilityInterface::class)->createTerm($stub);
+
+// Any other entity.
+$this->backendFor(ContentCapabilityInterface::class)->createEntity($stub);
+```
+
+`BackendInterface::getRandom()` returns the package's `DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface` rather than `Drupal\Component\Utility\Random`, and `WebRawContext::getRandom()` passes it through. It carries the 4 string generators, `string()`, `name()`, `machineName()` and `word()`, with the same arguments and the same per-instance uniqueness, so a step that called one of them changes nothing. `sentences()`, `paragraphs()`, `object()` and `image()` aren't on it: a step that used one builds Drupal's `Random` itself, which `drupal/core-utility` still ships. A backend of your own returns the shipped `RandomGenerator`, or a class of its own implementing the interface:
+
+```php
+// Before.
+use Drupal\Component\Utility\Random;
+
+public function getRandom(): Random {
+  return $this->random ??= new Random();
+}
+
+// After.
+use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
+
+public function getRandom(): RandomGeneratorInterface {
+  return $this->random ??= new RandomGenerator();
+}
+```
+
 ### The Drush backend
 
 The Drush backend supports Drush 13, the first release that runs Drupal 11, and newer. It runs every command by its canonical colon-separated name rather than by a legacy alias, and each of those names exists from Drush 13 on. A project that extended the Drupal Driver's `DrushDriver` and matched the command names it issues, in an override of `drush()` or `drushResult()`, extends `DrushBackend` and matches the names in the right-hand column:
@@ -2294,6 +2330,8 @@ The parameters follow their service: `drupal.drupal.class` becomes `behat_steps.
 | `drupal.random.class` | `behat_steps.random.class` |
 | `drupal.context.attribute.reader.class` | `behat_steps.context.attribute_reader.class` |
 | `drupal.context.region_selector.class` | `behat_steps.region_selector.class` |
+
+A class set through `behat_steps.random.class` implements `DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface`. The default is the package's `RandomGenerator`, where it was `Drupal\Component\Utility\Random`; [Backend contracts](#backend-contracts) lists what the generator carries.
 
 A suite that swapped `drupal.authentication_manager.class` for a class that also applied basic authentication registers 2 classes now, through `behat_steps.authenticator.class` and `behat_steps.basic_authenticator.class`. Each one implements its interface, because the shipped classes are final.
 
