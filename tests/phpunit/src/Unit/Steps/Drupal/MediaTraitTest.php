@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
-use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\MediaTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 

@@ -9,7 +9,7 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Helper\Web\HeadingTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\HeadingTrait;
 
 /**
  * Interact with and assert against named page regions.

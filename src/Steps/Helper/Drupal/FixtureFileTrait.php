@@ -1,0 +1,207 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Steps\Helper\Drupal;
+
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
+
+/**
+ * Resolves a fixture file path for a file or image field.
+ *
+ * A feature names a fixture by its path relative to the fixtures directory,
+ * and the stored value has to be a path the site can read.
+ *
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
+ */
+trait FixtureFileTrait {
+
+  use FixtureDirectoryTrait;
+
+  /**
+   * Expand fixture file paths for file/image fields on an entity stub.
+   *
+   * Rewrites fixture paths on 'file' and 'image' field types to absolute
+   * paths under the Mink 'files_path'. With an absolute path, the backend's
+   * 'FileHandler' can read and upload the file during entity creation.
+   *
+   * A path is taken relative to the fixtures directory, so both
+   * 'document.pdf' and 'images/photo.png' resolve. Expansion is skipped when
+   * a managed file with the same basename already exists in public:// or
+   * private://, so existing files take precedence.
+   *
+   * @param string $entity_type
+   *   The entity type machine name (e.g. 'node', 'media').
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The entity stub mutated in place.
+   */
+  public function fixtureFileExpandEntityFields(string $entity_type, EntityStubInterface $stub): void {
+    if ($this->fixtureDirectoryFind() === NULL) {
+      return;
+    }
+
+    if (!$this->getBackendRegistry()->hasCapability(CoreCapabilityInterface::class)) {
+      return;
+    }
+
+    $field_types = $this->backendFor(CoreCapabilityInterface::class)->getCore()->getEntityFieldTypes($entity_type);
+
+    foreach ($stub->getValues() as $name => $value) {
+      if (empty($field_types[$name]) || ($field_types[$name] !== 'image' && $field_types[$name] !== 'file')) {
+        continue;
+      }
+
+      // A stub not yet parsed by 'entityLifecycleParseFields()' still holds
+      // the raw compound cell as written in the Behat table
+      // (e.g. 'target_id:"foo.jpg", alt:"A"').
+      if (is_string($value) && $this->fixtureFileLooksLikeCompoundCell($value)) {
+        $rewritten = $this->fixtureFileExpandCompoundCell($value);
+
+        if ($rewritten !== $value) {
+          $stub->setValue($name, $rewritten);
+        }
+
+        continue;
+      }
+
+      // The remaining shapes a stub value takes:
+      // - scalar: 'foo.jpg' (treated as single-value)
+      // - scalar list: ['foo.jpg', 'bar.jpg'] (multi-value)
+      // - keyed record: ['target_id' => 'foo.jpg', 'alt' => 'A']
+      //   (single compound)
+      // - list of records: [['target_id' => 'foo.jpg', 'alt' => 'A'], ...]
+      //   (multi-value compound)
+      $is_list = is_array($value) && array_is_list($value);
+      $records = $is_list ? $value : [$value];
+      $is_mutated = FALSE;
+
+      foreach ($records as $index => $record) {
+        $path = is_array($record) ? $record['target_id'] ?? $record[0] ?? NULL : $record;
+
+        if (!is_string($path) || $path === '') {
+          continue;
+        }
+
+        if ($this->fixtureFileManagedExists($path)) {
+          continue;
+        }
+
+        $resolved = $this->fixtureFileResolve($path);
+
+        if ($resolved === NULL) {
+          continue;
+        }
+
+        if (!is_array($record)) {
+          $records[$index] = $resolved;
+        }
+        elseif (array_key_exists('target_id', $record)) {
+          $records[$index]['target_id'] = $resolved;
+        }
+        else {
+          $records[$index][0] = $resolved;
+        }
+
+        $is_mutated = TRUE;
+      }
+
+      if (!$is_mutated) {
+        continue;
+      }
+
+      $stub->setValue($name, $is_list ? $records : $records[0]);
+    }
+  }
+
+  /**
+   * Detect a raw compound cell string of the shape 'key:"..."' or 'key:[...]'.
+   *
+   * Mirrors the top-level pattern 'EntityFieldParser' uses to enter compound
+   * mode.
+   */
+  protected function fixtureFileLooksLikeCompoundCell(string $value): bool {
+    return preg_match('/^\s*[a-z_][a-z0-9_]*\s*:\s*[\"\[]/i', $value) === 1;
+  }
+
+  /**
+   * Rewrite each 'target_id:"path"' segment to embed the fixture path.
+   *
+   * Only the 'target_id' key is rewritten. A value backed by an existing
+   * managed file, or resolving to no file under the fixtures directory, is
+   * left as written.
+   */
+  protected function fixtureFileExpandCompoundCell(string $value): string {
+    $callback = function (array $matches): string {
+      $path = $matches[2];
+
+      if ($this->fixtureFileManagedExists($path)) {
+        return $matches[0];
+      }
+
+      $resolved = $this->fixtureFileResolve($path);
+
+      return $resolved === NULL ? $matches[0] : $matches[1] . $resolved . $matches[3];
+    };
+
+    return (string) preg_replace_callback('/(target_id\s*:\s*")([^"\\\\]+)(")/i', $callback, $value);
+  }
+
+  /**
+   * Resolve a field value against the fixtures directory.
+   *
+   * @param string $value
+   *   The raw field value: a path relative to the fixtures directory, a
+   *   stream URI or an absolute filesystem path.
+   *
+   * @return string|null
+   *   The absolute path to the fixture file, or NULL when the value does not
+   *   resolve to a file inside the fixtures directory.
+   */
+  protected function fixtureFileResolve(string $value): ?string {
+    // The backend's 'FileHandler' resolves stream URIs and absolute paths
+    // itself.
+    if (str_contains($value, '://')) {
+      return NULL;
+    }
+
+    if (str_starts_with($value, '/') || str_starts_with($value, '\\') || preg_match('#^[a-z]:[\\\\/]#i', $value) === 1) {
+      return NULL;
+    }
+
+    return $this->fixtureDirectoryFindFile($value);
+  }
+
+  /**
+   * Check whether a managed file with the given basename already exists.
+   *
+   * Mirrors the backend's 'FileHandler::resolveExistingFile()' for bare
+   * basenames so the backend's own lookup is not pre-empted.
+   *
+   * @param string $basename
+   *   Candidate basename (no path separators).
+   *
+   * @return bool
+   *   TRUE when a managed file exists at public://basename or
+   *   private://basename.
+   */
+  protected function fixtureFileManagedExists(string $basename): bool {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    if (str_contains($basename, '/') || str_contains($basename, '\\')) {
+      return FALSE;
+    }
+
+    $storage = \Drupal::entityTypeManager()->getStorage('file');
+
+    foreach (['public', 'private'] as $scheme) {
+      if ($storage->loadByProperties(['uri' => $scheme . '://' . $basename])) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+}

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Fixtures\Web;
 
-use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Extension\Config\Option;
 
 /**
  * Trait declaring its options in the method its own name derives.
@@ -14,7 +14,7 @@ trait DocumentedOptionsTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function documentedOptionsConfigSchema(): array {

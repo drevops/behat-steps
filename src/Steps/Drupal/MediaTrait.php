@@ -9,15 +9,15 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\Drupal\FixtureFileTrait;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
-use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\FixtureFileTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
 use Drupal\media\Entity\Media;
 use Drupal\media\MediaInterface;
 
@@ -30,7 +30,7 @@ use Drupal\media\MediaInterface;
  * - Support for multiple media types with field value expansion handling.
  * - Created entities are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait MediaTrait {
 
@@ -436,7 +436,7 @@ trait MediaTrait {
   /**
    * Declares the prerequisites this trait asserts.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
    *   The prerequisites this trait declares.
    */
   protected function mediaPrerequisites(): array {

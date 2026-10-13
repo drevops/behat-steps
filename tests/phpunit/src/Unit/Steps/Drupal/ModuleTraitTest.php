@@ -6,11 +6,11 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\ModuleTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -72,11 +72,11 @@ class ModuleTraitTest extends UnitTestCase {
   /**
    * Builds a backend double that installs modules and clears caches.
    *
-   * @return \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject
+   * @return \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject
    *   The backend double.
    */
   protected function createModuleBackend(): BackendInterface&ModuleCapabilityInterface&MockObject {
-    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
     $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, ModuleCapabilityInterface::class, CacheCapabilityInterface::class]);
 
     return $backend;

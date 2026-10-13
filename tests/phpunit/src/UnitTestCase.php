@@ -31,7 +31,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   /**
    * Directories under `src/` holding the traits a context composes.
    */
-  protected const COMPOSED_TRAIT_ROOTS = ['Helper', 'Steps'];
+  protected const COMPOSED_TRAIT_ROOTS = ['Steps'];
 
   /**
    * Paths the coding standard checks, relative to the repository root.
@@ -61,9 +61,9 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    *
    * The library names these traits itself and flattens them into a consuming
    * context: the step vocabulary under `Steps/` and the helpers under
-   * `Helper/`.
+   * `Steps/Helper/`.
    *
-   * The traits under `Behat/` carry the names the framework interfaces
+   * The traits under `Extension/` carry the names the framework interfaces
    * dictate, and the backend layer is library code with its own shapes.
    *
    * @param string $relative_path

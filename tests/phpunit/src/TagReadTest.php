@@ -8,7 +8,7 @@ use Behat\Hook\AfterFeature;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeFeature;
 use Behat\Hook\BeforeScenario;
-use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Extension\Tag;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 

@@ -9,14 +9,14 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
-use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\taxonomy\VocabularyInterface;
@@ -28,7 +28,7 @@ use Drupal\taxonomy\VocabularyInterface;
  * - Navigate to term pages.
  * - Verify vocabulary configurations.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait TaxonomyTrait {
 
@@ -355,7 +355,7 @@ trait TaxonomyTrait {
   /**
    * Declares the prerequisites this trait asserts.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
    *   The prerequisites this trait declares.
    */
   protected function taxonomyPrerequisites(): array {

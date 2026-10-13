@@ -39,7 +39,7 @@ The vocabulary sits on a single chain. Every class is honest about what it drags
 ```php
 <?php
 
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\DrupalContext;
 
 class FeatureContext extends DrupalContext {}
 ```
@@ -66,7 +66,7 @@ A context of your own is `WebRawContext` plus the traits whose steps the suite n
 ```php
 <?php
 
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\JavascriptTrait;
 use DrevOps\BehatSteps\Steps\Web\WaitTrait;
 
@@ -85,8 +85,8 @@ A suite that writes its own Drupal steps composes the helper for the concern it 
 
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\WebRawContext;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 
 class SpecContext extends WebRawContext {
 

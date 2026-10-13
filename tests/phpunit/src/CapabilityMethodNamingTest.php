@@ -89,13 +89,14 @@ class CapabilityMethodNamingTest extends UnitTestCase {
    *   Fully qualified interface names, as data provider rows.
    */
   protected static function discoverCapabilityInterfaces(): array {
-    $files = glob(dirname(__DIR__, 3) . '/src/Backend/Capability/*Interface.php') ?: [];
+    $files = array_merge(glob(dirname(__DIR__, 3) . '/src/Backend/Capability/*Interface.php') ?: [], glob(dirname(__DIR__, 3) . '/src/Backend/Drupal/Capability/*Interface.php') ?: []);
 
     $interfaces = [];
 
     foreach ($files as $file) {
       $name = basename($file, '.php');
-      $interfaces[$name] = ['DrevOps\\BehatSteps\\Backend\\Capability\\' . $name];
+      $namespace = str_contains($file, '/Backend/Drupal/') ? 'DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\' : 'DrevOps\\BehatSteps\\Backend\\Capability\\';
+      $interfaces[$name] = [$namespace . $name];
     }
 
     ksort($interfaces);

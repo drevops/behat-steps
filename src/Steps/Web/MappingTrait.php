@@ -8,8 +8,8 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Helper\Web\TokenTrait;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Helper\Web\TokenTrait;
 
 /**
  * Replace `{{ Key }}` tokens in step arguments and table cells.
@@ -29,7 +29,7 @@ use DrevOps\BehatSteps\Helper\Web\TokenTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:MappingTrait`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait MappingTrait {
 
@@ -173,7 +173,7 @@ trait MappingTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function mappingConfigSchema(): array {

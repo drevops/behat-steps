@@ -1,0 +1,161 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Helper\Drupal;
+
+use Behat\Testwork\Call\CallCenter;
+use Behat\Testwork\Environment\Environment;
+use Behat\Testwork\Environment\EnvironmentManager;
+use Behat\Testwork\Hook\HookDispatcher;
+use Behat\Testwork\Hook\HookRepository;
+use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
+use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Extension\Registry\BackendRegistryInterface;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\RegistryExposingContext;
+use Drupal\KernelTests\KernelTestBase;
+use Drupal\taxonomy\Entity\Vocabulary;
+use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use PHPUnit\Framework\MockObject\MockObject;
+
+/**
+ * Kernel test for resolving a vocabulary label to its machine name.
+ */
+#[CoversTrait(EntityLifecycleTrait::class)]
+#[Group('behat')]
+#[RunTestsInSeparateProcesses]
+class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
+
+  /**
+   * {@inheritdoc}
+   *
+   * @var array<string>
+   */
+  protected static $modules = ['taxonomy', 'text', 'user', 'field', 'system'];
+
+  /**
+   * The context under test.
+   */
+  protected RegistryExposingContext $context;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    Vocabulary::create(['vid' => 'tags', 'name' => 'Tags'])->save();
+
+    $this->context = new RegistryExposingContext();
+    $this->context->setBackendRegistry($this->createBackendRegistry($this->createInProcessBackend()));
+    $this->context->setHookDispatcher(new HookDispatcher(new HookRepository(new EnvironmentManager()), new CallCenter()));
+  }
+
+  /**
+   * Tests how a vocabulary identifier resolves to a machine name.
+   *
+   * An unknown identifier is returned unchanged for the backend to reject.
+   *
+   * @param string $identifier
+   *   The machine name or label naming the vocabulary.
+   * @param string $expected
+   *   The machine name it resolves to.
+   */
+  #[DataProvider('dataProviderResolveVocabularyMachineName')]
+  public function testResolveVocabularyMachineName(string $identifier, string $expected): void {
+    $this->assertSame($expected, $this->context->callResolveVocabularyMachineName($identifier));
+  }
+
+  public static function dataProviderResolveVocabularyMachineName(): array {
+    return [
+      'a machine name resolves to itself' => ['tags', 'tags'],
+      'a label resolves to its machine name' => ['Tags', 'tags'],
+      'an unknown identifier is returned unchanged' => ['Unknown', 'Unknown'],
+    ];
+  }
+
+  public function testTermCreationResolvesTheVocabularyLabel(): void {
+    $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
+
+    $backend = $this->createInProcessBackend();
+    $backend->expects($this->once())->method('createTerm')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
+      $this->assertSame('tags', $received->getValue('vocabulary_machine_name'));
+
+      return $stub;
+    });
+
+    $this->context->setBackendRegistry($this->createBackendRegistry($backend));
+
+    $this->context->entityLifecycleCreateTerm($stub);
+
+    $this->assertSame('tags', $stub->getValue('vocabulary_machine_name'));
+  }
+
+  public function testTermCreationLeavesLabelForNonDrupalBackend(): void {
+    $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
+
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, ContentCapabilityInterface::class]);
+    $backend->expects($this->once())->method('createTerm')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
+      $this->assertSame('Tags', $received->getValue('vocabulary_machine_name'));
+
+      return $stub;
+    });
+
+    $this->context->setBackendRegistry($this->createBackendRegistry($backend));
+
+    $this->context->entityLifecycleCreateTerm($stub);
+
+    $this->assertSame('Tags', $stub->getValue('vocabulary_machine_name'));
+  }
+
+  /**
+   * Builds a bootstrapped in-process backend double.
+   *
+   * Its classifier reports every value as a standard base field, so the
+   * field parser passes the stub through unchanged.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface&\PHPUnit\Framework\MockObject\MockObject
+   *   The backend double.
+   */
+  protected function createInProcessBackend(): DrupalBackendInterface&MockObject {
+    $classifier = $this->createMock(FieldClassifierInterface::class);
+    $classifier->method('fieldIsBaseStandard')->willReturn(TRUE);
+
+    $core = $this->createMock(CoreInterface::class);
+    $core->method('getFieldClassifier')->willReturn($classifier);
+
+    $backend = $this->createMock(DrupalBackendInterface::class);
+    $backend->method('isBootstrapped')->willReturn(TRUE);
+    $backend->method('getCore')->willReturn($core);
+
+    return $backend;
+  }
+
+  /**
+   * Builds a backend registry holding the given backend as the only one.
+   *
+   * @param \DrevOps\BehatSteps\Backend\BackendInterface $backend
+   *   The backend the scenario resolves against.
+   *
+   * @return \DrevOps\BehatSteps\Extension\Registry\BackendRegistryInterface
+   *   The backend registry.
+   */
+  protected function createBackendRegistry(BackendInterface $backend): BackendRegistryInterface {
+    $backend_registry = new BackendRegistry(['test' => $backend]);
+    $backend_registry->setScenarioBackends(['test' => 'test']);
+    $backend_registry->setEnvironment($this->createMock(Environment::class));
+
+    return $backend_registry;
+  }
+
+}

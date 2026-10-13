@@ -12,10 +12,10 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Tag;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
  * Wait for a period of time or for AJAX to finish.
@@ -30,7 +30,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  *
  * Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait WaitTrait {
 
@@ -192,7 +192,7 @@ JS;
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function waitConfigSchema(): array {

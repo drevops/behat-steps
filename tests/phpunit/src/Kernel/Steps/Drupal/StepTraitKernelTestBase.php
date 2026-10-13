@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
-use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;

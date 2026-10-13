@@ -7,11 +7,11 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Exception\AssertionException;
-use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Steps\Exception\AssertionException;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\redirect\Entity\Redirect;
 
@@ -23,7 +23,7 @@ use Drupal\redirect\Entity\Redirect;
  * - Assert that redirects do or do not exist for given source paths.
  * - Created redirects are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait RedirectTrait {
 
@@ -375,7 +375,7 @@ trait RedirectTrait {
   /**
    * Declares the prerequisites this trait asserts.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
    *   The prerequisites this trait declares.
    */
   protected function redirectPrerequisites(): array {

@@ -17,10 +17,10 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Tag;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
  * Manipulate form fields and verify widget functionality.
@@ -33,7 +33,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:FieldTrait`
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait FieldTrait {
 
@@ -1238,7 +1238,7 @@ JS;
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function fieldConfigSchema(): array {

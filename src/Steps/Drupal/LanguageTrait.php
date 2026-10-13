@@ -6,9 +6,9 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 
 /**
  * Create the languages a scenario needs.
@@ -22,7 +22,7 @@ use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
  * installs the 'language' module therefore leaves that removal to the module
  * uninstall, with '@behat-steps-entity-cleanup-skip:language'.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait LanguageTrait {
 

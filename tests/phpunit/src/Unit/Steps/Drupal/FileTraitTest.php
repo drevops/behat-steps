@@ -6,13 +6,13 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\Backend\BlackboxBackendInterface;
-use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
-use DrevOps\BehatSteps\Backend\DrushBackendInterface;
+use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\FileTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -104,7 +104,7 @@ class FileTraitTest extends UnitTestCase {
   /**
    * Creates a context backed by the given Drupal backend.
    *
-   * @param \DrevOps\BehatSteps\Backend\DrupalBackendInterface $drupal
+   * @param \DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface $drupal
    *   The backend the scenario lists.
    */
   protected function createContext(DrupalBackendInterface $drupal): FileTraitTestImplementation {

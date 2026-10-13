@@ -1681,7 +1681,7 @@ Parse XML content without altering the cached document
 
 ## FixtureDirectoryTrait
 
-[Source](src/Helper/Web/FixtureDirectoryTrait.php)
+[Source](src/Steps/Helper/Web/FixtureDirectoryTrait.php)
 
 > Resolves fixture files in the directory Mink's `files_path` parameter names.
 
@@ -1732,7 +1732,7 @@ Read a file in the fixtures directory
 
 ## HeadingTrait
 
-[Source](src/Helper/Web/HeadingTrait.php)
+[Source](src/Steps/Helper/Web/HeadingTrait.php)
 
 > Finds a heading by its text within the page or an element of it.
 
@@ -1747,7 +1747,7 @@ Find a heading whose text matches exactly
 
 ## RequestHeadersTrait
 
-[Source](src/Helper/Web/RequestHeadersTrait.php)
+[Source](src/Steps/Helper/Web/RequestHeadersTrait.php)
 
 > Holds the request headers shared by the traits that issue HTTP requests.
 
@@ -1766,7 +1766,7 @@ $this->requestHeadersSet('X-Acme-Token', 'secret');
 
 ## TableTransposeTrait
 
-[Source](src/Helper/Web/TableTransposeTrait.php)
+[Source](src/Steps/Helper/Web/TableTransposeTrait.php)
 
 > Reads a vertical Gherkin table as 1 set of values per entity.
 
@@ -2933,7 +2933,7 @@ Load all webform templates whose title contains the given string
 
 ## Drupal\AuthTrait
 
-[Source](src/Helper/Drupal/AuthTrait.php)
+[Source](src/Steps/Helper/Drupal/AuthTrait.php)
 
 > Creates users and roles, logs them in, and removes them afterwards.
 
@@ -2993,7 +2993,7 @@ Logs the current user out
 
 ## Drupal\EntityLifecycleTrait
 
-[Source](src/Helper/Drupal/EntityLifecycleTrait.php)
+[Source](src/Steps/Helper/Drupal/EntityLifecycleTrait.php)
 
 > Creates Drupal entities and removes them when the scenario ends.
 
@@ -3071,7 +3071,7 @@ Registers an entity saved outside the create pipeline for cleanup
 
 ## Drupal\FixtureFileTrait
 
-[Source](src/Helper/Drupal/FixtureFileTrait.php)
+[Source](src/Steps/Helper/Drupal/FixtureFileTrait.php)
 
 > Resolves a fixture file path for a file or image field.
 
@@ -3086,7 +3086,7 @@ Expand fixture file paths for file/image fields on an entity stub
 
 ## Drupal\QueryTrait
 
-[Source](src/Helper/Drupal/QueryTrait.php)
+[Source](src/Steps/Helper/Drupal/QueryTrait.php)
 
 > Reads Drupal state a step asserts on without going through a backend.
 
@@ -3119,7 +3119,7 @@ Load the ids of the nodes of a content type matching the conditions
 
 ## WebRawContext
 
-[Source](src/Behat/Context/WebRawContext.php)
+[Source](src/WebRawContext.php)
 
 > Root context carrying the plumbing every suite needs.
 

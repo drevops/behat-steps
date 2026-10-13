@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
-use DrevOps\BehatSteps\Behat\Config\GroupName;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\Config\ConfigSchemaReader;
+use DrevOps\BehatSteps\Extension\Config\GroupName;
+use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Steps\Drupal\CacheTrait;
 use DrevOps\BehatSteps\Steps\Drupal\ConfigOverrideTrait;

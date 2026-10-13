@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ConsumerProject\Backend\Field;
 
-use DrevOps\BehatSteps\Backend\Core\Field\AbstractHandler;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Field\AbstractHandler;
 
 /**
  * Fixture: consumer handler for the 'text_long' field type.

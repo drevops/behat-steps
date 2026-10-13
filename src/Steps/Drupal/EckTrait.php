@@ -8,12 +8,12 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
@@ -23,7 +23,7 @@ use Drupal\Core\Entity\EntityInterface;
  * - Visit ECK entity pages and their edit pages.
  * - Created entities are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait EckTrait {
 
@@ -196,7 +196,7 @@ trait EckTrait {
   /**
    * Declares the prerequisites this trait asserts.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
    *   The prerequisites this trait declares.
    */
   protected function eckPrerequisites(): array {

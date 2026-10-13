@@ -12,15 +12,15 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
-use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\Entity\File;
@@ -36,7 +36,7 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * Skip processing with tag: `@behat-steps-skip:FileTrait`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait FileTrait {
 
@@ -463,7 +463,7 @@ trait FileTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function fileConfigSchema(): array {
@@ -475,7 +475,7 @@ trait FileTrait {
   /**
    * Declares the prerequisites this trait asserts.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
    *   The prerequisites this trait declares.
    */
   protected function filePrerequisites(): array {

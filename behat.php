@@ -14,7 +14,7 @@ use DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension;
 use DrevOps\BehatPhpServer\PhpServerContext;
 use DrevOps\BehatScreenshotExtension\Context\ScreenshotContext;
 use DrevOps\BehatScreenshotExtension\ServiceContainer\BehatScreenshotExtension;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
 $suite = (new Suite('default'))

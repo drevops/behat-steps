@@ -9,8 +9,8 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Testwork\Tester\Result\ExceptionResult;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Helper\Web\JavascriptErrorTrait;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Helper\Web\JavascriptErrorTrait;
 
 /**
  * Append on-failure diagnostics to the failure message of any failed step.
@@ -48,7 +48,7 @@ use DrevOps\BehatSteps\Helper\Web\JavascriptErrorTrait;
  *   # Re-run: vendor/bin/behat features/example.feature:3
  * @endcode
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait DiagnosticsTrait {
 
@@ -324,7 +324,7 @@ trait DiagnosticsTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function diagnosticsConfigSchema(): array {

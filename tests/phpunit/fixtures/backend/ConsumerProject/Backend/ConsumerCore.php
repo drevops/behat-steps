@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ConsumerProject\Backend;
 
-use DrevOps\BehatSteps\Backend\Core\Core as BaseCore;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Core as BaseCore;
 
 /**
  * Fixture: a consumer project's Core subclass.

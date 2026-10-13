@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use Behat\MinkExtension\Context\RawMinkContext;
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
-use DrevOps\BehatSteps\Behat\Context\WebContext;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
-use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\BareMinkContext;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\Context\UserAwareInterface;
+use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\BareMinkContext;
+use DrevOps\BehatSteps\WebContext;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -119,10 +119,11 @@ class ContextCompositionTest extends UnitTestCase {
 
   public function testTheRootContextComposesTheWebHelpersOnly(): void {
     $expected = [LastStepTrait::class, RequestHeadersTrait::class, StringTrait::class];
-    $composed = static::collectComposedTraits(WebRawContext::class, 'Helper');
+    $composed = static::collectComposedTraits(WebRawContext::class, 'Steps/Helper');
 
     $this->assertSame($expected, $composed);
-    $this->assertSame([], static::collectComposedTraits(WebRawContext::class, 'Steps'), sprintf('%s registers no steps of its own.', WebRawContext::class));
+    $this->assertSame([], static::collectComposedTraits(WebRawContext::class, 'Steps/Web'), sprintf('%s registers no steps of its own.', WebRawContext::class));
+    $this->assertSame([], static::collectComposedTraits(WebRawContext::class, 'Steps/Drupal'), sprintf('%s registers no steps of its own.', WebRawContext::class));
   }
 
   public function testTheDrupalContextIsUserAware(): void {
@@ -175,9 +176,9 @@ class ContextCompositionTest extends UnitTestCase {
   protected static function collectHelperMembers(): array {
     $owners = [];
 
-    foreach (glob(dirname(__DIR__, 3) . '/src/Helper/*/*.php') ?: [] as $file) {
+    foreach (glob(dirname(__DIR__, 3) . '/src/Steps/Helper/*/*.php') ?: [] as $file) {
       /** @var class-string $trait */
-      $trait = 'DrevOps\\BehatSteps\\Helper\\' . basename(dirname($file)) . '\\' . basename($file, '.php');
+      $trait = 'DrevOps\\BehatSteps\\Steps\\Helper\\' . basename(dirname($file)) . '\\' . basename($file, '.php');
 
       foreach (static::reflect($trait)->getMethods() as $method) {
         $owners[$method->getName()] = basename($file, '.php');

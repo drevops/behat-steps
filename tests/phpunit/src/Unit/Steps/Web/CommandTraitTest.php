@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Exception\AssertionException;
+use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 use DrevOps\BehatSteps\Steps\Web\CommandTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 

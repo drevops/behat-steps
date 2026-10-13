@@ -191,7 +191,7 @@ That needs no PHP of your own. To pick your own traits instead, extend the root 
 ```php
 <?php
 
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\CookieTrait;
 
 /**
@@ -220,8 +220,8 @@ use Behat\Config\Extension;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
 use Behat\MinkExtension\Context\MinkContext;
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
@@ -335,7 +335,7 @@ This library reports failures with a small, fixed set of exception types, mostly
 
 `ElementNotFoundException` extends `ExpectationException`, so catching `ExpectationException` covers both. An attribute, a JSON path or a table column isn't an element, so a missing one throws `ExpectationException`.
 
-`DrevOps\BehatSteps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a browser driver, which those traits do not have, so they report a failed assertion with this instead.
+`DrevOps\BehatSteps\Steps\Exception\AssertionException` is thrown by traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`. `ExpectationException` needs a browser driver, which those traits do not have, so they report a failed assertion with this instead.
 
 Example error messages:
 
@@ -388,7 +388,7 @@ This package follows [semantic versioning](https://semver.org), and 5 surfaces a
 - **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) above.
 - **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
 
-Two things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Behat` that none of the surfaces above exposes.
+Two things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Extension` that none of the surfaces above exposes.
 
 ## 🤖 Writing tests with AI assistants
 

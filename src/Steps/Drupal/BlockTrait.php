@@ -8,8 +8,8 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use Drupal\block\Entity\Block;
 
 /**
@@ -19,7 +19,7 @@ use Drupal\block\Entity\Block;
  * - Place blocks in regions and assert their configured region.
  * - Created blocks are automatically removed at the end of the scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait BlockTrait {
 

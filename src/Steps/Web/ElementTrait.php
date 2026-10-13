@@ -10,9 +10,9 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Helper\Web\HeadingTrait;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Helper\Web\HeadingTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
  * Interact with HTML elements using CSS selectors and DOM attributes.
@@ -24,7 +24,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  *   below the top of the viewport. A negative offset scrolls it above the
  *   viewport.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ElementTrait {
 
@@ -1499,7 +1499,7 @@ JS;
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function elementConfigSchema(): array {

@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Web;
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
 
 /**
  * Switch between iframes and the root document.
@@ -14,7 +14,7 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
  * - Switch to iframes by CSS selector, including unnamed iframes.
  * - Switch back to the root (top-level) document.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait IframeTrait {
 

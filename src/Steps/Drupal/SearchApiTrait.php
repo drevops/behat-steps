@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\search_api\IndexInterface;
@@ -23,7 +23,7 @@ use Drupal\search_api\Utility\Utility;
  * - Run indexing for a specific number of items.
  * - Run the Search API and Search API Solr cron hooks.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait SearchApiTrait {
 
@@ -221,7 +221,7 @@ trait SearchApiTrait {
   /**
    * Declares the prerequisites this trait asserts.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
    *   The prerequisites this trait declares.
    */
   protected function searchApiPrerequisites(): array {

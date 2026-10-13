@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Backend\Core99;
+namespace DrevOps\BehatSteps\Backend\Drupal\Core99;
 
-use DrevOps\BehatSteps\Backend\Core\Core as BaseCore;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Core as BaseCore;
 
 /**
  * Fixture: simulated Core99 override.

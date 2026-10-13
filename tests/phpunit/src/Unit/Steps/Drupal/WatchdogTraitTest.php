@@ -14,13 +14,13 @@ use Behat\Gherkin\Node\StepNode;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Tester\Result\TestResult;
 use DrevOps\BehatSteps\Backend\BlackboxBackendInterface;
-use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
-use DrevOps\BehatSteps\Backend\DrushBackendInterface;
+use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 

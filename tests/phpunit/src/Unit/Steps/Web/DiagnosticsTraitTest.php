@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 use Behat\Mink\Driver\CoreDriver;
 use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Session;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\DiagnosticsTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 

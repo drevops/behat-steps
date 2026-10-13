@@ -9,15 +9,15 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
-use DrevOps\BehatSteps\Helper\Drupal\QueryTrait;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
-use DrevOps\BehatSteps\Helper\Web\TableTransposeTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\AuthTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
 use Drupal\Core\Url;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
@@ -34,7 +34,7 @@ use Drupal\user\UserInterface;
  * - Assert user roles.
  * - Assert user account status (active/inactive).
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait UserTrait {
 

@@ -48,11 +48,12 @@ A change is structural when it moves, adds, or removes a component or alters a f
 
 The project is 3 layers, and the boundary between them is the architecture. Read them in this order:
 
-- `src/Backend/` - the backend layer. `BackendInterface` plus the capability interfaces in `Backend/Capability/`, the 3 backends, and the `Backend/Core/` field-handling bridge. It references nothing from Behat or Mink.
-- `src/Behat/` - the integration layer. `ServiceContainer/BehatStepsExtension.php` for the wiring, `Context/` for the 3 context classes and the lifecycle trait they compose, `Registry/` for the backend, user and scenario tag registries, `Auth/` for the authenticators, `Hook/` for the entity-create hooks.
+- `src/Backend/` - the backend layer. `BackendInterface`, `BlackboxBackend` and the capability interfaces any backend may provide in `Backend/Capability/` at its root; under `Backend/Drupal/` the Drupal and Drush backends, the capabilities only a Drupal backend provides, and the `Core/` field-handling bridge. It references nothing from Behat or Mink, and its root references nothing from Drupal beyond the random generator.
+- `src/Extension/` - the extension layer. `ServiceContainer/BehatStepsExtension.php` for the wiring and `ServiceContainer/BackendProviderInterface.php` for what a backend provider contributes, `Context/` for the contracts the initializer injects through, `Registry/` for the backend, user and scenario tag registries, `Auth/` for the authenticators, `Browser/` for the browser capabilities and adapters, `Http/` for the HTTP clients, `Hook/` for the entity and user creation hooks; under `Extension/Drupal/` the Drupal backend provider and the node, term and language creation hooks. Its root references nothing from Drupal beyond the random generator, and nothing under either `Drupal` sub-namespace.
+- `src/WebRawContext.php`, `src/WebContext.php` and `src/DrupalContext.php` - the 3 contexts at the package root, the 1 place that reaches every layer.
 - `src/Steps/Web/` and `src/Steps/Drupal/` - the vocabulary. Each trait's `@phpstan-require-extends` annotation says what it needs from its host.
-- `src/Helper/` - the step-free traits a step trait and a context both compose, split into `Web/` and `Drupal/`.
-- `src/Exception/AssertionException.php` - what a session-less trait throws.
+- `src/Steps/Helper/` - the step-free traits a step trait and a context both compose, split into `Web/` and `Drupal/`.
+- `src/Steps/Exception/AssertionException.php` - what a session-less trait throws.
 - `composer.json` - the published package surface and the PSR-4 map.
 - `docs.php` - the documentation generator; `STEPS_DIRECTORY` is what it scans.
 - `behat.php` - the suites, contexts, profiles, and the `BehatStepsExtension` settings.
@@ -77,7 +78,7 @@ title <Component architecture | Class structure: ... | Data flow: ...>
 @enduml
 ```
 
-- Package colours are keyed by role: backend layer green (`#E8F5E9`), step vocabulary blue (`#E3F2FD`), integration layer and shared helpers purple (`#F3E5F5`), consuming project and documentation orange (`#FFF3E0`), runtime and targets slate (`#ECEFF1`), test harness and thrown exceptions red (`#FFEBEE`).
+- Package colours are keyed by role: backend layer green (`#E8F5E9`), step vocabulary blue (`#E3F2FD`), extension layer and the helper traits purple (`#F3E5F5`), consuming project and documentation orange (`#FFF3E0`), runtime and targets slate (`#ECEFF1`), test harness and thrown exceptions red (`#FFEBEE`).
 - Sequence diagrams use solid arrows (`->`) for the forward path and dashed (`-->`) for returns.
 - Class diagrams set `skinparam classAttributeIconSize 0` and stereotype every PHP trait `<<trait>>`.
 - A class diagram with many sibling types lays out unreadably wide by default. Chain them into columns with `-[hidden]down-` links and check the rendered aspect ratio before committing.

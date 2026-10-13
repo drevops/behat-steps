@@ -1,0 +1,181 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Tests\Unit\Extension\Browser;
+
+use Behat\Mink\Driver\BrowserKitDriver;
+use Behat\Mink\Driver\DriverInterface;
+use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
+use DMore\ChromeDriver\ChromeDriver;
+use DrevOps\BehatSteps\Extension\Browser\Adapter\BrowserKitAdapter;
+use DrevOps\BehatSteps\Extension\Browser\Adapter\ChromeAdapter;
+use DrevOps\BehatSteps\Extension\Browser\Adapter\Selenium2Adapter;
+use DrevOps\BehatSteps\Extension\Browser\BrowserCapabilityResolver;
+use DrevOps\BehatSteps\Extension\Browser\Capability\CookieCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Browser\Capability\HttpClientCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Browser\Capability\KeyboardCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Browser\Capability\RequestHeaderCapabilityInterface;
+use DrevOps\BehatSteps\Tests\Unit\Extension\Browser\Fixtures\AnyDriverAdapter;
+use DrevOps\BehatSteps\Tests\UnitTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
+/**
+ * Tests which capability each shipped adapter declares.
+ */
+#[CoversClass(BrowserCapabilityResolver::class)]
+#[CoversClass(BrowserKitAdapter::class)]
+#[CoversClass(ChromeAdapter::class)]
+#[CoversClass(Selenium2Adapter::class)]
+class BrowserCapabilityResolverTest extends UnitTestCase {
+
+  /**
+   * Tests that each driver resolves to the adapter that supports it.
+   *
+   * @param class-string<\Behat\Mink\Driver\DriverInterface> $driver_class
+   *   The browser driver class to mock.
+   * @param class-string $expected
+   *   The adapter class the resolver must build.
+   */
+  #[DataProvider('dataProviderAdapterForDriver')]
+  public function testAdapterForDriver(string $driver_class, string $expected): void {
+    $this->skipWithoutDriver($driver_class);
+
+    $driver = $this->createMock($driver_class);
+
+    $this->assertInstanceOf($expected, (new BrowserCapabilityResolver())->resolve($driver, CookieCapabilityInterface::class));
+  }
+
+  public static function dataProviderAdapterForDriver(): \Iterator {
+    yield 'browserkit' => [BrowserKitDriver::class, BrowserKitAdapter::class];
+    yield 'selenium2' => [Selenium2Driver::class, Selenium2Adapter::class];
+    yield 'chrome' => [ChromeDriver::class, ChromeAdapter::class];
+  }
+
+  /**
+   * Tests the capability set each shipped adapter declares.
+   *
+   * @param class-string<\Behat\Mink\Driver\DriverInterface> $driver_class
+   *   The browser driver class to mock.
+   * @param array<int, class-string> $expected
+   *   Every capability the driver must provide.
+   */
+  #[DataProvider('dataProviderDeclaredCapabilities')]
+  public function testDeclaredCapabilities(string $driver_class, array $expected): void {
+    $this->skipWithoutDriver($driver_class);
+
+    $driver = $this->createMock($driver_class);
+    $resolver = new BrowserCapabilityResolver();
+
+    $all = [
+      CookieCapabilityInterface::class,
+      HttpClientCapabilityInterface::class,
+      JavascriptCapabilityInterface::class,
+      KeyboardCapabilityInterface::class,
+      RequestHeaderCapabilityInterface::class,
+    ];
+
+    $actual = array_values(array_filter($all, static fn(string $capability): bool => $resolver->has($driver, $capability)));
+
+    $this->assertSame($expected, $actual);
+  }
+
+  public static function dataProviderDeclaredCapabilities(): \Iterator {
+    // A BrowserKit driver drives an HTTP client, not a browser: it carries
+    // cookies, exposes its client and sets headers, but runs no script.
+    yield 'browserkit' => [
+      BrowserKitDriver::class,
+      [CookieCapabilityInterface::class, HttpClientCapabilityInterface::class, RequestHeaderCapabilityInterface::class],
+    ];
+    // A WebDriver session cannot add request headers and holds no client.
+    yield 'selenium2' => [
+      Selenium2Driver::class,
+      [CookieCapabilityInterface::class, JavascriptCapabilityInterface::class, KeyboardCapabilityInterface::class],
+    ];
+    yield 'chrome' => [
+      ChromeDriver::class,
+      [CookieCapabilityInterface::class, JavascriptCapabilityInterface::class, KeyboardCapabilityInterface::class, RequestHeaderCapabilityInterface::class],
+    ];
+  }
+
+  public function testUnknownDriverProvidesNothing(): void {
+    $driver = $this->createMock(DriverInterface::class);
+    $resolver = new BrowserCapabilityResolver();
+
+    $this->assertFalse($resolver->has($driver, CookieCapabilityInterface::class));
+
+    $this->expectException(UnsupportedDriverActionException::class);
+    $this->expectExceptionMessage(sprintf('No browser capability "%s" is available', CookieCapabilityInterface::class));
+
+    $resolver->resolve($driver, CookieCapabilityInterface::class);
+  }
+
+  public function testResolveRefusesCapabilityTheDriverLacks(): void {
+    $driver = $this->createMock(BrowserKitDriver::class);
+    $resolver = new BrowserCapabilityResolver();
+
+    $this->expectException(UnsupportedDriverActionException::class);
+    $this->expectExceptionMessage(sprintf('No browser capability "%s" is available', JavascriptCapabilityInterface::class));
+
+    $resolver->resolve($driver, JavascriptCapabilityInterface::class);
+  }
+
+  public function testRegisteredAdapterTakesPrecedence(): void {
+    $driver = $this->createMock(BrowserKitDriver::class);
+    $resolver = new BrowserCapabilityResolver();
+
+    $this->assertInstanceOf(BrowserKitAdapter::class, $resolver->resolve($driver, CookieCapabilityInterface::class));
+
+    $resolver->registerAdapter(AnyDriverAdapter::class);
+
+    $this->assertInstanceOf(AnyDriverAdapter::class, $resolver->resolve($driver, CookieCapabilityInterface::class));
+    $this->assertTrue($resolver->has($driver, JavascriptCapabilityInterface::class), 'A registered adapter supplies a capability the shipped one lacks.');
+  }
+
+  public function testAdapterIsReusedForTheSameDriver(): void {
+    $driver = $this->createMock(BrowserKitDriver::class);
+    $resolver = new BrowserCapabilityResolver();
+
+    $first = $resolver->resolve($driver, CookieCapabilityInterface::class);
+    $second = $resolver->resolve($driver, CookieCapabilityInterface::class);
+
+    $this->assertSame($first, $second);
+  }
+
+  /**
+   * Tests that the Selenium driver still declares the methods Syn needs.
+   *
+   * The adapter reaches these through reflection because the driver exposes
+   * no public equivalent. An upstream rename has to fail here, not in a
+   * scenario.
+   */
+  public function testSeleniumStillDeclaresTheReflectedMethods(): void {
+    $this->skipWithoutDriver(Selenium2Driver::class);
+
+    $reflection = new \ReflectionClass(Selenium2Driver::class);
+
+    foreach (Selenium2Adapter::SYN_METHODS as $method) {
+      $this->assertTrue($reflection->hasMethod($method), sprintf('%s still declares %s().', Selenium2Driver::class, $method));
+    }
+  }
+
+  /**
+   * Skips the test when the browser driver package is not installed.
+   *
+   * An adapter still loads and its supports() reports FALSE for a driver
+   * class that is absent, so the resolver works without the package. Only a
+   * test naming the class directly needs the package present.
+   *
+   * @param string $driver_class
+   *   The browser driver class the test mocks.
+   */
+  protected function skipWithoutDriver(string $driver_class): void {
+    if (!class_exists($driver_class)) {
+      $this->markTestSkipped(sprintf('%s is not installed.', $driver_class));
+    }
+  }
+
+}

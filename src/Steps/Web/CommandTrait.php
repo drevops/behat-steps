@@ -10,9 +10,9 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Exception\AssertionException;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Exception\AssertionException;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
  * Run local shell commands and assert on their result.
@@ -27,7 +27,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * is subject to shell expansion, so untrusted input must never be
  * interpolated into it.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait CommandTrait {
 
@@ -417,7 +417,7 @@ trait CommandTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function commandConfigSchema(): array {

@@ -8,7 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Extension\Config\Option;
 
 /**
  * Assert status, error, warning and success messages rendered on the page.
@@ -21,7 +21,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  * matches when the text of any element found by that selector contains the
  * expected string.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait MessageTrait {
 
@@ -315,7 +315,7 @@ trait MessageTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function messageConfigSchema(): array {

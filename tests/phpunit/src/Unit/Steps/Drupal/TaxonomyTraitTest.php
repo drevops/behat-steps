@@ -7,11 +7,11 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Backend\DrupalBackendInterface;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
+use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 

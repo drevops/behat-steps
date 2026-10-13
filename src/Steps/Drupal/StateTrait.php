@@ -11,10 +11,10 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Backend\Capability\StateCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Exception\AssertionException;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Exception\AssertionException;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
  * Manage and assert Drupal State API values with automatic revert.
@@ -27,7 +27,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * is cleared unconditionally before and after the scenario, so no snapshot
  * persists across scenarios.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait StateTrait {
 
@@ -239,7 +239,7 @@ trait StateTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function stateConfigSchema(): array {

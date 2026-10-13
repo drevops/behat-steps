@@ -9,8 +9,8 @@ use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\DriverException;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Tag;
 
 /**
  * Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios.
@@ -43,7 +43,7 @@ use DrevOps\BehatSteps\Behat\Tag;
  * Set the `big_pipe.wait_timeout` option to change the maximum wait, or assign
  * `$bigPipeWaitTimeout` to override it for 1 scenario.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait BigPipeTrait {
 
@@ -197,7 +197,7 @@ trait BigPipeTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function bigPipeConfigSchema(): array {

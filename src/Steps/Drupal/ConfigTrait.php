@@ -11,10 +11,10 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Backend\Capability\ConfigCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Exception\AssertionException;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Exception\AssertionException;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
  * Assert and set stored Drupal configuration values with automatic revert.
@@ -48,7 +48,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  *   And the config "system.site" with the key "name" should have the effective value "My overridden site"
  * @endcode
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ConfigTrait {
 
@@ -460,7 +460,7 @@ trait ConfigTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function configConfigSchema(): array {

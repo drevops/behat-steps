@@ -31,16 +31,16 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Config\ConfigSchemaReader;
-use DrevOps\BehatSteps\Behat\Config\GroupName;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Context\WebContext;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Behat\Prerequisite\PrerequisiteReader;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\Config\ConfigSchemaReader;
+use DrevOps\BehatSteps\Extension\Config\GroupName;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Config\TagOverrideResolver;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Extension\Prerequisite\PrerequisiteReader;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\WebContext;
+use DrevOps\BehatSteps\WebRawContext;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\BooleanNode;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -83,13 +83,14 @@ const REGISTERED_ATTRIBUTE_PREFIXES = [
   'Behat\\Step\\',
   'Behat\\Hook\\',
   'Behat\\Transformation\\',
-  'DrevOps\\BehatSteps\\Behat\\Hook\\Attribute\\',
+  'DrevOps\\BehatSteps\\Extension\\Hook\\Attribute\\',
+  'DrevOps\\BehatSteps\\Extension\\Drupal\\Hook\\Attribute\\',
 ];
 
 /**
  * Directory holding the helper traits, relative to the repository root.
  */
-const HELPERS_DIRECTORY = 'src/Helper';
+const HELPERS_DIRECTORY = 'src/Steps/Helper';
 
 /**
  * Classes published in the toolbox reference alongside the step traits.
@@ -370,7 +371,7 @@ function collect_helper_traits(string $base_path = __DIR__): array {
 
       $short_name = basename($file, '.php');
       /** @var class-string $trait_name */
-      $trait_name = 'DrevOps\\BehatSteps\\Helper\\' . $context . '\\' . $short_name;
+      $trait_name = 'DrevOps\\BehatSteps\\Steps\\Helper\\' . $context . '\\' . $short_name;
 
       $collected[$short_name] = ['reflection' => new \ReflectionClass($trait_name), 'context' => $context];
     }
@@ -472,7 +473,7 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
  * @param string $trait_name
  *   The short trait name.
  *
- * @return array<string, \DrevOps\BehatSteps\Behat\Config\Option>
+ * @return array<string, \DrevOps\BehatSteps\Extension\Config\Option>
  *   Options keyed by name, empty when the trait declares none.
  */
 function extract_trait_options(string $class_name, string $trait_name): array {
@@ -503,7 +504,7 @@ function trait_option_group(string $trait_name): string {
  * @param string $trait
  *   The fully qualified trait name.
  *
- * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+ * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
  *   The prerequisites in declaration order, empty when the trait declares
  *   none.
  */

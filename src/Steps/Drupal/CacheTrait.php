@@ -7,10 +7,10 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Step\Given;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\StaticCacheTrait;
 use Drupal\Core\Cache\DatabaseBackend;
 use Drupal\Core\Database\Database;
 
@@ -21,7 +21,7 @@ use Drupal\Core\Database\Database;
  *   render cache.
  * - Run cron, which also flushes the caches cron itself invalidates.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait CacheTrait {
 
@@ -230,7 +230,7 @@ trait CacheTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function cacheConfigSchema(): array {

@@ -14,7 +14,7 @@ This repository contains Behat step definitions for PHP projects (with specializ
 - Naming a backend, a browser driver or an HTTP client, in code or in prose: [Backend, browser driver and HTTP client](CONTRIBUTING.md#backend-browser-driver-and-http-client).
 - Adding a hook, reading a tag or declaring a prerequisite: [Reading tags](CONTRIBUTING.md#reading-tags), [Skipping a trait's hooks](CONTRIBUTING.md#skipping-a-traits-hooks) and [Deciding whether a trait acts](CONTRIBUTING.md#deciding-whether-a-trait-acts).
 - Reaching a backend or sending a request: [What a trait needs from the backend](CONTRIBUTING.md#what-a-trait-needs-from-the-backend) and [Sending a request from a trait](CONTRIBUTING.md#sending-a-request-from-a-trait).
-- Changing a Behat extension point under `src/Behat`, or `behat.php`: [Behat 4 readiness](CONTRIBUTING.md#behat-4-readiness).
+- Changing a Behat extension point under `src/Extension`, or `behat.php`: [Behat 4 readiness](CONTRIBUTING.md#behat-4-readiness).
 - Writing a unit, kernel or Behat test: [Running tests](CONTRIBUTING.md#running-tests), [Test suite conventions](CONTRIBUTING.md#test-suite-conventions), [Behat harness conventions](CONTRIBUTING.md#behat-harness-conventions) and [Coverage markers](CONTRIBUTING.md#coverage-markers).
 - Editing a fixture file or the fixture site: [Static fixtures](CONTRIBUTING.md#static-fixtures), [Updating fixture site](CONTRIBUTING.md#updating-fixture-site) and [Drupal versions](CONTRIBUTING.md#drupal-versions).
 - Changing `docs.php` or a generated document: [Validating and updating documentation](CONTRIBUTING.md#validating-and-updating-documentation).

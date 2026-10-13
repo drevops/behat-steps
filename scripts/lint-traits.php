@@ -5,7 +5,7 @@
  * Trait composition check.
  *
  * A trait's directory determines its kind: 'src/Steps' holds the step
- * vocabulary and 'src/Helper' holds the plumbing shared by step traits.
+ * vocabulary and 'src/Steps/Helper' holds the plumbing shared by step traits.
  *
  * This script reads both trees and fails when a step trait composes another
  * step trait, or when a helper trait registers Gherkin.
@@ -26,7 +26,7 @@ const TRAITS_STEPS_DIRECTORY = 'src/Steps';
 /**
  * Directory holding the plumbing, relative to the repository root.
  */
-const TRAITS_HELPER_DIRECTORY = 'src/Helper';
+const TRAITS_HELPER_DIRECTORY = 'src/Steps/Helper';
 
 /**
  * Attributes registering Gherkin against a method.
@@ -94,7 +94,22 @@ function traits_collect(string $base_path): array {
         continue;
       }
 
-      $traits[$file->getBasename('.php')] = ['kind' => $kind] + traits_file_facts($file->getPathname());
+      // The helpers sit under the steps directory and are walked as helpers.
+      if ($kind === 'steps' && str_starts_with($file->getPathname(), $base_path . '/' . TRAITS_HELPER_DIRECTORY . '/')) {
+        continue;
+      }
+
+      $facts = traits_file_facts($file->getPathname());
+
+      if (!$facts['is_trait']) {
+        continue;
+      }
+
+      $traits[$file->getBasename('.php')] = [
+        'kind' => $kind,
+        'composed' => $facts['composed'],
+        'members' => $facts['members'],
+      ];
     }
   }
 
@@ -112,11 +127,12 @@ function traits_collect(string $base_path): array {
  * @param string $file
  *   Absolute path to the file to read.
  *
- * @return array{composed: array<int, string>, members: array<int, string>}
- *   The traits it composes and the attributes on its members.
+ * @return array{is_trait: bool, composed: array<int, string>, members: array<int, string>}
+ *   Whether the file declares a trait, the traits it composes and the
+ *   attributes on its members.
  */
 function traits_file_facts(string $file): array {
-  $facts = ['composed' => [], 'members' => []];
+  $facts = ['is_trait' => FALSE, 'composed' => [], 'members' => []];
 
   $is_declared = FALSE;
   $attribute = 0;
@@ -148,6 +164,7 @@ function traits_file_facts(string $file): array {
 
     if ($type === T_TRAIT) {
       $is_declared = TRUE;
+      $facts['is_trait'] = TRUE;
 
       continue;
     }

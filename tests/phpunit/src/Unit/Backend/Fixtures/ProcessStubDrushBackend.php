@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures;
 
-use DrevOps\BehatSteps\Backend\DrushBackend;
+use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use Symfony\Component\Process\Process;
 
 /**

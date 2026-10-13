@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\Behat\Auth\Authenticator;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Context\Initializer\BackendAwareInitializer;
-use DrevOps\BehatSteps\Behat\Http\HttpClientFactory;
-use DrevOps\BehatSteps\Behat\Registry\UserRegistry;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BackendPass;
-use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\Auth\Authenticator;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Context\Initializer\BackendAwareInitializer;
+use DrevOps\BehatSteps\Extension\Http\HttpClientFactory;
+use DrevOps\BehatSteps\Extension\Registry\UserRegistry;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BackendPass;
+use DrevOps\BehatSteps\Extension\Tag;
+use DrevOps\BehatSteps\WebContext;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Asserts that every class and namespace under `src/Behat` is named for a role.
+ * Asserts that every class and namespace under `src/Extension` is named for a role.
  *
  * Every class the container builds ends in a role suffix, and every class
  * sits in a sub-namespace, apart from the ones listed in ROOT_TYPES.
@@ -26,9 +29,9 @@ use Symfony\Component\Yaml\Yaml;
 class ClassNamingTest extends UnitTestCase {
 
   /**
-   * The namespace `src/Behat` maps to.
+   * The namespace `src/Extension` maps to.
    */
-  protected const BEHAT_NAMESPACE = 'DrevOps\\BehatSteps\\Behat\\';
+  protected const EXTENSION_NAMESPACE = 'DrevOps\\BehatSteps\\Extension\\';
 
   /**
    * Suffixes that would describe every class in the package equally well.
@@ -44,7 +47,7 @@ class ClassNamingTest extends UnitTestCase {
   protected const ROLE_SUFFIXES = ['Authenticator', 'Factory', 'Initializer', 'Listener', 'Reader', 'Registry', 'Resolver', 'Selector'];
 
   /**
-   * Types that sit directly under `src/Behat`.
+   * Types that sit directly under `src/Extension`.
    *
    * `Tag` is read by the step traits, the contexts, the listeners and the
    * registries alike, so no sub-namespace owns it.
@@ -63,7 +66,7 @@ class ClassNamingTest extends UnitTestCase {
   }
 
   public static function dataProviderClassIsNamedForItsRole(): array {
-    return static::discoverBehatClasses();
+    return static::discoverExtensionClasses();
   }
 
   /**
@@ -83,12 +86,12 @@ class ClassNamingTest extends UnitTestCase {
     return [
       'role-named namespace and class' => [UserRegistry::class, []],
       'class directly under the package' => [Tag::class, []],
-      'generic namespace' => ['DrevOps\\BehatSteps\\Behat\\Manager\\Authenticator', ['Manager']],
-      'generic class' => ['DrevOps\\BehatSteps\\Behat\\Auth\\SessionManager', ['SessionManager']],
-      'generic nested namespace' => ['DrevOps\\BehatSteps\\Behat\\Hook\\Handler\\AfterNodeCreate', ['Handler']],
-      'generic namespace and class' => ['DrevOps\\BehatSteps\\Behat\\Service\\MailHelper', ['Service', 'MailHelper']],
+      'generic namespace' => ['DrevOps\\BehatSteps\\Extension\\Manager\\Authenticator', ['Manager']],
+      'generic class' => ['DrevOps\\BehatSteps\\Extension\\Auth\\SessionManager', ['SessionManager']],
+      'generic nested namespace' => ['DrevOps\\BehatSteps\\Extension\\Hook\\Handler\\AfterNodeCreate', ['Handler']],
+      'generic namespace and class' => ['DrevOps\\BehatSteps\\Extension\\Service\\MailHelper', ['Service', 'MailHelper']],
       'generic word opening a name' => [BackendPass::class, []],
-      'generic word inside a name' => ['DrevOps\\BehatSteps\\Behat\\Mink\\HandlerAwareTrait', []],
+      'generic word inside a name' => ['DrevOps\\BehatSteps\\Extension\\Browser\\HandlerAwareTrait', []],
     ];
   }
 
@@ -126,8 +129,8 @@ class ClassNamingTest extends UnitTestCase {
       'agent noun' => [Authenticator::class, TRUE],
       'factory' => [HttpClientFactory::class, TRUE],
       'value' => [Option::class, FALSE],
-      'plural noun' => ['DrevOps\\BehatSteps\\Behat\\Config\\TagOverrides', FALSE],
-      'suffix inside a name' => ['DrevOps\\BehatSteps\\Behat\\Config\\ReaderSettings', FALSE],
+      'plural noun' => ['DrevOps\\BehatSteps\\Extension\\Config\\TagOverrides', FALSE],
+      'suffix inside a name' => ['DrevOps\\BehatSteps\\Extension\\Config\\ReaderSettings', FALSE],
     ];
   }
 
@@ -139,20 +142,20 @@ class ClassNamingTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderClassSitsInSubNamespace')]
   public function testClassSitsInSubNamespace(string $class): void {
-    $this->assertTrue(!static::isAtRoot($class) || in_array($class, static::ROOT_TYPES, TRUE), sprintf('%s sits directly under src/Behat. Move it to the sub-namespace named for its role or concern, as CONTRIBUTING.md describes.', $class));
+    $this->assertTrue(!static::isAtRoot($class) || in_array($class, static::ROOT_TYPES, TRUE), sprintf('%s sits directly under src/Extension. Move it to the sub-namespace named for its role or concern, as CONTRIBUTING.md describes.', $class));
   }
 
   public static function dataProviderClassSitsInSubNamespace(): array {
-    return static::discoverBehatClasses();
+    return static::discoverExtensionClasses();
   }
 
   /**
-   * Assert that a class directly under `src/Behat` is told apart.
+   * Assert that a class directly under `src/Extension` is told apart.
    *
    * @param string $class
    *   A fully qualified class name.
    * @param bool $expected
-   *   Whether the class sits directly under `src/Behat`.
+   *   Whether the class sits directly under `src/Extension`.
    */
   #[DataProvider('dataProviderRootClassesAreDetected')]
   public function testRootClassesAreDetected(string $class, bool $expected): void {
@@ -168,13 +171,26 @@ class ClassNamingTest extends UnitTestCase {
   }
 
   /**
-   * Return every class, interface and trait under `src/Behat`, keyed by name.
+   * Assert that the package root holds the 3 contexts and nothing else.
+   *
+   * The contexts are the 1 place that reaches every layer, so they sit above
+   * the layers rather than inside 1 of them.
+   */
+  public function testThePackageRootHoldsOnlyTheContexts(): void {
+    $classes = array_map(static fn(string $file): string => 'DrevOps\\BehatSteps\\' . basename($file, '.php'), glob(dirname(__DIR__, 3) . '/src/*.php') ?: []);
+    sort($classes);
+
+    $this->assertSame([DrupalContext::class, WebContext::class, WebRawContext::class], $classes, 'Only the 3 contexts sit at the package root; every other type sits in its layer, as CONTRIBUTING.md describes.');
+  }
+
+  /**
+   * Return every class, interface and trait under `src/Extension`, keyed by name.
    *
    * @return array<string, array{string}>
    *   Fully qualified names, as data provider rows.
    */
-  protected static function discoverBehatClasses(): array {
-    $root = dirname(__DIR__, 3) . '/src/Behat';
+  protected static function discoverExtensionClasses(): array {
+    $root = dirname(__DIR__, 3) . '/src/Extension';
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
 
     $classes = [];
@@ -185,7 +201,7 @@ class ClassNamingTest extends UnitTestCase {
       }
 
       $relative = substr($file->getPathname(), strlen($root) + 1, -strlen('.php'));
-      $class = static::BEHAT_NAMESPACE . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
+      $class = static::EXTENSION_NAMESPACE . str_replace(DIRECTORY_SEPARATOR, '\\', $relative);
 
       $classes[$class] = [$class];
     }
@@ -202,7 +218,7 @@ class ClassNamingTest extends UnitTestCase {
    *   Fully qualified class names, as data provider rows.
    */
   protected static function discoverServiceClasses(): array {
-    $definitions = Yaml::parseFile(dirname(__DIR__, 3) . '/src/Behat/ServiceContainer/config/services.yml');
+    $definitions = Yaml::parseFile(dirname(__DIR__, 3) . '/src/Extension/ServiceContainer/config/services.yml');
     $parameters = is_array($definitions) && is_array($definitions['parameters'] ?? NULL) ? $definitions['parameters'] : [];
 
     $classes = [];
@@ -250,13 +266,13 @@ class ClassNamingTest extends UnitTestCase {
   }
 
   /**
-   * Check whether a class sits directly under `src/Behat`.
+   * Check whether a class sits directly under `src/Extension`.
    *
    * @param string $class
-   *   A fully qualified class name under `src/Behat`.
+   *   A fully qualified class name under `src/Extension`.
    */
   protected static function isAtRoot(string $class): bool {
-    return !str_contains(substr($class, strlen(static::BEHAT_NAMESPACE)), '\\');
+    return !str_contains(substr($class, strlen(static::EXTENSION_NAMESPACE)), '\\');
   }
 
   /**

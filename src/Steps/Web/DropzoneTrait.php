@@ -7,8 +7,8 @@ namespace DrevOps\BehatSteps\Steps\Web;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
-use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
+use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
 
 /**
  * Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
@@ -28,7 +28,7 @@ use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
  *
  * `@javascript`-only: requires a headless browser session.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait DropzoneTrait {
 

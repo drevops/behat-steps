@@ -58,7 +58,7 @@ Mink's own extension replaces the Drupal Extension's Mink extension, and the ext
 | 3.14 | 4.0 |
 | --- | --- |
 | `Drupal\MinkExtension` | `Behat\MinkExtension` |
-| `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` |
+| `Drupal\DrupalExtension` | `DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension` |
 
 In `behat.yml`:
 
@@ -81,7 +81,7 @@ extensions:
     sessions:
       browserkit_http:
         browserkit_http: ~
-  DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+  DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension:
     drupal:
       drupal_root: web
 ```
@@ -90,7 +90,7 @@ In `behat.php`, which Behat 4 requires, `Behat\MinkExtension` is the `Behat\Mink
 
 ```php
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
 $profile
   ->withExtension(new Extension(MinkExtension::class, [
@@ -141,7 +141,7 @@ default:
 # After.
 default:
   extensions:
-    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+    DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension:
       selectors:
         logged_in_selector: 'body.user-logged-in'
       steps:
@@ -233,7 +233,7 @@ $profile->withExtension(new Extension(DrupalExtension::class, [
 ]));
 
 // After.
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
   'backends' => ['drupal', 'drush', 'blackbox'],
@@ -274,7 +274,7 @@ A `config` argument that names a group or an option its context can't serve fail
 
 ### Contexts to register
 
-A 3.14 suite registered the Drupal Extension's contexts, such as `DrupalContext`, `MinkContext`, `MessageContext` and `DrushContext`, beside a context of its own that composed this package's traits. 4.0's `DrevOps\BehatSteps\Behat\Context\DrupalContext` composes all 57 step traits, which carry the Drupal Extension's vocabulary, so `$suite->addContext(DrupalContext::class)` alone gives a Drupal suite every step this package ships.
+A 3.14 suite registered the Drupal Extension's contexts, such as `DrupalContext`, `MinkContext`, `MessageContext` and `DrushContext`, beside a context of its own that composed this package's traits. 4.0's `DrevOps\BehatSteps\DrupalContext` composes all 57 step traits, which carry the Drupal Extension's vocabulary, so `$suite->addContext(DrupalContext::class)` alone gives a Drupal suite every step this package ships.
 
 Register Mink's own `Behat\MinkExtension\Context\MinkContext` where the suite registered the Drupal Extension's `MinkContext`, which extended it. It brings the base browser steps, such as `I am on`, `I go to`, `I should see`, `I fill in`, `I press`, `I follow`, `I check`, `I select`, `I attach the file` and `the response status code should be`, with their text unchanged. Don't register the Drupal Extension's `RandomContext` or `MappingContext` either: `RandomTrait` and `MappingTrait` carry the `[?name:type]` and `{{ Key }}` tokens unchanged, and `WebContext` composes both.
 
@@ -313,9 +313,9 @@ A 3.14 context extended the Drupal Extension's `DrupalContext` or `RawDrupalCont
 
 | 3.14 parent | 4.0 parent |
 | --- | --- |
-| `Drupal\DrupalExtension\Context\RawDrupalContext` | `DrevOps\BehatSteps\Behat\Context\WebRawContext` |
-| `Behat\MinkExtension\Context\RawMinkContext`, composing this package's traits | `DrevOps\BehatSteps\Behat\Context\WebRawContext` |
-| `Drupal\DrupalExtension\Context\DrupalContext` | `DrevOps\BehatSteps\Behat\Context\DrupalContext`, without the `use` lines for the traits it already composes |
+| `Drupal\DrupalExtension\Context\RawDrupalContext` | `DrevOps\BehatSteps\WebRawContext` |
+| `Behat\MinkExtension\Context\RawMinkContext`, composing this package's traits | `DrevOps\BehatSteps\WebRawContext` |
+| `Drupal\DrupalExtension\Context\DrupalContext` | `DrevOps\BehatSteps\DrupalContext`, without the `use` lines for the traits it already composes |
 
 ```php
 // Before.
@@ -331,7 +331,7 @@ class UiContext extends RawMinkContext {
 }
 
 // After.
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\JavascriptTrait;
 use DrevOps\BehatSteps\Steps\Web\WaitTrait;
 
@@ -361,7 +361,7 @@ class UiContext extends RawDrupalContext {
 }
 
 // After.
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\WebRawContext;
 
 class UiContext extends WebRawContext {
 
@@ -398,8 +398,8 @@ A context that extends a shipped context inherits both. One that implemented `Dr
 | --- | --- | --- |
 | `DrevOps\BehatSteps\<Name>Trait` | `DrevOps\BehatSteps\Steps\Web\<Name>Trait` | Every web trait; the trait name is unchanged |
 | `DrevOps\BehatSteps\Drupal\<Name>Trait` | `DrevOps\BehatSteps\Steps\Drupal\<Name>Trait` | Every Drupal trait; the trait name is unchanged |
-| `DrevOps\BehatSteps\HelperTrait` | Removed | Its members moved to traits under `DrevOps\BehatSteps\Helper\Web`; see [HelperTrait methods](#helpertrait-methods) |
-| `DrevOps\BehatSteps\Drupal\HelperTrait` | Removed | Its members moved to traits under `DrevOps\BehatSteps\Helper\Drupal`; see [HelperTrait methods](#helpertrait-methods) |
+| `DrevOps\BehatSteps\HelperTrait` | Removed | Its members moved to traits under `DrevOps\BehatSteps\Steps\Helper\Web`; see [HelperTrait methods](#helpertrait-methods) |
+| `DrevOps\BehatSteps\Drupal\HelperTrait` | Removed | Its members moved to traits under `DrevOps\BehatSteps\Steps\Helper\Drupal`; see [HelperTrait methods](#helpertrait-methods) |
 | `DrevOps\BehatSteps\Drupal\OverrideTrait` | Removed | [OverrideTrait methods](#overridetrait-methods) lists what replaces each of its overrides |
 
 ```php
@@ -411,7 +411,7 @@ use DrevOps\BehatSteps\HelperTrait;
 // After.
 use DrevOps\BehatSteps\Steps\Web\CookieTrait;
 use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 ```
 
 ### Trait composition
@@ -1315,25 +1315,26 @@ A trait checks what it needs before a step acts, and fails with a message naming
 
 ## Classes and interfaces
 
-Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\BehatSteps\Backend`, so a Drupal Driver type the table doesn't name keeps its short name and changes only its namespace. The Drupal Extension's types moved under `DrevOps\BehatSteps\Behat`, apart from its field parser, which joined the field handlers under `DrevOps\BehatSteps\Backend`. "Driver" now only ever means Mink's browser driver: the Drupal, Drush and Blackbox drivers are backends. [Base classes](#base-classes) maps the Drupal Extension's `RawDrupalContext` and `DrupalContext`.
+Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\BehatSteps\Backend`: what any backend may provide sits at its root, and the Drupal and Drush backends, `Core`, the field handlers, the Drupal creation aliases and the capabilities only a Drupal backend provides sit under `DrevOps\BehatSteps\Backend\Drupal`. A Drupal Driver type the table doesn't name keeps its short name and changes only its namespace. The Drupal Extension's types moved under `DrevOps\BehatSteps\Extension`, apart from its field parser, which joined the field handlers under `DrevOps\BehatSteps\Backend`. "Driver" now only ever means Mink's browser driver: the Drupal, Drush and Blackbox drivers are backends. [Base classes](#base-classes) maps the Drupal Extension's `RawDrupalContext` and `DrupalContext`.
 
 | 3.14 | 4.0 | Notes |
 | --- | --- | --- |
-| `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\<Name>` | Every type not listed below, such as the capability interfaces, `Core`, the field handlers, `EntityStub`, the creation aliases and the exceptions |
+| `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\<Name>` | `EntityStub`, the creation alias contracts, the exceptions and the capabilities any backend may provide: `Authentication`, `Cache`, `Content`, `Cron`, `CreationAlias`, `Language`, `Mail`, `Role` and `User` |
+| `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\Drupal\<Name>` | `Core`, the field handlers and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `Core`, `Drush`, `Module` and `State` |
 | `Drupal\Driver\DriverInterface` | `DrevOps\BehatSteps\Backend\BackendInterface` | |
-| `Drupal\Driver\DrupalDriver` | `DrevOps\BehatSteps\Backend\DrupalBackend` | |
-| `Drupal\Driver\DrupalDriverInterface` | `DrevOps\BehatSteps\Backend\DrupalBackendInterface` | Declares only `setCore()`; `getCore()` and `getDrupalVersion()` moved to `CoreCapabilityInterface` |
-| `Drupal\Driver\DrushDriver` | `DrevOps\BehatSteps\Backend\DrushBackend` | |
-| `Drupal\Driver\DrushDriverInterface` | `DrevOps\BehatSteps\Backend\DrushBackendInterface` | |
+| `Drupal\Driver\DrupalDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackend` | |
+| `Drupal\Driver\DrupalDriverInterface` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface` | Declares only `setCore()`; `getCore()` and `getDrupalVersion()` moved to `CoreCapabilityInterface` |
+| `Drupal\Driver\DrushDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrushBackend` | |
+| `Drupal\Driver\DrushDriverInterface` | `DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface` | |
 | `Drupal\Driver\BlackboxDriver` | `DrevOps\BehatSteps\Backend\BlackboxBackend` | |
 | `Drupal\Driver\BlackboxDriverInterface` | `DrevOps\BehatSteps\Backend\BlackboxBackendInterface` | |
-| `Drupal\Driver\Core<N>\Core` | `DrevOps\BehatSteps\Backend\Core<N>\Core` | Where a Drupal core class of your own for 1 Drupal major is looked up |
+| `Drupal\Driver\Core<N>\Core` | `DrevOps\BehatSteps\Backend\Drupal\Core<N>\Core` | Where a Drupal core class of your own for 1 Drupal major is looked up |
 | `Drupal\Driver\Alias\RolesAlias` | `DrevOps\BehatSteps\Backend\Alias\RolesAlias` | Final |
-| `Drupal\Driver\Core\Alias\AuthorAlias` | `DrevOps\BehatSteps\Backend\Core\Alias\AuthorAlias` | Final |
-| `Drupal\Driver\Core\Alias\ParentTermAlias` | `DrevOps\BehatSteps\Backend\Core\Alias\ParentTermAlias` | Final |
-| `Drupal\Driver\Core\Alias\VocabularyMachineNameAlias` | `DrevOps\BehatSteps\Backend\Core\Alias\VocabularyMachineNameAlias` | Final |
-| `Drupal\Driver\Core\Field\FieldClassifier` | `DrevOps\BehatSteps\Backend\Core\Field\FieldClassifier` | Final |
-| `Drupal\Driver\Core\Field\FieldShapeClassifier` | `DrevOps\BehatSteps\Backend\Core\Field\FieldShapeClassifier` | Final |
+| `Drupal\Driver\Core\Alias\AuthorAlias` | `DrevOps\BehatSteps\Backend\Drupal\Core\Alias\AuthorAlias` | Final |
+| `Drupal\Driver\Core\Alias\ParentTermAlias` | `DrevOps\BehatSteps\Backend\Drupal\Core\Alias\ParentTermAlias` | Final |
+| `Drupal\Driver\Core\Alias\VocabularyMachineNameAlias` | `DrevOps\BehatSteps\Backend\Drupal\Core\Alias\VocabularyMachineNameAlias` | Final |
+| `Drupal\Driver\Core\Field\FieldClassifier` | `DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifier` | Final |
+| `Drupal\Driver\Core\Field\FieldShapeClassifier` | `DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldShapeClassifier` | Final |
 | `Drupal\Driver\Exception\BootstrapException` | `DrevOps\BehatSteps\Backend\Exception\BootstrapException` | Final |
 | `Drupal\Driver\Exception\CreationAliasResolutionException` | `DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException` | Final; see [Exceptions](#exceptions) |
 | `Drupal\Driver\Exception\UnsupportedDriverActionException` | `DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException` | Final. Its short name no longer matches Mink's `UnsupportedDriverActionException`, so a file that imported Mink's under an alias can drop the alias |
@@ -1343,8 +1344,8 @@ Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\Beh
 | `Drupal\Driver\Core\Field\TextHandler` | Removed | Its field type falls back to `DefaultHandler` |
 | `Drupal\Driver\Core\Field\TextLongHandler` | Removed | Its field type falls back to `DefaultHandler` |
 | `Drupal\Driver\Core\Field\TextWithSummaryHandler` | Removed | Its field type falls back to `DefaultHandler` |
-| `Drupal\DrupalExtension\ServiceContainer\DrupalExtension` | `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` | Final |
-| `Drupal\DrupalExtension\Compiler\DriverPass` | `DrevOps\BehatSteps\Behat\ServiceContainer\BackendPass` | Final |
+| `Drupal\DrupalExtension\ServiceContainer\DrupalExtension` | `DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension` | Final |
+| `Drupal\DrupalExtension\Compiler\DriverPass` | `DrevOps\BehatSteps\Extension\ServiceContainer\BackendPass` | Final |
 | `Drupal\DrupalExtension\Context\MinkContext` | `Behat\MinkExtension\Context\MinkContext` | See [Contexts to register](#contexts-to-register) |
 | `Drupal\DrupalExtension\Context\ConfigContext` | Removed | `DrupalContext` carries its steps; see [Drupal Extension steps](#drupal-extension-steps) |
 | `Drupal\DrupalExtension\Context\DrushContext` | Removed | `DrupalContext` carries its steps; see [Drupal Extension steps](#drupal-extension-steps) |
@@ -1354,37 +1355,40 @@ Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\Beh
 | `Drupal\DrupalExtension\Context\RawMailContext` | Removed | See [Backend contracts](#backend-contracts) |
 | `Drupal\DrupalExtension\Context\RandomContext` | Removed | See [Contexts to register](#contexts-to-register) |
 | `Drupal\DrupalExtension\Context\MappingContext` | Removed | See [Contexts to register](#contexts-to-register) |
-| `Drupal\DrupalExtension\Context\DrupalAwareInterface` | `DrevOps\BehatSteps\Behat\Context\BackendAwareInterface` and `DrevOps\BehatSteps\Behat\Context\UserAwareInterface` | See [Interfaces](#interfaces) |
-| `Drupal\DrupalExtension\Context\Initializer\DrupalAwareInitializer` | `DrevOps\BehatSteps\Behat\Context\Initializer\BackendAwareInitializer` | Final |
-| `Drupal\DrupalExtension\Context\Attribute\HookAttributeReader` | `DrevOps\BehatSteps\Behat\Context\Attribute\HookAttributeReader` | Final |
-| `Drupal\DrupalExtension\ParametersAwareInterface` | `DrevOps\BehatSteps\Behat\Context\ParametersAwareInterface` | |
-| `Drupal\DrupalExtension\ParametersTrait` | `DrevOps\BehatSteps\Behat\Config\ParametersTrait` | No longer carries `getMapping()`; see [Drupal Extension methods](#drupal-extension-methods) |
-| `Drupal\DrupalExtension\MinkAwareTrait` | `DrevOps\BehatSteps\Behat\Mink\MinkAwareTrait` | No longer carries `saveScreenshot()`, which a context still inherits from Mink's `RawMinkContext` |
-| `Drupal\DrupalExtension\Listener\DriverListener` | `DrevOps\BehatSteps\Behat\Listener\BackendListener` | Final |
-| `Drupal\DrupalExtension\Manager\DriverManager` | `DrevOps\BehatSteps\Behat\Registry\BackendRegistry` | Final. Registers the backends, resolves 1 by capability and tracks the scenario's order |
-| `Drupal\DrupalExtension\Manager\DriverManagerInterface` | `DrevOps\BehatSteps\Behat\Registry\BackendRegistryInterface` | |
-| `Drupal\DrupalExtension\Manager\DrupalUserManager` | `DrevOps\BehatSteps\Behat\Registry\UserRegistry` | Final. Stores the users a scenario created and tracks the current one |
-| `Drupal\DrupalExtension\Manager\DrupalUserManagerInterface` | `DrevOps\BehatSteps\Behat\Registry\UserRegistryInterface` | |
-| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManager` | `DrevOps\BehatSteps\Behat\Auth\Authenticator` and `DrevOps\BehatSteps\Behat\Auth\BasicAuthenticator` | Both final. `Authenticator` logs a user in and out, holds the Drupal session and implements `AuthenticatorInterface` and `FastLogoutInterface`. `BasicAuthenticator` derives the credentials from `base_url`, applies them to Mink and implements `BasicAuthenticatorInterface`; `Authenticator` takes it as a constructor argument to reapply the credentials after a fast logout |
-| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManagerInterface` | `DrevOps\BehatSteps\Behat\Auth\AuthenticatorInterface` | |
-| `Drupal\DrupalExtension\Manager\BasicAuthInterface` | `DrevOps\BehatSteps\Behat\Auth\BasicAuthenticatorInterface` | Adds `findCredentials()` |
-| `Drupal\DrupalExtension\Manager\FastLogoutInterface` | `DrevOps\BehatSteps\Behat\Auth\FastLogoutInterface` | |
+| `Drupal\DrupalExtension\Context\DrupalAwareInterface` | `DrevOps\BehatSteps\Extension\Context\BackendAwareInterface` and `DrevOps\BehatSteps\Extension\Context\UserAwareInterface` | See [Interfaces](#interfaces) |
+| `Drupal\DrupalExtension\Context\Initializer\DrupalAwareInitializer` | `DrevOps\BehatSteps\Extension\Context\Initializer\BackendAwareInitializer` | Final |
+| `Drupal\DrupalExtension\Context\Attribute\HookAttributeReader` | `DrevOps\BehatSteps\Extension\Context\Attribute\HookAttributeReader` | Final |
+| `Drupal\DrupalExtension\ParametersAwareInterface` | `DrevOps\BehatSteps\Extension\Context\ParametersAwareInterface` | |
+| `Drupal\DrupalExtension\ParametersTrait` | `DrevOps\BehatSteps\Extension\Config\ParametersTrait` | No longer carries `getMapping()`, and `getDrupalText()` and `getDrupalSelector()` are `getText()` and `getSelector()`; see [Drupal Extension methods](#drupal-extension-methods) |
+| `Drupal\DrupalExtension\MinkAwareTrait` | `DrevOps\BehatSteps\Extension\Browser\MinkAwareTrait` | No longer carries `saveScreenshot()`, which a context still inherits from Mink's `RawMinkContext` |
+| `Drupal\DrupalExtension\Listener\DriverListener` | `DrevOps\BehatSteps\Extension\Listener\BackendListener` | Final |
+| `Drupal\DrupalExtension\Manager\DriverManager` | `DrevOps\BehatSteps\Extension\Registry\BackendRegistry` | Final. Registers the backends, resolves 1 by capability and tracks the scenario's order |
+| `Drupal\DrupalExtension\Manager\DriverManagerInterface` | `DrevOps\BehatSteps\Extension\Registry\BackendRegistryInterface` | |
+| `Drupal\DrupalExtension\Manager\DrupalUserManager` | `DrevOps\BehatSteps\Extension\Registry\UserRegistry` | Final. Stores the users a scenario created and tracks the current one |
+| `Drupal\DrupalExtension\Manager\DrupalUserManagerInterface` | `DrevOps\BehatSteps\Extension\Registry\UserRegistryInterface` | |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManager` | `DrevOps\BehatSteps\Extension\Auth\Authenticator` and `DrevOps\BehatSteps\Extension\Auth\BasicAuthenticator` | Both final. `Authenticator` logs a user in and out, holds the Drupal session and implements `AuthenticatorInterface` and `FastLogoutInterface`. `BasicAuthenticator` derives the credentials from `base_url`, applies them to Mink and implements `BasicAuthenticatorInterface`; `Authenticator` takes it as a constructor argument to reapply the credentials after a fast logout |
+| `Drupal\DrupalExtension\Manager\DrupalAuthenticationManagerInterface` | `DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface` | |
+| `Drupal\DrupalExtension\Manager\BasicAuthInterface` | `DrevOps\BehatSteps\Extension\Auth\BasicAuthenticatorInterface` | Adds `findCredentials()` |
+| `Drupal\DrupalExtension\Manager\FastLogoutInterface` | `DrevOps\BehatSteps\Extension\Auth\FastLogoutInterface` | |
 | `Drupal\DrupalExtension\Manager\DrupalMailManager` | Removed | See [Backend contracts](#backend-contracts) |
 | `Drupal\DrupalExtension\Manager\DrupalMailManagerInterface` | Removed | |
-| `Drupal\DrupalExtension\Selector\RegionSelector` | `DrevOps\BehatSteps\Behat\Selector\RegionSelector` | Final |
-| `Drupal\DrupalExtension\Generator\ClassGenerator` | `DrevOps\BehatSteps\Behat\Generator\ClassGenerator` | Final |
-| `Drupal\DrupalExtension\Hook\Attribute\<Name>` | `DrevOps\BehatSteps\Behat\Hook\Attribute\<Name>` | The 8 entity creation hook attributes, such as `BeforeNodeCreate`, which take no argument now; see [Hooks](#hooks) |
-| `Drupal\DrupalExtension\Hook\Attribute\DrupalHook` | `DrevOps\BehatSteps\Behat\Hook\Attribute\DrupalHookInterface` | No longer declares `getFilterString()` |
-| `Drupal\DrupalExtension\Hook\Scope\<Name>` | `DrevOps\BehatSteps\Behat\Hook\Scope\<Name>` | The entity creation hook scopes, such as `BeforeNodeCreateScope` |
-| `Drupal\DrupalExtension\Hook\Scope\EntityScope` | `DrevOps\BehatSteps\Behat\Hook\Scope\EntityScopeInterface` | |
-| `Drupal\DrupalExtension\Hook\Call\EntityHook` | `DrevOps\BehatSteps\Behat\Hook\Call\EntityHook` | See [Hooks](#hooks) |
-| `Drupal\DrupalExtension\Hook\Call\AfterEntityCreate` and the 7 other `Before*Create` and `After*Create` calls | `DrevOps\BehatSteps\Behat\Hook\Call\AfterEntityCreate` and the same 7 | Final; see [Hooks](#hooks) |
-| `Drupal\DrupalExtension\Element\DocumentElement` | `DrevOps\BehatSteps\Behat\Mink\Element\DocumentElement` | |
-| `Drupal\DrupalExtension\Parser\EntityFieldParser` | `DrevOps\BehatSteps\Backend\Core\Field\Parser\EntityFieldParser` | Final, as it was |
-| `Drupal\DrupalExtension\Parser\EntityFieldParserInterface` | `DrevOps\BehatSteps\Backend\Core\Field\Parser\EntityFieldParserInterface` | |
-| `Drupal\DrupalExtension\Parser\Exception\ParseException` | `DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception\ParseException` | |
-| `Drupal\DrupalExtension\Parser\Exception\MultipleParseException` | `DrevOps\BehatSteps\Backend\Core\Field\Parser\Exception\MultipleParseException` | Final |
-| `Drupal\MinkExtension\ServiceContainer\Driver\BrowserKitFactory` | `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\Driver\BrowserKitFactory` | Final |
+| `Drupal\DrupalExtension\Selector\RegionSelector` | `DrevOps\BehatSteps\Extension\Selector\RegionSelector` | Final |
+| `Drupal\DrupalExtension\Generator\ClassGenerator` | `DrevOps\BehatSteps\Extension\Generator\ClassGenerator` | Final |
+| `Drupal\DrupalExtension\Hook\Attribute\<Name>` | `DrevOps\BehatSteps\Extension\Hook\Attribute\<Name>` | The entity and user creation hook attributes, `BeforeEntityCreate`, `AfterEntityCreate`, `BeforeUserCreate` and `AfterUserCreate`, which take no argument now; see [Hooks](#hooks) |
+| `Drupal\DrupalExtension\Hook\Attribute\<Name>` | `DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\<Name>` | The node and term creation hook attributes, `BeforeNodeCreate`, `AfterNodeCreate`, `BeforeTermCreate` and `AfterTermCreate`, which take no argument now; see [Hooks](#hooks) |
+| `Drupal\DrupalExtension\Hook\Attribute\DrupalHook` | `DrevOps\BehatSteps\Extension\Hook\Attribute\HookAttributeInterface` | Declares `getCallClass()` in place of `getFilterString()` |
+| `Drupal\DrupalExtension\Hook\Scope\<Name>` | `DrevOps\BehatSteps\Extension\Hook\Scope\<Name>` | The entity and user creation hook scopes, such as `BeforeEntityCreateScope` |
+| `Drupal\DrupalExtension\Hook\Scope\<Name>` | `DrevOps\BehatSteps\Extension\Drupal\Hook\Scope\<Name>` | The node, term and language creation hook scopes, such as `BeforeNodeCreateScope` |
+| `Drupal\DrupalExtension\Hook\Scope\EntityScope` | `DrevOps\BehatSteps\Extension\Hook\Scope\EntityScopeInterface` | |
+| `Drupal\DrupalExtension\Hook\Call\EntityHook` | `DrevOps\BehatSteps\Extension\Hook\Call\EntityHook` | See [Hooks](#hooks) |
+| `Drupal\DrupalExtension\Hook\Call\AfterEntityCreate` and the 3 other entity and user `Before*Create` and `After*Create` calls | `DrevOps\BehatSteps\Extension\Hook\Call\AfterEntityCreate` and the same 3 | Final; see [Hooks](#hooks) |
+| `Drupal\DrupalExtension\Hook\Call\AfterNodeCreate` and the 3 other node and term `Before*Create` and `After*Create` calls | `DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterNodeCreate` and the same 3 | Final; see [Hooks](#hooks) |
+| `Drupal\DrupalExtension\Element\DocumentElement` | `DrevOps\BehatSteps\Extension\Browser\Element\DocumentElement` | |
+| `Drupal\DrupalExtension\Parser\EntityFieldParser` | `DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParser` | Final, as it was |
+| `Drupal\DrupalExtension\Parser\EntityFieldParserInterface` | `DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParserInterface` | |
+| `Drupal\DrupalExtension\Parser\Exception\ParseException` | `DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\Exception\ParseException` | |
+| `Drupal\DrupalExtension\Parser\Exception\MultipleParseException` | `DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\Exception\MultipleParseException` | Final |
+| `Drupal\MinkExtension\ServiceContainer\Driver\BrowserKitFactory` | `DrevOps\BehatSteps\Extension\ServiceContainer\Driver\BrowserKitFactory` | Final |
 
 `grep -rnE 'Drupal\\+(Driver|DrupalExtension|MinkExtension)' <your project>` lists every import, docblock type and configuration key that still names the Drupal Driver, the Drupal Extension or its Mink extension.
 
@@ -1393,7 +1397,7 @@ Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\Beh
 A class a project isn't meant to extend is `final`. The classes left open are the 3 contexts, the backends, `Core`, the field handlers, the browser adapters, `HttpClientFactory` and `DocumentElement`, and [Final classes](CONTRIBUTING.md#final-classes) says why each one stays open. A class of your own that extended a class the table marks final can't follow it into 4.0 by changing its parent:
 
 ```
-PHP Fatal error:  Class Acme\AcmeAuthenticator cannot extend final class DrevOps\BehatSteps\Behat\Auth\Authenticator
+PHP Fatal error:  Class Acme\AcmeAuthenticator cannot extend final class DrevOps\BehatSteps\Extension\Auth\Authenticator
 ```
 
 Implement its interface instead. A suite that swaps in its own registry or authenticator through a `*.class` parameter implements `BackendRegistryInterface`, `ScenarioTagRegistryInterface`, `UserRegistryInterface`, `AuthenticatorInterface` with `FastLogoutInterface`, or `BasicAuthenticatorInterface`. A creation alias of your own implements `PreCreateAliasInterface` or `PostCreateAliasInterface`, and option resolution is replaced through `TraitOptionResolverFactoryInterface`, as [Trait options](docs/configuration.md#trait-options) describes. PHPUnit can't double a final class either, so a test that built a mock of one fails with `Class "..." is declared "final" and cannot be doubled`; double its interface instead.
@@ -1660,7 +1664,7 @@ $value = $this->stateFindValue('my_module.launched');
 
 #### HelperTrait methods
 
-`HelperTrait` is 3.14's `DrevOps\BehatSteps\HelperTrait`, and `Drupal\HelperTrait` is `DrevOps\BehatSteps\Drupal\HelperTrait`. Their members moved to traits under `DrevOps\BehatSteps\Helper\Web` and `DrevOps\BehatSteps\Helper\Drupal`, each named for 1 concern, and each method carries its own trait's prefix in place of `helper`.
+`HelperTrait` is 3.14's `DrevOps\BehatSteps\HelperTrait`, and `Drupal\HelperTrait` is `DrevOps\BehatSteps\Drupal\HelperTrait`. Their members moved to traits under `DrevOps\BehatSteps\Steps\Helper\Web` and `DrevOps\BehatSteps\Steps\Helper\Drupal`, each named for 1 concern, and each method carries its own trait's prefix in place of `helper`.
 
 | 3.14 | 4.0 | Notes |
 | --- | --- | --- |
@@ -1716,6 +1720,8 @@ $value = $this->stateFindValue('my_module.launched');
 | `DrupalContext::iAmNotLoggedIn()` | `UserTrait::userLogoutSession()` | |
 | `DrupalContext::iLogOut()` | `UserTrait::userLogout()` | |
 | `DrushContext::readDrushOutput()` | `DrushTrait::drushGetOutput()` | Throws `\RuntimeException` when no Drush command has run in the scenario |
+| `ParametersTrait::getDrupalSelector()` | `ParametersTrait::getSelector()` | |
+| `ParametersTrait::getDrupalText()` | `ParametersTrait::getText()` | |
 | `ParametersTrait::getMapping()` | `MappingTrait::mappingGetValue()` | Compose `MappingTrait`, or extend `WebContext` or `DrupalContext`. A context that only uses the `{{ Key }}` token changes nothing |
 | `RawDrupalContext::alterNodeParameters()` | `EntityLifecycleTrait::entityLifecycleBeforeNodeCreate()` | |
 | `RawDrupalContext::cleanEntities()` | `EntityLifecycleTrait::entityLifecycleAfterScenario()` | Hook; see [Entity cleanup](#entity-cleanup) |
@@ -2057,7 +2063,7 @@ public function alterArticle(BeforeNodeCreateScope $scope): void {
 
 Once the argument is gone, the hook runs for the first time, so check that its body still does what it was written to do.
 
-`EntityHook` extends `RuntimeHook` rather than `RuntimeFilterableHook`, so a hook call carries no filter string, and each call under `DrevOps\BehatSteps\Behat\Hook\Call` takes the callable as its first constructor argument:
+`EntityHook` extends `RuntimeHook` rather than `RuntimeFilterableHook`, so a hook call carries no filter string, and each call under `DrevOps\BehatSteps\Extension\Hook\Call` takes the callable as its first constructor argument:
 
 | 3.14 | 4.0 |
 | --- | --- |
@@ -2111,7 +2117,7 @@ Which exception a step throws follows 1 rule now, because a project catches on t
 | Failure | Exception |
 | --- | --- |
 | An assertion fails and the step can reach the page | `Behat\Mink\Exception\ExpectationException` |
-| An assertion fails and the step has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
+| An assertion fails and the step has no Mink session | `DrevOps\BehatSteps\Steps\Exception\AssertionException` |
 | An element the step locates is missing, on the page or in an XML response: a field, link, button, select, table or row | `Behat\Mink\Exception\ElementNotFoundException`, a subclass of `ExpectationException` |
 | An attribute, a JSON path or a table column is missing; none of them is an element | `Behat\Mink\Exception\ExpectationException` |
 | Anything that isn't an assertion: an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
@@ -2156,11 +2162,11 @@ The same rule covers the backend layer and the Behat services, which 4.0 carries
 
 | Class | Case | 3.14 | 4.0 |
 | --- | --- | --- | --- |
-| `DrevOps\BehatSteps\Backend\Core\Core` | An unknown entity type, bundle, vocabulary, language or handler class | `\InvalidArgumentException` or `\Exception` | `\RuntimeException` |
-| `DrevOps\BehatSteps\Backend\Core\Field\*Handler` | A malformed field value, an unreadable file, a missing referenced entity | `\InvalidArgumentException` or `\Exception` | `\RuntimeException` |
-| `DrevOps\BehatSteps\Behat\Registry\BackendRegistry` | `getBackend()` and `setScenarioBackends()` | `\InvalidArgumentException` | `\RuntimeException` |
-| `DrevOps\BehatSteps\Behat\Registry\UserRegistry` | `getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
-| `DrevOps\BehatSteps\Behat\Selector\RegionSelector` | `translateToXPath()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `DrevOps\BehatSteps\Backend\Drupal\Core\Core` | An unknown entity type, bundle, vocabulary, language or handler class | `\InvalidArgumentException` or `\Exception` | `\RuntimeException` |
+| `DrevOps\BehatSteps\Backend\Drupal\Core\Field\*Handler` | A malformed field value, an unreadable file, a missing referenced entity | `\InvalidArgumentException` or `\Exception` | `\RuntimeException` |
+| `DrevOps\BehatSteps\Extension\Registry\BackendRegistry` | `getBackend()` and `setScenarioBackends()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `DrevOps\BehatSteps\Extension\Registry\UserRegistry` | `getUser()` | `\InvalidArgumentException` | `\RuntimeException` |
+| `DrevOps\BehatSteps\Extension\Selector\RegionSelector` | `translateToXPath()` | `\InvalidArgumentException` | `\RuntimeException` |
 | `DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException` | Its parent class | `\InvalidArgumentException` | `DrevOps\BehatSteps\Backend\Exception\Exception` |
 
 `CreationAliasResolutionException` is no longer a `\LogicException`, so a `catch (\InvalidArgumentException)` or `catch (\LogicException)` doesn't catch it; catch the class itself.
@@ -2311,7 +2317,7 @@ A service still tagged `drupal.driver` isn't registered at all. When the `backen
 
 ## Capabilities of the browser driver
 
-A step names the browser capability it needs, never a browser driver, so a project that registers its own browser driver gets the shipped steps working as soon as it registers an adapter declaring that capability. `DrevOps\BehatSteps\Behat\Mink\Capability` holds the 5 capability interfaces, and `DrevOps\BehatSteps\Behat\Mink\Adapter` holds 1 adapter per shipped browser driver family, which declares the capabilities on the browser driver's behalf.
+A step names the browser capability it needs, never a browser driver, so a project that registers its own browser driver gets the shipped steps working as soon as it registers an adapter declaring that capability. `DrevOps\BehatSteps\Extension\Browser\Capability` holds the 5 capability interfaces, and `DrevOps\BehatSteps\Extension\Browser\Adapter` holds 1 adapter per shipped browser driver family, which declares the capabilities on the browser driver's behalf.
 
 | Capability | BrowserKit | Selenium2 | Chrome (CDP) |
 | --- | --- | --- | --- |

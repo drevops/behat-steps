@@ -10,13 +10,13 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Exception\AssertionException;
-use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Extension\Tag;
+use DrevOps\BehatSteps\Steps\Exception\AssertionException;
+use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
 use Drupal\Core\Database\Database;
 
 /**
@@ -39,7 +39,7 @@ use Drupal\Core\Database\Database;
  * - `@error` - add to scenarios that are expected to trigger an error. The
  *   errors are still read and cleared; the scenario is not failed.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait WatchdogTrait {
 
@@ -163,7 +163,7 @@ trait WatchdogTrait {
    * @param string $context
    *   Description of when the errors were logged, for the failure message.
    *
-   * @throws \DrevOps\BehatSteps\Exception\AssertionException
+   * @throws \DrevOps\BehatSteps\Steps\Exception\AssertionException
    *   If errors at or above the severity threshold were logged.
    */
   public function watchdogAssertErrorsNotExist(string $context): void {
@@ -238,7 +238,7 @@ trait WatchdogTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function watchdogConfigSchema(): array {
@@ -251,7 +251,7 @@ trait WatchdogTrait {
   /**
    * Declares the prerequisites this trait asserts.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
    *   The prerequisites this trait declares.
    */
   protected function watchdogPrerequisites(): array {

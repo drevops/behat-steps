@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Web;
 
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Browser\Capability\CookieCapabilityInterface;
 
 /**
  * Verify and inspect browser cookies.
@@ -15,7 +15,7 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\CookieCapabilityInterface;
  * - Read cookies through whichever browser driver provides the cookie
  *   capability.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait CookieTrait {
 

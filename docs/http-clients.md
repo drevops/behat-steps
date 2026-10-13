@@ -267,8 +267,8 @@ To change it for 1 context only, pass it through that context's `config` argumen
 Decorate the transport in the context, and every detached and bare client it builds retries a failed request:
 
 ```php
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Http\HttpClientFactoryInterface;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\Http\HttpClientFactoryInterface;
 use Symfony\Component\HttpClient\RetryableHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 

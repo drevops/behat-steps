@@ -1,0 +1,53 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Extension\Selector;
+
+use Behat\Mink\Selector\CssSelector;
+use Behat\Mink\Selector\SelectorInterface;
+
+/**
+ * Mink selector that resolves a human-readable region name to XPath.
+ *
+ * Registered in Mink's selector handler under the alias 'region', so any
+ * context with a Mink session can call '$page->find("region", "Header")'.
+ */
+final class RegionSelector implements SelectorInterface {
+
+  /**
+   * Constructs a RegionSelector.
+   *
+   * @param \Behat\Mink\Selector\CssSelector $cssSelector
+   *   The CSS selector that translates CSS to XPath.
+   * @param array<string, string> $regions
+   *   Map of region names to CSS selectors, sourced from the extension's
+   *   'regions' configuration.
+   */
+  public function __construct(
+    protected readonly CssSelector $cssSelector,
+    protected array $regions,
+  ) {}
+
+  /**
+   * Translates a region name into XPath.
+   *
+   * @param string|array<int|string, mixed> $locator
+   *   The region name to translate.
+   *
+   * @return string
+   *   The XPath for the region.
+   *
+   * @throws \RuntimeException
+   *   When the name matches no configured region.
+   */
+  // phpcs:ignore Drupal.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+  public function translateToXPath($locator): string {
+    if (!is_string($locator) || !isset($this->regions[$locator])) {
+      throw new \RuntimeException(sprintf('The region "%s" is not configured.', is_string($locator) ? $locator : get_debug_type($locator)));
+    }
+
+    return $this->cssSelector->translateToXPath($this->regions[$locator]);
+  }
+
+}

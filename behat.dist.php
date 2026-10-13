@@ -18,8 +18,8 @@ use Behat\Config\Profile;
 use Behat\Config\Suite;
 use Behat\MinkExtension\Context\MinkContext;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
 // 'DrupalContext' extends 'WebContext' and carries every web step, so a
 // Drupal suite registers it alone.

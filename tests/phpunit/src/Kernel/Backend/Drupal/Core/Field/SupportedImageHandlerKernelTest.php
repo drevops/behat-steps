@@ -1,0 +1,69 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Drupal\Core\Field;
+
+use DrevOps\BehatSteps\Backend\Drupal\Core\Field\SupportedImageHandler;
+use Drupal\filter\Entity\FilterFormat;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
+/**
+ * Kernel round-trip test for SupportedImageHandler via the Core backend.
+ *
+ * The 'supported_image' field (provided by drupal/supported_image) adds
+ * caption and attribution columns on top of the standard image file reference.
+ * The handler mirrors ImageHandler's disk read/write but emits a payload with
+ * those extra columns.
+ */
+#[CoversClass(SupportedImageHandler::class)]
+#[Group('fields')]
+#[RunTestsInSeparateProcesses]
+class SupportedImageHandlerKernelTest extends FileBackedHandlerKernelTestBase {
+
+  /**
+   * {@inheritdoc}
+   *
+   * @var array<string>
+   */
+  protected static $modules = [
+    ...self::BASE_MODULES,
+    'file',
+    'image',
+    'filter',
+    'text',
+    'supported_image',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    // caption_format/attribution_format reference a filter format id, so the
+    // round-trip values validate only against an existing plain_text format.
+    FilterFormat::create(['format' => 'plain_text', 'name' => 'Plain text'])->save();
+  }
+
+  public function testSupportedImageRoundTrip(): void {
+    $this->attachField('field_hero', 'supported_image');
+
+    $fixture = static::FIXTURES_PATH . 'sample.jpg';
+
+    $this->assertFieldRoundTripViaBackend('field_hero', [
+      [
+        'target_id' => $fixture,
+        'alt' => 'Hero alt.',
+        'title' => 'Hero title.',
+        'caption_value' => 'A caption body.',
+        'caption_format' => 'plain_text',
+        'attribution_value' => 'Photo credit.',
+        'attribution_format' => 'plain_text',
+      ],
+    ]);
+  }
+
+}

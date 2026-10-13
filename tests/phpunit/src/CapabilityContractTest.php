@@ -72,10 +72,11 @@ class CapabilityContractTest extends UnitTestCase {
    *   Interface and method name pairs, keyed by 'Interface::method'.
    */
   protected static function collectCapabilityMethods(string $pattern): \Iterator {
-    $files = glob(realpath(__DIR__ . '/../../../src/Backend/Capability') . '/*Interface.php') ?: [];
+    $files = array_merge(glob(realpath(__DIR__ . '/../../../src/Backend/Capability') . '/*Interface.php') ?: [], glob(realpath(__DIR__ . '/../../../src/Backend/Drupal/Capability') . '/*Interface.php') ?: []);
 
     foreach ($files as $file) {
-      $interface = 'DrevOps\\BehatSteps\\Backend\\Capability\\' . basename($file, '.php');
+      $namespace = str_contains($file, '/Backend/Drupal/') ? 'DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\' : 'DrevOps\\BehatSteps\\Backend\\Capability\\';
+      $interface = $namespace . basename($file, '.php');
 
       if (!interface_exists($interface)) {
         continue;

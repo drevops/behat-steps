@@ -16,10 +16,10 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Tag;
+use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
@@ -56,7 +56,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  * `BEHAT_ACCESSIBILITY_PRINT` environment variable to a non-empty value other
  * than `0`, or override `accessibilityGetPrintCli()`, to enable it.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait AccessibilityTrait {
 
@@ -1684,7 +1684,7 @@ HTML;
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function accessibilityConfigSchema(): array {

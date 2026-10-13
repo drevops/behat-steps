@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
 use Behat\Gherkin\Node\TableNode;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Web\RandomTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 
 /**

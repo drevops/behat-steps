@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Web;
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Mink\Capability\KeyboardCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Browser\Capability\KeyboardCapabilityInterface;
 
 /**
  * Simulate keyboard interactions in the browser.
@@ -15,7 +15,7 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\KeyboardCapabilityInterface;
  * - Press a string of characters 1 key at a time.
  * - Target a key press at a page element or at the focused element.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait KeyboardTrait {
 
