@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\Backend\BackendInterface;
-use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait;
@@ -70,8 +70,8 @@ class TaxonomyTraitTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderTermCreationChecksNoPrerequisite')]
   public function testTermCreationChecksNoPrerequisite(string $method, TableNode $table): void {
-    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface&\PHPUnit\Framework\MockObject\Stub $content */
-    $content = $this->createStubForIntersectionOfInterfaces([BackendInterface::class, ContentCapabilityInterface::class]);
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface&\PHPUnit\Framework\MockObject\Stub $content */
+    $content = $this->createStubForIntersectionOfInterfaces([BackendInterface::class, TermCapabilityInterface::class]);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The hook dispatcher is available only after Behat has initialized the context.');

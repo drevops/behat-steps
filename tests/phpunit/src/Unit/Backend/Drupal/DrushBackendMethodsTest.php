@@ -6,10 +6,10 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal;
 
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ParserExposingDrushBackend;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingDrushBackend;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
-use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -36,7 +36,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
   public function testGetRandomReturnsGenerator(): void {
     $backend = $this->createBackend();
 
-    $this->assertInstanceOf(Random::class, $backend->getRandom());
+    $this->assertInstanceOf(RandomGeneratorInterface::class, $backend->getRandom());
   }
 
   public function testArgumentsRoundTrip(): void {

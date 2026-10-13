@@ -10,7 +10,7 @@ use Behat\Testwork\Environment\EnvironmentManager;
 use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
 use DrevOps\BehatSteps\Backend\BackendInterface;
-use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
@@ -103,8 +103,8 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
   public function testTermCreationLeavesLabelForNonDrupalBackend(): void {
     $stub = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term', 'vocabulary_machine_name' => 'Tags']);
 
-    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
-    $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, ContentCapabilityInterface::class]);
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface&\PHPUnit\Framework\MockObject\MockObject $backend */
+    $backend = $this->createMockForIntersectionOfInterfaces([BackendInterface::class, TermCapabilityInterface::class]);
     $backend->expects($this->once())->method('createTerm')->willReturnCallback(function (EntityStub $received) use ($stub): EntityStub {
       $this->assertSame('Tags', $received->getValue('vocabulary_machine_name'));
 

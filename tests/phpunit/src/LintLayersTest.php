@@ -32,7 +32,7 @@ class LintLayersTest extends UnitTestCase {
 
     foreach (LAYERS as $layer) {
       foreach (layer_paths_files($layer['paths'], $layer['exclude'], $root) as $file) {
-        $violations = array_merge($violations, layer_file_violations($file, $layer['forbidden'], $layer['allowed']));
+        $violations = array_merge($violations, layer_file_violations($file, $layer['forbidden']));
       }
     }
 
@@ -93,14 +93,12 @@ class LintLayersTest extends UnitTestCase {
    *   The file contents to scan.
    * @param array<int, array{line: int, symbol: string}> $expected
    *   The expected violations.
-   * @param array<int, string> $allowed
-   *   Symbols the layer may reference.
    */
   #[DataProvider('dataProviderFileViolations')]
-  public function testFileViolations(string $code, array $expected, array $allowed = []): void {
+  public function testFileViolations(string $code, array $expected): void {
     $file = $this->writeFixture('Subject.php', $code);
 
-    $this->assertSame($expected, layer_file_violations($file, ['Behat', 'Mink'], $allowed));
+    $this->assertSame($expected, layer_file_violations($file, ['Behat', 'Mink']));
   }
 
   /**
@@ -134,7 +132,7 @@ class LintLayersTest extends UnitTestCase {
         ],
       ],
       'permitted namespace' => [
-        "<?php\n\nuse Drupal\\Component\\Utility\\Random;\n",
+        "<?php\n\nuse Symfony\\Component\\Process\\Process;\n",
         [],
       ],
       'prose mention in a comment' => [
@@ -152,16 +150,6 @@ class LintLayersTest extends UnitTestCase {
       'unqualified name' => [
         "<?php\n\nclass Behat {}\n",
         [],
-      ],
-      'allowed symbol under a forbidden root' => [
-        "<?php\n\nuse Behat\\Mink\\FakeSession;\n",
-        [],
-        ['Behat\\Mink\\FakeSession'],
-      ],
-      'allowance does not cover a sibling symbol' => [
-        "<?php\n\nuse Behat\\Mink\\OtherSession;\n",
-        [['line' => 3, 'symbol' => 'Behat\\Mink\\OtherSession']],
-        ['Behat\\Mink\\FakeSession'],
       ],
     ];
   }

@@ -12,6 +12,8 @@ use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParser;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParserInterface;
@@ -77,11 +79,11 @@ trait EntityLifecycleTrait {
 
     $registry = $context->getBackendRegistry();
 
-    if (!$registry->hasCapability(ContentCapabilityInterface::class)) {
+    if (!$registry->hasCapability(NodeCapabilityInterface::class)) {
       return;
     }
 
-    if (!$registry->getBackendFor(ContentCapabilityInterface::class) instanceof CoreCapabilityInterface) {
+    if (!$registry->getBackendFor(NodeCapabilityInterface::class) instanceof CoreCapabilityInterface) {
       return;
     }
 
@@ -144,12 +146,15 @@ trait EntityLifecycleTrait {
    *
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can create nodes.
    */
   public function entityLifecycleCreateNode(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeNodeCreateScope::class, $stub);
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $backend = $this->entityLifecycleGetContentBackend();
+    $backend = $this->backendFor(NodeCapabilityInterface::class);
     $this->entityLifecycleParseCreatedFields($stub, $backend, ['author']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
@@ -174,6 +179,9 @@ trait EntityLifecycleTrait {
    *
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can create terms.
    */
   public function entityLifecycleCreateTerm(EntityStubInterface $stub): EntityStubInterface {
     // The backend loads vocabularies by machine name only, so a human label is
@@ -196,7 +204,7 @@ trait EntityLifecycleTrait {
     $this->entityLifecycleDispatchHooks(BeforeTermCreateScope::class, $stub);
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $backend = $this->entityLifecycleGetContentBackend();
+    $backend = $this->backendFor(TermCapabilityInterface::class);
     $this->entityLifecycleParseCreatedFields($stub, $backend, ['vocabulary_machine_name']);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
@@ -225,11 +233,14 @@ trait EntityLifecycleTrait {
    *
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now flagged as saved.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   When no backend in the scenario's order can create content.
    */
   public function entityLifecycleCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->entityLifecycleDispatchHooks(BeforeEntityCreateScope::class, $stub);
 
-    $backend = $this->entityLifecycleGetContentBackend();
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
     $this->entityLifecycleParseCreatedFields($stub, $backend);
 
     $scalars = $this->entityLifecycleCaptureScalarBaseFields($stub);
@@ -360,7 +371,10 @@ trait EntityLifecycleTrait {
   }
 
   /**
-   * Routes a stub to the right per-type backend delete method.
+   * Routes a stub to the capability that deletes its entity type.
+   *
+   * A stub whose capability no backend in the scenario's order provides is
+   * left behind, so a teardown never fails on it.
    */
   protected function entityLifecycleDeleteStub(EntityStubInterface $stub): void {
     $type = $stub->getEntityType();
@@ -374,17 +388,25 @@ trait EntityLifecycleTrait {
       return;
     }
 
-    if (!$registry->hasCapability(ContentCapabilityInterface::class)) {
+    if ($type === 'node') {
+      if ($registry->hasCapability(NodeCapabilityInterface::class)) {
+        $this->backendFor(NodeCapabilityInterface::class)->deleteNode($stub);
+      }
+
       return;
     }
 
-    $backend = $this->backendFor(ContentCapabilityInterface::class);
+    if ($type === 'taxonomy_term') {
+      if ($registry->hasCapability(TermCapabilityInterface::class)) {
+        $this->backendFor(TermCapabilityInterface::class)->deleteTerm($stub);
+      }
 
-    match ($type) {
-      'node' => $backend->deleteNode($stub),
-      'taxonomy_term' => $backend->deleteTerm($stub),
-      default => $backend->deleteEntity($stub),
-    };
+      return;
+    }
+
+    if ($registry->hasCapability(ContentCapabilityInterface::class)) {
+      $this->backendFor(ContentCapabilityInterface::class)->deleteEntity($stub);
+    }
   }
 
   /**
@@ -561,16 +583,6 @@ trait EntityLifecycleTrait {
     foreach ($scalars as $field => $value) {
       $stub->setValue($field, $value);
     }
-  }
-
-  /**
-   * Resolves the backend that saves entities for this scenario.
-   *
-   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
-   *   When no backend in the scenario's order can create content.
-   */
-  protected function entityLifecycleGetContentBackend(): ContentCapabilityInterface {
-    return $this->backendFor(ContentCapabilityInterface::class);
   }
 
 }

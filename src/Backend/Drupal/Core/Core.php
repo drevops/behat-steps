@@ -20,8 +20,9 @@ use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldShapeClassifierInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
+use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Component\Utility\Random;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -55,7 +56,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Random value generator.
    */
-  protected Random $random;
+  protected RandomGeneratorInterface $random;
 
   /**
    * Tracks original configuration values.
@@ -99,10 +100,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *   The absolute path to the Drupal root directory.
    * @param string $uri
    *   The URI used to access Drupal. Defaults to 'default'.
-   * @param \Drupal\Component\Utility\Random|null $random
-   *   Optional random-value generator.
+   * @param \DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface|null $random
+   *   Random-value generator, or NULL for the package default.
    */
-  public function __construct(string $drupal_root, protected string $uri = 'default', ?Random $random = NULL) {
+  public function __construct(string $drupal_root, protected string $uri = 'default', ?RandomGeneratorInterface $random = NULL) {
     $resolved = realpath($drupal_root);
 
     if ($resolved === FALSE) {
@@ -110,7 +111,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     $this->drupalRoot = $resolved;
-    $this->random = $random ?? new Random();
+    $this->random = $random ?? new RandomGenerator();
 
     $this->registerDefaultFieldHandlers();
     $this->registerDefaultCreationAliases();
@@ -134,7 +135,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function getRandom(): Random {
+  public function getRandom(): RandomGeneratorInterface {
     return $this->random;
   }
 

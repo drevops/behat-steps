@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Backend;
 
-use Drupal\Component\Utility\Random;
+use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 
 /**
  * Performs no backend operations.
@@ -17,19 +18,19 @@ class BlackboxBackend implements BlackboxBackendInterface {
   /**
    * Random generator.
    */
-  protected readonly Random $random;
+  protected readonly RandomGeneratorInterface $random;
 
   /**
    * Sets up the backend with an optional random generator.
    */
-  public function __construct(?Random $random = NULL) {
-    $this->random = $random ?? new Random();
+  public function __construct(?RandomGeneratorInterface $random = NULL) {
+    $this->random = $random ?? new RandomGenerator();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getRandom(): Random {
+  public function getRandom(): RandomGeneratorInterface {
     return $this->random;
   }
 

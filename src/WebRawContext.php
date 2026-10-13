@@ -11,6 +11,7 @@ use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\Scope\HookScope;
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Extension\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Browser\BrowserCapabilityResolver;
 use DrevOps\BehatSteps\Extension\Browser\Capability\CookieCapabilityInterface;
@@ -32,7 +33,6 @@ use DrevOps\BehatSteps\Extension\Tag;
 use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
-use Drupal\Component\Utility\Random;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -42,7 +42,7 @@ use Symfony\Component\HttpClient\HttpClient;
  * Provides backend access, authentication delegation, option resolution,
  * prerequisite checks and the hook dispatcher, and composes 3 of the web
  * helper traits. It registers no step definitions and references no Drupal
- * class beyond 'Random'.
+ * class.
  *
  * A context composed out of a chosen set of traits extends this class.
  * 'WebContext' adds the whole web vocabulary, and 'DrupalContext' adds the
@@ -376,7 +376,7 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
   /**
    * Returns the backend's random generator.
    */
-  public function getRandom(): Random {
+  public function getRandom(): RandomGeneratorInterface {
     return $this->backendFor(BackendInterface::class)->getRandom();
   }
 

@@ -1287,7 +1287,7 @@ Generates a lowercase alphanumeric machine name starting with a letter
   <summary><code>public function randomGenerateName(int $length): string</code></summary>
 
 <br/>
-Generates a 'Random::name()' string with original case preserved
+Generates a letters-and-digits name with original case preserved
 <br/><br/>
 
 </details>
@@ -3277,7 +3277,7 @@ Returns a trait option declared as a string
 </details>
 
 <details>
-  <summary><code>public function getRandom(): Random</code></summary>
+  <summary><code>public function getRandom(): RandomGeneratorInterface</code></summary>
 
 <br/>
 Returns the backend's random generator

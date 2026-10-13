@@ -11,7 +11,8 @@ use DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
-use Drupal\Component\Utility\Random;
+use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use Symfony\Component\Process\Process;
 
 /**
@@ -46,7 +47,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * Random generator.
    */
-  protected readonly Random $random;
+  protected readonly RandomGeneratorInterface $random;
 
   /**
    * Global arguments or options for drush commands.
@@ -63,14 +64,14 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   This is an alternative to using aliases.
    * @param string $binary
    *   The path to the drush binary.
-   * @param \Drupal\Component\Utility\Random $random
-   *   Random generator.
+   * @param \DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface|null $random
+   *   Random generator, or NULL for the package default.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
    *   Thrown when neither an alias nor a root path is given, when either is
    *   empty, or when the root path cannot be resolved.
    */
-  public function __construct(?string $alias = NULL, ?string $root_path = NULL, string $binary = 'drush', ?Random $random = NULL) {
+  public function __construct(?string $alias = NULL, ?string $root_path = NULL, string $binary = 'drush', ?RandomGeneratorInterface $random = NULL) {
     if ($alias !== NULL && trim(ltrim($alias, '@')) === '') {
       throw new BootstrapException(sprintf('The drush alias "%s" names no site. Pass NULL to leave it out.', $alias));
     }
@@ -101,7 +102,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     }
 
     $this->binary = $binary;
-    $this->random = $random ?? new Random();
+    $this->random = $random ?? new RandomGenerator();
 
     $this->registerDefaultCreationAliases();
   }
@@ -119,7 +120,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    */
-  public function getRandom(): Random {
+  public function getRandom(): RandomGeneratorInterface {
     return $this->random;
   }
 

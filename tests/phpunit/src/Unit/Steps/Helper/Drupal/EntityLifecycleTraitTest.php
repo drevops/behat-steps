@@ -20,6 +20,8 @@ use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
@@ -215,8 +217,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderCreationRefusesIncapableBackend(): \Iterator {
-    yield 'node' => ['entityLifecycleCreateNode', new EntityStub('node'), ContentCapabilityInterface::class];
-    yield 'term' => ['entityLifecycleCreateTerm', new EntityStub('taxonomy_term'), ContentCapabilityInterface::class];
+    yield 'node' => ['entityLifecycleCreateNode', new EntityStub('node'), NodeCapabilityInterface::class];
+    yield 'term' => ['entityLifecycleCreateTerm', new EntityStub('taxonomy_term'), TermCapabilityInterface::class];
     yield 'entity' => ['entityLifecycleCreate', new EntityStub('block_content'), ContentCapabilityInterface::class];
     yield 'user' => ['authCreateUser', new EntityStub('user'), UserCapabilityInterface::class];
     yield 'language' => ['entityLifecycleCreateLanguage', new EntityStub('language'), LanguageCapabilityInterface::class];
@@ -344,6 +346,32 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
 
     $this->assertSame([], $context->testGetCreatedStubs());
+  }
+
+  /**
+   * Tests that a backend without the per-type capability leaves the entity.
+   *
+   * The generic content capability does not stand in for a node or a term.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub
+   *   The tracked stub.
+   */
+  #[DataProvider('dataProviderTypedEntitiesAreLeftBehindByContentOnlyBackend')]
+  public function testTypedEntitiesAreLeftBehindByContentOnlyBackend(EntityStub $stub): void {
+    $backend = $this->createBackend([ContentCapabilityInterface::class]);
+    $backend->expects($this->never())->method('deleteEntity');
+
+    $context = $this->createContext($backend);
+    $context->testSetCreatedStubs([$stub]);
+
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
+
+    $this->assertSame([], $context->testGetCreatedStubs());
+  }
+
+  public static function dataProviderTypedEntitiesAreLeftBehindByContentOnlyBackend(): \Iterator {
+    yield 'node' => [new EntityStub('node', 'page')];
+    yield 'term' => [new EntityStub('taxonomy_term', 'tags')];
   }
 
   public function testNothingIsDeletedWhenNoEntityWasCreated(): void {
@@ -726,6 +754,15 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
 
+  public function testTimestampConversionIsSkippedForBackendWithoutNodes(): void {
+    $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
+    $context = $this->createContext($this->createBackend([ContentCapabilityInterface::class, CoreCapabilityInterface::class]));
+
+    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
+
+    $this->assertSame('1 January 2025', $stub->getValue('created'));
+  }
+
   public function testAnUnsavedEntityIsNotRegisteredForCleanup(): void {
     $entity_type = $this->createMock(EntityTypeInterface::class);
     $entity_type->method('getKey')->willReturn('nid');
@@ -825,13 +862,13 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   /**
-   * Builds a content-capable backend double.
+   * Builds a backend double that creates content, nodes and terms.
    *
    * @return \DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
    *   The backend double.
    */
   protected function createContentBackend(): BackendInterface&MockObject {
-    return $this->createBackend([ContentCapabilityInterface::class]);
+    return $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class]);
   }
 
   /**
@@ -841,7 +878,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    *   The backend double.
    */
   protected function createDrupalContentBackend(): BackendInterface&MockObject {
-    return $this->createBackend([ContentCapabilityInterface::class, CoreCapabilityInterface::class]);
+    return $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class, CoreCapabilityInterface::class]);
   }
 
 }

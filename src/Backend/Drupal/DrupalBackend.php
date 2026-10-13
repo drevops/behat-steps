@@ -11,7 +11,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
-use Drupal\Component\Utility\Random;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 
 /**
  * Fully bootstraps Drupal and uses native API calls.
@@ -64,7 +64,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function getRandom(): Random {
+  public function getRandom(): RandomGeneratorInterface {
     return $this->getCore()->getRandom();
   }
 
