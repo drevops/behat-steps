@@ -1359,7 +1359,7 @@ Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\Beh
 | `Drupal\DrupalExtension\Context\Initializer\DrupalAwareInitializer` | `DrevOps\BehatSteps\Extension\Context\Initializer\BackendAwareInitializer` | Final |
 | `Drupal\DrupalExtension\Context\Attribute\HookAttributeReader` | `DrevOps\BehatSteps\Extension\Context\Attribute\HookAttributeReader` | Final |
 | `Drupal\DrupalExtension\ParametersAwareInterface` | `DrevOps\BehatSteps\Extension\Context\ParametersAwareInterface` | |
-| `Drupal\DrupalExtension\ParametersTrait` | `DrevOps\BehatSteps\Extension\Config\ParametersTrait` | No longer carries `getMapping()`; see [Drupal Extension methods](#drupal-extension-methods) |
+| `Drupal\DrupalExtension\ParametersTrait` | `DrevOps\BehatSteps\Extension\Config\ParametersTrait` | No longer carries `getMapping()`, and `getDrupalText()` and `getDrupalSelector()` are `getText()` and `getSelector()`; see [Drupal Extension methods](#drupal-extension-methods) |
 | `Drupal\DrupalExtension\MinkAwareTrait` | `DrevOps\BehatSteps\Extension\Browser\MinkAwareTrait` | No longer carries `saveScreenshot()`, which a context still inherits from Mink's `RawMinkContext` |
 | `Drupal\DrupalExtension\Listener\DriverListener` | `DrevOps\BehatSteps\Extension\Listener\BackendListener` | Final |
 | `Drupal\DrupalExtension\Manager\DriverManager` | `DrevOps\BehatSteps\Extension\Registry\BackendRegistry` | Final. Registers the backends, resolves 1 by capability and tracks the scenario's order |
@@ -1720,6 +1720,8 @@ $value = $this->stateFindValue('my_module.launched');
 | `DrupalContext::iAmNotLoggedIn()` | `UserTrait::userLogoutSession()` | |
 | `DrupalContext::iLogOut()` | `UserTrait::userLogout()` | |
 | `DrushContext::readDrushOutput()` | `DrushTrait::drushGetOutput()` | Throws `\RuntimeException` when no Drush command has run in the scenario |
+| `ParametersTrait::getDrupalSelector()` | `ParametersTrait::getSelector()` | |
+| `ParametersTrait::getDrupalText()` | `ParametersTrait::getText()` | |
 | `ParametersTrait::getMapping()` | `MappingTrait::mappingGetValue()` | Compose `MappingTrait`, or extend `WebContext` or `DrupalContext`. A context that only uses the `{{ Key }}` token changes nothing |
 | `RawDrupalContext::alterNodeParameters()` | `EntityLifecycleTrait::entityLifecycleBeforeNodeCreate()` | |
 | `RawDrupalContext::cleanEntities()` | `EntityLifecycleTrait::entityLifecycleAfterScenario()` | Hook; see [Entity cleanup](#entity-cleanup) |
