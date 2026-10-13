@@ -16,6 +16,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Extension\Auth\BasicAuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Context\BackendAwareInterface;
 use DrevOps\BehatSteps\Extension\Http\HttpClientFactory;
@@ -27,7 +28,6 @@ use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\SamplePrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\StepPrerequisiteTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebRawContext;
-use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\BrowserKit\HttpBrowser;
@@ -74,7 +74,7 @@ class WebRawContextTest extends UnitTestCase {
   }
 
   public function testTheRandomGeneratorComesFromTheBackend(): void {
-    $random = new Random();
+    $random = new RandomGenerator();
     $backend = $this->createMock(BackendInterface::class);
     $backend->method('getRandom')->willReturn($random);
 

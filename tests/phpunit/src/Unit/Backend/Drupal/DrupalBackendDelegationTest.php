@@ -8,9 +8,9 @@ use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
+use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\AuthCapableCoreInterface;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
-use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -35,7 +35,7 @@ class DrupalBackendDelegationTest extends UnitTestCase {
   }
 
   public function testGetRandomDelegatesToCore(): void {
-    $random = new Random();
+    $random = new RandomGenerator();
     $core = $this->createMock(CoreInterface::class);
     $core->expects($this->once())->method('getRandom')->willReturn($random);
 

@@ -20,16 +20,14 @@ declare(strict_types=1);
 use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\WebContext;
 use DrevOps\BehatSteps\WebRawContext;
-use Drupal\Component\Utility\Random;
 
 /**
- * Layers to check, each with its paths, exclusions, prefixes and allowances.
+ * Layers to check, each with its paths, exclusions and prefixes.
  *
  * A path is a directory that is walked or a single file, and an exclusion
  * is a directory or a file under a path that is skipped. A forbidden prefix
  * is a root namespace or a longer namespace prefix: a symbol equal to it or
- * below it is a violation. An allowance names 1 symbol under a forbidden
- * prefix that the layer may still reference.
+ * below it is a violation.
  */
 const LAYERS = [
   [
@@ -45,16 +43,12 @@ const LAYERS = [
       WebContext::class,
       DrupalContext::class,
     ],
-    'allowed' => [],
   ],
   [
     'name' => 'the neutral root of src/Backend',
     'paths' => ['src/Backend'],
     'exclude' => ['src/Backend/Drupal'],
     'forbidden' => ['Drupal', 'DrevOps\\BehatSteps\\Backend\\Drupal'],
-    // 'drupal/core-utility' ships the random generator and is a hard
-    // requirement of the package, Drupal site or not.
-    'allowed' => [Random::class],
   ],
   [
     'name' => 'src/Extension',
@@ -67,7 +61,6 @@ const LAYERS = [
       WebContext::class,
       DrupalContext::class,
     ],
-    'allowed' => [],
   ],
   [
     'name' => 'the neutral root of src/Extension',
@@ -76,7 +69,6 @@ const LAYERS = [
     // backend providers.
     'exclude' => ['src/Extension/Drupal', 'src/Extension/ServiceContainer/BehatStepsExtension.php'],
     'forbidden' => ['Drupal', 'DrevOps\\BehatSteps\\Backend\\Drupal', 'DrevOps\\BehatSteps\\Extension\\Drupal'],
-    'allowed' => [Random::class],
   ],
   [
     'name' => 'the web half',
@@ -88,7 +80,6 @@ const LAYERS = [
     ],
     'exclude' => [],
     'forbidden' => ['Drupal'],
-    'allowed' => [Random::class],
   ],
 ];
 
@@ -126,7 +117,7 @@ function lint_layers(array $options = []): void {
     foreach (layer_paths_files($layer['paths'], $layer['exclude'], $base_path) as $file) {
       $checked++;
 
-      foreach (layer_file_violations($file, $layer['forbidden'], $layer['allowed']) as $violation) {
+      foreach (layer_file_violations($file, $layer['forbidden']) as $violation) {
         $relative = substr($file, strlen($base_path) + 1);
         $violations[] = sprintf('%s: %s:%d references %s', $layer['name'], $relative, $violation['line'], $violation['symbol']);
       }
@@ -217,13 +208,11 @@ function layer_files(string $path): array {
  *   Absolute path to the file to read.
  * @param array<int, string> $forbidden
  *   Namespace prefixes that must not be referenced.
- * @param array<int, string> $allowed
- *   Symbols under a forbidden prefix that the layer may reference.
  *
  * @return array<int, array{line: int, symbol: string}>
  *   1 row per reference, in source order.
  */
-function layer_file_violations(string $file, array $forbidden, array $allowed = []): array {
+function layer_file_violations(string $file, array $forbidden): array {
   $violations = [];
 
   foreach (token_get_all((string) file_get_contents($file)) as $token) {
@@ -237,13 +226,7 @@ function layer_file_violations(string $file, array $forbidden, array $allowed = 
       continue;
     }
 
-    $qualified = ltrim($symbol, '\\');
-
-    if (in_array($qualified, $allowed, TRUE)) {
-      continue;
-    }
-
-    if (!layer_is_forbidden($qualified, $forbidden)) {
+    if (!layer_is_forbidden(ltrim($symbol, '\\'), $forbidden)) {
       continue;
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Backend;
 
-use Drupal\Component\Utility\Random;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 
 /**
  * Minimum contract that every backend must satisfy.
@@ -17,7 +17,7 @@ interface BackendInterface {
   /**
    * Returns a random-value generator.
    */
-  public function getRandom(): Random;
+  public function getRandom(): RandomGeneratorInterface;
 
   /**
    * Bootstraps the backend.

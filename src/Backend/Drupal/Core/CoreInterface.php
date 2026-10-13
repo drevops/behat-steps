@@ -15,12 +15,14 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldShapeClassifierInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-use Drupal\Component\Utility\Random;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 
 /**
  * Contract for a Drupal-backed core implementation.
@@ -42,14 +44,16 @@ interface CoreInterface extends
   LanguageCapabilityInterface,
   MailCapabilityInterface,
   ModuleCapabilityInterface,
+  NodeCapabilityInterface,
   RoleCapabilityInterface,
   StateCapabilityInterface,
+  TermCapabilityInterface,
   UserCapabilityInterface {
 
   /**
    * Returns a random-value generator.
    */
-  public function getRandom(): Random;
+  public function getRandom(): RandomGeneratorInterface;
 
   /**
    * Boots Drupal in-process.

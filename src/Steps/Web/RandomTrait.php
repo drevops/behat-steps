@@ -10,10 +10,11 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
+use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TokenTrait;
-use Drupal\Component\Utility\Random;
 
 /**
  * Replace random-value tokens in step arguments and table cells.
@@ -63,7 +64,7 @@ trait RandomTrait {
   /**
    * Random string generator (lazy).
    */
-  protected ?Random $randomGenerator = NULL;
+  protected ?RandomGeneratorInterface $randomGenerator = NULL;
 
   /**
    * Whether token replacement is active for the current scenario.
@@ -346,7 +347,7 @@ trait RandomTrait {
   }
 
   /**
-   * Generates a 'Random::name()' string with original case preserved.
+   * Generates a letters-and-digits name with original case preserved.
    */
   public function randomGenerateName(int $length): string {
     return (string) $this->randomGetGenerator()->name(max(1, $length));
@@ -398,8 +399,8 @@ trait RandomTrait {
   /**
    * Lazily resolves the string generator.
    */
-  protected function randomGetGenerator(): Random {
-    return $this->randomGenerator ??= new Random();
+  protected function randomGetGenerator(): RandomGeneratorInterface {
+    return $this->randomGenerator ??= new RandomGenerator();
   }
 
   /**

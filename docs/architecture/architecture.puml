@@ -51,11 +51,11 @@ package "drevops/behat-steps" {
   }
 
   package "Backend - src/Backend" #E8F5E9 {
-    component "BackendInterface\n+ 9 capability interfaces\nany backend may provide" as BackendIface
+    component "BackendInterface\n+ 9 capability interfaces\nany backend may provide,\nRandomGenerator" as BackendIface
     component "BlackboxBackend\nno backend access at all" as BlackboxBe
 
     package "Backend\\Drupal" #E8F5E9 {
-      component "7 Drupal-only capabilities\nBatch, Block, Config, Core,\nDrush, Module, State" as DrupalCaps
+      component "9 Drupal-only capabilities\nBatch, Block, Config, Core, Drush,\nModule, Node, State, Term" as DrupalCaps
       component "DrupalBackend\nbootstraps Drupal in-process" as DrupalBe
       component "DrushBackend\nshells out to drush" as DrushBe
       component "Core\nfield handlers, classifiers,\nparsers, creation aliases" as Core
@@ -144,8 +144,8 @@ note bottom of BackendIface
   The backend layer references nothing from Behat, Mink or the
   layers above it, so it is usable without Behat loaded. The root
   of each of the 2 lower layers, outside its Drupal sub-namespace,
-  references no Drupal class beyond the random generator, and
-  neither does the web half of the vocabulary.
+  references no Drupal class, and neither does the web half of
+  the vocabulary.
   scripts/lint-layers.php fails the build on any of them.
 end note
 

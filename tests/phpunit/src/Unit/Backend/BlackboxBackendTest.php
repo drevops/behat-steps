@@ -21,9 +21,12 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DrushCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
+use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
-use Drupal\Component\Utility\Random;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -55,11 +58,11 @@ class BlackboxBackendTest extends UnitTestCase {
 
   public function testGetRandomReturnsInstance(): void {
     $backend = new BlackboxBackend();
-    $this->assertInstanceOf(Random::class, $backend->getRandom());
+    $this->assertInstanceOf(RandomGeneratorInterface::class, $backend->getRandom());
   }
 
   public function testGetRandomReturnsInjectedInstance(): void {
-    $random = new Random();
+    $random = new RandomGenerator();
     $backend = new BlackboxBackend($random);
     $this->assertSame($random, $backend->getRandom());
   }
@@ -91,8 +94,10 @@ class BlackboxBackendTest extends UnitTestCase {
     yield 'language' => [LanguageCapabilityInterface::class];
     yield 'mail' => [MailCapabilityInterface::class];
     yield 'module' => [ModuleCapabilityInterface::class];
+    yield 'node' => [NodeCapabilityInterface::class];
     yield 'role' => [RoleCapabilityInterface::class];
     yield 'state' => [StateCapabilityInterface::class];
+    yield 'term' => [TermCapabilityInterface::class];
     yield 'user' => [UserCapabilityInterface::class];
   }
 

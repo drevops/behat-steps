@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Drupal\Core;
 
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
-use Drupal\Component\Utility\Random;
+use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -80,7 +80,7 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
   }
 
   public function testGetRandomReturnsInjectedGenerator(): void {
-    $random = new Random();
+    $random = new RandomGenerator();
     $core = new Core($this->root, 'default', $random);
 
     $this->assertSame($random, $core->getRandom());

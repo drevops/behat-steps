@@ -18,7 +18,9 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 
 /**
@@ -40,8 +42,10 @@ interface DrupalBackendInterface extends
   LanguageCapabilityInterface,
   MailCapabilityInterface,
   ModuleCapabilityInterface,
+  NodeCapabilityInterface,
   RoleCapabilityInterface,
   StateCapabilityInterface,
+  TermCapabilityInterface,
   UserCapabilityInterface {
 
   /**
