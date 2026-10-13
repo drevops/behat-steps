@@ -23,13 +23,13 @@ use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Config\Config;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Routing\RouteObjectInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
-use Drupal\mailsystem\MailsystemManager;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
@@ -49,6 +49,26 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   use CreationAliasRegistryTrait;
 
   /**
+   * The operators a lookup condition may name.
+   *
+   * @var array<int, string>
+   */
+  protected const array LOOKUP_OPERATORS = ['=', 'IN', 'CONTAINS', 'LIKE'];
+
+  /**
+   * The config object recording the mail handlers the collector replaced.
+   *
+   * It is saved, so a run that stops before restoring them leaves the record
+   * for the next run.
+   */
+  protected const string MAIL_ORIGINAL_CONFIG = 'system.mail_original';
+
+  /**
+   * The mail plugin that collects mail instead of sending it.
+   */
+  protected const string MAIL_COLLECTOR = 'test_mail_collector';
+
+  /**
    * System path to the Drupal installation.
    */
   protected string $drupalRoot;
@@ -57,17 +77,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * Random value generator.
    */
   protected RandomGeneratorInterface $random;
-
-  /**
-   * Tracks original configuration values.
-   *
-   * Configuration modified here is saved, so its values persist across
-   * bootstraps.
-   *
-   * @var array<string, mixed>
-   *   An array of data, keyed by configuration name.
-   */
-  protected array $originalConfiguration = [];
 
   /**
    * Registered field handler classes, keyed by field type id.
@@ -850,11 +859,15 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function placeBlock(EntityStubInterface $stub): EntityStubInterface {
+    /** @var \Drupal\block\BlockInterface $placement */
+    $placement = \Drupal::entityTypeManager()->getStorage('block')->create($stub->getValues());
+
     if (!$stub->hasValue('id') || $stub->getValue('id') === '') {
-      $stub->setValue('id', strtolower($this->random->name(8, TRUE)));
+      $id = \Drupal::service('block.repository')->getUniqueMachineName($placement->getPlugin()->getMachineNameSuggestion(), (string) $placement->getTheme());
+      $placement->set('id', $id);
+      $stub->setValue('id', $id);
     }
 
-    $placement = \Drupal::entityTypeManager()->getStorage('block')->create($stub->getValues());
     $placement->save();
     $stub->markSaved($placement);
 
@@ -1185,6 +1198,103 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
+  public function findEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array {
+    $definition = $this->loadEntityTypeDefinition($entity_type);
+    $bundle_key = $bundle === NULL ? NULL : $this->resolveBundleKey($definition, $entity_type);
+
+    $resolved = [];
+
+    foreach ($conditions as $field => $value) {
+      $resolved[$field] = $this->resolveLookupCondition($field, $value);
+    }
+
+    $query = \Drupal::entityTypeManager()->getStorage($entity_type)->getQuery()->accessCheck(FALSE);
+
+    if ($bundle_key !== NULL) {
+      $query->condition($bundle_key, $bundle);
+    }
+
+    foreach ($resolved as $field => [$operator, $operand]) {
+      $query->condition($field, $operand, $operator);
+    }
+
+    $ids = array_map(strval(...), array_values($query->execute()));
+
+    // Natural order puts '10' after '9', so the last id is the newest entity's.
+    usort($ids, strnatcmp(...));
+
+    return $ids;
+  }
+
+  /**
+   * Returns the key an entity type stores its bundle under.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $definition
+   *   The entity type definition.
+   * @param string $entity_type
+   *   The entity type id, for the exception message.
+   *
+   * @return string
+   *   The bundle key, such as 'type' for a node or 'vid' for a term.
+   *
+   * @throws \RuntimeException
+   *   When the entity type declares no bundle key.
+   */
+  protected function resolveBundleKey(EntityTypeInterface $definition, string $entity_type): string {
+    $bundle_key = $definition->getKey('bundle');
+
+    if (!is_string($bundle_key) || $bundle_key === '') {
+      throw new \RuntimeException(sprintf('Entity type "%s" declares no bundle key, so it cannot be looked up by bundle.', $entity_type));
+    }
+
+    return $bundle_key;
+  }
+
+  /**
+   * Splits a lookup condition value into its operator and operand.
+   *
+   * @param string $field
+   *   The field name the condition is on, for the exception message.
+   * @param mixed $value
+   *   A scalar, matched with '=', or an [operator, value] pair.
+   *
+   * @return array{string, mixed}
+   *   The operator and the operand.
+   *
+   * @throws \RuntimeException
+   *   When the value is an array that is not an [operator, value] pair, the
+   *   operator is not one of 'LOOKUP_OPERATORS', or the operand does not fit
+   *   the operator.
+   */
+  protected function resolveLookupCondition(string $field, mixed $value): array {
+    if (!is_array($value)) {
+      return ['=', $value];
+    }
+
+    if (!array_is_list($value) || count($value) !== 2 || !is_string($value[0])) {
+      throw new \RuntimeException(sprintf('The condition on "%s" is a value or an [operator, value] pair.', $field));
+    }
+
+    $operator = strtoupper($value[0]);
+
+    if (!in_array($operator, static::LOOKUP_OPERATORS, TRUE)) {
+      throw new \RuntimeException(sprintf('The condition on "%s" names the operator "%s", which is not one of %s.', $field, $value[0], implode(', ', static::LOOKUP_OPERATORS)));
+    }
+
+    if ($operator === 'IN' && (!is_array($value[1]) || $value[1] === [])) {
+      throw new \RuntimeException(sprintf('The "IN" condition on "%s" takes a non-empty list of values.', $field));
+    }
+
+    if ($operator !== 'IN' && is_array($value[1])) {
+      throw new \RuntimeException(sprintf('The "%s" condition on "%s" takes a single value.', $operator, $field));
+    }
+
+    return [$operator, $value[1]];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function moduleInstall(string $module_name): void {
     \Drupal::service('module_installer')->install([$module_name]);
     $this->allPermissions = NULL;
@@ -1214,29 +1324,56 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * {@inheritdoc}
+   *
+   * A type the record already holds keeps its recorded handler, because a
+   * run that stopped before restoring it left the real handler there and the
+   * collector in 'system.mail'.
    */
-  public function mailStartCollecting(): void {
-    $config = \Drupal::configFactory()->getEditable('system.mail');
-    $mail_config = $config->getRawData();
+  public function mailStartCollecting(array $handler_types = ['default']): void {
+    if ($handler_types === []) {
+      throw new \RuntimeException('Collecting mail takes at least 1 handler type.');
+    }
 
-    $this->storeOriginalConfiguration('system.mail', $mail_config);
+    $mail = \Drupal::configFactory()->getEditable('system.mail');
+    $original = \Drupal::configFactory()->getEditable(static::MAIL_ORIGINAL_CONFIG);
+    $recorded = $original->get('interface');
+    $recorded = is_array($recorded) ? $recorded : [];
 
-    $mail_config['interface'] = ['default' => 'test_mail_collector'];
-    $config->setData($mail_config)->save();
-    $this->startCollectingSystemMail();
+    foreach ($handler_types as $type) {
+      if (!array_key_exists($type, $recorded)) {
+        $recorded[$type] = $mail->get('interface.' . $type);
+      }
+
+      $mail->set('interface.' . $type, static::MAIL_COLLECTOR);
+    }
+
+    $original->set('interface', $recorded)->save();
+    $mail->save();
+
+    $this->startCollectingSystemMail($original);
   }
 
   /**
    * {@inheritdoc}
    */
   public function mailStopCollecting(): void {
-    if (!array_key_exists('system.mail', $this->originalConfiguration)) {
+    $original = \Drupal::configFactory()->getEditable(static::MAIL_ORIGINAL_CONFIG);
+
+    if ($original->isNew()) {
       return;
     }
 
-    $config = \Drupal::configFactory()->getEditable('system.mail');
-    $config->setData($this->originalConfiguration['system.mail'])->save();
-    $this->stopCollectingSystemMail();
+    $mail = \Drupal::configFactory()->getEditable('system.mail');
+    $recorded = $original->get('interface');
+
+    foreach (is_array($recorded) ? $recorded : [] as $type => $handler) {
+      $this->restoreConfigKey($mail, 'interface.' . $type, $handler);
+    }
+
+    $mail->save();
+
+    $this->stopCollectingSystemMail($original);
+    $original->delete();
   }
 
   /**
@@ -1244,10 +1381,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function mailGet(): array {
     \Drupal::state()->resetCache();
-    $mail = \Drupal::state()->get('system.test_mail_collector') ?: [];
-    // Canceled mail carries a false 'send' flag.
-    $mail = array_values(array_filter($mail, static fn(array $mail_item): bool => (bool) $mail_item['send']));
-    return $mail;
+    $mail = \Drupal::state()->get('system.test_mail_collector');
+
+    return is_array($mail) ? array_values($mail) : [];
   }
 
   /**
@@ -1277,63 +1413,67 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Collects mail from the Mail System module too, when it is enabled.
    *
-   * @see MailsystemManager::getPluginInstance()
+   * The module's default sender is recorded beside the handlers, so
+   * 'mailStopCollecting()' restores it.
+   *
+   * @param \Drupal\Core\Config\Config $original
+   *   The editable record of what the collector replaced.
    */
-  protected function startCollectingSystemMail(): void {
+  protected function startCollectingSystemMail(Config $original): void {
     if (!\Drupal::moduleHandler()->moduleExists('mailsystem')) {
       return;
     }
 
-    $config = \Drupal::configFactory()->getEditable('mailsystem.settings');
-    $mailsystem_config = $config->getRawData();
+    $settings = \Drupal::configFactory()->getEditable('mailsystem.settings');
 
-    $this->storeOriginalConfiguration('mailsystem.settings', $mailsystem_config);
-
-    $mailsystem_config = $this->replaceMailSenders($mailsystem_config);
-    $config->setData($mailsystem_config)->save();
-  }
-
-  /**
-   * Recursively replaces mail sender plugins with the test collector.
-   *
-   * @param array<string, mixed> $config_tree
-   *   The configuration tree to process.
-   *
-   * @return array<string, mixed>
-   *   The modified configuration tree.
-   */
-  protected function replaceMailSenders(array $config_tree): array {
-    foreach ($config_tree as $key => $values) {
-      if (!is_array($values)) {
-        continue;
-      }
-
-      if (isset($values[MailsystemManager::MAILSYSTEM_TYPE_SENDING])) {
-        $config_tree[$key][MailsystemManager::MAILSYSTEM_TYPE_SENDING] = 'test_mail_collector';
-      }
-      else {
-        $config_tree[$key] = $this->replaceMailSenders($values);
-      }
+    if (!array_key_exists('mailsystem', $original->getRawData())) {
+      $original->set('mailsystem', ['sender' => $settings->get('defaults.sender')])->save();
     }
 
-    return $config_tree;
+    $settings->set('defaults.sender', static::MAIL_COLLECTOR)->save();
   }
 
   /**
-   * Stops collecting mail from the Mail System module, when it is enabled.
+   * Restores the Mail System module's default sender, when it was recorded.
+   *
+   * @param \Drupal\Core\Config\Config $original
+   *   The editable record of what the collector replaced.
    */
-  protected function stopCollectingSystemMail(): void {
+  protected function stopCollectingSystemMail(Config $original): void {
     if (!\Drupal::moduleHandler()->moduleExists('mailsystem')) {
       return;
     }
 
-    if (!array_key_exists('mailsystem.settings', $this->originalConfiguration)) {
+    $recorded = $original->get('mailsystem');
+
+    if (!is_array($recorded) || !array_key_exists('sender', $recorded)) {
       return;
     }
 
-    \Drupal::configFactory()->getEditable('mailsystem.settings')
-      ->setData($this->originalConfiguration['mailsystem.settings'])
-      ->save();
+    $settings = \Drupal::configFactory()->getEditable('mailsystem.settings');
+    $this->restoreConfigKey($settings, 'defaults.sender', $recorded['sender']);
+    $settings->save();
+  }
+
+  /**
+   * Writes a recorded value back to a config key without saving.
+   *
+   * @param \Drupal\Core\Config\Config $config
+   *   The editable config object.
+   * @param string $key
+   *   The key to restore.
+   * @param mixed $value
+   *   The recorded value. NULL records a key the site did not have, so the
+   *   key is cleared rather than set.
+   */
+  protected function restoreConfigKey(Config $config, string $key, mixed $value): void {
+    if ($value === NULL) {
+      $config->clear($key);
+
+      return;
+    }
+
+    $config->set($key, $value);
   }
 
   /**
@@ -1357,18 +1497,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
     catch (\RuntimeException) {
     }
-  }
-
-  /**
-   * Stores the original value for a piece of configuration.
-   *
-   * @param string $name
-   *   The name of the configuration.
-   * @param mixed $value
-   *   The original value of the configuration.
-   */
-  protected function storeOriginalConfiguration(string $name, mixed $value): void {
-    $this->originalConfiguration[$name] ??= $value;
   }
 
 }

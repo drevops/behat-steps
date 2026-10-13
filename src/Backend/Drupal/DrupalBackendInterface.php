@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
@@ -39,6 +40,7 @@ interface DrupalBackendInterface extends
   ContentCapabilityInterface,
   CoreCapabilityInterface,
   CronCapabilityInterface,
+  EntityLookupCapabilityInterface,
   LanguageCapabilityInterface,
   MailCapabilityInterface,
   ModuleCapabilityInterface,

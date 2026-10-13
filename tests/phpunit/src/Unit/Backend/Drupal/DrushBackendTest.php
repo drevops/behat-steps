@@ -5,6 +5,15 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal;
 
 use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
@@ -27,6 +36,29 @@ class DrushBackendTest extends UnitTestCase {
 
     $this->assertContains(DrushBackendInterface::class, $interfaces);
     $this->assertContains(BackendInterface::class, $interfaces);
+  }
+
+  /**
+   * Tests that the backend does not claim a capability Drush cannot serve.
+   *
+   * @param string $capability_class
+   *   The capability interface name.
+   */
+  #[DataProvider('dataProviderDoesNotImplementCapability')]
+  public function testDoesNotImplementCapability(string $capability_class): void {
+    $this->assertNotContains($capability_class, (array) class_implements(DrushBackend::class), sprintf('DrushBackend must not claim to implement %s.', $capability_class));
+  }
+
+  public static function dataProviderDoesNotImplementCapability(): \Iterator {
+    yield 'authentication' => [AuthenticationCapabilityInterface::class];
+    yield 'block' => [BlockCapabilityInterface::class];
+    yield 'content' => [ContentCapabilityInterface::class];
+    yield 'core' => [CoreCapabilityInterface::class];
+    yield 'entity lookup' => [EntityLookupCapabilityInterface::class];
+    yield 'language' => [LanguageCapabilityInterface::class];
+    yield 'mail' => [MailCapabilityInterface::class];
+    yield 'node' => [NodeCapabilityInterface::class];
+    yield 'term' => [TermCapabilityInterface::class];
   }
 
   public function testWithAlias(): void {

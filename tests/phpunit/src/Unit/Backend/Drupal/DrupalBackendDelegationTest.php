@@ -159,11 +159,13 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'stateExists' => ['stateExists', ['my.key'], 'stateExists'];
     yield 'createEntity' => ['createEntity', [$entity], 'createEntity'];
     yield 'deleteEntity' => ['deleteEntity', [$entity], 'deleteEntity'];
+    yield 'findEntityIds' => ['findEntityIds', ['node', ['title' => 'Shared'], 'page'], 'findEntityIds'];
     yield 'placeBlock' => ['placeBlock', [$block], 'placeBlock'];
     yield 'deleteBlock' => ['deleteBlock', [$block], 'deleteBlock'];
     yield 'createBlockContent' => ['createBlockContent', [$block_content], 'createBlockContent'];
     yield 'deleteBlockContent' => ['deleteBlockContent', [$block_content], 'deleteBlockContent'];
-    yield 'mailStartCollecting' => ['mailStartCollecting', [], 'mailStartCollecting'];
+    yield 'mailStartCollecting' => ['mailStartCollecting', [['default']], 'mailStartCollecting'];
+    yield 'mailStartCollecting with handler types' => ['mailStartCollecting', [['contact', 'user']], 'mailStartCollecting'];
     yield 'mailStopCollecting' => ['mailStopCollecting', [], 'mailStopCollecting'];
     yield 'mailGet' => ['mailGet', [], 'mailGet'];
     yield 'mailClear' => ['mailClear', [], 'mailClear'];
