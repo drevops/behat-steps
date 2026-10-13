@@ -11,6 +11,7 @@ use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
 use DrevOps\BehatSteps\Extension\Auth\Authenticator;
 use DrevOps\BehatSteps\Extension\Browser\Element\DocumentElement;
+use DrevOps\BehatSteps\Extension\Drupal\ServiceContainer\DrupalBackendProvider;
 use DrevOps\BehatSteps\Extension\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Extension\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Extension\ServiceContainer\Driver\BrowserKitFactory;
@@ -19,7 +20,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Loader\FileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -49,6 +49,20 @@ final class BehatStepsExtension implements ExtensionInterface {
   protected ?BrowserKitFactory $browserKitFactory = NULL;
 
   /**
+   * The providers of the shipped backends, in registration order.
+   *
+   * @var array<int, \DrevOps\BehatSteps\Extension\ServiceContainer\BackendProviderInterface>
+   */
+  protected readonly array $backendProviders;
+
+  /**
+   * Constructs the extension with the shipped backend providers.
+   */
+  public function __construct() {
+    $this->backendProviders = [new DrupalBackendProvider()];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getConfigKey(): string {
@@ -70,12 +84,13 @@ final class BehatStepsExtension implements ExtensionInterface {
 
     $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/config'));
     $loader->load('services.yml');
+    $loader->load('backends/blackbox.yml');
 
     $this->loadParameters($container, $config);
 
-    $this->loadBlackbox($loader);
-    $this->loadDrupal($loader, $container, $config);
-    $this->loadDrush($loader, $container, $config);
+    foreach ($this->backendProviders as $provider) {
+      $provider->load($container, $config);
+    }
   }
 
   /**
@@ -83,6 +98,11 @@ final class BehatStepsExtension implements ExtensionInterface {
    */
   public function process(ContainerBuilder $container): void {
     $this->processBackendPass($container);
+
+    foreach ($this->backendProviders as $provider) {
+      $provider->process($container);
+    }
+
     $this->processBackends($container);
     $this->processClassGenerator($container);
     $this->processHttpClient($container);
@@ -92,134 +112,121 @@ final class BehatStepsExtension implements ExtensionInterface {
    * {@inheritdoc}
    */
   public function configure(ArrayNodeDefinition $builder): void {
+    $defaults = $this->collectParameterDefaults();
+
     // @formatter:off
     // phpcs:disable
     $builder
       ->beforeNormalization()
         ->ifArray()
         ->then(static fn(array $config): array => self::rejectRenamedKeys($config))
+      ->end();
+
+    $children = $builder->children();
+
+    $children
+      ->arrayNode('backends')
+        ->info('Ordered list of the backends a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first backend here providing it answers. A bare entry names a registered backend; a "tag: backend" entry gives it a name of its own, so the same feature file runs against a different backend in another profile. Omit it to get every registered backend, in registration order.' . PHP_EOL
+          . '  - drupal' . PHP_EOL
+          . '  - api: acme-jsonapi' . PHP_EOL
+          . '  - blackbox' . PHP_EOL)
+        ->normalizeKeys(FALSE)
+        ->prototype('scalar')->end()
       ->end()
-      ->children()
-        ->arrayNode('backends')
-          ->info('Ordered list of the backends a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first backend here providing it answers. A bare entry names a registered backend; a "tag: backend" entry gives it a name of its own, so the same feature file runs against a different backend in another profile. Omit it to get every registered backend, in registration order.' . PHP_EOL
-            . '  - drupal' . PHP_EOL
-            . '  - api: acme-jsonapi' . PHP_EOL
-            . '  - blackbox' . PHP_EOL)
-          ->normalizeKeys(FALSE)
-          ->prototype('scalar')->end()
-        ->end()
-        ->scalarNode('login_field')
-          ->defaultValue('name')
-          ->info('User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property.')
-        ->end()
-        ->arrayNode('regions')
-          ->info("Map of named regions to CSS selectors. Region steps such as 'I press the button :button in the region :region' resolve against this map." . PHP_EOL
-            . '  My region: "#css-selector"' . PHP_EOL
-            . '  Content: "#main .region-content"' . PHP_EOL
-            . '  Right sidebar: "#sidebar-second"' . PHP_EOL)
-          ->useAttributeAsKey('key')
-          ->prototype('scalar')->end()
-        ->end()
-        ->arrayNode('text')
-          ->info(
-            'Text strings, such as Log out or the Username field can be altered in the Behat configuration if they vary from the default values.' . PHP_EOL
-            . '  login_url: "/user"' . PHP_EOL
-            . '  logout_url: "/user/logout"' . PHP_EOL
-            . '  logout_confirm_url: "/user/logout/confirm"' . PHP_EOL
-            . '  logout: "Sign out"' . PHP_EOL
-            . '  login: "Sign in"' . PHP_EOL
-            . '  password_field: "Enter your password"' . PHP_EOL
-            . '  username_field: "Nickname"'
-          )
-          ->ignoreExtraKeys(FALSE)
-          ->addDefaultsIfNotSet()
-          ->children()
-            ->scalarNode('login_url')
-              ->defaultValue('/user')
-              ->info('Path the login steps submit the login form on.')
-            ->end()
-            ->scalarNode('logout_url')
-              ->defaultValue('/user/logout')
-              ->info('Path the logout steps request.')
-            ->end()
-            ->scalarNode('logout_confirm_url')
-              ->defaultValue('/user/logout/confirm')
-              ->info('Path of the logout confirmation form, submitted when the site asks to confirm.')
-            ->end()
-            ->scalarNode('login')
-              ->defaultValue('Log in')
-              ->info('Text of the login submit button.')
-            ->end()
-            ->scalarNode('logout')
-              ->defaultValue('Log out')
-              ->info('Text of the logout link.')
-            ->end()
-            ->scalarNode('password_field')
-              ->defaultValue('Password')
-              ->info('Label of the password field on the login form.')
-            ->end()
-            ->scalarNode('username_field')
-              ->defaultValue('Username')
-              ->info('Label of the username field on the login form.')
-            ->end()
+      ->scalarNode('login_field')
+        ->defaultValue('name')
+        ->info('User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property.')
+      ->end()
+      ->arrayNode('regions')
+        ->info("Map of named regions to CSS selectors. Region steps such as 'I press the button :button in the region :region' resolve against this map." . PHP_EOL
+          . '  My region: "#css-selector"' . PHP_EOL
+          . '  Content: "#main .region-content"' . PHP_EOL
+          . '  Right sidebar: "#sidebar-second"' . PHP_EOL)
+        ->useAttributeAsKey('key')
+        ->prototype('scalar')->end()
+      ->end()
+      ->arrayNode('text')
+        ->info(
+          'Text strings, such as Log out or the Username field can be altered in the Behat configuration if they vary from the default values.' . PHP_EOL
+          . '  login_url: "/user"' . PHP_EOL
+          . '  logout_url: "/user/logout"' . PHP_EOL
+          . '  logout_confirm_url: "/user/logout/confirm"' . PHP_EOL
+          . '  logout: "Sign out"' . PHP_EOL
+          . '  login: "Sign in"' . PHP_EOL
+          . '  password_field: "Enter your password"' . PHP_EOL
+          . '  username_field: "Nickname"'
+        )
+        ->ignoreExtraKeys(FALSE)
+        ->addDefaultsIfNotSet()
+        ->children()
+          ->scalarNode('login_url')
+            ->defaultValue($defaults['text']['login_url'] ?? NULL)
+            ->info('Path the login steps submit the login form on.')
           ->end()
-        ->end()
-        ->integerNode('login_wait')
-          ->min(0)
-          ->defaultValue(0)
-          ->info(sprintf('Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting. A JavaScript session still waits up to %d seconds, or this value when it is larger, for the browser to leave the login form or show the logged-in selector, and for the logged-in selector or the logout link on the homepage. Each wait ends as soon as its signal appears.', Authenticator::JAVASCRIPT_LOGIN_WAIT))
-        ->end()
-        ->arrayNode('steps')
-          ->info('Default values of the options the step traits declare, keyed by trait group and then by option name. Each group is named after the trait that declares it, so "JavascriptTrait" reads "javascript" and "BigPipeTrait" reads "big_pipe". A group naming a trait none of the registered contexts composes is ignored, so one profile can carry the defaults of every suite.' . PHP_EOL
-            . '  javascript:' . PHP_EOL
-            . '    enabled: true' . PHP_EOL
-            . '    fail_on_errors: false' . PHP_EOL
-            . '  wait:' . PHP_EOL
-            . '    ajax_timeout: 10' . PHP_EOL)
-          ->useAttributeAsKey('group')
-          ->prototype('variable')->end()
-        ->end()
-        ->arrayNode('selectors')
-          ->info('CSS selectors the steps resolve page structures against.')
-          ->ignoreExtraKeys(FALSE)
-          ->addDefaultsIfNotSet()
-          ->children()
-            ->scalarNode('login_form_selector')
-              ->defaultValue('form#user-login,form#user-login-form')
-              ->info('Selector of the login form, used to tell a login page from a page that merely holds a login block.')
-            ->end()
-            ->scalarNode('logged_in_selector')
-              ->defaultValue('body.logged-in,body.user-logged-in')
-              ->info('Selector present only while a user is authenticated, used to confirm a login took effect.')
-            ->end()
+          ->scalarNode('logout_url')
+            ->defaultValue($defaults['text']['logout_url'] ?? NULL)
+            ->info('Path the logout steps request.')
           ->end()
-        ->end()
-        ->arrayNode('blackbox')
-          ->info('Settings of the backend that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve.')
-        ->end()
-        ->arrayNode('drupal')
-          ->info('Settings of the backend that bootstraps Drupal in-process.')
-          ->children()
-            ->scalarNode('drupal_root')
-              ->isRequired()
-              ->cannotBeEmpty()
-              ->info('Path to the Drupal root the in-process backend bootstraps.')
-            ->end()
+          ->scalarNode('logout_confirm_url')
+            ->defaultValue($defaults['text']['logout_confirm_url'] ?? NULL)
+            ->info('Path of the logout confirmation form, submitted when the site asks to confirm.')
           ->end()
-        ->end()
-        ->arrayNode('drush')
-          ->info('Settings of the backend that reaches the site by running Drush 13 or newer.')
-          ->children()
-            ->scalarNode('alias')->info('Drush site alias to run every command against.')->end()
-            ->scalarNode('binary')->defaultValue('vendor/bin/drush')->info('Path to the Drush binary.')->end()
-            ->scalarNode('root')->info('Drupal root passed to Drush, for a site Drush cannot locate on its own.')->end()
-            ->scalarNode('global_options')->info('Options appended to every Drush command, such as "--uri=http://example.com".')->end()
+          ->scalarNode('login')
+            ->defaultValue($defaults['text']['login'] ?? NULL)
+            ->info('Text of the login submit button.')
+          ->end()
+          ->scalarNode('logout')
+            ->defaultValue($defaults['text']['logout'] ?? NULL)
+            ->info('Text of the logout link.')
+          ->end()
+          ->scalarNode('password_field')
+            ->defaultValue($defaults['text']['password_field'] ?? NULL)
+            ->info('Label of the password field on the login form.')
+          ->end()
+          ->scalarNode('username_field')
+            ->defaultValue($defaults['text']['username_field'] ?? NULL)
+            ->info('Label of the username field on the login form.')
           ->end()
         ->end()
       ->end()
-    ->end();
+      ->integerNode('login_wait')
+        ->min(0)
+        ->defaultValue(0)
+        ->info(sprintf('Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting. A JavaScript session still waits up to %d seconds, or this value when it is larger, for the browser to leave the login form or show the logged-in selector, and for the logged-in selector or the logout link on the homepage. Each wait ends as soon as its signal appears.', Authenticator::JAVASCRIPT_LOGIN_WAIT))
+      ->end()
+      ->arrayNode('steps')
+        ->info('Default values of the options the step traits declare, keyed by trait group and then by option name. Each group is named after the trait that declares it, so "JavascriptTrait" reads "javascript" and "BigPipeTrait" reads "big_pipe". A group naming a trait none of the registered contexts composes is ignored, so one profile can carry the defaults of every suite.' . PHP_EOL
+          . '  javascript:' . PHP_EOL
+          . '    enabled: true' . PHP_EOL
+          . '    fail_on_errors: false' . PHP_EOL
+          . '  wait:' . PHP_EOL
+          . '    ajax_timeout: 10' . PHP_EOL)
+        ->useAttributeAsKey('group')
+        ->prototype('variable')->end()
+      ->end()
+      ->arrayNode('selectors')
+        ->info('CSS selectors the steps resolve page structures against.')
+        ->ignoreExtraKeys(FALSE)
+        ->addDefaultsIfNotSet()
+        ->children()
+          ->scalarNode('login_form_selector')
+            ->defaultValue($defaults['selectors']['login_form_selector'] ?? NULL)
+            ->info('Selector of the login form, used to tell a login page from a page that merely holds a login block.')
+          ->end()
+          ->scalarNode('logged_in_selector')
+            ->defaultValue($defaults['selectors']['logged_in_selector'] ?? NULL)
+            ->info('Selector present only while a user is authenticated, used to confirm a login took effect.')
+          ->end()
+        ->end()
+      ->end()
+      ->arrayNode('blackbox')
+        ->info('Settings of the backend that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve.')
+      ->end();
     // phpcs:enable
     // @formatter:on
+    foreach ($this->backendProviders as $provider) {
+      $provider->configure($children);
+    }
   }
 
   /**
@@ -264,6 +271,26 @@ final class BehatStepsExtension implements ExtensionInterface {
       class_alias(DocumentElement::class, UpstreamDocumentElement::class, TRUE);
       // @codeCoverageIgnoreEnd
     }
+  }
+
+  /**
+   * Merges the login text and selector defaults the backend providers ship.
+   *
+   * A later provider overrides an earlier one, key by key.
+   *
+   * @return array{text: array<string, string>, selectors: array<string, string>}
+   *   Values keyed by setting name.
+   */
+  protected function collectParameterDefaults(): array {
+    $defaults = ['text' => [], 'selectors' => []];
+
+    foreach ($this->backendProviders as $provider) {
+      $provided = $provider->getParameterDefaults();
+      $defaults['text'] = $provided['text'] + $defaults['text'];
+      $defaults['selectors'] = $provided['selectors'] + $defaults['selectors'];
+    }
+
+    return $defaults;
   }
 
   /**
@@ -338,123 +365,6 @@ final class BehatStepsExtension implements ExtensionInterface {
     }
 
     return $config;
-  }
-
-  /**
-   * Loads the blackbox backend.
-   */
-  protected function loadBlackbox(FileLoader $loader): void {
-    $loader->load('backends/blackbox.yml');
-  }
-
-  /**
-   * Loads the Drupal backend.
-   *
-   * @param \Symfony\Component\DependencyInjection\Loader\FileLoader $loader
-   *   The file loader.
-   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
-   *   The container builder.
-   * @param array<string, mixed> $config
-   *   The extension configuration.
-   */
-  protected function loadDrupal(FileLoader $loader, ContainerBuilder $container, array $config): void {
-    if (isset($config['drupal'])) {
-      $loader->load('backends/drupal.yml');
-      $container->setParameter('behat_steps.backend.drupal.drupal_root', $config['drupal']['drupal_root']);
-    }
-  }
-
-  /**
-   * Loads the Drush backend.
-   *
-   * @param \Symfony\Component\DependencyInjection\Loader\FileLoader $loader
-   *   The file loader.
-   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
-   *   The container builder.
-   * @param array<string, mixed> $config
-   *   The extension configuration.
-   *
-   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-   *   When neither a Drush alias nor a Drupal root is configured, or when
-   *   either is configured empty.
-   */
-  protected function loadDrush(FileLoader $loader, ContainerBuilder $container, array $config): void {
-    if (isset($config['drush'])) {
-      $loader->load('backends/drush.yml');
-
-      foreach (['alias', 'root'] as $key) {
-        if (($config['drush'][$key] ?? NULL) === '') {
-          throw new InvalidConfigurationException(sprintf('Drush "%s" is empty. Set a value, or leave it out.', $key));
-        }
-      }
-
-      if (!isset($config['drush']['alias']) && !isset($config['drush']['root'])) {
-        throw new InvalidConfigurationException('Drush "alias" or "root" path is required for the Drush backend.');
-      }
-
-      $container->setParameter('behat_steps.backend.drush.alias', $config['drush']['alias'] ?? NULL);
-
-      $config['drush']['binary'] ??= 'vendor/bin/drush';
-      $config['drush']['binary'] = self::resolveBinaryPath($config['drush']['binary']);
-      $container->setParameter('behat_steps.backend.drush.binary', $config['drush']['binary']);
-
-      $container->setParameter('behat_steps.backend.drush.root', $config['drush']['root'] ?? NULL);
-
-      $this->setDrushOptions($container, $config);
-    }
-  }
-
-  /**
-   * Resolves a relative binary path to an absolute path.
-   *
-   * Probes the current working directory and its parent to locate the binary.
-   * This ensures the path remains valid after 'Core::bootstrap()' changes the
-   * working directory to DRUPAL_ROOT via chdir().
-   *
-   * Absolute paths and binaries without a directory separator (bare commands
-   * like 'drush' that resolve via $PATH) are returned as-is.
-   */
-  public static function resolveBinaryPath(string $binary): string {
-    if (str_starts_with($binary, '/')) {
-      return $binary;
-    }
-
-    if (!str_contains($binary, '/')) {
-      return $binary;
-    }
-
-    $cwd = (string) getcwd();
-
-    $candidate = $cwd . '/' . $binary;
-
-    if (file_exists($candidate)) {
-      return $candidate;
-    }
-
-    // Probe the parent directory, which covers a working directory 1 level
-    // deep such as a Drupal root inside a project.
-    $candidate = dirname($cwd) . '/' . $binary;
-
-    if (file_exists($candidate)) {
-      return $candidate;
-    }
-
-    return $binary;
-  }
-
-  /**
-   * Sets global Drush arguments.
-   *
-   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
-   *   The container builder.
-   * @param array<string, mixed> $config
-   *   The extension configuration.
-   */
-  protected function setDrushOptions(ContainerBuilder $container, array $config): void {
-    if (isset($config['drush']['global_options'])) {
-      $definition = $container->getDefinition('behat_steps.backend.drush');
-      $definition->addMethodCall('setArguments', [$config['drush']['global_options']]);
-    }
   }
 
   /**

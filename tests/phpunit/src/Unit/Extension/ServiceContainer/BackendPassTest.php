@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\ServiceContainer;
 
 use DrevOps\BehatSteps\Backend\BlackboxBackend;
-use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BackendPass;
@@ -65,33 +64,13 @@ class BackendPassTest extends UnitTestCase {
     $this->assertSame([], BackendPass::registeredNames($this->createContainer()));
   }
 
-  public function testTheDrupalBackendReceivesTheTaggedCore(): void {
-    $container = $this->createContainer();
-    $container->setDefinition('behat_steps.backend.drupal', (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag('behat_steps.core'));
-
-    (new BackendPass())->process($container);
-
-    $this->assertEquals([['setCore', [new Reference('behat_steps.backend.core')]]], $container->getDefinition('behat_steps.backend.drupal')->getMethodCalls());
-  }
-
-  public function testTheDrupalBackendIsLeftAloneWhenNoCoreIsTagged(): void {
+  public function testTheBackendDefinitionsAreLeftAlone(): void {
     $container = $this->createContainer();
     $container->setDefinition('behat_steps.backend.drupal', (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
 
     (new BackendPass())->process($container);
 
     $this->assertSame([], $container->getDefinition('behat_steps.backend.drupal')->getMethodCalls());
-  }
-
-  public function testOnlyDrupalBackendReceivesCore(): void {
-    $container = $this->createContainer();
-    $container->setDefinition('behat_steps.backend.blackbox', (new Definition(BlackboxBackend::class))->addTag('behat_steps.backend', ['alias' => 'blackbox']));
-    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag('behat_steps.core'));
-
-    (new BackendPass())->process($container);
-
-    $this->assertSame([], $container->getDefinition('behat_steps.backend.blackbox')->getMethodCalls());
   }
 
   /**

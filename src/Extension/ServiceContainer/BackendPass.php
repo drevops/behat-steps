@@ -34,20 +34,6 @@ final class BackendPass implements CompilerPassInterface {
           $registry_definition->addMethodCall('registerBackend', [$name, new Reference($id)]);
         }
       }
-
-      // The Drupal backend takes a single Core, so only the first service
-      // tagged 'behat_steps.core' is injected.
-      if ($id !== 'behat_steps.backend.drupal') {
-        continue;
-      }
-
-      $core_ids = array_keys($container->findTaggedServiceIds('behat_steps.core'));
-
-      if ($core_ids === []) {
-        continue;
-      }
-
-      $container->getDefinition($id)->addMethodCall('setCore', [new Reference($core_ids[0])]);
     }
   }
 

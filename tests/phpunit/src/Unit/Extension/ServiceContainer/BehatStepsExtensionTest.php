@@ -29,23 +29,6 @@ use Symfony\Component\HttpClient\HttpClient;
 #[CoversClass(BehatStepsExtension::class)]
 class BehatStepsExtensionTest extends UnitTestCase {
 
-  /**
-   * Working directory to restore after a test that changed it.
-   */
-  protected string $originalCwd;
-
-  protected function setUp(): void {
-    parent::setUp();
-
-    $this->originalCwd = (string) getcwd();
-  }
-
-  protected function tearDown(): void {
-    chdir($this->originalCwd);
-
-    parent::tearDown();
-  }
-
   public function testConfigKeyNamesTheExtension(): void {
     $this->assertSame('behat_steps', (new BehatStepsExtension())->getConfigKey());
   }
@@ -227,80 +210,11 @@ class BehatStepsExtensionTest extends UnitTestCase {
     $this->assertNull($container->getParameter('behat_steps.backend.drush.alias'));
   }
 
-  public function testDrushBackendAcceptsAliasInsteadOfRoot(): void {
-    $container = $this->load(['drush' => ['alias' => '@self']]);
-
-    $this->assertSame('@self', $container->getParameter('behat_steps.backend.drush.alias'));
-    $this->assertNull($container->getParameter('behat_steps.backend.drush.root'));
-  }
-
-  public function testDrushBackendReadsNullAliasAsNotGiven(): void {
-    $container = $this->load(['drush' => ['alias' => NULL, 'root' => 'web']]);
-
-    $this->assertNull($container->getParameter('behat_steps.backend.drush.alias'));
-    $this->assertSame('web', $container->getParameter('behat_steps.backend.drush.root'));
-  }
-
-  /**
-   * Tests that an empty alias or root fails the build, naming the setting.
-   *
-   * @param array<string, mixed> $drush
-   *   The Drush settings, before schema normalization.
-   * @param string $expected_message
-   *   The message the build is expected to fail with.
-   */
-  #[DataProvider('dataProviderDrushBackendRejectsEmptySetting')]
-  public function testDrushBackendRejectsEmptySetting(array $drush, string $expected_message): void {
-    $this->expectException(InvalidConfigurationException::class);
-    $this->expectExceptionMessage($expected_message);
-
-    $this->load(['drush' => $drush]);
-  }
-
-  public static function dataProviderDrushBackendRejectsEmptySetting(): \Iterator {
-    yield 'an empty alias beside a root' => [['alias' => '', 'root' => 'web'], 'Drush "alias" is empty. Set a value, or leave it out.'];
-    yield 'an empty alias alone' => [['alias' => ''], 'Drush "alias" is empty. Set a value, or leave it out.'];
-    yield 'an empty root beside an alias' => [['alias' => '@self', 'root' => ''], 'Drush "root" is empty. Set a value, or leave it out.'];
-    yield 'an empty root alone' => [['root' => ''], 'Drush "root" is empty. Set a value, or leave it out.'];
-    yield 'both empty' => [['alias' => '', 'root' => ''], 'Drush "alias" is empty. Set a value, or leave it out.'];
-  }
-
-  public function testDrupalBackendRequiresItsRoot(): void {
+  public function testTheDrupalProviderSettingsAreInTheTree(): void {
     $this->expectException(InvalidConfigurationException::class);
     $this->expectExceptionMessage('The child config "drupal_root" under "behat_steps.drupal" must be configured');
 
     $this->load(['drupal' => []]);
-  }
-
-  /**
-   * Tests that the Drush backend fails the build without an alias or a root.
-   *
-   * @param array<string, mixed> $drush
-   *   The Drush settings, before schema normalization.
-   */
-  #[DataProvider('dataProviderDrushBackendRequiresAliasOrRoot')]
-  public function testDrushBackendRequiresAliasOrRoot(array $drush): void {
-    $this->expectException(InvalidConfigurationException::class);
-    $this->expectExceptionMessage('Drush "alias" or "root" path is required for the Drush backend.');
-
-    $this->load(['drush' => $drush]);
-  }
-
-  public static function dataProviderDrushBackendRequiresAliasOrRoot(): \Iterator {
-    yield 'neither set' => [[]];
-    yield 'both left out with NULL' => [['alias' => NULL, 'root' => NULL]];
-  }
-
-  public function testDrushGlobalOptionsReachTheBackend(): void {
-    $container = $this->load(['drush' => ['root' => 'web', 'global_options' => '--yes']]);
-
-    $this->assertSame([['setArguments', ['--yes']]], $container->getDefinition('behat_steps.backend.drush')->getMethodCalls());
-  }
-
-  public function testDrushGlobalOptionsAreOptional(): void {
-    $container = $this->load(['drush' => ['root' => 'web']]);
-
-    $this->assertSame([], $container->getDefinition('behat_steps.backend.drush')->getMethodCalls());
   }
 
   /**
@@ -620,34 +534,6 @@ class BehatStepsExtensionTest extends UnitTestCase {
     $this->load(['backends' => 'drupal']);
   }
 
-  public function testAbsoluteBinaryPathIsReturnedAsIs(): void {
-    $this->assertSame('/usr/local/bin/drush', BehatStepsExtension::resolveBinaryPath('/usr/local/bin/drush'));
-  }
-
-  public function testBareBinaryCommandIsReturnedAsIs(): void {
-    $this->assertSame('drush', BehatStepsExtension::resolveBinaryPath('drush'));
-  }
-
-  public function testBinaryPathResolvesFromWorkingDirectory(): void {
-    $project = $this->createDrushProject();
-    chdir($project);
-
-    $this->assertSame($project . '/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
-  }
-
-  public function testBinaryPathResolvesFromParentDirectory(): void {
-    $project = $this->createDrushProject();
-    chdir($project . '/web');
-
-    $this->assertSame($project . '/vendor/bin/drush', BehatStepsExtension::resolveBinaryPath('vendor/bin/drush'));
-  }
-
-  public function testUnresolvableBinaryPathIsReturnedAsIs(): void {
-    chdir(static::$tmp);
-
-    $this->assertSame('some/nonexistent/binary', BehatStepsExtension::resolveBinaryPath('some/nonexistent/binary'));
-  }
-
   /**
    * Runs a raw configuration array through the schema and into a container.
    *
@@ -719,19 +605,6 @@ class BehatStepsExtensionTest extends UnitTestCase {
     $this->assertIsArray($factories);
 
     return $factories;
-  }
-
-  /**
-   * Writes a project with a Drush binary and a web root below it.
-   *
-   * @return string
-   *   The project directory.
-   */
-  protected function createDrushProject(): string {
-    $this->writeFixture('project/vendor/bin/drush', '');
-    mkdir(static::$tmp . '/project/web');
-
-    return static::$tmp . '/project';
   }
 
 }
