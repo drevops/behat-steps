@@ -5,44 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Extension\Context\Attribute;
 
 use Behat\Behat\Context\Attribute\AttributeReader;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\AfterNodeCreate as AfterNodeCreateAttribute;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\AfterTermCreate as AfterTermCreateAttribute;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeNodeCreate as BeforeNodeCreateAttribute;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeTermCreate as BeforeTermCreateAttribute;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterNodeCreate;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterTermCreate;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeNodeCreate;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeTermCreate;
-use DrevOps\BehatSteps\Extension\Hook\Attribute\AfterEntityCreate as AfterEntityCreateAttribute;
-use DrevOps\BehatSteps\Extension\Hook\Attribute\AfterUserCreate as AfterUserCreateAttribute;
-use DrevOps\BehatSteps\Extension\Hook\Attribute\BeforeEntityCreate as BeforeEntityCreateAttribute;
-use DrevOps\BehatSteps\Extension\Hook\Attribute\BeforeUserCreate as BeforeUserCreateAttribute;
 use DrevOps\BehatSteps\Extension\Hook\Attribute\HookAttributeInterface;
-use DrevOps\BehatSteps\Extension\Hook\Call\AfterEntityCreate;
-use DrevOps\BehatSteps\Extension\Hook\Call\AfterUserCreate;
-use DrevOps\BehatSteps\Extension\Hook\Call\BeforeEntityCreate;
-use DrevOps\BehatSteps\Extension\Hook\Call\BeforeUserCreate;
+use DrevOps\BehatSteps\Extension\Hook\Call\EntityHook;
 
 /**
  * Reads the entity creation hook attributes off a context method.
  */
 final class HookAttributeReader implements AttributeReader {
-
-  /**
-   * Map of attribute classes to their hook call classes.
-   *
-   * @var array<class-string, class-string<\DrevOps\BehatSteps\Extension\Hook\Call\EntityHook>>
-   */
-  protected const array ATTRIBUTE_MAP = [
-    AfterEntityCreateAttribute::class => AfterEntityCreate::class,
-    AfterNodeCreateAttribute::class => AfterNodeCreate::class,
-    AfterTermCreateAttribute::class => AfterTermCreate::class,
-    AfterUserCreateAttribute::class => AfterUserCreate::class,
-    BeforeEntityCreateAttribute::class => BeforeEntityCreate::class,
-    BeforeNodeCreateAttribute::class => BeforeNodeCreate::class,
-    BeforeTermCreateAttribute::class => BeforeTermCreate::class,
-    BeforeUserCreateAttribute::class => BeforeUserCreate::class,
-  ];
 
   /**
    * {@inheritdoc}
@@ -61,19 +30,19 @@ final class HookAttributeReader implements AttributeReader {
     $callees = [];
 
     foreach ($attributes as $attribute) {
-      $hook_call_class = self::ATTRIBUTE_MAP[$attribute->getName()] ?? NULL;
+      if ($attribute->getArguments() !== []) {
+        $name = substr((string) strrchr($attribute->getName(), '\\'), 1);
 
-      if ($hook_call_class === NULL) {
+        throw new \RuntimeException(sprintf('The "#[%s]" attribute on "%s::%s()" takes no argument. The hook runs for every entity created in its scope, so read the entity from "$scope->getStub()" and return early for one it does not handle.', $name, $contextClass, $method->getName()));
+      }
+
+      $hook_call_class = $attribute->newInstance()->getCallClass();
+
+      if (!is_subclass_of($hook_call_class, EntityHook::class)) {
         continue;
       }
 
-      $hook = new $hook_call_class([$contextClass, $method->getName()]);
-
-      if ($attribute->getArguments() !== []) {
-        throw new \RuntimeException(sprintf('The "#[%s]" attribute on "%s::%s()" takes no argument. The hook runs for every entity created in its scope, so read the entity from "$scope->getStub()" and return early for one it does not handle.', $hook->getName(), $contextClass, $method->getName()));
-      }
-
-      $callees[] = $hook;
+      $callees[] = new $hook_call_class([$contextClass, $method->getName()]);
     }
 
     return $callees;

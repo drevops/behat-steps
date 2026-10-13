@@ -10,4 +10,17 @@ namespace DrevOps\BehatSteps\Extension\Hook\Attribute;
  * An attribute takes no argument, because a hook runs for every entity
  * created in its scope.
  */
-interface HookAttributeInterface {}
+interface HookAttributeInterface {
+
+  /**
+   * Returns the hook call class the attribute registers.
+   *
+   * The reader builds a call only from a subclass of 'EntityHook' and skips
+   * any other class.
+   *
+   * @return class-string
+   *   The call class.
+   */
+  public function getCallClass(): string;
+
+}

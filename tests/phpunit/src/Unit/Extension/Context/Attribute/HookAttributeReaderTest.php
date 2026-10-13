@@ -67,7 +67,7 @@ class HookAttributeReaderTest extends UnitTestCase {
     $this->assertSame([], $this->read('unrelated'));
   }
 
-  public function testEntityHookWithoutCallClassIsSkipped(): void {
+  public function testAttributeNamingNoHookCallIsSkipped(): void {
     $this->assertSame([], $this->read('unmapped'));
   }
 

@@ -8,11 +8,19 @@ use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\AfterNodeCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\AfterTermCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeTermCreate;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterNodeCreate as AfterNodeCreateCall;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterTermCreate as AfterTermCreateCall;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeNodeCreate as BeforeNodeCreateCall;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeTermCreate as BeforeTermCreateCall;
 use DrevOps\BehatSteps\Extension\Hook\Attribute\AfterEntityCreate;
 use DrevOps\BehatSteps\Extension\Hook\Attribute\AfterUserCreate;
 use DrevOps\BehatSteps\Extension\Hook\Attribute\BeforeEntityCreate;
 use DrevOps\BehatSteps\Extension\Hook\Attribute\BeforeUserCreate;
 use DrevOps\BehatSteps\Extension\Hook\Attribute\HookAttributeInterface;
+use DrevOps\BehatSteps\Extension\Hook\Call\AfterEntityCreate as AfterEntityCreateCall;
+use DrevOps\BehatSteps\Extension\Hook\Call\AfterUserCreate as AfterUserCreateCall;
+use DrevOps\BehatSteps\Extension\Hook\Call\BeforeEntityCreate as BeforeEntityCreateCall;
+use DrevOps\BehatSteps\Extension\Hook\Call\BeforeUserCreate as BeforeUserCreateCall;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -62,6 +70,30 @@ class AttributeTest extends UnitTestCase {
 
   public static function dataProviderAttributeTargetsRepeatableMethods(): \Iterator {
     yield from static::listAttributeClasses();
+  }
+
+  /**
+   * Tests that every attribute names the call class the reader builds.
+   *
+   * @param class-string<\DrevOps\BehatSteps\Extension\Hook\Attribute\HookAttributeInterface> $attribute_class
+   *   The attribute to build.
+   * @param class-string<\DrevOps\BehatSteps\Extension\Hook\Call\EntityHook> $call_class
+   *   The call class the attribute names.
+   */
+  #[DataProvider('dataProviderAttributeNamesItsCall')]
+  public function testAttributeNamesItsCall(string $attribute_class, string $call_class): void {
+    $this->assertSame($call_class, (new $attribute_class())->getCallClass());
+  }
+
+  public static function dataProviderAttributeNamesItsCall(): \Iterator {
+    yield 'before entity' => [BeforeEntityCreate::class, BeforeEntityCreateCall::class];
+    yield 'after entity' => [AfterEntityCreate::class, AfterEntityCreateCall::class];
+    yield 'before node' => [BeforeNodeCreate::class, BeforeNodeCreateCall::class];
+    yield 'after node' => [AfterNodeCreate::class, AfterNodeCreateCall::class];
+    yield 'before term' => [BeforeTermCreate::class, BeforeTermCreateCall::class];
+    yield 'after term' => [AfterTermCreate::class, AfterTermCreateCall::class];
+    yield 'before user' => [BeforeUserCreate::class, BeforeUserCreateCall::class];
+    yield 'after user' => [AfterUserCreate::class, AfterUserCreateCall::class];
   }
 
   /**
