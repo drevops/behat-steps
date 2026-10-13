@@ -1730,7 +1730,7 @@ $value = $this->stateFindValue('my_module.launched');
 | `RawDrupalContext::clearStaticCaches()` | `StaticCacheTrait::staticCacheAfterScenario()` | Hook |
 | `RawDrupalContext::entityCreate()` | `EntityLifecycleTrait::entityLifecycleCreate()` | |
 | `RawDrupalContext::getAuthenticationManager()` | `AuthTrait::authGetAuthenticator()` | |
-| `RawDrupalContext::getContentDriver()` | `EntityLifecycleTrait::entityLifecycleGetContentBackend()` | Protected |
+| `RawDrupalContext::getContentDriver()` | `WebRawContext::backendFor()` | Names the capability the call needs: `NodeCapabilityInterface` for `createNode()`, `TermCapabilityInterface` for `createTerm()` and `ContentCapabilityInterface` for `createEntity()`; see [Backend contracts](#backend-contracts) |
 | `RawDrupalContext::getDriver()` | `WebRawContext::getBackend()` or `WebRawContext::backendFor()` | A call that names a backend moves to `getBackend()`, which has no default. A call with no argument, which returned the driver `@api` selected, moves to `backendFor()` naming the capability it needs, such as `$this->backendFor(CoreCapabilityInterface::class)` for a step that needs Drupal bootstrapped |
 | `RawDrupalContext::getFieldParser()` | `EntityLifecycleTrait::entityLifecycleGetFieldParser()` | Override point; now `public` |
 | `RawDrupalContext::getUserManager()` | `AuthTrait::authGetUserRegistry()` | |
