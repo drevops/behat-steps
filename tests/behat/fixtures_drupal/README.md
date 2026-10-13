@@ -252,7 +252,7 @@ If a new test requires additional Drupal modules:
        "drupal/example_module": "^1.0"
    }
    ```
-   In `d12/composer.json`, add the module to `extra.drupal-lenient.allowed-list` as well.
+   In `d12/composer.json`, also add the module to `extra.drupal-lenient.allowed-list` if its `drupal/core` requirement excludes Drupal 12.
 
 2. **Enable in configuration:**
    The module will be enabled after `composer drupal-post-install` imports config from `config/sync/core.extension.yml`
@@ -274,7 +274,7 @@ If a new test requires additional Drupal modules:
 
 The core constraint is pinned to a single minor rather than `^11` or `^12`, so each minor move is a deliberate, reviewable change. Renovate raises it to each new minor.
 
-Most contrib modules have no release declaring `drupal/core ^12`, so `d12/composer.json` declares `mglaman/composer-drupal-lenient` and lists every contrib module it installs under `extra.drupal-lenient.allowed-list`. The plugin strips the core constraint from those modules. A module added to `require` or `require-dev` is added to that list at the same time, along with any contrib module it pulls in transitively.
+Most contrib modules have no release declaring `drupal/core ^12`, so `d12/composer.json` declares `mglaman/composer-drupal-lenient` and lists every contrib module whose `drupal/core` requirement excludes Drupal 12 under `extra.drupal-lenient.allowed-list`. The plugin strips the core constraint from those modules. A module added to `require` or `require-dev` goes on that list at the same time if its requirement excludes Drupal 12, along with any contrib module it pulls in transitively whose requirement does too. A module comes off the list once the oldest release its constraint allows declares `^12`.
 
 `minimum-stability` is `dev` with `prefer-stable` because `drush/drush` has no tagged release that accepts Symfony 8, so the fixture takes `^14@dev`.
 

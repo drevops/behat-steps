@@ -84,7 +84,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
   - Widget configuration with type, weight, region, and settings
 - After creating configs in `build/config/sync`, copy to every fixture directory
 - Use `ahoy drush cim -y` to import configurations into the build environment
-- A contrib module added to `d12/composer.json` is also added to its `extra.drupal-lenient.allowed-list`, together with any contrib module it pulls in transitively - most contrib has no Drupal 12 release, and the fixture installs it through `mglaman/composer-drupal-lenient`
+- A contrib module added to `d12/composer.json` goes on the fixture's `extra.drupal-lenient.allowed-list` while its `drupal/core` requirement excludes Drupal 12, together with any such contrib module it pulls in transitively - see [Drupal versions](CONTRIBUTING.md#drupal-versions)
 
 ### Nested PyStrings in @test-trait Scenarios
 When writing @test-trait scenarios that test BehatCliContext functionality (tests that run Behat within Behat), nested PyStrings are required when the inner scenario steps themselves accept PyString arguments.

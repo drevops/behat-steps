@@ -55,8 +55,8 @@ const PROVISION_DB_URL = 'mysql://drupal:drupal@mariadb/drupal';
 /**
  * The Drupal major the fixture installs from prerelease.
  *
- * No contrib release declares it, so the solve resolves only once relaxed.
- * Its "drupal/core-dev" is also the first to require PHPUnit 12.
+ * Most contrib modules do not declare it, so the solve resolves only once
+ * relaxed. Its "drupal/core-dev" is also the first to require PHPUnit 12.
  */
 const PROVISION_DRUPAL_NEXT_MAJOR = 12;
 
