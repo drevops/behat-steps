@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Drupal\Core\Field;
 
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\RedirectSourceHandler;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -34,13 +35,16 @@ class RedirectSourceHandlerKernelTest extends FieldHandlerKernelTestBase {
     'redirect',
   ];
 
-  public function testRedirectSourceRoundTrip(): void {
+  #[DataProvider('dataProviderRedirectSourceRoundTrip')]
+  public function testRedirectSourceRoundTrip(mixed $value): void {
     $this->attachField('field_source', 'redirect_source');
 
-    $this->assertFieldRoundTripViaBackend('field_source', [
-      ['path' => '/old/about', 'query' => ['utm_source' => 'behat']],
-      '/legacy/contact',
-    ]);
+    $this->assertFieldRoundTripViaBackend('field_source', [$value]);
+  }
+
+  public static function dataProviderRedirectSourceRoundTrip(): \Iterator {
+    yield 'record with a query map' => [['path' => '/old/about', 'query' => ['utm_source' => 'behat']]];
+    yield 'bare path' => ['/legacy/contact'];
   }
 
 }
