@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
@@ -91,6 +92,7 @@ class BlackboxBackendTest extends UnitTestCase {
     yield 'core' => [CoreCapabilityInterface::class];
     yield 'cron' => [CronCapabilityInterface::class];
     yield 'drush' => [DrushCapabilityInterface::class];
+    yield 'entity lookup' => [EntityLookupCapabilityInterface::class];
     yield 'language' => [LanguageCapabilityInterface::class];
     yield 'mail' => [MailCapabilityInterface::class];
     yield 'module' => [ModuleCapabilityInterface::class];

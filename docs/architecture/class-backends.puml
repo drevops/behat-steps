@@ -58,6 +58,7 @@ package "DrevOps\\BehatSteps\\Backend\\Capability" #E8F5E9 {
   interface ContentCapabilityInterface
   interface CreationAliasCapabilityInterface
   interface CronCapabilityInterface
+  interface EntityLookupCapabilityInterface
   interface LanguageCapabilityInterface
   interface MailCapabilityInterface
   interface RoleCapabilityInterface
@@ -68,6 +69,7 @@ package "DrevOps\\BehatSteps\\Backend\\Capability" #E8F5E9 {
   ContentCapabilityInterface -[hidden]down- CreationAliasCapabilityInterface
   CreationAliasCapabilityInterface -[hidden]down- CronCapabilityInterface
 
+  EntityLookupCapabilityInterface -[hidden]down- LanguageCapabilityInterface
   LanguageCapabilityInterface -[hidden]down- MailCapabilityInterface
   MailCapabilityInterface -[hidden]down- RoleCapabilityInterface
   RoleCapabilityInterface -[hidden]down- UserCapabilityInterface
@@ -140,6 +142,7 @@ BackendInterface <|-- DrushBackendInterface
 DrupalBackendInterface ..|> AuthenticationCapabilityInterface
 DrupalBackendInterface ..|> ContentCapabilityInterface
 DrupalBackendInterface ..|> CoreCapabilityInterface
+DrupalBackendInterface ..|> EntityLookupCapabilityInterface
 DrupalBackendInterface ..|> NodeCapabilityInterface
 DrushBackendInterface ..|> DrushCapabilityInterface
 DrushBackendInterface ..|> ModuleCapabilityInterface
@@ -156,7 +159,7 @@ note right of BlackboxBackend
 end note
 
 note bottom of DrupalBackendInterface
-  DrupalBackendInterface extends 16 capability
+  DrupalBackendInterface extends 17 capability
   interfaces and DrushBackendInterface 9, of
   which DrushCapabilityInterface is its own.
   Only a few edges are drawn here.

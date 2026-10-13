@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use Drupal\webform\WebformInterface;
 
 /**
@@ -23,6 +26,7 @@ use Drupal\webform\WebformInterface;
 trait WebformTrait {
 
   use EntityLifecycleTrait;
+  use QueryTrait;
 
   /**
    * Remove all webforms with a title containing the given string.
@@ -40,14 +44,12 @@ trait WebformTrait {
    */
   #[Given('the webform :title does not exist')]
   public function webformDelete(string $title): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $webforms = $this->webformLoadMultiple($title);
-
-    foreach ($webforms as $webform) {
-      $webform->delete();
+    foreach ($this->webformLoadMultiple($title) as $webform) {
+      $backend->deleteEntity(new EntityStub('webform', NULL, ['id' => (string) $webform->id()]));
     }
   }
 
@@ -160,19 +162,12 @@ trait WebformTrait {
     // the config factory cache stale, so it is reset first.
     \Drupal::configFactory()->reset();
 
-    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
-    $entity_type_manager = \Drupal::entityTypeManager();
-    $storage = $entity_type_manager->getStorage('webform');
+    $storage = \Drupal::entityTypeManager()->getStorage('webform');
     $storage->resetCache();
 
-    $ids = $storage->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('title', $title, 'CONTAINS')
-      ->sort('title')
-      ->sort('id')
-      ->execute();
+    $ids = $this->queryEntityIds('webform', ['title' => ['CONTAINS', $title]]);
 
-    if (empty($ids)) {
+    if ($ids === []) {
       return [];
     }
 

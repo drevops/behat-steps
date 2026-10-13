@@ -173,8 +173,10 @@ trait EckTrait {
    *   Conditions keyed by field names.
    */
   public function eckDelete(string $entity_type, string $bundle, array $conditions): void {
-    foreach ($this->eckLoadMultiple($entity_type, $bundle, $conditions) as $entity) {
-      $entity->delete();
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
+
+    foreach ($this->queryEntityIds($entity_type, $conditions, $bundle) as $id) {
+      $backend->deleteEntity(new EntityStub($entity_type, $bundle, ['id' => $id]));
     }
   }
 

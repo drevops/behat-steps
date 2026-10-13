@@ -12,13 +12,11 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Extension\Tag;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
-use Drupal\Core\Database\Database;
-use Drupal\Core\Database\StatementInterface;
 
 /**
  * Test Drupal email functionality with content verification.
@@ -77,7 +75,9 @@ trait EmailTrait {
       return;
     }
 
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(MailCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__, $scope);
 
     $this->emailDebug = Tag::has($scope, self::EMAIL_DEBUG_TAG);
     $this->emailHandlerTypes = $handler_types;
@@ -114,9 +114,11 @@ trait EmailTrait {
    */
   #[When('the test email system queue is cleared')]
   public function emailClearTestQueue(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(MailCapabilityInterface::class);
 
-    if (!static::emailFindMailSystemOriginal()) {
+    $this->assertPrerequisites(__TRAIT__);
+
+    if (!$this->emailCollectorIsEnabled()) {
       throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When the test email system is enabled" step definition to the scenario.');
     }
 
@@ -609,109 +611,62 @@ trait EmailTrait {
   /**
    * Switch every handler type to the test mail collector, and clear it.
    *
-   * The handler types default to `default`. The mail system each type used
-   * before is stored, so emailDisableCollector() can restore it.
+   * The handler types default to `default`. The backend records the mail
+   * system each type used before, so emailDisableCollector() can restore it.
    */
   public function emailEnableCollector(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(MailCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $this->emailHandlerTypes = array_values(array_unique($this->emailHandlerTypes ?: ['default']));
 
-    foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = static::emailFindMailSystemDefault($type);
-
-      if (!static::emailFindMailSystemOriginal($type)) {
-        static::emailSetMailSystemOriginal($type, $original_test_system);
-      }
-
-      $this->emailSetMailSystemDefault($type, 'test_mail_collector');
-    }
-
-    $this->emailClearCollectedMessages();
+    $backend->mailStartCollecting($this->emailHandlerTypes);
+    $backend->mailClear();
   }
 
   /**
    * Restore the mail system of every handler type, and clear the collector.
    */
   public function emailDisableCollector(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(MailCapabilityInterface::class);
 
-    foreach ($this->emailHandlerTypes as $type) {
-      $original_test_system = static::emailFindMailSystemOriginal($type);
-      $this->emailSetMailSystemDefault($type, $original_test_system);
-    }
+    $this->assertPrerequisites(__TRAIT__);
 
-    static::emailDeleteMailSystemOriginal();
-    $this->emailClearCollectedMessages();
+    $backend->mailStopCollecting();
+    $backend->mailClear();
+
+    $this->emailHandlerTypes = [];
   }
 
   /**
-   * Find the default mail system value.
+   * Check whether this scenario's collector has replaced a handler type.
+   *
+   * The answer comes from the handler types the scenario enabled, so a
+   * record a run that stopped early left on the site counts for nothing.
+   *
+   * @param string $type
+   *   The handler type.
+   *
+   * @return bool
+   *   TRUE when the scenario's collector has replaced the handler type.
    */
-  protected static function emailFindMailSystemDefault(string $type = 'default'): mixed {
-    return \Drupal::config('system.mail')->get('interface.' . $type);
-  }
-
-  /**
-   * Set the default mail system value.
-   */
-  protected function emailSetMailSystemDefault(string $type, mixed $value): void {
-    \Drupal::configFactory()->getEditable('system.mail')->set('interface.' . $type, $value)->save();
-
-    // The Mailsystem module replaces the default interface, so update its
-    // configuration as well when the module is installed.
-    // @codeCoverageIgnoreStart
-    if ($this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('mailsystem')) {
-      \Drupal::configFactory()->getEditable('mailsystem.settings')
-        ->set('defaults.sender', $value)
-        ->save();
-    }
-    // @codeCoverageIgnoreEnd
-  }
-
-  /**
-   * Find the original mail system value.
-   */
-  protected static function emailFindMailSystemOriginal(string $type = 'default'): mixed {
-    return \Drupal::config('system.mail_original')->get('interface.' . $type);
-  }
-
-  /**
-   * Set the original mail system value.
-   */
-  protected static function emailSetMailSystemOriginal(string $type, mixed $value): void {
-    \Drupal::configFactory()->getEditable('system.mail_original')->set('interface.' . $type, $value)->save();
-  }
-
-  /**
-   * Remove the original mail system value.
-   */
-  protected static function emailDeleteMailSystemOriginal(): void {
-    \Drupal::configFactory()->getEditable('system.mail_original')->delete();
+  public function emailCollectorIsEnabled(string $type = 'default'): bool {
+    return in_array($type, $this->emailHandlerTypes, TRUE);
   }
 
   /**
    * Get email messages collected during the test.
    *
-   * @return array<string, array<string, mixed>>
+   * @return array<int, array<string, mixed>>
    *   Array of collected emails.
    */
   public function emailGetCollectedMessages(): array {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(MailCapabilityInterface::class);
 
-    // Directly read data from the database to avoid cache invalidation that
-    // may corrupt the system under test.
-    $query = Database::getConnection()->query("SELECT name, value FROM {key_value} WHERE name = 'system.test_mail_collector'");
+    $this->assertPrerequisites(__TRAIT__);
 
-    // @codeCoverageIgnoreStart
-    if (!$query instanceof StatementInterface) {
-      throw new \RuntimeException('The test email collector could not be read from the key_value store.');
-    }
-
-    // @codeCoverageIgnoreEnd
-    $messages = array_map(unserialize(...), $query->fetchAllKeyed());
-
-    $messages = $messages['system.test_mail_collector'] ?? [];
+    $messages = $backend->mailGet();
 
     $fields = ['subject', 'body', 'to', 'from', 'cc', 'bcc'];
 
@@ -738,7 +693,7 @@ trait EmailTrait {
    * Delete the email messages collected during the test.
    */
   protected function emailClearCollectedMessages(): void {
-    \Drupal::state()->set('system.test_mail_collector', []);
+    $this->backendFor(MailCapabilityInterface::class)->mailClear();
   }
 
   /**
@@ -1044,6 +999,18 @@ trait EmailTrait {
   protected function emailConfigSchema(): array {
     return [
       new Option('enabled', default: TRUE, description: 'Collect email for an `@email` scenario and clear the queue around it.'),
+    ];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function emailPrerequisites(): array {
+    return [
+      Prerequisite::capability(MailCapabilityInterface::class),
     ];
   }
 

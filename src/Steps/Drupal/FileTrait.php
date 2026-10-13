@@ -12,6 +12,7 @@ use Behat\Hook\BeforeScenario;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -334,9 +335,13 @@ trait FileTrait {
    *   Conditions keyed by field names.
    */
   public function fileDeleteManaged(array $conditions): void {
-    $files = $this->fileLoadMultiple($conditions);
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
 
-    \Drupal::entityTypeManager()->getStorage('file')->delete($files);
+    $this->assertPrerequisites(__TRAIT__);
+
+    foreach ($this->queryEntityIds('file', $conditions) as $fid) {
+      $backend->deleteEntity(new EntityStub('file', NULL, ['fid' => $fid]));
+    }
   }
 
   /**

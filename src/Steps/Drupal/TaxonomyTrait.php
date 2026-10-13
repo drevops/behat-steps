@@ -11,6 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
@@ -78,8 +79,8 @@ trait TaxonomyTrait {
    */
   #[Given('the following :vocabulary terms exist:')]
   public function taxonomyCreateMultiple(string $vocabulary, TableNode $table): void {
-    // Terms are created through the content capability, which any backend may
-    // provide, so this step checks no prerequisite.
+    // Terms are created through the term capability, so this step checks no
+    // prerequisite and runs on any backend providing it.
     foreach ($table->getHash() as $values) {
       $this->taxonomyCreate($vocabulary, $values);
     }
@@ -308,8 +309,12 @@ trait TaxonomyTrait {
    *   Conditions keyed by field names.
    */
   public function taxonomyDelete(string $vocabulary, array $conditions): void {
-    foreach ($this->taxonomyLoadMultiple($vocabulary, $conditions) as $term) {
-      $term->delete();
+    $backend = $this->backendFor(TermCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
+    foreach ($this->queryEntityIds('taxonomy_term', $conditions, $vocabulary) as $tid) {
+      $backend->deleteTerm(new EntityStub('taxonomy_term', $vocabulary, ['tid' => $tid]));
     }
   }
 

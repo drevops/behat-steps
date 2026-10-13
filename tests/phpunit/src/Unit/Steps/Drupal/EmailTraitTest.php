@@ -247,6 +247,43 @@ class EmailTraitTest extends UnitTestCase {
     yield 'email with other attachments, part of a subject' => ['emailAssertMessageContainsAttachmentWithSubjectContaining', 'summary.pdf', 'report', 'The file "summary.pdf" is not attached to the email with subject containing "report".'];
   }
 
+  public function testCollectorIsEnabledFollowsTheScenario(): void {
+    $context = $this->createCollectorContext();
+
+    $this->assertFalse($context->emailCollectorIsEnabled());
+
+    $context->emailEnableCollector();
+
+    $this->assertTrue($context->emailCollectorIsEnabled());
+    $this->assertFalse($context->emailCollectorIsEnabled('contact'));
+
+    $context->emailDisableCollector();
+
+    $this->assertFalse($context->emailCollectorIsEnabled());
+  }
+
+  public function testCollectorIsEnabledForTheHandlerTypesTheTagsName(): void {
+    $context = $this->createCollectorContext();
+
+    $context->emailBeforeScenario($this->createBeforeScenarioScope(['email:contact'], []));
+
+    $this->assertTrue($context->emailCollectorIsEnabled('contact'));
+    $this->assertFalse($context->emailCollectorIsEnabled());
+  }
+
+  /**
+   * Builds a context whose mail backend accepts every call.
+   */
+  protected function createCollectorContext(): EmailTraitCollectorTestImplementation {
+    $registry = new BackendRegistry(['drupal' => $this->createStub(DrupalBackendInterface::class)]);
+    $registry->setScenarioBackends(['drupal' => 'drupal']);
+
+    $context = new EmailTraitCollectorTestImplementation();
+    $context->setBackendRegistry($registry);
+
+    return $context;
+  }
+
   /**
    * Builds a context whose test email collector holds the given messages.
    *
@@ -334,5 +371,14 @@ class EmailTraitTestImplementation extends WebRawContext {
   public function emailGetCollectedMessages(): array {
     return $this->collectedMessages;
   }
+
+}
+
+/**
+ * Test implementation of EmailTrait that drives the mail backend as shipped.
+ */
+class EmailTraitCollectorTestImplementation extends WebRawContext {
+
+  use EmailTrait;
 
 }

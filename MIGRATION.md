@@ -1310,6 +1310,8 @@ A trait checks what it needs before a step acts, and fails with a message naming
 | `EckTrait`, `ParagraphsTrait`, `WebformTrait` | Checked nothing | Fails without the `eck`, `paragraphs` or `webform` module |
 | `MediaTrait`, `TaxonomyTrait` | Checked nothing, and failed with whatever Drupal threw first | Fails without the core `media` or `taxonomy` module. `TaxonomyTrait`'s term creation goes through the term capability and checks nothing |
 | `FileTrait` | Checked nothing | Its managed file steps fail without the core `file` module; the unmanaged file steps keep working without it |
+| `BlockTrait`, `ContentBlockTrait` | Checked nothing, and failed with whatever Drupal threw first | Fails without the core `block` or `block_content` module |
+| `CacheTrait`, `EmailTrait`, `QueueTrait`, `TimeTrait`, `UserTrait` | Checked nothing | Names the capability it needs: an in-process backend for the page and render cache steps and the queue steps, `MailCapabilityInterface` for the email steps, `StateCapabilityInterface` for the time steps and `UserCapabilityInterface` for the user creation and deletion steps |
 | `TestmodeTrait` | Called the module's `Testmode` class without checking | Checks the `testmode` module when a `@testmode` scenario starts, and its teardown disables test mode only if the scenario enabled it |
 | `WatchdogTrait` | Ran only in `@api` scenarios | Needs the core `dblog` module and an in-process backend, and fails the scenario at its start without them, as [Contexts to register](#contexts-to-register) explains |
 
@@ -1588,10 +1590,13 @@ Rename every call and every override. An override left under a 3.14 name is a me
 | `EmailTrait::emailAssertMessageSentToAddressWithContentNotContaining()` | `EmailTrait::emailAssertMessageSentToAddressNotContains()` | Still asserts that an email went to the address and that no collected email's body contains the text |
 | `EmailTrait::emailAssertNoMessagesSent()` | `EmailTrait::emailAssertMessageNotSent()` | |
 | `EmailTrait::emailAssertNoMessagesSentToAddress()` | `EmailTrait::emailAssertMessageNotSentToAddress()` | |
+| `EmailTrait::emailDeleteMailSystemOriginal()` | Removed | `MailCapabilityInterface::mailStopCollecting()` deletes the record of the handlers the collector replaced; see [Backend contracts](#backend-contracts) |
 | `EmailTrait::emailFollowLinkNumber()` | `EmailTrait::emailFollowLinkWithIndexWithSubject()` | `$link_number` is `$index` |
 | `EmailTrait::emailFollowLinkNumberWithSubjectContaining()` | `EmailTrait::emailFollowLinkWithIndexWithSubjectContaining()` | `$link_number, $subject` is `$index, $partial_subject` |
-| `EmailTrait::emailGetMailSystemDefault()` | `EmailTrait::emailFindMailSystemDefault()` | Returns `NULL` when nothing matches; still `protected static` |
-| `EmailTrait::emailGetMailSystemOriginal()` | `EmailTrait::emailFindMailSystemOriginal()` | Returns `NULL` when nothing matches; still `protected static` |
+| `EmailTrait::emailGetMailSystemDefault()` | Removed | `MailCapabilityInterface::mailStartCollecting()` records the handler each type held; see [Backend contracts](#backend-contracts) |
+| `EmailTrait::emailGetMailSystemOriginal()` | `EmailTrait::emailCollectorIsEnabled()` | Answers whether the scenario's collector has replaced the handler type, from the handler types the scenario enabled, where it returned the handler recorded on the site; now `public`, no longer `static` |
+| `EmailTrait::emailSetMailSystemDefault()` | Removed | `MailCapabilityInterface::mailStartCollecting()` and `mailStopCollecting()` switch and restore the handlers; see [Backend contracts](#backend-contracts) |
+| `EmailTrait::emailSetMailSystemOriginal()` | Removed | `MailCapabilityInterface::mailStartCollecting()` records the handler each type held; see [Backend contracts](#backend-contracts) |
 | `FileTrait::fileAssertUnmanagedHasContent()` | `FileTrait::fileAssertUnmanagedContains()` | |
 | `FileTrait::fileAssertUnmanagedHasNoContent()` | `FileTrait::fileAssertUnmanagedNotContains()` | |
 | `FileTrait::fileCreateManaged()` | `FileTrait::fileCreateManagedMultiple()` | The 3.14 name now belongs to another method |
@@ -1602,6 +1607,7 @@ Rename every call and every override. An override left under a 3.14 name is a me
 | `MediaTrait::mediaCreateWithFields()` | `MediaTrait::mediaCreateMultipleWithFields()` | `$bundle` is `$media_type` |
 | `MediaTrait::mediaDelete()` | `MediaTrait::mediaDeleteMultiple()` | The 3.14 name now belongs to another method |
 | `MediaTrait::mediaEditWithName()` | `MediaTrait::mediaVisitEditPageWithName()` | |
+| `MediaTrait::mediaExpandEntityFields()` | Removed | Was protected. `mediaCreateEntity()` creates through `ContentCapabilityInterface::createEntity()`, which checks the bundle and expands the fields itself |
 | `MediaTrait::mediaRemoveType()` | `MediaTrait::mediaDeleteType()` | `$type` is `$media_type` |
 | `MediaTrait::mediaVisitDeleteWithName()` | `MediaTrait::mediaVisitDeletePageWithName()` | |
 | `MediaTrait::mediaVisitRevisionsWithName()` | `MediaTrait::mediaVisitRevisionsPageWithName()` | |
@@ -1874,7 +1880,6 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `EmailTrait::emailAssertMessageHeaderContains()` | `bool $exact = FALSE` | No `$exact`; for `TRUE`, call `emailAssertMessageHeaderEquals()` |
 | `EmailTrait::emailClearTestQueue()` | `bool $force = FALSE` | No `$force`; `emailClearCollectedMessages()` clears the collected messages without the check |
 | `EmailTrait::emailFindMessage()` | `bool $exact = FALSE` | `bool $is_exact = FALSE` |
-| `EmailTrait::emailSetMailSystemDefault()` | `static` | Not `static` |
 | `FieldTrait::fieldAssertExists()` | `string $name`, returns `NodeElement` | `string $field`, returns nothing; `fieldGet()` returns the field, as the example below shows |
 | `FieldTrait::fieldAssertNotExists()` | `string $name` | `string $field` |
 | `FieldTrait::fieldFillColor()` | `?string $value = NULL`, returns `mixed` | `string $value`, returns nothing |
@@ -1889,7 +1894,6 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `KeyboardTrait::keyboardPressKeyOnElementSingle()` | `?string $selector` | `?string $selector = NULL` |
 | `KeyboardTrait::keyboardPressKeysOnElement()` | `?string $selector` | `string $selector`; for the focused element, call `keyboardPressKeys()` |
 | `MediaTrait::mediaCreateEntity()` | `EntityStub $stub` | `EntityStubInterface $stub` |
-| `MediaTrait::mediaExpandEntityFields()` | `EntityStub $stub` | `EntityStubInterface $stub` |
 | `MediaTrait::mediaExpandEntityFieldsFixtures()` | `EntityStub $stub` | `EntityStubInterface $stub` |
 | `MediaTrait::mediaLoadMultiple()` | `string $type, array $conditions = []` | `string $media_type, array $conditions = []` |
 | `MediaTrait::mediaVisitActionPageWithName()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
@@ -1916,6 +1920,7 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `TaxonomyTrait::taxonomyVisitTermEditPageWithName()` | `string $vocabulary_machine_name, string $term_name` | `string $vocabulary, string $name` |
 | `TaxonomyTrait::taxonomyVisitTermPageWithName()` | `string $vocabulary_machine_name, string $term_name` | `string $vocabulary, string $name` |
 | `UserTrait::userCreateRole()` | `string $role_name` | `string $role` |
+| `UserTrait::userCreateRoleWithPermissions()` | Returns `RoleInterface` | Returns `EntityStubInterface`, the `user_role` stub `RoleCapabilityInterface::createRole()` returns; its machine name is `getValue('id')`. A permission the site doesn't define fails the step, where it was granted as written |
 | `UserTrait::userVisitActionPage()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
 | `XmlTrait::xmlAfterScenario()` | No parameters | `AfterScenarioScope $scope` |
 | `XmlTrait::xmlAssertAttributeContains()` | `string $attribute_name, string $element, string $text` | `string $attribute, string $element, string $value` |
@@ -1935,6 +1940,7 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `ConfigCapabilityInterface::configGetOriginal()` | `string $key = ''` | `?string $key = NULL` |
 | `Core::__construct()` | `?Random $random = NULL` | `?RandomGeneratorInterface $random = NULL` |
 | `DrushBackend::__construct()` | An empty string for an unset alias or root; `?Random $random = NULL` | `NULL` for an unset alias or root; an empty string throws `BootstrapException`. `?RandomGeneratorInterface $random = NULL` |
+| `MailCapabilityInterface::mailStartCollecting()` | No parameters | `array $handler_types = ['default']`; see [Backend contracts](#backend-contracts) |
 | `RolesAlias::__construct()` | `$driver` | `$userCapability` |
 | `UnsupportedBackendActionException::__construct()` | `driver:` named argument | `backend:` named argument |
 
@@ -2191,11 +2197,12 @@ $role = $backend->createRole(['access content'])->getValue('id');
 
 A create flags the stub as saved only when the backend holds the created entity. The Drush backend runs outside the test process, so its `createUser()` writes the new `uid` onto the stub and its `createRole()` stub carries the role's `id`, but neither stub is saved. Read the ID from the stub's values rather than from `getSavedEntity()` when the backend may be Drush.
 
-In 3.14, the config, module and state steps called `\Drupal::configFactory()`, `\Drupal::moduleHandler()` and `\Drupal::state()` directly, so they ran only where the Drupal API driver had bootstrapped Drupal in the Behat process. They name the capability they need now, and run on any backend that provides it, Drush included. A backend of your own that implements these capabilities adds the methods below; a project that uses only the shipped backends changes nothing.
+In 3.14, the config, module, state and time steps called `\Drupal::configFactory()`, `\Drupal::moduleHandler()` and `\Drupal::state()` directly, so they ran only where the Drupal API driver had bootstrapped Drupal in the Behat process. They name the capability they need now, and run on any backend that provides it, Drush included. The lookups behind the delete, visit and assert steps ran `\Drupal::entityQuery()` the same way; they go through `QueryTrait::queryEntityIds()`, which resolves `EntityLookupCapabilityInterface`, and a delete step hands the id it found to the capability that deletes that entity type. A backend of your own that implements these capabilities adds the methods below; a project that uses only the shipped backends changes nothing.
 
 | Interface | Methods added in 4.0 |
 | --- | --- |
 | `ConfigCapabilityInterface` | `configExists()`, `configGetData()`, `configSetData()`, `configDelete()` |
+| `EntityLookupCapabilityInterface` | `findEntityIds()`; the interface is new. A condition is a value, matched with `=`, or an `[operator, value]` pair over `=`, `IN`, `CONTAINS` and `LIKE`, and the ids come back in natural order. The Drush backend doesn't provide it |
 | `ModuleCapabilityInterface` | `moduleIsEnabled()`, `moduleIsPresent()` |
 | `StateCapabilityInterface` | `stateGet()`, `stateSet()`, `stateDelete()`, `stateExists()`; the interface is new |
 
@@ -2225,6 +2232,8 @@ $backend->mailStartCollecting();
 $backend->mailClear();
 $messages = $backend->mailGet();
 ```
+
+`mailStartCollecting()` takes the handler types to collect from, `['default']` when omitted, and switches only those, as `EmailTrait` did in 3.14 when it swapped the mail system itself. It records the handler each type held in `system.mail_original`, so a run that stops early leaves the record for the next one, and `mailStopCollecting()` restores every recorded handler and deletes the record. `mailGet()` returns every collected message, one the site cancelled included, so a caller that counted only sent mail filters on the `send` flag. A backend of your own adds the parameter to its `mailStartCollecting()`.
 
 `DrupalDriver::getSubDriverPaths()` served the Drupal Extension's subcontext discovery, which this package doesn't do. Code that read the extension paths asks the in-process backend's core:
 

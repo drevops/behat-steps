@@ -19,6 +19,7 @@ use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
 trait FixtureFileTrait {
 
   use FixtureDirectoryTrait;
+  use QueryTrait;
 
   /**
    * Expand fixture file paths for file/image fields on an entity stub.
@@ -187,21 +188,11 @@ trait FixtureFileTrait {
    *   private://basename.
    */
   protected function fixtureFileManagedExists(string $basename): bool {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     if (str_contains($basename, '/') || str_contains($basename, '\\')) {
       return FALSE;
     }
 
-    $storage = \Drupal::entityTypeManager()->getStorage('file');
-
-    foreach (['public', 'private'] as $scheme) {
-      if ($storage->loadByProperties(['uri' => $scheme . '://' . $basename])) {
-        return TRUE;
-      }
-    }
-
-    return FALSE;
+    return $this->queryEntityIds('file', ['uri' => ['IN', ['public://' . $basename, 'private://' . $basename]]]) !== [];
   }
 
 }

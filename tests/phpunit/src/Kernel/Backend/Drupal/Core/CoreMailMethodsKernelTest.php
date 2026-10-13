@@ -34,6 +34,11 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
+    // 'system.mail_original', the record of the handlers the collector
+    // replaced, has no schema. Drupal 11 and 12 type the flag differently, so
+    // an override of the property loads on only 1 of them.
+    $this->strictConfigSchema = FALSE;
+
     parent::setUp();
 
     $this->installConfig(['system']);
@@ -45,6 +50,87 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
 
     $interface = \Drupal::configFactory()->getEditable('system.mail')->get('interface');
     $this->assertSame('test_mail_collector', $interface['default'] ?? NULL);
+  }
+
+  public function testMailStartCollectingSwapsOnlyTheNamedTypes(): void {
+    $this->config('system.mail')->set('interface', ['default' => 'php_mail', 'contact' => 'php_mail'])->save();
+
+    $this->core->mailStartCollecting(['contact']);
+
+    $this->assertSame(['default' => 'php_mail', 'contact' => 'test_mail_collector'], $this->config('system.mail')->get('interface'));
+    $this->assertSame(['contact' => 'php_mail'], $this->config('system.mail_original')->get('interface'), 'Only the replaced handler is recorded.');
+  }
+
+  public function testMailStopCollectingRestoresTheRecordedHandlersAndDeletesTheRecord(): void {
+    $this->config('system.mail')->set('interface', ['default' => 'php_mail', 'contact' => 'php_mail', 'other' => 'php_mail'])->save();
+
+    $this->core->mailStartCollecting(['default', 'contact']);
+    $this->core->mailStopCollecting();
+
+    $this->assertSame(['default' => 'php_mail', 'contact' => 'php_mail', 'other' => 'php_mail'], $this->config('system.mail')->get('interface'));
+    $this->assertTrue($this->config('system.mail_original')->isNew(), 'The record is deleted once the handlers are restored.');
+  }
+
+  public function testMailStartCollectingKeepsTheRecordOfAnEarlierRun(): void {
+    // A run that stopped before restoring the handler leaves the collector in
+    // place and the real handler in the record.
+    $this->config('system.mail')->set('interface', ['default' => 'test_mail_collector'])->save();
+    $this->config('system.mail_original')->set('interface', ['default' => 'php_mail'])->save();
+
+    $this->core->mailStartCollecting();
+    $this->core->mailStopCollecting();
+
+    $this->assertSame(['default' => 'php_mail'], $this->config('system.mail')->get('interface'));
+  }
+
+  public function testMailStopCollectingRemovesTypeTheSiteNeverHad(): void {
+    $this->config('system.mail')->set('interface', ['default' => 'php_mail'])->save();
+
+    $this->core->mailStartCollecting(['contact']);
+    $this->assertSame('test_mail_collector', $this->config('system.mail')->get('interface.contact'));
+
+    $this->core->mailStopCollecting();
+
+    $this->assertSame(['default' => 'php_mail'], $this->config('system.mail')->get('interface'));
+  }
+
+  public function testMailStopCollectingRestoresTheCollectorTheSiteAlreadyHeld(): void {
+    $this->config('system.mail')->set('interface', ['default' => 'test_mail_collector'])->save();
+
+    $this->core->mailStartCollecting();
+    $this->assertSame(['default' => 'test_mail_collector'], $this->config('system.mail_original')->get('interface'), 'The handler the site held is recorded as it stands.');
+
+    $this->core->mailStopCollecting();
+
+    $this->assertSame(['default' => 'test_mail_collector'], $this->config('system.mail')->get('interface'));
+    $this->assertTrue($this->config('system.mail_original')->isNew());
+  }
+
+  public function testMailStopCollectingDoesNothingWithoutRecord(): void {
+    $this->config('system.mail')->set('interface', ['default' => 'php_mail'])->save();
+
+    $this->core->mailStopCollecting();
+
+    $this->assertSame(['default' => 'php_mail'], $this->config('system.mail')->get('interface'));
+  }
+
+  public function testMailStartCollectingRejectsNoHandlerTypes(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Collecting mail takes at least 1 handler type.');
+
+    $this->core->mailStartCollecting([]);
+  }
+
+  public function testMailGetKeepsCancelledMail(): void {
+    \Drupal::state()->set('system.test_mail_collector', [
+      ['to' => 'sent@example.com', 'send' => TRUE],
+      ['to' => 'cancelled@example.com', 'send' => FALSE],
+    ]);
+
+    $mail = $this->core->mailGet();
+
+    $this->assertCount(2, $mail);
+    $this->assertSame('cancelled@example.com', $mail[1]['to']);
   }
 
   public function testMailLifecycleRoundTrip(): void {
@@ -115,6 +201,18 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
 
     $restored = \Drupal::configFactory()->get('mailsystem.settings')->get();
     $this->assertSame($original['defaults']['sender'], $restored['defaults']['sender']);
+  }
+
+  public function testMailCollectionRestoresTheMailsystemSenderTheSiteAlreadyHeld(): void {
+    \Drupal::service('module_installer')->install(['mailsystem']);
+    $this->config('mailsystem.settings')->set('defaults.sender', 'test_mail_collector')->save();
+
+    $this->core->mailStartCollecting();
+    $this->assertSame(['sender' => 'test_mail_collector'], $this->config('system.mail_original')->get('mailsystem'), 'The sender the site held is recorded as it stands.');
+
+    $this->core->mailStopCollecting();
+
+    $this->assertSame('test_mail_collector', $this->config('mailsystem.settings')->get('defaults.sender'));
   }
 
 }

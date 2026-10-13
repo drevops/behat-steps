@@ -61,6 +61,28 @@ class UserTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertSame(['access user profiles', 'change own username'], $role->getPermissions());
   }
 
+  public function testCreateRoleWithoutPermissionsGrantsNothing(): void {
+    $created = $this->context->userCreateRoleWithPermissions('Limited Editor', ['']);
+
+    $this->assertSame('limited editor', $created->getValue('id'));
+
+    $role = Role::load('limited editor');
+    $this->assertInstanceOf(Role::class, $role);
+    $this->assertSame('Limited Editor', $role->label());
+    $this->assertSame([], $role->getPermissions());
+  }
+
+  public function testCreateRoleReplacesTheRoleWithTheSameId(): void {
+    Role::create(['id' => 'editor', 'label' => 'Old editor'])->grantPermission('access user profiles')->save();
+
+    $this->context->userCreateRole('Editor', 'change own username');
+
+    $role = Role::load('editor');
+    $this->assertInstanceOf(Role::class, $role);
+    $this->assertSame('Editor', $role->label());
+    $this->assertSame(['change own username'], $role->getPermissions());
+  }
+
   protected function createUser(string $name, int $status): UserInterface {
     $user = User::create(['name' => $name, 'status' => $status]);
     $user->save();

@@ -316,6 +316,13 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function findEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array {
+    return $this->getCore()->findEntityIds($entity_type, $conditions, $bundle);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function placeBlock(EntityStubInterface $stub): EntityStubInterface {
     return $this->getCore()->placeBlock($stub);
   }
@@ -365,8 +372,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function mailStartCollecting(): void {
-    $this->getCore()->mailStartCollecting();
+  public function mailStartCollecting(array $handler_types = ['default']): void {
+    $this->getCore()->mailStartCollecting($handler_types);
   }
 
   /**

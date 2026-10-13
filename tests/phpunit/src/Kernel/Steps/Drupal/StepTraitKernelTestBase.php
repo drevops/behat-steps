@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
-use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
+use DrevOps\BehatSteps\Tests\Kernel\Fixtures\BootedDrupalBackend;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -14,12 +15,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Base class for kernel tests calling the helpers of the Drupal step traits.
  *
- * A helper resolves 'CoreCapabilityInterface' before it reads Drupal, so the
- * context holds a backend double that reports itself bootstrapped. The helper
- * then reads the kernel this test booted.
- *
- * The double reports module state from that kernel, so a helper that asserts
- * its prerequisites matches the modules the test enabled.
+ * A helper resolves a capability before it acts, so the context holds a
+ * Drupal backend whose 'Core' reads and writes the kernel this test booted.
+ * A helper that asserts its prerequisites therefore matches the modules the
+ * test enabled.
  */
 #[RunTestsInSeparateProcesses]
 abstract class StepTraitKernelTestBase extends KernelTestBase {
@@ -39,15 +38,14 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
   }
 
   /**
-   * Creates a context whose backend double reads the booted kernel.
+   * Creates a context whose backend reads and writes the booted kernel.
    *
    * @param array<string, array<string, mixed>> $config
    *   The trait options, keyed by trait group.
    */
   protected function createContext(array $config = []): DrupalContext {
-    $backend = $this->createStub(DrupalBackendInterface::class);
-    $backend->method('isBootstrapped')->willReturn(TRUE);
-    $backend->method('moduleIsEnabled')->willReturnCallback(static fn(string $module_name): bool => \Drupal::moduleHandler()->moduleExists($module_name));
+    $backend = new BootedDrupalBackend($this->root, 'default');
+    $backend->setCore(new Core($this->root));
 
     $backend_registry = new BackendRegistry(['test' => $backend]);
     $backend_registry->setScenarioBackends(['test' => 'test']);

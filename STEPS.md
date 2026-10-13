@@ -4674,6 +4674,13 @@ When I wait for the batch job to finish
 >  - Created blocks are automatically removed at the end of the scenario.
 
 
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The core "block" module is enabled | `ModuleCapabilityInterface` |
+
 <details>
   <summary><code>@Given the instance of the block :admin_label with the following configuration exists:</code></summary>
 
@@ -4846,6 +4853,12 @@ Then the block "My block" in the region "content" should not exist
 >  render cache.
 >  - Run cron, which also flushes the caches cron itself invalidates.
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
 
 ### Options
 
@@ -5185,6 +5198,13 @@ Then the config "system.site" with the key "name" should not contain the effecti
 >  visit their edit pages.
 >  - Created entities are automatically removed at the end of the scenario.
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| The core "block_content" module is enabled | `ModuleCapabilityInterface` |
 
 <details>
   <summary><code>@Given the following :content_block_type content blocks do not exist:</code></summary>
@@ -5777,6 +5797,12 @@ When I visit the ECK "contact" "contact_type" entity edit page with the title "T
 >  - `@email:{type}` - enable email tracking using a `{type}` handler
 >  - `@debug` (enable detailed logs)
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "MailCapabilityInterface" | `MailCapabilityInterface` |
 
 ### Options
 
@@ -6847,6 +6873,12 @@ Given the following fields for the "text" paragraph exist in the field "field_co
 >  deletion with `@behat-steps-skip:QueueTrait`.
 
 
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+
 ### Options
 
 | Option | Type | Default | Tag | Description |
@@ -7401,6 +7433,12 @@ Then the "Fruits" term with the name "Apple" should not exist
 >  Skip processing with tag: `@behat-steps-skip:TimeTrait`.
 
 
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "StateCapabilityInterface" | `StateCapabilityInterface` |
+
 ### Options
 
 | Option | Type | Default | Tag | Description |
@@ -7446,6 +7484,12 @@ When the system time is reset
 >  - Assert user roles.
 >  - Assert user account status (active/inactive).
 
+
+### Prerequisites
+
+| Prerequisite | Capability |
+| --- | --- |
+| A backend in the scenario's list provides "UserCapabilityInterface" | `UserCapabilityInterface` |
 
 <details>
   <summary><code>@Given the following users do not exist:</code></summary>

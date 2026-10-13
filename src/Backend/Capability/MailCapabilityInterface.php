@@ -11,11 +11,20 @@ interface MailCapabilityInterface {
 
   /**
    * Starts collecting outgoing mail for later inspection.
+   *
+   * @param array<int, string> $handler_types
+   *   The mail handler types to collect from, as keys of the 'interface' map
+   *   in 'system.mail'. Defaults to 'default', the handler every site has.
+   *
+   * @throws \RuntimeException
+   *   When no handler type is given.
    */
-  public function mailStartCollecting(): void;
+  public function mailStartCollecting(array $handler_types = ['default']): void;
 
   /**
-   * Stops collecting mail and restores normal delivery.
+   * Stops collecting mail and restores the handlers it replaced.
+   *
+   * Does nothing when no handler was replaced.
    */
   public function mailStopCollecting(): void;
 
@@ -23,7 +32,8 @@ interface MailCapabilityInterface {
    * Returns the mail that has been collected.
    *
    * @return array<int, array<string, mixed>>
-   *   Collected mail messages, each formatted as a Drupal mail array.
+   *   Collected mail messages, each formatted as a Drupal mail array. A
+   *   message the site cancelled, whose 'send' flag is FALSE, is returned too.
    */
   public function mailGet(): array;
 

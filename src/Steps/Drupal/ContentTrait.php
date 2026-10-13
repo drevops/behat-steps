@@ -9,8 +9,10 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeNodeCreate;
@@ -71,13 +73,7 @@ trait ContentTrait {
    */
   #[Given('the content type :content_type does not exist')]
   public function contentDeleteType(string $content_type): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
-
-    if ($content_type_entity) {
-      $content_type_entity->delete();
-    }
+    $this->backendFor(ContentCapabilityInterface::class)->deleteEntity(new EntityStub('node_type', NULL, ['type' => $content_type]));
   }
 
   /**
@@ -454,10 +450,11 @@ trait ContentTrait {
    *   Conditions keyed by field names.
    */
   public function contentDelete(string $content_type, array $conditions): void {
-    $nids = $this->queryNodeIds($content_type, $conditions);
+    $backend = $this->backendFor(NodeCapabilityInterface::class);
 
-    $storage = \Drupal::entityTypeManager()->getStorage('node');
-    $storage->delete($storage->loadMultiple($nids));
+    foreach ($this->queryNodeIds($content_type, $conditions) as $nid) {
+      $backend->deleteNode(new EntityStub('node', $content_type, ['nid' => $nid]));
+    }
   }
 
   /**

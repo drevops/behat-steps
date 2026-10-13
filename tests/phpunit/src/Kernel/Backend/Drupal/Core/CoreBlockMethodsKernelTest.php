@@ -95,8 +95,13 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->assertTrue($created->isSaved());
     $placement = $created->getSavedEntity();
     $this->assertInstanceOf(Block::class, $placement);
-    $this->assertNotEmpty($placement->id(), 'placeBlock populated an id on the saved placement.');
-    $this->assertNotNull(Block::load($placement->id()));
+    $this->assertSame('stark_poweredbydrupal', $placement->id(), 'The id follows the plugin suggestion within the theme, as the block UI does.');
+    $this->assertSame('stark_poweredbydrupal', $stub->getValue('id'), 'placeBlock wrote the id back onto the stub.');
+    $this->assertNotNull(Block::load('stark_poweredbydrupal'));
+
+    $second = $this->core->placeBlock(new EntityStub('block', NULL, ['plugin' => 'system_powered_by_block', 'theme' => 'stark', 'region' => 'footer']));
+
+    $this->assertSame('stark_poweredbydrupal_2', $second->getValue('id'), 'A taken suggestion gains a numeric suffix.');
   }
 
   public function testDeleteBlockUsesSavedEntity(): void {

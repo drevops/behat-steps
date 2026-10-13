@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Helper\Drupal;
 
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 
 /**
- * Reads Drupal state a step asserts on without going through a backend.
+ * Finds the entities a step reads, asserts on or deletes.
  *
- * Every member runs in the site's own process, so each resolves
- * 'CoreCapabilityInterface' first.
+ * Every member resolves 'EntityLookupCapabilityInterface', so a lookup runs on
+ * any backend providing it.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
@@ -22,34 +22,23 @@ trait QueryTrait {
    * @param string $entity_type
    *   The entity type id.
    * @param array<string, mixed> $conditions
-   *   Conditions keyed by field names.
+   *   Conditions keyed by field names. A value matches the field with '=',
+   *   and an [operator, value] pair matches with '=', 'IN', 'CONTAINS' or
+   *   'LIKE'.
    * @param string|null $bundle
    *   Bundle to restrict the query to, or NULL for every bundle. The key the
    *   bundle is matched on comes from the entity type definition, so a caller
    *   passes the bundle name and never the key.
    *
    * @return array<int, string>
-   *   Array of entity ids.
+   *   Array of entity ids in natural order.
    *
    * @throws \RuntimeException
-   *   When a bundle is given for an entity type that declares no bundle key.
+   *   When a bundle is given for an entity type that declares no bundle key,
+   *   or a condition is malformed.
    */
   public function queryEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $query = \Drupal::entityQuery($entity_type)->accessCheck(FALSE);
-
-    if ($bundle !== NULL) {
-      $query->condition($this->queryBundleKey($entity_type), $bundle);
-    }
-
-    foreach ($conditions as $field => $value) {
-      $and = $query->andConditionGroup();
-      $and->condition($field, $value);
-      $query->condition($and);
-    }
-
-    return $query->execute();
+    return $this->backendFor(EntityLookupCapabilityInterface::class)->findEntityIds($entity_type, $conditions, $bundle);
   }
 
   /**
@@ -76,10 +65,7 @@ trait QueryTrait {
     }
 
     // A serial id grows with each new entity and stays fixed on a re-save, so
-    // the highest id is the newest entity. Natural order compares the ids as
-    // numbers.
-    usort($ids, strnatcmp(...));
-
+    // the last id in natural order is the newest entity's.
     return end($ids);
   }
 
@@ -96,28 +82,6 @@ trait QueryTrait {
    */
   public function queryNodeIds(string $content_type, array $conditions = []): array {
     return $this->queryEntityIds('node', $conditions, $content_type);
-  }
-
-  /**
-   * Returns the key an entity type stores its bundle under.
-   *
-   * @param string $entity_type
-   *   The entity type id.
-   *
-   * @return string
-   *   The bundle key, such as 'type' for a node or 'vid' for a term.
-   *
-   * @throws \RuntimeException
-   *   When the entity type declares no bundle key.
-   */
-  protected function queryBundleKey(string $entity_type): string {
-    $bundle_key = \Drupal::entityTypeManager()->getDefinition($entity_type)->getKey('bundle');
-
-    if (!is_string($bundle_key) || $bundle_key === '') {
-      throw new \RuntimeException(sprintf('Entity type "%s" declares no bundle key, so it cannot be queried by bundle.', $entity_type));
-    }
-
-    return $bundle_key;
   }
 
 }

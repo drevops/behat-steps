@@ -12,6 +12,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use Drupal\Core\Queue\QueueInterface;
@@ -77,14 +78,15 @@ trait QueueTrait {
   public function queueAddItem(string $queue, TableNode $fields): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $data = $fields->getRowsHash()['data'] ?? '{}';
 
     if (!is_string($data)) {
       throw new \RuntimeException('The "data" value must be a single JSON string.');
     }
 
-    $decoded = $this->queueDecodeData($data);
-    $this->queueGet($queue)->createItem($decoded);
+    $this->queueGet($queue)->createItem($this->queueDecodeData($data));
   }
 
   /**
@@ -100,9 +102,9 @@ trait QueueTrait {
   public function queueEmpty(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $queue_instance = $this->queueGet($queue);
-    $queue_instance->deleteQueue();
-    $queue_instance->createQueue();
+    $this->assertPrerequisites(__TRAIT__);
+
+    $this->queueClear($queue);
   }
 
   /**
@@ -121,6 +123,8 @@ trait QueueTrait {
   #[When('the queue :queue processes :count item(s)')]
   public function queueProcessItems(string $count, string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $count = $this->stringParseInteger($count, 'count', 0);
 
@@ -143,6 +147,8 @@ trait QueueTrait {
   #[When('the queue :queue is processed')]
   public function queueProcessAll(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $limit = $this->queueGetProcessLimit();
     $processed = $this->queueProcess($queue, $limit);
@@ -169,6 +175,8 @@ trait QueueTrait {
   public function queueAssertItemCount(string $queue, string $count): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $count = $this->stringParseInteger($count, 'count', 0);
 
     $actual = $this->queueGet($queue)->numberOfItems();
@@ -190,6 +198,8 @@ trait QueueTrait {
   #[Then('the queue :queue should be empty')]
   public function queueAssertEmpty(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $actual = $this->queueGet($queue)->numberOfItems();
 
@@ -224,9 +234,25 @@ trait QueueTrait {
   public function queueGet(string $queue): QueueInterface {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $this->queueTrackName($queue);
 
     return \Drupal::service('queue')->get($queue);
+  }
+
+  /**
+   * Delete every item of a queue, leaving the queue in place.
+   *
+   * The queue is deleted after the scenario.
+   *
+   * @param string $queue
+   *   The queue name.
+   */
+  public function queueClear(string $queue): void {
+    $queue_instance = $this->queueGet($queue);
+    $queue_instance->deleteQueue();
+    $queue_instance->createQueue();
   }
 
   /**
@@ -305,6 +331,18 @@ trait QueueTrait {
       new Option('enabled', default: TRUE, description: 'Delete the queues a scenario used once it finishes.'),
       new Option('process_limit', default: 1000, description: 'Maximum number of items a single queue-processing step handles.'),
       new Option('lease_time', default: 30, description: 'Time, in seconds, a claimed queue item stays leased.'),
+    ];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function queuePrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
     ];
   }
 
