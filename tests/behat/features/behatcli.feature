@@ -172,7 +172,7 @@ Feature: Behat CLI context
     When I run "behat --no-colors"
     Then it should fail with:
       """
-      No backend provides "DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface". Backends available to this scenario, in order: blackbox.
+      No backend provides "DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface". Backends available to this scenario, in order: blackbox.
       """
 
   Scenario: A "@backend" tag naming a backend the configuration does not hold fails at scenario start

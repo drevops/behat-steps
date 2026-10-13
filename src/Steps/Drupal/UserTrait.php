@@ -661,7 +661,8 @@ trait UserTrait {
    * @param string $role
    *   The role name.
    * @param array<int, string> $permissions
-   *   The permissions.
+   *   The permissions. A blank entry, as an empty permissions cell splits
+   *   into, grants nothing.
    *
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The stub of the created role, carrying its 'id' and 'label'.
@@ -673,7 +674,7 @@ trait UserTrait {
     $role = trim($role);
 
     $backend->deleteRole($rid);
-    $created = $backend->createRole($permissions, $rid, $role);
+    $created = $backend->createRole(array_values(array_filter($permissions)), $rid, $role);
 
     $this->authRoles[] = (string) $created->getValue('id');
 
