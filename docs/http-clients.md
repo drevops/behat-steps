@@ -112,7 +112,7 @@ The detached client acts as the scenario's visitor, so it carries whatever makes
 
 - **Cookies** - the session's cookies, read through the browser driver's cookie capability, so they come across under BrowserKit, Selenium and Chrome alike. Before the scenario opens a page there are none.
 - **Headers the steps set** - the ones from `the REST header :name has the value :value`, the `X-Config-No-Override` header `ConfigOverrideTrait` sets, and the header the credentials step records.
-- **Basic-auth credentials** - from the `base_url` userinfo (`https://user:pass@staging.example.com`), or from `the basic authentication has the username :username and the password :password`. That step hands the credentials to the browser driver, which has no way to give them back, so it also records them as an `Authorization` header for the detached client. An `Authorization` header a step set takes precedence over the credentials.
+- **Basic-auth credentials** - from the `base_url` userinfo (`https://user:pass@staging.example.com`), or from `I am using basic authentication with the username :username and the password :password`. That step hands the credentials to the browser driver, which has no way to give them back, so it also records them as an `Authorization` header for the detached client. An `Authorization` header a step set takes precedence over the credentials.
 
 None of it leaks off the site. Headers and credentials go to the site's own host only, and cookies go only to the host they were read from and its subdomains. A download link or an hreflang alternate on another domain gets the request with none of the scenario's identity. The cost is that a multi-domain site whose other domains sit behind the same basic auth still returns 401 there.
 

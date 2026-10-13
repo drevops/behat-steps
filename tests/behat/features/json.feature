@@ -58,7 +58,7 @@ Feature: Check that JsonTrait works
 
   Scenario: Assert "Given the response JSON is loaded from the file :filename" works
     Given the response JSON is loaded from the file "json_valid.json"
-    Then the JSON path "$.name" should be equal to the value "John Doe"
+    Then the JSON path "$.name" should have the value "John Doe"
 
   @test-trait:JsonTrait
   Scenario: Assert that "Given the response JSON is loaded from the file :filename" fails with an exception for missing file
@@ -79,8 +79,8 @@ Feature: Check that JsonTrait works
       """
       {"name": "Blue Widget", "meta": {"sku": "p1"}, "tags": ["a", "b"]}
       """
-    Then the JSON path "$.name" should be equal to the value "Blue Widget"
-    And the JSON path "$.meta.sku" should be equal to the value "p1"
+    Then the JSON path "$.name" should have the value "Blue Widget"
+    And the JSON path "$.meta.sku" should have the value "p1"
     And the JSON path "$.tags" should have "2" elements
 
   @test-trait:JsonTrait
@@ -168,20 +168,20 @@ Feature: Check that JsonTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the JSON path :path should be equal to the value :value" works with different scalar types
+  Scenario: Assert "Then the JSON path :path should have the value :value" works with different scalar types
     When I go to "http://cli:8888/json_valid.json"
-    Then the JSON path "$.name" should be equal to the value "John Doe"
-    And the JSON path "$.age" should be equal to the value "42"
-    And the JSON path "$.price" should be equal to the value "9.99"
-    And the JSON path "$.active" should be equal to the value "true"
+    Then the JSON path "$.name" should have the value "John Doe"
+    And the JSON path "$.age" should have the value "42"
+    And the JSON path "$.price" should have the value "9.99"
+    And the JSON path "$.active" should have the value "true"
 
   @test-trait:JsonTrait
-  Scenario: Assert that negative assertion for "Then the JSON path :path should be equal to the value :value" fails with an error for wrong value
+  Scenario: Assert that negative assertion for "Then the JSON path :path should have the value :value" fails with an error for wrong value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/json_valid.json"
-      Then the JSON path "$.name" should be equal to the value "Wrong Name"
+      Then the JSON path "$.name" should have the value "Wrong Name"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -190,12 +190,12 @@ Feature: Check that JsonTrait works
       """
 
   @test-trait:JsonTrait
-  Scenario: Assert that "Then the JSON path :path should be equal to the value :value" fails with an error for a missing path
+  Scenario: Assert that "Then the JSON path :path should have the value :value" fails with an error for a missing path
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/json_valid.json"
-      Then the JSON path "$.nonexistent" should be equal to the value "test"
+      Then the JSON path "$.nonexistent" should have the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -204,12 +204,12 @@ Feature: Check that JsonTrait works
       """
 
   @test-trait:JsonTrait
-  Scenario: Assert that "Then the JSON path :path should be equal to the value :value" fails with an error for multiple matches
+  Scenario: Assert that "Then the JSON path :path should have the value :value" fails with an error for multiple matches
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/json_valid.json"
-      Then the JSON path "$.books[*].id" should be equal to the value "123"
+      Then the JSON path "$.books[*].id" should have the value "123"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -218,12 +218,12 @@ Feature: Check that JsonTrait works
       """
 
   @test-trait:JsonTrait
-  Scenario: Assert that "Then the JSON path :path should be equal to the value :value" fails with an error for a non-scalar value
+  Scenario: Assert that "Then the JSON path :path should have the value :value" fails with an error for a non-scalar value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/json_valid.json"
-      Then the JSON path "$.user" should be equal to the value "test"
+      Then the JSON path "$.user" should have the value "test"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -232,18 +232,18 @@ Feature: Check that JsonTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the JSON path :path should not be equal to the value :value" works
+  Scenario: Assert "Then the JSON path :path should not have the value :value" works
     When I go to "http://cli:8888/json_valid.json"
-    Then the JSON path "$.name" should not be equal to the value "Jane Roe"
-    And the JSON path "$.nickname" should not be equal to the value "John Doe"
+    Then the JSON path "$.name" should not have the value "Jane Roe"
+    And the JSON path "$.nickname" should not have the value "John Doe"
 
   @test-trait:JsonTrait
-  Scenario: Assert that negative assertion for "Then the JSON path :path should not be equal to the value :value" fails with an error
+  Scenario: Assert that negative assertion for "Then the JSON path :path should not have the value :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/json_valid.json"
-      Then the JSON path "$.name" should not be equal to the value "John Doe"
+      Then the JSON path "$.name" should not have the value "John Doe"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -252,17 +252,17 @@ Feature: Check that JsonTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the JSON path :path should contain the value :value" works
+  Scenario: Assert "Then the JSON path :path should contain :value" works
     When I go to "http://cli:8888/json_valid.json"
-    Then the JSON path "$.name" should contain the value "John"
+    Then the JSON path "$.name" should contain "John"
 
   @test-trait:JsonTrait
-  Scenario: Assert that negative assertion for "Then the JSON path :path should contain the value :value" fails with an error
+  Scenario: Assert that negative assertion for "Then the JSON path :path should contain :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/json_valid.json"
-      Then the JSON path "$.name" should contain the value "Nonexistent"
+      Then the JSON path "$.name" should contain "Nonexistent"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -271,17 +271,17 @@ Feature: Check that JsonTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the JSON path :path should not contain the value :value" works
+  Scenario: Assert "Then the JSON path :path should not contain :value" works
     When I go to "http://cli:8888/json_valid.json"
-    Then the JSON path "$.name" should not contain the value "Nonexistent"
+    Then the JSON path "$.name" should not contain "Nonexistent"
 
   @test-trait:JsonTrait
-  Scenario: Assert that negative assertion for "Then the JSON path :path should not contain the value :value" fails with an error
+  Scenario: Assert that negative assertion for "Then the JSON path :path should not contain :value" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I go to "http://cli:8888/json_valid.json"
-      Then the JSON path "$.name" should not contain the value "John"
+      Then the JSON path "$.name" should not contain "John"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -569,9 +569,9 @@ Feature: Check that JsonTrait works
   @phpserver
   Scenario: Assert that JSON data is reloaded when navigating between different JSON files
     When I go to "http://cli:8888/json_valid.json"
-    Then the JSON path "$.name" should be equal to the value "John Doe"
+    Then the JSON path "$.name" should have the value "John Doe"
     When I go to "http://cli:8888/json_alt.json"
-    Then the JSON path "$.name" should be equal to the value "Jane Roe"
-    And the JSON path "$.count" should be equal to the value "5"
+    Then the JSON path "$.name" should have the value "Jane Roe"
+    And the JSON path "$.count" should have the value "5"
     When I go to "http://cli:8888/json_valid.json"
-    Then the JSON path "$.name" should be equal to the value "John Doe"
+    Then the JSON path "$.name" should have the value "John Doe"

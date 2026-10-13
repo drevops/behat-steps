@@ -4,7 +4,7 @@ Feature: Check that WebformTrait works
   So that users can test webform functionality reliably
 
   Scenario: Assert "@Given the webform :title does not exist" works as expected
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I visit "/admin/structure/webform/add"
     And I fill in "Title" with "Test webform to delete"
     And I fill in "Machine-readable name" with "test_webform_to_delete"
@@ -19,8 +19,8 @@ Feature: Check that WebformTrait works
     Given the webform "Non-existing webform" does not exist
 
   @module:webform_templates
-  Scenario: Assert "@Given the webform :title exists from the template :template" works as expected
-    When I log in as a user with the role "administrator"
+  Scenario: Assert "@Given the webform :title has been created from the template :template" works as expected
+    Given I am logged in as a user with the role "administrator"
     When I visit "/admin/structure/webform/add"
     And I fill in "Title" with "Test template form"
     And I fill in "Machine-readable name" with "test_template_form"
@@ -28,17 +28,17 @@ Feature: Check that WebformTrait works
     And I visit "/admin/structure/webform/manage/test_template_form/settings"
     And I check "Allow this webform to be used as a template"
     And I press "Save"
-    Given the webform "Cloned contact form" exists from the template "Test template form"
+    Given the webform "Cloned contact form" has been created from the template "Test template form"
     And I visit "/admin/structure/webform"
     Then I should see "Cloned contact form"
     When the webform "Test template form" does not exist
 
   @test-trait:Drupal\WebformTrait
-  Scenario: Assert "@Given the webform :title exists from the template :template" fails for non-existing template
+  Scenario: Assert "@Given the webform :title has been created from the template :template" fails for non-existing template
     Given some behat configuration
     And scenario steps:
       """
-      Given the webform "My form" exists from the template "Non-existing template"
+      Given the webform "My form" has been created from the template "Non-existing template"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

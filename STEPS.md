@@ -123,28 +123,28 @@
 | `accessibility.report_dir` | string | `'.logs/test_results/accessibility'` | - | Directory the per-scenario reports are written to. A relative path resolves against the directory the run was launched from. |
 
 <details>
-  <summary><code>@Then the current page should pass accessibility checks</code></summary>
+  <summary><code>@Then the page should pass accessibility checks</code></summary>
 
 <br/>
 Assert that the current page passes accessibility checks
 <br/><br/>
 
 ```gherkin
-Then the current page should pass accessibility checks
+Then the page should pass accessibility checks
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the current page should pass accessibility checks for the tags :tags</code></summary>
+  <summary><code>@Then the page should pass accessibility checks for the tags :tags</code></summary>
 
 <br/>
 Assert that the current page passes accessibility checks for given tags
 <br/><br/>
 
 ```gherkin
-Then the current page should pass accessibility checks for the tags "wcag2a"
+Then the page should pass accessibility checks for the tags "wcag2a"
 
 ```
 
@@ -254,60 +254,60 @@ Then the command exit code should be 3
 </details>
 
 <details>
-  <summary><code>@Then the command output should contain the value :value</code></summary>
+  <summary><code>@Then the command output should contain :value</code></summary>
 
 <br/>
-Assert that the command output contains a value
+Assert that the command output contains a string
 <br/><br/>
 
 ```gherkin
 When I run the command "echo hello"
-Then the command output should contain the value "hello"
+Then the command output should contain "hello"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the command output should not contain the value :value</code></summary>
+  <summary><code>@Then the command output should not contain :value</code></summary>
 
 <br/>
-Assert that the command output does not contain a value
+Assert that the command output does not contain a string
 <br/><br/>
 
 ```gherkin
 When I run the command "echo hello"
-Then the command output should not contain the value "goodbye"
+Then the command output should not contain "goodbye"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the command output should be equal to the value :value</code></summary>
+  <summary><code>@Then the command output should be :value</code></summary>
 
 <br/>
-Assert that the command output equals a value
+Assert that the command output equals a string
 <br/><br/>
 
 ```gherkin
 When I run the command "echo hello"
-Then the command output should be equal to the value "hello"
+Then the command output should be "hello"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the command error output should contain the value :value</code></summary>
+  <summary><code>@Then the command error output should contain :value</code></summary>
 
 <br/>
-Assert that the command error output contains a value
+Assert that the command error output contains a string
 <br/><br/>
 
 ```gherkin
 When I run the command "ls /nonexistent"
-Then the command error output should contain the value "No such file"
+Then the command error output should contain "No such file"
 
 ```
 
@@ -354,42 +354,42 @@ Then the command should complete in more than 1 second
 
 
 <details>
-  <summary><code>@Then a cookie with the name :name should exist</code></summary>
+  <summary><code>@Then the cookie :name should exist</code></summary>
 
 <br/>
 Assert that a cookie exists
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "session_id" should exist
+Then the cookie "session_id" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name and the value :value should exist</code></summary>
+  <summary><code>@Then the cookie :name with the value :value should exist</code></summary>
 
 <br/>
 Assert that a cookie exists with a specific value
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "language" and the value "en" should exist
+Then the cookie "language" with the value "en" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name and a value containing :partial_value should exist</code></summary>
+  <summary><code>@Then the cookie :name with a value containing :partial_value should exist</code></summary>
 
 <br/>
 Assert that a cookie exists with a value containing a partial value
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "preferences" and a value containing "darkmode" should exist
+Then the cookie "preferences" with a value containing "darkmode" should exist
 
 ```
 
@@ -438,42 +438,42 @@ Then a cookie with a name containing "user" and a value containing "admin" shoul
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name should not exist</code></summary>
+  <summary><code>@Then the cookie :name should not exist</code></summary>
 
 <br/>
 Assert that a cookie does not exist
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "old_session" should not exist
+Then the cookie "old_session" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name and the value :value should not exist</code></summary>
+  <summary><code>@Then the cookie :name with the value :value should not exist</code></summary>
 
 <br/>
 Assert that a cookie with a specific value does not exist
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "language" and the value "fr" should not exist
+Then the cookie "language" with the value "fr" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then a cookie with the name :name and a value containing :partial_value should not exist</code></summary>
+  <summary><code>@Then the cookie :name with a value containing :partial_value should not exist</code></summary>
 
 <br/>
 Assert that a cookie with a value containing a partial value does not exist
 <br/><br/>
 
 ```gherkin
-Then a cookie with the name "preferences" and a value containing "lightmode" should not exist
+Then the cookie "preferences" with a value containing "lightmode" should not exist
 
 ```
 
@@ -681,28 +681,28 @@ When I drop the following files on the dropzone ".dropzone":
 | `element.scroll_into_view_center` | boolean | `TRUE` | - | Center an element in the viewport when scrolling to it, rather than aligning it to the top. |
 
 <details>
-  <summary><code>@Given confirmation dialogs are accepted</code></summary>
+  <summary><code>@Given I accept all confirmation dialogs</code></summary>
 
 <br/>
 Accept confirmation dialogs appearing on the page
 <br/><br/>
 
 ```gherkin
-Given confirmation dialogs are accepted
+Given I accept all confirmation dialogs
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given confirmation dialogs are declined</code></summary>
+  <summary><code>@Given I decline all confirmation dialogs</code></summary>
 
 <br/>
 Do not accept confirmation dialogs appearing on the page
 <br/><br/>
 
 ```gherkin
-Given confirmation dialogs are declined
+Given I decline all confirmation dialogs
 
 ```
 
@@ -765,14 +765,14 @@ When I press the button "Delete" with the index 2
 </details>
 
 <details>
-  <summary><code>@When I trigger the JS event :event on the element :selector</code></summary>
+  <summary><code>@When the JS event :event is triggered on the element :selector</code></summary>
 
 <br/>
 Trigger a JS event on the element defined by the selector
 <br/><br/>
 
 ```gherkin
-When I trigger the JS event "click" on the element "#submit-button"
+When the JS event "click" is triggered on the element "#submit-button"
 
 ```
 
@@ -823,56 +823,56 @@ When I focus on the element ".form-text"
 </details>
 
 <details>
-  <summary><code>@Then the heading :heading should exist</code></summary>
+  <summary><code>@Then I should see the heading :heading</code></summary>
 
 <br/>
 Assert that a heading with the text exists
 <br/><br/>
 
 ```gherkin
-Then the heading "Latest news" should exist
+Then I should see the heading "Latest news"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the heading :heading should not exist</code></summary>
+  <summary><code>@Then I should not see the heading :heading</code></summary>
 
 <br/>
 Assert that no heading with the text exists
 <br/><br/>
 
 ```gherkin
-Then the heading "Admin" should not exist
+Then I should not see the heading "Admin"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the button :button should exist</code></summary>
+  <summary><code>@Then I should see the button :button</code></summary>
 
 <br/>
 Assert that a button exists
 <br/><br/>
 
 ```gherkin
-Then the button "Save" should exist
+Then I should see the button "Save"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the button :button should not exist</code></summary>
+  <summary><code>@Then I should not see the button :button</code></summary>
 
 <br/>
 Assert that a button does not exist
 <br/><br/>
 
 ```gherkin
-Then the button "Delete" should not exist
+Then I should not see the button "Delete"
 
 ```
 
@@ -893,14 +893,14 @@ Then the element "body" should appear after the element "head"
 </details>
 
 <details>
-  <summary><code>@Then the text :text1 should appear after the text :text2</code></summary>
+  <summary><code>@Then I should see the text :text1 after the text :text2</code></summary>
 
 <br/>
 Assert that one text string appears after another on the page
 <br/><br/>
 
 ```gherkin
-Then the text "Welcome" should appear after the text "Home"
+Then I should see the text "Welcome" after the text "Home"
 
 ```
 
@@ -1260,14 +1260,14 @@ Then the element ".visually-hidden" should not be displayed within the viewport
 </details>
 
 <details>
-  <summary><code>@Then the element :parent should contain :count element(s) matching :selector</code></summary>
+  <summary><code>@Then the element :parent should have :count element(s) matching :selector</code></summary>
 
 <br/>
 Assert the number of elements matching a selector within a parent element
 <br/><br/>
 
 ```gherkin
-Then the element "#main-nav" should contain 3 elements matching ".menu-item"
+Then the element "#main-nav" should have 3 elements matching ".menu-item"
 
 ```
 
@@ -1331,28 +1331,28 @@ When I fill in the multi-value field "Tags" with the following values:
 </details>
 
 <details>
-  <summary><code>@When I fill in the color field :field with the value :value</code></summary>
+  <summary><code>@When I fill in the color field :field with :value</code></summary>
 
 <br/>
 Fill value for color field
 <br/><br/>
 
 ```gherkin
-When I fill in the color field "#edit-text-color" with the value "#3366FF"
+When I fill in the color field "#edit-text-color" with "#3366FF"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I fill in the WYSIWYG field :field with the value :value</code></summary>
+  <summary><code>@When I fill in the WYSIWYG field :field with :value</code></summary>
 
 <br/>
 Set value for WYSIWYG field
 <br/><br/>
 
 ```gherkin
-When I fill in the WYSIWYG field "edit-body-0-value" with the value "<p>This is a <strong>formatted</strong> paragraph.</p>"
+When I fill in the WYSIWYG field "edit-body-0-value" with "<p>This is a <strong>formatted</strong> paragraph.</p>"
 
 ```
 
@@ -1434,15 +1434,15 @@ When I choose the radio button "edit-field-choice-option-a"
 </details>
 
 <details>
-  <summary><code>@When I fill in the field :selector with the value :value</code></summary>
+  <summary><code>@When I fill in the field :selector with :value</code></summary>
 
 <br/>
 Fill in a field identified by CSS selector
 <br/><br/>
 
 ```gherkin
-When I fill in the field ".field--name-body textarea" with the value "Hello world"
-When I fill in the field "#edit-field-custom-0-value" with the value "Test value"
+When I fill in the field ".field--name-body textarea" with "Hello world"
+When I fill in the field "#edit-field-custom-0-value" with "Test value"
 
 ```
 
@@ -1464,28 +1464,28 @@ When I fill in the datetime field "Event date" with the date "2024-01-15" and th
 </details>
 
 <details>
-  <summary><code>@When I fill in the date part of the datetime field :label with the date :date</code></summary>
+  <summary><code>@When I fill in the date part of the datetime field :label with :date</code></summary>
 
 <br/>
 Fill in the date part of a datetime field
 <br/><br/>
 
 ```gherkin
-When I fill in the date part of the datetime field "Event date" with the date "2024-01-15"
+When I fill in the date part of the datetime field "Event date" with "2024-01-15"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I fill in the time part of the datetime field :label with the time :time</code></summary>
+  <summary><code>@When I fill in the time part of the datetime field :label with :time</code></summary>
 
 <br/>
 Fill in the time part of a datetime field
 <br/><br/>
 
 ```gherkin
-When I fill in the time part of the datetime field "Event date" with the time "14:30:00"
+When I fill in the time part of the datetime field "Event date" with "14:30:00"
 
 ```
 
@@ -1580,17 +1580,28 @@ Then the field "field_body" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the field :field should have the :enabled_or_disabled state</code></summary>
+  <summary><code>@Then the field :field should be enabled</code></summary>
 
 <br/>
-Assert whether the field has a state
+Assert that a field is enabled
 <br/><br/>
 
 ```gherkin
-Then the field "Body" should have the "disabled" state
-Then the field "field_body" should have the "disabled" state
-Then the field "Tags" should have the "enabled" state
-Then the field "field_tags" should have the "not enabled" state
+Then the field "Tags" should be enabled
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then the field :field should be disabled</code></summary>
+
+<br/>
+Assert that a field is disabled
+<br/><br/>
+
+```gherkin
+Then the field "Body" should be disabled
 
 ```
 
@@ -1823,14 +1834,14 @@ Then the downloaded file name should contain "report"
 </details>
 
 <details>
-  <summary><code>@Then the downloaded file should be a zip archive containing the following files named:</code></summary>
+  <summary><code>@Then the downloaded file should be a zip archive containing files with the following names:</code></summary>
 
 <br/>
 Assert the downloaded file should be a zip archive containing specific files
 <br/><br/>
 
 ```gherkin
-Then the downloaded file should be a zip archive containing the following files named:
+Then the downloaded file should be a zip archive containing files with the following names:
   | document.pdf |
   | image.jpg    |
   | data.csv     |
@@ -1840,14 +1851,14 @@ Then the downloaded file should be a zip archive containing the following files 
 </details>
 
 <details>
-  <summary><code>@Then the downloaded file should be a zip archive containing the following files partially named:</code></summary>
+  <summary><code>@Then the downloaded file should be a zip archive containing files with the following partial names:</code></summary>
 
 <br/>
 Assert the downloaded file should be a zip archive containing files with partial names
 <br/><br/>
 
 ```gherkin
-Then the downloaded file should be a zip archive containing the following files partially named:
+Then the downloaded file should be a zip archive containing files with the following partial names:
   | report |
   | data   |
   | image  |
@@ -1857,14 +1868,14 @@ Then the downloaded file should be a zip archive containing the following files 
 </details>
 
 <details>
-  <summary><code>@Then the downloaded file should be a zip archive not containing the following files partially named:</code></summary>
+  <summary><code>@Then the downloaded file should be a zip archive not containing files with the following partial names:</code></summary>
 
 <br/>
 Assert the downloaded file is a zip archive not containing files with partial names
 <br/><br/>
 
 ```gherkin
-Then the downloaded file should be a zip archive not containing the following files partially named:
+Then the downloaded file should be a zip archive not containing files with the following partial names:
   | confidential |
   | private      |
   | draft        |
@@ -2075,57 +2086,57 @@ Then the JSON path "$.nonexistent" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the JSON path :path should be equal to the value :value</code></summary>
+  <summary><code>@Then the JSON path :path should have the value :value</code></summary>
 
 <br/>
 Assert that the value at a JSONPath equals the expected value
 <br/><br/>
 
 ```gherkin
-Then the JSON path "$.name" should be equal to the value "John Doe"
-Then the JSON path "$.age" should be equal to the value "42"
+Then the JSON path "$.name" should have the value "John Doe"
+Then the JSON path "$.age" should have the value "42"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the JSON path :path should not be equal to the value :value</code></summary>
+  <summary><code>@Then the JSON path :path should not have the value :value</code></summary>
 
 <br/>
 Assert that the value at a JSONPath does not equal the expected value
 <br/><br/>
 
 ```gherkin
-Then the JSON path "$.name" should not be equal to the value "Jane Doe"
+Then the JSON path "$.name" should not have the value "Jane Doe"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the JSON path :path should contain the value :value</code></summary>
+  <summary><code>@Then the JSON path :path should contain :value</code></summary>
 
 <br/>
 Assert that the value at a JSONPath contains the expected text
 <br/><br/>
 
 ```gherkin
-Then the JSON path "$.name" should contain the value "John"
+Then the JSON path "$.name" should contain "John"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the JSON path :path should not contain the value :value</code></summary>
+  <summary><code>@Then the JSON path :path should not contain :value</code></summary>
 
 <br/>
 Assert that the value at a JSONPath does not contain the expected text
 <br/><br/>
 
 ```gherkin
-Then the JSON path "$.name" should not contain the value "Jane"
+Then the JSON path "$.name" should not contain "Jane"
 
 ```
 
@@ -2320,20 +2331,49 @@ When I press the keys "abc" on the element "#edit-title"
 [Source](src/Steps/Web/LinkTrait.php), [Example](tests/behat/features/link.feature)
 
 >  Verify link elements with attribute and content assertions.
->  - Find links by title, or by text and href, optionally within an element.
+>  - Find links by text, by title, or by text and href, optionally within an
+>  element.
 >  - Assert link existence and href match.
 >  - Assert absolute and relative link paths.
 
 
 <details>
-  <summary><code>@When I click on the link with the title :title</code></summary>
+  <summary><code>@When I follow the link with the title :title</code></summary>
 
 <br/>
 Click on the link with a title
 <br/><br/>
 
 ```gherkin
-When I click on the link with the title "Return to site content"
+When I follow the link with the title "Return to site content"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then I should see the link :link</code></summary>
+
+<br/>
+Assert that a link exists
+<br/><br/>
+
+```gherkin
+Then I should see the link "About us"
+
+```
+
+</details>
+
+<details>
+  <summary><code>@Then I should not see the link :link</code></summary>
+
+<br/>
+Assert that a link does not exist
+<br/><br/>
+
+```gherkin
+Then I should not see the link "Admin"
 
 ```
 
@@ -2504,126 +2544,126 @@ Then the link "Return to site content" should not be an absolute link
 | `message.selectors` | map | `[]` | - | Selectors of the message regions the message steps assert against, one per severity: `default`, `error`, `success` and `warning`. |
 
 <details>
-  <summary><code>@Then the message :message should exist</code></summary>
+  <summary><code>@Then I should see the message :message</code></summary>
 
 <br/>
 Assert that a status message is present
 <br/><br/>
 
 ```gherkin
-Then the message "Changes saved" should exist
+Then I should see the message "Changes saved"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the message :message should not exist</code></summary>
+  <summary><code>@Then I should not see the message :message</code></summary>
 
 <br/>
 Assert that a status message is absent
 <br/><br/>
 
 ```gherkin
-Then the message "Access denied" should not exist
+Then I should not see the message "Access denied"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the error message :message should exist</code></summary>
+  <summary><code>@Then I should see the error message :message</code></summary>
 
 <br/>
 Assert that an error message is present
 <br/><br/>
 
 ```gherkin
-Then the error message "Username field is required" should exist
+Then I should see the error message "Username field is required"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the error message :message should not exist</code></summary>
+  <summary><code>@Then I should not see the error message :message</code></summary>
 
 <br/>
 Assert that an error message is absent
 <br/><br/>
 
 ```gherkin
-Then the error message "Access denied" should not exist
+Then I should not see the error message "Access denied"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the success message :message should exist</code></summary>
+  <summary><code>@Then I should see the success message :message</code></summary>
 
 <br/>
 Assert that a success message is present
 <br/><br/>
 
 ```gherkin
-Then the success message "Article has been created" should exist
+Then I should see the success message "Article has been created"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the success message :message should not exist</code></summary>
+  <summary><code>@Then I should not see the success message :message</code></summary>
 
 <br/>
 Assert that a success message is absent
 <br/><br/>
 
 ```gherkin
-Then the success message "Changes saved" should not exist
+Then I should not see the success message "Changes saved"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the warning message :message should exist</code></summary>
+  <summary><code>@Then I should see the warning message :message</code></summary>
 
 <br/>
 Assert that a warning message is present
 <br/><br/>
 
 ```gherkin
-Then the warning message "This action cannot be undone" should exist
+Then I should see the warning message "This action cannot be undone"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the warning message :message should not exist</code></summary>
+  <summary><code>@Then I should not see the warning message :message</code></summary>
 
 <br/>
 Assert that a warning message is absent
 <br/><br/>
 
 ```gherkin
-Then the warning message "deprecated" should not exist
+Then I should not see the warning message "deprecated"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the following error messages should exist:</code></summary>
+  <summary><code>@Then I should see the following error messages:</code></summary>
 
 <br/>
 Assert that every error message in the table is present
 <br/><br/>
 
 ```gherkin
-Then the following error messages should exist:
+Then I should see the following error messages:
   | Username field is required |
   | Password field is required |
 
@@ -2632,14 +2672,14 @@ Then the following error messages should exist:
 </details>
 
 <details>
-  <summary><code>@Then the following error messages should not exist:</code></summary>
+  <summary><code>@Then I should not see the following error messages:</code></summary>
 
 <br/>
 Assert that no error message in the table is present
 <br/><br/>
 
 ```gherkin
-Then the following error messages should not exist:
+Then I should not see the following error messages:
   | Access denied |
 
 ```
@@ -2647,14 +2687,14 @@ Then the following error messages should not exist:
 </details>
 
 <details>
-  <summary><code>@Then the following success messages should exist:</code></summary>
+  <summary><code>@Then I should see the following success messages:</code></summary>
 
 <br/>
 Assert that every success message in the table is present
 <br/><br/>
 
 ```gherkin
-Then the following success messages should exist:
+Then I should see the following success messages:
   | Article has been created |
 
 ```
@@ -2662,14 +2702,14 @@ Then the following success messages should exist:
 </details>
 
 <details>
-  <summary><code>@Then the following success messages should not exist:</code></summary>
+  <summary><code>@Then I should not see the following success messages:</code></summary>
 
 <br/>
 Assert that no success message in the table is present
 <br/><br/>
 
 ```gherkin
-Then the following success messages should not exist:
+Then I should not see the following success messages:
   | Changes saved |
 
 ```
@@ -2677,14 +2717,14 @@ Then the following success messages should not exist:
 </details>
 
 <details>
-  <summary><code>@Then the following warning messages should exist:</code></summary>
+  <summary><code>@Then I should see the following warning messages:</code></summary>
 
 <br/>
 Assert that every warning message in the table is present
 <br/><br/>
 
 ```gherkin
-Then the following warning messages should exist:
+Then I should see the following warning messages:
   | This action cannot be undone |
 
 ```
@@ -2692,14 +2732,14 @@ Then the following warning messages should exist:
 </details>
 
 <details>
-  <summary><code>@Then the following warning messages should not exist:</code></summary>
+  <summary><code>@Then I should not see the following warning messages:</code></summary>
 
 <br/>
 Assert that no warning message in the table is present
 <br/><br/>
 
 ```gherkin
-Then the following warning messages should not exist:
+Then I should not see the following warning messages:
   | deprecated |
 
 ```
@@ -2719,14 +2759,14 @@ Then the following warning messages should not exist:
 
 
 <details>
-  <summary><code>@Then the meta tag should exist with the following attributes:</code></summary>
+  <summary><code>@Then the meta tag with the following attributes should exist:</code></summary>
 
 <br/>
 Assert that a meta tag with specific attributes and values exists
 <br/><br/>
 
 ```gherkin
-Then the meta tag should exist with the following attributes:
+Then the meta tag with the following attributes should exist:
   | name    | description          |
   | content | My page description  |
 
@@ -2735,14 +2775,14 @@ Then the meta tag should exist with the following attributes:
 </details>
 
 <details>
-  <summary><code>@Then the meta tag should not exist with the following attributes:</code></summary>
+  <summary><code>@Then the meta tag with the following attributes should not exist:</code></summary>
 
 <br/>
 Assert that a meta tag with specific attributes and values does not exist
 <br/><br/>
 
 ```gherkin
-Then the meta tag should not exist with the following attributes:
+Then the meta tag with the following attributes should not exist:
   | name    | nonexistent          |
   | content | Some content         |
 
@@ -2837,30 +2877,30 @@ Then the page should not be indexable
 </details>
 
 <details>
-  <summary><code>@Then the meta robots should contain :directive</code></summary>
+  <summary><code>@Then the robots meta tag should contain :directive</code></summary>
 
 <br/>
 Assert the robots meta tag contains a directive
 <br/><br/>
 
 ```gherkin
-Then the meta robots should contain "noindex"
-Then the meta robots should contain "nofollow"
+Then the robots meta tag should contain "noindex"
+Then the robots meta tag should contain "nofollow"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the meta robots should not contain :directive</code></summary>
+  <summary><code>@Then the robots meta tag should not contain :directive</code></summary>
 
 <br/>
 Assert the robots meta tag does not contain a directive
 <br/><br/>
 
 ```gherkin
-Then the meta robots should not contain "noindex"
-Then the meta robots should not contain "nofollow"
+Then the robots meta tag should not contain "noindex"
+Then the robots meta tag should not contain "nofollow"
 
 ```
 
@@ -3024,56 +3064,56 @@ When I wait for the modal to appear
 </details>
 
 <details>
-  <summary><code>@Then the modal should be displayed</code></summary>
+  <summary><code>@Then I should see the modal</code></summary>
 
 <br/>
 Assert that the modal is visible
 <br/><br/>
 
 ```gherkin
-Then the modal should be displayed
+Then I should see the modal
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the modal should not be displayed</code></summary>
+  <summary><code>@Then I should not see the modal</code></summary>
 
 <br/>
 Assert that the modal is not visible
 <br/><br/>
 
 ```gherkin
-Then the modal should not be displayed
+Then I should not see the modal
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the modal should contain :text</code></summary>
+  <summary><code>@Then I should see the text :text in the modal</code></summary>
 
 <br/>
 Assert that the modal contains text
 <br/><br/>
 
 ```gherkin
-Then the modal should contain "Welcome message"
+Then I should see the text "Welcome message" in the modal
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the modal should not contain :text</code></summary>
+  <summary><code>@Then I should not see the text :text in the modal</code></summary>
 
 <br/>
 Assert that the modal does not contain text
 <br/><br/>
 
 ```gherkin
-Then the modal should not contain "Error message"
+Then I should not see the text "Error message" in the modal
 
 ```
 
@@ -3090,14 +3130,14 @@ Then the modal should not contain "Error message"
 
 
 <details>
-  <summary><code>@Given the basic authentication has the username :username and the password :password</code></summary>
+  <summary><code>@Given I am using basic authentication with the username :username and the password :password</code></summary>
 
 <br/>
 Set basic authentication for the current session
 <br/><br/>
 
 ```gherkin
-Given the basic authentication has the username "myusername" and the password "mypassword"
+Given I am using basic authentication with the username "myusername" and the password "mypassword"
 
 ```
 
@@ -3165,56 +3205,56 @@ Then the path should not be "<front>"
 </details>
 
 <details>
-  <summary><code>@Then the current URL should have the query parameter :name</code></summary>
+  <summary><code>@Then the URL should have the query parameter :name</code></summary>
 
 <br/>
 Assert that current URL has a query parameter
 <br/><br/>
 
 ```gherkin
-Then the current URL should have the query parameter "filter"
+Then the URL should have the query parameter "filter"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the current URL should have the query parameter :name with the value :value</code></summary>
+  <summary><code>@Then the URL should have the query parameter :name with the value :value</code></summary>
 
 <br/>
 Assert that current URL has a query parameter with a specific value
 <br/><br/>
 
 ```gherkin
-Then the current URL should have the query parameter "filter" with the value "recent"
+Then the URL should have the query parameter "filter" with the value "recent"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the current URL should not have the query parameter :name</code></summary>
+  <summary><code>@Then the URL should not have the query parameter :name</code></summary>
 
 <br/>
 Assert that current URL has no query parameter
 <br/><br/>
 
 ```gherkin
-Then the current URL should not have the query parameter "filter"
+Then the URL should not have the query parameter "filter"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the current URL should not have the query parameter :name with the value :value</code></summary>
+  <summary><code>@Then the URL should not have the query parameter :name with the value :value</code></summary>
 
 <br/>
 Assert that current URL does not have a query parameter with a value
 <br/><br/>
 
 ```gherkin
-Then the current URL should not have the query parameter "filter" with the value "recent"
+Then the URL should not have the query parameter "filter" with the value "recent"
 
 ```
 
@@ -3258,14 +3298,14 @@ Then the current URL should not have the query parameter "filter" with the value
 
 
 <details>
-  <summary><code>@When I click on the link :link in the region :region</code></summary>
+  <summary><code>@When I follow the link :link in the region :region</code></summary>
 
 <br/>
 Click a link within a region
 <br/><br/>
 
 ```gherkin
-When I click on the link "Read more" in the region "content"
+When I follow the link "Read more" in the region "content"
 
 ```
 
@@ -3286,14 +3326,14 @@ When I press the button "Save" in the region "sidebar"
 </details>
 
 <details>
-  <summary><code>@When I fill in the field :field with the value :value in the region :region</code></summary>
+  <summary><code>@When I fill in the field :field with :value in the region :region</code></summary>
 
 <br/>
 Fill a field within a region
 <br/><br/>
 
 ```gherkin
-When I fill in the field "Search" with the value "test" in the region "header"
+When I fill in the field "Search" with "test" in the region "header"
 
 ```
 
@@ -3328,112 +3368,112 @@ When I uncheck the checkbox "Promoted" in the region "content"
 </details>
 
 <details>
-  <summary><code>@Then the region :region should contain the value :value</code></summary>
+  <summary><code>@Then I should see the text :text in the region :region</code></summary>
 
 <br/>
-Assert that the text of a region contains a value
+Assert that the text of a region contains a string
 <br/><br/>
 
 ```gherkin
-Then the region "content" should contain the value "Welcome"
+Then I should see the text "Welcome" in the region "content"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the region :region should not contain the value :value</code></summary>
+  <summary><code>@Then I should not see the text :text in the region :region</code></summary>
 
 <br/>
-Assert that the text of a region does not contain a value
+Assert that the text of a region does not contain a string
 <br/><br/>
 
 ```gherkin
-Then the region "content" should not contain the value "Error"
+Then I should not see the text "Error" in the region "content"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the region :region should contain the heading :heading</code></summary>
+  <summary><code>@Then I should see the heading :heading in the region :region</code></summary>
 
 <br/>
 Assert that a region contains the heading
 <br/><br/>
 
 ```gherkin
-Then the region "sidebar" should contain the heading "Latest news"
+Then I should see the heading "Latest news" in the region "sidebar"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the region :region should not contain the heading :heading</code></summary>
+  <summary><code>@Then I should not see the heading :heading in the region :region</code></summary>
 
 <br/>
 Assert that a region does not contain the heading
 <br/><br/>
 
 ```gherkin
-Then the region "sidebar" should not contain the heading "Admin"
+Then I should not see the heading "Admin" in the region "sidebar"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link in the region :region should exist</code></summary>
+  <summary><code>@Then I should see the link :link in the region :region</code></summary>
 
 <br/>
 Assert that a region contains the link
 <br/><br/>
 
 ```gherkin
-Then the link "About us" in the region "footer" should exist
+Then I should see the link "About us" in the region "footer"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link in the region :region should not exist</code></summary>
+  <summary><code>@Then I should not see the link :link in the region :region</code></summary>
 
 <br/>
 Assert that a region does not contain the link
 <br/><br/>
 
 ```gherkin
-Then the link "Admin" in the region "footer" should not exist
+Then I should not see the link "Admin" in the region "footer"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the button :button in the region :region should exist</code></summary>
+  <summary><code>@Then I should see the button :button in the region :region</code></summary>
 
 <br/>
 Assert that a region contains the button
 <br/><br/>
 
 ```gherkin
-Then the button "Save" in the region "content" should exist
+Then I should see the button "Save" in the region "content"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the button :button in the region :region should not exist</code></summary>
+  <summary><code>@Then I should not see the button :button in the region :region</code></summary>
 
 <br/>
 Assert that a region does not contain the button
 <br/><br/>
 
 ```gherkin
-Then the button "Delete" in the region "content" should not exist
+Then I should not see the button "Delete" in the region "content"
 
 ```
 
@@ -3574,28 +3614,28 @@ Then the response should not contain the header "Connection"
 </details>
 
 <details>
-  <summary><code>@Then the response header :name should contain the value :value</code></summary>
+  <summary><code>@Then the response header :name should contain :value</code></summary>
 
 <br/>
 Assert that a response contains a header with a specified name and value
 <br/><br/>
 
 ```gherkin
-Then the response header "Connection" should contain the value "Keep-Alive"
+Then the response header "Connection" should contain "Keep-Alive"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the response header :name should not contain the value :value</code></summary>
+  <summary><code>@Then the response header :name should not contain :value</code></summary>
 
 <br/>
 Assert a response does not contain a header with a specified name and value
 <br/><br/>
 
 ```gherkin
-Then the response header "Connection" should not contain the value "Keep-Alive"
+Then the response header "Connection" should not contain "Keep-Alive"
 
 ```
 
@@ -3760,29 +3800,29 @@ Given the REST header "Authorization" has the value "Bearer abc123"
 </details>
 
 <details>
-  <summary><code>@When I send a REST :method request to the URL :url</code></summary>
+  <summary><code>@When I send a REST :method request to :url</code></summary>
 
 <br/>
 Send a REST request to a URL
 <br/><br/>
 
 ```gherkin
-When I send a REST "GET" request to the URL "/api/resource"
-When I send a REST "DELETE" request to the URL "/api/resource/1"
+When I send a REST "GET" request to "/api/resource"
+When I send a REST "DELETE" request to "/api/resource/1"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I send a REST :method request to the URL :url with the body:</code></summary>
+  <summary><code>@When I send a REST :method request to :url with the body:</code></summary>
 
 <br/>
 Send a REST request to a URL with a body
 <br/><br/>
 
 ```gherkin
-When I send a REST "POST" request to the URL "/api/resource" with the body:
+When I send a REST "POST" request to "/api/resource" with the body:
   """
   {"name": "example"}
   """
@@ -3807,7 +3847,7 @@ Then the REST response status code should be 404
 </details>
 
 <details>
-  <summary><code>@Then the REST response should contain :text</code></summary>
+  <summary><code>@Then the REST response should contain :value</code></summary>
 
 <br/>
 Assert the REST response contains text
@@ -3843,14 +3883,14 @@ Then the REST response should contain "success"
 | `table.body_row_selector` | string | `'tbody tr'` | - | CSS selector of a table body row, relative to the table. |
 
 <details>
-  <summary><code>@When I click on the link :link in the row containing :partial_text</code></summary>
+  <summary><code>@When I follow the link :link in the row containing :partial_text</code></summary>
 
 <br/>
 Click a link within a row
 <br/><br/>
 
 ```gherkin
-When I click on the link "Edit" in the row containing "Article title"
+When I follow the link "Edit" in the row containing "Article title"
 
 ```
 
@@ -3944,15 +3984,15 @@ Then the table ".mytable" should not be empty
 </details>
 
 <details>
-  <summary><code>@Then the table :selector should be sorted by the column :column in :direction order</code></summary>
+  <summary><code>@Then the table :selector should be sorted by :column in :direction order</code></summary>
 
 <br/>
 Assert that a table is sorted by a column in a specific direction
 <br/><br/>
 
 ```gherkin
-Then the table ".mytable" should be sorted by the column "Title" in "ascending" order
-Then the table ".mytable" should be sorted by the column "Date" in "descending" order
+Then the table ".mytable" should be sorted by "Title" in "ascending" order
+Then the table ".mytable" should be sorted by "Date" in "descending" order
 
 ```
 
@@ -3976,14 +4016,14 @@ Then the table ".mytable" should contain the following rows:
 </details>
 
 <details>
-  <summary><code>@Then the row containing :partial_text should contain the following:</code></summary>
+  <summary><code>@Then I should see the following text in the row containing :partial_text:</code></summary>
 
 <br/>
 Assert that a table row containing a text has the expected values
 <br/><br/>
 
 ```gherkin
-Then the row containing "Article title" should contain the following:
+Then I should see the following text in the row containing "Article title":
   | Published |
   | admin     |
 
@@ -3992,56 +4032,56 @@ Then the row containing "Article title" should contain the following:
 </details>
 
 <details>
-  <summary><code>@Then the row containing :partial_text should contain the value :value</code></summary>
+  <summary><code>@Then I should see the text :text in the row containing :partial_text</code></summary>
 
 <br/>
-Assert that a row contains a value
+Assert that a row contains a string
 <br/><br/>
 
 ```gherkin
-Then the row containing "Article title" should contain the value "Published"
+Then I should see the text "Published" in the row containing "Article title"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the row containing :partial_text should not contain the value :value</code></summary>
+  <summary><code>@Then I should not see the text :text in the row containing :partial_text</code></summary>
 
 <br/>
-Assert that a row does not contain a value
+Assert that a row does not contain a string
 <br/><br/>
 
 ```gherkin
-Then the row containing "Article title" should not contain the value "Unpublished"
+Then I should not see the text "Unpublished" in the row containing "Article title"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link in the row containing :partial_text should exist</code></summary>
+  <summary><code>@Then I should see the link :link in the row containing :partial_text</code></summary>
 
 <br/>
 Assert that a row contains the link
 <br/><br/>
 
 ```gherkin
-Then the link "Edit" in the row containing "Article title" should exist
+Then I should see the link "Edit" in the row containing "Article title"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the link :link in the row containing :partial_text should not exist</code></summary>
+  <summary><code>@Then I should not see the link :link in the row containing :partial_text</code></summary>
 
 <br/>
 Assert that a row does not contain the link
 <br/><br/>
 
 ```gherkin
-Then the link "Delete" in the row containing "Article title" should not exist
+Then I should not see the link "Delete" in the row containing "Article title"
 
 ```
 
@@ -4237,60 +4277,60 @@ Then the XML element "/library/book[@id='999']" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the XML element :element should be equal to the value :value</code></summary>
+  <summary><code>@Then the XML element :element should have the value :value</code></summary>
 
 <br/>
 Assert that an XML element content equals specified text
 <br/><br/>
 
 ```gherkin
-Then the XML element "//title" should be equal to the value "The Great Adventure"
-Then the XML element "/library/book[1]/author" should be equal to the value "John Doe"
+Then the XML element "//title" should have the value "The Great Adventure"
+Then the XML element "/library/book[1]/author" should have the value "John Doe"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the XML element :element should not be equal to the value :value</code></summary>
+  <summary><code>@Then the XML element :element should not have the value :value</code></summary>
 
 <br/>
 Assert that an XML element content does not equal specified text
 <br/><br/>
 
 ```gherkin
-Then the XML element "//title" should not be equal to the value "Wrong Title"
-Then the XML element "/library/book[1]/author" should not be equal to the value "Wrong Author"
+Then the XML element "//title" should not have the value "Wrong Title"
+Then the XML element "/library/book[1]/author" should not have the value "Wrong Author"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the XML element :element should contain the value :value</code></summary>
+  <summary><code>@Then the XML element :element should contain :value</code></summary>
 
 <br/>
 Assert that an XML element contains specified text
 <br/><br/>
 
 ```gherkin
-Then the XML element "//description" should contain the value "sample book"
-Then the XML element "/library/book[1]/description" should contain the value "detailed"
+Then the XML element "//description" should contain "sample book"
+Then the XML element "/library/book[1]/description" should contain "detailed"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the XML element :element should not contain the value :value</code></summary>
+  <summary><code>@Then the XML element :element should not contain :value</code></summary>
 
 <br/>
 Assert that an XML element does not contain specified text
 <br/><br/>
 
 ```gherkin
-Then the XML element "//description" should not contain the value "nonexistent"
-Then the XML element "/library/book[1]/title" should not contain the value "wrong"
+Then the XML element "//description" should not contain "nonexistent"
+Then the XML element "/library/book[1]/title" should not contain "wrong"
 
 ```
 
@@ -4327,60 +4367,60 @@ Then the XML attribute "missing" on the element "/library/book[1]" should not ex
 </details>
 
 <details>
-  <summary><code>@Then the XML attribute :attribute on the element :element should be equal to the value :value</code></summary>
+  <summary><code>@Then the XML attribute :attribute on the element :element should have the value :value</code></summary>
 
 <br/>
 Assert that an XML attribute value equals specified text
 <br/><br/>
 
 ```gherkin
-Then the XML attribute "id" on the element "//book" should be equal to the value "123"
-Then the XML attribute "category" on the element "/library/book[1]" should be equal to the value "fiction"
+Then the XML attribute "id" on the element "//book" should have the value "123"
+Then the XML attribute "category" on the element "/library/book[1]" should have the value "fiction"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the XML attribute :attribute on the element :element should not be equal to the value :value</code></summary>
+  <summary><code>@Then the XML attribute :attribute on the element :element should not have the value :value</code></summary>
 
 <br/>
 Assert that an XML attribute value does not equal specified text
 <br/><br/>
 
 ```gherkin
-Then the XML attribute "id" on the element "//book" should not be equal to the value "999"
-Then the XML attribute "category" on the element "/library/book[1]" should not be equal to the value "science"
+Then the XML attribute "id" on the element "//book" should not have the value "999"
+Then the XML attribute "category" on the element "/library/book[1]" should not have the value "science"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the XML attribute :attribute on the element :element should contain the value :value</code></summary>
+  <summary><code>@Then the XML attribute :attribute on the element :element should contain :value</code></summary>
 
 <br/>
 Assert that an XML attribute value contains specified text
 <br/><br/>
 
 ```gherkin
-Then the XML attribute "category" on the element "//book" should contain the value "fic"
-Then the XML attribute "id" on the element "/library/book[1]" should contain the value "12"
+Then the XML attribute "category" on the element "//book" should contain "fic"
+Then the XML attribute "id" on the element "/library/book[1]" should contain "12"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the XML attribute :attribute on the element :element should not contain the value :value</code></summary>
+  <summary><code>@Then the XML attribute :attribute on the element :element should not contain :value</code></summary>
 
 <br/>
 Assert that an XML attribute value does not contain specified text
 <br/><br/>
 
 ```gherkin
-Then the XML attribute "category" on the element "//book" should not contain the value "science"
-Then the XML attribute "id" on the element "/library/book[1]" should not contain the value "999"
+Then the XML attribute "category" on the element "//book" should not contain "science"
+Then the XML attribute "id" on the element "/library/book[1]" should not contain "999"
 
 ```
 
@@ -4635,14 +4675,14 @@ When I wait for the batch job to finish
 
 
 <details>
-  <summary><code>@Given the instance of the block :admin_label exists with the following configuration:</code></summary>
+  <summary><code>@Given the instance of the block :admin_label with the following configuration exists:</code></summary>
 
 <br/>
 Create a block instance
 <br/><br/>
 
 ```gherkin
-Given the instance of the block "My block" exists with the following configuration:
+Given the instance of the block "My block" with the following configuration exists:
   | label         | My block |
   | label_display | 1        |
   | region        | content  |
@@ -4814,70 +4854,70 @@ Then the block "My block" in the region "content" should not exist
 | `cache.page_cache_bin` | string | `'page'` | - | Name of the cache bin holding the internal page cache. |
 
 <details>
-  <summary><code>@Given the cache is empty</code></summary>
+  <summary><code>@Given the cache has been cleared</code></summary>
 
 <br/>
 Clear every cache bin
 <br/><br/>
 
 ```gherkin
-Given the cache is empty
+Given the cache has been cleared
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given the page cache for the path :path is empty</code></summary>
+  <summary><code>@Given the page cache for the path :path has been cleared</code></summary>
 
 <br/>
 Clear the page cache for a single path
 <br/><br/>
 
 ```gherkin
-Given the page cache for the path "/about" is empty
+Given the page cache for the path "/about" has been cleared
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given the page cache for the paths matching :path_pattern is empty</code></summary>
+  <summary><code>@Given the page cache for the paths matching :path_pattern has been cleared</code></summary>
 
 <br/>
 Clear the page cache for all paths matching a glob-style pattern
 <br/><br/>
 
 ```gherkin
-Given the page cache for the paths matching "/news*" is empty
+Given the page cache for the paths matching "/news*" has been cleared
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Given the render cache is empty</code></summary>
+  <summary><code>@Given the render cache has been cleared</code></summary>
 
 <br/>
 Clear the render cache
 <br/><br/>
 
 ```gherkin
-Given the render cache is empty
+Given the render cache has been cleared
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I run cron</code></summary>
+  <summary><code>@When cron runs</code></summary>
 
 <br/>
 Run cron
 <br/><br/>
 
 ```gherkin
-When I run cron
+When cron runs
 
 ```
 
@@ -5052,28 +5092,28 @@ Then the config "system.site" with the key "name" should not have the value "Wro
 </details>
 
 <details>
-  <summary><code>@Then the config :name with the key :key should contain the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should contain :value</code></summary>
 
 <br/>
 Assert that a stored configuration value contains an expected value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" with the key "name" should contain the value "site"
+Then the config "system.site" with the key "name" should contain "site"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the config :name with the key :key should not contain the value :value</code></summary>
+  <summary><code>@Then the config :name with the key :key should not contain :value</code></summary>
 
 <br/>
 Assert that a stored configuration value does not contain a value
 <br/><br/>
 
 ```gherkin
-Then the config "system.site" with the key "name" should not contain the value "xyz"
+Then the config "system.site" with the key "name" should not contain "xyz"
 
 ```
 
@@ -5266,14 +5306,14 @@ Given the content type "article" does not exist
 </details>
 
 <details>
-  <summary><code>@Given the following :content_type content do not exist:</code></summary>
+  <summary><code>@Given the following :content_type content does not exist:</code></summary>
 
 <br/>
 Remove content defined by provided properties
 <br/><br/>
 
 ```gherkin
-Given the following "article" content do not exist:
+Given the following "article" content does not exist:
   | title                |
   | Test article         |
   | Another test article |
@@ -5283,14 +5323,14 @@ Given the following "article" content do not exist:
 </details>
 
 <details>
-  <summary><code>@Given the following :content_type content with fields exist:</code></summary>
+  <summary><code>@Given the following :content_type content with fields exists:</code></summary>
 
 <br/>
 Create content with vertical field format
 <br/><br/>
 
 ```gherkin
-Given the following page content with fields exist:
+Given the following page content with fields exists:
   | title  | [TEST] Page 1        | [TEST] Page 2        |
   | body   | First page content   | Second page content  |
   | status | 1                    | 1                    |
@@ -5300,14 +5340,14 @@ Given the following page content with fields exist:
 </details>
 
 <details>
-  <summary><code>@Given the following :content_type content exist:</code></summary>
+  <summary><code>@Given the following :content_type content exists:</code></summary>
 
 <br/>
 Create content of a type from a table of field values
 <br/><br/>
 
 ```gherkin
-Given the following page content exist:
+Given the following page content exists:
   | title         | status |
   | [TEST] Page 1 | 1      |
   | [TEST] Page 2 | 0      |
@@ -5387,56 +5427,56 @@ When I visit the "article" content revisions page with the title "Test article"
 </details>
 
 <details>
-  <summary><code>@When I change the moderation state of the :content_type content with the title :title to the state :new_state</code></summary>
+  <summary><code>@When the moderation state of the :content_type content with the title :title changes to the state :new_state</code></summary>
 
 <br/>
 Change moderation state of a content with the specified title
 <br/><br/>
 
 ```gherkin
-When I change the moderation state of the "article" content with the title "Test article" to the state "published"
+When the moderation state of the "article" content with the title "Test article" changes to the state "published"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I rebuild the access grants for the :content_type content with the title :title</code></summary>
+  <summary><code>@When the access grants for the :content_type content with the title :title are rebuilt</code></summary>
 
 <br/>
 Rebuild node access grants for a content with the specified title
 <br/><br/>
 
 ```gherkin
-When I rebuild the access grants for the "article" content with the title "My article"
+When the access grants for the "article" content with the title "My article" are rebuilt
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I rebuild the access grants for all content</code></summary>
+  <summary><code>@When the access grants for all content are rebuilt</code></summary>
 
 <br/>
 Rebuild node access grants for all content
 <br/><br/>
 
 ```gherkin
-When I rebuild the access grants for all content
+When the access grants for all content are rebuilt
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I set the path alias of the :content_type content with the title :title to the alias :alias</code></summary>
+  <summary><code>@When the path alias of the :content_type content with the title :title is set to :alias</code></summary>
 
 <br/>
 Set the path alias of a content with the specified title
 <br/><br/>
 
 ```gherkin
-When I set the path alias of the "article" content with the title "Test article" to the alias "/my-test-article"
+When the path alias of the "article" content with the title "Test article" is set to "/my-test-article"
 
 ```
 
@@ -5500,14 +5540,14 @@ Then the "page" content with the title "Test page" should not be published
 | The "draggableviews" module from the "drupal/draggableviews" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
-  <summary><code>@When I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:</code></summary>
+  <summary><code>@When the draggable views items of the view :view_id and the display :view_display_id for the :content_type content are saved in the following order:</code></summary>
 
 <br/>
 Save the order of the Draggable Views items
 <br/><br/>
 
 ```gherkin
-When I save the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content in the following order:
+When the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content are saved in the following order:
   | First Article  |
   | Second Article |
   | Third Article  |
@@ -5602,42 +5642,42 @@ When I print the last drush output
 </details>
 
 <details>
-  <summary><code>@Then the drush output should contain the value :value</code></summary>
+  <summary><code>@Then the drush output should contain :value</code></summary>
 
 <br/>
-Assert that the last Drush output contains the value
+Assert that the last Drush output contains the text
 <br/><br/>
 
 ```gherkin
-Then the drush output should contain the value "Drupal version"
+Then the drush output should contain "Drupal version"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the drush output should not contain the value :value</code></summary>
+  <summary><code>@Then the drush output should not contain :value</code></summary>
 
 <br/>
-Assert that the last Drush output does not contain the value
+Assert that the last Drush output does not contain the text
 <br/><br/>
 
 ```gherkin
-Then the drush output should not contain the value "error"
+Then the drush output should not contain "error"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the drush output should match the pattern :pattern</code></summary>
+  <summary><code>@Then the drush output should match :pattern</code></summary>
 
 <br/>
 Assert that the last Drush output matches the pattern
 <br/><br/>
 
 ```gherkin
-Then the drush output should match the pattern "/Drupal [0-9]+/"
+Then the drush output should match "/Drupal [0-9]+/"
 
 ```
 
@@ -5661,14 +5701,14 @@ Then the drush output should match the pattern "/Drupal [0-9]+/"
 | The "eck" module from the "drupal/eck" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
-  <summary><code>@Given the following eck :bundle :entity_type entities exist:</code></summary>
+  <summary><code>@Given the following ECK :bundle :entity_type entities exist:</code></summary>
 
 <br/>
 Create eck entities
 <br/><br/>
 
 ```gherkin
-Given the following eck "contact" "contact_type" entities exist:
+Given the following ECK "contact" "contact_type" entities exist:
   | title  | field_marine_animal     | field_fish_type | ... |
   | Snook  | Fish                    | Marine fish     | 10  |
   | ...    | ...                     | ...             | ... |
@@ -5678,14 +5718,14 @@ Given the following eck "contact" "contact_type" entities exist:
 </details>
 
 <details>
-  <summary><code>@Given the following eck :bundle :entity_type entities do not exist:</code></summary>
+  <summary><code>@Given the following ECK :bundle :entity_type entities do not exist:</code></summary>
 
 <br/>
 Remove custom entities by field
 <br/><br/>
 
 ```gherkin
-Given the following eck "contact" "contact_type" entities do not exist:
+Given the following ECK "contact" "contact_type" entities do not exist:
   | title           |
   | Entity label    |
 
@@ -5694,28 +5734,28 @@ Given the following eck "contact" "contact_type" entities do not exist:
 </details>
 
 <details>
-  <summary><code>@When I visit the eck :bundle :entity_type entity page with the title :title</code></summary>
+  <summary><code>@When I visit the ECK :bundle :entity_type entity page with the title :title</code></summary>
 
 <br/>
 Visit the page of the eck entity with the specified type and title
 <br/><br/>
 
 ```gherkin
-When I visit the eck "contact" "contact_type" entity page with the title "Test contact"
+When I visit the ECK "contact" "contact_type" entity page with the title "Test contact"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I visit the eck :bundle :entity_type entity edit page with the title :title</code></summary>
+  <summary><code>@When I visit the ECK :bundle :entity_type entity edit page with the title :title</code></summary>
 
 <br/>
 Visit the edit page of the eck entity with the specified type and title
 <br/><br/>
 
 ```gherkin
-When I visit the eck "contact" "contact_type" entity edit page with the title "Test contact"
+When I visit the ECK "contact" "contact_type" entity edit page with the title "Test contact"
 
 ```
 
@@ -5745,14 +5785,14 @@ When I visit the eck "contact" "contact_type" entity edit page with the title "T
 | `email.enabled` | boolean | `TRUE` | `@behat-steps-skip:EmailTrait` | Collect email for an `@email` scenario and clear the queue around it. |
 
 <details>
-  <summary><code>@When I clear the test email system queue</code></summary>
+  <summary><code>@When the test email system queue is cleared</code></summary>
 
 <br/>
 Clear test email system queue
 <br/><br/>
 
 ```gherkin
-When I clear the test email system queue
+When the test email system queue is cleared
 
 ```
 
@@ -5801,56 +5841,56 @@ When I follow the link with the index "1" in the email with a subject containing
 </details>
 
 <details>
-  <summary><code>@When I enable the test email system</code></summary>
+  <summary><code>@When the test email system is enabled</code></summary>
 
 <br/>
 Enable the test email system
 <br/><br/>
 
 ```gherkin
-When I enable the test email system
+When the test email system is enabled
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I disable the test email system</code></summary>
+  <summary><code>@When the test email system is disabled</code></summary>
 
 <br/>
 Disable test email system
 <br/><br/>
 
 ```gherkin
-When I disable the test email system
+When the test email system is disabled
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an email should be sent to the address :address</code></summary>
+  <summary><code>@Then an email should have been sent to the address :address</code></summary>
 
 <br/>
-Assert that an email should be sent to an address
+Assert that an email was sent to an address
 <br/><br/>
 
 ```gherkin
-Then an email should be sent to the address "user@example.com"
+Then an email should have been sent to the address "user@example.com"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the number of sent emails should be :count</code></summary>
+  <summary><code>@Then the number of emails sent should be :count</code></summary>
 
 <br/>
 Assert the number of emails sent
 <br/><br/>
 
 ```gherkin
-Then the number of sent emails should be 2
+Then the number of emails sent should be 2
 
 ```
 
@@ -5885,28 +5925,28 @@ Then the number of emails sent with the subject "Welcome" should be 1
 </details>
 
 <details>
-  <summary><code>@Then an email should not be sent</code></summary>
+  <summary><code>@Then no emails should have been sent</code></summary>
 
 <br/>
 Assert that no email was sent
 <br/><br/>
 
 ```gherkin
-Then an email should not be sent
+Then no emails should have been sent
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an email should not be sent to the address :address</code></summary>
+  <summary><code>@Then no emails should have been sent to the address :address</code></summary>
 
 <br/>
 Assert that no email was sent to an address
 <br/><br/>
 
 ```gherkin
-Then an email should not be sent to the address "user@example.com"
+Then no emails should have been sent to the address "user@example.com"
 
 ```
 
@@ -5947,14 +5987,14 @@ Your Account Details
 </details>
 
 <details>
-  <summary><code>@Then an email should be sent to the address :address with the content:</code></summary>
+  <summary><code>@Then an email should have been sent to the address :address with the content:</code></summary>
 
 <br/>
-Assert that an email should be sent to an address with the exact content in the body
+Assert that an email was sent to an address with the exact content in the body
 <br/><br/>
 
 ```gherkin
-Then an email should be sent to the address "user@example.com" with the content:
+Then an email should have been sent to the address "user@example.com" with the content:
 """
 Welcome to our site!
 Click the link below to verify your account.
@@ -5965,14 +6005,14 @@ Click the link below to verify your account.
 </details>
 
 <details>
-  <summary><code>@Then an email should be sent to the address :address with the content containing:</code></summary>
+  <summary><code>@Then an email should have been sent to the address :address with the content containing:</code></summary>
 
 <br/>
-Assert that an email should be sent to an address with the body containing specific content
+Assert that an email was sent to an address with the body containing specific content
 <br/><br/>
 
 ```gherkin
-Then an email should be sent to the address "user@example.com" with the content containing:
+Then an email should have been sent to the address "user@example.com" with the content containing:
 """
 verification link
 """
@@ -5982,14 +6022,14 @@ verification link
 </details>
 
 <details>
-  <summary><code>@Then an email should be sent to the address :address with the content not containing:</code></summary>
+  <summary><code>@Then an email should have been sent to the address :address with the content not containing:</code></summary>
 
 <br/>
-Assert that an email should be sent to an address with the body not containing specific content
+Assert that an email was sent to an address with the body not containing specific content
 <br/><br/>
 
 ```gherkin
-Then an email should be sent to the address "user@example.com" with the content not containing:
+Then an email should have been sent to the address "user@example.com" with the content not containing:
 """
 password
 """
@@ -5999,14 +6039,14 @@ password
 </details>
 
 <details>
-  <summary><code>@Then an email should not be sent to the address :address with the content:</code></summary>
+  <summary><code>@Then no emails should have been sent to the address :address with the content:</code></summary>
 
 <br/>
-Assert that an email should not be sent to an address with the exact content in the body
+Assert that no email was sent to an address with the exact content in the body
 <br/><br/>
 
 ```gherkin
-Then an email should not be sent to the address "wrong@example.com" with the content:
+Then no emails should have been sent to the address "wrong@example.com" with the content:
 """
 Welcome to our site!
 """
@@ -6016,14 +6056,14 @@ Welcome to our site!
 </details>
 
 <details>
-  <summary><code>@Then an email should not be sent to the address :address with the content containing:</code></summary>
+  <summary><code>@Then no emails should have been sent to the address :address with the content containing:</code></summary>
 
 <br/>
-Assert that an email should not be sent to an address with the body containing specific content
+Assert that no email was sent to an address with the body containing specific content
 <br/><br/>
 
 ```gherkin
-Then an email should not be sent to the address "wrong@example.com" with the content containing:
+Then no emails should have been sent to the address "wrong@example.com" with the content containing:
 """
 verification link
 """
@@ -6253,56 +6293,56 @@ Given the unmanaged file at the URI "public://data.txt" exists with the content 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should exist</code></summary>
+  <summary><code>@Then the unmanaged file at the URI :uri should exist</code></summary>
 
 <br/>
 Assert that an unmanaged file with specified URI exists
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://sample.txt" should exist
+Then the unmanaged file at the URI "public://sample.txt" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should not exist</code></summary>
+  <summary><code>@Then the unmanaged file at the URI :uri should not exist</code></summary>
 
 <br/>
 Assert that an unmanaged file with specified URI does not exist
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://temp.txt" should not exist
+Then the unmanaged file at the URI "public://temp.txt" should not exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should contain the value :value</code></summary>
+  <summary><code>@Then the unmanaged file at the URI :uri should contain :content</code></summary>
 
 <br/>
 Assert that an unmanaged file exists and has specified content
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://config.txt" should contain the value "debug=true"
+Then the unmanaged file at the URI "public://config.txt" should contain "debug=true"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then an unmanaged file at the URI :uri should not contain the value :value</code></summary>
+  <summary><code>@Then the unmanaged file at the URI :uri should not contain :content</code></summary>
 
 <br/>
 Assert that an unmanaged file exists and does not have specified content
 <br/><br/>
 
 ```gherkin
-Then an unmanaged file at the URI "public://config.txt" should not contain the value "debug=false"
+Then the unmanaged file at the URI "public://config.txt" should not contain "debug=false"
 
 ```
 
@@ -6777,14 +6817,14 @@ Then the following modules should be disabled:
 | The "paragraphs" module from the "drupal/paragraphs" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
-  <summary><code>@Given the following fields for the paragraph :paragraph_type exist in the field :parent_field within the :parent_bundle :parent_entity_type identified by the field :parent_lookup_field and the value :parent_lookup_value:</code></summary>
+  <summary><code>@Given the following fields for the :paragraph_type paragraph exist in the field :parent_field within the :parent_bundle :parent_entity_type entity with the value :parent_lookup_value in the field :parent_lookup_field:</code></summary>
 
 <br/>
 Create a paragraph of the given type with fields within an existing entity
 <br/><br/>
 
 ```gherkin
-Given the following fields for the paragraph "text" exist in the field "field_component" within the "landing_page" "node" identified by the field "title" and the value "My landing page":
+Given the following fields for the "text" paragraph exist in the field "field_component" within the "landing_page" "node" entity with the value "My landing page" in the field "title":
   | field_paragraph_title           | My paragraph title   |
   | field_paragraph_longtext:value  | My paragraph message |
   | field_paragraph_longtext:format | full_html            |
@@ -6845,29 +6885,29 @@ Given the queue "myqueue" is empty
 </details>
 
 <details>
-  <summary><code>@When I process :count item(s) from the queue :queue</code></summary>
+  <summary><code>@When the queue :queue processes :count item(s)</code></summary>
 
 <br/>
 Process a specific number of items from a queue
 <br/><br/>
 
 ```gherkin
-When I process 5 items from the queue "myqueue"
-When I process 1 item from the queue "myqueue"
+When the queue "myqueue" processes 5 items
+When the queue "myqueue" processes 1 item
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I process the queue :queue</code></summary>
+  <summary><code>@When the queue :queue is processed</code></summary>
 
 <br/>
 Process all items from a queue
 <br/><br/>
 
 ```gherkin
-When I process the queue "myqueue"
+When the queue "myqueue" is processed
 
 ```
 
@@ -7006,57 +7046,57 @@ Then the following redirects should not exist:
 | The "search_api" module from the "drupal/search_api" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
-  <summary><code>@When I add the :content_type content with the title :title to the search index</code></summary>
+  <summary><code>@When the :content_type content with the title :title is indexed</code></summary>
 
 <br/>
 Index a node of a specific content type with a specific title
 <br/><br/>
 
 ```gherkin
-When I add the "article" content with the title "Test Article" to the search index
+When the "article" content with the title "Test Article" is indexed
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I run search indexing for :count item(s)</code></summary>
+  <summary><code>@When search indexing runs for :count item(s)</code></summary>
 
 <br/>
 Run indexing for a specific number of items
 <br/><br/>
 
 ```gherkin
-When I run search indexing for 5 items
-When I run search indexing for 1 item
+When search indexing runs for 5 items
+When search indexing runs for 1 item
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I run the Search API cron</code></summary>
+  <summary><code>@When the Search API cron runs</code></summary>
 
 <br/>
 Run the Search API module cron hook
 <br/><br/>
 
 ```gherkin
-When I run the Search API cron
+When the Search API cron runs
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I run the Search API Solr cron</code></summary>
+  <summary><code>@When the Search API Solr cron runs</code></summary>
 
 <br/>
 Run the Search API Solr module cron hook
 <br/><br/>
 
 ```gherkin
-When I run the Search API Solr cron
+When the Search API Solr cron runs
 
 ```
 
@@ -7292,28 +7332,28 @@ Then the vocabulary "topics" should not exist
 </details>
 
 <details>
-  <summary><code>@Then the taxonomy term :name from the vocabulary :vocabulary should exist</code></summary>
+  <summary><code>@Then the :vocabulary term with the name :name should exist</code></summary>
 
 <br/>
 Assert that a taxonomy term exists by name
 <br/><br/>
 
 ```gherkin
-Then the taxonomy term "Apple" from the vocabulary "Fruits" should exist
+Then the "Fruits" term with the name "Apple" should exist
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then the taxonomy term :name from the vocabulary :vocabulary should not exist</code></summary>
+  <summary><code>@Then the :vocabulary term with the name :name should not exist</code></summary>
 
 <br/>
 Assert that a taxonomy term does not exist by name
 <br/><br/>
 
 ```gherkin
-Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
+Then the "Fruits" term with the name "Apple" should not exist
 
 ```
 
@@ -7368,28 +7408,28 @@ Then the taxonomy term "Apple" from the vocabulary "Fruits" should not exist
 | `time.enabled` | boolean | `TRUE` | `@behat-steps-skip:TimeTrait` | Restore the site clock after a scenario that moved it. |
 
 <details>
-  <summary><code>@When I set the system time to the value :value</code></summary>
+  <summary><code>@When the system time is set to :value</code></summary>
 
 <br/>
 Sets the system time for testing
 <br/><br/>
 
 ```gherkin
-When I set the system time to the value "1737849900"
+When the system time is set to "1737849900"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I reset the system time</code></summary>
+  <summary><code>@When the system time is reset</code></summary>
 
 <br/>
 Resets the system time to real time
 <br/><br/>
 
 ```gherkin
-When I reset the system time
+When the system time is reset
 
 ```
 
@@ -7462,14 +7502,14 @@ Given the following users exist:
 </details>
 
 <details>
-  <summary><code>@Given the user is anonymous</code></summary>
+  <summary><code>@Given I am an anonymous user</code></summary>
 
 <br/>
 Log the current user out so the session is anonymous
 <br/><br/>
 
 ```gherkin
-Given the user is anonymous
+Given I am an anonymous user
 
 ```
 
@@ -7520,7 +7560,7 @@ Given the last login time for the user "John" is "1732319174"
 </details>
 
 <details>
-  <summary><code>@Given the role :role has the permissions :permissions</code></summary>
+  <summary><code>@Given the role :role has the permission(s) :permissions</code></summary>
 
 <br/>
 Create a single role with specified permissions
@@ -7551,29 +7591,29 @@ Given the following roles exist:
 </details>
 
 <details>
-  <summary><code>@When I log in as a user with the role(s) :roles</code></summary>
+  <summary><code>@Given I am logged in as a user with the role(s) :roles</code></summary>
 
 <br/>
 Create a user with the roles and log in as them
 <br/><br/>
 
 ```gherkin
-When I log in as a user with the role "editor"
-When I log in as a user with the roles "editor, admin"
+Given I am logged in as a user with the role "editor"
+Given I am logged in as a user with the roles "editor, admin"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I log in as a user with the role(s) :roles and the following fields:</code></summary>
+  <summary><code>@Given I am logged in as a user with the role(s) :roles and I have the following fields:</code></summary>
 
 <br/>
 Create a user with the roles and fields, and log in as them
 <br/><br/>
 
 ```gherkin
-When I log in as a user with the role "editor" and the following fields:
+Given I am logged in as a user with the role "editor" and I have the following fields:
   | field_user_name    | John  |
   | field_user_surname | Smith |
 
@@ -7582,29 +7622,29 @@ When I log in as a user with the role "editor" and the following fields:
 </details>
 
 <details>
-  <summary><code>@When I log in as a user with the permission(s) :permissions</code></summary>
+  <summary><code>@Given I am logged in as a user with the permission(s) :permissions</code></summary>
 
 <br/>
 Create a role carrying the permissions, then log in as a user with it
 <br/><br/>
 
 ```gherkin
-When I log in as a user with the permission "administer nodes"
-When I log in as a user with the permissions "administer nodes, access content"
+Given I am logged in as a user with the permission "administer nodes"
+Given I am logged in as a user with the permissions "administer nodes, access content"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@When I log in as the user :name</code></summary>
+  <summary><code>@Given I am logged in as the user :name</code></summary>
 
 <br/>
 Log in as an existing user created earlier in the scenario
 <br/><br/>
 
 ```gherkin
-When I log in as the user "[TEST] user1"
+Given I am logged in as the user "[TEST] user1"
 
 ```
 
@@ -7639,14 +7679,14 @@ When I visit the profile page of the user "John"
 </details>
 
 <details>
-  <summary><code>@When I visit my own user profile page</code></summary>
+  <summary><code>@When I visit my own profile page</code></summary>
 
 <br/>
 Visit the profile page of the current user
 <br/><br/>
 
 ```gherkin
-When I visit my own user profile page
+When I visit my own profile page
 
 ```
 
@@ -7667,14 +7707,14 @@ When I visit the profile edit page of the user "John"
 </details>
 
 <details>
-  <summary><code>@When I visit my own user profile edit page</code></summary>
+  <summary><code>@When I visit my own profile edit page</code></summary>
 
 <br/>
 Visit the profile edit page of the current user
 <br/><br/>
 
 ```gherkin
-When I visit my own user profile edit page
+When I visit my own profile edit page
 
 ```
 
@@ -7695,14 +7735,14 @@ When I visit the profile delete page of the user "John"
 </details>
 
 <details>
-  <summary><code>@When I visit my own user profile delete page</code></summary>
+  <summary><code>@When I visit my own profile delete page</code></summary>
 
 <br/>
 Visit the profile delete page of the current user
 <br/><br/>
 
 ```gherkin
-When I visit my own user profile delete page
+When I visit my own profile delete page
 
 ```
 
@@ -7890,14 +7930,14 @@ Given the webform "Test form" does not exist
 </details>
 
 <details>
-  <summary><code>@Given the webform :title exists from the template :template</code></summary>
+  <summary><code>@Given the webform :title has been created from the template :template</code></summary>
 
 <br/>
 Clone a webform template into a new webform with the given title
 <br/><br/>
 
 ```gherkin
-Given the webform "My contact form" exists from the template "Contact"
+Given the webform "My contact form" has been created from the template "Contact"
 
 ```
 

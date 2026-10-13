@@ -30,29 +30,29 @@ Feature: Check that ConfigTrait works
     And the config "behat_steps_test.types" with the key "count" should have the value "30"
     And the config "behat_steps_test.types" with the key "ratio" should have the value "1.5"
     And the config "behat_steps_test.types" with the key "label" should have the value "hello world"
-    And the config "behat_steps_test.types" with the key "tags" should contain the value "b"
-    And the config "behat_steps_test.types" with the key "map" should contain the value "v"
-    And the config "behat_steps_test.types" with the key "nested" should contain the value "y"
-    And the config "behat_steps_test.types" with the key "nested" should not contain the value "z"
+    And the config "behat_steps_test.types" with the key "tags" should contain "b"
+    And the config "behat_steps_test.types" with the key "map" should contain "v"
+    And the config "behat_steps_test.types" with the key "nested" should contain "y"
+    And the config "behat_steps_test.types" with the key "nested" should not contain "z"
     And the config "behat_steps_test.types" with the key "empty" should have the value ""
     And the config "behat_steps_test.types" with the key "broken" should have the value "[a,b]"
 
   Scenario: Assert stored string containment and its negations
     Given the config "behat_steps_test.settings" with the key "endpoint" has the value "https://api.example.com/v2"
-    Then the config "behat_steps_test.settings" with the key "endpoint" should contain the value "example.com"
-    And the config "behat_steps_test.settings" with the key "endpoint" should not contain the value "other.org"
+    Then the config "behat_steps_test.settings" with the key "endpoint" should contain "example.com"
+    And the config "behat_steps_test.settings" with the key "endpoint" should not contain "other.org"
     And the config "behat_steps_test.settings" with the key "endpoint" should not have the value "https://api.example.com"
 
   Scenario: Assert stored array membership and its negation
     Given the following config values exist:
       | name                 | key   | value                 |
       | behat_steps_test.arr | roles | ["editor","reviewer"] |
-    Then the config "behat_steps_test.arr" with the key "roles" should contain the value "editor"
-    And the config "behat_steps_test.arr" with the key "roles" should not contain the value "admin"
+    Then the config "behat_steps_test.arr" with the key "roles" should contain "editor"
+    And the config "behat_steps_test.arr" with the key "roles" should not contain "admin"
 
   Scenario: Assert an unset stored config key neither has nor contains a value
     Then the config "behat_steps_test.settings" with the key "missing" should not have the value "anything"
-    And the config "behat_steps_test.settings" with the key "missing" should not contain the value "anything"
+    And the config "behat_steps_test.settings" with the key "missing" should not contain "anything"
 
   Scenario: Setting a config value to null leaves the key unset
     Given the config "behat_steps_test.settings" with the key "cleared" has the value "null"
@@ -60,7 +60,7 @@ Feature: Check that ConfigTrait works
 
   Scenario: Stored assertion reads the saved value ignoring settings.php overrides
     Then the config "system.site" with the key "name" should have the value "Drush Site-Install"
-    And the config "system.site" with the key "name" should contain the value "Drush"
+    And the config "system.site" with the key "name" should contain "Drush"
 
   Scenario: Effective assertion reads the settings.php-overridden value
     Then the config "system.site" with the key "name" should have the effective value "Overridden Site Name"
@@ -122,8 +122,8 @@ Feature: Check that ConfigTrait works
     And the config "behat_steps_test.drush_types" with the key "count" should have the value "30"
     And the config "behat_steps_test.drush_types" with the key "ratio" should have the value "1.5"
     And the config "behat_steps_test.drush_types" with the key "label" should have the value "hello world"
-    And the config "behat_steps_test.drush_types" with the key "tags" should contain the value "b"
-    And the config "behat_steps_test.drush_types" with the key "nested" should contain the value "y"
+    And the config "behat_steps_test.drush_types" with the key "tags" should contain "b"
+    And the config "behat_steps_test.drush_types" with the key "nested" should contain "y"
 
   @behat-steps-skip:ConfigTrait @backend:drush
   Scenario: Seed a config value over Drush without auto-revert
@@ -196,13 +196,13 @@ Feature: Check that ConfigTrait works
       """
 
   @test-trait:Drupal\ConfigTrait
-  Scenario: Negative assertion for "should contain the value" fails when the value is absent
+  Scenario: Negative assertion for "should contain" fails when the value is absent
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "/"
       And the config "behat_steps_test.settings" with the key "endpoint" has the value "https://a.example.com"
-      Then the config "behat_steps_test.settings" with the key "endpoint" should contain the value "zzz"
+      Then the config "behat_steps_test.settings" with the key "endpoint" should contain "zzz"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -211,12 +211,12 @@ Feature: Check that ConfigTrait works
       """
 
   @test-trait:Drupal\ConfigTrait
-  Scenario: Negative assertion for "should contain the value" fails when the key is not set
+  Scenario: Negative assertion for "should contain" fails when the key is not set
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "/"
-      Then the config "behat_steps_test.absent" with the key "endpoint" should contain the value "example"
+      Then the config "behat_steps_test.absent" with the key "endpoint" should contain "example"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -225,13 +225,13 @@ Feature: Check that ConfigTrait works
       """
 
   @test-trait:Drupal\ConfigTrait
-  Scenario: Negative assertion for "should not contain the value" fails when the value is present
+  Scenario: Negative assertion for "should not contain" fails when the value is present
     Given some behat configuration
     And scenario steps:
       """
       Given I go to "/"
       And the config "behat_steps_test.settings" with the key "endpoint" has the value "https://a.example.com"
-      Then the config "behat_steps_test.settings" with the key "endpoint" should not contain the value "example"
+      Then the config "behat_steps_test.settings" with the key "endpoint" should not contain "example"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

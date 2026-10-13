@@ -4,13 +4,13 @@ Feature: Check that BasicAuthTrait works
   So that a site behind webserver-level auth stays reachable mid-scenario
 
   Scenario: Assert that a scenario without configured credentials is unaffected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "/"
     Then the response status code should be 200
 
   Scenario: Assert that the credentials survive a log out
-    Given the user is anonymous
-    When I log in as a user with the role "administrator"
-    And I log out
+    Given I am an anonymous user
+    And I am logged in as a user with the role "administrator"
+    When I log out
     And I visit "/"
     Then the response status code should be 200

@@ -6,12 +6,12 @@ Feature: Check that AccessibilityTrait works
   @javascript @phpserver
   Scenario: Clean page passes the explicit assertion
     Given I visit "http://cli:8888/accessibility_clean.html"
-    Then the current page should pass accessibility checks
+    Then the page should pass accessibility checks
 
   @javascript @phpserver
   Scenario: Clean page passes the explicit assertion for a specific tag set
     Given I visit "http://cli:8888/accessibility_clean.html"
-    Then the current page should pass accessibility checks for the tags "wcag2a"
+    Then the page should pass accessibility checks for the tags "wcag2a"
 
   @javascript @accessibility @phpserver
   Scenario: Auto mode passes when navigating between clean pages
@@ -31,7 +31,7 @@ Feature: Check that AccessibilityTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/accessibility_violations.html"
-      Then the current page should pass accessibility checks
+      Then the page should pass accessibility checks
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -130,7 +130,7 @@ Feature: Check that AccessibilityTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/accessibility_clean.html"
-      Then the current page should pass accessibility checks
+      Then the page should pass accessibility checks
       """
     When I run "behat --no-colors"
     Then it should pass
@@ -145,7 +145,7 @@ Feature: Check that AccessibilityTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       Given I visit "http://cli:8888/accessibility_clean.html"
-      Then the current page should pass accessibility checks
+      Then the page should pass accessibility checks
       """
     When the "BEHAT_ACCESSIBILITY_PRINT" environment variable is set to "1"
     And I run "behat --no-colors"

@@ -17,6 +17,8 @@ trait SecondTrait {
    * @code
    * Then the second should pass
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the second should pass')]
   public function secondAssertSecond(): void {}

@@ -6,53 +6,54 @@ New here? [docs/architecture/](docs/architecture/README.md) walks through how th
 
 ## Steps format
 
-A consistent steps format is essential for the readability and maintainability of tests. Follow these guidelines:
+A step is 1 plain English sentence. Every step follows every rule below, and a step that doesn't fit a rule is reworded rather than exempted. `ahoy lint-docs` checks the rules marked (lint).
 
-- **General Guidelines**:
-  - Avoid using regular expressions to define a step definition. Use tuple format instead for better clarity and maintainability.
-  - Use descriptive placeholder names to help users quickly understand the expected value: `content_type` instead of `type`.
-  - Use `the following` for tabled content.
-  - For anything identified by a property, use `with`: <code>Then the link <b>with</b> the title :title should exist</code>
-  - Avoid optional words like `(the|a)`. Provide a single form instead to ensure consistency. The `(s)` plural token is the exception: a step whose noun agrees with a count or a list keeps it, as in `:count row(s)` and `the role(s) :roles`, so both forms read naturally.
-  - Omit unnecessary suffixes like `on the page` since it is implied.
-  - All method names should begin with the trait name: `userAssertHasRoles()` for `UserTrait`. The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context - steps, helpers, properties and constants - since any of them can collide with another trait's. `tests/phpunit/src/TraitMethodNamingTest.php` enforces it for methods and `tests/phpunit/src/PublicSurfaceTest.php` for constants, which carry the prefix in upper snake case. Review holds properties to it.
+**Who acts**
 
-- **Placeholders**:
-  - One concept gets one name across every trait, so reuse an existing name before inventing a synonym: `:name` for anything identified by its name, `:index` for a 1-based position, `:value` for a value, `:address` for an email address. `ahoy lint-docs` rejects the synonyms listed in `docs.php`'s `placeholder_synonyms()`.
-  - A placeholder that names a thing follows its noun: `the queue :queue`, `the module :module`, `the region :region`. Only a bundle before the entity noun it qualifies (`the :media_type media`), a count before its unit (`:count item(s)`) and a closed-set qualifier (`the :enabled_or_disabled state`, `in :direction order`) come first.
-  - Every noun takes an article, `URL` is uppercase, and a step never opens with a placeholder: `the :content_type content with the title :title should not exist`.
-  - A value reads `the value :value`, never `the :value value` or a bare `:value`.
-  - A step that names its target (`:element`, `:path`, `:key`, `:field`) compares against `:value`. `:text` is only for a step asserting on a whole body with no named target, such as `the modal should contain :text`.
-  - A partial match reads `a <thing> containing :partial_<thing>`, as in `a cookie with a name containing :partial_name`.
-  - Placeholder names are `snake_case`, spelled out rather than abbreviated (`:name`, not `:param`), and identical to the method parameter, because Behat binds a step argument by name.
+1. Every step method's docblock declares `@actor:person` or `@actor:system`, on its own line after the last `@endcode` with a blank line before it. It's `person` when a person does or sees the step through the browser, a terminal or an HTTP client, and `system` otherwise. (lint)
 
-- **Settled wording**: each idea reads 1 way, even where another phrasing would read just as well.
-  - A step that opens a page reads `I visit the ... page` and names the page it opens: `I visit the :content_type content edit page with the title :title`. It never reads `I edit the ...`, because the step only navigates.
-  - A click reads `I click on the ...`: `I click on the link :link in the region :region`.
-  - The viewport is `the viewport`, never `a viewport`.
-  - A `<select>` is `the select :selector`, never `the select element :selector`.
-  - An assertion negates with `should not`, never with the determiner `no` or the perfect tense: `an email should not be sent`, not `no emails should have been sent`.
-  - `ahoy lint-docs` rejects the replaced phrases, listed in `docs.php`'s `rejected_step_phrases()`, an `I visit` step that names its destination in words but no page or link (`I visit :path` is exempt), and a `Then` step that opens with `no`.
+   ```php
+   /**
+    * Process all items from a queue.
+    *
+    * @code
+    * When the queue "default" is processed
+    * @endcode
+    *
+    * @actor:system
+    */
+   ```
 
-- **`Given`**:
-  - Defines test prerequisites - conditions or data that must exist before the test runs.
-  - Use words like `exists` or `have`.
-  - Avoid using `should` or `should not` (these are reserved for assertions).
-  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. A precondition is a fact about the world, not something the person does.
+2. A `person` step starts with `I`, and a `system` step starts with its subject: `Given I am logged in as the user "jane"`, `When cron runs`. (lint)
 
-- **`When`**:
-  - Describes an action and must contain an action verb.
-  - Use the format `When I <verb>`. The step must start with `I` followed by a space - the first person is what separates an action from a precondition.
+**Given, When, Then**
 
-- **`Then`**:
-  - Specifies assertions and expectations.
-  - Use `should` and `should not` to clearly indicate assertions.
-  - Start the step with the entity being asserted, e.g., `Then the link with the title :title should exist`.
-  - Never refer to the person: no `I`, `my`, `me`, `we`, `us` or `our` anywhere in the step. Start with the entity being asserted.
-  - A qualifier that narrows the entity, such as `in the region :region`, `within the select :selector` or `on the element :element`, reads with it, before `should`: `the link :link in the region :region should exist`, not `the link :link should exist in the region :region`. A qualifier of the predicate's own object stays with the object, as in `the response should match the XSD schema in the file :filename`, and a step that takes a table or a PyString still names it last: `the meta tag should exist with the following attributes:`. `ahoy lint-docs` rejects a qualifier that ends the step after `exist` or `be <state>`.
-  - Methods should include the `Assert` prefix, e.g., `userAssertHasRoles()`.
+3. `Given` puts the system under test into the state the scenario needs, and its wording names that state: `Given the module "node" is enabled` enables the module. Not `Given I enable the module "node"`.
+4. `When` is the action or the event under test: `When I press the button "Save"`, `When cron runs`.
+5. `Then` checks with `should` or `should not`, and no other step uses them: `Then the queue "default" should be empty`. (lint)
+6. Something already done takes the perfect tense: `Given the cache has been cleared`, `Then an email should have been sent to the address "jane@example.com"`.
 
-We have some automated checks for the steps format. Run `ahoy lint-docs` to validate the format of the steps.
+**Values**
+
+7. A value that says which one goes after its noun: `the user "jane"`, `the config "system.site"`, `in the region "header"`. Not `the "header" region`. (lint)
+8. A value that says what kind or how many goes before its noun: `the "article" content`, `3 items`, `in ascending order`, `a REST "POST" request`. Not `the content "article"`. `kind_placeholders()` in `docs.php` lists the placeholders that do this. (lint)
+9. Any other property that picks a thing out reads `with the <property> <value>`, right after the thing. A thing with a kind before it gets its name this way too: `the link with the title "Home page"`, `the "article" content with the title "Hello"`. Not `the "article" content "Hello"`. (lint)
+10. A place or a destination takes its preposition, right after the thing: `the element "#logo" in the region "header"`, `sent to the address "a@example.com"`.
+11. The value a step checks comes straight after its verb: `should be "/about"`, `should contain "site"`. A thing that holds a value takes `have the value`: `the state "x" should have the value "1"`. (lint)
+12. `the` names the one you mean, and `a`, `an` or `no` names any that match: `the cookie "SESS"`, `a cookie with a name containing "SE"`, `no emails should have been sent`.
+
+**Words**
+
+13. Each action has 1 verb: follow a link, click on an element, press a button or a key, fill in a field, check a checkbox, select an option, visit a page. (lint)
+14. A state is a word, never a value: `is enabled` in a `Given`, `should be enabled` in a `Then`.
+15. A count of what a thing holds reads `should have 3 <things>`. A count of events reads `the number of <events> should be 3`. (lint)
+16. A step that takes a table introduces it with `the following <noun>:`, as in `Given the following users exist:`. (lint)
+17. A step never starts with a value, writes acronyms in capitals, and never uses a phrase from `rejected_step_phrases()` in `docs.php`, such as `the current`, or Mink's own `I should see :text`, which is why a step of ours reads `I should see the text "Welcome" in the modal`. `step_acronyms()` lists the acronyms. (lint)
+
+**Names**
+
+18. A step is words and placeholders, never a regular expression. A placeholder is `snake_case`, matches its method parameter and has 1 name per idea: `:name`, `:value`, `:count`, `:index`, `:address`, and `:partial_<name>` for a partial match. `:text` is only for text on the page. `non_descriptive_placeholders()` and `placeholder_synonyms()` in `docs.php` list the names it rejects. (lint)
+19. A step method's name starts with its trait's name, uses `Assert` in a `Then` and `Visit` when it opens a page, and carries 1 step. (lint)
 
 ## Step arguments
 
@@ -85,15 +86,37 @@ When leaving out a helper's string argument means "not given", the parameter def
 
 A project's own tests assert on failure messages, so each one reads 1 way:
 
-- It names what it reports about the way its step does, with the article: `the element :selector` fails with `The element "..." is not displayed within the viewport.`, and `the config :name with the key :key` with `The config "..." with the key "..." ...`. A message reporting that nothing in a set matched keeps its quantifier, as `No hreflang alternate links were found on the page.` does.
+- It names what it reports about with the noun its step uses and the article: `the element :selector` fails with `The element "..." is not displayed within the viewport.`, and `the config :name with the key :key` with `The config "..." with the key "..." ...`. A message reporting that nothing in a set matched keeps its quantifier, as `No hreflang alternate links were found on the page.` does.
 - It quotes every value it names in double quotes, the page URL included, and puts the noun before the value: `the attribute "..."`, not `the "..." attribute`.
 - It ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`.
 
-Which exception carries the message depends on what failed, as the [exception table](README.md#exceptions) lists. A missing element on the page or in an XML response is an `ElementNotFoundException`. An attribute, a JSON path or a table column isn't an element, so a missing one is an `ExpectationException`.
+Which exception carries the message depends on what failed, as [Exception types](#exception-types) lists.
+
+## Exception types
+
+Which exception a step throws is part of the public contract: consumers catch on it, and the `@test-trait:` harness asserts on it. Pick the type by what failed, never by what the surrounding code happens to use:
+
+| Failure | Throw |
+| --- | --- |
+| An assertion failed and the trait has a Mink session | `Behat\Mink\Exception\ExpectationException`, with `$this->getSession()->getDriver()` as the second argument |
+| An element the step locates is missing - on the page or in an XML response: a field, link, button, select, table or row | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An attribute, a JSON path or a table column is missing - none of them is an element | `Behat\Mink\Exception\ExpectationException` |
+| An assertion failed and the trait has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
+| Not an assertion: an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
+| The current browser driver lacks a required capability | `Behat\Mink\Exception\UnsupportedDriverActionException` |
+| No backend the scenario lists provides a required capability | `DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException` |
+
+Never throw a plain `\Exception` or an `\InvalidArgumentException` from `src/`.
+
+A trait without a Mink session is one that never calls `$this->getSession()`. The ones that assert are `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Don't add a session to a trait just to reach `ExpectationException`.
+
+In a `@test-trait:` scenario, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
 
 ## Method naming conventions
 
 Every method a trait contributes begins with the trait's own name, so that traits mixed into one context cannot collide. `tests/phpunit/src/TraitMethodNamingTest.php` enforces this, along with the assertion, negation, action, helper verb, hook, lookup, word order, batch and spelling conventions below.
+
+The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context, since any of them can collide with another trait's: `tests/phpunit/src/PublicSurfaceTest.php` holds constants to it in upper snake case, and review holds properties to it.
 
 `TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleCreateNode()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Behat` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Backend` is composed into no context: its 1 trait, `CreationAliasRegistryTrait`, is composed by `DrushBackend` and `Core`.
 
@@ -105,7 +128,7 @@ An assertion method reads `<trait>Assert<Subject><Predicate>`, with `Assert` dir
   - Singular subjects → `Exists` or `NotExists` (e.g., `fieldAssertExists()`, `taxonomyAssertVocabularyNotExists()`)
   - Plural subjects → `Exist` or `NotExist` (e.g., `redirectAssertExist()`)
 - **Containment**: always `Contains` or `NotContains`, never `Includes` (e.g., `xmlAssertElementContains()`, `responseAssertHeaderNotContains()`)
-- **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`. The subject is what the step asserts about, so `the row containing :partial_text should contain the value :value` is `tableAssertRowContains()`, not `tableAssertTextInRow()`.
+- **Subject first**: the thing being asserted about precedes what is asserted of it, as in `responseAssertHeaderExists()` rather than `responseAssertContainsHeader()`. The subject is what the step asserts about, so `I should see the text :text in the row containing :partial_text` is `tableAssertRowContains()`, not `tableAssertTextInRow()`.
 - **Qualifiers last**: a qualifier that narrows the subject, opened by a word such as `With`, `By`, `In`, `Within`, `Of` or `Containing`, follows the predicate, as in `mediaAssertExistsWithName()` and `blockAssertNotExistsInRegion()`. That keeps the slot after the subject free for `Not`: `cookieAssertNotExistsWithName()`, not `cookieAssertWithNameNotExists()`.
 - **`Has` names something the subject holds**, as in `userAssertHasRoles()` and `elementAssertHasKeyboardFocus()`. It never stands in for another predicate: a value compared against reads `Equals` or `Contains` (`stateAssertValueEquals()`, not `stateAssertHasValue()`), and entries that must be absent read `NotExist` (`watchdogAssertErrorsNotExist()`).
 - **No copula**: `Assert` already states that the subject is something, so `Is` is dropped - `elementAssertVisible()`, not `elementAssertIsVisible()`.
@@ -190,7 +213,7 @@ An entity-create hook is named for its event, so `BeforeNodeCreate` and `content
 
 ### Several entities at once end in `Multiple`
 
-A method that creates, deletes or loads several entities at once ends in `Multiple`, the way Drupal's own `loadMultiple()` does: `contentCreateMultiple()` for `the following :content_type content exist:`, `taxonomyDeleteMultiple()` for `the following :vocabulary terms do not exist:`, and `userLoadMultiple()` for a set. A `With` qualifier still comes last, so the vertical-table step is `contentCreateMultipleWithFields()`.
+A method that creates, deletes or loads several entities at once ends in `Multiple`, the way Drupal's own `loadMultiple()` does: `contentCreateMultiple()` for `the following :content_type content exists:`, `taxonomyDeleteMultiple()` for `the following :vocabulary terms do not exist:`, and `userLoadMultiple()` for a set. A `With` qualifier still comes last, so the vertical-table step is `contentCreateMultipleWithFields()`.
 
 The method for 1 entity is the same name without the suffix, so nothing carries `Single`: `mediaCreate()` saves 1 media item, and `mediaCreateMultiple()` saves the rows of a table. The noun stays singular, so it's `userCreateRoleMultiple()`, not `userCreateRoles()`.
 
@@ -200,7 +223,7 @@ The method for 1 entity is the same name without the suffix, so nothing carries 
 
 `Normalize`, not `Normalise`, in method names and in prose.
 
-`Login` and `Logout`, not `LogIn` and `LogOut`, in method, interface and configuration key names alike: `authLogin()`, `FastLogoutInterface`, `login_url`. Step text and prose keep the verb, so a step reads `When I log in as the user :name`. `TraitMethodNamingTest` checks the trait methods, and review holds interfaces and configuration keys to the same spelling.
+`Login` and `Logout`, not `LogIn` and `LogOut`, in method, interface and configuration key names alike: `authLogin()`, `FastLogoutInterface`, `login_url`. Step text and prose keep the verb, so the steps read `Given I am logged in as the user :name` and `When I log out`. `TraitMethodNamingTest` checks the trait methods, and review holds interfaces and configuration keys to the same spelling.
 
 ## Class naming conventions
 
@@ -354,6 +377,7 @@ These 5 style questions have no dominant form in this codebase. Every form liste
 
 Each of these has 1 answer. Write new code this way, and where a tool holds the form, its name is given.
 
+- **Coding standard**: code follows the Drupal coding standards. A local variable or a method argument is `snake_case`, and a method name or a class property is `camelCase`.
 - **Line breaks**: `"\n"` reads and `PHP_EOL` writes. Code that splits, matches, trims or replaces line breaks in text it received - a docblock, a file, command output, page text or a PyString - uses `"\n"`, because splitting on it handles both `\n` and `\r\n` text, while `PHP_EOL` on Windows misses every `\n`-only line. Console output, exception and assertion messages, and generated documentation and reports end their lines with `PHP_EOL`, and a string built with `PHP_EOL` is split with `PHP_EOL` too. A line break spliced into a nowdoc or heredoc template, or into text built only to be searched or parsed in place, stays `"\n"` so the result never mixes line endings.
 - **Paths**: a path is built with `/`, which PHP accepts on every platform: `$directory . '/' . $file`, `__DIR__ . '/fixtures'`. `DIRECTORY_SEPARATOR` only compares against, splits or trims a path the platform returned - from `realpath()`, `getcwd()`, `getFileName()` or a directory iterator - because on Windows that path holds backslashes.
 - **Closures**: a closure or arrow function that never touches `$this` is `static`. `SlevomatCodingStandard.Functions.StaticClosure` fails the rest in `ahoy lint`, and `ahoy lint-fix` adds the keyword. The sniff can't see a closure that calls an instance method through `self::` or `static::`, which still needs `$this`, so check those by hand.
@@ -390,6 +414,8 @@ The Behat harness in `tests/behat/bootstrap/` - `FeatureContext`, `FeatureContex
 - **Hooks**: a hook is named `<prefix><Event>` and declared before the steps. `FeatureContextTrait`, `FeatureContext` and the context `BehatCliTrait` generates share the `test` prefix, and `BehatCliTrait` itself uses `behatCli`. A prefix holds 1 hook per event, so a second job on an event runs from a helper that hook calls, as `testBeforeScenario()` runs `testStopSessions()` and then `testShortenBigPipeWait()`.
 - **Constants**: every constant declares a native type.
 
+A tag the harness reads to configure a scenario starts with `test-`, as `@test-bigpipe-timeout` does, so it can't be mistaken for a library tag registered in `tag_registry()` in [docs.php](docs.php).
+
 The harness steps keep their own wording, placeholders, patterns and signatures rather than follow [Steps format](#steps-format) and [Step arguments](#step-arguments). They aren't published, and renaming one means editing every `.feature` line that uses it: every `@test-trait` scenario runs `some behat configuration` and `scenario steps:` or `scenario steps tagged with "...":`. `BehatCliContext.php` holds none of these conventions, because it's kept in step with an upstream copy.
 
 `TraitMethodNamingTest`, `MemberOrderTest`, `PublicSurfaceTest` and `TagReadTest` read only `src/`, since each of them also holds a vocabulary rule the harness doesn't follow. The list above is held in review rather than by a test.
@@ -406,6 +432,8 @@ The package ships 3 layers, and the dependency only runs one way: `Steps` on `Be
 `Context/` is one chain. `WebRawContext` carries the plumbing, composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`) and registers no steps; `WebContext` extends it and composes every trait under `Steps/Web`; `DrupalContext` extends that and composes every trait under `Steps/Drupal`. `ContextCompositionTest` holds that directory-to-context coverage in both directions, and holds the chain to one composition of each trait, because a subclass re-composing a parent's trait registers its steps twice.
 
 A trait names the host it needs with `@phpstan-require-extends`, and composes the helper traits its own body calls. `ContextCompositionTest` walks every step trait and fails one that reaches a helper member it does not compose, so the plumbing a trait needs travels with it rather than being assumed of the host.
+
+The host is the base class that provides every method the trait calls without declaring it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all the trait touches, and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reaches a backend or the extension configuration. A trait that calls nothing outside itself names no host. A context that composes `AuthTrait` declares `UserAwareInterface`, so the initializer injects the user registry and the authenticator.
 
 That is what keeps `src/Helper` a library rather than a catch-all: teardown lives with the concern that creates the thing being torn down. A trait that creates entities composes `EntityLifecycleTrait` and so brings the `AfterScenario` pass that removes them; a context composing no such trait runs no entity teardown at all. Trait flattening is idempotent, so the fourteen traits that compose it still yield one registry, one hook and one deletion pass in reverse creation order.
 
@@ -660,6 +688,8 @@ ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
 
 Every step the library registers needs at least 1 scenario that runs it. Behat only resolves a step definition when a scenario uses it, so a pattern no scenario reaches can ship unusable without the suite noticing. [tests/phpunit/src/StepScenarioCoverageTest.php](tests/phpunit/src/StepScenarioCoverageTest.php) enforces this in the unit suite: it matches every registered pattern against the steps the feature files run and fails on any step nothing reaches. Steps a `@test-trait` scenario hands to its nested run count, since they do run. Steps in a scenario the suite filters out, such as one tagged `@test-skipped`, don't.
 
+Put a new scenario in the feature file that already tests its trait rather than in a new file, and give it a descriptive tag, such as `@datetime`, so it can run on its own. A negative `@test-trait:` scenario, such as one for `FieldTrait`, reaches its page through a plain navigation step like `I go to "node/add/page"`, and avoids custom steps its nested run may not have.
+
 The nested runs find the repository through `BehatCliTrait::behatCliGetRootPath()`, which derives the root from the trait's own location, and [rector.php](rector.php) derives its paths from `__DIR__` the same way. Neither writes `/app`, so both follow the checkout wherever it lives. The service hosts in the configuration, such as `nginx` and `chrome`, stay as they are: they name the Docker services the suite runs against, not paths.
 
 ### Static fixtures
@@ -672,7 +702,7 @@ Traits with no Drupal dependency are tested against those files served by a PHP 
 @phpserver
 Scenario: Assert that a heading exists
   When I visit "http://cli:8888/elements.html"
-  Then the heading "Element Testing Page" should exist
+  Then I should see the heading "Element Testing Page"
 ```
 
 The server runs for the duration of a tagged scenario and serves `tests/behat/fixtures` at its root, so an edited fixture applies on the next run.

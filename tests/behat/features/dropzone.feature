@@ -5,7 +5,7 @@ Feature: Check that DropzoneTrait works
 
   @javascript @phpserver
   Scenario: Assert single-file drop on default selector
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/dropzone.html"
     And I drop the file "document.pdf" on the dropzone ".dropzone"
     Then I should see "document.pdf"
@@ -13,7 +13,7 @@ Feature: Check that DropzoneTrait works
 
   @javascript @phpserver
   Scenario: Assert multi-file drop fires a single drop event
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/dropzone.html"
     And I drop the following files on the dropzone ".dropzone":
       | document.pdf |
@@ -26,7 +26,7 @@ Feature: Check that DropzoneTrait works
 
   @javascript @phpserver
   Scenario: Assert drop on a non-default selector
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/dropzone.html"
     And I drop the file "image.png" on the dropzone "#secondary-zone"
     Then the "#secondary-output" element should contain "image.png"
@@ -34,7 +34,7 @@ Feature: Check that DropzoneTrait works
 
   @javascript @phpserver
   Scenario: Assert two consecutive drops in one scenario do not collide
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/dropzone.html"
     And I drop the file "document.pdf" on the dropzone ".dropzone"
     And I drop the file "text.txt" on the dropzone ".dropzone"
@@ -44,7 +44,7 @@ Feature: Check that DropzoneTrait works
 
   @javascript @phpserver
   Scenario: Assert multi-file drop populates a real Dropzone.js instance
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/dropzone_dropzonejs.html"
     And I drop the following files on the dropzone "#real-dropzone":
       | document.pdf |
@@ -60,7 +60,7 @@ Feature: Check that DropzoneTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/dropzone.html"
       And I drop the file "document.pdf" on the dropzone ".nonexistent-zone"
       """
@@ -75,7 +75,7 @@ Feature: Check that DropzoneTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/dropzone.html"
       And I drop the file "missing-fixture.bin" on the dropzone ".dropzone"
       """
@@ -90,7 +90,7 @@ Feature: Check that DropzoneTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/dropzone.html"
       And I drop the following files on the dropzone ".dropzone":
         | document.pdf       |
@@ -107,7 +107,7 @@ Feature: Check that DropzoneTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/dropzone.html"
       And I drop the file "document.pdf" on the dropzone ".dropzone"
       """

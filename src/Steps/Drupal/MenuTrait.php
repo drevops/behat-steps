@@ -38,6 +38,8 @@ trait MenuTrait {
    * @code
    *   Given the menu "Test Menu" does not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the menu :menu_name does not exist')]
   public function menuDelete(string $menu_name): void {
@@ -55,6 +57,8 @@ trait MenuTrait {
    *   | Footer Menu     | Links displayed in the footer  |
    *   | Secondary Menu  | Secondary navigation menu      |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following menus exist:')]
   public function menuCreateMultiple(TableNode $table): void {
@@ -73,6 +77,8 @@ trait MenuTrait {
    *   | About Us     |
    *   | Contact      |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuDeleteLinkMultiple(string $menu_name, TableNode $table): void {
@@ -94,6 +100,8 @@ trait MenuTrait {
    *   | Products        | 1       | /products               |              |
    *   | Latest Products | 1       | /products/latest        | Products     |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuCreateLinkMultiple(string $menu_name, TableNode $table): void {

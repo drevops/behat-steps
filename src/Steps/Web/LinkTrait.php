@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Web;
 
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
@@ -13,7 +14,8 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
 /**
  * Verify link elements with attribute and content assertions.
  *
- * - Find links by title, or by text and href, optionally within an element.
+ * - Find links by text, by title, or by text and href, optionally within an
+ *   element.
  * - Assert link existence and href match.
  * - Assert absolute and relative link paths.
  *
@@ -27,10 +29,12 @@ trait LinkTrait {
    * Click on the link with a title.
    *
    * @code
-   * When I click on the link with the title "Return to site content"
+   * When I follow the link with the title "Return to site content"
    * @endcode
+   *
+   * @actor:person
    */
-  #[When('I click on the link with the title :title')]
+  #[When('I follow the link with the title :title')]
   public function linkClickWithTitle(string $title): void {
     $title = $this->stringFixStepArgument($title);
     $element = $this->getSession()->getPage()->find('css', 'a[title="' . addslashes((string) $title) . '"]');
@@ -43,6 +47,40 @@ trait LinkTrait {
   }
 
   /**
+   * Assert that a link exists.
+   *
+   * Matches by id, title, alt or text.
+   *
+   * @code
+   * Then I should see the link "About us"
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[Then('I should see the link :link')]
+  public function linkAssertExists(string $link): void {
+    if (!$this->getSession()->getPage()->findLink($link) instanceof NodeElement) {
+      throw new ElementNotFoundException($this->getSession()->getDriver(), 'link', 'id|title|alt|text', $link);
+    }
+  }
+
+  /**
+   * Assert that a link does not exist.
+   *
+   * @code
+   * Then I should not see the link "Admin"
+   * @endcode
+   *
+   * @actor:person
+   */
+  #[Then('I should not see the link :link')]
+  public function linkAssertNotExists(string $link): void {
+    if ($this->getSession()->getPage()->findLink($link) instanceof NodeElement) {
+      throw new ExpectationException(sprintf('The link "%s" was found on the page "%s".', $link, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
+    }
+  }
+
+  /**
    * Assert a link with a href exists.
    *
    * A simplified wildcard is supported in "href".
@@ -51,6 +89,8 @@ trait LinkTrait {
    * Then the link "About us" with the href "/about-us" should exist
    * Then the link "About us" with the href "/about*" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link with the href :href should exist')]
   public function linkAssertExistsWithHref(string $link, string $href): void {
@@ -66,6 +106,8 @@ trait LinkTrait {
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
    * Then the link "About us" with the href "/about*" within the element ".main-nav" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link with the href :href within the element :selector should exist')]
   public function linkAssertExistsWithHrefWithinElement(string $link, string $href, string $selector): void {
@@ -81,6 +123,8 @@ trait LinkTrait {
    * Then the link "About us" with the href "/about-us" should not exist
    * Then the link "About us" with the href "/about*" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link with the href :href should not exist')]
   public function linkAssertNotExistsWithHref(string $link, string $href): void {
@@ -96,6 +140,8 @@ trait LinkTrait {
    * Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
    * Then the link "About us" with the href "/about*" within the element ".main-nav" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link with the href :href within the element :selector should not exist')]
   public function linkAssertNotExistsWithHrefWithinElement(string $link, string $href, string $selector): void {
@@ -108,6 +154,8 @@ trait LinkTrait {
    * @code
    * Then the link with the title "Return to site content" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link with the title :title should exist')]
   public function linkAssertExistsWithTitle(string $title): void {
@@ -126,6 +174,8 @@ trait LinkTrait {
    * @code
    * Then the link with the title "Some non-existing title" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link with the title :title should not exist')]
   public function linkAssertNotExistsWithTitle(string $title): void {
@@ -144,6 +194,8 @@ trait LinkTrait {
    * @code
    * Then the link "my-link-title" should be an absolute link
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link should be an absolute link')]
   public function linkAssertAbsolute(string $link): void {
@@ -166,6 +218,8 @@ trait LinkTrait {
    * @code
    * Then the link "Return to site content" should not be an absolute link
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the link :link should not be an absolute link')]
   public function linkAssertNotAbsolute(string $link): void {

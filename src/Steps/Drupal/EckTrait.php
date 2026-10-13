@@ -34,13 +34,15 @@ trait EckTrait {
    * Create eck entities.
    *
    * @code
-   * Given the following eck "contact" "contact_type" entities exist:
+   * Given the following ECK "contact" "contact_type" entities exist:
    *   | title  | field_marine_animal     | field_fish_type | ... |
    *   | Snook  | Fish                    | Marine fish     | 10  |
    *   | ...    | ...                     | ...             | ... |
    * @endcode
+   *
+   * @actor:system
    */
-  #[Given('the following eck :bundle :entity_type entities exist:')]
+  #[Given('the following ECK :bundle :entity_type entities exist:')]
   public function eckCreateMultiple(string $bundle, string $entity_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -60,12 +62,14 @@ trait EckTrait {
    * Remove custom entities by field.
    *
    * @code
-   * Given the following eck "contact" "contact_type" entities do not exist:
+   * Given the following ECK "contact" "contact_type" entities do not exist:
    *   | title           |
    *   | Entity label    |
    * @endcode
+   *
+   * @actor:system
    */
-  #[Given('the following eck :bundle :entity_type entities do not exist:')]
+  #[Given('the following ECK :bundle :entity_type entities do not exist:')]
   public function eckDeleteMultiple(string $bundle, string $entity_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -80,10 +84,12 @@ trait EckTrait {
    * Visit the page of the eck entity with the specified type and title.
    *
    * @code
-   * When I visit the eck "contact" "contact_type" entity page with the title "Test contact"
+   * When I visit the ECK "contact" "contact_type" entity page with the title "Test contact"
    * @endcode
+   *
+   * @actor:person
    */
-  #[When('I visit the eck :bundle :entity_type entity page with the title :title')]
+  #[When('I visit the ECK :bundle :entity_type entity page with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -96,10 +102,12 @@ trait EckTrait {
    * Visit the edit page of the eck entity with the specified type and title.
    *
    * @code
-   * When I visit the eck "contact" "contact_type" entity edit page with the title "Test contact"
+   * When I visit the ECK "contact" "contact_type" entity edit page with the title "Test contact"
    * @endcode
+   *
+   * @actor:person
    */
-  #[When('I visit the eck :bundle :entity_type entity edit page with the title :title')]
+  #[When('I visit the ECK :bundle :entity_type entity edit page with the title :title')]
   public function eckVisitEntityEditPageWithTitle(string $bundle, string $entity_type, string $title): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

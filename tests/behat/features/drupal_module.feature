@@ -4,29 +4,29 @@ Feature: Check that ModuleTrait works
   So that users can enable/disable modules during tests and restore state automatically
 
   Scenario: Assert "Given the module :module is enabled" enables a module
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the module "help" is disabled
     When the module "help" is enabled
     Then the module "help" should be enabled
 
   Scenario: Assert "Given the module :module is disabled" disables a module
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the module "help" is enabled
     When the module "help" is disabled
     Then the module "help" should be disabled
 
   Scenario: Assert "Then the module :module should be enabled" assertion works
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the module "help" is enabled
     Then the module "help" should be enabled
 
   Scenario: Assert "Then the module :module should be disabled" assertion works
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the module "help" is disabled
     Then the module "help" should be disabled
 
   Scenario: Assert "Given the following modules are enabled:" enables multiple modules
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the following modules are disabled:
       | help   |
       | syslog |
@@ -38,7 +38,7 @@ Feature: Check that ModuleTrait works
       | syslog |
 
   Scenario: Assert "Given the following modules are disabled:" disables multiple modules
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the following modules are enabled:
       | help   |
       | syslog |
@@ -93,23 +93,23 @@ Feature: Check that ModuleTrait works
 
   @module:help
   Scenario: Assert @module:module_name tag enables module automatically
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     Then the module "help" should be enabled
 
   @module:!help
   Scenario: Assert @module:!module_name tag disables module automatically
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     Then the module "help" should be disabled
 
   @module:help @module:syslog
   Scenario: Assert multiple @module tags enable multiple modules
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     Then the module "help" should be enabled
     And the module "syslog" should be enabled
 
   @module:help @module:syslog @module:!contextual
   Scenario: Assert mixed @module tags with enable and disable work together
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     Then the module "help" should be enabled
     And the module "syslog" should be enabled
     And the module "contextual" should be disabled
@@ -118,41 +118,41 @@ Feature: Check that ModuleTrait works
   # initial state for the next scenarios to test tag-based restoration.
   @behat-steps-skip:ModuleTrait
   Scenario: Assert module state is restored after scenario changes
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the module "help" is disabled
     Then the module "help" should be disabled
 
   @module:help
   Scenario: Assert module state restoration works after tag-based enable
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     Then the module "help" should be enabled
 
   Scenario: Verify module state was restored after previous scenario with tag
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     Then the module "help" should be disabled
 
   Scenario: Setup initial state for Given step restoration test
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the module "syslog" is disabled
     Then the module "syslog" should be disabled
 
   Scenario: Assert module state changes via Given step
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the module "syslog" is enabled
     Then the module "syslog" should be enabled
 
   Scenario: Verify module state was restored after Given step modification
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     Then the module "syslog" should be disabled
 
   Scenario: Assert enabling already-enabled module is idempotent
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the module "help" is enabled
     When the module "help" is enabled
     Then the module "help" should be enabled
 
   Scenario: Assert disabling already-disabled module is idempotent
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the module "help" is disabled
     When the module "help" is disabled
     Then the module "help" should be disabled

@@ -248,7 +248,7 @@ At step time the resolution is:
 ```gherkin
 @backend:api
 Scenario: Content created over the public API is immediately visible
-  Given the following "article" content exist:
+  Given the following "article" content exists:
     | title      |
     | Lab report |
   When I visit "/articles"

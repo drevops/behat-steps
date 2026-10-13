@@ -50,6 +50,8 @@ trait RestTrait {
    * Given the REST header "Accept" has the value "application/json"
    * Given the REST header "Authorization" has the value "Bearer abc123"
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the REST header :name has the value :value')]
   public function restSetHeader(string $name, string $value): void {
@@ -60,11 +62,13 @@ trait RestTrait {
    * Send a REST request to a URL.
    *
    * @code
-   * When I send a REST "GET" request to the URL "/api/resource"
-   * When I send a REST "DELETE" request to the URL "/api/resource/1"
+   * When I send a REST "GET" request to "/api/resource"
+   * When I send a REST "DELETE" request to "/api/resource/1"
    * @endcode
+   *
+   * @actor:person
    */
-  #[When('I send a REST :method request to the URL :url')]
+  #[When('I send a REST :method request to :url')]
   public function restSendRequest(string $method, string $url): void {
     $client = $this->restGetClient();
     $client->request(strtoupper($method), $this->restResolveUrl($url), [], [], $this->restCreateServerArray());
@@ -74,13 +78,15 @@ trait RestTrait {
    * Send a REST request to a URL with a body.
    *
    * @code
-   * When I send a REST "POST" request to the URL "/api/resource" with the body:
+   * When I send a REST "POST" request to "/api/resource" with the body:
    *   """
    *   {"name": "example"}
    *   """
    * @endcode
+   *
+   * @actor:person
    */
-  #[When('I send a REST :method request to the URL :url with the body:')]
+  #[When('I send a REST :method request to :url with the body:')]
   public function restSendRequestWithBody(string $method, string $url, PyStringNode $body): void {
     $client = $this->restGetClient();
     $client->request(strtoupper($method), $this->restResolveUrl($url), [], [], $this->restCreateServerArray(), $body->getRaw());
@@ -93,6 +99,8 @@ trait RestTrait {
    * Then the REST response status code should be 200
    * Then the REST response status code should be 404
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the REST response status code should be :code')]
   public function restAssertResponseStatusCodeEquals(string $code): void {
@@ -111,13 +119,15 @@ trait RestTrait {
    * @code
    * Then the REST response should contain "success"
    * @endcode
+   *
+   * @actor:system
    */
-  #[Then('the REST response should contain :text')]
-  public function restAssertResponseContains(string $text): void {
+  #[Then('the REST response should contain :value')]
+  public function restAssertResponseContains(string $value): void {
     $content = $this->getSession()->getPage()->getContent();
 
-    if (!str_contains((string) $content, $text)) {
-      throw new ExpectationException(sprintf('The REST response does not contain "%s".', $text), $this->getSession()->getDriver());
+    if (!str_contains((string) $content, $value)) {
+      throw new ExpectationException(sprintf('The REST response does not contain "%s".', $value), $this->getSession()->getDriver());
     }
   }
 

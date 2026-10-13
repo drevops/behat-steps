@@ -5,7 +5,7 @@ Feature: Check that BatchTrait works
 
   @javascript
   Scenario: Assert "When I wait for the batch job to finish" returns on a page with no batch
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "/"
     And I wait for the batch job to finish
     Then I should see "Log in"

@@ -11,7 +11,7 @@ Nothing in the project changes until the user approves the plan.
 
 ## 1. Get the guide
 
-Fetch `https://raw.githubusercontent.com/drevops/behat-steps/4.x/MIGRATION.md` and save it as `.artifacts/behat-steps-migration/MIGRATION.md`. Check that its first line reads `# Migrating from 3.x to 4.0`: the copy in `vendor/drevops/behat-steps/` is the 3.x guide until Composer installs 4.x. Fetch the files it links to, such as `STEPS.md`, from the same place when you need them. If a fetch fails, stop and ask the user for the file.
+Fetch `https://raw.githubusercontent.com/drevops/behat-steps/main/MIGRATION.md` and save it as `.artifacts/behat-steps-migration/MIGRATION.md`. Check that its first line reads `# Migrating from 3.x to 4.0`: the copy in `vendor/drevops/behat-steps/` is the 3.x guide until Composer installs 4.x. Fetch the files it links to, such as `STEPS.md`, from the same place when you need them. If a fetch fails, stop and ask the user for the file.
 
 Read the guide's opening paragraph and `## How to read this guide` first, and follow its conventions literally.
 

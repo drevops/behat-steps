@@ -3,19 +3,19 @@ Feature: Check that MetatagTrait works
   I want to provide tools to verify metatags on pages
   So that users can test SEO implementation
 
-  Scenario: Assert that "Then the meta tag should exist with the following attributes:" step works as expected
+  Scenario: Assert that "Then the meta tag with the following attributes should exist:" step works as expected
     When I visit "/"
-    Then the meta tag should exist with the following attributes:
+    Then the meta tag with the following attributes should exist:
       | name    | MobileOptimized |
       | content | width           |
 
   @test-trait:MetatagTrait
-  Scenario: Assert that negative assertion for "Then the meta tag should exist with the following attributes:" fails with an error
+  Scenario: Assert that negative assertion for "Then the meta tag with the following attributes should exist:" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       When I visit "/"
-      Then the meta tag should exist with the following attributes:
+      Then the meta tag with the following attributes should exist:
         | name    | Non_Existing |
         | content | width        |
       """
@@ -25,19 +25,19 @@ Feature: Check that MetatagTrait works
       Meta tag with attributes "{"name":"Non_Existing","content":"width"}" not found.
       """
 
-  Scenario: Assert that "Then the meta tag should not exist with the following attributes:" step works as expected
+  Scenario: Assert that "Then the meta tag with the following attributes should not exist:" step works as expected
     When I visit "/"
-    Then the meta tag should not exist with the following attributes:
+    Then the meta tag with the following attributes should not exist:
       | name    | Non_Existing |
       | content | width        |
 
   @test-trait:MetatagTrait
-  Scenario: Assert that negative assertion for "Then the meta tag should not exist with the following attributes:" fails with an error
+  Scenario: Assert that negative assertion for "Then the meta tag with the following attributes should not exist:" fails with an error
     Given some behat configuration
     And scenario steps:
       """
       When I visit "/"
-      Then the meta tag should not exist with the following attributes:
+      Then the meta tag with the following attributes should not exist:
         | name    | MobileOptimized |
         | content | width           |
       """
@@ -49,13 +49,13 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert "Then the meta tag :name should not contain any HTML tags" works for clean meta tag
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags.html"
     Then the meta tag "description" should not contain any HTML tags
 
   @phpserver
   Scenario: Assert "Then the meta tag :name should not contain any HTML tags" works for clean OG meta tag
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags.html"
     Then the meta tag "og:title" should not contain any HTML tags
 
@@ -89,31 +89,31 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert canonical URL presence and value
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags_seo.html"
     Then the canonical URL should exist
     And the canonical URL should be "http://cli:8888/metatags_seo.html"
 
   @phpserver
   Scenario: Assert canonical URL absence
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags.html"
     Then the canonical URL should not exist
 
   @phpserver
   Scenario: Assert indexability and robots directives via the robots meta tag
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags_seo.html"
     Then the page should be indexable
-    And the meta robots should contain "index"
-    And the meta robots should not contain "noindex"
+    And the robots meta tag should contain "index"
+    And the robots meta tag should not contain "noindex"
 
   @phpserver
   Scenario: Assert a non-indexable page via the robots meta tag
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags_noindex.html"
     Then the page should not be indexable
-    And the meta robots should contain "noindex"
+    And the robots meta tag should contain "noindex"
 
   Scenario: Assert a non-indexable page via the X-Robots-Tag header
     When I visit "/mysite_core/test-robots-header"
@@ -125,20 +125,20 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert hreflang alternates are valid
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags_seo.html"
     Then the hreflang alternates should be valid
 
   @phpserver
   Scenario: Assert hreflang alternates have reciprocal return links
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags_hreflang_en.html"
     Then the hreflang alternates should be valid
     And the hreflang alternates should have reciprocal return links
 
   @phpserver
   Scenario: Assert Open Graph tags are valid and present
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags_seo.html"
     Then the Open Graph tags should be valid
     And the following Open Graph tags should exist:
@@ -147,7 +147,7 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert Twitter Card tags are valid and present
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags_seo.html"
     Then the Twitter Card tags should be valid
     And the following Twitter Card tags should exist:
@@ -211,7 +211,7 @@ Feature: Check that MetatagTrait works
 
   @phpserver
   Scenario: Assert canonical URL absence for an empty canonical link
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/metatags_canonical_empty.html"
     Then the canonical URL should not exist
 
@@ -244,12 +244,12 @@ Feature: Check that MetatagTrait works
       """
 
   @test-trait:MetatagTrait
-  Scenario: Assert that "Then the meta robots should contain" fails when the directive is missing
+  Scenario: Assert that "Then the robots meta tag should contain" fails when the directive is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/metatags_seo.html"
-      Then the meta robots should contain "noindex"
+      Then the robots meta tag should contain "noindex"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -258,12 +258,12 @@ Feature: Check that MetatagTrait works
       """
 
   @test-trait:MetatagTrait
-  Scenario: Assert that "Then the meta robots should not contain" fails when the directive is present
+  Scenario: Assert that "Then the robots meta tag should not contain" fails when the directive is present
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/metatags_noindex.html"
-      Then the meta robots should not contain "noindex"
+      Then the robots meta tag should not contain "noindex"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

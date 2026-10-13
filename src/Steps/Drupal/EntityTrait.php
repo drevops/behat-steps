@@ -39,6 +39,8 @@ trait EntityTrait {
    *     | TNT   | product | 1      |
    *     | Anvil | product | 1      |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following :entity_type entities exist:')]
   public function entityCreateMultiple(string $entity_type, TableNode $table): void {

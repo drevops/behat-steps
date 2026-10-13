@@ -58,7 +58,7 @@ We actively maintain this package and welcome [contributions](CONTRIBUTING.md) f
 Composer installs this package without the repository's `.claude/` directory, so the skill isn't in `vendor/`. Paste this into your agent from your project's root, on a clean branch, so `git diff` shows the whole migration:
 
 ```text
-Fetch https://raw.githubusercontent.com/drevops/behat-steps/4.x/.claude/skills/migrate-behat-steps/SKILL.md and follow it to migrate this project from drevops/behat-steps 3.x to 4.x. If you support skills, save it as .claude/skills/migrate-behat-steps/SKILL.md first, so the migration can run again.
+Fetch https://raw.githubusercontent.com/drevops/behat-steps/main/.claude/skills/migrate-behat-steps/SKILL.md and follow it to migrate this project from drevops/behat-steps 3.x to 4.x. If you support skills, save it as .claude/skills/migrate-behat-steps/SKILL.md first, so the migration can run again.
 ```
 
 ## Available steps
@@ -259,12 +259,12 @@ The imperative style spells the interaction out and needs no PHP of your own, so
 
 ```gherkin
 Scenario: Editor publishes a page
-  When I log in as a user with the role "editor"
-  And I visit "/node/add/page"
+  Given I am logged in as a user with the role "editor"
+  When I visit "/node/add/page"
   And I fill in "Title" with "About us"
   And I press "Save"
   Then the path should be "/about-us"
-  And the success message "has been created" should exist
+  And I should see the success message "has been created"
 ```
 
 ### 4. Graduate the flows that matter to domain steps

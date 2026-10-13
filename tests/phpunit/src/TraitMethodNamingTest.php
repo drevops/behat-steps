@@ -739,7 +739,7 @@ class TraitMethodNamingTest extends UnitTestCase {
       $violations[] = $method->getName();
     }
 
-    $this->assertSame([], $violations, 'Name a method acting on several entities with "Multiple" and its 1-entity counterpart without it: "contentCreateMultiple" for "the following :content_type content exist:", "userLoadMultiple" for a set, and "mediaCreate", not "mediaCreateSingle".');
+    $this->assertSame([], $violations, 'Name a method acting on several entities with "Multiple" and its 1-entity counterpart without it: "contentCreateMultiple" for "the following :content_type content exists:", "userLoadMultiple" for a set, and "mediaCreate", not "mediaCreateSingle".');
   }
 
   public static function dataProviderBatchMethodsCarryMultiple(): array {

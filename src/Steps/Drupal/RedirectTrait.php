@@ -53,6 +53,8 @@ trait RedirectTrait {
    *   | /promo            | https://example.com/promo | 302         |
    *   | /legacy/contact   | /contact                  |             |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following redirects exist:')]
   public function redirectCreateMultiple(TableNode $table): void {
@@ -84,6 +86,8 @@ trait RedirectTrait {
    *   | /old/about      |
    *   | /legacy/contact |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following redirects do not exist:')]
   public function redirectDeleteMultiple(TableNode $table): void {
@@ -114,6 +118,8 @@ trait RedirectTrait {
    *   | /promo            | https://example.com/promo |             |
    *   | /legacy/contact   |                           |             |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the following redirects should exist:')]
   public function redirectAssertExist(TableNode $table): void {
@@ -138,6 +144,8 @@ trait RedirectTrait {
    *   | /old/about      |
    *   | /legacy/contact |
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the following redirects should not exist:')]
   public function redirectAssertNotExist(TableNode $table): void {

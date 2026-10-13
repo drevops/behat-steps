@@ -66,6 +66,8 @@ trait ContentTrait {
    * @code
    * Given the content type "article" does not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the content type :content_type does not exist')]
   public function contentDeleteType(string $content_type): void {
@@ -82,13 +84,15 @@ trait ContentTrait {
    * Remove content defined by provided properties.
    *
    * @code
-   * Given the following "article" content do not exist:
+   * Given the following "article" content does not exist:
    *   | title                |
    *   | Test article         |
    *   | Another test article |
    * @endcode
+   *
+   * @actor:system
    */
-  #[Given('the following :content_type content do not exist:')]
+  #[Given('the following :content_type content does not exist:')]
   public function contentDeleteMultiple(string $content_type, TableNode $table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -109,13 +113,15 @@ trait ContentTrait {
    *   Vertical format table with field names in first column.
    *
    * @code
-   *   Given the following page content with fields exist:
+   *   Given the following page content with fields exists:
    *     | title  | [TEST] Page 1        | [TEST] Page 2        |
    *     | body   | First page content   | Second page content  |
    *     | status | 1                    | 1                    |
    * @endcode
+   *
+   * @actor:system
    */
-  #[Given('the following :content_type content with fields exist:')]
+  #[Given('the following :content_type content with fields exists:')]
   public function contentCreateMultipleWithFields(string $content_type, TableNode $table): void {
     foreach ($this->tableTransposeVertical($table) as $values) {
       $this->contentCreate($content_type, $values);
@@ -128,13 +134,15 @@ trait ContentTrait {
    * Each row becomes 1 node; each column is a base property or a field.
    *
    * @code
-   *   Given the following page content exist:
+   *   Given the following page content exists:
    *     | title         | status |
    *     | [TEST] Page 1 | 1      |
    *     | [TEST] Page 2 | 0      |
    * @endcode
+   *
+   * @actor:system
    */
-  #[Given('the following :content_type content exist:')]
+  #[Given('the following :content_type content exists:')]
   public function contentCreateMultiple(string $content_type, TableNode $table): void {
     foreach ($table->getHash() as $values) {
       $this->contentCreate($content_type, $values);
@@ -147,6 +155,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content page with the title "Test article"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :content_type content page with the title :title')]
   public function contentVisitPageWithTitle(string $content_type, string $title): void {
@@ -159,6 +169,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content edit page with the title "Test article"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :content_type content edit page with the title :title')]
   public function contentVisitEditPageWithTitle(string $content_type, string $title): void {
@@ -171,6 +183,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content delete page with the title "Test article"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :content_type content delete page with the title :title')]
   public function contentVisitDeletePageWithTitle(string $content_type, string $title): void {
@@ -183,6 +197,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content scheduled transitions page with the title "Test article"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :content_type content scheduled transitions page with the title :title')]
   public function contentVisitScheduledTransitionsPageWithTitle(string $content_type, string $title): void {
@@ -195,6 +211,8 @@ trait ContentTrait {
    * @code
    * When I visit the "article" content revisions page with the title "Test article"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :content_type content revisions page with the title :title')]
   public function contentVisitRevisionsPageWithTitle(string $content_type, string $title): void {
@@ -205,10 +223,12 @@ trait ContentTrait {
    * Change moderation state of a content with the specified title.
    *
    * @code
-   * When I change the moderation state of the "article" content with the title "Test article" to the state "published"
+   * When the moderation state of the "article" content with the title "Test article" changes to the state "published"
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I change the moderation state of the :content_type content with the title :title to the state :new_state')]
+  #[When('the moderation state of the :content_type content with the title :title changes to the state :new_state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -219,10 +239,12 @@ trait ContentTrait {
    * Rebuild node access grants for a content with the specified title.
    *
    * @code
-   * When I rebuild the access grants for the "article" content with the title "My article"
+   * When the access grants for the "article" content with the title "My article" are rebuilt
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I rebuild the access grants for the :content_type content with the title :title')]
+  #[When('the access grants for the :content_type content with the title :title are rebuilt')]
   public function contentRebuildAccessGrantsWithTitle(string $content_type, string $title): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -233,10 +255,12 @@ trait ContentTrait {
    * Rebuild node access grants for all content.
    *
    * @code
-   * When I rebuild the access grants for all content
+   * When the access grants for all content are rebuilt
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I rebuild the access grants for all content')]
+  #[When('the access grants for all content are rebuilt')]
   public function contentRebuildAccessGrantsAll(): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -251,10 +275,12 @@ trait ContentTrait {
    * accepted.
    *
    * @code
-   * When I set the path alias of the "article" content with the title "Test article" to the alias "/my-test-article"
+   * When the path alias of the "article" content with the title "Test article" is set to "/my-test-article"
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I set the path alias of the :content_type content with the title :title to the alias :alias')]
+  #[When('the path alias of the :content_type content with the title :title is set to :alias')]
   public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -274,6 +300,8 @@ trait ContentTrait {
    * Then the "page" content with the title "Test page" should not exist
    * Then the "article" content with the title "Test article" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the :content_type content with the title :title should not exist')]
   public function contentAssertNotExistsWithTitle(string $content_type, string $title): void {
@@ -290,6 +318,8 @@ trait ContentTrait {
    * @code
    * Then the "page" content with the title "Test page" should be published
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the :content_type content with the title :title should be published')]
   public function contentAssertPublishedWithTitle(string $content_type, string $title): void {
@@ -306,6 +336,8 @@ trait ContentTrait {
    * @code
    * Then the "page" content with the title "Test page" should not be published
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the :content_type content with the title :title should not be published')]
   public function contentAssertNotPublishedWithTitle(string $content_type, string $title): void {

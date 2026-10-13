@@ -5,7 +5,7 @@ Feature: Check that IframeTrait works
 
   @javascript @phpserver
   Scenario: Assert "When I switch to the iframe :selector" works for named iframe
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/iframes.html"
     And I switch to the iframe ".named-iframe"
     Then I should see "Content inside named iframe"
@@ -14,7 +14,7 @@ Feature: Check that IframeTrait works
 
   @javascript @phpserver
   Scenario: Assert "When I switch to the iframe :selector" works for unnamed iframe
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/iframes.html"
     And I switch to the iframe ".unnamed-iframe"
     Then I should see "Content inside unnamed iframe"
@@ -26,7 +26,7 @@ Feature: Check that IframeTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/iframes.html"
       And I switch to the iframe ".nonexistent-iframe"
       """
@@ -41,7 +41,7 @@ Feature: Check that IframeTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/iframes.html"
       And I switch to the iframe ".named-iframe"
       """

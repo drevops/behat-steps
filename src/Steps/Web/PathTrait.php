@@ -27,10 +27,12 @@ trait PathTrait {
    * Set basic authentication for the current session.
    *
    * @code
-   * Given the basic authentication has the username "myusername" and the password "mypassword"
+   * Given I am using basic authentication with the username "myusername" and the password "mypassword"
    * @endcode
+   *
+   * @actor:person
    */
-  #[Given('the basic authentication has the username :username and the password :password')]
+  #[Given('I am using basic authentication with the username :username and the password :password')]
   public function pathSetBasicAuth(string $username, string $password): void {
     $this->getSession()->setBasicAuth($username, $password);
 
@@ -49,6 +51,8 @@ trait PathTrait {
    * When I visit "/about-us"
    * When I visit "https://example.com/about-us"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit :path')]
   public function pathVisit(string $path): void {
@@ -61,6 +65,8 @@ trait PathTrait {
    * @code
    * When I go back
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I go back')]
   public function pathGoBack(): void {
@@ -77,6 +83,8 @@ trait PathTrait {
    * Then the path should be "/"
    * Then the path should be "<front>"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the path should be :path')]
   public function pathAssertCurrent(string $path): void {
@@ -95,6 +103,8 @@ trait PathTrait {
    * Then the path should not be "/"
    * Then the path should not be "<front>"
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the path should not be :path')]
   public function pathAssertNotCurrent(string $path): void {
@@ -107,10 +117,12 @@ trait PathTrait {
    * Assert that current URL has a query parameter.
    *
    * @code
-   * Then the current URL should have the query parameter "filter"
+   * Then the URL should have the query parameter "filter"
    * @endcode
+   *
+   * @actor:system
    */
-  #[Then('the current URL should have the query parameter :name')]
+  #[Then('the URL should have the query parameter :name')]
   public function pathAssertUrlParameterExists(string $name): void {
     $this->pathGetUrlParameter($name);
   }
@@ -119,10 +131,12 @@ trait PathTrait {
    * Assert that current URL has a query parameter with a specific value.
    *
    * @code
-   * Then the current URL should have the query parameter "filter" with the value "recent"
+   * Then the URL should have the query parameter "filter" with the value "recent"
    * @endcode
+   *
+   * @actor:system
    */
-  #[Then('the current URL should have the query parameter :name with the value :value')]
+  #[Then('the URL should have the query parameter :name with the value :value')]
   public function pathAssertUrlParameterEquals(string $name, string $value): void {
     $actual_value = $this->pathGetUrlParameter($name);
 
@@ -135,10 +149,12 @@ trait PathTrait {
    * Assert that current URL has no query parameter.
    *
    * @code
-   * Then the current URL should not have the query parameter "filter"
+   * Then the URL should not have the query parameter "filter"
    * @endcode
+   *
+   * @actor:system
    */
-  #[Then('the current URL should not have the query parameter :name')]
+  #[Then('the URL should not have the query parameter :name')]
   public function pathAssertUrlParameterNotExists(string $name): void {
     $query = $this->pathGetCurrentUrlQuery();
 
@@ -153,10 +169,12 @@ trait PathTrait {
    * An absent parameter satisfies the assertion.
    *
    * @code
-   * Then the current URL should not have the query parameter "filter" with the value "recent"
+   * Then the URL should not have the query parameter "filter" with the value "recent"
    * @endcode
+   *
+   * @actor:system
    */
-  #[Then('the current URL should not have the query parameter :name with the value :value')]
+  #[Then('the URL should not have the query parameter :name with the value :value')]
   public function pathAssertUrlParameterNotEquals(string $name, string $value): void {
     $query = $this->pathGetCurrentUrlQuery();
 

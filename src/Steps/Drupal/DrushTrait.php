@@ -35,6 +35,8 @@ trait DrushTrait {
    * @code
    * When I run the drush command "status"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I run the drush command :command')]
   public function drushRun(string $command): void {
@@ -51,6 +53,8 @@ trait DrushTrait {
    * When I run the drush command "pm:list" with the arguments "--status=enabled"
    * When I run the drush command "config:get" with the arguments "system.site uuid"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I run the drush command :command with the arguments :arguments')]
   public function drushRunWithArguments(string $command, string $arguments): void {
@@ -67,6 +71,8 @@ trait DrushTrait {
    * @code
    * When I run the failing drush command "pm:uninstall no_such_module"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I run the failing drush command :command')]
   public function drushRunFailing(string $command): void {
@@ -79,6 +85,8 @@ trait DrushTrait {
    * @code
    * When I run the failing drush command "pm:uninstall" with the arguments "no_such_module"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I run the failing drush command :command with the arguments :arguments')]
   public function drushRunFailingWithArguments(string $command, string $arguments): void {
@@ -91,6 +99,8 @@ trait DrushTrait {
    * @code
    * When I print the last drush output
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I print the last drush output')]
   public function drushPrintOutput(): void {
@@ -98,13 +108,15 @@ trait DrushTrait {
   }
 
   /**
-   * Assert that the last Drush output contains the value.
+   * Assert that the last Drush output contains the text.
    *
    * @code
-   * Then the drush output should contain the value "Drupal version"
+   * Then the drush output should contain "Drupal version"
    * @endcode
+   *
+   * @actor:system
    */
-  #[Then('the drush output should contain the value :value')]
+  #[Then('the drush output should contain :value')]
   public function drushAssertOutputContains(string $value): void {
     if (!str_contains($this->drushGetOutput(), $this->drushFixArgument($value))) {
       throw new AssertionException(sprintf('The last drush command output does not contain "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
@@ -112,13 +124,15 @@ trait DrushTrait {
   }
 
   /**
-   * Assert that the last Drush output does not contain the value.
+   * Assert that the last Drush output does not contain the text.
    *
    * @code
-   * Then the drush output should not contain the value "error"
+   * Then the drush output should not contain "error"
    * @endcode
+   *
+   * @actor:system
    */
-  #[Then('the drush output should not contain the value :value')]
+  #[Then('the drush output should not contain :value')]
   public function drushAssertOutputNotContains(string $value): void {
     if (str_contains($this->drushGetOutput(), $this->drushFixArgument($value))) {
       throw new AssertionException(sprintf('The last drush command output contains "%s". It was:' . PHP_EOL . PHP_EOL . '%s', $value, $this->drushOutput));
@@ -129,10 +143,12 @@ trait DrushTrait {
    * Assert that the last Drush output matches the pattern.
    *
    * @code
-   * Then the drush output should match the pattern "/Drupal [0-9]+/"
+   * Then the drush output should match "/Drupal [0-9]+/"
    * @endcode
+   *
+   * @actor:system
    */
-  #[Then('the drush output should match the pattern :pattern')]
+  #[Then('the drush output should match :pattern')]
   public function drushAssertOutputMatches(string $pattern): void {
     $output = $this->drushGetOutput();
     $result = @preg_match($pattern, $output);

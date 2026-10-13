@@ -45,6 +45,8 @@ trait MediaTrait {
    * @code
    * Given the media type "video" does not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the media type :media_type does not exist')]
   public function mediaDeleteType(string $media_type): void {
@@ -68,6 +70,8 @@ trait MediaTrait {
    *   | My media | file.jpg | value  | value            |
    *   | ...      | ...      | ...    | ...              |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following :media_type media exist:')]
   public function mediaCreateMultiple(string $media_type, TableNode $table): void {
@@ -98,6 +102,8 @@ trait MediaTrait {
    *     | name              | [TEST] Image 1       | [TEST] Image 2       |
    *     | field_media_image | image1.jpg           | image2.jpg           |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following :media_type media with fields exist:')]
   public function mediaCreateMultipleWithFields(string $media_type, TableNode $table): void {
@@ -123,6 +129,8 @@ trait MediaTrait {
    *   | Media item         |
    *   | Another media item |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following :media_type media do not exist:')]
   public function mediaDeleteMultiple(string $media_type, TableNode $table): void {
@@ -141,6 +149,8 @@ trait MediaTrait {
    * @code
    * When I visit the "image" media page with the name "Test media image"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :media_type media page with the name :name')]
   public function mediaVisitPageWithName(string $media_type, string $name): void {
@@ -153,6 +163,8 @@ trait MediaTrait {
    * @code
    * When I visit the "document" media edit page with the name "Test document"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :media_type media edit page with the name :name')]
   public function mediaVisitEditPageWithName(string $media_type, string $name): void {
@@ -165,6 +177,8 @@ trait MediaTrait {
    * @code
    * When I visit the "image" media delete page with the name "Test media image"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :media_type media delete page with the name :name')]
   public function mediaVisitDeletePageWithName(string $media_type, string $name): void {
@@ -177,6 +191,8 @@ trait MediaTrait {
    * @code
    * When I visit the "image" media revisions page with the name "Test media image"
    * @endcode
+   *
+   * @actor:person
    */
   #[When('I visit the :media_type media revisions page with the name :name')]
   public function mediaVisitRevisionsPageWithName(string $media_type, string $name): void {
@@ -189,6 +205,8 @@ trait MediaTrait {
    * @code
    * Then the media type "image" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the media type :media_type should exist')]
   public function mediaAssertTypeExists(string $media_type): void {
@@ -209,6 +227,8 @@ trait MediaTrait {
    * @code
    * Then the media type "test_type" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the media type :media_type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
@@ -229,6 +249,8 @@ trait MediaTrait {
    * @code
    * Then the "image" media with the name "Test media image" should exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the :media_type media with the name :name should exist')]
   public function mediaAssertExistsWithName(string $media_type, string $name): void {
@@ -247,6 +269,8 @@ trait MediaTrait {
    * @code
    * Then the "image" media with the name "Test media image" should not exist
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the :media_type media with the name :name should not exist')]
   public function mediaAssertNotExistsWithName(string $media_type, string $name): void {

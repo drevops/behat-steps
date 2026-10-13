@@ -17,6 +17,8 @@ trait IncludedTrait {
    * @code
    * Then the included should pass
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the included should pass')]
   public function includedAssertIncluded(): void {}

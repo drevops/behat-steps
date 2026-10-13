@@ -17,6 +17,8 @@ trait FirstTrait {
    * @code
    * Then the first should pass
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the first should pass')]
   public function firstAssertFirst(): void {}

@@ -5,7 +5,7 @@ Feature: Check that ElementTrait works
 
   @phpserver
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should exist" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and the value "ltr" should exist
 
@@ -14,7 +14,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value "ltr" should exist
       """
@@ -29,7 +29,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should exist
       """
@@ -44,7 +44,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "dir" and the value "lt" should exist
       """
@@ -56,7 +56,7 @@ Feature: Check that ElementTrait works
 
   @phpserver
   Scenario: Assert "Then the element :selector with the attribute :attribute and a value containing :partial_value should exist" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and a value containing "lt" should exist
 
@@ -65,7 +65,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and a value containing "ltr" should exist
       """
@@ -80,7 +80,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and a value containing "ltr" should exist
       """
@@ -95,7 +95,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "dir" and a value containing "ltr1" should exist
       """
@@ -107,7 +107,7 @@ Feature: Check that ElementTrait works
 
   @phpserver
   Scenario: Assert "Then the element :selector with the attribute :attribute and the value :value should not exist" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and the value "nonexistingvalue" should not exist
 
@@ -116,7 +116,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and the value "ltr" should not exist
       """
@@ -131,7 +131,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and the value "ltr" should not exist
       """
@@ -146,7 +146,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "dir" and the value "ltr" should not exist
       """
@@ -158,7 +158,7 @@ Feature: Check that ElementTrait works
 
   @phpserver
   Scenario: Assert "Then the element :selector with the attribute :attribute and a value containing :partial_value should not exist" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements.html"
     Then the element "html" with the attribute "dir" and a value containing "nonexistingvalue" should not exist
 
@@ -167,7 +167,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "#nonexisting-element" with the attribute "dir" and a value containing "ltr" should not exist
       """
@@ -182,7 +182,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "no-existing-attribute" and a value containing "ltr" should not exist
       """
@@ -197,7 +197,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "html" with the attribute "dir" and a value containing "lt" should not exist
       """
@@ -216,26 +216,26 @@ Feature: Check that ElementTrait works
   Scenario: Assert trigger event on element
     Given I visit "http://cli:8888/elements_relative.html"
     Then I should not see an ".overlay-visible" element
-    When I trigger the JS event "click" on the element "#overlay-off-canvas-trigger"
+    When the JS event "click" is triggered on the element "#overlay-off-canvas-trigger"
     Then I should see an ".overlay-visible" element
 
   @javascript @phpserver
-  Scenario: Assert "Given confirmation dialogs are accepted" works
+  Scenario: Assert "Given I accept all confirmation dialogs" works
     Given I visit "http://cli:8888/elements_relative.html"
-    And confirmation dialogs are accepted
-    Then the button "Test confirm" should exist
-    And the button "You pressed OK!" should not exist
+    And I accept all confirmation dialogs
+    Then I should see the button "Test confirm"
+    And I should not see the button "You pressed OK!"
     When I press "Test confirm"
-    Then the button "You pressed OK!" should exist
+    Then I should see the button "You pressed OK!"
 
   @javascript @phpserver
-  Scenario: Assert "Given confirmation dialogs are declined" works
+  Scenario: Assert "Given I decline all confirmation dialogs" works
     Given I visit "http://cli:8888/elements_relative.html"
-    And confirmation dialogs are declined
-    Then the button "Test confirm" should exist
-    And the button "You canceled!" should not exist
+    And I decline all confirmation dialogs
+    Then I should see the button "Test confirm"
+    And I should not see the button "You canceled!"
     When I press "Test confirm"
-    Then the button "You canceled!" should exist
+    Then I should see the button "You canceled!"
 
   @javascript @phpserver
   Scenario: Assert scroll to an element with selector uses center alignment by default
@@ -257,7 +257,7 @@ Feature: Check that ElementTrait works
     Then the element "button[data-action='save']" should be centered in the viewport
     When I scroll to the element "button[data-action='delete']"
     Then the element "button[data-action='delete']" should be centered in the viewport
-    When I trigger the JS event "click" on the element "button[data-action='edit']"
+    When the JS event "click" is triggered on the element "button[data-action='edit']"
 
   @javascript @phpserver
   Scenario: Assert step definition "Then the element :selector should be displayed" succeeds as expected
@@ -351,7 +351,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_relative.html"
       Then the element "#sr-only" should be displayed within the viewport
       """
@@ -366,7 +366,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_relative.html"
       Then the element "#top" should not be displayed within the viewport
       """
@@ -377,24 +377,24 @@ Feature: Check that ElementTrait works
       """
 
   @phpserver
-  Scenario: Assert "Then the heading :heading should exist" works as expected
+  Scenario: Assert "Then I should see the heading :heading" works as expected
     When I visit "http://cli:8888/elements.html"
-    Then the heading "Element Testing Page" should exist
-    And the heading "Basic Elements" should exist
+    Then I should see the heading "Element Testing Page"
+    And I should see the heading "Basic Elements"
 
   @phpserver
-  Scenario: Assert "Then the heading :heading should not exist" works as expected
+  Scenario: Assert "Then I should not see the heading :heading" works as expected
     When I visit "http://cli:8888/elements.html"
-    Then the heading "Nonexistent heading" should not exist
-    And the heading "Basic" should not exist
+    Then I should not see the heading "Nonexistent heading"
+    And I should not see the heading "Basic"
 
   @test-trait:ElementTrait
-  Scenario: Assert "Then the heading :heading should exist" fails when no heading has the exact text
+  Scenario: Assert "Then I should see the heading :heading" fails when no heading has the exact text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the heading "Basic" should exist
+      Then I should see the heading "Basic"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -403,12 +403,12 @@ Feature: Check that ElementTrait works
       """
 
   @test-trait:ElementTrait
-  Scenario: Assert "Then the heading :heading should not exist" fails when a heading has the text
+  Scenario: Assert "Then I should not see the heading :heading" fails when a heading has the text
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the heading "Basic Elements" should not exist
+      Then I should not see the heading "Basic Elements"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -417,12 +417,12 @@ Feature: Check that ElementTrait works
       """
 
   @test-trait:ElementTrait
-  Scenario: Assert "Then the button :button should not exist" fails when the button exists
+  Scenario: Assert "Then I should not see the button :button" fails when the button exists
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the button "focus-button-outline" should not exist
+      Then I should not see the button "focus-button-outline"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -433,7 +433,7 @@ Feature: Check that ElementTrait works
   @phpserver
   Scenario: Text appears after another text
     When I visit "http://cli:8888/elements.html"
-    Then the text "Copyright 2024" should appear after the text "Welcome"
+    Then I should see the text "Copyright 2024" after the text "Welcome"
 
   @phpserver
   Scenario: Assert "Then the element :selector1 should appear after the element :selector2" works as expected
@@ -460,7 +460,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the text "Welcome" should appear after the text "Copyright 2024"
+      Then I should see the text "Welcome" after the text "Copyright 2024"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -502,7 +502,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the text "NonExistentText123" should appear after the text "Welcome"
+      Then I should see the text "NonExistentText123" after the text "Welcome"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -516,7 +516,7 @@ Feature: Check that ElementTrait works
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the text "Welcome" should appear after the text "NonExistentText123"
+      Then I should see the text "Welcome" after the text "NonExistentText123"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -526,7 +526,7 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "When I hover over the element :selector" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements.html"
     Then the element "#hover-reveal" should not be displayed
     When I hover over the element "#hover-target"
@@ -537,7 +537,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       And I hover over the element "#nonexistent-element"
       """
@@ -549,7 +549,7 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "When I focus on the element :selector" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements.html"
     And I focus on the element "#focus-input"
     Then the element "#focus-input" with the attribute "data-focused" and the value "true" should exist
@@ -559,7 +559,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       And I focus on the element "#nonexistent-element"
       """
@@ -571,7 +571,7 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "Then the element :selector should have keyboard focus" and its negative form work as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements.html"
     And I focus on the element "#focus-input"
     Then the element "#focus-input" should have keyboard focus
@@ -579,14 +579,14 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "Then the element :selector should have a visible focus outline" passes for an element with a CSS outline
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements.html"
     Then the element "#focus-button-outline" should have a visible focus outline
     And the element "#focus-button-no-outline" should not have a visible focus outline
 
   @javascript @phpserver
   Scenario: Assert "Then the element :selector should have a visible focus outline" passes for an element using box-shadow as the indicator
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements.html"
     Then the element "#focus-button-shadow" should have a visible focus outline
 
@@ -595,7 +595,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "#nonexistent-element" should have keyboard focus
       """
@@ -610,7 +610,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       And I focus on the element "#focus-input"
       Then the element "#focus-button-outline" should have keyboard focus
@@ -626,7 +626,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "#focus-input" should have keyboard focus
       """
@@ -641,7 +641,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       And I focus on the element "#focus-input"
       Then the element "#focus-input" should not have keyboard focus
@@ -657,7 +657,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "#nonexistent-element" should have a visible focus outline
       """
@@ -672,7 +672,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "#focus-button-no-outline" should have a visible focus outline
       """
@@ -687,7 +687,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements.html"
       Then the element "#focus-button-outline" should not have a visible focus outline
       """
@@ -890,9 +890,9 @@ Feature: Check that ElementTrait works
     Then I should see "Link Testing Fixture"
 
   @phpserver
-  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" counts matches within a parent
+  Scenario: Assert "Then the element :parent should have :count element(s) matching :selector" counts matches within a parent
     When I visit "http://cli:8888/elements.html"
-    Then the element "#nth-parent" should contain 3 elements matching ".nth-child"
+    Then the element "#nth-parent" should have 3 elements matching ".nth-child"
 
   @test-trait:ElementTrait
   Scenario: Assert index-based interaction fails when the index is below 1
@@ -925,8 +925,8 @@ Feature: Check that ElementTrait works
       | When I click on the element ".nth-child" with the index "second"                                      | The index must be an integer, but "second" was given.  |
       | When I follow the link "Repeated link" with the index "2.0"                                           | The index must be an integer, but "2.0" was given.     |
       | When I press the button "Submit" with the index "x"                                                   | The index must be an integer, but "x" was given.       |
-      | Then the element "#nth-parent" should contain "three" elements matching ".nth-child"                  | The count must be an integer, but "three" was given.   |
-      | Then the element "#nth-parent" should contain -1 elements matching ".nth-child"                       | The count must be 0 or greater, but "-1" was given.    |
+      | Then the element "#nth-parent" should have "three" elements matching ".nth-child"                  | The count must be an integer, but "three" was given.   |
+      | Then the element "#nth-parent" should have -1 elements matching ".nth-child"                       | The count must be 0 or greater, but "-1" was given.    |
       | Then the element "#top" should be displayed within the viewport with a top offset of "ten" pixels     | The offset must be an integer, but "ten" was given.    |
       | Then the element "#top" should not be displayed within the viewport with a top offset of "1e3" pixels | The offset must be an integer, but "1e3" was given.    |
       | Then the element "#pinned-header" should be pinned to the top of the viewport within "5px" pixels     | The tolerance must be an integer, but "5px" was given. |
@@ -960,12 +960,12 @@ Feature: Check that ElementTrait works
       """
 
   @test-trait:ElementTrait
-  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails on a count mismatch
+  Scenario: Assert "Then the element :parent should have :count element(s) matching :selector" fails on a count mismatch
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the element "#nth-parent" should contain 5 elements matching ".nth-child"
+      Then the element "#nth-parent" should have 5 elements matching ".nth-child"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -974,12 +974,12 @@ Feature: Check that ElementTrait works
       """
 
   @test-trait:ElementTrait
-  Scenario: Assert "Then the element :parent should contain :count element(s) matching :selector" fails when the parent is missing
+  Scenario: Assert "Then the element :parent should have :count element(s) matching :selector" fails when the parent is missing
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/elements.html"
-      Then the element "#does-not-exist" should contain 1 element matching ".nth-child"
+      Then the element "#does-not-exist" should have 1 element matching ".nth-child"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -989,7 +989,7 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "Then the element :selector should have the CSS property :property with the value :value" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements_css.html"
     Then the element "#css-box" should have the CSS property "background-color" with the value "rgb(0, 0, 255)"
     And the element "#css-box" should have the CSS property "backgroundColor" with the value "rgb(0, 0, 255)"
@@ -999,7 +999,7 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "Then the element :selector should have the CSS property :property with a value containing :partial_value" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements_css.html"
     Then the element "#css-box" should have the CSS property "box-shadow" with a value containing "rgb(255, 0, 0)"
     And the element "#css-box" should not have the CSS property "box-shadow" with a value containing "inset"
@@ -1009,7 +1009,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#nonexistent-element" should have the CSS property "display" with the value "block"
       """
@@ -1024,7 +1024,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should have the CSS property "bogus-property" with the value "block"
       """
@@ -1039,7 +1039,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should have the CSS property "background-color" with the value "rgb(255, 0, 0)"
       """
@@ -1054,7 +1054,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should not have the CSS property "background-color" with the value "rgb(0, 0, 255)"
       """
@@ -1069,7 +1069,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should have the CSS property "box-shadow" with a value containing "inset"
       """
@@ -1084,7 +1084,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#css-box" should not have the CSS property "box-shadow" with a value containing "rgb(255, 0, 0)"
       """
@@ -1096,28 +1096,28 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "Then the element :selector1 should stack above the element :selector2" compares the z-index of both elements
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements_css.html"
     Then the element "#stack-high" should stack above the element "#stack-low"
     And the element "#stack-low" should stack below the element "#stack-high"
 
   @javascript @phpserver
   Scenario: Assert stacking order resolves the effective z-index across stacking contexts
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements_css.html"
     Then the element "#stack-sibling" should stack above the element "#stack-trap-child"
     And the element "#stack-trap-child" should stack below the element "#stack-sibling"
 
   @javascript @phpserver
   Scenario: Assert stacking order falls back to document order for an equal z-index
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements_css.html"
     Then the element "#stack-second" should stack above the element "#stack-first"
     And the element "#stack-first" should stack below the element "#stack-second"
 
   @javascript @phpserver
   Scenario: Assert stacking order of an element nested in another element
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements_css.html"
     Then the element "#stack-child" should stack above the element "#stack-parent"
     And the element "#stack-parent" should stack below the element "#stack-child"
@@ -1129,7 +1129,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#nonexistent-element" should stack above the element "#stack-low"
       """
@@ -1144,7 +1144,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-low" should stack above the element "#nonexistent-element"
       """
@@ -1159,7 +1159,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-low" should stack above the element "#stack-low"
       """
@@ -1174,7 +1174,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-low" should stack above the element "#stack-high"
       """
@@ -1189,7 +1189,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-second" should stack below the element "#stack-first"
       """
@@ -1204,7 +1204,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-behind" should stack above the element "#stack-parent"
       """
@@ -1219,7 +1219,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#stack-parent" should stack above the element "#stack-child"
       """
@@ -1231,7 +1231,7 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "Then the element :selector should be pinned to the top of the viewport" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements_css.html"
     Then the element "#pinned-header" should be pinned to the top of the viewport
     And the element "#not-pinned" should not be pinned to the top of the viewport
@@ -1239,7 +1239,7 @@ Feature: Check that ElementTrait works
 
   @javascript @phpserver
   Scenario: Assert "Then the element :selector should be pinned to the top of the viewport within :tolerance pixels" works as expected
-    Given the user is anonymous
+    Given I am an anonymous user
     When I visit "http://cli:8888/elements_css.html"
     Then the element "#pinned-offset" should be pinned to the top of the viewport within 25 pixels
     And the element "#pinned-offset" should not be pinned to the top of the viewport
@@ -1249,7 +1249,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#nonexistent-element" should be pinned to the top of the viewport
       """
@@ -1264,7 +1264,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#not-pinned" should be pinned to the top of the viewport
       """
@@ -1279,7 +1279,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#pinned-hidden" should be pinned to the top of the viewport
       """
@@ -1294,7 +1294,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#pinned-header" should not be pinned to the top of the viewport
       """
@@ -1309,7 +1309,7 @@ Feature: Check that ElementTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript @phpserver":
       """
-      Given the user is anonymous
+      Given I am an anonymous user
       When I visit "http://cli:8888/elements_css.html"
       Then the element "#pinned-header" should be pinned to the top of the viewport within -5 pixels
       """

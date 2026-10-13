@@ -4,7 +4,7 @@ Feature: Check that FileDownloadTrait works
   So that users can verify file downloads work correctly
 
   Background:
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When the following managed files exist:
       | path                 |
       | document.pdf         |
@@ -12,7 +12,7 @@ Feature: Check that FileDownloadTrait works
       | audio.mp3            |
       | text.txt             |
       | archive_multiple.zip |
-    And the following article content exist:
+    And the following article content exists:
       | title                | field_file           |
       | [TEST] document page | text.txt             |
       | [TEST] zip page      | archive_multiple.zip |
@@ -43,7 +43,7 @@ Feature: Check that FileDownloadTrait works
     Given the following users exist:
       | name       | mail               | pass       |
       | admin-test | admin-test@bar.com | admin-test |
-    When the basic authentication has the username "admin-test" and the password "admin-test"
+    When I am using basic authentication with the username "admin-test" and the password "admin-test"
     And I download the file from the URL "/mysite_core/test-basic-auth"
     Then the downloaded file should contain:
       """
@@ -86,11 +86,11 @@ Feature: Check that FileDownloadTrait works
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "archive_multiple.zip"
     Then the downloaded file name should be "archive_multiple.zip"
-    And the downloaded file should be a zip archive containing the following files named:
+    And the downloaded file should be a zip archive containing files with the following names:
       | audio.mp3    |
       | image.png    |
       | document.pdf |
-    And the downloaded file should be a zip archive not containing the following files partially named:
+    And the downloaded file should be a zip archive not containing files with the following partial names:
       | text.txt         |
       | not_existing.png |
 
@@ -115,24 +115,24 @@ Feature: Check that FileDownloadTrait works
       """
 
   @download
-  Scenario: Assert the downloaded file should be a zip archive containing the following files partially named
+  Scenario: Assert the downloaded file should be a zip archive containing files with the following partial names
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "archive_multiple.zip"
     Then the downloaded file name should be "archive_multiple.zip"
-    And the downloaded file should be a zip archive containing the following files partially named:
+    And the downloaded file should be a zip archive containing files with the following partial names:
       | example_aud |
       | example_ima |
 
   @test-trait:FileDownloadTrait,Drupal\ContentTrait
-  Scenario: Assert that negative assertion for "the downloaded file should be a zip archive containing the following files partially named" fails with an error
+  Scenario: Assert that negative assertion for "the downloaded file should be a zip archive containing files with the following partial names" fails with an error
     Given some behat configuration
     And scenario steps tagged with "@download":
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       When I visit the "article" content page with the title "[TEST] zip page"
       When I download the file from the link "archive_multiple.zip"
       And the downloaded file name should be "archive_multiple.zip"
-      Then the downloaded file should be a zip archive containing the following files partially named:
+      Then the downloaded file should be a zip archive containing files with the following partial names:
         | nonexistent_file |
       """
     When I run "behat --no-colors"
@@ -142,11 +142,11 @@ Feature: Check that FileDownloadTrait works
       """
 
   @download
-  Scenario: Assert the downloaded file is a zip archive not containing files partially named
+  Scenario: Assert the downloaded file is a zip archive not containing files with the following partial names
     When I visit the "article" content page with the title "[TEST] zip page"
     When I download the file from the link "archive_multiple.zip"
     Then the downloaded file name should be "archive_multiple.zip"
-    And the downloaded file should be a zip archive not containing the following files partially named:
+    And the downloaded file should be a zip archive not containing files with the following partial names:
       | example_text |
       | not_existing |
 
@@ -202,10 +202,10 @@ Feature: Check that FileDownloadTrait works
     Given some behat configuration
     And scenario steps tagged with "@download":
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       When I visit the "article" content page with the title "[TEST] zip page"
       When I download the file from the link "archive_multiple.zip"
-      Then the downloaded file should be a zip archive containing the following files named:
+      Then the downloaded file should be a zip archive containing files with the following names:
         | nonexistent1.txt |
         | nonexistent2.txt |
       """
@@ -220,10 +220,10 @@ Feature: Check that FileDownloadTrait works
     Given some behat configuration
     And scenario steps tagged with "@download":
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       When I visit the "article" content page with the title "[TEST] zip page"
       When I download the file from the link "archive_multiple.zip"
-      Then the downloaded file should be a zip archive not containing the following files partially named:
+      Then the downloaded file should be a zip archive not containing files with the following partial names:
         | example_audio |
       """
     When I run "behat --no-colors"
@@ -317,9 +317,9 @@ Feature: Check that FileDownloadTrait works
       | archive_invalid.zip |
     And scenario steps tagged with "@download @phpserver":
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       When I download the file from the URL "http://cli:8888/archive_invalid.zip"
-      Then the downloaded file should be a zip archive containing the following files named:
+      Then the downloaded file should be a zip archive containing files with the following names:
         | test.txt |
       """
     When I run "behat --no-colors"
@@ -334,7 +334,7 @@ Feature: Check that FileDownloadTrait works
     And scenario steps:
       """
       When I visit "/"
-      Then the downloaded file should be a zip archive containing the following files named:
+      Then the downloaded file should be a zip archive containing files with the following names:
         | test.txt |
       """
     When I run "behat --no-colors"
@@ -350,7 +350,7 @@ Feature: Check that FileDownloadTrait works
       """
       When I visit "/"
       And I download the file from the URL "http://cli:8888/text.txt"
-      Then the downloaded file should be a zip archive containing the following files named:
+      Then the downloaded file should be a zip archive containing files with the following names:
         | test.txt |
       """
     When I run "behat --no-colors"

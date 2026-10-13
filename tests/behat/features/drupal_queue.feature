@@ -35,31 +35,31 @@ Feature: Check that QueueTrait works
     And the following item is in the queue "behat_test":
       | data | {"nid":1} |
     Then the queue "behat_test" should have 1 item
-    When I process the queue "behat_test"
+    When the queue "behat_test" is processed
     Then the queue "behat_test" should be empty
     And the config "mysite_core.settings" with the key "queue_budget" should have the value "19"
 
-  Scenario: Assert "When I process :count item(s) from the queue :queue" processes the requested number of items
+  Scenario: Assert "When the queue :queue processes :count item(s)" processes the requested number of items
     Given the config "mysite_core.settings" with the key "queue_budget" has the value "20"
     And the queue "behat_test" is empty
     And I add 7 items to the "behat_test" queue
-    When I process 3 items from the queue "behat_test"
+    When the queue "behat_test" processes 3 items
     Then the queue "behat_test" should have 4 items
     And the config "mysite_core.settings" with the key "queue_budget" should have the value "17"
 
-  Scenario: Assert "When I process :count item(s) from the queue :queue" works with singular
+  Scenario: Assert "When the queue :queue processes :count item(s)" works with singular
     Given the config "mysite_core.settings" with the key "queue_budget" has the value "20"
     And the queue "behat_test" is empty
     And I add 6 items to the "behat_test" queue
-    When I process 1 item from the queue "behat_test"
+    When the queue "behat_test" processes 1 item
     Then the queue "behat_test" should have 5 items
     And the config "mysite_core.settings" with the key "queue_budget" should have the value "19"
 
-  Scenario: Assert "When I process the queue :queue" processes all items
+  Scenario: Assert "When the queue :queue is processed" processes all items
     Given the config "mysite_core.settings" with the key "queue_budget" has the value "20"
     And the queue "behat_test" is empty
     And I add 4 items to the "behat_test" queue
-    When I process the queue "behat_test"
+    When the queue "behat_test" is processed
     Then the queue "behat_test" should be empty
     And the config "mysite_core.settings" with the key "queue_budget" should have the value "16"
 
@@ -174,13 +174,13 @@ Feature: Check that QueueTrait works
       """
 
   @test-trait:Drupal\QueueTrait
-  Scenario: Assert negative assertion for "When I process :count item(s) from the queue :queue" works with too few items
+  Scenario: Assert negative assertion for "When the queue :queue processes :count item(s)" works with too few items
     Given some behat configuration
     And scenario steps:
       """
       Given the queue "behat_test" is empty
       And I add 1 item to the "behat_test" queue
-      When I process 3 items from the queue "behat_test"
+      When the queue "behat_test" processes 3 items
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -189,11 +189,11 @@ Feature: Check that QueueTrait works
       """
 
   @test-trait:Drupal\QueueTrait
-  Scenario Outline: Assert negative "When I process :count item(s) from the queue :queue" fails when the count is not an integer of 0 or more
+  Scenario Outline: Assert negative "When the queue :queue processes :count item(s)" fails when the count is not an integer of 0 or more
     Given some behat configuration
     And scenario steps:
       """
-      When I process "<count>" items from the queue "behat_test"
+      When the queue "behat_test" processes "<count>" items
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

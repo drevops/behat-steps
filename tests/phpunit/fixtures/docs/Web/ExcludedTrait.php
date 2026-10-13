@@ -17,6 +17,8 @@ trait ExcludedTrait {
    * @code
    * Then the excluded should pass
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the excluded should pass')]
   public function excludedAssertExcluded(): void {}

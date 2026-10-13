@@ -28,13 +28,15 @@ trait DraggableviewsTrait {
    * Save the order of the Draggable Views items.
    *
    * @code
-   * When I save the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content in the following order:
+   * When the draggable views items of the view "draggableviews_demo" and the display "page_1" for the "article" content are saved in the following order:
    *   | First Article  |
    *   | Second Article |
    *   | Third Article  |
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I save the draggable views items of the view :view_id and the display :view_display_id for the :content_type content in the following order:')]
+  #[When('the draggable views items of the view :view_id and the display :view_display_id for the :content_type content are saved in the following order:')]
   public function draggableviewsSaveBundleOrder(string $view_id, string $view_display_id, string $content_type, TableNode $order_table): void {
     $this->backendFor(CoreCapabilityInterface::class);
 

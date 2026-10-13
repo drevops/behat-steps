@@ -12,8 +12,8 @@ Feature: Check that LanguageTrait works
     And the following languages exist:
       | langcode |
       | fr       |
-    When I log in as a user with the role "administrator"
-    And I visit "/admin/config/regional/language"
+    And I am logged in as a user with the role "administrator"
+    When I visit "/admin/config/regional/language"
     Then I should see "French"
 
   @test-trait:Drupal\LanguageTrait

@@ -70,6 +70,8 @@ trait QueueTrait {
    * Given the following item is in the queue "myqueue":
    *   | data | {"nid":1} |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following item is in the queue :queue:')]
   public function queueAddItem(string $queue, TableNode $fields): void {
@@ -91,6 +93,8 @@ trait QueueTrait {
    * @code
    * Given the queue "myqueue" is empty
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the queue :queue is empty')]
   public function queueEmpty(string $queue): void {
@@ -105,14 +109,16 @@ trait QueueTrait {
    * Process a specific number of items from a queue.
    *
    * @code
-   * When I process 5 items from the queue "myqueue"
+   * When the queue "myqueue" processes 5 items
    * @endcode
    *
    * @code
-   * When I process 1 item from the queue "myqueue"
+   * When the queue "myqueue" processes 1 item
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I process :count item(s) from the queue :queue')]
+  #[When('the queue :queue processes :count item(s)')]
   public function queueProcessItems(string $count, string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -129,10 +135,12 @@ trait QueueTrait {
    * Process all items from a queue.
    *
    * @code
-   * When I process the queue "myqueue"
+   * When the queue "myqueue" is processed
    * @endcode
+   *
+   * @actor:system
    */
-  #[When('I process the queue :queue')]
+  #[When('the queue :queue is processed')]
   public function queueProcessAll(string $queue): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
@@ -154,6 +162,8 @@ trait QueueTrait {
    * @code
    * Then the queue "myqueue" should have 1 item
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the queue :queue should have :count item(s)')]
   public function queueAssertItemCount(string $queue, string $count): void {
@@ -174,6 +184,8 @@ trait QueueTrait {
    * @code
    * Then the queue "myqueue" should be empty
    * @endcode
+   *
+   * @actor:system
    */
   #[Then('the queue :queue should be empty')]
   public function queueAssertEmpty(string $queue): void {

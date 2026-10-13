@@ -8,7 +8,7 @@ Feature: Check that MenuTrait works
       | label               | description             |
       | [TEST] menu 1 title | Test menu 1 description |
       | [TEST] menu 2 title | Test menu 2 description |
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     And I visit "/admin/structure/menu"
     Then I should see "[TEST] menu 1 title"
     And I should see "[TEST] menu 2 title"
@@ -23,7 +23,7 @@ Feature: Check that MenuTrait works
     When the menu "[TEST] menu 1 title" does not exist
     And the menu "[TEST] menu 2 title" does not exist
     And the menu "[TEST] non-existent menu" does not exist
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     And I visit "/admin/structure/menu"
     Then I should not see "[TEST] menu 1 title"
     And I should not see "[TEST] menu 2 title"
@@ -36,7 +36,7 @@ Feature: Check that MenuTrait works
       | test_duplicate_menu_1 | [TEST] Duplicate menu | Test duplicate menu 1 description |
       | test_duplicate_menu_2 | [TEST] Duplicate menu | Test duplicate menu 2 description |
     When the menu "[TEST] Duplicate menu" does not exist
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     And I visit "/admin/structure/menu"
     Then I should not see "[TEST] Duplicate menu"
     And I should not see "Test duplicate menu 1 description"
@@ -53,7 +53,7 @@ Feature: Check that MenuTrait works
       | [TEST] Other link     | 1       | https://www.example.net |
     When the following menu links do not exist in the menu "[TEST] menu 1 title":
       | [TEST] Duplicate link |
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     And I visit "/admin/config/development/performance"
     And I press "Clear all cache"
     And I visit "/admin/structure/menu/manage/_test_menu_1_title"
@@ -68,7 +68,7 @@ Feature: Check that MenuTrait works
       | title             | enabled | uri                     | parent            |
       | Parent Link Title | 1       | https://www.example.com |                   |
       | Child Link Title  | 1       | https://www.example.com | Parent Link Title |
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     And I visit "/admin/structure/menu/manage/_test_menu_1_title"
     Then I should see "Parent Link Title"
     And I should see "Child Link Title"

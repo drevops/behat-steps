@@ -12,7 +12,7 @@ Feature: Check that UserTrait works
       | authenticated_user_blocked | authenticated_user_blocked@myexample.com |               | 0      |
 
   Scenario: Assert "Given the following users do not exist:" by name
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And user "authenticated_user" should exist
     And user "non_existing" should not exist
     When the following users do not exist:
@@ -23,7 +23,7 @@ Feature: Check that UserTrait works
     And user "non_existing" should not exist
 
   Scenario: Assert "Given the following users do not exist:" by email
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And user "authenticated_user" should exist
     And user "non_existing" should not exist
     When the following users do not exist:
@@ -161,7 +161,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit the profile page of the user :name" for existing user
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I visit the profile page of the user "authenticated_user"
     Then the response status code should be 200
 
@@ -170,7 +170,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       When I visit the profile page of the user "non_existing"
       """
     When I run "behat --no-colors"
@@ -179,27 +179,27 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  Scenario: Assert "When I visit my own user profile page" for existing user
-    When I log in as a user with the role "administrator"
-    When I visit my own user profile page
+  Scenario: Assert "When I visit my own profile page" for existing user
+    Given I am logged in as a user with the role "administrator"
+    When I visit my own profile page
     Then the response status code should be 200
 
-  Scenario: Assert "When I log in as a user with the role(s) :roles and the following fields:" works as expected
-    When I log in as a user with the role "content_editor" and the following fields:
+  Scenario: Assert "Given I am logged in as a user with the role(s) :roles and I have the following fields:" works as expected
+    Given I am logged in as a user with the role "content_editor" and I have the following fields:
       | name | [TEST] fields_user      |
       | mail | fields_user@example.com |
     Then the user "[TEST] fields_user" should have the role "content_editor" assigned
     And the user with the email "fields_user@example.com" should exist
-    When I visit my own user profile page
+    When I visit my own profile page
     Then the response status code should be 200
     And I should see "[TEST] fields_user"
 
   @test-trait:Drupal\UserTrait
-  Scenario: Assert "When I visit my own user profile page" fails for non-logged in user
+  Scenario: Assert "When I visit my own profile page" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
       """
-      When I visit my own user profile page
+      When I visit my own profile page
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -208,7 +208,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit the profile edit page of the user :name" for existing user
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I visit the profile edit page of the user "authenticated_user"
     Then the response status code should be 200
 
@@ -217,7 +217,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       When I visit the profile edit page of the user "non_existing"
       """
     When I run "behat --no-colors"
@@ -226,17 +226,17 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  Scenario: Assert "When I visit my own user profile edit page" for existing user
-    When I log in as a user with the role "administrator"
-    When I visit my own user profile edit page
+  Scenario: Assert "When I visit my own profile edit page" for existing user
+    Given I am logged in as a user with the role "administrator"
+    When I visit my own profile edit page
     Then the response status code should be 200
 
   @test-trait:Drupal\UserTrait
-  Scenario: Assert "When I visit my own user profile edit page" fails for non-logged in user
+  Scenario: Assert "When I visit my own profile edit page" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
       """
-      When I visit my own user profile edit page
+      When I visit my own profile edit page
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -245,7 +245,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit the profile delete page of the user :name" for existing user
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I visit the profile delete page of the user "authenticated_user"
     Then the response status code should be 200
 
@@ -254,7 +254,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       When I visit the profile delete page of the user "non_existing"
       """
     When I run "behat --no-colors"
@@ -263,17 +263,17 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  Scenario: Assert "When I visit my own user profile delete page" for existing user
-    When I log in as a user with the role "administrator"
-    When I visit my own user profile delete page
+  Scenario: Assert "When I visit my own profile delete page" for existing user
+    Given I am logged in as a user with the role "administrator"
+    When I visit my own profile delete page
     Then the response status code should be 200
 
   @test-trait:Drupal\UserTrait
-  Scenario: Assert "When I visit my own user profile delete page" fails for non-logged in user
+  Scenario: Assert "When I visit my own profile delete page" fails for non-logged in user
     Given some behat configuration
     And scenario steps:
       """
-      When I visit my own user profile delete page
+      When I visit my own profile delete page
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -282,7 +282,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit the password reset link for the user :name" works
-    When I log in as the user "authenticated_user"
+    Given I am logged in as the user "authenticated_user"
     When I visit the password reset link for the user "authenticated_user"
     Then the response status code should be 200
 
@@ -291,7 +291,7 @@ Feature: Check that UserTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       When I visit the password reset link for the user "non_existing"
       """
     When I run "behat --no-colors"
@@ -301,7 +301,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Assert "When I visit my own password reset link" works
-    When I log in as the user "authenticated_user"
+    Given I am logged in as the user "authenticated_user"
     When I visit my own password reset link
     Then the response status code should be 200
 
@@ -502,17 +502,17 @@ Feature: Check that UserTrait works
       The user "non_existing" does not exist.
       """
 
-  Scenario: Assert "Given the role :role has the permissions :permissions" works
+  Scenario: Assert "Given the role :role has the permission(s) :permissions" works
     Given the role "Content Manager" has the permissions "access content, create article content"
-    And I log in as a user with the role "administrator"
-    And I visit "/admin/people/roles"
+    And I am logged in as a user with the role "administrator"
+    When I visit "/admin/people/roles"
     Then I should see "Content Manager"
 
-  Scenario: Assert "Given the role :role has the permissions :permissions" replaces existing role
+  Scenario: Assert "Given the role :role has the permission(s) :permissions" replaces existing role
     Given the role "Editor" has the permissions "access content"
     And the role "Editor" has the permissions "access content, create article content"
-    And I log in as a user with the role "administrator"
-    And I visit "/admin/people/roles"
+    And I am logged in as a user with the role "administrator"
+    When I visit "/admin/people/roles"
     Then I should see "Editor"
 
   Scenario: Assert "Given the following roles exist:" works with table
@@ -520,8 +520,8 @@ Feature: Check that UserTrait works
       | name             | permissions                              |
       | Content Editor   | access content, create article content   |
       | Content Approver | access content, edit any article content |
-    And I log in as a user with the role "administrator"
-    And I visit "/admin/people/roles"
+    And I am logged in as a user with the role "administrator"
+    When I visit "/admin/people/roles"
     Then I should see "Content Editor"
     And I should see "Content Approver"
 
@@ -529,8 +529,8 @@ Feature: Check that UserTrait works
     Given the following roles exist:
       | name           | permissions |
       | Limited Editor |             |
-    And I log in as a user with the role "administrator"
-    And I visit "/admin/people/roles"
+    And I am logged in as a user with the role "administrator"
+    When I visit "/admin/people/roles"
     Then I should see "Limited Editor"
 
   @test-trait:Drupal\UserTrait
@@ -549,7 +549,7 @@ Feature: Check that UserTrait works
       """
 
   Scenario: Create single user with vertical field format
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the following users with fields exist:
       | name   | [TEST] vertical_user |
       | mail   | vertical@example.com |
@@ -558,7 +558,7 @@ Feature: Check that UserTrait works
     Then I should see "[TEST] vertical_user"
 
   Scenario: Create multiple users with vertical field format
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     And the following users with fields exist:
       | name   | [TEST] vuser1      | [TEST] vuser2      | [TEST] vuser3      |
       | mail   | vuser1@example.com | vuser2@example.com | vuser3@example.com |

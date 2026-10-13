@@ -21,18 +21,18 @@ Feature: Check that FieldTrait works
     Then the field "field1" should not be empty
 
   @phpserver
-  Scenario: Assert "When I fill in the field :selector with the value :value" works with CSS selector
+  Scenario: Assert "When I fill in the field :selector with :value" works with CSS selector
     When I visit "http://cli:8888/fields.html"
-    And I fill in the field "#field1" with the value "CSS filled value"
+    And I fill in the field "#field1" with "CSS filled value"
     Then the field "field1" should not be empty
 
   @test-trait:FieldTrait
-  Scenario: Assert that "When I fill in the field :selector with the value :value" fails when element does not exist
+  Scenario: Assert that "When I fill in the field :selector with :value" fails when element does not exist
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/fields.html"
-      And I fill in the field "#nonexistent-field" with the value "some value"
+      And I fill in the field "#nonexistent-field" with "some value"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -110,28 +110,28 @@ Feature: Check that FieldTrait works
   @phpserver
   Scenario Outline: Assert if field is disabled or enabled
     When I visit "http://cli:8888/fields.html"
-    Then the field "<field>" should have the "<enabled_or_disabled>" state
+    Then the field "<field>" should be <state>
     Examples:
-      | field          | enabled_or_disabled |
-      | field1         | enabled             |
-      | Field 1        | enabled             |
-      | field2         | enabled             |
-      | Field 2        | enabled             |
-      | field3disabled | disabled            |
-      | Field 3        | disabled            |
+      | field          | state    |
+      | field1         | enabled  |
+      | Field 1        | enabled  |
+      | field2         | enabled  |
+      | Field 2        | enabled  |
+      | field3disabled | disabled |
+      | Field 3        | disabled |
 
   @javascript @phpserver
   Scenario: Assert fills in form color field with specified id|name|label|value
     When I visit "http://cli:8888/fields.html"
     Then the color field "#edit-color-input" should have the value "#000000"
-    When I fill in the color field "#edit-color-input" with the value "#ffffff"
+    When I fill in the color field "#edit-color-input" with "#ffffff"
     Then the color field "#edit-color-input" should have the value "#ffffff"
 
   @javascript @phpserver
   Scenario: Assert fills in form color field with specified id|name|label|value using an alternate step definition
     When I visit "http://cli:8888/fields.html"
     Then the color field "#edit-color-input" should have the value "#000000"
-    When I fill in the color field "#edit-color-input" with the value "#ffffff"
+    When I fill in the color field "#edit-color-input" with "#ffffff"
     Then the color field "#edit-color-input" should have the value "#ffffff"
 
   @test-trait:FieldTrait
@@ -177,12 +177,12 @@ Feature: Check that FieldTrait works
       """
 
   @test-trait:FieldTrait
-  Scenario: Assert that "the field :field should have enabled state" fails when it is disabled
+  Scenario: Assert that "the field :field should be enabled" fails when it is disabled
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/fields.html"
-      Then the field "field3disabled" should have the "enabled" state
+      Then the field "field3disabled" should be enabled
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -191,12 +191,12 @@ Feature: Check that FieldTrait works
       """
 
   @test-trait:FieldTrait
-  Scenario: Assert that "the field :field should have disabled state" fails when it is not disabled
+  Scenario: Assert that "the field :field should be disabled" fails when it is not disabled
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/fields.html"
-      Then the field "field1" should have the "disabled" state
+      Then the field "field1" should be disabled
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -243,45 +243,45 @@ Feature: Check that FieldTrait works
       The field "username" is marked as required, but it should not be.
       """
 
-  Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected
-    Given the following page content exist:
+  Scenario: Assert "When I fill in the WYSIWYG field :field with :value" works as expected
+    Given the following page content exists:
       | title             |
       | [TEST] Page title |
-    And I log in as a user with the role "administrator"
-    And I visit the "page" content edit page with the title "[TEST] Page title"
-    When I fill in the WYSIWYG field "Body" with the value "[TEST] body"
-    And I fill in the WYSIWYG field "Description" with the value "[TEST] description"
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content edit page with the title "[TEST] Page title"
+    When I fill in the WYSIWYG field "Body" with "[TEST] body"
+    And I fill in the WYSIWYG field "Description" with "[TEST] description"
     And I press "Save"
     Then I should see "[TEST] body"
     And I should see "[TEST] description"
 
   @javascript
-  Scenario: Assert "When I fill in the WYSIWYG field :field with the value :value" works as expected with JS driver
-    Given the following page content exist:
+  Scenario: Assert "When I fill in the WYSIWYG field :field with :value" works as expected with JS driver
+    Given the following page content exists:
       | title                       |
       | [TEST-JS-Driver] Page title |
-    And I log in as a user with the role "administrator"
-    And I visit the "page" content edit page with the title "[TEST-JS-Driver] Page title"
-    When I fill in the WYSIWYG field "Body" with the value "[TEST-JS-Driver] body"
-    And I fill in the WYSIWYG field "Description" with the value "[TEST-JS-Driver] description"
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content edit page with the title "[TEST-JS-Driver] Page title"
+    When I fill in the WYSIWYG field "Body" with "[TEST-JS-Driver] body"
+    And I fill in the WYSIWYG field "Description" with "[TEST-JS-Driver] description"
     And I press "Save"
     Then I should see "[TEST-JS-Driver] body"
     And I should see "[TEST-JS-Driver] description"
 
   Scenario: Assert that a select has/has not an option
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I visit "/admin/config/regional/settings"
     Then the option "AU" within the select "site_default_country" should exist
     And the option "DUMMY-COUNTRY" within the select "site_default_country" should not exist
 
   Scenario: Assert that a select option is selected
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I visit "/admin/config/regional/settings"
     Then the option "UTC" within the select "date_default_timezone" should exist
     And the option "UTC" within the select "date_default_timezone" should be selected
 
   Scenario: Assert that a select option is not selected
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I visit "/admin/config/regional/settings"
     Then the option "Australia/Sydney" within the select "date_default_timezone" should exist
     And the option "Australia/Sydney" within the select "date_default_timezone" should not be selected
@@ -291,7 +291,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "non_existent_select" should exist
       """
@@ -306,7 +306,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "INVALID_OPTION" within the select "date_default_timezone" should exist
       """
@@ -321,7 +321,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "date_default_timezone" should not exist
       """
@@ -336,7 +336,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "non_existent_select" should be selected
       """
@@ -351,7 +351,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "INVALID_OPTION" within the select "date_default_timezone" should not be selected
       """
@@ -366,7 +366,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "date_default_timezone" should not be selected
       """
@@ -381,7 +381,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "non_existent_select" should not exist
       """
@@ -396,7 +396,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "INVALID_OPTION" within the select "date_default_timezone" should be selected
       """
@@ -411,7 +411,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "Australia/Sydney" within the select "date_default_timezone" should be selected
       """
@@ -426,7 +426,7 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
+      Given I am logged in as a user with the role "administrator"
       Then I visit "/admin/config/regional/settings"
       Then the option "UTC" within the select "non_existent_select" should not be selected
       """
@@ -667,10 +667,10 @@ Feature: Check that FieldTrait works
 
   @datetime @test-skipped
   Scenario: Fill datetime field with date and time
-    Given the following page content exist:
+    Given the following page content exists:
       | title                     |
       | [TEST] Datetime test page |
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Datetime test page"
     And I fill in the datetime field "Event date" with the date "2024-01-15" and the time "14:30:00"
     And I press "Save"
@@ -678,22 +678,22 @@ Feature: Check that FieldTrait works
 
   @datetime @test-skipped
   Scenario: Fill datetime field using separate date and time steps
-    Given the following page content exist:
+    Given the following page content exists:
       | title                          |
       | [TEST] Datetime separate steps |
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Datetime separate steps"
-    And I fill in the date part of the datetime field "Event date" with the date "2024-02-20"
-    And I fill in the time part of the datetime field "Event date" with the time "15:45:00"
+    And I fill in the date part of the datetime field "Event date" with "2024-02-20"
+    And I fill in the time part of the datetime field "Event date" with "15:45:00"
     And I press "Save"
     Then I should see "Page [TEST] Datetime separate steps has been updated."
 
   @datetime @test-skipped
   Scenario: Fill date-only field
-    Given the following page content exist:
+    Given the following page content exists:
       | title                      |
       | [TEST] Date only test page |
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Date only test page"
     And I fill in the datetime field "Event date only" with the date "2024-03-10" and the time ""
     And I press "Save"
@@ -701,21 +701,21 @@ Feature: Check that FieldTrait works
 
   @datetime @test-skipped
   Scenario: Fill date-only field using date part step
-    Given the following page content exist:
+    Given the following page content exists:
       | title                      |
       | [TEST] Date part test page |
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Date part test page"
-    And I fill in the date part of the datetime field "Event date only" with the date "2024-04-05"
+    And I fill in the date part of the datetime field "Event date only" with "2024-04-05"
     And I press "Save"
     Then I should see "Page [TEST] Date part test page has been updated."
 
   @datetime @test-skipped
   Scenario: Fill daterange field with start and end dates
-    Given the following page content exist:
+    Given the following page content exists:
       | title                      |
       | [TEST] Daterange test page |
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Daterange test page"
     And I fill in the start datetime field "Event period" with the date "2024-06-01" and the time "09:00:00"
     And I fill in the end datetime field "Event period" with the date "2024-06-05" and the time "17:00:00"
@@ -724,10 +724,10 @@ Feature: Check that FieldTrait works
 
   @datetime @test-skipped
   Scenario: Fill daterange date-only field
-    Given the following page content exist:
+    Given the following page content exists:
       | title                                |
       | [TEST] Daterange date only test page |
-    And I log in as a user with the role "administrator"
+    And I am logged in as a user with the role "administrator"
     When I visit the "page" content edit page with the title "[TEST] Daterange date only test page"
     And I fill in the start datetime field "Event period date only" with the date "2024-07-10" and the time ""
     And I fill in the end datetime field "Event period date only" with the date "2024-07-15" and the time ""
@@ -739,8 +739,8 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
-      And I go to "node/add/page"
+      Given I am logged in as a user with the role "administrator"
+      When I go to "node/add/page"
       And I fill in the datetime field "Non-existent field" with the date "2024-01-01" and the time "12:00:00"
       """
     When I run "behat --no-colors"
@@ -754,9 +754,9 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
-      And I go to "node/add/page"
-      And I fill in the date part of the datetime field "Non-existent field" with the date "2024-01-01"
+      Given I am logged in as a user with the role "administrator"
+      When I go to "node/add/page"
+      And I fill in the date part of the datetime field "Non-existent field" with "2024-01-01"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -769,9 +769,9 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
-      And I go to "node/add/page"
-      And I fill in the time part of the datetime field "Non-existent field" with the time "12:00:00"
+      Given I am logged in as a user with the role "administrator"
+      When I go to "node/add/page"
+      And I fill in the time part of the datetime field "Non-existent field" with "12:00:00"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -784,8 +784,8 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
-      And I go to "node/add/page"
+      Given I am logged in as a user with the role "administrator"
+      When I go to "node/add/page"
       And I fill in the start datetime field "Non-existent range" with the date "2024-01-01" and the time ""
       """
     When I run "behat --no-colors"
@@ -799,8 +799,8 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps:
       """
-      When I log in as a user with the role "administrator"
-      And I go to "node/add/page"
+      Given I am logged in as a user with the role "administrator"
+      When I go to "node/add/page"
       And I fill in the end datetime field "Non-existent range" with the date "2024-01-05" and the time ""
       """
     When I run "behat --no-colors"
@@ -811,7 +811,7 @@ Feature: Check that FieldTrait works
 
   @javascript
   Scenario: Fill in multi-value field with more values than existing rows
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I go to "node/add/page"
     And I fill in "Title" with "[TEST] Multi-value tags"
     And I fill in the multi-value field "Test tags" with the following values:
@@ -827,8 +827,8 @@ Feature: Check that FieldTrait works
     Given some behat configuration
     And scenario steps tagged with "@javascript":
       """
-      When I log in as a user with the role "administrator"
-      And I go to "node/add/page"
+      Given I am logged in as a user with the role "administrator"
+      When I go to "node/add/page"
       And I fill in the multi-value field "Non-existent multi field" with the following values:
         | value |
         | Foo   |
@@ -846,7 +846,7 @@ Feature: Check that FieldTrait works
       """
       Given I visit "http://cli:8888/fields.html"
       Then the color field "#edit-color-input" should have the value "#000000"
-      When I fill in the color field "#edit-color-input" with the value "#ffffff"
+      When I fill in the color field "#edit-color-input" with "#ffffff"
       Then the color field "#edit-color-input" should have the value "#000000"
       """
     When I run "behat --no-colors"
@@ -858,15 +858,15 @@ Feature: Check that FieldTrait works
   @javascript @phpserver
   Scenario: Fill in WYSIWYG field with CKEditor 5
     When I visit "http://cli:8888/wysiwyg_ckeditor5.html"
-    And I fill in the WYSIWYG field "Body" with the value "Updated CKEditor 5 body content"
-    And I fill in the WYSIWYG field "Description" with the value "Updated CKEditor 5 description"
+    And I fill in the WYSIWYG field "Body" with "Updated CKEditor 5 body content"
+    And I fill in the WYSIWYG field "Description" with "Updated CKEditor 5 description"
 
   # The non-commercial version of CKEditor 4 throws an error about being insecure.
   @javascript @js-errors @phpserver
   Scenario: Fill in WYSIWYG field with CKEditor 4
     When I visit "http://cli:8888/wysiwyg_ckeditor4.html"
-    And I fill in the WYSIWYG field "Body" with the value "Updated CKEditor 4 body content"
-    And I fill in the WYSIWYG field "Description" with the value "Updated CKEditor 4 description"
+    And I fill in the WYSIWYG field "Body" with "Updated CKEditor 4 body content"
+    And I fill in the WYSIWYG field "Description" with "Updated CKEditor 4 description"
 
   @test-trait:FieldTrait
   Scenario: Assert negative WYSIWYG field not found
@@ -874,7 +874,7 @@ Feature: Check that FieldTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       When I visit "http://cli:8888/wysiwyg_ckeditor5.html"
-      When I fill in the WYSIWYG field "Non-existent WYSIWYG" with the value "test content"
+      When I fill in the WYSIWYG field "Non-existent WYSIWYG" with "test content"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -888,7 +888,7 @@ Feature: Check that FieldTrait works
     And scenario steps tagged with "@javascript @phpserver":
       """
       When I visit "http://cli:8888/wysiwyg_ckeditor5.html"
-      When I fill in the WYSIWYG field "noid" with the value "test content"
+      When I fill in the WYSIWYG field "noid" with "test content"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:

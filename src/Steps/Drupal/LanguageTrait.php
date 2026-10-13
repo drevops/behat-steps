@@ -37,6 +37,8 @@ trait LanguageTrait {
    *   | fr       |
    *   | de       |
    * @endcode
+   *
+   * @actor:system
    */
   #[Given('the following languages exist:')]
   public function languageCreateMultiple(TableNode $table): void {

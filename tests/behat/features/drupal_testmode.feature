@@ -4,7 +4,7 @@ Feature: Check that TestmodeTrait works
   So that users can focus on test-specific content in their tests
 
   Background:
-    Given the following article content exist:
+    Given the following article content exists:
       | title              | changed |
       | Article 1          | now     |
       | Article 2          | now     |
@@ -15,7 +15,7 @@ Feature: Check that TestmodeTrait works
       | [MYTEST] Article 7 | -1 hour |
 
   Scenario: Assert visiting test content page without test mode will put the required content on the second page
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I go to "/content_test"
     Then I should see "Article 1"
     And I should see "Article 2"
@@ -27,7 +27,7 @@ Feature: Check that TestmodeTrait works
 
   @testmode
   Scenario: Assert visiting test content page with test mode will put the required content on the second page
-    When I log in as a user with the role "administrator"
+    Given I am logged in as a user with the role "administrator"
     When I go to "/content_test"
     Then I should not see "Article 1"
     And I should not see "Article 2"
@@ -57,12 +57,12 @@ Feature: Check that TestmodeTrait works
       Feature: Stub feature
 
         Scenario: Test content is listed on its own
-          Given the following article content exist:
+          Given the following article content exists:
             | title              |
             | Article 1          |
             | [MYTEST] Article 6 |
-          When I log in as a user with the role "administrator"
-          And I go to "/content_test"
+          And I am logged in as a user with the role "administrator"
+          When I go to "/content_test"
           Then I should see "[MYTEST] Article 6"
           And I should not see "Article 1"
       """
