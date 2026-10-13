@@ -222,6 +222,7 @@ final class BehatStepsExtension implements ExtensionInterface {
       ->arrayNode('blackbox')
         ->info('Settings of the backend that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve.')
       ->end();
+
     // phpcs:enable
     // @formatter:on
     foreach ($this->backendProviders as $provider) {
