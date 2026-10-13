@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\DrupalContext;
 
 /**
  * Defines application features from the specific context.

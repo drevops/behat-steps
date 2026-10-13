@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures;
+
+use Behat\Testwork\Environment\Environment;
+use Behat\Testwork\Environment\Reader\EnvironmentReader;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Call\BeforeNodeCreate;
+
+/**
+ * Environment reader offering 1 hook whose callable throws.
+ */
+class ThrowingHookReader implements EnvironmentReader {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function supportsEnvironment(Environment $environment): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function readEnvironmentCallees(Environment $environment): array {
+    return [new BeforeNodeCreate(static::fail(...))];
+  }
+
+  /**
+   * The hook body, which always fails.
+   */
+  public static function fail(): void {
+    throw new \RuntimeException('The hook failed.');
+  }
+
+}

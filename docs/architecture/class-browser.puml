@@ -1,11 +1,11 @@
 @startuml
 ' drevops/behat-steps - the browser capability layer and the HTTP clients a
 ' step sends its own requests through.
-' Traced from src/Behat/Context/WebRawContext.php,
-' src/Behat/Auth/Authenticator.php, src/Behat/Mink/,
-' src/Behat/Mink/Capability/, src/Behat/Mink/Adapter/,
-' src/Behat/Mink/ServiceContainer/Driver/BrowserKitFactory.php,
-' src/Behat/Http/, src/Behat/ServiceContainer/BehatStepsExtension.php.
+' Traced from src/WebRawContext.php,
+' src/Extension/Auth/Authenticator.php, src/Extension/Browser/,
+' src/Extension/Browser/Capability/, src/Extension/Browser/Adapter/,
+' src/Extension/ServiceContainer/Driver/BrowserKitFactory.php,
+' src/Extension/Http/, src/Extension/ServiceContainer/BehatStepsExtension.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -14,7 +14,7 @@ skinparam shadowing false
 skinparam classAttributeIconSize 0
 title Class structure: browser capabilities and HTTP clients
 
-package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Context" #F3E5F5 {
   class WebRawContext {
     +browserDriverFor(capability) : object
     +browserDriverHas(capability) : bool
@@ -28,7 +28,7 @@ package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
   }
 }
 
-package "DrevOps\\BehatSteps\\Behat\\Auth" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Auth" #F3E5F5 {
   class Authenticator {
     {static} +JAVASCRIPT_LOGIN_WAIT : int
     --
@@ -40,7 +40,7 @@ package "DrevOps\\BehatSteps\\Behat\\Auth" #F3E5F5 {
 
 WebRawContext -[hidden]right- Authenticator
 
-package "DrevOps\\BehatSteps\\Behat\\Mink" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Browser" #F3E5F5 {
   class BrowserCapabilityResolver {
     +registerAdapter(adapter) : void
     +resolve(driver, capability) : BrowserAdapterInterface
@@ -59,7 +59,7 @@ package "DrevOps\\BehatSteps\\Behat\\Mink" #F3E5F5 {
   BrowserCapabilityResolver ..> BrowserAdapterInterface : offers each browser driver to,\nregistered adapters first
 }
 
-package "DrevOps\\BehatSteps\\Behat\\Mink\\Adapter" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Browser\\Adapter" #F3E5F5 {
   class BrowserKitAdapter
   class ChromeAdapter
   class Selenium2Adapter
@@ -68,7 +68,7 @@ package "DrevOps\\BehatSteps\\Behat\\Mink\\Adapter" #F3E5F5 {
   ChromeAdapter -[hidden]right- Selenium2Adapter
 }
 
-package "DrevOps\\BehatSteps\\Behat\\Mink\\Capability" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Browser\\Capability" #F3E5F5 {
   interface CookieCapabilityInterface {
     +cookieGetAll() : array
   }
@@ -106,7 +106,7 @@ ChromeAdapter ..|> JavascriptCapabilityInterface
 ChromeAdapter ..|> KeyboardCapabilityInterface
 ChromeAdapter ..|> RequestHeaderCapabilityInterface
 
-package "DrevOps\\BehatSteps\\Behat\\Http" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Http" #F3E5F5 {
   interface HttpClientFactoryInterface {
     +createBare(options) : AbstractBrowser
     +createDetached(identity, options) : AbstractBrowser
@@ -134,7 +134,7 @@ package "DrevOps\\BehatSteps\\Behat\\Http" #F3E5F5 {
   HttpClientFactoryInterface ..> HttpIdentity : takes
 }
 
-package "DrevOps\\BehatSteps\\Behat\\ServiceContainer" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\ServiceContainer" #F3E5F5 {
   class BehatStepsExtension {
     {static} +TRANSPORT_SERVICE : string
     --
@@ -146,7 +146,7 @@ package "DrevOps\\BehatSteps\\Behat\\ServiceContainer" #F3E5F5 {
   }
 }
 
-package "DrevOps\\BehatSteps\\Behat\\Mink\\ServiceContainer\\Driver" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Browser\\ServiceContainer\\Driver" #F3E5F5 {
   class BrowserKitFactory {
     +configure(builder) : void
     +buildDriver(config) : Definition

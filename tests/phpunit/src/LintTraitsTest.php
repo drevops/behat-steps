@@ -35,7 +35,7 @@ class LintTraitsTest extends UnitTestCase {
   public function testCollectReadsBothDirectories(): void {
     $this->writeFixture('src/Steps/Web/PathTrait.php', "<?php\n\ntrait PathTrait {}\n");
     $this->writeFixture('src/Steps/Web/README.md', 'not code');
-    $this->writeFixture('src/Helper/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
+    $this->writeFixture('src/Steps/Helper/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
     $this->writeFixture('src/Backend/Ignored.php', "<?php\n\ntrait Ignored {}\n");
 
     $collected = traits_collect(static::$tmp);
@@ -46,9 +46,26 @@ class LintTraitsTest extends UnitTestCase {
   }
 
   public function testCollectSkipsMissingDirectory(): void {
-    $this->writeFixture('src/Helper/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
+    $this->writeFixture('src/Steps/Helper/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
 
     $this->assertSame(['StringTrait'], array_keys(traits_collect(static::$tmp)));
+  }
+
+  public function testCollectReadsHelperUnderStepsOnceAsHelper(): void {
+    $this->writeFixture('src/Steps/Web/PathTrait.php', "<?php\n\ntrait PathTrait {}\n");
+    $this->writeFixture('src/Steps/Helper/Web/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
+
+    $collected = traits_collect(static::$tmp);
+
+    $this->assertSame(['PathTrait', 'StringTrait'], array_keys($collected));
+    $this->assertSame('helper', $collected['StringTrait']['kind']);
+  }
+
+  public function testCollectSkipsFileDeclaringNoTrait(): void {
+    $this->writeFixture('src/Steps/Web/PathTrait.php', "<?php\n\ntrait PathTrait {}\n");
+    $this->writeFixture('src/Steps/Exception/AssertionException.php', "<?php\n\nclass AssertionException extends \\Exception {}\n");
+
+    $this->assertSame(['PathTrait'], array_keys(traits_collect(static::$tmp)));
   }
 
   /**
@@ -63,7 +80,7 @@ class LintTraitsTest extends UnitTestCase {
   public function testFileFacts(string $code, array $expected): void {
     $file = $this->writeFixture('Subject.php', $code);
 
-    $this->assertSame($expected, traits_file_facts($file));
+    $this->assertSame(['is_trait' => TRUE] + $expected, traits_file_facts($file));
   }
 
   public static function dataProviderFileFacts(): array {
@@ -81,7 +98,7 @@ class LintTraitsTest extends UnitTestCase {
         ['composed' => ['StringTrait'], 'members' => []],
       ],
       'imported composition' => [
-        "<?php\n\nuse DrevOps\\BehatSteps\\Helper\\StringTrait;\n\ntrait PathTrait {\n  use StringTrait;\n}\n",
+        "<?php\n\nuse DrevOps\\BehatSteps\\Steps\\Helper\\StringTrait;\n\ntrait PathTrait {\n  use StringTrait;\n}\n",
         ['composed' => ['StringTrait'], 'members' => []],
       ],
       'closure binding a variable' => [

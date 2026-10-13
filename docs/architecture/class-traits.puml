@@ -1,8 +1,8 @@
 @startuml
 ' drevops/behat-steps - the step vocabulary and the contexts it mixes into.
-' Traced from src/Steps/Web/, src/Steps/Drupal/, src/Helper/Web/,
-' src/Helper/Drupal/,
-' src/Behat/Context/WebRawContext.php, WebContext.php, DrupalContext.php,
+' Traced from src/Steps/Web/, src/Steps/Drupal/, src/Steps/Helper/Web/,
+' src/Steps/Helper/Drupal/,
+' src/WebRawContext.php, WebContext.php, DrupalContext.php,
 ' BackendAwareInterface.php, UserAwareInterface.php,
 ' tests/behat/bootstrap/FeatureContext.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -22,7 +22,7 @@ package "Behat\\MinkExtension\\Context" #ECEFF1 {
   }
 }
 
-package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Context" #F3E5F5 {
   interface BackendAwareInterface
   interface UserAwareInterface
   class WebRawContext {
@@ -177,7 +177,7 @@ package "DrevOps\\BehatSteps\\Steps\\Drupal" #E3F2FD {
   WatchdogTrait -[hidden]down- WebformTrait
 }
 
-package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Steps\\Helper\\Web" #F3E5F5 {
   class FixtureDirectoryTrait <<trait>>
   class HeadingTrait <<trait>>
   class JavascriptErrorTrait <<trait>>
@@ -196,7 +196,7 @@ package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
   TableTransposeTrait -[hidden]down- TokenTrait
 }
 
-package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Steps\\Helper\\Drupal" #F3E5F5 {
   class EntityLifecycleTrait <<trait>>
   class AuthTrait <<trait>>
   class StaticCacheTrait <<trait>>
@@ -220,7 +220,7 @@ note bottom of Consumer
   Step traits never use other step traits. Shared logic lives
   in the concern-named helper traits, composed by whichever
   step traits and contexts need it. A trait's directory is its
-  classification: src/Steps registers Gherkin, src/Helper does
+  classification: src/Steps registers Gherkin, src/Steps/Helper does
   not, and the Web and Drupal halves say which context a
   helper serves.
 end note

@@ -6,7 +6,7 @@ namespace DrevOps\BehatSteps\Tests;
 
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
-use DrevOps\BehatSteps\Behat\Config\TagOverrideResolver;
+use DrevOps\BehatSteps\Extension\Config\TagOverrideResolver;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -46,7 +46,7 @@ class SkipGuardTest extends UnitTestCase {
    * Scenario hooks that carry no skip guard, and why.
    */
   protected const UNGUARDED_HOOKS = [
-    'Helper\\Drupal\\StaticCacheTrait::staticCacheAfterScenario' => 'Clears the static caches the scenario filled.',
+    'Steps\\Helper\\Drupal\\StaticCacheTrait::staticCacheAfterScenario' => 'Clears the static caches the scenario filled.',
     'Steps\\Drupal\\ConfigTrait::configBeforeScenario' => 'Clears the snapshot registry.',
     'Steps\\Drupal\\StateTrait::stateBeforeScenario' => 'Clears the snapshot registry.',
     'Steps\\Drupal\\WatchdogTrait::watchdogAfterScenario' => 'Checks only a scenario whose start time watchdogBeforeScenario() set behind its guard.',

@@ -1,12 +1,12 @@
 @startuml
 ' drevops/behat-steps - data flow for a step running in a consuming project.
 ' Traced from src/Steps/Web/PathTrait.php, src/Steps/Drupal/ContentTrait.php,
-' src/Steps/Drupal/WatchdogTrait.php, src/Behat/Prerequisite/,
-' src/Behat/Context/WebRawContext.php, WebContext.php,
-' src/Helper/Drupal/EntityLifecycleTrait.php, src/Helper/Drupal/AuthTrait.php,
-' DrupalContext.php, src/Behat/Registry/BackendRegistry.php,
-' src/Behat/Listener/SkipTagListener.php,
-' src/Behat/Listener/BackendListener.php, src/Backend/DrupalBackend.php, behat.php,
+' src/Steps/Drupal/WatchdogTrait.php, src/Extension/Prerequisite/,
+' src/WebRawContext.php, WebContext.php,
+' src/Steps/Helper/Drupal/EntityLifecycleTrait.php, src/Steps/Helper/Drupal/AuthTrait.php,
+' DrupalContext.php, src/Extension/Registry/BackendRegistry.php,
+' src/Extension/Listener/SkipTagListener.php,
+' src/Extension/Listener/BackendListener.php, src/Backend/DrupalBackend.php, behat.php,
 ' src/Steps/Web/DateTrait.php, src/Steps/Web/AccessibilityTrait.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain

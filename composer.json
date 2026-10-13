@@ -78,7 +78,7 @@
     "autoload-dev": {
         "psr-4": {
             "ConsumerProject\\Backend\\": "tests/phpunit/fixtures/backend/ConsumerProject/Backend/",
-            "DrevOps\\BehatSteps\\Backend\\Core99\\": "tests/phpunit/fixtures/backend/Core99/",
+            "DrevOps\\BehatSteps\\Backend\\Drupal\\Core99\\": "tests/phpunit/fixtures/backend/Core99/",
             "DrevOps\\BehatSteps\\Tests\\": "tests/phpunit/src/"
         }
     },

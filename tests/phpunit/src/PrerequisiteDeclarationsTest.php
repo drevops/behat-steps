@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Prerequisite\PrerequisiteReader;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\Prerequisite\PrerequisiteReader;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -21,9 +21,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class PrerequisiteDeclarationsTest extends UnitTestCase {
 
   /**
-   * Namespace every capability a shipped trait declares belongs to.
+   * Namespaces every capability a shipped trait declares belongs to.
+   *
+   * The first holds the capabilities any backend may provide, the second the
+   * ones only a Drupal backend provides.
    */
-  protected const CAPABILITY_NAMESPACE = 'DrevOps\\BehatSteps\\Backend\\Capability\\';
+  protected const CAPABILITY_NAMESPACES = ['DrevOps\\BehatSteps\\Backend\\Capability\\', 'DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\'];
 
   /**
    * The methods that evaluate a trait's prerequisites.
@@ -44,7 +47,9 @@ class PrerequisiteDeclarationsTest extends UnitTestCase {
     $this->assertNotSame([], $prerequisites, sprintf('%s declares an empty list of prerequisites.', $trait));
 
     foreach ($prerequisites as $prerequisite) {
-      $this->assertStringStartsWith(static::CAPABILITY_NAMESPACE, $prerequisite->capability, sprintf('%s declares a prerequisite on "%s", which is not a backend capability.', $trait, $prerequisite->capability));
+      $is_capability = str_starts_with($prerequisite->capability, static::CAPABILITY_NAMESPACES[0]) || str_starts_with($prerequisite->capability, static::CAPABILITY_NAMESPACES[1]);
+
+      $this->assertTrue($is_capability, sprintf('%s declares a prerequisite on "%s", which is not a backend capability.', $trait, $prerequisite->capability));
       $this->assertMatchesRegularExpression('/^[a-z].*[^.]$/', $prerequisite->description, sprintf('%s describes a prerequisite as "%s". A description is a clause completing "requires that", so it starts in lower case and carries no closing period.', $trait, $prerequisite->description));
     }
   }

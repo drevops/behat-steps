@@ -101,7 +101,7 @@ Which exception a step throws is part of the public contract: consumers catch on
 | An assertion failed and the trait has a Mink session | `Behat\Mink\Exception\ExpectationException`, with `$this->getSession()->getDriver()` as the second argument |
 | An element the step locates is missing - on the page or in an XML response: a field, link, button, select, table or row | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
 | An attribute, a JSON path or a table column is missing - none of them is an element | `Behat\Mink\Exception\ExpectationException` |
-| An assertion failed and the trait has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
+| An assertion failed and the trait has no Mink session | `DrevOps\BehatSteps\Steps\Exception\AssertionException` |
 | Not an assertion: an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
 | The current browser driver lacks a required capability | `Behat\Mink\Exception\UnsupportedDriverActionException` |
 | No backend the scenario lists provides a required capability | `DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException` |
@@ -118,7 +118,7 @@ Every method a trait contributes begins with the trait's own name, so that trait
 
 The prefix is the trait name minus its `Trait` suffix with the first letter lowercased, and the character after it is uppercase: `menuFindByLabel()`, not `findMenuByLabel()`. The prefix is not also the verb: `waitSeconds()`, not `waitWaitForSeconds()`. It applies to every member a trait mixes into the context, since any of them can collide with another trait's: `tests/phpunit/src/PublicSurfaceTest.php` holds constants to it in upper snake case, and review holds properties to it.
 
-`TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleCreateNode()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Behat` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Backend` is composed into no context: its 1 trait, `CreationAliasRegistryTrait`, is composed by `DrushBackend` and `Core`.
+`TraitMethodNamingTest`, `PublicSurfaceTest` and `MemberOrderTest` pick their subjects the same way: every trait under `src/Steps` and `src/Steps/Helper`, which are the traits this package names itself and flattens into a context. A helper trait is held to its own full name, so `Helper\Drupal\EntityLifecycleTrait` carries `entityLifecycleCreateNode()` and leaves the `entity` prefix to `Steps\Drupal\EntityTrait`. The traits under `src/Extension` are out of scope - their names are the ones Behat's and Mink's interfaces dictate - and `src/Backend` is composed into no context: its 1 trait, `CreationAliasRegistryTrait`, is composed by `DrushBackend` and `Core`.
 
 ### Assertions
 
@@ -227,7 +227,7 @@ The method for 1 entity is the same name without the suffix, so nothing carries 
 
 ## Class naming conventions
 
-A class name states the role the class plays, so a reader can tell a lookup table, a service that acts and a value apart without opening the file. 3 shapes cover the classes under `src/Behat` that name their own role:
+A class name states the role the class plays, so a reader can tell a lookup table, a service that acts and a value apart without opening the file. 3 shapes cover the classes under `src/Extension` that name their own role:
 
 - **`<Noun>Registry`** holds things and looks them up. `BackendRegistry` registers backends and resolves one by capability; `UserRegistry` stores the users a scenario created and tracks the current one.
 - **An agent noun** performs an action. `Authenticator` logs a user in and out, `BasicAuthenticator` applies HTTP Basic credentials to a session, and `TagOverrideResolver` settles the value an option takes under a scenario's tags. A factory is named the same way, as `HttpClientFactory` is.
@@ -237,21 +237,21 @@ Every other class takes the name of the framework type it extends or implements.
 
 A class the container builds is a registry or an agent noun, because a value is never a service. `ClassNamingTest` fails one in `services.yml` whose name doesn't end in a suffix from its `ROLE_SUFFIXES`, so a service named for a new role adds that suffix there in the same change.
 
-`Manager` is not a role, so it names nothing. Do not reach for it, or for `Handler`, `Helper` or `Service` as a class suffix under `src/Behat` - each would describe every class there equally well.
+`Manager` is not a role, so it names nothing. Do not reach for it, or for `Handler`, `Helper` or `Service` as a class suffix under `src/Extension` - each would describe every class there equally well.
 
-A namespace follows the same rule. It's named for the role its classes share, as `Registry` and `Listener` are, or for the concern they serve, as `Auth` and `Config` are, so the registries live in `Behat\Registry` and the authenticators in `Behat\Auth`. `ClassNamingTest` fails a class or a namespace under `src/Behat` whose name ends in `Manager`, `Handler`, `Helper` or `Service`.
+A namespace follows the same rule. It's named for the role its classes share, as `Registry` and `Listener` are, or for the concern they serve, as `Auth` and `Config` are, so the registries live in `Behat\Registry` and the authenticators in `Behat\Auth`. `ClassNamingTest` fails a class or a namespace under `src/Extension` whose name ends in `Manager`, `Handler`, `Helper` or `Service`.
 
 An accessor is named for what it returns, after its trait prefix where one applies: `getBackendRegistry()`, `authGetUserRegistry()`. A name and its return type cannot disagree, so renaming a class renames its accessors with it.
 
 ### Every type sits in a sub-namespace
 
-A type goes in the sub-namespace of its role or concern, never at the root of `src/Behat`, even when several sub-namespaces build on it:
+A type goes in the sub-namespace of its role or concern, never at the root of `src/Extension`, even when several sub-namespaces build on it:
 
 - **The contracts the context initializer injects through sit with the contexts.** `BackendAwareInterface`, `ParametersAwareInterface` and `UserAwareInterface` are all in `Behat\Context`, and `BackendAwareInterface` extends `ParametersAwareInterface`.
 - **A trait sits with the concern it serves, not with the contract its methods fill.** `ParametersTrait` reads the extension's configuration, so it's in `Behat\Config`, and the authenticator composes it from there as a context does. That keeps every container service clear of `Behat\Context`. `MinkAwareTrait` gives a container service the Mink session a context has, so it's in `Behat\Mink`.
 - **`Tag` is the 1 type at the root.** The step traits, the contexts and the listeners all read tags through it, so no sub-namespace owns it.
 
-`ClassNamingTest` fails any other type directly under `src/Behat`. Adding 1 there means adding it to `ROOT_TYPES`, with the reason no sub-namespace owns it.
+`ClassNamingTest` fails any other type directly under `src/Extension`. Adding 1 there means adding it to `ROOT_TYPES`, with the reason no sub-namespace owns it.
 
 ### A capability wrapper is not a class
 
@@ -285,10 +285,10 @@ Every other class is replaced rather than extended. A suite that swaps in its ow
 | Term | What it is | Where it shows up |
 | --- | --- | --- |
 | **Backend** | What a step resolves a capability from: Drupal in-process, Drush or Blackbox | `src/Backend`, `BackendInterface`, the `backends` list and the `@backend:` tag, `backendFor()` and `getBackend()` on `WebRawContext`, `BackendRegistry` |
-| **Browser driver** | Mink's driver behind the session: BrowserKit, Selenium2 or Chrome | `browserDriverFor()` and `browserDriverHas()` on `WebRawContext`, the adapters and capabilities under `src/Behat/Mink` |
+| **Browser driver** | Mink's driver behind the session: BrowserKit, Selenium2 or Chrome | `browserDriverFor()` and `browserDriverHas()` on `WebRawContext`, the adapters and capabilities under `src/Extension/Browser` |
 | **HTTP client** | What a step sends its own request through: the page, detached or bare client | `httpPageClient()`, `httpDetachedClient()` and `httpBareClient()` on `WebRawContext`, `HttpClientFactory` |
 
-Mink owns the word "driver" across the Behat ecosystem, so no name this package owns uses it for anything else. `Backend` in one of our identifiers means a backend, and `Driver` or `BrowserDriver` means Mink's. In prose, Mink's is a "browser driver", never a "Mink driver" or "the session's driver", and that holds inside `src/Behat/Mink` too. An HTTP client is neither. It's a BrowserKit `AbstractBrowser`, so a docblock may call the object a browser.
+Mink owns the word "driver" across the Behat ecosystem, so no name this package owns uses it for anything else. `Backend` in one of our identifiers means a backend, and `Driver` or `BrowserDriver` means Mink's. In prose, Mink's is a "browser driver", never a "Mink driver" or "the session's driver", and that holds inside `src/Extension/Browser` too. An HTTP client is neither. It's a BrowserKit `AbstractBrowser`, so a docblock may call the object a browser.
 
 Each side has a counterpart on the other, and the names keep the 2 apart:
 
@@ -308,7 +308,7 @@ The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the 
 
 A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
 
-- It is declared by a trait under `src/Steps` or `src/Helper`, or by a class in `docs.php`'s `TOOLBOX_CLASSES`. A helper is published once, under the trait whose file declares it, never under a trait that composes that one.
+- It is declared by a trait under `src/Steps` or `src/Steps/Helper`, or by a class in `docs.php`'s `TOOLBOX_CLASSES`. A helper is published once, under the trait whose file declares it, never under a trait that composes that one.
 - It is `public`. A `private` member cannot be reached from a project's context that extends a shipped one, and has no place in a trait.
 - A trait member begins with its trait's name, which is the collision rule every trait member follows anyway. A member of a `TOOLBOX_CLASSES` class, such as `WebRawContext::backendFor()`, carries none.
 - It carries no `#[Given]`, `#[When]`, `#[Then]`, `#[Transform]` or hook attribute. Those are registered with Behat and belong to the vocabulary.
@@ -425,19 +425,19 @@ The harness steps keep their own wording, placeholders, patterns and signatures 
 The package ships 3 layers, and the dependency only runs one way: `Steps` on `Behat` on `Backend`, apart from the 3 contexts in `Behat\Context`, which compose the step and helper traits.
 
 - **`src/Backend`** is the part that talks to Drupal: it bootstraps a site in-process or shells out to Drush, creates entities, and expands field values into their storage shape. It knows nothing about Behat or Mink, which is what keeps it usable outside a Behat run.
-- **`src/Behat`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Registry/` holds the backend, user and scenario tag registries, `Auth/` holds the authenticator and the basic authenticator, `Context/` holds the 3 context classes, the contracts their initializer injects through, the initializer itself and the hook attribute reader, `Config/` holds option resolution and `ParametersTrait`, which reads the extension parameters, `Mink/` holds the browser capabilities, their adapters and resolver, the `browserkit_http` browser driver factory, the `DocumentElement` installed in place of Mink's own, and `MinkAwareTrait`, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator.
-- **`src/Helper`** holds the step-free traits a step trait and a context both compose, split into `Web/` (fixture directories, heading lookup, JavaScript error collection, last-step tracking, the request header bag, string shaping, table transposition, token replacement) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, direct queries). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened.
+- **`src/Extension`** is the integration: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, `Registry/` holds the backend, user and scenario tag registries, `Auth/` holds the authenticator and the basic authenticator, `Context/` holds the 3 context classes, the contracts their initializer injects through, the initializer itself and the hook attribute reader, `Config/` holds option resolution and `ParametersTrait`, which reads the extension parameters, `Mink/` holds the browser capabilities, their adapters and resolver, the `browserkit_http` browser driver factory, the `DocumentElement` installed in place of Mink's own, and `MinkAwareTrait`, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity-creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator.
+- **`src/Steps/Helper`** holds the step-free traits a step trait and a context both compose, split into `Web/` (fixture directories, heading lookup, JavaScript error collection, last-step tracking, the request header bag, string shaping, table transposition, token replacement) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, direct queries). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened.
 - **`src/Steps`** is the step vocabulary - traits a context mixes in. Placement follows the subject: `Web/` holds the steps that mean something on any site, and `Drupal/` the ones that only mean something on a Drupal site, whether they reach a backend or only drive the page. The directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under, so a project testing a site that isn't Drupal extends `WebContext` and gets no step it can't use.
 
 `Context/` is one chain. `WebRawContext` carries the plumbing, composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`) and registers no steps; `WebContext` extends it and composes every trait under `Steps/Web`; `DrupalContext` extends that and composes every trait under `Steps/Drupal`. `ContextCompositionTest` holds that directory-to-context coverage in both directions, and holds the chain to one composition of each trait, because a subclass re-composing a parent's trait registers its steps twice.
 
 A trait names the host it needs with `@phpstan-require-extends`, and composes the helper traits its own body calls. `ContextCompositionTest` walks every step trait and fails one that reaches a helper member it does not compose, so the plumbing a trait needs travels with it rather than being assumed of the host.
 
-The host is the base class that provides every method the trait calls without declaring it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all the trait touches, and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reaches a backend or the extension configuration. A trait that calls nothing outside itself names no host. A context that composes `AuthTrait` declares `UserAwareInterface`, so the initializer injects the user registry and the authenticator.
+The host is the base class that provides every method the trait calls without declaring it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all the trait touches, and `DrevOps\BehatSteps\WebRawContext` when it reaches a backend or the extension configuration. A trait that calls nothing outside itself names no host. A context that composes `AuthTrait` declares `UserAwareInterface`, so the initializer injects the user registry and the authenticator.
 
-That is what keeps `src/Helper` a library rather than a catch-all: teardown lives with the concern that creates the thing being torn down. A trait that creates entities composes `EntityLifecycleTrait` and so brings the `AfterScenario` pass that removes them; a context composing no such trait runs no entity teardown at all. Trait flattening is idempotent, so the fourteen traits that compose it still yield one registry, one hook and one deletion pass in reverse creation order.
+That is what keeps `src/Steps/Helper` a library rather than a catch-all: teardown lives with the concern that creates the thing being torn down. A trait that creates entities composes `EntityLifecycleTrait` and so brings the `AfterScenario` pass that removes them; a context composing no such trait runs no entity teardown at all. Trait flattening is idempotent, so the fourteen traits that compose it still yield one registry, one hook and one deletion pass in reverse creation order.
 
-A trait's directory is its classification, so nothing has to be declared twice: `src/Steps` registers Gherkin and `src/Helper` registers none. [scripts/lint-traits.php](scripts/lint-traits.php) fails a step trait composing another step trait, and a helper trait carrying a step or transform attribute. A helper may carry a hook: the trait that owns a teardown carries the hook that runs it. Shared logic goes in a helper trait under `src/Helper` named for its concern, composed by whoever needs it.
+A trait's directory is its classification, so nothing has to be declared twice: `src/Steps` registers Gherkin and `src/Steps/Helper` registers none. [scripts/lint-traits.php](scripts/lint-traits.php) fails a step trait composing another step trait, and a helper trait carrying a step or transform attribute. A helper may carry a hook: the trait that owns a teardown carries the hook that runs it. Shared logic goes in a helper trait under `src/Steps/Helper` named for its concern, composed by whoever needs it.
 
 ## What a trait needs from the backend
 
@@ -462,7 +462,7 @@ A step that sends its own HTTP request picks 1 of 3 clients on `WebRawContext` b
 | Belongs to the scenario's visitor, but isn't the page | `httpDetachedClient()` | `FileDownloadTrait`, the hreflang return-link check in `MetatagTrait` |
 | Carries nothing of the scenario | `httpBareClient()` | The engine fetch in `AccessibilityTrait` |
 
-Never build a client of your own, whether that's cURL, `file_get_contents()` over HTTP or a `new HttpBrowser()`. It wouldn't get the connection settings a project declares on its `browserkit_http` session, so a suite on a staging site with a self-signed certificate would pass on the page and fail on the download. A trait calling any of the 3 carries `@phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext`.
+Never build a client of your own, whether that's cURL, `file_get_contents()` over HTTP or a `new HttpBrowser()`. It wouldn't get the connection settings a project declares on its `browserkit_http` session, so a suite on a staging site with a self-signed certificate would pass on the page and fail on the download. A trait calling any of the 3 carries `@phpstan-require-extends \DrevOps\BehatSteps\WebRawContext`.
 
 The page client exists only under BrowserKit, and throws `UnsupportedDriverActionException` in a JavaScript session, so a step built on it fails there by design. The detached and bare clients work under every browser driver. In a `@javascript` scenario they're a sidecar: the browser holds the page while the step sends its request from PHP, so a download keeps working there. Keep a detached or bare response in the trait's own state, as `FileDownloadTrait` does, or inside the step, as the hreflang check does. Never write it to the session, or the next page assertion reads the wrong content.
 
@@ -470,7 +470,7 @@ In a unit test, the test implementation overrides `httpDetachedClient()` or `htt
 
 A new step that touches `\Drupal::` calls `$this->backendFor(CoreCapabilityInterface::class);` as its first statement. That is the only sanctioned bootstrap: nothing else may assume the container exists. A step whose trait declares prerequisites calls `$this->assertPrerequisites(__TRAIT__)` next, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes.
 
-[scripts/lint-layers.php](scripts/lint-layers.php) holds both boundaries. It reads every file of each declared layer and fails on any code reference into the namespaces that layer excludes: imports, type declarations, and class names reached through a string. `src/Backend` excludes `Behat` and `Mink`; `src/Steps/Web`, `WebRawContext`, `WebContext` and every web helper trait under `src/Helper/Web` exclude `Drupal`, apart from `Drupal\Component\Utility\Random`, which ships in `drupal/core-utility` and every consumer loads already. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
+[scripts/lint-layers.php](scripts/lint-layers.php) holds both boundaries. It reads every file of each declared layer and fails on any code reference into the namespaces that layer excludes: imports, type declarations, and class names reached through a string. `src/Backend` excludes `Behat` and `Mink`; `src/Steps/Web`, `WebRawContext`, `WebContext` and every web helper trait under `src/Steps/Helper/Web` exclude `Drupal`, apart from `Drupal\Component\Utility\Random`, which ships in `drupal/core-utility` and every consumer loads already. A prose mention in a comment is fine - it's the code references that matter. `ahoy lint` runs it.
 
 ## Behat 4 readiness
 
@@ -481,7 +481,7 @@ A new step that touches `\Drupal::` calls `$this->backendFor(CoreCapabilityInter
 
 Working on this repository makes it the root package, so its own flag applies: a plain `composer install` here resolves Behat 4.0 with Mink extension 3.0.0-ALPHA.1, and provisioning narrows the fixture to the major each leg runs.
 
-`src/Behat` plugs into 5 Behat extension points, and each one is written to satisfy Behat 3.33 and Behat 4 at the same time. Keep it that way when touching them.
+`src/Extension` plugs into 5 Behat extension points, and each one is written to satisfy Behat 3.33 and Behat 4 at the same time. Keep it that way when touching them.
 
 - **Signatures are typed for Behat 4, widened for Behat 3.** Behat 4 types its interfaces where 3.33 leaves them untyped, so implementations declare the Behat 4 return type (`ClassGenerator::supportsSuiteAndClass(): bool`, `HookScope::getName(): string`, `Extension::getConfigKey(): string`) and keep the parameter untyped or `mixed` so the 3.33 interface is not narrowed.
 - **The `browserkit_http` factory is registered from `BehatStepsExtension::initialize()`.** The factory extends Mink's own, records each session's `http_client_parameters` through `buildDriver()` for the transport the library's own requests share, and builds the session exactly as Mink does. Mink declares its own `MinkExtension` `final` from version 3, the release that carries Behat 4 support, so it can't be subclassed, and a wrapper would take the `mink` key away from any other Mink extension a project registers. `initialize()` runs once every extension is activated and before any configuration tree is built, so it hands the factory to `registerDriverFactory()` on Mink's own `MinkExtension` when it holds the key - the hook every browser driver extension uses - and leaves any other extension under that key alone. That works on both majors.
@@ -497,7 +497,7 @@ The test suite follows the same rule. Behat 4 reads only PHP configuration and i
 
 Behat 3 strips the `@` from a tag by default and Behat 4 keeps it, while `TaggedNodeInterface::hasTag()` compares strictly, so a bare-name comparison that matches on one major silently fails on the other.
 
-Read tags through [`Tag`](src/Behat/Tag.php), never through `hasTag()` or `getTags()` directly. A hook passes its scope to one of 3 readers, which read the scenario's tags together with its feature's, so a tag on the `Feature:` line applies to every scenario below it:
+Read tags through [`Tag`](src/Extension/Tag.php), never through `hasTag()` or `getTags()` directly. A hook passes its scope to one of 3 readers, which read the scenario's tags together with its feature's, so a tag on the `Feature:` line applies to every scenario below it:
 
 ```php
 // A flag: '@testmode' on the scenario or on its feature.
@@ -622,7 +622,7 @@ A module the trait needs is declared. A core module counts the same as a contrib
 
 The checker reads each trait's declarations once per context class and run, since a context can redeclare the declaring method, and evaluates them in order. For each capability it goes through `anyBackendFor()`, which reuses a backend the scenario already reached when that backend provides the capability, before trying the first one listed, so checking starts a backend only when none the scenario reached provides the capability. A capability with no check still reaches its backend, so declaring `CoreCapabilityInterface` first is what keeps the rest in-process: once it has resolved `drupal`, a module check runs there even under `@backend:drush`. Answers aren't cached, because a tag, a step or an out-of-process command can install or uninstall a module at any time.
 
-`tests/phpunit/src/PrerequisiteDeclarationsTest.php` holds all of this. It fails a malformed declaration, a trait that declares prerequisites but never checks them or checks prerequisites it never declares, a check naming anything but `__TRAIT__`, and a `moduleExists()` call anywhere under `src/Steps` or `src/Helper`.
+`tests/phpunit/src/PrerequisiteDeclarationsTest.php` holds all of this. It fails a malformed declaration, a trait that declares prerequisites but never checks them or checks prerequisites it never declares, a check naming anything but `__TRAIT__`, and a `moduleExists()` call anywhere under `src/Steps` or `src/Steps/Helper`.
 
 ## Dependency policy
 
@@ -660,7 +660,7 @@ There are 3 types of tests in this repository: unit tests, kernel tests and Beha
 
 Both suites are declared in [phpunit.xml](phpunit.xml) and run against the fixture site, because the backend layer and the tests around it resolve Drupal classes from there. Run `ahoy build` first.
 
-Tests live under `tests/phpunit/src/` in a directory named after their suite: `Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite. Inside a suite directory the path mirrors `src/`, so `src/Helper/Web/StringTrait.php` is tested by `tests/phpunit/src/Unit/Helper/Web/StringTraitTest.php`. Tests with no counterpart in `src/` - the docs generator, the layer and trait linters, the provisioning script and the convention tests - sit at the root of `tests/phpunit/src/`.
+Tests live under `tests/phpunit/src/` in a directory named after their suite: `Unit/` and `Kernel/`. Anything outside `Kernel/` belongs to the unit suite. Inside a suite directory the path mirrors `src/`, so `src/Steps/Helper/Web/StringTrait.php` is tested by `tests/phpunit/src/Unit/Steps/Helper/Web/StringTraitTest.php`. Tests with no counterpart in `src/` - the docs generator, the layer and trait linters, the provisioning script and the convention tests - sit at the root of `tests/phpunit/src/`.
 
 ```bash
 ahoy test-unit      # Run the unit suite
@@ -862,4 +862,4 @@ ahoy update-docs  # Update documentation
 ahoy lint-docs    # Check documentation for errors
 ```
 
-An extension option and a tag are both generated from their definition in the source, so neither can be added without appearing in the reference. Write the option's `->info()` in [BehatStepsExtension](src/Behat/ServiceContainer/BehatStepsExtension.php) and the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never hand-edit inside a generated region.
+An extension option and a tag are both generated from their definition in the source, so neither can be added without appearing in the reference. Write the option's `->info()` in [BehatStepsExtension](src/Extension/ServiceContainer/BehatStepsExtension.php) and the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never hand-edit inside a generated region.

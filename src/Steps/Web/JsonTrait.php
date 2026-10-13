@@ -13,8 +13,8 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Helper\Web\FixtureDirectoryTrait;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use Flow\JSONPath\JSONPath;
 use JsonSchema\Validator;
 

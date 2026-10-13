@@ -8,7 +8,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
-use DrevOps\BehatSteps\Behat\Config\Option;
+use DrevOps\BehatSteps\Extension\Config\Option;
 
 /**
  * Keep HTTP basic authentication applied across session resets.
@@ -22,7 +22,7 @@ use DrevOps\BehatSteps\Behat\Config\Option;
  *
  * Skip with tag: `@behat-steps-skip:BasicAuthTrait`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait BasicAuthTrait {
 
@@ -67,7 +67,7 @@ trait BasicAuthTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function basicAuthConfigSchema(): array {

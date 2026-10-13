@@ -24,11 +24,11 @@ use Behat\Step\When;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Transformation\Transform;
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Context\WebContext;
-use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
-use DrevOps\BehatSteps\Behat\Hook\Scope\BeforeNodeCreateScope;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeNodeCreate;
+use DrevOps\BehatSteps\Extension\Drupal\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Tests\Fixtures\RedeclaredMethodTrait;
+use DrevOps\BehatSteps\WebContext;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 

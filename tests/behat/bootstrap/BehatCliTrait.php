@@ -14,7 +14,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Extension\Tag;
 
 /**
  * Additional shortcut steps for BehatCliContext.
@@ -127,10 +127,8 @@ trait BehatCliTrait {
       // 2 contexts can hold the same short name, so each import carries a
       // context-qualified alias and 1 tag can name both.
       $alias = str_replace('\\', '_', (string) $qualified);
-      // A 'Helper\' tag names a trait outside the vocabulary subtree.
-      $root = str_starts_with((string) $qualified, 'Helper\\') ? 'DrevOps\\BehatSteps\\' : 'DrevOps\\BehatSteps\\Steps\\';
 
-      $tokens['{{USE_DECLARATION}}'] .= sprintf("use %s%s as %s;\n", $root, $qualified, $alias);
+      $tokens['{{USE_DECLARATION}}'] .= sprintf("use DrevOps\\BehatSteps\\Steps\\%s as %s;\n", $qualified, $alias);
       $tokens['{{USE_IN_CLASS}}'] .= sprintf("use %s;\n", $alias);
     }
 
@@ -140,12 +138,12 @@ trait BehatCliTrait {
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
-use DrevOps\BehatSteps\Helper\Drupal\StaticCacheTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Context\UserAwareInterface;
+use DrevOps\BehatSteps\WebRawContext;
+use DrevOps\BehatSteps\Extension\Tag;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\AuthTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\StaticCacheTrait;
 {{USE_DECLARATION}}
 
 // A trait tag names a trait from either half, and the generated class
@@ -351,7 +349,7 @@ use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use DrevOps\BehatPhpServer\PhpServerContext;
 use DrevOps\BehatScreenshotExtension\Context\ScreenshotContext;
 use DrevOps\BehatScreenshotExtension\ServiceContainer\BehatScreenshotExtension;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 use DVDoug\Behat\CodeCoverage\Extension as CodeCoverageExtension;
 
 $suite = (new Suite('default'))
@@ -433,7 +431,7 @@ EOL;
     $output = $this->getOutput();
     $has_valid_exception = str_contains((string) $output, ' (Behat\\Mink\\Exception\\ExpectationException)')
       || str_contains((string) $output, ' (Behat\\Mink\\Exception\\ElementNotFoundException)')
-      || str_contains((string) $output, ' (DrevOps\\BehatSteps\\Exception\\AssertionException)');
+      || str_contains((string) $output, ' (DrevOps\\BehatSteps\\Steps\\Exception\\AssertionException)');
 
     if (!$has_valid_exception) {
       throw new \RuntimeException('The output does not contain an assertion exception string as expected.');

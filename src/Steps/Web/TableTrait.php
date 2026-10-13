@@ -10,8 +10,8 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
  * Interact with HTML table elements and assert their content.
@@ -25,7 +25,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  * - Click links and press buttons within a row identified by part of its
  *   text.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait TableTrait {
 
@@ -539,7 +539,7 @@ trait TableTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function tableConfigSchema(): array {

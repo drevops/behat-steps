@@ -20,8 +20,8 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Tag;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Tag;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Extension\MissingDependencyException;
 use Symfony\Component\BrowserKit\Cookie;
@@ -29,7 +29,7 @@ use Symfony\Component\BrowserKit\Cookie;
 /**
  * Defines application features from the specific context.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\DrupalContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\DrupalContext
  */
 trait FeatureContextTrait {
 

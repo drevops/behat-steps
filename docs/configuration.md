@@ -27,7 +27,7 @@ use Behat\Config\Extension;
 use Behat\Config\Filter\TagFilter;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
 // The browser surface: what an editor or a visitor can do in a page.
 $ui = (new Suite('ui'))
@@ -145,7 +145,7 @@ default:
       paths: ['%paths.base%/tests/behat/features/api']
       contexts: [ApiContext]
   extensions:
-    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+    DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension:
       drupal:
         drupal_root: web
 ```
@@ -305,7 +305,7 @@ Two options recur, and they are deliberately separate switches:
 
 Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in the composing context sits outside the chain and replaces the resolution entirely, which remains the escape hatch for anything the configuration cannot express.
 
-A project writing its own configurable trait declares each option as a `DrevOps\BehatSteps\Behat\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
+A project writing its own configurable trait declares each option as a `DrevOps\BehatSteps\Extension\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
 
 ```php
 protected function acmeConfigSchema(): array {

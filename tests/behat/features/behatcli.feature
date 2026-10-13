@@ -15,7 +15,7 @@ Feature: Behat CLI context
       """
       <?php
       use Behat\Step\Given;
-      use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+      use DrevOps\BehatSteps\WebRawContext;
       use DrevOps\BehatSteps\Steps\Web\PathTrait;
       class FeatureContext extends WebRawContext {
         use PathTrait;
@@ -35,7 +35,7 @@ Feature: Behat CLI context
       use Behat\Config\Suite;
       use Behat\MinkExtension\Context\MinkContext;
       use Behat\MinkExtension\ServiceContainer\MinkExtension;
-      use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+      use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
       $profile = (new Profile('default'))
         ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
@@ -139,7 +139,7 @@ Feature: Behat CLI context
     Given a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
-      use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+      use DrevOps\BehatSteps\WebRawContext;
       use DrevOps\BehatSteps\Steps\Drupal\ContentTrait;
       class FeatureContext extends WebRawContext {
         use ContentTrait;
@@ -154,7 +154,7 @@ Feature: Behat CLI context
       use Behat\Config\Suite;
       use Behat\MinkExtension\Context\MinkContext;
       use Behat\MinkExtension\ServiceContainer\MinkExtension;
-      use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+      use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
       $profile = (new Profile('default'))
         ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
@@ -172,7 +172,7 @@ Feature: Behat CLI context
     When I run "behat --no-colors"
     Then it should fail with:
       """
-      No backend provides "DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface". Backends available to this scenario, in order: blackbox.
+      No backend provides "DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface". Backends available to this scenario, in order: blackbox.
       """
 
   Scenario: A "@backend" tag naming a backend the configuration does not hold fails at scenario start
@@ -213,7 +213,7 @@ Feature: Behat CLI context
       use Behat\Config\Suite;
       use Behat\MinkExtension\Context\MinkContext;
       use Behat\MinkExtension\ServiceContainer\MinkExtension;
-      use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+      use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
       $profile = (new Profile('default'))
         ->withSuite((new Suite('default'))->addContext('FeatureContext')->addContext(MinkContext::class))
@@ -239,8 +239,8 @@ Feature: Behat CLI context
     Given a file named "features/bootstrap/FeatureContext.php" with:
       """
       <?php
-      use DrevOps\BehatSteps\Behat\Context\WebRawContext;
-      use DrevOps\BehatSteps\Behat\Hook\Attribute\BeforeNodeCreate;
+      use DrevOps\BehatSteps\WebRawContext;
+      use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeNodeCreate;
       class FeatureContext extends WebRawContext {
         #[BeforeNodeCreate('article')]
         public static function alterArticle(): void {}

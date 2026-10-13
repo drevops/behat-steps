@@ -9,8 +9,8 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Config\Option;
 
 /**
  * Interact with and assert modals.
@@ -24,7 +24,7 @@ use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
  * `modal.selectors`, `modal.content_selectors` and `modal.close_selectors`
  * options. All steps require a JavaScript-enabled browser driver.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ModalTrait {
 
@@ -357,7 +357,7 @@ trait ModalTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function modalConfigSchema(): array {

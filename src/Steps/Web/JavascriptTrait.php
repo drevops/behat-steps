@@ -13,10 +13,10 @@ use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
 use Behat\Mink\Exception\ExpectationException;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Mink\Capability\JavascriptCapabilityInterface;
-use DrevOps\BehatSteps\Helper\Web\JavascriptErrorTrait;
-use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
+use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Helper\Web\JavascriptErrorTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
 
 /**
  * Automatically detect JavaScript errors during test execution.
@@ -49,7 +49,7 @@ use DrevOps\BehatSteps\Helper\Web\LastStepTrait;
  *   Given I visit "/legacy-page"
  * @endcode
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait JavascriptTrait {
 
@@ -334,7 +334,7 @@ JS;
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function javascriptConfigSchema(): array {

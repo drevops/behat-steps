@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures;
 
-use DrevOps\BehatSteps\Backend\DrupalBackend;
+use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
 
 /**
  * Test fixture that injects a synthetic Drupal version string.

@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\Backend\Capability\CoreCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Context\BackendAwareInterface;
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
-use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
-use DrevOps\BehatSteps\Behat\Context\WebContext;
-use DrevOps\BehatSteps\Behat\Prerequisite\Prerequisite;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
-use DrevOps\BehatSteps\Helper\Drupal\AuthTrait;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Context\BackendAwareInterface;
+use DrevOps\BehatSteps\Extension\Context\UserAwareInterface;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\AuthTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Steps\Web\CookieTrait;
 use DrevOps\BehatSteps\Steps\Web\ElementTrait;
 use DrevOps\BehatSteps\Steps\Web\FileDownloadTrait;
@@ -28,7 +27,8 @@ use DrevOps\BehatSteps\Tests\Fixtures\Web\InheritedChild;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\MultiMethodTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\NoMatchTrait;
 use DrevOps\BehatSteps\Tests\Fixtures\Web\SampleTrait;
-use DrevOps\BehatSteps\Tests\Unit\Behat\Fixtures\DuplicateOptionConfigContext;
+use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\DuplicateOptionConfigContext;
+use DrevOps\BehatSteps\WebContext;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Config\Definition\ArrayNode;
@@ -3777,9 +3777,9 @@ EOD,
 
   public static function dataProviderRelativeSourcePath(): array {
     return [
-      'under the documented repository' => ['/repo/src/Behat/Context/WebRawContext.php', '/repo', 'src/Behat/Context/WebRawContext.php'],
-      'under this repository' => [dirname(__DIR__, 3) . '/src/Behat/Context/WebRawContext.php', '/elsewhere', 'src/Behat/Context/WebRawContext.php'],
-      'outside both repositories' => ['/elsewhere/src/Behat/Context/WebRawContext.php', '/repo', '/elsewhere/src/Behat/Context/WebRawContext.php'],
+      'under the documented repository' => ['/repo/src/WebRawContext.php', '/repo', 'src/WebRawContext.php'],
+      'under this repository' => [dirname(__DIR__, 3) . '/src/WebRawContext.php', '/elsewhere', 'src/WebRawContext.php'],
+      'outside both repositories' => ['/elsewhere/src/WebRawContext.php', '/repo', '/elsewhere/src/WebRawContext.php'],
     ];
   }
 
@@ -3836,12 +3836,12 @@ EOD,
   public function testExtractHelpersSkipsHelperTraitsWithoutHelpers(): void {
     // collect_helper_traits() derives the namespace from the directory, so the
     // fixture declares the library's helper namespace.
-    require_once $this->writeFixture('src/Helper/Web/BareHelperTrait.php', <<<'EOD'
+    require_once $this->writeFixture('src/Steps/Helper/Web/BareHelperTrait.php', <<<'EOD'
 <?php
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Helper\Web;
+namespace DrevOps\BehatSteps\Steps\Helper\Web;
 
 /**
  * Declare no public method.
@@ -3868,7 +3868,7 @@ EOD);
     $this->assertArrayHasKey('WebRawContext', $actual);
     $this->assertSame('Toolbox', $actual['WebRawContext']['context']);
     $this->assertNull($actual['WebRawContext']['steps_anchor']);
-    $this->assertSame('src/Behat/Context/WebRawContext.php', $actual['WebRawContext']['source']);
+    $this->assertSame('src/WebRawContext.php', $actual['WebRawContext']['source']);
 
     // The injection points the initializer calls are withdrawn from the
     // published surface.
@@ -3887,7 +3887,7 @@ EOD);
 
     $this->assertSame('Web', $actual['RequestHeadersTrait']['context']);
     $this->assertNull($actual['RequestHeadersTrait']['steps_anchor']);
-    $this->assertSame('src/Helper/Web/RequestHeadersTrait.php', $actual['RequestHeadersTrait']['source']);
+    $this->assertSame('src/Steps/Helper/Web/RequestHeadersTrait.php', $actual['RequestHeadersTrait']['source']);
     $this->assertSame(['requestHeadersSet'], array_column($actual['RequestHeadersTrait']['helpers'], 'name'));
 
     $this->assertContains('entityLifecycleCreateNode', array_column($actual['EntityLifecycleTrait']['helpers'], 'name'));
@@ -3946,9 +3946,9 @@ EOD);
   }
 
   public function testCollectHelperTraitsReadsOnlyTheTraitFiles(): void {
-    $this->writeFixture('src/Helper/Web/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
-    $this->writeFixture('src/Helper/Web/README.md', 'not code');
-    $this->writeFixture('src/Helper/Loose.php', "<?php\n\ntrait Loose {}\n");
+    $this->writeFixture('src/Steps/Helper/Web/StringTrait.php', "<?php\n\ntrait StringTrait {}\n");
+    $this->writeFixture('src/Steps/Helper/Web/README.md', 'not code');
+    $this->writeFixture('src/Steps/Helper/Loose.php', "<?php\n\ntrait Loose {}\n");
 
     $collected = collect_helper_traits(static::$tmp);
 

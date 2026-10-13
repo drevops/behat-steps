@@ -6,8 +6,8 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Capability\DrushCapabilityInterface;
-use DrevOps\BehatSteps\Exception\AssertionException;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\DrushCapabilityInterface;
+use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 
 /**
  * Run Drush commands and assert their output.
@@ -20,7 +20,7 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * the scenario's order. They work in a scenario driven by any other backend
  * as long as the suite lists a Drush-capable one.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait DrushTrait {
 
@@ -194,7 +194,7 @@ trait DrushTrait {
    * @param string|null $arguments
    *   Arguments appended to the command verbatim, or NULL for none.
    *
-   * @throws \DrevOps\BehatSteps\Exception\AssertionException
+   * @throws \DrevOps\BehatSteps\Steps\Exception\AssertionException
    *   When the command exits zero.
    */
   public function drushRunExpectingFailure(string $command, ?string $arguments = NULL): void {

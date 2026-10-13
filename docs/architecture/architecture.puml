@@ -1,8 +1,8 @@
 @startuml
 ' drevops/behat-steps - layered component architecture.
-' Traced from composer.json, src/Steps/, src/Helper/Web/, src/Helper/Drupal/,
-' src/Behat/, src/Behat/Auth/, src/Behat/Config/, src/Behat/Mink/,
-' src/Behat/Http/, src/Backend/, behat.php, scripts/lint-layers.php.
+' Traced from composer.json, src/Steps/, src/Steps/Helper/Web/, src/Steps/Helper/Drupal/,
+' src/Extension/, src/Extension/Auth/, src/Extension/Config/, src/Extension/Browser/,
+' src/Extension/Http/, src/Backend/, behat.php, scripts/lint-layers.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -24,22 +24,22 @@ package "drevops/behat-steps" {
     component "Steps\\Drupal\n29 traits, Drupal sites only,\nmost through a backend" as DrupalSteps
   }
 
-  package "Helpers - src/Helper" #F3E5F5 {
+  package "Helpers - src/Steps/Helper" #F3E5F5 {
     component "Helper\\Web\n8 traits: last step,\nrequest headers, strings,\ntable transpose, tokens,\nfixture directory, headings,\nJavaScript errors" as WebHelpers
     component "Helper\\Drupal\n5 traits: entity lifecycle,\nauthentication, static cache,\nfixture files, queries" as DrupalHelpers
   }
 
-  package "Integration - src/Behat" #F3E5F5 {
+  package "Integration - src/Extension" #F3E5F5 {
     component "BehatStepsExtension\nservice wiring" as Ext
     component "WebRawContext\nbackend and browser access,\noption reads, HTTP clients,\nprerequisite checks,\nhook dispatch, no steps" as WebRawCtx
     component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
-    component "Registries\nsrc/Behat/Registry: backend,\nuser, scenario tags" as Registries
-    component "Authenticators\nsrc/Behat/Auth: user login,\nHTTP Basic credentials" as Authenticators
+    component "Registries\nsrc/Extension/Registry: backend,\nuser, scenario tags" as Registries
+    component "Authenticators\nsrc/Extension/Auth: user login,\nHTTP Basic credentials" as Authenticators
     component "Listeners\nbackend order and scenario tags,\nskip tags that name no trait\nthe suite composes" as Listeners
     component "Config\nschema reader, option resolver,\ntag overrides, parameter reads" as OptionConfig
     component "BrowserKitFactory\nbuilds every browserkit_http\nsession as Mink does,\nrecords its options" as BrowserKit
-    component "Browser capabilities\nsrc/Behat/Mink: resolver,\n5 capabilities, 3 adapters" as BrowserCaps
-    component "HTTP clients\nsrc/Behat/Http: factory, identity,\nthe shared transport" as HttpClients
+    component "Browser capabilities\nsrc/Extension/Browser: resolver,\n5 capabilities, 3 adapters" as BrowserCaps
+    component "HTTP clients\nsrc/Extension/Http: factory, identity,\nthe shared transport" as HttpClients
     component "Prerequisite\ntrait declarations stated\nthrough capabilities, reader" as Prereq
   }
 

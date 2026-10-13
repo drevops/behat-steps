@@ -1,0 +1,83 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Extension\Generator;
+
+use Behat\Behat\Context\ContextClass\ClassGenerator as UpstreamClassGenerator;
+use Behat\Testwork\Suite\Suite;
+
+/**
+ * Generates a starting context class that extends 'WebRawContext'.
+ *
+ * Replaces Behat's own generator behind the
+ * 'context.class_generator.simple' service.
+ *
+ * The '$contextClass' parameters are declared 'mixed' so the declaration
+ * matches both the untyped Behat 3 interface and the 'string'-typed Behat 4
+ * one.
+ */
+final class ClassGenerator implements UpstreamClassGenerator {
+
+  /**
+   * Template for generated context class files.
+   */
+  protected static string $template = <<<'PHP'
+<?php
+
+{namespace}use Behat\Behat\Tester\Exception\PendingException;
+use Behat\Gherkin\Node\PyStringNode;
+use Behat\Gherkin\Node\TableNode;
+use DrevOps\BehatSteps\WebRawContext;
+
+/**
+ * Defines application features from the specific context.
+ */
+class {className} extends WebRawContext {
+
+  /**
+   * Initializes context.
+   *
+   * Every scenario gets its own context instance.
+   * You can also pass arbitrary arguments to the
+   * context constructor through the Behat configuration.
+   *
+   * @param array<string, array<string, mixed>> $config
+   *   Trait options the suite declares for this context.
+   */
+  public function __construct(array $config = []) {
+    parent::__construct($config);
+  }
+
+}
+
+PHP;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function supportsSuiteAndClass(Suite $suite, mixed $contextClass): bool {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function generateClass(Suite $suite, mixed $contextClass): string {
+    $fqn = (string) $contextClass;
+
+    $namespace = '';
+    $position = strrpos($fqn, '\\');
+
+    if ($position !== FALSE) {
+      $namespace = 'namespace ' . substr($fqn, 0, $position) . ";\n\n";
+      $contextClass = substr($fqn, $position + 1);
+    }
+
+    return strtr(self::$template, [
+      '{namespace}' => $namespace,
+      '{className}' => $contextClass,
+    ]);
+  }
+
+}

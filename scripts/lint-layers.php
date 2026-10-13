@@ -35,9 +35,9 @@ const LAYERS = [
     'name' => 'the web half',
     'paths' => [
       'src/Steps/Web',
-      'src/Behat/Context/WebRawContext.php',
-      'src/Behat/Context/WebContext.php',
-      'src/Helper/Web',
+      'src/WebRawContext.php',
+      'src/WebContext.php',
+      'src/Steps/Helper/Web',
     ],
     'forbidden' => ['Drupal'],
     // 'drupal/core-utility' ships the random generator and is a hard

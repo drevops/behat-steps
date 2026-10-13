@@ -11,9 +11,9 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Helper\Web\RequestHeadersTrait;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
  * Test REST APIs with lightweight steps and no Drupal dependencies.
@@ -24,7 +24,7 @@ use DrevOps\BehatSteps\Helper\Web\StringTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:RestTrait`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait RestTrait {
 
@@ -186,7 +186,7 @@ trait RestTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function restConfigSchema(): array {

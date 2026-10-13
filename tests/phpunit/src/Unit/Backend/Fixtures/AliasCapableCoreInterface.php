@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures;
 
 use DrevOps\BehatSteps\Backend\Capability\CreationAliasCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Core\CoreInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 
 /**
  * Composite test interface used to exercise the alias-capable Core path.

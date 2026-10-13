@@ -10,9 +10,9 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Transformation\Transform;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Helper\Web\StringTrait;
-use DrevOps\BehatSteps\Helper\Web\TokenTrait;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
+use DrevOps\BehatSteps\Steps\Helper\Web\TokenTrait;
 use Drupal\Component\Utility\Random;
 
 /**
@@ -30,7 +30,7 @@ use Drupal\Component\Utility\Random;
  *
  * Skip processing with tag: `@behat-steps-skip:RandomTrait`.
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait RandomTrait {
 
@@ -405,7 +405,7 @@ trait RandomTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function randomConfigSchema(): array {

@@ -1,13 +1,13 @@
 @startuml
 ' drevops/behat-steps - the context chain, its services, the helper traits
 ' and 3 representative step traits, plus the exceptions a failing step throws.
-' Traced from src/Behat/Context/WebRawContext.php, WebContext.php,
+' Traced from src/WebRawContext.php, WebContext.php,
 ' DrupalContext.php, BackendAwareInterface.php, ParametersAwareInterface.php,
 ' UserAwareInterface.php, Initializer/BackendAwareInitializer.php,
-' src/Behat/Config/, src/Behat/Prerequisite/, src/Behat/Registry/,
-' src/Behat/Auth/, src/Behat/Listener/, src/Helper/Web/, src/Helper/Drupal/,
+' src/Extension/Config/, src/Extension/Prerequisite/, src/Extension/Registry/,
+' src/Extension/Auth/, src/Extension/Listener/, src/Steps/Helper/Web/, src/Steps/Helper/Drupal/,
 ' src/Steps/Web/PathTrait.php, src/Steps/Web/CommandTrait.php,
-' src/Steps/Drupal/ContentTrait.php, src/Exception/AssertionException.php.
+' src/Steps/Drupal/ContentTrait.php, src/Steps/Exception/AssertionException.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -16,7 +16,7 @@ skinparam shadowing false
 skinparam classAttributeIconSize 0
 title Class detail: context, services, helpers and step traits
 
-package "DrevOps\\BehatSteps\\Behat\\Context" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Context" #F3E5F5 {
   class WebRawContext {
     +getBackend(name) : BackendInterface
     +backendFor(capability) : object
@@ -94,7 +94,7 @@ package "Behat\\MinkExtension\\Context" #ECEFF1 {
 
 RawMinkContext <|-- WebRawContext
 
-package "DrevOps\\BehatSteps\\Behat\\Registry" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Registry" #F3E5F5 {
   interface BackendRegistryInterface {
     +getBackendFor(capability) : object
     +getResolvedBackendFor(capability) : object|null
@@ -112,7 +112,7 @@ package "DrevOps\\BehatSteps\\Behat\\Registry" #F3E5F5 {
   }
 }
 
-package "DrevOps\\BehatSteps\\Behat\\Auth" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Auth" #F3E5F5 {
   interface BasicAuthenticatorInterface {
     +applyBasicAuth() : void
     +findCredentials() : array|null
@@ -124,7 +124,7 @@ package "DrevOps\\BehatSteps\\Behat\\Auth" #F3E5F5 {
   }
 }
 
-package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Config" #F3E5F5 {
   interface TraitOptionResolverFactoryInterface {
     +create(context_class, config, steps) : TraitOptionResolverInterface
   }
@@ -181,7 +181,7 @@ package "DrevOps\\BehatSteps\\Behat\\Config" #F3E5F5 {
   TagOverrideResolver -[hidden]down- ParametersTrait
 }
 
-package "DrevOps\\BehatSteps\\Behat\\Prerequisite" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\Prerequisite" #F3E5F5 {
   class Prerequisite {
     +capability : string
     +check : Closure|null
@@ -210,7 +210,7 @@ DrupalContext -[hidden]down- Prerequisite
 TraitOptionResolverFactoryInterface o--> ConfigSchemaReader
 TraitOptionResolverInterface o--> ScenarioTagRegistryInterface
 
-package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Steps\\Helper\\Web" #F3E5F5 {
   class RequestHeadersTrait <<trait>> {
     +requestHeadersSet(name, value) : void
     #requestHeadersUnset(name) : void
@@ -267,7 +267,7 @@ package "DrevOps\\BehatSteps\\Helper\\Web" #F3E5F5 {
   JavascriptErrorTrait -[hidden]down- TokenTrait
 }
 
-package "DrevOps\\BehatSteps\\Helper\\Drupal" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Steps\\Helper\\Drupal" #F3E5F5 {
   class EntityLifecycleTrait <<trait>> {
     +entityLifecycleCreateNode(stub) : EntityStubInterface
     +entityLifecycleCreateTerm(stub) : EntityStubInterface
@@ -365,7 +365,7 @@ package "Thrown on failure" #FFEBEE {
   }
   class ElementNotFoundException
   class AssertionException {
-    DrevOps\\BehatSteps\\Exception
+    DrevOps\\BehatSteps\\Steps\\Exception
     --
     no browser driver required
   }

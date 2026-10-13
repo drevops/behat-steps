@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures;
 
-use DrevOps\BehatSteps\Backend\Drush\DrushResult;
-use DrevOps\BehatSteps\Backend\DrushBackend;
+use DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult;
+use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 
 /**
  * Subclass of 'DrushBackend' that records every Drush invocation.

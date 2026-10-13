@@ -1,0 +1,100 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DrevOps\BehatSteps\Extension\Registry;
+
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+
+/**
+ * Interface for classes that hold the users created during tests.
+ */
+interface UserRegistryInterface {
+
+  /**
+   * Returns the currently logged in user.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|false
+   *   The user stub, or FALSE if the user is anonymous.
+   */
+  public function getCurrentUser(): EntityStubInterface|false;
+
+  /**
+   * Sets the currently logged in user.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|false $user
+   *   The user stub, or FALSE if the user has been logged out.
+   */
+  public function setCurrentUser(EntityStubInterface|false $user): void;
+
+  /**
+   * Adds a new user.
+   *
+   * Tracks a created user, so every user created in a scenario can be cleaned
+   * up after the test.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
+   *   The user stub.
+   */
+  public function addUser(EntityStubInterface $user): void;
+
+  /**
+   * Removes a user from the list of users that were created in the test.
+   *
+   * @param string $name
+   *   The name of the user to remove.
+   */
+  public function removeUser(string $name): void;
+
+  /**
+   * Returns the list of users that were created in the test.
+   *
+   * @return array<string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   An array of user stubs keyed by user name.
+   */
+  public function getUsers(): array;
+
+  /**
+   * Returns the user with the given user name.
+   *
+   * @param string $name
+   *   The name of the user to return.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The user stub.
+   *
+   * @throws \RuntimeException
+   *   Thrown when the user with the given name does not exist.
+   */
+  public function getUser(string $name): EntityStubInterface;
+
+  /**
+   * Clears the list of users that were created in the test.
+   */
+  public function clearUsers(): void;
+
+  /**
+   * Returns whether any users were created in the test.
+   */
+  public function hasUsers(): bool;
+
+  /**
+   * Returns whether the current user is anonymous.
+   */
+  public function currentUserIsAnonymous(): bool;
+
+  /**
+   * Checks whether the current user holds the given roles.
+   *
+   * Both the query and the user's own role value are comma-separated lists,
+   * and surrounding whitespace on either side is ignored.
+   *
+   * @param string $role
+   *   A single role, or several roles as 1 comma-separated string.
+   *
+   * @return bool
+   *   TRUE when the current user holds every role named in the query.
+   */
+  public function currentUserHasRole(string $role): bool;
+
+}

@@ -20,7 +20,7 @@ use Behat\Gherkin\Parser;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Behat\Context\DrupalContext;
+use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Tests\Fixtures\StepCoverage\StepCoverageContext;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;

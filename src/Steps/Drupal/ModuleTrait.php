@@ -12,10 +12,10 @@ use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Behat\Config\Option;
-use DrevOps\BehatSteps\Behat\Tag;
-use DrevOps\BehatSteps\Exception\AssertionException;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Tag;
+use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 
 /**
  * Enable and disable Drupal modules with automatic state restoration.
@@ -29,7 +29,7 @@ use DrevOps\BehatSteps\Exception\AssertionException;
  * - `@module:module_name` - enable module for scenario
  * - `@module:!module_name` - disable module for scenario
  *
- * @phpstan-require-extends \DrevOps\BehatSteps\Behat\Context\WebRawContext
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ModuleTrait {
 
@@ -340,7 +340,7 @@ trait ModuleTrait {
   /**
    * Declares the options this trait reads.
    *
-   * @return array<int, \DrevOps\BehatSteps\Behat\Config\Option>
+   * @return array<int, \DrevOps\BehatSteps\Extension\Config\Option>
    *   The options this trait declares.
    */
   protected function moduleConfigSchema(): array {
