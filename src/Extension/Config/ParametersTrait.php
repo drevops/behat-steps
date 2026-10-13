@@ -8,7 +8,7 @@ namespace DrevOps\BehatSteps\Extension\Config;
  * Provides access to the extension parameters.
  *
  * The Behat configuration holds these parameters under the extension's config
- * key. They define commonly customized aspects of the Drupal installation,
+ * key. They define commonly customized aspects of the site under test,
  * such as CSS selectors, interface text or region maps.
  *
  * Any context reads parameters, text and selectors through this trait, whether
@@ -57,7 +57,7 @@ trait ParametersTrait {
   }
 
   /**
-   * Returns a specific Drupal text value.
+   * Returns a specific text value.
    *
    * @param string $name
    *   Text value name, such as 'logout', which corresponds to the default
@@ -69,11 +69,11 @@ trait ParametersTrait {
    * @throws \RuntimeException
    *   When the text is not present in the list of parameters.
    */
-  public function getDrupalText(string $name): string {
+  public function getText(string $name): string {
     $text = $this->getParameter('text');
 
     if (!isset($text[$name])) {
-      throw new \RuntimeException(sprintf('No such Drupal string: %s.', $name));
+      throw new \RuntimeException(sprintf('No such text: %s.', $name));
     }
 
     return $text[$name];
@@ -91,11 +91,11 @@ trait ParametersTrait {
    * @throws \RuntimeException
    *   When the selector is not present in the list of parameters.
    */
-  public function getDrupalSelector(string $name): string {
+  public function getSelector(string $name): string {
     $selectors = $this->getParameter('selectors');
 
     if (!isset($selectors[$name])) {
-      throw new \RuntimeException(sprintf('No such selector configured: %s.', $name));
+      throw new \RuntimeException(sprintf('No such selector: %s.', $name));
     }
 
     return $selectors[$name];

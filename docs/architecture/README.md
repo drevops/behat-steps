@@ -92,7 +92,7 @@ The context layer is one chain. `WebRawContext` is the root and registers no ste
 
 - Backend access: `backendFor()`, which resolves the capability a step names, and `getBackend()` for the rare caller that wants one suite backend by name.
 - Option resolution: `getOptionBool()`, `getOptionInt()`, `getOptionFloat()`, `getOptionString()` and `getOptionArray()` each read a trait's option at the type its declaration defaults to, through the declaration default, the extension's `steps` section, the context's `config` argument and the scenario's tags. `getOption()` covers a declaration that defaults to `NULL` and so names no type.
-- Extension parameters: `getParameter()`, `getDrupalText()` and `getDrupalSelector()`, from `ParametersTrait`.
+- Extension parameters: `getParameter()`, `getText()` and `getSelector()`, from `ParametersTrait`.
 - Basic authentication: `getBasicAuthenticator()`, because `BasicAuthTrait` is a web trait and calls it.
 - Browser access: `browserDriverFor()` and `browserDriverHas()`, which resolve a browser capability.
 - HTTP clients: `httpPageClient()`, `httpDetachedClient()` and `httpBareClient()`.

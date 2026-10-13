@@ -166,8 +166,8 @@ package "DrevOps\\BehatSteps\\Extension\\Config" #F3E5F5 {
   class ParametersTrait <<trait>> {
     +setParameters(parameters) : void
     +getParameter(name) : mixed
-    +getDrupalText(name) : string
-    +getDrupalSelector(name) : string
+    +getText(name) : string
+    +getSelector(name) : string
   }
 
   TraitOptionResolverFactoryInterface ..> TraitOptionResolverInterface : builds

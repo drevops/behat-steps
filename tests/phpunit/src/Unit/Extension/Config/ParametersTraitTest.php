@@ -38,11 +38,11 @@ class ParametersTraitTest extends UnitTestCase {
   }
 
   public function testConfiguredTextIsReturned(): void {
-    $this->assertSame('Sign out', $this->createHost()->getDrupalText('logout'));
+    $this->assertSame('Sign out', $this->createHost()->getText('logout'));
   }
 
   public function testConfiguredSelectorIsReturned(): void {
-    $this->assertSame('body.logged-in', $this->createHost()->getDrupalSelector('logged_in_selector'));
+    $this->assertSame('body.logged-in', $this->createHost()->getSelector('logged_in_selector'));
   }
 
   /**
@@ -64,8 +64,8 @@ class ParametersTraitTest extends UnitTestCase {
   }
 
   public static function dataProviderUnknownNameThrows(): \Iterator {
-    yield 'text' => ['getDrupalText', 'login', 'No such Drupal string: login.'];
-    yield 'selector' => ['getDrupalSelector', 'login_form_selector', 'No such selector configured: login_form_selector.'];
+    yield 'text' => ['getText', 'login', 'No such text: login.'];
+    yield 'selector' => ['getSelector', 'login_form_selector', 'No such selector: login_form_selector.'];
   }
 
   /**

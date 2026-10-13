@@ -75,7 +75,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
 
     $session = $this->getSession();
 
-    $session->visit($this->locatePath($this->getDrupalText('login_url')));
+    $session->visit($this->locatePath($this->getText('login_url')));
 
     $name = (string) $user->getValue('name');
     $pass = (string) $user->getValue('pass');
@@ -84,8 +84,8 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
     $login_value = (string) $user->getValue($login_field);
 
     $page = $session->getPage();
-    $page->fillField($this->getDrupalText('username_field'), $login_value);
-    $page->fillField($this->getDrupalText('password_field'), $pass);
+    $page->fillField($this->getText('username_field'), $login_value);
+    $page->fillField($this->getText('password_field'), $pass);
 
     $login_element = $this->getLoginElement($page);
 
@@ -118,7 +118,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
 
     if (!$this->isLoggedIn()) {
       $role = $user->getValue('role');
-      $message = $role !== NULL ? sprintf("Unable to determine if logged in because \"%s\" ('logout') link cannot be found for user \"%s\" with role \"%s\".", $this->getDrupalText('logout'), $name, $role) : sprintf("Unable to determine if logged in because \"%s\" ('logout') link cannot be found for user \"%s\".", $this->getDrupalText('logout'), $name);
+      $message = $role !== NULL ? sprintf("Unable to determine if logged in because \"%s\" ('logout') link cannot be found for user \"%s\" with role \"%s\".", $this->getText('logout'), $name, $role) : sprintf("Unable to determine if logged in because \"%s\" ('logout') link cannot be found for user \"%s\".", $this->getText('logout'), $name);
       throw new ExpectationException($message, $session->getDriver());
     }
 
@@ -133,8 +133,8 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
   public function logout(): void {
     $session = $this->getSession();
 
-    $logout_url = $this->locatePath($this->getDrupalText('logout_url'));
-    $logout_confirm_url = $this->locatePath($this->getDrupalText('logout_confirm_url'));
+    $logout_url = $this->locatePath($this->getText('logout_url'));
+    $logout_confirm_url = $this->locatePath($this->getText('logout_confirm_url'));
 
     $session->visit($logout_url);
 
@@ -181,7 +181,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
 
     // The current page can predate the login, so the check repeats on the page
     // the login URL leads to.
-    $session->visit($this->locatePath($this->getDrupalText('login_url')));
+    $session->visit($this->locatePath($this->getText('login_url')));
 
     if ($this->hasLoggedInSelector()) {
       return TRUE;
@@ -189,7 +189,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
 
     // Some themes do not add that class to the body, so fall back to the
     // presence of the login form.
-    if ($page->has('css', $this->getDrupalSelector('login_form_selector'))) {
+    if ($page->has('css', $this->getSelector('login_form_selector'))) {
       $this->fastLogout();
 
       return FALSE;
@@ -234,21 +234,21 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
    * Returns the logout element from the page.
    */
   protected function getLogoutElement(): ?NodeElement {
-    return $this->getSession()->getPage()->findLink($this->getDrupalText('logout'));
+    return $this->getSession()->getPage()->findLink($this->getText('logout'));
   }
 
   /**
    * Returns the login element from the page.
    */
   protected function getLoginElement(DocumentElement $element): ?NodeElement {
-    return $element->findButton($this->getDrupalText('login'));
+    return $element->findButton($this->getText('login'));
   }
 
   /**
    * Returns the logout confirm element from the page.
    */
   protected function getLogoutConfirmElement(DocumentElement $element): ?NodeElement {
-    return $element->findButton($this->getDrupalText('logout'));
+    return $element->findButton($this->getText('logout'));
   }
 
   /**
@@ -257,7 +257,7 @@ final class Authenticator implements AuthenticatorInterface, FastLogoutInterface
    * @phpstan-impure
    */
   protected function hasLoggedInSelector(): bool {
-    return $this->getSession()->getPage()->has('css', $this->getDrupalSelector('logged_in_selector'));
+    return $this->getSession()->getPage()->has('css', $this->getSelector('logged_in_selector'));
   }
 
   /**
