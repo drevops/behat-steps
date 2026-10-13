@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Extension\Auth\Authenticator;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Context\Initializer\BackendAwareInitializer;
@@ -11,6 +12,8 @@ use DrevOps\BehatSteps\Extension\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Extension\Registry\UserRegistry;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BackendPass;
 use DrevOps\BehatSteps\Extension\Tag;
+use DrevOps\BehatSteps\WebContext;
+use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Yaml\Yaml;
@@ -165,6 +168,19 @@ class ClassNamingTest extends UnitTestCase {
       'class in a sub-namespace' => [UserRegistry::class, FALSE],
       'class in a nested sub-namespace' => [BackendAwareInitializer::class, FALSE],
     ];
+  }
+
+  /**
+   * Assert that the package root holds the 3 contexts and nothing else.
+   *
+   * The contexts are the 1 place that reaches every layer, so they sit above
+   * the layers rather than inside 1 of them.
+   */
+  public function testThePackageRootHoldsOnlyTheContexts(): void {
+    $classes = array_map(static fn(string $file): string => 'DrevOps\\BehatSteps\\' . basename($file, '.php'), glob(dirname(__DIR__, 3) . '/src/*.php') ?: []);
+    sort($classes);
+
+    $this->assertSame([DrupalContext::class, WebContext::class, WebRawContext::class], $classes, 'Only the 3 contexts sit at the package root; every other type sits in its layer, as CONTRIBUTING.md describes.');
   }
 
   /**

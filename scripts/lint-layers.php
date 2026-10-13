@@ -4,9 +4,10 @@
  * @file
  * Layer dependency check.
  *
- * 2 layers are guaranteed to run without a dependency loaded. The guarantee
- * holds only while the layer references nothing from the namespaces it
- * excludes.
+ * Each layer is guaranteed to reference nothing from the namespaces it
+ * excludes: the backend runs without Behat loaded, the neutral root of each
+ * layer runs without Drupal, and no layer reaches the one above it. The
+ * guarantee holds only while the layer references nothing it excludes.
  *
  * This script reads every file of each layer and fails on any code reference
  * into those namespaces.
@@ -16,32 +17,77 @@
 
 declare(strict_types=1);
 
+use DrevOps\BehatSteps\DrupalContext;
+use DrevOps\BehatSteps\WebContext;
+use DrevOps\BehatSteps\WebRawContext;
 use Drupal\Component\Utility\Random;
 
 /**
- * Layers to check, each with its paths, forbidden roots and allowances.
+ * Layers to check, each with its paths, exclusions, prefixes and allowances.
  *
- * A path is a directory that is walked or a single file. An allowance names
- * one symbol under a forbidden root that the layer may still reference.
+ * A path is a directory that is walked or a single file, and an exclusion
+ * is a directory or a file under a path that is skipped. A forbidden prefix
+ * is a root namespace or a longer namespace prefix: a symbol equal to it or
+ * below it is a violation. An allowance names 1 symbol under a forbidden
+ * prefix that the layer may still reference.
  */
 const LAYERS = [
   [
     'name' => 'src/Backend',
     'paths' => ['src/Backend'],
-    'forbidden' => ['Behat', 'Mink'],
+    'exclude' => [],
+    'forbidden' => [
+      'Behat',
+      'Mink',
+      'DrevOps\\BehatSteps\\Extension',
+      'DrevOps\\BehatSteps\\Steps',
+      WebRawContext::class,
+      WebContext::class,
+      DrupalContext::class,
+    ],
     'allowed' => [],
+  ],
+  [
+    'name' => 'the neutral root of src/Backend',
+    'paths' => ['src/Backend'],
+    'exclude' => ['src/Backend/Drupal'],
+    'forbidden' => ['Drupal', 'DrevOps\\BehatSteps\\Backend\\Drupal'],
+    // 'drupal/core-utility' ships the random generator and is a hard
+    // requirement of the package, Drupal site or not.
+    'allowed' => [Random::class],
+  ],
+  [
+    'name' => 'src/Extension',
+    'paths' => ['src/Extension'],
+    // The generator writes the root context into the starter class it emits.
+    'exclude' => ['src/Extension/Generator/ClassGenerator.php'],
+    'forbidden' => [
+      'DrevOps\\BehatSteps\\Steps',
+      WebRawContext::class,
+      WebContext::class,
+      DrupalContext::class,
+    ],
+    'allowed' => [],
+  ],
+  [
+    'name' => 'the neutral root of src/Extension',
+    'paths' => ['src/Extension'],
+    // The extension class is the composition root that lists the shipped
+    // backend providers.
+    'exclude' => ['src/Extension/Drupal', 'src/Extension/ServiceContainer/BehatStepsExtension.php'],
+    'forbidden' => ['Drupal', 'DrevOps\\BehatSteps\\Backend\\Drupal', 'DrevOps\\BehatSteps\\Extension\\Drupal'],
+    'allowed' => [Random::class],
   ],
   [
     'name' => 'the web half',
     'paths' => [
       'src/Steps/Web',
+      'src/Steps/Helper/Web',
       'src/WebRawContext.php',
       'src/WebContext.php',
-      'src/Steps/Helper/Web',
     ],
+    'exclude' => [],
     'forbidden' => ['Drupal'],
-    // 'drupal/core-utility' ships the random generator and is a hard
-    // requirement of the package, Drupal site or not.
     'allowed' => [Random::class],
   ],
 ];
@@ -71,20 +117,18 @@ function lint_layers(array $options = []): void {
 
   foreach (LAYERS as $layer) {
     foreach ($layer['paths'] as $path) {
-      $full_path = $base_path . '/' . $path;
-
-      if (!file_exists($full_path)) {
-        echo sprintf('Error: %s does not exist.' . PHP_EOL, $full_path);
+      if (!file_exists($base_path . '/' . $path)) {
+        echo sprintf('Error: %s does not exist.' . PHP_EOL, $base_path . '/' . $path);
         exit(1);
       }
+    }
 
-      foreach (layer_files($full_path) as $file) {
-        $checked++;
+    foreach (layer_paths_files($layer['paths'], $layer['exclude'], $base_path) as $file) {
+      $checked++;
 
-        foreach (layer_file_violations($file, $layer['forbidden'], $layer['allowed']) as $violation) {
-          $relative = substr($file, strlen($base_path) + 1);
-          $violations[] = sprintf('%s: %s:%d references %s', $layer['name'], $relative, $violation['line'], $violation['symbol']);
-        }
+      foreach (layer_file_violations($file, $layer['forbidden'], $layer['allowed']) as $violation) {
+        $relative = substr($file, strlen($base_path) + 1);
+        $violations[] = sprintf('%s: %s:%d references %s', $layer['name'], $relative, $violation['line'], $violation['symbol']);
       }
     }
   }
@@ -100,6 +144,43 @@ function lint_layers(array $options = []): void {
 }
 
 // @codeCoverageIgnoreEnd
+
+/**
+ * Lists the PHP files a layer's paths cover, minus its exclusions.
+ *
+ * @param array<int, string> $paths
+ *   Directories to walk or single files, relative to the base path.
+ * @param array<int, string> $exclude
+ *   Directories or files under the paths to skip, relative to the base path.
+ * @param string $base_path
+ *   Absolute path to the repository root.
+ *
+ * @return array<int, string>
+ *   Absolute file paths, sorted.
+ */
+function layer_paths_files(array $paths, array $exclude, string $base_path): array {
+  $files = [];
+
+  foreach ($paths as $path) {
+    $files = array_merge($files, layer_files($base_path . '/' . $path));
+  }
+
+  $files = array_filter($files, static function (string $file) use ($exclude, $base_path): bool {
+    foreach ($exclude as $excluded) {
+      $excluded_path = $base_path . '/' . $excluded;
+
+      if ($file === $excluded_path || str_starts_with($file, $excluded_path . '/')) {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
+  });
+
+  sort($files);
+
+  return $files;
+}
 
 /**
  * Lists the PHP files a path covers.
@@ -130,19 +211,19 @@ function layer_files(string $path): array {
 }
 
 /**
- * Finds references to forbidden root namespaces in one file.
+ * Finds references to forbidden namespace prefixes in one file.
  *
  * @param string $file
  *   Absolute path to the file to read.
- * @param array<int, string> $forbidden_roots
- *   Root namespaces that must not be referenced.
+ * @param array<int, string> $forbidden
+ *   Namespace prefixes that must not be referenced.
  * @param array<int, string> $allowed
- *   Symbols under a forbidden root that the layer may reference.
+ *   Symbols under a forbidden prefix that the layer may reference.
  *
  * @return array<int, array{line: int, symbol: string}>
  *   1 row per reference, in source order.
  */
-function layer_file_violations(string $file, array $forbidden_roots, array $allowed = []): array {
+function layer_file_violations(string $file, array $forbidden, array $allowed = []): array {
   $violations = [];
 
   foreach (token_get_all((string) file_get_contents($file)) as $token) {
@@ -162,7 +243,7 @@ function layer_file_violations(string $file, array $forbidden_roots, array $allo
       continue;
     }
 
-    if (!in_array(strtok($qualified, '\\'), $forbidden_roots, TRUE)) {
+    if (!layer_is_forbidden($qualified, $forbidden)) {
       continue;
     }
 
@@ -170,6 +251,28 @@ function layer_file_violations(string $file, array $forbidden_roots, array $allo
   }
 
   return $violations;
+}
+
+/**
+ * Checks whether a symbol sits under one of the forbidden prefixes.
+ *
+ * A prefix matches the symbol equal to it and every symbol below it, so a
+ * root namespace forbids a whole vendor and a longer prefix forbids 1
+ * namespace or 1 class.
+ *
+ * @param string $symbol
+ *   The qualified symbol, without a leading separator.
+ * @param array<int, string> $forbidden
+ *   The forbidden prefixes.
+ */
+function layer_is_forbidden(string $symbol, array $forbidden): bool {
+  foreach ($forbidden as $prefix) {
+    if ($symbol === $prefix || str_starts_with($symbol, $prefix . '\\')) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
 }
 
 /**

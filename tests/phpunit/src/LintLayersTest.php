@@ -10,8 +10,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Tests the layer dependency check.
  */
+#[CoversFunction('layer_paths_files')]
 #[CoversFunction('layer_files')]
 #[CoversFunction('layer_file_violations')]
+#[CoversFunction('layer_is_forbidden')]
 #[CoversFunction('layer_referenced_symbol')]
 class LintLayersTest extends UnitTestCase {
 
@@ -29,14 +31,40 @@ class LintLayersTest extends UnitTestCase {
     $violations = [];
 
     foreach (LAYERS as $layer) {
-      foreach ($layer['paths'] as $path) {
-        foreach (layer_files($root . '/' . $path) as $file) {
-          $violations = array_merge($violations, layer_file_violations($file, $layer['forbidden'], $layer['allowed']));
-        }
+      foreach (layer_paths_files($layer['paths'], $layer['exclude'], $root) as $file) {
+        $violations = array_merge($violations, layer_file_violations($file, $layer['forbidden'], $layer['allowed']));
       }
     }
 
     $this->assertSame([], $violations);
+  }
+
+  public function testPathsFilesMergesPathsAndSorts(): void {
+    $this->writeFixture('src/B/Only.php', '<?php');
+    $this->writeFixture('src/A/Second.php', '<?php');
+    $this->writeFixture('src/A/First.php', '<?php');
+
+    $expected = [
+      static::$tmp . '/src/A/First.php',
+      static::$tmp . '/src/A/Second.php',
+      static::$tmp . '/src/B/Only.php',
+    ];
+
+    $this->assertSame($expected, layer_paths_files(['src/B/Only.php', 'src/A'], [], static::$tmp));
+  }
+
+  public function testPathsFilesSkipsExcludedDirectoryAndFile(): void {
+    $this->writeFixture('src/A/Kept.php', '<?php');
+    $this->writeFixture('src/A/Skipped.php', '<?php');
+    $this->writeFixture('src/A/Skip/Nested.php', '<?php');
+    $this->writeFixture('src/A/Skipper/Lookalike.php', '<?php');
+
+    $expected = [
+      static::$tmp . '/src/A/Kept.php',
+      static::$tmp . '/src/A/Skipper/Lookalike.php',
+    ];
+
+    $this->assertSame($expected, layer_paths_files(['src/A'], ['src/A/Skip', 'src/A/Skipped.php'], static::$tmp));
   }
 
   public function testFilesCollectsPhpFilesRecursively(): void {
@@ -135,6 +163,41 @@ class LintLayersTest extends UnitTestCase {
         [['line' => 3, 'symbol' => 'Behat\\Mink\\OtherSession']],
         ['Behat\\Mink\\FakeSession'],
       ],
+    ];
+  }
+
+  public function testFileViolationsAgainstNamespacePrefix(): void {
+    $file = $this->writeFixture('Subject.php', "<?php\n\nuse DrevOps\\BehatSteps\\Extension\\FakeTag;\nuse DrevOps\\BehatSteps\\Steps\\Web\\FakeTrait;\n");
+
+    $expected = [['line' => 3, 'symbol' => 'DrevOps\\BehatSteps\\Extension\\FakeTag']];
+
+    $this->assertSame($expected, layer_file_violations($file, ['DrevOps\\BehatSteps\\Extension']));
+  }
+
+  /**
+   * Assert that a prefix matches whole segments only.
+   *
+   * @param string $symbol
+   *   The qualified symbol to check.
+   * @param array<int, string> $forbidden
+   *   The forbidden prefixes.
+   * @param bool $expected
+   *   Whether the symbol is forbidden.
+   */
+  #[DataProvider('dataProviderIsForbidden')]
+  public function testIsForbidden(string $symbol, array $forbidden, bool $expected): void {
+    $this->assertSame($expected, layer_is_forbidden($symbol, $forbidden));
+  }
+
+  public static function dataProviderIsForbidden(): array {
+    return [
+      'a symbol below the prefix' => ['DrevOps\\BehatSteps\\Extension\\FakeTag', ['DrevOps\\BehatSteps\\Extension'], TRUE],
+      'the prefix itself' => ['DrevOps\\BehatSteps\\Extension', ['DrevOps\\BehatSteps\\Extension'], TRUE],
+      'a segment the prefix only starts' => ['DrevOps\\BehatSteps\\ExtensionLike\\FakeTag', ['DrevOps\\BehatSteps\\Extension'], FALSE],
+      'a symbol below a root' => ['Behat\\Mink\\FakeSession', ['Behat'], TRUE],
+      'a root the symbol only starts with' => ['Behatlike\\FakeThing', ['Behat'], FALSE],
+      'a symbol under none of the prefixes' => ['Symfony\\Component\\FakeThing', ['Behat', 'DrevOps\\BehatSteps\\Extension'], FALSE],
+      'no prefixes' => ['Behat\\Mink\\FakeSession', [], FALSE],
     ];
   }
 
