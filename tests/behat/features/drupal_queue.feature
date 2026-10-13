@@ -245,3 +245,33 @@ Feature: Check that QueueTrait works
       """
       The "data" value must be a single JSON string.
       """
+
+  # The queue steps resolve the queue capability instead of bootstrapping
+  # Drupal, so '@backend:drush' counts, processes and deletes the queue over
+  # Drush. The items are added in-process, because Drush has no command for it.
+  @backend:drush
+  Scenario: Assert "When the queue :queue is processed" processes the items over Drush
+    Given the config "mysite_core.settings" with the key "queue_budget" has the value "20"
+    And the queue "behat_test" is empty
+    And I add 3 items to the "behat_test" queue
+    Then the queue "behat_test" should have 3 items
+    When the queue "behat_test" processes 1 item
+    Then the queue "behat_test" should have 2 items
+    When the queue "behat_test" is processed
+    Then the queue "behat_test" should be empty
+    And the config "mysite_core.settings" with the key "queue_budget" should have the value "17"
+
+  @test-trait:Drupal\QueueTrait
+  Scenario: Assert "Given the following item is in the queue :queue:" fails over Drush, which cannot add an item
+    Given a configuration listing the backends "drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      Given the following item is in the queue "behat_test":
+        | data | {"nid":1} |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException" exception:
+      """
+      Adding an item to a queue is not supported by DrevOps\BehatSteps\Backend\Drupal\DrushBackend: Drush has no command that adds a queue item.
+      """

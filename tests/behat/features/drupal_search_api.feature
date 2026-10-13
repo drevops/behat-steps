@@ -141,3 +141,23 @@ Feature: Check that SearchApiTrait works
   @module:!search_api_solr
   Scenario: Assert "When the Search API Solr cron runs" is a no-op when Solr module is not enabled
     When the Search API Solr cron runs
+
+  # Indexing a number of items resolves the search index capability, so
+  # '@backend:drush' runs it over Drush.
+  @backend:drush
+  Scenario: Assert "When search indexing runs for :count item(s)" indexes the items over Drush
+    When search indexing runs for 10 items
+    And the following article content exists:
+      | title                                       | moderation_state |
+      | [MYTEST] DRUSHINDEXARTICLE1 TESTUNIQUEDRUSH | published        |
+    And I am logged in as a user with the role "administrator"
+    And I go to "/search"
+    And I fill in "edit-search-api-fulltext" with "TESTUNIQUEDRUSH"
+    And I press "edit-submit-search"
+    Then I should not see "[MYTEST] DRUSHINDEXARTICLE1 TESTUNIQUEDRUSH"
+
+    When search indexing runs for 1 item
+    And I go to "/search"
+    And I fill in "edit-search-api-fulltext" with "TESTUNIQUEDRUSH"
+    And I press "edit-submit-search"
+    Then I should see "[MYTEST] DRUSHINDEXARTICLE1 TESTUNIQUEDRUSH"

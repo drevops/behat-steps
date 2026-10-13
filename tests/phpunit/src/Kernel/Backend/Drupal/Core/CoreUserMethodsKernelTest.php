@@ -9,6 +9,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
+use Drupal\user\OneTimeAuthentication;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -243,6 +244,27 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $account = User::load($stub->getValue('uid'));
     $this->assertInstanceOf(User::class, $account);
     $this->assertContains($role_id, $account->getRoles());
+  }
+
+  public function testGetOneTimeLoginUrlLinksToTheResetPage(): void {
+    $stub = new EntityStub('user', NULL, ['name' => 'resetter', 'mail' => 'resetter@example.com', 'pass' => 'pw']);
+    $this->core->createUser($stub);
+    $account = User::load($stub->getValue('uid'));
+    $this->assertInstanceOf(User::class, $account);
+
+    $path = $this->core->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => $stub->getValue('uid')]));
+
+    $this->assertMatchesRegularExpression('#^/user/reset/\d+/\d+/[^/]+$#', $path);
+    [, , , $uid, $timestamp, $hash] = explode('/', $path);
+    $this->assertSame((string) $account->id(), $uid);
+    $this->assertSame(\Drupal::service(OneTimeAuthentication::class)->generateHmac($account, (int) $timestamp), $hash);
+  }
+
+  public function testGetOneTimeLoginUrlRejectsMissingUser(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessageMatches('/No user with id "999999" exists/');
+
+    $this->core->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 999999]));
   }
 
 }

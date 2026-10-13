@@ -41,4 +41,11 @@ class RecordingUserCapability implements UserCapabilityInterface {
     $this->roles[] = $role;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getOneTimeLoginUrl(EntityStubInterface $stub): string {
+    return '/user/reset/' . $stub->getValue('uid') . '/1/hash';
+  }
+
 }

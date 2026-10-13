@@ -179,6 +179,33 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'moduleIsEnabled' => ['moduleIsEnabled', ['node'], 'moduleIsEnabled'];
     yield 'moduleIsPresent' => ['moduleIsPresent', ['node'], 'moduleIsPresent'];
     yield 'moduleUninstall' => ['moduleUninstall', ['node'], 'moduleUninstall'];
+    yield 'getOneTimeLoginUrl' => ['getOneTimeLoginUrl', [$user], 'getOneTimeLoginUrl'];
+    yield 'cacheClearBin' => ['cacheClearBin', ['render'], 'cacheClearBin'];
+    yield 'cacheInvalidateTags' => ['cacheInvalidateTags', [['node_list']], 'cacheInvalidateTags'];
+    yield 'cacheDeletePagePath' => ['cacheDeletePagePath', ['page', '/about', TRUE], 'cacheDeletePagePath'];
+    yield 'getEntityUrl' => ['getEntityUrl', [$entity, 'edit-form'], 'getEntityUrl'];
+    yield 'rebuildNodeAccess' => ['rebuildNodeAccess', [7], 'rebuildNodeAccess'];
+    yield 'rebuildNodeAccess for every node' => ['rebuildNodeAccess', [NULL], 'rebuildNodeAccess'];
+    yield 'findBlockPluginId' => ['findBlockPluginId', ['Powered by Drupal'], 'findBlockPluginId'];
+    yield 'hasConditionPlugin' => ['hasConditionPlugin', ['request_path'], 'hasConditionPlugin'];
+    yield 'queueAddItem' => ['queueAddItem', ['behat_test', ['nid' => 1]], 'queueAddItem'];
+    yield 'queueCountItems' => ['queueCountItems', ['behat_test'], 'queueCountItems'];
+    yield 'queueDelete' => ['queueDelete', ['behat_test'], 'queueDelete'];
+    yield 'queueProcess' => ['queueProcess', ['behat_test', 5, 30], 'queueProcess'];
+    yield 'logGetLastId' => ['logGetLastId', [], 'logGetLastId'];
+    yield 'logRead' => ['logRead', [['php'], 5, 4], 'logRead'];
+    yield 'logDelete' => ['logDelete', [[6, 7]], 'logDelete'];
+    yield 'fileWriteUnmanaged' => ['fileWriteUnmanaged', ['public://sample.txt', 'content'], 'fileWriteUnmanaged'];
+    yield 'fileReadUnmanaged' => ['fileReadUnmanaged', ['public://sample.txt'], 'fileReadUnmanaged'];
+    yield 'fileExistsUnmanaged' => ['fileExistsUnmanaged', ['public://sample.txt'], 'fileExistsUnmanaged'];
+    yield 'fileDeleteUnmanaged' => ['fileDeleteUnmanaged', ['public://sample.txt'], 'fileDeleteUnmanaged'];
+    yield 'filePrepareDirectory' => ['filePrepareDirectory', ['private://'], 'filePrepareDirectory'];
+    yield 'fileWriteManaged' => ['fileWriteManaged', ['public://sample.txt', 'content', new EntityStub('file')], 'fileWriteManaged'];
+    yield 'searchIndexEntity' => ['searchIndexEntity', ['node', 7], 'searchIndexEntity'];
+    yield 'searchIndexItems' => ['searchIndexItems', [3], 'searchIndexItems'];
+    yield 'searchRunCron' => ['searchRunCron', ['search_api_solr'], 'searchRunCron'];
+    yield 'hasWorkflowState' => ['hasWorkflowState', ['node', 'article', 'published'], 'hasWorkflowState'];
+    yield 'draggableviewsSetOrder' => ['draggableviewsSetOrder', ['demo', 'page_1', [0 => '1']], 'draggableviewsSetOrder'];
   }
 
   /**

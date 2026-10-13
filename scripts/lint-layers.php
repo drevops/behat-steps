@@ -6,8 +6,9 @@
  *
  * Each layer is guaranteed to reference nothing from the namespaces it
  * excludes: the backend runs without Behat loaded, the neutral root of each
- * layer runs without Drupal, and no layer reaches the one above it. The
- * guarantee holds only while the layer references nothing it excludes.
+ * layer runs without Drupal, the Drupal step traits reach Drupal only through
+ * a backend, and no layer reaches the one above it. The guarantee holds only
+ * while the layer references nothing it excludes.
  *
  * This script reads every file of each layer and fails on any code reference
  * into those namespaces.
@@ -79,6 +80,30 @@ const LAYERS = [
       'src/WebContext.php',
     ],
     'exclude' => [],
+    'forbidden' => ['Drupal'],
+  ],
+  [
+    'name' => 'the Drupal step traits',
+    'paths' => ['src/Steps/Drupal', 'src/Steps/Helper/Drupal'],
+    // These traits load or save Drupal entity objects through Drupal's own
+    // API, so they reference its entity classes.
+    'exclude' => [
+      'src/Steps/Drupal/BlockTrait.php',
+      'src/Steps/Drupal/ContentBlockTrait.php',
+      'src/Steps/Drupal/ContentTrait.php',
+      'src/Steps/Drupal/DraggableviewsTrait.php',
+      'src/Steps/Drupal/EckTrait.php',
+      'src/Steps/Drupal/FileTrait.php',
+      'src/Steps/Drupal/MediaTrait.php',
+      'src/Steps/Drupal/MenuTrait.php',
+      'src/Steps/Drupal/ParagraphsTrait.php',
+      'src/Steps/Drupal/RedirectTrait.php',
+      'src/Steps/Drupal/SearchApiTrait.php',
+      'src/Steps/Drupal/TaxonomyTrait.php',
+      'src/Steps/Drupal/UserTrait.php',
+      'src/Steps/Drupal/WebformTrait.php',
+      'src/Steps/Helper/Drupal/EntityLifecycleTrait.php',
+    ],
     'forbidden' => ['Drupal'],
   ],
 ];

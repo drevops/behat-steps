@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Drupal\Core;
 
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -67,6 +68,64 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
     $this->core->cacheClearStatic();
 
     $this->assertFalse(\Drupal::cache('memory')->get('drupal_backend_test:memory'));
+  }
+
+  public function testCacheClearStaticResetsTheConfigFactory(): void {
+    \Drupal::configFactory()->getEditable('behat_steps.test')->set('value', 'first')->save();
+    $this->assertSame('first', \Drupal::config('behat_steps.test')->get('value'));
+
+    // A write straight to the storage leaves the loaded object as it was, the
+    // way a write from another process does.
+    \Drupal::service('config.storage')->write('behat_steps.test', ['value' => 'second']);
+    $this->assertSame('first', \Drupal::configFactory()->get('behat_steps.test')->get('value'));
+
+    $this->core->cacheClearStatic();
+
+    $this->assertSame('second', $this->config('behat_steps.test')->get('value'));
+  }
+
+  public function testCacheClearStaticEmptiesTheEntityMemoryCache(): void {
+    \Drupal::service('entity.memory_cache')->set('drupal_backend_test:entity', 'value');
+    $this->assertNotFalse(\Drupal::service('entity.memory_cache')->get('drupal_backend_test:entity'));
+
+    $this->core->cacheClearStatic();
+
+    $this->assertFalse(\Drupal::service('entity.memory_cache')->get('drupal_backend_test:entity'));
+  }
+
+  public function testCacheClearBinEmptiesOnlyTheBin(): void {
+    \Drupal::cache('data')->set('drupal_backend_test:data', 'value');
+    \Drupal::cache('default')->set('drupal_backend_test:default', 'value');
+
+    $this->core->cacheClearBin('data');
+
+    $this->assertFalse(\Drupal::cache('data')->get('drupal_backend_test:data'));
+    $this->assertNotFalse(\Drupal::cache('default')->get('drupal_backend_test:default'));
+  }
+
+  public function testCacheClearBinFailsWithoutTheBin(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The cache bin "missing" does not exist.');
+
+    $this->core->cacheClearBin('missing');
+  }
+
+  public function testCacheInvalidateTagsInvalidatesTheTaggedEntries(): void {
+    \Drupal::cache()->set('drupal_backend_test:tagged', 'value', CacheBackendInterface::CACHE_PERMANENT, ['drupal_backend_test:tag']);
+    \Drupal::cache()->set('drupal_backend_test:untagged', 'value');
+
+    $this->core->cacheInvalidateTags(['drupal_backend_test:tag']);
+
+    $this->assertFalse(\Drupal::cache()->get('drupal_backend_test:tagged'));
+    $this->assertNotFalse(\Drupal::cache()->get('drupal_backend_test:untagged'));
+  }
+
+  public function testCacheInvalidateTagsWithNoTagsInvalidatesNothing(): void {
+    \Drupal::cache()->set('drupal_backend_test:tagged', 'value', CacheBackendInterface::CACHE_PERMANENT, ['drupal_backend_test:tag']);
+
+    $this->core->cacheInvalidateTags([]);
+
+    $this->assertNotFalse(\Drupal::cache()->get('drupal_backend_test:tagged'));
   }
 
   public function testGetExtensionPathListIncludesEnabledModules(): void {

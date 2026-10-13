@@ -70,6 +70,24 @@ class ContentTraitKernelTest extends StepTraitKernelTestBase {
     ];
   }
 
+  public function testSetModerationStateRejectsStateNoWorkflowDefines(): void {
+    $node = $this->createNode('Unmoderated');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('State "published" is not defined in the workflow for "page" content type.');
+
+    $this->context->contentSetModerationState($node, 'published');
+  }
+
+  public function testRebuildAccessGrantsRebuildsTheGrantsOfTheNode(): void {
+    $node = $this->createNode('Granted');
+
+    $this->context->contentRebuildAccessGrants($node);
+    $this->context->contentRebuildAccessGrantsAll();
+
+    $this->assertSame([0], array_map(intval(...), \Drupal::database()->select('node_access', 'na')->fields('na', ['nid'])->distinct()->execute()->fetchCol()), 'Without a module implementing node grants, the single default grant row covers every node.');
+  }
+
   protected function createNode(string $title): NodeInterface {
     $node = Node::create(['type' => 'page', 'title' => $title]);
     $node->save();

@@ -4858,7 +4858,7 @@ Then the block "My block" in the region "content" should not exist
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "CacheCapabilityInterface" | `CacheCapabilityInterface` |
 
 ### Options
 
@@ -5556,7 +5556,7 @@ Then the "page" content with the title "Test page" should not be published
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "DraggableviewsCapabilityInterface" | `DraggableviewsCapabilityInterface` |
 | The "draggableviews" module from the "drupal/draggableviews" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -6243,7 +6243,7 @@ Given the following "commerce_product" entities exist:
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "FileCapabilityInterface" | `FileCapabilityInterface` |
 | The core "file" module is enabled, for the managed file steps | `ModuleCapabilityInterface` |
 
 ### Options
@@ -6877,7 +6877,7 @@ Given the following fields for the "text" paragraph exist in the field "field_co
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "QueueCapabilityInterface" | `QueueCapabilityInterface` |
 
 ### Options
 
@@ -7074,7 +7074,7 @@ Then the following redirects should not exist:
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "SearchIndexCapabilityInterface" | `SearchIndexCapabilityInterface` |
 | The "search_api" module from the "drupal/search_api" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -7407,7 +7407,8 @@ Then the "Fruits" term with the name "Apple" should not exist
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "StateCapabilityInterface" | `StateCapabilityInterface` |
+| A backend in the scenario's list provides "CacheCapabilityInterface" | `CacheCapabilityInterface` |
 | The "testmode" module from the "drupal/testmode" package is enabled | `ModuleCapabilityInterface` |
 
 ### Options
@@ -7932,7 +7933,7 @@ Then the user "John" should not be blocked
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "LogCapabilityInterface" | `LogCapabilityInterface` |
 | The core "dblog" module is enabled | `ModuleCapabilityInterface` |
 
 ### Options

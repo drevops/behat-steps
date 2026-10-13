@@ -46,7 +46,7 @@
 | [Drupal\ContentTrait](#drupalcontenttrait) | 8 | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | 3 | Order items in the Drupal Draggable Views. |
 | [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
-| [Drupal\EckTrait](#drupalecktrait) | 4 | Manage Drupal ECK entities with custom type and bundle creation. |
+| [Drupal\EckTrait](#drupalecktrait) | 5 | Manage Drupal ECK entities with custom type and bundle creation. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 11 | Test Drupal email functionality with content verification. |
 | [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
@@ -2149,6 +2149,15 @@ Get an entity of a type and bundle by title
 </details>
 
 <details>
+  <summary><code>public function eckGetEntityUrlByTitle(string $entity_type, string $bundle, string $title, string $rel = 'canonical'): string</code></summary>
+
+<br/>
+Get the URL of a page of the entity of a type and bundle with a title
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array</code></summary>
 
 <br/>
@@ -2536,16 +2545,16 @@ Get the entity to attach a paragraph to
   <summary><code>public function queueClear(string $queue): void</code></summary>
 
 <br/>
-Delete every item of a queue, leaving the queue in place
+Delete every item of a queue
 <br/><br/>
 
 </details>
 
 <details>
-  <summary><code>public function queueGet(string $queue): QueueInterface</code></summary>
+  <summary><code>public function queueCountItems(string $queue): int</code></summary>
 
 <br/>
-Get a queue, which is deleted after the scenario
+Count the items in a queue
 <br/><br/>
 
 </details>
@@ -2743,7 +2752,7 @@ Visit the action page of the term with a specified name
 > Configure Drupal Testmode module for controlled testing scenarios.
 
 <details>
-  <summary><code>public static function testmodeDisableTestMode(): void</code></summary>
+  <summary><code>public function testmodeDisableTestMode(): void</code></summary>
 
 <br/>
 Disable test mode
@@ -2752,7 +2761,7 @@ Disable test mode
 </details>
 
 <details>
-  <summary><code>public static function testmodeEnableTestMode(): void</code></summary>
+  <summary><code>public function testmodeEnableTestMode(): void</code></summary>
 
 <br/>
 Enable test mode

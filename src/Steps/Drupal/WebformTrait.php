@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
@@ -158,12 +159,9 @@ trait WebformTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    // A webform change made via the admin UI in a separate process leaves
-    // the config factory cache stale, so it is reset first.
-    \Drupal::configFactory()->reset();
-
-    $storage = \Drupal::entityTypeManager()->getStorage('webform');
-    $storage->resetCache();
+    // A webform changed through the admin UI in another process stays as this
+    // process loaded it until its caches are reset.
+    $this->backendFor(CacheCapabilityInterface::class)->cacheClearStatic();
 
     $ids = $this->queryEntityIds('webform', ['title' => ['CONTAINS', $title]]);
 
@@ -172,7 +170,7 @@ trait WebformTrait {
     }
 
     /** @var array<string, \Drupal\webform\WebformInterface> $webforms */
-    $webforms = $storage->loadMultiple($ids);
+    $webforms = \Drupal::entityTypeManager()->getStorage('webform')->loadMultiple($ids);
 
     return $webforms;
   }

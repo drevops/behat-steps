@@ -148,6 +148,30 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $this->assertNull(User::load((int) $entity->id()));
   }
 
+  public function testGetEntityUrlReturnsThePathOfTheLink(): void {
+    $created = $this->core->createEntity(new EntityStub('entity_test', NULL, ['name' => 'linked']));
+    $id = $created->getValue('id');
+
+    $this->assertSame('/entity_test/' . $id, $this->core->getEntityUrl(new EntityStub('entity_test', NULL, ['id' => $id])));
+    $this->assertSame('/entity_test/manage/' . $id . '/edit', $this->core->getEntityUrl($created, 'edit-form'));
+  }
+
+  public function testGetEntityUrlRejectsMissingEntity(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No entity of type "entity_test" with the id "999" exists.');
+
+    $this->core->getEntityUrl(new EntityStub('entity_test', NULL, ['id' => 999]));
+  }
+
+  public function testGetEntityUrlRejectsAnUnknownLink(): void {
+    $created = $this->core->createEntity(new EntityStub('entity_test', NULL, ['name' => 'linked']));
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The entity type "entity_test" has no "bogus" link.');
+
+    $this->core->getEntityUrl($created, 'bogus');
+  }
+
   /**
    * Tests 'createEntity()' promotes the typed bundle onto the bundle key.
    *

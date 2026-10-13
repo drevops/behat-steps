@@ -14,6 +14,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\FileCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -22,11 +23,8 @@ use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
-use Drupal\Core\File\FileExists;
-use Drupal\Core\File\FileSystemInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Manage Drupal file entities with upload and storage operations.
@@ -57,16 +55,18 @@ trait FileTrait {
    */
   #[BeforeScenario]
   public function fileBeforeScenario(BeforeScenarioScope $scope): void {
-    // The directories are created through Drupal's API, which a suite listing
-    // no in-process backend cannot reach.
-    if ($this->skipTag(__TRAIT__, $scope) || !$this->getBackendRegistry()->hasCapability(CoreCapabilityInterface::class)) {
+    // A suite listing no backend that writes files has no directory to
+    // prepare.
+    if ($this->skipTag(__TRAIT__, $scope) || !$this->getBackendRegistry()->hasCapability(FileCapabilityInterface::class)) {
       return;
     }
 
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(FileCapabilityInterface::class);
 
-    $this->fileEnsureDirectory('private://');
-    $this->fileEnsureDirectory('temporary://');
+    // A stream wrapper the site has not configured cannot be prepared and
+    // needs no directory, so the result is not checked.
+    $backend->filePrepareDirectory('private://');
+    $backend->filePrepareDirectory('temporary://');
   }
 
   /**
@@ -76,13 +76,17 @@ trait FileTrait {
    */
   #[AfterScenario]
   public function fileAfterScenario(AfterScenarioScope $scope): void {
-    if ($this->skipTag(__TRAIT__, $scope)) {
+    if ($this->skipTag(__TRAIT__, $scope) || $this->fileUnmanagedUris === []) {
       return;
     }
 
+    $backend = $this->backendFor(FileCapabilityInterface::class);
+
     foreach ($this->fileUnmanagedUris as $uri) {
-      @unlink($uri);
+      $backend->fileDeleteUnmanaged($uri);
     }
+
+    $this->fileUnmanagedUris = [];
   }
 
   /**
@@ -134,7 +138,7 @@ trait FileTrait {
    */
   #[Given('the following managed files do not exist:')]
   public function fileDeleteManagedMultiple(TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -188,9 +192,7 @@ trait FileTrait {
    */
   #[Then('the unmanaged file at the URI :uri should exist')]
   public function fileAssertUnmanagedExists(string $uri): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    if (!@file_exists($uri)) {
+    if (!$this->backendFor(FileCapabilityInterface::class)->fileExistsUnmanaged($uri)) {
       throw new ExpectationException(sprintf('The file "%s" does not exist.', $uri), $this->getSession()->getDriver());
     }
   }
@@ -206,9 +208,7 @@ trait FileTrait {
    */
   #[Then('the unmanaged file at the URI :uri should not exist')]
   public function fileAssertUnmanagedNotExists(string $uri): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    if (@file_exists($uri)) {
+    if ($this->backendFor(FileCapabilityInterface::class)->fileExistsUnmanaged($uri)) {
       throw new ExpectationException(sprintf('The file "%s" exists, but it should not.', $uri), $this->getSession()->getDriver());
     }
   }
@@ -260,24 +260,10 @@ trait FileTrait {
    *   The file content.
    *
    * @throws \RuntimeException
-   *   When the directory cannot be created.
+   *   When the directory cannot be created or the file cannot be written.
    */
   public function fileWriteUnmanaged(string $uri, string $content): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $directory = \Drupal::service('file_system')->dirname($uri);
-
-    // @codeCoverageIgnoreStart
-    if (!file_exists($directory)) {
-      $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
-
-      if (!$is_prepared) {
-        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
-      }
-    }
-
-    // @codeCoverageIgnoreEnd
-    file_put_contents($uri, $content);
+    $this->backendFor(FileCapabilityInterface::class)->fileWriteUnmanaged($uri, $content);
 
     $this->fileUnmanagedUris[] = $uri;
   }
@@ -297,21 +283,13 @@ trait FileTrait {
    *   When the file cannot be read.
    */
   public function fileGetUnmanagedContent(string $uri): string {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(FileCapabilityInterface::class);
 
-    if (!@file_exists($uri)) {
+    if (!$backend->fileExistsUnmanaged($uri)) {
       throw new ExpectationException(sprintf('The file "%s" does not exist.', $uri), $this->getSession()->getDriver());
     }
 
-    $file_content = @file_get_contents($uri);
-
-    // @codeCoverageIgnoreStart
-    if ($file_content === FALSE) {
-      throw new \RuntimeException(sprintf('Unable to read file "%s".', $uri));
-    }
-
-    // @codeCoverageIgnoreEnd
-    return $file_content;
+    return $backend->fileReadUnmanaged($uri);
   }
 
   /**
@@ -358,7 +336,7 @@ trait FileTrait {
    *   Created file entity.
    */
   public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(FileCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -385,7 +363,7 @@ trait FileTrait {
    *   Created file entity.
    */
   public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(FileCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -396,20 +374,6 @@ trait FileTrait {
       throw new \RuntimeException(sprintf('Unable to find file "%s".', $path));
     }
 
-    $destination = 'public://' . basename($path);
-
-    if ($uri !== NULL && $uri !== '') {
-      $destination = $uri;
-      $directory = dirname($destination);
-      $is_prepared = \Drupal::service('file_system')->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY + FileSystemInterface::MODIFY_PERMISSIONS);
-
-      // @codeCoverageIgnoreStart
-      if (!$is_prepared) {
-        throw new \RuntimeException(sprintf('Unable to prepare directory "%s".', $directory));
-      }
-      // @codeCoverageIgnoreEnd
-    }
-
     $content = file_get_contents($path);
 
     // @codeCoverageIgnoreStart
@@ -418,32 +382,16 @@ trait FileTrait {
     }
 
     // @codeCoverageIgnoreEnd
-    $entity = \Drupal::service('file.repository')->writeData($content, $destination, FileExists::Replace);
+    $destination = $uri === NULL || $uri === '' ? 'public://' . basename($path) : $uri;
+    $file = $backend->fileWriteManaged($destination, $content, $stub)->getSavedEntity();
 
-    foreach ($stub->getValues() as $property => $value) {
-      $entity->set($property, $value);
+    // @codeCoverageIgnoreStart
+    if (!$file instanceof FileInterface) {
+      throw new \RuntimeException(sprintf('The backend wrote the file "%s" without returning it.', $destination));
     }
 
-    $entity->save();
-
-    return $entity;
-  }
-
-  /**
-   * Create the directory a stream wrapper URI points at, when it is missing.
-   *
-   * @param string $uri
-   *   The URI of the directory, such as `private://`.
-   */
-  protected function fileEnsureDirectory(string $uri): void {
-    $directory = \Drupal::service('file_system')->realpath($uri);
-    $fs = new Filesystem();
-
-    if ($directory && !$fs->exists($directory)) {
-      // @codeCoverageIgnoreStart
-      $fs->mkdir($directory);
-      // @codeCoverageIgnoreEnd
-    }
+    // @codeCoverageIgnoreEnd
+    return $file;
   }
 
   /**
@@ -485,7 +433,7 @@ trait FileTrait {
    */
   protected function filePrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(FileCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('file'), 'the core "file" module is enabled, for the managed file steps'),
     ];
   }

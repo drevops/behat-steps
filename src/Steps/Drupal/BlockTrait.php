@@ -316,11 +316,11 @@ trait BlockTrait {
    *   When no block plugin has the admin label.
    */
   public function blockCreate(string $admin_label): Block {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(BlockCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $plugin_id = $this->blockFindPluginIdByAdminLabel($admin_label);
+    $plugin_id = $backend->findBlockPluginId($admin_label);
 
     if ($plugin_id === NULL) {
       throw new \RuntimeException(sprintf('Could not create block with admin label "%s".', $admin_label));
@@ -334,7 +334,7 @@ trait BlockTrait {
       'settings' => ['label' => $admin_label],
     ]);
 
-    $block = $this->backendFor(BlockCapabilityInterface::class)->placeBlock($stub)->getSavedEntity();
+    $block = $backend->placeBlock($stub)->getSavedEntity();
 
     // @codeCoverageIgnoreStart
     if (!$block instanceof Block) {
@@ -345,30 +345,6 @@ trait BlockTrait {
     $this->entityLifecycleRegister($block);
 
     return $block;
-  }
-
-  /**
-   * Find the id of the block plugin with an admin label.
-   *
-   * @param string $admin_label
-   *   The admin label of the block plugin.
-   *
-   * @return string|null
-   *   The plugin id, or NULL when no block plugin has the admin label.
-   */
-  protected function blockFindPluginIdByAdminLabel(string $admin_label): ?string {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
-    $block_manager = \Drupal::service('plugin.manager.block');
-
-    foreach ($block_manager->getDefinitions() as $plugin_id => $definition) {
-      if ((string) $definition['admin_label'] === $admin_label) {
-        return (string) $plugin_id;
-      }
-    }
-
-    return NULL;
   }
 
   /**
@@ -456,7 +432,7 @@ trait BlockTrait {
    *   When the block cannot be saved.
    */
   public function blockUnsetVisibilityCondition(Block $block, string $condition): void {
-    if (!\Drupal::service('plugin.manager.condition')->hasDefinition($condition)) {
+    if (!$this->backendFor(BlockCapabilityInterface::class)->hasConditionPlugin($condition)) {
       throw new \RuntimeException(sprintf('The condition "%s" does not exist.', $condition));
     }
 

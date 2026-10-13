@@ -8,12 +8,9 @@ use Behat\Step\Given;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\StaticCacheTrait;
-use Drupal\Core\Cache\DatabaseBackend;
-use Drupal\Core\Database\Database;
 
 /**
  * Invalidate Drupal caches and run cron from within a scenario.
@@ -96,11 +93,11 @@ trait CacheTrait {
    */
   #[Given('the render cache has been cleared')]
   public function cacheClearRender(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(CacheCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    \Drupal::cache('render')->deleteAll();
+    $backend->cacheClearBin('render');
   }
 
   /**
@@ -133,7 +130,8 @@ trait CacheTrait {
    * with any query string and in any request format.
    *
    * Only a bin on the database backend can list its entries, so a bin on any
-   * other backend is emptied whole.
+   * other backend is emptied whole, as it is on a backend that reaches the
+   * site from outside its process.
    *
    * @param string $path
    *   The path, starting with '/'.
@@ -142,10 +140,12 @@ trait CacheTrait {
    *
    * @throws \RuntimeException
    *   When the path is empty, has no leading slash, carries a query string or
-   *   a fragment, or when the page cache bin does not exist.
+   *   a fragment, or when the page cache bin does not exist. Enable the
+   *   `page_cache` module or set the `cache.page_cache_bin` option for the
+   *   bin.
    */
   public function cacheDeletePagePath(string $path, bool $is_pattern = FALSE): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(CacheCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -165,71 +165,7 @@ trait CacheTrait {
       throw new \RuntimeException(sprintf('The %s "%s" must not contain a query string or a fragment.', $noun, $path));
     }
 
-    $bin = $this->cacheGetPageCacheBin();
-
-    if (!\Drupal::hasService('cache.' . $bin)) {
-      throw new \RuntimeException(sprintf('The cache bin "%s" does not exist. Enable the page_cache module or set the "cache.page_cache_bin" option.', $bin));
-    }
-
-    $backend = \Drupal::cache($bin);
-
-    if (!$backend instanceof DatabaseBackend) {
-      $backend->deleteAll();
-
-      return;
-    }
-
-    $table = 'cache_' . $bin;
-    $database = Database::getConnection();
-
-    // The database backend creates its table on the first write, so a missing
-    // table holds no entries.
-    if (!$database->schema()->tableExists($table)) {
-      return;
-    }
-
-    $parts = $is_pattern ? explode('*', $path) : [$path];
-
-    // LIKE cannot anchor the path after the host, so it only narrows the
-    // candidates.
-    $like = implode('%', array_map($database->escapeLike(...), $parts));
-    $candidates = $database->select($table, 'c')->fields('c', ['cid'])->condition('cid', '%' . $like . '%', 'LIKE')->execute()->fetchCol();
-
-    $regex = '#^' . implode('.*', array_map(static fn(string $part): string => preg_quote($part, '#'), $parts)) . '$#';
-    $cids = array_filter($candidates, fn(string $cid): bool => preg_match($regex, $this->cacheFindPagePath($cid) ?? '') === 1);
-
-    // Chunk the IN list to stay under the database placeholder limit.
-    foreach (array_chunk($cids, 1000) as $chunk) {
-      $database->delete($table)->condition('cid', $chunk, 'IN')->execute();
-    }
-  }
-
-  /**
-   * Find the path of the URL an internal page cache entry is stored for.
-   *
-   * @param string $cid
-   *   The cache ID: the absolute URL, ':' and the request format.
-   *
-   * @return string|null
-   *   The path, or NULL when the cache ID holds no URL path.
-   */
-  protected function cacheFindPagePath(string $cid): ?string {
-    $url = parse_url($cid);
-
-    if (!is_array($url) || !isset($url['path'])) {
-      return NULL;
-    }
-
-    // With a query string, parse_url() returns the ':<format>' suffix inside
-    // the query.
-    if (isset($url['query'])) {
-      return $url['path'];
-    }
-
-    // The format contains no ':', so the last ':' in the path starts it.
-    $separator = strrpos($url['path'], ':');
-
-    return $separator === FALSE ? $url['path'] : substr($url['path'], 0, $separator);
+    $backend->cacheDeletePagePath($this->cacheGetPageCacheBin(), $path, $is_pattern);
   }
 
   /**
@@ -247,15 +183,15 @@ trait CacheTrait {
   /**
    * Declares the prerequisites this trait asserts.
    *
-   * The clear-all and cron steps go through narrower capabilities, so only
-   * the page and render cache steps check them.
+   * The clear-all step resolves the same capability itself and the cron step
+   * the cron capability, so only the page and render cache steps check.
    *
    * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
    *   The prerequisites this trait declares.
    */
   protected function cachePrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(CacheCapabilityInterface::class),
     ];
   }
 

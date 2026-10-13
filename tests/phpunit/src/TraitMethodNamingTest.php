@@ -51,6 +51,7 @@ class TraitMethodNamingTest extends UnitTestCase {
     'Attach',
     'Build',
     'Clear',
+    'Count',
     'Create',
     'Decode',
     'Delete',

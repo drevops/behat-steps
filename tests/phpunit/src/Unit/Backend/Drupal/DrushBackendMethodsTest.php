@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal;
 
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ParserExposingDrushBackend;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingDrushBackend;
@@ -456,7 +457,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
     }
 
     foreach (array_column($backend->invocations, 'command') as $command) {
-      $this->assertMatchesRegularExpression('/^[a-z]+(?::[a-z]+)+$/', $command, sprintf('The command "%s" is not a canonical colon-separated Drush command name.', $command));
+      $this->assertMatchesRegularExpression('/^[a-z]+(?:-[a-z]+)*(?::[a-z]+(?:-[a-z]+)*)+$/', $command, sprintf('The command "%s" is not a canonical colon-separated Drush command name.', $command));
     }
   }
 
@@ -464,6 +465,17 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $user = new EntityStub('user', NULL, ['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co']);
 
     yield 'cacheClear' => ['cacheClear', [], 'cache:rebuild'];
+    yield 'cacheClearBin' => ['cacheClearBin', ['render'], 'cache:clear'];
+    yield 'cacheInvalidateTags' => ['cacheInvalidateTags', [['node_list']], 'cache:tags'];
+    yield 'cacheDeletePagePath' => ['cacheDeletePagePath', ['page', '/about'], 'cache:clear'];
+    yield 'getOneTimeLoginUrl' => ['getOneTimeLoginUrl', [new EntityStub('user', NULL, ['uid' => 7])], 'user:login', 'http://default/user/reset/7/1/hash/login'];
+    yield 'queueCountItems' => ['queueCountItems', ['behat_test'], 'queue:list', '{"behat_test":{"queue":"behat_test","items":3,"class":"DatabaseQueue"}}'];
+    yield 'queueDelete' => ['queueDelete', ['behat_test'], 'queue:delete'];
+    yield 'queueProcess' => ['queueProcess', ['behat_test', 2, 30], 'queue:run', 'Processed 2 items from the behat_test queue in 0.01 sec.'];
+    yield 'logGetLastId' => ['logGetLastId', [], 'watchdog:show', '{"5":{"wid":"5","type":"php","severity":"Warning","message":"m"}}'];
+    yield 'logRead' => ['logRead', [['php'], 0, 4], 'watchdog:show', '{"5":{"wid":"5","type":"php","severity":"Warning","message":"m"}}'];
+    yield 'logDelete' => ['logDelete', [[5]], 'watchdog:delete'];
+    yield 'searchIndexItems' => ['searchIndexItems', [3], 'search-api:index'];
     yield 'createUser' => ['createUser', [$user], 'user:create', "User ID   :   9\n"];
     yield 'deleteUser' => ['deleteUser', [$user], 'user:cancel'];
     yield 'addUserRole' => ['addUserRole', [$user, 'admin'], 'role:list', static::buildRoleListOutput(['admin' => 'Admin'])];
@@ -659,6 +671,251 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
     $this->assertNotContains('config:delete', $commands);
     $this->assertSame('config:set', end($commands));
+  }
+
+  public function testQueueCountItemsReadsTheListing(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = '{"behat_test":{"queue":"behat_test","items":3,"class":"DatabaseQueue"}}';
+
+    $this->assertSame(3, $backend->queueCountItems('behat_test'));
+    $this->assertSame(['format' => 'json'], $backend->invocations[0]['options']);
+    $this->assertSame(0, $backend->queueCountItems('other'), 'A queue Drush does not list reports 0 items.');
+
+    $backend->drushResponse = 'Drush printed a warning.';
+
+    $this->assertSame(0, $backend->queueCountItems('behat_test'));
+  }
+
+  public function testQueueDeleteToleratesQueueDrushDoesNotList(): void {
+    $backend = $this->createBackend();
+    $backend->drushFailures = ['queue:delete' => 1];
+    $backend->drushResponses = ['queue:list' => '{}'];
+
+    $backend->queueDelete('behat_test');
+
+    $this->assertSame(['queue:delete', 'queue:list'], array_column($backend->invocations, 'command'));
+  }
+
+  public function testQueueDeleteFailureSurfacesWhileTheQueueIsListed(): void {
+    $backend = $this->createBackend();
+    $backend->drushFailures = ['queue:delete' => 1];
+    $backend->drushResponses = ['queue:list' => '{"behat_test":{"items":1}}'];
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Drush command "queue:delete" exited with code 1.');
+
+    $backend->queueDelete('behat_test');
+  }
+
+  public function testQueueProcessPassesTheLimitsAndReadsTheCount(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = ' [success] Processed 2 items from the behat_test queue in 0.03 sec.';
+
+    $this->assertSame(2, $backend->queueProcess('behat_test', 5, 45));
+    $this->assertSame('queue:run', $backend->invocations[0]['command']);
+    $this->assertSame(['behat_test'], $backend->invocations[0]['arguments']);
+    $this->assertSame(['items-limit' => '5', 'lease-time' => '45'], $backend->invocations[0]['options']);
+  }
+
+  public function testQueueProcessWithZeroLimitRunsNothing(): void {
+    $backend = $this->createBackend();
+
+    $this->assertSame(0, $backend->queueProcess('behat_test', 0, 30));
+    $this->assertSame([], $backend->invocations);
+  }
+
+  public function testQueueProcessThrowsWithoutReportedCount(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = 'Nothing resembling a count.';
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Drush did not report how many items of the queue "behat_test" it processed. Output: Nothing resembling a count.');
+
+    $backend->queueProcess('behat_test', 5, 30);
+  }
+
+  public function testQueueProcessThrowsWhenDrushFails(): void {
+    $backend = $this->createBackend();
+    $backend->drushExitCode = 1;
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Drush command "queue:run" exited with code 1.');
+
+    $backend->queueProcess('behat_test', 5, 30);
+  }
+
+  public function testQueueAddItemIsUnsupported(): void {
+    $backend = $this->createBackend();
+
+    $this->expectException(UnsupportedBackendActionException::class);
+    $this->expectExceptionMessage('Adding an item to a queue is not supported by ' . RecordingDrushBackend::class . ': Drush has no command that adds a queue item.');
+
+    $backend->queueAddItem('behat_test', ['nid' => 1]);
+  }
+
+  /**
+   * Tests that the newest log entry id is read from a 1-entry listing.
+   *
+   * @param string $drush_response
+   *   Raw output the stubbed 'watchdog:show' call returns.
+   * @param int $expected
+   *   The id the method must return.
+   */
+  #[DataProvider('dataProviderLogGetLastId')]
+  public function testLogGetLastId(string $drush_response, int $expected): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = $drush_response;
+
+    $this->assertSame($expected, $backend->logGetLastId());
+    $this->assertSame(['format' => 'json', 'count' => '1', 'extended' => NULL], $backend->invocations[0]['options']);
+  }
+
+  public static function dataProviderLogGetLastId(): \Iterator {
+    yield 'an entry' => ['{"12":{"wid":"12","type":"php"}}', 12];
+    yield 'no output' => ['', 0];
+    yield 'a notice instead of JSON' => [' [notice] No log messages available.', 0];
+  }
+
+  public function testLogReadFiltersByTypeAndIdAndMapsTheSeverity(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = '{"4":{"wid":"4","type":"php","severity":"Warning","message":"Newest"},"3":{"wid":"3","type":"cron","severity":"Error","message":"Other type"},"2":{"wid":"2","type":"php","severity":"Unusual","message":"Unknown label"},"1":{"wid":"1","type":"php","severity":"Error","message":"Oldest"}}';
+
+    $entries = $backend->logRead(['php'], 1, 4);
+
+    $this->assertSame(['format' => 'json', 'count' => '100000', 'extended' => NULL, 'severity-min' => '4'], $backend->invocations[0]['options']);
+    $this->assertSame([2, 4], array_column($entries, 'wid'), 'The entries after the id come back oldest first.');
+    $this->assertSame(['Unknown label', 'Newest'], array_column($entries, 'message'));
+    $this->assertSame(['Unusual', 4], array_column($entries, 'severity'), 'A known label maps to its level and an unknown one stays as printed.');
+    $this->assertSame([[], []], array_column($entries, 'variables'));
+  }
+
+  public function testLogReadWithNoTypesReadsNothing(): void {
+    $backend = $this->createBackend();
+
+    $this->assertSame([], $backend->logRead([], 0, 4));
+    $this->assertSame([], $backend->invocations);
+  }
+
+  public function testLogDeleteToleratesMissingEntry(): void {
+    $backend = $this->createBackend();
+    $backend->drushFailures = ['watchdog:delete' => 1];
+    $backend->drushExitCode = 1;
+
+    $backend->logDelete([7]);
+
+    $this->assertSame(['watchdog:delete', 'watchdog:show-one'], array_column($backend->invocations, 'command'));
+    $this->assertSame([['7'], ['7']], array_column($backend->invocations, 'arguments'));
+    $this->assertSame(['yes' => NULL], $backend->invocations[0]['options']);
+  }
+
+  public function testLogDeleteFailureSurfacesWhileTheEntryExists(): void {
+    $backend = $this->createBackend();
+    $backend->drushFailures = ['watchdog:delete' => 1];
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Drush command "watchdog:delete" exited with code 1.');
+
+    $backend->logDelete([7]);
+  }
+
+  /**
+   * Tests that the one-time login path is read from the printed link.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub
+   *   The user stub.
+   * @param array<string, string> $expected_options
+   *   The option naming the user that 'user:login' must receive.
+   */
+  #[DataProvider('dataProviderGetOneTimeLoginUrl')]
+  public function testGetOneTimeLoginUrl(EntityStub $stub, array $expected_options): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = "http://default/sub/user/reset/7/1700000000/abc-DEF_1/login\n";
+
+    $this->assertSame('/sub/user/reset/7/1700000000/abc-DEF_1', $backend->getOneTimeLoginUrl($stub));
+    $this->assertSame('user:login', $backend->invocations[0]['command']);
+    $this->assertSame($expected_options + ['no-browser' => NULL], $backend->invocations[0]['options']);
+  }
+
+  public static function dataProviderGetOneTimeLoginUrl(): \Iterator {
+    yield 'a uid value' => [new EntityStub('user', NULL, ['uid' => 7, 'name' => 'alice']), ['uid' => '7']];
+    yield 'a name value' => [new EntityStub('user', NULL, ['name' => 'alice']), ['name' => 'alice']];
+  }
+
+  public function testGetOneTimeLoginUrlRejectsStubWithoutIdentifier(): void {
+    $backend = $this->createBackend();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot resolve a user from the stub: neither the saved entity, a "uid" value nor a "name" value is set.');
+
+    $backend->getOneTimeLoginUrl(new EntityStub('user'));
+  }
+
+  public function testGetOneTimeLoginUrlRejectsOutputWithoutLink(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = 'Drush printed a warning.';
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Drush did not print a one-time login link. Output: Drush printed a warning.');
+
+    $backend->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 7]));
+  }
+
+  public function testCacheInvalidateTagsJoinsTheTags(): void {
+    $backend = $this->createBackend();
+
+    $backend->cacheInvalidateTags(['node_list', 'rendered']);
+
+    $this->assertSame([['node_list,rendered']], array_column($backend->invocations, 'arguments'));
+  }
+
+  public function testCacheInvalidateTagsWithNoTagsRunsNothing(): void {
+    $backend = $this->createBackend();
+
+    $backend->cacheInvalidateTags([]);
+
+    $this->assertSame([], $backend->invocations);
+  }
+
+  public function testCacheDeletePagePathEmptiesTheBin(): void {
+    $backend = $this->createBackend();
+
+    $backend->cacheDeletePagePath('page', '/about*', TRUE);
+
+    $this->assertSame([['bin', 'page']], array_column($backend->invocations, 'arguments'));
+  }
+
+  public function testSearchIndexItemsPassesTheLimit(): void {
+    $backend = $this->createBackend();
+
+    $backend->searchIndexItems(3);
+
+    $this->assertSame(['limit' => '3'], $backend->invocations[0]['options']);
+  }
+
+  public function testSearchIndexItemsWithZeroLimitRunsNothing(): void {
+    $backend = $this->createBackend();
+
+    $backend->searchIndexItems(0);
+
+    $this->assertSame([], $backend->invocations);
+  }
+
+  public function testSearchIndexEntityIsUnsupported(): void {
+    $backend = $this->createBackend();
+
+    $this->expectException(UnsupportedBackendActionException::class);
+    $this->expectExceptionMessage('Indexing 1 entity is not supported by ' . RecordingDrushBackend::class . ': Drush indexes only the items waiting in an index.');
+
+    $backend->searchIndexEntity('node', 7);
+  }
+
+  public function testSearchRunCronIsUnsupported(): void {
+    $backend = $this->createBackend();
+
+    $this->expectException(UnsupportedBackendActionException::class);
+    $this->expectExceptionMessage('Running the cron hook of the module "search_api_solr" is not supported by ' . RecordingDrushBackend::class . ': Drush runs every cron hook at once.');
+
+    $backend->searchRunCron('search_api_solr');
   }
 
   /**

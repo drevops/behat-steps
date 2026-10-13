@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
+use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use Symfony\Component\Process\Process;
@@ -21,6 +22,27 @@ use Symfony\Component\Process\Process;
 class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInterface {
 
   use CreationAliasRegistryTrait;
+
+  /**
+   * The most log entries 1 read asks Drush for.
+   */
+  protected const int LOG_READ_COUNT = 100000;
+
+  /**
+   * The level of each severity label 'watchdog:show' prints.
+   *
+   * @var array<string, int>
+   */
+  protected const array LOG_SEVERITIES = [
+    'emergency' => self::SEVERITY_EMERGENCY,
+    'alert' => self::SEVERITY_ALERT,
+    'critical' => self::SEVERITY_CRITICAL,
+    'error' => self::SEVERITY_ERROR,
+    'warning' => self::SEVERITY_WARNING,
+    'notice' => self::SEVERITY_NOTICE,
+    'info' => self::SEVERITY_INFO,
+    'debug' => self::SEVERITY_DEBUG,
+  ];
 
   /**
    * The drush alias.
@@ -576,6 +598,249 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   }
 
   /**
+   * {@inheritdoc}
+   *
+   * 'user:login' prints the link that logs the user in without a click, so
+   * its trailing '/login' segment is dropped to reach the one-time login page.
+   * A stub without an id is resolved by its 'name' value.
+   */
+  public function getOneTimeLoginUrl(EntityStubInterface $stub): string {
+    $uid = $stub->getId() ?? $stub->getValue('uid');
+    $name = $stub->getValue('name');
+
+    if ($uid !== NULL && $uid !== '') {
+      $options = ['uid' => (string) $uid];
+    }
+    elseif (is_string($name) && $name !== '') {
+      $options = ['name' => $name];
+    }
+    else {
+      throw new \RuntimeException('Cannot resolve a user from the stub: neither the saved entity, a "uid" value nor a "name" value is set.');
+    }
+
+    $link = trim($this->drush('user:login', [], $options + ['no-browser' => NULL]));
+    $path = parse_url($link, PHP_URL_PATH);
+
+    if (!is_string($path) || preg_match('#^(.*/user/reset/[^/]+/[^/]+/[^/]+)(?:/login)?$#', $path, $matches) !== 1) {
+      throw new \RuntimeException(sprintf('Drush did not print a one-time login link. Output: %s', $link));
+    }
+
+    return $matches[1];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function cacheClearBin(string $bin): void {
+    $this->drush('cache:clear', ['bin', $bin]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function cacheInvalidateTags(array $tags): void {
+    if ($tags === []) {
+      return;
+    }
+
+    $this->drush('cache:tags', [implode(',', $tags)]);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Drush cannot list the entries of a bin, so the bin is emptied whole.
+   */
+  public function cacheDeletePagePath(string $bin, string $path, bool $is_pattern = FALSE): void {
+    $this->cacheClearBin($bin);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Drush has no command that adds a queue item.
+   */
+  public function queueAddItem(string $queue, mixed $data): void {
+    throw new UnsupportedBackendActionException('Adding an item to a queue is not supported by %s: Drush has no command that adds a queue item.', $this);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * 'queue:list' reports only the queues a worker processes, so a queue
+   * without a worker reports 0 items.
+   */
+  public function queueCountItems(string $queue): int {
+    $row = $this->listQueues()[$queue] ?? NULL;
+    $items = is_array($row) ? $row['items'] ?? 0 : 0;
+
+    return is_numeric($items) ? (int) $items : 0;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queueDelete(string $queue): void {
+    $this->drushDelete('queue:delete', [$queue], [], fn(): bool => array_key_exists($queue, $this->listQueues()));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queueProcess(string $queue, int $limit, int $lease_time): int {
+    if ($limit === 0) {
+      return 0;
+    }
+
+    $options = ['items-limit' => (string) $limit, 'lease-time' => (string) $lease_time];
+    $result = $this->drushChecked('queue:run', [$queue], $options);
+
+    // The count is logged, so it lands on stderr.
+    if (preg_match('/Processed (\d+) items? from the/', $result->output . $result->errorOutput, $matches) !== 1) {
+      throw new \RuntimeException(sprintf('Drush did not report how many items of the queue "%s" it processed. Output: %s', $queue, $result->output . $result->errorOutput));
+    }
+
+    return (int) $matches[1];
+  }
+
+  /**
+   * Lists the queues Drush reports, keyed by queue name.
+   *
+   * @return array<array-key, mixed>
+   *   The rows of 'queue:list'.
+   */
+  protected function listQueues(): array {
+    $queues = json_decode(trim($this->drush('queue:list', [], ['format' => 'json'])), TRUE);
+
+    return is_array($queues) ? $queues : [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function logGetLastId(): int {
+    $entries = $this->readLogEntries(1);
+
+    return $entries === [] ? 0 : max(array_keys($entries));
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * 'watchdog:show' renders each message with its placeholders, so an entry
+   * carries the rendered message and no variables.
+   */
+  public function logRead(array $types, int $after_id, int $severity): array {
+    if ($types === []) {
+      return [];
+    }
+
+    $entries = [];
+
+    foreach ($this->readLogEntries(static::LOG_READ_COUNT, $severity) as $wid => $row) {
+      if ($wid <= $after_id || !in_array($row['type'] ?? NULL, $types, TRUE)) {
+        continue;
+      }
+
+      $entries[$wid] = $this->normalizeLogEntry($wid, $row);
+    }
+
+    ksort($entries);
+
+    return array_values($entries);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function logDelete(array $ids): void {
+    foreach ($ids as $id) {
+      $this->drushDelete('watchdog:delete', [(string) $id], ['yes' => NULL], fn(): bool => $this->drushResult('watchdog:show-one', [(string) $id])->exitCode === 0);
+    }
+  }
+
+  /**
+   * Reads the newest log entries, keyed by id.
+   *
+   * @param int $count
+   *   The most entries to read.
+   * @param int|null $severity
+   *   The least severe level to include, or NULL for every level.
+   *
+   * @return array<int, array<string, mixed>>
+   *   The entries 'watchdog:show' prints, keyed by id.
+   */
+  protected function readLogEntries(int $count, ?int $severity = NULL): array {
+    $options = ['format' => 'json', 'count' => (string) $count, 'extended' => NULL];
+
+    if ($severity !== NULL) {
+      $options['severity-min'] = (string) $severity;
+    }
+
+    $decoded = json_decode(trim($this->drush('watchdog:show', [], $options)), TRUE);
+    $entries = [];
+
+    foreach (is_array($decoded) ? $decoded : [] as $wid => $row) {
+      if (is_numeric($wid) && is_array($row)) {
+        $entries[(int) $wid] = $row;
+      }
+    }
+
+    return $entries;
+  }
+
+  /**
+   * Shapes a 'watchdog:show' row like a log entry.
+   *
+   * @param int $wid
+   *   The entry id.
+   * @param array<string, mixed> $row
+   *   The row, with the severity as the label Drush prints.
+   *
+   * @return array<string, mixed>
+   *   The entry, with the severity as a level where the label is known.
+   */
+  protected function normalizeLogEntry(int $wid, array $row): array {
+    $severity = $row['severity'] ?? NULL;
+
+    if (is_string($severity)) {
+      $severity = static::LOG_SEVERITIES[strtolower($severity)] ?? $severity;
+    }
+
+    return ['wid' => $wid, 'severity' => $severity, 'variables' => []] + $row;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Drush indexes only the items waiting in an index, never 1 entity.
+   */
+  public function searchIndexEntity(string $entity_type, int|string $id): bool {
+    throw new UnsupportedBackendActionException('Indexing 1 entity is not supported by %s: Drush indexes only the items waiting in an index.', $this);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function searchIndexItems(int $limit): void {
+    if ($limit === 0) {
+      return;
+    }
+
+    $this->drush('search-api:index', [], ['limit' => (string) $limit]);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * 'core:cron' runs every cron hook at once, so 1 module's hook cannot run
+   * on its own.
+   */
+  public function searchRunCron(string $module = 'search_api'): void {
+    throw new UnsupportedBackendActionException(sprintf('Running the cron hook of the module "%s" is not supported by %%s: Drush runs every cron hook at once.', $module), $this);
+  }
+
+  /**
    * Sets common drush arguments or options.
    *
    * @param string $arguments
@@ -660,11 +925,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   When the command exits with a non-zero status.
    */
   public function drush(string $command, array $arguments = [], array $options = []): string {
-    $result = $this->drushResult($command, $arguments, $options);
-
-    if ($result->exitCode !== 0) {
-      throw new \RuntimeException(sprintf('Drush command "%s" exited with code %d. %s', $command, $result->exitCode, $result->errorOutput));
-    }
+    $result = $this->drushChecked($command, $arguments, $options);
 
     // Some Drush commands write to stderr instead of stdout.
     if ($result->output === '' || $result->output === '0') {
@@ -672,6 +933,32 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     }
 
     return $result->output;
+  }
+
+  /**
+   * Executes a drush command, failing on a non-zero exit.
+   *
+   * @param string $command
+   *   The Drush command to execute.
+   * @param array<int, string> $arguments
+   *   Positional arguments to pass to Drush.
+   * @param array<string, string|bool|null> $options
+   *   Options to pass to Drush.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult
+   *   The exit code together with the captured stdout and stderr.
+   *
+   * @throws \RuntimeException
+   *   When the command exits with a non-zero status.
+   */
+  protected function drushChecked(string $command, array $arguments = [], array $options = []): DrushResult {
+    $result = $this->drushResult($command, $arguments, $options);
+
+    if ($result->exitCode !== 0) {
+      throw new \RuntimeException(sprintf('Drush command "%s" exited with code %d. %s', $command, $result->exitCode, $result->errorOutput));
+    }
+
+    return $result;
   }
 
   /**

@@ -46,6 +46,42 @@ class TestmodeTraitTest extends UnitTestCase {
     $this->assertFalse($context->testIsActive());
   }
 
+  public function testSetupWritesTheModeAndTeardownRemovesIt(): void {
+    $drupal = $this->createMock(DrupalBackendInterface::class);
+    $drupal->method('moduleIsEnabled')->willReturn(TRUE);
+    $drupal->expects($this->once())->method('stateSet')->with('testmode.enabled', TRUE);
+    $drupal->expects($this->once())->method('stateDelete')->with('testmode.enabled');
+    $drupal->expects($this->exactly(2))->method('cacheInvalidateTags')->with(['testmode:views']);
+
+    $registry = new BackendRegistry(['drupal' => $drupal]);
+    $registry->setScenarioBackends(['drupal' => 'drupal']);
+
+    $context = new TestmodeTraitTestImplementation();
+    $context->setBackendRegistry($registry);
+
+    $context->testmodeBeforeScenario($this->createBeforeScenarioScope(['testmode']));
+    $this->assertTrue($context->testIsActive());
+
+    $context->testmodeAfterScenario($this->createAfterScenarioScope(['testmode']));
+    $this->assertFalse($context->testIsActive());
+  }
+
+  public function testScenarioWithoutTheTagTouchesNoBackend(): void {
+    $drupal = $this->createMock(DrupalBackendInterface::class);
+    $drupal->expects($this->never())->method($this->anything());
+
+    $registry = new BackendRegistry(['drupal' => $drupal]);
+    $registry->setScenarioBackends(['drupal' => 'drupal']);
+
+    $context = new TestmodeTraitTestImplementation();
+    $context->setBackendRegistry($registry);
+
+    $context->testmodeBeforeScenario($this->createBeforeScenarioScope());
+    $context->testmodeAfterScenario($this->createAfterScenarioScope());
+
+    $this->assertFalse($context->testIsActive());
+  }
+
 }
 
 /**

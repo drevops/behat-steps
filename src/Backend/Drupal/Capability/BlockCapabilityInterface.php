@@ -76,4 +76,23 @@ interface BlockCapabilityInterface {
    */
   public function deleteBlockContent(EntityStubInterface $stub): void;
 
+  /**
+   * Finds the id of the block plugin with an admin label.
+   *
+   * @param string $admin_label
+   *   The admin label of the block plugin.
+   *
+   * @return string|null
+   *   The plugin id, or NULL when no block plugin has the admin label.
+   */
+  public function findBlockPluginId(string $admin_label): ?string;
+
+  /**
+   * Whether a condition plugin exists.
+   *
+   * @param string $id
+   *   The condition plugin id, such as 'request_path'.
+   */
+  public function hasConditionPlugin(string $id): bool;
+
 }
