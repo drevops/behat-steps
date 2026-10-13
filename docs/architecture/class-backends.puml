@@ -1,8 +1,9 @@
 @startuml
 ' drevops/behat-steps - the Behat-free backend layer and its capability model.
-' Traced from src/Backend/BackendInterface.php, DrupalBackendInterface.php,
-' DrushBackendInterface.php, BlackboxBackendInterface.php, DrupalBackend.php,
-' DrushBackend.php, BlackboxBackend.php, src/Backend/Capability/,
+' Traced from src/Backend/BackendInterface.php, BlackboxBackendInterface.php,
+' BlackboxBackend.php, src/Backend/Capability/,
+' src/Backend/Drupal/DrupalBackendInterface.php, DrushBackendInterface.php,
+' DrupalBackend.php, DrushBackend.php, src/Backend/Drupal/Capability/,
 ' src/Backend/Drupal/Core/, src/Backend/Entity/,
 ' src/Extension/Registry/BackendRegistry.php, scripts/lint-layers.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
@@ -26,7 +27,6 @@ package "DrevOps\\BehatSteps\\Extension\\Registry" #F3E5F5 {
 }
 
 package "DrevOps\\BehatSteps\\Backend" #E8F5E9 {
-
   interface BackendInterface {
     +getRandom() : Random
     +bootstrap() : void
@@ -34,12 +34,39 @@ package "DrevOps\\BehatSteps\\Backend" #E8F5E9 {
   }
 
   interface BlackboxBackendInterface
+  class BlackboxBackend
+
+  BackendInterface <|-- BlackboxBackendInterface
+  BlackboxBackendInterface <|.. BlackboxBackend
+}
+
+package "DrevOps\\BehatSteps\\Backend\\Capability" #E8F5E9 {
+  interface AuthenticationCapabilityInterface
+  interface CacheCapabilityInterface
+  interface ContentCapabilityInterface
+  interface CreationAliasCapabilityInterface
+  interface CronCapabilityInterface
+  interface LanguageCapabilityInterface
+  interface MailCapabilityInterface
+  interface RoleCapabilityInterface
+  interface UserCapabilityInterface
+
+  AuthenticationCapabilityInterface -[hidden]down- CacheCapabilityInterface
+  CacheCapabilityInterface -[hidden]down- ContentCapabilityInterface
+  ContentCapabilityInterface -[hidden]down- CreationAliasCapabilityInterface
+  CreationAliasCapabilityInterface -[hidden]down- CronCapabilityInterface
+
+  LanguageCapabilityInterface -[hidden]down- MailCapabilityInterface
+  MailCapabilityInterface -[hidden]down- RoleCapabilityInterface
+  RoleCapabilityInterface -[hidden]down- UserCapabilityInterface
+}
+
+package "DrevOps\\BehatSteps\\Backend\\Drupal" #E8F5E9 {
   interface DrupalBackendInterface {
     +setCore(core) : void
   }
   interface DrushBackendInterface
 
-  class BlackboxBackend
   class DrupalBackend {
     bootstraps Drupal in-process
   }
@@ -47,48 +74,25 @@ package "DrevOps\\BehatSteps\\Backend" #E8F5E9 {
     shells out to drush
   }
 
-  BackendInterface <|-- BlackboxBackendInterface
-  BackendInterface <|-- DrupalBackendInterface
-  BackendInterface <|-- DrushBackendInterface
-
-  BlackboxBackendInterface <|.. BlackboxBackend
   DrupalBackendInterface <|.. DrupalBackend
   DrushBackendInterface <|.. DrushBackend
 }
 
-package "DrevOps\\BehatSteps\\Backend\\Capability" #E8F5E9 {
-  interface AuthenticationCapabilityInterface
+package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   interface BatchCapabilityInterface
   interface BlockCapabilityInterface
-  interface CacheCapabilityInterface
   interface ConfigCapabilityInterface
-  interface ContentCapabilityInterface
   interface CoreCapabilityInterface
-  interface CreationAliasCapabilityInterface
-  interface CronCapabilityInterface
   interface DrushCapabilityInterface
-  interface LanguageCapabilityInterface
-  interface MailCapabilityInterface
   interface ModuleCapabilityInterface
-  interface RoleCapabilityInterface
   interface StateCapabilityInterface
-  interface UserCapabilityInterface
 
-  AuthenticationCapabilityInterface -[hidden]down- BatchCapabilityInterface
   BatchCapabilityInterface -[hidden]down- BlockCapabilityInterface
-  BlockCapabilityInterface -[hidden]down- CacheCapabilityInterface
-  CacheCapabilityInterface -[hidden]down- ConfigCapabilityInterface
-  ConfigCapabilityInterface -[hidden]down- ContentCapabilityInterface
+  BlockCapabilityInterface -[hidden]down- ConfigCapabilityInterface
+  ConfigCapabilityInterface -[hidden]down- CoreCapabilityInterface
 
-  CoreCapabilityInterface -[hidden]down- CreationAliasCapabilityInterface
-  CreationAliasCapabilityInterface -[hidden]down- CronCapabilityInterface
-  CronCapabilityInterface -[hidden]down- DrushCapabilityInterface
-  DrushCapabilityInterface -[hidden]down- LanguageCapabilityInterface
-  LanguageCapabilityInterface -[hidden]down- MailCapabilityInterface
-
-  ModuleCapabilityInterface -[hidden]down- RoleCapabilityInterface
-  RoleCapabilityInterface -[hidden]down- StateCapabilityInterface
-  StateCapabilityInterface -[hidden]down- UserCapabilityInterface
+  DrushCapabilityInterface -[hidden]down- ModuleCapabilityInterface
+  ModuleCapabilityInterface -[hidden]down- StateCapabilityInterface
 }
 
 package "DrevOps\\BehatSteps\\Backend\\Drupal\\Core" #E8F5E9 {
@@ -114,6 +118,8 @@ package "DrevOps\\BehatSteps\\Backend\\Entity" #E8F5E9 {
 
 BackendRegistry o--> BackendInterface : registered by name
 
+BackendInterface <|-- DrupalBackendInterface
+BackendInterface <|-- DrushBackendInterface
 DrupalBackendInterface ..|> AuthenticationCapabilityInterface
 DrupalBackendInterface ..|> ContentCapabilityInterface
 DrupalBackendInterface ..|> CoreCapabilityInterface
@@ -137,6 +143,9 @@ note bottom of DrupalBackendInterface
   which DrushCapabilityInterface is its own.
   Only a few edges are drawn here.
 
+  The root of src/Backend references no Drupal
+  class beyond the random generator; everything
+  that is Drupal's sits under Backend\\Drupal.
   BackendRegistry walks the scenario's backend
   order and returns the first instance of the
   capability a step asked for, bootstrapping

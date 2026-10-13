@@ -1315,11 +1315,12 @@ A trait checks what it needs before a step acts, and fails with a message naming
 
 ## Classes and interfaces
 
-Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\BehatSteps\Backend`, so a Drupal Driver type the table doesn't name keeps its short name and changes only its namespace. The Drupal Extension's types moved under `DrevOps\BehatSteps\Extension`, apart from its field parser, which joined the field handlers under `DrevOps\BehatSteps\Backend`. "Driver" now only ever means Mink's browser driver: the Drupal, Drush and Blackbox drivers are backends. [Base classes](#base-classes) maps the Drupal Extension's `RawDrupalContext` and `DrupalContext`.
+Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\BehatSteps\Backend`: what any backend may provide sits at its root, and the Drupal and Drush backends, `Core`, the field handlers, the Drupal creation aliases and the capabilities only a Drupal backend provides sit under `DrevOps\BehatSteps\Backend\Drupal`. A Drupal Driver type the table doesn't name keeps its short name and changes only its namespace. The Drupal Extension's types moved under `DrevOps\BehatSteps\Extension`, apart from its field parser, which joined the field handlers under `DrevOps\BehatSteps\Backend`. "Driver" now only ever means Mink's browser driver: the Drupal, Drush and Blackbox drivers are backends. [Base classes](#base-classes) maps the Drupal Extension's `RawDrupalContext` and `DrupalContext`.
 
 | 3.14 | 4.0 | Notes |
 | --- | --- | --- |
-| `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\<Name>` | Every type not listed below, such as the capability interfaces, `Core`, the field handlers, `EntityStub`, the creation aliases and the exceptions |
+| `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\<Name>` | `EntityStub`, the creation alias contracts, the exceptions and the capabilities any backend may provide: `Authentication`, `Cache`, `Content`, `Cron`, `CreationAlias`, `Language`, `Mail`, `Role` and `User` |
+| `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\Drupal\<Name>` | `Core`, the field handlers and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `Core`, `Drush`, `Module` and `State` |
 | `Drupal\Driver\DriverInterface` | `DrevOps\BehatSteps\Backend\BackendInterface` | |
 | `Drupal\Driver\DrupalDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackend` | |
 | `Drupal\Driver\DrupalDriverInterface` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface` | Declares only `setCore()`; `getCore()` and `getDrupalVersion()` moved to `CoreCapabilityInterface` |
@@ -1373,12 +1374,15 @@ Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\Beh
 | `Drupal\DrupalExtension\Manager\DrupalMailManagerInterface` | Removed | |
 | `Drupal\DrupalExtension\Selector\RegionSelector` | `DrevOps\BehatSteps\Extension\Selector\RegionSelector` | Final |
 | `Drupal\DrupalExtension\Generator\ClassGenerator` | `DrevOps\BehatSteps\Extension\Generator\ClassGenerator` | Final |
-| `Drupal\DrupalExtension\Hook\Attribute\<Name>` | `DrevOps\BehatSteps\Extension\Hook\Attribute\<Name>` | The 8 entity creation hook attributes, such as `BeforeNodeCreate`, which take no argument now; see [Hooks](#hooks) |
-| `Drupal\DrupalExtension\Hook\Attribute\DrupalHook` | `DrevOps\BehatSteps\Extension\Hook\Attribute\HookAttributeInterface` | No longer declares `getFilterString()` |
-| `Drupal\DrupalExtension\Hook\Scope\<Name>` | `DrevOps\BehatSteps\Extension\Hook\Scope\<Name>` | The entity creation hook scopes, such as `BeforeNodeCreateScope` |
+| `Drupal\DrupalExtension\Hook\Attribute\<Name>` | `DrevOps\BehatSteps\Extension\Hook\Attribute\<Name>` | The entity and user creation hook attributes, `BeforeEntityCreate`, `AfterEntityCreate`, `BeforeUserCreate` and `AfterUserCreate`, which take no argument now; see [Hooks](#hooks) |
+| `Drupal\DrupalExtension\Hook\Attribute\<Name>` | `DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\<Name>` | The node and term creation hook attributes, `BeforeNodeCreate`, `AfterNodeCreate`, `BeforeTermCreate` and `AfterTermCreate`, which take no argument now; see [Hooks](#hooks) |
+| `Drupal\DrupalExtension\Hook\Attribute\DrupalHook` | `DrevOps\BehatSteps\Extension\Hook\Attribute\HookAttributeInterface` | Declares `getCallClass()` in place of `getFilterString()` |
+| `Drupal\DrupalExtension\Hook\Scope\<Name>` | `DrevOps\BehatSteps\Extension\Hook\Scope\<Name>` | The entity and user creation hook scopes, such as `BeforeEntityCreateScope` |
+| `Drupal\DrupalExtension\Hook\Scope\<Name>` | `DrevOps\BehatSteps\Extension\Drupal\Hook\Scope\<Name>` | The node, term and language creation hook scopes, such as `BeforeNodeCreateScope` |
 | `Drupal\DrupalExtension\Hook\Scope\EntityScope` | `DrevOps\BehatSteps\Extension\Hook\Scope\EntityScopeInterface` | |
 | `Drupal\DrupalExtension\Hook\Call\EntityHook` | `DrevOps\BehatSteps\Extension\Hook\Call\EntityHook` | See [Hooks](#hooks) |
-| `Drupal\DrupalExtension\Hook\Call\AfterEntityCreate` and the 7 other `Before*Create` and `After*Create` calls | `DrevOps\BehatSteps\Extension\Hook\Call\AfterEntityCreate` and the same 7 | Final; see [Hooks](#hooks) |
+| `Drupal\DrupalExtension\Hook\Call\AfterEntityCreate` and the 3 other entity and user `Before*Create` and `After*Create` calls | `DrevOps\BehatSteps\Extension\Hook\Call\AfterEntityCreate` and the same 3 | Final; see [Hooks](#hooks) |
+| `Drupal\DrupalExtension\Hook\Call\AfterNodeCreate` and the 3 other node and term `Before*Create` and `After*Create` calls | `DrevOps\BehatSteps\Extension\Drupal\Hook\Call\AfterNodeCreate` and the same 3 | Final; see [Hooks](#hooks) |
 | `Drupal\DrupalExtension\Element\DocumentElement` | `DrevOps\BehatSteps\Extension\Browser\Element\DocumentElement` | |
 | `Drupal\DrupalExtension\Parser\EntityFieldParser` | `DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParser` | Final, as it was |
 | `Drupal\DrupalExtension\Parser\EntityFieldParserInterface` | `DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParserInterface` | |

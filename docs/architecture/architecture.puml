@@ -1,8 +1,9 @@
 @startuml
 ' drevops/behat-steps - layered component architecture.
-' Traced from composer.json, src/Steps/, src/Steps/Helper/Web/, src/Steps/Helper/Drupal/,
-' src/Extension/, src/Extension/Auth/, src/Extension/Config/, src/Extension/Browser/,
-' src/Extension/Http/, src/Backend/, behat.php, scripts/lint-layers.php.
+' Traced from composer.json, src/WebRawContext.php, src/WebContext.php,
+' src/DrupalContext.php, src/Steps/, src/Steps/Helper/, src/Extension/,
+' src/Extension/Drupal/, src/Backend/, src/Backend/Drupal/, behat.php,
+' scripts/lint-layers.php.
 ' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -19,20 +20,20 @@ package "Consuming project" #FFF3E0 {
 
 package "drevops/behat-steps" {
 
+  package "Contexts - the package root" #E3F2FD {
+    component "WebRawContext\nbackend and browser access,\noption reads, HTTP clients,\nprerequisite checks,\nhook dispatch, no steps" as WebRawCtx
+    component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
+  }
+
   package "Vocabulary - src/Steps" #E3F2FD {
     component "Steps\\Web\n28 traits, Mink only" as WebSteps
     component "Steps\\Drupal\n29 traits, Drupal sites only,\nmost through a backend" as DrupalSteps
+    component "Steps\\Helper\\Web\n8 traits: last step,\nrequest headers, strings,\ntable transpose, tokens,\nfixture directory, headings,\nJavaScript errors" as WebHelpers
+    component "Steps\\Helper\\Drupal\n5 traits: entity lifecycle,\nauthentication, static cache,\nfixture files, queries" as DrupalHelpers
   }
 
-  package "Helpers - src/Steps/Helper" #F3E5F5 {
-    component "Helper\\Web\n8 traits: last step,\nrequest headers, strings,\ntable transpose, tokens,\nfixture directory, headings,\nJavaScript errors" as WebHelpers
-    component "Helper\\Drupal\n5 traits: entity lifecycle,\nauthentication, static cache,\nfixture files, queries" as DrupalHelpers
-  }
-
-  package "Integration - src/Extension" #F3E5F5 {
-    component "BehatStepsExtension\nservice wiring" as Ext
-    component "WebRawContext\nbackend and browser access,\noption reads, HTTP clients,\nprerequisite checks,\nhook dispatch, no steps" as WebRawCtx
-    component "WebContext\nDrupalContext\none chain, whole vocabulary" as Vocabularies
+  package "Extension - src/Extension" #F3E5F5 {
+    component "BehatStepsExtension\nservice wiring, loads the\nshipped backend providers" as Ext
     component "Registries\nsrc/Extension/Registry: backend,\nuser, scenario tags" as Registries
     component "Authenticators\nsrc/Extension/Auth: user login,\nHTTP Basic credentials" as Authenticators
     component "Listeners\nbackend order and scenario tags,\nskip tags that name no trait\nthe suite composes" as Listeners
@@ -41,14 +42,24 @@ package "drevops/behat-steps" {
     component "Browser capabilities\nsrc/Extension/Browser: resolver,\n5 capabilities, 3 adapters" as BrowserCaps
     component "HTTP clients\nsrc/Extension/Http: factory, identity,\nthe shared transport" as HttpClients
     component "Prerequisite\ntrait declarations stated\nthrough capabilities, reader" as Prereq
+    component "Hooks\nsrc/Extension/Hook: entity and\nuser creation hooks, each\nattribute names its call" as Hooks
+
+    package "Extension\\Drupal" #F3E5F5 {
+      component "DrupalBackendProvider\ndrupal: and drush: settings,\nlogin defaults, the 2 backends'\nservice definitions, Core wiring" as DrupalProvider
+      component "Drupal hooks\nnode, term and language\ncreation hooks" as DrupalHooks
+    }
   }
 
   package "Backend - src/Backend" #E8F5E9 {
-    component "BackendInterface\n+ 16 capability interfaces" as BackendIface
-    component "DrupalBackend\nbootstraps Drupal in-process" as DrupalBe
-    component "DrushBackend\nshells out to drush" as DrushBe
-    component "BlackboxBackend\nno Drupal at all" as BlackboxBe
-    component "Core\nfield handlers, classifiers,\nparsers, creation aliases" as Core
+    component "BackendInterface\n+ 9 capability interfaces\nany backend may provide" as BackendIface
+    component "BlackboxBackend\nno backend access at all" as BlackboxBe
+
+    package "Backend\\Drupal" #E8F5E9 {
+      component "7 Drupal-only capabilities\nBatch, Block, Config, Core,\nDrush, Module, State" as DrupalCaps
+      component "DrupalBackend\nbootstraps Drupal in-process" as DrupalBe
+      component "DrushBackend\nshells out to drush" as DrushBe
+      component "Core\nfield handlers, classifiers,\nparsers, creation aliases" as Core
+    }
   }
 }
 
@@ -77,6 +88,9 @@ DrupalSteps ..> DrupalHelpers : composes
 WebRawCtx ..> WebHelpers : composes
 Consumer ..> WebHelpers : composes
 Consumer ..> DrupalHelpers : composes
+DrupalSteps ..> DrupalHooks : declares
+DrupalHelpers ..> Hooks : dispatches
+DrupalHelpers ..> DrupalHooks : dispatches
 
 Consumer --|> WebRawCtx
 Vocabularies --|> WebRawCtx
@@ -84,9 +98,12 @@ Ext --> Registries : registers
 Ext --> Authenticators : registers
 Ext --> Listeners : registers
 Ext --> OptionConfig : registers
+Ext --> BlackboxBe : registers
+Ext --> DrupalProvider : loads
 Behat --> Listeners : before each scenario
 Listeners --> Registries : backend order,\nscenario tags
-Ext --> BackendIface : registers backends
+DrupalProvider --> DrupalBe : defines,\nwires Core into
+DrupalProvider --> DrushBe : defines
 Ext ..> BrowserKit : registers with Mink,\nreads the session options
 Ext --> HttpClients : defines the shared transport\nfrom the session options
 Ext ..> Mink : aliases DocumentElement
@@ -95,6 +112,7 @@ WebRawCtx --> Authenticators : basic auth
 WebRawCtx --> OptionConfig : resolves trait options
 WebRawCtx --> BrowserCaps : browserDriverFor()
 WebRawCtx --> HttpClients : detached and\nbare clients
+WebRawCtx --> Hooks : dispatches through\nBehat's hook dispatcher
 OptionConfig --> Registries : reads the scenario's tags
 WebRawCtx --> Prereq : reads trait prerequisites
 OptionConfig -[hidden]down- Prereq
@@ -104,8 +122,11 @@ Authenticators --> BrowserCaps : whether the session\nruns JavaScript
 Authenticators ..> OptionConfig : login text and\nselectors
 Authenticators --> Mink : log in through\nthe session
 Registries --> BackendIface : resolves by capability
+Registries --> DrupalCaps : resolves by capability
 DrupalBe ..|> BackendIface
+DrupalBe ..|> DrupalCaps
 DrushBe ..|> BackendIface
+DrushBe ..|> DrupalCaps
 BlackboxBe ..|> BackendIface
 DrupalBe --> Core
 
@@ -120,10 +141,12 @@ DrupalBe --> Site
 DrushBe --> Site
 
 note bottom of BackendIface
-  The backend layer references nothing from Behat or Mink,
-  so it is usable without Behat loaded. The web half
-  references no Drupal class beyond the random generator.
-  scripts/lint-layers.php fails the build on either reference.
+  The backend layer references nothing from Behat, Mink or the
+  layers above it, so it is usable without Behat loaded. The root
+  of each of the 2 lower layers, outside its Drupal sub-namespace,
+  references no Drupal class beyond the random generator, and
+  neither does the web half of the vocabulary.
+  scripts/lint-layers.php fails the build on any of them.
 end note
 
 Features -[hidden]down- Config
@@ -132,5 +155,4 @@ Ext -[hidden]down- BrowserKit
 BrowserKit -[hidden]down- HttpClients
 OptionConfig -[hidden]down- BrowserCaps
 DrupalBe -[hidden]right- DrushBe
-DrushBe -[hidden]right- BlackboxBe
 @enduml

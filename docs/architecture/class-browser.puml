@@ -14,7 +14,7 @@ skinparam shadowing false
 skinparam classAttributeIconSize 0
 title Class structure: browser capabilities and HTTP clients
 
-package "DrevOps\\BehatSteps\\Extension\\Context" #F3E5F5 {
+package "DrevOps\\BehatSteps" #E3F2FD {
   class WebRawContext {
     +browserDriverFor(capability) : object
     +browserDriverHas(capability) : bool
@@ -146,7 +146,7 @@ package "DrevOps\\BehatSteps\\Extension\\ServiceContainer" #F3E5F5 {
   }
 }
 
-package "DrevOps\\BehatSteps\\Extension\\Browser\\ServiceContainer\\Driver" #F3E5F5 {
+package "DrevOps\\BehatSteps\\Extension\\ServiceContainer\\Driver" #F3E5F5 {
   class BrowserKitFactory {
     +configure(builder) : void
     +buildDriver(config) : Definition

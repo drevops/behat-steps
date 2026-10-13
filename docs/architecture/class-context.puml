@@ -16,7 +16,7 @@ skinparam shadowing false
 skinparam classAttributeIconSize 0
 title Class detail: context, services, helpers and step traits
 
-package "DrevOps\\BehatSteps\\Extension\\Context" #F3E5F5 {
+package "DrevOps\\BehatSteps" #E3F2FD {
   class WebRawContext {
     +getBackend(name) : BackendInterface
     +backendFor(capability) : object
@@ -54,6 +54,11 @@ package "DrevOps\\BehatSteps\\Extension\\Context" #F3E5F5 {
     use every Steps\\Drupal trait
   }
 
+  WebRawContext <|-- WebContext
+  WebContext <|-- DrupalContext
+}
+
+package "DrevOps\\BehatSteps\\Extension\\Context" #F3E5F5 {
   interface UserAwareInterface {
     +authSetUserRegistry(registry) : void
     +authGetUserRegistry() : UserRegistryInterface
@@ -78,12 +83,11 @@ package "DrevOps\\BehatSteps\\Extension\\Context" #F3E5F5 {
     and the option resolver
   }
 
-  WebRawContext <|-- WebContext
-  WebContext <|-- DrupalContext
-  UserAwareInterface <|.. DrupalContext
   ParametersAwareInterface <|-- BackendAwareInterface
-  BackendAwareInterface <|.. WebRawContext
 }
+
+UserAwareInterface <|.. DrupalContext
+BackendAwareInterface <|.. WebRawContext
 
 package "Behat\\MinkExtension\\Context" #ECEFF1 {
   class RawMinkContext {

@@ -25,6 +25,9 @@ package "Behat\\MinkExtension\\Context" #ECEFF1 {
 package "DrevOps\\BehatSteps\\Extension\\Context" #F3E5F5 {
   interface BackendAwareInterface
   interface UserAwareInterface
+}
+
+package "DrevOps\\BehatSteps" #E3F2FD {
   class WebRawContext {
     backend and browser access, configuration,
     HTTP clients, 3 web helper traits, no steps
