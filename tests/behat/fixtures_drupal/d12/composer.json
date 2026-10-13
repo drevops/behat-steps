@@ -25,7 +25,7 @@
         "drupal/redirect": "^1.13.0",
         "drupal/scheduled_transitions": "^2.9.0-beta4",
         "drupal/search_api": "^1.42.0",
-        "drupal/testmode": "^2.7.2",
+        "drupal/testmode": "^2.8.0",
         "drupal/webform": "^6.3.1",
         "drush/drush": "^14@dev",
         "oomphinc/composer-installers-extender": "^2.0.1",
