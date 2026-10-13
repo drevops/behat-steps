@@ -26,16 +26,6 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
   protected static $modules = ['system'];
 
   /**
-   * {@inheritdoc}
-   *
-   * 'system.mail_original', the record of the handlers the collector
-   * replaced, has no schema.
-   *
-   * @var bool
-   */
-  protected $strictConfigSchema = FALSE;
-
-  /**
    * The Core backend under test.
    */
   protected Core $core;
@@ -44,6 +34,11 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
+    // 'system.mail_original', the record of the handlers the collector
+    // replaced, has no schema. Drupal 11 and 12 type the flag differently, so
+    // an override of the property loads on only 1 of them.
+    $this->strictConfigSchema = FALSE;
+
     parent::setUp();
 
     $this->installConfig(['system']);
