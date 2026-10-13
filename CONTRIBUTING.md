@@ -90,7 +90,27 @@ A project's own tests assert on failure messages, so each one reads 1 way:
 - It quotes every value it names in double quotes, the page URL included, and puts the noun before the value: `the attribute "..."`, not `the "..." attribute`.
 - It ends with a period, and closes a broken expectation with `, but it should not` or `, but it should be`.
 
-Which exception carries the message depends on what failed, as the [exception table](README.md#exceptions) lists. A missing element on the page or in an XML response is an `ElementNotFoundException`. An attribute, a JSON path or a table column isn't an element, so a missing one is an `ExpectationException`.
+Which exception carries the message depends on what failed, as [Exception types](#exception-types) lists.
+
+## Exception types
+
+Which exception a step throws is part of the public contract: consumers catch on it, and the `@test-trait:` harness asserts on it. Pick the type by what failed, never by what the surrounding code happens to use:
+
+| Failure | Throw |
+| --- | --- |
+| An assertion failed and the trait has a Mink session | `Behat\Mink\Exception\ExpectationException`, with `$this->getSession()->getDriver()` as the second argument |
+| An element the step locates is missing - on the page or in an XML response: a field, link, button, select, table or row | `Behat\Mink\Exception\ElementNotFoundException` (a subclass of `ExpectationException`) |
+| An attribute, a JSON path or a table column is missing - none of them is an element | `Behat\Mink\Exception\ExpectationException` |
+| An assertion failed and the trait has no Mink session | `DrevOps\BehatSteps\Exception\AssertionException` |
+| Not an assertion: an invalid step argument, an unmet prerequisite, an infrastructure error | `\RuntimeException` |
+| The current browser driver lacks a required capability | `Behat\Mink\Exception\UnsupportedDriverActionException` |
+| No backend the scenario lists provides a required capability | `DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException` |
+
+Never throw a plain `\Exception` or an `\InvalidArgumentException` from `src/`.
+
+A trait without a Mink session is one that never calls `$this->getSession()`. The ones that assert are `Steps\Web\CommandTrait`, `Steps\Drupal\ConfigTrait`, `Steps\Drupal\DrushTrait`, `Steps\Drupal\ModuleTrait`, `Steps\Drupal\QueueTrait`, `Steps\Drupal\RedirectTrait`, `Steps\Drupal\StateTrait` and `Steps\Drupal\WatchdogTrait`. Don't add a session to a trait just to reach `ExpectationException`.
+
+In a `@test-trait:` scenario, `Then it should fail with an error:` asserts an assertion exception and `Then it should fail with an exception:` asserts a `\RuntimeException`. Use `Then it should fail with a "<class>" exception:` only when the specific class matters.
 
 ## Method naming conventions
 
@@ -357,6 +377,7 @@ These 5 style questions have no dominant form in this codebase. Every form liste
 
 Each of these has 1 answer. Write new code this way, and where a tool holds the form, its name is given.
 
+- **Coding standard**: code follows the Drupal coding standards. A local variable or a method argument is `snake_case`, and a method name or a class property is `camelCase`.
 - **Line breaks**: `"\n"` reads and `PHP_EOL` writes. Code that splits, matches, trims or replaces line breaks in text it received - a docblock, a file, command output, page text or a PyString - uses `"\n"`, because splitting on it handles both `\n` and `\r\n` text, while `PHP_EOL` on Windows misses every `\n`-only line. Console output, exception and assertion messages, and generated documentation and reports end their lines with `PHP_EOL`, and a string built with `PHP_EOL` is split with `PHP_EOL` too. A line break spliced into a nowdoc or heredoc template, or into text built only to be searched or parsed in place, stays `"\n"` so the result never mixes line endings.
 - **Paths**: a path is built with `/`, which PHP accepts on every platform: `$directory . '/' . $file`, `__DIR__ . '/fixtures'`. `DIRECTORY_SEPARATOR` only compares against, splits or trims a path the platform returned - from `realpath()`, `getcwd()`, `getFileName()` or a directory iterator - because on Windows that path holds backslashes.
 - **Closures**: a closure or arrow function that never touches `$this` is `static`. `SlevomatCodingStandard.Functions.StaticClosure` fails the rest in `ahoy lint`, and `ahoy lint-fix` adds the keyword. The sniff can't see a closure that calls an instance method through `self::` or `static::`, which still needs `$this`, so check those by hand.
@@ -393,6 +414,8 @@ The Behat harness in `tests/behat/bootstrap/` - `FeatureContext`, `FeatureContex
 - **Hooks**: a hook is named `<prefix><Event>` and declared before the steps. `FeatureContextTrait`, `FeatureContext` and the context `BehatCliTrait` generates share the `test` prefix, and `BehatCliTrait` itself uses `behatCli`. A prefix holds 1 hook per event, so a second job on an event runs from a helper that hook calls, as `testBeforeScenario()` runs `testStopSessions()` and then `testShortenBigPipeWait()`.
 - **Constants**: every constant declares a native type.
 
+A tag the harness reads to configure a scenario starts with `test-`, as `@test-bigpipe-timeout` does, so it can't be mistaken for a library tag registered in `tag_registry()` in [docs.php](docs.php).
+
 The harness steps keep their own wording, placeholders, patterns and signatures rather than follow [Steps format](#steps-format) and [Step arguments](#step-arguments). They aren't published, and renaming one means editing every `.feature` line that uses it: every `@test-trait` scenario runs `some behat configuration` and `scenario steps:` or `scenario steps tagged with "...":`. `BehatCliContext.php` holds none of these conventions, because it's kept in step with an upstream copy.
 
 `TraitMethodNamingTest`, `MemberOrderTest`, `PublicSurfaceTest` and `TagReadTest` read only `src/`, since each of them also holds a vocabulary rule the harness doesn't follow. The list above is held in review rather than by a test.
@@ -409,6 +432,8 @@ The package ships 3 layers, and the dependency only runs one way: `Steps` on `Be
 `Context/` is one chain. `WebRawContext` carries the plumbing, composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`) and registers no steps; `WebContext` extends it and composes every trait under `Steps/Web`; `DrupalContext` extends that and composes every trait under `Steps/Drupal`. `ContextCompositionTest` holds that directory-to-context coverage in both directions, and holds the chain to one composition of each trait, because a subclass re-composing a parent's trait registers its steps twice.
 
 A trait names the host it needs with `@phpstan-require-extends`, and composes the helper traits its own body calls. `ContextCompositionTest` walks every step trait and fails one that reaches a helper member it does not compose, so the plumbing a trait needs travels with it rather than being assumed of the host.
+
+The host is the base class that provides every method the trait calls without declaring it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all the trait touches, and `DrevOps\BehatSteps\Behat\Context\WebRawContext` when it reaches a backend or the extension configuration. A trait that calls nothing outside itself names no host. A context that composes `AuthTrait` declares `UserAwareInterface`, so the initializer injects the user registry and the authenticator.
 
 That is what keeps `src/Helper` a library rather than a catch-all: teardown lives with the concern that creates the thing being torn down. A trait that creates entities composes `EntityLifecycleTrait` and so brings the `AfterScenario` pass that removes them; a context composing no such trait runs no entity teardown at all. Trait flattening is idempotent, so the fourteen traits that compose it still yield one registry, one hook and one deletion pass in reverse creation order.
 
@@ -662,6 +687,8 @@ ahoy test-bdd -- --tags=wip  # Run all Behat scenarios tagged with `@wip` tag
 ```
 
 Every step the library registers needs at least 1 scenario that runs it. Behat only resolves a step definition when a scenario uses it, so a pattern no scenario reaches can ship unusable without the suite noticing. [tests/phpunit/src/StepScenarioCoverageTest.php](tests/phpunit/src/StepScenarioCoverageTest.php) enforces this in the unit suite: it matches every registered pattern against the steps the feature files run and fails on any step nothing reaches. Steps a `@test-trait` scenario hands to its nested run count, since they do run. Steps in a scenario the suite filters out, such as one tagged `@test-skipped`, don't.
+
+Put a new scenario in the feature file that already tests its trait rather than in a new file, and give it a descriptive tag, such as `@datetime`, so it can run on its own. A negative `@test-trait:` scenario, such as one for `FieldTrait`, reaches its page through a plain navigation step like `I go to "node/add/page"`, and avoids custom steps its nested run may not have.
 
 The nested runs find the repository through `BehatCliTrait::behatCliGetRootPath()`, which derives the root from the trait's own location, and [rector.php](rector.php) derives its paths from `__DIR__` the same way. Neither writes `/app`, so both follow the checkout wherever it lives. The service hosts in the configuration, such as `nginx` and `chrome`, stay as they are: they name the Docker services the suite runs against, not paths.
 
