@@ -681,8 +681,8 @@ A placeholder name never appears in a feature file, so a row that only renames a
 | 3.14 | 4.0 |
 | --- | --- |
 | `When I click on :selector in the modal` | `When I click on the element :selector in the modal` |
-| `Then the modal should contain :text` | `Then I should see :text in the modal` |
-| `Then the modal should not contain :text` | `Then I should not see :text in the modal` |
+| `Then the modal should contain :text` | `Then I should see the text :text in the modal` |
+| `Then the modal should not contain :text` | `Then I should not see the text :text in the modal` |
 
 #### ModuleTrait
 
@@ -897,7 +897,7 @@ The Drupal Extension's contexts are gone, and the step traits carry their vocabu
 
 #### Regions
 
-The region steps name the region after the word `region`, as in `in the region "header"`, where the Drupal Extension wrote `in the "header" region`. An action names what it acts on (`the link`, `the button`, `the field`, `the checkbox`), and a link is followed rather than clicked. `I should see :text` drops `the text`. A step about an element named by a selector starts with the element and names the region with it, before `should`.
+The region steps name the region after the word `region`, as in `in the region "header"`, where the Drupal Extension wrote `in the "header" region`. An action names what it acts on (`the link`, `the button`, `the field`, `the checkbox`), and a link is followed rather than clicked. A text step keeps `the text`, as in `I should see the text "Welcome" in the region "header"`, so Mink's own `I should see :text` never matches it. A step about an element named by a selector starts with the element and names the region with it, before `should`.
 
 | 3.14 | 4.0 |
 | --- | --- |
@@ -907,8 +907,8 @@ The region steps name the region after the word `region`, as in `in the region "
 | `Given I fill in :value for :field in the :region( region)` | `When I fill in the field :field with :value in the region :region` |
 | `Given I check :locator in the :region( region)` | `When I check the checkbox :checkbox in the region :region` |
 | `Given I uncheck :checkbox in the :region( region)` | `When I uncheck the checkbox :checkbox in the region :region` |
-| `Then I should see( the text) :text in the :region( region)` | `Then I should see :text in the region :region` |
-| `Then I should not see( the text) :text in the :region( region)` | `Then I should not see :text in the region :region` |
+| `Then I should see( the text) :text in the :region( region)` | `Then I should see the text :text in the region :region` |
+| `Then I should not see( the text) :text in the :region( region)` | `Then I should not see the text :text in the region :region` |
 | `Then I should see the heading :heading in the :region( region)` | `Then I should see the heading :heading in the region :region` |
 | `Then I should see the :heading heading in the :region( region)` | `Then I should see the heading :heading in the region :region` |
 | `Then I should see the link :link in the :region( region)` | `Then I should see the link :link in the region :region` |

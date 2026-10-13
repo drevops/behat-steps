@@ -113,12 +113,12 @@ trait RegionTrait {
    * Assert that the text of a region contains a string.
    *
    * @code
-   * Then I should see "Welcome" in the region "content"
+   * Then I should see the text "Welcome" in the region "content"
    * @endcode
    *
    * @actor:person
    */
-  #[Then('I should see :text in the region :region')]
+  #[Then('I should see the text :text in the region :region')]
   public function regionAssertContainsText(string $region, string $text): void {
     if (!str_contains($this->regionGet($region)->getText(), $text)) {
       throw new ExpectationException(sprintf('The text "%s" was not found in the region "%s" on the page "%s".', $text, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());
@@ -129,12 +129,12 @@ trait RegionTrait {
    * Assert that the text of a region does not contain a string.
    *
    * @code
-   * Then I should not see "Error" in the region "content"
+   * Then I should not see the text "Error" in the region "content"
    * @endcode
    *
    * @actor:person
    */
-  #[Then('I should not see :text in the region :region')]
+  #[Then('I should not see the text :text in the region :region')]
   public function regionAssertNotContainsText(string $region, string $text): void {
     if (str_contains($this->regionGet($region)->getText(), $text)) {
       throw new ExpectationException(sprintf('The text "%s" was found in the region "%s" on the page "%s".', $text, $region, $this->getSession()->getCurrentUrl()), $this->getSession()->getDriver());

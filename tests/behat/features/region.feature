@@ -4,12 +4,12 @@ Feature: Check that RegionTrait works
   So that users can scope actions and assertions to part of a page
 
   @phpserver
-  Scenario: Assert "Then I should see :text in the region :region" works as expected
+  Scenario: Assert "Then I should see the text :text in the region :region" works as expected
     Given I am an anonymous user
     When I visit "http://cli:8888/regions.html"
-    Then I should see "Welcome to the content region." in the region "content"
-    And I should not see "Sidebar copy." in the region "content"
-    And I should see "Sidebar copy." in the region "sidebar"
+    Then I should see the text "Welcome to the content region." in the region "content"
+    And I should not see the text "Sidebar copy." in the region "content"
+    And I should see the text "Sidebar copy." in the region "sidebar"
 
   @phpserver
   Scenario: Assert "Then I should see the heading :heading in the region :region" works as expected
@@ -75,12 +75,12 @@ Feature: Check that RegionTrait works
     And I uncheck the checkbox "Published" in the region "content"
 
   @test-trait:RegionTrait @phpserver
-  Scenario: Assert "Then I should see :text in the region :region" fails for an unmapped region
+  Scenario: Assert "Then I should see the text :text in the region :region" fails for an unmapped region
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/regions.html"
-      Then I should see "Anything" in the region "nonexistent"
+      Then I should see the text "Anything" in the region "nonexistent"
       """
     When I run "behat --no-colors"
     Then it should fail with an exception:
@@ -89,12 +89,12 @@ Feature: Check that RegionTrait works
       """
 
   @test-trait:RegionTrait @phpserver
-  Scenario: Assert "Then I should see :text in the region :region" fails when the region lacks the value
+  Scenario: Assert "Then I should see the text :text in the region :region" fails when the region lacks the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/regions.html"
-      Then I should see "Sidebar copy." in the region "content"
+      Then I should see the text "Sidebar copy." in the region "content"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:
@@ -103,12 +103,12 @@ Feature: Check that RegionTrait works
       """
 
   @test-trait:RegionTrait @phpserver
-  Scenario: Assert "Then I should not see :text in the region :region" fails when the region has the value
+  Scenario: Assert "Then I should not see the text :text in the region :region" fails when the region has the value
     Given some behat configuration
     And scenario steps tagged with "@phpserver":
       """
       When I visit "http://cli:8888/regions.html"
-      Then I should not see "Welcome to the content region." in the region "content"
+      Then I should not see the text "Welcome to the content region." in the region "content"
       """
     When I run "behat --no-colors"
     Then it should fail with an error:

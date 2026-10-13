@@ -2035,6 +2035,9 @@ function rejected_step_phrases(): array {
     'I click on the button ' => 'I press the button ',
     'I press the link ' => 'I follow the link ',
     'I follow the button ' => 'I press the button ',
+    // Mink registers "I should see :text", so a step of ours names the text.
+    'I should see :' => 'I should see the text :',
+    'I should not see :' => 'I should not see the text :',
     'I edit the ' => 'I visit the ... edit page',
     ' the current ' => ' the ',
     ' a viewport' => ' the viewport',

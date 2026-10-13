@@ -3092,28 +3092,28 @@ Then I should not see the modal
 </details>
 
 <details>
-  <summary><code>@Then I should see :text in the modal</code></summary>
+  <summary><code>@Then I should see the text :text in the modal</code></summary>
 
 <br/>
 Assert that the modal contains text
 <br/><br/>
 
 ```gherkin
-Then I should see "Welcome message" in the modal
+Then I should see the text "Welcome message" in the modal
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then I should not see :text in the modal</code></summary>
+  <summary><code>@Then I should not see the text :text in the modal</code></summary>
 
 <br/>
 Assert that the modal does not contain text
 <br/><br/>
 
 ```gherkin
-Then I should not see "Error message" in the modal
+Then I should not see the text "Error message" in the modal
 
 ```
 
@@ -3368,28 +3368,28 @@ When I uncheck the checkbox "Promoted" in the region "content"
 </details>
 
 <details>
-  <summary><code>@Then I should see :text in the region :region</code></summary>
+  <summary><code>@Then I should see the text :text in the region :region</code></summary>
 
 <br/>
 Assert that the text of a region contains a string
 <br/><br/>
 
 ```gherkin
-Then I should see "Welcome" in the region "content"
+Then I should see the text "Welcome" in the region "content"
 
 ```
 
 </details>
 
 <details>
-  <summary><code>@Then I should not see :text in the region :region</code></summary>
+  <summary><code>@Then I should not see the text :text in the region :region</code></summary>
 
 <br/>
 Assert that the text of a region does not contain a string
 <br/><br/>
 
 ```gherkin
-Then I should not see "Error" in the region "content"
+Then I should not see the text "Error" in the region "content"
 
 ```
 

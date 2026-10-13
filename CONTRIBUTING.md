@@ -48,7 +48,7 @@ A step is 1 plain English sentence. Every step follows every rule below, and a s
 14. A state is a word, never a value: `is enabled` in a `Given`, `should be enabled` in a `Then`.
 15. A count of what a thing holds reads `should have 3 <things>`. A count of events reads `the number of <events> should be 3`. (lint)
 16. A step that takes a table introduces it with `the following <noun>:`, as in `Given the following users exist:`. (lint)
-17. A step never starts with a value, writes acronyms in capitals, and never uses a phrase from `rejected_step_phrases()` in `docs.php`, such as `the current`. `step_acronyms()` lists the acronyms. (lint)
+17. A step never starts with a value, writes acronyms in capitals, and never uses a phrase from `rejected_step_phrases()` in `docs.php`, such as `the current`, or Mink's own `I should see :text`, which is why a step of ours reads `I should see the text "Welcome" in the modal`. `step_acronyms()` lists the acronyms. (lint)
 
 **Names**
 

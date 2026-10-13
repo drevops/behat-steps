@@ -129,13 +129,13 @@ trait ModalTrait {
    * Assert that the modal contains text.
    *
    * @code
-   * Then I should see "Welcome message" in the modal
+   * Then I should see the text "Welcome message" in the modal
    * @endcode
    *
    * @actor:person
    * @javascript
    */
-  #[Then('I should see :text in the modal')]
+  #[Then('I should see the text :text in the modal')]
   public function modalAssertContains(string $text): void {
     $actual_text = $this->modalGetContent()->getText();
 
@@ -148,13 +148,13 @@ trait ModalTrait {
    * Assert that the modal does not contain text.
    *
    * @code
-   * Then I should not see "Error message" in the modal
+   * Then I should not see the text "Error message" in the modal
    * @endcode
    *
    * @actor:person
    * @javascript
    */
-  #[Then('I should not see :text in the modal')]
+  #[Then('I should not see the text :text in the modal')]
   public function modalAssertNotContains(string $text): void {
     $actual_text = $this->modalGetContent()->getText();
 
