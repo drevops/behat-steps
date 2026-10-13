@@ -339,9 +339,13 @@ trait FileTrait {
 
     $this->entityLifecycleParseFields($stub);
 
-    $created = $this->fileCreateEntity($path, $stub, $uri);
+    $created = $this->fileCreateEntity($path, new EntityStub('file'), $uri);
 
+    // Registered before the values are set, so a value that fails to resolve
+    // still leaves no file behind.
     $this->entityLifecycleRegister($created, 'fid');
+
+    $this->fileUpdate($created, $stub->getValues());
 
     return $created;
   }
@@ -380,13 +384,28 @@ trait FileTrait {
 
     // @codeCoverageIgnoreEnd
     $destination = $uri === NULL || $uri === '' ? 'public://' . basename($path) : $uri;
-    $fid = $this->queryGetEntityId($backend->fileWriteManaged($destination, $content, new EntityStub('file')), 'fid');
+    $written = $backend->fileWriteManaged($destination, $content, new EntityStub('file'));
+    $created = new EntityStub('file', NULL, ['fid' => $this->queryGetEntityId($written, 'fid')]);
 
-    if ($stub->getValues() !== []) {
-      $this->backendFor(ContentCapabilityInterface::class)->updateEntity(new EntityStub('file', NULL, ['fid' => $fid] + $stub->getValues()));
+    $this->fileUpdate($created, $stub->getValues());
+
+    return $created;
+  }
+
+  /**
+   * Update the fields of a file.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $file
+   *   The file stub, carrying its 'fid'.
+   * @param array<string, mixed> $values
+   *   The field values, keyed by field name. An empty array saves nothing.
+   */
+  protected function fileUpdate(EntityStubInterface $file, array $values): void {
+    if ($values === []) {
+      return;
     }
 
-    return new EntityStub('file', NULL, ['fid' => $fid]);
+    $this->backendFor(ContentCapabilityInterface::class)->updateEntity(new EntityStub('file', NULL, ['fid' => $this->queryGetEntityId($file, 'fid')] + $values));
   }
 
   /**
