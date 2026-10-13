@@ -49,7 +49,7 @@ class ContentBlockTraitKernelTest extends StepTraitKernelTestBase {
 
     $content_blocks = $this->context->contentBlockLoadMultiple('basic', ['info' => 'Shared']);
 
-    $this->assertLoadedSet([$first, $second], $content_blocks, BlockContentInterface::class);
+    $this->assertStubSet([$first, $second], $content_blocks, 'id');
   }
 
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
@@ -63,7 +63,13 @@ class ContentBlockTraitKernelTest extends StepTraitKernelTestBase {
     $newest = $this->createContentBlock('basic', 'Shared');
     $this->createContentBlock('other', 'Shared');
 
-    $this->assertSame($newest->id(), $this->context->contentBlockGetByDescription('basic', 'Shared')->id());
+    $this->assertSame((string) $newest->id(), $this->context->contentBlockGetByDescription('basic', 'Shared')->getValue('id'));
+  }
+
+  public function testAssertTypeExistsPassesForAnExistingType(): void {
+    $this->context->contentBlockAssertTypeExists('basic');
+
+    $this->addToAssertionCount(1);
   }
 
   public function testGetByDescriptionFailsWhenNothingMatches(): void {

@@ -10,13 +10,14 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
-use Drupal\block\Entity\Block;
 
 /**
  * Manage Drupal blocks.
@@ -93,7 +94,7 @@ trait BlockTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     while ($block = $this->blockFindByLabel($label)) {
-      $backend->deleteBlock(new EntityStub('block', NULL, ['id' => (string) $block->id()]));
+      $backend->deleteBlock($block);
     }
   }
 
@@ -108,17 +109,10 @@ trait BlockTrait {
    * @endcode
    *
    * @actor:system
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   *   When the block cannot be saved.
    */
   #[Given('the block :label is enabled')]
   public function blockEnable(string $label): void {
-    $block = $this->blockGetByLabel($label);
-
-    $block->enable();
-
-    $block->save();
+    $this->blockApplyConfiguration($this->blockGetByLabel($label), ['status' => TRUE]);
   }
 
   /**
@@ -132,17 +126,10 @@ trait BlockTrait {
    * @endcode
    *
    * @actor:system
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   *   When the block cannot be saved.
    */
   #[Given('the block :label is disabled')]
   public function blockDisable(string $label): void {
-    $block = $this->blockGetByLabel($label);
-
-    $block->disable();
-
-    $block->save();
+    $this->blockApplyConfiguration($this->blockGetByLabel($label), ['status' => FALSE]);
   }
 
   /**
@@ -262,7 +249,7 @@ trait BlockTrait {
       throw new ExpectationException(sprintf('The block "%s" does not exist.', $label), $this->getSession()->getDriver());
     }
 
-    $actual_region = $block->getRegion();
+    $actual_region = $this->blockGetRegion($block);
 
     if ($actual_region !== $region) {
       throw new ExpectationException(sprintf('The block "%s" is in the region "%s", but it should be in the region "%s".', $label, $actual_region, $region), $this->getSession()->getDriver());
@@ -294,7 +281,7 @@ trait BlockTrait {
       throw new ExpectationException(sprintf('The block "%s" does not exist.', $label), $this->getSession()->getDriver());
     }
 
-    $actual_region = $block->getRegion();
+    $actual_region = $this->blockGetRegion($block);
 
     if ($actual_region === $region) {
       throw new ExpectationException(sprintf('The block "%s" is in the region "%s", but it should not be.', $label, $region), $this->getSession()->getDriver());
@@ -309,13 +296,14 @@ trait BlockTrait {
    * @param string $admin_label
    *   The admin label of the block plugin.
    *
-   * @return \Drupal\block\Entity\Block
-   *   The block, labelled with the admin label.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the block, labelled with the admin label and carrying its
+   *   'id'.
    *
    * @throws \RuntimeException
    *   When no block plugin has the admin label.
    */
-  public function blockCreate(string $admin_label): Block {
+  public function blockCreate(string $admin_label): EntityStubInterface {
     $backend = $this->backendFor(BlockCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
@@ -334,86 +322,77 @@ trait BlockTrait {
       'settings' => ['label' => $admin_label],
     ]);
 
-    $block = $backend->placeBlock($stub)->getSavedEntity();
+    $created = $backend->placeBlock($stub);
 
-    // @codeCoverageIgnoreStart
-    if (!$block instanceof Block) {
-      throw new \RuntimeException(sprintf('The backend placed the block "%s" without returning it.', $admin_label));
-    }
+    $this->entityLifecycleRegister($created, 'id');
 
-    // @codeCoverageIgnoreEnd
-    $this->entityLifecycleRegister($block);
-
-    return $block;
+    return $created;
   }
 
   /**
    * Apply a configuration to a block and save it.
    *
-   * @param \Drupal\block\Entity\Block $block
-   *   The block.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $block
+   *   The block stub, carrying its 'id'.
    * @param array<string, mixed> $configuration
    *   The "label", "label_display", "region" and "status" values to set. Any
    *   other key is ignored.
    *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   *   When the block cannot be saved.
+   * @throws \RuntimeException
+   *   When the region is not a string.
    */
-  public function blockApplyConfiguration(Block $block, array $configuration): void {
-    $settings = $block->get('settings');
+  public function blockApplyConfiguration(EntityStubInterface $block, array $configuration): void {
+    $values = ['id' => $this->queryGetEntityId($block, 'id')];
 
-    foreach ($configuration as $field => $value) {
-      switch ($field) {
-        case 'label':
-          $settings['label'] = $value;
-          $block->set('settings', $settings);
-          break;
+    if (array_key_exists('label', $configuration) || array_key_exists('label_display', $configuration)) {
+      $settings = $this->blockGetStoredConfig($block, 'settings');
 
-        case 'label_display':
-          $settings['label_display'] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-          $block->set('settings', $settings);
-          break;
-
-        case 'region':
-          if (is_string($value)) {
-            $block->setRegion($value);
-          }
-          // @codeCoverageIgnoreStart
-          else {
-            throw new \RuntimeException('Expected region as string.');
-          }
-
-          // @codeCoverageIgnoreEnd
-          break;
-
-        case 'status':
-          $block->setStatus(filter_var($value, FILTER_VALIDATE_BOOLEAN));
-          break;
+      if (array_key_exists('label', $configuration)) {
+        $settings['label'] = $configuration['label'];
       }
+
+      if (array_key_exists('label_display', $configuration)) {
+        $settings['label_display'] = filter_var($configuration['label_display'], FILTER_VALIDATE_BOOLEAN);
+      }
+
+      $values['settings'] = $settings;
     }
 
-    $block->save();
+    if (array_key_exists('region', $configuration)) {
+      if (!is_string($configuration['region'])) {
+        throw new \RuntimeException('Expected region as string.');
+      }
+
+      $values['region'] = $configuration['region'];
+    }
+
+    if (array_key_exists('status', $configuration)) {
+      $values['status'] = filter_var($configuration['status'], FILTER_VALIDATE_BOOLEAN);
+    }
+
+    $this->backendFor(ConfigEntityCapabilityInterface::class)->updateConfigEntity(new EntityStub('block', NULL, $values));
   }
 
   /**
    * Set a visibility condition on a block and save it.
    *
-   * @param \Drupal\block\Entity\Block $block
-   *   The block.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $block
+   *   The block stub, carrying its 'id'.
    * @param string $condition
    *   The condition plugin ID.
    * @param array<string, mixed> $configuration
    *   The condition configuration. An empty configuration leaves the
    *   condition with its defaults.
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   *   When the block cannot be saved.
    */
-  public function blockSetVisibilityCondition(Block $block, string $condition, array $configuration): void {
+  public function blockSetVisibilityCondition(EntityStubInterface $block, string $condition, array $configuration): void {
     $configuration['id'] = $condition;
-    $block->setVisibilityConfig($condition, $configuration);
 
-    $block->save();
+    $visibility = $this->blockGetStoredConfig($block, 'visibility');
+    $visibility[$condition] = $configuration;
+
+    $values = ['id' => $this->queryGetEntityId($block, 'id'), 'visibility' => $visibility];
+
+    $this->backendFor(ConfigEntityCapabilityInterface::class)->updateConfigEntity(new EntityStub('block', NULL, $values));
   }
 
   /**
@@ -421,24 +400,65 @@ trait BlockTrait {
    *
    * Nothing is removed from a block that does not carry the condition.
    *
-   * @param \Drupal\block\Entity\Block $block
-   *   The block.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $block
+   *   The block stub, carrying its 'id'.
    * @param string $condition
    *   The condition plugin ID.
    *
    * @throws \RuntimeException
    *   When no condition plugin has the ID.
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   *   When the block cannot be saved.
    */
-  public function blockUnsetVisibilityCondition(Block $block, string $condition): void {
+  public function blockUnsetVisibilityCondition(EntityStubInterface $block, string $condition): void {
     if (!$this->backendFor(BlockCapabilityInterface::class)->hasConditionPlugin($condition)) {
       throw new \RuntimeException(sprintf('The condition "%s" does not exist.', $condition));
     }
 
-    $block->getVisibilityConditions()->removeInstanceId($condition);
+    $visibility = $this->blockGetStoredConfig($block, 'visibility');
 
-    $block->save();
+    if (!array_key_exists($condition, $visibility)) {
+      return;
+    }
+
+    unset($visibility[$condition]);
+
+    $values = ['id' => $this->queryGetEntityId($block, 'id'), 'visibility' => $visibility];
+
+    $this->backendFor(ConfigEntityCapabilityInterface::class)->updateConfigEntity(new EntityStub('block', NULL, $values));
+  }
+
+  /**
+   * Get the region a block is placed in.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $block
+   *   The block stub, carrying its 'id'.
+   *
+   * @return string
+   *   The region, or an empty string for a block placed in none.
+   */
+  protected function blockGetRegion(EntityStubInterface $block): string {
+    $region = $this->backendFor(ConfigCapabilityInterface::class)->configGet('block.block.' . $this->queryGetEntityId($block, 'id'), 'region');
+
+    return is_string($region) ? $region : '';
+  }
+
+  /**
+   * Get an array a block stores under a key of its configuration.
+   *
+   * The stored value is read rather than the overridden one, so saving the
+   * block writes no override into its configuration.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $block
+   *   The block stub, carrying its 'id'.
+   * @param string $key
+   *   The configuration key, such as 'settings' or 'visibility'.
+   *
+   * @return array<string, mixed>
+   *   The stored array, or an empty array when the key holds none.
+   */
+  protected function blockGetStoredConfig(EntityStubInterface $block, string $key): array {
+    $value = $this->backendFor(ConfigCapabilityInterface::class)->configGetOriginal('block.block.' . $this->queryGetEntityId($block, 'id'), $key);
+
+    return is_array($value) ? $value : [];
   }
 
   /**
@@ -447,16 +467,16 @@ trait BlockTrait {
    * @param string $label
    *   The visible label of the block to find.
    *
-   * @return \Drupal\block\Entity\Block
-   *   The loaded block entity.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the block, carrying its 'id'.
    *
    * @throws \RuntimeException
    *   When no block carries that label.
    */
-  public function blockGetByLabel(string $label): Block {
+  public function blockGetByLabel(string $label): EntityStubInterface {
     $block = $this->blockFindByLabel($label);
 
-    if (!$block instanceof Block) {
+    if (!$block instanceof EntityStubInterface) {
       throw new \RuntimeException(sprintf('The block "%s" does not exist.', $label));
     }
 
@@ -473,18 +493,18 @@ trait BlockTrait {
    * @param string $label
    *   The visible label of the block to find.
    *
-   * @return \Drupal\block\Entity\Block|null
-   *   The loaded block entity, or NULL when no block carries that label.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The stub of the block, carrying its 'id', or NULL when no block carries
+   *   that label.
    */
-  public function blockFindByLabel(string $label): ?Block {
-    $this->backendFor(CoreCapabilityInterface::class);
+  public function blockFindByLabel(string $label): ?EntityStubInterface {
+    $config = $this->backendFor(ConfigCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $theme = $this->backendFor(ConfigCapabilityInterface::class)->configGet('system.theme', 'default');
-    $ids = $this->queryEntityIds('block', ['theme' => $theme, 'settings.label' => $label]);
+    $conditions = ['theme' => $config->configGet('system.theme', 'default'), 'settings.label' => $label];
 
-    return $this->entityLifecycleFindNewest($ids === [] ? [] : Block::loadMultiple($ids));
+    return $this->entityLifecycleFindNewest($this->queryEntityStubs('block', 'id', $conditions), 'id');
   }
 
   /**

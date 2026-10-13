@@ -11,10 +11,10 @@ use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
-use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Manage Drupal ECK entities with custom type and bundle creation.
@@ -126,13 +126,12 @@ trait EckTrait {
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, \Drupal\Core\Entity\EntityInterface>
-   *   The matching entities keyed by ID, or an empty array when none match.
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching entity carrying its 'id', keyed by ID, or an empty
+   *   array when none match.
    */
   public function eckLoadMultiple(string $entity_type, string $bundle, array $conditions = []): array {
-    $ids = $this->queryEntityIds($entity_type, $conditions, $bundle);
-
-    return $ids ? \Drupal::entityTypeManager()->getStorage($entity_type)->loadMultiple($ids) : [];
+    return $this->queryEntityStubs($entity_type, 'id', $conditions, $bundle);
   }
 
   /**
@@ -145,21 +144,21 @@ trait EckTrait {
    * @param string $title
    *   The entity title.
    *
-   * @return \Drupal\Core\Entity\EntityInterface
-   *   The entity created last among those with the title.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the entity created last among those with the title,
+   *   carrying its 'id'.
    *
    * @throws \RuntimeException
    *   When no entity has the title.
    */
-  public function eckGetEntityByTitle(string $entity_type, string $bundle, string $title): EntityInterface {
+  public function eckGetEntityByTitle(string $entity_type, string $bundle, string $title): EntityStubInterface {
     $id = $this->queryFindNewestEntityId($entity_type, ['title' => $title], $bundle);
-    $entity = $id === NULL ? NULL : \Drupal::entityTypeManager()->getStorage($entity_type)->load($id);
 
-    if (!$entity instanceof EntityInterface) {
+    if ($id === NULL) {
       throw new \RuntimeException(sprintf('Unable to find "%s" page "%s".', $entity_type, $title));
     }
 
-    return $entity;
+    return new EntityStub($entity_type, $bundle, ['id' => $id]);
   }
 
   /**
@@ -182,9 +181,7 @@ trait EckTrait {
    *   When no entity has the title, or the entity type has no such link.
    */
   public function eckGetEntityUrlByTitle(string $entity_type, string $bundle, string $title, string $rel = 'canonical'): string {
-    $entity = $this->eckGetEntityByTitle($entity_type, $bundle, $title);
-
-    return $this->backendFor(ContentCapabilityInterface::class)->getEntityUrl(new EntityStub($entity_type, $bundle, ['id' => $entity->id()]), $rel);
+    return $this->backendFor(ContentCapabilityInterface::class)->getEntityUrl($this->eckGetEntityByTitle($entity_type, $bundle, $title), $rel);
   }
 
   /**
@@ -211,13 +208,9 @@ trait EckTrait {
   public function eckCreate(EntityStub $stub): void {
     $this->entityLifecycleParseFields($stub);
 
-    $this->backendFor(ContentCapabilityInterface::class)->createEntity($stub);
+    $created = $this->backendFor(ContentCapabilityInterface::class)->createEntity($stub);
 
-    $saved = $stub->getSavedEntity();
-
-    if ($saved instanceof EntityInterface) {
-      $this->entityLifecycleRegister($saved);
-    }
+    $this->entityLifecycleRegister($created, 'id');
   }
 
   /**

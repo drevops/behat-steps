@@ -13,7 +13,6 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\FileCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -23,8 +22,6 @@ use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
-use Drupal\file\Entity\File;
-use Drupal\file\FileInterface;
 
 /**
  * Manage Drupal file entities with upload and storage operations.
@@ -332,21 +329,21 @@ trait FileTrait {
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
    *
-   * @return \Drupal\file\FileInterface
-   *   Created file entity.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created file, carrying its 'fid'.
    */
-  public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): EntityStubInterface {
     $this->backendFor(FileCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
     $this->entityLifecycleParseFields($stub);
 
-    $entity = $this->fileCreateEntity($path, $stub, $uri);
+    $created = $this->fileCreateEntity($path, $stub, $uri);
 
-    $this->entityLifecycleRegister($entity);
+    $this->entityLifecycleRegister($created, 'fid');
 
-    return $entity;
+    return $created;
   }
 
   /**
@@ -355,14 +352,14 @@ trait FileTrait {
    * @param string $path
    *   The source file path relative to 'files_path'.
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   Entity fields stub.
+   *   Entity fields stub. Its values are set on the file once it is written.
    * @param string|null $uri
    *   Optional destination URI. Defaults to 'public://filename'.
    *
-   * @return \Drupal\file\FileInterface
-   *   Created file entity.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created file, carrying its 'fid'.
    */
-  public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface {
+  public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): EntityStubInterface {
     $backend = $this->backendFor(FileCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
@@ -383,15 +380,13 @@ trait FileTrait {
 
     // @codeCoverageIgnoreEnd
     $destination = $uri === NULL || $uri === '' ? 'public://' . basename($path) : $uri;
-    $file = $backend->fileWriteManaged($destination, $content, $stub)->getSavedEntity();
+    $fid = $this->queryGetEntityId($backend->fileWriteManaged($destination, $content, new EntityStub('file')), 'fid');
 
-    // @codeCoverageIgnoreStart
-    if (!$file instanceof FileInterface) {
-      throw new \RuntimeException(sprintf('The backend wrote the file "%s" without returning it.', $destination));
+    if ($stub->getValues() !== []) {
+      $this->backendFor(ContentCapabilityInterface::class)->updateEntity(new EntityStub('file', NULL, ['fid' => $fid] + $stub->getValues()));
     }
 
-    // @codeCoverageIgnoreEnd
-    return $file;
+    return new EntityStub('file', NULL, ['fid' => $fid]);
   }
 
   /**
@@ -400,17 +395,14 @@ trait FileTrait {
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, \Drupal\file\FileInterface>
-   *   The matching files keyed by ID, or an empty array when none match.
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching file carrying its 'fid', keyed by ID, or an empty
+   *   array when none match.
    */
   public function fileLoadMultiple(array $conditions = []): array {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     $this->assertPrerequisites(__TRAIT__);
 
-    $ids = $this->queryEntityIds('file', $conditions);
-
-    return $ids ? File::loadMultiple($ids) : [];
+    return $this->queryEntityStubs('file', 'fid', $conditions);
   }
 
   /**

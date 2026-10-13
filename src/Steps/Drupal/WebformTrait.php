@@ -7,13 +7,14 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
-use Drupal\webform\WebformInterface;
 
 /**
  * Manage Drupal webforms.
@@ -50,7 +51,7 @@ trait WebformTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     foreach ($this->webformLoadMultiple($title) as $webform) {
-      $backend->deleteEntity(new EntityStub('webform', NULL, ['id' => (string) $webform->id()]));
+      $backend->deleteEntity($webform);
     }
   }
 
@@ -80,7 +81,7 @@ trait WebformTrait {
 
     $source = $this->webformFindTemplateByTitle($template);
 
-    if (!$source instanceof WebformInterface) {
+    if (!$source instanceof EntityStubInterface) {
       throw new \RuntimeException(sprintf('No webform template matching "%s" was found.', $template));
     }
 
@@ -94,23 +95,22 @@ trait WebformTrait {
    *
    * @param string $title
    *   The title of the new webform.
-   * @param \Drupal\webform\WebformInterface $template
-   *   The template to copy.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $template
+   *   The stub of the template to copy, carrying its 'id'.
    *
-   * @return \Drupal\webform\WebformInterface
-   *   The new webform.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the new webform, carrying its 'id'.
    */
-  public function webformCreateFromTemplate(string $title, WebformInterface $template): WebformInterface {
-    /** @var \Drupal\webform\WebformInterface $clone */
-    $clone = $template->createDuplicate();
-    $clone->set('title', $title);
-    $clone->set('id', $this->webformMachineName($title));
-    $clone->set('template', FALSE);
-    $clone->save();
+  public function webformCreateFromTemplate(string $title, EntityStubInterface $template): EntityStubInterface {
+    $created = $this->backendFor(ConfigEntityCapabilityInterface::class)->duplicateConfigEntity($template, [
+      'id' => $this->webformMachineName($title),
+      'title' => $title,
+      'template' => FALSE,
+    ]);
 
-    $this->entityLifecycleRegister($clone);
+    $this->entityLifecycleRegister($created, 'id');
 
-    return $clone;
+    return $created;
   }
 
   /**
@@ -122,11 +122,12 @@ trait WebformTrait {
    * @param string $title
    *   The title string to search for (CONTAINS match).
    *
-   * @return \Drupal\webform\WebformInterface|null
-   *   The newest matching template, or NULL when none matches.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The stub of the newest matching template, carrying its 'id', or NULL
+   *   when none matches.
    */
-  public function webformFindTemplateByTitle(string $title): ?WebformInterface {
-    return $this->entityLifecycleFindNewest($this->webformLoadTemplateMultiple($title));
+  public function webformFindTemplateByTitle(string $title): ?EntityStubInterface {
+    return $this->entityLifecycleFindNewest($this->webformLoadTemplateMultiple($title), 'id');
   }
 
   /**
@@ -135,14 +136,14 @@ trait WebformTrait {
    * @param string $title
    *   The title string to search for (CONTAINS match).
    *
-   * @return array<string, \Drupal\webform\WebformInterface>
-   *   The matching webform templates keyed by ID, or an empty array when none
-   *   match.
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching template carrying its 'id', keyed by ID, or an
+   *   empty array when none match.
    */
   public function webformLoadTemplateMultiple(string $title): array {
-    $webforms = $this->webformLoadMultiple($title);
+    $config = $this->backendFor(ConfigCapabilityInterface::class);
 
-    return array_filter($webforms, static fn($webform): bool => $webform->isTemplate());
+    return array_filter($this->webformLoadMultiple($title), static fn(int|string $id): bool => (bool) $config->configGet('webform.webform.' . $id, 'template'), ARRAY_FILTER_USE_KEY);
   }
 
   /**
@@ -151,8 +152,9 @@ trait WebformTrait {
    * @param string $title
    *   The title string to search for (CONTAINS match).
    *
-   * @return array<string, \Drupal\webform\WebformInterface>
-   *   The matching webforms keyed by ID, or an empty array when none match.
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching webform carrying its 'id', keyed by ID, or an empty
+   *   array when none match.
    */
   public function webformLoadMultiple(string $title): array {
     $backend = $this->backendFor(CoreCapabilityInterface::class);
@@ -166,16 +168,7 @@ trait WebformTrait {
       $backend->cacheClearStatic();
     }
 
-    $ids = $this->queryEntityIds('webform', ['title' => ['CONTAINS', $title]]);
-
-    if ($ids === []) {
-      return [];
-    }
-
-    /** @var array<string, \Drupal\webform\WebformInterface> $webforms */
-    $webforms = \Drupal::entityTypeManager()->getStorage('webform')->loadMultiple($ids);
-
-    return $webforms;
+    return $this->queryEntityStubs('webform', 'id', ['title' => ['CONTAINS', $title]]);
   }
 
   /**
@@ -188,14 +181,13 @@ trait WebformTrait {
    *   A machine name suitable for a webform ID.
    */
   protected function webformMachineName(string $title): string {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $config = $this->backendFor(ConfigCapabilityInterface::class);
 
     $machine_name = strtolower($title);
     $machine_name = (string) preg_replace('/[^a-z0-9_]+/', '_', $machine_name);
     $machine_name = trim($machine_name, '_');
     $machine_name = substr($machine_name, 0, 26);
 
-    $storage = \Drupal::entityTypeManager()->getStorage('webform');
     $attempts = 0;
 
     do {
@@ -205,7 +197,7 @@ trait WebformTrait {
       if ($attempts > 50) {
         throw new \RuntimeException(sprintf('Unable to generate a unique webform machine name for "%s" after 50 attempts.', $title));
       }
-    } while ($storage->load($candidate) !== NULL);
+    } while ($config->configExists('webform.webform.' . $candidate));
 
     return $candidate;
   }

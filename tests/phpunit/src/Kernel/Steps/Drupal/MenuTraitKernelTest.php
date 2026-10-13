@@ -48,10 +48,22 @@ class MenuTraitKernelTest extends StepTraitKernelTestBase {
       ['Orphan', 'https://www.example.com', 'Missing parent'],
     ]));
 
-    $link = $this->context->menuFindLinkByTitle('Orphan', 'Footer');
+    $this->assertSame('', $this->loadLink('Orphan', 'Footer')->getParentId());
+  }
 
-    $this->assertInstanceOf(MenuLinkContent::class, $link);
-    $this->assertSame('', $link->getParentId());
+  public function testCreateLinkMultipleNestsLinkUnderItsParent(): void {
+    $this->context->menuCreateLinkMultiple('Footer', new TableNode([
+      ['title', 'uri', 'parent', 'enabled'],
+      ['Products', 'https://www.example.com/products', '', '1'],
+      ['Latest products', 'https://www.example.com/products/latest', 'Products', '1'],
+    ]));
+
+    $parent = $this->loadLink('Products', 'Footer');
+    $child = $this->loadLink('Latest products', 'Footer');
+
+    $this->assertSame('menu_link_content:' . $parent->uuid(), $child->getParentId());
+    $this->assertSame('https://www.example.com/products/latest', $child->get('link')->uri);
+    $this->assertTrue($child->isEnabled());
   }
 
   #[DataProvider('dataProviderFindLinkByTitleFindsNothing')]
@@ -75,7 +87,7 @@ class MenuTraitKernelTest extends StepTraitKernelTestBase {
     $newest = $this->createLink('footer', 'Shared');
     $this->createLink('header', 'Shared');
 
-    $this->assertSame($newest->id(), $this->context->menuFindLinkByTitle('Shared', 'Footer')?->id());
+    $this->assertSame((string) $newest->id(), $this->context->menuFindLinkByTitle('Shared', 'Footer')?->getValue('id'));
   }
 
   public function testDeleteLinkMultipleRemovesEveryLinkWithTheTitle(): void {
@@ -106,7 +118,7 @@ class MenuTraitKernelTest extends StepTraitKernelTestBase {
 
     $menus = $this->context->menuLoadMultiple(['label' => 'Shared']);
 
-    $this->assertLoadedSet([$first, $second], $menus, MenuInterface::class);
+    $this->assertStubSet([$first, $second], $menus, 'id');
   }
 
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
@@ -118,7 +130,7 @@ class MenuTraitKernelTest extends StepTraitKernelTestBase {
     $this->context->menuCreate(['id' => 'shared_3', 'label' => 'Shared']);
     $this->context->menuCreate(['id' => 'shared_2', 'label' => 'Shared']);
 
-    $this->assertSame('shared_2', $this->context->menuFindByLabel('Shared')?->id());
+    $this->assertSame('shared_2', $this->context->menuFindByLabel('Shared')?->getValue('id'));
   }
 
   public function testFindByLabelReturnsTheLastSiteMenuInNaturalOrder(): void {
@@ -126,7 +138,18 @@ class MenuTraitKernelTest extends StepTraitKernelTestBase {
     $this->createMenu('shared_10', 'Shared');
     $this->createMenu('shared_2', 'Shared');
 
-    $this->assertSame('shared_10', $this->context->menuFindByLabel('Shared')?->id());
+    $this->assertSame('shared_10', $this->context->menuFindByLabel('Shared')?->getValue('id'));
+  }
+
+  public function testCreateDerivesTheIdFromTheLabel(): void {
+    $created = $this->context->menuCreate(['label' => 'Main Footer', 'description' => 'Links in the footer']);
+
+    $this->assertTrue($created->isSaved());
+    $this->assertSame('main_footer', $created->getValue('id'));
+
+    $menu = Menu::load('main_footer');
+    $this->assertInstanceOf(MenuInterface::class, $menu);
+    $this->assertSame('Links in the footer', $menu->getDescription());
   }
 
   public function testDeleteRemovesEveryMenuWithTheLabel(): void {
@@ -148,6 +171,24 @@ class MenuTraitKernelTest extends StepTraitKernelTestBase {
   protected function createLink(string $menu_name, string $title): MenuLinkContentInterface {
     $link = MenuLinkContent::create(['title' => $title, 'menu_name' => $menu_name, 'link' => ['uri' => 'https://www.example.com']]);
     $link->save();
+
+    return $link;
+  }
+
+  /**
+   * Loads the newest link with a title in a menu.
+   *
+   * @param string $title
+   *   The title of the link.
+   * @param string $menu_name
+   *   The label of the menu.
+   */
+  protected function loadLink(string $title, string $menu_name): MenuLinkContentInterface {
+    $stub = $this->context->menuFindLinkByTitle($title, $menu_name);
+    $this->assertNotNull($stub);
+
+    $link = MenuLinkContent::load($stub->getValue('id'));
+    $this->assertInstanceOf(MenuLinkContentInterface::class, $link);
 
     return $link;
   }

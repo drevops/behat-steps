@@ -10,6 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -19,8 +20,6 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\FixtureFileTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
-use Drupal\media\Entity\Media;
-use Drupal\media\MediaInterface;
 
 /**
  * Manage Drupal media entities with type-specific field handling.
@@ -207,13 +206,11 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should exist')]
   public function mediaAssertTypeExists(string $media_type): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $config = $this->backendFor(ConfigCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
-
-    if (!$type_entity) {
+    if (!$config->configExists('media.type.' . $media_type)) {
       throw new ExpectationException(sprintf('The media type "%s" does not exist.', $media_type), $this->getSession()->getDriver());
     }
   }
@@ -229,13 +226,11 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $config = $this->backendFor(ConfigCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
-
-    if ($type_entity) {
+    if ($config->configExists('media.type.' . $media_type)) {
       throw new ExpectationException(sprintf('The media type "%s" exists, but it should not.', $media_type), $this->getSession()->getDriver());
     }
   }
@@ -316,19 +311,19 @@ trait MediaTrait {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The media item properties.
    *
-   * @return \Drupal\media\MediaInterface
-   *   The created media item.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created media item, carrying its 'mid'.
    */
-  public function mediaCreate(EntityStubInterface $stub): MediaInterface {
+  public function mediaCreate(EntityStubInterface $stub): EntityStubInterface {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
     $this->entityLifecycleParseFields($stub);
-    $entity = $this->mediaCreateEntity($stub);
-    $this->entityLifecycleRegister($entity);
+    $created = $this->mediaCreateEntity($stub);
+    $this->entityLifecycleRegister($created, 'mid');
 
-    return $entity;
+    return $created;
   }
 
   /**
@@ -337,10 +332,10 @@ trait MediaTrait {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The media entity properties.
    *
-   * @return \Drupal\media\MediaInterface
-   *   The created media entity.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created media entity, carrying its 'mid'.
    */
-  public function mediaCreateEntity(EntityStubInterface $stub): MediaInterface {
+  public function mediaCreateEntity(EntityStubInterface $stub): EntityStubInterface {
     $backend = $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
@@ -353,15 +348,7 @@ trait MediaTrait {
 
     $this->mediaExpandEntityFieldsFixtures($stub);
 
-    $entity = $backend->createEntity($stub)->getSavedEntity();
-
-    // @codeCoverageIgnoreStart
-    if (!$entity instanceof MediaInterface) {
-      throw new \RuntimeException(sprintf('The backend created the "%s" media without returning it.', $bundle));
-    }
-
-    // @codeCoverageIgnoreEnd
-    return $entity;
+    return $backend->createEntity($stub);
   }
 
   /**
@@ -382,17 +369,14 @@ trait MediaTrait {
    * @param array<string, mixed> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, \Drupal\media\MediaInterface>
-   *   The matching media keyed by ID, or an empty array when none match.
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching media item carrying its 'mid', keyed by ID, or an
+   *   empty array when none match.
    */
   public function mediaLoadMultiple(string $media_type, array $conditions = []): array {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     $this->assertPrerequisites(__TRAIT__);
 
-    $ids = $this->queryEntityIds('media', $conditions, $media_type);
-
-    return $ids ? Media::loadMultiple($ids) : [];
+    return $this->queryEntityStubs('media', 'mid', $conditions, $media_type);
   }
 
   /**

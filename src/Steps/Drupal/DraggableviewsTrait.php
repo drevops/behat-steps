@@ -9,10 +9,10 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DraggableviewsCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
-use Drupal\node\Entity\Node;
-use Drupal\node\NodeInterface;
 
 /**
  * Order items in the Drupal Draggable Views.
@@ -54,13 +54,13 @@ trait DraggableviewsTrait {
    * @param array<string, string> $conditions
    *   The conditions to search for.
    *
-   * @return \Drupal\node\NodeInterface|null
-   *   The found node or NULL.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The stub of the node, carrying its 'nid', or NULL when none matches.
    */
-  public function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface {
+  public function draggableviewsFindNode(string $type, array $conditions): ?EntityStubInterface {
     $nid = $this->queryFindNewestEntityId('node', $conditions, $type);
 
-    return $nid === NULL ? NULL : Node::load($nid);
+    return $nid === NULL ? NULL : new EntityStub('node', $type, ['nid' => $nid]);
   }
 
   /**
@@ -71,8 +71,8 @@ trait DraggableviewsTrait {
    * @param array<int, string> $titles
    *   The node titles.
    *
-   * @return array<int, \Drupal\node\NodeInterface>
-   *   The nodes, keyed like the titles.
+   * @return array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   The stubs of the nodes, each carrying its 'nid', keyed like the titles.
    *
    * @throws \RuntimeException
    *   When no node of the type has 1 of the titles.
@@ -100,14 +100,14 @@ trait DraggableviewsTrait {
    *   The view ID.
    * @param string $view_display_id
    *   The view display ID.
-   * @param array<int, \Drupal\node\NodeInterface> $nodes
-   *   The nodes, keyed by weight.
+   * @param array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface> $nodes
+   *   The stubs of the nodes, each carrying its 'nid', keyed by weight.
    */
   public function draggableviewsSetOrder(string $view_id, string $view_display_id, array $nodes): void {
     $entity_ids = [];
 
     foreach ($nodes as $weight => $node) {
-      $entity_ids[$weight] = (string) $node->id();
+      $entity_ids[$weight] = $this->queryGetEntityId($node, 'nid');
     }
 
     $this->backendFor(DraggableviewsCapabilityInterface::class)->draggableviewsSetOrder($view_id, $view_display_id, $entity_ids);

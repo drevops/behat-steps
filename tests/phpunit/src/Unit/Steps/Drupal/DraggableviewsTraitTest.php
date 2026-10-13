@@ -6,11 +6,11 @@ namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\DraggableviewsTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebRawContext;
-use Drupal\node\NodeInterface;
 use PHPUnit\Framework\Attributes\CoversTrait;
 
 /**
@@ -20,13 +20,7 @@ use PHPUnit\Framework\Attributes\CoversTrait;
 class DraggableviewsTraitTest extends UnitTestCase {
 
   public function testSetOrderWritesTheWeightsAndInvalidatesTheListTag(): void {
-    $nodes = [];
-
-    foreach (['11', '12'] as $id) {
-      $node = $this->createStub(NodeInterface::class);
-      $node->method('id')->willReturn($id);
-      $nodes[] = $node;
-    }
+    $nodes = [new EntityStub('node', 'article', ['nid' => '11']), new EntityStub('node', 'article', ['nid' => 12])];
 
     $backend = $this->createMock(DrupalBackendInterface::class);
     $backend->expects($this->once())->method('draggableviewsSetOrder')->with('demo', 'page_1', [0 => '11', 1 => '12']);

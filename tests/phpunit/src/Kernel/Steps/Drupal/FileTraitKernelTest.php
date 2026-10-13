@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Steps\Drupal\FileTrait;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
@@ -43,13 +44,38 @@ class FileTraitKernelTest extends StepTraitKernelTestBase {
 
     $files = $this->context->fileLoadMultiple(['filename' => 'shared.txt']);
 
-    $this->assertLoadedSet([$first, $second], $files, FileInterface::class);
+    $this->assertStubSet([$first, $second], $files, 'fid');
   }
 
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
     $this->createFile('public://other.txt');
 
     $this->assertSame([], $this->context->fileLoadMultiple(['filename' => 'missing.txt']));
+  }
+
+  public function testCreateManagedWritesTheFileAndSetsTheValues(): void {
+    $this->context->setMinkParameters(['files_path' => __DIR__ . '/../../../../fixtures/backend/files']);
+
+    $created = $this->context->fileCreateManaged('sample.txt', new EntityStub('file', NULL, ['uuid' => '9cb1b484-db7b-4496-bd63-8c702e207704', 'status' => '0']));
+
+    $this->assertFalse($created->isSaved(), 'The stub carries the ID rather than the written file.');
+
+    $file = File::load($created->getValue('fid'));
+    $this->assertInstanceOf(FileInterface::class, $file);
+    $this->assertSame('public://sample.txt', $file->getFileUri());
+    $this->assertSame('9cb1b484-db7b-4496-bd63-8c702e207704', $file->uuid());
+    $this->assertFalse($file->isPermanent());
+  }
+
+  public function testCreateEntityWithoutValuesLeavesTheWrittenFileAsItIs(): void {
+    $this->context->setMinkParameters(['files_path' => __DIR__ . '/../../../../fixtures/backend/files']);
+
+    $created = $this->context->fileCreateEntity('sample.txt', new EntityStub('file'), 'public://nested/copy.txt');
+
+    $file = File::load($created->getValue('fid'));
+    $this->assertInstanceOf(FileInterface::class, $file);
+    $this->assertSame('public://nested/copy.txt', $file->getFileUri());
+    $this->assertTrue($file->isPermanent());
   }
 
   /**

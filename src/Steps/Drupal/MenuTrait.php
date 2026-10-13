@@ -7,15 +7,14 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
-use Drupal\menu_link_content\Entity\MenuLinkContent;
-use Drupal\system\Entity\Menu;
-use Drupal\system\MenuInterface;
 
 /**
  * Manage Drupal menus and menu links.
@@ -66,7 +65,7 @@ trait MenuTrait {
    */
   #[Given('the following menus exist:')]
   public function menuCreateMultiple(TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ConfigEntityCapabilityInterface::class);
 
     foreach ($table->getHash() as $menu_hash) {
       $this->menuCreate($menu_hash);
@@ -86,7 +85,7 @@ trait MenuTrait {
    */
   #[Given('the following menu links do not exist in the menu :menu_name:')]
   public function menuDeleteLinkMultiple(string $menu_name, TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -109,13 +108,13 @@ trait MenuTrait {
    */
   #[Given('the following menu links exist in the menu :menu_name:')]
   public function menuCreateLinkMultiple(string $menu_name, TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
     $menu = $this->menuFindByLabel($menu_name);
 
-    if (!$menu instanceof MenuInterface) {
+    if (!$menu instanceof EntityStubInterface) {
       throw new \RuntimeException(sprintf('Menu "%s" was not found.', $menu_name));
     }
 
@@ -133,12 +132,10 @@ trait MenuTrait {
    *   The menu values. A menu without an "id" takes an ID derived from its
    *   "label".
    *
-   * @return \Drupal\system\MenuInterface
-   *   The menu.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the menu, carrying its 'id'.
    */
-  public function menuCreate(array $values): MenuInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
-
+  public function menuCreate(array $values): EntityStubInterface {
     if (empty($values['id'])) {
       $menu_id = strtolower((string) $values['label']);
       $menu_id = preg_replace('/[^a-z0-9_]+/', '_', $menu_id);
@@ -146,12 +143,11 @@ trait MenuTrait {
       $values['id'] = $menu_id;
     }
 
-    $menu = Menu::create($values);
-    $menu->save();
+    $created = $this->backendFor(ConfigEntityCapabilityInterface::class)->createConfigEntity(new EntityStub('menu', NULL, $values));
 
-    $this->entityLifecycleRegister($menu);
+    $this->entityLifecycleRegister($created, 'id');
 
-    return $menu;
+    return $created;
   }
 
   /**
@@ -159,17 +155,18 @@ trait MenuTrait {
    *
    * The link is removed after the scenario.
    *
-   * @param \Drupal\system\MenuInterface $menu
-   *   The menu.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $menu
+   *   The menu stub, carrying its 'id'.
    * @param array<string, string> $values
    *   The link values. A "uri" value becomes the link URI, and a "parent"
    *   value is the title of a link in the same menu.
    *
-   * @return \Drupal\menu_link_content\Entity\MenuLinkContent
-   *   The menu link.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the menu link, carrying its 'id'.
    */
-  public function menuCreateLink(MenuInterface $menu, array $values): MenuLinkContent {
-    $values['menu_name'] = $menu->id();
+  public function menuCreateLink(EntityStubInterface $menu, array $values): EntityStubInterface {
+    $menu_id = $this->queryGetEntityId($menu, 'id');
+    $values['menu_name'] = $menu_id;
 
     if (isset($values['uri'])) {
       $values['link'] = [];
@@ -177,26 +174,20 @@ trait MenuTrait {
       unset($values['uri']);
     }
 
-    if (!empty($values['parent']) && is_string($values['parent'])) {
-      $parent_link = $this->menuFindLinkByTitle($values['parent'], (string) $menu->label());
+    $parent = $values['parent'] ?? NULL;
+    unset($values['parent']);
 
-      if ($parent_link instanceof MenuLinkContent) {
-        $values['parent'] = 'menu_link_content:' . $parent_link->uuid();
-      }
-      else {
-        unset($values['parent']);
-      }
-    }
-    else {
-      unset($values['parent']);
+    $parent_uuid = !empty($parent) && is_string($parent) ? $this->menuFindLinkUuid($parent, $menu_id) : NULL;
+
+    if ($parent_uuid !== NULL) {
+      $values['parent'] = 'menu_link_content:' . $parent_uuid;
     }
 
-    $menu_link = MenuLinkContent::create($values);
-    $menu_link->save();
+    $created = $this->backendFor(ContentCapabilityInterface::class)->createEntity(new EntityStub('menu_link_content', NULL, $values));
 
-    $this->entityLifecycleRegister($menu_link);
+    $this->entityLifecycleRegister($created, 'id');
 
-    return $menu_link;
+    return $created;
   }
 
   /**
@@ -210,13 +201,13 @@ trait MenuTrait {
   public function menuDeleteLink(string $menu_name, array $conditions): void {
     $menu = $this->menuFindByLabel($menu_name);
 
-    if (!$menu instanceof MenuInterface) {
+    if (!$menu instanceof EntityStubInterface) {
       return;
     }
 
     $backend = $this->backendFor(ContentCapabilityInterface::class);
 
-    foreach ($this->queryEntityIds('menu_link_content', ['menu_name' => $menu->id()] + $conditions) as $id) {
+    foreach ($this->queryEntityIds('menu_link_content', ['menu_name' => $this->queryGetEntityId($menu, 'id')] + $conditions) as $id) {
       $backend->deleteEntity(new EntityStub('menu_link_content', NULL, ['id' => $id]));
     }
   }
@@ -227,13 +218,12 @@ trait MenuTrait {
    * @param array<string, mixed> $conditions
    *   Conditions keyed by property names.
    *
-   * @return array<string, \Drupal\system\MenuInterface>
-   *   The matching menus keyed by ID, or an empty array when none match.
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching menu carrying its 'id', keyed by ID, or an empty
+   *   array when none match.
    */
   public function menuLoadMultiple(array $conditions = []): array {
-    $ids = $this->queryEntityIds('menu', $conditions);
-
-    return $ids ? Menu::loadMultiple($ids) : [];
+    return $this->queryEntityStubs('menu', 'id', $conditions);
   }
 
   /**
@@ -246,11 +236,11 @@ trait MenuTrait {
    * @param string $label
    *   The label of the menu.
    *
-   * @return \Drupal\system\MenuInterface|null
-   *   The menu or NULL if not found.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The stub of the menu, carrying its 'id', or NULL if not found.
    */
-  public function menuFindByLabel(string $label): ?MenuInterface {
-    return $this->entityLifecycleFindNewest($this->menuLoadMultiple(['label' => $label]));
+  public function menuFindByLabel(string $label): ?EntityStubInterface {
+    return $this->entityLifecycleFindNewest($this->menuLoadMultiple(['label' => $label]), 'id');
   }
 
   /**
@@ -263,19 +253,53 @@ trait MenuTrait {
    * @param string $menu_name
    *   The label of the menu.
    *
-   * @return \Drupal\menu_link_content\Entity\MenuLinkContent|null
-   *   The menu link or NULL if not found.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The stub of the menu link, carrying its 'id', or NULL if not found.
    */
-  public function menuFindLinkByTitle(string $title, string $menu_name): ?MenuLinkContent {
+  public function menuFindLinkByTitle(string $title, string $menu_name): ?EntityStubInterface {
     $menu = $this->menuFindByLabel($menu_name);
 
-    if (!$menu instanceof MenuInterface) {
+    return $menu instanceof EntityStubInterface ? $this->menuFindLinkInMenu($title, $this->queryGetEntityId($menu, 'id')) : NULL;
+  }
+
+  /**
+   * Find the newest link with a title in a menu.
+   *
+   * @param string $title
+   *   The title of the menu link.
+   * @param string $menu_id
+   *   The machine name of the menu.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The stub of the menu link, carrying its 'id', or NULL if not found.
+   */
+  protected function menuFindLinkInMenu(string $title, string $menu_id): ?EntityStubInterface {
+    $id = $this->queryFindNewestEntityId('menu_link_content', ['menu_name' => $menu_id, 'title' => $title]);
+
+    return $id === NULL ? NULL : new EntityStub('menu_link_content', NULL, ['id' => $id]);
+  }
+
+  /**
+   * Find the UUID of the newest link with a title in a menu.
+   *
+   * @param string $title
+   *   The title of the menu link.
+   * @param string $menu_id
+   *   The machine name of the menu.
+   *
+   * @return string|null
+   *   The UUID, or NULL when no link in the menu carries the title.
+   */
+  protected function menuFindLinkUuid(string $title, string $menu_id): ?string {
+    $link = $this->menuFindLinkInMenu($title, $menu_id);
+
+    if (!$link instanceof EntityStubInterface) {
       return NULL;
     }
 
-    $id = $this->queryFindNewestEntityId('menu_link_content', ['menu_name' => $menu->id(), 'title' => $title]);
+    $uuid = $this->backendFor(ContentCapabilityInterface::class)->getEntityValues('menu_link_content', $this->queryGetEntityId($link, 'id'), ['uuid'])['uuid'][0]['value'] ?? NULL;
 
-    return $id === NULL ? NULL : MenuLinkContent::load($id);
+    return is_string($uuid) ? $uuid : NULL;
   }
 
   /**

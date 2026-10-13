@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -18,8 +19,6 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
-use Drupal\user\Entity\User;
-use Drupal\user\UserInterface;
 
 /**
  * Manage Drupal users with role and permission assignments.
@@ -146,9 +145,7 @@ trait UserTrait {
       throw new \RuntimeException('Password must not be empty.');
     }
 
-    $user = $this->userGetByName($name);
-
-    $user->setPassword($password)->save();
+    $this->userUpdate($this->userGetByName($name), ['pass' => $password]);
   }
 
   /**
@@ -174,7 +171,7 @@ trait UserTrait {
       throw new \RuntimeException('Invalid date format.');
     }
 
-    $user->setLastAccessTime($timestamp)->save();
+    $this->userUpdate($user, ['access' => $timestamp]);
   }
 
   /**
@@ -200,7 +197,7 @@ trait UserTrait {
       throw new \RuntimeException('Invalid date format.');
     }
 
-    $user->setLastLoginTime($timestamp)->save();
+    $this->userUpdate($user, ['login' => $timestamp]);
   }
 
   /**
@@ -453,12 +450,12 @@ trait UserTrait {
    */
   #[Then('the user :name should have the role(s) :roles assigned')]
   public function userAssertHasRoles(string $name, string $roles): void {
-    $user = $this->userGetByName($name);
+    $held = $this->userGetRoles($this->userGetByName($name));
 
     $roles = $this->stringSplitCommaSeparated($roles);
 
-    if (count(array_intersect($roles, $user->getRoles())) !== count($roles)) {
-      throw new ExpectationException(sprintf('The user "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
+    if (count(array_intersect($roles, $held)) !== count($roles)) {
+      throw new ExpectationException(sprintf('The user "%s" does not have role(s) "%s", but has roles "%s".', $name, implode('", "', $roles), implode('", "', $held)), $this->getSession()->getDriver());
     }
   }
 
@@ -473,12 +470,12 @@ trait UserTrait {
    */
   #[Then('the user :name should not have the role(s) :roles assigned')]
   public function userAssertNotHasRoles(string $name, string $roles): void {
-    $user = $this->userGetByName($name);
+    $held = $this->userGetRoles($this->userGetByName($name));
 
     $roles = $this->stringSplitCommaSeparated($roles);
 
-    if (count(array_intersect($roles, $user->getRoles())) > 0) {
-      throw new ExpectationException(sprintf('The user "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $user->getRoles())), $this->getSession()->getDriver());
+    if (count(array_intersect($roles, $held)) > 0) {
+      throw new ExpectationException(sprintf('The user "%s" should not have role(s) "%s", but has "%s".', $name, implode('", "', $roles), implode('", "', $held)), $this->getSession()->getDriver());
     }
   }
 
@@ -531,7 +528,7 @@ trait UserTrait {
   public function userAssertBlocked(string $name): void {
     $user = $this->userGetByName($name);
 
-    if ($user->isActive()) {
+    if ($this->userIsActive($user)) {
       throw new ExpectationException(sprintf('The user "%s" is expected to be blocked, but they are not.', $name), $this->getSession()->getDriver());
     }
   }
@@ -549,7 +546,7 @@ trait UserTrait {
   public function userAssertNotBlocked(string $name): void {
     $user = $this->userGetByName($name);
 
-    if (!$user->isActive()) {
+    if (!$this->userIsActive($user)) {
       throw new ExpectationException(sprintf('The user "%s" is expected to not be blocked, but they are.', $name), $this->getSession()->getDriver());
     }
   }
@@ -701,9 +698,11 @@ trait UserTrait {
       $users = $this->userLoadMultiple(['name' => $values['name']]);
     }
 
-    foreach ($users as $user) {
-      $backend->deleteUser(new EntityStub('user', NULL, ['uid' => $user->id(), 'name' => $user->getAccountName()]));
-      $this->authGetUserRegistry()->removeUser($user->getAccountName());
+    foreach (array_keys($users) as $uid) {
+      $name = (string) ($this->backendFor(ContentCapabilityInterface::class)->getEntityValues('user', $uid, ['name'])['name'][0]['value'] ?? '');
+
+      $backend->deleteUser(new EntityStub('user', NULL, ['uid' => $uid, 'name' => $name]));
+      $this->authGetUserRegistry()->removeUser($name);
     }
   }
 
@@ -753,13 +752,16 @@ trait UserTrait {
   }
 
   /**
-   * Visit the password reset link for a given user object.
+   * Visit the password reset link for a user.
    *
-   * @param \Drupal\user\UserInterface $user
-   *   The user object.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
+   *   The user stub, carrying its 'uid'.
+   *
+   * @throws \RuntimeException
+   *   When the user does not exist.
    */
-  public function userVisitPasswordResetLinkForUser(UserInterface $user): void {
-    $path = $this->backendFor(UserCapabilityInterface::class)->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => $user->id()]));
+  public function userVisitPasswordResetLinkForUser(EntityStubInterface $user): void {
+    $path = $this->backendFor(UserCapabilityInterface::class)->getOneTimeLoginUrl($user);
 
     $this->visitPath($path);
   }
@@ -785,13 +787,12 @@ trait UserTrait {
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, \Drupal\user\UserInterface>
-   *   The matching users keyed by ID, or an empty array when none match.
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching user carrying its 'uid', keyed by ID, or an empty
+   *   array when none match.
    */
   public function userLoadMultiple(array $conditions = []): array {
-    $ids = $this->queryEntityIds('user', $conditions);
-
-    return $ids ? User::loadMultiple($ids) : [];
+    return $this->queryEntityStubs('user', 'uid', $conditions);
   }
 
   /**
@@ -800,21 +801,69 @@ trait UserTrait {
    * @param string $name
    *   The user name.
    *
-   * @return \Drupal\user\UserInterface
-   *   The loaded user object.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the user, carrying its 'uid'.
    *
    * @throws \RuntimeException
    *   When no user with the specified name exists.
    */
-  public function userGetByName(string $name): UserInterface {
+  public function userGetByName(string $name): EntityStubInterface {
     $uid = $this->queryFindNewestEntityId('user', ['name' => $name]);
-    $user = $uid === NULL ? NULL : User::load($uid);
 
-    if (!$user instanceof UserInterface) {
+    if ($uid === NULL) {
       throw new \RuntimeException(sprintf('The user "%s" does not exist.', $name));
     }
 
-    return $user;
+    return new EntityStub('user', NULL, ['uid' => $uid]);
+  }
+
+  /**
+   * Get the roles a user holds.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
+   *   The user stub, carrying its 'uid'.
+   *
+   * @return array<int, string>
+   *   The role IDs, led by 'authenticated', which every account holds
+   *   without storing it.
+   */
+  protected function userGetRoles(EntityStubInterface $user): array {
+    $values = $this->backendFor(ContentCapabilityInterface::class)->getEntityValues('user', $this->queryGetEntityId($user, 'uid'), ['roles']);
+
+    $roles = ['authenticated'];
+
+    foreach ($values['roles'] ?? [] as $item) {
+      $roles[] = (string) $item['target_id'];
+    }
+
+    return $roles;
+  }
+
+  /**
+   * Check whether the account of a user is active.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
+   *   The user stub, carrying its 'uid'.
+   *
+   * @return bool
+   *   TRUE when the user exists and is not blocked, FALSE otherwise.
+   */
+  protected function userIsActive(EntityStubInterface $user): bool {
+    $conditions = ['uid' => $this->queryGetEntityId($user, 'uid'), 'status' => 1, 'default_langcode' => 1];
+
+    return $this->queryEntityIds('user', $conditions) !== [];
+  }
+
+  /**
+   * Update the fields of a user.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
+   *   The user stub, carrying its 'uid'.
+   * @param array<string, mixed> $values
+   *   The field values, keyed by field name.
+   */
+  protected function userUpdate(EntityStubInterface $user, array $values): void {
+    $this->backendFor(ContentCapabilityInterface::class)->updateEntity(new EntityStub('user', NULL, ['uid' => $this->queryGetEntityId($user, 'uid')] + $values));
   }
 
   /**
@@ -842,8 +891,7 @@ trait UserTrait {
       }
     }
     else {
-      $user = $this->userGetByName($name);
-      $uid = $user->id();
+      $uid = $this->queryGetEntityId($this->userGetByName($name), 'uid');
     }
 
     $this->visitPath('/user/' . $uid . ($action_subpath ?? ''));

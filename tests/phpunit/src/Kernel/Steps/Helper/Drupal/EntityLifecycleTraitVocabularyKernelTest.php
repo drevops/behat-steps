@@ -11,6 +11,7 @@ use Behat\Testwork\Hook\HookDispatcher;
 use Behat\Testwork\Hook\HookRepository;
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
@@ -54,6 +55,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     parent::setUp();
 
     Vocabulary::create(['vid' => 'tags', 'name' => 'Tags'])->save();
+    Vocabulary::create(['vid' => 'topics', 'name' => 'Topic areas'])->save();
 
     $this->context = new RegistryExposingContext();
     $this->context->setBackendRegistry($this->createBackendRegistry($this->createInProcessBackend()));
@@ -79,6 +81,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     return [
       'a machine name resolves to itself' => ['tags', 'tags'],
       'a label resolves to its machine name' => ['Tags', 'tags'],
+      'a label of another vocabulary resolves to its machine name' => ['Topic areas', 'topics'],
       'an unknown identifier is returned unchanged' => ['Unknown', 'Unknown'],
     ];
   }
@@ -122,7 +125,8 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
    * Builds a bootstrapped in-process backend double.
    *
    * Its classifier reports every value as a standard base field, so the
-   * field parser passes the stub through unchanged.
+   * field parser passes the stub through unchanged. Its config and lookup
+   * methods read the booted kernel.
    *
    * @return \DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface&\PHPUnit\Framework\MockObject\MockObject
    *   The backend double.
@@ -134,9 +138,13 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
     $core = $this->createMock(CoreInterface::class);
     $core->method('getFieldClassifier')->willReturn($classifier);
 
+    $kernel_core = new Core($this->root);
+
     $backend = $this->createMock(DrupalBackendInterface::class);
     $backend->method('isBootstrapped')->willReturn(TRUE);
     $backend->method('getCore')->willReturn($core);
+    $backend->method('configExists')->willReturnCallback($kernel_core->configExists(...));
+    $backend->method('findEntityIds')->willReturnCallback($kernel_core->findEntityIds(...));
 
     return $backend;
   }

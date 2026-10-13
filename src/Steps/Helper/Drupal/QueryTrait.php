@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Helper\Drupal;
 
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 /**
  * Finds the entities a step reads, asserts on or deletes.
  *
- * Every member resolves 'EntityLookupCapabilityInterface', so a lookup runs on
- * any backend providing it.
+ * Every lookup resolves 'EntityLookupCapabilityInterface', so it runs on any
+ * backend providing it. An entity found comes back as an id or as a stub
+ * carrying the id, never as a loaded entity.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
@@ -39,6 +42,57 @@ trait QueryTrait {
    */
   public function queryEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array {
     return $this->backendFor(EntityLookupCapabilityInterface::class)->findEntityIds($entity_type, $conditions, $bundle);
+  }
+
+  /**
+   * Load a stub for each entity of a type matching the conditions.
+   *
+   * @param string $entity_type
+   *   The entity type id.
+   * @param string $id_key
+   *   The key the entity type stores its id under, such as 'nid' for a node.
+   * @param array<string, mixed> $conditions
+   *   Conditions keyed by field names, as 'queryEntityIds()' takes them.
+   * @param string|null $bundle
+   *   Bundle to restrict the query to, or NULL for every bundle.
+   *
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching entity carrying its id under the id key, keyed by
+   *   id in natural order. Empty when nothing matches.
+   */
+  public function queryEntityStubs(string $entity_type, string $id_key, array $conditions = [], ?string $bundle = NULL): array {
+    $stubs = [];
+
+    foreach ($this->queryEntityIds($entity_type, $conditions, $bundle) as $id) {
+      $stubs[$id] = new EntityStub($entity_type, $bundle, [$id_key => $id]);
+    }
+
+    return $stubs;
+  }
+
+  /**
+   * Get the id a stub carries.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   A stub carrying the id under the id key, as a lookup returns it, or a
+   *   stub a capability create returned.
+   * @param string $id_key
+   *   The key the entity type stores its id under, such as 'nid' for a node.
+   *
+   * @return string
+   *   The id.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries no id.
+   */
+  public function queryGetEntityId(EntityStubInterface $stub, string $id_key): string {
+    $id = $stub->getId() ?? $stub->getValue($id_key);
+
+    if ((!is_int($id) && !is_string($id)) || $id === '') {
+      throw new \RuntimeException(sprintf('The "%s" stub carries no id under the key "%s".', $stub->getEntityType(), $id_key));
+    }
+
+    return (string) $id;
   }
 
   /**

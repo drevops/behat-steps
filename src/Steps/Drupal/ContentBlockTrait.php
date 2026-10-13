@@ -10,16 +10,15 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
-use Drupal\block_content\BlockContentInterface;
-use Drupal\block_content\BlockContentTypeInterface;
-use Drupal\block_content\Entity\BlockContent;
 
 /**
  * Manage Drupal content blocks.
@@ -137,7 +136,7 @@ trait ContentBlockTrait {
   public function contentBlockVisitEditPageWithDescription(string $content_block_type, string $description): void {
     $content_block = $this->contentBlockGetByDescription($content_block_type, $description);
 
-    $this->getSession()->visit($this->locatePath('/admin/content/block/' . $content_block->id()));
+    $this->getSession()->visit($this->locatePath('/admin/content/block/' . $this->queryGetEntityId($content_block, 'id')));
   }
 
   /**
@@ -151,13 +150,11 @@ trait ContentBlockTrait {
    */
   #[Then('the content block type :content_block_type should exist')]
   public function contentBlockAssertTypeExists(string $content_block_type): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $config = $this->backendFor(ConfigCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($content_block_type);
-
-    if (!$block_content_type instanceof BlockContentTypeInterface) {
+    if (!$config->configExists('block_content.type.' . $content_block_type)) {
       throw new ExpectationException(sprintf('The content block type "%s" does not exist.', $content_block_type), $this->getSession()->getDriver());
     }
   }
@@ -177,13 +174,10 @@ trait ContentBlockTrait {
    *   - body: The body field value (optional)
    *   - status: Published status (optional, 1 = published, 0 = unpublished)
    *
-   * @return \Drupal\block_content\Entity\BlockContent
-   *   The created block content entity.
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   *   When the entity cannot be saved.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created content block, carrying its 'id'.
    */
-  public function contentBlockCreate(string $content_block_type, array $values): BlockContent {
+  public function contentBlockCreate(string $content_block_type, array $values): EntityStubInterface {
     $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
@@ -192,17 +186,11 @@ trait ContentBlockTrait {
     $stub = new EntityStub('block_content', $content_block_type, $values);
     $this->entityLifecycleParseFields($stub);
 
-    $entity = $this->backendFor(BlockCapabilityInterface::class)->createBlockContent($stub)->getSavedEntity();
+    $created = $this->backendFor(BlockCapabilityInterface::class)->createBlockContent($stub);
 
-    // @codeCoverageIgnoreStart
-    if (!$entity instanceof BlockContent) {
-      throw new \RuntimeException(sprintf('The backend created the "%s" content block without returning it.', $content_block_type));
-    }
+    $this->entityLifecycleRegister($created, 'id');
 
-    // @codeCoverageIgnoreEnd
-    $this->entityLifecycleRegister($entity);
-
-    return $entity;
+    return $created;
   }
 
   /**
@@ -213,18 +201,14 @@ trait ContentBlockTrait {
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, \Drupal\block_content\BlockContentInterface>
-   *   The matching content blocks keyed by ID, or an empty array when none
-   *   match.
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching content block carrying its 'id', keyed by ID, or
+   *   an empty array when none match.
    */
   public function contentBlockLoadMultiple(string $content_block_type, array $conditions = []): array {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     $this->assertPrerequisites(__TRAIT__);
 
-    $ids = $this->queryEntityIds('block_content', $conditions, $content_block_type);
-
-    return $ids ? BlockContent::loadMultiple($ids) : [];
+    return $this->queryEntityStubs('block_content', 'id', $conditions, $content_block_type);
   }
 
   /**
@@ -235,25 +219,22 @@ trait ContentBlockTrait {
    * @param string $description
    *   The block description.
    *
-   * @return \Drupal\block_content\BlockContentInterface
-   *   The content block created last.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the content block created last, carrying its 'id'.
    *
    * @throws \RuntimeException
    *   When no content block of the type has the description.
    */
-  public function contentBlockGetByDescription(string $content_block_type, string $description): BlockContentInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
-
+  public function contentBlockGetByDescription(string $content_block_type, string $description): EntityStubInterface {
     $this->assertPrerequisites(__TRAIT__);
 
     $id = $this->queryFindNewestEntityId('block_content', ['info' => $description], $content_block_type);
-    $content_block = $id === NULL ? NULL : BlockContent::load($id);
 
-    if (!$content_block instanceof BlockContentInterface) {
+    if ($id === NULL) {
       throw new \RuntimeException(sprintf('Unable to find "%s" content block with the description "%s".', $content_block_type, $description));
     }
 
-    return $content_block;
+    return new EntityStub('block_content', $content_block_type, ['id' => $id]);
   }
 
   /**

@@ -56,7 +56,7 @@ class MediaTraitKernelTest extends StepTraitKernelTestBase {
 
     $media = $this->context->mediaLoadMultiple('document', ['name' => 'Shared']);
 
-    $this->assertLoadedSet([$first, $second], $media, MediaInterface::class);
+    $this->assertStubSet([$first, $second], $media, 'mid');
   }
 
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
