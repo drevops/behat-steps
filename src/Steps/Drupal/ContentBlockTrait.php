@@ -9,8 +9,11 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
@@ -51,6 +54,8 @@ trait ContentBlockTrait {
   #[Given('the following :content_block_type content blocks do not exist:')]
   public function contentBlockDeleteMultiple(string $content_block_type, TableNode $content_block_table): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     foreach ($content_block_table->getColumn(0) as $description) {
       $this->contentBlockDelete($content_block_type, ['info' => $description]);
@@ -148,6 +153,8 @@ trait ContentBlockTrait {
   public function contentBlockAssertTypeExists(string $content_block_type): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $block_content_type = \Drupal::entityTypeManager()->getStorage('block_content_type')->load($content_block_type);
 
     if (!$block_content_type instanceof BlockContentTypeInterface) {
@@ -179,14 +186,20 @@ trait ContentBlockTrait {
   public function contentBlockCreate(string $content_block_type, array $values): BlockContent {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $values['type'] = $content_block_type;
     $stub = new EntityStub('block_content', $content_block_type, $values);
     $this->entityLifecycleParseFields($stub);
 
-    /** @var \Drupal\block_content\Entity\BlockContent $entity */
-    $entity = BlockContent::create($stub->getValues());
-    $entity->save();
+    $entity = $this->backendFor(BlockCapabilityInterface::class)->createBlockContent($stub)->getSavedEntity();
 
+    // @codeCoverageIgnoreStart
+    if (!$entity instanceof BlockContent) {
+      throw new \RuntimeException(sprintf('The backend created the "%s" content block without returning it.', $content_block_type));
+    }
+
+    // @codeCoverageIgnoreEnd
     $this->entityLifecycleRegister($entity);
 
     return $entity;
@@ -205,6 +218,10 @@ trait ContentBlockTrait {
    *   match.
    */
   public function contentBlockLoadMultiple(string $content_block_type, array $conditions = []): array {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
     $ids = $this->queryEntityIds('block_content', $conditions, $content_block_type);
 
     return $ids ? BlockContent::loadMultiple($ids) : [];
@@ -225,6 +242,10 @@ trait ContentBlockTrait {
    *   When no content block of the type has the description.
    */
   public function contentBlockGetByDescription(string $content_block_type, string $description): BlockContentInterface {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
     $id = $this->queryFindNewestEntityId('block_content', ['info' => $description], $content_block_type);
     $content_block = $id === NULL ? NULL : BlockContent::load($id);
 
@@ -244,9 +265,26 @@ trait ContentBlockTrait {
    *   Conditions keyed by field names.
    */
   public function contentBlockDelete(string $content_block_type, array $conditions): void {
-    foreach ($this->contentBlockLoadMultiple($content_block_type, $conditions) as $content_block) {
-      $content_block->delete();
+    $backend = $this->backendFor(BlockCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
+    foreach ($this->queryEntityIds('block_content', $conditions, $content_block_type) as $id) {
+      $backend->deleteBlockContent(new EntityStub('block_content', $content_block_type, ['id' => $id]));
     }
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function contentBlockPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('block_content'), 'the core "block_content" module is enabled'),
+    ];
   }
 
 }

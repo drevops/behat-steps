@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\StaticCacheTrait;
 use Drupal\Core\Cache\DatabaseBackend;
 use Drupal\Core\Database\Database;
@@ -97,6 +98,8 @@ trait CacheTrait {
   public function cacheClearRender(): void {
     $this->backendFor(CoreCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     \Drupal::cache('render')->deleteAll();
   }
 
@@ -143,6 +146,8 @@ trait CacheTrait {
    */
   public function cacheDeletePagePath(string $path, bool $is_pattern = FALSE): void {
     $this->backendFor(CoreCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $noun = $is_pattern ? 'path pattern' : 'path';
 
@@ -236,6 +241,21 @@ trait CacheTrait {
   protected function cacheConfigSchema(): array {
     return [
       new Option('page_cache_bin', default: 'page', description: 'Name of the cache bin holding the internal page cache.'),
+    ];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * The clear-all and cron steps go through narrower capabilities, so only
+   * the page and render cache steps check them.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function cachePrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
     ];
   }
 

@@ -7,11 +7,14 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\redirect\Entity\Redirect;
 
@@ -28,6 +31,7 @@ use Drupal\redirect\Entity\Redirect;
 trait RedirectTrait {
 
   use EntityLifecycleTrait;
+  use QueryTrait;
 
   /**
    * Allowed HTTP status codes for redirects.
@@ -193,14 +197,11 @@ trait RedirectTrait {
    *   The source path.
    */
   public function redirectDelete(string $from): void {
-    $ids = $this->redirectQueryIds($from);
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
 
-    if ($ids === []) {
-      return;
+    foreach ($this->redirectQueryIds($from) as $rid) {
+      $backend->deleteEntity(new EntityStub('redirect', NULL, ['rid' => $rid]));
     }
-
-    $storage = \Drupal::entityTypeManager()->getStorage('redirect');
-    $storage->delete($storage->loadMultiple($ids));
   }
 
   /**
@@ -230,23 +231,21 @@ trait RedirectTrait {
    * @param int|null $status_code
    *   The HTTP status code, or NULL to match any status code.
    *
-   * @return array<int|string, int|string>
+   * @return array<int, string>
    *   The redirect IDs.
    */
   protected function redirectQueryIds(string $from, ?string $to = NULL, ?int $status_code = NULL): array {
-    $query = \Drupal::entityTypeManager()->getStorage('redirect')->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('redirect_source.path', $this->redirectNormalizeSource($from));
+    $conditions = ['redirect_source.path' => $this->redirectNormalizeSource($from)];
 
     if ($to !== NULL) {
-      $query->condition('redirect_redirect.uri', $this->redirectNormalizeDestination($to));
+      $conditions['redirect_redirect.uri'] = $this->redirectNormalizeDestination($to);
     }
 
     if ($status_code !== NULL) {
-      $query->condition('status_code', $status_code);
+      $conditions['status_code'] = $status_code;
     }
 
-    return $query->execute();
+    return $this->queryEntityIds('redirect', $conditions);
   }
 
   /**

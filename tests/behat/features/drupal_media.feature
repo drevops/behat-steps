@@ -116,9 +116,9 @@ Feature: Check that MediaTrait works
       <message>
       """
     Examples:
-      | media_type   | message                                                                    |
-      |              | Cannot create media because it is missing the required bundle.             |
-      | unknown_type | Cannot create media because provided bundle "unknown_type" does not exist. |
+      | media_type   | message                                                                     |
+      |              | Cannot create media because it is missing the required bundle.              |
+      | unknown_type | Cannot create entity because provided bundle "unknown_type" does not exist. |
 
   Scenario: Create single media with vertical field format
     Given I am logged in as a user with the role "administrator"

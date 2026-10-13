@@ -14,15 +14,14 @@ use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
 use Drupal\Core\Url;
-use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\OneTimeAuthentication;
-use Drupal\user\RoleInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -113,6 +112,8 @@ trait UserTrait {
   #[Given('the following users exist:')]
   public function userCreateMultiple(TableNode $table): void {
     $this->backendFor(UserCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     foreach ($table->getHash() as $values) {
       $this->userCreate($values);
@@ -570,6 +571,8 @@ trait UserTrait {
   public function userCreateAndLogin(string $roles, array $extra_fields = []): void {
     $backend = $this->backendFor(UserCapabilityInterface::class);
 
+    $this->assertPrerequisites(__TRAIT__);
+
     $stub = $this->userBuildStub($extra_fields);
     $this->authCreateUser($stub);
 
@@ -596,6 +599,8 @@ trait UserTrait {
    */
   public function userCreate(array $values): EntityStubInterface {
     $backend = $this->backendFor(UserCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
 
     $roles = '';
 
@@ -633,6 +638,8 @@ trait UserTrait {
    *   When no backend in the scenario's order can manage roles or users.
    */
   public function userCreateWithPermissions(array $permissions): EntityStubInterface {
+    $this->assertPrerequisites(__TRAIT__);
+
     $created = $this->backendFor(RoleCapabilityInterface::class)->createRole($permissions);
     $role_id = (string) $created->getValue('id');
     $this->authRoles[] = $role_id;
@@ -656,42 +663,21 @@ trait UserTrait {
    * @param array<int, string> $permissions
    *   The permissions.
    *
-   * @return \Drupal\user\RoleInterface
-   *   The role.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the created role, carrying its 'id' and 'label'.
    */
-  public function userCreateRoleWithPermissions(string $role, array $permissions): RoleInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
+  public function userCreateRoleWithPermissions(string $role, array $permissions): EntityStubInterface {
+    $backend = $this->backendFor(RoleCapabilityInterface::class);
 
     $rid = strtolower($role);
     $role = trim($role);
 
-    $existing_role = Role::load($rid);
+    $backend->deleteRole($rid);
+    $created = $backend->createRole($permissions, $rid, $role);
 
-    if ($existing_role) {
-      $existing_role->delete();
-    }
+    $this->authRoles[] = (string) $created->getValue('id');
 
-    /** @var \Drupal\user\RoleInterface $role_entity */
-    $role_entity = \Drupal::entityTypeManager()->getStorage('user_role')->create([
-      'id' => $rid,
-      'label' => $role,
-    ]);
-
-    foreach ($permissions as $permission) {
-      $role_entity->grantPermission($permission);
-    }
-
-    $saved = $role_entity->save();
-
-    // @codeCoverageIgnoreStart
-    if ($saved !== SAVED_NEW) {
-      throw new \RuntimeException(sprintf('Failed to create a role with "%s" permission(s).', implode(', ', $permissions)));
-    }
-
-    // @codeCoverageIgnoreEnd
-    $this->authRoles[] = (string) $role_entity->id();
-
-    return $role_entity;
+    return $created;
   }
 
   /**
@@ -704,6 +690,10 @@ trait UserTrait {
    *   no user.
    */
   public function userDelete(array $values): void {
+    $backend = $this->backendFor(UserCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
     $users = [];
 
     if (isset($values['mail'])) {
@@ -714,7 +704,7 @@ trait UserTrait {
     }
 
     foreach ($users as $user) {
-      $user->delete();
+      $backend->deleteUser(new EntityStub('user', NULL, ['uid' => $user->id(), 'name' => $user->getAccountName()]));
       $this->authGetUserRegistry()->removeUser($user->getAccountName());
     }
   }
@@ -796,17 +786,7 @@ trait UserTrait {
    *   TRUE if a user with the email exists, FALSE otherwise.
    */
   public function userExistsByMail(string $mail): bool {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $ids = \Drupal::entityTypeManager()
-      ->getStorage('user')
-      ->getQuery()
-      ->accessCheck(FALSE)
-      ->condition('mail', $mail, 'LIKE')
-      ->range(0, 1)
-      ->execute();
-
-    return !empty($ids);
+    return $this->queryEntityIds('user', ['mail' => ['LIKE', $mail]]) !== [];
   }
 
   /**
@@ -877,6 +857,18 @@ trait UserTrait {
     }
 
     $this->visitPath('/user/' . $uid . ($action_subpath ?? ''));
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function userPrerequisites(): array {
+    return [
+      Prerequisite::capability(UserCapabilityInterface::class),
+    ];
   }
 
 }

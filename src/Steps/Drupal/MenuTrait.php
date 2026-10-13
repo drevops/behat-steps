@@ -6,8 +6,10 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
@@ -43,8 +45,10 @@ trait MenuTrait {
    */
   #[Given('the menu :menu_name does not exist')]
   public function menuDelete(string $menu_name): void {
-    foreach ($this->menuLoadMultiple(['label' => $menu_name]) as $menu) {
-      $menu->delete();
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
+
+    foreach ($this->queryEntityIds('menu', ['label' => $menu_name]) as $id) {
+      $backend->deleteEntity(new EntityStub('menu', NULL, ['id' => $id]));
     }
   }
 
@@ -210,14 +214,10 @@ trait MenuTrait {
       return;
     }
 
-    $ids = $this->queryEntityIds('menu_link_content', ['menu_name' => $menu->id()] + $conditions);
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
 
-    if ($ids === []) {
-      return;
-    }
-
-    foreach (MenuLinkContent::loadMultiple($ids) as $menu_link) {
-      $menu_link->delete();
+    foreach ($this->queryEntityIds('menu_link_content', ['menu_name' => $menu->id()] + $conditions) as $id) {
+      $backend->deleteEntity(new EntityStub('menu_link_content', NULL, ['id' => $id]));
     }
   }
 

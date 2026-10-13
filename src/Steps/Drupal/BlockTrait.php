@@ -8,8 +8,14 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
+use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use Drupal\block\Entity\Block;
 
 /**
@@ -24,6 +30,7 @@ use Drupal\block\Entity\Block;
 trait BlockTrait {
 
   use EntityLifecycleTrait;
+  use QueryTrait;
 
   /**
    * Create a block instance.
@@ -81,8 +88,12 @@ trait BlockTrait {
    */
   #[Given('the block :label does not exist')]
   public function blockDelete(string $label): void {
+    $backend = $this->backendFor(BlockCapabilityInterface::class);
+
+    $this->assertPrerequisites(__TRAIT__);
+
     while ($block = $this->blockFindByLabel($label)) {
-      $block->delete();
+      $backend->deleteBlock(new EntityStub('block', NULL, ['id' => (string) $block->id()]));
     }
   }
 
@@ -307,44 +318,57 @@ trait BlockTrait {
   public function blockCreate(string $admin_label): Block {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $block = NULL;
+    $this->assertPrerequisites(__TRAIT__);
 
-    /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
-    $block_manager = \Drupal::service('plugin.manager.block');
-    $definitions = $block_manager->getDefinitions();
+    $plugin_id = $this->blockFindPluginIdByAdminLabel($admin_label);
 
-    foreach ($definitions as $plugin_id => $definition) {
-      if ((string) $definition['admin_label'] === $admin_label) {
-        $default_theme = \Drupal::config('system.theme')->get('default');
-        $block = \Drupal::entityTypeManager()->getStorage('block')->create([
-          'plugin' => $plugin_id,
-          'theme' => $default_theme,
-        ]);
-
-        $suggestion = $block->getPlugin()->getMachineNameSuggestion();
-        $block_id = \Drupal::service('block.repository')->getUniqueMachineName($suggestion, $block->getTheme());
-
-        $block->set('id', $block_id);
-
-        // The label lookups match the label setting, so the block takes the
-        // admin label until a configuration replaces it.
-        $settings = $block->get('settings');
-        $settings['label'] = $admin_label;
-        $block->set('settings', $settings);
-
-        $block->save();
-
-        break;
-      }
-    }
-
-    if (!$block instanceof Block) {
+    if ($plugin_id === NULL) {
       throw new \RuntimeException(sprintf('Could not create block with admin label "%s".', $admin_label));
     }
 
+    // The label lookups match the label setting, so the block takes the admin
+    // label until a configuration replaces it.
+    $stub = new EntityStub('block', NULL, [
+      'plugin' => $plugin_id,
+      'theme' => $this->backendFor(ConfigCapabilityInterface::class)->configGet('system.theme', 'default'),
+      'settings' => ['label' => $admin_label],
+    ]);
+
+    $block = $this->backendFor(BlockCapabilityInterface::class)->placeBlock($stub)->getSavedEntity();
+
+    // @codeCoverageIgnoreStart
+    if (!$block instanceof Block) {
+      throw new \RuntimeException(sprintf('The backend placed the block "%s" without returning it.', $admin_label));
+    }
+
+    // @codeCoverageIgnoreEnd
     $this->entityLifecycleRegister($block);
 
     return $block;
+  }
+
+  /**
+   * Find the id of the block plugin with an admin label.
+   *
+   * @param string $admin_label
+   *   The admin label of the block plugin.
+   *
+   * @return string|null
+   *   The plugin id, or NULL when no block plugin has the admin label.
+   */
+  protected function blockFindPluginIdByAdminLabel(string $admin_label): ?string {
+    $this->backendFor(CoreCapabilityInterface::class);
+
+    /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
+    $block_manager = \Drupal::service('plugin.manager.block');
+
+    foreach ($block_manager->getDefinitions() as $plugin_id => $definition) {
+      if ((string) $definition['admin_label'] === $admin_label) {
+        return (string) $plugin_id;
+      }
+    }
+
+    return NULL;
   }
 
   /**
@@ -479,15 +503,25 @@ trait BlockTrait {
   public function blockFindByLabel(string $label): ?Block {
     $this->backendFor(CoreCapabilityInterface::class);
 
-    $default_theme = \Drupal::config('system.theme')->get('default');
+    $this->assertPrerequisites(__TRAIT__);
 
-    $blocks = \Drupal::entityTypeManager()
-      ->getStorage('block')->loadByProperties([
-        'theme' => $default_theme,
-        'settings.label' => $label,
-      ]);
+    $theme = $this->backendFor(ConfigCapabilityInterface::class)->configGet('system.theme', 'default');
+    $ids = $this->queryEntityIds('block', ['theme' => $theme, 'settings.label' => $label]);
 
-    return $this->entityLifecycleFindNewest($blocks);
+    return $this->entityLifecycleFindNewest($ids === [] ? [] : Block::loadMultiple($ids));
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function blockPrerequisites(): array {
+    return [
+      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('block'), 'the core "block" module is enabled'),
+    ];
   }
 
 }

@@ -7,8 +7,9 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
+use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
@@ -50,9 +51,7 @@ trait TimeTrait {
 
     $this->timeWasSet = FALSE;
 
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    \Drupal::state()->delete('testing.time');
+    $this->backendFor(StateCapabilityInterface::class)->stateDelete('testing.time');
   }
 
   /**
@@ -69,13 +68,13 @@ trait TimeTrait {
    */
   #[When('the system time is set to :value')]
   public function timeSet(string $value): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(StateCapabilityInterface::class);
 
-    $value = $this->stringParseInteger($value, 'value');
+    $this->assertPrerequisites(__TRAIT__);
 
     $this->timeWasSet = TRUE;
 
-    \Drupal::state()->set('testing.time', $value);
+    $backend->stateSet('testing.time', $this->stringParseInteger($value, 'value'));
   }
 
   /**
@@ -89,9 +88,11 @@ trait TimeTrait {
    */
   #[When('the system time is reset')]
   public function timeReset(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(StateCapabilityInterface::class);
 
-    \Drupal::state()->delete('testing.time');
+    $this->assertPrerequisites(__TRAIT__);
+
+    $backend->stateDelete('testing.time');
   }
 
   /**
@@ -103,6 +104,18 @@ trait TimeTrait {
   protected function timeConfigSchema(): array {
     return [
       new Option('enabled', default: TRUE, description: 'Restore the site clock after a scenario that moved it.'),
+    ];
+  }
+
+  /**
+   * Declares the prerequisites this trait asserts.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite>
+   *   The prerequisites this trait declares.
+   */
+  protected function timePrerequisites(): array {
+    return [
+      Prerequisite::capability(StateCapabilityInterface::class),
     ];
   }
 

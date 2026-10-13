@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -50,15 +51,11 @@ trait MediaTrait {
    */
   #[Given('the media type :media_type does not exist')]
   public function mediaDeleteType(string $media_type): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $type_entity = \Drupal::entityTypeManager()->getStorage('media_type')->load($media_type);
-
-    if ($type_entity) {
-      $type_entity->delete();
-    }
+    $backend->deleteEntity(new EntityStub('media_type', NULL, ['id' => $media_type]));
   }
 
   /**
@@ -344,7 +341,7 @@ trait MediaTrait {
    *   The created media entity.
    */
   public function mediaCreateEntity(EntityStubInterface $stub): MediaInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -354,38 +351,17 @@ trait MediaTrait {
       throw new \RuntimeException('Cannot create media because it is missing the required bundle.');
     }
 
-    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('media');
+    $this->mediaExpandEntityFieldsFixtures($stub);
 
-    if (!array_key_exists($bundle, $bundles)) {
-      throw new \RuntimeException(sprintf('Cannot create media because provided bundle "%s" does not exist.', $bundle));
+    $entity = $backend->createEntity($stub)->getSavedEntity();
+
+    // @codeCoverageIgnoreStart
+    if (!$entity instanceof MediaInterface) {
+      throw new \RuntimeException(sprintf('The backend created the "%s" media without returning it.', $bundle));
     }
 
-    $this->mediaExpandEntityFieldsFixtures($stub);
-    $this->mediaExpandEntityFields($stub);
-
-    $values = $stub->getValues();
-    $values['bundle'] = $bundle;
-    $entity = Media::create($values);
-    $entity->save();
-
+    // @codeCoverageIgnoreEnd
     return $entity;
-  }
-
-  /**
-   * Expand parsed fields into expected field values based on field type.
-   *
-   * Reuses the protected expansion provided by the Drupal backend core.
-   *
-   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
-   *   The entity stub.
-   */
-  protected function mediaExpandEntityFields(EntityStubInterface $stub): void {
-    $core = $this->backendFor(CoreCapabilityInterface::class)->getCore();
-
-    $class = new \ReflectionClass($core::class);
-    $method = $class->getMethod('expandEntityFields');
-
-    $method->invokeArgs($core, [$stub]);
   }
 
   /**
@@ -428,9 +404,13 @@ trait MediaTrait {
    *   Conditions keyed by field names.
    */
   public function mediaDelete(string $media_type, array $conditions): void {
-    $media = $this->mediaLoadMultiple($media_type, $conditions);
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
 
-    \Drupal::entityTypeManager()->getStorage('media')->delete($media);
+    $this->assertPrerequisites(__TRAIT__);
+
+    foreach ($this->queryEntityIds('media', $conditions, $media_type) as $mid) {
+      $backend->deleteEntity(new EntityStub('media', $media_type, ['mid' => $mid]));
+    }
   }
 
   /**
