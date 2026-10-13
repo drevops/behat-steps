@@ -2167,7 +2167,7 @@ Load multiple entities with specified type and conditions
   <summary><code>public function emailCollectorIsEnabled(string $type = 'default'): bool</code></summary>
 
 <br/>
-Check whether the collector has replaced a handler type
+Check whether this scenario's collector has replaced a handler type
 <br/><br/>
 
 </details>

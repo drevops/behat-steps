@@ -13,7 +13,6 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Extension\Tag;
@@ -636,27 +635,24 @@ trait EmailTrait {
 
     $backend->mailStopCollecting();
     $backend->mailClear();
+
+    $this->emailHandlerTypes = [];
   }
 
   /**
-   * Check whether the collector has replaced a handler type.
+   * Check whether this scenario's collector has replaced a handler type.
    *
-   * The backend records the handler each type held in 'system.mail_original'
-   * when it starts collecting, and deletes the record when it stops. A type
-   * the site never had is recorded as well, so the record is checked for the
-   * key rather than for a handler.
+   * The answer comes from the handler types the scenario enabled, so a
+   * record a run that stopped early left on the site counts for nothing.
    *
    * @param string $type
    *   The handler type.
    *
    * @return bool
-   *   TRUE when the collector has replaced the handler type.
+   *   TRUE when the scenario's collector has replaced the handler type.
    */
   public function emailCollectorIsEnabled(string $type = 'default'): bool {
-    $record = $this->anyBackendFor(ConfigCapabilityInterface::class)->configGetData('system.mail_original');
-    $interface = $record['interface'] ?? [];
-
-    return is_array($interface) && array_key_exists($type, $interface);
+    return in_array($type, $this->emailHandlerTypes, TRUE);
   }
 
   /**
