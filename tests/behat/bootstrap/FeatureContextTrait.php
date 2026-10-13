@@ -49,6 +49,14 @@ trait FeatureContextTrait {
   protected const string TEST_BIGPIPE_TIMEOUT_TAG = 'test-bigpipe-timeout';
 
   /**
+   * The namespaces a capability interface sits in.
+   */
+  protected const array TEST_CAPABILITY_NAMESPACES = [
+    'DrevOps\\BehatSteps\\Backend\\Capability',
+    'DrevOps\\BehatSteps\\Backend\\Drupal\\Capability',
+  ];
+
+  /**
    * Whether to use center scroll alignment for testing.
    */
   protected bool $testElementScrollCenter = TRUE;
@@ -183,13 +191,14 @@ trait FeatureContextTrait {
    * Assert which backend class a capability resolves to.
    *
    * The capability is named by the part before 'CapabilityInterface', so
-   * 'Cache' names 'CacheCapabilityInterface'.
+   * 'Cache' names 'CacheCapabilityInterface', and is looked up under each
+   * capability namespace.
    */
   #[Then('the :capability capability should resolve to the :expected backend')]
   public function testAssertCapabilityResolvesTo(string $capability, string $expected): void {
-    $interface = sprintf('DrevOps\\BehatSteps\\Backend\\Capability\\%sCapabilityInterface', $capability);
+    $interface = $this->testFindCapabilityInterface($capability);
 
-    if (!interface_exists($interface)) {
+    if ($interface === NULL) {
       throw new \RuntimeException(sprintf('There is no "%s" capability interface.', $capability));
     }
 
@@ -198,6 +207,24 @@ trait FeatureContextTrait {
     if ($actual !== $expected) {
       throw new \RuntimeException(sprintf('Expected the "%s" capability to resolve to "%s", but it resolved to "%s".', $capability, $expected, $actual));
     }
+  }
+
+  /**
+   * Find the capability interface a short name refers to.
+   *
+   * @return class-string|null
+   *   The interface, or NULL when no capability namespace declares it.
+   */
+  protected function testFindCapabilityInterface(string $capability): ?string {
+    foreach (static::TEST_CAPABILITY_NAMESPACES as $namespace) {
+      $interface = sprintf('%s\\%sCapabilityInterface', $namespace, $capability);
+
+      if (interface_exists($interface)) {
+        return $interface;
+      }
+    }
+
+    return NULL;
   }
 
   /**
