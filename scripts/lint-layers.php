@@ -85,25 +85,9 @@ const LAYERS = [
   [
     'name' => 'the Drupal step traits',
     'paths' => ['src/Steps/Drupal', 'src/Steps/Helper/Drupal'],
-    // These traits load or save Drupal entity objects through Drupal's own
-    // API, so they reference its entity classes.
-    'exclude' => [
-      'src/Steps/Drupal/BlockTrait.php',
-      'src/Steps/Drupal/ContentBlockTrait.php',
-      'src/Steps/Drupal/ContentTrait.php',
-      'src/Steps/Drupal/DraggableviewsTrait.php',
-      'src/Steps/Drupal/EckTrait.php',
-      'src/Steps/Drupal/FileTrait.php',
-      'src/Steps/Drupal/MediaTrait.php',
-      'src/Steps/Drupal/MenuTrait.php',
-      'src/Steps/Drupal/ParagraphsTrait.php',
-      'src/Steps/Drupal/RedirectTrait.php',
-      'src/Steps/Drupal/SearchApiTrait.php',
-      'src/Steps/Drupal/TaxonomyTrait.php',
-      'src/Steps/Drupal/UserTrait.php',
-      'src/Steps/Drupal/WebformTrait.php',
-      'src/Steps/Helper/Drupal/EntityLifecycleTrait.php',
-    ],
+    // The trait reads entity type and field definitions through Drupal's own
+    // API, which no capability serves.
+    'exclude' => ['src/Steps/Drupal/ParagraphsTrait.php'],
     'forbidden' => ['Drupal'],
   ],
 ];
