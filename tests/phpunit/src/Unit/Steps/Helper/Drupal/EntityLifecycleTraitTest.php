@@ -19,7 +19,6 @@ use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
@@ -812,7 +811,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testTimestampConversionIsSkippedForBackendWithoutNodes(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
-    $context = $this->createContext($this->createBackend([ContentCapabilityInterface::class, CoreCapabilityInterface::class]));
+    $context = $this->createContext($this->createBackend([ContentCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]));
 
     RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
@@ -1043,13 +1042,13 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   /**
-   * Builds a backend double that saves content through Drupal's own storage.
+   * Builds a backend double that parses the field values it saves.
    *
    * @return \DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
    *   The backend double.
    */
   protected function createDrupalContentBackend(): BackendInterface&MockObject {
-    return $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class, CoreCapabilityInterface::class]);
+    return $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]);
   }
 
   /**

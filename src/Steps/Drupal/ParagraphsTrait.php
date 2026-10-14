@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -46,7 +45,7 @@ trait ParagraphsTrait {
    */
   #[Given('the following fields for the :paragraph_type paragraph exist in the field :parent_field within the :parent_bundle :parent_entity_type entity with the value :parent_lookup_value in the field :parent_lookup_field:')]
   public function paragraphsAddWithFields(string $parent_entity_type, string $parent_bundle, string $parent_field, string $parent_lookup_field, string $parent_lookup_value, string $paragraph_type, TableNode $fields): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -223,7 +222,7 @@ trait ParagraphsTrait {
    */
   protected function paragraphsPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(ContentCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('paragraphs'), 'the "paragraphs" module from the "drupal/paragraphs" package is enabled'),
     ];
   }

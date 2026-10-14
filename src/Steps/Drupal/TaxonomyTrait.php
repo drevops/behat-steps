@@ -10,7 +10,6 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -359,7 +358,7 @@ trait TaxonomyTrait {
    */
   protected function taxonomyPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(TermCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('taxonomy'), 'the core "taxonomy" module is enabled'),
     ];
   }

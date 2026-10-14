@@ -57,10 +57,10 @@ class TaxonomyTraitTest extends UnitTestCase {
   }
 
   /**
-   * Tests that term creation runs on a backend without Drupal's API.
+   * Tests that term creation runs on a backend providing terms alone.
    *
-   * No backend in the list provides 'CoreCapabilityInterface', so a check of
-   * the trait's prerequisites would fail first. The context runs outside
+   * No backend in the list provides 'ModuleCapabilityInterface', so a check
+   * of the trait's prerequisites would fail first. The context runs outside
    * Behat, so creation stops at its first hook dispatch instead.
    *
    * @param string $method

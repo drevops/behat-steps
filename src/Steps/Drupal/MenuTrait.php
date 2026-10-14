@@ -8,7 +8,6 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -310,7 +309,7 @@ trait MenuTrait {
    */
   protected function menuPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(ContentCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('menu_link_content'), 'the core "menu_link_content" module is enabled, for the menu link steps'),
     ];
   }

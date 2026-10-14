@@ -8,7 +8,6 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -44,7 +43,7 @@ trait EckTrait {
    */
   #[Given('the following ECK :bundle :entity_type entities exist:')]
   public function eckCreateMultiple(string $bundle, string $entity_type, TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -71,7 +70,7 @@ trait EckTrait {
    */
   #[Given('the following ECK :bundle :entity_type entities do not exist:')]
   public function eckDeleteMultiple(string $bundle, string $entity_type, TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -91,7 +90,7 @@ trait EckTrait {
    */
   #[When('I visit the ECK :bundle :entity_type entity page with the title :title')]
   public function eckVisitEntityPageWithTitle(string $bundle, string $entity_type, string $title): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -109,7 +108,7 @@ trait EckTrait {
    */
   #[When('I visit the ECK :bundle :entity_type entity edit page with the title :title')]
   public function eckVisitEntityEditPageWithTitle(string $bundle, string $entity_type, string $title): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -221,7 +220,7 @@ trait EckTrait {
    */
   protected function eckPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(ContentCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('eck'), 'the "eck" module from the "drupal/eck" package is enabled'),
     ];
   }

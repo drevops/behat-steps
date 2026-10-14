@@ -11,7 +11,6 @@ use Behat\Step\Then;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -515,7 +514,7 @@ trait BlockTrait {
    */
   protected function blockPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(BlockCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('block'), 'the core "block" module is enabled'),
     ];
   }

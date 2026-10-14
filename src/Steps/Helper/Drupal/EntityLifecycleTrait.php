@@ -13,7 +13,6 @@ use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
@@ -70,7 +69,7 @@ trait EntityLifecycleTrait {
     $stub = $scope->getStub();
 
     // A command-line backend takes the values as written, so string dates are
-    // converted only for a backend that saves through Drupal's own storage.
+    // converted only for a backend that parses field values.
     $context = $scope->getContext();
 
     if (!$context instanceof BackendAwareInterface) {
@@ -83,7 +82,7 @@ trait EntityLifecycleTrait {
       return;
     }
 
-    if (!$registry->getBackendFor(NodeCapabilityInterface::class) instanceof CoreCapabilityInterface) {
+    if (!$registry->getBackendFor(NodeCapabilityInterface::class) instanceof EntityDefinitionCapabilityInterface) {
       return;
     }
 

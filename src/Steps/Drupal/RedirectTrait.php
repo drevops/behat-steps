@@ -8,7 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -94,7 +94,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects do not exist:')]
   public function redirectDeleteMultiple(TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -126,7 +126,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should exist:')]
   public function redirectAssertExist(TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(EntityLookupCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -152,7 +152,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should not exist:')]
   public function redirectAssertNotExist(TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(EntityLookupCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -381,7 +381,7 @@ trait RedirectTrait {
    */
   protected function redirectPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(ContentCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('redirect'), 'the "redirect" module from the "drupal/redirect" package is enabled'),
     ];
   }

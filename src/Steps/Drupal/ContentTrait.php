@@ -11,7 +11,6 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\WorkflowCapabilityInterface;
@@ -87,8 +86,6 @@ trait ContentTrait {
    */
   #[Given('the following :content_type content does not exist:')]
   public function contentDeleteMultiple(string $content_type, TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     foreach ($table->getHash() as $node_hash) {
       $this->contentDelete($content_type, $node_hash);
     }
@@ -550,7 +547,7 @@ trait ContentTrait {
    */
   protected function contentPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(ContentCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('path'), 'the core "path" module is enabled, for the path alias step'),
     ];
   }
