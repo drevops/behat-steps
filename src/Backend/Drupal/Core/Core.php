@@ -1603,6 +1603,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * {@inheritdoc}
+   *
+   * The path is the route's own. It carries no base path, which a caller adds
+   * when it prefixes the site's URL, and no path alias, which this process
+   * may hold a stale copy of.
    */
   public function getEntityUrl(EntityStubInterface $stub, string $rel = 'canonical'): string {
     $entity = $this->getStubEntity($stub);
@@ -1611,7 +1615,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       throw new \RuntimeException(sprintf('The entity type "%s" has no "%s" link.', $entity->getEntityTypeId(), $rel));
     }
 
-    return $entity->toUrl($rel)->toString();
+    return '/' . $entity->toUrl($rel)->getInternalPath();
   }
 
   /**

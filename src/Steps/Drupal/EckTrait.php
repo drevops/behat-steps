@@ -94,7 +94,7 @@ trait EckTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $this->getSession()->visit($this->eckGetEntityUrlByTitle($entity_type, $bundle, $title));
+    $this->visitPath($this->eckGetEntityUrlByTitle($entity_type, $bundle, $title));
   }
 
   /**
@@ -112,7 +112,7 @@ trait EckTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $this->getSession()->visit($this->eckGetEntityUrlByTitle($entity_type, $bundle, $title, 'edit-form'));
+    $this->visitPath($this->eckGetEntityUrlByTitle($entity_type, $bundle, $title, 'edit-form'));
   }
 
   /**

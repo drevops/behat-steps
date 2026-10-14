@@ -165,7 +165,7 @@ trait ContentTrait {
    */
   #[When('I visit the :content_type content edit page with the title :title')]
   public function contentVisitEditPageWithTitle(string $content_type, string $title): void {
-    $this->contentVisitActionPageWithTitle($content_type, $title, '/edit');
+    $this->contentVisitActionPageWithTitle($content_type, $title, 'edit-form');
   }
 
   /**
@@ -179,7 +179,7 @@ trait ContentTrait {
    */
   #[When('I visit the :content_type content delete page with the title :title')]
   public function contentVisitDeletePageWithTitle(string $content_type, string $title): void {
-    $this->contentVisitActionPageWithTitle($content_type, $title, '/delete');
+    $this->contentVisitActionPageWithTitle($content_type, $title, 'delete-form');
   }
 
   /**
@@ -193,7 +193,7 @@ trait ContentTrait {
    */
   #[When('I visit the :content_type content scheduled transitions page with the title :title')]
   public function contentVisitScheduledTransitionsPageWithTitle(string $content_type, string $title): void {
-    $this->contentVisitActionPageWithTitle($content_type, $title, '/scheduled-transitions');
+    $this->contentVisitActionPageWithTitle($content_type, $title, 'scheduled_transitions');
   }
 
   /**
@@ -207,7 +207,7 @@ trait ContentTrait {
    */
   #[When('I visit the :content_type content revisions page with the title :title')]
   public function contentVisitRevisionsPageWithTitle(string $content_type, string $title): void {
-    $this->contentVisitActionPageWithTitle($content_type, $title, '/revisions');
+    $this->contentVisitActionPageWithTitle($content_type, $title, 'version-history');
   }
 
   /**
@@ -334,20 +334,20 @@ trait ContentTrait {
   }
 
   /**
-   * Visit the action page of the content with a specified title.
+   * Visit a page of the content with a specified title.
    *
    * @param string $content_type
    *   The content type.
    * @param string $title
    *   The title of the content.
-   * @param string|null $action_subpath
-   *   The operation to perform, such as '/edit', or NULL for the content page.
+   * @param string $rel
+   *   The link relationship of the page, such as 'edit-form', or 'canonical'
+   *   for the content page.
    */
-  public function contentVisitActionPageWithTitle(string $content_type, string $title, ?string $action_subpath = NULL): void {
-    $nid = $this->contentGetNidByTitle($content_type, $title);
-    $path = $this->locatePath('/node/' . $nid . ($action_subpath ?? ''));
+  public function contentVisitActionPageWithTitle(string $content_type, string $title, string $rel = 'canonical'): void {
+    $node = $this->contentGetNodeByTitle($content_type, $title);
 
-    $this->getSession()->visit($path);
+    $this->visitPath($this->backendFor(ContentCapabilityInterface::class)->getEntityUrl($node, $rel));
   }
 
   /**

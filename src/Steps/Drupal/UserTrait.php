@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
@@ -347,7 +348,7 @@ trait UserTrait {
    */
   #[When('I visit the profile edit page of the user :name')]
   public function userVisitProfileEditPage(string $name): void {
-    $this->userVisitActionPage($name, '/edit');
+    $this->userVisitActionPage($name, 'edit-form');
   }
 
   /**
@@ -361,7 +362,7 @@ trait UserTrait {
    */
   #[When('I visit my own profile edit page')]
   public function userVisitOwnProfileEditPage(): void {
-    $this->userVisitActionPage('current', '/edit');
+    $this->userVisitActionPage('current', 'edit-form');
   }
 
   /**
@@ -375,7 +376,7 @@ trait UserTrait {
    */
   #[When('I visit the profile delete page of the user :name')]
   public function userVisitProfileDeletePage(string $name): void {
-    $this->userVisitActionPage($name, '/cancel');
+    $this->userVisitActionPage($name, 'cancel-form');
   }
 
   /**
@@ -389,7 +390,7 @@ trait UserTrait {
    */
   #[When('I visit my own profile delete page')]
   public function userVisitOwnProfileDeletePage(): void {
-    $this->userVisitActionPage('current', '/cancel');
+    $this->userVisitActionPage('current', 'cancel-form');
   }
 
   /**
@@ -859,14 +860,15 @@ trait UserTrait {
   }
 
   /**
-   * Visit a user action page.
+   * Visit a page of a user.
    *
    * @param string $name
-   *   The user name.
-   * @param string|null $action_subpath
-   *   The action subpath, such as '/edit', or NULL for the profile page.
+   *   The user name, or 'current' for the user logged in.
+   * @param string $rel
+   *   The link relationship of the page, such as 'edit-form', or 'canonical'
+   *   for the profile page.
    */
-  public function userVisitActionPage(string $name, ?string $action_subpath = NULL): void {
+  public function userVisitActionPage(string $name, string $rel = 'canonical'): void {
     if ($name === 'current') {
       $user = $this->authGetUserRegistry()->getCurrentUser();
 
@@ -886,7 +888,7 @@ trait UserTrait {
       $uid = $this->queryGetEntityId($this->userGetByName($name), 'uid');
     }
 
-    $this->visitPath('/user/' . $uid . ($action_subpath ?? ''));
+    $this->visitPath($this->backendFor(ContentCapabilityInterface::class)->getEntityUrl(new EntityStub('user', NULL, ['uid' => $uid]), $rel));
   }
 
   /**

@@ -12,6 +12,7 @@ use Drupal\entity_test\EntityTestHelper;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\path_alias\Entity\PathAlias;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -36,7 +37,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    *
    * @var array<string>
    */
-  protected static $modules = ['system', 'user', 'entity_test', 'field', 'options'];
+  protected static $modules = ['system', 'user', 'entity_test', 'field', 'options', 'path_alias'];
 
   /**
    * The Core backend under test.
@@ -51,6 +52,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
 
     $this->installEntitySchema('user');
     $this->installEntitySchema('entity_test');
+    $this->installEntitySchema('path_alias');
     $this->installSchema('user', ['users_data']);
     $this->installConfig(['system', 'user']);
     $this->core = new Core($this->root);
@@ -165,6 +167,25 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $this->expectExceptionMessage('No entity of type "entity_test" with the id "999" exists.');
 
     $this->core->getEntityUrl(new EntityStub('entity_test', NULL, ['id' => 999]));
+  }
+
+  public function testGetEntityUrlLeavesThePathAliasOut(): void {
+    $created = $this->core->createEntity(new EntityStub('entity_test', NULL, ['name' => 'aliased']));
+    $path = '/entity_test/' . $created->getValue('id');
+    PathAlias::create(['path' => $path, 'alias' => '/aliased'])->save();
+
+    $this->assertSame('/aliased', \Drupal::service('path_alias.repository')->lookupBySystemPath($path, 'en')['alias'] ?? NULL, 'An alias exists for the path of the entity.');
+    $this->assertSame($path, $this->core->getEntityUrl($created));
+  }
+
+  public function testGetEntityUrlLeavesTheBasePathOut(): void {
+    $created = $this->core->createEntity(new EntityStub('entity_test', NULL, ['name' => 'subdirectory']));
+    \Drupal::service('router.request_context')->setBaseUrl('/subdirectory');
+
+    $entity = $created->getSavedEntity();
+    $this->assertInstanceOf(EntityInterface::class, $entity);
+    $this->assertStringStartsWith('/subdirectory/', $entity->toUrl()->toString(), 'The site answers in a subdirectory.');
+    $this->assertSame('/entity_test/' . $created->getValue('id'), $this->core->getEntityUrl($created));
   }
 
   public function testGetEntityBundleReadsTheBundleOfTheEntity(): void {

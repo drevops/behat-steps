@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
@@ -135,7 +136,7 @@ trait ContentBlockTrait {
   public function contentBlockVisitEditPageWithDescription(string $content_block_type, string $description): void {
     $content_block = $this->contentBlockGetByDescription($content_block_type, $description);
 
-    $this->getSession()->visit($this->locatePath('/admin/content/block/' . $this->queryGetEntityId($content_block, 'id')));
+    $this->visitPath($this->backendFor(ContentCapabilityInterface::class)->getEntityUrl($content_block, 'edit-form'));
   }
 
   /**
