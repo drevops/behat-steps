@@ -783,6 +783,31 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->assertSame([[], []], array_column($entries, 'variables'));
   }
 
+  public function testLogReadRejectsReadThatOverflowsItsCount(): void {
+    $backend = new class('alias') extends RecordingDrushBackend {
+
+      protected const int LOG_READ_COUNT = 2;
+
+    };
+    $backend->drushResponse = '{"9":{"wid":"9","type":"php","severity":"Error","message":"Newest"},"8":{"wid":"8","type":"php","severity":"Error","message":"Older"}}';
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The log holds more than 2 entries newer than the id 5, which is more than 1 read fetches.');
+
+    $backend->logRead(['php'], 5, 4);
+  }
+
+  public function testLogReadAcceptsFullReadReachingTheWatermark(): void {
+    $backend = new class('alias') extends RecordingDrushBackend {
+
+      protected const int LOG_READ_COUNT = 2;
+
+    };
+    $backend->drushResponse = '{"6":{"wid":"6","type":"php","severity":"Error","message":"Newest"},"5":{"wid":"5","type":"php","severity":"Error","message":"Watermark"}}';
+
+    $this->assertSame([6], array_column($backend->logRead(['php'], 5, 4), 'wid'));
+  }
+
   public function testLogReadWithNoTypesReadsNothing(): void {
     $backend = $this->createBackend();
 

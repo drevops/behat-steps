@@ -2028,22 +2028,33 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    */
   public function draggableviewsSetOrder(string $view_id, string $display_id, array $entity_ids): void {
     $database = \Drupal::database();
+    // The rows are replaced 1 entity at a time, so the order is written whole
+    // or not at all.
+    $transaction = $database->startTransaction();
 
-    foreach ($entity_ids as $weight => $entity_id) {
-      // The delete and the insert mirror draggableviews_views_submit().
-      $database->delete('draggableviews_structure')
-        ->condition('view_name', $view_id)
-        ->condition('view_display', $display_id)
-        ->condition('entity_id', $entity_id)
-        ->execute();
+    try {
+      foreach ($entity_ids as $weight => $entity_id) {
+        // The delete and the insert mirror draggableviews_views_submit().
+        $database->delete('draggableviews_structure')
+          ->condition('view_name', $view_id)
+          ->condition('view_display', $display_id)
+          ->condition('entity_id', $entity_id)
+          ->execute();
 
-      $database->insert('draggableviews_structure')->fields([
-        'view_name' => $view_id,
-        'view_display' => $display_id,
-        'args' => '[]',
-        'entity_id' => $entity_id,
-        'weight' => $weight,
-      ])->execute();
+        $database->insert('draggableviews_structure')->fields([
+          'view_name' => $view_id,
+          'view_display' => $display_id,
+          'args' => '[]',
+          'entity_id' => $entity_id,
+          'weight' => $weight,
+        ])->execute();
+      }
+    }
+    catch (\Exception $exception) {
+      // @codeCoverageIgnoreStart
+      $transaction->rollBack();
+      throw $exception;
+      // @codeCoverageIgnoreEnd
     }
   }
 

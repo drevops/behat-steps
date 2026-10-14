@@ -239,13 +239,24 @@ function layer_files(string $path): array {
  */
 function layer_file_violations(string $file, array $forbidden): array {
   $violations = [];
+  $tokens = token_get_all((string) file_get_contents($file));
+  $depth = 0;
 
-  foreach (token_get_all((string) file_get_contents($file)) as $token) {
+  foreach ($tokens as $index => $token) {
+    $opens_body = is_array($token) && in_array($token[0], [T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES], TRUE);
+
+    if ($token === '{' || $token === '}' || $opens_body) {
+      $depth += $token === '}' ? -1 : 1;
+      continue;
+    }
+
     if (!is_array($token)) {
       continue;
     }
 
-    $symbol = layer_referenced_symbol($token[0], $token[1]);
+    // A 'use' outside every body is an import, which may name a global class
+    // by 1 bare token.
+    $symbol = $token[0] === T_USE && $depth === 0 ? layer_imported_symbol($tokens, $index) : layer_referenced_symbol($token[0], $token[1]);
 
     if ($symbol === NULL) {
       continue;
@@ -259,6 +270,35 @@ function layer_file_violations(string $file, array $forbidden): array {
   }
 
   return $violations;
+}
+
+/**
+ * Reads the global class an import names by a bare token, if it names one.
+ *
+ * 'use Drupal;' carries the class as 1 unqualified token, which the
+ * qualified-name tokens never cover, so the name is read from the statement.
+ *
+ * @param array<int, array{int, string, int}|string> $tokens
+ *   The file's tokens.
+ * @param int $index
+ *   The index of the 'use' token.
+ *
+ * @return string|null
+ *   The imported class, or NULL when the import is qualified, or is a
+ *   function, a constant or a closure's variables.
+ */
+function layer_imported_symbol(array $tokens, int $index): ?string {
+  for ($i = $index + 1, $count = count($tokens); $i < $count; $i++) {
+    $token = $tokens[$i];
+
+    if (is_array($token) && $token[0] === T_WHITESPACE) {
+      continue;
+    }
+
+    return is_array($token) && $token[0] === T_STRING ? $token[1] : NULL;
+  }
+
+  return NULL;
 }
 
 /**

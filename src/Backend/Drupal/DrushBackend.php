@@ -760,9 +760,17 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       return [];
     }
 
+    $rows = $this->readLogEntries(static::LOG_READ_COUNT, $severity);
+
+    // A full read whose oldest entry is still newer than the watermark has
+    // left entries unread.
+    if ($rows !== [] && count($rows) >= static::LOG_READ_COUNT && min(array_keys($rows)) > $after_id) {
+      throw new \RuntimeException(sprintf('The log holds more than %d entries newer than the id %d, which is more than 1 read fetches.', static::LOG_READ_COUNT, $after_id));
+    }
+
     $entries = [];
 
-    foreach ($this->readLogEntries(static::LOG_READ_COUNT, $severity) as $wid => $row) {
+    foreach ($rows as $wid => $row) {
       if ($wid <= $after_id || !in_array($row['type'] ?? NULL, $types, TRUE)) {
         continue;
       }
