@@ -81,6 +81,13 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   protected string $arguments = '';
 
   /**
+   * Environment variables every drush command runs with, keyed by name.
+   *
+   * @var array<string, string>
+   */
+  protected array $environment = [];
+
+  /**
    * Sets the drush alias or root path.
    *
    * @param string|null $alias
@@ -169,6 +176,33 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    */
   public function processBatch(): void {
     // Drush is expected to handle batch processing internally.
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * The header is passed to each command in the environment variable PHP
+   * reads a request header from, such as 'HTTP_X_CONFIG_NO_OVERRIDE'.
+   */
+  public function requestHeaderSet(string $name, string $value): void {
+    $this->environment[static::getRequestHeaderVariable($name)] = $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function requestHeaderUnset(string $name): void {
+    unset($this->environment[static::getRequestHeaderVariable($name)]);
+  }
+
+  /**
+   * Returns the name PHP gives the server variable of a request header.
+   *
+   * @param string $name
+   *   The header name, such as 'X-Config-No-Override'.
+   */
+  protected static function getRequestHeaderVariable(string $name): string {
+    return 'HTTP_' . strtoupper(str_replace('-', '_', $name));
   }
 
   /**
@@ -1079,7 +1113,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   The process after it has finished running.
    */
   protected function runProcess(array $argv): Process {
-    $process = new Process($argv);
+    $process = new Process($argv, NULL, $this->environment);
     $process->setTimeout(3600);
     $process->run();
 

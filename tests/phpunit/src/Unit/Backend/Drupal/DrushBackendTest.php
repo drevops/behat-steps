@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\RequestEnvironmentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
@@ -41,6 +42,10 @@ class DrushBackendTest extends UnitTestCase {
 
     $this->assertContains(DrushBackendInterface::class, $interfaces);
     $this->assertContains(BackendInterface::class, $interfaces);
+  }
+
+  public function testPassesRequestHeadersToItsCommands(): void {
+    $this->assertContains(RequestEnvironmentCapabilityInterface::class, (array) class_implements(DrushBackend::class));
   }
 
   /**

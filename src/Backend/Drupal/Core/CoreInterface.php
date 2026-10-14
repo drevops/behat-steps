@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\RequestEnvironmentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
@@ -69,6 +70,7 @@ interface CoreInterface extends
   PathAliasCapabilityInterface,
   QueueCapabilityInterface,
   QueueItemCapabilityInterface,
+  RequestEnvironmentCapabilityInterface,
   RoleCapabilityInterface,
   SearchApiCapabilityInterface,
   SearchIndexCapabilityInterface,

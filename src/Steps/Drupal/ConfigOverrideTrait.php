@@ -8,6 +8,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeStepScope;
 use Behat\Hook\BeforeScenario;
 use Behat\Hook\BeforeStep;
+use DrevOps\BehatSteps\Backend\Capability\RequestEnvironmentCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Browser\Capability\RequestHeaderCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Tag;
@@ -21,8 +22,12 @@ use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
  * in a separate process from the system under test (SUT).
  *
  * This trait signals the SUT that specific config objects should be read
- * from their original (unoverridden) values. The signal is a request header,
- * a `$_SERVER` entry and an environment variable.
+ * from their original (unoverridden) values. The signal is the
+ * `X-Config-No-Override` request header. The browser sends it, and every
+ * backend providing `RequestEnvironmentCapabilityInterface` passes it to the
+ * SUT code it runs: the in-process backend as the `HTTP_X_CONFIG_NO_OVERRIDE`
+ * `$_SERVER` entry, and the Drush backend as the environment variable of the
+ * same name for each command.
  *
  * The SUT is responsible for reading that signal and calling
  * `ImmutableConfig::getOriginal()` instead of `ImmutableConfig::get()` for
@@ -38,8 +43,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
  * Limitations:
  * - The request header reaches the SUT only on a browser driver providing
  *   `RequestHeaderCapabilityInterface`. A WebDriver session carries no request
- *   headers, so a scenario running on Selenium falls back to the `$_SERVER`
- *   entry and the environment variable alone.
+ *   headers, so a scenario running on Selenium reaches only the SUT code the
+ *   backends run.
  * - The SUT must implement support for the `X-Config-No-Override` header,
  *   the `HTTP_X_CONFIG_NO_OVERRIDE` `$_SERVER` entry or the matching
  *   environment variable. An example implementation:
@@ -130,23 +135,57 @@ trait ConfigOverrideTrait {
       $this->browserDriverFor(RequestHeaderCapabilityInterface::class)->requestHeaderSet('X-Config-No-Override', $value);
     }
 
-    $this->requestHeadersSet('X-Config-No-Override', $value);
-
-    // A SUT invoked directly within the same process reads '$_SERVER'.
-    $_SERVER['HTTP_X_CONFIG_NO_OVERRIDE'] = $value;
-
-    // A SUT accessed through a Drush subprocess inherits the environment.
-    putenv('HTTP_X_CONFIG_NO_OVERRIDE=' . $value);
+    $this->configOverrideSetSignal($value);
   }
 
   /**
-   * Clear the process-level and REST-level X-Config-No-Override signal.
+   * Set the X-Config-No-Override signal on the requests and the backends.
+   *
+   * @param string $value
+   *   The config names, as a comma-separated list.
+   */
+  protected function configOverrideSetSignal(string $value): void {
+    $this->requestHeadersSet('X-Config-No-Override', $value);
+
+    foreach ($this->configOverrideGetBackends() as $backend) {
+      $backend->requestHeaderSet('X-Config-No-Override', $value);
+    }
+  }
+
+  /**
+   * Clear the X-Config-No-Override signal from the requests and the backends.
    */
   protected function configOverrideClearSignal(): void {
-    unset($_SERVER['HTTP_X_CONFIG_NO_OVERRIDE']);
-    putenv('HTTP_X_CONFIG_NO_OVERRIDE');
-
     $this->requestHeadersUnset('X-Config-No-Override');
+
+    foreach ($this->configOverrideGetBackends() as $backend) {
+      $backend->requestHeaderUnset('X-Config-No-Override');
+    }
+  }
+
+  /**
+   * Get every backend of the scenario that passes a request header on.
+   *
+   * None is bootstrapped, so a scenario that reaches no backend starts none,
+   * and a backend a later step reaches already holds the signal.
+   *
+   * @return array<int, \DrevOps\BehatSteps\Backend\Capability\RequestEnvironmentCapabilityInterface>
+   *   The backends, in the scenario's order.
+   */
+  protected function configOverrideGetBackends(): array {
+    $registry = $this->getBackendRegistry();
+    $registered = $registry->getBackends();
+    $backends = [];
+
+    foreach (array_unique($registry->getScenarioBackends()) as $name) {
+      $backend = $registered[$name] ?? NULL;
+
+      if ($backend instanceof RequestEnvironmentCapabilityInterface) {
+        $backends[] = $backend;
+      }
+    }
+
+    return $backends;
   }
 
   /**

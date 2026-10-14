@@ -371,6 +371,32 @@ class DrushBackendMethodsTest extends UnitTestCase {
     }
   }
 
+  public function testRequestHeaderReachesTheEnvironmentOfEachCommand(): void {
+    $binary = $this->writeFixture('bin/print-header', "#!/bin/sh\nprintf '%s' \"\${HTTP_X_CONFIG_NO_OVERRIDE:-none}\"\n");
+    chmod($binary, 0755);
+
+    $backend = new DrushBackend('alias', binary: $binary);
+    $this->assertSame('none', $backend->drush('version'));
+
+    $backend->requestHeaderSet('X-Config-No-Override', 'system.site');
+    $this->assertSame('system.site', $backend->drush('version'));
+    $this->assertSame('system.site', $backend->drush('status'), 'The header reaches every command, not only the next one.');
+
+    $backend->requestHeaderSet('X-Config-No-Override', 'system.site,user.settings');
+    $this->assertSame('system.site,user.settings', $backend->drush('version'), 'A second value replaces the first.');
+
+    $backend->requestHeaderUnset('X-Config-No-Override');
+    $this->assertSame('none', $backend->drush('version'));
+  }
+
+  public function testRequestHeaderUnsetIgnoresHeaderNeverSet(): void {
+    $backend = $this->createBackend();
+
+    $backend->requestHeaderUnset('X-Never-Set');
+
+    $this->assertSame([], $backend->invocations);
+  }
+
   public function testDrushThrowsRuntimeExceptionOnFailure(): void {
     $false = $this->resolveSystemBinary('false');
 

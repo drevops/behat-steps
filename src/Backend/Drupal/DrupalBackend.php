@@ -463,6 +463,20 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function requestHeaderSet(string $name, string $value): void {
+    $this->getCore()->requestHeaderSet($name, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function requestHeaderUnset(string $name): void {
+    $this->getCore()->requestHeaderUnset($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function createLanguage(EntityStubInterface $stub): EntityStubInterface {
     return $this->getCore()->createLanguage($stub);
   }

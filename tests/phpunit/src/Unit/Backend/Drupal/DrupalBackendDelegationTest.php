@@ -140,6 +140,8 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'createNode' => ['createNode', [$node], 'createNode'];
     yield 'deleteNode' => ['deleteNode', [$node], 'deleteNode'];
     yield 'cronRun' => ['cronRun', [], 'cronRun'];
+    yield 'requestHeaderSet' => ['requestHeaderSet', ['X-Config-No-Override', 'system.site'], 'requestHeaderSet'];
+    yield 'requestHeaderUnset' => ['requestHeaderUnset', ['X-Config-No-Override'], 'requestHeaderUnset'];
     yield 'createTerm' => ['createTerm', [$term], 'createTerm'];
     yield 'deleteTerm' => ['deleteTerm', [$term], 'deleteTerm'];
     yield 'createRole' => ['createRole', [['admin']], 'createRole'];

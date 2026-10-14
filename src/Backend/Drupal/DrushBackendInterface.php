@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Backend\Drupal;
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\RequestEnvironmentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
@@ -35,6 +36,7 @@ interface DrushBackendInterface extends
   LogCapabilityInterface,
   ModuleCapabilityInterface,
   QueueCapabilityInterface,
+  RequestEnvironmentCapabilityInterface,
   RoleCapabilityInterface,
   SearchIndexCapabilityInterface,
   StateCapabilityInterface,

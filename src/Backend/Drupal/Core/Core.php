@@ -572,6 +572,33 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * {@inheritdoc}
+   *
+   * The header is written to '$_SERVER' under the name PHP gives a request
+   * header, such as 'HTTP_X_CONFIG_NO_OVERRIDE'.
+   */
+  public function requestHeaderSet(string $name, string $value): void {
+    $_SERVER[static::getRequestHeaderVariable($name)] = $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function requestHeaderUnset(string $name): void {
+    unset($_SERVER[static::getRequestHeaderVariable($name)]);
+  }
+
+  /**
+   * Returns the name PHP gives the server variable of a request header.
+   *
+   * @param string $name
+   *   The header name, such as 'X-Config-No-Override'.
+   */
+  protected static function getRequestHeaderVariable(string $name): string {
+    return 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function createUser(EntityStubInterface $stub): EntityStubInterface {
     if (!$stub->hasValue('status')) {

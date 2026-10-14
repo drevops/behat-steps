@@ -12,6 +12,7 @@ use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\RequestEnvironmentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
@@ -91,6 +92,7 @@ class DrupalBackendTest extends UnitTestCase {
     yield 'menu link' => [MenuLinkCapabilityInterface::class];
     yield 'node' => [NodeCapabilityInterface::class];
     yield 'path alias' => [PathAliasCapabilityInterface::class];
+    yield 'request environment' => [RequestEnvironmentCapabilityInterface::class];
     yield 'role' => [RoleCapabilityInterface::class];
     yield 'state' => [StateCapabilityInterface::class];
     yield 'term' => [TermCapabilityInterface::class];
