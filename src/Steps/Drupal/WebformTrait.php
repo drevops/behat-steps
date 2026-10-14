@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
@@ -75,7 +75,7 @@ trait WebformTrait {
    */
   #[Given('the webform :title has been created from the template :template')]
   public function webformCloneTemplate(string $title, string $template): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ConfigEntityCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -157,16 +157,13 @@ trait WebformTrait {
    *   array when none match.
    */
   public function webformLoadMultiple(string $title): array {
-    $backend = $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(EntityLookupCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
     // A webform changed through the admin UI in another process stays as this
-    // process loaded it until this process resets its caches, so the reset
-    // goes to the backend that loads the webforms.
-    if ($backend instanceof CacheCapabilityInterface) {
-      $backend->cacheClearStatic();
-    }
+    // process loaded it until this process resets its caches.
+    $this->getBackendRegistry()->getResolvedBackendFor(CacheCapabilityInterface::class)?->cacheClearStatic();
 
     return $this->queryEntityStubs('webform', 'id', ['title' => ['CONTAINS', $title]]);
   }
@@ -210,7 +207,7 @@ trait WebformTrait {
    */
   protected function webformPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(ConfigEntityCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('webform'), 'the "webform" module from the "drupal/webform" package is enabled'),
     ];
   }

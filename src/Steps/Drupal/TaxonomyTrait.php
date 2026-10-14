@@ -9,8 +9,8 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -129,7 +129,7 @@ trait TaxonomyTrait {
    */
   #[When('I visit the :vocabulary term edit page with the name :name')]
   public function taxonomyVisitTermEditPageWithName(string $vocabulary, string $name): void {
-    $this->taxonomyVisitActionPageWithName($vocabulary, $name, '/edit');
+    $this->taxonomyVisitActionPageWithName($vocabulary, $name, 'edit-form');
   }
 
   /**
@@ -143,7 +143,7 @@ trait TaxonomyTrait {
    */
   #[When('I visit the :vocabulary term delete page with the name :name')]
   public function taxonomyVisitTermDeletePageWithName(string $vocabulary, string $name): void {
-    $this->taxonomyVisitActionPageWithName($vocabulary, $name, '/delete');
+    $this->taxonomyVisitActionPageWithName($vocabulary, $name, 'delete-form');
   }
 
   /**
@@ -229,7 +229,7 @@ trait TaxonomyTrait {
   }
 
   /**
-   * Visit the action page of the term with a specified name.
+   * Visit a page of the term with a specified name.
    *
    * When several terms of the vocabulary share the name, the newest is
    * visited.
@@ -238,11 +238,11 @@ trait TaxonomyTrait {
    *   The term vocabulary machine name.
    * @param string $name
    *   The name of the term.
-   * @param string|null $action_subpath
-   *   The operation to perform, e.g., '/delete', '/edit', etc., or NULL for the
-   *   term page.
+   * @param string $rel
+   *   The link relationship of the page, such as 'edit-form', or 'canonical'
+   *   for the term page.
    */
-  public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, ?string $action_subpath = NULL): void {
+  public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, string $rel = 'canonical'): void {
     $this->taxonomyGetVocabulary($vocabulary);
 
     $tid = $this->queryFindNewestEntityId('taxonomy_term', ['name' => $name], $vocabulary);
@@ -251,9 +251,7 @@ trait TaxonomyTrait {
       throw new \RuntimeException(sprintf('Unable to find the term "%s" in the vocabulary "%s".', $name, $vocabulary));
     }
 
-    $path = $this->locatePath('/taxonomy/term/' . $tid . ($action_subpath ?? ''));
-
-    $this->getSession()->visit($path);
+    $this->visitPath($this->backendFor(ContentCapabilityInterface::class)->getEntityUrl(new EntityStub('taxonomy_term', $vocabulary, ['tid' => $tid]), $rel));
   }
 
   /**
@@ -359,7 +357,7 @@ trait TaxonomyTrait {
    */
   protected function taxonomyPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(TermCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('taxonomy'), 'the core "taxonomy" module is enabled'),
     ];
   }

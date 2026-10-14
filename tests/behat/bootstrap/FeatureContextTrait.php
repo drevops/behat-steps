@@ -21,10 +21,13 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Tag;
 use Drupal\Core\Database\Database;
-use Drupal\Core\Extension\MissingDependencyException;
 use Symfony\Component\BrowserKit\Cookie;
 
 /**
@@ -332,28 +335,13 @@ trait FeatureContextTrait {
    */
   #[Given('I install a :name module')]
   public function testInstallModule(string $name): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(ModuleCapabilityInterface::class);
 
-    /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
-    $module_handler = \Drupal::service('module_handler');
-
-    if ($module_handler->moduleExists($name)) {
+    if ($backend->moduleIsEnabled($name)) {
       return;
     }
 
-    /** @var \Drupal\Core\Extension\ModuleInstallerInterface $module_installer */
-    $module_installer = \Drupal::service('module_installer');
-
-    try {
-      $result = $module_installer->install([$name]);
-    }
-    catch (MissingDependencyException $exception) {
-      throw new \Exception(sprintf('Unable to install a module "%s": %s.', $name, $exception->getMessage()), $exception->getCode(), $exception);
-    }
-
-    if (!$result) {
-      throw new \Exception(sprintf('Unable to install a module "%s".', $name));
-    }
+    $backend->moduleInstall($name);
   }
 
   /**
@@ -361,23 +349,13 @@ trait FeatureContextTrait {
    */
   #[Given('I uninstall a :name module')]
   public function testUninstallModule(string $name): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(ModuleCapabilityInterface::class);
 
-    /** @var \Drupal\Core\Extension\ModuleHandler $module_handler */
-    $module_handler = \Drupal::service('module_handler');
-
-    if (!$module_handler->moduleExists($name)) {
+    if (!$backend->moduleIsEnabled($name)) {
       throw new \RuntimeException(sprintf('Module "%s" does not exist.', $name));
     }
 
-    /** @var \Drupal\Core\Extension\ModuleInstallerInterface $module_installer */
-    $module_installer = \Drupal::service('module_installer');
-
-    $result = $module_installer->uninstall([$name]);
-
-    if (!$result) {
-      throw new \Exception(sprintf('Unable to uninstall a module "%s".', $name));
-    }
+    $backend->moduleUninstall($name);
   }
 
   /**
@@ -534,11 +512,9 @@ trait FeatureContextTrait {
    */
   #[Then(':entity_type entity exists with UUID :uuid')]
   public function testAssertEntityExistsByUuid(string $entity_type, string $uuid): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $ids = $this->backendFor(EntityLookupCapabilityInterface::class)->findEntityIds($entity_type, ['uuid' => $uuid]);
 
-    $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
-
-    if (!$entity) {
+    if ($ids === []) {
       throw new \Exception(sprintf('Entity of type "%s" does not exist in DB with UUID "%s", but it should', $entity_type, $uuid));
     }
   }
@@ -548,9 +524,7 @@ trait FeatureContextTrait {
    */
   #[Then('the mailsystem formatter should be :expected')]
   public function testAssertMailsystemFormatter(string $expected): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $formatter = \Drupal::config('mailsystem.settings')->get('defaults.formatter');
+    $formatter = $this->backendFor(ConfigCapabilityInterface::class)->configGet('mailsystem.settings', 'defaults.formatter');
 
     if ($formatter !== $expected) {
       throw new \Exception(sprintf('Expected mailsystem formatter to be "%s", but got "%s".', $expected, $formatter));
@@ -582,12 +556,10 @@ trait FeatureContextTrait {
   public function testAddItemsToQueue(string $count, string $queue): void {
     $count = $this->stringParseInteger($count, 'count', 1);
 
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $queue_instance = \Drupal::service('queue')->get($queue);
+    $backend = $this->backendFor(QueueItemCapabilityInterface::class);
 
     for ($i = 0; $i < $count; $i++) {
-      $queue_instance->createItem(['data' => 'test_item_' . $i]);
+      $backend->queueAddItem($queue, ['data' => 'test_item_' . $i]);
     }
   }
 

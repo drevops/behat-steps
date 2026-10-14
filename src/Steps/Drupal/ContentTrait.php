@@ -11,9 +11,9 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\WorkflowCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -87,8 +87,6 @@ trait ContentTrait {
    */
   #[Given('the following :content_type content does not exist:')]
   public function contentDeleteMultiple(string $content_type, TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     foreach ($table->getHash() as $node_hash) {
       $this->contentDelete($content_type, $node_hash);
     }
@@ -167,7 +165,7 @@ trait ContentTrait {
    */
   #[When('I visit the :content_type content edit page with the title :title')]
   public function contentVisitEditPageWithTitle(string $content_type, string $title): void {
-    $this->contentVisitActionPageWithTitle($content_type, $title, '/edit');
+    $this->contentVisitActionPageWithTitle($content_type, $title, 'edit-form');
   }
 
   /**
@@ -181,7 +179,7 @@ trait ContentTrait {
    */
   #[When('I visit the :content_type content delete page with the title :title')]
   public function contentVisitDeletePageWithTitle(string $content_type, string $title): void {
-    $this->contentVisitActionPageWithTitle($content_type, $title, '/delete');
+    $this->contentVisitActionPageWithTitle($content_type, $title, 'delete-form');
   }
 
   /**
@@ -195,7 +193,7 @@ trait ContentTrait {
    */
   #[When('I visit the :content_type content scheduled transitions page with the title :title')]
   public function contentVisitScheduledTransitionsPageWithTitle(string $content_type, string $title): void {
-    $this->contentVisitActionPageWithTitle($content_type, $title, '/scheduled-transitions');
+    $this->contentVisitActionPageWithTitle($content_type, $title, 'scheduled_transitions');
   }
 
   /**
@@ -209,7 +207,7 @@ trait ContentTrait {
    */
   #[When('I visit the :content_type content revisions page with the title :title')]
   public function contentVisitRevisionsPageWithTitle(string $content_type, string $title): void {
-    $this->contentVisitActionPageWithTitle($content_type, $title, '/revisions');
+    $this->contentVisitActionPageWithTitle($content_type, $title, 'version-history');
   }
 
   /**
@@ -269,7 +267,7 @@ trait ContentTrait {
    */
   #[When('the path alias of the :content_type content with the title :title is set to :alias')]
   public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
-    $this->backendFor(ContentCapabilityInterface::class);
+    $this->backendFor(PathAliasCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -336,20 +334,20 @@ trait ContentTrait {
   }
 
   /**
-   * Visit the action page of the content with a specified title.
+   * Visit a page of the content with a specified title.
    *
    * @param string $content_type
    *   The content type.
    * @param string $title
    *   The title of the content.
-   * @param string|null $action_subpath
-   *   The operation to perform, such as '/edit', or NULL for the content page.
+   * @param string $rel
+   *   The link relationship of the page, such as 'edit-form', or 'canonical'
+   *   for the content page.
    */
-  public function contentVisitActionPageWithTitle(string $content_type, string $title, ?string $action_subpath = NULL): void {
-    $nid = $this->contentGetNidByTitle($content_type, $title);
-    $path = $this->locatePath('/node/' . $nid . ($action_subpath ?? ''));
+  public function contentVisitActionPageWithTitle(string $content_type, string $title, string $rel = 'canonical'): void {
+    $node = $this->contentGetNodeByTitle($content_type, $title);
 
-    $this->getSession()->visit($path);
+    $this->visitPath($this->backendFor(ContentCapabilityInterface::class)->getEntityUrl($node, $rel));
   }
 
   /**
@@ -493,14 +491,7 @@ trait ContentTrait {
       return $bundle;
     }
 
-    $nid = $this->queryGetEntityId($node, 'nid');
-    $type = $this->backendFor(ContentCapabilityInterface::class)->getEntityValues('node', $nid, ['type'])['type'][0]['target_id'] ?? NULL;
-
-    if (!is_string($type)) {
-      throw new \RuntimeException(sprintf('The node "%s" does not exist.', $nid));
-    }
-
-    return $type;
+    return $this->backendFor(ContentCapabilityInterface::class)->getEntityBundle($node);
   }
 
   /**
@@ -525,21 +516,7 @@ trait ContentTrait {
    *   The alias, with or without its leading slash.
    */
   public function contentSetPathAlias(EntityStubInterface $node, string $alias): void {
-    $backend = $this->backendFor(ContentCapabilityInterface::class);
-    $nid = $this->queryGetEntityId($node, 'nid');
-
-    // The current value carries the 'pid' of the existing alias, so the save
-    // updates that alias rather than adding a second one.
-    $path_value = (array) ($backend->getEntityValues('node', $nid, ['path'])['path'][0] ?? []);
-    $path_value['alias'] = '/' . ltrim(trim($alias), '/');
-
-    // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
-    // on save.
-    if ($this->anyBackendFor(ModuleCapabilityInterface::class)->moduleIsEnabled('pathauto')) {
-      $path_value['pathauto'] = 0;
-    }
-
-    $backend->updateEntity(new EntityStub('node', $node->getBundle(), ['nid' => $nid, 'path' => $path_value]));
+    $this->backendFor(PathAliasCapabilityInterface::class)->setEntityPathAlias($node, $alias);
   }
 
   /**
@@ -550,7 +527,7 @@ trait ContentTrait {
    */
   protected function contentPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(PathAliasCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('path'), 'the core "path" module is enabled, for the path alias step'),
     ];
   }

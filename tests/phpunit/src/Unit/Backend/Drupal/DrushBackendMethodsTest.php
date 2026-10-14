@@ -371,6 +371,32 @@ class DrushBackendMethodsTest extends UnitTestCase {
     }
   }
 
+  public function testRequestHeaderReachesTheEnvironmentOfEachCommand(): void {
+    $binary = $this->writeFixture('bin/print-header', "#!/bin/sh\nprintf '%s' \"\${HTTP_X_CONFIG_NO_OVERRIDE:-none}\"\n");
+    chmod($binary, 0755);
+
+    $backend = new DrushBackend('alias', binary: $binary);
+    $this->assertSame('none', $backend->drush('version'));
+
+    $backend->requestHeaderSet('X-Config-No-Override', 'system.site');
+    $this->assertSame('system.site', $backend->drush('version'));
+    $this->assertSame('system.site', $backend->drush('status'), 'The header reaches every command, not only the next one.');
+
+    $backend->requestHeaderSet('X-Config-No-Override', 'system.site,user.settings');
+    $this->assertSame('system.site,user.settings', $backend->drush('version'), 'A second value replaces the first.');
+
+    $backend->requestHeaderUnset('X-Config-No-Override');
+    $this->assertSame('none', $backend->drush('version'));
+  }
+
+  public function testRequestHeaderUnsetIgnoresHeaderNeverSet(): void {
+    $backend = $this->createBackend();
+
+    $backend->requestHeaderUnset('X-Never-Set');
+
+    $this->assertSame([], $backend->invocations);
+  }
+
   public function testDrushThrowsRuntimeExceptionOnFailure(): void {
     $false = $this->resolveSystemBinary('false');
 
@@ -482,6 +508,8 @@ class DrushBackendMethodsTest extends UnitTestCase {
     yield 'createUser' => ['createUser', [$user], 'user:create', "User ID   :   9\n"];
     yield 'deleteUser' => ['deleteUser', [$user], 'user:cancel'];
     yield 'addUserRole' => ['addUserRole', [$user, 'admin'], 'role:list', static::buildRoleListOutput(['admin' => 'Admin'])];
+    yield 'getUserRoles' => ['getUserRoles', [$user], 'user:information', '{"7":{"uid":"7","name":"alice","roles":["authenticated"]}}'];
+    yield 'setUserPassword' => ['setUserPassword', [$user, 'new-password'], 'user:password'];
     yield 'cronRun' => ['cronRun', [], 'core:cron'];
     yield 'moduleInstall' => ['moduleInstall', ['dblog'], 'pm:install'];
     yield 'moduleUninstall' => ['moduleUninstall', ['dblog'], 'pm:uninstall'];
@@ -923,6 +951,89 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->expectExceptionMessage('Drush did not print a one-time login link. Output: Drush printed a warning.');
 
     $backend->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 7]));
+  }
+
+  /**
+   * Tests that the roles are read from the account Drush prints.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub
+   *   The user stub.
+   * @param array<int, string> $expected_arguments
+   *   The arguments 'user:information' must receive.
+   * @param array<string, string> $expected_options
+   *   The options 'user:information' must receive.
+   */
+  #[DataProvider('dataProviderGetUserRoles')]
+  public function testGetUserRoles(EntityStub $stub, array $expected_arguments, array $expected_options): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['user:information' => '{"7":{"uid":"7","name":"alice","roles":["authenticated","editor"]}}'];
+
+    $this->assertSame(['authenticated', 'editor'], $backend->getUserRoles($stub));
+    $this->assertSame([['command' => 'user:information', 'arguments' => $expected_arguments, 'options' => $expected_options]], $backend->invocations);
+  }
+
+  public static function dataProviderGetUserRoles(): \Iterator {
+    yield 'a uid value' => [new EntityStub('user', NULL, ['uid' => 7, 'name' => 'alice']), [], ['uid' => '7', 'format' => 'json']];
+    yield 'a name value' => [new EntityStub('user', NULL, ['name' => 'alice']), ['alice'], ['format' => 'json']];
+  }
+
+  public function testGetUserRolesReadsNoRolesFromAnAccountWithoutList(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['user:information' => '{"7":{"uid":"7","name":"alice","roles":"authenticated"}}'];
+
+    $this->assertSame([], $backend->getUserRoles(new EntityStub('user', NULL, ['uid' => 7])));
+  }
+
+  public function testGetUserRolesRejectsOutputWithoutAnAccount(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['user:information' => 'Drush printed a warning.'];
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Drush did not print the account of the user "7". Output: Drush printed a warning.');
+
+    $backend->getUserRoles(new EntityStub('user', NULL, ['uid' => 7]));
+  }
+
+  public function testGetUserRolesRejectsStubWithoutIdentifier(): void {
+    $backend = $this->createBackend();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot resolve a user from the stub: neither the saved entity, a "uid" value nor a "name" value is set.');
+
+    $backend->getUserRoles(new EntityStub('user'));
+  }
+
+  public function testSetUserPasswordPassesTheNameTheStubCarries(): void {
+    $backend = $this->createBackend();
+
+    $backend->setUserPassword(new EntityStub('user', NULL, ['uid' => 7, 'name' => 'alice']), 'correct horse');
+
+    $this->assertSame([['command' => 'user:password', 'arguments' => ['alice', 'correct horse'], 'options' => []]], $backend->invocations);
+  }
+
+  public function testSetUserPasswordLooksUpTheNameOfNamelessStub(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['user:information' => '{"7":{"uid":"7","name":"alice","roles":["authenticated"]}}'];
+
+    $backend->setUserPassword(new EntityStub('user', NULL, ['uid' => 7]), 'correct horse');
+
+    $this->assertSame(['user:information', 'user:password'], array_column($backend->invocations, 'command'));
+    $this->assertSame(['alice', 'correct horse'], $backend->invocations[1]['arguments']);
+  }
+
+  public function testSetUserPasswordRejectsAccountWithoutName(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['user:information' => '{"0":{"uid":"0","name":"","roles":["anonymous"]}}'];
+
+    try {
+      $backend->setUserPassword(new EntityStub('user', NULL, ['uid' => 0]), 'correct horse');
+      $this->fail('An account without a name was accepted.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame('Cannot set the password of the user "0": Drush printed no name for the account.', $exception->getMessage());
+    }
+
+    $this->assertSame(['user:information'], array_column($backend->invocations, 'command'));
   }
 
   public function testCacheInvalidateTagsJoinsTheTags(): void {

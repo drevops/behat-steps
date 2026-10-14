@@ -10,8 +10,8 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -71,8 +71,6 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media exist:')]
   public function mediaCreateMultiple(string $media_type, TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     foreach ($table->getHash() as $media_hash) {
       $this->mediaDelete($media_type, $media_hash);
     }
@@ -105,8 +103,6 @@ trait MediaTrait {
   public function mediaCreateMultipleWithFields(string $media_type, TableNode $table): void {
     $entities = $this->tableTransposeVertical($table);
 
-    $this->backendFor(CoreCapabilityInterface::class);
-
     foreach ($entities as $entity_data) {
       $this->mediaDelete($media_type, $entity_data);
     }
@@ -130,7 +126,7 @@ trait MediaTrait {
    */
   #[Given('the following :media_type media do not exist:')]
   public function mediaDeleteMultiple(string $media_type, TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -164,7 +160,7 @@ trait MediaTrait {
    */
   #[When('I visit the :media_type media edit page with the name :name')]
   public function mediaVisitEditPageWithName(string $media_type, string $name): void {
-    $this->mediaVisitActionPageWithName($media_type, $name, '/edit');
+    $this->mediaVisitActionPageWithName($media_type, $name, 'edit-form');
   }
 
   /**
@@ -178,7 +174,7 @@ trait MediaTrait {
    */
   #[When('I visit the :media_type media delete page with the name :name')]
   public function mediaVisitDeletePageWithName(string $media_type, string $name): void {
-    $this->mediaVisitActionPageWithName($media_type, $name, '/delete');
+    $this->mediaVisitActionPageWithName($media_type, $name, 'delete-form');
   }
 
   /**
@@ -192,7 +188,7 @@ trait MediaTrait {
    */
   #[When('I visit the :media_type media revisions page with the name :name')]
   public function mediaVisitRevisionsPageWithName(string $media_type, string $name): void {
-    $this->mediaVisitActionPageWithName($media_type, $name, '/revisions');
+    $this->mediaVisitActionPageWithName($media_type, $name, 'version-history');
   }
 
   /**
@@ -276,7 +272,7 @@ trait MediaTrait {
   }
 
   /**
-   * Visit the action page of the media with a specified name.
+   * Visit a page of the media with a specified name.
    *
    * When several media items of the type share the name, the newest is
    * visited.
@@ -285,12 +281,12 @@ trait MediaTrait {
    *   The media type.
    * @param string $name
    *   The name of the media entity.
-   * @param string|null $action_subpath
-   *   The operation subpath, e.g., '/delete', '/edit', '/revisions', etc., or
-   *   NULL for the media page.
+   * @param string $rel
+   *   The link relationship of the page, such as 'edit-form', or 'canonical'
+   *   for the media page.
    */
-  public function mediaVisitActionPageWithName(string $media_type, string $name, ?string $action_subpath = NULL): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+  public function mediaVisitActionPageWithName(string $media_type, string $name, string $rel = 'canonical'): void {
+    $this->backendFor(EntityLookupCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -300,9 +296,7 @@ trait MediaTrait {
       throw new \RuntimeException(sprintf('Unable to find "%s" media with the name "%s".', $media_type, $name));
     }
 
-    $path = $this->locatePath('/media/' . $mid . ($action_subpath ?? ''));
-
-    $this->getSession()->visit($path);
+    $this->visitPath($this->backendFor(ContentCapabilityInterface::class)->getEntityUrl(new EntityStub('media', $media_type, ['mid' => $mid]), $rel));
   }
 
   /**
@@ -315,7 +309,7 @@ trait MediaTrait {
    *   The stub of the created media item, carrying its 'mid'.
    */
   public function mediaCreate(EntityStubInterface $stub): EntityStubInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -405,7 +399,7 @@ trait MediaTrait {
    */
   protected function mediaPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(ContentCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('media'), 'the core "media" module is enabled'),
     ];
   }

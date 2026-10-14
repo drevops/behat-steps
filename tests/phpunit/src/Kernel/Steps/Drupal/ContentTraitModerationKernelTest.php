@@ -110,7 +110,7 @@ class ContentTraitModerationKernelTest extends StepTraitKernelTestBase {
 
   public function testSetModerationStateFailsForMissingNode(): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('The node "999" does not exist.');
+    $this->expectExceptionMessage('No entity of type "node" with the id "999" exists.');
 
     $this->context->contentSetModerationState(new EntityStub('node', NULL, ['nid' => 999]), 'published');
   }

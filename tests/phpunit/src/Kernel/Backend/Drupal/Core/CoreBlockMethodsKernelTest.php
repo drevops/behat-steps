@@ -11,17 +11,14 @@ use Drupal\block_content\Entity\BlockContent;
 use Drupal\block_content\Entity\BlockContentType;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Kernel tests for the block capability methods on Core.
  *
- * Covers all 4 methods of 'BlockCapabilityInterface':
- *  - 'placeBlock()' / 'deleteBlock()' round-trip a 'block' config entity
- *    (placement in a region of a theme).
- *  - 'createBlockContent()' / 'deleteBlockContent()' round-trip a
- *    'block_content' content entity (the reusable block body).
+ * Blocks are placed in 'stark', which the test makes the default theme.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -34,7 +31,7 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
    *
    * @var array<string>
    */
-  protected static $modules = ['system', 'user', 'block', 'block_content'];
+  protected static $modules = ['system', 'user', 'block', 'block_content', 'path_alias'];
 
   /**
    * The Core backend under test.
@@ -54,68 +51,42 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     // so only 'system' config is installed.
     $this->installConfig(['system']);
     \Drupal::service('theme_installer')->install(['stark']);
+    $this->config('system.theme')->set('default', 'stark')->save();
     $this->core = new Core($this->root);
   }
 
   public function testPlaceBlockAndDeleteRoundTrip(): void {
-    $stub = new EntityStub('block', NULL, [
-      'id' => 'test_powered_by',
-      'plugin' => 'system_powered_by_block',
-      'theme' => 'stark',
-      'region' => 'content',
-      'weight' => 0,
-      'settings' => ['label' => 'Powered by', 'label_display' => 'visible'],
-    ]);
+    $created = $this->core->placeBlock('system_powered_by_block', 'Powered by');
 
-    $created = $this->core->placeBlock($stub);
-
-    $this->assertSame($stub, $created);
+    $this->assertSame('block', $created->getEntityType());
     $this->assertTrue($created->isSaved());
     $this->assertInstanceOf(Block::class, $created->getSavedEntity());
+    $this->assertSame('stark_poweredbydrupal', $created->getValue('id'));
 
-    $reloaded = Block::load('test_powered_by');
-    $this->assertInstanceOf(Block::class, $reloaded);
-    $this->assertSame('content', $reloaded->getRegion());
-    $this->assertSame('stark', $reloaded->getTheme());
-    $this->assertSame('system_powered_by_block', $reloaded->getPluginId());
+    $placed = $this->loadBlock('stark_poweredbydrupal');
+    $this->assertSame('stark', $placed->getTheme(), 'The block was placed in the default theme.');
+    $this->assertSame('system_powered_by_block', $placed->getPluginId());
+    $this->assertSame('Powered by', $placed->label());
 
     $this->core->deleteBlock($created);
-    $this->assertNull(Block::load('test_powered_by'));
+    $this->assertNull(Block::load('stark_poweredbydrupal'));
   }
 
-  public function testPlaceBlockGeneratesIdWhenAbsent(): void {
-    $stub = new EntityStub('block', NULL, [
-      'plugin' => 'system_powered_by_block',
-      'theme' => 'stark',
-      'region' => 'footer',
-    ]);
+  public function testPlaceBlockSuffixesTakenMachineName(): void {
+    $this->core->placeBlock('system_powered_by_block', 'First');
 
-    $created = $this->core->placeBlock($stub);
+    $second = $this->core->placeBlock('system_powered_by_block', 'Second');
 
-    $this->assertTrue($created->isSaved());
-    $placement = $created->getSavedEntity();
-    $this->assertInstanceOf(Block::class, $placement);
-    $this->assertSame('stark_poweredbydrupal', $placement->id(), 'The id follows the plugin suggestion within the theme, as the block UI does.');
-    $this->assertSame('stark_poweredbydrupal', $stub->getValue('id'), 'placeBlock wrote the id back onto the stub.');
-    $this->assertNotNull(Block::load('stark_poweredbydrupal'));
-
-    $second = $this->core->placeBlock(new EntityStub('block', NULL, ['plugin' => 'system_powered_by_block', 'theme' => 'stark', 'region' => 'footer']));
-
-    $this->assertSame('stark_poweredbydrupal_2', $second->getValue('id'), 'A taken suggestion gains a numeric suffix.');
+    $this->assertSame('stark_poweredbydrupal_2', $second->getValue('id'), 'A taken suggestion gains a numeric suffix, as the block UI does.');
+    $this->assertSame('Second', $this->loadBlock('stark_poweredbydrupal_2')->label());
   }
 
-  public function testDeleteBlockUsesSavedEntity(): void {
-    $stub = new EntityStub('block', NULL, [
-      'id' => 'test_via_entity',
-      'plugin' => 'system_powered_by_block',
-      'theme' => 'stark',
-      'region' => 'content',
-    ]);
-    $this->core->placeBlock($stub);
+  public function testDeleteBlockLoadsTheBlockById(): void {
+    $this->core->placeBlock('system_powered_by_block', 'By id');
 
-    $this->assertNotNull(Block::load('test_via_entity'));
-    $this->core->deleteBlock($stub);
-    $this->assertNull(Block::load('test_via_entity'));
+    $this->core->deleteBlock(new EntityStub('block', NULL, ['id' => 'stark_poweredbydrupal']));
+
+    $this->assertNull(Block::load('stark_poweredbydrupal'));
   }
 
   public function testDeleteBlockRequiresIdOnStub(): void {
@@ -123,6 +94,118 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->expectExceptionMessageMatches('/id/');
 
     $this->core->deleteBlock(new EntityStub('block', NULL, ['plugin' => 'system_powered_by_block']));
+  }
+
+  public function testConfigureBlockSetsTheKnownKeys(): void {
+    $created = $this->core->placeBlock('system_powered_by_block', 'Powered by');
+
+    $this->core->configureBlock($created, ['label' => 'Renamed', 'label_display' => TRUE, 'region' => 'sidebar_first', 'status' => FALSE, 'weight' => 10]);
+
+    $saved = $this->loadBlock((string) $created->getValue('id'));
+    $this->assertSame('Renamed', $saved->get('settings')['label']);
+    $this->assertSame('1', (string) $saved->get('settings')['label_display']);
+    $this->assertSame('sidebar_first', $saved->getRegion());
+    $this->assertFalse($saved->status());
+    $this->assertSame(0, (int) $saved->getWeight(), 'A key the method does not know is ignored.');
+  }
+
+  public function testConfigureBlockKeepsWhatTheConfigurationLeavesOut(): void {
+    $created = $this->core->placeBlock('system_powered_by_block', 'Powered by');
+    $this->core->configureBlock($created, ['region' => 'header']);
+
+    $this->core->configureBlock($created, ['label_display' => FALSE]);
+
+    $saved = $this->loadBlock((string) $created->getValue('id'));
+    $this->assertSame('Powered by', $saved->label(), 'The label survives a change to the label display.');
+    $this->assertSame('header', $saved->getRegion());
+  }
+
+  public function testConfigureBlockWritesNoOverrideIntoTheStoredSettings(): void {
+    $created = $this->core->placeBlock('system_powered_by_block', 'Powered by');
+    $id = (string) $created->getValue('id');
+
+    $GLOBALS['config']['block.block.' . $id]['settings']['label'] = 'Overridden';
+    \Drupal::configFactory()->reset('block.block.' . $id);
+    $this->assertSame('Overridden', \Drupal::config('block.block.' . $id)->get('settings.label'));
+
+    $this->core->configureBlock($created, ['label_display' => TRUE]);
+
+    $this->assertSame('Powered by', \Drupal::config('block.block.' . $id)->getOriginal('settings.label', FALSE));
+  }
+
+  public function testSetBlockVisibilityReplacesTheConfigurationOfTheCondition(): void {
+    $created = $this->core->placeBlock('system_powered_by_block', 'Powered by');
+    $this->core->setBlockVisibility($created, 'request_path', ['pages' => '/user/*']);
+
+    $this->core->setBlockVisibility($created, 'request_path', ['pages' => '/node/*', 'negate' => TRUE]);
+
+    $visibility = $this->loadBlock((string) $created->getValue('id'))->getVisibility();
+    $this->assertSame('/node/*', $visibility['request_path']['pages']);
+    $this->assertTrue($visibility['request_path']['negate']);
+  }
+
+  public function testUnsetBlockVisibilityRemovesOnlyTheCondition(): void {
+    $created = $this->core->placeBlock('system_powered_by_block', 'Powered by');
+    $this->core->setBlockVisibility($created, 'request_path', ['pages' => '/user/*']);
+    $this->core->setBlockVisibility($created, 'user_role', ['roles' => ['authenticated' => 'authenticated']]);
+
+    $this->core->unsetBlockVisibility($created, 'request_path');
+
+    $this->assertSame(['user_role'], array_keys($this->loadBlock((string) $created->getValue('id'))->getVisibility()));
+  }
+
+  public function testUnsetBlockVisibilityLeavesBlockWithoutTheConditionUnchanged(): void {
+    $created = $this->core->placeBlock('system_powered_by_block', 'Powered by');
+
+    $this->core->unsetBlockVisibility($created, 'request_path');
+
+    $this->assertSame([], $this->loadBlock((string) $created->getValue('id'))->getVisibility());
+  }
+
+  public function testGetBlockRegionReadsTheOverriddenRegion(): void {
+    $created = $this->core->placeBlock('system_powered_by_block', 'Powered by');
+    $this->core->configureBlock($created, ['region' => 'header']);
+    $this->assertSame('header', $this->core->getBlockRegion($created));
+
+    $GLOBALS['config']['block.block.' . $created->getValue('id')]['region'] = 'footer';
+    \Drupal::configFactory()->reset('block.block.' . $created->getValue('id'));
+    \Drupal::entityTypeManager()->getStorage('block')->resetCache();
+
+    $this->assertSame('footer', $this->core->getBlockRegion(new EntityStub('block', NULL, ['id' => $created->getValue('id')])));
+  }
+
+  /**
+   * Tests that a block method rejects a stub naming no block.
+   *
+   * @param string $method
+   *   The Core method to call.
+   * @param array<int, mixed> $args
+   *   The arguments after the stub.
+   */
+  #[DataProvider('dataProviderBlockMethodsRejectMissingBlock')]
+  public function testBlockMethodsRejectMissingBlock(string $method, array $args): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No block with the id "missing" exists.');
+
+    $this->core->{$method}(new EntityStub('block', NULL, ['id' => 'missing']), ...$args);
+  }
+
+  public static function dataProviderBlockMethodsRejectMissingBlock(): \Iterator {
+    yield 'configureBlock' => ['configureBlock', [['region' => 'header']]];
+    yield 'setBlockVisibility' => ['setBlockVisibility', ['request_path', []]];
+    yield 'unsetBlockVisibility' => ['unsetBlockVisibility', ['request_path']];
+    yield 'getBlockRegion' => ['getBlockRegion', []];
+  }
+
+  public function testFindBlockIdsByLabelFindsTheBlocksOfTheDefaultTheme(): void {
+    \Drupal::service('theme_installer')->install(['olivero']);
+    Block::create(['id' => 'olivero_shared', 'plugin' => 'system_powered_by_block', 'theme' => 'olivero', 'region' => 'content', 'settings' => ['label' => 'Shared']])->save();
+    $this->core->placeBlock('system_powered_by_block', 'Shared');
+    $this->core->placeBlock('system_powered_by_block', 'Other');
+    $this->core->placeBlock('system_powered_by_block', 'Shared');
+
+    $this->assertSame(['stark_poweredbydrupal', 'stark_poweredbydrupal_3'], $this->core->findBlockIdsByLabel('Shared'));
+    $this->assertSame([], $this->core->findBlockIdsByLabel('Missing'));
   }
 
   public function testCreateBlockContentAndDeleteRoundTrip(): void {
@@ -153,6 +236,19 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
   public function testHasConditionPluginReportsTheCondition(): void {
     $this->assertTrue($this->core->hasConditionPlugin('request_path'));
     $this->assertFalse($this->core->hasConditionPlugin('request_paths'));
+  }
+
+  /**
+   * Loads a placed block, bypassing the static cache.
+   *
+   * @param string $id
+   *   The block id.
+   */
+  protected function loadBlock(string $id): Block {
+    $block = \Drupal::entityTypeManager()->getStorage('block')->loadUnchanged($id);
+    $this->assertInstanceOf(Block::class, $block);
+
+    return $block;
   }
 
 }

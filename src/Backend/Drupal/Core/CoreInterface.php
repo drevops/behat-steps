@@ -10,6 +10,7 @@ use DrevOps\BehatSteps\Backend\Capability\CronCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\RequestEnvironmentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
@@ -20,14 +21,17 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\DraggableviewsCapabilityInterfa
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\FileCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\LogCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\MenuLinkCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchIndexCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\WorkflowCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
@@ -60,15 +64,19 @@ interface CoreInterface extends
   LanguageCapabilityInterface,
   LogCapabilityInterface,
   MailCapabilityInterface,
+  MenuLinkCapabilityInterface,
   ModuleCapabilityInterface,
   NodeCapabilityInterface,
+  PathAliasCapabilityInterface,
   QueueCapabilityInterface,
   QueueItemCapabilityInterface,
+  RequestEnvironmentCapabilityInterface,
   RoleCapabilityInterface,
   SearchApiCapabilityInterface,
   SearchIndexCapabilityInterface,
   StateCapabilityInterface,
   TermCapabilityInterface,
+  UserActivityCapabilityInterface,
   UserCapabilityInterface,
   WorkflowCapabilityInterface {
 

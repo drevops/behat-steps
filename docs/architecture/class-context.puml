@@ -282,6 +282,7 @@ package "DrevOps\\BehatSteps\\Steps\\Helper\\Drupal" #F3E5F5 {
     +entityLifecycleAfterScenario(scope) : void
     --
     #entityLifecycleDispatchHooks(scopeClass, stub) : void
+    #entityLifecycleDeleteStub(stub) : void
   }
 
   class AuthTrait <<trait>> {
@@ -415,7 +416,11 @@ note bottom of EntityLifecycleTrait
   creates entities. Every step trait that creates
   one composes this, and trait flattening is
   idempotent, so there is still one registry and
-  one reverse-order deletion pass.
+  one reverse-order deletion pass. Each entity is
+  deleted through the capability that owns its
+  type, such as BlockCapabilityInterface for a
+  block, and through the generic entity delete
+  otherwise.
 
   A step names a capability through backendFor()
   and never a backend, so the vocabulary carries

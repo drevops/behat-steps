@@ -2041,10 +2041,10 @@ Set the path alias of a node, replacing any existing alias
 </details>
 
 <details>
-  <summary><code>public function contentVisitActionPageWithTitle(string $content_type, string $title, ?string $action_subpath = NULL): void</code></summary>
+  <summary><code>public function contentVisitActionPageWithTitle(string $content_type, string $title, string $rel = 'canonical'): void</code></summary>
 
 <br/>
-Visit the action page of the content with a specified title
+Visit a page of the content with a specified title
 <br/><br/>
 
 </details>
@@ -2374,10 +2374,10 @@ Load multiple media entities with specified type and conditions
 </details>
 
 <details>
-  <summary><code>public function mediaVisitActionPageWithName(string $media_type, string $name, ?string $action_subpath = NULL): void</code></summary>
+  <summary><code>public function mediaVisitActionPageWithName(string $media_type, string $name, string $rel = 'canonical'): void</code></summary>
 
 <br/>
-Visit the action page of the media with a specified name
+Visit a page of the media with a specified name
 <br/><br/>
 
 </details>
@@ -2737,10 +2737,10 @@ Load multiple terms with specified vocabulary and conditions
 </details>
 
 <details>
-  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, ?string $action_subpath = NULL): void</code></summary>
+  <summary><code>public function taxonomyVisitActionPageWithName(string $vocabulary, string $name, string $rel = 'canonical'): void</code></summary>
 
 <br/>
-Visit the action page of the term with a specified name
+Visit a page of the term with a specified name
 <br/><br/>
 
 </details>
@@ -2866,10 +2866,10 @@ Load multiple users with specified conditions
 </details>
 
 <details>
-  <summary><code>public function userVisitActionPage(string $name, ?string $action_subpath = NULL): void</code></summary>
+  <summary><code>public function userVisitActionPage(string $name, string $rel = 'canonical'): void</code></summary>
 
 <br/>
-Visit a user action page
+Visit a page of a user
 <br/><br/>
 
 </details>

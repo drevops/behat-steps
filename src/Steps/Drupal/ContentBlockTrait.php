@@ -9,9 +9,9 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -52,7 +52,7 @@ trait ContentBlockTrait {
    */
   #[Given('the following :content_block_type content blocks do not exist:')]
   public function contentBlockDeleteMultiple(string $content_block_type, TableNode $content_block_table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(BlockCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -136,7 +136,7 @@ trait ContentBlockTrait {
   public function contentBlockVisitEditPageWithDescription(string $content_block_type, string $description): void {
     $content_block = $this->contentBlockGetByDescription($content_block_type, $description);
 
-    $this->getSession()->visit($this->locatePath('/admin/content/block/' . $this->queryGetEntityId($content_block, 'id')));
+    $this->visitPath($this->backendFor(ContentCapabilityInterface::class)->getEntityUrl($content_block, 'edit-form'));
   }
 
   /**
@@ -178,7 +178,7 @@ trait ContentBlockTrait {
    *   The stub of the created content block, carrying its 'id'.
    */
   public function contentBlockCreate(string $content_block_type, array $values): EntityStubInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(BlockCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -186,7 +186,7 @@ trait ContentBlockTrait {
     $stub = new EntityStub('block_content', $content_block_type, $values);
     $this->entityLifecycleParseFields($stub);
 
-    $created = $this->backendFor(BlockCapabilityInterface::class)->createBlockContent($stub);
+    $created = $backend->createBlockContent($stub);
 
     $this->entityLifecycleRegister($created, 'id');
 
@@ -263,7 +263,7 @@ trait ContentBlockTrait {
    */
   protected function contentBlockPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(BlockCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('block_content'), 'the core "block_content" module is enabled'),
     ];
   }

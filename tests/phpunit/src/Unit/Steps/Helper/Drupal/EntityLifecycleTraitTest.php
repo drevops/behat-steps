@@ -19,11 +19,11 @@ use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Auth\FastLogoutInterface;
@@ -56,6 +56,18 @@ use PHPUnit\Framework\MockObject\MockObject;
 #[CoversTrait(StaticCacheTrait::class)]
 #[CoversClass(WebRawContext::class)]
 class EntityLifecycleTraitTest extends UnitTestCase {
+
+  /**
+   * The entity type each capability delete of 1 entity type removes.
+   */
+  protected const ENTITY_TYPE_DELETES = [
+    'BlockCapabilityInterface::deleteBlock' => 'block',
+    'BlockCapabilityInterface::deleteBlockContent' => 'block_content',
+    'LanguageCapabilityInterface::deleteLanguage' => 'configurable_language',
+    'NodeCapabilityInterface::deleteNode' => 'node',
+    'TermCapabilityInterface::deleteTerm' => 'taxonomy_term',
+    'UserCapabilityInterface::deleteUser' => 'user',
+  ];
 
   /**
    * The cleanup opt-out value to restore, NULL when it was unset.
@@ -324,7 +336,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   public function testCreatedEntitiesAreRemovedInReverseOrder(): void {
     $node = new EntityStub('node', 'page', ['title' => 'A node']);
     $term = new EntityStub('taxonomy_term', 'tags', ['name' => 'A term']);
-    $block = new EntityStub('block_content', 'basic');
+    $media = new EntityStub('media', 'image');
 
     $deleted = [];
     $backend = $this->createContentBackend();
@@ -339,7 +351,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     });
 
     $context = $this->createContext($backend);
-    $context->testSetCreatedStubs([$term, $node, $block]);
+    $context->testSetCreatedStubs([$term, $node, $media]);
 
     $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
 
@@ -407,7 +419,8 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   /**
    * Tests that a backend without the per-type capability leaves the entity.
    *
-   * The generic content capability does not stand in for a node or a term.
+   * The generic content capability does not stand in for an entity type a
+   * capability deletes on its own.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub
    *   The tracked stub.
@@ -428,6 +441,57 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   public static function dataProviderTypedEntitiesAreLeftBehindByContentOnlyBackend(): \Iterator {
     yield 'node' => [new EntityStub('node', 'page')];
     yield 'term' => [new EntityStub('taxonomy_term', 'tags')];
+    yield 'block' => [new EntityStub('block', NULL, ['id' => 'stark_branding'])];
+    yield 'content block' => [new EntityStub('block_content', 'basic')];
+    yield 'user' => [new EntityStub('user', NULL, ['uid' => 7])];
+  }
+
+  /**
+   * Tests that the teardown reaches every capability deleting 1 entity type.
+   *
+   * A capability method that deletes 1 entity type from a stub, as
+   * 'deleteNode()' does, takes that type's stubs away from 'deleteEntity()'.
+   * A new one fails here until 'ENTITY_TYPE_DELETES' names its entity type
+   * and 'entityLifecycleDeleteStub()' routes the type to it.
+   *
+   * @param class-string $capability
+   *   The capability interface declaring the delete.
+   * @param string $method
+   *   The delete method.
+   */
+  #[DataProvider('dataProviderTeardownReachesEveryEntityTypeDelete')]
+  public function testTeardownReachesEveryEntityTypeDelete(string $capability, string $method): void {
+    $key = static::reflect($capability)->getShortName() . '::' . $method;
+    $this->assertArrayHasKey($key, static::ENTITY_TYPE_DELETES, sprintf('%s() deletes 1 entity type. Name the type in ENTITY_TYPE_DELETES and route its stubs to the method in entityLifecycleDeleteStub().', $key));
+
+    $backend = $this->createBackend([$capability]);
+    $backend->expects($this->once())->method($method);
+
+    $context = $this->createContext($backend);
+    $context->testSetCreatedStubs([new EntityStub(static::ENTITY_TYPE_DELETES[$key], NULL, ['id' => '1'])]);
+
+    $context->entityLifecycleAfterScenario($this->createAfterScenarioScope());
+  }
+
+  public static function dataProviderTeardownReachesEveryEntityTypeDelete(): \Iterator {
+    $generic = ['deleteEntity', 'deleteConfigEntity'];
+
+    foreach (static::discoverSourceTypes() as [$type]) {
+      if (!interface_exists($type) || !str_contains($type, '\\Capability\\')) {
+        continue;
+      }
+
+      foreach (static::reflect($type)->getMethods() as $method) {
+        $parameters = $method->getParameters();
+        $parameter_type = $parameters === [] ? NULL : $parameters[0]->getType();
+
+        if (!str_starts_with($method->getName(), 'delete') || in_array($method->getName(), $generic, TRUE) || count($parameters) !== 1 || (string) $parameter_type !== EntityStubInterface::class) {
+          continue;
+        }
+
+        yield static::reflect($type)->getShortName() . '::' . $method->getName() => [$type, $method->getName()];
+      }
+    }
   }
 
   public function testNothingIsDeletedWhenNoEntityWasCreated(): void {
@@ -812,7 +876,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
 
   public function testTimestampConversionIsSkippedForBackendWithoutNodes(): void {
     $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
-    $context = $this->createContext($this->createBackend([ContentCapabilityInterface::class, CoreCapabilityInterface::class]));
+    $context = $this->createContext($this->createBackend([ContentCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]));
 
     RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
 
@@ -1043,13 +1107,13 @@ class EntityLifecycleTraitTest extends UnitTestCase {
   }
 
   /**
-   * Builds a backend double that saves content through Drupal's own storage.
+   * Builds a backend double that parses the field values it saves.
    *
    * @return \DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
    *   The backend double.
    */
   protected function createDrupalContentBackend(): BackendInterface&MockObject {
-    return $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class, CoreCapabilityInterface::class]);
+    return $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]);
   }
 
   /**

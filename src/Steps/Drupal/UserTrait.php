@@ -12,6 +12,7 @@ use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
@@ -145,7 +146,7 @@ trait UserTrait {
       throw new \RuntimeException('Password must not be empty.');
     }
 
-    $this->userUpdate($this->userGetByName($name), ['pass' => $password]);
+    $this->backendFor(UserCapabilityInterface::class)->setUserPassword($this->userGetByName($name), $password);
   }
 
   /**
@@ -164,14 +165,9 @@ trait UserTrait {
   #[Given('the last access time for the user :name is :datetime')]
   public function userSetLastAccessTime(string $name, string $datetime): void {
     $user = $this->userGetByName($name);
+    $timestamp = $this->userParseTimestamp($datetime);
 
-    $timestamp = is_numeric($datetime) ? (int) $datetime : strtotime($datetime);
-
-    if ($timestamp === FALSE) {
-      throw new \RuntimeException('Invalid date format.');
-    }
-
-    $this->userUpdate($user, ['access' => $timestamp]);
+    $this->backendFor(UserActivityCapabilityInterface::class)->setUserLastAccessTime($user, $timestamp);
   }
 
   /**
@@ -190,14 +186,9 @@ trait UserTrait {
   #[Given('the last login time for the user :name is :datetime')]
   public function userSetLastLoginTime(string $name, string $datetime): void {
     $user = $this->userGetByName($name);
+    $timestamp = $this->userParseTimestamp($datetime);
 
-    $timestamp = is_numeric($datetime) ? (int) $datetime : strtotime($datetime);
-
-    if ($timestamp === FALSE) {
-      throw new \RuntimeException('Invalid date format.');
-    }
-
-    $this->userUpdate($user, ['login' => $timestamp]);
+    $this->backendFor(UserActivityCapabilityInterface::class)->setUserLastLoginTime($user, $timestamp);
   }
 
   /**
@@ -357,7 +348,7 @@ trait UserTrait {
    */
   #[When('I visit the profile edit page of the user :name')]
   public function userVisitProfileEditPage(string $name): void {
-    $this->userVisitActionPage($name, '/edit');
+    $this->userVisitActionPage($name, 'edit-form');
   }
 
   /**
@@ -371,7 +362,7 @@ trait UserTrait {
    */
   #[When('I visit my own profile edit page')]
   public function userVisitOwnProfileEditPage(): void {
-    $this->userVisitActionPage('current', '/edit');
+    $this->userVisitActionPage('current', 'edit-form');
   }
 
   /**
@@ -385,7 +376,7 @@ trait UserTrait {
    */
   #[When('I visit the profile delete page of the user :name')]
   public function userVisitProfileDeletePage(string $name): void {
-    $this->userVisitActionPage($name, '/cancel');
+    $this->userVisitActionPage($name, 'cancel-form');
   }
 
   /**
@@ -399,7 +390,7 @@ trait UserTrait {
    */
   #[When('I visit my own profile delete page')]
   public function userVisitOwnProfileDeletePage(): void {
-    $this->userVisitActionPage('current', '/cancel');
+    $this->userVisitActionPage('current', 'cancel-form');
   }
 
   /**
@@ -450,7 +441,7 @@ trait UserTrait {
    */
   #[Then('the user :name should have the role(s) :roles assigned')]
   public function userAssertHasRoles(string $name, string $roles): void {
-    $held = $this->userGetRoles($this->userGetByName($name));
+    $held = $this->backendFor(UserCapabilityInterface::class)->getUserRoles($this->userGetByName($name));
 
     $roles = $this->stringSplitCommaSeparated($roles);
 
@@ -470,7 +461,7 @@ trait UserTrait {
    */
   #[Then('the user :name should not have the role(s) :roles assigned')]
   public function userAssertNotHasRoles(string $name, string $roles): void {
-    $held = $this->userGetRoles($this->userGetByName($name));
+    $held = $this->backendFor(UserCapabilityInterface::class)->getUserRoles($this->userGetByName($name));
 
     $roles = $this->stringSplitCommaSeparated($roles);
 
@@ -699,10 +690,24 @@ trait UserTrait {
     }
 
     foreach (array_keys($users) as $uid) {
-      $name = (string) ($this->backendFor(ContentCapabilityInterface::class)->getEntityValues('user', $uid, ['name'])['name'][0]['value'] ?? '');
+      $backend->deleteUser(new EntityStub('user', NULL, ['uid' => $uid]));
+      $this->userUnregister((string) $uid);
+    }
+  }
 
-      $backend->deleteUser(new EntityStub('user', NULL, ['uid' => $uid, 'name' => $name]));
-      $this->authGetUserRegistry()->removeUser($name);
+  /**
+   * Drop the user carrying an id from the user registry.
+   *
+   * @param string $uid
+   *   The user ID.
+   */
+  protected function userUnregister(string $uid): void {
+    $registry = $this->authGetUserRegistry();
+
+    foreach ($registry->getUsers() as $name => $user) {
+      if ((string) ($user->getId() ?? $user->getValue('uid')) === $uid) {
+        $registry->removeUser($name);
+      }
     }
   }
 
@@ -818,28 +823,6 @@ trait UserTrait {
   }
 
   /**
-   * Get the roles a user holds.
-   *
-   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
-   *   The user stub, carrying its 'uid'.
-   *
-   * @return array<int, string>
-   *   The role IDs, led by 'authenticated', which every account holds
-   *   without storing it.
-   */
-  protected function userGetRoles(EntityStubInterface $user): array {
-    $values = $this->backendFor(ContentCapabilityInterface::class)->getEntityValues('user', $this->queryGetEntityId($user, 'uid'), ['roles']);
-
-    $roles = ['authenticated'];
-
-    foreach ($values['roles'] ?? [] as $item) {
-      $roles[] = (string) $item['target_id'];
-    }
-
-    return $roles;
-  }
-
-  /**
    * Check whether the account of a user is active.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
@@ -855,26 +838,37 @@ trait UserTrait {
   }
 
   /**
-   * Update the fields of a user.
+   * Parse a Unix timestamp or a date into a Unix timestamp.
    *
-   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $user
-   *   The user stub, carrying its 'uid'.
-   * @param array<string, mixed> $values
-   *   The field values, keyed by field name.
+   * @param string $datetime
+   *   A Unix timestamp, or a date 'strtotime()' reads.
+   *
+   * @return int
+   *   The Unix timestamp.
+   *
+   * @throws \RuntimeException
+   *   When the value is neither.
    */
-  protected function userUpdate(EntityStubInterface $user, array $values): void {
-    $this->backendFor(ContentCapabilityInterface::class)->updateEntity(new EntityStub('user', NULL, ['uid' => $this->queryGetEntityId($user, 'uid')] + $values));
+  protected function userParseTimestamp(string $datetime): int {
+    $timestamp = is_numeric($datetime) ? (int) $datetime : strtotime($datetime);
+
+    if ($timestamp === FALSE) {
+      throw new \RuntimeException('Invalid date format.');
+    }
+
+    return $timestamp;
   }
 
   /**
-   * Visit a user action page.
+   * Visit a page of a user.
    *
    * @param string $name
-   *   The user name.
-   * @param string|null $action_subpath
-   *   The action subpath, such as '/edit', or NULL for the profile page.
+   *   The user name, or 'current' for the user logged in.
+   * @param string $rel
+   *   The link relationship of the page, such as 'edit-form', or 'canonical'
+   *   for the profile page.
    */
-  public function userVisitActionPage(string $name, ?string $action_subpath = NULL): void {
+  public function userVisitActionPage(string $name, string $rel = 'canonical'): void {
     if ($name === 'current') {
       $user = $this->authGetUserRegistry()->getCurrentUser();
 
@@ -894,7 +888,7 @@ trait UserTrait {
       $uid = $this->queryGetEntityId($this->userGetByName($name), 'uid');
     }
 
-    $this->visitPath('/user/' . $uid . ($action_subpath ?? ''));
+    $this->visitPath($this->backendFor(ContentCapabilityInterface::class)->getEntityUrl(new EntityStub('user', NULL, ['uid' => $uid]), $rel));
   }
 
   /**

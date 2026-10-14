@@ -10,12 +10,16 @@ use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\MailCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\RequestEnvironmentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\MenuLinkCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
@@ -40,6 +44,10 @@ class DrushBackendTest extends UnitTestCase {
     $this->assertContains(BackendInterface::class, $interfaces);
   }
 
+  public function testPassesRequestHeadersToItsCommands(): void {
+    $this->assertContains(RequestEnvironmentCapabilityInterface::class, (array) class_implements(DrushBackend::class));
+  }
+
   /**
    * Tests that the backend does not claim a capability Drush cannot serve.
    *
@@ -61,8 +69,11 @@ class DrushBackendTest extends UnitTestCase {
     yield 'entity lookup' => [EntityLookupCapabilityInterface::class];
     yield 'language' => [LanguageCapabilityInterface::class];
     yield 'mail' => [MailCapabilityInterface::class];
+    yield 'menu link' => [MenuLinkCapabilityInterface::class];
     yield 'node' => [NodeCapabilityInterface::class];
+    yield 'path alias' => [PathAliasCapabilityInterface::class];
     yield 'term' => [TermCapabilityInterface::class];
+    yield 'user activity' => [UserActivityCapabilityInterface::class];
   }
 
   public function testWithAlias(): void {

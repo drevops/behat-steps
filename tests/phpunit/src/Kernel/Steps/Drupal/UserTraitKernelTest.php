@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Extension\Registry\UserRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\UserTrait;
 use Drupal\user\Entity\Role;
@@ -130,12 +131,26 @@ class UserTraitKernelTest extends StepTraitKernelTestBase {
     $deleted = $this->createUser('jane', 1, [], 'jane@example.com');
     $kept = $this->createUser('john', 1, [], 'john@example.com');
     $registry->addUser($this->context->userGetByName('jane')->setValue('name', 'jane'));
+    $registry->addUser($this->context->userGetByName('john')->setValue('name', 'john'));
 
     $this->context->userDelete(['mail' => 'jane@example.com']);
 
     $this->assertNull(User::load($deleted->id()));
     $this->assertInstanceOf(UserInterface::class, User::load($kept->id()));
-    $this->assertFalse($registry->hasUsers(), 'The deleted user was dropped from the registry.');
+    $this->assertSame(['john'], array_keys($registry->getUsers()), 'Only the deleted user was dropped from the registry.');
+  }
+
+  public function testDeleteDropsTheSavedStubOfTheUserFromTheRegistry(): void {
+    $registry = new UserRegistry();
+    $this->context->authSetUserRegistry($registry);
+
+    $deleted = $this->createUser('jane', 1, [], 'jane@example.com');
+    $registry->addUser((new EntityStub('user', NULL, ['name' => 'jane']))->markSaved($deleted));
+
+    $this->context->userDelete(['name' => 'jane']);
+
+    $this->assertNull(User::load($deleted->id()));
+    $this->assertFalse($registry->hasUsers(), 'The registry matched the saved stub by the id of its account.');
   }
 
   public function testCreateRoleGrantsThePermissions(): void {

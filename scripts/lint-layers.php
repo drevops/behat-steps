@@ -6,9 +6,9 @@
  *
  * Each layer is guaranteed to reference nothing from the namespaces it
  * excludes: the backend runs without Behat loaded, the neutral root of each
- * layer runs without Drupal, the step traits reach Drupal only through a
- * capability, and no layer reaches the one above it. The guarantee holds only
- * while the layer references nothing it excludes.
+ * layer runs without Drupal, the Drupal step traits and their context reach
+ * Drupal only through a capability, and no layer reaches the one above it.
+ * The guarantee holds only while the layer references nothing it excludes.
  *
  * This script reads every file of each layer and fails on any code reference
  * into those namespaces, and on any call the layer forbids.
@@ -18,6 +18,7 @@
 
 declare(strict_types=1);
 
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\WebContext;
 use DrevOps\BehatSteps\WebRawContext;
@@ -28,7 +29,8 @@ use DrevOps\BehatSteps\WebRawContext;
  * A path is a directory that is walked or a single file, and an exclusion
  * is a directory or a file under a path that is skipped. A forbidden prefix
  * is a root namespace or a longer namespace prefix: a symbol equal to it or
- * below it is a violation, unless an allowed prefix matches it as well.
+ * below it is a violation, unless an allowed prefix at least as long matches
+ * it too.
  *
  * A layer may also name methods it must not call, and may hold its function
  * calls to the functions PHP itself defines, which rules out a call whose
@@ -80,6 +82,7 @@ const LAYERS = [
     'paths' => [
       'src/Steps/Web',
       'src/Steps/Helper/Web',
+      'src/Steps/Exception',
       'src/WebRawContext.php',
       'src/WebContext.php',
     ],
@@ -88,12 +91,13 @@ const LAYERS = [
     'internal_functions_only' => TRUE,
   ],
   [
-    'name' => 'the Drupal step traits',
-    'paths' => ['src/Steps/Drupal', 'src/Steps/Helper/Drupal'],
+    'name' => 'the Drupal half',
+    'paths' => ['src/Steps/Drupal', 'src/Steps/Helper/Drupal', 'src/DrupalContext.php'],
     'exclude' => [],
-    // A trait reaches Drupal through capabilities only, so the backend's own
-    // classes and the core that 'getCore()' returns are forbidden too.
-    'forbidden' => ['Drupal', 'DrevOps\\BehatSteps\\Backend\\Drupal'],
+    // This half reaches Drupal through capabilities only, so the backend's
+    // own classes and the core that 'getCore()' returns are forbidden too,
+    // along with the capability that declares 'getCore()'.
+    'forbidden' => ['Drupal', 'DrevOps\\BehatSteps\\Backend\\Drupal', CoreCapabilityInterface::class],
     'allowed' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability'],
     'forbidden_methods' => ['getCore'],
     // Drupal's procedural API sits in the global namespace, so only the
@@ -314,12 +318,13 @@ function layer_imported_symbol(array $tokens, int $index): ?string {
 }
 
 /**
- * Checks whether a symbol sits under a forbidden prefix and no allowed one.
+ * Checks whether the longest prefix a symbol matches is a forbidden one.
  *
  * A prefix matches the symbol equal to it and every symbol below it, so a
  * root namespace forbids a whole vendor and a longer prefix forbids 1
  * namespace or 1 class. An allowed prefix reopens a namespace below a
- * forbidden one.
+ * forbidden one, and a longer forbidden prefix closes part of it again. An
+ * allowed prefix as long as the forbidden one wins.
  *
  * @param string $symbol
  *   The qualified symbol, without a leading separator.
@@ -329,25 +334,30 @@ function layer_imported_symbol(array $tokens, int $index): ?string {
  *   The allowed prefixes.
  */
 function layer_is_forbidden(string $symbol, array $forbidden, array $allowed = []): bool {
-  return layer_has_prefix($symbol, $forbidden) && !layer_has_prefix($symbol, $allowed);
+  return layer_matching_prefix_length($symbol, $forbidden) > layer_matching_prefix_length($symbol, $allowed);
 }
 
 /**
- * Checks whether a symbol is equal to or below one of the prefixes.
+ * Measures the longest of the prefixes a symbol is equal to or below.
  *
  * @param string $symbol
  *   The qualified symbol, without a leading separator.
  * @param array<int, string> $prefixes
  *   The namespace prefixes.
+ *
+ * @return int
+ *   The length of the longest matching prefix, or 0 when none matches.
  */
-function layer_has_prefix(string $symbol, array $prefixes): bool {
+function layer_matching_prefix_length(string $symbol, array $prefixes): int {
+  $length = 0;
+
   foreach ($prefixes as $prefix) {
     if ($symbol === $prefix || str_starts_with($symbol, $prefix . '\\')) {
-      return TRUE;
+      $length = max($length, strlen($prefix));
     }
   }
 
-  return FALSE;
+  return $length;
 }
 
 /**

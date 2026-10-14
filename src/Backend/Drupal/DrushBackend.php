@@ -81,6 +81,13 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   protected string $arguments = '';
 
   /**
+   * Environment variables every drush command runs with, keyed by name.
+   *
+   * @var array<string, string>
+   */
+  protected array $environment = [];
+
+  /**
    * Sets the drush alias or root path.
    *
    * @param string|null $alias
@@ -169,6 +176,33 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    */
   public function processBatch(): void {
     // Drush is expected to handle batch processing internally.
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * The header is passed to each command in the environment variable PHP
+   * reads a request header from, such as 'HTTP_X_CONFIG_NO_OVERRIDE'.
+   */
+  public function requestHeaderSet(string $name, string $value): void {
+    $this->environment[static::getRequestHeaderVariable($name)] = $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function requestHeaderUnset(string $name): void {
+    unset($this->environment[static::getRequestHeaderVariable($name)]);
+  }
+
+  /**
+   * Returns the name PHP gives the server variable of a request header.
+   *
+   * @param string $name
+   *   The header name, such as 'X-Config-No-Override'.
+   */
+  protected static function getRequestHeaderVariable(string $name): string {
+    return 'HTTP_' . strtoupper(str_replace('-', '_', $name));
   }
 
   /**
@@ -609,18 +643,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * A stub without an id is resolved by its 'name' value.
    */
   public function getOneTimeLoginUrl(EntityStubInterface $stub): string {
-    $uid = $stub->getId() ?? $stub->getValue('uid');
-    $name = $stub->getValue('name');
-
-    if ($uid !== NULL && $uid !== '') {
-      $options = ['uid' => (string) $uid];
-    }
-    elseif (is_string($name) && $name !== '') {
-      $options = ['name' => $name];
-    }
-    else {
-      throw new \RuntimeException('Cannot resolve a user from the stub: neither the saved entity, a "uid" value nor a "name" value is set.');
-    }
+    [$key, $value] = $this->resolveUserIdentifier($stub);
+    $options = [$key => $value];
 
     // Drush 13 opens the link in a browser unless told not to, and Drush 14
     // dropped the option along with the browser launch.
@@ -636,6 +660,100 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     }
 
     return $matches[1];
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * A stub without an id is resolved by its 'name' value.
+   */
+  public function getUserRoles(EntityStubInterface $stub): array {
+    $roles = $this->readUserInformation($stub)['roles'] ?? [];
+
+    return array_values(array_map(strval(...), is_array($roles) ? $roles : []));
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * 'user:password' takes only a name, so a stub without a 'name' value is
+   * looked up by its id first, and an account without a name, such as the
+   * anonymous one, is rejected.
+   */
+  public function setUserPassword(EntityStubInterface $stub, string $password): void {
+    $name = $stub->getValue('name');
+
+    if (!is_string($name) || $name === '') {
+      $name = (string) ($this->readUserInformation($stub)['name'] ?? '');
+    }
+
+    if ($name === '') {
+      throw new \RuntimeException(sprintf('Cannot set the password of the user "%s": Drush printed no name for the account.', $this->resolveUserIdentifier($stub)[1]));
+    }
+
+    $this->drush('user:password', [$name, $password]);
+  }
+
+  /**
+   * Reads the account a user stub stands for through 'user:information'.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The user stub.
+   *
+   * @return array<array-key, mixed>
+   *   The fields 'user:information' prints for the account.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries neither an id nor a name, no user has it, or Drush
+   *   prints no account.
+   */
+  protected function readUserInformation(EntityStubInterface $stub): array {
+    [$key, $value] = $this->resolveUserIdentifier($stub);
+
+    // The command takes names as its argument and ids as an option.
+    $arguments = $key === 'name' ? [$value] : [];
+    $options = $key === 'uid' ? ['uid' => $value, 'format' => 'json'] : ['format' => 'json'];
+
+    $output = trim($this->drush('user:information', $arguments, $options));
+    $accounts = json_decode($output, TRUE);
+    $account = is_array($accounts) ? reset($accounts) : FALSE;
+
+    if (!is_array($account)) {
+      throw new \RuntimeException(sprintf('Drush did not print the account of the user "%s". Output: %s', $value, $output));
+    }
+
+    return $account;
+  }
+
+  /**
+   * Resolves what Drush identifies the account of a user stub by.
+   *
+   * The id is read first, from the saved entity or the 'uid' value, and the
+   * 'name' value is the fallback.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The user stub.
+   *
+   * @return array{0: 'uid'|'name', 1: string}
+   *   The kind of identifier and its value.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries neither an id nor a name.
+   */
+  protected function resolveUserIdentifier(EntityStubInterface $stub): array {
+    $uid = $stub->getId() ?? $stub->getValue('uid');
+
+    if ($uid !== NULL && $uid !== '') {
+      return ['uid', (string) $uid];
+    }
+
+    $name = $stub->getValue('name');
+
+    if (is_string($name) && $name !== '') {
+      return ['name', $name];
+    }
+
+    throw new \RuntimeException('Cannot resolve a user from the stub: neither the saved entity, a "uid" value nor a "name" value is set.');
   }
 
   /**
@@ -1000,7 +1118,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    *   The process after it has finished running.
    */
   protected function runProcess(array $argv): Process {
-    $process = new Process($argv);
+    $process = new Process($argv, NULL, $this->environment);
     $process->setTimeout(3600);
     $process->run();
 

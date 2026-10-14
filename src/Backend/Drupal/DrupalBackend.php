@@ -323,6 +323,13 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function getEntityBundle(EntityStubInterface $stub): string {
+    return $this->getCore()->getEntityBundle($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function deleteEntity(EntityStubInterface $stub): void {
     $this->getCore()->deleteEntity($stub);
   }
@@ -386,8 +393,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function placeBlock(EntityStubInterface $stub): EntityStubInterface {
-    return $this->getCore()->placeBlock($stub);
+  public function placeBlock(string $plugin_id, string $label): EntityStubInterface {
+    return $this->getCore()->placeBlock($plugin_id, $label);
   }
 
   /**
@@ -395,6 +402,41 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    */
   public function deleteBlock(EntityStubInterface $stub): void {
     $this->getCore()->deleteBlock($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configureBlock(EntityStubInterface $stub, array $configuration): void {
+    $this->getCore()->configureBlock($stub, $configuration);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlockVisibility(EntityStubInterface $stub, string $condition, array $configuration): void {
+    $this->getCore()->setBlockVisibility($stub, $condition, $configuration);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function unsetBlockVisibility(EntityStubInterface $stub, string $condition): void {
+    $this->getCore()->unsetBlockVisibility($stub, $condition);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBlockRegion(EntityStubInterface $stub): string {
+    return $this->getCore()->getBlockRegion($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function findBlockIdsByLabel(string $label): array {
+    return $this->getCore()->findBlockIdsByLabel($label);
   }
 
   /**
@@ -416,6 +458,20 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    */
   public function cronRun(): bool {
     return $this->getCore()->cronRun();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function requestHeaderSet(string $name, string $value): void {
+    $this->getCore()->requestHeaderSet($name, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function requestHeaderUnset(string $name): void {
+    $this->getCore()->requestHeaderUnset($name);
   }
 
   /**
@@ -540,6 +596,34 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function getUserRoles(EntityStubInterface $stub): array {
+    return $this->getCore()->getUserRoles($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserPassword(EntityStubInterface $stub, string $password): void {
+    $this->getCore()->setUserPassword($stub, $password);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserLastAccessTime(EntityStubInterface $stub, int $timestamp): void {
+    $this->getCore()->setUserLastAccessTime($stub, $timestamp);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserLastLoginTime(EntityStubInterface $stub, int $timestamp): void {
+    $this->getCore()->setUserLastLoginTime($stub, $timestamp);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function cacheClearBin(string $bin): void {
     $this->getCore()->cacheClearBin($bin);
   }
@@ -563,6 +647,20 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    */
   public function getEntityUrl(EntityStubInterface $stub, string $rel = 'canonical'): string {
     return $this->getCore()->getEntityUrl($stub, $rel);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEntityPathAlias(EntityStubInterface $stub, string $alias): void {
+    $this->getCore()->setEntityPathAlias($stub, $alias);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMenuLinkPluginId(EntityStubInterface $stub): string {
+    return $this->getCore()->getMenuLinkPluginId($stub);
   }
 
   /**

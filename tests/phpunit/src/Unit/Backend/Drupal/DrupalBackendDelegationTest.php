@@ -140,6 +140,8 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'createNode' => ['createNode', [$node], 'createNode'];
     yield 'deleteNode' => ['deleteNode', [$node], 'deleteNode'];
     yield 'cronRun' => ['cronRun', [], 'cronRun'];
+    yield 'requestHeaderSet' => ['requestHeaderSet', ['X-Config-No-Override', 'system.site'], 'requestHeaderSet'];
+    yield 'requestHeaderUnset' => ['requestHeaderUnset', ['X-Config-No-Override'], 'requestHeaderUnset'];
     yield 'createTerm' => ['createTerm', [$term], 'createTerm'];
     yield 'deleteTerm' => ['deleteTerm', [$term], 'deleteTerm'];
     yield 'createRole' => ['createRole', [['admin']], 'createRole'];
@@ -161,6 +163,7 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'createEntity' => ['createEntity', [$entity], 'createEntity'];
     yield 'updateEntity' => ['updateEntity', [$entity], 'updateEntity'];
     yield 'getEntityValues' => ['getEntityValues', ['node', 5, ['title']], 'getEntityValues'];
+    yield 'getEntityBundle' => ['getEntityBundle', [$entity], 'getEntityBundle'];
     yield 'deleteEntity' => ['deleteEntity', [$entity], 'deleteEntity'];
     yield 'createConfigEntity' => ['createConfigEntity', [$config_entity], 'createConfigEntity'];
     yield 'updateConfigEntity' => ['updateConfigEntity', [$config_entity], 'updateConfigEntity'];
@@ -170,8 +173,13 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'getEntityIdKey' => ['getEntityIdKey', ['node'], 'getEntityIdKey'];
     yield 'getEntityFieldTypes' => ['getEntityFieldTypes', ['node', 'article'], 'getEntityFieldTypes'];
     yield 'parseEntityFields' => ['parseEntityFields', [$node, ['author']], 'parseEntityFields'];
-    yield 'placeBlock' => ['placeBlock', [$block], 'placeBlock'];
+    yield 'placeBlock' => ['placeBlock', ['system_powered_by_block', 'Powered by'], 'placeBlock'];
     yield 'deleteBlock' => ['deleteBlock', [$block], 'deleteBlock'];
+    yield 'configureBlock' => ['configureBlock', [$block, ['region' => 'content']], 'configureBlock'];
+    yield 'setBlockVisibility' => ['setBlockVisibility', [$block, 'request_path', ['pages' => '/about']], 'setBlockVisibility'];
+    yield 'unsetBlockVisibility' => ['unsetBlockVisibility', [$block, 'request_path'], 'unsetBlockVisibility'];
+    yield 'getBlockRegion' => ['getBlockRegion', [$block], 'getBlockRegion'];
+    yield 'findBlockIdsByLabel' => ['findBlockIdsByLabel', ['Powered by'], 'findBlockIdsByLabel'];
     yield 'createBlockContent' => ['createBlockContent', [$block_content], 'createBlockContent'];
     yield 'deleteBlockContent' => ['deleteBlockContent', [$block_content], 'deleteBlockContent'];
     yield 'mailStartCollecting' => ['mailStartCollecting', [['default']], 'mailStartCollecting'];
@@ -190,10 +198,16 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'moduleIsPresent' => ['moduleIsPresent', ['node'], 'moduleIsPresent'];
     yield 'moduleUninstall' => ['moduleUninstall', ['node'], 'moduleUninstall'];
     yield 'getOneTimeLoginUrl' => ['getOneTimeLoginUrl', [$user], 'getOneTimeLoginUrl'];
+    yield 'getUserRoles' => ['getUserRoles', [$user], 'getUserRoles'];
+    yield 'setUserPassword' => ['setUserPassword', [$user, 'new-password'], 'setUserPassword'];
+    yield 'setUserLastAccessTime' => ['setUserLastAccessTime', [$user, 1732319174], 'setUserLastAccessTime'];
+    yield 'setUserLastLoginTime' => ['setUserLastLoginTime', [$user, 1732319174], 'setUserLastLoginTime'];
     yield 'cacheClearBin' => ['cacheClearBin', ['render'], 'cacheClearBin'];
     yield 'cacheInvalidateTags' => ['cacheInvalidateTags', [['node_list']], 'cacheInvalidateTags'];
     yield 'cacheDeletePagePath' => ['cacheDeletePagePath', ['page', '/about', TRUE], 'cacheDeletePagePath'];
     yield 'getEntityUrl' => ['getEntityUrl', [$entity, 'edit-form'], 'getEntityUrl'];
+    yield 'setEntityPathAlias' => ['setEntityPathAlias', [$node, '/about'], 'setEntityPathAlias'];
+    yield 'getMenuLinkPluginId' => ['getMenuLinkPluginId', [new EntityStub('menu_link_content', NULL, ['id' => 3])], 'getMenuLinkPluginId'];
     yield 'rebuildNodeAccess' => ['rebuildNodeAccess', [7], 'rebuildNodeAccess'];
     yield 'rebuildNodeAccess for every node' => ['rebuildNodeAccess', [NULL], 'rebuildNodeAccess'];
     yield 'findBlockPluginId' => ['findBlockPluginId', ['Powered by Drupal'], 'findBlockPluginId'];

@@ -267,4 +267,87 @@ class CoreUserMethodsKernelTest extends KernelTestBase {
     $this->core->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 999999]));
   }
 
+  public function testGetUserRolesReturnsTheRolesLedByAuthenticated(): void {
+    $this->core->createRole([], 'editor', 'Editor');
+    $stub = new EntityStub('user', NULL, ['name' => 'roles', 'mail' => 'roles@example.com', 'pass' => 'pw', 'roles' => ['editor']]);
+    $this->core->createUser($stub);
+
+    $this->assertSame(['authenticated', 'editor'], $this->core->getUserRoles(new EntityStub('user', NULL, ['uid' => $stub->getValue('uid')])));
+  }
+
+  public function testSetUserPasswordStoresThePassword(): void {
+    $uid = $this->createAccount('password');
+
+    $this->core->setUserPassword(new EntityStub('user', NULL, ['uid' => $uid]), 'new-password');
+
+    $this->assertTrue(\Drupal::service('password')->check('new-password', $this->reloadAccount($uid)->getPassword()));
+  }
+
+  public function testSetUserLastAccessAndLoginTimesStoreTheTimestamps(): void {
+    $uid = $this->createAccount('activity');
+    $stub = new EntityStub('user', NULL, ['uid' => $uid]);
+
+    $this->core->setUserLastAccessTime($stub, 1732319174);
+    $this->core->setUserLastLoginTime($stub, 1732319175);
+
+    $account = $this->reloadAccount($uid);
+    $this->assertSame('1732319174', (string) $account->getLastAccessedTime());
+    $this->assertSame('1732319175', (string) $account->getLastLoginTime());
+  }
+
+  /**
+   * Tests that a user method rejects a stub naming no account.
+   *
+   * @param string $method
+   *   The Core method to call.
+   * @param array<int, mixed> $args
+   *   The arguments after the stub.
+   */
+  #[DataProvider('dataProviderUserMethodsRejectMissingUser')]
+  public function testUserMethodsRejectMissingUser(string $method, array $args): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No user with id "999999" exists.');
+
+    $this->core->{$method}(new EntityStub('user', NULL, ['uid' => 999999]), ...$args);
+  }
+
+  public static function dataProviderUserMethodsRejectMissingUser(): \Iterator {
+    yield 'getUserRoles' => ['getUserRoles', []];
+    yield 'setUserPassword' => ['setUserPassword', ['new-password']];
+    yield 'setUserLastAccessTime' => ['setUserLastAccessTime', [1732319174]];
+    yield 'setUserLastLoginTime' => ['setUserLastLoginTime', [1732319174]];
+  }
+
+  /**
+   * Creates an account through Core.
+   *
+   * @param string $name
+   *   The user name.
+   *
+   * @return int|string
+   *   The user id.
+   */
+  protected function createAccount(string $name): int|string {
+    $stub = new EntityStub('user', NULL, ['name' => $name, 'mail' => $name . '@example.com', 'pass' => 'pw']);
+    $this->core->createUser($stub);
+
+    $uid = $stub->getValue('uid');
+    $this->assertTrue(is_int($uid) || is_string($uid));
+
+    return $uid;
+  }
+
+  /**
+   * Loads an account again, bypassing the static cache.
+   *
+   * @param int|string $uid
+   *   The user id.
+   */
+  protected function reloadAccount(int|string $uid): User {
+    $account = \Drupal::entityTypeManager()->getStorage('user')->loadUnchanged($uid);
+    $this->assertInstanceOf(User::class, $account);
+
+    return $account;
+  }
+
 }

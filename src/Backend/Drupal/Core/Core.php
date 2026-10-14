@@ -24,6 +24,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
+use Drupal\block\BlockInterface;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Cache\DatabaseBackend;
@@ -43,6 +44,7 @@ use Drupal\Core\Routing\RouteObjectInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Url;
 use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeAccessControlHandlerInterface;
 use Drupal\node\NodeAccessRebuild;
@@ -570,6 +572,33 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * {@inheritdoc}
+   *
+   * The header is written to '$_SERVER' under the name PHP gives a request
+   * header, such as 'HTTP_X_CONFIG_NO_OVERRIDE'.
+   */
+  public function requestHeaderSet(string $name, string $value): void {
+    $_SERVER[static::getRequestHeaderVariable($name)] = $value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function requestHeaderUnset(string $name): void {
+    unset($_SERVER[static::getRequestHeaderVariable($name)]);
+  }
+
+  /**
+   * Returns the name PHP gives the server variable of a request header.
+   *
+   * @param string $name
+   *   The header name, such as 'X-Config-No-Override'.
+   */
+  protected static function getRequestHeaderVariable(string $name): string {
+    return 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function createUser(EntityStubInterface $stub): EntityStubInterface {
     if (!$stub->hasValue('status')) {
@@ -756,6 +785,34 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getUserRoles(EntityStubInterface $stub): array {
+    return array_values($this->loadUser($stub)->getRoles());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserPassword(EntityStubInterface $stub, string $password): void {
+    $this->loadUser($stub)->setPassword($password)->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserLastAccessTime(EntityStubInterface $stub, int $timestamp): void {
+    $this->loadUser($stub)->setLastAccessTime($timestamp)->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserLastLoginTime(EntityStubInterface $stub, int $timestamp): void {
+    $this->loadUser($stub)->setLastLoginTime($timestamp)->save();
+  }
+
+  /**
    * Resolves the user id from a stub.
    *
    * The saved-entity slot is the only authoritative source after
@@ -918,20 +975,121 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
-  public function placeBlock(EntityStubInterface $stub): EntityStubInterface {
-    /** @var \Drupal\block\BlockInterface $placement */
-    $placement = \Drupal::entityTypeManager()->getStorage('block')->create($stub->getValues());
+  public function placeBlock(string $plugin_id, string $label): EntityStubInterface {
+    $values = ['plugin' => $plugin_id, 'theme' => $this->getDefaultTheme(), 'settings' => ['label' => $label]];
 
-    if (!$stub->hasValue('id') || $stub->getValue('id') === '') {
-      $id = \Drupal::service('block.repository')->getUniqueMachineName($placement->getPlugin()->getMachineNameSuggestion(), (string) $placement->getTheme());
-      $placement->set('id', $id);
-      $stub->setValue('id', $id);
+    /** @var \Drupal\block\BlockInterface $placement */
+    $placement = \Drupal::entityTypeManager()->getStorage('block')->create($values);
+    $values['id'] = \Drupal::service('block.repository')->getUniqueMachineName($placement->getPlugin()->getMachineNameSuggestion(), $values['theme']);
+    $placement->set('id', $values['id']);
+    $placement->save();
+
+    return (new EntityStub('block', NULL, $values))->markSaved($placement);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configureBlock(EntityStubInterface $stub, array $configuration): void {
+    $block = $this->loadBlock($stub, TRUE);
+
+    if (array_key_exists('label', $configuration) || array_key_exists('label_display', $configuration)) {
+      $settings = $block->get('settings');
+      $settings = is_array($settings) ? $settings : [];
+
+      foreach (['label', 'label_display'] as $key) {
+        if (array_key_exists($key, $configuration)) {
+          $settings[$key] = $configuration[$key];
+        }
+      }
+
+      $block->set('settings', $settings);
     }
 
-    $placement->save();
-    $stub->markSaved($placement);
+    foreach (['region', 'status'] as $key) {
+      if (array_key_exists($key, $configuration)) {
+        $block->set($key, $configuration[$key]);
+      }
+    }
 
-    return $stub;
+    $block->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlockVisibility(EntityStubInterface $stub, string $condition, array $configuration): void {
+    $block = $this->loadBlock($stub, TRUE);
+
+    $configuration['id'] = $condition;
+    $visibility = $block->get('visibility');
+    $visibility = is_array($visibility) ? $visibility : [];
+    $visibility[$condition] = $configuration;
+
+    $block->set('visibility', $visibility)->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function unsetBlockVisibility(EntityStubInterface $stub, string $condition): void {
+    $block = $this->loadBlock($stub, TRUE);
+
+    $visibility = $block->get('visibility');
+    $visibility = is_array($visibility) ? $visibility : [];
+
+    if (!array_key_exists($condition, $visibility)) {
+      return;
+    }
+
+    unset($visibility[$condition]);
+
+    $block->set('visibility', $visibility)->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBlockRegion(EntityStubInterface $stub): string {
+    return (string) $this->loadBlock($stub, FALSE)->getRegion();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function findBlockIdsByLabel(string $label): array {
+    return $this->findEntityIds('block', ['theme' => $this->getDefaultTheme(), 'settings.label' => $label]);
+  }
+
+  /**
+   * Loads the block a stub stands for.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   A 'block' stub carrying its 'id', or one returned by 'placeBlock()'.
+   * @param bool $is_override_free
+   *   Whether to load the stored values rather than the overridden ones, so
+   *   a save writes no override into the stored configuration.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries no id, or the id names no block.
+   */
+  protected function loadBlock(EntityStubInterface $stub, bool $is_override_free): BlockInterface {
+    $storage = $this->getConfigEntityStorage('block');
+    $id = $this->resolveStubId($stub);
+    $block = $is_override_free ? $storage->loadOverrideFree($id) : $storage->load($id);
+
+    if (!$block instanceof BlockInterface) {
+      throw new \RuntimeException(sprintf('No block with the id "%s" exists.', $id));
+    }
+
+    return $block;
+  }
+
+  /**
+   * Returns the machine name of the default theme.
+   */
+  protected function getDefaultTheme(): string {
+    return (string) \Drupal::config('system.theme')->get('default');
   }
 
   /**
@@ -1472,19 +1630,88 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * {@inheritdoc}
+   *
+   * The path is the route's own. It carries no base path, which a caller adds
+   * when it prefixes the site's URL, and no path alias, which this process
+   * may hold a stale copy of.
    */
   public function getEntityUrl(EntityStubInterface $stub, string $rel = 'canonical'): string {
+    $entity = $this->getStubEntity($stub);
+
+    if (!$entity->hasLinkTemplate($rel)) {
+      throw new \RuntimeException(sprintf('The entity type "%s" has no "%s" link.', $entity->getEntityTypeId(), $rel));
+    }
+
+    return '/' . $entity->toUrl($rel)->getInternalPath();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityBundle(EntityStubInterface $stub): string {
+    return $this->getStubEntity($stub)->bundle();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEntityPathAlias(EntityStubInterface $stub, string $alias): void {
+    $path = ltrim(trim($alias), '/');
+
+    if ($path === '') {
+      throw new \RuntimeException(sprintf('Cannot set the path alias "%s" because it names no path.', $alias));
+    }
+
+    $entity_type = $stub->getEntityType();
+    $id = $this->resolveStubId($stub);
+
+    // The current value carries the 'pid' of the existing alias, so the save
+    // changes that alias rather than adding a second one.
+    $value = (array) ($this->getEntityValues($entity_type, $id, ['path'])['path'][0] ?? []);
+    $value['alias'] = '/' . $path;
+
+    // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
+    // on save.
+    if (\Drupal::moduleHandler()->moduleExists('pathauto')) {
+      $value['pathauto'] = 0;
+    }
+
+    $values = [$this->getEntityIdKey($entity_type) => $id, 'path' => $value];
+
+    $this->updateEntity(new EntityStub($entity_type, NULL, $values));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMenuLinkPluginId(EntityStubInterface $stub): string {
+    $link = $this->findStubEntity($stub);
+
+    if (!$link instanceof MenuLinkContentInterface) {
+      throw new \RuntimeException(sprintf('No menu link with the id "%s" exists.', $this->resolveStubId($stub)));
+    }
+
+    return $link->getPluginId();
+  }
+
+  /**
+   * Returns the entity a stub stands for.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   A stub holding the saved entity, or the entity type's id key.
+   *
+   * @throws \RuntimeException
+   *   When the stub holds no saved entity and no usable id, or no entity has
+   *   the stub's id.
+   */
+  protected function getStubEntity(EntityStubInterface $stub): EntityInterface {
     $entity = $this->findStubEntity($stub);
 
     if (!$entity instanceof EntityInterface) {
       throw new \RuntimeException(sprintf('No entity of type "%s" with the id "%s" exists.', $stub->getEntityType(), $this->resolveStubId($stub)));
     }
 
-    if (!$entity->hasLinkTemplate($rel)) {
-      throw new \RuntimeException(sprintf('The entity type "%s" has no "%s" link.', $entity->getEntityTypeId(), $rel));
-    }
-
-    return $entity->toUrl($rel)->toString();
+    return $entity;
   }
 
   /**

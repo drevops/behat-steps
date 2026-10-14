@@ -67,6 +67,21 @@ interface ContentCapabilityInterface {
   public function getEntityValues(string $entity_type, int|string $id, array $fields): array;
 
   /**
+   * Returns the bundle of an entity.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The stub returned from a previous 'createEntity()' call, or one that
+   *   carries the entity type's id key resolving to an existing entity.
+   *
+   * @return string
+   *   The bundle, or the entity type id for an entity type without bundles.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries no id, or the id names no entity.
+   */
+  public function getEntityBundle(EntityStubInterface $stub): string;
+
+  /**
    * Deletes an entity of any type.
    *
    * Does nothing when the entity does not exist.
