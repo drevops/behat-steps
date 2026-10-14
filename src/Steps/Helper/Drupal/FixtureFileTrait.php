@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Steps\Helper\Drupal;
 
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
 
@@ -43,11 +43,11 @@ trait FixtureFileTrait {
       return;
     }
 
-    if (!$this->getBackendRegistry()->hasCapability(CoreCapabilityInterface::class)) {
+    if (!$this->getBackendRegistry()->hasCapability(EntityDefinitionCapabilityInterface::class)) {
       return;
     }
 
-    $field_types = $this->backendFor(CoreCapabilityInterface::class)->getCore()->getEntityFieldTypes($entity_type);
+    $field_types = $this->backendFor(EntityDefinitionCapabilityInterface::class)->getEntityFieldTypes($entity_type);
 
     foreach ($stub->getValues() as $name => $value) {
       if (empty($field_types[$name]) || ($field_types[$name] !== 'image' && $field_types[$name] !== 'file')) {

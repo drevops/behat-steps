@@ -17,6 +17,8 @@ use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldShapeClassifier;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldShapeClassifierInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParser;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
@@ -1046,6 +1048,43 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     return $types;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityIdKey(string $entity_type): string {
+    $id_key = $this->loadEntityTypeDefinition($entity_type)->getKey('id');
+
+    if (!is_string($id_key) || $id_key === '') {
+      throw new \RuntimeException(sprintf('The entity type "%s" declares no id key.', $entity_type));
+    }
+
+    return $id_key;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+    $parser = $this->createEntityFieldParser($stub->getEntityType(), $stub->getBundle());
+    $parser->ignoring($ignored_properties);
+
+    $stub->setValues($parser->parse($stub->getValues()));
+  }
+
+  /**
+   * Creates the parser that shapes a stub's raw values for 1 parse.
+   *
+   * Subclasses override this method to parse with a parser of their own.
+   *
+   * @param string $entity_type
+   *   The entity type the values belong to.
+   * @param string|null $bundle
+   *   The bundle, or NULL for an entity type without bundles.
+   */
+  protected function createEntityFieldParser(string $entity_type, ?string $bundle): EntityFieldParserInterface {
+    return new EntityFieldParser($entity_type, $this->getFieldClassifier(), $bundle);
   }
 
   /**

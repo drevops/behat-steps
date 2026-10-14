@@ -106,6 +106,16 @@ class CoreErrorPathsTest extends UnitTestCase {
     $core->createEntity(new EntityStub('widget'));
   }
 
+  public function testGetEntityIdKeyRejectsEntityTypeWithoutIdKey(): void {
+    $core = $this->createCore();
+    $this->setUpEntityTypeManager('widget', FALSE);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The entity type "widget" declares no id key.');
+
+    $core->getEntityIdKey('widget');
+  }
+
   /**
    * Tests that a stub method rejects a stub whose id key holds no usable id.
    *

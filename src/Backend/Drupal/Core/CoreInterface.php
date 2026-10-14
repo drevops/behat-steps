@@ -17,6 +17,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DraggableviewsCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\FileCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\LogCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
@@ -53,6 +54,7 @@ interface CoreInterface extends
   ContentCapabilityInterface,
   CronCapabilityInterface,
   DraggableviewsCapabilityInterface,
+  EntityDefinitionCapabilityInterface,
   EntityLookupCapabilityInterface,
   FileCapabilityInterface,
   LanguageCapabilityInterface,
@@ -138,24 +140,6 @@ interface CoreInterface extends
    *   When '$class' does not implement 'FieldHandlerInterface' or is abstract.
    */
   public function registerFieldHandler(string $field_type, string $class): void;
-
-  /**
-   * Returns the field types for the given entity type.
-   *
-   * Returns the map of every F1, F5, and F9 field that should be routed
-   * through the handler pipeline for this entity type. See
-   * 'src/Backend/Drupal/Core/Field/README.md' for the classification rules.
-   *
-   * @param string $entity_type
-   *   The entity type ID.
-   * @param string|null $bundle
-   *   Optional. Bundle to consult for F9 (storage-backed bundle-attached)
-   *   fields. Without a bundle only F1 and F5 fields surface.
-   *
-   * @return array<string, string>
-   *   Map of field name to field type.
-   */
-  public function getEntityFieldTypes(string $entity_type, ?string $bundle = NULL): array;
 
   /**
    * Returns the field classifier, lazily instantiating on first access.

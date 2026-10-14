@@ -22,6 +22,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DrushCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
@@ -94,6 +95,7 @@ class BlackboxBackendTest extends UnitTestCase {
     yield 'core' => [CoreCapabilityInterface::class];
     yield 'cron' => [CronCapabilityInterface::class];
     yield 'drush' => [DrushCapabilityInterface::class];
+    yield 'entity definition' => [EntityDefinitionCapabilityInterface::class];
     yield 'entity lookup' => [EntityLookupCapabilityInterface::class];
     yield 'language' => [LanguageCapabilityInterface::class];
     yield 'mail' => [MailCapabilityInterface::class];

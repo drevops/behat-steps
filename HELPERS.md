@@ -63,7 +63,7 @@
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 3 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 4 | Manage Drupal webforms. |
 | [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
-| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 8 | Creates Drupal entities and removes them when the scenario ends. |
+| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 7 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
 | [Drupal\QueryTrait](#drupalquerytrait) | 5 | Finds the entities a step reads, asserts on or deletes. |
 
@@ -3065,15 +3065,6 @@ Creates a taxonomy term
 
 <br/>
 Find the newest of several entities whose ids carry no creation order
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface</code></summary>
-
-<br/>
-Builds the entity-field parser for 1 parsing call
 <br/><br/>
 
 </details>

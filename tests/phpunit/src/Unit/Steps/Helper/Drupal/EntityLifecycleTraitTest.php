@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -158,6 +159,39 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->createContext($backend)->entityLifecycleCreateNode($stub);
 
     $this->assertSame('A title', $stub->getValue('title'));
+  }
+
+  /**
+   * Tests that a create hands the stub to the backend to parse first.
+   *
+   * @param string $method
+   *   The lifecycle method that creates the entity.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub
+   *   The stub to create.
+   * @param string $create
+   *   The backend method that saves the entity.
+   * @param array<int, string> $ignored
+   *   The values the parse leaves as written.
+   */
+  #[DataProvider('dataProviderCreationParsesTheValuesThroughTheBackend')]
+  public function testCreationParsesTheValuesThroughTheBackend(string $method, EntityStub $stub, string $create, array $ignored): void {
+    $backend = $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]);
+    $backend->expects($this->once())->method('parseEntityFields')->with($stub, $ignored);
+    $backend->method($create)->willReturn($stub);
+
+    $this->createContext($backend)->{$method}($stub);
+  }
+
+  public static function dataProviderCreationParsesTheValuesThroughTheBackend(): \Iterator {
+    yield 'node' => ['entityLifecycleCreateNode', new EntityStub('node', 'page', ['title' => 'A title']), 'createNode', ['author']];
+    yield 'term' => ['entityLifecycleCreateTerm', new EntityStub('taxonomy_term', 'tags', ['name' => 'A term']), 'createTerm', ['vocabulary_machine_name']];
+    yield 'other entity' => ['entityLifecycleCreate', new EntityStub('block_content', 'basic', ['info' => 'A block']), 'createEntity', []];
+  }
+
+  public function testParseFieldsRefusesBackendThatDoesNotParse(): void {
+    $this->expectException(UnsupportedBackendActionException::class);
+
+    $this->createContext($this->createContentBackend())->entityLifecycleParseFields(new EntityStub('node', 'page', ['title' => 'A title']));
   }
 
   public function testUserCreationRegistersTheUser(): void {

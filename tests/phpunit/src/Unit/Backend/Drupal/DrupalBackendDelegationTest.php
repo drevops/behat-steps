@@ -167,6 +167,9 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'deleteConfigEntity' => ['deleteConfigEntity', [$config_entity], 'deleteConfigEntity'];
     yield 'duplicateConfigEntity' => ['duplicateConfigEntity', [$config_entity, ['id' => 'footer_copy']], 'duplicateConfigEntity'];
     yield 'findEntityIds' => ['findEntityIds', ['node', ['title' => 'Shared'], 'page'], 'findEntityIds'];
+    yield 'getEntityIdKey' => ['getEntityIdKey', ['node'], 'getEntityIdKey'];
+    yield 'getEntityFieldTypes' => ['getEntityFieldTypes', ['node', 'article'], 'getEntityFieldTypes'];
+    yield 'parseEntityFields' => ['parseEntityFields', [$node, ['author']], 'parseEntityFields'];
     yield 'placeBlock' => ['placeBlock', [$block], 'placeBlock'];
     yield 'deleteBlock' => ['deleteBlock', [$block], 'deleteBlock'];
     yield 'createBlockContent' => ['createBlockContent', [$block_content], 'createBlockContent'];

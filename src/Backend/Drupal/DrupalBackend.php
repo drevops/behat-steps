@@ -365,6 +365,27 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function getEntityIdKey(string $entity_type): string {
+    return $this->getCore()->getEntityIdKey($entity_type);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityFieldTypes(string $entity_type, ?string $bundle = NULL): array {
+    return $this->getCore()->getEntityFieldTypes($entity_type, $bundle);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+    $this->getCore()->parseEntityFields($stub, $ignored_properties);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function placeBlock(EntityStubInterface $stub): EntityStubInterface {
     return $this->getCore()->placeBlock($stub);
   }

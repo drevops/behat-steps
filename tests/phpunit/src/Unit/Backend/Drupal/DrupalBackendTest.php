@@ -19,6 +19,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
@@ -79,6 +80,7 @@ class DrupalBackendTest extends UnitTestCase {
     yield 'content' => [ContentCapabilityInterface::class];
     yield 'core' => [CoreCapabilityInterface::class];
     yield 'cron' => [CronCapabilityInterface::class];
+    yield 'entity definition' => [EntityDefinitionCapabilityInterface::class];
     yield 'entity lookup' => [EntityLookupCapabilityInterface::class];
     yield 'language' => [LanguageCapabilityInterface::class];
     yield 'mail' => [MailCapabilityInterface::class];

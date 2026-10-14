@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -190,9 +191,7 @@ trait ParagraphsTrait {
    *   The id key, such as 'nid' for a node.
    */
   protected function paragraphsGetIdKey(string $entity_type): string {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    return (string) \Drupal::entityTypeManager()->getDefinition($entity_type)->getKey('id');
+    return $this->backendFor(EntityDefinitionCapabilityInterface::class)->getEntityIdKey($entity_type);
   }
 
   /**
@@ -209,12 +208,9 @@ trait ParagraphsTrait {
    *   If the field does not exist on the entity.
    */
   protected function paragraphsValidateEntityHasField(string $entity_type, string $bundle, string $field_name): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $field_types = $this->backendFor(EntityDefinitionCapabilityInterface::class)->getEntityFieldTypes($entity_type, $bundle);
 
-    /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_info */
-    $field_info = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);
-
-    if (!array_key_exists($field_name, $field_info)) {
+    if (!array_key_exists($field_name, $field_types)) {
       throw new \RuntimeException(sprintf('The entity type "%s" with bundle "%s" does not have a field "%s".', $entity_type, $bundle, $field_name));
     }
   }

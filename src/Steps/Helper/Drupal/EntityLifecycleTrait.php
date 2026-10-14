@@ -14,11 +14,9 @@ use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParser;
-use DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Context\BackendAwareInterface;
@@ -362,8 +360,11 @@ trait EntityLifecycleTrait {
    * Expands a stub's raw Gherkin values into the storage field shape.
    *
    * A table cell is passed as written: a bare scalar, a comma-separated list,
-   * or a compound 'key:"value"' cell. The parser resolves each against the
-   * field's own definition before the backend saves the entity.
+   * or a compound 'key:"value"' cell. The backend resolves each against the
+   * field's own definition before it saves the entity.
+   *
+   * A consuming context overrides this method to parse the values its own
+   * way.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
@@ -372,15 +373,10 @@ trait EntityLifecycleTrait {
    *   handles itself.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
-   *   When no backend in the scenario's order reaches Drupal's API.
+   *   When no backend in the scenario's order parses field values.
    */
   public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    $classifier = $this->backendFor(CoreCapabilityInterface::class)->getCore()->getFieldClassifier();
-
-    $parser = $this->entityLifecycleGetFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
-    $parser->ignoring($ignored_properties);
-
-    $stub->setValues($parser->parse($stub->getValues()));
+    $this->backendFor(EntityDefinitionCapabilityInterface::class)->parseEntityFields($stub, $ignored_properties);
   }
 
   /**
@@ -496,10 +492,7 @@ trait EntityLifecycleTrait {
   }
 
   /**
-   * Expands a stub's values during creation, if the backend can classify them.
-   *
-   * Classification reads the site's field definitions, which only a backend
-   * with Drupal bootstrapped exposes.
+   * Expands a stub's values during creation, if the backend parses them.
    *
    * A backend that passes the values to the command line takes them as
    * written, so they are left unparsed. Parsing them would fail a creation
@@ -513,28 +506,11 @@ trait EntityLifecycleTrait {
    *   Value names to leave untouched.
    */
   protected function entityLifecycleParseCreatedFields(EntityStubInterface $stub, object $backend, array $ignored_properties = []): void {
-    if (!$backend instanceof CoreCapabilityInterface) {
+    if (!$backend instanceof EntityDefinitionCapabilityInterface) {
       return;
     }
 
     $this->entityLifecycleParseFields($stub, $ignored_properties);
-  }
-
-  /**
-   * Builds the entity-field parser for 1 parsing call.
-   *
-   * A consuming context overrides this method to supply its own
-   * implementation.
-   *
-   * @param string $entity_type
-   *   The entity type the values belong to.
-   * @param \DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface $classifier
-   *   The classifier resolving each value's field definition.
-   * @param string|null $bundle
-   *   The bundle, or NULL for an entity type without bundles.
-   */
-  public function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface {
-    return new EntityFieldParser($entity_type, $classifier, $bundle);
   }
 
   /**
