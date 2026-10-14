@@ -51,11 +51,11 @@ package "drevops/behat-steps" {
   }
 
   package "Backend - src/Backend" #E8F5E9 {
-    component "BackendInterface\n+ 10 capability interfaces\nany backend may provide,\nRandomGenerator" as BackendIface
+    component "BackendInterface\n+ 11 capability interfaces\nany backend may provide,\nRandomGenerator" as BackendIface
     component "BlackboxBackend\nno backend access at all" as BlackboxBe
 
     package "Backend\\Drupal" #E8F5E9 {
-      component "19 Drupal-only capabilities\nBatch, Block, Config, ConfigEntity, Core,\nDraggableviews, Drush, EntityDefinition,\nFile, Log, Module, Node, Queue, QueueItem,\nSearchApi, SearchIndex, State, Term, Workflow" as DrupalCaps
+      component "22 Drupal-only capabilities\nBatch, Block, Config, ConfigEntity, Core,\nDraggableviews, Drush, EntityDefinition,\nFile, Log, MenuLink, Module, Node,\nPathAlias, Queue, QueueItem, SearchApi,\nSearchIndex, State, Term, UserActivity,\nWorkflow" as DrupalCaps
       component "DrupalBackend\nbootstraps Drupal in-process" as DrupalBe
       component "DrushBackend\nshells out to drush" as DrushBe
       component "Core\nfield handlers, classifiers,\nparsers, creation aliases" as Core
@@ -146,7 +146,8 @@ note bottom of BackendIface
   of each of the 2 lower layers, outside its Drupal sub-namespace,
   references no Drupal class, and neither half of the vocabulary
   does: a Drupal step trait reaches the site through capabilities
-  only, and no step trait calls a Drupal function.
+  only, never the one that hands out the in-process core, and no
+  step trait calls a Drupal function.
   scripts/lint-layers.php fails the build on any of them.
 end note
 
