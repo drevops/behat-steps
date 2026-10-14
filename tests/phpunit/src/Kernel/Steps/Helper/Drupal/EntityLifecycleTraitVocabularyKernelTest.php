@@ -122,7 +122,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
   /**
    * Builds a bootstrapped in-process backend double.
    *
-   * Its field parsing leaves the stub as it is. Its config and lookup methods
+   * Its field parsing leaves the stub as it is. Its bundle and lookup methods
    * read the booted kernel.
    *
    * @return \DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface&\PHPUnit\Framework\MockObject\MockObject
@@ -133,7 +133,7 @@ class EntityLifecycleTraitVocabularyKernelTest extends KernelTestBase {
 
     $backend = $this->createMock(DrupalBackendInterface::class);
     $backend->method('isBootstrapped')->willReturn(TRUE);
-    $backend->method('configExists')->willReturnCallback($kernel_core->configExists(...));
+    $backend->method('bundleExists')->willReturnCallback($kernel_core->bundleExists(...));
     $backend->method('findEntityIds')->willReturnCallback($kernel_core->findEntityIds(...));
 
     return $backend;

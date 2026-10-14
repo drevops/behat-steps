@@ -26,6 +26,35 @@ interface EntityDefinitionCapabilityInterface {
   public function getEntityIdKey(string $entity_type): string;
 
   /**
+   * Whether an entity type has a bundle.
+   *
+   * @param string $entity_type
+   *   The entity type id.
+   * @param string $bundle
+   *   The bundle, such as 'article' for a node or 'tags' for a term.
+   *
+   * @throws \RuntimeException
+   *   When the entity type is unknown.
+   */
+  public function bundleExists(string $entity_type, string $bundle): bool;
+
+  /**
+   * Returns the label of a bundle.
+   *
+   * @param string $entity_type
+   *   The entity type id.
+   * @param string $bundle
+   *   The bundle, such as 'article' for a node or 'tags' for a term.
+   *
+   * @return string
+   *   The label, such as 'Article'.
+   *
+   * @throws \RuntimeException
+   *   When the entity type is unknown, or has no such bundle.
+   */
+  public function getBundleLabel(string $entity_type, string $bundle): string;
+
+  /**
    * Returns the types of the fields that take values through the handlers.
    *
    * Returns the map of every F1, F5, and F9 field that should be routed

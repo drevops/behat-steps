@@ -47,7 +47,7 @@ class CoreEntityDefinitionMethodsKernelTest extends KernelTestBase {
     $this->installEntitySchema('user');
     $this->installEntitySchema('entity_test');
 
-    EntityTestHelper::createBundle('custom_bundle');
+    EntityTestHelper::createBundle('custom_bundle', 'Custom bundle');
     EntityTestHelper::createBundle('other_bundle');
     FieldStorageConfig::create(['field_name' => 'field_tags', 'entity_type' => 'entity_test', 'type' => 'string', 'cardinality' => -1])->save();
     FieldConfig::create(['field_name' => 'field_tags', 'entity_type' => 'entity_test', 'bundle' => 'custom_bundle'])->save();
@@ -70,6 +70,47 @@ class CoreEntityDefinitionMethodsKernelTest extends KernelTestBase {
     $this->expectExceptionMessageMatches('/Unknown entity type "nonexistent_type"/');
 
     $this->core->getEntityIdKey('nonexistent_type');
+  }
+
+  /**
+   * Tests that a bundle is reported as existing only on its entity type.
+   *
+   * @param string $entity_type
+   *   The entity type id.
+   * @param string $bundle
+   *   The bundle.
+   * @param bool $expected
+   *   Whether the entity type has the bundle.
+   */
+  #[DataProvider('dataProviderBundleExists')]
+  public function testBundleExists(string $entity_type, string $bundle, bool $expected): void {
+    $this->assertSame($expected, $this->core->bundleExists($entity_type, $bundle));
+  }
+
+  public static function dataProviderBundleExists(): \Iterator {
+    yield 'a bundle of the entity type' => ['entity_test', 'custom_bundle', TRUE];
+    yield 'a bundle the entity type does not have' => ['entity_test', 'missing_bundle', FALSE];
+    yield 'an entity type without bundles, by its own id' => ['user', 'user', TRUE];
+    yield 'an entity type without bundles, by another id' => ['user', 'custom_bundle', FALSE];
+  }
+
+  public function testBundleExistsRejectsAnUnknownEntityType(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unknown entity type "nonexistent_type".');
+
+    $this->core->bundleExists('nonexistent_type', 'custom_bundle');
+  }
+
+  public function testGetBundleLabelReturnsTheLabel(): void {
+    $this->assertSame('Custom bundle', $this->core->getBundleLabel('entity_test', 'custom_bundle'));
+    $this->assertSame('User', $this->core->getBundleLabel('user', 'user'));
+  }
+
+  public function testGetBundleLabelRejectsAnUnknownBundle(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The entity type "entity_test" has no bundle "missing_bundle".');
+
+    $this->core->getBundleLabel('entity_test', 'missing_bundle');
   }
 
   public function testGetEntityFieldTypesScopesConfigurableFieldsToTheBundle(): void {

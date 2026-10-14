@@ -10,7 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
@@ -368,7 +368,7 @@ trait ContentTrait {
    *   When the content type does not exist or no node of it has the title.
    */
   public function contentGetNidByTitle(string $content_type, string $title): int {
-    if (!$this->backendFor(ConfigCapabilityInterface::class)->configExists('node.type.' . $content_type)) {
+    if (!$this->backendFor(EntityDefinitionCapabilityInterface::class)->bundleExists('node', $content_type)) {
       throw new \RuntimeException(sprintf('The content type "%s" does not exist.', $content_type));
     }
 
@@ -461,14 +461,13 @@ trait ContentTrait {
    */
   public function contentSetModerationState(EntityStubInterface $node, string $state): void {
     $content_type = $this->contentGetType($node);
+    $backend = $this->backendFor(WorkflowCapabilityInterface::class);
 
-    if (!$this->backendFor(WorkflowCapabilityInterface::class)->hasWorkflowState('node', $content_type, $state)) {
+    if (!$backend->hasWorkflowState('node', $content_type, $state)) {
       throw new \RuntimeException(sprintf('State "%s" is not defined in the workflow for "%s" content type.', $state, $content_type));
     }
 
-    $values = ['nid' => $this->queryGetEntityId($node, 'nid'), 'moderation_state' => $state];
-
-    $this->backendFor(ContentCapabilityInterface::class)->updateEntity(new EntityStub('node', $content_type, $values));
+    $backend->setModerationState($node, $state);
   }
 
   /**

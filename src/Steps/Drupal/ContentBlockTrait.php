@@ -11,7 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -46,9 +46,6 @@ trait ContentBlockTrait {
    * @endcode
    *
    * @actor:system
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   *   When the entity cannot be deleted.
    */
   #[Given('the following :content_block_type content blocks do not exist:')]
   public function contentBlockDeleteMultiple(string $content_block_type, TableNode $content_block_table): void {
@@ -150,11 +147,11 @@ trait ContentBlockTrait {
    */
   #[Then('the content block type :content_block_type should exist')]
   public function contentBlockAssertTypeExists(string $content_block_type): void {
-    $config = $this->backendFor(ConfigCapabilityInterface::class);
+    $backend = $this->backendFor(EntityDefinitionCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    if (!$config->configExists('block_content.type.' . $content_block_type)) {
+    if (!$backend->bundleExists('block_content', $content_block_type)) {
       throw new ExpectationException(sprintf('The content block type "%s" does not exist.', $content_block_type), $this->getSession()->getDriver());
     }
   }

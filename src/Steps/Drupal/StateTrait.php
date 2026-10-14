@@ -19,9 +19,9 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 /**
  * Manage and assert Drupal State API values with automatic revert.
  *
- * Provides set, delete, and assertion steps for keys stored through
- * `\Drupal::state()`. Touched keys are snapshotted on first access and
- * reverted after the scenario finishes.
+ * Provides set, delete, and assertion steps for keys in the site's state
+ * key-value store. Touched keys are snapshotted on first access and reverted
+ * after the scenario finishes.
  *
  * Skip the revert with `@behat-steps-skip:StateTrait`. The snapshot registry
  * is cleared unconditionally before and after the scenario, so no snapshot

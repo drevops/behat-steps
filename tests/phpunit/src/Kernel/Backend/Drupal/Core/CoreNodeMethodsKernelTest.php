@@ -85,6 +85,23 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
     $this->assertNull(Node::load($created->getValue('nid')));
   }
 
+  public function testCreateNodeReadsTextualTimestamps(): void {
+    $stub = new EntityStub('node', 'article', [
+      'title' => 'Dated',
+      'created' => '2014-10-17 8:00am',
+      'changed' => '2014-10-18 9:00am',
+      'revision_timestamp' => '2014-10-19 10:00am',
+    ]);
+
+    $this->core->createNode($stub);
+
+    $node = Node::load($stub->getValue('nid'));
+    $this->assertInstanceOf(Node::class, $node);
+    $this->assertSame(strtotime('2014-10-17 8:00am'), (int) $node->getCreatedTime());
+    $this->assertSame(strtotime('2014-10-18 9:00am'), (int) $node->getChangedTime());
+    $this->assertSame(strtotime('2014-10-19 10:00am'), (int) $node->getRevisionCreationTime());
+  }
+
   public function testCreateNodeRejectsUnknownBundle(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot create content because provided content type bogus does not exist.');

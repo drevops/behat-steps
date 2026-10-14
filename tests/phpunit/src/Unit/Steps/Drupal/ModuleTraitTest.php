@@ -40,6 +40,7 @@ class ModuleTraitTest extends UnitTestCase {
     $backend->method('moduleIsPresent')->willReturn(TRUE);
     $backend->expects($expected_call === 'moduleInstall' ? $this->once() : $this->never())->method('moduleInstall')->with('help');
     $backend->expects($expected_call === 'moduleUninstall' ? $this->once() : $this->never())->method('moduleUninstall')->with('help');
+    $backend->expects($this->never())->method('cacheClear');
 
     $this->createContext($backend)->moduleBeforeScenario($this->createBeforeScenarioScope($scenario_tags, $feature_tags));
   }

@@ -27,6 +27,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\RedirectCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchIndexCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
@@ -70,6 +71,7 @@ interface CoreInterface extends
   PathAliasCapabilityInterface,
   QueueCapabilityInterface,
   QueueItemCapabilityInterface,
+  RedirectCapabilityInterface,
   RequestEnvironmentCapabilityInterface,
   RoleCapabilityInterface,
   SearchApiCapabilityInterface,

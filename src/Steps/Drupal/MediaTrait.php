@@ -11,7 +11,7 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -202,11 +202,11 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should exist')]
   public function mediaAssertTypeExists(string $media_type): void {
-    $config = $this->backendFor(ConfigCapabilityInterface::class);
+    $backend = $this->backendFor(EntityDefinitionCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    if (!$config->configExists('media.type.' . $media_type)) {
+    if (!$backend->bundleExists('media', $media_type)) {
       throw new ExpectationException(sprintf('The media type "%s" does not exist.', $media_type), $this->getSession()->getDriver());
     }
   }
@@ -222,11 +222,11 @@ trait MediaTrait {
    */
   #[Then('the media type :media_type should not exist')]
   public function mediaAssertTypeNotExists(string $media_type): void {
-    $config = $this->backendFor(ConfigCapabilityInterface::class);
+    $backend = $this->backendFor(EntityDefinitionCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    if ($config->configExists('media.type.' . $media_type)) {
+    if ($backend->bundleExists('media', $media_type)) {
       throw new ExpectationException(sprintf('The media type "%s" exists, but it should not.', $media_type), $this->getSession()->getDriver());
     }
   }

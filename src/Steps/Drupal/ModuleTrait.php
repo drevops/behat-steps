@@ -11,7 +11,6 @@ use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Tag;
@@ -253,9 +252,6 @@ trait ModuleTrait {
     // @codeCoverageIgnoreStart
     try {
       $this->backendFor(ModuleCapabilityInterface::class)->moduleInstall($module);
-      // An install leaves the running container holding the pre-install
-      // service and route definitions.
-      $this->backendFor(CacheCapabilityInterface::class)->cacheClear();
     }
     catch (\Exception $exception) {
       throw new \RuntimeException(sprintf('Failed to enable module "%s": %s.', $module, $exception->getMessage()), $exception->getCode(), $exception);
@@ -279,9 +275,6 @@ trait ModuleTrait {
     // @codeCoverageIgnoreStart
     try {
       $this->backendFor(ModuleCapabilityInterface::class)->moduleUninstall($module);
-      // An uninstall leaves the running container holding the pre-uninstall
-      // service and route definitions.
-      $this->backendFor(CacheCapabilityInterface::class)->cacheClear();
     }
     catch (\Exception $exception) {
       throw new \RuntimeException(sprintf('Failed to disable module "%s": %s.', $module, $exception->getMessage()), $exception->getCode(), $exception);

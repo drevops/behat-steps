@@ -19,12 +19,12 @@ use PHPUnit\Framework\Attributes\CoversTrait;
 #[CoversTrait(DraggableviewsTrait::class)]
 class DraggableviewsTraitTest extends UnitTestCase {
 
-  public function testSetOrderWritesTheWeightsAndInvalidatesTheListTag(): void {
+  public function testSetOrderWritesTheWeightsThroughTheCapabilityAlone(): void {
     $nodes = [new EntityStub('node', 'article', ['nid' => '11']), new EntityStub('node', 'article', ['nid' => 12])];
 
     $backend = $this->createMock(DrupalBackendInterface::class);
     $backend->expects($this->once())->method('draggableviewsSetOrder')->with('demo', 'page_1', [0 => '11', 1 => '12']);
-    $backend->expects($this->once())->method('cacheInvalidateTags')->with(['node_list']);
+    $backend->expects($this->never())->method('cacheInvalidateTags');
 
     $this->createContext($backend)->draggableviewsSetOrder('demo', 'page_1', $nodes);
   }

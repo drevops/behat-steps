@@ -205,6 +205,12 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'cacheClearBin' => ['cacheClearBin', ['render'], 'cacheClearBin'];
     yield 'cacheInvalidateTags' => ['cacheInvalidateTags', [['node_list']], 'cacheInvalidateTags'];
     yield 'cacheDeletePagePath' => ['cacheDeletePagePath', ['page', '/about', TRUE], 'cacheDeletePagePath'];
+    yield 'createRedirect' => ['createRedirect', ['/old', '/new', 302], 'createRedirect'];
+    yield 'deleteRedirect' => ['deleteRedirect', [new EntityStub('redirect', NULL, ['rid' => 3])], 'deleteRedirect'];
+    yield 'findRedirectIds' => ['findRedirectIds', ['/old', '/new', 301], 'findRedirectIds'];
+    yield 'bundleExists' => ['bundleExists', ['node', 'article'], 'bundleExists'];
+    yield 'getBundleLabel' => ['getBundleLabel', ['node', 'article'], 'getBundleLabel'];
+    yield 'setModerationState' => ['setModerationState', [$node, 'published'], 'setModerationState'];
     yield 'getEntityUrl' => ['getEntityUrl', [$entity, 'edit-form'], 'getEntityUrl'];
     yield 'setEntityPathAlias' => ['setEntityPathAlias', [$node, '/about'], 'setEntityPathAlias'];
     yield 'getMenuLinkPluginId' => ['getMenuLinkPluginId', [new EntityStub('menu_link_content', NULL, ['id' => 3])], 'getMenuLinkPluginId'];

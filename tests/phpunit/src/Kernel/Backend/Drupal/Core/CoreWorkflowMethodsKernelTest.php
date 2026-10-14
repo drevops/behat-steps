@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Drupal\Core;
 
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use Drupal\content_moderation\Plugin\WorkflowType\ContentModeration;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
+use Drupal\node\NodeInterface;
+use Drupal\user\Entity\User;
 use Drupal\workflows\Entity\Workflow;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -15,7 +19,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Kernel test for the workflow capability method on Core.
+ * Kernel test for the workflow capability methods on Core.
  *
  * An editorial workflow with the 'draft' and 'published' states applies to
  * the 'article' content type only.
@@ -47,6 +51,7 @@ class CoreWorkflowMethodsKernelTest extends KernelTestBase {
     $this->installEntitySchema('node');
     $this->installEntitySchema('content_moderation_state');
     $this->installEntitySchema('workflow');
+    $this->installSchema('node', ['node_access']);
     $this->installConfig(['system', 'filter', 'node']);
 
     NodeType::create(['type' => 'article', 'name' => 'Article'])->save();
@@ -102,6 +107,53 @@ class CoreWorkflowMethodsKernelTest extends KernelTestBase {
     yield 'a state the workflow does not define' => ['node', 'article', 'archived', FALSE];
     yield 'a bundle no workflow covers' => ['node', 'page', 'published', FALSE];
     yield 'an entity type no workflow covers' => ['taxonomy_term', 'article', 'published', FALSE];
+  }
+
+  public function testSetModerationStateMovesTheEntityToTheState(): void {
+    $node = Node::create(['type' => 'article', 'title' => 'Draft article', 'moderation_state' => 'draft']);
+    $node->save();
+
+    $this->core->setModerationState(new EntityStub('node', NULL, ['nid' => $node->id()]), 'published');
+
+    $reloaded = \Drupal::entityTypeManager()->getStorage('node')->loadUnchanged($node->id());
+    $this->assertInstanceOf(NodeInterface::class, $reloaded);
+    $this->assertSame('published', $reloaded->get('moderation_state')->value);
+    $this->assertTrue($reloaded->isPublished());
+  }
+
+  public function testSetModerationStateTakesSavedStub(): void {
+    $node = Node::create(['type' => 'article', 'title' => 'Draft article', 'moderation_state' => 'draft']);
+    $node->save();
+
+    $this->core->setModerationState((new EntityStub('node', 'article'))->markSaved($node), 'published');
+
+    $reloaded = \Drupal::entityTypeManager()->getStorage('node')->loadUnchanged($node->id());
+    $this->assertInstanceOf(NodeInterface::class, $reloaded);
+    $this->assertSame('published', $reloaded->get('moderation_state')->value);
+  }
+
+  public function testSetModerationStateRejectsEntityWithoutTheField(): void {
+    $account = User::create(['name' => 'unmoderated', 'status' => 1]);
+    $account->save();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('Cannot update the entity of type "user" with the id "%s" because it has no field "moderation_state".', $account->id()));
+
+    $this->core->setModerationState(new EntityStub('user', NULL, ['uid' => $account->id()]), 'published');
+  }
+
+  public function testSetModerationStateRejectsMissingEntity(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot update the entity of type "node" with the id "999" because it does not exist.');
+
+    $this->core->setModerationState(new EntityStub('node', NULL, ['nid' => 999]), 'published');
+  }
+
+  public function testSetModerationStateRejectsStubWithoutId(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot resolve an entity of type "node" from a stub without the id key "nid" set.');
+
+    $this->core->setModerationState(new EntityStub('node', 'article'), 'published');
   }
 
 }

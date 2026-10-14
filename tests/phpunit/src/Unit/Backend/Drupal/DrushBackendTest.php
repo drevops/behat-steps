@@ -18,6 +18,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInter
 use DrevOps\BehatSteps\Backend\Drupal\Capability\MenuLinkCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\RedirectCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
@@ -72,6 +73,7 @@ class DrushBackendTest extends UnitTestCase {
     yield 'menu link' => [MenuLinkCapabilityInterface::class];
     yield 'node' => [NodeCapabilityInterface::class];
     yield 'path alias' => [PathAliasCapabilityInterface::class];
+    yield 'redirect' => [RedirectCapabilityInterface::class];
     yield 'term' => [TermCapabilityInterface::class];
     yield 'user activity' => [UserActivityCapabilityInterface::class];
   }

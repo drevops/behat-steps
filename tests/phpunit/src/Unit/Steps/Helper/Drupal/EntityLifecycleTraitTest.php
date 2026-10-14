@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Helper\Drupal;
 
-use Behat\Behat\Context\Context;
 use Behat\Testwork\Call\CallCenter;
 use Behat\Testwork\Call\Callee;
 use Behat\Testwork\Call\Handler\RuntimeCallHandler;
@@ -28,7 +27,6 @@ use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Auth\FastLogoutInterface;
 use DrevOps\BehatSteps\Extension\Context\UserAwareInterface;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Scope\BeforeNodeCreateScope;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistryInterface;
 use DrevOps\BehatSteps\Extension\Registry\UserRegistry;
@@ -65,6 +63,7 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     'BlockCapabilityInterface::deleteBlockContent' => 'block_content',
     'LanguageCapabilityInterface::deleteLanguage' => 'configurable_language',
     'NodeCapabilityInterface::deleteNode' => 'node',
+    'RedirectCapabilityInterface::deleteRedirect' => 'redirect',
     'TermCapabilityInterface::deleteTerm' => 'taxonomy_term',
     'UserCapabilityInterface::deleteUser' => 'user',
   ];
@@ -501,10 +500,10 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->createContext($backend)->entityLifecycleAfterScenario($this->createAfterScenarioScope());
   }
 
-  public function testCreatedUsersAreDeletedAndTheBatchIsDrained(): void {
+  public function testCreatedUsersAreDeletedWithoutDrainingTheBatch(): void {
     $backend = $this->createBackend([UserCapabilityInterface::class, BatchCapabilityInterface::class]);
     $backend->expects($this->once())->method('deleteUser');
-    $backend->expects($this->once())->method('processBatch');
+    $backend->expects($this->never())->method('processBatch');
 
     $user_registry = new UserRegistry();
     $user_registry->addUser(new EntityStub('user', NULL, ['name' => 'alice']));
@@ -806,83 +805,6 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->assertSame(['term'], $deleted);
   }
 
-  public function testStringTimestampIsConvertedForInProcessBackend(): void {
-    $stub = new EntityStub('node', 'page', ['created' => '1 January 2025 UTC']);
-    $context = $this->createContext($this->createDrupalContentBackend());
-
-    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
-
-    $this->assertSame(strtotime('1 January 2025 UTC'), $stub->getValue('created'));
-  }
-
-  /**
-   * Tests that a value the backend already accepts is not rewritten.
-   *
-   * @param mixed $value
-   *   The value seeded on the timestamp field.
-   */
-  #[DataProvider('dataProviderNonTextualTimestampIsLeftAlone')]
-  public function testNonTextualTimestampIsLeftAlone(mixed $value): void {
-    $stub = new EntityStub('node', 'page', ['created' => $value]);
-    $context = $this->createContext($this->createDrupalContentBackend());
-
-    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
-
-    $this->assertSame($value, $stub->getValue('created'));
-  }
-
-  public static function dataProviderNonTextualTimestampIsLeftAlone(): \Iterator {
-    yield 'numeric timestamp' => ['1735689600'];
-    yield 'empty value' => [''];
-    yield 'absent value' => [NULL];
-  }
-
-  public function testUnreadableTimestampIsReported(): void {
-    $stub = new EntityStub('node', 'page', ['created' => 'not a date at all']);
-    $context = $this->createContext($this->createDrupalContentBackend());
-
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Unable to read the "created" value "not a date at all" as a date.');
-
-    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
-  }
-
-  public function testTimestampConversionIsSkippedForForeignContext(): void {
-    $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
-    $scope = new BeforeNodeCreateScope($this->createMock(Environment::class), $this->createMock(Context::class), $stub);
-
-    RegistryExposingContext::entityLifecycleBeforeNodeCreate($scope);
-
-    $this->assertSame('1 January 2025', $stub->getValue('created'));
-  }
-
-  public function testTimestampConversionIsSkippedForRemoteBackend(): void {
-    $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
-    $context = $this->createContext($this->createMock(BackendInterface::class));
-
-    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
-
-    $this->assertSame('1 January 2025', $stub->getValue('created'));
-  }
-
-  public function testTimestampConversionIsSkippedForOutOfProcessBackend(): void {
-    $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
-    $context = $this->createContext($this->createContentBackend());
-
-    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
-
-    $this->assertSame('1 January 2025', $stub->getValue('created'));
-  }
-
-  public function testTimestampConversionIsSkippedForBackendWithoutNodes(): void {
-    $stub = new EntityStub('node', 'page', ['created' => '1 January 2025']);
-    $context = $this->createContext($this->createBackend([ContentCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]));
-
-    RegistryExposingContext::entityLifecycleBeforeNodeCreate(new BeforeNodeCreateScope($this->createMock(Environment::class), $context, $stub));
-
-    $this->assertSame('1 January 2025', $stub->getValue('created'));
-  }
-
   /**
    * Tests that a stub carrying no usable id is not registered for cleanup.
    *
@@ -1104,16 +1026,6 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    */
   protected function createContentBackend(): BackendInterface&MockObject {
     return $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class]);
-  }
-
-  /**
-   * Builds a backend double that parses the field values it saves.
-   *
-   * @return \DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
-   *   The backend double.
-   */
-  protected function createDrupalContentBackend(): BackendInterface&MockObject {
-    return $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]);
   }
 
   /**
