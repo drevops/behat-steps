@@ -432,7 +432,8 @@ A step trait composes the helper traits it calls. Composing a step trait needs n
   ```
 
 - `SearchApiTrait` no longer composes `ContentTrait`, so a context that relied on it for the content steps composes `ContentTrait` itself.
-- `ConfigOverrideTrait` sets its `X-Config-No-Override` header in the request header bag of `RequestHeadersTrait`, where 3.14 set it on `RestTrait`'s property. The bag belongs to 1 context, so a suite that wants the header on `RestTrait`'s own requests composes both traits into 1 context. The browser header, the `$_SERVER` entry and the environment variable reach the site either way.
+- `ConfigOverrideTrait` sets its `X-Config-No-Override` header in the request header bag of `RequestHeadersTrait`, where 3.14 set it on `RestTrait`'s property. The bag belongs to 1 context, so a suite that wants the header on `RestTrait`'s own requests composes both traits into 1 context. The browser header reaches the site either way.
+- `ConfigOverrideTrait` hands the header to every backend that provides `RequestEnvironmentCapabilityInterface`, where 3.14 wrote the `$_SERVER` entry and the environment variable into the Behat process itself. The in-process backend writes the `$_SERVER` entry, and the Drush backend passes the variable to each command it runs, so a command a step starts some other way, such as through `CommandTrait`, no longer inherits it.
 - The entity teardown comes with the traits that create entities. A context that composes no entity-creating trait runs no entity teardown, where `RawDrupalContext` ran its `clean*()` hooks in every context that extended it. 4.0's `DrupalContext` composes every entity-creating trait, and a context that wants the teardown without the Drupal vocabulary composes the helper alone:
 
   ```php
@@ -1756,7 +1757,7 @@ $value = $this->stateFindValue('my_module.launched');
 | `RawDrupalContext::entityCreate()` | `EntityLifecycleTrait::entityLifecycleCreate()` | |
 | `RawDrupalContext::getAuthenticationManager()` | `AuthTrait::authGetAuthenticator()` | |
 | `RawDrupalContext::getContentDriver()` | `WebRawContext::backendFor()` | Names the capability the call needs: `NodeCapabilityInterface` for `createNode()`, `TermCapabilityInterface` for `createTerm()` and `ContentCapabilityInterface` for `createEntity()`; see [Backend contracts](#backend-contracts) |
-| `RawDrupalContext::getDriver()` | `WebRawContext::getBackend()` or `WebRawContext::backendFor()` | A call that names a backend moves to `getBackend()`, which has no default. A call with no argument, which returned the driver `@api` selected, moves to `backendFor()` naming the capability it needs, such as `$this->backendFor(CoreCapabilityInterface::class)` for a step that needs Drupal bootstrapped |
+| `RawDrupalContext::getDriver()` | `WebRawContext::getBackend()` or `WebRawContext::backendFor()` | A call that names a backend moves to `getBackend()`, which has no default. A call with no argument, which returned the driver `@api` selected, moves to `backendFor()` naming the capability the step calls, such as `$this->backendFor(ContentCapabilityInterface::class)` for a step that creates an entity |
 | `RawDrupalContext::getFieldParser()` | `Core::createEntityFieldParser()` | Override point on a `Core` of your own, which `DrupalBackendInterface::setCore()` sets. The backend parses the values through `EntityDefinitionCapabilityInterface::parseEntityFields()`, so a context that only changes how it parses overrides `EntityLifecycleTrait::entityLifecycleParseFields()` instead |
 | `RawDrupalContext::getUserManager()` | `AuthTrait::authGetUserRegistry()` | |
 | `RawDrupalContext::languageCreate()` | `EntityLifecycleTrait::entityLifecycleCreateLanguage()` | Returns the stub where it returned `FALSE` for a language that already exists; only a stub the backend saved joins the teardown |
@@ -1801,7 +1802,7 @@ A backend of your own that implements one of these interfaces renames the method
 | `BlockCapabilityInterface::blockContentCreate()` | `BlockCapabilityInterface::createBlockContent()` | |
 | `BlockCapabilityInterface::blockContentDelete()` | `BlockCapabilityInterface::deleteBlockContent()` | |
 | `BlockCapabilityInterface::blockDelete()` | `BlockCapabilityInterface::deleteBlock()` | Throws `\RuntimeException` for a stub without an `id`, where it threw `\InvalidArgumentException` |
-| `BlockCapabilityInterface::blockPlace()` | `BlockCapabilityInterface::placeBlock()` | |
+| `BlockCapabilityInterface::blockPlace()` | `BlockCapabilityInterface::placeBlock()` | Takes the block plugin id and the label, and places the block in the default theme, where it took a stub of the placement's values. Set the region, the status and the label display with `configureBlock()` |
 | `ContentCapabilityInterface::entityCreate()` | `ContentCapabilityInterface::createEntity()` | |
 | `ContentCapabilityInterface::entityDelete()` | `ContentCapabilityInterface::deleteEntity()` | |
 | `ContentCapabilityInterface::nodeCreate()` | `NodeCapabilityInterface::createNode()` | Under `DrevOps\BehatSteps\Backend\Drupal\Capability`; see [Backend contracts](#backend-contracts) |
@@ -1873,7 +1874,7 @@ A helper that returned a Drupal entity or a set of entity IDs returns an `Entity
 | `WebformTrait::webformLoadAll()` | `WebformTrait::webformLoadMultiple()` | Returned `WebformInterface` entities |
 | `WebformTrait::webformTemplates()` | `WebformTrait::webformLoadTemplateMultiple()` | Returned `WebformInterface` entities |
 
-The native return type of a `LoadMultiple()` is still `array`, so the call itself doesn't fail. Code that treats a value as an ID or an entity fails where it uses it instead, for example with `Object of class ... could not be converted to string` when it builds a path, or `Call to undefined method ...::getRoles()`. Read the ID from the stub, a field through `ContentCapabilityInterface::getEntityValues()` and a config entity's property through `ConfigCapabilityInterface::configGet()`, and change the entity through `updateEntity()` or `ConfigEntityCapabilityInterface::updateConfigEntity()`, as [Backend contracts](#backend-contracts) describes. When only the IDs are needed, call `QueryTrait::queryEntityIds()`, which every one of these traits composes.
+The native return type of a `LoadMultiple()` is still `array`, so the call itself doesn't fail. Code that treats a value as an ID or an entity fails where it uses it instead, for example with `Object of class ... could not be converted to string` when it builds a path, or `Call to undefined method ...::getRoles()`. Read the ID from the stub, a field through `ContentCapabilityInterface::getEntityValues()` and a config entity's property through `ConfigCapabilityInterface::configGet()`, and change the entity through `updateEntity()` or `ConfigEntityCapabilityInterface::updateConfigEntity()`, as [Backend contracts](#backend-contracts) describes. A user's roles and password have methods of their own on `UserCapabilityInterface`, which the Drush backend serves as well. When only the IDs are needed, call `QueryTrait::queryEntityIds()`, which every one of these traits composes.
 
 ```php
 // Before.
@@ -1882,10 +1883,10 @@ $roles = $user->getRoles(TRUE);
 $user->setPassword('secret')->save();
 
 // After.
-$uid = $this->userGetByName('jane')->getValue('uid');
-$backend = $this->backendFor(ContentCapabilityInterface::class);
-$roles = array_column($backend->getEntityValues('user', $uid, ['roles'])['roles'], 'target_id');
-$backend->updateEntity(new EntityStub('user', NULL, ['uid' => $uid, 'pass' => 'secret']));
+$user = $this->userGetByName('jane');
+$backend = $this->backendFor(UserCapabilityInterface::class);
+$roles = array_diff($backend->getUserRoles($user), ['authenticated']);
+$backend->setUserPassword($user, 'secret');
 
 // After, when only the IDs are needed.
 $ids = $this->queryEntityIds('media', ['name' => 'Logo'], 'image');
@@ -1910,7 +1911,7 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `CommandTrait::commandBeforeScenario()` | No parameters | `BeforeScenarioScope $scope` |
 | `ContentBlockTrait::contentBlockAssertTypeExists()` | `string $type` | `string $content_block_type` |
 | `ContentBlockTrait::contentBlockLoadMultiple()` | `string $type, array $conditions = []` | `string $content_block_type, array $conditions = []` |
-| `ContentTrait::contentVisitActionPageWithTitle()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+| `ContentTrait::contentVisitActionPageWithTitle()` | `string $action_subpath = ''` | `string $rel = 'canonical'`, the link relationship of the page: `edit-form` where 3.14 took `/edit`, `delete-form` for `/delete`, `version-history` for `/revisions` and `scheduled_transitions` for `/scheduled-transitions` |
 | `DropzoneTrait::dropzoneDropFile()` | `string $path, string $selector` | `string $filename, string $selector` |
 | `ElementTrait::elementAssertAttributeWithValue()` | `mixed $value` | `string $value` |
 | `ElementTrait::elementAssertChildElementCount()` | `int $count` | `string $count` |
@@ -1936,7 +1937,7 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `MediaTrait::mediaCreateEntity()` | `EntityStub $stub` | `EntityStubInterface $stub` |
 | `MediaTrait::mediaExpandEntityFieldsFixtures()` | `EntityStub $stub` | `EntityStubInterface $stub` |
 | `MediaTrait::mediaLoadMultiple()` | `string $type, array $conditions = []` | `string $media_type, array $conditions = []` |
-| `MediaTrait::mediaVisitActionPageWithName()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+| `MediaTrait::mediaVisitActionPageWithName()` | `string $action_subpath = ''` | `string $rel = 'canonical'`, the link relationship of the page: `edit-form` where 3.14 took `/edit`, `delete-form` for `/delete` and `version-history` for `/revisions` |
 | `MetatagTrait::metatagFindMeta()` | `string $name` | `string $meta_name` |
 | `ParagraphsTrait::paragraphsAttachFromStubToEntity()` | `ContentEntityInterface $parent_entity, string $parent_field_name, string $paragraph_bundle, EntityStub $stub, bool $save_entity = TRUE`, returns `ParagraphInterface` | `EntityStubInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStubInterface $stub`, returns `EntityStubInterface`. No `$save_entity`: the parent is saved every time |
 | `PathTrait::pathAssertNotCurrent()` | Returns `bool` | Returns nothing |
@@ -1955,7 +1956,7 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `TaxonomyTrait::taxonomyAssertVocabularyExists()` | `string $machine_name` | `string $vocabulary` |
 | `TaxonomyTrait::taxonomyAssertVocabularyNotExists()` | `string $machine_name` | `string $vocabulary` |
 | `TaxonomyTrait::taxonomyLoadMultiple()` | `string $vocabulary_machine_name` | `string $vocabulary` |
-| `TaxonomyTrait::taxonomyVisitActionPageWithName()` | `string $vocabulary_machine_name, string $term_name, string $action_subpath = ''` | `string $vocabulary, string $name, ?string $action_subpath = NULL` |
+| `TaxonomyTrait::taxonomyVisitActionPageWithName()` | `string $vocabulary_machine_name, string $term_name, string $action_subpath = ''` | `string $vocabulary, string $name, string $rel = 'canonical'`, the link relationship of the page: `edit-form` where 3.14 took `/edit` and `delete-form` for `/delete` |
 | `TaxonomyTrait::taxonomyVisitTermDeletePageWithName()` | `string $vocabulary_machine_name, string $term_name` | `string $vocabulary, string $name` |
 | `TaxonomyTrait::taxonomyVisitTermEditPageWithName()` | `string $vocabulary_machine_name, string $term_name` | `string $vocabulary, string $name` |
 | `TaxonomyTrait::taxonomyVisitTermPageWithName()` | `string $vocabulary_machine_name, string $term_name` | `string $vocabulary, string $name` |
@@ -1963,7 +1964,7 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `TestmodeTrait::testmodeEnableTestMode()` | `static` | An instance method, called as `$this->testmodeEnableTestMode()` |
 | `UserTrait::userCreateRole()` | `string $role_name` | `string $role` |
 | `UserTrait::userCreateRoleWithPermissions()` | Returns `RoleInterface` | Returns `EntityStubInterface`, the `user_role` stub `RoleCapabilityInterface::createRole()` returns; its machine name is `getValue('id')`. A permission the site doesn't define fails the step, where it was granted as written |
-| `UserTrait::userVisitActionPage()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
+| `UserTrait::userVisitActionPage()` | `string $action_subpath = ''` | `string $rel = 'canonical'`, the link relationship of the page: `edit-form` where 3.14 took `/edit` and `cancel-form` for `/cancel` |
 | `XmlTrait::xmlAfterScenario()` | No parameters | `AfterScenarioScope $scope` |
 | `XmlTrait::xmlAssertAttributeContains()` | `string $attribute_name, string $element, string $text` | `string $attribute, string $element, string $value` |
 | `XmlTrait::xmlAssertAttributeEquals()` | `string $text` | `string $value` |
@@ -2145,7 +2146,7 @@ A trait states what it needs from the site in a `<prefix>Prerequisites()` method
 ```php
 protected function acmePrerequisites(): array {
   return [
-    Prerequisite::capability(CoreCapabilityInterface::class),
+    Prerequisite::capability(ContentCapabilityInterface::class),
     Prerequisite::check(
       static fn(ModuleCapabilityInterface $backend): bool
         => $backend->moduleIsEnabled('acme'),
@@ -2239,28 +2240,32 @@ $role = $backend->createRole(['access content'])->getValue('id');
 
 A create flags the stub as saved only when the backend holds the created entity. The Drush backend runs outside the test process, so its `createUser()` writes the new `uid` onto the stub and its `createRole()` stub carries the role's `id`, but neither stub is saved. Read the ID from the stub's values rather than from `getSavedEntity()` when the backend may be Drush.
 
-In 3.14, the config, module, state and time steps called `\Drupal::configFactory()`, `\Drupal::moduleHandler()` and `\Drupal::state()` directly, so they ran only where the Drupal API driver had bootstrapped Drupal in the Behat process. They name the capability they need now, and run on any backend that provides it, Drush included. The lookups behind the delete, visit and assert steps ran `\Drupal::entityQuery()` the same way; they go through `QueryTrait::queryEntityIds()`, which resolves `EntityLookupCapabilityInterface`, and a delete step hands the id it found to the capability that deletes that entity type. The steps that changed an entity loaded it and saved it themselves; they hand a stub to `updateEntity()` now, and the menu, webform and block steps create, copy and change config entities through `ConfigEntityCapabilityInterface`. The queue, log, cache bin, file, search index, node access, workflow, block plugin, entity URL and one-time login operations, and the reads of entity type and field definitions, each sit on a capability the same way, so the 3 raw database queries the cache, draggable views and watchdog steps ran live in the in-process backend. A backend of your own that implements these capabilities adds the methods below; a project that uses only the shipped backends changes nothing.
+In 3.14, the config, module, state and time steps called `\Drupal::configFactory()`, `\Drupal::moduleHandler()` and `\Drupal::state()` directly, so they ran only where the Drupal API driver had bootstrapped Drupal in the Behat process. They name the capability they need now, and run on any backend that provides it, Drush included. The lookups behind the delete, visit and assert steps ran `\Drupal::entityQuery()` the same way; they go through `QueryTrait::queryEntityIds()`, which resolves `EntityLookupCapabilityInterface`, and a delete step hands the id it found to the capability that deletes that entity type. The steps that changed an entity loaded it and saved it themselves; they hand a stub to `updateEntity()` now, and the menu, webform and block steps create, copy and change config entities through `ConfigEntityCapabilityInterface`. The queue, log, cache bin, file, search index, node access, workflow, block, path alias, menu link, entity URL, one-time login, user role, password and user activity operations, and the reads of entity type and field definitions, each sit on a capability the same way, and the config override header reaches a backend through one, so the 3 raw database queries the cache, draggable views and watchdog steps ran live in the in-process backend. A backend of your own that implements these capabilities adds the methods below; a project that uses only the shipped backends changes nothing.
 
 | Interface | Methods added in 4.0 |
 | --- | --- |
-| `BlockCapabilityInterface` | `findBlockPluginId()`, `hasConditionPlugin()` |
+| `BlockCapabilityInterface` | `findBlockPluginId()`, `hasConditionPlugin()`, `configureBlock()`, `setBlockVisibility()`, `unsetBlockVisibility()`, `getBlockRegion()`, `findBlockIdsByLabel()`. Each write loads the block without overrides, so no override is written into the stored configuration, and `findBlockIdsByLabel()` looks in the default theme |
 | `CacheCapabilityInterface` | `cacheClearBin()`, `cacheInvalidateTags()`, `cacheDeletePagePath()`. The Drush backend empties the bin whole where `cacheDeletePagePath()` names a path, because it cannot list the bin's entries |
 | `ConfigCapabilityInterface` | `configExists()`, `configGetData()`, `configSetData()`, `configDelete()` |
 | `ConfigEntityCapabilityInterface` | `createConfigEntity()`, `updateConfigEntity()`, `deleteConfigEntity()`, `duplicateConfigEntity()`; the interface is new. Each saves through the entity storage, so the save hooks run, and an update or a copy loads the entity without overrides, so no override is written into the stored configuration. A create, an update and a copy return a stub, and a delete returns `void`. The Drush backend doesn't provide it |
-| `ContentCapabilityInterface` | `updateEntity()`, `getEntityValues()`, `getEntityUrl()`. An update sets every value of the stub through the field handlers, as a create does, and returns the stub; a read returns each field in its storage shape, or an empty array for an entity that doesn't exist |
+| `ContentCapabilityInterface` | `updateEntity()`, `getEntityValues()`, `getEntityBundle()`, `getEntityUrl()`. An update sets every value of the stub through the field handlers, as a create does, and returns the stub; a read returns each field in its storage shape, or an empty array for an entity that doesn't exist. The in-process backend's `getEntityUrl()` returns the route's own path, without a path alias or the base path of a site in a subdirectory |
 | `DraggableviewsCapabilityInterface` | `draggableviewsSetOrder()`; the interface is new. The Drush backend doesn't provide it |
 | `EntityDefinitionCapabilityInterface` | `getEntityIdKey()`, `getEntityFieldTypes()`, `parseEntityFields()`; the interface is new. `getEntityFieldTypes()` moved here from `CoreInterface`, which extends the interface, so `Core` keeps the method. The Drush backend doesn't provide it |
 | `EntityLookupCapabilityInterface` | `findEntityIds()`; the interface is new. A condition is a value, matched with `=`, or an `[operator, value]` pair over `=`, `IN`, `CONTAINS` and `LIKE`, and the ids come back in natural order. The Drush backend doesn't provide it |
 | `FileCapabilityInterface` | `fileWriteUnmanaged()`, `fileReadUnmanaged()`, `fileExistsUnmanaged()`, `fileDeleteUnmanaged()`, `filePrepareDirectory()`, `fileWriteManaged()`; the interface is new. The Drush backend doesn't provide it |
 | `LogCapabilityInterface` | `logGetLastId()`, `logRead()`, `logDelete()`; the interface is new, and its `SEVERITY_*` constants hold the RFC 5424 levels. The Drush backend serves it with `watchdog:show` and `watchdog:delete`, and returns each message rendered with its placeholders and no `variables` |
+| `MenuLinkCapabilityInterface` | `getMenuLinkPluginId()`; the interface is new. The Drush backend doesn't provide it |
 | `ModuleCapabilityInterface` | `moduleIsEnabled()`, `moduleIsPresent()` |
 | `NodeCapabilityInterface` | `rebuildNodeAccess()` |
+| `PathAliasCapabilityInterface` | `setEntityPathAlias()`; the interface is new. It changes the alias an entity has rather than adding a second one, and tells pathauto to leave the new one alone. The Drush backend doesn't provide it |
 | `QueueCapabilityInterface` | `queueCountItems()`, `queueDelete()`, `queueProcess()`; the interface is new. The Drush backend serves it with `queue:list`, `queue:run` and `queue:delete` |
 | `QueueItemCapabilityInterface` | `queueAddItem()`; the interface is new. The Drush backend doesn't provide it, because no Drush command adds an item |
+| `RequestEnvironmentCapabilityInterface` | `requestHeaderSet()`, `requestHeaderUnset()`; the interface is new, under `DrevOps\BehatSteps\Backend\Capability`. The in-process backend writes the header to `$_SERVER` and the Drush backend passes it to each command in its environment, both under the name PHP gives a request header, such as `HTTP_X_CONFIG_NO_OVERRIDE`, and neither needs to be bootstrapped first |
 | `SearchApiCapabilityInterface` | `searchIndexEntity()`, `searchRunCron()`; the interface is new. The Drush backend doesn't provide it |
 | `SearchIndexCapabilityInterface` | `searchIndexItems()`; the interface is new. The Drush backend serves it with `search-api:index` |
 | `StateCapabilityInterface` | `stateGet()`, `stateSet()`, `stateDelete()`, `stateExists()`; the interface is new |
-| `UserCapabilityInterface` | `getOneTimeLoginUrl()`. The Drush backend serves it with `user:login` |
+| `UserActivityCapabilityInterface` | `setUserLastAccessTime()`, `setUserLastLoginTime()`; the interface is new. The Drush backend doesn't provide it |
+| `UserCapabilityInterface` | `getOneTimeLoginUrl()`, `getUserRoles()`, `setUserPassword()`. The Drush backend serves them with `user:login`, `user:information` and `user:password` |
 | `WorkflowCapabilityInterface` | `hasWorkflowState()`; the interface is new. The Drush backend doesn't provide it |
 
 `CacheCapabilityInterface::cacheClear()` took a cache bin to clear, which no backend honored. It takes no argument and clears every cache, so a call that passed a type drops it:
@@ -2292,14 +2297,14 @@ $messages = $backend->mailGet();
 
 `mailStartCollecting()` takes the handler types to collect from, `['default']` when omitted, and switches only those, as `EmailTrait` did in 3.14 when it swapped the mail system itself. It records the handler each type held in `system.mail_original`, so a run that stops early leaves the record for the next one, and `mailStopCollecting()` restores every recorded handler and deletes the record. `mailGet()` returns every collected message, one the site cancelled included, so a caller that counted only sent mail filters on the `send` flag. A backend of your own adds the parameter to its `mailStartCollecting()`.
 
-`DrupalDriver::getSubDriverPaths()` served the Drupal Extension's subcontext discovery, which this package doesn't do. Code that read the extension paths asks the in-process backend's core:
+`DrupalDriver::getSubDriverPaths()` served the Drupal Extension's subcontext discovery, which this package doesn't do. Code that read the extension paths asks the in-process backend for its core:
 
 ```php
 // Before.
 $paths = $this->getDriver('drupal')->getSubDriverPaths();
 
 // After.
-$paths = $this->backendFor(CoreCapabilityInterface::class)
+$paths = $this->backendFor(DrupalBackendInterface::class)
   ->getCore()
   ->getExtensionPathList();
 ```

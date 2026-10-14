@@ -4678,7 +4678,7 @@ When I wait for the batch job to finish
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "BlockCapabilityInterface" | `BlockCapabilityInterface` |
 | The core "block" module is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -4947,8 +4947,12 @@ When cron runs
 >  in a separate process from the system under test (SUT).
 >  <br/><br/>
 >  This trait signals the SUT that specific config objects should be read
->  from their original (unoverridden) values. The signal is a request header,
->  a `$_SERVER` entry and an environment variable.
+>  from their original (unoverridden) values. The signal is the
+>  `X-Config-No-Override` request header. The browser sends it, and every
+>  backend providing `RequestEnvironmentCapabilityInterface` passes it to the
+>  SUT code it runs: the in-process backend as the `HTTP_X_CONFIG_NO_OVERRIDE`
+>  `$_SERVER` entry, and the Drush backend as the environment variable of the
+>  same name for each command.
 >  <br/><br/>
 >  The SUT is responsible for reading that signal and calling
 >  `ImmutableConfig::getOriginal()` instead of `ImmutableConfig::get()` for
@@ -4964,8 +4968,8 @@ When cron runs
 >  Limitations:
 >  - The request header reaches the SUT only on a browser driver providing
 >  `RequestHeaderCapabilityInterface`. A WebDriver session carries no request
->  headers, so a scenario running on Selenium falls back to the `$_SERVER`
->  entry and the environment variable alone.
+>  headers, so a scenario running on Selenium reaches only the SUT code the
+>  backends run.
 >  - The SUT must implement support for the `X-Config-No-Override` header,
 >  the `HTTP_X_CONFIG_NO_OVERRIDE` `$_SERVER` entry or the matching
 >  environment variable. An example implementation:
@@ -5203,7 +5207,7 @@ Then the config "system.site" with the key "name" should not contain the effecti
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "BlockCapabilityInterface" | `BlockCapabilityInterface` |
 | The core "block_content" module is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -5308,7 +5312,7 @@ Then the content block type "Search" should exist
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "PathAliasCapabilityInterface" | `PathAliasCapabilityInterface` |
 | The core "path" module is enabled, for the path alias step | `ModuleCapabilityInterface` |
 
 <details>
@@ -5717,7 +5721,7 @@ Then the drush output should match "/Drupal [0-9]+/"
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "ContentCapabilityInterface" | `ContentCapabilityInterface` |
 | The "eck" module from the "drupal/eck" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -6422,7 +6426,7 @@ Given the following languages exist:
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "ContentCapabilityInterface" | `ContentCapabilityInterface` |
 | The core "media" module is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -6615,7 +6619,7 @@ Then the "image" media with the name "Test media image" should not exist
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "ContentCapabilityInterface" | `ContentCapabilityInterface` |
 | The core "menu_link_content" module is enabled, for the menu link steps | `ModuleCapabilityInterface` |
 
 <details>
@@ -6839,7 +6843,7 @@ Then the following modules should be disabled:
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "ContentCapabilityInterface" | `ContentCapabilityInterface` |
 | The "paragraphs" module from the "drupal/paragraphs" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -6989,7 +6993,7 @@ Then the queue "myqueue" should be empty
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "ContentCapabilityInterface" | `ContentCapabilityInterface` |
 | The "redirect" module from the "drupal/redirect" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -7242,7 +7246,7 @@ Then the state "my_module.launched" should not exist
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "TermCapabilityInterface" | `TermCapabilityInterface` |
 | The core "taxonomy" module is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -7957,7 +7961,7 @@ Then the user "John" should not be blocked
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |
+| A backend in the scenario's list provides "ConfigEntityCapabilityInterface" | `ConfigEntityCapabilityInterface` |
 | The "webform" module from the "drupal/webform" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
