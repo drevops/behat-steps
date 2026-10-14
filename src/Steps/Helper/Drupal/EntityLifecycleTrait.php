@@ -371,12 +371,19 @@ trait EntityLifecycleTrait {
    * @param array<int, string> $ignored_properties
    *   Value names to leave untouched, such as base properties the caller
    *   handles itself.
+   * @param \DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface|null $backend
+   *   The backend that will save the entity, so the values are parsed against
+   *   the definitions it saves them with. NULL parses with the first backend
+   *   in the scenario's order that parses field values.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
-   *   When no backend in the scenario's order parses field values.
+   *   When no backend is given and none in the scenario's order parses field
+   *   values.
    */
-  public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    $this->backendFor(EntityDefinitionCapabilityInterface::class)->parseEntityFields($stub, $ignored_properties);
+  public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = [], ?EntityDefinitionCapabilityInterface $backend = NULL): void {
+    $backend ??= $this->backendFor(EntityDefinitionCapabilityInterface::class);
+
+    $backend->parseEntityFields($stub, $ignored_properties);
   }
 
   /**
@@ -510,7 +517,7 @@ trait EntityLifecycleTrait {
       return;
     }
 
-    $this->entityLifecycleParseFields($stub, $ignored_properties);
+    $this->entityLifecycleParseFields($stub, $ignored_properties, $backend);
   }
 
   /**

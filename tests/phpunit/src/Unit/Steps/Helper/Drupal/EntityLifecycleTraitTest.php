@@ -194,6 +194,30 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->createContext($this->createContentBackend())->entityLifecycleParseFields(new EntityStub('node', 'page', ['title' => 'A title']));
   }
 
+  public function testCreationParsesWithTheBackendThatSavesTheEntity(): void {
+    $stub = new EntityStub('node', 'page', ['title' => 'A title']);
+
+    $parser = $this->createBackend([EntityDefinitionCapabilityInterface::class]);
+    $parser->expects($this->never())->method('parseEntityFields');
+
+    $saver = $this->createBackend([NodeCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]);
+    $saver->expects($this->once())->method('parseEntityFields')->with($stub, ['author']);
+    $saver->method('createNode')->willReturn($stub);
+
+    $environment = $this->createMock(Environment::class);
+    $environment->method('bindCallee')->willReturnCallback(static fn(Callee $callee): mixed => $callee->getCallable());
+
+    // The backend listed first parses fields but cannot create a node.
+    $backend_registry = new BackendRegistry(['parser' => $parser, 'saver' => $saver]);
+    $backend_registry->setScenarioBackends(['parser' => 'parser', 'saver' => 'saver']);
+    $backend_registry->setEnvironment($environment);
+
+    $context = $this->createContext($saver);
+    $context->setBackendRegistry($backend_registry);
+
+    $context->entityLifecycleCreateNode($stub);
+  }
+
   public function testUserCreationRegistersTheUser(): void {
     $backend = $this->createBackend([UserCapabilityInterface::class]);
     $stub = new EntityStub('user', NULL, ['name' => 'alice']);

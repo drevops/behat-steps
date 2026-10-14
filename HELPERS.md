@@ -3070,7 +3070,7 @@ Find the newest of several entities whose ids carry no creation order
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = [], ?EntityDefinitionCapabilityInterface $backend = NULL): void</code></summary>
 
 <br/>
 Expands a stub's raw Gherkin values into the storage field shape
