@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
 use DrevOps\BehatSteps\Steps\Drupal\EckTrait;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\eck\Entity\EckEntityType;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -51,7 +50,7 @@ class EckTraitKernelTest extends StepTraitKernelTestBase {
 
     $entities = $this->context->eckLoadMultiple('contact', 'person', ['title' => 'Shared']);
 
-    $this->assertLoadedSet([$first, $second], $entities, ContentEntityInterface::class);
+    $this->assertStubSet([$first, $second], $entities, 'id');
   }
 
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
@@ -65,7 +64,7 @@ class EckTraitKernelTest extends StepTraitKernelTestBase {
     $newest = $this->createEntity('person', 'Shared');
     $this->createEntity('company', 'Shared');
 
-    $this->assertSame($newest->id(), $this->context->eckGetEntityByTitle('contact', 'person', 'Shared')->id());
+    $this->assertSame((string) $newest->id(), $this->context->eckGetEntityByTitle('contact', 'person', 'Shared')->getValue('id'));
   }
 
   public function testGetEntityByTitleFailsWhenNothingMatches(): void {

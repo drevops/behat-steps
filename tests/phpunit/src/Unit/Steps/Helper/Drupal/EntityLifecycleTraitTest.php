@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -39,8 +40,6 @@ use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\RegistryExposingContext;
 use DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures\ThrowingHookReader;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebRawContext;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -160,6 +159,63 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->createContext($backend)->entityLifecycleCreateNode($stub);
 
     $this->assertSame('A title', $stub->getValue('title'));
+  }
+
+  /**
+   * Tests that a create hands the stub to the backend to parse first.
+   *
+   * @param string $method
+   *   The lifecycle method that creates the entity.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub
+   *   The stub to create.
+   * @param string $create
+   *   The backend method that saves the entity.
+   * @param array<int, string> $ignored
+   *   The values the parse leaves as written.
+   */
+  #[DataProvider('dataProviderCreationParsesTheValuesThroughTheBackend')]
+  public function testCreationParsesTheValuesThroughTheBackend(string $method, EntityStub $stub, string $create, array $ignored): void {
+    $backend = $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]);
+    $backend->expects($this->once())->method('parseEntityFields')->with($stub, $ignored);
+    $backend->method($create)->willReturn($stub);
+
+    $this->createContext($backend)->{$method}($stub);
+  }
+
+  public static function dataProviderCreationParsesTheValuesThroughTheBackend(): \Iterator {
+    yield 'node' => ['entityLifecycleCreateNode', new EntityStub('node', 'page', ['title' => 'A title']), 'createNode', ['author']];
+    yield 'term' => ['entityLifecycleCreateTerm', new EntityStub('taxonomy_term', 'tags', ['name' => 'A term']), 'createTerm', ['vocabulary_machine_name']];
+    yield 'other entity' => ['entityLifecycleCreate', new EntityStub('block_content', 'basic', ['info' => 'A block']), 'createEntity', []];
+  }
+
+  public function testParseFieldsRefusesBackendThatDoesNotParse(): void {
+    $this->expectException(UnsupportedBackendActionException::class);
+
+    $this->createContext($this->createContentBackend())->entityLifecycleParseFields(new EntityStub('node', 'page', ['title' => 'A title']));
+  }
+
+  public function testCreationParsesWithTheBackendThatSavesTheEntity(): void {
+    $stub = new EntityStub('node', 'page', ['title' => 'A title']);
+
+    $parser = $this->createBackend([EntityDefinitionCapabilityInterface::class]);
+    $parser->expects($this->never())->method('parseEntityFields');
+
+    $saver = $this->createBackend([NodeCapabilityInterface::class, EntityDefinitionCapabilityInterface::class]);
+    $saver->expects($this->once())->method('parseEntityFields')->with($stub, ['author']);
+    $saver->method('createNode')->willReturn($stub);
+
+    $environment = $this->createMock(Environment::class);
+    $environment->method('bindCallee')->willReturnCallback(static fn(Callee $callee): mixed => $callee->getCallable());
+
+    // The backend listed first parses fields but cannot create a node.
+    $backend_registry = new BackendRegistry(['parser' => $parser, 'saver' => $saver]);
+    $backend_registry->setScenarioBackends(['parser' => 'parser', 'saver' => 'saver']);
+    $backend_registry->setEnvironment($environment);
+
+    $context = $this->createContext($saver);
+    $context->setBackendRegistry($backend_registry);
+
+    $context->entityLifecycleCreateNode($stub);
   }
 
   public function testUserCreationRegistersTheUser(): void {
@@ -763,18 +819,133 @@ class EntityLifecycleTraitTest extends UnitTestCase {
     $this->assertSame('1 January 2025', $stub->getValue('created'));
   }
 
-  public function testAnUnsavedEntityIsNotRegisteredForCleanup(): void {
-    $entity_type = $this->createMock(EntityTypeInterface::class);
-    $entity_type->method('getKey')->willReturn('nid');
-
-    $entity = $this->createMock(EntityInterface::class);
-    $entity->method('id')->willReturn(NULL);
-    $entity->method('getEntityType')->willReturn($entity_type);
-
+  /**
+   * Tests that a stub carrying no usable id is not registered for cleanup.
+   *
+   * @param array<string, mixed> $values
+   *   The values of the stub.
+   */
+  #[DataProvider('dataProviderStubWithoutIdIsNotRegisteredForCleanup')]
+  public function testStubWithoutIdIsNotRegisteredForCleanup(array $values): void {
     $context = $this->createContext($this->createContentBackend());
-    $context->entityLifecycleRegister($entity);
+    $context->entityLifecycleRegister(new EntityStub('node', 'page', $values), 'nid');
 
     $this->assertSame([], $context->testGetCreatedStubs());
+  }
+
+  public static function dataProviderStubWithoutIdIsNotRegisteredForCleanup(): \Iterator {
+    yield 'no id' => [['title' => 'A title']];
+    yield 'an empty id' => [['nid' => '']];
+    yield 'an id that is not a scalar' => [['nid' => ['5']]];
+  }
+
+  /**
+   * Tests that a registered stub keeps only the type, bundle and id.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStub $stub
+   *   The stub to register.
+   * @param string $id_key
+   *   The id key of its entity type.
+   * @param string|null $expected_bundle
+   *   The bundle the registered stub carries.
+   * @param array<string, mixed> $expected_values
+   *   The values the registered stub carries.
+   */
+  #[DataProvider('dataProviderRegisterKeepsOnlyTheId')]
+  public function testRegisterKeepsOnlyTheId(EntityStub $stub, string $id_key, ?string $expected_bundle, array $expected_values): void {
+    $context = $this->createContext($this->createContentBackend());
+    $context->entityLifecycleRegister($stub, $id_key);
+
+    $registered = $context->testGetCreatedStubs();
+
+    $this->assertCount(1, $registered);
+    $this->assertSame($stub->getEntityType(), $registered[0]->getEntityType());
+    $this->assertSame($expected_bundle, $registered[0]->getBundle());
+    $this->assertSame($expected_values, $registered[0]->getValues());
+    $this->assertFalse($registered[0]->isSaved(), 'Cleanup loads the entity again, so it tolerates a row the scenario already deleted.');
+  }
+
+  public static function dataProviderRegisterKeepsOnlyTheId(): \Iterator {
+    yield 'an id under the id key' => [new EntityStub('media', 'image', ['mid' => '7', 'name' => 'Logo']), 'mid', 'image', ['mid' => '7']];
+    yield 'a saved entity' => [
+      (new EntityStub('menu'))->markSaved(new class() {
+
+        public function id(): string {
+          return 'footer';
+        }
+
+      }),
+      'id',
+      NULL,
+      ['id' => 'footer'],
+    ];
+  }
+
+  /**
+   * Tests which of 3 same-label menus is the newest.
+   *
+   * @param array<int, string> $registered
+   *   The ids of the menus the scenario created, in creation order.
+   * @param string $expected
+   *   The id of the menu expected to be the newest.
+   */
+  #[DataProvider('dataProviderFindNewest')]
+  public function testFindNewest(array $registered, string $expected): void {
+    $context = new RegistryExposingContext();
+    $stubs = $this->createMenuStubs(['shared', 'shared_2', 'shared_10']);
+
+    foreach ($registered as $id) {
+      $context->entityLifecycleRegister($stubs[$id], 'id');
+    }
+
+    $this->assertSame($expected, $context->entityLifecycleFindNewest($stubs, 'id')?->getValue('id'));
+  }
+
+  public static function dataProviderFindNewest(): array {
+    return [
+      'none created by the scenario' => [[], 'shared_10'],
+      'one created by the scenario' => [['shared_2'], 'shared_2'],
+      'several created by the scenario' => [['shared_10', 'shared'], 'shared'],
+    ];
+  }
+
+  public function testFindNewestMatchesSavedStub(): void {
+    $context = new RegistryExposingContext();
+    $context->testSetCreatedStubs([
+      (new EntityStub('menu'))->markSaved(new class() {
+
+        public function id(): string {
+          return 'shared';
+        }
+
+      }),
+    ]);
+
+    $this->assertSame('shared', $context->entityLifecycleFindNewest($this->createMenuStubs(['shared', 'shared_2']), 'id')?->getValue('id'));
+  }
+
+  public function testFindNewestSkipsStubOfAnotherTypeWithTheSameId(): void {
+    $context = new RegistryExposingContext();
+    $context->entityLifecycleRegister(new EntityStub('date_format', NULL, ['id' => 'shared']), 'id');
+
+    $this->assertSame('shared_2', $context->entityLifecycleFindNewest($this->createMenuStubs(['shared', 'shared_2']), 'id')?->getValue('id'));
+  }
+
+  public function testFindNewestReadsTheIdsTheStubsCarry(): void {
+    $stubs = array_values($this->createMenuStubs(['shared_10', 'shared_2']));
+
+    $this->assertSame('shared_10', (new RegistryExposingContext())->entityLifecycleFindNewest($stubs, 'id')?->getValue('id'));
+  }
+
+  public function testFindNewestReturnsNullForNoStubs(): void {
+    $this->assertNull((new RegistryExposingContext())->entityLifecycleFindNewest([], 'id'));
+  }
+
+  public function testFindNewestRejectsStubWithoutId(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The "menu" stub carries no id under the key "id".');
+
+    (new RegistryExposingContext())->entityLifecycleFindNewest([new EntityStub('menu')], 'id');
   }
 
   public function testLoginDelegatesToTheAuthenticator(): void {
@@ -879,6 +1050,25 @@ class EntityLifecycleTraitTest extends UnitTestCase {
    */
   protected function createDrupalContentBackend(): BackendInterface&MockObject {
     return $this->createBackend([ContentCapabilityInterface::class, NodeCapabilityInterface::class, TermCapabilityInterface::class, CoreCapabilityInterface::class]);
+  }
+
+  /**
+   * Builds the stubs of menus that share 1 label.
+   *
+   * @param array<int, string> $ids
+   *   The menu ids.
+   *
+   * @return array<string, \DrevOps\BehatSteps\Backend\Entity\EntityStub>
+   *   The stubs, keyed by id.
+   */
+  protected function createMenuStubs(array $ids): array {
+    $stubs = [];
+
+    foreach ($ids as $id) {
+      $stubs[$id] = new EntityStub('menu', NULL, ['id' => $id]);
+    }
+
+    return $stubs;
   }
 
 }

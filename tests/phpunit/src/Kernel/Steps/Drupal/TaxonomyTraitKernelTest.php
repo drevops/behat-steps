@@ -49,7 +49,7 @@ class TaxonomyTraitKernelTest extends StepTraitKernelTestBase {
 
     $terms = $this->context->taxonomyLoadMultiple('tags', ['name' => 'Shared']);
 
-    $this->assertLoadedSet([$first, $second], $terms, TermInterface::class);
+    $this->assertStubSet([$first, $second], $terms, 'tid');
   }
 
   /**
@@ -69,13 +69,36 @@ class TaxonomyTraitKernelTest extends StepTraitKernelTestBase {
 
     $terms = $this->context->taxonomyLoadMultiple('tags', ['name' => 'Shared']);
 
-    $this->assertLoadedSet([$first, $second], $terms, TermInterface::class);
+    $this->assertStubSet([$first, $second], $terms, 'tid');
   }
 
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
     $this->createTerm('topics', 'Shared');
 
     $this->assertSame([], $this->context->taxonomyLoadMultiple('tags', ['name' => 'Shared']));
+  }
+
+  public function testFindVocabularyReturnsTheStubOfTheVocabulary(): void {
+    $vocabulary = $this->context->taxonomyFindVocabulary('tags');
+
+    $this->assertNotNull($vocabulary);
+    $this->assertSame('taxonomy_vocabulary', $vocabulary->getEntityType());
+    $this->assertSame('tags', $vocabulary->getValue('vid'));
+    $this->assertNull($this->context->taxonomyFindVocabulary('missing'));
+  }
+
+  public function testGetVocabularyFailsForMissingVocabulary(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The vocabulary "missing" does not exist.');
+
+    $this->context->taxonomyGetVocabulary('missing');
+  }
+
+  public function testAssertVocabularyExistsPassesOnTheStoredName(): void {
+    $this->context->taxonomyAssertVocabularyExists('topics', 'Topics');
+    $this->context->taxonomyAssertVocabularyNotExists('missing');
+
+    $this->addToAssertionCount(2);
   }
 
   protected function createTerm(string $vocabulary, string $name): TermInterface {

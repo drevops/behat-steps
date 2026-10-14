@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchIndexCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
-use Drupal\node\Entity\Node;
-use Drupal\node\NodeInterface;
 
 /**
  * Run Drupal Search API indexing and cron hooks.
@@ -127,13 +128,14 @@ trait SearchApiTrait {
    * @param string $title
    *   The node title.
    *
-   * @return \Drupal\node\NodeInterface|null
-   *   The newest node among those with the title, or NULL when none has it.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The stub of the newest node among those with the title, carrying its
+   *   'nid', or NULL when none has it.
    */
-  public function searchApiFindNodeByTitle(string $content_type, string $title): ?NodeInterface {
+  public function searchApiFindNodeByTitle(string $content_type, string $title): ?EntityStubInterface {
     $nid = $this->queryFindNewestEntityId('node', ['title' => $title], $content_type);
 
-    return $nid === NULL ? NULL : Node::load($nid);
+    return $nid === NULL ? NULL : new EntityStub('node', $content_type, ['nid' => $nid]);
   }
 
   /**
@@ -142,18 +144,22 @@ trait SearchApiTrait {
    * Only the node's own items are indexed, so other items waiting in an index
    * stay queued. An index that does not include the node is skipped.
    *
-   * @param \Drupal\node\NodeInterface $node
-   *   The node.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $node
+   *   The node stub, carrying its 'nid'.
    *
    * @throws \RuntimeException
-   *   When no active search index includes the node.
+   *   When the node does not exist, or no active search index includes it.
    */
-  public function searchApiIndexNode(NodeInterface $node): void {
-    $is_indexed = $this->backendFor(SearchApiCapabilityInterface::class)->searchIndexEntity('node', (string) $node->id());
+  public function searchApiIndexNode(EntityStubInterface $node): void {
+    $nid = $this->queryGetEntityId($node, 'nid');
 
-    if (!$is_indexed) {
-      throw new \RuntimeException(sprintf('No active search index includes the "%s" content with the title "%s".', $node->bundle(), $node->label()));
+    if ($this->backendFor(SearchApiCapabilityInterface::class)->searchIndexEntity('node', $nid)) {
+      return;
     }
+
+    $values = $this->backendFor(ContentCapabilityInterface::class)->getEntityValues('node', $nid, ['type', 'title']);
+
+    throw new \RuntimeException(sprintf('No active search index includes the "%s" content with the title "%s".', $values['type'][0]['target_id'] ?? '', $values['title'][0]['value'] ?? ''));
   }
 
   /**

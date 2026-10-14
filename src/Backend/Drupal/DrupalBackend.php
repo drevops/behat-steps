@@ -309,6 +309,20 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function updateEntity(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->updateEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityValues(string $entity_type, int|string $id, array $fields): array {
+    return $this->getCore()->getEntityValues($entity_type, $id, $fields);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function deleteEntity(EntityStubInterface $stub): void {
     $this->getCore()->deleteEntity($stub);
   }
@@ -316,8 +330,57 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function createConfigEntity(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->createConfigEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateConfigEntity(EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->updateConfigEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteConfigEntity(EntityStubInterface $stub): void {
+    $this->getCore()->deleteConfigEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function duplicateConfigEntity(EntityStubInterface $source, array $overrides): EntityStubInterface {
+    return $this->getCore()->duplicateConfigEntity($source, $overrides);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function findEntityIds(string $entity_type, array $conditions = [], ?string $bundle = NULL): array {
     return $this->getCore()->findEntityIds($entity_type, $conditions, $bundle);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityIdKey(string $entity_type): string {
+    return $this->getCore()->getEntityIdKey($entity_type);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityFieldTypes(string $entity_type, ?string $bundle = NULL): array {
+    return $this->getCore()->getEntityFieldTypes($entity_type, $bundle);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
+    $this->getCore()->parseEntityFields($stub, $ignored_properties);
   }
 
   /**

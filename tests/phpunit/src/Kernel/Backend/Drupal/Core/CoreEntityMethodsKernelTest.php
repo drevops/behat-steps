@@ -6,8 +6,11 @@ namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Drupal\Core;
 
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\entity_test\EntityTestHelper;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
@@ -18,9 +21,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for generic entity methods on Core via the backend.
  *
- * Covers 'createEntity()' and 'deleteEntity()' (both the stub-object branch
- * and the loaded-entity branch). Base-field expansion is exercised
- * implicitly by any 'createEntity()' call whose stub sets a base field.
+ * Covers 'createEntity()', 'updateEntity()', 'getEntityValues()' and
+ * 'deleteEntity()' (both the stub-object branch and the loaded-entity
+ * branch). Base-field expansion is exercised implicitly by any create or
+ * update whose stub sets a base field.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -32,7 +36,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    *
    * @var array<string>
    */
-  protected static $modules = ['system', 'user', 'entity_test'];
+  protected static $modules = ['system', 'user', 'entity_test', 'field', 'options'];
 
   /**
    * The Core backend under test.
@@ -226,6 +230,126 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $this->expectExceptionMessageMatches('/Cannot create entity because provided bundle "not_a_real_bundle" does not exist/');
 
     $this->core->createEntity($stub);
+  }
+
+  public function testUpdateEntitySetsTheValuesThroughTheHandlers(): void {
+    Role::create(['id' => 'editor', 'label' => 'Editor'])->save();
+    $account = $this->createUser('wes');
+
+    $stub = new EntityStub('user', NULL, ['uid' => $account->id(), 'status' => '0', 'roles' => ['Editor']]);
+    $updated = $this->core->updateEntity($stub);
+
+    $this->assertSame($stub, $updated, 'updateEntity returns the same stub.');
+    $this->assertTrue($updated->isSaved(), 'updateEntity marks the stub saved.');
+    $this->assertSame([['target_id' => 'editor']], $stub->getValue('roles'), 'The stub holds the expanded values.');
+
+    $reloaded = $this->reloadUser((int) $account->id());
+    $this->assertFalse($reloaded->isActive());
+    $this->assertContains('editor', $reloaded->getRoles(), 'The role label was resolved to its id.');
+    $this->assertSame('wes', $reloaded->getAccountName(), 'A field the stub does not carry keeps its value.');
+  }
+
+  /**
+   * Tests that a stub without a bundle expands against the loaded entity.
+   *
+   * A configurable field exists on 1 bundle only, so the handler that turns
+   * the allowed-value label into its key runs only when the bundle is known.
+   */
+  public function testUpdateEntityExpandsAgainstTheBundleOfTheLoadedEntity(): void {
+    EntityTestHelper::createBundle('custom_bundle');
+    FieldStorageConfig::create(['field_name' => 'field_level', 'entity_type' => 'entity_test', 'type' => 'list_string', 'settings' => ['allowed_values' => ['low' => 'Low', 'high' => 'High']]])->save();
+    FieldConfig::create(['field_name' => 'field_level', 'entity_type' => 'entity_test', 'bundle' => 'custom_bundle'])->save();
+
+    $entity = \Drupal::entityTypeManager()->getStorage('entity_test')->create(['type' => 'custom_bundle', 'name' => 'Level']);
+    $entity->save();
+
+    $this->core->updateEntity(new EntityStub('entity_test', NULL, ['id' => $entity->id(), 'type' => 'other_bundle', 'field_level' => 'High']));
+
+    $reloaded = \Drupal::entityTypeManager()->getStorage('entity_test')->loadUnchanged($entity->id());
+    $this->assertInstanceOf(ContentEntityInterface::class, $reloaded);
+    $this->assertSame('high', $reloaded->get('field_level')->value);
+    $this->assertSame('custom_bundle', $reloaded->bundle(), 'The bundle key identifies the entity, so it is not written.');
+  }
+
+  public function testUpdateEntityUsesTheIdOfSavedStub(): void {
+    $account = $this->createUser('yan');
+
+    $this->core->updateEntity((new EntityStub('user'))->markSaved($account)->setValue('mail', 'renamed@example.com'));
+
+    $this->assertSame('renamed@example.com', $this->reloadUser((int) $account->id())->getEmail());
+  }
+
+  public function testUpdateEntityRejectsAnEntityThatDoesNotExist(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot update the entity of type "user" with the id "999" because it does not exist.');
+
+    $this->core->updateEntity(new EntityStub('user', NULL, ['uid' => 999, 'name' => 'ghost']));
+  }
+
+  public function testUpdateEntityRejectsAnUnknownFieldAndChangesNothing(): void {
+    $account = $this->createUser('xan');
+
+    try {
+      $this->core->updateEntity(new EntityStub('user', NULL, ['uid' => $account->id(), 'name' => 'renamed', 'field_missing' => 'value']));
+      $this->fail('updateEntity accepted a field the entity does not have.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame(sprintf('Cannot update the entity of type "user" with the id "%s" because it has no field "field_missing".', $account->id()), $exception->getMessage());
+    }
+
+    $this->assertSame('xan', $this->reloadUser((int) $account->id())->getAccountName());
+  }
+
+  public function testGetEntityValuesReturnsTheStorageShape(): void {
+    Role::create(['id' => 'editor', 'label' => 'Editor'])->save();
+    $account = $this->createUser('zed', ['editor']);
+
+    $values = $this->core->getEntityValues('user', $account->id(), ['name', 'roles']);
+
+    $this->assertSame(['name', 'roles'], array_keys($values));
+    $this->assertSame('zed', $values['name'][0]['value']);
+    $this->assertSame('editor', $values['roles'][0]['target_id']);
+  }
+
+  public function testGetEntityValuesReturnsAnEmptyArrayForAnEntityThatDoesNotExist(): void {
+    $this->assertSame([], $this->core->getEntityValues('user', 999, ['name']));
+  }
+
+  public function testGetEntityValuesRejectsAnUnknownField(): void {
+    $account = $this->createUser('ann');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('Cannot read the entity of type "user" with the id "%s" because it has no field "field_missing".', $account->id()));
+
+    $this->core->getEntityValues('user', $account->id(), ['name', 'field_missing']);
+  }
+
+  /**
+   * Creates an active user.
+   *
+   * @param string $name
+   *   The user name.
+   * @param array<int, string> $roles
+   *   The role IDs.
+   */
+  protected function createUser(string $name, array $roles = []): User {
+    $account = User::create(['name' => $name, 'mail' => $name . '@example.com', 'status' => 1, 'roles' => $roles]);
+    $account->save();
+
+    return $account;
+  }
+
+  /**
+   * Loads a user again, bypassing the static cache.
+   *
+   * @param int $uid
+   *   The user ID.
+   */
+  protected function reloadUser(int $uid): User {
+    $account = \Drupal::entityTypeManager()->getStorage('user')->loadUnchanged($uid);
+    $this->assertInstanceOf(User::class, $account);
+
+    return $account;
   }
 
 }

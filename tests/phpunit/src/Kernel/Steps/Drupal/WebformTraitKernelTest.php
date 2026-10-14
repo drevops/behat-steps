@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Steps\Drupal\WebformTrait;
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\WebformInterface;
@@ -44,7 +45,7 @@ class WebformTraitKernelTest extends StepTraitKernelTestBase {
 
     $webforms = $this->context->webformLoadMultiple('[TEST] Shared');
 
-    $this->assertLoadedSet([$first, $second], $webforms, WebformInterface::class);
+    $this->assertStubSet([$first, $second], $webforms, 'id');
   }
 
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
@@ -60,29 +61,29 @@ class WebformTraitKernelTest extends StepTraitKernelTestBase {
 
     $templates = $this->context->webformLoadTemplateMultiple('[TEST] Shared');
 
-    $this->assertLoadedSet([$template], $templates, WebformInterface::class);
+    $this->assertStubSet([$template], $templates, 'id');
   }
 
   public function testFindTemplateByTitleReturnsTheLastMachineNameInNaturalOrder(): void {
     $this->createWebform('shared_template_2', '[TEST] Shared template A', TRUE);
     $newest = $this->createWebform('shared_template_10', '[TEST] Shared template B', TRUE);
 
-    $this->assertSame($newest->id(), $this->context->webformFindTemplateByTitle('[TEST] Shared')?->id());
+    $this->assertSame($newest->id(), $this->context->webformFindTemplateByTitle('[TEST] Shared')?->getValue('id'));
   }
 
   public function testFindTemplateByTitlePrefersTheTemplateTheScenarioCreated(): void {
     $created = $this->createWebform('shared_template_1', '[TEST] Shared template A', TRUE);
     $this->createWebform('shared_template_2', '[TEST] Shared template B', TRUE);
-    $this->context->entityLifecycleRegister($created);
+    $this->context->entityLifecycleRegister(new EntityStub('webform', NULL, ['id' => $created->id()]), 'id');
 
-    $this->assertSame($created->id(), $this->context->webformFindTemplateByTitle('[TEST] Shared')?->id());
+    $this->assertSame($created->id(), $this->context->webformFindTemplateByTitle('[TEST] Shared')?->getValue('id'));
   }
 
   public function testFindTemplateByTitleIgnoresWebformsThatAreNotTemplates(): void {
     $template = $this->createWebform('shared_template_1', '[TEST] Shared template', TRUE);
     $this->createWebform('shared_form_2', '[TEST] Shared form');
 
-    $this->assertSame($template->id(), $this->context->webformFindTemplateByTitle('[TEST] Shared')?->id());
+    $this->assertSame($template->id(), $this->context->webformFindTemplateByTitle('[TEST] Shared')?->getValue('id'));
   }
 
   public function testFindTemplateByTitleFindsNothing(): void {
@@ -97,10 +98,15 @@ class WebformTraitKernelTest extends StepTraitKernelTestBase {
 
     $this->context->webformCloneTemplate('[TEST] Clone', '[TEST] Shared template');
 
-    $clones = array_values($this->context->webformLoadMultiple('[TEST] Clone'));
+    $clones = $this->context->webformLoadMultiple('[TEST] Clone');
     $this->assertCount(1, $clones);
-    $this->assertFalse($clones[0]->isTemplate());
-    $this->assertSame($newest->getElementsRaw(), $clones[0]->getElementsRaw());
+
+    $clone = Webform::load((string) array_key_first($clones));
+    $this->assertInstanceOf(WebformInterface::class, $clone);
+    $this->assertSame('[TEST] Clone', $clone->label());
+    $this->assertFalse($clone->isTemplate());
+    $this->assertSame($newest->getElementsRaw(), $clone->getElementsRaw());
+    $this->assertStringStartsWith('test_clone_', (string) $clone->id(), 'The clone takes a machine name derived from its title.');
   }
 
   protected function createWebform(string $id, string $title, bool $is_template = FALSE, string $elements = ''): WebformInterface {

@@ -9,6 +9,7 @@ use Behat\Mink\Exception\ExpectationException;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
@@ -18,9 +19,6 @@ use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
-use Drupal\taxonomy\Entity\Term;
-use Drupal\taxonomy\Entity\Vocabulary;
-use Drupal\taxonomy\VocabularyInterface;
 
 /**
  * Manage Drupal taxonomy terms with vocabulary organization.
@@ -159,13 +157,11 @@ trait TaxonomyTrait {
    */
   #[Then('the vocabulary :vocabulary with the name :name should exist')]
   public function taxonomyAssertVocabularyExists(string $vocabulary, string $name): void {
-    $vocab = $this->taxonomyFindVocabulary($vocabulary);
-
-    if ($vocab === NULL) {
+    if (!$this->taxonomyFindVocabulary($vocabulary) instanceof EntityStubInterface) {
       throw new ExpectationException(sprintf('The vocabulary "%s" does not exist.', $vocabulary), $this->getSession()->getDriver());
     }
 
-    $actual_name = $vocab->get('name');
+    $actual_name = $this->backendFor(ConfigCapabilityInterface::class)->configGet('taxonomy.vocabulary.' . $vocabulary, 'name');
 
     if ($actual_name !== $name) {
       throw new ExpectationException(sprintf('The vocabulary "%s" exists with a name "%s", but expected "%s".', $vocabulary, $actual_name, $name), $this->getSession()->getDriver());
@@ -268,17 +264,14 @@ trait TaxonomyTrait {
    * @param array<string, string> $conditions
    *   Conditions keyed by field names.
    *
-   * @return array<int, \Drupal\taxonomy\TermInterface>
-   *   The matching terms keyed by ID, or an empty array when none match.
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching term carrying its 'tid', keyed by ID, or an empty
+   *   array when none match.
    */
   public function taxonomyLoadMultiple(string $vocabulary, array $conditions = []): array {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     $this->assertPrerequisites(__TRAIT__);
 
-    $ids = $this->queryEntityIds('taxonomy_term', $conditions, $vocabulary);
-
-    return $ids ? Term::loadMultiple($ids) : [];
+    return $this->queryEntityStubs('taxonomy_term', 'tid', $conditions, $vocabulary);
   }
 
   /**
@@ -324,15 +317,16 @@ trait TaxonomyTrait {
    * @param string $vocabulary
    *   The vocabulary machine name.
    *
-   * @return \Drupal\taxonomy\VocabularyInterface|null
-   *   The vocabulary, or NULL when it does not exist.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The stub of the vocabulary, carrying its 'vid', or NULL when it does
+   *   not exist.
    */
-  public function taxonomyFindVocabulary(string $vocabulary): ?VocabularyInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
+  public function taxonomyFindVocabulary(string $vocabulary): ?EntityStubInterface {
+    $config = $this->backendFor(ConfigCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    return Vocabulary::load($vocabulary);
+    return $config->configExists('taxonomy.vocabulary.' . $vocabulary) ? new EntityStub('taxonomy_vocabulary', NULL, ['vid' => $vocabulary]) : NULL;
   }
 
   /**
@@ -341,13 +335,13 @@ trait TaxonomyTrait {
    * @param string $vocabulary
    *   The vocabulary machine name.
    *
-   * @return \Drupal\taxonomy\VocabularyInterface
-   *   The vocabulary.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the vocabulary, carrying its 'vid'.
    *
    * @throws \RuntimeException
    *   When the vocabulary does not exist.
    */
-  public function taxonomyGetVocabulary(string $vocabulary): VocabularyInterface {
+  public function taxonomyGetVocabulary(string $vocabulary): EntityStubInterface {
     $vocab = $this->taxonomyFindVocabulary($vocabulary);
 
     if ($vocab === NULL) {

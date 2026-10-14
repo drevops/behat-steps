@@ -63,9 +63,9 @@
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 3 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 4 | Manage Drupal webforms. |
 | [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
-| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 8 | Creates Drupal entities and removes them when the scenario ends. |
+| [Drupal\EntityLifecycleTrait](#drupalentitylifecycletrait) | 7 | Creates Drupal entities and removes them when the scenario ends. |
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
-| [Drupal\QueryTrait](#drupalquerytrait) | 3 | Finds the entities a step reads, asserts on or deletes. |
+| [Drupal\QueryTrait](#drupalquerytrait) | 5 | Finds the entities a step reads, asserts on or deletes. |
 
 ### Index of Toolbox helpers
 
@@ -1819,7 +1819,7 @@ Wait until no BigPipe placeholder markers remain in the DOM
 > Manage Drupal blocks.
 
 <details>
-  <summary><code>public function blockApplyConfiguration(Block $block, array $configuration): void</code></summary>
+  <summary><code>public function blockApplyConfiguration(EntityStubInterface $block, array $configuration): void</code></summary>
 
 <br/>
 Apply a configuration to a block and save it
@@ -1828,7 +1828,7 @@ Apply a configuration to a block and save it
 </details>
 
 <details>
-  <summary><code>public function blockCreate(string $admin_label): Block</code></summary>
+  <summary><code>public function blockCreate(string $admin_label): EntityStubInterface</code></summary>
 
 <br/>
 Create a block in the default theme from the plugin with an admin label
@@ -1837,7 +1837,7 @@ Create a block in the default theme from the plugin with an admin label
 </details>
 
 <details>
-  <summary><code>public function blockFindByLabel(string $label): ?Block</code></summary>
+  <summary><code>public function blockFindByLabel(string $label): ?EntityStubInterface</code></summary>
 
 <br/>
 Find a block by its label
@@ -1846,7 +1846,7 @@ Find a block by its label
 </details>
 
 <details>
-  <summary><code>public function blockGetByLabel(string $label): Block</code></summary>
+  <summary><code>public function blockGetByLabel(string $label): EntityStubInterface</code></summary>
 
 <br/>
 Return the block carrying a label
@@ -1855,7 +1855,7 @@ Return the block carrying a label
 </details>
 
 <details>
-  <summary><code>public function blockSetVisibilityCondition(Block $block, string $condition, array $configuration): void</code></summary>
+  <summary><code>public function blockSetVisibilityCondition(EntityStubInterface $block, string $condition, array $configuration): void</code></summary>
 
 <br/>
 Set a visibility condition on a block and save it
@@ -1864,7 +1864,7 @@ Set a visibility condition on a block and save it
 </details>
 
 <details>
-  <summary><code>public function blockUnsetVisibilityCondition(Block $block, string $condition): void</code></summary>
+  <summary><code>public function blockUnsetVisibilityCondition(EntityStubInterface $block, string $condition): void</code></summary>
 
 <br/>
 Remove a visibility condition from a block and save it
@@ -1936,7 +1936,7 @@ Set a stored configuration value, restored after the scenario
 > Manage Drupal content blocks.
 
 <details>
-  <summary><code>public function contentBlockCreate(string $content_block_type, array $values): BlockContent</code></summary>
+  <summary><code>public function contentBlockCreate(string $content_block_type, array $values): EntityStubInterface</code></summary>
 
 <br/>
 Create a block content entity with the specified type and field values
@@ -1954,7 +1954,7 @@ Delete the content blocks of a type that match conditions
 </details>
 
 <details>
-  <summary><code>public function contentBlockGetByDescription(string $content_block_type, string $description): BlockContentInterface</code></summary>
+  <summary><code>public function contentBlockGetByDescription(string $content_block_type, string $description): EntityStubInterface</code></summary>
 
 <br/>
 Get the newest content block with a description
@@ -2005,7 +2005,7 @@ Return the ID of the node with the specified type and title
 </details>
 
 <details>
-  <summary><code>public function contentGetNodeByTitle(string $content_type, string $title): NodeInterface</code></summary>
+  <summary><code>public function contentGetNodeByTitle(string $content_type, string $title): EntityStubInterface</code></summary>
 
 <br/>
 Return the node with the specified type and title
@@ -2014,7 +2014,7 @@ Return the node with the specified type and title
 </details>
 
 <details>
-  <summary><code>public function contentRebuildAccessGrants(NodeInterface $node): void</code></summary>
+  <summary><code>public function contentRebuildAccessGrants(EntityStubInterface $node): void</code></summary>
 
 <br/>
 Rebuild the access grants of a node
@@ -2023,7 +2023,7 @@ Rebuild the access grants of a node
 </details>
 
 <details>
-  <summary><code>public function contentSetModerationState(NodeInterface $node, string $state): void</code></summary>
+  <summary><code>public function contentSetModerationState(EntityStubInterface $node, string $state): void</code></summary>
 
 <br/>
 Set the moderation state of a node and save it
@@ -2032,7 +2032,7 @@ Set the moderation state of a node and save it
 </details>
 
 <details>
-  <summary><code>public function contentSetPathAlias(NodeInterface $node, string $alias): void</code></summary>
+  <summary><code>public function contentSetPathAlias(EntityStubInterface $node, string $alias): void</code></summary>
 
 <br/>
 Set the path alias of a node, replacing any existing alias
@@ -2056,7 +2056,7 @@ Visit the action page of the content with a specified title
 > Order items in the Drupal Draggable Views.
 
 <details>
-  <summary><code>public function draggableviewsFindNode(string $type, array $conditions): ?NodeInterface</code></summary>
+  <summary><code>public function draggableviewsFindNode(string $type, array $conditions): ?EntityStubInterface</code></summary>
 
 <br/>
 Find a node using provided conditions
@@ -2140,7 +2140,7 @@ Delete the entities of a type and bundle that match conditions
 </details>
 
 <details>
-  <summary><code>public function eckGetEntityByTitle(string $entity_type, string $bundle, string $title): EntityInterface</code></summary>
+  <summary><code>public function eckGetEntityByTitle(string $entity_type, string $bundle, string $title): EntityStubInterface</code></summary>
 
 <br/>
 Get an entity of a type and bundle by title
@@ -2278,7 +2278,7 @@ Get the collected emails with a subject
 > Manage Drupal file entities with upload and storage operations.
 
 <details>
-  <summary><code>public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
+  <summary><code>public function fileCreateEntity(string $path, EntityStubInterface $stub, ?string $uri = NULL): EntityStubInterface</code></summary>
 
 <br/>
 Create file entity
@@ -2287,7 +2287,7 @@ Create file entity
 </details>
 
 <details>
-  <summary><code>public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): FileInterface</code></summary>
+  <summary><code>public function fileCreateManaged(string $path, EntityStubInterface $stub, ?string $uri = NULL): EntityStubInterface</code></summary>
 
 <br/>
 Create a single managed file
@@ -2338,7 +2338,7 @@ Write an unmanaged file, creating its directory when it is missing
 > Manage Drupal media entities with type-specific field handling.
 
 <details>
-  <summary><code>public function mediaCreate(EntityStubInterface $stub): MediaInterface</code></summary>
+  <summary><code>public function mediaCreate(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Create a single media item
@@ -2347,7 +2347,7 @@ Create a single media item
 </details>
 
 <details>
-  <summary><code>public function mediaCreateEntity(EntityStubInterface $stub): MediaInterface</code></summary>
+  <summary><code>public function mediaCreateEntity(EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Create media entity
@@ -2389,7 +2389,7 @@ Visit the action page of the media with a specified name
 > Manage Drupal menus and menu links.
 
 <details>
-  <summary><code>public function menuCreate(array $values): MenuInterface</code></summary>
+  <summary><code>public function menuCreate(array $values): EntityStubInterface</code></summary>
 
 <br/>
 Create a menu
@@ -2398,7 +2398,7 @@ Create a menu
 </details>
 
 <details>
-  <summary><code>public function menuCreateLink(MenuInterface $menu, array $values): MenuLinkContent</code></summary>
+  <summary><code>public function menuCreateLink(EntityStubInterface $menu, array $values): EntityStubInterface</code></summary>
 
 <br/>
 Create a link in a menu
@@ -2416,7 +2416,7 @@ Delete the links of a menu that match conditions
 </details>
 
 <details>
-  <summary><code>public function menuFindByLabel(string $label): ?MenuInterface</code></summary>
+  <summary><code>public function menuFindByLabel(string $label): ?EntityStubInterface</code></summary>
 
 <br/>
 Find a menu by its label
@@ -2425,7 +2425,7 @@ Find a menu by its label
 </details>
 
 <details>
-  <summary><code>public function menuFindLinkByTitle(string $title, string $menu_name): ?MenuLinkContent</code></summary>
+  <summary><code>public function menuFindLinkByTitle(string $title, string $menu_name): ?EntityStubInterface</code></summary>
 
 <br/>
 Find a menu link by title and menu label
@@ -2500,7 +2500,7 @@ Enable or disable a module, restored after the scenario
 > Manage Drupal paragraphs entities with structured field data.
 
 <details>
-  <summary><code>public function paragraphsAttachFromStubToEntity(ContentEntityInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStub $stub, bool $save_entity = TRUE): ParagraphInterface</code></summary>
+  <summary><code>public function paragraphsAttachFromStubToEntity(EntityStubInterface $parent_entity, string $parent_field, string $paragraph_type, EntityStubInterface $stub): EntityStubInterface</code></summary>
 
 <br/>
 Create a paragraphs item from a stub and attach it to an entity
@@ -2518,7 +2518,7 @@ Build a paragraph stub from field values
 </details>
 
 <details>
-  <summary><code>public function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?ContentEntityInterface</code></summary>
+  <summary><code>public function paragraphsFindEntity(string $entity_type, string $bundle, string $field_name, string $field_value): ?EntityStubInterface</code></summary>
 
 <br/>
 Find entity
@@ -2527,7 +2527,7 @@ Find entity
 </details>
 
 <details>
-  <summary><code>public function paragraphsGetParentEntity(string $entity_type, string $bundle, string $field_name, string $lookup_field, string $lookup_value): ContentEntityInterface</code></summary>
+  <summary><code>public function paragraphsGetParentEntity(string $entity_type, string $bundle, string $field_name, string $lookup_field, string $lookup_value): EntityStubInterface</code></summary>
 
 <br/>
 Get the entity to attach a paragraph to
@@ -2593,7 +2593,7 @@ Process items from a queue with the queue's worker
 > Manage Drupal redirect entities provided by the contrib `redirect` module.
 
 <details>
-  <summary><code>public function redirectCreate(string $from, string $to, int $status_code = 301): Redirect</code></summary>
+  <summary><code>public function redirectCreate(string $from, string $to, int $status_code = 301): EntityStubInterface</code></summary>
 
 <br/>
 Create a redirect
@@ -2626,7 +2626,7 @@ Check whether a redirect exists
 > Run Drupal Search API indexing and cron hooks.
 
 <details>
-  <summary><code>public function searchApiFindNodeByTitle(string $content_type, string $title): ?NodeInterface</code></summary>
+  <summary><code>public function searchApiFindNodeByTitle(string $content_type, string $title): ?EntityStubInterface</code></summary>
 
 <br/>
 Find a node of a content type by title
@@ -2644,7 +2644,7 @@ Index items on every active search index
 </details>
 
 <details>
-  <summary><code>public function searchApiIndexNode(NodeInterface $node): void</code></summary>
+  <summary><code>public function searchApiIndexNode(EntityStubInterface $node): void</code></summary>
 
 <br/>
 Track a node in the search indexes, then index it on each
@@ -2710,7 +2710,7 @@ Delete the terms of a vocabulary that match conditions
 </details>
 
 <details>
-  <summary><code>public function taxonomyFindVocabulary(string $vocabulary): ?VocabularyInterface</code></summary>
+  <summary><code>public function taxonomyFindVocabulary(string $vocabulary): ?EntityStubInterface</code></summary>
 
 <br/>
 Find a vocabulary by machine name
@@ -2719,7 +2719,7 @@ Find a vocabulary by machine name
 </details>
 
 <details>
-  <summary><code>public function taxonomyGetVocabulary(string $vocabulary): VocabularyInterface</code></summary>
+  <summary><code>public function taxonomyGetVocabulary(string $vocabulary): EntityStubInterface</code></summary>
 
 <br/>
 Get a vocabulary by machine name
@@ -2848,7 +2848,7 @@ Check whether a user with the given email address exists
 </details>
 
 <details>
-  <summary><code>public function userGetByName(string $name): UserInterface</code></summary>
+  <summary><code>public function userGetByName(string $name): EntityStubInterface</code></summary>
 
 <br/>
 Return the user with a name
@@ -2875,10 +2875,10 @@ Visit a user action page
 </details>
 
 <details>
-  <summary><code>public function userVisitPasswordResetLinkForUser(UserInterface $user): void</code></summary>
+  <summary><code>public function userVisitPasswordResetLinkForUser(EntityStubInterface $user): void</code></summary>
 
 <br/>
-Visit the password reset link for a given user object
+Visit the password reset link for a user
 <br/><br/>
 
 </details>
@@ -2923,7 +2923,7 @@ Return TRUE if a scenario that logged an error should fail
 > Manage Drupal webforms.
 
 <details>
-  <summary><code>public function webformCreateFromTemplate(string $title, WebformInterface $template): WebformInterface</code></summary>
+  <summary><code>public function webformCreateFromTemplate(string $title, EntityStubInterface $template): EntityStubInterface</code></summary>
 
 <br/>
 Create a webform as a copy of a template
@@ -2932,7 +2932,7 @@ Create a webform as a copy of a template
 </details>
 
 <details>
-  <summary><code>public function webformFindTemplateByTitle(string $title): ?WebformInterface</code></summary>
+  <summary><code>public function webformFindTemplateByTitle(string $title): ?EntityStubInterface</code></summary>
 
 <br/>
 Find the newest webform template whose title contains the given string
@@ -3061,7 +3061,7 @@ Creates a taxonomy term
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleFindNewest(array $entities): ?EntityInterface</code></summary>
+  <summary><code>public function entityLifecycleFindNewest(array $stubs, string $id_key): ?EntityStubInterface</code></summary>
 
 <br/>
 Find the newest of several entities whose ids carry no creation order
@@ -3070,16 +3070,7 @@ Find the newest of several entities whose ids carry no creation order
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface</code></summary>
-
-<br/>
-Builds the entity-field parser for 1 parsing call
-<br/><br/>
-
-</details>
-
-<details>
-  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void</code></summary>
+  <summary><code>public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = [], ?EntityDefinitionCapabilityInterface $backend = NULL): void</code></summary>
 
 <br/>
 Expands a stub's raw Gherkin values into the storage field shape
@@ -3088,10 +3079,10 @@ Expands a stub's raw Gherkin values into the storage field shape
 </details>
 
 <details>
-  <summary><code>public function entityLifecycleRegister(EntityInterface $entity): void</code></summary>
+  <summary><code>public function entityLifecycleRegister(EntityStubInterface $stub, string $id_key): void</code></summary>
 
 <br/>
-Registers an entity saved outside the create pipeline for cleanup
+Registers an entity created outside the create pipeline for cleanup
 <br/><br/>
 
 </details>
@@ -3127,10 +3118,28 @@ Load the ids of the entities of a type matching the conditions
 </details>
 
 <details>
+  <summary><code>public function queryEntityStubs(string $entity_type, string $id_key, array $conditions = [], ?string $bundle = NULL): array</code></summary>
+
+<br/>
+Load a stub for each entity of a type matching the conditions
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function queryFindNewestEntityId(string $entity_type, array $conditions = [], ?string $bundle = NULL): ?string</code></summary>
 
 <br/>
 Find the id of the newest entity of a type matching the conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function queryGetEntityId(EntityStubInterface $stub, string $id_key): string</code></summary>
+
+<br/>
+Get the id a stub carries
 <br/><br/>
 
 </details>

@@ -9,17 +9,18 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Asserts the return contract of every capability create and delete method.
+ * Asserts the return contract of every capability create, update and delete.
  *
  * A teardown deletes whatever a scenario created without checking first, so
- * a create returns a stub and a delete returns nothing. CONTRIBUTING.md
- * states the contract, including that a delete tolerates a missing target.
+ * a create returns a stub and a delete returns nothing. An update and a copy
+ * return a stub as a create does. CONTRIBUTING.md states the contract,
+ * including that a delete tolerates a missing target.
  */
 #[CoversNothing]
 class CapabilityContractTest extends UnitTestCase {
 
   /**
-   * Assert that a create method returns an entity stub.
+   * Assert that a create, an update or a copy returns an entity stub.
    *
    * @param class-string $interface
    *   The capability interface declaring the method.
@@ -32,11 +33,11 @@ class CapabilityContractTest extends UnitTestCase {
 
     $declared = $type instanceof \ReflectionType ? (string) $type : 'no return type';
 
-    $this->assertSame(EntityStubInterface::class, $declared, sprintf('A capability create returns the stub: "%s(): %s", not "%s(): %s".', $method, EntityStubInterface::class, $method, $declared));
+    $this->assertSame(EntityStubInterface::class, $declared, sprintf('A capability create, update or copy returns the stub: "%s(): %s", not "%s(): %s".', $method, EntityStubInterface::class, $method, $declared));
   }
 
   public static function dataProviderCreateReturnsStub(): \Iterator {
-    yield from static::collectCapabilityMethods('/^(?:create|place)[A-Z]/');
+    yield from static::collectCapabilityMethods('/^(?:create|place|update|duplicate)[A-Z]/');
   }
 
   /**

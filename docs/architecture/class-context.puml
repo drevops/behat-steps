@@ -277,7 +277,7 @@ package "DrevOps\\BehatSteps\\Steps\\Helper\\Drupal" #F3E5F5 {
     +entityLifecycleCreateTerm(stub) : EntityStubInterface
     +entityLifecycleCreate(stub) : EntityStubInterface
     +entityLifecycleCreateLanguage(stub) : EntityStubInterface
-    +entityLifecycleRegister(entity) : void
+    +entityLifecycleRegister(stub, id_key) : void
     --
     +entityLifecycleAfterScenario(scope) : void
     --
@@ -306,6 +306,8 @@ package "DrevOps\\BehatSteps\\Steps\\Helper\\Drupal" #F3E5F5 {
 
   class QueryTrait <<trait>> {
     +queryEntityIds(entity_type, conditions, bundle) : array
+    +queryEntityStubs(entity_type, id_key, conditions, bundle) : array
+    +queryGetEntityId(stub, id_key) : string
     +queryNodeIds(content_type, conditions) : array
   }
 
@@ -350,6 +352,7 @@ WebRawContext ..> StringTrait : composes
 WebRawContext ..> LastStepTrait : composes
 WebRawContext ..> ParametersTrait : composes
 AuthTrait ..> EntityLifecycleTrait : composes
+EntityLifecycleTrait ..> QueryTrait : composes
 FixtureFileTrait ..> QueryTrait : composes
 
 PathTrait ..> RawMinkContext : requires

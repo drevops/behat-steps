@@ -360,10 +360,11 @@ Several traits carry hooks that run around every scenario or step. One tag switc
 
 Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, keeping the test database clean across long suites. Reverse order means a node comes down before the term it references.
 
-A step of your own registers what it saved:
+A step of your own registers what it created, passing the stub the capability returned and the key its entity type stores the ID under:
 
 ```php
-$this->entityLifecycleRegister($entity);
+$created = $this->backendFor(ContentCapabilityInterface::class)->createEntity($stub);
+$this->entityLifecycleRegister($created, 'mid');
 ```
 
 To keep **all** entities after a scenario, add `@behat-steps-skip:EntityLifecycleTrait` to the scenario or feature. `@behat-steps-skip:AuthTrait` does the same for users and roles.

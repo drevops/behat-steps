@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Steps\Drupal\SearchApiTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
@@ -75,7 +76,7 @@ class SearchApiTraitKernelTest extends StepTraitKernelTestBase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('No active search index includes the "page" content with the title "Page".');
 
-    $this->context->searchApiIndexNode($page);
+    $this->context->searchApiIndexNode(new EntityStub('node', 'page', ['nid' => $page->id()]));
   }
 
   public function testIndexNodeSkipsTheDisabledIndex(): void {
@@ -85,7 +86,25 @@ class SearchApiTraitKernelTest extends StepTraitKernelTestBase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('No active search index includes the "article" content with the title "Article".');
 
-    $this->context->searchApiIndexNode($article);
+    $this->context->searchApiIndexNode(new EntityStub('node', 'article', ['nid' => $article->id()]));
+  }
+
+  public function testIndexNodeFailsForMissingNode(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No content entity of type "node" with the id "999" exists.');
+
+    $this->context->searchApiIndexNode(new EntityStub('node', 'article', ['nid' => 999]));
+  }
+
+  public function testFindNodeByTitleReturnsTheStubOfTheNewestNode(): void {
+    $this->createNode('article', 'Shared');
+    $newest = $this->createNode('article', 'Shared');
+
+    $stub = $this->context->searchApiFindNodeByTitle('article', 'Shared');
+
+    $this->assertNotNull($stub);
+    $this->assertSame((string) $newest->id(), $stub->getValue('nid'));
+    $this->assertNull($this->context->searchApiFindNodeByTitle('article', 'Missing'));
   }
 
   protected function createNode(string $content_type, string $title): NodeInterface {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Helper\Drupal;
 
 use DrevOps\BehatSteps\Backend\BackendInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
@@ -165,11 +164,8 @@ class FixtureFileTraitTest extends UnitTestCase {
   public function testExpandEntityFieldsFixtures(array $existing_fixture_files, array $existing_managed_basenames, array $field_types, array $stub_values, callable $expected_factory): void {
     $this->createFixtureFiles($existing_fixture_files);
 
-    $core = $this->createStub(CoreInterface::class);
-    $core->method('getEntityFieldTypes')->willReturn($field_types);
-
     $backend = $this->createStub(DrupalBackendInterface::class);
-    $backend->method('getCore')->willReturn($core);
+    $backend->method('getEntityFieldTypes')->willReturn($field_types);
 
     $this->testObject->managedBasenames = $existing_managed_basenames;
     $this->testObject->backend = $backend;
@@ -334,7 +330,7 @@ class FixtureFileTraitTest extends UnitTestCase {
     $this->assertSame(['field_file' => 'document.pdf'], $stub->getValues());
   }
 
-  public function testBackendWithoutTheCoreCapabilityLeavesTheStubAlone(): void {
+  public function testBackendWithoutTheEntityDefinitionCapabilityLeavesTheStubAlone(): void {
     $this->createFixtureFiles(['document.pdf']);
 
     $stub = new EntityStub('node', 'article', ['field_file' => 'document.pdf']);

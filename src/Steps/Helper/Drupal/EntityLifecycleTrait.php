@@ -10,13 +10,13 @@ use Behat\Hook\AfterScenario;
 use Behat\Testwork\Environment\Environment;
 use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParser;
-use DrevOps\BehatSteps\Backend\Drupal\Core\Field\Parser\EntityFieldParserInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Context\BackendAwareInterface;
@@ -30,8 +30,6 @@ use DrevOps\BehatSteps\Extension\Drupal\Hook\Scope\BeforeTermCreateScope;
 use DrevOps\BehatSteps\Extension\Hook\Scope\AfterEntityCreateScope;
 use DrevOps\BehatSteps\Extension\Hook\Scope\BeforeEntityCreateScope;
 use DrevOps\BehatSteps\Extension\Tag;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Creates Drupal entities and removes them when the scenario ends.
@@ -43,6 +41,8 @@ use Drupal\taxonomy\Entity\Vocabulary;
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait EntityLifecycleTrait {
+
+  use QueryTrait;
 
   /**
    * The tag that names an entity type excluded from cleanup.
@@ -188,8 +188,9 @@ trait EntityLifecycleTrait {
     // resolved to one first. The backend reports a clearer failure than this
     // code could, so the resolution is best-effort.
     $vocabulary = $stub->getValue('vocabulary_machine_name');
+    $registry = $this->getBackendRegistry();
 
-    if (!empty($vocabulary) && $this->getBackendRegistry()->hasCapability(CoreCapabilityInterface::class)) {
+    if (!empty($vocabulary) && $registry->hasCapability(ConfigCapabilityInterface::class) && $registry->hasCapability(EntityLookupCapabilityInterface::class)) {
       $stub->setValue('vocabulary_machine_name', $this->entityLifecycleResolveVocabularyMachineName((string) $vocabulary));
     }
 
@@ -288,25 +289,25 @@ trait EntityLifecycleTrait {
   }
 
   /**
-   * Registers an entity saved outside the create pipeline for cleanup.
+   * Registers an entity created outside the create pipeline for cleanup.
    *
-   * An entity saved through Drupal's API rather than the backend is added to
-   * the same reverse-order teardown. Only the type, bundle and id are kept,
-   * so cleanup reloads the entity and tolerates a row the scenario already
-   * deleted.
+   * The entity joins the same reverse-order teardown. Only the type, bundle
+   * and id are kept, so cleanup loads the entity again and tolerates a row
+   * the scenario already deleted. A stub carrying no id is not registered.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The saved entity.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The stub a capability create returned, or any stub carrying the id.
+   * @param string $id_key
+   *   The key the entity type stores its id under, such as 'mid' for media.
    */
-  public function entityLifecycleRegister(EntityInterface $entity): void {
-    $id = $entity->id();
-    $id_key = $entity->getEntityType()->getKey('id');
+  public function entityLifecycleRegister(EntityStubInterface $stub, string $id_key): void {
+    $id = $stub->getId() ?? $stub->getValue($id_key);
 
-    if ($id === NULL || !is_string($id_key) || $id_key === '') {
+    if ((!is_int($id) && !is_string($id)) || $id === '') {
       return;
     }
 
-    $this->entityLifecycleCreatedStubs[] = new EntityStub($entity->getEntityTypeId(), $entity->bundle(), [$id_key => $id]);
+    $this->entityLifecycleCreatedStubs[] = new EntityStub($stub->getEntityType(), $stub->getBundle(), [$id_key => $id]);
   }
 
   /**
@@ -317,57 +318,72 @@ trait EntityLifecycleTrait {
    * The entity the scenario created last wins over any the site already held.
    * Among the rest, the last id in natural order wins.
    *
-   * @param array<array-key, T> $entities
-   *   The entities to choose from.
+   * @param array<array-key, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface> $stubs
+   *   The stubs of the entities to choose from, each carrying its id.
+   * @param string $id_key
+   *   The key the entity type stores its id under, such as 'id' for a block.
    *
-   * @return T|null
-   *   The newest entity, or NULL when none is given.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The stub of the newest entity, or NULL when none is given.
    *
-   * @template T of \Drupal\Core\Entity\EntityInterface
+   * @throws \RuntimeException
+   *   When a stub carries no id.
    */
-  public function entityLifecycleFindNewest(array $entities): ?EntityInterface {
-    if ($entities === []) {
+  public function entityLifecycleFindNewest(array $stubs, string $id_key): ?EntityStubInterface {
+    $candidates = [];
+
+    foreach ($stubs as $stub) {
+      $candidates[$this->queryGetEntityId($stub, $id_key)] = $stub;
+    }
+
+    if ($candidates === []) {
       return NULL;
     }
 
-    foreach (array_reverse($this->entityLifecycleCreatedStubs) as $stub) {
-      $entity = $this->entityLifecycleFindStubEntity($stub, $entities);
+    foreach (array_reverse($this->entityLifecycleCreatedStubs) as $created) {
+      $candidate = $this->entityLifecycleFindCandidate($created, $candidates, $id_key);
 
-      if ($entity instanceof EntityInterface) {
-        return $entity;
+      if ($candidate instanceof EntityStubInterface) {
+        return $candidate;
       }
     }
 
     // A colliding machine name gains a growing numeric suffix, so natural
     // order puts 'block_10' after 'block_2'.
-    usort($entities, static fn(EntityInterface $a, EntityInterface $b): int => strnatcmp((string) $a->id(), (string) $b->id()));
+    $ids = array_map(strval(...), array_keys($candidates));
+    usort($ids, strnatcmp(...));
 
-    return end($entities);
+    return $candidates[end($ids)];
   }
 
   /**
    * Expands a stub's raw Gherkin values into the storage field shape.
    *
    * A table cell is passed as written: a bare scalar, a comma-separated list,
-   * or a compound 'key:"value"' cell. The parser resolves each against the
-   * field's own definition before the backend saves the entity.
+   * or a compound 'key:"value"' cell. The backend resolves each against the
+   * field's own definition before it saves the entity.
+   *
+   * A consuming context overrides this method to parse the values its own
+   * way.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub, mutated in place.
    * @param array<int, string> $ignored_properties
    *   Value names to leave untouched, such as base properties the caller
    *   handles itself.
+   * @param \DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface|null $backend
+   *   The backend that will save the entity, so the values are parsed against
+   *   the definitions it saves them with. NULL parses with the first backend
+   *   in the scenario's order that parses field values.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
-   *   When no backend in the scenario's order reaches Drupal's API.
+   *   When no backend is given and none in the scenario's order parses field
+   *   values.
    */
-  public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = []): void {
-    $classifier = $this->backendFor(CoreCapabilityInterface::class)->getCore()->getFieldClassifier();
+  public function entityLifecycleParseFields(EntityStubInterface $stub, array $ignored_properties = [], ?EntityDefinitionCapabilityInterface $backend = NULL): void {
+    $backend ??= $this->backendFor(EntityDefinitionCapabilityInterface::class);
 
-    $parser = $this->entityLifecycleGetFieldParser($stub->getEntityType(), $classifier, $stub->getBundle());
-    $parser->ignoring($ignored_properties);
-
-    $stub->setValues($parser->parse($stub->getValues()));
+    $backend->parseEntityFields($stub, $ignored_properties);
   }
 
   /**
@@ -410,34 +426,28 @@ trait EntityLifecycleTrait {
   }
 
   /**
-   * Finds the entity a registered stub stands for among several entities.
+   * Finds the candidate a registered stub stands for.
    *
-   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $created
    *   A stub from the registry.
-   * @param array<array-key, T> $entities
-   *   The entities to search.
+   * @param array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface> $candidates
+   *   The candidate stubs, keyed by id.
+   * @param string $id_key
+   *   The key the entity type stores its id under.
    *
-   * @return T|null
-   *   The entity, or NULL when the stub stands for none of them.
-   *
-   * @template T of \Drupal\Core\Entity\EntityInterface
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface|null
+   *   The candidate, or NULL when the stub stands for none of them.
    */
-  protected function entityLifecycleFindStubEntity(EntityStubInterface $stub, array $entities): ?EntityInterface {
-    foreach ($entities as $entity) {
-      if ($stub->getEntityType() !== $entity->getEntityTypeId()) {
-        continue;
-      }
+  protected function entityLifecycleFindCandidate(EntityStubInterface $created, array $candidates, string $id_key): ?EntityStubInterface {
+    // A stub from 'entityLifecycleRegister()' holds its id as a value rather
+    // than a saved entity.
+    $id = $created->getId() ?? $created->getValue($id_key);
 
-      // A stub from 'entityLifecycleRegister()' holds its id as a value
-      // rather than a saved entity.
-      $id = $stub->getId() ?? $stub->getValue((string) $entity->getEntityType()->getKey('id'));
-
-      if ((string) $id === (string) $entity->id()) {
-        return $entity;
-      }
+    if ((!is_int($id) && !is_string($id)) || !isset($candidates[$id])) {
+      return NULL;
     }
 
-    return NULL;
+    return $candidates[$id]->getEntityType() === $created->getEntityType() ? $candidates[$id] : NULL;
   }
 
   /**
@@ -489,10 +499,7 @@ trait EntityLifecycleTrait {
   }
 
   /**
-   * Expands a stub's values during creation, if the backend can classify them.
-   *
-   * Classification reads the site's field definitions, which only a backend
-   * with Drupal bootstrapped exposes.
+   * Expands a stub's values during creation, if the backend parses them.
    *
    * A backend that passes the values to the command line takes them as
    * written, so they are left unparsed. Parsing them would fail a creation
@@ -506,51 +513,26 @@ trait EntityLifecycleTrait {
    *   Value names to leave untouched.
    */
   protected function entityLifecycleParseCreatedFields(EntityStubInterface $stub, object $backend, array $ignored_properties = []): void {
-    if (!$backend instanceof CoreCapabilityInterface) {
+    if (!$backend instanceof EntityDefinitionCapabilityInterface) {
       return;
     }
 
-    $this->entityLifecycleParseFields($stub, $ignored_properties);
-  }
-
-  /**
-   * Builds the entity-field parser for 1 parsing call.
-   *
-   * A consuming context overrides this method to supply its own
-   * implementation.
-   *
-   * @param string $entity_type
-   *   The entity type the values belong to.
-   * @param \DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface $classifier
-   *   The classifier resolving each value's field definition.
-   * @param string|null $bundle
-   *   The bundle, or NULL for an entity type without bundles.
-   */
-  public function entityLifecycleGetFieldParser(string $entity_type, FieldClassifierInterface $classifier, ?string $bundle = NULL): EntityFieldParserInterface {
-    return new EntityFieldParser($entity_type, $classifier, $bundle);
+    $this->entityLifecycleParseFields($stub, $ignored_properties, $backend);
   }
 
   /**
    * Resolves a vocabulary identifier to its machine name.
    *
    * Accepts either the machine name (returned as-is) or the human label
-   * (looked up via the vocabulary storage). Falls back to the original value
-   * when no label matches, so the backend reports a not-found error.
+   * (matched by a lookup on the vocabularies). Falls back to the original
+   * value when no label matches, so the backend reports a not-found error.
    */
   protected function entityLifecycleResolveVocabularyMachineName(string $identifier): string {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    if (!class_exists(Vocabulary::class) || Vocabulary::load($identifier) instanceof Vocabulary) {
+    if ($this->backendFor(ConfigCapabilityInterface::class)->configExists('taxonomy.vocabulary.' . $identifier)) {
       return $identifier;
     }
 
-    foreach (Vocabulary::loadMultiple() as $vocabulary) {
-      if ($vocabulary->label() === $identifier) {
-        return (string) $vocabulary->id();
-      }
-    }
-
-    return $identifier;
+    return $this->queryEntityIds('taxonomy_vocabulary', ['name' => $identifier])[0] ?? $identifier;
   }
 
   /**

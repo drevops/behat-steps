@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Steps\Drupal\FileTrait;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -34,6 +36,7 @@ class FileTraitKernelTest extends StepTraitKernelTestBase {
 
     $this->installEntitySchema('user');
     $this->installEntitySchema('file');
+    $this->installSchema('file', ['file_usage']);
   }
 
   public function testLoadMultipleLoadsTheMatchingFiles(): void {
@@ -43,13 +46,59 @@ class FileTraitKernelTest extends StepTraitKernelTestBase {
 
     $files = $this->context->fileLoadMultiple(['filename' => 'shared.txt']);
 
-    $this->assertLoadedSet([$first, $second], $files, FileInterface::class);
+    $this->assertStubSet([$first, $second], $files, 'fid');
   }
 
   public function testLoadMultipleReturnsAnEmptyArrayWhenNothingMatches(): void {
     $this->createFile('public://other.txt');
 
     $this->assertSame([], $this->context->fileLoadMultiple(['filename' => 'missing.txt']));
+  }
+
+  public function testCreateManagedWritesTheFileAndSetsTheValues(): void {
+    $this->context->setMinkParameters(['files_path' => __DIR__ . '/../../../../fixtures/backend/files']);
+
+    $created = $this->context->fileCreateManaged('sample.txt', new EntityStub('file', NULL, ['uuid' => '9cb1b484-db7b-4496-bd63-8c702e207704', 'status' => '0']));
+
+    $this->assertFalse($created->isSaved(), 'The stub carries the ID rather than the written file.');
+
+    $file = File::load($created->getValue('fid'));
+    $this->assertInstanceOf(FileInterface::class, $file);
+    $this->assertSame('public://sample.txt', $file->getFileUri());
+    $this->assertSame('9cb1b484-db7b-4496-bd63-8c702e207704', $file->uuid());
+    $this->assertFalse($file->isPermanent());
+  }
+
+  #[DataProvider('dataProviderCreateLeavesNoFileWhenValueFailsToResolve')]
+  public function testCreateLeavesNoFileWhenValueFailsToResolve(string $method): void {
+    $this->context->setMinkParameters(['files_path' => __DIR__ . '/../../../../fixtures/backend/files']);
+
+    try {
+      $this->context->{$method}('sample.txt', new EntityStub('file', NULL, ['uid' => 'nobody']));
+      $this->fail('A value that names no user did not fail the create.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame('No entity "nobody" of type "user" exists.', $exception->getMessage());
+    }
+
+    $this->assertCount(0, File::loadMultiple(), 'The failed create deletes the file entity it saved.');
+    $this->assertFileDoesNotExist('public://sample.txt', 'The failed create deletes the file it wrote.');
+  }
+
+  public static function dataProviderCreateLeavesNoFileWhenValueFailsToResolve(): \Iterator {
+    yield 'managed' => ['fileCreateManaged'];
+    yield 'entity' => ['fileCreateEntity'];
+  }
+
+  public function testCreateEntityWithoutValuesLeavesTheWrittenFileAsItIs(): void {
+    $this->context->setMinkParameters(['files_path' => __DIR__ . '/../../../../fixtures/backend/files']);
+
+    $created = $this->context->fileCreateEntity('sample.txt', new EntityStub('file'), 'public://nested/copy.txt');
+
+    $file = File::load($created->getValue('fid'));
+    $this->assertInstanceOf(FileInterface::class, $file);
+    $this->assertSame('public://nested/copy.txt', $file->getFileUri());
+    $this->assertTrue($file->isPermanent());
   }
 
   /**

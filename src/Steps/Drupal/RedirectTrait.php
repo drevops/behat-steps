@@ -11,11 +11,11 @@ use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
-use Drupal\redirect\Entity\Redirect;
 
 /**
  * Manage Drupal redirect entities provided by the contrib `redirect` module.
@@ -61,7 +61,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects exist:')]
   public function redirectCreateMultiple(TableNode $table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -175,18 +175,19 @@ trait RedirectTrait {
    * @param int $status_code
    *   The HTTP status code.
    *
-   * @return \Drupal\redirect\Entity\Redirect
-   *   The redirect.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the redirect, carrying its 'rid'.
    */
-  public function redirectCreate(string $from, string $to, int $status_code = 301): Redirect {
-    $redirect = Redirect::create(['status_code' => $status_code]);
-    $redirect->setSource($from);
-    $redirect->setRedirect($to);
-    $redirect->save();
+  public function redirectCreate(string $from, string $to, int $status_code = 301): EntityStubInterface {
+    $created = $this->backendFor(ContentCapabilityInterface::class)->createEntity(new EntityStub('redirect', NULL, [
+      'redirect_source' => ['path' => $from, 'query' => []],
+      'redirect_redirect' => ['uri' => $this->redirectNormalizeDestination($to)],
+      'status_code' => $status_code,
+    ]));
 
-    $this->entityLifecycleRegister($redirect);
+    $this->entityLifecycleRegister($created, 'rid');
 
-    return $redirect;
+    return $created;
   }
 
   /**

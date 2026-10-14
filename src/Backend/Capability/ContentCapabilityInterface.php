@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Backend\Capability;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 /**
- * Capability: create and delete entities of any type.
+ * Capability: create, update, read and delete entities of any type.
  */
 interface ContentCapabilityInterface {
 
@@ -23,6 +23,48 @@ interface ContentCapabilityInterface {
    *   The same stub, now flagged as saved with the created entity attached.
    */
   public function createEntity(EntityStubInterface $stub): EntityStubInterface;
+
+  /**
+   * Updates an entity of any type.
+   *
+   * Every value in the bag goes through the field handlers, as on create,
+   * and replaces the field of the same name. The id key and the bundle key
+   * identify the entity, so neither is written.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   A stub carrying the entity type's id key, or one returned from a
+   *   previous 'createEntity()' call. Its typed bundle may be NULL, because
+   *   the values expand against the bundle of the stored entity.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The same stub, now holding the expanded values and flagged as saved
+   *   with the updated entity attached.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries no id, the id names no entity, or a value names a
+   *   field the entity does not have.
+   */
+  public function updateEntity(EntityStubInterface $stub): EntityStubInterface;
+
+  /**
+   * Returns field values of an entity of any type.
+   *
+   * @param string $entity_type
+   *   The entity type id.
+   * @param int|string $id
+   *   The entity id.
+   * @param array<int, string> $fields
+   *   The field names to read.
+   *
+   * @return array<string, array<int, array<string, mixed>>>
+   *   The values keyed by field name, each in its storage shape: a list of
+   *   items keyed by property. Empty when the entity does not exist.
+   *
+   * @throws \RuntimeException
+   *   When the entity type has no fields, or the entity has no field of a
+   *   requested name.
+   */
+  public function getEntityValues(string $entity_type, int|string $id, array $fields): array;
 
   /**
    * Deletes an entity of any type.

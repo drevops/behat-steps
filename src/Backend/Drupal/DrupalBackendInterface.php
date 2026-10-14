@@ -17,8 +17,10 @@ use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DraggableviewsCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\FileCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\LogCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
@@ -45,10 +47,12 @@ interface DrupalBackendInterface extends
   BlockCapabilityInterface,
   CacheCapabilityInterface,
   ConfigCapabilityInterface,
+  ConfigEntityCapabilityInterface,
   ContentCapabilityInterface,
   CoreCapabilityInterface,
   CronCapabilityInterface,
   DraggableviewsCapabilityInterface,
+  EntityDefinitionCapabilityInterface,
   EntityLookupCapabilityInterface,
   FileCapabilityInterface,
   LanguageCapabilityInterface,

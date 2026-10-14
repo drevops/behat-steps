@@ -10,6 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
@@ -23,8 +24,6 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\FixtureFileTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
-use Drupal\node\Entity\Node;
-use Drupal\node\NodeInterface;
 
 /**
  * Manage Drupal content with workflow and moderation support.
@@ -270,7 +269,7 @@ trait ContentTrait {
    */
   #[When('the path alias of the :content_type content with the title :title is set to :alias')]
   public function contentSetPathAliasWithTitle(string $content_type, string $title, string $alias): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(ContentCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -311,10 +310,10 @@ trait ContentTrait {
    */
   #[Then('the :content_type content with the title :title should be published')]
   public function contentAssertPublishedWithTitle(string $content_type, string $title): void {
-    $node = $this->contentGetNodeByTitle($content_type, $title);
+    $nid = $this->contentGetNidByTitle($content_type, $title);
 
-    if (!$node->isPublished()) {
-      throw new ExpectationException(sprintf('The "%s" content with the title "%s" should be published, but it is not (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
+    if (!$this->contentIsPublished($nid)) {
+      throw new ExpectationException(sprintf('The "%s" content with the title "%s" should be published, but it is not (nid: %s).', $content_type, $title, $nid), $this->getSession()->getDriver());
     }
   }
 
@@ -329,10 +328,10 @@ trait ContentTrait {
    */
   #[Then('the :content_type content with the title :title should not be published')]
   public function contentAssertNotPublishedWithTitle(string $content_type, string $title): void {
-    $node = $this->contentGetNodeByTitle($content_type, $title);
+    $nid = $this->contentGetNidByTitle($content_type, $title);
 
-    if ($node->isPublished()) {
-      throw new ExpectationException(sprintf('The "%s" content with the title "%s" should not be published, but it is (nid: %s).', $content_type, $title, $node->id()), $this->getSession()->getDriver());
+    if ($this->contentIsPublished($nid)) {
+      throw new ExpectationException(sprintf('The "%s" content with the title "%s" should not be published, but it is (nid: %s).', $content_type, $title, $nid), $this->getSession()->getDriver());
     }
   }
 
@@ -371,11 +370,7 @@ trait ContentTrait {
    *   When the content type does not exist or no node of it has the title.
    */
   public function contentGetNidByTitle(string $content_type, string $title): int {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
-
-    if (!$content_type_entity) {
+    if (!$this->backendFor(ConfigCapabilityInterface::class)->configExists('node.type.' . $content_type)) {
       throw new \RuntimeException(sprintf('The content type "%s" does not exist.', $content_type));
     }
 
@@ -391,29 +386,35 @@ trait ContentTrait {
   /**
    * Return the node with the specified type and title.
    *
+   * When several nodes of the same type share the title, the most recently
+   * created one is returned.
+   *
    * @param string $content_type
    *   The content type.
    * @param string $title
    *   The title of the content.
    *
-   * @return \Drupal\node\NodeInterface
-   *   The node.
+   * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
+   *   The stub of the node, carrying its 'nid'.
    *
    * @throws \RuntimeException
    *   When the content type does not exist or no node of it has the title.
    */
-  public function contentGetNodeByTitle(string $content_type, string $title): NodeInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
+  public function contentGetNodeByTitle(string $content_type, string $title): EntityStubInterface {
+    return new EntityStub('node', $content_type, ['nid' => $this->contentGetNidByTitle($content_type, $title)]);
+  }
 
-    $node = Node::load($this->contentGetNidByTitle($content_type, $title));
-
-    // @codeCoverageIgnoreStart
-    if (!$node instanceof NodeInterface) {
-      throw new \RuntimeException(sprintf('Unable to find "%s" content with title "%s".', $content_type, $title));
-    }
-
-    // @codeCoverageIgnoreEnd
-    return $node;
+  /**
+   * Check whether the default translation of a node is published.
+   *
+   * @param int $nid
+   *   The node ID.
+   *
+   * @return bool
+   *   TRUE when the node exists and is published, FALSE otherwise.
+   */
+  protected function contentIsPublished(int $nid): bool {
+    return $this->queryEntityIds('node', ['nid' => $nid, 'status' => 1, 'default_langcode' => 1]) !== [];
   }
 
   /**
@@ -452,47 +453,84 @@ trait ContentTrait {
   /**
    * Set the moderation state of a node and save it.
    *
-   * @param \Drupal\node\NodeInterface $node
-   *   The node.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $node
+   *   The node stub, carrying its 'nid'.
    * @param string $state
    *   The moderation state.
    *
    * @throws \RuntimeException
    *   When no workflow for the content type of the node defines the state.
    */
-  public function contentSetModerationState(NodeInterface $node, string $state): void {
-    $content_type = $node->bundle();
+  public function contentSetModerationState(EntityStubInterface $node, string $state): void {
+    $content_type = $this->contentGetType($node);
 
     if (!$this->backendFor(WorkflowCapabilityInterface::class)->hasWorkflowState('node', $content_type, $state)) {
       throw new \RuntimeException(sprintf('State "%s" is not defined in the workflow for "%s" content type.', $state, $content_type));
     }
 
-    $node->set('moderation_state', $state);
-    $node->save();
+    $values = ['nid' => $this->queryGetEntityId($node, 'nid'), 'moderation_state' => $state];
+
+    $this->backendFor(ContentCapabilityInterface::class)->updateEntity(new EntityStub('node', $content_type, $values));
+  }
+
+  /**
+   * Get the content type of a node.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $node
+   *   The node stub, carrying its 'nid'.
+   *
+   * @return string
+   *   The bundle of the stub, or the type of the node when the stub carries
+   *   no bundle.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries no bundle and the node does not exist.
+   */
+  protected function contentGetType(EntityStubInterface $node): string {
+    $bundle = $node->getBundle();
+
+    if ($bundle !== NULL && $bundle !== '') {
+      return $bundle;
+    }
+
+    $nid = $this->queryGetEntityId($node, 'nid');
+    $type = $this->backendFor(ContentCapabilityInterface::class)->getEntityValues('node', $nid, ['type'])['type'][0]['target_id'] ?? NULL;
+
+    if (!is_string($type)) {
+      throw new \RuntimeException(sprintf('The node "%s" does not exist.', $nid));
+    }
+
+    return $type;
   }
 
   /**
    * Rebuild the access grants of a node.
    *
-   * @param \Drupal\node\NodeInterface $node
-   *   The node.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $node
+   *   The node stub, carrying its 'nid'.
+   *
+   * @throws \RuntimeException
+   *   When the node does not exist.
    */
-  public function contentRebuildAccessGrants(NodeInterface $node): void {
-    $this->backendFor(NodeCapabilityInterface::class)->rebuildNodeAccess((int) $node->id());
+  public function contentRebuildAccessGrants(EntityStubInterface $node): void {
+    $this->backendFor(NodeCapabilityInterface::class)->rebuildNodeAccess((int) $this->queryGetEntityId($node, 'nid'));
   }
 
   /**
    * Set the path alias of a node, replacing any existing alias.
    *
-   * @param \Drupal\node\NodeInterface $node
-   *   The node.
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $node
+   *   The node stub, carrying its 'nid'.
    * @param string $alias
    *   The alias, with or without its leading slash.
    */
-  public function contentSetPathAlias(NodeInterface $node, string $alias): void {
+  public function contentSetPathAlias(EntityStubInterface $node, string $alias): void {
+    $backend = $this->backendFor(ContentCapabilityInterface::class);
+    $nid = $this->queryGetEntityId($node, 'nid');
+
     // The current value carries the 'pid' of the existing alias, so the save
     // updates that alias rather than adding a second one.
-    $path_value = (array) ($node->get('path')->getValue()[0] ?? []);
+    $path_value = (array) ($backend->getEntityValues('node', $nid, ['path'])['path'][0] ?? []);
     $path_value['alias'] = '/' . ltrim(trim($alias), '/');
 
     // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
@@ -501,8 +539,7 @@ trait ContentTrait {
       $path_value['pathauto'] = 0;
     }
 
-    $node->set('path', $path_value);
-    $node->save();
+    $backend->updateEntity(new EntityStub('node', $node->getBundle(), ['nid' => $nid, 'path' => $path_value]));
   }
 
   /**

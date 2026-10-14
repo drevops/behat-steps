@@ -20,6 +20,7 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Tag;
 use Drupal\Core\Database\Database;
@@ -507,9 +508,10 @@ trait FeatureContextTrait {
       throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
     }
 
-    $file = reset($files);
+    $fid = array_key_first($files);
+    $stored = $this->backendFor(ContentCapabilityInterface::class)->getEntityValues('file', $fid, ['filename'])['filename'][0]['value'] ?? NULL;
 
-    if ($file_name !== $file->label()) {
+    if ($file_name !== $stored) {
       throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
     }
   }

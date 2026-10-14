@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Tests\Kernel\Fixtures\BootedDrupalBackend;
@@ -57,16 +58,16 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
   }
 
   /**
-   * Asserts that a loaded set holds exactly the expected entities.
+   * Asserts that a set holds a stub for exactly the expected entities.
    *
    * @param array<int, \Drupal\Core\Entity\EntityInterface> $expected
-   *   The entities the set must hold, in any order.
+   *   The entities the set must hold a stub for, in any order.
    * @param array<mixed> $actual
    *   The set a helper returned.
-   * @param class-string<\Drupal\Core\Entity\EntityInterface> $interface
-   *   The interface every entity in the set implements.
+   * @param string $id_key
+   *   The key each stub carries its id under.
    */
-  protected function assertLoadedSet(array $expected, array $actual, string $interface): void {
+  protected function assertStubSet(array $expected, array $actual, string $id_key): void {
     // IDs compare as strings, so a config entity keyed by machine name and a
     // content entity keyed by integer are handled alike.
     $expected_ids = array_map(static fn(EntityInterface $entity): string => (string) $entity->id(), $expected);
@@ -77,9 +78,13 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
 
     $this->assertSame($expected_ids, $actual_ids, 'The set holds only the matching entities.');
 
-    foreach ($actual as $id => $entity) {
-      $this->assertInstanceOf($interface, $entity);
-      $this->assertSame((string) $id, (string) $entity->id(), 'Each entity is keyed by its own ID.');
+    $entity_types = array_unique(array_map(static fn(EntityInterface $entity): string => $entity->getEntityTypeId(), $expected));
+
+    foreach ($actual as $id => $stub) {
+      $this->assertInstanceOf(EntityStubInterface::class, $stub);
+      $this->assertSame($entity_types, [$stub->getEntityType()], 'Each stub names the entity type of the set.');
+      $this->assertSame((string) $id, (string) $stub->getValue($id_key), 'Each stub is keyed by the id it carries.');
+      $this->assertFalse($stub->isSaved(), 'A stub from a lookup carries no loaded entity.');
     }
   }
 
