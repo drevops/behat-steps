@@ -18,8 +18,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('layer_imported_symbol')]
 #[CoversFunction('layer_referenced_symbol')]
 #[CoversFunction('layer_file_call_violations')]
+#[CoversFunction('layer_is_forbidden_call')]
 #[CoversFunction('layer_code_tokens')]
 #[CoversFunction('layer_call')]
+#[CoversFunction('layer_braced_call')]
+#[CoversFunction('layer_is_declaration')]
+#[CoversFunction('layer_member_operator')]
+#[CoversFunction('layer_token_type')]
+#[CoversFunction('layer_closure_variables')]
 #[CoversFunction('layer_is_internal_function')]
 class LintLayersTest extends UnitTestCase {
 
@@ -288,13 +294,41 @@ class LintLayersTest extends UnitTestCase {
       'a language construct' => ["<?php\n\n\$is_set = isset(\$a) && !empty(\$b);\n", []],
       'a closure and an arrow function' => ["<?php\n\n\$f = function () {};\n\$g = fn() => 1;\n", []],
       'a call in a comment' => ["<?php\n\n// fake_drupal_flush_caches();\n", []],
+      'a variable function' => ["<?php\n\n\$fn = 'fake_drupal_flush_caches';\n\$fn();\n", [['line' => 4, 'symbol' => '$fn()']]],
+      'a closure held in a variable' => ["<?php\n\n\$format = static function (): string {\n  return '';\n};\n\$format();\n", []],
+      'an arrow function held in a variable' => ["<?php\n\n\$double = fn(int \$x): int => \$x * 2;\n\$double(2);\n", []],
+      'a dynamic method' => ["<?php\n\n\$backend->\$method();\n", [['line' => 3, 'symbol' => '->$method()']]],
+      'a braced dynamic method' => ["<?php\n\n\$backend->{'getCore'}();\n", [['line' => 3, 'symbol' => "->{'getCore'}()"]]],
+      'a dynamic static method' => ["<?php\n\nBackend::\$method();\n", [['line' => 3, 'symbol' => '::$method()']]],
+      'a dynamic property' => ["<?php\n\n\$value = \$object->\$name;\n\$other = \$object->{'name'};\n", []],
+      'a static property' => ["<?php\n\n\$value = static::\$values;\n", []],
+      'a dynamic instantiation' => ["<?php\n\n\$object = new \$class();\n", []],
+      'a callable dispatcher' => ["<?php\n\ncall_user_func('fake_drupal_flush_caches');\n", [['line' => 3, 'symbol' => 'call_user_func()']]],
+      'an array callable dispatcher' => ["<?php\n\n\\call_user_func_array('fake_drupal_flush_caches', []);\n", [['line' => 3, 'symbol' => '\\call_user_func_array()']]],
+      'a forwarded static call' => ["<?php\n\nforward_static_call(['Fake', 'helper']);\n", [['line' => 3, 'symbol' => 'forward_static_call()']]],
     ];
   }
 
-  public function testFileCallViolationsAllowsEveryFunctionWhenTheCheckIsOff(): void {
-    $file = $this->writeFixture('Subject.php', "<?php\n\nfake_drupal_flush_caches();\n");
+  /**
+   * Assert that a layer without the function check allows every call shape.
+   *
+   * @param string $code
+   *   The file contents to scan.
+   */
+  #[DataProvider('dataProviderFileCallViolationsAllowsEveryFunctionWhenTheCheckIsOff')]
+  public function testFileCallViolationsAllowsEveryFunctionWhenTheCheckIsOff(string $code): void {
+    $file = $this->writeFixture('Subject.php', $code);
 
     $this->assertSame([], layer_file_call_violations($file, [], FALSE));
+  }
+
+  public static function dataProviderFileCallViolationsAllowsEveryFunctionWhenTheCheckIsOff(): array {
+    return [
+      'a function PHP does not define' => ["<?php\n\nfake_drupal_flush_caches();\n"],
+      'a variable function' => ["<?php\n\n\$fn();\n"],
+      'a dynamic method' => ["<?php\n\n\$backend->\$method();\n"],
+      'a callable dispatcher' => ["<?php\n\ncall_user_func('fake_drupal_flush_caches');\n"],
+    ];
   }
 
 }

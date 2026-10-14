@@ -31,7 +31,8 @@ use DrevOps\BehatSteps\WebRawContext;
  * below it is a violation, unless an allowed prefix matches it as well.
  *
  * A layer may also name methods it must not call, and may hold its function
- * calls to the functions PHP itself defines.
+ * calls to the functions PHP itself defines, which rules out a call whose
+ * target only runtime knows as well.
  */
 const LAYERS = [
   [
@@ -99,6 +100,19 @@ const LAYERS = [
     // functions PHP defines may be called.
     'internal_functions_only' => TRUE,
   ],
+];
+
+/**
+ * Functions PHP defines that call another function by name.
+ *
+ * A call through 1 of them names its target in a value the check does not
+ * read, so a layer held to PHP's own functions forbids them.
+ */
+const LAYER_DISPATCH_FUNCTIONS = [
+  'call_user_func',
+  'call_user_func_array',
+  'forward_static_call',
+  'forward_static_call_array',
 ];
 
 // The entry function runs only when the script is run directly, not when it
@@ -352,23 +366,48 @@ function layer_has_prefix(string $symbol, array $prefixes): bool {
 function layer_file_call_violations(string $file, array $forbidden_methods, bool $internal_functions_only): array {
   $tokens = layer_code_tokens((string) file_get_contents($file));
   $methods = array_map(strtolower(...), $forbidden_methods);
+  $closures = layer_closure_variables($tokens);
   $violations = [];
 
   foreach (array_keys($tokens) as $index) {
     $call = layer_call($tokens, $index);
 
-    if ($call === NULL) {
+    if ($call === NULL || !layer_is_forbidden_call($call, $methods, $internal_functions_only, $closures)) {
       continue;
     }
 
-    $is_forbidden = $call['operator'] === NULL ? $internal_functions_only && !layer_is_internal_function($call['name']) : in_array(strtolower($call['name']), $methods, TRUE);
-
-    if ($is_forbidden) {
-      $violations[] = ['line' => $call['line'], 'symbol' => $call['operator'] . $call['name'] . '()'];
-    }
+    $violations[] = ['line' => $call['line'], 'symbol' => $call['operator'] . $call['name'] . '()'];
   }
 
   return $violations;
+}
+
+/**
+ * Checks whether a layer forbids a call.
+ *
+ * A layer held to the functions PHP defines also forbids a call whose target
+ * only runtime knows, unless it calls a closure the file assigns to the
+ * variable, and a call through a function that calls another by name.
+ *
+ * @param array{name: string, operator: string|null, line: int, is_dynamic: bool} $call
+ *   The call, as 'layer_call()' reads it.
+ * @param array<int, string> $forbidden_methods
+ *   Names of the methods that must not be called, in lower case.
+ * @param bool $internal_functions_only
+ *   Whether every function called must be one PHP defines.
+ * @param array<int, string> $closures
+ *   The variables the file assigns a closure or an arrow function to.
+ */
+function layer_is_forbidden_call(array $call, array $forbidden_methods, bool $internal_functions_only, array $closures): bool {
+  if ($call['is_dynamic']) {
+    return $internal_functions_only && ($call['operator'] !== NULL || !in_array($call['name'], $closures, TRUE));
+  }
+
+  if ($call['operator'] !== NULL) {
+    return in_array(strtolower($call['name']), $forbidden_methods, TRUE);
+  }
+
+  return $internal_functions_only && (!layer_is_internal_function($call['name']) || in_array(strtolower(ltrim($call['name'], '\\')), LAYER_DISPATCH_FUNCTIONS, TRUE));
 }
 
 /**
@@ -413,37 +452,167 @@ function layer_code_tokens(string $code): array {
 /**
  * Reads the call a token makes, if it makes one.
  *
+ * A name called after '->', '?->' or '::' is a method. A variable or a
+ * braced expression called in place of a name is dynamic, because only
+ * runtime knows what it calls.
+ *
  * @param list<array{int, string, int}|string> $tokens
  *   The code tokens, as 'layer_code_tokens()' returns them.
  * @param int $index
  *   The index of the token.
  *
- * @return array{name: string, operator: string|null, line: int}|null
- *   The called name, the operator before it for a method and the line, or
- *   NULL when the token calls nothing.
+ * @return array{name: string, operator: string|null, line: int, is_dynamic: bool}|null
+ *   The called name, the operator before it for a method, the line and
+ *   whether the target is dynamic, or NULL when the token calls nothing.
  */
 function layer_call(array $tokens, int $index): ?array {
   $token = $tokens[$index];
-
-  if (!is_array($token) || !in_array($token[0], [T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED], TRUE) || ($tokens[$index + 1] ?? NULL) !== '(') {
-    return NULL;
-  }
-
   $previous = $tokens[$index - 1] ?? NULL;
-  $previous_type = is_array($previous) ? $previous[0] : $previous;
-  $before_previous = $tokens[$index - 2] ?? NULL;
-  $is_by_reference = $previous_type === T_AMPERSAND_NOT_FOLLOWED_BY_VAR_OR_VARARG && is_array($before_previous) && $before_previous[0] === T_FUNCTION;
+  $operator = layer_member_operator($previous);
 
-  // A name after 'new' is a class, and a name after 'function' is declared
-  // rather than called.
-  if ($previous_type === T_NEW || $previous_type === T_FUNCTION || $is_by_reference) {
+  if ($token === '{') {
+    return $operator === NULL || !is_array($previous) ? NULL : layer_braced_call($tokens, $index, $operator, $previous[2]);
+  }
+
+  if (!is_array($token) || ($tokens[$index + 1] ?? NULL) !== '(') {
     return NULL;
   }
 
-  $is_method = in_array($previous_type, [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR, T_DOUBLE_COLON], TRUE);
-  $operator = $is_method && is_array($previous) ? $previous[1] : NULL;
+  if ($token[0] === T_VARIABLE) {
+    // A variable after 'new' names the class to instantiate.
+    if (layer_token_type($previous) === T_NEW) {
+      return NULL;
+    }
 
-  return ['name' => $token[1], 'operator' => $operator, 'line' => $token[2]];
+    return ['name' => $token[1], 'operator' => $operator, 'line' => $token[2], 'is_dynamic' => TRUE];
+  }
+
+  if (!in_array($token[0], [T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED], TRUE) || layer_is_declaration($tokens, $index)) {
+    return NULL;
+  }
+
+  return ['name' => $token[1], 'operator' => $operator, 'line' => $token[2], 'is_dynamic' => FALSE];
+}
+
+/**
+ * Reads the call a braced member name makes, as in "->{'name'}()".
+ *
+ * @param list<array{int, string, int}|string> $tokens
+ *   The code tokens.
+ * @param int $index
+ *   The index of the opening brace.
+ * @param string $operator
+ *   The operator before the brace.
+ * @param int $line
+ *   The line of the operator.
+ *
+ * @return array{name: string, operator: string, line: int, is_dynamic: bool}|null
+ *   The call with the braced expression as its name, or NULL when the
+ *   member is read rather than called.
+ */
+function layer_braced_call(array $tokens, int $index, string $operator, int $line): ?array {
+  $depth = 0;
+
+  for ($i = $index, $count = count($tokens); $i < $count; $i++) {
+    $depth += match ($tokens[$i]) {
+      '{' => 1,
+      '}' => -1,
+      default => 0,
+    };
+
+    if ($depth > 0) {
+      continue;
+    }
+
+    if (($tokens[$i + 1] ?? NULL) !== '(') {
+      return NULL;
+    }
+
+    $name = implode('', array_map(static fn(array|string $token): string => is_array($token) ? $token[1] : $token, array_slice($tokens, $index, $i - $index + 1)));
+
+    return ['name' => $name, 'operator' => $operator, 'line' => $line, 'is_dynamic' => TRUE];
+  }
+
+  return NULL;
+}
+
+/**
+ * Checks whether the name at a token is declared or instantiated.
+ *
+ * A name after 'new' is a class, and a name after 'function' is declared
+ * rather than called.
+ *
+ * @param list<array{int, string, int}|string> $tokens
+ *   The code tokens.
+ * @param int $index
+ *   The index of the name.
+ */
+function layer_is_declaration(array $tokens, int $index): bool {
+  $previous_type = layer_token_type($tokens[$index - 1] ?? NULL);
+  $is_by_reference = $previous_type === T_AMPERSAND_NOT_FOLLOWED_BY_VAR_OR_VARARG && layer_token_type($tokens[$index - 2] ?? NULL) === T_FUNCTION;
+
+  return $previous_type === T_NEW || $previous_type === T_FUNCTION || $is_by_reference;
+}
+
+/**
+ * Reads the member operator a token is, if it is one.
+ *
+ * @param array{int, string, int}|string|null $token
+ *   The token.
+ *
+ * @return string|null
+ *   '->', '?->' or '::', or NULL for any other token.
+ */
+function layer_member_operator(array|string|null $token): ?string {
+  return is_array($token) && in_array($token[0], [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR, T_DOUBLE_COLON], TRUE) ? $token[1] : NULL;
+}
+
+/**
+ * Reads the type of a token.
+ *
+ * @param array{int, string, int}|string|null $token
+ *   The token.
+ *
+ * @return int|string|null
+ *   The token constant, the character of a 1-character token, or NULL past
+ *   either end of the code.
+ */
+function layer_token_type(array|string|null $token): int|string|null {
+  return is_array($token) ? $token[0] : $token;
+}
+
+/**
+ * Lists the variables a file assigns a closure or an arrow function to.
+ *
+ * The list covers the whole file rather than 1 scope, so a variable holding
+ * a closure in 1 method counts as a closure in every other.
+ *
+ * @param list<array{int, string, int}|string> $tokens
+ *   The code tokens.
+ *
+ * @return array<int, string>
+ *   The variable names, each with its '$'.
+ */
+function layer_closure_variables(array $tokens): array {
+  $variables = [];
+
+  foreach ($tokens as $index => $token) {
+    if (!is_array($token) || $token[0] !== T_VARIABLE || ($tokens[$index + 1] ?? NULL) !== '=') {
+      continue;
+    }
+
+    $value_type = layer_token_type($tokens[$index + 2] ?? NULL);
+
+    if ($value_type === T_STATIC) {
+      $value_type = layer_token_type($tokens[$index + 3] ?? NULL);
+    }
+
+    if ($value_type === T_FUNCTION || $value_type === T_FN) {
+      $variables[] = $token[1];
+    }
+  }
+
+  return array_values(array_unique($variables));
 }
 
 /**
