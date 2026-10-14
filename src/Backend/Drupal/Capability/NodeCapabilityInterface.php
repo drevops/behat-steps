@@ -7,7 +7,7 @@ namespace DrevOps\BehatSteps\Backend\Drupal\Capability;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 
 /**
- * Capability: create and delete nodes.
+ * Capability: create and delete nodes, and rebuild their access grants.
  */
 interface NodeCapabilityInterface {
 
@@ -32,5 +32,16 @@ interface NodeCapabilityInterface {
    *   carries a 'nid' value resolving to an existing node.
    */
   public function deleteNode(EntityStubInterface $stub): void;
+
+  /**
+   * Rebuilds the access grants of 1 node, or of every node.
+   *
+   * @param int|null $nid
+   *   The node id, or NULL to rebuild the grants of every node.
+   *
+   * @throws \RuntimeException
+   *   When no node has the id.
+   */
+  public function rebuildNodeAccess(?int $nid = NULL): void;
 
 }

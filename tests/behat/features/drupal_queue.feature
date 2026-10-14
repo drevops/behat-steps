@@ -245,3 +245,50 @@ Feature: Check that QueueTrait works
       """
       The "data" value must be a single JSON string.
       """
+
+  # The queue steps resolve the queue capability instead of bootstrapping
+  # Drupal, so '@backend:drush' counts, processes and deletes the queue over
+  # Drush. The items are added in-process, because Drush has no command for it.
+  @backend:drush
+  Scenario: Assert "When the queue :queue is processed" processes the items over Drush
+    Given the config "mysite_core.settings" with the key "queue_budget" has the value "20"
+    And the queue "behat_test" is empty
+    And I add 3 items to the "behat_test" queue
+    Then the queue "behat_test" should have 3 items
+    When the queue "behat_test" processes 1 item
+    Then the queue "behat_test" should have 2 items
+    When the queue "behat_test" is processed
+    Then the queue "behat_test" should be empty
+    And the config "mysite_core.settings" with the key "queue_budget" should have the value "17"
+
+  # Adding an item goes through the queue item capability, which only the
+  # in-process backend provides, so the step reaches it past a Drush backend
+  # listed first.
+  @test-trait:Drupal\QueueTrait
+  Scenario: Assert "Given the following item is in the queue :queue:" reaches the in-process backend when Drush is listed first
+    Given a configuration listing the backends "drush, drupal, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      Given the queue "behat_test" is empty
+      And the following item is in the queue "behat_test":
+        | data | {"nid":1} |
+      Then the queue "behat_test" should have 1 item
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @test-trait:Drupal\QueueTrait
+  Scenario: Assert "Given the following item is in the queue :queue:" fails when no backend adds items
+    Given a configuration listing the backends "drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      Given the following item is in the queue "behat_test":
+        | data | {"nid":1} |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException" exception:
+      """
+      No backend provides "DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface". Backends available to this scenario, in order: drush, blackbox.
+      """

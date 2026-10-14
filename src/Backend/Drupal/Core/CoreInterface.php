@@ -15,10 +15,18 @@ use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\DraggableviewsCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\FileCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\LogCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchIndexCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\WorkflowCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldShapeClassifierInterface;
@@ -42,15 +50,23 @@ interface CoreInterface extends
   ConfigCapabilityInterface,
   ContentCapabilityInterface,
   CronCapabilityInterface,
+  DraggableviewsCapabilityInterface,
   EntityLookupCapabilityInterface,
+  FileCapabilityInterface,
   LanguageCapabilityInterface,
+  LogCapabilityInterface,
   MailCapabilityInterface,
   ModuleCapabilityInterface,
   NodeCapabilityInterface,
+  QueueCapabilityInterface,
+  QueueItemCapabilityInterface,
   RoleCapabilityInterface,
+  SearchApiCapabilityInterface,
+  SearchIndexCapabilityInterface,
   StateCapabilityInterface,
   TermCapabilityInterface,
-  UserCapabilityInterface {
+  UserCapabilityInterface,
+  WorkflowCapabilityInterface {
 
   /**
    * Returns a random-value generator.

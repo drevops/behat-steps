@@ -468,6 +468,188 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getOneTimeLoginUrl(EntityStubInterface $stub): string {
+    return $this->getCore()->getOneTimeLoginUrl($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function cacheClearBin(string $bin): void {
+    $this->getCore()->cacheClearBin($bin);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function cacheInvalidateTags(array $tags): void {
+    $this->getCore()->cacheInvalidateTags($tags);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function cacheDeletePagePath(string $bin, string $path, bool $is_pattern = FALSE): void {
+    $this->getCore()->cacheDeletePagePath($bin, $path, $is_pattern);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityUrl(EntityStubInterface $stub, string $rel = 'canonical'): string {
+    return $this->getCore()->getEntityUrl($stub, $rel);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function rebuildNodeAccess(?int $nid = NULL): void {
+    $this->getCore()->rebuildNodeAccess($nid);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function findBlockPluginId(string $admin_label): ?string {
+    return $this->getCore()->findBlockPluginId($admin_label);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasConditionPlugin(string $id): bool {
+    return $this->getCore()->hasConditionPlugin($id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queueAddItem(string $queue, mixed $data): void {
+    $this->getCore()->queueAddItem($queue, $data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queueCountItems(string $queue): int {
+    return $this->getCore()->queueCountItems($queue);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queueDelete(string $queue): void {
+    $this->getCore()->queueDelete($queue);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queueProcess(string $queue, int $limit, int $lease_time): int {
+    return $this->getCore()->queueProcess($queue, $limit, $lease_time);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function logGetLastId(): int {
+    return $this->getCore()->logGetLastId();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function logRead(array $types, int $after_id, int $severity): array {
+    return $this->getCore()->logRead($types, $after_id, $severity);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function logDelete(array $ids): void {
+    $this->getCore()->logDelete($ids);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileWriteUnmanaged(string $uri, string $content): void {
+    $this->getCore()->fileWriteUnmanaged($uri, $content);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileReadUnmanaged(string $uri): string {
+    return $this->getCore()->fileReadUnmanaged($uri);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileExistsUnmanaged(string $uri): bool {
+    return $this->getCore()->fileExistsUnmanaged($uri);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileDeleteUnmanaged(string $uri): void {
+    $this->getCore()->fileDeleteUnmanaged($uri);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function filePrepareDirectory(string $uri): bool {
+    return $this->getCore()->filePrepareDirectory($uri);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileWriteManaged(string $uri, string $content, EntityStubInterface $stub): EntityStubInterface {
+    return $this->getCore()->fileWriteManaged($uri, $content, $stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function searchIndexEntity(string $entity_type, int|string $id): bool {
+    return $this->getCore()->searchIndexEntity($entity_type, $id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function searchIndexItems(int $limit): void {
+    $this->getCore()->searchIndexItems($limit);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function searchRunCron(string $module = 'search_api'): void {
+    $this->getCore()->searchRunCron($module);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasWorkflowState(string $entity_type, string $bundle, string $state): bool {
+    return $this->getCore()->hasWorkflowState($entity_type, $bundle, $state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function draggableviewsSetOrder(string $view_id, string $display_id, array $entity_ids): void {
+    $this->getCore()->draggableviewsSetOrder($view_id, $display_id, $entity_ids);
+  }
+
+  /**
    * Detects the major Drupal version from the filesystem.
    *
    * @return int

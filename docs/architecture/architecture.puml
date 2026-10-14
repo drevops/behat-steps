@@ -51,11 +51,11 @@ package "drevops/behat-steps" {
   }
 
   package "Backend - src/Backend" #E8F5E9 {
-    component "BackendInterface\n+ 9 capability interfaces\nany backend may provide,\nRandomGenerator" as BackendIface
+    component "BackendInterface\n+ 10 capability interfaces\nany backend may provide,\nRandomGenerator" as BackendIface
     component "BlackboxBackend\nno backend access at all" as BlackboxBe
 
     package "Backend\\Drupal" #E8F5E9 {
-      component "9 Drupal-only capabilities\nBatch, Block, Config, Core, Drush,\nModule, Node, State, Term" as DrupalCaps
+      component "17 Drupal-only capabilities\nBatch, Block, Config, Core, Draggableviews,\nDrush, File, Log, Module, Node, Queue,\nQueueItem, SearchApi, SearchIndex, State,\nTerm, Workflow" as DrupalCaps
       component "DrupalBackend\nbootstraps Drupal in-process" as DrupalBe
       component "DrushBackend\nshells out to drush" as DrushBe
       component "Core\nfield handlers, classifiers,\nparsers, creation aliases" as Core

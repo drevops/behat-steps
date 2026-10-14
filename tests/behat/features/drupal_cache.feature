@@ -148,3 +148,23 @@ Feature: Check that CacheTrait works
       """
       The path pattern "/news*#top" must not contain a query string or a fragment.
       """
+
+  @backend:drush
+  Scenario: Assert "Given the render cache has been cleared" clears the render cache over Drush
+    Given I am logged in as a user with the role "administrator" and I have the following fields:
+      | name | cache_render_drush |
+    And the render cache has been cleared
+    When I go to "/user"
+    Then I should see "cache_render_drush"
+
+  # Drush cannot list the entries of the page cache bin, so the path step
+  # empties the bin whole over Drush.
+  @backend:drush
+  Scenario: Assert "Given the page cache for the path :path has been cleared" empties the page cache over Drush
+    Given the page cache for the paths matching "/user/*" has been cleared
+    When I go to "/user/login"
+    And I go to "/user/login"
+    Then the response header "X-Drupal-Cache" should contain "HIT"
+    When the page cache for the path "/user/login" has been cleared
+    And I go to "/user/login"
+    Then the response header "X-Drupal-Cache" should contain "MISS"

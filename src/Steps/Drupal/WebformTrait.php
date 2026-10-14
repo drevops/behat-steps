@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\Given;
+use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
@@ -154,16 +155,16 @@ trait WebformTrait {
    *   The matching webforms keyed by ID, or an empty array when none match.
    */
   public function webformLoadMultiple(string $title): array {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    // A webform change made via the admin UI in a separate process leaves
-    // the config factory cache stale, so it is reset first.
-    \Drupal::configFactory()->reset();
-
-    $storage = \Drupal::entityTypeManager()->getStorage('webform');
-    $storage->resetCache();
+    // A webform changed through the admin UI in another process stays as this
+    // process loaded it until this process resets its caches, so the reset
+    // goes to the backend that loads the webforms.
+    if ($backend instanceof CacheCapabilityInterface) {
+      $backend->cacheClearStatic();
+    }
 
     $ids = $this->queryEntityIds('webform', ['title' => ['CONTAINS', $title]]);
 
@@ -172,7 +173,7 @@ trait WebformTrait {
     }
 
     /** @var array<string, \Drupal\webform\WebformInterface> $webforms */
-    $webforms = $storage->loadMultiple($ids);
+    $webforms = \Drupal::entityTypeManager()->getStorage('webform')->loadMultiple($ids);
 
     return $webforms;
   }

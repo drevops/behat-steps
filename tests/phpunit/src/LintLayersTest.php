@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('layer_files')]
 #[CoversFunction('layer_file_violations')]
 #[CoversFunction('layer_is_forbidden')]
+#[CoversFunction('layer_imported_symbol')]
 #[CoversFunction('layer_referenced_symbol')]
 class LintLayersTest extends UnitTestCase {
 
@@ -149,6 +150,26 @@ class LintLayersTest extends UnitTestCase {
       ],
       'unqualified name' => [
         "<?php\n\nclass Behat {}\n",
+        [],
+      ],
+      'bare import of a global class' => [
+        "<?php\n\nuse Behat;\n",
+        [['line' => 3, 'symbol' => 'Behat']],
+      ],
+      'aliased bare import of a global class' => [
+        "<?php\n\nuse Mink as M;\n",
+        [['line' => 3, 'symbol' => 'Mink']],
+      ],
+      'trait use inside a class body' => [
+        "<?php\n\nclass Subject {\n  use Behat;\n}\n",
+        [],
+      ],
+      'closure use' => [
+        "<?php\n\n\$f = function () use (\$x) {};\n",
+        [],
+      ],
+      'bare import of a permitted class' => [
+        "<?php\n\nuse Exception;\n",
         [],
       ],
     ];

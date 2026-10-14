@@ -8,12 +8,12 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\BeforeScenario;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Extension\Tag;
-use Drupal\testmode\Testmode;
 
 /**
  * Configure Drupal Testmode module for controlled testing scenarios.
@@ -33,6 +33,16 @@ trait TestmodeTrait {
   protected const string TESTMODE_TAG = 'testmode';
 
   /**
+   * The state key the Testmode module reads the mode from.
+   */
+  protected const string TESTMODE_STATE_KEY = 'testmode.enabled';
+
+  /**
+   * The cache tag the Testmode module puts on the views it filters.
+   */
+  protected const string TESTMODE_CACHE_VIEWS = 'testmode:views';
+
+  /**
    * Whether this scenario enabled test mode.
    */
   protected bool $testmodeActive = FALSE;
@@ -46,11 +56,9 @@ trait TestmodeTrait {
       return;
     }
 
-    $this->backendFor(CoreCapabilityInterface::class);
-
     $this->assertPrerequisites(__TRAIT__, $scope);
 
-    static::testmodeEnableTestMode();
+    $this->testmodeEnableTestMode();
 
     $this->testmodeActive = TRUE;
   }
@@ -64,9 +72,7 @@ trait TestmodeTrait {
       return;
     }
 
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    static::testmodeDisableTestMode();
+    $this->testmodeDisableTestMode();
 
     $this->testmodeActive = FALSE;
   }
@@ -74,15 +80,17 @@ trait TestmodeTrait {
   /**
    * Enable test mode.
    */
-  public static function testmodeEnableTestMode(): void {
-    Testmode::getInstance()->enableTestMode();
+  public function testmodeEnableTestMode(): void {
+    $this->backendFor(StateCapabilityInterface::class)->stateSet(self::TESTMODE_STATE_KEY, TRUE);
+    $this->backendFor(CacheCapabilityInterface::class)->cacheInvalidateTags([self::TESTMODE_CACHE_VIEWS]);
   }
 
   /**
    * Disable test mode.
    */
-  public static function testmodeDisableTestMode(): void {
-    Testmode::getInstance()->disableTestMode();
+  public function testmodeDisableTestMode(): void {
+    $this->backendFor(StateCapabilityInterface::class)->stateDelete(self::TESTMODE_STATE_KEY);
+    $this->backendFor(CacheCapabilityInterface::class)->cacheInvalidateTags([self::TESTMODE_CACHE_VIEWS]);
   }
 
   /**
@@ -105,7 +113,8 @@ trait TestmodeTrait {
    */
   protected function testmodePrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(StateCapabilityInterface::class),
+      Prerequisite::capability(CacheCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('testmode'), 'the "testmode" module from the "drupal/testmode" package is enabled'),
     ];
   }

@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchIndexCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
-use Drupal\search_api\IndexInterface;
-use Drupal\search_api\Plugin\search_api\datasource\ContentEntityTrackingManager;
-use Drupal\search_api\Utility\Utility;
 
 /**
  * Run Drupal Search API indexing and cron hooks.
@@ -44,7 +42,7 @@ trait SearchApiTrait {
    */
   #[When('the :content_type content with the title :title is indexed')]
   public function searchApiIndexContent(string $content_type, string $title): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(SearchApiCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -69,7 +67,7 @@ trait SearchApiTrait {
    */
   #[When('search indexing runs for :count item(s)')]
   public function searchApiRunIndexing(string $count): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(SearchIndexCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -87,11 +85,11 @@ trait SearchApiTrait {
    */
   #[When('the Search API cron runs')]
   public function searchApiRunCron(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(SearchApiCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    \Drupal::moduleHandler()->invoke('search_api', 'cron');
+    $backend->searchRunCron();
   }
 
   /**
@@ -108,7 +106,7 @@ trait SearchApiTrait {
    */
   #[When('the Search API Solr cron runs')]
   public function searchApiRunSolrCron(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(SearchApiCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -117,7 +115,7 @@ trait SearchApiTrait {
       return;
     }
 
-    \Drupal::moduleHandler()->invoke('search_api_solr', 'cron');
+    $backend->searchRunCron('search_api_solr');
     // @codeCoverageIgnoreEnd
   }
 
@@ -149,47 +147,13 @@ trait SearchApiTrait {
    *
    * @throws \RuntimeException
    *   When no active search index includes the node.
-   * @throws \Drupal\search_api\SearchApiException
-   *   When an index fails to index the node.
    */
   public function searchApiIndexNode(NodeInterface $node): void {
-    /** @var \Drupal\search_api\Plugin\search_api\datasource\ContentEntityTrackingManager $tracking_manager */
-    $tracking_manager = \Drupal::service('search_api.entity_datasource.tracking_manager');
-    $tracking_manager->entityInsert($node);
+    $is_indexed = $this->backendFor(SearchApiCapabilityInterface::class)->searchIndexEntity('node', (string) $node->id());
 
-    $indexes = array_filter($tracking_manager->getIndexesForEntity($node), static fn(IndexInterface $index): bool => $index->status());
-
-    if ($indexes === []) {
+    if (!$is_indexed) {
       throw new \RuntimeException(sprintf('No active search index includes the "%s" content with the title "%s".', $node->bundle(), $node->label()));
     }
-
-    foreach ($indexes as $index) {
-      $index->indexSpecificItems($index->loadItemsMultiple($this->searchApiGetNodeItemIds($index, $node)));
-    }
-  }
-
-  /**
-   * Get the IDs of the items a node is indexed as on a search index.
-   *
-   * @param \Drupal\search_api\IndexInterface $index
-   *   The search index.
-   * @param \Drupal\node\NodeInterface $node
-   *   The node.
-   *
-   * @return list<string>
-   *   The item ID of each translation of the node in a language the index
-   *   includes.
-   */
-  protected function searchApiGetNodeItemIds(IndexInterface $index, NodeInterface $node): array {
-    $raw_ids = [];
-
-    foreach ($node->getTranslationLanguages() as $language) {
-      $raw_ids[] = ContentEntityTrackingManager::formatItemId('node', (string) $node->id(), $language->getId());
-    }
-
-    $raw_ids = ContentEntityTrackingManager::filterValidItemIds($index, 'entity:node', $raw_ids);
-
-    return array_values(array_map(static fn(string $raw_id): string => Utility::createCombinedId('entity:node', $raw_id), $raw_ids));
   }
 
   /**
@@ -202,20 +166,7 @@ trait SearchApiTrait {
    *   When no search index is active.
    */
   public function searchApiIndexItems(int $count): void {
-    $index_storage = \Drupal::entityTypeManager()->getStorage('search_api_index');
-
-    /** @var \Drupal\search_api\IndexInterface[] $indexes */
-    $indexes = $index_storage->loadByProperties(['status' => TRUE]);
-
-    // @codeCoverageIgnoreStart
-    if (empty($indexes)) {
-      throw new \RuntimeException('No active search indexes found.');
-    }
-
-    // @codeCoverageIgnoreEnd
-    foreach ($indexes as $index) {
-      $index->indexItems($count);
-    }
+    $this->backendFor(SearchIndexCapabilityInterface::class)->searchIndexItems($count);
   }
 
   /**
@@ -226,7 +177,7 @@ trait SearchApiTrait {
    */
   protected function searchApiPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(SearchIndexCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('search_api'), 'the "search_api" module from the "drupal/search_api" package is enabled'),
     ];
   }

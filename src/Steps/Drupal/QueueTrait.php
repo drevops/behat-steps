@@ -10,12 +10,12 @@ use Behat\Hook\AfterScenario;
 use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
-use Drupal\Core\Queue\QueueInterface;
 
 /**
  * Manage and assert Drupal queue state.
@@ -45,17 +45,16 @@ trait QueueTrait {
    */
   #[AfterScenario]
   public function queueAfterScenario(AfterScenarioScope $scope): void {
-    // Resolving a backend fails in a suite that lists no in-process Drupal
-    // backend, so a scenario that used no queue returns first.
+    // Resolving a backend fails in a suite that lists no backend serving
+    // queues, so a scenario that used no queue returns first.
     if ($this->skipTag(__TRAIT__, $scope) || $this->queueNames === []) {
       return;
     }
 
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(QueueCapabilityInterface::class);
 
     foreach ($this->queueNames as $queue_name) {
-      $queue_instance = \Drupal::service('queue')->get($queue_name);
-      $queue_instance->deleteQueue();
+      $backend->queueDelete($queue_name);
     }
 
     $this->queueNames = [];
@@ -76,17 +75,15 @@ trait QueueTrait {
    */
   #[Given('the following item is in the queue :queue:')]
   public function queueAddItem(string $queue, TableNode $fields): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
     $data = $fields->getRowsHash()['data'] ?? '{}';
 
     if (!is_string($data)) {
       throw new \RuntimeException('The "data" value must be a single JSON string.');
     }
 
-    $this->queueGet($queue)->createItem($this->queueDecodeData($data));
+    $this->queueResolveBackend($queue);
+
+    $this->backendFor(QueueItemCapabilityInterface::class)->queueAddItem($queue, $this->queueDecodeData($data));
   }
 
   /**
@@ -100,10 +97,6 @@ trait QueueTrait {
    */
   #[Given('the queue :queue is empty')]
   public function queueEmpty(string $queue): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
     $this->queueClear($queue);
   }
 
@@ -122,10 +115,6 @@ trait QueueTrait {
    */
   #[When('the queue :queue processes :count item(s)')]
   public function queueProcessItems(string $count, string $queue): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
     $count = $this->stringParseInteger($count, 'count', 0);
 
     $processed = $this->queueProcess($queue, $count);
@@ -146,10 +135,6 @@ trait QueueTrait {
    */
   #[When('the queue :queue is processed')]
   public function queueProcessAll(string $queue): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
     $limit = $this->queueGetProcessLimit();
     $processed = $this->queueProcess($queue, $limit);
 
@@ -173,13 +158,9 @@ trait QueueTrait {
    */
   #[Then('the queue :queue should have :count item(s)')]
   public function queueAssertItemCount(string $queue, string $count): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
     $count = $this->stringParseInteger($count, 'count', 0);
 
-    $actual = $this->queueGet($queue)->numberOfItems();
+    $actual = $this->queueCountItems($queue);
 
     if ($actual !== $count) {
       throw new AssertionException(sprintf('Expected the queue "%s" to have %d items, but it has %d.', $queue, $count, $actual));
@@ -197,11 +178,7 @@ trait QueueTrait {
    */
   #[Then('the queue :queue should be empty')]
   public function queueAssertEmpty(string $queue): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
-    $actual = $this->queueGet($queue)->numberOfItems();
+    $actual = $this->queueCountItems($queue);
 
     if ($actual !== 0) {
       throw new AssertionException(sprintf('Expected the queue "%s" to be empty, but it has %d items.', $queue, $actual));
@@ -223,26 +200,22 @@ trait QueueTrait {
   }
 
   /**
-   * Get a queue, which is deleted after the scenario.
+   * Count the items in a queue.
+   *
+   * The queue is deleted after the scenario.
    *
    * @param string $queue
    *   The queue name.
    *
-   * @return \Drupal\Core\Queue\QueueInterface
-   *   The queue.
+   * @return int
+   *   The number of items.
    */
-  public function queueGet(string $queue): QueueInterface {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $this->assertPrerequisites(__TRAIT__);
-
-    $this->queueTrackName($queue);
-
-    return \Drupal::service('queue')->get($queue);
+  public function queueCountItems(string $queue): int {
+    return $this->queueResolveBackend($queue)->queueCountItems($queue);
   }
 
   /**
-   * Delete every item of a queue, leaving the queue in place.
+   * Delete every item of a queue.
    *
    * The queue is deleted after the scenario.
    *
@@ -250,13 +223,13 @@ trait QueueTrait {
    *   The queue name.
    */
   public function queueClear(string $queue): void {
-    $queue_instance = $this->queueGet($queue);
-    $queue_instance->deleteQueue();
-    $queue_instance->createQueue();
+    $this->queueResolveBackend($queue)->queueDelete($queue);
   }
 
   /**
    * Process items from a queue with the queue's worker.
+   *
+   * The queue is deleted after the scenario.
    *
    * @param string $queue
    *   The queue name.
@@ -267,26 +240,23 @@ trait QueueTrait {
    *   The number of items processed, below the limit when the queue ran out.
    */
   public function queueProcess(string $queue, int $limit): int {
-    $queue_instance = $this->queueGet($queue);
-    $worker = \Drupal::service('plugin.manager.queue_worker')->createInstance($queue);
-    $lease_time = $this->queueGetLeaseTime();
+    return $this->queueResolveBackend($queue)->queueProcess($queue, $limit, $this->queueGetLeaseTime());
+  }
 
-    $processed = 0;
+  /**
+   * Resolve the backend serving a queue, which is deleted after the scenario.
+   *
+   * @param string $queue
+   *   The queue name.
+   */
+  protected function queueResolveBackend(string $queue): QueueCapabilityInterface {
+    $backend = $this->backendFor(QueueCapabilityInterface::class);
 
-    while ($processed < $limit) {
-      /** @var \stdClass|false $item */
-      $item = $queue_instance->claimItem($lease_time);
+    $this->assertPrerequisites(__TRAIT__);
 
-      if (!$item) {
-        break;
-      }
+    $this->queueTrackName($queue);
 
-      $worker->processItem($item->data);
-      $queue_instance->deleteItem($item);
-      $processed++;
-    }
-
-    return $processed;
+    return $backend;
   }
 
   /**
@@ -342,7 +312,7 @@ trait QueueTrait {
    */
   protected function queuePrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(QueueCapabilityInterface::class),
     ];
   }
 

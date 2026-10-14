@@ -220,9 +220,37 @@ Feature: Check that WatchdogTrait works
       2 steps (2 passed)
       """
 
+  # The check reads the log through the log capability, which the Drush
+  # backend serves, so a configuration reaching Drupal only through Drush
+  # runs it.
   @test-trait:Drupal\WatchdogTrait
-  Scenario: Assert that an opted-in configuration reaching Drupal only through Drush fails at its start
+  Scenario: Assert that an opted-in configuration reaching Drupal only through Drush passes
     Given a configuration listing the backends "drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I visit "/"
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @test-trait:Drupal\WatchdogTrait
+  Scenario: Assert that the log is read over Drush when it is the first backend
+    Given a configuration listing the backends "drush, drupal, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When set watchdog error level "warning"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      PHP errors were logged to watchdog during scenario "Stub scenario title" (line 3):
+      """
+
+  @test-trait:Drupal\WatchdogTrait
+  Scenario: Assert that an opted-in configuration reaching Drupal only through a blackbox backend fails at its start
+    Given a configuration listing the backends "blackbox"
     And some behat configuration
     And scenario steps:
       """
@@ -231,7 +259,7 @@ Feature: Check that WatchdogTrait works
     When I run "behat --no-colors"
     Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException" exception:
       """
-      WatchdogTrait requires that a backend in the scenario's list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: drush, blackbox. Meet the prerequisite, or switch WatchdogTrait off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
+      WatchdogTrait requires that a backend in the scenario's list provides "LogCapabilityInterface", which does not hold. Backends available to this scenario, in order: blackbox. Meet the prerequisite, or switch WatchdogTrait off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
       """
     And the output should contain:
       """

@@ -109,4 +109,8 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
     ]));
   }
 
+  public function testHasWorkflowStateIsFalseWithoutWorkflows(): void {
+    $this->assertFalse($this->core->hasWorkflowState('node', 'article', 'published'));
+  }
+
 }

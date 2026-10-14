@@ -15,7 +15,6 @@ use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\redirect\Entity\Redirect;
 
 /**
@@ -342,16 +341,18 @@ trait RedirectTrait {
   /**
    * Normalize a destination URI the same way `Redirect::setRedirect()` does.
    *
-   * Internal paths gain an `internal:/` prefix; external `http(s)://` URLs
-   * pass through unchanged. Values that already begin with `internal:` are
-   * returned as-is to avoid double-prefixing.
+   * An internal path gains an `internal:/` prefix. A destination with a URL
+   * scheme, or opening with `//`, is external and passes through unchanged,
+   * as does a value that already begins with `internal:`.
    */
   protected function redirectNormalizeDestination(string $uri): string {
     if (str_starts_with($uri, 'internal:')) {
       return $uri;
     }
 
-    return UrlHelper::isExternal($uri) ? $uri : 'internal:/' . ltrim($uri, '/');
+    $is_external = str_starts_with($uri, '//') || parse_url($uri, PHP_URL_SCHEME) !== NULL;
+
+    return $is_external ? $uri : 'internal:/' . ltrim($uri, '/');
   }
 
   /**

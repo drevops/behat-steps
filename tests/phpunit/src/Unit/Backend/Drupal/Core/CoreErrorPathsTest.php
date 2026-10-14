@@ -107,26 +107,52 @@ class CoreErrorPathsTest extends UnitTestCase {
   }
 
   /**
-   * Tests that 'deleteEntity()' rejects a stub whose id key holds no usable id.
+   * Tests that a stub method rejects a stub whose id key holds no usable id.
    *
+   * @param string $method
+   *   The 'Core' method to call with the stub.
    * @param mixed $id
    *   The value stored under the entity type's id key.
    */
-  #[DataProvider('dataProviderDeleteEntityRejectsEmptyId')]
-  public function testDeleteEntityRejectsEmptyId(mixed $id): void {
+  #[DataProvider('dataProviderStubMethodRejectsEmptyId')]
+  public function testStubMethodRejectsEmptyId(string $method, mixed $id): void {
     $core = $this->createCore();
     $this->setUpEntityTypeManager('widget', 'id');
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches('/Cannot delete an entity of type "widget" from a stub with an empty id key "id"/');
+    $this->expectExceptionMessageMatches('/Cannot resolve an entity of type "widget" from a stub with an empty id key "id"/');
 
-    $core->deleteEntity(new EntityStub('widget', NULL, ['id' => $id]));
+    $core->{$method}(new EntityStub('widget', NULL, ['id' => $id]));
   }
 
-  public static function dataProviderDeleteEntityRejectsEmptyId(): \Iterator {
-    yield 'empty string' => [''];
-    yield 'null' => [NULL];
-    yield 'array' => [[]];
+  public static function dataProviderStubMethodRejectsEmptyId(): \Iterator {
+    foreach (['deleteEntity', 'getEntityUrl'] as $method) {
+      yield $method . ' with an empty string' => [$method, ''];
+      yield $method . ' with null' => [$method, NULL];
+      yield $method . ' with an array' => [$method, []];
+    }
+  }
+
+  /**
+   * Tests that a stub method rejects a stub that carries no id key.
+   *
+   * @param string $method
+   *   The 'Core' method to call with the stub.
+   */
+  #[DataProvider('dataProviderStubMethodRejectsMissingIdKey')]
+  public function testStubMethodRejectsMissingIdKey(string $method): void {
+    $core = $this->createCore();
+    $this->setUpEntityTypeManager('widget', 'id');
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot resolve an entity of type "widget" from a stub without the id key "id" set.');
+
+    $core->{$method}(new EntityStub('widget'));
+  }
+
+  public static function dataProviderStubMethodRejectsMissingIdKey(): \Iterator {
+    yield 'deleteEntity' => ['deleteEntity'];
+    yield 'getEntityUrl' => ['getEntityUrl'];
   }
 
   /**

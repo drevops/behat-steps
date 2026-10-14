@@ -145,4 +145,14 @@ class CoreBlockMethodsKernelTest extends KernelTestBase {
     $this->assertNull(BlockContent::load((int) $stub->getValue('id')));
   }
 
+  public function testFindBlockPluginIdMatchesTheAdminLabel(): void {
+    $this->assertSame('system_powered_by_block', $this->core->findBlockPluginId('Powered by Drupal'));
+    $this->assertNull($this->core->findBlockPluginId('No such block'));
+  }
+
+  public function testHasConditionPluginReportsTheCondition(): void {
+    $this->assertTrue($this->core->hasConditionPlugin('request_path'));
+    $this->assertFalse($this->core->hasConditionPlugin('request_paths'));
+  }
+
 }

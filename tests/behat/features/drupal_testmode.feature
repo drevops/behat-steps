@@ -71,3 +71,12 @@ Feature: Check that TestmodeTrait works
       """
       1 scenario (1 passed)
       """
+
+  # The hooks write the mode through the state and cache capabilities, so
+  # '@backend:drush' switches test mode on and off over Drush.
+  @testmode @backend:drush
+  Scenario: Assert visiting test content page with test mode over Drush lists only the test content
+    Given I am logged in as a user with the role "administrator"
+    When I go to "/content_test"
+    Then I should not see "Article 1"
+    And I should see "[MYTEST] Article 6"

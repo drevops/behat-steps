@@ -20,7 +20,7 @@ Every table follows the same conventions, so a tool can apply it as written:
 4.0 needs:
 
 - PHP 8.3 or newer. 3.14 ran on PHP 8.2.
-- Drupal 11 or 12 on a Drupal site. 4.0 requires `drupal/core-utility`, which Drupal 10's core can't satisfy.
+- Drupal 11 or 12 on a Drupal site. 4.0 requires no Drupal package of its own, and its Drupal backend throws a `BootstrapException` on Drupal 10.
 - Behat 3 or Behat 4. 3.14 refused Behat 4. On Behat 4, it also needs `friends-of-behat/mink-extension` 3, which only has an alpha release so far, so the installation section of the [README](README.md) shows how to require both.
 - Drush 13 or newer for the Drush backend, as [Backend contracts](#backend-contracts) explains.
 
@@ -1279,9 +1279,25 @@ Then the element "#main-content" should be centered in the viewport
 
 A scenario that relied on the step to push another queued item into the index runs `search indexing runs for :count item(s)` as well. A PHP call to `SearchApiTrait::searchApiIndexContent()` changes the same way.
 
+`search indexing runs for :count item(s)` goes through `SearchIndexCapabilityInterface`, which the Drush backend serves with `search-api:index`. The other 3 search steps go through `SearchApiCapabilityInterface`, which only the in-process backend provides, so they reach it whatever the order lists first and fail with `UnsupportedBackendActionException` only when no backend in the scenario's list provides it.
+
 ### Queues
 
 `QueueTrait` deleted the queues a scenario used only when the scenario was tagged `@queue`, a tag nothing documented, so an untagged scenario left its queue items behind for the next one. The teardown now runs after every scenario, and `@queue` does nothing. A queue counts as used once any queue step names it, the assertions included, so a scenario that only checks a queue the site filled deletes it as well. To keep the items for a later scenario, tag the scenario that leaves them `@behat-steps-skip:QueueTrait`, or set `queue.enabled` to `FALSE` for the suite.
+
+The queue steps go through `QueueCapabilityInterface`, which the Drush backend serves with `queue:list`, `queue:run` and `queue:delete`, apart from `the following item is in the queue :queue:`, which goes through `QueueItemCapabilityInterface`. Only the in-process backend provides that one, so the step reaches it whatever the order lists first, and fails with `UnsupportedBackendActionException` only when no backend in the scenario's list provides it. The helpers behind the steps, `queueCountItems()`, `queueClear()` and `queueProcess()`, act on a queue by name and return no Drupal object.
+
+### Log entries
+
+`WatchdogTrait` reads the log through `LogCapabilityInterface`, which the Drush backend serves with `watchdog:show` and `watchdog:delete`, so a profile reaching Drupal only through Drush runs the check. The entries a scenario logged are the ones newer than the id the log held when the scenario started, where they used to be the ones with a later timestamp. `watchdogClearErrors()` renders each entry from the array the capability returns, so an error report reads `Array (` where it read `stdClass Object (`.
+
+### Test mode
+
+`TestmodeTrait` writes the mode through `StateCapabilityInterface` and the cache tag through `CacheCapabilityInterface` rather than through the Testmode module's `Testmode` class, so `@testmode` works under `@backend:drush` too. `testmodeEnableTestMode()` and `testmodeDisableTestMode()` are instance methods, as [Signature changes](#signature-changes) lists.
+
+### Files
+
+Every file step goes through `FileCapabilityInterface`, which only the in-process backend provides. `the unmanaged file at the URI :uri should exist` and its negative read `is_file()` rather than `file_exists()`, so a directory at the URI no longer counts as a file.
 
 ### Entity cleanup
 
@@ -1311,9 +1327,9 @@ A trait checks what it needs before a step acts, and fails with a message naming
 | `MediaTrait`, `TaxonomyTrait` | Checked nothing, and failed with whatever Drupal threw first | Fails without the core `media` or `taxonomy` module. `TaxonomyTrait`'s term creation goes through the term capability and checks nothing |
 | `FileTrait` | Checked nothing | Its managed file steps fail without the core `file` module; the unmanaged file steps keep working without it |
 | `BlockTrait`, `ContentBlockTrait` | Checked nothing, and failed with whatever Drupal threw first | Fails without the core `block` or `block_content` module |
-| `CacheTrait`, `EmailTrait`, `QueueTrait`, `TimeTrait`, `UserTrait` | Checked nothing | Names the capability it needs: an in-process backend for the page and render cache steps and the queue steps, `MailCapabilityInterface` for the email steps, `StateCapabilityInterface` for the time steps and `UserCapabilityInterface` for the user creation and deletion steps |
-| `TestmodeTrait` | Called the module's `Testmode` class without checking | Checks the `testmode` module when a `@testmode` scenario starts, and its teardown disables test mode only if the scenario enabled it |
-| `WatchdogTrait` | Ran only in `@api` scenarios | Needs the core `dblog` module and an in-process backend, and fails the scenario at its start without them, as [Contexts to register](#contexts-to-register) explains |
+| `CacheTrait`, `EmailTrait`, `QueueTrait`, `TimeTrait`, `UserTrait` | Checked nothing | Names the capability it needs: `CacheCapabilityInterface` for the page and render cache steps, `QueueCapabilityInterface` for the queue steps, `MailCapabilityInterface` for the email steps, `StateCapabilityInterface` for the time steps and `UserCapabilityInterface` for the user creation and deletion steps |
+| `TestmodeTrait` | Called the module's `Testmode` class without checking | Checks the `testmode` module when a `@testmode` scenario starts, switches the mode through `StateCapabilityInterface` and `CacheCapabilityInterface`, and its teardown disables test mode only if the scenario enabled it |
+| `WatchdogTrait` | Ran only in `@api` scenarios | Needs the core `dblog` module and a backend providing `LogCapabilityInterface`, the Drush backend included, and fails the scenario at its start without them, as [Contexts to register](#contexts-to-register) explains |
 
 ## Classes and interfaces
 
@@ -1919,6 +1935,8 @@ These methods kept their names. A renamed parameter only matters to a call that 
 | `TaxonomyTrait::taxonomyVisitTermDeletePageWithName()` | `string $vocabulary_machine_name, string $term_name` | `string $vocabulary, string $name` |
 | `TaxonomyTrait::taxonomyVisitTermEditPageWithName()` | `string $vocabulary_machine_name, string $term_name` | `string $vocabulary, string $name` |
 | `TaxonomyTrait::taxonomyVisitTermPageWithName()` | `string $vocabulary_machine_name, string $term_name` | `string $vocabulary, string $name` |
+| `TestmodeTrait::testmodeDisableTestMode()` | `static` | An instance method, called as `$this->testmodeDisableTestMode()` |
+| `TestmodeTrait::testmodeEnableTestMode()` | `static` | An instance method, called as `$this->testmodeEnableTestMode()` |
 | `UserTrait::userCreateRole()` | `string $role_name` | `string $role` |
 | `UserTrait::userCreateRoleWithPermissions()` | Returns `RoleInterface` | Returns `EntityStubInterface`, the `user_role` stub `RoleCapabilityInterface::createRole()` returns; its machine name is `getValue('id')`. A permission the site doesn't define fails the step, where it was granted as written |
 | `UserTrait::userVisitActionPage()` | `string $action_subpath = ''` | `?string $action_subpath = NULL` |
@@ -2032,7 +2050,7 @@ An override point is a method a trait calls for a value, such as `dateGetNow()` 
 | `RedirectTrait::$redirectAllowedStatusCodes` | `RedirectTrait::$redirectAllowedStatusCodes` | Typed `array` |
 | `RestTrait::$restHeaders` | `RequestHeadersTrait::$requestHeaders` | Read and written through `requestHeadersSet()`, `requestHeadersUnset()`, `requestHeadersAll()` and `requestHeadersReset()` |
 | `WatchdogTrait::$watchdogMessageTypes` | `WatchdogTrait::$watchdogMessageTypes` | Typed `array` |
-| `WatchdogTrait::$watchdogScenarioStartTime` | `WatchdogTrait::$watchdogScenarioStartTime` | Typed `?int` |
+| `WatchdogTrait::$watchdogScenarioStartTime` | `WatchdogTrait::$watchdogLastId` | Holds the id of the newest log entry when the scenario started, typed `?int` |
 | `DriverManager::$drivers` | `BackendRegistry::$backends` | |
 
 Every constant this package declares has a native type, as `public const string CONFIG_KEY = 'behat_steps';` does. PHP holds a redeclared constant to the type it inherits, so a constant of your own that shares its name with one your context now inherits, such as a `BATCH_WAIT_TIMEOUT` in a `FeatureContext` that extends `DrupalContext`, declares the same type:
@@ -2197,14 +2215,27 @@ $role = $backend->createRole(['access content'])->getValue('id');
 
 A create flags the stub as saved only when the backend holds the created entity. The Drush backend runs outside the test process, so its `createUser()` writes the new `uid` onto the stub and its `createRole()` stub carries the role's `id`, but neither stub is saved. Read the ID from the stub's values rather than from `getSavedEntity()` when the backend may be Drush.
 
-In 3.14, the config, module, state and time steps called `\Drupal::configFactory()`, `\Drupal::moduleHandler()` and `\Drupal::state()` directly, so they ran only where the Drupal API driver had bootstrapped Drupal in the Behat process. They name the capability they need now, and run on any backend that provides it, Drush included. The lookups behind the delete, visit and assert steps ran `\Drupal::entityQuery()` the same way; they go through `QueryTrait::queryEntityIds()`, which resolves `EntityLookupCapabilityInterface`, and a delete step hands the id it found to the capability that deletes that entity type. A backend of your own that implements these capabilities adds the methods below; a project that uses only the shipped backends changes nothing.
+In 3.14, the config, module, state and time steps called `\Drupal::configFactory()`, `\Drupal::moduleHandler()` and `\Drupal::state()` directly, so they ran only where the Drupal API driver had bootstrapped Drupal in the Behat process. They name the capability they need now, and run on any backend that provides it, Drush included. The lookups behind the delete, visit and assert steps ran `\Drupal::entityQuery()` the same way; they go through `QueryTrait::queryEntityIds()`, which resolves `EntityLookupCapabilityInterface`, and a delete step hands the id it found to the capability that deletes that entity type. The queue, log, cache bin, file, search index, node access, workflow, block plugin, entity URL and one-time login operations each sit on a capability the same way, so the 3 raw database queries the cache, draggable views and watchdog steps ran live in the in-process backend. A backend of your own that implements these capabilities adds the methods below; a project that uses only the shipped backends changes nothing.
 
 | Interface | Methods added in 4.0 |
 | --- | --- |
+| `BlockCapabilityInterface` | `findBlockPluginId()`, `hasConditionPlugin()` |
+| `CacheCapabilityInterface` | `cacheClearBin()`, `cacheInvalidateTags()`, `cacheDeletePagePath()`. The Drush backend empties the bin whole where `cacheDeletePagePath()` names a path, because it cannot list the bin's entries |
 | `ConfigCapabilityInterface` | `configExists()`, `configGetData()`, `configSetData()`, `configDelete()` |
+| `ContentCapabilityInterface` | `getEntityUrl()` |
+| `DraggableviewsCapabilityInterface` | `draggableviewsSetOrder()`; the interface is new. The Drush backend doesn't provide it |
 | `EntityLookupCapabilityInterface` | `findEntityIds()`; the interface is new. A condition is a value, matched with `=`, or an `[operator, value]` pair over `=`, `IN`, `CONTAINS` and `LIKE`, and the ids come back in natural order. The Drush backend doesn't provide it |
+| `FileCapabilityInterface` | `fileWriteUnmanaged()`, `fileReadUnmanaged()`, `fileExistsUnmanaged()`, `fileDeleteUnmanaged()`, `filePrepareDirectory()`, `fileWriteManaged()`; the interface is new. The Drush backend doesn't provide it |
+| `LogCapabilityInterface` | `logGetLastId()`, `logRead()`, `logDelete()`; the interface is new, and its `SEVERITY_*` constants hold the RFC 5424 levels. The Drush backend serves it with `watchdog:show` and `watchdog:delete`, and returns each message rendered with its placeholders and no `variables` |
 | `ModuleCapabilityInterface` | `moduleIsEnabled()`, `moduleIsPresent()` |
+| `NodeCapabilityInterface` | `rebuildNodeAccess()` |
+| `QueueCapabilityInterface` | `queueCountItems()`, `queueDelete()`, `queueProcess()`; the interface is new. The Drush backend serves it with `queue:list`, `queue:run` and `queue:delete` |
+| `QueueItemCapabilityInterface` | `queueAddItem()`; the interface is new. The Drush backend doesn't provide it, because no Drush command adds an item |
+| `SearchApiCapabilityInterface` | `searchIndexEntity()`, `searchRunCron()`; the interface is new. The Drush backend doesn't provide it |
+| `SearchIndexCapabilityInterface` | `searchIndexItems()`; the interface is new. The Drush backend serves it with `search-api:index` |
 | `StateCapabilityInterface` | `stateGet()`, `stateSet()`, `stateDelete()`, `stateExists()`; the interface is new |
+| `UserCapabilityInterface` | `getOneTimeLoginUrl()`. The Drush backend serves it with `user:login` |
+| `WorkflowCapabilityInterface` | `hasWorkflowState()`; the interface is new. The Drush backend doesn't provide it |
 
 `CacheCapabilityInterface::cacheClear()` took a cache bin to clear, which no backend honored. It takes no argument and clears every cache, so a call that passed a type drops it:
 
@@ -2260,7 +2291,7 @@ $this->backendFor(TermCapabilityInterface::class)->createTerm($stub);
 $this->backendFor(ContentCapabilityInterface::class)->createEntity($stub);
 ```
 
-`BackendInterface::getRandom()` returns the package's `DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface` rather than `Drupal\Component\Utility\Random`, and `WebRawContext::getRandom()` passes it through. It carries the 4 string generators, `string()`, `name()`, `machineName()` and `word()`, with the same arguments and the same per-instance uniqueness, so a step that called one of them changes nothing. `sentences()`, `paragraphs()`, `object()` and `image()` aren't on it: a step that used one builds Drupal's `Random` itself, which `drupal/core-utility` still ships. A backend of your own returns the shipped `RandomGenerator`, or a class of its own implementing the interface:
+`BackendInterface::getRandom()` returns the package's `DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface` rather than `Drupal\Component\Utility\Random`, and `WebRawContext::getRandom()` passes it through. It carries the 4 string generators, `string()`, `name()`, `machineName()` and `word()`, with the same arguments and the same per-instance uniqueness, so a step that called one of them changes nothing. `sentences()`, `paragraphs()`, `object()` and `image()` aren't on it: a step that used one builds Drupal's `Random` itself, which Drupal core ships. A backend of your own returns the shipped `RandomGenerator`, or a class of its own implementing the interface:
 
 ```php
 // Before.
@@ -2293,6 +2324,7 @@ The Drush backend supports Drush 13, the first release that runs Drupal 11, and 
 | `addUserRole()` | `user-add-role` | `user:role:add` |
 
 - `cacheClear()` runs `cache:rebuild` alone, where it ran `cache-clear drush` first. That command cleared nothing on Drush 13, which keeps no cache of its own, and Drush 14 rejects the `drush` cache type, so every cache clear over Drush failed there.
+- The capabilities 4.0 adds run `cache:clear bin <bin>`, `cache:tags`, `queue:list`, `queue:run`, `queue:delete`, `watchdog:show`, `watchdog:delete`, `search-api:index` and `user:login`, as [Backend contracts](#backend-contracts) lists per method.
 - `configSet()` passes `--input-format=yaml`. The Drupal Driver asked for `--input-format=json`, which `drush config:set` doesn't parse, so every value it wrote was stored as its own JSON encoding: a string landed with its quotes around it, and an array landed as a JSON string. A project that worked around the mangled values drops the workaround.
 - A keyed `configGet()` returns the value, where it returned Drush's `{"<name>:<key>": value}` envelope.
 - `configGetOriginal()` reads the stored value and `configGet()` the effective one, which passes `--include-overridden`. They were the same call, so the stored and effective reads the config steps distinguish collapsed into 1.

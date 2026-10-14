@@ -45,4 +45,20 @@ interface UserCapabilityInterface {
    */
   public function addUserRole(EntityStubInterface $stub, string $role): void;
 
+  /**
+   * Returns the path of a user's one-time login page.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The user stub. Either the saved-entity slot or a 'uid' value must be
+   *   populated so the backend can resolve the account.
+   *
+   * @return string
+   *   The path, relative to the site root, of the page a password reset
+   *   email links to, which logs the user in once.
+   *
+   * @throws \RuntimeException
+   *   When the stub carries no id, or no user has the id.
+   */
+  public function getOneTimeLoginUrl(EntityStubInterface $stub): string;
+
 }

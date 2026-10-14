@@ -567,3 +567,11 @@ Feature: Check that UserTrait works
     Then I should see "[TEST] vuser1"
     And I should see "[TEST] vuser2"
     And I should see "[TEST] vuser3"
+
+  # The password reset link comes from the user capability, so '@backend:drush'
+  # builds it with 'user:login'.
+  @backend:drush
+  Scenario: Assert "When I visit the password reset link for the user :name" works over Drush
+    Given I am logged in as the user "authenticated_user"
+    When I visit the password reset link for the user "authenticated_user"
+    Then the response status code should be 200

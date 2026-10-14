@@ -6,12 +6,11 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\DraggableviewsCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Database\Database;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 
@@ -38,7 +37,7 @@ trait DraggableviewsTrait {
    */
   #[When('the draggable views items of the view :view_id and the display :view_display_id for the :content_type content are saved in the following order:')]
   public function draggableviewsSaveBundleOrder(string $view_id, string $view_display_id, string $content_type, TableNode $order_table): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $this->backendFor(DraggableviewsCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -105,33 +104,17 @@ trait DraggableviewsTrait {
    *   The nodes, keyed by weight.
    */
   public function draggableviewsSetOrder(string $view_id, string $view_display_id, array $nodes): void {
-    $database = Database::getConnection();
+    $entity_ids = [];
 
     foreach ($nodes as $weight => $node) {
-      $entity_id = $node->id();
-
-      // The delete and insert mirror draggableviews_views_submit().
-      $database->delete('draggableviews_structure')
-        ->condition('view_name', $view_id)
-        ->condition('view_display', $view_display_id)
-        ->condition('entity_id', $entity_id)
-        ->execute();
-
-      $record = [
-        'view_name' => $view_id,
-        'view_display' => $view_display_id,
-        'args' => '[]',
-        'entity_id' => $entity_id,
-        'weight' => $weight,
-      ];
-
-      $database->insert('draggableviews_structure')->fields($record)->execute();
+      $entity_ids[$weight] = (string) $node->id();
     }
 
-    // Invalidate the entity list cache so other views also reflect the
-    // change.
-    $list_cache_tags = \Drupal::entityTypeManager()->getDefinition('node')->getListCacheTags();
-    Cache::invalidateTags($list_cache_tags);
+    $this->backendFor(DraggableviewsCapabilityInterface::class)->draggableviewsSetOrder($view_id, $view_display_id, $entity_ids);
+
+    // Every view listing nodes caches on the list tag, so the new order shows
+    // in the other views too.
+    $this->backendFor(CacheCapabilityInterface::class)->cacheInvalidateTags(['node_list']);
   }
 
   /**
@@ -142,7 +125,7 @@ trait DraggableviewsTrait {
    */
   protected function draggableviewsPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(DraggableviewsCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('draggableviews'), 'the "draggableviews" module from the "drupal/draggableviews" package is enabled'),
     ];
   }

@@ -13,6 +13,7 @@ use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\WorkflowCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeNodeCreate;
@@ -23,10 +24,7 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\FixtureFileTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
 use Drupal\node\Entity\Node;
-use Drupal\node\NodeAccessControlHandlerInterface;
-use Drupal\node\NodeAccessRebuild;
 use Drupal\node\NodeInterface;
-use Drupal\workflows\Entity\Workflow;
 
 /**
  * Manage Drupal content with workflow and moderation support.
@@ -226,8 +224,6 @@ trait ContentTrait {
    */
   #[When('the moderation state of the :content_type content with the title :title changes to the state :new_state')]
   public function contentChangeModerationStateWithTitle(string $content_type, string $title, string $new_state): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     $this->contentSetModerationState($this->contentGetNodeByTitle($content_type, $title), $new_state);
   }
 
@@ -242,8 +238,6 @@ trait ContentTrait {
    */
   #[When('the access grants for the :content_type content with the title :title are rebuilt')]
   public function contentRebuildAccessGrantsWithTitle(string $content_type, string $title): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     $this->contentRebuildAccessGrants($this->contentGetNodeByTitle($content_type, $title));
   }
 
@@ -258,9 +252,7 @@ trait ContentTrait {
    */
   #[When('the access grants for all content are rebuilt')]
   public function contentRebuildAccessGrantsAll(): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    \Drupal::service(NodeAccessRebuild::class)->rebuild(FALSE);
+    $this->backendFor(NodeCapabilityInterface::class)->rebuildNodeAccess();
   }
 
   /**
@@ -471,19 +463,7 @@ trait ContentTrait {
   public function contentSetModerationState(NodeInterface $node, string $state): void {
     $content_type = $node->bundle();
 
-    $state_is_valid = FALSE;
-    $workflows = Workflow::loadMultiple();
-
-    foreach ($workflows as $workflow) {
-      $workflow_type_settings = $workflow->get('type_settings');
-
-      if (in_array($content_type, $workflow_type_settings['entity_types']['node'], TRUE) && isset($workflow_type_settings['states'][$state])) {
-        $state_is_valid = TRUE;
-        break;
-      }
-    }
-
-    if (!$state_is_valid) {
+    if (!$this->backendFor(WorkflowCapabilityInterface::class)->hasWorkflowState('node', $content_type, $state)) {
       throw new \RuntimeException(sprintf('State "%s" is not defined in the workflow for "%s" content type.', $state, $content_type));
     }
 
@@ -498,16 +478,7 @@ trait ContentTrait {
    *   The node.
    */
   public function contentRebuildAccessGrants(NodeInterface $node): void {
-    $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
-
-    // @codeCoverageIgnoreStart
-    if (!$handler instanceof NodeAccessControlHandlerInterface) {
-      throw new \RuntimeException('The node access control handler does not support acquiring grants.');
-    }
-
-    // @codeCoverageIgnoreEnd
-    $grants = $handler->acquireGrants($node);
-    \Drupal::service('node.grant_storage')->write($node, $grants);
+    $this->backendFor(NodeCapabilityInterface::class)->rebuildNodeAccess((int) $node->id());
   }
 
   /**

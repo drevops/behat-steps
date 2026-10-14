@@ -11,7 +11,6 @@ use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
@@ -19,9 +18,7 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\AuthTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
-use Drupal\Core\Url;
 use Drupal\user\Entity\User;
-use Drupal\user\OneTimeAuthentication;
 use Drupal\user\UserInterface;
 
 /**
@@ -762,15 +759,7 @@ trait UserTrait {
    *   The user object.
    */
   public function userVisitPasswordResetLinkForUser(UserInterface $user): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $timestamp = \Drupal::time()->getRequestTime();
-
-    $path = Url::fromRoute('user.reset', [
-      'uid' => $user->id(),
-      'timestamp' => $timestamp,
-      'hash' => \Drupal::service(OneTimeAuthentication::class)->generateHmac($user, $timestamp),
-    ])->toString();
+    $path = $this->backendFor(UserCapabilityInterface::class)->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => $user->id()]));
 
     $this->visitPath($path);
   }

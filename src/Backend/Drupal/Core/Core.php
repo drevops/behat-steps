@@ -23,21 +23,35 @@ use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Cache\DatabaseBackend;
 use Drupal\Core\Config\Config;
+use Drupal\Core\Database\Statement\FetchAs;
 use Drupal\Core\DrupalKernel;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\File\FileExists;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Routing\RouteObjectInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
+use Drupal\Core\Url;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeAccessControlHandlerInterface;
+use Drupal\node\NodeAccessRebuild;
 use Drupal\node\NodeInterface;
+use Drupal\search_api\IndexInterface;
+use Drupal\search_api\Plugin\search_api\datasource\ContentEntityTrackingManager;
+use Drupal\search_api\Utility\Utility;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\taxonomy\TermInterface;
 use Drupal\user\AccountCancellation;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
+use Drupal\user\OneTimeAuthentication;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 
@@ -516,6 +530,33 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
+  public function rebuildNodeAccess(?int $nid = NULL): void {
+    if ($nid === NULL) {
+      \Drupal::service(NodeAccessRebuild::class)->rebuild(FALSE);
+
+      return;
+    }
+
+    $node = Node::load($nid);
+
+    if (!$node instanceof NodeInterface) {
+      throw new \RuntimeException(sprintf('No node with the id "%d" exists.', $nid));
+    }
+
+    $handler = \Drupal::entityTypeManager()->getAccessControlHandler('node');
+
+    // @codeCoverageIgnoreStart
+    if (!$handler instanceof NodeAccessControlHandlerInterface) {
+      throw new \RuntimeException('The node access control handler does not support acquiring grants.');
+    }
+
+    // @codeCoverageIgnoreEnd
+    \Drupal::service('node.grant_storage')->write($node, $handler->acquireGrants($node));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function cronRun(): bool {
     $_SERVER['REQUEST_TIME'] = time();
     \Drupal::request()->server->set('REQUEST_TIME', $_SERVER['REQUEST_TIME']);
@@ -693,6 +734,20 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     $account = $this->loadUser($stub);
     $account->addRole(reset($rids));
     $account->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOneTimeLoginUrl(EntityStubInterface $stub): string {
+    $account = $this->loadUser($stub);
+    $timestamp = \Drupal::time()->getRequestTime();
+
+    return Url::fromRoute('user.reset', [
+      'uid' => $account->id(),
+      'timestamp' => $timestamp,
+      'hash' => \Drupal::service(OneTimeAuthentication::class)->generateHmac($account, $timestamp),
+    ])->toString();
   }
 
   /**
@@ -912,6 +967,29 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
+  public function findBlockPluginId(string $admin_label): ?string {
+    /** @var \Drupal\Core\Block\BlockManagerInterface $block_manager */
+    $block_manager = \Drupal::service('plugin.manager.block');
+
+    foreach ($block_manager->getDefinitions() as $plugin_id => $definition) {
+      if ((string) $definition['admin_label'] === $admin_label) {
+        return (string) $plugin_id;
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasConditionPlugin(string $id): bool {
+    return \Drupal::service('plugin.manager.condition')->hasDefinition($id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getModuleList(): array {
     return array_keys(\Drupal::moduleHandler()->getModuleList());
   }
@@ -1026,12 +1104,117 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     // several of core's in the 'memory' bin, so both are cleared.
     drupal_static_reset();
     \Drupal::cache('memory')->deleteAll();
+    // A config object or an entity loaded in this process stays as loaded
+    // until its own cache is reset, so a change made by another process is
+    // invisible until then.
+    \Drupal::configFactory()->reset();
+    \Drupal::service('entity.memory_cache')->deleteAll();
     $this->allPermissions = NULL;
     \Drupal::service('cache_tags.invalidator')->resetChecksums();
 
     foreach (\Drupal::entityTypeManager()->getDefinitions() as $definition) {
       \Drupal::entityTypeManager()->getAccessControlHandler($definition->id())->resetCache();
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function cacheClearBin(string $bin): void {
+    $this->getCacheBin($bin)->deleteAll();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function cacheInvalidateTags(array $tags): void {
+    if ($tags === []) {
+      return;
+    }
+
+    \Drupal::service('cache_tags.invalidator')->invalidateTags($tags);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function cacheDeletePagePath(string $bin, string $path, bool $is_pattern = FALSE): void {
+    $backend = $this->getCacheBin($bin);
+
+    if (!$backend instanceof DatabaseBackend) {
+      $backend->deleteAll();
+
+      return;
+    }
+
+    $table = 'cache_' . $bin;
+    $database = \Drupal::database();
+
+    // The database backend creates its table on the first write, so a missing
+    // table holds no entries.
+    if (!$database->schema()->tableExists($table)) {
+      return;
+    }
+
+    $parts = $is_pattern ? explode('*', $path) : [$path];
+
+    // LIKE cannot anchor the path after the host, so it only narrows the
+    // candidates.
+    $like = implode('%', array_map($database->escapeLike(...), $parts));
+    $candidates = $database->select($table, 'c')->fields('c', ['cid'])->condition('cid', '%' . $like . '%', 'LIKE')->execute()->fetchCol();
+
+    $regex = '#^' . implode('.*', array_map(static fn(string $part): string => preg_quote($part, '#'), $parts)) . '$#';
+    $cids = array_filter($candidates, fn(string $cid): bool => preg_match($regex, $this->findPageCachePath($cid) ?? '') === 1);
+
+    // Chunk the IN list to stay under the database placeholder limit.
+    foreach (array_chunk($cids, 1000) as $chunk) {
+      $database->delete($table)->condition('cid', $chunk, 'IN')->execute();
+    }
+  }
+
+  /**
+   * Returns a cache bin.
+   *
+   * @param string $bin
+   *   The bin name.
+   *
+   * @throws \RuntimeException
+   *   When the bin does not exist.
+   */
+  protected function getCacheBin(string $bin): CacheBackendInterface {
+    if (!\Drupal::hasService('cache.' . $bin)) {
+      throw new \RuntimeException(sprintf('The cache bin "%s" does not exist.', $bin));
+    }
+
+    return \Drupal::cache($bin);
+  }
+
+  /**
+   * Finds the path of the URL an internal page cache entry is stored for.
+   *
+   * @param string $cid
+   *   The cache ID: the absolute URL, ':' and the request format.
+   *
+   * @return string|null
+   *   The path, or NULL when the cache ID holds no URL path.
+   */
+  protected function findPageCachePath(string $cid): ?string {
+    $url = parse_url($cid);
+
+    if (!is_array($url) || !isset($url['path'])) {
+      return NULL;
+    }
+
+    // With a query string, parse_url() returns the ':<format>' suffix inside
+    // the query.
+    if (isset($url['query'])) {
+      return $url['path'];
+    }
+
+    // The format contains no ':', so the last ':' in the path starts it.
+    $separator = strrpos($url['path'], ':');
+
+    return $separator === FALSE ? $url['path'] : substr($url['path'], 0, $separator);
   }
 
   /**
@@ -1163,36 +1346,82 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function deleteEntity(EntityStubInterface $stub): void {
-    $entity_type = $stub->getEntityType();
-    $entity = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
-
-    if (!$entity instanceof EntityInterface) {
-      $id_key = $this->loadEntityTypeDefinition($entity_type)->getKey('id');
-
-      if (!is_string($id_key) || !$stub->hasValue($id_key)) {
-        throw new \RuntimeException(sprintf(
-          'Cannot delete an entity of type "%s" from a stub without the id key "%s" set.',
-          $entity_type,
-          (string) $id_key,
-        ));
-      }
-
-      $id = $stub->getValue($id_key);
-
-      if ((!is_int($id) && !is_string($id)) || $id === '') {
-        throw new \RuntimeException(sprintf(
-          'Cannot delete an entity of type "%s" from a stub with an empty id key "%s".',
-          $entity_type,
-          $id_key,
-        ));
-      }
-
-      $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($id);
-    }
+    $entity = $this->findStubEntity($stub);
 
     if ($entity instanceof EntityInterface) {
       $entity->delete();
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityUrl(EntityStubInterface $stub, string $rel = 'canonical'): string {
+    $entity = $this->findStubEntity($stub);
+
+    if (!$entity instanceof EntityInterface) {
+      throw new \RuntimeException(sprintf('No entity of type "%s" with the id "%s" exists.', $stub->getEntityType(), $this->resolveStubId($stub)));
+    }
+
+    if (!$entity->hasLinkTemplate($rel)) {
+      throw new \RuntimeException(sprintf('The entity type "%s" has no "%s" link.', $entity->getEntityTypeId(), $rel));
+    }
+
+    return $entity->toUrl($rel)->toString();
+  }
+
+  /**
+   * Finds the entity a stub stands for.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   A stub holding the saved entity, or the entity type's id key.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface|null
+   *   The entity, or NULL when no entity has the stub's id.
+   *
+   * @throws \RuntimeException
+   *   When the stub holds no saved entity and no usable id.
+   */
+  protected function findStubEntity(EntityStubInterface $stub): ?EntityInterface {
+    $entity = $stub->isSaved() ? $stub->getSavedEntity() : NULL;
+
+    if ($entity instanceof EntityInterface) {
+      return $entity;
+    }
+
+    $id = $this->resolveStubId($stub);
+
+    return \Drupal::entityTypeManager()->getStorage($stub->getEntityType())->load($id);
+  }
+
+  /**
+   * Reads the id a stub carries under its entity type's id key.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The stub.
+   *
+   * @return int|string
+   *   The id.
+   *
+   * @throws \RuntimeException
+   *   When the entity type declares no id key, or the stub holds no usable
+   *   value under it.
+   */
+  protected function resolveStubId(EntityStubInterface $stub): int|string {
+    $entity_type = $stub->getEntityType();
+    $id_key = $this->loadEntityTypeDefinition($entity_type)->getKey('id');
+
+    if (!is_string($id_key) || !$stub->hasValue($id_key)) {
+      throw new \RuntimeException(sprintf('Cannot resolve an entity of type "%s" from a stub without the id key "%s" set.', $entity_type, (string) $id_key));
+    }
+
+    $id = $stub->getValue($id_key);
+
+    if ((!is_int($id) && !is_string($id)) || $id === '') {
+      throw new \RuntimeException(sprintf('Cannot resolve an entity of type "%s" from a stub with an empty id key "%s".', $entity_type, $id_key));
+    }
+
+    return $id;
   }
 
   /**
@@ -1476,6 +1705,357 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     $config->set($key, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queueAddItem(string $queue, mixed $data): void {
+    \Drupal::queue($queue)->createItem($data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queueCountItems(string $queue): int {
+    return \Drupal::queue($queue)->numberOfItems();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queueDelete(string $queue): void {
+    \Drupal::queue($queue)->deleteQueue();
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * An exception a worker throws propagates, leaving the item claimed.
+   */
+  public function queueProcess(string $queue, int $limit, int $lease_time): int {
+    try {
+      $worker = \Drupal::service('plugin.manager.queue_worker')->createInstance($queue);
+    }
+    catch (PluginNotFoundException $exception) {
+      throw new \RuntimeException(sprintf('No queue worker processes the queue "%s".', $queue), 0, $exception);
+    }
+
+    $queue_instance = \Drupal::queue($queue);
+    $processed = 0;
+
+    while ($processed < $limit) {
+      /** @var \stdClass|false $item */
+      $item = $queue_instance->claimItem($lease_time);
+
+      if (!$item) {
+        break;
+      }
+
+      $worker->processItem($item->data);
+      $queue_instance->deleteItem($item);
+      $processed++;
+    }
+
+    return $processed;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function logGetLastId(): int {
+    $query = \Drupal::database()->select('watchdog', 'w');
+    $query->addExpression('MAX(w.wid)', 'wid');
+    $wid = $query->execute()->fetchField();
+
+    return is_numeric($wid) ? (int) $wid : 0;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function logRead(array $types, int $after_id, int $severity): array {
+    if ($types === []) {
+      return [];
+    }
+
+    $rows = \Drupal::database()->select('watchdog', 'w')
+      ->fields('w')
+      ->condition('w.type', $types, 'IN')
+      ->condition('w.wid', $after_id, '>')
+      ->condition('w.severity', $severity, '<=')
+      ->orderBy('w.wid')
+      ->execute()
+      ->fetchAll(FetchAs::Associative);
+
+    $entries = [];
+
+    foreach ($rows as $row) {
+      if (!is_array($row)) {
+        continue;
+      }
+
+      $variables = is_string($row['variables'] ?? NULL) ? unserialize($row['variables'], ['allowed_classes' => FALSE]) : NULL;
+
+      $row['wid'] = (int) ($row['wid'] ?? 0);
+      $row['severity'] = (int) ($row['severity'] ?? static::SEVERITY_DEBUG);
+      $row['variables'] = is_array($variables) ? $variables : [];
+
+      $entries[] = $row;
+    }
+
+    return $entries;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function logDelete(array $ids): void {
+    if ($ids === []) {
+      return;
+    }
+
+    \Drupal::database()->delete('watchdog')->condition('wid', $ids, 'IN')->execute();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileWriteUnmanaged(string $uri, string $content): void {
+    $this->prepareFileDirectory($uri);
+
+    if (@file_put_contents($uri, $content) === FALSE) {
+      throw new \RuntimeException(sprintf('Unable to write the file "%s".', $uri));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileReadUnmanaged(string $uri): string {
+    if (!$this->fileExistsUnmanaged($uri)) {
+      throw new \RuntimeException(sprintf('The file "%s" does not exist.', $uri));
+    }
+
+    $content = @file_get_contents($uri);
+
+    // @codeCoverageIgnoreStart
+    if ($content === FALSE) {
+      throw new \RuntimeException(sprintf('Unable to read the file "%s".', $uri));
+    }
+
+    // @codeCoverageIgnoreEnd
+    return $content;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileExistsUnmanaged(string $uri): bool {
+    return @is_file($uri);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileDeleteUnmanaged(string $uri): void {
+    if (!$this->fileExistsUnmanaged($uri)) {
+      return;
+    }
+
+    $this->getFileSystem()->delete($uri);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function filePrepareDirectory(string $uri): bool {
+    $scheme = StreamWrapperManager::getScheme($uri);
+
+    // A scheme the site has not registered has no directory to prepare, and
+    // PHP warns on a stat of a URI it cannot resolve.
+    if (is_string($scheme) && !\Drupal::service('stream_wrapper_manager')->isValidScheme($scheme)) {
+      return FALSE;
+    }
+
+    return $this->getFileSystem()->prepareDirectory($uri, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileWriteManaged(string $uri, string $content, EntityStubInterface $stub): EntityStubInterface {
+    $this->prepareFileDirectory($uri);
+
+    $file = \Drupal::service('file.repository')->writeData($content, $uri, FileExists::Replace);
+
+    foreach ($stub->getValues() as $property => $value) {
+      $file->set($property, $value);
+    }
+
+    $file->save();
+
+    $stub->setValue('fid', $file->id());
+    $stub->markSaved($file);
+
+    return $stub;
+  }
+
+  /**
+   * Creates the directory of a file URI, when it is missing.
+   *
+   * @param string $uri
+   *   The file URI.
+   *
+   * @throws \RuntimeException
+   *   When the directory cannot be prepared.
+   */
+  protected function prepareFileDirectory(string $uri): void {
+    $directory = $this->getFileSystem()->dirname($uri);
+
+    if (!$this->filePrepareDirectory($directory)) {
+      throw new \RuntimeException(sprintf('Unable to prepare the directory "%s".', $directory));
+    }
+  }
+
+  /**
+   * Returns the file system service.
+   */
+  protected function getFileSystem(): FileSystemInterface {
+    return \Drupal::service('file_system');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function searchIndexEntity(string $entity_type, int|string $id): bool {
+    $definition = $this->loadEntityTypeDefinition($entity_type);
+    $entity = \Drupal::entityTypeManager()->getStorage($definition->id())->load($id);
+
+    if (!$entity instanceof ContentEntityInterface) {
+      throw new \RuntimeException(sprintf('No content entity of type "%s" with the id "%s" exists.', $entity_type, $id));
+    }
+
+    /** @var \Drupal\search_api\Plugin\search_api\datasource\ContentEntityTrackingManager $tracking_manager */
+    $tracking_manager = \Drupal::service('search_api.entity_datasource.tracking_manager');
+    $tracking_manager->entityInsert($entity);
+
+    $indexes = array_filter($tracking_manager->getIndexesForEntity($entity), static fn(IndexInterface $index): bool => $index->status());
+
+    foreach ($indexes as $index) {
+      $index->indexSpecificItems($index->loadItemsMultiple($this->getSearchItemIds($index, $entity)));
+    }
+
+    return $indexes !== [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function searchIndexItems(int $limit): void {
+    if ($limit === 0) {
+      return;
+    }
+
+    /** @var \Drupal\search_api\IndexInterface[] $indexes */
+    $indexes = \Drupal::entityTypeManager()->getStorage('search_api_index')->loadByProperties(['status' => TRUE]);
+
+    if ($indexes === []) {
+      throw new \RuntimeException('No active search indexes found.');
+    }
+
+    foreach ($indexes as $index) {
+      $index->indexItems($limit);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function searchRunCron(string $module = 'search_api'): void {
+    \Drupal::moduleHandler()->invoke($module, 'cron');
+  }
+
+  /**
+   * Returns the ids of the items an entity is indexed as on a search index.
+   *
+   * @param \Drupal\search_api\IndexInterface $index
+   *   The search index.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   *   The entity.
+   *
+   * @return list<string>
+   *   The item id of each translation of the entity in a language the index
+   *   includes.
+   */
+  protected function getSearchItemIds(IndexInterface $index, ContentEntityInterface $entity): array {
+    $datasource_id = 'entity:' . $entity->getEntityTypeId();
+    $raw_ids = [];
+
+    foreach ($entity->getTranslationLanguages() as $language) {
+      $raw_ids[] = ContentEntityTrackingManager::formatItemId($entity->getEntityTypeId(), (string) $entity->id(), $language->getId());
+    }
+
+    $raw_ids = ContentEntityTrackingManager::filterValidItemIds($index, $datasource_id, $raw_ids);
+
+    return array_values(array_map(static fn(string $raw_id): string => Utility::createCombinedId($datasource_id, $raw_id), $raw_ids));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasWorkflowState(string $entity_type, string $bundle, string $state): bool {
+    $entity_type_manager = \Drupal::entityTypeManager();
+
+    if (!$entity_type_manager->hasDefinition('workflow')) {
+      return FALSE;
+    }
+
+    foreach ($entity_type_manager->getStorage('workflow')->loadMultiple() as $workflow) {
+      $type_settings = $workflow->get('type_settings');
+      $bundles = is_array($type_settings) ? $type_settings['entity_types'][$entity_type] ?? [] : [];
+
+      if (is_array($bundles) && in_array($bundle, $bundles, TRUE) && isset($type_settings['states'][$state])) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function draggableviewsSetOrder(string $view_id, string $display_id, array $entity_ids): void {
+    $database = \Drupal::database();
+    // The rows are replaced 1 entity at a time, so the order is written whole
+    // or not at all.
+    $transaction = $database->startTransaction();
+
+    try {
+      foreach ($entity_ids as $weight => $entity_id) {
+        // The delete and the insert mirror draggableviews_views_submit().
+        $database->delete('draggableviews_structure')
+          ->condition('view_name', $view_id)
+          ->condition('view_display', $display_id)
+          ->condition('entity_id', $entity_id)
+          ->execute();
+
+        $database->insert('draggableviews_structure')->fields([
+          'view_name' => $view_id,
+          'view_display' => $display_id,
+          'args' => '[]',
+          'entity_id' => $entity_id,
+          'weight' => $weight,
+        ])->execute();
+      }
+    }
+    catch (\Exception $exception) {
+      // @codeCoverageIgnoreStart
+      $transaction->rollBack();
+      throw $exception;
+      // @codeCoverageIgnoreEnd
+    }
   }
 
   /**

@@ -19,6 +19,7 @@ use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait;
+use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
@@ -96,20 +97,31 @@ class WatchdogTraitTest extends UnitTestCase {
    * @param string $listed
    *   How the message lists them.
    */
-  #[DataProvider('dataProviderOptedInWithoutInProcessBackendFailsAtTheStart')]
-  public function testOptedInWithoutInProcessBackendFailsAtTheStart(array $backends, string $listed): void {
+  #[DataProvider('dataProviderOptedInWithoutLogBackendFailsAtTheStart')]
+  public function testOptedInWithoutLogBackendFailsAtTheStart(array $backends, string $listed): void {
     $context = $this->createContext(array_map($this->createStub(...), $backends));
 
     $this->expectException(UnsupportedBackendActionException::class);
-    $this->expectExceptionMessage(sprintf('WatchdogTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: %s.', $listed) . static::SWITCH_OFF);
+    $this->expectExceptionMessage(sprintf('WatchdogTrait requires that a backend in the scenario\'s list provides "LogCapabilityInterface", which does not hold. Backends available to this scenario, in order: %s.', $listed) . static::SWITCH_OFF);
 
     $context->watchdogBeforeScenario($this->createBeforeScenarioScope());
   }
 
-  public static function dataProviderOptedInWithoutInProcessBackendFailsAtTheStart(): \Iterator {
-    yield 'Drush alone' => [['drush' => DrushBackendInterface::class], 'drush'];
-    yield 'Drush and blackbox' => [['drush' => DrushBackendInterface::class, 'blackbox' => BlackboxBackendInterface::class], 'drush, blackbox'];
+  public static function dataProviderOptedInWithoutLogBackendFailsAtTheStart(): \Iterator {
+    yield 'blackbox alone' => [['blackbox' => BlackboxBackendInterface::class], 'blackbox'];
     yield 'no backend' => [[], 'none'];
+  }
+
+  public function testOptedInWithDrushAloneArmsTheCheck(): void {
+    $drush = $this->createStub(DrushBackendInterface::class);
+    $drush->method('moduleIsEnabled')->willReturn(TRUE);
+    $drush->method('logGetLastId')->willReturn(3);
+
+    $context = $this->createContext(['drush' => $drush, 'blackbox' => $this->createStub(BlackboxBackendInterface::class)]);
+
+    $context->watchdogBeforeScenario($this->createBeforeScenarioScope());
+
+    $this->assertTrue($context->testIsArmed());
   }
 
   public function testScenarioThatUninstallsDblogFailsAtItsLastStep(): void {
@@ -164,6 +176,69 @@ class WatchdogTraitTest extends UnitTestCase {
     yield 'the same type on both' => [['watchdog:custom_type'], ['watchdog:custom_type'], ['custom_type', 'php']];
   }
 
+  public function testClearErrorsReadsTheEntriesAfterTheWatermarkAndDeletesThem(): void {
+    $entry = ['wid' => 6, 'type' => 'php', 'severity' => 4, 'message' => 'Warning %name', 'variables' => ['%name' => 'first']];
+
+    $drupal = $this->createMock(DrupalBackendInterface::class);
+    $drupal->method('moduleIsEnabled')->willReturn(TRUE);
+    $drupal->method('logGetLastId')->willReturn(5);
+    $drupal->expects($this->once())->method('logRead')->with(['custom_type', 'php'], 5, 4)->willReturn([$entry]);
+    $drupal->expects($this->once())->method('logDelete')->with([6]);
+
+    $context = $this->createContext(['drupal' => $drupal]);
+    $context->watchdogBeforeScenario($this->createBeforeScenarioScope(['watchdog:custom_type']));
+
+    $errors = $context->watchdogClearErrors();
+
+    $this->assertSame([6], array_keys($errors));
+    $this->assertStringContainsString('Warning %name', $errors[6]);
+  }
+
+  public function testLastStepFailsWithTheErrorsLoggedSinceTheStart(): void {
+    $drupal = $this->createStub(DrupalBackendInterface::class);
+    $drupal->method('moduleIsEnabled')->willReturn(TRUE);
+    $drupal->method('logGetLastId')->willReturn(5);
+    $drupal->method('logRead')->willReturn([['wid' => 6, 'type' => 'php', 'severity' => 3, 'message' => 'Boom', 'variables' => []]]);
+
+    $context = $this->createContext(['drupal' => $drupal]);
+    [$environment, $feature, $scenario, $step] = $this->createSingleStepScenario();
+    $context->watchdogBeforeScenario(new BeforeScenarioScope($environment, $feature, $scenario));
+
+    $this->expectException(AssertionException::class);
+    $this->expectExceptionMessageMatches('/^PHP errors were logged to watchdog during scenario "Scenario" \(line 1\):/');
+
+    $context->watchdogAfterStep(new AfterStepScope($environment, $feature, $step, $this->createStub(StepResult::class)));
+  }
+
+  public function testLastStepClearsWithoutFailingWhenFailingIsOff(): void {
+    $drupal = $this->createMock(DrupalBackendInterface::class);
+    $drupal->method('moduleIsEnabled')->willReturn(TRUE);
+    $drupal->method('logGetLastId')->willReturn(5);
+    $drupal->method('logRead')->willReturn([['wid' => 6, 'type' => 'php', 'severity' => 3, 'message' => 'Boom', 'variables' => []]]);
+    $drupal->expects($this->once())->method('logDelete')->with([6]);
+
+    $context = $this->createContext(['drupal' => $drupal]);
+    $context->setParameters(['steps' => ['watchdog' => ['fail_on_errors' => FALSE]]]);
+    [$environment, $feature, $scenario, $step] = $this->createSingleStepScenario();
+    $context->watchdogBeforeScenario(new BeforeScenarioScope($environment, $feature, $scenario));
+
+    $context->watchdogAfterStep(new AfterStepScope($environment, $feature, $step, $this->createStub(StepResult::class)));
+  }
+
+  /**
+   * Builds the nodes of a feature holding 1 scenario with 1 step.
+   *
+   * @return array{\Behat\Testwork\Environment\Environment, \Behat\Gherkin\Node\FeatureNode, \Behat\Gherkin\Node\ScenarioNode, \Behat\Gherkin\Node\StepNode}
+   *   The environment, the feature, the scenario and its step.
+   */
+  protected function createSingleStepScenario(): array {
+    $step = new StepNode('When', 'I visit "/"', [], 2, 'When');
+    $scenario = new ScenarioNode('Scenario', [], [$step], 'Scenario', 1);
+    $feature = new FeatureNode('Feature', NULL, [], NULL, [$scenario], 'Feature', 'en', __DIR__ . '/feature.feature', 1);
+
+    return [$this->createStub(Environment::class), $feature, $scenario, $step];
+  }
+
   /**
    * Builds a Drupal backend double reporting whether dblog is enabled.
    */
@@ -203,7 +278,7 @@ class WatchdogTraitTestImplementation extends WebRawContext {
   use WatchdogTrait;
 
   public function testIsArmed(): bool {
-    return $this->watchdogScenarioStartTime !== NULL;
+    return $this->watchdogLastId !== NULL;
   }
 
   /**

@@ -60,18 +60,46 @@ class FileTraitTest extends UnitTestCase {
   public function testUnmanagedFileStepsRunWithoutTheModule(): void {
     $drupal = $this->createMock(DrupalBackendInterface::class);
     $drupal->expects($this->never())->method('moduleIsEnabled');
+    $drupal->method('fileExistsUnmanaged')->willReturnMap([['public://present.txt', TRUE], ['public://missing.txt', FALSE]]);
+    $drupal->method('fileReadUnmanaged')->with('public://present.txt')->willReturn('debug=true');
 
     $context = $this->createContext($drupal);
-    $path = $this->writeFixture('unmanaged.txt', 'debug=true');
 
-    $context->fileAssertUnmanagedExists($path);
-    $context->fileAssertUnmanagedNotExists(static::$tmp . '/missing.txt');
-    $context->fileAssertUnmanagedContains($path, 'debug=true');
-    $context->fileAssertUnmanagedNotContains($path, 'debug=false');
+    $context->fileAssertUnmanagedExists('public://present.txt');
+    $context->fileAssertUnmanagedNotExists('public://missing.txt');
+    $context->fileAssertUnmanagedContains('public://present.txt', 'debug=true');
+    $context->fileAssertUnmanagedNotContains('public://present.txt', 'debug=false');
+  }
+
+  public function testWriteUnmanagedWritesThroughTheBackendAndTeardownDeletesTheFiles(): void {
+    $drupal = $this->createMock(DrupalBackendInterface::class);
+    $drupal->expects($this->once())->method('fileWriteUnmanaged')->with('public://sample.txt', 'content');
+    $drupal->expects($this->once())->method('fileDeleteUnmanaged')->with('public://sample.txt');
+
+    $context = $this->createContext($drupal);
+
+    $context->fileCreateUnmanagedWithContent('public://sample.txt', 'content');
+    $context->fileAfterScenario($this->createAfterScenarioScope());
+    $context->fileAfterScenario($this->createAfterScenarioScope());
+  }
+
+  public function testTeardownOfScenarioThatWroteNothingTouchesNoBackend(): void {
+    $this->expectNotToPerformAssertions();
+
+    // The context holds no backend registry, so resolving a backend would
+    // throw.
+    (new FileTraitTestImplementation())->fileAfterScenario($this->createAfterScenarioScope());
+  }
+
+  public function testSetupHookPreparesTheDirectories(): void {
+    $drupal = $this->createMock(DrupalBackendInterface::class);
+    $drupal->expects($this->exactly(2))->method('filePrepareDirectory')->with($this->logicalOr('private://', 'temporary://'))->willReturn(FALSE);
+
+    $this->createContext($drupal)->fileBeforeScenario($this->createBeforeScenarioScope());
   }
 
   /**
-   * Tests that the setup hook bootstraps nothing without an in-process backend.
+   * Tests that the setup hook bootstraps nothing without a backend writing files.
    *
    * @param array<string, class-string<\DrevOps\BehatSteps\Backend\BackendInterface>> $backends
    *   The backend interfaces the scenario lists, keyed by name.

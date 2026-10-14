@@ -95,7 +95,7 @@ trait EckTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $this->getSession()->visit($this->eckGetEntityByTitle($entity_type, $bundle, $title)->toUrl('canonical')->toString());
+    $this->getSession()->visit($this->eckGetEntityUrlByTitle($entity_type, $bundle, $title));
   }
 
   /**
@@ -113,7 +113,7 @@ trait EckTrait {
 
     $this->assertPrerequisites(__TRAIT__);
 
-    $this->getSession()->visit($this->eckGetEntityByTitle($entity_type, $bundle, $title)->toUrl('edit-form')->toString());
+    $this->getSession()->visit($this->eckGetEntityUrlByTitle($entity_type, $bundle, $title, 'edit-form'));
   }
 
   /**
@@ -160,6 +160,31 @@ trait EckTrait {
     }
 
     return $entity;
+  }
+
+  /**
+   * Get the URL of a page of the entity of a type and bundle with a title.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   * @param string $bundle
+   *   The entity bundle.
+   * @param string $title
+   *   The entity title.
+   * @param string $rel
+   *   The link relationship, such as 'canonical' or 'edit-form'.
+   *
+   * @return string
+   *   The URL, as a path relative to the site root, of the entity created
+   *   last among those with the title.
+   *
+   * @throws \RuntimeException
+   *   When no entity has the title, or the entity type has no such link.
+   */
+  public function eckGetEntityUrlByTitle(string $entity_type, string $bundle, string $title, string $rel = 'canonical'): string {
+    $entity = $this->eckGetEntityByTitle($entity_type, $bundle, $title);
+
+    return $this->backendFor(ContentCapabilityInterface::class)->getEntityUrl(new EntityStub($entity_type, $bundle, ['id' => $entity->id()]), $rel);
   }
 
   /**

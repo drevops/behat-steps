@@ -10,14 +10,13 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Hook\AfterScenario;
 use Behat\Hook\AfterStep;
 use Behat\Hook\BeforeScenario;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\LogCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Extension\Tag;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
-use Drupal\Core\Database\Database;
 
 /**
  * Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
@@ -56,9 +55,11 @@ trait WatchdogTrait {
   protected const string WATCHDOG_ERROR_TAG = 'error';
 
   /**
-   * Start time for each scenario.
+   * The id of the newest log entry when the scenario started.
+   *
+   * NULL until the scenario arms the check.
    */
-  protected ?int $watchdogScenarioStartTime = NULL;
+  protected ?int $watchdogLastId = NULL;
 
   /**
    * Array of watchdog message types.
@@ -78,7 +79,7 @@ trait WatchdogTrait {
   protected int $watchdogScenarioLine = 0;
 
   /**
-   * Store the scenario identity, tracked message types and start time.
+   * Store the scenario identity, tracked message types and the log position.
    */
   #[BeforeScenario]
   public function watchdogBeforeScenario(BeforeScenarioScope $scope): void {
@@ -90,7 +91,7 @@ trait WatchdogTrait {
 
     $scenario = $scope->getScenario();
 
-    $this->watchdogScenarioStartTime = time();
+    $this->watchdogLastId = $this->backendFor(LogCapabilityInterface::class)->logGetLastId();
     $this->watchdogScenarioTitle = $scenario->getTitle() ?? '';
     $this->watchdogScenarioLine = $scenario->getLine();
 
@@ -109,7 +110,7 @@ trait WatchdogTrait {
    */
   #[AfterStep]
   public function watchdogAfterStep(AfterStepScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime) || !$this->lastStepReached($scope)) {
+    if (!isset($this->watchdogLastId) || !$this->lastStepReached($scope)) {
       return;
     }
 
@@ -138,7 +139,7 @@ trait WatchdogTrait {
    */
   #[AfterScenario]
   public function watchdogAfterScenario(AfterScenarioScope $scope): void {
-    if (!isset($this->watchdogScenarioStartTime) || !$this->prerequisitesMet(__TRAIT__)) {
+    if (!isset($this->watchdogLastId) || !$this->prerequisitesMet(__TRAIT__)) {
       return;
     }
 
@@ -187,43 +188,15 @@ trait WatchdogTrait {
    *   watchdog id.
    */
   public function watchdogClearErrors(): array {
-    $this->backendFor(CoreCapabilityInterface::class);
-
-    $database = Database::getConnection();
-
-    $entries = $database->select('watchdog', 'w')
-      ->fields('w')
-      ->condition('w.type', $this->watchdogMessageTypes, 'IN')
-      ->condition('w.timestamp', (string) $this->watchdogScenarioStartTime, '>=')
-      ->execute()
-      ->fetchAll();
-
-    if (empty($entries)) {
-      return [];
-    }
+    $backend = $this->backendFor(LogCapabilityInterface::class);
 
     $errors = [];
 
-    if (!defined('WATCHDOG_WARNING')) {
-      define('WATCHDOG_WARNING', 4);
+    foreach ($backend->logRead($this->watchdogMessageTypes, $this->watchdogLastId ?? 0, LogCapabilityInterface::SEVERITY_WARNING) as $entry) {
+      $errors[(int) $entry['wid']] = print_r($entry, TRUE);
     }
 
-    // Entries less severe than a warning are removed.
-    foreach ($entries as $key => $error) {
-      if ($error->severity > WATCHDOG_WARNING) {
-        unset($entries[$key]);
-        continue;
-      }
-
-      $error->variables = unserialize($error->variables);
-      $errors[$error->wid] = print_r($error, TRUE);
-    }
-
-    if ($errors !== []) {
-      $database->delete('watchdog')
-        ->condition('wid', array_keys($errors), 'IN')
-        ->execute();
-    }
+    $backend->logDelete(array_keys($errors));
 
     return $errors;
   }
@@ -256,7 +229,7 @@ trait WatchdogTrait {
    */
   protected function watchdogPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(LogCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('dblog'), 'the core "dblog" module is enabled'),
     ];
   }

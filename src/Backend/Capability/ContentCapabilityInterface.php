@@ -35,4 +35,21 @@ interface ContentCapabilityInterface {
    */
   public function deleteEntity(EntityStubInterface $stub): void;
 
+  /**
+   * Returns the URL of an entity's page.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   The stub returned from a previous 'createEntity()' call, or one that
+   *   carries the entity type's id key resolving to an existing entity.
+   * @param string $rel
+   *   The link relationship, such as 'canonical' or 'edit-form'.
+   *
+   * @return string
+   *   The URL, as a path relative to the site root.
+   *
+   * @throws \RuntimeException
+   *   When the entity does not exist, or has no link of the relationship.
+   */
+  public function getEntityUrl(EntityStubInterface $stub, string $rel = 'canonical'): string;
+
 }

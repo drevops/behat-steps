@@ -2,24 +2,25 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
+namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Drupal\Core;
 
-use DrevOps\BehatSteps\Steps\Drupal\CacheTrait;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use Drupal\Core\Cache\DatabaseBackend;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
-use PHPUnit\Framework\Attributes\CoversTrait;
+use Drupal\KernelTests\KernelTestBase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Kernel test for deleting internal page cache entries through 'CacheTrait'.
+ * Kernel test for deleting internal page cache entries through Core.
  */
-#[CoversTrait(CacheTrait::class)]
-#[Group('behat')]
+#[CoversClass(Core::class)]
+#[Group('core')]
 #[RunTestsInSeparateProcesses]
-class CacheTraitKernelTest extends StepTraitKernelTestBase {
+class CorePageCacheMethodsKernelTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}
@@ -27,6 +28,11 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
    * @var array<string>
    */
   protected static $modules = ['system', 'page_cache'];
+
+  /**
+   * The Core backend under test.
+   */
+  protected Core $core;
 
   /**
    * {@inheritdoc}
@@ -43,10 +49,19 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    $this->core = new Core($this->root);
+  }
+
+  /**
    * Tests that a path or pattern deletes exactly the matching entries.
    *
    * @param string $path
-   *   The path or pattern passed to the helper.
+   *   The path or pattern passed to the method.
    * @param bool $is_pattern
    *   Whether the path is a pattern.
    * @param array<int, string> $deleted
@@ -62,7 +77,7 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
       $backend->set($cid, 'response');
     }
 
-    $this->context->cacheDeletePagePath($path, $is_pattern);
+    $this->core->cacheDeletePagePath('page', $path, $is_pattern);
 
     $cids = array_values($entries);
     $found = $backend->getMultiple($cids);
@@ -88,64 +103,33 @@ class CacheTraitKernelTest extends StepTraitKernelTestBase {
     yield 'a pattern matching every path' => ['/*', TRUE, array_values(array_diff(array_keys(static::listPageCacheEntries()), ['not a URL', 'a URL with no path', 'a malformed URL']))];
   }
 
-  /**
-   * Tests that an argument that cannot match a cached path is rejected.
-   *
-   * @param string $path
-   *   The path or pattern passed to the helper.
-   * @param bool $is_pattern
-   *   Whether the path is a pattern.
-   * @param string $expected_message
-   *   The expected exception message.
-   */
-  #[DataProvider('dataProviderDeletePagePathRejectsInvalidPath')]
-  public function testDeletePagePathRejectsInvalidPath(string $path, bool $is_pattern, string $expected_message): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($expected_message);
-
-    $this->context->cacheDeletePagePath($path, $is_pattern);
-  }
-
-  public static function dataProviderDeletePagePathRejectsInvalidPath(): \Iterator {
-    yield 'an empty path' => ['', FALSE, 'The path must not be empty.'];
-    yield 'an empty pattern' => ['', TRUE, 'The path pattern must not be empty.'];
-    yield 'a path without a leading slash' => ['about', FALSE, 'The path "about" must start with a leading slash.'];
-    yield 'a pattern without a leading slash' => ['news/*', TRUE, 'The path pattern "news/*" must start with a leading slash.'];
-    yield 'a path with a query string' => ['/about?page=1', FALSE, 'The path "/about?page=1" must not contain a query string or a fragment.'];
-    yield 'a path with a fragment' => ['/about#team', FALSE, 'The path "/about#team" must not contain a query string or a fragment.'];
-    yield 'a pattern with a query string' => ['/news*?page=1', TRUE, 'The path pattern "/news*?page=1" must not contain a query string or a fragment.'];
-  }
-
   public function testDeletePagePathIgnoresMissingTable(): void {
     $database = Database::getConnection();
     $this->assertFalse($database->schema()->tableExists('cache_page'));
 
-    $this->context->cacheDeletePagePath('/about');
+    $this->core->cacheDeletePagePath('page', '/about');
 
     $this->assertFalse($database->schema()->tableExists('cache_page'));
   }
 
   public function testDeletePagePathEmptiesBinThatCannotListItsEntries(): void {
-    $context = $this->createContext(['cache' => ['page_cache_bin' => 'data']]);
     $backend = \Drupal::cache('data');
     $this->assertNotInstanceOf(DatabaseBackend::class, $backend);
 
     $backend->set('http://nginx:8080/about:', 'response');
     $backend->set('http://nginx:8080/contact:', 'response');
 
-    $context->cacheDeletePagePath('/about');
+    $this->core->cacheDeletePagePath('data', '/about');
 
     $this->assertFalse($backend->get('http://nginx:8080/about:'));
     $this->assertFalse($backend->get('http://nginx:8080/contact:'));
   }
 
   public function testDeletePagePathFailsWithoutTheBin(): void {
-    $context = $this->createContext(['cache' => ['page_cache_bin' => 'missing']]);
-
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('The cache bin "missing" does not exist. Enable the page_cache module or set the "cache.page_cache_bin" option.');
+    $this->expectExceptionMessage('The cache bin "missing" does not exist.');
 
-    $context->cacheDeletePagePath('/about');
+    $this->core->cacheDeletePagePath('missing', '/about');
   }
 
   /**

@@ -97,20 +97,36 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   interface BlockCapabilityInterface
   interface ConfigCapabilityInterface
   interface CoreCapabilityInterface
+  interface DraggableviewsCapabilityInterface
   interface DrushCapabilityInterface
+  interface FileCapabilityInterface
+  interface LogCapabilityInterface
   interface ModuleCapabilityInterface
   interface NodeCapabilityInterface
+  interface QueueCapabilityInterface
+  interface QueueItemCapabilityInterface
+  interface SearchApiCapabilityInterface
+  interface SearchIndexCapabilityInterface
   interface StateCapabilityInterface
   interface TermCapabilityInterface
+  interface WorkflowCapabilityInterface
 
   BatchCapabilityInterface -[hidden]down- BlockCapabilityInterface
   BlockCapabilityInterface -[hidden]down- ConfigCapabilityInterface
   ConfigCapabilityInterface -[hidden]down- CoreCapabilityInterface
-  CoreCapabilityInterface -[hidden]down- DrushCapabilityInterface
+  CoreCapabilityInterface -[hidden]down- DraggableviewsCapabilityInterface
+  DraggableviewsCapabilityInterface -[hidden]down- DrushCapabilityInterface
 
+  FileCapabilityInterface -[hidden]down- LogCapabilityInterface
+  LogCapabilityInterface -[hidden]down- ModuleCapabilityInterface
   ModuleCapabilityInterface -[hidden]down- NodeCapabilityInterface
-  NodeCapabilityInterface -[hidden]down- StateCapabilityInterface
+  NodeCapabilityInterface -[hidden]down- QueueCapabilityInterface
+  QueueCapabilityInterface -[hidden]down- QueueItemCapabilityInterface
+
+  SearchApiCapabilityInterface -[hidden]down- SearchIndexCapabilityInterface
+  SearchIndexCapabilityInterface -[hidden]down- StateCapabilityInterface
   StateCapabilityInterface -[hidden]down- TermCapabilityInterface
+  TermCapabilityInterface -[hidden]down- WorkflowCapabilityInterface
 }
 
 package "DrevOps\\BehatSteps\\Backend\\Drupal\\Core" #E8F5E9 {
@@ -145,7 +161,9 @@ DrupalBackendInterface ..|> CoreCapabilityInterface
 DrupalBackendInterface ..|> EntityLookupCapabilityInterface
 DrupalBackendInterface ..|> NodeCapabilityInterface
 DrushBackendInterface ..|> DrushCapabilityInterface
+DrushBackendInterface ..|> LogCapabilityInterface
 DrushBackendInterface ..|> ModuleCapabilityInterface
+DrushBackendInterface ..|> QueueCapabilityInterface
 
 DrupalBackend --> CoreInterface : getCore
 Core --> EntityStubInterface : creates and loads
@@ -159,10 +177,15 @@ note right of BlackboxBackend
 end note
 
 note bottom of DrupalBackendInterface
-  DrupalBackendInterface extends 17 capability
-  interfaces and DrushBackendInterface 9, of
+  DrupalBackendInterface extends 25 capability
+  interfaces and DrushBackendInterface 12, of
   which DrushCapabilityInterface is its own.
-  Only a few edges are drawn here.
+  Only a few edges are drawn here. A backend
+  declares a capability only when it serves
+  every method of it, so what only the
+  in-process backend can do sits on a
+  capability of its own, such as
+  QueueItemCapabilityInterface.
 
   The root of src/Backend references no Drupal
   class; everything that is Drupal's sits under
