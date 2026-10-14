@@ -69,7 +69,7 @@ class CorePathAliasMethodsKernelTest extends KernelTestBase {
     $this->assertSame('/second-alias', $alias->getAlias());
   }
 
-  public function testSetEntityPathAliasTakesASavedStub(): void {
+  public function testSetEntityPathAliasTakesSavedStub(): void {
     $node = $this->createNode();
 
     $this->core->setEntityPathAlias((new EntityStub('node'))->markSaved($node), 'saved');
@@ -100,14 +100,14 @@ class CorePathAliasMethodsKernelTest extends KernelTestBase {
     yield 'slashes and whitespace' => [' // '];
   }
 
-  public function testSetEntityPathAliasRejectsAMissingEntity(): void {
+  public function testSetEntityPathAliasRejectsMissingEntity(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot update the entity of type "node" with the id "999" because it does not exist.');
 
     $this->core->setEntityPathAlias(new EntityStub('node', 'page', ['nid' => 999]), 'missing');
   }
 
-  public function testSetEntityPathAliasRejectsAnEntityWithoutAPathField(): void {
+  public function testSetEntityPathAliasRejectsEntityWithoutPathField(): void {
     $account = User::create(['name' => 'alias-less', 'status' => 1]);
     $account->save();
 
@@ -117,7 +117,7 @@ class CorePathAliasMethodsKernelTest extends KernelTestBase {
     $this->core->setEntityPathAlias(new EntityStub('user', NULL, ['uid' => $account->id()]), 'people');
   }
 
-  public function testSetEntityPathAliasRejectsAStubWithoutAnId(): void {
+  public function testSetEntityPathAliasRejectsStubWithoutId(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot resolve an entity of type "node" from a stub without the id key "nid" set.');
 

@@ -53,7 +53,7 @@ class CorePathAliasPathautoKernelTest extends KernelTestBase {
     $this->core = new Core($this->root);
   }
 
-  public function testSetEntityPathAliasKeepsTheAliasThroughALaterSave(): void {
+  public function testSetEntityPathAliasKeepsTheAliasThroughLaterSave(): void {
     $node = Node::create(['type' => 'page', 'title' => 'Generated']);
     $node->save();
     $this->assertSame('/content/generated', $this->findAlias($node), 'Pathauto generated an alias on create.');

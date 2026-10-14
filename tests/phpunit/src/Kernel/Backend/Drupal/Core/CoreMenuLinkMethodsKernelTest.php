@@ -51,13 +51,13 @@ class CoreMenuLinkMethodsKernelTest extends KernelTestBase {
     $this->assertSame('menu_link_content:' . $link->uuid(), $this->core->getMenuLinkPluginId(new EntityStub('menu_link_content', NULL, ['id' => $link->id()])));
   }
 
-  public function testGetMenuLinkPluginIdTakesASavedStub(): void {
+  public function testGetMenuLinkPluginIdTakesSavedStub(): void {
     $link = $this->createLink();
 
     $this->assertSame('menu_link_content:' . $link->uuid(), $this->core->getMenuLinkPluginId((new EntityStub('menu_link_content'))->markSaved($link)));
   }
 
-  public function testGetMenuLinkPluginIdRejectsAMissingLink(): void {
+  public function testGetMenuLinkPluginIdRejectsMissingLink(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('No menu link with the id "999" exists.');
 
@@ -74,7 +74,7 @@ class CoreMenuLinkMethodsKernelTest extends KernelTestBase {
     $this->core->getMenuLinkPluginId(new EntityStub('user', NULL, ['uid' => $account->id()]));
   }
 
-  public function testGetMenuLinkPluginIdRejectsAStubWithoutAnId(): void {
+  public function testGetMenuLinkPluginIdRejectsStubWithoutId(): void {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Cannot resolve an entity of type "menu_link_content" from a stub without the id key "id" set.');
 

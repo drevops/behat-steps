@@ -951,7 +951,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
     yield 'a name value' => [new EntityStub('user', NULL, ['name' => 'alice']), ['alice'], ['format' => 'json']];
   }
 
-  public function testGetUserRolesReadsNoRolesFromAnAccountWithoutAList(): void {
+  public function testGetUserRolesReadsNoRolesFromAnAccountWithoutList(): void {
     $backend = $this->createBackend();
     $backend->drushResponses = ['user:information' => '{"7":{"uid":"7","name":"alice","roles":"authenticated"}}'];
 
@@ -985,7 +985,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->assertSame([['command' => 'user:password', 'arguments' => ['alice', 'correct horse'], 'options' => []]], $backend->invocations);
   }
 
-  public function testSetUserPasswordLooksUpTheNameOfANamelessStub(): void {
+  public function testSetUserPasswordLooksUpTheNameOfNamelessStub(): void {
     $backend = $this->createBackend();
     $backend->drushResponses = ['user:information' => '{"7":{"uid":"7","name":"alice","roles":["authenticated"]}}'];
 

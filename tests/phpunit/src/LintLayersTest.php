@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
+use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -108,7 +109,7 @@ class LintLayersTest extends UnitTestCase {
   public static function dataProviderDrupalHalfForbidsTheCoreCapability(): \Iterator {
     yield 'the core capability' => [
       "<?php\n\nuse DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\CoreCapabilityInterface;\n",
-      [['line' => 3, 'symbol' => 'DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\CoreCapabilityInterface']],
+      [['line' => 3, 'symbol' => CoreCapabilityInterface::class]],
     ];
     yield 'another capability' => [
       "<?php\n\nuse DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\BlockCapabilityInterface;\n",
