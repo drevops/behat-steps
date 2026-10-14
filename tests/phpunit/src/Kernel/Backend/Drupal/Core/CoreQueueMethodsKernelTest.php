@@ -38,9 +38,13 @@ class CoreQueueMethodsKernelTest extends KernelTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
+    // 'mysite_core.settings', the fixture module's queue budget, has no
+    // schema. Drupal 11 and 12 type the flag differently, so an override of
+    // the property loads on only 1 of them.
+    $this->strictConfigSchema = FALSE;
+
     parent::setUp();
 
-    $this->installSchema('system', ['queue']);
     $this->installConfig(['system']);
 
     $this->core = new Core($this->root);
