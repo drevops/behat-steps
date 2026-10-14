@@ -31,9 +31,17 @@ $suite = (new Suite('default'))
     'debug' => FALSE,
   ]);
 
+// A scenario tagged '@test-drupal:<major>' runs on that fixture only, so the
+// tags of every other fixture under tests/behat/fixtures_drupal are filtered
+// out along with '@test-skipped'.
+$drupal_major = (string) (getenv('DRUPAL_VERSION') ?: '11');
+$fixture_majors = array_map(static fn(string $dir): string => substr(basename($dir), 1), glob(__DIR__ . '/tests/behat/fixtures_drupal/d*', GLOB_ONLYDIR) ?: []);
+$other_majors = array_filter($fixture_majors, static fn(string $major): bool => $major !== $drupal_major);
+$tag_filter = implode('&&', ['~@test-skipped', ...array_map(static fn(string $major): string => '~@test-drupal:' . $major, $other_majors)]);
+
 $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
   // The Gherkin cache is disabled during development.
-  ->withGherkinOptions((new GherkinOptions(['cache' => '']))->withFilter(new TagFilter('~@test-skipped')))
+  ->withGherkinOptions((new GherkinOptions(['cache' => '']))->withFilter(new TagFilter($tag_filter)))
   ->withSuite($suite)
   ->withExtension(new Extension(MinkExtension::class, [
     'base_url' => 'http://nginx:8080',

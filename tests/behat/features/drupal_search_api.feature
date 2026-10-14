@@ -143,8 +143,10 @@ Feature: Check that SearchApiTrait works
     When the Search API Solr cron runs
 
   # Indexing a number of items resolves the search index capability, so
-  # '@backend:drush' runs it over Drush.
-  @backend:drush
+  # '@backend:drush' runs it over Drush. Drush 14, which the Drupal 12 fixture
+  # runs, rejects the 'success' log level the Search API index command logs
+  # at, so the scenario runs on the Drupal 11 fixture only.
+  @backend:drush @test-drupal:11
   Scenario: Assert "When search indexing runs for :count item(s)" indexes the items over Drush
     When search indexing runs for 10 items
     And the following article content exists:

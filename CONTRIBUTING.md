@@ -414,7 +414,7 @@ The Behat harness in `tests/behat/bootstrap/` - `FeatureContext`, `FeatureContex
 - **Hooks**: a hook is named `<prefix><Event>` and declared before the steps. `FeatureContextTrait`, `FeatureContext` and the context `BehatCliTrait` generates share the `test` prefix, and `BehatCliTrait` itself uses `behatCli`. A prefix holds 1 hook per event, so a second job on an event runs from a helper that hook calls, as `testBeforeScenario()` runs `testStopSessions()` and then `testShortenBigPipeWait()`.
 - **Constants**: every constant declares a native type.
 
-A tag the harness reads to configure a scenario starts with `test-`, as `@test-bigpipe-timeout` does, so it can't be mistaken for a library tag registered in `tag_registry()` in [docs.php](docs.php).
+A tag the harness reads to configure a scenario starts with `test-`, as `@test-bigpipe-timeout` does, so it can't be mistaken for a library tag registered in `tag_registry()` in [docs.php](docs.php). A scenario that runs on 1 Drupal fixture only is tagged `@test-drupal:<major>`: [behat.php](behat.php) reads `DRUPAL_VERSION` and filters out the tag of every other fixture under `tests/behat/fixtures_drupal/`, the same way it filters out `@test-skipped`.
 
 The harness steps keep their own wording, placeholders, patterns and signatures rather than follow [Steps format](#steps-format) and [Step arguments](#step-arguments). They aren't published, and renaming one means editing every `.feature` line that uses it: every `@test-trait` scenario runs `some behat configuration` and `scenario steps:` or `scenario steps tagged with "...":`. `BehatCliContext.php` holds none of these conventions, because it's kept in step with an upstream copy.
 
