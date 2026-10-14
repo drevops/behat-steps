@@ -2297,16 +2297,15 @@ $messages = $backend->mailGet();
 
 `mailStartCollecting()` takes the handler types to collect from, `['default']` when omitted, and switches only those, as `EmailTrait` did in 3.14 when it swapped the mail system itself. It records the handler each type held in `system.mail_original`, so a run that stops early leaves the record for the next one, and `mailStopCollecting()` restores every recorded handler and deletes the record. `mailGet()` returns every collected message, one the site cancelled included, so a caller that counted only sent mail filters on the `send` flag. A backend of your own adds the parameter to its `mailStartCollecting()`.
 
-`DrupalDriver::getSubDriverPaths()` served the Drupal Extension's subcontext discovery, which this package doesn't do. Code that read the extension paths asks the in-process backend for its core:
+`DrupalDriver::getSubDriverPaths()` served the Drupal Extension's subcontext discovery, which this package doesn't do. Code that read the extension paths names the in-process backend through `getBackend()`, as a call naming a driver does in the `RawDrupalContext::getDriver()` row above, and asks it for its core:
 
 ```php
 // Before.
 $paths = $this->getDriver('drupal')->getSubDriverPaths();
 
 // After.
-$paths = $this->backendFor(DrupalBackendInterface::class)
-  ->getCore()
-  ->getExtensionPathList();
+$backend = $this->getBackend('drupal');
+$paths = $backend instanceof DrupalBackendInterface ? $backend->getCore()->getExtensionPathList() : [];
 ```
 
 `createNode()`, `deleteNode()`, `createTerm()` and `deleteTerm()` sit on `NodeCapabilityInterface` and `TermCapabilityInterface` under `DrevOps\BehatSteps\Backend\Drupal\Capability`, beside the other capabilities only a Drupal backend provides, and `ContentCapabilityInterface` keeps `createEntity()` and `deleteEntity()`, which apply to any backend, beside the `updateEntity()` and `getEntityValues()` the table above adds. A backend of your own that creates nodes or terms declares the 2 interfaces, and a step of your own names the capability that holds the method it calls:
