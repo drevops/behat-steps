@@ -21,6 +21,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
@@ -511,11 +512,9 @@ trait FeatureContextTrait {
    */
   #[Then(':entity_type entity exists with UUID :uuid')]
   public function testAssertEntityExistsByUuid(string $entity_type, string $uuid): void {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $ids = $this->backendFor(EntityLookupCapabilityInterface::class)->findEntityIds($entity_type, ['uuid' => $uuid]);
 
-    $entity = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type, $uuid);
-
-    if (!$entity) {
+    if ($ids === []) {
       throw new \Exception(sprintf('Entity of type "%s" does not exist in DB with UUID "%s", but it should', $entity_type, $uuid));
     }
   }
