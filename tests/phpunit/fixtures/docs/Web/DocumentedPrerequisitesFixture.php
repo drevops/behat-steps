@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Fixtures\Web;
 
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 
@@ -21,7 +21,7 @@ trait DocumentedPrerequisitesTrait {
    */
   protected function documentedPrerequisitesPrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(ContentCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('documented'), 'the "documented" module is enabled'),
     ];
   }

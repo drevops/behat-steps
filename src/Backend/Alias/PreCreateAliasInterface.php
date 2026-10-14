@@ -11,7 +11,7 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  *
  * Implementations resolve the alias value, write any derived real-field
  * values back onto the stub, and remove the alias's own key from the
- * stub. The values bag passed to Drupal's entity factory then contains
+ * stub. The values bag passed to the backend's entity storage then contains
  * only real fields.
  */
 interface PreCreateAliasInterface extends CreationAliasInterface {
@@ -29,7 +29,7 @@ interface PreCreateAliasInterface extends CreationAliasInterface {
    *   under 'getName()'.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException
-   *   When the value cannot be resolved into a Drupal storage value.
+   *   When the value cannot be resolved into a storage value.
    */
   public function applyToStub(EntityStubInterface $stub): void;
 

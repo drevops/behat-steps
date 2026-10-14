@@ -11,7 +11,7 @@ use Behat\Mink\Mink;
 use Behat\Mink\Session;
 use Behat\Testwork\Environment\Environment;
 use DrevOps\BehatSteps\Backend\BackendInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
@@ -85,9 +85,9 @@ class WebRawContextTest extends UnitTestCase {
     $context = $this->createContext($this->createMock(BackendInterface::class));
 
     $this->expectException(UnsupportedBackendActionException::class);
-    $this->expectExceptionMessage(sprintf('No backend provides "%s".', CoreCapabilityInterface::class));
+    $this->expectExceptionMessage(sprintf('No backend provides "%s".', ContentCapabilityInterface::class));
 
-    $context->backendFor(CoreCapabilityInterface::class);
+    $context->backendFor(ContentCapabilityInterface::class);
   }
 
   public function testBackendForBootstrapsOnceAndReturnsTheBackend(): void {
@@ -97,8 +97,8 @@ class WebRawContextTest extends UnitTestCase {
 
     $context = $this->createContext($backend);
 
-    $first = $context->backendFor(CoreCapabilityInterface::class);
-    $second = $context->backendFor(CoreCapabilityInterface::class);
+    $first = $context->backendFor(ContentCapabilityInterface::class);
+    $second = $context->backendFor(ContentCapabilityInterface::class);
 
     $this->assertSame($backend, $first);
     $this->assertSame($backend, $second);
@@ -238,7 +238,7 @@ class WebRawContextTest extends UnitTestCase {
       SamplePrerequisiteTrait::class,
       TRUE,
       UnsupportedBackendActionException::class,
-      'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: drush.' . $switch_off,
+      'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "ContentCapabilityInterface", which does not hold. Backends available to this scenario, in order: drush.' . $switch_off,
     ];
     yield 'no backend listed, checked by a hook' => [
       [],
@@ -246,7 +246,7 @@ class WebRawContextTest extends UnitTestCase {
       SamplePrerequisiteTrait::class,
       TRUE,
       UnsupportedBackendActionException::class,
-      'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: none.' . $switch_off,
+      'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "ContentCapabilityInterface", which does not hold. Backends available to this scenario, in order: none.' . $switch_off,
     ];
     yield 'a check fails for a trait that switches off, checked by a hook' => [
       ['drupal' => DrupalBackendInterface::class],
@@ -262,7 +262,7 @@ class WebRawContextTest extends UnitTestCase {
       SamplePrerequisiteTrait::class,
       FALSE,
       UnsupportedBackendActionException::class,
-      'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "CoreCapabilityInterface", which does not hold. Backends available to this scenario, in order: drush.',
+      'SamplePrerequisiteTrait requires that a backend in the scenario\'s list provides "ContentCapabilityInterface", which does not hold. Backends available to this scenario, in order: drush.',
     ];
     yield 'a check fails for a trait that switches off, checked by a step' => [
       ['drupal' => DrupalBackendInterface::class],
@@ -306,7 +306,7 @@ class WebRawContextTest extends UnitTestCase {
     $context = $this->createPrerequisiteContext($backends);
 
     if ($reach_drupal) {
-      $context->backendFor(CoreCapabilityInterface::class);
+      $context->backendFor(ContentCapabilityInterface::class);
     }
 
     $this->assertSame($backends[$expected], $context->callAnyBackendFor(ModuleCapabilityInterface::class));

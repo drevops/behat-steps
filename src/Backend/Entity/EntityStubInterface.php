@@ -7,16 +7,16 @@ namespace DrevOps\BehatSteps\Backend\Entity;
 /**
  * Contract for the typed envelope used during entity create/cleanup flows.
  *
- * Holds the desired-state values before save, the saved Drupal entity once
- * the backend populates it, and the bundle context for storage resolution.
+ * Holds the desired-state values before save, the saved entity once the
+ * backend populates it, and the bundle context for storage resolution.
  */
 interface EntityStubInterface {
 
   /**
    * Bundle key a stub starts with, until 'setBundleKey()' replaces it.
    *
-   * Drupal Core's most common bundle key is 'type', used by 'node',
-   * 'block_content', 'entity_test' and others.
+   * 'type' is the bundle key of the most common entity types, such as 'node',
+   * 'block_content' and 'entity_test'.
    */
   public const string DEFAULT_BUNDLE_KEY = 'type';
 
@@ -95,15 +95,15 @@ interface EntityStubInterface {
   public function isSaved(): bool;
 
   /**
-   * Records the saved Drupal entity object on the stub.
+   * Records the saved entity object on the stub.
    *
    * @param object $entity
-   *   The Drupal entity that was just persisted.
+   *   The entity that was just persisted.
    */
   public function markSaved(object $entity): self;
 
   /**
-   * Returns the saved Drupal entity object.
+   * Returns the saved entity object.
    *
    * @return object
    *   The entity supplied to 'markSaved()'.

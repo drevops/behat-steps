@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Prerequisite;
 
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Extension\Prerequisite\PrerequisiteReader;
@@ -55,7 +55,7 @@ class PrerequisiteReaderTest extends UnitTestCase {
     $prerequisites = (new PrerequisiteReader())->read(new PrerequisiteContext(), SamplePrerequisiteTrait::class);
 
     $this->assertContainsOnlyInstancesOf(Prerequisite::class, $prerequisites);
-    $this->assertSame([CoreCapabilityInterface::class, ModuleCapabilityInterface::class], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->capability, $prerequisites));
+    $this->assertSame([ContentCapabilityInterface::class, ModuleCapabilityInterface::class], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->capability, $prerequisites));
   }
 
   public function testReadsNothingForTraitDeclaringNone(): void {
@@ -78,7 +78,7 @@ class PrerequisiteReaderTest extends UnitTestCase {
     $declared = $reader->read(new PrerequisiteReaderHost(), CountedPrerequisiteTrait::class);
     $redeclared = $reader->read(new RedeclaringPrerequisiteReaderHost(), CountedPrerequisiteTrait::class);
 
-    $this->assertSame([CoreCapabilityInterface::class], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->capability, $declared));
+    $this->assertSame([ContentCapabilityInterface::class], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->capability, $declared));
     $this->assertSame([ModuleCapabilityInterface::class], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->capability, $redeclared));
   }
 

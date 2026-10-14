@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Extension\Config\Option;
@@ -4177,7 +4177,7 @@ EOD);
   public function testExtractTraitPrerequisites(): void {
     $prerequisites = extract_trait_prerequisites(DocumentedPrerequisitesContext::class, DocumentedPrerequisitesTrait::class);
 
-    $this->assertSame(['a backend in the scenario\'s list provides "CoreCapabilityInterface"', 'the "documented" module is enabled'], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->description, $prerequisites));
+    $this->assertSame(['a backend in the scenario\'s list provides "ContentCapabilityInterface"', 'the "documented" module is enabled'], array_map(static fn(Prerequisite $prerequisite): string => $prerequisite->description, $prerequisites));
   }
 
   #[DataProvider('dataProviderRenderTraitPrerequisites')]
@@ -4189,7 +4189,7 @@ EOD);
     $table = implode(PHP_EOL, [
       '| Prerequisite | Capability |',
       '| --- | --- |',
-      '| A backend in the scenario\'s list provides "CoreCapabilityInterface" | `CoreCapabilityInterface` |',
+      '| A backend in the scenario\'s list provides "ContentCapabilityInterface" | `ContentCapabilityInterface` |',
       '| The "a \| b" module is enabled | `ModuleCapabilityInterface` |',
     ]);
 
@@ -4199,7 +4199,7 @@ EOD);
       'no entry that is a prerequisite' => [['not a prerequisite'], ''],
       'a table skipping an entry that is not a prerequisite' => [
         [
-          Prerequisite::capability(CoreCapabilityInterface::class),
+          Prerequisite::capability(ContentCapabilityInterface::class),
           'not a prerequisite',
           Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('a|b'), 'the "a | b" module is enabled'),
         ],

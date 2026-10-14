@@ -7,8 +7,8 @@ namespace DrevOps\BehatSteps\Backend\Alias;
 /**
  * Base contract for a creation alias.
  *
- * An alias represents 1 ergonomic stub property that is not a real
- * Drupal field, with the resolution behavior the backend applies
+ * An alias represents 1 ergonomic stub property that is not a field of
+ * the entity, with the resolution behavior the backend applies
  * during entity creation. Concrete aliases implement either
  * 'PreCreateAliasInterface' (to mutate the stub before save) or
  * 'PostCreateAliasInterface' (to act on the entity after save).
@@ -24,10 +24,10 @@ interface CreationAliasInterface {
   public function getName(): string;
 
   /**
-   * Returns the Drupal entity type id this alias applies to.
+   * Returns the entity type id this alias applies to.
    *
    * @return string
-   *   A Drupal entity type id (e.g. 'node', 'user', 'taxonomy_term').
+   *   An entity type id (e.g. 'node', 'user', 'taxonomy_term').
    */
   public function getEntityType(): string;
 

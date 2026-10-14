@@ -16,7 +16,7 @@ use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
 use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
 
 /**
- * Test REST APIs with lightweight steps and no Drupal dependencies.
+ * Test REST APIs with lightweight steps.
  *
  * - Set HTTP headers for subsequent requests.
  * - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).

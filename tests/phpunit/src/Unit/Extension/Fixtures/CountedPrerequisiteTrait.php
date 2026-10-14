@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures;
 
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 
 /**
@@ -26,7 +26,7 @@ trait CountedPrerequisiteTrait {
   protected function countedPrerequisitePrerequisites(): array {
     static::$countedPrerequisiteReads++;
 
-    return [Prerequisite::capability(CoreCapabilityInterface::class)];
+    return [Prerequisite::capability(ContentCapabilityInterface::class)];
   }
 
 }

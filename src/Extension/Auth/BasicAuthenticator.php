@@ -13,7 +13,7 @@ use DrevOps\BehatSteps\Extension\Browser\MinkAwareTrait;
  *
  * This is not user authentication: it carries no user and reads no site
  * configuration. It needs only the Mink session and the configured base URL,
- * so a suite for a basic-auth site uses it without any Drupal site.
+ * so a suite for a basic-auth site uses it without any backend.
  */
 final class BasicAuthenticator implements BasicAuthenticatorInterface {
 

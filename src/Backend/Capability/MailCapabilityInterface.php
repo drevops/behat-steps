@@ -13,8 +13,8 @@ interface MailCapabilityInterface {
    * Starts collecting outgoing mail for later inspection.
    *
    * @param array<int, string> $handler_types
-   *   The mail handler types to collect from, as keys of the 'interface' map
-   *   in 'system.mail'. Defaults to 'default', the handler every site has.
+   *   The mail handler types to collect from, as the site's mail system names
+   *   them. Defaults to 'default', the handler every site has.
    *
    * @throws \RuntimeException
    *   When no handler type is given.
@@ -32,8 +32,10 @@ interface MailCapabilityInterface {
    * Returns the mail that has been collected.
    *
    * @return array<int, array<string, mixed>>
-   *   Collected mail messages, each formatted as a Drupal mail array. A
-   *   message the site cancelled, whose 'send' flag is FALSE, is returned too.
+   *   Collected mail messages, each as the array the site's mail system hands
+   *   its sender, with 'to', 'subject', 'body', 'headers' and 'params' among
+   *   its keys. A message the site cancelled, whose 'send' flag is FALSE, is
+   *   returned too.
    */
   public function mailGet(): array;
 
@@ -55,8 +57,8 @@ interface MailCapabilityInterface {
    *   The language code for subject and body.
    * @param array<int, array<string, mixed>> $attachments
    *   Optional attachments. Each is an associative array carrying at least a
-   *   'filename', following Drupal's standard attachment structure. When
-   *   provided, they are recorded on the sent message's 'params' under the
+   *   'filename', in the shape the site's mail system reads. When provided,
+   *   they are recorded on the sent message's 'params' under the
    *   'attachments' key.
    *
    * @return bool

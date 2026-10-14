@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Backend\Entity;
 
 /**
- * Typed envelope for creating, tracking, and cleaning up a Drupal entity.
+ * Typed envelope for creating, tracking, and cleaning up an entity.
  */
 final class EntityStub implements EntityStubInterface {
 
   /**
-   * The saved Drupal entity object. NULL until the backend populates it.
+   * The saved entity object. NULL until the backend populates it.
    */
   protected ?object $entity = NULL;
 

@@ -32,7 +32,7 @@ final readonly class BackendAwareInitializer implements ContextInitializer {
    * @param \Behat\Testwork\Hook\HookDispatcher $hookDispatcher
    *   The hook dispatcher.
    * @param \DrevOps\BehatSteps\Extension\Auth\BasicAuthenticatorInterface $basicAuthenticator
-   *   Applies webserver-level basic auth, which needs no Drupal site.
+   *   Applies webserver-level basic auth, which needs no backend.
    * @param \DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface $authenticator
    *   Logs a user in and out of the site under test.
    * @param \DrevOps\BehatSteps\Extension\Registry\UserRegistryInterface $userRegistry
