@@ -43,7 +43,7 @@
     },
     "require-dev": {
         "drupal/address": "^2.0.4",
-        "drupal/commerce": "^3.3.10",
+        "drupal/commerce": "^3.3.11",
         "drupal/core-dev": "~12.0.0-beta1",
         "drupal/name": "^1.5.0",
         "drupal/smart_date": "^4.3.0",
