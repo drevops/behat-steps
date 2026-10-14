@@ -1795,7 +1795,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
         continue;
       }
 
-      $variables = is_string($row['variables'] ?? NULL) ? unserialize($row['variables']) : NULL;
+      $variables = is_string($row['variables'] ?? NULL) ? unserialize($row['variables'], ['allowed_classes' => FALSE]) : NULL;
 
       $row['wid'] = (int) ($row['wid'] ?? 0);
       $row['severity'] = (int) ($row['severity'] ?? static::SEVERITY_DEBUG);
