@@ -438,7 +438,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
    * @param array<int, mixed> $args
    *   Positional arguments for the backend method.
    * @param string|null $expected_command
-   *   The first Drush command string expected to be invoked.
+   *   A Drush command string the method must invoke.
    * @param string|null $drush_response
    *   Raw output returned by the stubbed 'drush()' call, or NULL for none.
    */
@@ -446,16 +446,20 @@ class DrushBackendMethodsTest extends UnitTestCase {
   public function testInvokesDrush(string $method, array $args, ?string $expected_command, ?string $drush_response = NULL): void {
     $backend = $this->createBackend();
     $backend->drushResponse = $drush_response ?? '';
+    $backend->drushResponses = ['version' => '{"drush-version":"13.8.0"}'];
 
     $backend->{$method}(...$args);
 
-    $this->assertNotEmpty($backend->invocations, 'Expected at least one drush() invocation.');
+    $commands = array_column($backend->invocations, 'command');
+
+    $this->assertNotEmpty($commands, 'Expected at least one drush() invocation.');
 
     if ($expected_command !== NULL) {
-      $this->assertSame($expected_command, $backend->invocations[0]['command']);
+      $this->assertContains($expected_command, $commands);
     }
 
-    foreach (array_column($backend->invocations, 'command') as $command) {
+    // 'version' is the 1 Drush command with no namespaced form.
+    foreach (array_diff($commands, ['version']) as $command) {
       $this->assertMatchesRegularExpression('/^[a-z]+(?:-[a-z]+)*(?::[a-z]+(?:-[a-z]+)*)+$/', $command, sprintf('The command "%s" is not a canonical colon-separated Drush command name.', $command));
     }
   }
@@ -819,16 +823,61 @@ class DrushBackendMethodsTest extends UnitTestCase {
   #[DataProvider('dataProviderGetOneTimeLoginUrl')]
   public function testGetOneTimeLoginUrl(EntityStub $stub, array $expected_options): void {
     $backend = $this->createBackend();
-    $backend->drushResponse = "http://default/sub/user/reset/7/1700000000/abc-DEF_1/login\n";
+    $backend->drushResponses = ['version' => '{"drush-version":"13.8.0"}', 'user:login' => "http://default/sub/user/reset/7/1700000000/abc-DEF_1/login\n"];
 
     $this->assertSame('/sub/user/reset/7/1700000000/abc-DEF_1', $backend->getOneTimeLoginUrl($stub));
-    $this->assertSame('user:login', $backend->invocations[0]['command']);
-    $this->assertSame($expected_options + ['no-browser' => NULL], $backend->invocations[0]['options']);
+    $this->assertSame('user:login', $backend->invocations[1]['command']);
+    $this->assertSame($expected_options + ['no-browser' => NULL], $backend->invocations[1]['options']);
   }
 
   public static function dataProviderGetOneTimeLoginUrl(): \Iterator {
     yield 'a uid value' => [new EntityStub('user', NULL, ['uid' => 7, 'name' => 'alice']), ['uid' => '7']];
     yield 'a name value' => [new EntityStub('user', NULL, ['name' => 'alice']), ['name' => 'alice']];
+  }
+
+  /**
+   * Tests that the browser flag goes to the Drush majors that take it.
+   *
+   * @param string $version_output
+   *   The output 'drush version --format=json' prints.
+   * @param array<string, string|null> $expected_options
+   *   The options 'user:login' must receive.
+   */
+  #[DataProvider('dataProviderGetOneTimeLoginUrlPassesNoBrowserOnlyBelowDrush14')]
+  public function testGetOneTimeLoginUrlPassesNoBrowserOnlyBelowDrush14(string $version_output, array $expected_options): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['version' => $version_output, 'user:login' => 'http://default/user/reset/7/1/hash/login'];
+
+    $backend->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 7]));
+
+    $this->assertSame('version', $backend->invocations[0]['command']);
+    $this->assertSame(['format' => 'json'], $backend->invocations[0]['options']);
+    $this->assertSame($expected_options, $backend->invocations[1]['options']);
+  }
+
+  public static function dataProviderGetOneTimeLoginUrlPassesNoBrowserOnlyBelowDrush14(): \Iterator {
+    yield 'Drush 13' => ['{"drush-version":"13.8.0"}', ['uid' => '7', 'no-browser' => NULL]];
+    yield 'Drush 14' => ['{"drush-version":"14.0.0-dev"}', ['uid' => '7']];
+  }
+
+  public function testGetOneTimeLoginUrlReadsTheDrushVersionOnce(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['version' => '{"drush-version":"13.8.0"}', 'user:login' => 'http://default/user/reset/7/1/hash/login'];
+
+    $backend->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 7]));
+    $backend->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 8]));
+
+    $this->assertSame(['version', 'user:login', 'user:login'], array_column($backend->invocations, 'command'));
+  }
+
+  public function testGetOneTimeLoginUrlRejectsMissingDrushVersion(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['version' => 'Drush printed a warning.'];
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Drush did not print its version. Output: Drush printed a warning.');
+
+    $backend->getOneTimeLoginUrl(new EntityStub('user', NULL, ['uid' => 7]));
   }
 
   public function testGetOneTimeLoginUrlRejectsStubWithoutIdentifier(): void {
@@ -842,6 +891,7 @@ class DrushBackendMethodsTest extends UnitTestCase {
 
   public function testGetOneTimeLoginUrlRejectsOutputWithoutLink(): void {
     $backend = $this->createBackend();
+    $backend->drushResponses = ['version' => '{"drush-version":"13.8.0"}'];
     $backend->drushResponse = 'Drush printed a warning.';
 
     $this->expectException(\RuntimeException::class);

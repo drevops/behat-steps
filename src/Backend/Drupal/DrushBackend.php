@@ -61,6 +61,11 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   public string $binary;
 
   /**
+   * The major version of the Drush binary, read on first use.
+   */
+  protected ?int $drushMajorVersion = NULL;
+
+  /**
    * Whether the backend has been bootstrapped.
    */
   protected bool $bootstrapped = FALSE;
@@ -617,7 +622,13 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
       throw new \RuntimeException('Cannot resolve a user from the stub: neither the saved entity, a "uid" value nor a "name" value is set.');
     }
 
-    $link = trim($this->drush('user:login', [], $options + ['no-browser' => NULL]));
+    // Drush 13 opens the link in a browser unless told not to, and Drush 14
+    // dropped the option along with the browser launch.
+    if ($this->getDrushMajorVersion() < 14) {
+      $options['no-browser'] = NULL;
+    }
+
+    $link = trim($this->drush('user:login', [], $options));
     $path = parse_url($link, PHP_URL_PATH);
 
     if (!is_string($path) || preg_match('#^(.*/user/reset/[^/]+/[^/]+/[^/]+)(?:/login)?$#', $path, $matches) !== 1) {
@@ -625,6 +636,30 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     }
 
     return $matches[1];
+  }
+
+  /**
+   * Returns the major version of the Drush binary, read once per backend.
+   *
+   * @throws \RuntimeException
+   *   When Drush does not print its version.
+   */
+  protected function getDrushMajorVersion(): int {
+    if ($this->drushMajorVersion !== NULL) {
+      return $this->drushMajorVersion;
+    }
+
+    $output = trim($this->drush('version', [], ['format' => 'json']));
+    $data = json_decode($output, TRUE);
+    $version = is_array($data) ? ($data['drush-version'] ?? NULL) : NULL;
+
+    if (!is_string($version) || preg_match('/^(\d+)\./', $version, $matches) !== 1) {
+      throw new \RuntimeException(sprintf('Drush did not print its version. Output: %s', $output));
+    }
+
+    $this->drushMajorVersion = (int) $matches[1];
+
+    return $this->drushMajorVersion;
   }
 
   /**
