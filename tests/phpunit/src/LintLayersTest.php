@@ -14,8 +14,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('layer_files')]
 #[CoversFunction('layer_file_violations')]
 #[CoversFunction('layer_is_forbidden')]
+#[CoversFunction('layer_has_prefix')]
 #[CoversFunction('layer_imported_symbol')]
 #[CoversFunction('layer_referenced_symbol')]
+#[CoversFunction('layer_file_call_violations')]
+#[CoversFunction('layer_code_tokens')]
+#[CoversFunction('layer_call')]
+#[CoversFunction('layer_is_internal_function')]
 class LintLayersTest extends UnitTestCase {
 
   /**
@@ -33,7 +38,9 @@ class LintLayersTest extends UnitTestCase {
 
     foreach (LAYERS as $layer) {
       foreach (layer_paths_files($layer['paths'], $layer['exclude'], $root) as $file) {
-        $violations = array_merge($violations, layer_file_violations($file, $layer['forbidden']));
+        $references = layer_file_violations($file, $layer['forbidden'], $layer['allowed'] ?? []);
+        $calls = layer_file_call_violations($file, $layer['forbidden_methods'] ?? [], $layer['internal_functions_only'] ?? FALSE);
+        $violations = array_merge($violations, $references, $calls);
       }
     }
 
@@ -183,6 +190,14 @@ class LintLayersTest extends UnitTestCase {
     $this->assertSame($expected, layer_file_violations($file, ['DrevOps\\BehatSteps\\Extension']));
   }
 
+  public function testFileViolationsSkipsAllowedPrefix(): void {
+    $file = $this->writeFixture('Subject.php', "<?php\n\nuse DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\FakeCapabilityInterface;\nuse DrevOps\\BehatSteps\\Backend\\Drupal\\Core\\FakeCore;\n");
+
+    $expected = [['line' => 4, 'symbol' => 'DrevOps\\BehatSteps\\Backend\\Drupal\\Core\\FakeCore']];
+
+    $this->assertSame($expected, layer_file_violations($file, ['DrevOps\\BehatSteps\\Backend\\Drupal'], ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability']));
+  }
+
   /**
    * Assert that a prefix matches whole segments only.
    *
@@ -208,6 +223,78 @@ class LintLayersTest extends UnitTestCase {
       'a symbol under none of the prefixes' => ['Symfony\\Component\\FakeThing', ['Behat', 'DrevOps\\BehatSteps\\Extension'], FALSE],
       'no prefixes' => ['Behat\\Mink\\FakeSession', [], FALSE],
     ];
+  }
+
+  /**
+   * Assert that an allowed prefix reopens a namespace below a forbidden one.
+   *
+   * @param string $symbol
+   *   The qualified symbol to check.
+   * @param bool $expected
+   *   Whether the symbol is forbidden.
+   */
+  #[DataProvider('dataProviderIsForbiddenWithAllowedPrefix')]
+  public function testIsForbiddenWithAllowedPrefix(string $symbol, bool $expected): void {
+    $this->assertSame($expected, layer_is_forbidden($symbol, ['DrevOps\\BehatSteps\\Backend\\Drupal'], ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability']));
+  }
+
+  public static function dataProviderIsForbiddenWithAllowedPrefix(): array {
+    return [
+      'a symbol below the allowed prefix' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\FakeCapabilityInterface', FALSE],
+      'a symbol beside the allowed prefix' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\Core\\FakeCore', TRUE],
+      'a segment the allowed prefix only starts' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\CapabilityLike\\FakeThing', TRUE],
+      'a symbol under neither prefix' => ['DrevOps\\BehatSteps\\Backend\\FakeThing', FALSE],
+    ];
+  }
+
+  /**
+   * Assert that a file is reported for the calls a layer forbids.
+   *
+   * @param string $code
+   *   The file contents to scan.
+   * @param array<int, array{line: int, symbol: string}> $expected
+   *   The expected violations.
+   */
+  #[DataProvider('dataProviderFileCallViolations')]
+  public function testFileCallViolations(string $code, array $expected): void {
+    $file = $this->writeFixture('Subject.php', $code);
+
+    $this->assertSame($expected, layer_file_call_violations($file, ['getCore'], TRUE));
+  }
+
+  /**
+   * Fixture rows for the call scan.
+   *
+   * The functions named here outside PHP's own set do not exist.
+   */
+  public static function dataProviderFileCallViolations(): array {
+    return [
+      'a forbidden method' => ["<?php\n\n\$core = \$backend->getCore();\n", [['line' => 3, 'symbol' => '->getCore()']]],
+      'a forbidden method through the nullsafe operator' => ["<?php\n\n\$core = \$backend?->getCore();\n", [['line' => 3, 'symbol' => '?->getCore()']]],
+      'a forbidden static method' => ["<?php\n\n\$core = Backend::getCore();\n", [['line' => 3, 'symbol' => '::getCore()']]],
+      'a forbidden method in another case' => ["<?php\n\n\$core = \$backend->GETCORE();\n", [['line' => 3, 'symbol' => '->GETCORE()']]],
+      'a forbidden method inside a string' => ["<?php\n\n\$text = \"{\$backend->getCore()}\";\n", [['line' => 3, 'symbol' => '->getCore()']]],
+      'a permitted method' => ["<?php\n\n\$version = \$backend->getDrupalVersion();\n", []],
+      'a function PHP defines' => ["<?php\n\n\$text = sprintf('%s', 'a');\n", []],
+      'a fully qualified function PHP defines' => ["<?php\n\n\$text = \\sprintf('%s', 'a');\n", []],
+      'a function PHP does not define' => ["<?php\n\nfake_drupal_flush_caches();\n", [['line' => 3, 'symbol' => 'fake_drupal_flush_caches()']]],
+      'a fully qualified function PHP does not define' => ["<?php\n\n\\fake_drupal_static_reset();\n", [['line' => 3, 'symbol' => '\\fake_drupal_static_reset()']]],
+      'a namespaced function' => ["<?php\n\nFake\\helper();\n", [['line' => 3, 'symbol' => 'Fake\\helper()']]],
+      'a first-class callable of a function PHP defines' => ["<?php\n\n\$callable = strval(...);\n", []],
+      'a function declaration' => ["<?php\n\nfunction fake_helper(): void {}\n", []],
+      'a function declaration returning by reference' => ["<?php\n\nfunction &fake_helper(): array {}\n", []],
+      'an instantiation' => ["<?php\n\n\$object = new FakeClass();\n", []],
+      'an attribute' => ["<?php\n\n#[FakeAttribute('value', ['key' => 'value'])]\nfunction fake_helper(): void {}\n", []],
+      'a language construct' => ["<?php\n\n\$is_set = isset(\$a) && !empty(\$b);\n", []],
+      'a closure and an arrow function' => ["<?php\n\n\$f = function () {};\n\$g = fn() => 1;\n", []],
+      'a call in a comment' => ["<?php\n\n// fake_drupal_flush_caches();\n", []],
+    ];
+  }
+
+  public function testFileCallViolationsAllowsEveryFunctionWhenTheCheckIsOff(): void {
+    $file = $this->writeFixture('Subject.php', "<?php\n\nfake_drupal_flush_caches();\n");
+
+    $this->assertSame([], layer_file_call_violations($file, [], FALSE));
   }
 
 }

@@ -100,6 +100,7 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   interface CoreCapabilityInterface
   interface DraggableviewsCapabilityInterface
   interface DrushCapabilityInterface
+  interface EntityDefinitionCapabilityInterface
   interface FileCapabilityInterface
   interface LogCapabilityInterface
   interface ModuleCapabilityInterface
@@ -119,6 +120,7 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   CoreCapabilityInterface -[hidden]down- DraggableviewsCapabilityInterface
   DraggableviewsCapabilityInterface -[hidden]down- DrushCapabilityInterface
 
+  EntityDefinitionCapabilityInterface -[hidden]down- FileCapabilityInterface
   FileCapabilityInterface -[hidden]down- LogCapabilityInterface
   LogCapabilityInterface -[hidden]down- ModuleCapabilityInterface
   ModuleCapabilityInterface -[hidden]down- NodeCapabilityInterface
@@ -142,6 +144,7 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Core" #E8F5E9 {
 
   CoreInterface <|.. Core
   Core --> FieldClassifier
+  Core --> EntityFieldParser : parseEntityFields
   FieldClassifier --> FieldHandlerInterface
   EntityFieldParser --> FieldHandlerInterface
 }
@@ -180,7 +183,7 @@ note right of BlackboxBackend
 end note
 
 note bottom of DrupalBackendInterface
-  DrupalBackendInterface extends 26 capability
+  DrupalBackendInterface extends 27 capability
   interfaces and DrushBackendInterface 12, of
   which DrushCapabilityInterface is its own.
   Only a few edges are drawn here. A backend

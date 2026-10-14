@@ -6,12 +6,12 @@
  *
  * Each layer is guaranteed to reference nothing from the namespaces it
  * excludes: the backend runs without Behat loaded, the neutral root of each
- * layer runs without Drupal, the Drupal step traits reach Drupal only through
- * a backend, and no layer reaches the one above it. The guarantee holds only
+ * layer runs without Drupal, the step traits reach Drupal only through a
+ * capability, and no layer reaches the one above it. The guarantee holds only
  * while the layer references nothing it excludes.
  *
  * This script reads every file of each layer and fails on any code reference
- * into those namespaces.
+ * into those namespaces, and on any call the layer forbids.
  *
  * Run with --path=path/to/repo to check a tree other than this repository.
  */
@@ -28,7 +28,10 @@ use DrevOps\BehatSteps\WebRawContext;
  * A path is a directory that is walked or a single file, and an exclusion
  * is a directory or a file under a path that is skipped. A forbidden prefix
  * is a root namespace or a longer namespace prefix: a symbol equal to it or
- * below it is a violation.
+ * below it is a violation, unless an allowed prefix matches it as well.
+ *
+ * A layer may also name methods it must not call, and may hold its function
+ * calls to the functions PHP itself defines.
  */
 const LAYERS = [
   [
@@ -81,14 +84,20 @@ const LAYERS = [
     ],
     'exclude' => [],
     'forbidden' => ['Drupal'],
+    'internal_functions_only' => TRUE,
   ],
   [
     'name' => 'the Drupal step traits',
     'paths' => ['src/Steps/Drupal', 'src/Steps/Helper/Drupal'],
-    // The trait reads entity type and field definitions through Drupal's own
-    // API, which no capability serves.
-    'exclude' => ['src/Steps/Drupal/ParagraphsTrait.php'],
-    'forbidden' => ['Drupal'],
+    'exclude' => [],
+    // A trait reaches Drupal through capabilities only, so the backend's own
+    // classes and the core that 'getCore()' returns are forbidden too.
+    'forbidden' => ['Drupal', 'DrevOps\\BehatSteps\\Backend\\Drupal'],
+    'allowed' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability'],
+    'forbidden_methods' => ['getCore'],
+    // Drupal's procedural API sits in the global namespace, so only the
+    // functions PHP defines may be called.
+    'internal_functions_only' => TRUE,
   ],
 ];
 
@@ -126,7 +135,10 @@ function lint_layers(array $options = []): void {
     foreach (layer_paths_files($layer['paths'], $layer['exclude'], $base_path) as $file) {
       $checked++;
 
-      foreach (layer_file_violations($file, $layer['forbidden']) as $violation) {
+      $references = layer_file_violations($file, $layer['forbidden'], $layer['allowed'] ?? []);
+      $calls = layer_file_call_violations($file, $layer['forbidden_methods'] ?? [], $layer['internal_functions_only'] ?? FALSE);
+
+      foreach (array_merge($references, $calls) as $violation) {
         $relative = substr($file, strlen($base_path) + 1);
         $violations[] = sprintf('%s: %s:%d references %s', $layer['name'], $relative, $violation['line'], $violation['symbol']);
       }
@@ -217,11 +229,13 @@ function layer_files(string $path): array {
  *   Absolute path to the file to read.
  * @param array<int, string> $forbidden
  *   Namespace prefixes that must not be referenced.
+ * @param array<int, string> $allowed
+ *   Namespace prefixes that may be referenced under a forbidden one.
  *
  * @return array<int, array{line: int, symbol: string}>
  *   1 row per reference, in source order.
  */
-function layer_file_violations(string $file, array $forbidden): array {
+function layer_file_violations(string $file, array $forbidden, array $allowed = []): array {
   $violations = [];
   $tokens = token_get_all((string) file_get_contents($file));
   $depth = 0;
@@ -246,7 +260,7 @@ function layer_file_violations(string $file, array $forbidden): array {
       continue;
     }
 
-    if (!layer_is_forbidden(ltrim($symbol, '\\'), $forbidden)) {
+    if (!layer_is_forbidden(ltrim($symbol, '\\'), $forbidden, $allowed)) {
       continue;
     }
 
@@ -286,25 +300,162 @@ function layer_imported_symbol(array $tokens, int $index): ?string {
 }
 
 /**
- * Checks whether a symbol sits under one of the forbidden prefixes.
+ * Checks whether a symbol sits under a forbidden prefix and no allowed one.
  *
  * A prefix matches the symbol equal to it and every symbol below it, so a
  * root namespace forbids a whole vendor and a longer prefix forbids 1
- * namespace or 1 class.
+ * namespace or 1 class. An allowed prefix reopens a namespace below a
+ * forbidden one.
  *
  * @param string $symbol
  *   The qualified symbol, without a leading separator.
  * @param array<int, string> $forbidden
  *   The forbidden prefixes.
+ * @param array<int, string> $allowed
+ *   The allowed prefixes.
  */
-function layer_is_forbidden(string $symbol, array $forbidden): bool {
-  foreach ($forbidden as $prefix) {
+function layer_is_forbidden(string $symbol, array $forbidden, array $allowed = []): bool {
+  return layer_has_prefix($symbol, $forbidden) && !layer_has_prefix($symbol, $allowed);
+}
+
+/**
+ * Checks whether a symbol is equal to or below one of the prefixes.
+ *
+ * @param string $symbol
+ *   The qualified symbol, without a leading separator.
+ * @param array<int, string> $prefixes
+ *   The namespace prefixes.
+ */
+function layer_has_prefix(string $symbol, array $prefixes): bool {
+  foreach ($prefixes as $prefix) {
     if ($symbol === $prefix || str_starts_with($symbol, $prefix . '\\')) {
       return TRUE;
     }
   }
 
   return FALSE;
+}
+
+/**
+ * Finds the calls a layer forbids in one file.
+ *
+ * @param string $file
+ *   Absolute path to the file to read.
+ * @param array<int, string> $forbidden_methods
+ *   Names of the methods that must not be called, in any case.
+ * @param bool $internal_functions_only
+ *   Whether every function called must be one PHP defines.
+ *
+ * @return array<int, array{line: int, symbol: string}>
+ *   1 row per forbidden call, in source order.
+ */
+function layer_file_call_violations(string $file, array $forbidden_methods, bool $internal_functions_only): array {
+  $tokens = layer_code_tokens((string) file_get_contents($file));
+  $methods = array_map(strtolower(...), $forbidden_methods);
+  $violations = [];
+
+  foreach (array_keys($tokens) as $index) {
+    $call = layer_call($tokens, $index);
+
+    if ($call === NULL) {
+      continue;
+    }
+
+    $is_forbidden = $call['operator'] === NULL ? $internal_functions_only && !layer_is_internal_function($call['name']) : in_array(strtolower($call['name']), $methods, TRUE);
+
+    if ($is_forbidden) {
+      $violations[] = ['line' => $call['line'], 'symbol' => $call['operator'] . $call['name'] . '()'];
+    }
+  }
+
+  return $violations;
+}
+
+/**
+ * Reads the tokens of PHP code that can make a call.
+ *
+ * Whitespace and comments are dropped, and so is every attribute, because
+ * an attribute's name is followed by its arguments as a function's name is.
+ *
+ * @param string $code
+ *   The PHP code.
+ *
+ * @return list<array{int, string, int}|string>
+ *   The tokens, in source order.
+ */
+function layer_code_tokens(string $code): array {
+  $tokens = [];
+  $attribute_depth = 0;
+
+  foreach (token_get_all($code) as $token) {
+    $type = is_array($token) ? $token[0] : $token;
+
+    if (in_array($type, [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], TRUE)) {
+      continue;
+    }
+
+    if ($attribute_depth > 0 || $type === T_ATTRIBUTE) {
+      $attribute_depth += match ($type) {
+        T_ATTRIBUTE, '[' => 1,
+        ']' => -1,
+        default => 0,
+      };
+
+      continue;
+    }
+
+    $tokens[] = $token;
+  }
+
+  return $tokens;
+}
+
+/**
+ * Reads the call a token makes, if it makes one.
+ *
+ * @param list<array{int, string, int}|string> $tokens
+ *   The code tokens, as 'layer_code_tokens()' returns them.
+ * @param int $index
+ *   The index of the token.
+ *
+ * @return array{name: string, operator: string|null, line: int}|null
+ *   The called name, the operator before it for a method and the line, or
+ *   NULL when the token calls nothing.
+ */
+function layer_call(array $tokens, int $index): ?array {
+  $token = $tokens[$index];
+
+  if (!is_array($token) || !in_array($token[0], [T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED], TRUE) || ($tokens[$index + 1] ?? NULL) !== '(') {
+    return NULL;
+  }
+
+  $previous = $tokens[$index - 1] ?? NULL;
+  $previous_type = is_array($previous) ? $previous[0] : $previous;
+  $before_previous = $tokens[$index - 2] ?? NULL;
+  $is_by_reference = $previous_type === T_AMPERSAND_NOT_FOLLOWED_BY_VAR_OR_VARARG && is_array($before_previous) && $before_previous[0] === T_FUNCTION;
+
+  // A name after 'new' is a class, and a name after 'function' is declared
+  // rather than called.
+  if ($previous_type === T_NEW || $previous_type === T_FUNCTION || $is_by_reference) {
+    return NULL;
+  }
+
+  $is_method = in_array($previous_type, [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR, T_DOUBLE_COLON], TRUE);
+  $operator = $is_method && is_array($previous) ? $previous[1] : NULL;
+
+  return ['name' => $token[1], 'operator' => $operator, 'line' => $token[2]];
+}
+
+/**
+ * Checks whether a function name names a function PHP itself defines.
+ *
+ * @param string $name
+ *   The function name as called, in any case.
+ */
+function layer_is_internal_function(string $name): bool {
+  $name = ltrim($name, '\\');
+
+  return function_exists($name) && (new \ReflectionFunction($name))->isInternal();
 }
 
 /**
