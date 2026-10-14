@@ -36,6 +36,11 @@ class CoreCacheMethodsKernelTest extends KernelTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
+    // 'behat_steps.test', the record the config factory test writes, has no
+    // schema. Drupal 11 and 12 type the flag differently, so an override of
+    // the property loads on only 1 of them.
+    $this->strictConfigSchema = FALSE;
+
     parent::setUp();
 
     $this->installConfig(['system']);
