@@ -155,13 +155,16 @@ trait WebformTrait {
    *   The matching webforms keyed by ID, or an empty array when none match.
    */
   public function webformLoadMultiple(string $title): array {
-    $this->backendFor(CoreCapabilityInterface::class);
+    $backend = $this->backendFor(CoreCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
     // A webform changed through the admin UI in another process stays as this
-    // process loaded it until its caches are reset.
-    $this->backendFor(CacheCapabilityInterface::class)->cacheClearStatic();
+    // process loaded it until this process resets its caches, so the reset
+    // goes to the backend that loads the webforms.
+    if ($backend instanceof CacheCapabilityInterface) {
+      $backend->cacheClearStatic();
+    }
 
     $ids = $this->queryEntityIds('webform', ['title' => ['CONTAINS', $title]]);
 
