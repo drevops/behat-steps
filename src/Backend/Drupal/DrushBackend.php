@@ -677,13 +677,18 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    *
    * 'user:password' takes only a name, so a stub without a 'name' value is
-   * looked up by its id first.
+   * looked up by its id first, and an account without a name, such as the
+   * anonymous one, is rejected.
    */
   public function setUserPassword(EntityStubInterface $stub, string $password): void {
     $name = $stub->getValue('name');
 
     if (!is_string($name) || $name === '') {
       $name = (string) ($this->readUserInformation($stub)['name'] ?? '');
+    }
+
+    if ($name === '') {
+      throw new \RuntimeException(sprintf('Cannot set the password of the user "%s": Drush printed no name for the account.', $this->resolveUserIdentifier($stub)[1]));
     }
 
     $this->drush('user:password', [$name, $password]);

@@ -71,7 +71,8 @@ interface UserCapabilityInterface {
    *   The password, as the user types it.
    *
    * @throws \RuntimeException
-   *   When the stub carries no id, or no user has the id.
+   *   When the stub carries no id, no user has the id, or the backend can
+   *   name no account to set the password on.
    */
   public function setUserPassword(EntityStubInterface $stub, string $password): void;
 

@@ -1021,6 +1021,21 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->assertSame(['alice', 'correct horse'], $backend->invocations[1]['arguments']);
   }
 
+  public function testSetUserPasswordRejectsAccountWithoutName(): void {
+    $backend = $this->createBackend();
+    $backend->drushResponses = ['user:information' => '{"0":{"uid":"0","name":"","roles":["anonymous"]}}'];
+
+    try {
+      $backend->setUserPassword(new EntityStub('user', NULL, ['uid' => 0]), 'correct horse');
+      $this->fail('An account without a name was accepted.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame('Cannot set the password of the user "0": Drush printed no name for the account.', $exception->getMessage());
+    }
+
+    $this->assertSame(['user:information'], array_column($backend->invocations, 'command'));
+  }
+
   public function testCacheInvalidateTagsJoinsTheTags(): void {
     $backend = $this->createBackend();
 

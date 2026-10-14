@@ -126,7 +126,7 @@ interface BlockCapabilityInterface {
    * Finds the ids of the blocks in the default theme that carry a label.
    *
    * @param string $label
-   *   The label of the blocks.
+   *   The visible label of the blocks, with configuration overrides applied.
    *
    * @return array<int, string>
    *   The ids of the blocks in natural order, so a machine name with a higher
