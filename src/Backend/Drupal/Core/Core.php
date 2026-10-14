@@ -1488,6 +1488,33 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function setEntityPathAlias(EntityStubInterface $stub, string $alias): void {
+    $path = ltrim(trim($alias), '/');
+
+    if ($path === '') {
+      throw new \RuntimeException(sprintf('Cannot set the path alias "%s" because it names no path.', $alias));
+    }
+
+    $entity_type = $stub->getEntityType();
+    $id = $this->resolveStubId($stub);
+
+    // The current value carries the 'pid' of the existing alias, so the save
+    // changes that alias rather than adding a second one.
+    $value = (array) ($this->getEntityValues($entity_type, $id, ['path'])['path'][0] ?? []);
+    $value['alias'] = '/' . $path;
+
+    // 0 is 'PathautoState::SKIP', so pathauto does not regenerate the alias
+    // on save.
+    if (\Drupal::moduleHandler()->moduleExists('pathauto')) {
+      $value['pathauto'] = 0;
+    }
+
+    $this->updateEntity(new EntityStub($entity_type, NULL, [$this->getEntityIdKey($entity_type) => $id, 'path' => $value]));
+  }
+
+  /**
    * Finds the entity a stub stands for.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub

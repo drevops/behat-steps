@@ -22,6 +22,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\FileCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\LogCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
@@ -62,6 +63,7 @@ interface CoreInterface extends
   MailCapabilityInterface,
   ModuleCapabilityInterface,
   NodeCapabilityInterface,
+  PathAliasCapabilityInterface,
   QueueCapabilityInterface,
   QueueItemCapabilityInterface,
   RoleCapabilityInterface,

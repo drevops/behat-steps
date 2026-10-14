@@ -194,6 +194,7 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'cacheInvalidateTags' => ['cacheInvalidateTags', [['node_list']], 'cacheInvalidateTags'];
     yield 'cacheDeletePagePath' => ['cacheDeletePagePath', ['page', '/about', TRUE], 'cacheDeletePagePath'];
     yield 'getEntityUrl' => ['getEntityUrl', [$entity, 'edit-form'], 'getEntityUrl'];
+    yield 'setEntityPathAlias' => ['setEntityPathAlias', [$node, '/about'], 'setEntityPathAlias'];
     yield 'rebuildNodeAccess' => ['rebuildNodeAccess', [7], 'rebuildNodeAccess'];
     yield 'rebuildNodeAccess for every node' => ['rebuildNodeAccess', [NULL], 'rebuildNodeAccess'];
     yield 'findBlockPluginId' => ['findBlockPluginId', ['Powered by Drupal'], 'findBlockPluginId'];

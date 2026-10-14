@@ -15,6 +15,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
@@ -62,6 +63,7 @@ class DrushBackendTest extends UnitTestCase {
     yield 'language' => [LanguageCapabilityInterface::class];
     yield 'mail' => [MailCapabilityInterface::class];
     yield 'node' => [NodeCapabilityInterface::class];
+    yield 'path alias' => [PathAliasCapabilityInterface::class];
     yield 'term' => [TermCapabilityInterface::class];
   }
 

@@ -25,6 +25,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\DrushCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
@@ -101,6 +102,7 @@ class BlackboxBackendTest extends UnitTestCase {
     yield 'mail' => [MailCapabilityInterface::class];
     yield 'module' => [ModuleCapabilityInterface::class];
     yield 'node' => [NodeCapabilityInterface::class];
+    yield 'path alias' => [PathAliasCapabilityInterface::class];
     yield 'role' => [RoleCapabilityInterface::class];
     yield 'state' => [StateCapabilityInterface::class];
     yield 'term' => [TermCapabilityInterface::class];

@@ -568,6 +568,13 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function setEntityPathAlias(EntityStubInterface $stub, string $alias): void {
+    $this->getCore()->setEntityPathAlias($stub, $alias);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function rebuildNodeAccess(?int $nid = NULL): void {
     $this->getCore()->rebuildNodeAccess($nid);
   }
