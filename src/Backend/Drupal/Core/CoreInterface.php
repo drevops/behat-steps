@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\DraggableviewsCapabilityInterfa
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\FileCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\LogCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\MenuLinkCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
@@ -62,6 +63,7 @@ interface CoreInterface extends
   LanguageCapabilityInterface,
   LogCapabilityInterface,
   MailCapabilityInterface,
+  MenuLinkCapabilityInterface,
   ModuleCapabilityInterface,
   NodeCapabilityInterface,
   PathAliasCapabilityInterface,

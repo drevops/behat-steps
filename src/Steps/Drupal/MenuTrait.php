@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\MenuLinkCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -176,10 +177,10 @@ trait MenuTrait {
     $parent = $values['parent'] ?? NULL;
     unset($values['parent']);
 
-    $parent_uuid = !empty($parent) && is_string($parent) ? $this->menuFindLinkUuid($parent, $menu_id) : NULL;
+    $parent_link = !empty($parent) && is_string($parent) ? $this->menuFindLinkInMenu($parent, $menu_id) : NULL;
 
-    if ($parent_uuid !== NULL) {
-      $values['parent'] = 'menu_link_content:' . $parent_uuid;
+    if ($parent_link instanceof EntityStubInterface) {
+      $values['parent'] = $this->backendFor(MenuLinkCapabilityInterface::class)->getMenuLinkPluginId($parent_link);
     }
 
     $created = $this->backendFor(ContentCapabilityInterface::class)->createEntity(new EntityStub('menu_link_content', NULL, $values));
@@ -276,29 +277,6 @@ trait MenuTrait {
     $id = $this->queryFindNewestEntityId('menu_link_content', ['menu_name' => $menu_id, 'title' => $title]);
 
     return $id === NULL ? NULL : new EntityStub('menu_link_content', NULL, ['id' => $id]);
-  }
-
-  /**
-   * Find the UUID of the newest link with a title in a menu.
-   *
-   * @param string $title
-   *   The title of the menu link.
-   * @param string $menu_id
-   *   The machine name of the menu.
-   *
-   * @return string|null
-   *   The UUID, or NULL when no link in the menu carries the title.
-   */
-  protected function menuFindLinkUuid(string $title, string $menu_id): ?string {
-    $link = $this->menuFindLinkInMenu($title, $menu_id);
-
-    if (!$link instanceof EntityStubInterface) {
-      return NULL;
-    }
-
-    $uuid = $this->backendFor(ContentCapabilityInterface::class)->getEntityValues('menu_link_content', $this->queryGetEntityId($link, 'id'), ['uuid'])['uuid'][0]['value'] ?? NULL;
-
-    return is_string($uuid) ? $uuid : NULL;
   }
 
   /**

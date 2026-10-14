@@ -199,6 +199,7 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'cacheDeletePagePath' => ['cacheDeletePagePath', ['page', '/about', TRUE], 'cacheDeletePagePath'];
     yield 'getEntityUrl' => ['getEntityUrl', [$entity, 'edit-form'], 'getEntityUrl'];
     yield 'setEntityPathAlias' => ['setEntityPathAlias', [$node, '/about'], 'setEntityPathAlias'];
+    yield 'getMenuLinkPluginId' => ['getMenuLinkPluginId', [new EntityStub('menu_link_content', NULL, ['id' => 3])], 'getMenuLinkPluginId'];
     yield 'rebuildNodeAccess' => ['rebuildNodeAccess', [7], 'rebuildNodeAccess'];
     yield 'rebuildNodeAccess for every node' => ['rebuildNodeAccess', [NULL], 'rebuildNodeAccess'];
     yield 'findBlockPluginId' => ['findBlockPluginId', ['Powered by Drupal'], 'findBlockPluginId'];

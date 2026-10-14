@@ -43,6 +43,7 @@ use Drupal\Core\Routing\RouteObjectInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Url;
 use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeAccessControlHandlerInterface;
 use Drupal\node\NodeAccessRebuild;
@@ -1540,6 +1541,19 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     $this->updateEntity(new EntityStub($entity_type, NULL, [$this->getEntityIdKey($entity_type) => $id, 'path' => $value]));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMenuLinkPluginId(EntityStubInterface $stub): string {
+    $link = $this->findStubEntity($stub);
+
+    if (!$link instanceof MenuLinkContentInterface) {
+      throw new \RuntimeException(sprintf('No menu link with the id "%s" exists.', $this->resolveStubId($stub)));
+    }
+
+    return $link->getPluginId();
   }
 
   /**

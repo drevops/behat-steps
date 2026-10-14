@@ -20,6 +20,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\MenuLinkCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
@@ -87,6 +88,7 @@ class DrupalBackendTest extends UnitTestCase {
     yield 'language' => [LanguageCapabilityInterface::class];
     yield 'mail' => [MailCapabilityInterface::class];
     yield 'module' => [ModuleCapabilityInterface::class];
+    yield 'menu link' => [MenuLinkCapabilityInterface::class];
     yield 'node' => [NodeCapabilityInterface::class];
     yield 'path alias' => [PathAliasCapabilityInterface::class];
     yield 'role' => [RoleCapabilityInterface::class];

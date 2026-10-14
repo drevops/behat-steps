@@ -603,6 +603,13 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function getMenuLinkPluginId(EntityStubInterface $stub): string {
+    return $this->getCore()->getMenuLinkPluginId($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function rebuildNodeAccess(?int $nid = NULL): void {
     $this->getCore()->rebuildNodeAccess($nid);
   }
