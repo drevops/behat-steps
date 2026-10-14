@@ -12,6 +12,8 @@ use Behat\Testwork\Hook\HookDispatcher;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
@@ -388,40 +390,57 @@ trait EntityLifecycleTrait {
   /**
    * Routes a stub to the capability that deletes its entity type.
    *
-   * A stub whose capability no backend in the scenario's order provides is
-   * left behind, so a teardown never fails on it.
+   * An entity type a capability deletes on its own goes to that capability,
+   * and any other to 'deleteEntity()'. A stub whose capability no backend in
+   * the scenario's order provides is left behind, so a teardown never fails
+   * on it.
    */
   protected function entityLifecycleDeleteStub(EntityStubInterface $stub): void {
-    $type = $stub->getEntityType();
-    $registry = $this->getBackendRegistry();
+    switch ($stub->getEntityType()) {
+      case 'language':
+      case 'configurable_language':
+        $this->entityLifecycleFindBackend(LanguageCapabilityInterface::class)?->deleteLanguage($stub);
+        break;
 
-    if (in_array($type, ['language', 'configurable_language'], TRUE)) {
-      if ($registry->hasCapability(LanguageCapabilityInterface::class)) {
-        $this->backendFor(LanguageCapabilityInterface::class)->deleteLanguage($stub);
-      }
+      case 'node':
+        $this->entityLifecycleFindBackend(NodeCapabilityInterface::class)?->deleteNode($stub);
+        break;
 
-      return;
+      case 'taxonomy_term':
+        $this->entityLifecycleFindBackend(TermCapabilityInterface::class)?->deleteTerm($stub);
+        break;
+
+      case 'block':
+        $this->entityLifecycleFindBackend(BlockCapabilityInterface::class)?->deleteBlock($stub);
+        break;
+
+      case 'block_content':
+        $this->entityLifecycleFindBackend(BlockCapabilityInterface::class)?->deleteBlockContent($stub);
+        break;
+
+      case 'user':
+        $this->entityLifecycleFindBackend(UserCapabilityInterface::class)?->deleteUser($stub);
+        break;
+
+      default:
+        $this->entityLifecycleFindBackend(ContentCapabilityInterface::class)?->deleteEntity($stub);
     }
+  }
 
-    if ($type === 'node') {
-      if ($registry->hasCapability(NodeCapabilityInterface::class)) {
-        $this->backendFor(NodeCapabilityInterface::class)->deleteNode($stub);
-      }
-
-      return;
-    }
-
-    if ($type === 'taxonomy_term') {
-      if ($registry->hasCapability(TermCapabilityInterface::class)) {
-        $this->backendFor(TermCapabilityInterface::class)->deleteTerm($stub);
-      }
-
-      return;
-    }
-
-    if ($registry->hasCapability(ContentCapabilityInterface::class)) {
-      $this->backendFor(ContentCapabilityInterface::class)->deleteEntity($stub);
-    }
+  /**
+   * Finds the backend providing a capability, when the scenario has one.
+   *
+   * @param class-string<T> $capability
+   *   The capability interface.
+   *
+   * @return T|null
+   *   The backend, bootstrapped, or NULL when no backend in the scenario's
+   *   order provides the capability.
+   *
+   * @template T of object
+   */
+  protected function entityLifecycleFindBackend(string $capability): ?object {
+    return $this->getBackendRegistry()->hasCapability($capability) ? $this->backendFor($capability) : NULL;
   }
 
   /**
