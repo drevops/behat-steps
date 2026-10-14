@@ -74,7 +74,7 @@ services:
       - "3306"
 
   chrome:
-    image: selenium/standalone-chromium:152.0@sha256:08fd293648e126275782c616a61f4ee1d90cf413b1972ebc35dbd054d6789f55
+    image: selenium/standalone-chromium:155.0@sha256:43621f211af45521d542e7685a54b7eb364f3227820018b6ab44b1fd667fe2ad
     ports:
       - "7900" # Find the noVNC URL on host with 'ahoy info'.
     expose:
