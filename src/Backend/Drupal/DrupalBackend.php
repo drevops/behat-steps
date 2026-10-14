@@ -540,6 +540,34 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function getUserRoles(EntityStubInterface $stub): array {
+    return $this->getCore()->getUserRoles($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserPassword(EntityStubInterface $stub, string $password): void {
+    $this->getCore()->setUserPassword($stub, $password);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserLastAccessTime(EntityStubInterface $stub, int $timestamp): void {
+    $this->getCore()->setUserLastAccessTime($stub, $timestamp);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserLastLoginTime(EntityStubInterface $stub, int $timestamp): void {
+    $this->getCore()->setUserLastLoginTime($stub, $timestamp);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function cacheClearBin(string $bin): void {
     $this->getCore()->cacheClearBin($bin);
   }

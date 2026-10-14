@@ -25,6 +25,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
@@ -91,6 +92,7 @@ class DrupalBackendTest extends UnitTestCase {
     yield 'role' => [RoleCapabilityInterface::class];
     yield 'state' => [StateCapabilityInterface::class];
     yield 'term' => [TermCapabilityInterface::class];
+    yield 'user activity' => [UserActivityCapabilityInterface::class];
     yield 'user' => [UserCapabilityInterface::class];
   }
 

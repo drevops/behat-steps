@@ -17,6 +17,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInter
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
@@ -65,6 +66,7 @@ class DrushBackendTest extends UnitTestCase {
     yield 'node' => [NodeCapabilityInterface::class];
     yield 'path alias' => [PathAliasCapabilityInterface::class];
     yield 'term' => [TermCapabilityInterface::class];
+    yield 'user activity' => [UserActivityCapabilityInterface::class];
   }
 
   public function testWithAlias(): void {

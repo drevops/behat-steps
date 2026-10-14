@@ -190,6 +190,10 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'moduleIsPresent' => ['moduleIsPresent', ['node'], 'moduleIsPresent'];
     yield 'moduleUninstall' => ['moduleUninstall', ['node'], 'moduleUninstall'];
     yield 'getOneTimeLoginUrl' => ['getOneTimeLoginUrl', [$user], 'getOneTimeLoginUrl'];
+    yield 'getUserRoles' => ['getUserRoles', [$user], 'getUserRoles'];
+    yield 'setUserPassword' => ['setUserPassword', [$user, 'new-password'], 'setUserPassword'];
+    yield 'setUserLastAccessTime' => ['setUserLastAccessTime', [$user, 1732319174], 'setUserLastAccessTime'];
+    yield 'setUserLastLoginTime' => ['setUserLastLoginTime', [$user, 1732319174], 'setUserLastLoginTime'];
     yield 'cacheClearBin' => ['cacheClearBin', ['render'], 'cacheClearBin'];
     yield 'cacheInvalidateTags' => ['cacheInvalidateTags', [['node_list']], 'cacheInvalidateTags'];
     yield 'cacheDeletePagePath' => ['cacheDeletePagePath', ['page', '/about', TRUE], 'cacheDeletePagePath'];

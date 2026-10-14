@@ -32,6 +32,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchIndexCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\WorkflowCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 
@@ -69,6 +70,7 @@ interface DrupalBackendInterface extends
   SearchIndexCapabilityInterface,
   StateCapabilityInterface,
   TermCapabilityInterface,
+  UserActivityCapabilityInterface,
   UserCapabilityInterface,
   WorkflowCapabilityInterface {
 

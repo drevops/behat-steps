@@ -28,6 +28,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\PathAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -106,6 +107,7 @@ class BlackboxBackendTest extends UnitTestCase {
     yield 'role' => [RoleCapabilityInterface::class];
     yield 'state' => [StateCapabilityInterface::class];
     yield 'term' => [TermCapabilityInterface::class];
+    yield 'user activity' => [UserActivityCapabilityInterface::class];
     yield 'user' => [UserCapabilityInterface::class];
   }
 

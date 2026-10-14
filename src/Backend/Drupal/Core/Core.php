@@ -756,6 +756,34 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getUserRoles(EntityStubInterface $stub): array {
+    return array_values($this->loadUser($stub)->getRoles());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserPassword(EntityStubInterface $stub, string $password): void {
+    $this->loadUser($stub)->setPassword($password)->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserLastAccessTime(EntityStubInterface $stub, int $timestamp): void {
+    $this->loadUser($stub)->setLastAccessTime($timestamp)->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUserLastLoginTime(EntityStubInterface $stub, int $timestamp): void {
+    $this->loadUser($stub)->setLastLoginTime($timestamp)->save();
+  }
+
+  /**
    * Resolves the user id from a stub.
    *
    * The saved-entity slot is the only authoritative source after

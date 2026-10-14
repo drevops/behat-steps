@@ -29,6 +29,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchIndexCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\UserActivityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\WorkflowCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldClassifierInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
@@ -71,6 +72,7 @@ interface CoreInterface extends
   SearchIndexCapabilityInterface,
   StateCapabilityInterface,
   TermCapabilityInterface,
+  UserActivityCapabilityInterface,
   UserCapabilityInterface,
   WorkflowCapabilityInterface {
 
