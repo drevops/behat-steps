@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('layer_files')]
 #[CoversFunction('layer_file_violations')]
 #[CoversFunction('layer_is_forbidden')]
-#[CoversFunction('layer_has_prefix')]
+#[CoversFunction('layer_matching_prefix_length')]
 #[CoversFunction('layer_imported_symbol')]
 #[CoversFunction('layer_referenced_symbol')]
 #[CoversFunction('layer_file_call_violations')]
@@ -51,6 +51,69 @@ class LintLayersTest extends UnitTestCase {
     }
 
     $this->assertSame([], $violations);
+  }
+
+  public function testShippedLayersCoverEverySourceFile(): void {
+    $root = dirname(__DIR__, 3);
+    $covered = [];
+
+    foreach (LAYERS as $layer) {
+      $covered = array_merge($covered, layer_paths_files($layer['paths'], $layer['exclude'], $root));
+    }
+
+    $uncovered = array_diff(layer_files($root . '/src'), $covered);
+
+    $this->assertSame([], array_values($uncovered), 'Every file under src/ belongs to a layer, so the check reads it.');
+  }
+
+  /**
+   * Assert that a shipped layer holds a file to its rules.
+   *
+   * @param string $file
+   *   The file, relative to the repository root.
+   * @param string $name
+   *   The name of the layer expected to hold it.
+   */
+  #[DataProvider('dataProviderShippedLayerHoldsFile')]
+  public function testShippedLayerHoldsFile(string $file, string $name): void {
+    $root = dirname(__DIR__, 3);
+    $layer = static::getLayer($name);
+
+    $this->assertContains($root . '/' . $file, layer_paths_files($layer['paths'], $layer['exclude'], $root));
+  }
+
+  public static function dataProviderShippedLayerHoldsFile(): \Iterator {
+    yield 'the root context' => ['src/WebRawContext.php', 'the web half'];
+    yield 'the web context' => ['src/WebContext.php', 'the web half'];
+    yield 'the assertion exception' => ['src/Steps/Exception/AssertionException.php', 'the web half'];
+    yield 'the Drupal context' => ['src/DrupalContext.php', 'the Drupal half'];
+  }
+
+  /**
+   * Assert that the Drupal half rejects the capability that hands out a core.
+   *
+   * @param string $code
+   *   The file contents to scan.
+   * @param array<int, array{line: int, symbol: string}> $expected
+   *   The expected violations.
+   */
+  #[DataProvider('dataProviderDrupalHalfForbidsTheCoreCapability')]
+  public function testDrupalHalfForbidsTheCoreCapability(string $code, array $expected): void {
+    $layer = static::getLayer('the Drupal half');
+    $file = $this->writeFixture('Subject.php', $code);
+
+    $this->assertSame($expected, layer_file_violations($file, $layer['forbidden'], $layer['allowed'] ?? []));
+  }
+
+  public static function dataProviderDrupalHalfForbidsTheCoreCapability(): \Iterator {
+    yield 'the core capability' => [
+      "<?php\n\nuse DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\CoreCapabilityInterface;\n",
+      [['line' => 3, 'symbol' => 'DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\CoreCapabilityInterface']],
+    ];
+    yield 'another capability' => [
+      "<?php\n\nuse DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\BlockCapabilityInterface;\n",
+      [],
+    ];
   }
 
   public function testPathsFilesMergesPathsAndSorts(): void {
@@ -232,7 +295,10 @@ class LintLayersTest extends UnitTestCase {
   }
 
   /**
-   * Assert that an allowed prefix reopens a namespace below a forbidden one.
+   * Assert that the longest prefix a symbol matches decides.
+   *
+   * An allowed prefix reopens a namespace below a forbidden one, and a longer
+   * forbidden prefix closes 1 class of it again.
    *
    * @param string $symbol
    *   The qualified symbol to check.
@@ -241,7 +307,9 @@ class LintLayersTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderIsForbiddenWithAllowedPrefix')]
   public function testIsForbiddenWithAllowedPrefix(string $symbol, bool $expected): void {
-    $this->assertSame($expected, layer_is_forbidden($symbol, ['DrevOps\\BehatSteps\\Backend\\Drupal'], ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability']));
+    $forbidden = ['DrevOps\\BehatSteps\\Backend\\Drupal', 'DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\FakeCoreCapabilityInterface'];
+
+    $this->assertSame($expected, layer_is_forbidden($symbol, $forbidden, ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability']));
   }
 
   public static function dataProviderIsForbiddenWithAllowedPrefix(): array {
@@ -250,7 +318,13 @@ class LintLayersTest extends UnitTestCase {
       'a symbol beside the allowed prefix' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\Core\\FakeCore', TRUE],
       'a segment the allowed prefix only starts' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\CapabilityLike\\FakeThing', TRUE],
       'a symbol under neither prefix' => ['DrevOps\\BehatSteps\\Backend\\FakeThing', FALSE],
+      'a class a longer forbidden prefix closes' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\FakeCoreCapabilityInterface', TRUE],
+      'a segment the longer forbidden prefix only starts' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability\\FakeCoreCapabilityInterfaceLike', FALSE],
     ];
+  }
+
+  public function testIsForbiddenLetsAnAllowedPrefixOfTheSameLengthWin(): void {
+    $this->assertFalse(layer_is_forbidden('Fake\\Shared\\Thing', ['Fake\\Shared'], ['Fake\\Shared']));
   }
 
   /**
@@ -329,6 +403,25 @@ class LintLayersTest extends UnitTestCase {
       'a dynamic method' => ["<?php\n\n\$backend->\$method();\n"],
       'a callable dispatcher' => ["<?php\n\ncall_user_func('fake_drupal_flush_caches');\n"],
     ];
+  }
+
+  /**
+   * Get a shipped layer by its name.
+   *
+   * @param string $name
+   *   The name of the layer.
+   *
+   * @return array{name: string, paths: array<int, string>, exclude: array<int, string>, forbidden: array<int, string>, allowed?: array<int, string>, forbidden_methods?: array<int, string>, internal_functions_only?: bool}
+   *   The layer.
+   */
+  protected static function getLayer(string $name): array {
+    foreach (LAYERS as $layer) {
+      if ($layer['name'] === $name) {
+        return $layer;
+      }
+    }
+
+    self::fail(sprintf('No layer is named "%s".', $name));
   }
 
 }
