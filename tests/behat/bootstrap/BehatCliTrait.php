@@ -301,7 +301,8 @@ EOL;
 
     $build = static::behatCliGetRootPath() . '/build';
 
-    return sprintf("\n    'drush' => ['root' => %s, 'binary' => %s],", var_export($build . '/web', TRUE), var_export($build . '/vendor/bin/drush', TRUE));
+    // Drush does not bootstrap without a request URI, as in behat.php.
+    return sprintf("\n    'drush' => ['root' => %s, 'binary' => %s, 'global_options' => '--uri=http://nginx:8080'],", var_export($build . '/web', TRUE), var_export($build . '/vendor/bin/drush', TRUE));
   }
 
   /**
