@@ -386,8 +386,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
-  public function placeBlock(EntityStubInterface $stub): EntityStubInterface {
-    return $this->getCore()->placeBlock($stub);
+  public function placeBlock(string $plugin_id, string $label): EntityStubInterface {
+    return $this->getCore()->placeBlock($plugin_id, $label);
   }
 
   /**
@@ -395,6 +395,41 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    */
   public function deleteBlock(EntityStubInterface $stub): void {
     $this->getCore()->deleteBlock($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function configureBlock(EntityStubInterface $stub, array $configuration): void {
+    $this->getCore()->configureBlock($stub, $configuration);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlockVisibility(EntityStubInterface $stub, string $condition, array $configuration): void {
+    $this->getCore()->setBlockVisibility($stub, $condition, $configuration);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function unsetBlockVisibility(EntityStubInterface $stub, string $condition): void {
+    $this->getCore()->unsetBlockVisibility($stub, $condition);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBlockRegion(EntityStubInterface $stub): string {
+    return $this->getCore()->getBlockRegion($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function findBlockIdsByLabel(string $label): array {
+    return $this->getCore()->findBlockIdsByLabel($label);
   }
 
   /**

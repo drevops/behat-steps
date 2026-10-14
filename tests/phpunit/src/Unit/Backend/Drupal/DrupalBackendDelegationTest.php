@@ -170,8 +170,13 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'getEntityIdKey' => ['getEntityIdKey', ['node'], 'getEntityIdKey'];
     yield 'getEntityFieldTypes' => ['getEntityFieldTypes', ['node', 'article'], 'getEntityFieldTypes'];
     yield 'parseEntityFields' => ['parseEntityFields', [$node, ['author']], 'parseEntityFields'];
-    yield 'placeBlock' => ['placeBlock', [$block], 'placeBlock'];
+    yield 'placeBlock' => ['placeBlock', ['system_powered_by_block', 'Powered by'], 'placeBlock'];
     yield 'deleteBlock' => ['deleteBlock', [$block], 'deleteBlock'];
+    yield 'configureBlock' => ['configureBlock', [$block, ['region' => 'content']], 'configureBlock'];
+    yield 'setBlockVisibility' => ['setBlockVisibility', [$block, 'request_path', ['pages' => '/about']], 'setBlockVisibility'];
+    yield 'unsetBlockVisibility' => ['unsetBlockVisibility', [$block, 'request_path'], 'unsetBlockVisibility'];
+    yield 'getBlockRegion' => ['getBlockRegion', [$block], 'getBlockRegion'];
+    yield 'findBlockIdsByLabel' => ['findBlockIdsByLabel', ['Powered by'], 'findBlockIdsByLabel'];
     yield 'createBlockContent' => ['createBlockContent', [$block_content], 'createBlockContent'];
     yield 'deleteBlockContent' => ['deleteBlockContent', [$block_content], 'deleteBlockContent'];
     yield 'mailStartCollecting' => ['mailStartCollecting', [['default']], 'mailStartCollecting'];
