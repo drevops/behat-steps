@@ -323,6 +323,13 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function getEntityBundle(EntityStubInterface $stub): string {
+    return $this->getCore()->getEntityBundle($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function deleteEntity(EntityStubInterface $stub): void {
     $this->getCore()->deleteEntity($stub);
   }

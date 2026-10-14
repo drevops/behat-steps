@@ -167,6 +167,27 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $this->core->getEntityUrl(new EntityStub('entity_test', NULL, ['id' => 999]));
   }
 
+  public function testGetEntityBundleReadsTheBundleOfTheEntity(): void {
+    EntityTestHelper::createBundle('custom_bundle');
+    $created = $this->core->createEntity(new EntityStub('entity_test', 'custom_bundle', ['name' => 'bundled']));
+
+    $this->assertSame('custom_bundle', $this->core->getEntityBundle(new EntityStub('entity_test', NULL, ['id' => $created->getValue('id')])));
+    $this->assertSame('custom_bundle', $this->core->getEntityBundle($created));
+  }
+
+  public function testGetEntityBundleReturnsTheEntityTypeForTypeWithoutBundles(): void {
+    $account = $this->createUser('bundle-less');
+
+    $this->assertSame('user', $this->core->getEntityBundle(new EntityStub('user', NULL, ['uid' => $account->id()])));
+  }
+
+  public function testGetEntityBundleRejectsMissingEntity(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No entity of type "entity_test" with the id "999" exists.');
+
+    $this->core->getEntityBundle(new EntityStub('entity_test', NULL, ['id' => 999]));
+  }
+
   public function testGetEntityUrlRejectsAnUnknownLink(): void {
     $created = $this->core->createEntity(new EntityStub('entity_test', NULL, ['name' => 'linked']));
 

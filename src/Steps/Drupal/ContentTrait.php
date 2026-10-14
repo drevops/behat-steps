@@ -491,14 +491,7 @@ trait ContentTrait {
       return $bundle;
     }
 
-    $nid = $this->queryGetEntityId($node, 'nid');
-    $type = $this->backendFor(ContentCapabilityInterface::class)->getEntityValues('node', $nid, ['type'])['type'][0]['target_id'] ?? NULL;
-
-    if (!is_string($type)) {
-      throw new \RuntimeException(sprintf('The node "%s" does not exist.', $nid));
-    }
-
-    return $type;
+    return $this->backendFor(ContentCapabilityInterface::class)->getEntityBundle($node);
   }
 
   /**

@@ -1605,17 +1605,20 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function getEntityUrl(EntityStubInterface $stub, string $rel = 'canonical'): string {
-    $entity = $this->findStubEntity($stub);
-
-    if (!$entity instanceof EntityInterface) {
-      throw new \RuntimeException(sprintf('No entity of type "%s" with the id "%s" exists.', $stub->getEntityType(), $this->resolveStubId($stub)));
-    }
+    $entity = $this->getStubEntity($stub);
 
     if (!$entity->hasLinkTemplate($rel)) {
       throw new \RuntimeException(sprintf('The entity type "%s" has no "%s" link.', $entity->getEntityTypeId(), $rel));
     }
 
     return $entity->toUrl($rel)->toString();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityBundle(EntityStubInterface $stub): string {
+    return $this->getStubEntity($stub)->bundle();
   }
 
   /**
@@ -1658,6 +1661,26 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     return $link->getPluginId();
+  }
+
+  /**
+   * Returns the entity a stub stands for.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
+   *   A stub holding the saved entity, or the entity type's id key.
+   *
+   * @throws \RuntimeException
+   *   When the stub holds no saved entity and no usable id, or no entity has
+   *   the stub's id.
+   */
+  protected function getStubEntity(EntityStubInterface $stub): EntityInterface {
+    $entity = $this->findStubEntity($stub);
+
+    if (!$entity instanceof EntityInterface) {
+      throw new \RuntimeException(sprintf('No entity of type "%s" with the id "%s" exists.', $stub->getEntityType(), $this->resolveStubId($stub)));
+    }
+
+    return $entity;
   }
 
   /**

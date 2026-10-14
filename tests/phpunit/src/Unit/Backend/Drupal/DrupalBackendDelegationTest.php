@@ -161,6 +161,7 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'createEntity' => ['createEntity', [$entity], 'createEntity'];
     yield 'updateEntity' => ['updateEntity', [$entity], 'updateEntity'];
     yield 'getEntityValues' => ['getEntityValues', ['node', 5, ['title']], 'getEntityValues'];
+    yield 'getEntityBundle' => ['getEntityBundle', [$entity], 'getEntityBundle'];
     yield 'deleteEntity' => ['deleteEntity', [$entity], 'deleteEntity'];
     yield 'createConfigEntity' => ['createConfigEntity', [$config_entity], 'createConfigEntity'];
     yield 'updateConfigEntity' => ['updateConfigEntity', [$config_entity], 'updateConfigEntity'];
