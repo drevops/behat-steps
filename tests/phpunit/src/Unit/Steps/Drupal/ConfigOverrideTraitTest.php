@@ -36,7 +36,7 @@ class ConfigOverrideTraitTest extends UnitTestCase {
 
     $this->assertSame(['X-Config-No-Override' => 'system.site,user.settings'], $drupal->headers);
     $this->assertSame(['X-Config-No-Override' => 'system.site,user.settings'], $drush->headers);
-    $this->assertSame('system.site,user.settings', $context->testGetRequestHeaders()['X-Config-No-Override'] ?? NULL, 'The trait\'s own requests carry the header too.');
+    $this->assertSame('system.site,user.settings', $context->testGetRequestHeaders()['X-Config-No-Override'] ?? NULL, 'The requests the trait sends carry the header too.');
     $this->assertFalse($drupal->isBootstrapped() || $drush->isBootstrapped(), 'Handing the signal over bootstraps no backend.');
   }
 
