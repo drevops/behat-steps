@@ -196,6 +196,9 @@ note bottom of DrupalBackendInterface
   DrupalBackendInterface extends 31 capability
   interfaces and DrushBackendInterface 13, of
   which DrushCapabilityInterface is its own.
+  Both backend classes add
+  CreationAliasCapabilityInterface, so
+  DrupalBackend provides 32 and DrushBackend 14.
   Only a few edges are drawn here. A backend
   declares a capability only when it serves
   every method of it, so what only the
