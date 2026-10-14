@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
-use Behat\Behat\Hook\Scope\AfterScenarioScope;
-use Behat\Gherkin\Node\FeatureNode;
-use Behat\Gherkin\Node\ScenarioNode;
-use Behat\Testwork\Environment\Environment;
-use Behat\Testwork\Tester\Result\TestResult;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Steps\Drupal\FileTrait;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -73,22 +69,25 @@ class FileTraitKernelTest extends StepTraitKernelTestBase {
     $this->assertFalse($file->isPermanent());
   }
 
-  public function testCreateManagedLeavesNoFileWhenValueFailsToResolve(): void {
+  #[DataProvider('dataProviderCreateLeavesNoFileWhenValueFailsToResolve')]
+  public function testCreateLeavesNoFileWhenValueFailsToResolve(string $method): void {
     $this->context->setMinkParameters(['files_path' => __DIR__ . '/../../../../fixtures/backend/files']);
 
     try {
-      $this->context->fileCreateManaged('sample.txt', new EntityStub('file', NULL, ['uid' => 'nobody']));
+      $this->context->{$method}('sample.txt', new EntityStub('file', NULL, ['uid' => 'nobody']));
       $this->fail('A value that names no user did not fail the create.');
     }
     catch (\RuntimeException $exception) {
       $this->assertSame('No entity "nobody" of type "user" exists.', $exception->getMessage());
     }
 
-    $this->assertCount(1, File::loadMultiple(), 'The file is written before its values are set.');
+    $this->assertCount(0, File::loadMultiple(), 'The failed create deletes the file entity it saved.');
+    $this->assertFileDoesNotExist('public://sample.txt', 'The failed create deletes the file it wrote.');
+  }
 
-    $this->runEntityCleanup();
-
-    $this->assertCount(0, File::loadMultiple(), 'The cleanup removes the file the failed create wrote.');
+  public static function dataProviderCreateLeavesNoFileWhenValueFailsToResolve(): \Iterator {
+    yield 'managed' => ['fileCreateManaged'];
+    yield 'entity' => ['fileCreateEntity'];
   }
 
   public function testCreateEntityWithoutValuesLeavesTheWrittenFileAsItIs(): void {
@@ -110,16 +109,6 @@ class FileTraitKernelTest extends StepTraitKernelTestBase {
     $file->save();
 
     return $file;
-  }
-
-  /**
-   * Runs the entity cleanup the context runs after a scenario.
-   */
-  protected function runEntityCleanup(): void {
-    $scenario = new ScenarioNode('Scenario', [], [], 'Scenario', 1);
-    $feature = new FeatureNode('Feature', NULL, [], NULL, [$scenario], 'Feature', 'en', __FILE__, 1);
-
-    $this->context->entityLifecycleAfterScenario(new AfterScenarioScope($this->createStub(Environment::class), $feature, $scenario, $this->createStub(TestResult::class)));
   }
 
 }

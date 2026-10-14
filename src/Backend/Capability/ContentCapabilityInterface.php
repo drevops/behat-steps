@@ -33,7 +33,8 @@ interface ContentCapabilityInterface {
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   A stub carrying the entity type's id key, or one returned from a
-   *   previous 'createEntity()' call.
+   *   previous 'createEntity()' call. Its typed bundle may be NULL, because
+   *   the values expand against the bundle of the stored entity.
    *
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The same stub, now holding the expanded values and flagged as saved

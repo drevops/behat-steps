@@ -339,19 +339,18 @@ trait FileTrait {
 
     $this->entityLifecycleParseFields($stub);
 
-    $created = $this->fileCreateEntity($path, new EntityStub('file'), $uri);
+    $created = $this->fileCreateEntity($path, $stub, $uri);
 
-    // Registered before the values are set, so a value that fails to resolve
-    // still leaves no file behind.
     $this->entityLifecycleRegister($created, 'fid');
-
-    $this->fileUpdate($created, $stub->getValues());
 
     return $created;
   }
 
   /**
    * Create file entity.
+   *
+   * When a value fails to resolve, the written file is deleted again, so a
+   * failed create leaves no file behind.
    *
    * @param string $path
    *   The source file path relative to 'files_path'.
@@ -387,7 +386,16 @@ trait FileTrait {
     $written = $backend->fileWriteManaged($destination, $content, new EntityStub('file'));
     $created = new EntityStub('file', NULL, ['fid' => $this->queryGetEntityId($written, 'fid')]);
 
-    $this->fileUpdate($created, $stub->getValues());
+    try {
+      $this->fileUpdate($created, $stub->getValues());
+    }
+    catch (\Exception $exception) {
+      // The caller gets no stub when a value fails to resolve, so the written
+      // file is deleted here.
+      $this->backendFor(ContentCapabilityInterface::class)->deleteEntity($created);
+
+      throw $exception;
+    }
 
     return $created;
   }
