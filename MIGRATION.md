@@ -1279,13 +1279,13 @@ Then the element "#main-content" should be centered in the viewport
 
 A scenario that relied on the step to push another queued item into the index runs `search indexing runs for :count item(s)` as well. A PHP call to `SearchApiTrait::searchApiIndexContent()` changes the same way.
 
-The 4 search steps go through `SearchIndexCapabilityInterface`. The Drush backend serves `search indexing runs for :count item(s)` with `search-api:index`, and the other 3 steps need the in-process backend, so under `@backend:drush` they fail with `UnsupportedBackendActionException`.
+`search indexing runs for :count item(s)` goes through `SearchIndexCapabilityInterface`, which the Drush backend serves with `search-api:index`. The other 3 search steps go through `SearchApiCapabilityInterface`, which only the in-process backend provides, so they reach it whatever the order lists first and fail with `UnsupportedBackendActionException` only when no backend in the scenario's list provides it.
 
 ### Queues
 
 `QueueTrait` deleted the queues a scenario used only when the scenario was tagged `@queue`, a tag nothing documented, so an untagged scenario left its queue items behind for the next one. The teardown now runs after every scenario, and `@queue` does nothing. A queue counts as used once any queue step names it, the assertions included, so a scenario that only checks a queue the site filled deletes it as well. To keep the items for a later scenario, tag the scenario that leaves them `@behat-steps-skip:QueueTrait`, or set `queue.enabled` to `FALSE` for the suite.
 
-The queue steps go through `QueueCapabilityInterface`, which the Drush backend serves with `queue:list`, `queue:run` and `queue:delete`. Drush has no command that adds an item, so `the following item is in the queue :queue:` fails under `@backend:drush` with `UnsupportedBackendActionException`. The helpers behind the steps, `queueCountItems()`, `queueClear()` and `queueProcess()`, act on a queue by name and return no Drupal object.
+The queue steps go through `QueueCapabilityInterface`, which the Drush backend serves with `queue:list`, `queue:run` and `queue:delete`, apart from `the following item is in the queue :queue:`, which goes through `QueueItemCapabilityInterface`. Only the in-process backend provides that one, so the step reaches it whatever the order lists first, and fails with `UnsupportedBackendActionException` only when no backend in the scenario's list provides it. The helpers behind the steps, `queueCountItems()`, `queueClear()` and `queueProcess()`, act on a queue by name and return no Drupal object.
 
 ### Log entries
 
@@ -2229,8 +2229,10 @@ In 3.14, the config, module, state and time steps called `\Drupal::configFactory
 | `LogCapabilityInterface` | `logGetLastId()`, `logRead()`, `logDelete()`; the interface is new, and its `SEVERITY_*` constants hold the RFC 5424 levels. The Drush backend serves it with `watchdog:show` and `watchdog:delete`, and returns each message rendered with its placeholders and no `variables` |
 | `ModuleCapabilityInterface` | `moduleIsEnabled()`, `moduleIsPresent()` |
 | `NodeCapabilityInterface` | `rebuildNodeAccess()` |
-| `QueueCapabilityInterface` | `queueAddItem()`, `queueCountItems()`, `queueDelete()`, `queueProcess()`; the interface is new. The Drush backend serves it with `queue:list`, `queue:run` and `queue:delete`, and its `queueAddItem()` throws `UnsupportedBackendActionException`, because no Drush command adds an item |
-| `SearchIndexCapabilityInterface` | `searchIndexEntity()`, `searchIndexItems()`, `searchRunCron()`; the interface is new. The Drush backend serves `searchIndexItems()` with `search-api:index`, and the other 2 throw `UnsupportedBackendActionException` |
+| `QueueCapabilityInterface` | `queueCountItems()`, `queueDelete()`, `queueProcess()`; the interface is new. The Drush backend serves it with `queue:list`, `queue:run` and `queue:delete` |
+| `QueueItemCapabilityInterface` | `queueAddItem()`; the interface is new. The Drush backend doesn't provide it, because no Drush command adds an item |
+| `SearchApiCapabilityInterface` | `searchIndexEntity()`, `searchRunCron()`; the interface is new. The Drush backend doesn't provide it |
+| `SearchIndexCapabilityInterface` | `searchIndexItems()`; the interface is new. The Drush backend serves it with `search-api:index` |
 | `StateCapabilityInterface` | `stateGet()`, `stateSet()`, `stateDelete()`, `stateExists()`; the interface is new |
 | `UserCapabilityInterface` | `getOneTimeLoginUrl()`. The Drush backend serves it with `user:login` |
 | `WorkflowCapabilityInterface` | `hasWorkflowState()`; the interface is new. The Drush backend doesn't provide it |

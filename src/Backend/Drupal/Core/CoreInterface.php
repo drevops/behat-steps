@@ -21,6 +21,8 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\LogCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchIndexCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
@@ -57,7 +59,9 @@ interface CoreInterface extends
   ModuleCapabilityInterface,
   NodeCapabilityInterface,
   QueueCapabilityInterface,
+  QueueItemCapabilityInterface,
   RoleCapabilityInterface,
+  SearchApiCapabilityInterface,
   SearchIndexCapabilityInterface,
   StateCapabilityInterface,
   TermCapabilityInterface,

@@ -161,3 +161,17 @@ Feature: Check that SearchApiTrait works
     And I fill in "edit-search-api-fulltext" with "TESTUNIQUEDRUSH"
     And I press "edit-submit-search"
     Then I should see "[MYTEST] DRUSHINDEXARTICLE1 TESTUNIQUEDRUSH"
+
+  @test-trait:Drupal\SearchApiTrait
+  Scenario: Assert "When the Search API cron runs" fails when no backend runs a cron hook in the site's process
+    Given a configuration listing the backends "drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When the Search API cron runs
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException" exception:
+      """
+      No backend provides "DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface". Backends available to this scenario, in order: drush, blackbox.
+      """

@@ -11,6 +11,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
@@ -80,7 +81,9 @@ trait QueueTrait {
       throw new \RuntimeException('The "data" value must be a single JSON string.');
     }
 
-    $this->queueResolveBackend($queue)->queueAddItem($queue, $this->queueDecodeData($data));
+    $this->queueResolveBackend($queue);
+
+    $this->backendFor(QueueItemCapabilityInterface::class)->queueAddItem($queue, $this->queueDecodeData($data));
   }
 
   /**

@@ -23,8 +23,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\StateCapabilityInterface;
  *
  * Interacts with the site by running Drush as a subprocess. Supports the
  * subset of operations that Drush services natively through its built-in
- * commands. A method of a declared capability that no Drush command serves
- * throws 'UnsupportedBackendActionException' naming the operation.
+ * commands, and declares only the capabilities it serves in full.
  */
 interface DrushBackendInterface extends
   BackendInterface,

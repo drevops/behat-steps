@@ -261,8 +261,25 @@ Feature: Check that QueueTrait works
     Then the queue "behat_test" should be empty
     And the config "mysite_core.settings" with the key "queue_budget" should have the value "17"
 
+  # Adding an item goes through the queue item capability, which only the
+  # in-process backend provides, so the step reaches it past a Drush backend
+  # listed first.
   @test-trait:Drupal\QueueTrait
-  Scenario: Assert "Given the following item is in the queue :queue:" fails over Drush, which cannot add an item
+  Scenario: Assert "Given the following item is in the queue :queue:" reaches the in-process backend when Drush is listed first
+    Given a configuration listing the backends "drush, drupal, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      Given the queue "behat_test" is empty
+      And the following item is in the queue "behat_test":
+        | data | {"nid":1} |
+      Then the queue "behat_test" should have 1 item
+      """
+    When I run "behat --no-colors"
+    Then it should pass
+
+  @test-trait:Drupal\QueueTrait
+  Scenario: Assert "Given the following item is in the queue :queue:" fails when no backend adds items
     Given a configuration listing the backends "drush, blackbox"
     And some behat configuration
     And scenario steps:
@@ -273,5 +290,5 @@ Feature: Check that QueueTrait works
     When I run "behat --no-colors"
     Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException" exception:
       """
-      Adding an item to a queue is not supported by DrevOps\BehatSteps\Backend\Drupal\DrushBackend: Drush has no command that adds a queue item.
+      No backend provides "DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface". Backends available to this scenario, in order: drush, blackbox.
       """

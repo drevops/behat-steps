@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal;
 
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\ParserExposingDrushBackend;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingDrushBackend;
@@ -744,15 +743,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $backend->queueProcess('behat_test', 5, 30);
   }
 
-  public function testQueueAddItemIsUnsupported(): void {
-    $backend = $this->createBackend();
-
-    $this->expectException(UnsupportedBackendActionException::class);
-    $this->expectExceptionMessage('Adding an item to a queue is not supported by ' . RecordingDrushBackend::class . ': Drush has no command that adds a queue item.');
-
-    $backend->queueAddItem('behat_test', ['nid' => 1]);
-  }
-
   /**
    * Tests that the newest log entry id is read from a 1-entry listing.
    *
@@ -898,24 +888,6 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $backend->searchIndexItems(0);
 
     $this->assertSame([], $backend->invocations);
-  }
-
-  public function testSearchIndexEntityIsUnsupported(): void {
-    $backend = $this->createBackend();
-
-    $this->expectException(UnsupportedBackendActionException::class);
-    $this->expectExceptionMessage('Indexing 1 entity is not supported by ' . RecordingDrushBackend::class . ': Drush indexes only the items waiting in an index.');
-
-    $backend->searchIndexEntity('node', 7);
-  }
-
-  public function testSearchRunCronIsUnsupported(): void {
-    $backend = $this->createBackend();
-
-    $this->expectException(UnsupportedBackendActionException::class);
-    $this->expectExceptionMessage('Running the cron hook of the module "search_api_solr" is not supported by ' . RecordingDrushBackend::class . ': Drush runs every cron hook at once.');
-
-    $backend->searchRunCron('search_api_solr');
   }
 
   /**

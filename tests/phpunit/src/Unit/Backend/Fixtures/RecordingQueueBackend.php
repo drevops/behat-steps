@@ -6,15 +6,16 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures;
 
 use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 
 /**
- * Recording test double for 'QueueCapabilityInterface'.
+ * Recording test double for the queue and queue item capabilities.
  *
  * Records every queue call in order, and answers the counts a test sets.
  */
-class RecordingQueueBackend implements BackendInterface, QueueCapabilityInterface {
+class RecordingQueueBackend implements BackendInterface, QueueCapabilityInterface, QueueItemCapabilityInterface {
 
   /**
    * The calls made, each as the method name and its arguments.

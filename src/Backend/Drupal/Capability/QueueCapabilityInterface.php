@@ -5,19 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Backend\Drupal\Capability;
 
 /**
- * Capability: add to, count, process and delete queues.
+ * Capability: count, process and delete queues.
  */
 interface QueueCapabilityInterface {
-
-  /**
-   * Adds an item to a queue.
-   *
-   * @param string $queue
-   *   The queue name.
-   * @param mixed $data
-   *   The item data, in the shape the queue worker receives.
-   */
-  public function queueAddItem(string $queue, mixed $data): void;
 
   /**
    * Returns the number of items in a queue.

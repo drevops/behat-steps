@@ -55,7 +55,7 @@ package "drevops/behat-steps" {
     component "BlackboxBackend\nno backend access at all" as BlackboxBe
 
     package "Backend\\Drupal" #E8F5E9 {
-      component "15 Drupal-only capabilities\nBatch, Block, Config, Core, Draggableviews,\nDrush, File, Log, Module, Node, Queue,\nSearchIndex, State, Term, Workflow" as DrupalCaps
+      component "17 Drupal-only capabilities\nBatch, Block, Config, Core, Draggableviews,\nDrush, File, Log, Module, Node, Queue,\nQueueItem, SearchApi, SearchIndex, State,\nTerm, Workflow" as DrupalCaps
       component "DrupalBackend\nbootstraps Drupal in-process" as DrupalBe
       component "DrushBackend\nshells out to drush" as DrushBe
       component "Core\nfield handlers, classifiers,\nparsers, creation aliases" as Core

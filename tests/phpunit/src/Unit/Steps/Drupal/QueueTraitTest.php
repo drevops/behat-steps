@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
+use DrevOps\BehatSteps\Backend\BackendInterface;
 use DrevOps\BehatSteps\Backend\BlackboxBackendInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
 use DrevOps\BehatSteps\Steps\Drupal\QueueTrait;
@@ -15,6 +17,7 @@ use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebRawContext;
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Stub;
 
 /**
  * Tests the queue steps against the queue capability.
@@ -191,6 +194,43 @@ class QueueTraitTest extends UnitTestCase {
     $this->expectExceptionMessageMatches('/No backend provides ".*QueueCapabilityInterface"/');
 
     $context->queueAssertEmpty('behat_test');
+  }
+
+  public function testAddItemFallsThroughToTheBackendAddingItems(): void {
+    $backend = new RecordingQueueBackend();
+    $registry = new BackendRegistry(['drush' => $this->createQueueOnlyBackend(), 'drupal' => $backend]);
+    $registry->setScenarioBackends(['drush' => 'drush', 'drupal' => 'drupal']);
+
+    $context = new QueueTraitTestImplementation();
+    $context->setBackendRegistry($registry);
+
+    $context->queueAddItem('behat_test', new TableNode([['data', '{"nid":1}']]));
+
+    $this->assertSame([['queueAddItem', ['behat_test', ['nid' => 1]]]], $backend->calls);
+  }
+
+  public function testAddItemFailsWithoutBackendAddingItems(): void {
+    $registry = new BackendRegistry(['drush' => $this->createQueueOnlyBackend()]);
+    $registry->setScenarioBackends(['drush' => 'drush']);
+
+    $context = new QueueTraitTestImplementation();
+    $context->setBackendRegistry($registry);
+
+    $this->expectException(UnsupportedBackendActionException::class);
+    $this->expectExceptionMessageMatches('/No backend provides ".*QueueItemCapabilityInterface"/');
+
+    $context->queueAddItem('behat_test', new TableNode([['data', '{"nid":1}']]));
+  }
+
+  /**
+   * Creates a backend serving the queue capability but not the queue items.
+   */
+  protected function createQueueOnlyBackend(): BackendInterface&QueueCapabilityInterface&Stub {
+    /** @var \DrevOps\BehatSteps\Backend\BackendInterface&\DrevOps\BehatSteps\Backend\Drupal\Capability\QueueCapabilityInterface&\PHPUnit\Framework\MockObject\Stub $backend */
+    $backend = $this->createStubForIntersectionOfInterfaces([BackendInterface::class, QueueCapabilityInterface::class]);
+    $backend->method('isBootstrapped')->willReturn(TRUE);
+
+    return $backend;
   }
 
   /**

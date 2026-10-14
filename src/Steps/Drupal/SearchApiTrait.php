@@ -6,6 +6,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchApiCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\SearchIndexCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
@@ -41,7 +42,7 @@ trait SearchApiTrait {
    */
   #[When('the :content_type content with the title :title is indexed')]
   public function searchApiIndexContent(string $content_type, string $title): void {
-    $this->backendFor(SearchIndexCapabilityInterface::class);
+    $this->backendFor(SearchApiCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -84,7 +85,7 @@ trait SearchApiTrait {
    */
   #[When('the Search API cron runs')]
   public function searchApiRunCron(): void {
-    $backend = $this->backendFor(SearchIndexCapabilityInterface::class);
+    $backend = $this->backendFor(SearchApiCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -105,7 +106,7 @@ trait SearchApiTrait {
    */
   #[When('the Search API Solr cron runs')]
   public function searchApiRunSolrCron(): void {
-    $backend = $this->backendFor(SearchIndexCapabilityInterface::class);
+    $backend = $this->backendFor(SearchApiCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -148,7 +149,7 @@ trait SearchApiTrait {
    *   When no active search index includes the node.
    */
   public function searchApiIndexNode(NodeInterface $node): void {
-    $is_indexed = $this->backendFor(SearchIndexCapabilityInterface::class)->searchIndexEntity('node', (string) $node->id());
+    $is_indexed = $this->backendFor(SearchApiCapabilityInterface::class)->searchIndexEntity('node', (string) $node->id());
 
     if (!$is_indexed) {
       throw new \RuntimeException(sprintf('No active search index includes the "%s" content with the title "%s".', $node->bundle(), $node->label()));

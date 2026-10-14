@@ -11,7 +11,6 @@ use DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
-use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use Symfony\Component\Process\Process;
@@ -658,15 +657,6 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
   /**
    * {@inheritdoc}
    *
-   * Drush has no command that adds a queue item.
-   */
-  public function queueAddItem(string $queue, mixed $data): void {
-    throw new UnsupportedBackendActionException('Adding an item to a queue is not supported by %s: Drush has no command that adds a queue item.', $this);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
    * 'queue:list' reports only the queues a worker processes, so a queue
    * without a worker reports 0 items.
    */
@@ -812,15 +802,6 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
   /**
    * {@inheritdoc}
-   *
-   * Drush indexes only the items waiting in an index, never 1 entity.
-   */
-  public function searchIndexEntity(string $entity_type, int|string $id): bool {
-    throw new UnsupportedBackendActionException('Indexing 1 entity is not supported by %s: Drush indexes only the items waiting in an index.', $this);
-  }
-
-  /**
-   * {@inheritdoc}
    */
   public function searchIndexItems(int $limit): void {
     if ($limit === 0) {
@@ -828,16 +809,6 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     }
 
     $this->drush('search-api:index', [], ['limit' => (string) $limit]);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * 'core:cron' runs every cron hook at once, so 1 module's hook cannot run
-   * on its own.
-   */
-  public function searchRunCron(string $module = 'search_api'): void {
-    throw new UnsupportedBackendActionException(sprintf('Running the cron hook of the module "%s" is not supported by %%s: Drush runs every cron hook at once.', $module), $this);
   }
 
   /**
