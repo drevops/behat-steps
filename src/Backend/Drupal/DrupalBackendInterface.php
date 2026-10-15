@@ -83,13 +83,18 @@ interface DrupalBackendInterface extends
   WorkflowCapabilityInterface {
 
   /**
-   * Injects the active Core implementation.
+   * Replaces the Core the backend delegates to.
    *
-   * Overrides the backend's default Core lookup. Any class that implements
-   * 'CoreInterface' is accepted; the class name and namespace do not matter.
+   * Any class implementing 'CoreInterface' is accepted. A class that is, or
+   * extends, a Core of this package has to be, or extend, the Core this
+   * package ships for the detected major.
    *
    * @param \DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface $core
    *   The Core instance the backend should delegate to.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
+   *   When the Core is, or extends, the Core of this package for another
+   *   major.
    */
   public function setCore(CoreInterface $core): void;
 

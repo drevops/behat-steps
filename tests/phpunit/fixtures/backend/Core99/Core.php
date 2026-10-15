@@ -7,24 +7,9 @@ namespace DrevOps\BehatSteps\Backend\Drupal\Core99;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core as BaseCore;
 
 /**
- * Fixture: simulated Core99 override.
+ * Fixture: the version core of a Drupal 99 that does not exist.
  *
- * Extends the default Core, used by lookup-chain tests to verify that
- * DrupalBackend::setCoreFromVersion() uses version-specific overrides
- * when they exist.
+ * Sits where 'DrupalBackend' looks for a version core, so the tests select
+ * one without this package shipping any.
  */
-class Core extends BaseCore {
-
-  /**
-   * Marker so tests can identify which class was instantiated.
-   */
-  public const MARKER = 'Core99\\Core';
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getVersion(): int {
-    return 99;
-  }
-
-}
+class Core extends BaseCore {}

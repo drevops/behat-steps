@@ -20,6 +20,21 @@ use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityInterface {
 
   /**
+   * Lowest Drupal major the backend supports.
+   */
+  protected const int MINIMUM_VERSION = 11;
+
+  /**
+   * Class name of the version core for a Drupal major, as a sprintf() format.
+   */
+  protected const string VERSION_CORE_CLASS = 'DrevOps\\BehatSteps\\Backend\\Drupal\\Core%d\\Core';
+
+  /**
+   * Matches the class name of the base Core and of every version core.
+   */
+  protected const string PACKAGE_CORE_PATTERN = '/^DrevOps\\\\BehatSteps\\\\Backend\\\\Drupal\\\\Core\d*\\\\Core$/';
+
+  /**
    * Whether Drupal has been bootstrapped.
    */
   protected bool $bootstrapped = FALSE;
@@ -40,18 +55,24 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   protected int $version;
 
   /**
-   * Sets the Drupal root and URI.
+   * Sets the Drupal root and URI, and builds the Core.
    *
    * @param string $drupal_root
    *   The Drupal root path.
    * @param string $uri
    *   The URI for the Drupal installation.
+   * @param string|null $core_class
+   *   The class of the Core to build, or NULL for the Core this package ships
+   *   for the detected major.
+   * @param \DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface|null $random
+   *   The random generator the Core hands out, or NULL for the Core's own.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   Thrown when no Drupal installation is found at the root path, or when
-   *   its core major version is not numeric or below 11.
+   *   Thrown when no Drupal installation is found at the root path, when its
+   *   core major version is not numeric or below 11, or when the Core class
+   *   cannot be built for that major.
    */
-  public function __construct(string $drupal_root, protected readonly string $uri) {
+  public function __construct(string $drupal_root, protected readonly string $uri, ?string $core_class = NULL, ?RandomGeneratorInterface $random = NULL) {
     $resolved = realpath($drupal_root);
 
     if ($resolved === FALSE) {
@@ -60,6 +81,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
 
     $this->drupalRoot = $resolved;
     $this->version = $this->detectMajorVersion();
+
+    $this->setCore($this->createCore($core_class ?? $this->findVersionCoreClass(), $random));
   }
 
   /**
@@ -99,44 +122,6 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   }
 
   /**
-   * Sets the core from the current version.
-   *
-   * Uses the first class that exists in the lookup chain:
-   * 'DrevOps\BehatSteps\Backend\Drupal\Core{N}\Core' for each major version from
-   * the detected one downwards, then 'DrevOps\BehatSteps\Backend\Drupal\Core\Core'.
-   *
-   * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   When a version-specific Core class exists but does not implement
-   *   'CoreInterface'.
-   */
-  public function setCoreFromVersion(): void {
-    $version = $this->getDrupalVersion();
-    $candidates = [];
-
-    for ($n = $version; $n >= 11; $n--) {
-      $candidates[] = sprintf('DrevOps\\BehatSteps\\Backend\\Drupal\\Core%d\\Core', $n);
-    }
-
-    foreach ($candidates as $class) {
-      if (!class_exists($class)) {
-        continue;
-      }
-
-      $core = new $class($this->drupalRoot, $this->uri);
-
-      if (!$core instanceof CoreInterface) {
-        throw new BootstrapException(sprintf('%s must implement %s.', $class, CoreInterface::class));
-      }
-
-      $this->core = $core;
-
-      return;
-    }
-
-    $this->core = new Core($this->drupalRoot, $this->uri);
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function getCore(): CoreInterface {
@@ -147,6 +132,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    * {@inheritdoc}
    */
   public function setCore(CoreInterface $core): void {
+    $this->assertCoreFitsVersion($core);
+
     $this->core = $core;
   }
 
@@ -915,7 +902,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
       throw new BootstrapException(sprintf('Unable to extract major Drupal core version from version string %s.', $version_string));
     }
 
-    if ((int) $major < 11) {
+    if ((int) $major < static::MINIMUM_VERSION) {
       throw new BootstrapException(sprintf('Unsupported Drupal core version %s. Drupal 11 or higher is required.', $version_string));
     }
 
@@ -927,6 +914,108 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    */
   protected function readVersionConstant(): string {
     return \Drupal::VERSION;
+  }
+
+  /**
+   * Finds the Core class this package ships for the detected major.
+   *
+   * Takes the version core of the newest major at or below the detected one,
+   * so Drupal 14 runs on 'Core13\Core' while no 'Core14\Core' exists, and the
+   * base 'Core' when no version core applies.
+   *
+   * @return class-string
+   *   The Core class.
+   */
+  protected function findVersionCoreClass(): string {
+    for ($major = $this->version; $major >= static::MINIMUM_VERSION; $major--) {
+      $class = sprintf(static::VERSION_CORE_CLASS, $major);
+
+      if (class_exists($class)) {
+        return $class;
+      }
+    }
+
+    return Core::class;
+  }
+
+  /**
+   * Builds a Core of the given class for the Drupal root and URI.
+   *
+   * @param string $class
+   *   The Core class to build.
+   * @param \DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface|null $random
+   *   The random generator the Core hands out, or NULL for the Core's own.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface
+   *   The Core.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
+   *   When the class does not exist, does not implement 'CoreInterface' or is
+   *   abstract.
+   */
+  protected function createCore(string $class, ?RandomGeneratorInterface $random): CoreInterface {
+    if (!class_exists($class)) {
+      throw new BootstrapException(sprintf('Core class "%s" does not exist.', $class));
+    }
+
+    if (!is_subclass_of($class, CoreInterface::class)) {
+      throw new BootstrapException(sprintf('Core class "%s" must implement "%s".', $class, CoreInterface::class));
+    }
+
+    if ((new \ReflectionClass($class))->isAbstract()) {
+      throw new BootstrapException(sprintf('Core class "%s" must be instantiable.', $class));
+    }
+
+    return new $class($this->drupalRoot, $this->uri, $random);
+  }
+
+  /**
+   * Asserts that a Core built on a Core of this package fits the major.
+   *
+   * A Core that neither is nor extends a Core of this package passes.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface $core
+   *   The Core to check.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
+   *   When the Core is, or extends, the Core of this package for another
+   *   major.
+   */
+  protected function assertCoreFitsVersion(CoreInterface $core): void {
+    $package_core = $this->findPackageCoreClass($core::class);
+    $version_core = $this->findVersionCoreClass();
+
+    if ($package_core === NULL || $package_core === $version_core) {
+      return;
+    }
+
+    if ($package_core === $core::class) {
+      throw new BootstrapException(sprintf('Core class "%s" is not the Core for Drupal %d. Use "%s" instead.', $core::class, $this->version, $version_core));
+    }
+
+    $template = 'Core class "%s" extends "%s", which is not the Core for Drupal %d. Extend "%s" instead.';
+
+    throw new BootstrapException(sprintf($template, $core::class, $package_core, $this->version, $version_core));
+  }
+
+  /**
+   * Finds the Core of this package that a class is or extends.
+   *
+   * @param class-string $class
+   *   The class to inspect.
+   *
+   * @return string|null
+   *   The nearest of the class and its parents named as a Core of this
+   *   package, or NULL when there is none.
+   */
+  protected function findPackageCoreClass(string $class): ?string {
+    for ($current = $class; $current !== FALSE; $current = get_parent_class($current)) {
+      if (preg_match(static::PACKAGE_CORE_PATTERN, $current) === 1) {
+        return $current;
+      }
+    }
+
+    return NULL;
   }
 
   /**
