@@ -26,8 +26,16 @@ trait CreationAliasRegistryTrait {
    *
    * @param \DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface $alias
    *   The alias to register.
+   *
+   * @throws \RuntimeException
+   *   When the alias implements neither 'PreCreateAliasInterface' nor
+   *   'PostCreateAliasInterface'.
    */
   public function registerCreationAlias(CreationAliasInterface $alias): void {
+    if (!$alias instanceof PreCreateAliasInterface && !$alias instanceof PostCreateAliasInterface) {
+      throw new \RuntimeException(sprintf('Creation alias class "%s" must implement "%s" or "%s".', $alias::class, PreCreateAliasInterface::class, PostCreateAliasInterface::class));
+    }
+
     $this->creationAliases[$alias->getEntityType()][$alias->getName()] = $alias;
   }
 

@@ -509,6 +509,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    */
   public function createUser(EntityStubInterface $stub): EntityStubInterface {
+    $this->applyPreCreateAliases($stub, 'user');
+
     $arguments = [(string) $stub->getValue('name')];
     $options = [
       'password' => (string) $stub->getValue('pass'),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal;
 
+use ConsumerProject\Backend\Alias\LoginAlias;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
@@ -124,6 +125,36 @@ class DrushBackendMethodsTest extends UnitTestCase {
     $this->assertSame($user, $backend->createUser($user));
     $this->assertSame(7, $user->getValue('uid'));
     $this->assertFalse($user->isSaved(), 'The backend holds no account, so the stub stays unsaved.');
+  }
+
+  /**
+   * Tests that a pre-create alias shapes the values 'user:create' receives.
+   *
+   * @param array<string, string> $values
+   *   The values of the user stub.
+   * @param string $expected_name
+   *   The name 'user:create' is expected to receive.
+   * @param string $expected_mail
+   *   The mail 'user:create' is expected to receive.
+   */
+  #[DataProvider('dataProviderCreateUserRunsPreCreateAliases')]
+  public function testCreateUserRunsPreCreateAliases(array $values, string $expected_name, string $expected_mail): void {
+    $backend = $this->createBackend();
+    $backend->drushResponse = "User ID   :   7\n";
+    $backend->registerCreationAlias(new LoginAlias());
+
+    $user = new EntityStub('user', NULL, $values);
+    $backend->createUser($user);
+
+    $this->assertSame('user:create', $backend->invocations[0]['command']);
+    $this->assertSame([$expected_name], $backend->invocations[0]['arguments']);
+    $this->assertSame($expected_mail, $backend->invocations[0]['options']['mail']);
+    $this->assertFalse($user->hasValue('login'));
+  }
+
+  public static function dataProviderCreateUserRunsPreCreateAliases(): \Iterator {
+    yield 'the alias value given' => [['login' => 'bob', 'pass' => 'pw'], 'bob', 'bob@example.com'];
+    yield 'no alias value' => [['name' => 'alice', 'pass' => 'pw', 'mail' => 'alice@ex.co'], 'alice', 'alice@ex.co'];
   }
 
   /**

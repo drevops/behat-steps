@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Drupal\Core;
 
+use DrevOps\BehatSteps\Backend\Alias\PreCreateAliasInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use Drupal\file\FileInterface;
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -116,6 +118,48 @@ class CoreFileMethodsKernelTest extends KernelTestBase {
     $this->assertSame('document.txt', $file->getFilename());
     $this->assertTrue($file->isPermanent());
     $this->assertSame('data', file_get_contents('public://managed/document.txt'));
+  }
+
+  public function testWriteManagedRunsTheRegisteredAliases(): void {
+    $this->core->registerCreationAlias(new class implements PreCreateAliasInterface {
+
+      /**
+       * {@inheritdoc}
+       */
+      public function getName(): string {
+        return 'label';
+      }
+
+      /**
+       * {@inheritdoc}
+       */
+      public function getEntityType(): string {
+        return 'file';
+      }
+
+      /**
+       * {@inheritdoc}
+       */
+      public function getDescription(): string {
+        return "Sets the file's 'filename' to the value supplied via 'label'.";
+      }
+
+      /**
+       * {@inheritdoc}
+       */
+      public function applyToStub(EntityStubInterface $stub): void {
+        $stub->setValue('filename', $stub->getValue('label'));
+        $stub->removeValue('label');
+      }
+
+    });
+
+    $created = $this->core->fileWriteManaged('public://labelled.txt', 'data', new EntityStub('file', NULL, ['label' => 'Annual report.txt']));
+
+    $file = $created->getSavedEntity();
+    $this->assertInstanceOf(FileInterface::class, $file);
+    $this->assertSame('Annual report.txt', $file->getFilename());
+    $this->assertFalse($created->hasValue('label'));
   }
 
   public function testWriteManagedReplacesTheFileAtTheUri(): void {

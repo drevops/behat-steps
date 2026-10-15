@@ -9,13 +9,14 @@ use DrevOps\BehatSteps\Backend\Capability\CreationAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
+use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\AliasCapableCoreInterface;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests creation-alias discovery on 'DrupalBackend'.
+ * Tests creation-alias discovery and registration on 'DrupalBackend'.
  *
  * The backend delegates to its 'Core' instance; the tests pin the delegation
  * contract without booting Drupal.
@@ -48,6 +49,25 @@ class DrupalBackendCreationAliasesTest extends UnitTestCase {
     $backend = $this->createBackendWithCore($alias_capable_core);
 
     $this->assertSame(['roles' => $alias], $backend->getCreationAliases('user'));
+  }
+
+  public function testRegisterCreationAliasDelegatesToCore(): void {
+    $alias = new RolesAlias($this->createStubUserCapability());
+    $alias_capable_core = $this->createMock(AliasCapableCoreInterface::class);
+    $alias_capable_core->expects($this->once())->method('registerCreationAlias')->with($alias);
+
+    $backend = $this->createBackendWithCore($alias_capable_core);
+
+    $backend->registerCreationAlias($alias);
+  }
+
+  public function testRegisterCreationAliasThrowsForNonAliasCore(): void {
+    $backend = $this->createBackendWithCore($this->createMock(CoreInterface::class));
+
+    $this->expectException(UnsupportedBackendActionException::class);
+    $this->expectExceptionMessageMatches('/^Creation aliases are not supported by ' . preg_quote(DrupalBackend::class, '/') . ': its Core \S+ does not implement ' . preg_quote(CreationAliasCapabilityInterface::class, '/') . '\.$/');
+
+    $backend->registerCreationAlias(new RolesAlias($this->createStubUserCapability()));
   }
 
   protected function createStubUserCapability(): UserCapabilityInterface {
