@@ -13,7 +13,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\FileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Ships the backends that reach a Drupal site: in-process and over Drush.
@@ -31,9 +30,9 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   public const string DRUSH_SERVICE = 'behat_steps.backend.drush';
 
   /**
-   * Tag a Core service carries to be injected into the in-process backend.
+   * Parameter holding the configured Core class, NULL for the version core.
    */
-  public const string CORE_TAG = 'behat_steps.core';
+  public const string CORE_PARAMETER = 'behat_steps.backend.drupal.core';
 
   /**
    * Parameter holding the configured map of field types to handler classes.
@@ -64,6 +63,9 @@ final class DrupalBackendProvider implements BackendProviderInterface {
             ->isRequired()
             ->cannotBeEmpty()
             ->info('Path to the Drupal root the in-process backend bootstraps.')
+          ->end()
+          ->scalarNode('core')
+            ->info('Class of the Core the in-process backend delegates to, in place of the one the package ships for the Drupal major the backend detects. A class implements CoreInterface, and one built on a shipped Core extends the Core for that major.')
           ->end()
           ->arrayNode('field_handlers')
             ->info('Map of field types to the handler classes that turn a value a step gives a field into the value Drupal stores. An entry adds a handler for a field type the package ships none for, or replaces the shipped one. A class implements FieldHandlerInterface.' . PHP_EOL
@@ -221,11 +223,20 @@ final class DrupalBackendProvider implements BackendProviderInterface {
    *   The container builder.
    * @param array<string, mixed> $config
    *   The extension configuration.
+   *
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   *   When the Core class is configured empty.
    */
   protected function loadDrupal(FileLoader $loader, ContainerBuilder $container, array $config): void {
     if (isset($config['drupal'])) {
       $loader->load('backends/drupal.yml');
+
+      if (($config['drupal']['core'] ?? NULL) === '') {
+        throw new InvalidConfigurationException('Drupal "core" is empty. Set a value, or leave it out.');
+      }
+
       $container->setParameter('behat_steps.backend.drupal.drupal_root', $config['drupal']['drupal_root']);
+      $container->setParameter(self::CORE_PARAMETER, $config['drupal']['core'] ?? NULL);
       $container->setParameter(self::FIELD_HANDLERS_PARAMETER, $config['drupal']['field_handlers'] ?? []);
       $container->setParameter(self::DRUPAL_CREATION_ALIASES_PARAMETER, $config['drupal']['creation_aliases'] ?? []);
     }
@@ -288,12 +299,10 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   }
 
   /**
-   * Injects the Core and its handlers and aliases into the in-process backend.
+   * Registers the handlers and aliases on the in-process backend.
    *
-   * The in-process backend takes a single Core, so only the first service
-   * tagged 'behat_steps.core' is injected. The backend registers field
-   * handlers and creation aliases on that Core, so their calls follow
-   * 'setCore()'.
+   * The backend builds its Core in its constructor, so the calls run on that
+   * Core.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
    *   The container builder.
@@ -303,14 +312,6 @@ final class DrupalBackendProvider implements BackendProviderInterface {
       return;
     }
 
-    $core_ids = array_keys($container->findTaggedServiceIds(self::CORE_TAG));
-
-    if ($core_ids === []) {
-      return;
-    }
-
-    $container->getDefinition(self::DRUPAL_SERVICE)->addMethodCall('setCore', [new Reference($core_ids[0])]);
-
     $this->registerFieldHandlers($container);
     $this->registerCreationAliases($container, self::DRUPAL_SERVICE, self::DRUPAL_CREATION_ALIASES_PARAMETER, 'drupal.creation_aliases');
   }
@@ -318,8 +319,9 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   /**
    * Registers the configured field handlers on the in-process backend.
    *
-   * The calls follow 'setCore()', so an entry for a shipped field type
-   * replaces the handler the Core constructor registered.
+   * The calls run on the backend once it has built its Core, so an entry for
+   * a shipped field type replaces the handler the Core constructor
+   * registered.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
    *   The container builder.

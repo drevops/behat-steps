@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Extension\Drupal\ServiceContainer;
 use ConsumerProject\Backend\Alias\AuthorIdAlias;
 use ConsumerProject\Backend\Alias\HeadlineAlias;
 use ConsumerProject\Backend\Alias\LoginAlias;
+use ConsumerProject\Backend\ConsumerCore;
 use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
 use DrevOps\BehatSteps\Backend\Alias\PreCreateAliasInterface;
 use DrevOps\BehatSteps\Backend\Alias\RolesAlias;
@@ -14,9 +15,11 @@ use DrevOps\BehatSteps\Backend\BlackboxBackend;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DatetimeHandler;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DefaultHandler;
+use DrevOps\BehatSteps\Backend\Drupal\Core99\Core as Core99Core;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use DrevOps\BehatSteps\Extension\Drupal\ServiceContainer\DrupalBackendProvider;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\FakeVersionDrupalBackend;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -26,7 +29,6 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Tests the settings, defaults and services the Drupal backends contribute.
@@ -51,6 +53,7 @@ class DrupalBackendProviderTest extends UnitTestCase {
   }
 
   protected function tearDown(): void {
+    FakeVersionDrupalBackend::$nextVersion = '11.0.0';
     chdir($this->originalCwd);
 
     parent::tearDown();
@@ -69,6 +72,18 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->expectExceptionMessage('The child config "drupal_root" under "behat_steps.drupal" must be configured');
 
     $this->processConfig(['drupal' => []]);
+  }
+
+  public function testConfigureReadsTheCore(): void {
+    $config = $this->processConfig(['drupal' => ['drupal_root' => 'web', 'core' => 'Acme\Core']]);
+
+    $this->assertSame('Acme\Core', $config['drupal']['core']);
+  }
+
+  public function testConfigureLeavesTheCoreUnset(): void {
+    $config = $this->processConfig(['drupal' => ['drupal_root' => 'web']]);
+
+    $this->assertArrayNotHasKey('core', $config['drupal']);
   }
 
   public function testConfigureReadsTheFieldHandlers(): void {
@@ -147,10 +162,29 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $container = $this->load(['drupal' => ['drupal_root' => 'web']]);
 
     $this->assertTrue($container->hasDefinition(DrupalBackendProvider::DRUPAL_SERVICE));
-    $this->assertTrue($container->hasDefinition('behat_steps.backend.core'));
     $this->assertSame('web', $container->getParameter('behat_steps.backend.drupal.drupal_root'));
+    $this->assertNull($container->getParameter(DrupalBackendProvider::CORE_PARAMETER));
     $this->assertSame([], $container->getParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER));
     $this->assertSame([], $container->getParameter(DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER));
+  }
+
+  public function testLoadKeepsTheCore(): void {
+    $container = $this->load(['drupal' => ['drupal_root' => 'web', 'core' => 'Acme\Core']]);
+
+    $this->assertSame('Acme\Core', $container->getParameter(DrupalBackendProvider::CORE_PARAMETER));
+  }
+
+  public function testLoadReadsNullCoreAsNotGiven(): void {
+    $container = $this->load(['drupal' => ['drupal_root' => 'web', 'core' => NULL]]);
+
+    $this->assertNull($container->getParameter(DrupalBackendProvider::CORE_PARAMETER));
+  }
+
+  public function testLoadRejectsAnEmptyCore(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('Drupal "core" is empty. Set a value, or leave it out.');
+
+    $this->load(['drupal' => ['drupal_root' => 'web', 'core' => '']]);
   }
 
   public function testLoadKeepsTheFieldHandlers(): void {
@@ -254,29 +288,10 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUSH_SERVICE)->getMethodCalls());
   }
 
-  public function testProcessInjectsTheTaggedCoreIntoTheDrupalBackend(): void {
-    $container = new ContainerBuilder();
-    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
-
-    (new DrupalBackendProvider())->process($container);
-
-    $this->assertEquals([['setCore', [new Reference('behat_steps.backend.core')]]], $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls());
-  }
-
-  public function testProcessLeavesTheDrupalBackendAloneWhenNoCoreIsTagged(): void {
-    $container = new ContainerBuilder();
-    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-
-    (new DrupalBackendProvider())->process($container);
-
-    $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls());
-  }
-
   public function testProcessLeavesAnotherBackendAlone(): void {
     $container = new ContainerBuilder();
     $container->setDefinition('behat_steps.backend.blackbox', (new Definition(BlackboxBackend::class))->addTag('behat_steps.backend', ['alias' => 'blackbox']));
-    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
+    $container->setParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER, ['rating' => 'Acme\RatingHandler']);
 
     (new DrupalBackendProvider())->process($container);
 
@@ -287,35 +302,32 @@ class DrupalBackendProviderTest extends UnitTestCase {
   public function testProcessRegistersTheFieldHandlersOnTheDrupalBackend(): void {
     $container = new ContainerBuilder();
     $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
     $handlers = ['rating' => 'Acme\RatingHandler', 'datetime' => 'Acme\DateHandler'];
     $container->setParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER, $handlers);
 
     (new DrupalBackendProvider())->process($container);
 
     $calls = $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls();
-    $this->assertCount(3, $calls);
-    $this->assertSame('setCore', $calls[0][0]);
-    $this->assertSame(['registerFieldHandler', ['rating', 'Acme\RatingHandler']], $calls[1]);
-    $this->assertSame(['registerFieldHandler', ['datetime', 'Acme\DateHandler']], $calls[2]);
-    $this->assertSame([], $container->getDefinition('behat_steps.backend.core')->getMethodCalls());
+    $this->assertCount(2, $calls);
+    $this->assertSame(['registerFieldHandler', ['rating', 'Acme\RatingHandler']], $calls[0]);
+    $this->assertSame(['registerFieldHandler', ['datetime', 'Acme\DateHandler']], $calls[1]);
   }
 
   public function testProcessRegistersNoFieldHandlerWithoutTheSetting(): void {
     $container = new ContainerBuilder();
     $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
 
     (new DrupalBackendProvider())->process($container);
 
-    $this->assertSame(['setCore'], array_column($container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls(), 0));
+    $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls());
   }
 
   public function testFieldHandlersReplaceAndExtendTheShippedOnes(): void {
-    $backend = $this->buildBackend(['address' => DefaultHandler::class, 'rating' => DefaultHandler::class]);
+    $field_handlers = ['address' => DefaultHandler::class, 'rating' => DefaultHandler::class];
 
-    $handlers = (new \ReflectionProperty(Core::class, 'fieldHandlers'))->getValue($backend->getCore());
-    $this->assertIsArray($handlers);
+    $backend = $this->buildBackend(['field_handlers' => $field_handlers]);
+
+    $handlers = $this->readFieldHandlers($backend);
     $this->assertSame(DefaultHandler::class, $handlers['address']);
     $this->assertSame(DefaultHandler::class, $handlers['rating']);
     $this->assertSame(DatetimeHandler::class, $handlers['datetime']);
@@ -325,23 +337,60 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Handler class "Acme\MissingHandler" does not exist.');
 
-    $this->buildBackend(['rating' => 'Acme\MissingHandler']);
+    $this->buildBackend(['field_handlers' => ['rating' => 'Acme\MissingHandler']]);
+  }
+
+  public function testTheBackendBuildsTheVersionCoreForItsMajor(): void {
+    $backend = $this->buildBackend([], '99.0.0');
+
+    $this->assertSame(Core99Core::class, $backend->getCore()::class);
+  }
+
+  public function testTheCoreOptionReplacesTheVersionCore(): void {
+    $backend = $this->buildBackend(['core' => ConsumerCore::class]);
+
+    $this->assertSame(ConsumerCore::class, $backend->getCore()::class);
+  }
+
+  public function testTheBackendHandsTheSharedRandomGeneratorToItsCore(): void {
+    $container = $this->buildContainer([]);
+
+    $backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
+    $this->assertInstanceOf(DrupalBackend::class, $backend);
+    $this->assertSame($container->get('behat_steps.backend.random'), $backend->getRandom());
+  }
+
+  public function testFieldHandlersApplyToTheCoreTheOptionNames(): void {
+    $drupal = ['core' => ConsumerCore::class, 'field_handlers' => ['rating' => DefaultHandler::class]];
+
+    $backend = $this->buildBackend($drupal);
+
+    $this->assertInstanceOf(ConsumerCore::class, $backend->getCore());
+    $this->assertSame(DefaultHandler::class, $this->readFieldHandlers($backend)['rating']);
+  }
+
+  public function testACoreBuiltOnTheCoreOfAnotherMajorFailsTheBuild(): void {
+    $template = 'Core class "%s" extends "%s", which is not the Core for Drupal 99. Extend "%s" instead.';
+    $message = sprintf($template, ConsumerCore::class, Core::class, Core99Core::class);
+
+    $this->expectException(BootstrapException::class);
+    $this->expectExceptionMessage($message);
+
+    $this->buildBackend(['core' => ConsumerCore::class], '99.0.0');
   }
 
   public function testProcessRegistersTheCreationAliasesOnTheDrupalBackend(): void {
     $container = new ContainerBuilder();
     $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
     $container->setParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER, ['rating' => 'Acme\RatingHandler']);
     $container->setParameter(DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER, ['Acme\HeadlineAlias', 'Acme\AuthorIdAlias']);
 
     (new DrupalBackendProvider())->process($container);
 
     $calls = $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls();
-    $this->assertSame(['setCore', 'registerFieldHandler', 'registerCreationAlias', 'registerCreationAlias'], array_column($calls, 0));
-    $this->assertCreationAliasDefinition($calls[2][1][0], 'drupal.creation_aliases', 'Acme\HeadlineAlias');
-    $this->assertCreationAliasDefinition($calls[3][1][0], 'drupal.creation_aliases', 'Acme\AuthorIdAlias');
-    $this->assertSame([], $container->getDefinition('behat_steps.backend.core')->getMethodCalls());
+    $this->assertSame(['registerFieldHandler', 'registerCreationAlias', 'registerCreationAlias'], array_column($calls, 0));
+    $this->assertCreationAliasDefinition($calls[1][1][0], 'drupal.creation_aliases', 'Acme\HeadlineAlias');
+    $this->assertCreationAliasDefinition($calls[2][1][0], 'drupal.creation_aliases', 'Acme\AuthorIdAlias');
   }
 
   public function testProcessRegistersTheCreationAliasesOnTheDrushBackend(): void {
@@ -359,27 +408,16 @@ class DrupalBackendProviderTest extends UnitTestCase {
   public function testProcessRegistersNoCreationAliasWithoutTheSetting(): void {
     $container = new ContainerBuilder();
     $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
     $container->setDefinition(DrupalBackendProvider::DRUSH_SERVICE, (new Definition(DrushBackend::class))->addTag('behat_steps.backend', ['alias' => 'drush']));
 
     (new DrupalBackendProvider())->process($container);
 
-    $this->assertSame(['setCore'], array_column($container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls(), 0));
+    $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls());
     $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUSH_SERVICE)->getMethodCalls());
   }
 
-  public function testProcessRegistersNoCreationAliasOnTheDrupalBackendWithoutCore(): void {
-    $container = new ContainerBuilder();
-    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $container->setParameter(DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER, ['Acme\HeadlineAlias']);
-
-    (new DrupalBackendProvider())->process($container);
-
-    $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls());
-  }
-
   public function testCreationAliasesReplaceAndExtendTheShippedOnes(): void {
-    $backend = $this->buildBackend([], [HeadlineAlias::class, AuthorIdAlias::class]);
+    $backend = $this->buildBackend(['creation_aliases' => [HeadlineAlias::class, AuthorIdAlias::class]]);
 
     $node_aliases = $backend->getCreationAliases('node');
     $this->assertSame(['author', 'headline'], array_keys($node_aliases));
@@ -401,7 +439,7 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->expectException(InvalidConfigurationException::class);
     $this->expectExceptionMessage('The "drupal.creation_aliases" option names the class "Acme\MissingAlias", which does not exist.');
 
-    $this->buildBackend([], ['Acme\MissingAlias']);
+    $this->buildBackend(['creation_aliases' => ['Acme\MissingAlias']]);
   }
 
   public function testBuildCreationAliasBuildsTheClass(): void {
@@ -493,25 +531,37 @@ class DrupalBackendProviderTest extends UnitTestCase {
   }
 
   /**
-   * Builds the in-process backend the container defines, with its Core.
+   * Builds the container the provider defines, with the in-process backend.
    *
-   * 'FakeVersionDrupalBackend' reports a version without reading Drupal, so
-   * the fixture root stands in for a Drupal installation.
+   * 'FakeVersionDrupalBackend' reports the given version without reading
+   * Drupal, so the fixture root stands in for a Drupal installation.
    *
-   * @param array<string, string> $field_handlers
-   *   The 'drupal.field_handlers' setting.
-   * @param array<int, string> $creation_aliases
-   *   The 'drupal.creation_aliases' setting.
+   * @param array<string, mixed> $drupal
+   *   The 'drupal' settings apart from the Drupal root.
+   * @param string $version
+   *   The Drupal version the backend detects.
    */
-  protected function buildBackend(array $field_handlers, array $creation_aliases = []): DrupalBackend {
-    $container = $this->load(['drupal' => ['drupal_root' => static::DRUPAL_ROOT, 'field_handlers' => $field_handlers, 'creation_aliases' => $creation_aliases]]);
+  protected function buildContainer(array $drupal, string $version = '11.0.0'): ContainerBuilder {
+    $container = $this->load(['drupal' => ['drupal_root' => static::DRUPAL_ROOT] + $drupal]);
     $container->setParameter('behat_steps.backend.drupal.class', FakeVersionDrupalBackend::class);
     $container->setParameter('mink.base_url', 'http://example.com');
-    FakeVersionDrupalBackend::$nextVersion = '11.0.0';
+    FakeVersionDrupalBackend::$nextVersion = $version;
 
     (new DrupalBackendProvider())->process($container);
 
-    $backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
+    return $container;
+  }
+
+  /**
+   * Builds the in-process backend the container defines, with its Core.
+   *
+   * @param array<string, mixed> $drupal
+   *   The 'drupal' settings apart from the Drupal root.
+   * @param string $version
+   *   The Drupal version the backend detects.
+   */
+  protected function buildBackend(array $drupal, string $version = '11.0.0'): DrupalBackend {
+    $backend = $this->buildContainer($drupal, $version)->get(DrupalBackendProvider::DRUPAL_SERVICE);
     $this->assertInstanceOf(DrupalBackend::class, $backend);
 
     return $backend;
@@ -549,6 +599,19 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame(CreationAliasInterface::class, $argument->getClass());
     $this->assertSame([DrupalBackendProvider::class, 'buildCreationAlias'], $argument->getFactory());
     $this->assertSame([$option, $class], $argument->getArguments());
+  }
+
+  /**
+   * Reads the field handlers registered on the Core of a backend.
+   *
+   * @return array<string, string>
+   *   The handler classes, keyed by field type.
+   */
+  protected function readFieldHandlers(DrupalBackend $backend): array {
+    $handlers = (new \ReflectionProperty(Core::class, 'fieldHandlers'))->getValue($backend->getCore());
+    $this->assertIsArray($handlers);
+
+    return $handlers;
   }
 
   /**
