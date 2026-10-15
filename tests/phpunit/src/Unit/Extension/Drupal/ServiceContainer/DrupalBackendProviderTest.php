@@ -355,6 +355,7 @@ class DrupalBackendProviderTest extends UnitTestCase {
   public function testTheDrupalAndDrushBackendsShareTheRandomGenerator(): void {
     $drupal = ['drupal_root' => static::DRUPAL_ROOT, 'core' => ConsumerCore::class];
     $container = $this->buildContainer(['drupal' => $drupal, 'drush' => ['alias' => '@self']]);
+    FakeVersionDrupalBackend::$nextVersion = '11.0.0';
 
     $drupal_backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
     $drush_backend = $container->get(DrupalBackendProvider::DRUSH_SERVICE);
