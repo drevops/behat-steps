@@ -308,7 +308,13 @@ final class RatingHandler implements FieldHandlerInterface {
 
 The class has to be autoloadable when the run starts, through Composer or the suite's `autoload` setting. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
 
-The option and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename one of them.
+The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way, and the registration holds for the rest of the run, because the backend does:
+
+```php
+$this->backendFor(FieldHandlerCapabilityInterface::class)->registerFieldHandler('rating', RatingHandler::class);
+```
+
+The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename one of them.
 
 ### Trait options
 

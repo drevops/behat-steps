@@ -165,7 +165,7 @@ class PublicSurfaceTest extends UnitTestCase {
       $violations[] = $type . '::' . $method->getName();
     }
 
-    $this->assertSame([], $violations, 'The backend layer sits outside semantic versioning, so a docblock there never invites an override. Reword the docblock. A project adds or replaces a field handler through the "drupal.field_handlers" option.');
+    $this->assertSame([], $violations, 'The backend layer sits outside semantic versioning, so a docblock there never invites an override. Reword the docblock. A project adds or replaces a field handler through the "drupal.field_handlers" option or FieldHandlerCapabilityInterface.');
   }
 
   public static function dataProviderBackendInvitesNoOverride(): array {

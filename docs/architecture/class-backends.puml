@@ -103,6 +103,7 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   interface DraggableviewsCapabilityInterface
   interface DrushCapabilityInterface
   interface EntityDefinitionCapabilityInterface
+  interface FieldHandlerCapabilityInterface
   interface FileCapabilityInterface
   interface LogCapabilityInterface
   interface MenuLinkCapabilityInterface
@@ -127,14 +128,15 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   DraggableviewsCapabilityInterface -[hidden]down- DrushCapabilityInterface
   DrushCapabilityInterface -[hidden]down- EntityDefinitionCapabilityInterface
 
+  FieldHandlerCapabilityInterface -[hidden]down- FileCapabilityInterface
   FileCapabilityInterface -[hidden]down- LogCapabilityInterface
   LogCapabilityInterface -[hidden]down- MenuLinkCapabilityInterface
   MenuLinkCapabilityInterface -[hidden]down- ModuleCapabilityInterface
   ModuleCapabilityInterface -[hidden]down- NodeCapabilityInterface
   NodeCapabilityInterface -[hidden]down- PathAliasCapabilityInterface
   PathAliasCapabilityInterface -[hidden]down- QueueCapabilityInterface
-  QueueCapabilityInterface -[hidden]down- QueueItemCapabilityInterface
 
+  QueueItemCapabilityInterface -[hidden]down- RedirectCapabilityInterface
   RedirectCapabilityInterface -[hidden]down- SearchApiCapabilityInterface
   SearchApiCapabilityInterface -[hidden]down- SearchIndexCapabilityInterface
   SearchIndexCapabilityInterface -[hidden]down- StateCapabilityInterface
@@ -178,6 +180,7 @@ DrupalBackendInterface ..|> ConfigEntityCapabilityInterface
 DrupalBackendInterface ..|> ContentCapabilityInterface
 DrupalBackendInterface ..|> CoreCapabilityInterface
 DrupalBackendInterface ..|> EntityLookupCapabilityInterface
+DrupalBackendInterface ..|> FieldHandlerCapabilityInterface
 DrupalBackendInterface ..|> NodeCapabilityInterface
 DrupalBackendInterface ..|> RequestEnvironmentCapabilityInterface
 DrushBackendInterface ..|> DrushCapabilityInterface
@@ -198,12 +201,12 @@ note right of BlackboxBackend
 end note
 
 note bottom of DrupalBackendInterface
-  DrupalBackendInterface extends 32 capability
+  DrupalBackendInterface extends 33 capability
   interfaces and DrushBackendInterface 13, of
   which DrushCapabilityInterface is its own.
   Both backend classes add
   CreationAliasCapabilityInterface, so
-  DrupalBackend provides 33 and DrushBackend 14.
+  DrupalBackend provides 34 and DrushBackend 14.
   Only a few edges are drawn here. A backend
   declares a capability only when it serves
   every method of it, so what only the

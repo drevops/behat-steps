@@ -22,6 +22,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface
 use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DraggableviewsCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\FieldHandlerCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\FileCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\LogCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\MenuLinkCapabilityInterface;
@@ -59,6 +60,7 @@ interface DrupalBackendInterface extends
   DraggableviewsCapabilityInterface,
   EntityDefinitionCapabilityInterface,
   EntityLookupCapabilityInterface,
+  FieldHandlerCapabilityInterface,
   FileCapabilityInterface,
   LanguageCapabilityInterface,
   LogCapabilityInterface,

@@ -125,7 +125,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
 
     $container->getDefinition(self::DRUPAL_SERVICE)->addMethodCall('setCore', [new Reference($core_ids[0])]);
 
-    $this->registerFieldHandlers($container, $core_ids[0]);
+    $this->registerFieldHandlers($container);
   }
 
   /**
@@ -240,22 +240,20 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   }
 
   /**
-   * Registers the configured field handlers on the injected Core.
+   * Registers the configured field handlers on the in-process backend.
    *
-   * The calls run after the Core constructor registers the shipped handlers,
-   * so an entry for a shipped field type replaces its handler.
+   * The calls follow 'setCore()', so an entry for a shipped field type
+   * replaces the handler the Core constructor registered.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
    *   The container builder.
-   * @param string $core_id
-   *   The service ID of the Core the in-process backend takes.
    */
-  protected function registerFieldHandlers(ContainerBuilder $container, string $core_id): void {
+  protected function registerFieldHandlers(ContainerBuilder $container): void {
     if (!$container->hasParameter(self::FIELD_HANDLERS_PARAMETER)) {
       return;
     }
 
-    $definition = $container->getDefinition($core_id);
+    $definition = $container->getDefinition(self::DRUPAL_SERVICE);
 
     foreach ((array) $container->getParameter(self::FIELD_HANDLERS_PARAMETER) as $field_type => $class) {
       $definition->addMethodCall('registerFieldHandler', [(string) $field_type, $class]);
