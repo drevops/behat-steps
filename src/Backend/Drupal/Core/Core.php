@@ -1249,10 +1249,13 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * {@inheritdoc}
+   *
+   * The value of a creation alias registered for the stub's entity type stays
+   * as written, so the alias resolves it when the entity is created.
    */
   public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
     $parser = $this->createEntityFieldParser($stub->getEntityType(), $stub->getBundle());
-    $parser->ignoring($ignored_properties);
+    $parser->ignoring([...$ignored_properties, ...array_keys($this->getCreationAliases($stub->getEntityType()))]);
 
     $stub->setValues($parser->parse($stub->getValues()));
   }
@@ -1542,6 +1545,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       throw new \RuntimeException(sprintf('Cannot create an entity of type "%s" because it declares no id key.', $entity_type));
     }
 
+    // A pre-create alias can set the bundle, so it runs before the check.
+    $this->applyPreCreateAliases($stub, $entity_type);
+
     if ($bundle_key && !$stub->hasValue($bundle_key) && $stub->getBundle() !== NULL) {
       $stub->setValue($bundle_key, $stub->getBundle());
     }
@@ -1556,6 +1562,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $stub->setValue($id_key, $entity->id());
     $stub->markSaved($entity);
+
+    $this->applyPostCreateAliases($stub, $entity, $entity_type);
 
     return $stub;
   }
@@ -2437,6 +2445,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function fileWriteManaged(string $uri, string $content, EntityStubInterface $stub): EntityStubInterface {
+    $this->applyPreCreateAliases($stub, 'file');
+
     $this->prepareFileDirectory($uri);
 
     $file = \Drupal::service('file.repository')->writeData($content, $uri, FileExists::Replace);
@@ -2449,6 +2459,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     $stub->setValue('fid', $file->id());
     $stub->markSaved($file);
+
+    $this->applyPostCreateAliases($stub, $file, 'file');
 
     return $stub;
   }

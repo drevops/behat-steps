@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Drupal\ServiceContainer;
 
+use ConsumerProject\Backend\Alias\AuthorIdAlias;
+use ConsumerProject\Backend\Alias\HeadlineAlias;
+use ConsumerProject\Backend\Alias\LoginAlias;
+use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
+use DrevOps\BehatSteps\Backend\Alias\PreCreateAliasInterface;
+use DrevOps\BehatSteps\Backend\Alias\RolesAlias;
 use DrevOps\BehatSteps\Backend\BlackboxBackend;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DatetimeHandler;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DefaultHandler;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
+use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
+use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Extension\Drupal\ServiceContainer\DrupalBackendProvider;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\FakeVersionDrupalBackend;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -84,6 +92,41 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->processConfig(['drupal' => ['drupal_root' => 'web', 'field_handlers' => ['rating' => '']]]);
   }
 
+  public function testConfigureReadsTheCreationAliases(): void {
+    $config = $this->processConfig(['drupal' => ['drupal_root' => 'web', 'creation_aliases' => ['Acme\HeadlineAlias', 'Acme\AuthorIdAlias']], 'drush' => ['alias' => '@self', 'creation_aliases' => ['Acme\LoginAlias']]]);
+
+    $this->assertSame(['Acme\HeadlineAlias', 'Acme\AuthorIdAlias'], $config['drupal']['creation_aliases']);
+    $this->assertSame(['Acme\LoginAlias'], $config['drush']['creation_aliases']);
+  }
+
+  public function testConfigureDefaultsToNoCreationAliases(): void {
+    $config = $this->processConfig(['drupal' => ['drupal_root' => 'web'], 'drush' => ['alias' => '@self']]);
+
+    $this->assertSame([], $config['drupal']['creation_aliases']);
+    $this->assertSame([], $config['drush']['creation_aliases']);
+  }
+
+  /**
+   * Tests that an empty alias class fails the build, naming its path.
+   *
+   * @param array<string, mixed> $config
+   *   The extension configuration, before schema normalization.
+   * @param string $expected_message
+   *   The message the build is expected to fail with.
+   */
+  #[DataProvider('dataProviderConfigureRejectsAnEmptyCreationAliasClass')]
+  public function testConfigureRejectsAnEmptyCreationAliasClass(array $config, string $expected_message): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    $this->processConfig($config);
+  }
+
+  public static function dataProviderConfigureRejectsAnEmptyCreationAliasClass(): \Iterator {
+    yield 'the in-process backend' => [['drupal' => ['drupal_root' => 'web', 'creation_aliases' => ['']]], 'The path "behat_steps.drupal.creation_aliases.0" cannot contain an empty value'];
+    yield 'the Drush backend' => [['drush' => ['alias' => '@self', 'creation_aliases' => ['']]], 'The path "behat_steps.drush.creation_aliases.0" cannot contain an empty value'];
+  }
+
   public function testParameterDefaultsNameTheDrupalLoginForm(): void {
     $defaults = (new DrupalBackendProvider())->getParameterDefaults();
 
@@ -107,6 +150,7 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertTrue($container->hasDefinition('behat_steps.backend.core'));
     $this->assertSame('web', $container->getParameter('behat_steps.backend.drupal.drupal_root'));
     $this->assertSame([], $container->getParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER));
+    $this->assertSame([], $container->getParameter(DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER));
   }
 
   public function testLoadKeepsTheFieldHandlers(): void {
@@ -117,12 +161,20 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame($handlers, $container->getParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER));
   }
 
+  public function testLoadKeepsTheCreationAliases(): void {
+    $container = $this->load(['drupal' => ['drupal_root' => 'web', 'creation_aliases' => ['Acme\HeadlineAlias']], 'drush' => ['alias' => '@self', 'creation_aliases' => ['Acme\LoginAlias']]]);
+
+    $this->assertSame(['Acme\HeadlineAlias'], $container->getParameter(DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER));
+    $this->assertSame(['Acme\LoginAlias'], $container->getParameter(DrupalBackendProvider::DRUSH_CREATION_ALIASES_PARAMETER));
+  }
+
   public function testLoadRegistersTheDrushBackendWithItsRoot(): void {
     $container = $this->load(['drush' => ['root' => 'web']]);
 
     $this->assertTrue($container->hasDefinition(DrupalBackendProvider::DRUSH_SERVICE));
     $this->assertSame('web', $container->getParameter('behat_steps.backend.drush.root'));
     $this->assertNull($container->getParameter('behat_steps.backend.drush.alias'));
+    $this->assertSame([], $container->getParameter(DrupalBackendProvider::DRUSH_CREATION_ALIASES_PARAMETER));
   }
 
   public function testLoadAcceptsAnAliasInsteadOfRoot(): void {
@@ -276,6 +328,109 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->buildBackend(['rating' => 'Acme\MissingHandler']);
   }
 
+  public function testProcessRegistersTheCreationAliasesOnTheDrupalBackend(): void {
+    $container = new ContainerBuilder();
+    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
+    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
+    $container->setParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER, ['rating' => 'Acme\RatingHandler']);
+    $container->setParameter(DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER, ['Acme\HeadlineAlias', 'Acme\AuthorIdAlias']);
+
+    (new DrupalBackendProvider())->process($container);
+
+    $calls = $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls();
+    $this->assertSame(['setCore', 'registerFieldHandler', 'registerCreationAlias', 'registerCreationAlias'], array_column($calls, 0));
+    $this->assertCreationAliasDefinition($calls[2][1][0], 'drupal.creation_aliases', 'Acme\HeadlineAlias');
+    $this->assertCreationAliasDefinition($calls[3][1][0], 'drupal.creation_aliases', 'Acme\AuthorIdAlias');
+    $this->assertSame([], $container->getDefinition('behat_steps.backend.core')->getMethodCalls());
+  }
+
+  public function testProcessRegistersTheCreationAliasesOnTheDrushBackend(): void {
+    $container = new ContainerBuilder();
+    $container->setDefinition(DrupalBackendProvider::DRUSH_SERVICE, (new Definition(DrushBackend::class))->addTag('behat_steps.backend', ['alias' => 'drush']));
+    $container->setParameter(DrupalBackendProvider::DRUSH_CREATION_ALIASES_PARAMETER, ['Acme\LoginAlias']);
+
+    (new DrupalBackendProvider())->process($container);
+
+    $calls = $container->getDefinition(DrupalBackendProvider::DRUSH_SERVICE)->getMethodCalls();
+    $this->assertSame(['registerCreationAlias'], array_column($calls, 0));
+    $this->assertCreationAliasDefinition($calls[0][1][0], 'drush.creation_aliases', 'Acme\LoginAlias');
+  }
+
+  public function testProcessRegistersNoCreationAliasWithoutTheSetting(): void {
+    $container = new ContainerBuilder();
+    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
+    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
+    $container->setDefinition(DrupalBackendProvider::DRUSH_SERVICE, (new Definition(DrushBackend::class))->addTag('behat_steps.backend', ['alias' => 'drush']));
+
+    (new DrupalBackendProvider())->process($container);
+
+    $this->assertSame(['setCore'], array_column($container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls(), 0));
+    $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUSH_SERVICE)->getMethodCalls());
+  }
+
+  public function testProcessRegistersNoCreationAliasOnTheDrupalBackendWithoutCore(): void {
+    $container = new ContainerBuilder();
+    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
+    $container->setParameter(DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER, ['Acme\HeadlineAlias']);
+
+    (new DrupalBackendProvider())->process($container);
+
+    $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls());
+  }
+
+  public function testCreationAliasesReplaceAndExtendTheShippedOnes(): void {
+    $backend = $this->buildBackend([], [HeadlineAlias::class, AuthorIdAlias::class]);
+
+    $node_aliases = $backend->getCreationAliases('node');
+    $this->assertSame(['author', 'headline'], array_keys($node_aliases));
+    $this->assertInstanceOf(AuthorIdAlias::class, $node_aliases['author']);
+    $this->assertInstanceOf(HeadlineAlias::class, $node_aliases['headline']);
+    $this->assertSame(['vocabulary_machine_name', 'parent'], array_keys($backend->getCreationAliases('taxonomy_term')));
+    $this->assertInstanceOf(RolesAlias::class, $backend->getCreationAliases('user')['roles']);
+  }
+
+  public function testDrushCreationAliasesExtendTheShippedOnes(): void {
+    $backend = $this->buildDrushBackend([LoginAlias::class]);
+
+    $aliases = $backend->getCreationAliases('user');
+    $this->assertSame(['roles', 'login'], array_keys($aliases));
+    $this->assertInstanceOf(LoginAlias::class, $aliases['login']);
+  }
+
+  public function testMissingCreationAliasClassFailsWhenTheBackendIsBuilt(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The "drupal.creation_aliases" option names the class "Acme\MissingAlias", which does not exist.');
+
+    $this->buildBackend([], ['Acme\MissingAlias']);
+  }
+
+  public function testBuildCreationAliasBuildsTheClass(): void {
+    $this->assertInstanceOf(HeadlineAlias::class, DrupalBackendProvider::buildCreationAlias('drupal.creation_aliases', HeadlineAlias::class));
+  }
+
+  /**
+   * Tests that a class the factory cannot build fails, naming the option.
+   *
+   * @param string $class
+   *   The class the option names.
+   * @param string $expected_message
+   *   The message the build is expected to fail with.
+   */
+  #[DataProvider('dataProviderBuildCreationAliasRejectsClass')]
+  public function testBuildCreationAliasRejectsClass(string $class, string $expected_message): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage($expected_message);
+
+    DrupalBackendProvider::buildCreationAlias('drush.creation_aliases', $class);
+  }
+
+  public static function dataProviderBuildCreationAliasRejectsClass(): \Iterator {
+    yield 'a missing class' => ['Acme\MissingAlias', 'The "drush.creation_aliases" option names the class "Acme\MissingAlias", which does not exist.'];
+    yield 'a class that is no alias' => [EntityStub::class, sprintf('The "drush.creation_aliases" option names the class "%s", which does not implement "%s".', EntityStub::class, CreationAliasInterface::class)];
+    yield 'an interface' => [PreCreateAliasInterface::class, sprintf('The "drush.creation_aliases" option names the class "%s", which cannot be instantiated.', PreCreateAliasInterface::class)];
+    yield 'a class with constructor arguments' => [RolesAlias::class, sprintf('The "drush.creation_aliases" option names the class "%s", whose constructor requires arguments. Build it in a context and register it through CreationAliasCapabilityInterface::registerCreationAlias().', RolesAlias::class)];
+  }
+
   public function testAbsoluteBinaryPathIsReturnedAsIs(): void {
     $this->assertSame('/usr/local/bin/drush', DrupalBackendProvider::resolveBinaryPath('/usr/local/bin/drush'));
   }
@@ -345,9 +500,11 @@ class DrupalBackendProviderTest extends UnitTestCase {
    *
    * @param array<string, string> $field_handlers
    *   The 'drupal.field_handlers' setting.
+   * @param array<int, string> $creation_aliases
+   *   The 'drupal.creation_aliases' setting.
    */
-  protected function buildBackend(array $field_handlers): DrupalBackend {
-    $container = $this->load(['drupal' => ['drupal_root' => static::DRUPAL_ROOT, 'field_handlers' => $field_handlers]]);
+  protected function buildBackend(array $field_handlers, array $creation_aliases = []): DrupalBackend {
+    $container = $this->load(['drupal' => ['drupal_root' => static::DRUPAL_ROOT, 'field_handlers' => $field_handlers, 'creation_aliases' => $creation_aliases]]);
     $container->setParameter('behat_steps.backend.drupal.class', FakeVersionDrupalBackend::class);
     $container->setParameter('mink.base_url', 'http://example.com');
     FakeVersionDrupalBackend::$nextVersion = '11.0.0';
@@ -358,6 +515,40 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertInstanceOf(DrupalBackend::class, $backend);
 
     return $backend;
+  }
+
+  /**
+   * Builds the Drush backend the container defines.
+   *
+   * @param array<int, string> $creation_aliases
+   *   The 'drush.creation_aliases' setting.
+   */
+  protected function buildDrushBackend(array $creation_aliases): DrushBackend {
+    $container = $this->load(['drush' => ['alias' => '@self', 'creation_aliases' => $creation_aliases]]);
+
+    (new DrupalBackendProvider())->process($container);
+
+    $backend = $container->get(DrupalBackendProvider::DRUSH_SERVICE);
+    $this->assertInstanceOf(DrushBackend::class, $backend);
+
+    return $backend;
+  }
+
+  /**
+   * Asserts that a method call argument builds the alias an option names.
+   *
+   * @param mixed $argument
+   *   The argument of the 'registerCreationAlias()' call.
+   * @param string $option
+   *   The option expected to name the class.
+   * @param string $class
+   *   The class expected to be built.
+   */
+  protected function assertCreationAliasDefinition(mixed $argument, string $option, string $class): void {
+    $this->assertInstanceOf(Definition::class, $argument);
+    $this->assertSame(CreationAliasInterface::class, $argument->getClass());
+    $this->assertSame([DrupalBackendProvider::class, 'buildCreationAlias'], $argument->getFactory());
+    $this->assertSame([$option, $class], $argument->getArguments());
   }
 
   /**

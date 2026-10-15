@@ -331,13 +331,13 @@ This package follows [semantic versioning](https://semver.org), and 5 surfaces a
 
 - **Step text** - the pattern a scenario matches, listed in [STEPS.md](STEPS.md).
 - **Helpers** - every public method the step traits, the helper traits and `WebRawContext` contribute that is not a step, a hook or a transform, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
-- **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md), along with `FieldHandlerInterface`, the contract a class the `drupal.field_handlers` option names implements.
+- **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md), along with the contracts a class those options name implements: `FieldHandlerInterface` for `drupal.field_handlers`, and `PreCreateAliasInterface` or `PostCreateAliasInterface` for `drupal.creation_aliases` and `drush.creation_aliases`.
 - **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) below.
 - **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
 
 2 things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Extension` that none of the surfaces above exposes.
 
-A project adds or replaces a field handler through the `drupal.field_handlers` option, or from a context through `FieldHandlerCapabilityInterface`, rather than a subclass of `Core`: a subclass of `Core`, a backend or a field handler relies on protected methods a minor release can rename or stop calling.
+A project adds or replaces a field handler through the `drupal.field_handlers` option, or from a context through `FieldHandlerCapabilityInterface`, and a creation alias through the `drupal.creation_aliases` and `drush.creation_aliases` options, or from a context through `CreationAliasCapabilityInterface`, rather than a subclass of `Core` or a backend: a subclass of `Core`, a backend or a field handler relies on protected methods a minor release can rename or stop calling.
 
 ### Exceptions
 
@@ -362,7 +362,7 @@ Example error messages:
 Element matching css "#my-element" not found.
 Link with title "My Link" not found.
 Select with id|name|label "My Select" not found.
-The cookie with name "session" was not set.
+The cookie "session" was not set.
 ```
 
 ## 🤖 Writing tests with AI assistants

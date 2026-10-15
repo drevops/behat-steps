@@ -297,6 +297,14 @@ Feature: Check that ContentTrait works
     And I should see "[TEST] V-Page 2"
     And I should see "[TEST] V-Page 3"
 
+  Scenario: Create a node with a column a configured creation alias resolves
+    Given the following page content exists:
+      | headline                  |
+      | [TEST] Page from headline |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "page" content page with the title "[TEST] Page from headline"
+    Then I should see "[TEST] Page from headline"
+
   Scenario: Assert "Then the :content_type content with the title :title should not exist" works as expected
     Given I am logged in as a user with the role "administrator"
     Then the "page" content with the title "[TEST] Non-existing page" should not exist

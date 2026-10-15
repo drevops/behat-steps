@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Backend\Drupal;
 
+use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
 use DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\CreationAliasCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
@@ -164,6 +165,28 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
     }
 
     return $core->getCreationAliases($entity_type);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * The alias is registered on the active Core, which runs it when it creates
+   * an entity.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
+   *   Thrown when the active Core does not implement the creation alias
+   *   capability.
+   */
+  public function registerCreationAlias(CreationAliasInterface $alias): void {
+    $core = $this->getCore();
+
+    if (!$core instanceof CreationAliasCapabilityInterface) {
+      $template = 'Creation aliases are not supported by %s: its Core ' . $core::class . ' does not implement ' . CreationAliasCapabilityInterface::class . '.';
+
+      throw new UnsupportedBackendActionException($template, $this);
+    }
+
+    $core->registerCreationAlias($alias);
   }
 
   /**

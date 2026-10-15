@@ -47,14 +47,17 @@ $profile = (new Profile('default'))
     'login_field' => 'name',
     'login_wait' => 0,
     'blackbox' => NULL,
-    // An entry such as 'rating' => RatingHandler::class adds a handler for a
-    // field type or replaces a shipped one.
-    'drupal' => ['drupal_root' => 'web', 'field_handlers' => []],
+    // A 'field_handlers' entry such as 'rating' => RatingHandler::class adds a
+    // handler for a field type or replaces a shipped one. A 'creation_aliases'
+    // entry such as OrganizationAlias::class adds a creation alias or replaces
+    // the shipped one with the same name.
+    'drupal' => ['drupal_root' => 'web', 'field_handlers' => [], 'creation_aliases' => []],
     'drush' => [
       'alias' => 'self',
       'binary' => 'vendor/bin/drush',
       'root' => 'web',
       'global_options' => '--uri=http://your-site.local',
+      'creation_aliases' => [],
     ],
     'text' => [
       'login_url' => '/user',

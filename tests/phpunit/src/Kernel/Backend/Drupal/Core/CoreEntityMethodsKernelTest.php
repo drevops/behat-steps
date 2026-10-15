@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Backend\Drupal\Core;
 
+use ConsumerProject\Backend\Alias\LoginAlias;
+use DrevOps\BehatSteps\Backend\Alias\PostCreateAliasInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\entity_test\EntityTestHelper;
@@ -15,6 +18,7 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\path_alias\Entity\PathAlias;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -266,6 +270,62 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $this->expectExceptionMessageMatches('/Cannot create entity because provided bundle "not_a_real_bundle" does not exist/');
 
     $this->core->createEntity($stub);
+  }
+
+  public function testCreateEntityRunsThePreCreateAliases(): void {
+    $this->core->registerCreationAlias(new LoginAlias());
+
+    $created = $this->core->createEntity(new EntityStub('user', NULL, ['login' => 'zoe', 'status' => 1]));
+
+    $saved = $created->getSavedEntity();
+    $this->assertInstanceOf(UserInterface::class, $saved);
+    $this->assertSame('zoe', $saved->getAccountName());
+    $this->assertSame('zoe@example.com', $saved->getEmail());
+  }
+
+  public function testCreateEntityRunsThePostCreateAliasesOnTheSavedEntity(): void {
+    $alias = new class implements PostCreateAliasInterface {
+
+      /**
+       * The entity the alias ran on.
+       */
+      public ?object $entity = NULL;
+
+      /**
+       * {@inheritdoc}
+       */
+      public function getName(): string {
+        return 'note';
+      }
+
+      /**
+       * {@inheritdoc}
+       */
+      public function getEntityType(): string {
+        return 'entity_test';
+      }
+
+      /**
+       * {@inheritdoc}
+       */
+      public function getDescription(): string {
+        return 'Records the entity it runs on.';
+      }
+
+      /**
+       * {@inheritdoc}
+       */
+      public function applyAfterCreate(EntityStubInterface $stub, object $entity): void {
+        $this->entity = $entity;
+      }
+
+    };
+    $this->core->registerCreationAlias($alias);
+
+    $created = $this->core->createEntity(new EntityStub('entity_test', NULL, ['name' => 'noted', 'note' => 'yes']));
+
+    $this->assertInstanceOf(EntityInterface::class, $alias->entity);
+    $this->assertSame($created->getSavedEntity(), $alias->entity);
   }
 
   public function testUpdateEntitySetsTheValuesThroughTheHandlers(): void {
