@@ -1,7 +1,8 @@
 @startuml
 ' drevops/behat-steps - the Behat-free backend layer and its capability model.
 ' Traced from src/Backend/BackendInterface.php, BlackboxBackendInterface.php,
-' BlackboxBackend.php, src/Backend/Capability/, src/Backend/Random/,
+' BlackboxBackend.php, src/Backend/Alias/, src/Backend/Capability/,
+' src/Backend/Random/,
 ' src/Backend/Drupal/DrupalBackendInterface.php, DrushBackendInterface.php,
 ' DrupalBackend.php, DrushBackend.php, src/Backend/Drupal/Capability/,
 ' src/Backend/Drupal/Core/, src/Backend/Entity/,
@@ -56,7 +57,10 @@ package "DrevOps\\BehatSteps\\Backend\\Capability" #E8F5E9 {
   interface AuthenticationCapabilityInterface
   interface CacheCapabilityInterface
   interface ContentCapabilityInterface
-  interface CreationAliasCapabilityInterface
+  interface CreationAliasCapabilityInterface {
+    +getCreationAliases(entity_type) : array
+    +registerCreationAlias(alias) : void
+  }
   interface CronCapabilityInterface
   interface EntityLookupCapabilityInterface
   interface LanguageCapabilityInterface
@@ -149,6 +153,7 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Core" #E8F5E9 {
   interface CoreInterface
   class Core {
     +registerFieldHandler(field_type, class) : void
+    +registerCreationAlias(alias) : void
   }
   interface FieldHandlerInterface {
     +__construct(stub, entity_type, field_name)
