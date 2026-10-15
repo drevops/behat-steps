@@ -173,6 +173,7 @@ class DrupalBackendDelegationTest extends UnitTestCase {
     yield 'getEntityIdKey' => ['getEntityIdKey', ['node'], 'getEntityIdKey'];
     yield 'getEntityFieldTypes' => ['getEntityFieldTypes', ['node', 'article'], 'getEntityFieldTypes'];
     yield 'parseEntityFields' => ['parseEntityFields', [$node, ['author']], 'parseEntityFields'];
+    yield 'registerFieldHandler' => ['registerFieldHandler', ['rating', 'Acme\RatingHandler'], 'registerFieldHandler'];
     yield 'placeBlock' => ['placeBlock', ['system_powered_by_block', 'Powered by'], 'placeBlock'];
     yield 'deleteBlock' => ['deleteBlock', [$block], 'deleteBlock'];
     yield 'configureBlock' => ['configureBlock', [$block, ['region' => 'content']], 'configureBlock'];

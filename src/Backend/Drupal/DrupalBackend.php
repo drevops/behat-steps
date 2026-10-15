@@ -393,6 +393,13 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function registerFieldHandler(string $field_type, string $class): void {
+    $this->getCore()->registerFieldHandler($field_type, $class);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function placeBlock(string $plugin_id, string $label): EntityStubInterface {
     return $this->getCore()->placeBlock($plugin_id, $label);
   }
@@ -894,8 +901,6 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
 
   /**
    * Reads the Drupal VERSION constant.
-   *
-   * A subclass can override this to return a synthetic version.
    */
   protected function readVersionConstant(): string {
     return \Drupal::VERSION;

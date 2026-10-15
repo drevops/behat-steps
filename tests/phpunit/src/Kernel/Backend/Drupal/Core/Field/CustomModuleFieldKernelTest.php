@@ -57,7 +57,7 @@ class CustomModuleFieldKernelTest extends FieldHandlerKernelTestBase {
     ]);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessageMatches('/No dedicated handler is registered.*entity-reference/s');
+    $this->expectExceptionMessageMatches('/No dedicated handler is registered.*entity-reference.*under the "drupal\.field_handlers" option\./s');
 
     $this->core->createEntity($stub);
   }

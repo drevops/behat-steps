@@ -45,7 +45,7 @@ package "drevops/behat-steps" {
     component "Hooks\nsrc/Extension/Hook: entity and\nuser creation hooks, each\nattribute names its call" as Hooks
 
     package "Extension\\Drupal" #F3E5F5 {
-      component "DrupalBackendProvider\ndrupal: and drush: settings,\nlogin defaults, the 2 backends'\nservice definitions, Core wiring" as DrupalProvider
+      component "DrupalBackendProvider\ndrupal: and drush: settings,\nlogin defaults, the 2 backends'\nservice definitions, Core wiring,\nconfigured field handlers" as DrupalProvider
       component "Drupal hooks\nnode, term and language\ncreation hooks" as DrupalHooks
     }
   }
@@ -55,7 +55,7 @@ package "drevops/behat-steps" {
     component "BlackboxBackend\nno backend access at all" as BlackboxBe
 
     package "Backend\\Drupal" #E8F5E9 {
-      component "23 Drupal-only capabilities\nBatch, Block, Config, ConfigEntity, Core,\nDraggableviews, Drush, EntityDefinition,\nFile, Log, MenuLink, Module, Node,\nPathAlias, Queue, QueueItem, Redirect,\nSearchApi, SearchIndex, State, Term,\nUserActivity, Workflow" as DrupalCaps
+      component "24 Drupal-only capabilities\nBatch, Block, Config, ConfigEntity, Core,\nDraggableviews, Drush, EntityDefinition,\nFieldHandler, File, Log, MenuLink, Module,\nNode, PathAlias, Queue, QueueItem, Redirect,\nSearchApi, SearchIndex, State, Term,\nUserActivity, Workflow" as DrupalCaps
       component "DrupalBackend\nbootstraps Drupal in-process" as DrupalBe
       component "DrushBackend\nshells out to drush" as DrushBe
       component "Core\nfield handlers, classifiers,\nparsers, creation aliases" as Core
@@ -102,7 +102,7 @@ Ext --> BlackboxBe : registers
 Ext --> DrupalProvider : loads
 Behat --> Listeners : before each scenario
 Listeners --> Registries : backend order,\nscenario tags
-DrupalProvider --> DrupalBe : defines,\nwires Core into
+DrupalProvider --> DrupalBe : defines, wires Core into,\nregisters the configured\nfield handlers on
 DrupalProvider --> DrushBe : defines
 Ext ..> BrowserKit : registers with Mink,\nreads the session options
 Ext --> HttpClients : defines the shared transport\nfrom the session options

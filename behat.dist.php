@@ -47,7 +47,9 @@ $profile = (new Profile('default'))
     'login_field' => 'name',
     'login_wait' => 0,
     'blackbox' => NULL,
-    'drupal' => ['drupal_root' => 'web'],
+    // An entry such as 'rating' => RatingHandler::class adds a handler for a
+    // field type or replaces a shipped one.
+    'drupal' => ['drupal_root' => 'web', 'field_handlers' => []],
     'drush' => [
       'alias' => 'self',
       'binary' => 'vendor/bin/drush',

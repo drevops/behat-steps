@@ -17,9 +17,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for consumer-supplied Core and its bundled field handlers.
  *
- * Exercises the 2 extension seams documented on
- * 'Core::registerDefaultFieldHandlers()' against a full Drupal kernel. The
- * test replaces 'Core' with 'ConsumerCore', a fixture outside the
+ * Exercises a 'Core' subclass that extends 'registerDefaultFieldHandlers()'
+ * with a scan of its own 'Field/' directory, against a full Drupal kernel.
+ * The test replaces 'Core' with 'ConsumerCore', a fixture outside the
  * 'DrevOps\BehatSteps\Backend' namespace, and proves its 'Field/' directory
  * scan contributes handlers that run during 'createEntity':
  *

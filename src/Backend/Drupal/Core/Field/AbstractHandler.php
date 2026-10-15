@@ -94,10 +94,6 @@ abstract class AbstractHandler implements FieldHandlerInterface {
    *   - List of records -> returned unchanged.
    *   - Mixed list of scalars and records -> scalars wrapped, records kept.
    *
-   * Subclasses with custom shorthand override this method and may call
-   * 'parent::normalize()' for the residual shapes they do not handle
-   * themselves.
-   *
    * @param mixed $values
    *   Whatever shape the caller produced.
    *

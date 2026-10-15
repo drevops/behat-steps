@@ -142,12 +142,13 @@ interface CoreInterface extends
    * @param string $field_type
    *   The Drupal field type id, e.g. 'boolean', 'entity_reference', or a
    *   project-specific id registered by a contrib module.
-   * @param class-string $class
+   * @param string $class
    *   The handler class to instantiate when a field of this type is
-   *   expanded. The class must implement 'FieldHandlerInterface'.
+   *   expanded. The class must exist and implement 'FieldHandlerInterface'.
    *
    * @throws \RuntimeException
-   *   When '$class' does not implement 'FieldHandlerInterface' or is abstract.
+   *   When '$class' does not exist, does not implement
+   *   'FieldHandlerInterface' or is abstract.
    */
   public function registerFieldHandler(string $field_type, string $class): void;
 

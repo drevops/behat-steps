@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal\Core\Field;
 
-use Composer\InstalledVersions;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DaterangeHandler;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -28,7 +26,7 @@ class DaterangeHandlerTest extends FieldHandlerUnitTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    if (!$this->loadDatetimeModuleInterface()) {
+    if (!$this->loadDatetimeModuleClasses()) {
       $this->markTestSkipped('drupal/core datetime module classes are not available.');
     }
 
@@ -119,35 +117,6 @@ class DaterangeHandlerTest extends FieldHandlerUnitTestBase {
       \RuntimeException::class,
       'Daterange field record must be an array',
     ];
-  }
-
-  /**
-   * Loads the datetime module interface from the Composer-resolved core path.
-   */
-  protected function loadDatetimeModuleInterface(): bool {
-    if (interface_exists(DateTimeItemInterface::class)) {
-      return TRUE;
-    }
-
-    if (!class_exists(InstalledVersions::class)) {
-      return FALSE;
-    }
-
-    $core_path = InstalledVersions::getInstallPath('drupal/core');
-
-    if ($core_path === NULL) {
-      return FALSE;
-    }
-
-    $interface_file = $core_path . '/modules/datetime/src/Plugin/Field/FieldType/DateTimeItemInterface.php';
-
-    if (!is_file($interface_file)) {
-      return FALSE;
-    }
-
-    require_once $interface_file;
-
-    return interface_exists(DateTimeItemInterface::class);
   }
 
 }

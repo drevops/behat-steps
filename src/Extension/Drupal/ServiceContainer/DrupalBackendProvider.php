@@ -34,6 +34,11 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   public const string CORE_TAG = 'behat_steps.core';
 
   /**
+   * Parameter holding the configured map of field types to handler classes.
+   */
+  public const string FIELD_HANDLERS_PARAMETER = 'behat_steps.backend.drupal.field_handlers';
+
+  /**
    * {@inheritdoc}
    */
   public function configure(NodeBuilder $children): void {
@@ -47,6 +52,13 @@ final class DrupalBackendProvider implements BackendProviderInterface {
             ->isRequired()
             ->cannotBeEmpty()
             ->info('Path to the Drupal root the in-process backend bootstraps.')
+          ->end()
+          ->arrayNode('field_handlers')
+            ->info('Map of field types to the handler classes that turn a value a step gives a field into the value Drupal stores. An entry adds a handler for a field type the package ships none for, or replaces the shipped one. A class implements FieldHandlerInterface.' . PHP_EOL
+              . '  rating: Acme\Behat\Field\RatingHandler' . PHP_EOL
+              . '  datetime: Acme\Behat\Field\FiscalDatetimeHandler' . PHP_EOL)
+            ->useAttributeAsKey('field_type')
+            ->prototype('scalar')->cannotBeEmpty()->end()
           ->end()
         ->end()
       ->end()
@@ -112,6 +124,8 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     }
 
     $container->getDefinition(self::DRUPAL_SERVICE)->addMethodCall('setCore', [new Reference($core_ids[0])]);
+
+    $this->registerFieldHandlers($container);
   }
 
   /**
@@ -166,6 +180,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     if (isset($config['drupal'])) {
       $loader->load('backends/drupal.yml');
       $container->setParameter('behat_steps.backend.drupal.drupal_root', $config['drupal']['drupal_root']);
+      $container->setParameter(self::FIELD_HANDLERS_PARAMETER, $config['drupal']['field_handlers'] ?? []);
     }
   }
 
@@ -221,6 +236,27 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     if (isset($config['drush']['global_options'])) {
       $definition = $container->getDefinition(self::DRUSH_SERVICE);
       $definition->addMethodCall('setArguments', [$config['drush']['global_options']]);
+    }
+  }
+
+  /**
+   * Registers the configured field handlers on the in-process backend.
+   *
+   * The calls follow 'setCore()', so an entry for a shipped field type
+   * replaces the handler the Core constructor registered.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+   *   The container builder.
+   */
+  protected function registerFieldHandlers(ContainerBuilder $container): void {
+    if (!$container->hasParameter(self::FIELD_HANDLERS_PARAMETER)) {
+      return;
+    }
+
+    $definition = $container->getDefinition(self::DRUPAL_SERVICE);
+
+    foreach ((array) $container->getParameter(self::FIELD_HANDLERS_PARAMETER) as $field_type => $class) {
+      $definition->addMethodCall('registerFieldHandler', [(string) $field_type, $class]);
     }
   }
 

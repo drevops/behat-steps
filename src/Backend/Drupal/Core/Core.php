@@ -150,11 +150,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * Populates the creation-alias registry with aliases this class ships.
-   *
-   * A 'Core' subclass with version-specific overrides overrides this
-   * method, calls 'parent::registerDefaultCreationAliases()' first, and
-   * then registers its own aliases. Re-registering a name on the same
-   * entity type replaces the inherited entry.
    */
   protected function registerDefaultCreationAliases(): void {
     $this->registerCreationAlias(new AuthorAlias());
@@ -174,6 +169,10 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    */
   public function registerFieldHandler(string $field_type, string $class): void {
+    if (!class_exists($class)) {
+      throw new \RuntimeException(sprintf('Handler class "%s" does not exist.', $class));
+    }
+
     if (!is_subclass_of($class, FieldHandlerInterface::class)) {
       throw new \RuntimeException(sprintf('Handler class "%s" must implement "%s".', $class, FieldHandlerInterface::class));
     }
@@ -187,13 +186,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * Populates the field-handler registry with handlers this class ships.
-   *
-   * A 'Core' subclass with version-specific overrides overrides this
-   * method, calls 'parent::registerDefaultFieldHandlers()' first, and then
-   * calls 'registerHandlersFromDirectory()' against its own 'Field/'
-   * sibling directory. Each directory scan is independent, so a subclass
-   * re-registers only the types it changes; the rest are inherited from
-   * the parent scan.
    */
   protected function registerDefaultFieldHandlers(): void {
     $this->registerHandlersFromDirectory(__DIR__ . '/Field', __NAMESPACE__ . '\\Field');
@@ -250,9 +242,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * Creates the field classifier instance for this Core.
-   *
-   * Subclasses override this method when they ship a version-specific
-   * classifier.
    */
   protected function createFieldClassifier(): FieldClassifierInterface {
     return new FieldClassifier($this->getEntityFieldManager());
@@ -271,9 +260,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * Creates the field shape classifier instance for this Core.
-   *
-   * Subclasses override this method when they ship a version-specific value
-   * shape classifier.
    */
   protected function createFieldShapeClassifier(): FieldShapeClassifierInterface {
     return new FieldShapeClassifier();
@@ -345,7 +331,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     if ($reason !== NULL) {
       throw new \RuntimeException(sprintf(
-        'No dedicated handler is registered for field "%s" (type "%s") on entity type "%s" bundle "%s", and DefaultHandler cannot marshal it: %s. Register a dedicated handler via Core::registerFieldHandler().',
+        'No dedicated handler is registered for field "%s" (type "%s") on entity type "%s" bundle "%s", and DefaultHandler cannot marshal it: %s. Map its field type to a handler class under the "drupal.field_handlers" option.',
         $field_name,
         $field_type,
         $entity_type,
@@ -1273,8 +1259,6 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
   /**
    * Creates the parser that shapes a stub's raw values for 1 parse.
-   *
-   * Subclasses override this method to parse with a parser of their own.
    *
    * @param string $entity_type
    *   The entity type the values belong to.

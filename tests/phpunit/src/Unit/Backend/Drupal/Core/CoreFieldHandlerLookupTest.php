@@ -77,6 +77,15 @@ class CoreFieldHandlerLookupTest extends UnitTestCase {
     $core->getFieldHandler(new EntityStub('node'), 'node', 'field_missing');
   }
 
+  public function testRegisterRejectsMissingClass(): void {
+    $core = new FieldTypeMapCore(__DIR__, 'default', []);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Handler class "Acme\MissingHandler" does not exist.');
+
+    $core->registerFieldHandler('phone', 'Acme\MissingHandler');
+  }
+
   /**
    * Tests that registering a non-handler class throws at registration time.
    *

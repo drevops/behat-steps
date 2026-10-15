@@ -22,8 +22,7 @@ trait CreationAliasRegistryTrait {
    * Adds an alias to the registry.
    *
    * Re-registering the same name on the same entity type replaces the
-   * previous entry. A subclass overrides an alias by registering a new
-   * instance after 'parent::' setup.
+   * previous entry.
    *
    * @param \DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface $alias
    *   The alias to register.

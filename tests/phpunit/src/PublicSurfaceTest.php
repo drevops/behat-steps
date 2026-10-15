@@ -37,10 +37,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * Visibility marks the API. A public method Behat does not register is the
  * toolbox, published in HELPERS.md and covered by semantic versioning; a
- * protected one carries no guarantee.
+ * protected one carries no guarantee. The backend layer publishes no
+ * override point at all.
  *
  * A method cannot be narrowed again before the next major, so these tests
- * hold the 5 conventions below.
+ * hold the 6 conventions below.
  */
 #[CoversNothing]
 class PublicSurfaceTest extends UnitTestCase {
@@ -93,7 +94,7 @@ class PublicSurfaceTest extends UnitTestCase {
 
   #[DataProvider('dataProviderPublicMethodsAreDocumented')]
   public function testPublicMethodsAreDocumented(string $trait): void {
-    $methods = static::collectTraitOwnMethods($trait);
+    $methods = static::collectOwnMethods($trait);
     $violations = [];
 
     foreach ($methods as $method) {
@@ -128,7 +129,7 @@ class PublicSurfaceTest extends UnitTestCase {
   public function testOverridePointsArePublic(string $trait): void {
     $violations = [];
 
-    foreach (static::collectTraitOwnMethods($trait) as $method) {
+    foreach (static::collectOwnMethods($trait) as $method) {
       if ($method->isPublic() || !static::isOverrideInvitation((string) $method->getDocComment())) {
         continue;
       }
@@ -141,6 +142,34 @@ class PublicSurfaceTest extends UnitTestCase {
 
   public static function dataProviderOverridePointsArePublic(): array {
     return static::discoverTraits();
+  }
+
+  /**
+   * Assert that no docblock under 'src/Backend' invites an override.
+   *
+   * The backend layer sits outside semantic versioning, so no method there
+   * promises a subclass that the package keeps calling it.
+   *
+   * @param string $type
+   *   Fully qualified class, interface or trait name.
+   */
+  #[DataProvider('dataProviderBackendInvitesNoOverride')]
+  public function testBackendInvitesNoOverride(string $type): void {
+    $violations = [];
+
+    foreach (static::collectOwnMethods($type) as $method) {
+      if (!static::isOverrideInvitation((string) $method->getDocComment())) {
+        continue;
+      }
+
+      $violations[] = $type . '::' . $method->getName();
+    }
+
+    $this->assertSame([], $violations, 'The backend layer sits outside semantic versioning, so a docblock there never invites an override. Reword the docblock. A project adds or replaces a field handler through the "drupal.field_handlers" option or FieldHandlerCapabilityInterface.');
+  }
+
+  public static function dataProviderBackendInvitesNoOverride(): array {
+    return array_filter(static::discoverSourceTypes(), static fn(string $path): bool => str_starts_with($path, 'Backend' . DIRECTORY_SEPARATOR), ARRAY_FILTER_USE_KEY);
   }
 
   /**
@@ -163,15 +192,18 @@ class PublicSurfaceTest extends UnitTestCase {
       'imperative naming the method' => ["/**\n   * Override this method in the context class.\n   */", TRUE],
       'consumer overriding the method' => ["/**\n   * A consuming context overrides this method.\n   */", TRUE],
       'phrase wrapped across 2 lines' => ["/**\n   * Default: the bundled engine. Override\n   * to point at a mirror.\n   */", TRUE],
+      'pronoun naming a purpose' => ["/**\n   * A subclass can override this to return a synthetic version.\n   */", TRUE],
+      'pronoun naming a condition' => ["/**\n   * Subclasses override this when they ship their own classifier.\n   */", TRUE],
       'override of another method' => ["/**\n   * For branding, override accessibilityRenderHtmlPage() instead.\n   */", FALSE],
       'tag overriding a tag' => ["/**\n   * A scenario tag overrides a feature tag.\n   */", FALSE],
+      'tag overriding an option' => ["/**\n   * A scenario tag overrides this option.\n   */", FALSE],
       'noun' => ["/**\n   * Threshold override resolved from tags.\n   */", FALSE],
       'no docblock' => ['', FALSE],
     ];
   }
 
   public function testTraitOwnMethodsIncludeRedeclaredMethod(): void {
-    $names = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), static::collectTraitOwnMethods(RedeclaredMethodTrait::class));
+    $names = array_map(static fn(\ReflectionMethod $method): string => $method->getName(), static::collectOwnMethods(RedeclaredMethodTrait::class));
     sort($names);
 
     $this->assertSame(['redeclaredGet', 'redeclaredGetLabel'], $names);
@@ -179,7 +211,7 @@ class PublicSurfaceTest extends UnitTestCase {
 
   #[DataProvider('dataProviderHookMethodsDeclareTheirScope')]
   public function testHookMethodsDeclareTheirScope(string $trait): void {
-    $methods = static::collectTraitOwnMethods($trait);
+    $methods = static::collectOwnMethods($trait);
     $violations = [];
 
     foreach ($methods as $method) {
@@ -290,20 +322,20 @@ class PublicSurfaceTest extends UnitTestCase {
   }
 
   /**
-   * Return the methods a trait declares itself.
+   * Return the methods a class, interface or trait declares itself.
    *
-   * @param string $trait
-   *   Fully qualified trait name.
+   * @param string $type
+   *   Fully qualified class, interface or trait name.
    *
    * @return array<int, \ReflectionMethod>
-   *   Methods declared by the trait, excluding those it composes.
+   *   Methods declared by the type, excluding those it inherits or composes.
    */
-  protected static function collectTraitOwnMethods(string $trait): array {
-    $reflection = static::reflect($trait);
+  protected static function collectOwnMethods(string $type): array {
+    $reflection = static::reflect($type);
     $file = $reflection->getFileName();
 
-    // A trait reports the methods of the traits it composes as its own, so a
-    // method counts only when this trait's file declares it. A redeclared
+    // A type reports the methods it inherits or composes as its own, so a
+    // method counts only when this type's file declares it. A redeclared
     // composed method is declared here too.
     return array_values(array_filter($reflection->getMethods(), static fn(\ReflectionMethod $method): bool => $method->getFileName() === $file));
   }
@@ -320,7 +352,7 @@ class PublicSurfaceTest extends UnitTestCase {
   protected static function isOverrideInvitation(string $comment): bool {
     $text = (string) preg_replace('/\s*\n\s*\*\s*/', ' ', $comment);
 
-    return preg_match('/\b(?:Override (?:to|when)|[Oo]verrides? this method)\b/', $text) === 1;
+    return preg_match('/\b(?:Override (?:to|when)|[Oo]verrides? this (?:method|to|when))\b/', $text) === 1;
   }
 
   /**
