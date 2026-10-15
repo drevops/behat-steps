@@ -30,7 +30,8 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   public const string DRUSH_SERVICE = 'behat_steps.backend.drush';
 
   /**
-   * Parameter holding the configured Core class, NULL for the version core.
+   * Parameter holding the configured Core class, or NULL for the Core the
+   * package ships for the detected major.
    */
   public const string CORE_PARAMETER = 'behat_steps.backend.drupal.core';
 

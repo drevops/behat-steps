@@ -352,12 +352,19 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame(ConsumerCore::class, $backend->getCore()::class);
   }
 
-  public function testTheBackendHandsTheSharedRandomGeneratorToItsCore(): void {
-    $container = $this->buildContainer([]);
+  public function testTheDrupalAndDrushBackendsShareTheRandomGenerator(): void {
+    $drupal = ['drupal_root' => static::DRUPAL_ROOT, 'core' => ConsumerCore::class];
+    $container = $this->buildContainer(['drupal' => $drupal, 'drush' => ['alias' => '@self']]);
 
-    $backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
-    $this->assertInstanceOf(DrupalBackend::class, $backend);
-    $this->assertSame($container->get('behat_steps.backend.random'), $backend->getRandom());
+    $drupal_backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
+    $drush_backend = $container->get(DrupalBackendProvider::DRUSH_SERVICE);
+    $this->assertInstanceOf(DrupalBackend::class, $drupal_backend);
+    $this->assertInstanceOf(DrushBackend::class, $drush_backend);
+    $this->assertInstanceOf(ConsumerCore::class, $drupal_backend->getCore());
+
+    $random = $container->get('behat_steps.backend.random');
+    $this->assertSame($random, $drupal_backend->getRandom());
+    $this->assertSame($random, $drush_backend->getRandom());
   }
 
   public function testFieldHandlersApplyToTheCoreTheOptionNames(): void {
@@ -531,21 +538,18 @@ class DrupalBackendProviderTest extends UnitTestCase {
   }
 
   /**
-   * Builds the container the provider defines, with the in-process backend.
+   * Builds the container the provider defines, with its backends.
    *
-   * 'FakeVersionDrupalBackend' reports the given version without reading
-   * Drupal, so the fixture root stands in for a Drupal installation.
+   * 'FakeVersionDrupalBackend' reports a version without reading Drupal, so
+   * the fixture root stands in for a Drupal installation.
    *
-   * @param array<string, mixed> $drupal
-   *   The 'drupal' settings apart from the Drupal root.
-   * @param string $version
-   *   The Drupal version the backend detects.
+   * @param array<string, mixed> $config
+   *   The extension configuration, before schema normalization.
    */
-  protected function buildContainer(array $drupal, string $version = '11.0.0'): ContainerBuilder {
-    $container = $this->load(['drupal' => ['drupal_root' => static::DRUPAL_ROOT] + $drupal]);
+  protected function buildContainer(array $config): ContainerBuilder {
+    $container = $this->load($config);
     $container->setParameter('behat_steps.backend.drupal.class', FakeVersionDrupalBackend::class);
     $container->setParameter('mink.base_url', 'http://example.com');
-    FakeVersionDrupalBackend::$nextVersion = $version;
 
     (new DrupalBackendProvider())->process($container);
 
@@ -561,7 +565,10 @@ class DrupalBackendProviderTest extends UnitTestCase {
    *   The Drupal version the backend detects.
    */
   protected function buildBackend(array $drupal, string $version = '11.0.0'): DrupalBackend {
-    $backend = $this->buildContainer($drupal, $version)->get(DrupalBackendProvider::DRUPAL_SERVICE);
+    $container = $this->buildContainer(['drupal' => ['drupal_root' => static::DRUPAL_ROOT] + $drupal]);
+    FakeVersionDrupalBackend::$nextVersion = $version;
+
+    $backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
     $this->assertInstanceOf(DrupalBackend::class, $backend);
 
     return $backend;
@@ -603,6 +610,9 @@ class DrupalBackendProviderTest extends UnitTestCase {
 
   /**
    * Reads the field handlers registered on the Core of a backend.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Drupal\DrupalBackend $backend
+   *   The backend whose Core holds the handlers.
    *
    * @return array<string, string>
    *   The handler classes, keyed by field type.
