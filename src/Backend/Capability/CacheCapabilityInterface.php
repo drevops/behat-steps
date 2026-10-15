@@ -10,7 +10,7 @@ namespace DrevOps\BehatSteps\Backend\Capability;
 interface CacheCapabilityInterface {
 
   /**
-   * Clears every Drupal cache.
+   * Clears every cache of the site.
    */
   public function cacheClear(): void;
 

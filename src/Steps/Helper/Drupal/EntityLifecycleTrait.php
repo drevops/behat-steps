@@ -14,14 +14,12 @@ use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\LanguageCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\BlockCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\NodeCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\RedirectCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Extension\Context\BackendAwareInterface;
-use DrevOps\BehatSteps\Extension\Drupal\Hook\Attribute\BeforeNodeCreate;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Scope\AfterLanguageCreateScope;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Scope\AfterNodeCreateScope;
 use DrevOps\BehatSteps\Extension\Drupal\Hook\Scope\AfterTermCreateScope;
@@ -59,51 +57,6 @@ trait EntityLifecycleTrait {
    * @var array<int, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
    */
   protected array $entityLifecycleCreatedStubs = [];
-
-  /**
-   * Converts textual node timestamps into the numeric form storage expects.
-   *
-   * @throws \RuntimeException
-   *   When a timestamp value cannot be read as a date.
-   */
-  #[BeforeNodeCreate]
-  public static function entityLifecycleBeforeNodeCreate(BeforeNodeCreateScope $scope): void {
-    $stub = $scope->getStub();
-
-    // A command-line backend takes the values as written, so string dates are
-    // converted only for a backend that parses field values.
-    $context = $scope->getContext();
-
-    if (!$context instanceof BackendAwareInterface) {
-      return;
-    }
-
-    $registry = $context->getBackendRegistry();
-
-    if (!$registry->hasCapability(NodeCapabilityInterface::class)) {
-      return;
-    }
-
-    if (!$registry->getBackendFor(NodeCapabilityInterface::class) instanceof EntityDefinitionCapabilityInterface) {
-      return;
-    }
-
-    foreach (['changed', 'created', 'revision_timestamp'] as $field) {
-      $value = $stub->getValue($field);
-
-      if ($value === NULL || $value === '' || is_numeric($value)) {
-        continue;
-      }
-
-      $timestamp = strtotime((string) $value);
-
-      if ($timestamp === FALSE) {
-        throw new \RuntimeException(sprintf('Unable to read the "%s" value "%s" as a date.', $field, (string) $value));
-      }
-
-      $stub->setValue($field, $timestamp);
-    }
-  }
 
   /**
    * Removes every entity created during the scenario.
@@ -191,7 +144,7 @@ trait EntityLifecycleTrait {
     $vocabulary = $stub->getValue('vocabulary_machine_name');
     $registry = $this->getBackendRegistry();
 
-    if (!empty($vocabulary) && $registry->hasCapability(ConfigCapabilityInterface::class) && $registry->hasCapability(EntityLookupCapabilityInterface::class)) {
+    if (!empty($vocabulary) && $registry->hasCapability(EntityDefinitionCapabilityInterface::class) && $registry->hasCapability(EntityLookupCapabilityInterface::class)) {
       $stub->setValue('vocabulary_machine_name', $this->entityLifecycleResolveVocabularyMachineName((string) $vocabulary));
     }
 
@@ -410,6 +363,10 @@ trait EntityLifecycleTrait {
         $this->entityLifecycleFindBackend(TermCapabilityInterface::class)?->deleteTerm($stub);
         break;
 
+      case 'redirect':
+        $this->entityLifecycleFindBackend(RedirectCapabilityInterface::class)?->deleteRedirect($stub);
+        break;
+
       case 'block':
         $this->entityLifecycleFindBackend(BlockCapabilityInterface::class)?->deleteBlock($stub);
         break;
@@ -546,7 +503,7 @@ trait EntityLifecycleTrait {
    * value when no label matches, so the backend reports a not-found error.
    */
   protected function entityLifecycleResolveVocabularyMachineName(string $identifier): string {
-    if ($this->backendFor(ConfigCapabilityInterface::class)->configExists('taxonomy.vocabulary.' . $identifier)) {
+    if ($this->backendFor(EntityDefinitionCapabilityInterface::class)->bundleExists('taxonomy_term', $identifier)) {
       return $identifier;
     }
 

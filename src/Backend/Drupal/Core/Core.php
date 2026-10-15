@@ -59,6 +59,7 @@ use Drupal\user\AccountCancellation;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\OneTimeAuthentication;
+use Drupal\views\ViewEntityInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 
@@ -451,6 +452,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       define('DRUPAL_ROOT', $this->drupalRoot);
     }
 
+    // Drupal resolves 'file_public_path' and its other relative settings
+    // against the working directory, so the process stays in the root.
     chdir(DRUPAL_ROOT);
     $autoloader = require DRUPAL_ROOT . '/autoload.php';
     require_once DRUPAL_ROOT . '/core/includes/bootstrap.inc';
@@ -487,11 +490,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       throw new \RuntimeException("Cannot create content because it is missing the required property 'type'.");
     }
 
-    /** @var \Drupal\Core\Entity\EntityTypeBundleInfo $bundle_info */
-    $bundle_info = \Drupal::service('entity_type.bundle.info');
-    $bundles = $bundle_info->getBundleInfo('node');
-
-    if (!array_key_exists($type, $bundles)) {
+    if (!$this->bundleExists('node', (string) $type)) {
       throw new \RuntimeException(sprintf('Cannot create content because provided content type %s does not exist.', $type));
     }
 
@@ -1224,6 +1223,48 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
+  public function bundleExists(string $entity_type, string $bundle): bool {
+    return array_key_exists($bundle, $this->getBundleInfo($entity_type));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBundleLabel(string $entity_type, string $bundle): string {
+    $bundles = $this->getBundleInfo($entity_type);
+
+    if (!array_key_exists($bundle, $bundles)) {
+      throw new \RuntimeException(sprintf('The entity type "%s" has no bundle "%s".', $entity_type, $bundle));
+    }
+
+    return (string) ($bundles[$bundle]['label'] ?? $bundle);
+  }
+
+  /**
+   * Returns the bundle info of an entity type, keyed by bundle.
+   *
+   * @param string $entity_type
+   *   The entity type id.
+   *
+   * @return array<string, array<string, mixed>>
+   *   The info of each bundle, with its 'label'. An entity type without
+   *   bundles has 1, keyed by the entity type id.
+   *
+   * @throws \RuntimeException
+   *   When the entity type is unknown.
+   */
+  protected function getBundleInfo(string $entity_type): array {
+    $this->loadEntityTypeDefinition($entity_type);
+
+    /** @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundle_info */
+    $bundle_info = \Drupal::service('entity_type.bundle.info');
+
+    return $bundle_info->getBundleInfo($entity_type);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function parseEntityFields(EntityStubInterface $stub, array $ignored_properties = []): void {
     $parser = $this->createEntityFieldParser($stub->getEntityType(), $stub->getBundle());
     $parser->ignoring($ignored_properties);
@@ -1522,14 +1563,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       $stub->setValue($bundle_key, $stub->getBundle());
     }
 
-    if ($bundle_key && $stub->hasValue($bundle_key) && $stub->getValue($bundle_key) !== NULL) {
-      /** @var \Drupal\Core\Entity\EntityTypeBundleInfo $bundle_info */
-      $bundle_info = \Drupal::service('entity_type.bundle.info');
-      $bundles = $bundle_info->getBundleInfo($entity_type);
-
-      if (!array_key_exists((string) $stub->getValue($bundle_key), $bundles)) {
-        throw new \RuntimeException(sprintf('Cannot create entity because provided bundle "%s" does not exist.', $stub->getValue($bundle_key)));
-      }
+    if ($bundle_key && $stub->hasValue($bundle_key) && $stub->getValue($bundle_key) !== NULL && !$this->bundleExists($entity_type, (string) $stub->getValue($bundle_key))) {
+      throw new \RuntimeException(sprintf('Cannot create entity because provided bundle "%s" does not exist.', $stub->getValue($bundle_key)));
     }
 
     $this->expandEntityFields($stub);
@@ -1692,6 +1727,79 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     }
 
     return $link->getPluginId();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createRedirect(string $source, string $destination, int $status_code = 301): EntityStubInterface {
+    $values = [
+      'redirect_source' => $this->normalizeRedirectSource($source),
+      'redirect_redirect' => $this->normalizeRedirectDestination($destination),
+      'status_code' => $status_code,
+    ];
+
+    return $this->createEntity(new EntityStub('redirect', NULL, $values));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteRedirect(EntityStubInterface $stub): void {
+    $this->deleteEntity($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function findRedirectIds(string $source, ?string $destination = NULL, ?int $status_code = NULL): array {
+    $conditions = ['redirect_source.path' => $this->normalizeRedirectSource($source)];
+
+    if ($destination !== NULL) {
+      $conditions['redirect_redirect.uri'] = $this->normalizeRedirectDestination($destination);
+    }
+
+    if ($status_code !== NULL) {
+      $conditions['status_code'] = $status_code;
+    }
+
+    return $this->findEntityIds('redirect', $conditions);
+  }
+
+  /**
+   * Normalizes a source path the way 'Redirect::setSource()' stores it.
+   *
+   * @param string $path
+   *   The source path, with or without its leading slash.
+   *
+   * @return string
+   *   The path without its leading slash.
+   */
+  protected function normalizeRedirectSource(string $path): string {
+    return ltrim(trim($path), '/');
+  }
+
+  /**
+   * Normalizes a destination the way 'Redirect::setRedirect()' stores it.
+   *
+   * An internal path gains the 'internal:/' scheme. A destination with a URL
+   * scheme, or opening with '//', is external and passes through unchanged,
+   * as does one already under the 'internal:' scheme.
+   *
+   * @param string $uri
+   *   The destination.
+   *
+   * @return string
+   *   The URI the redirect stores.
+   */
+  protected function normalizeRedirectDestination(string $uri): string {
+    if (str_starts_with($uri, 'internal:')) {
+      return $uri;
+    }
+
+    $is_external = str_starts_with($uri, '//') || parse_url($uri, PHP_URL_SCHEME) !== NULL;
+
+    return $is_external ? $uri : 'internal:/' . ltrim($uri, '/');
   }
 
   /**
@@ -2485,7 +2593,27 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    */
+  public function setModerationState(EntityStubInterface $stub, string $state): void {
+    $entity_type = $stub->getEntityType();
+    $values = [$this->getEntityIdKey($entity_type) => $this->resolveStubId($stub), 'moderation_state' => $state];
+
+    $this->updateEntity(new EntityStub($entity_type, NULL, $values));
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * The order is read at query time, so the tags the module's own form submit
+   * invalidates are invalidated here too: the list tags of the view's base
+   * entity type and the view's own.
+   */
   public function draggableviewsSetOrder(string $view_id, string $display_id, array $entity_ids): void {
+    $view = \Drupal::entityTypeManager()->getStorage('view')->load($view_id);
+
+    if (!$view instanceof ViewEntityInterface) {
+      throw new \RuntimeException(sprintf('No view with the id "%s" exists.', $view_id));
+    }
+
     $database = \Drupal::database();
     // The rows are replaced 1 entity at a time, so the order is written whole
     // or not at all.
@@ -2515,6 +2643,15 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
       throw $exception;
       // @codeCoverageIgnoreEnd
     }
+
+    $tags = ['config:views.view.' . $view_id, 'config:views.view.' . $view_id . '.' . $display_id];
+    $base_entity_type = $view->getExecutable()->getBaseEntityType();
+
+    if ($base_entity_type instanceof EntityTypeInterface) {
+      $tags = array_merge($base_entity_type->getListCacheTags(), $tags);
+    }
+
+    $this->cacheInvalidateTags($tags);
   }
 
   /**

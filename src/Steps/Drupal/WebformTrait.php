@@ -8,7 +8,6 @@ use Behat\Step\Given;
 use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigEntityCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
@@ -141,9 +140,7 @@ trait WebformTrait {
    *   empty array when none match.
    */
   public function webformLoadTemplateMultiple(string $title): array {
-    $config = $this->backendFor(ConfigCapabilityInterface::class);
-
-    return array_filter($this->webformLoadMultiple($title), static fn(int|string $id): bool => (bool) $config->configGet('webform.webform.' . $id, 'template'), ARRAY_FILTER_USE_KEY);
+    return $this->webformQueryStubs($title, ['template' => TRUE]);
   }
 
   /**
@@ -157,6 +154,23 @@ trait WebformTrait {
    *   array when none match.
    */
   public function webformLoadMultiple(string $title): array {
+    return $this->webformQueryStubs($title);
+  }
+
+  /**
+   * Load a stub per webform whose title contains a string and matching conditions.
+   *
+   * @param string $title
+   *   The title string to search for (CONTAINS match).
+   * @param array<string, mixed> $conditions
+   *   Further conditions keyed by property name, as 'queryEntityIds()' takes
+   *   them.
+   *
+   * @return array<int|string, \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface>
+   *   A stub per matching webform carrying its 'id', keyed by ID, or an empty
+   *   array when none match.
+   */
+  protected function webformQueryStubs(string $title, array $conditions = []): array {
     $this->backendFor(EntityLookupCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
@@ -165,7 +179,7 @@ trait WebformTrait {
     // process loaded it until this process resets its caches.
     $this->getBackendRegistry()->getResolvedBackendFor(CacheCapabilityInterface::class)?->cacheClearStatic();
 
-    return $this->queryEntityStubs('webform', 'id', ['title' => ['CONTAINS', $title]]);
+    return $this->queryEntityStubs('webform', 'id', ['title' => ['CONTAINS', $title]] + $conditions);
   }
 
   /**
@@ -178,8 +192,6 @@ trait WebformTrait {
    *   A machine name suitable for a webform ID.
    */
   protected function webformMachineName(string $title): string {
-    $config = $this->backendFor(ConfigCapabilityInterface::class);
-
     $machine_name = strtolower($title);
     $machine_name = (string) preg_replace('/[^a-z0-9_]+/', '_', $machine_name);
     $machine_name = trim($machine_name, '_');
@@ -194,7 +206,7 @@ trait WebformTrait {
       if ($attempts > 50) {
         throw new \RuntimeException(sprintf('Unable to generate a unique webform machine name for "%s" after 50 attempts.', $title));
       }
-    } while ($config->configExists('webform.webform.' . $candidate));
+    } while ($this->queryEntityIds('webform', ['id' => $candidate]) !== []);
 
     return $candidate;
   }

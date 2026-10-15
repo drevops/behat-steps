@@ -12,6 +12,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\user\Entity\User;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -83,6 +84,43 @@ class CoreNodeMethodsKernelTest extends KernelTestBase {
 
     $this->core->deleteNode($created);
     $this->assertNull(Node::load($created->getValue('nid')));
+  }
+
+  public function testCreateNodeReadsTextualTimestamps(): void {
+    $stub = new EntityStub('node', 'article', [
+      'title' => 'Dated',
+      'created' => '2014-10-17 8:00am',
+      'changed' => '2014-10-18 9:00am',
+      'revision_timestamp' => '2014-10-19 10:00am',
+    ]);
+
+    $this->core->createNode($stub);
+
+    $node = Node::load($stub->getValue('nid'));
+    $this->assertInstanceOf(Node::class, $node);
+    $this->assertSame(strtotime('2014-10-17 8:00am'), (int) $node->getCreatedTime());
+    $this->assertSame(strtotime('2014-10-18 9:00am'), (int) $node->getChangedTime());
+    $this->assertSame(strtotime('2014-10-19 10:00am'), (int) $node->getRevisionCreationTime());
+  }
+
+  /**
+   * Tests that a textual timestamp the handler can't read fails the create.
+   *
+   * @param string $field
+   *   The base field holding the timestamp.
+   */
+  #[DataProvider('dataProviderCreateNodeRejectsUnparseableTimestamp')]
+  public function testCreateNodeRejectsUnparseableTimestamp(string $field): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Timestamp field value "not a date at all" is not parseable.');
+
+    $this->core->createNode(new EntityStub('node', 'article', ['title' => 'Undated', $field => 'not a date at all']));
+  }
+
+  public static function dataProviderCreateNodeRejectsUnparseableTimestamp(): \Iterator {
+    yield 'created' => ['created'];
+    yield 'changed' => ['changed'];
+    yield 'revision_timestamp' => ['revision_timestamp'];
   }
 
   public function testCreateNodeRejectsUnknownBundle(): void {

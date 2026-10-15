@@ -8,7 +8,6 @@ use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Hook\AfterScenario;
 use DrevOps\BehatSteps\Backend\Capability\RoleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\BatchCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Auth\AuthenticatorInterface;
 use DrevOps\BehatSteps\Extension\Auth\FastLogoutInterface;
@@ -101,10 +100,6 @@ trait AuthTrait {
 
       foreach ($user_registry->getUsers() as $user) {
         $backend->deleteUser($user);
-      }
-
-      if ($backend instanceof BatchCapabilityInterface) {
-        $backend->processBatch();
       }
 
       $user_registry->clearUsers();

@@ -169,8 +169,7 @@ trait MenuTrait {
     $values['menu_name'] = $menu_id;
 
     if (isset($values['uri'])) {
-      $values['link'] = [];
-      $values['link']['uri'] = (string) $values['uri'];
+      $values['link'] = $values['uri'];
       unset($values['uri']);
     }
 

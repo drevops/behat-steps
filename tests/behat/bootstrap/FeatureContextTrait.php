@@ -370,7 +370,7 @@ trait FeatureContextTrait {
       'mysite_core',
       'test_email',
       $email,
-      \Drupal::languageManager()->getDefaultLanguage()->getId(),
+      $this->testGetDefaultLangcode(),
       ['body' => (string) $string],
       NULL
     );
@@ -388,7 +388,7 @@ trait FeatureContextTrait {
       'mysite_core',
       'test_email_with_cc',
       $to,
-      \Drupal::languageManager()->getDefaultLanguage()->getId(),
+      $this->testGetDefaultLangcode(),
       [
         'subject' => 'Test Email',
         'body' => (string) $string,
@@ -412,7 +412,7 @@ trait FeatureContextTrait {
       'mysite_core',
       'test_email_with_bcc',
       $to,
-      \Drupal::languageManager()->getDefaultLanguage()->getId(),
+      $this->testGetDefaultLangcode(),
       [
         'subject' => 'Test Email',
         'body' => (string) $string,
@@ -436,7 +436,7 @@ trait FeatureContextTrait {
       'mysite_core',
       'test_email_with_cc_bcc',
       $to,
-      \Drupal::languageManager()->getDefaultLanguage()->getId(),
+      $this->testGetDefaultLangcode(),
       [
         'subject' => 'Test Email',
         'body' => (string) $string,
@@ -460,7 +460,7 @@ trait FeatureContextTrait {
       'mysite_core',
       'test_email_with_attachment',
       $email,
-      \Drupal::languageManager()->getDefaultLanguage()->getId(),
+      $this->testGetDefaultLangcode(),
       [
         'subject' => $subject,
         'body' => (string) $body,
@@ -477,8 +477,6 @@ trait FeatureContextTrait {
    */
   #[Then(':file_name file object exists')]
   public function testAssertFileObjectExists(string $file_name): void {
-    $this->backendFor(CoreCapabilityInterface::class);
-
     $file_name = basename($file_name);
     $files = $this->fileLoadMultiple(['filename' => $file_name]);
 
@@ -492,6 +490,13 @@ trait FeatureContextTrait {
     if ($file_name !== $stored) {
       throw new \Exception(sprintf('"%s" file does not exist in DB, but it should', $file_name));
     }
+  }
+
+  /**
+   * Get the default langcode of the site.
+   */
+  protected function testGetDefaultLangcode(): string {
+    return (string) $this->backendFor(ConfigCapabilityInterface::class)->configGet('system.site', 'default_langcode');
   }
 
   /**

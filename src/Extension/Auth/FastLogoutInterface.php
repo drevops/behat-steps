@@ -12,7 +12,7 @@ interface FastLogoutInterface {
   /**
    * Logs out by directly resetting the session.
    *
-   * Resetting the session does not bootstrap Drupal, so no logout hook fires.
+   * Resetting the session reaches no backend, so the site runs no logout hook.
    */
   public function fastLogout(): void;
 

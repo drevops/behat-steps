@@ -90,12 +90,12 @@ trait AccessibilityTrait {
   protected static ?string $accessibilityCachedJs = NULL;
 
   /**
-   * Working directory captured before any test bootstrap can chdir().
+   * Working directory captured before a backend bootstrap can change it.
    *
    * The default report directory is resolved against this value rather than
-   * a live `getcwd()` call. A Drupal bootstrap chdir()s to the docroot, so a
-   * live `getcwd()` would resolve the report directory away from the rest of
-   * the run's paths.
+   * a live `getcwd()` call. A backend that boots a site in this process can
+   * move the working directory to the site's root, so a live `getcwd()` would
+   * resolve the report directory away from the rest of the run's paths.
    */
   protected static ?string $accessibilityBaseDir = NULL;
 
@@ -509,7 +509,7 @@ trait AccessibilityTrait {
    *
    * A relative `report_dir` is resolved against the directory the run was
    * launched from. That base is captured at `@BeforeSuite`, so it is stable
-   * even after a Drupal bootstrap chdir()s to the docroot.
+   * even after a backend bootstrap moves the working directory.
    *
    * When the suite hook has not run, the live working directory is used.
    */

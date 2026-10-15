@@ -6,7 +6,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Capability\CacheCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DraggableviewsCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -111,10 +110,6 @@ trait DraggableviewsTrait {
     }
 
     $this->backendFor(DraggableviewsCapabilityInterface::class)->draggableviewsSetOrder($view_id, $view_display_id, $entity_ids);
-
-    // Every view listing nodes caches on the list tag, so the new order shows
-    // in the other views too.
-    $this->backendFor(CacheCapabilityInterface::class)->cacheInvalidateTags(['node_list']);
   }
 
   /**

@@ -15,11 +15,10 @@ use Behat\Mink\Element\TraversableElement;
  * 'TraversableElement' and not the class it replaces.
  *
  * Under BrowserKit, Mink reads the text of the '//html' node, so the contents
- * of '<head>' and Drupal's settings JSON count as page text. It also throws
- * outright on a response that is not HTML.
+ * of '<head>', the JSON a site embeds in a script tag included, count as page
+ * text. It also throws outright on a response that is not HTML.
  *
  * @see https://github.com/minkphp/MinkBrowserKitDriver/issues/153
- * @see https://www.drupal.org/project/drupal/issues/3175718
  */
 class DocumentElement extends TraversableElement {
 

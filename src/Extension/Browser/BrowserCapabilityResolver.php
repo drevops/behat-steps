@@ -13,7 +13,7 @@ use DrevOps\BehatSteps\Extension\Browser\Adapter\Selenium2Adapter;
 /**
  * Resolves the capabilities of a session's browser driver.
  *
- * Mirrors 'BackendRegistry::getBackendFor()' on the Drupal side: a step names
+ * Mirrors 'BackendRegistry::getBackendFor()' on the backend side: a step names
  * the capability it needs and never a browser driver. A project registering
  * its own browser driver therefore runs the shipped steps as soon as it
  * registers an adapter declaring that capability.

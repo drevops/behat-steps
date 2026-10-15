@@ -28,7 +28,7 @@
 | [RegionTrait](#regiontrait) | Interact with and assert against named page regions. |
 | [ResponseTrait](#responsetrait) | Verify HTTP response headers. |
 | [ResponsiveTrait](#responsivetrait) | Test responsive layouts with viewport control. |
-| [RestTrait](#resttrait) | Test REST APIs with lightweight steps and no Drupal dependencies. |
+| [RestTrait](#resttrait) | Test REST APIs with lightweight steps. |
 | [TableTrait](#tabletrait) | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | Assert XML responses with element and attribute checks. |
@@ -3675,7 +3675,7 @@ Then the response header "Connection" should not contain "Keep-Alive"
 >  <br/><br/>
 >  Custom breakpoints:
 >  ```
->  class FeatureContext extends DrupalContext {
+>  class FeatureContext extends WebContext {
 >    use ResponsiveTrait;
 >  
 >    #[BeforeScenario]
@@ -3770,7 +3770,7 @@ When I set the viewport to "375" by "667"
 
 [Source](src/Steps/Web/RestTrait.php), [Example](tests/behat/features/rest.feature)
 
->  Test REST APIs with lightweight steps and no Drupal dependencies.
+>  Test REST APIs with lightweight steps.
 >  - Set HTTP headers for subsequent requests.
 >  - Send requests with any HTTP method (GET, POST, PUT, PATCH, DELETE).
 >  - Assert response status codes and body content.
@@ -4098,7 +4098,8 @@ Then I should not see the link "Delete" in the row containing "Article title"
 >  <br/><br/>
 >  A wait on `jQuery.active` alone misses `Drupal.ajax` updates, so an
 >  assertion following a click can read the page before the update applies.
->  The wait here watches both.
+>  The wait here watches both, and a page without `Drupal` takes the jQuery
+>  check alone.
 >  <br/><br/>
 >  Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
 
@@ -6993,7 +6994,7 @@ Then the queue "myqueue" should be empty
 
 | Prerequisite | Capability |
 | --- | --- |
-| A backend in the scenario's list provides "ContentCapabilityInterface" | `ContentCapabilityInterface` |
+| A backend in the scenario's list provides "RedirectCapabilityInterface" | `RedirectCapabilityInterface` |
 | The "redirect" module from the "drupal/redirect" package is enabled | `ModuleCapabilityInterface` |
 
 <details>
@@ -7144,9 +7145,9 @@ When the Search API Solr cron runs
 
 >  Manage and assert Drupal State API values with automatic revert.
 >  <br/><br/>
->  Provides set, delete, and assertion steps for keys stored through
->  `\Drupal::state()`. Touched keys are snapshotted on first access and
->  reverted after the scenario finishes.
+>  Provides set, delete, and assertion steps for keys in the site's state
+>  key-value store. Touched keys are snapshotted on first access and reverted
+>  after the scenario finishes.
 >  <br/><br/>
 >  Skip the revert with `@behat-steps-skip:StateTrait`. The snapshot registry
 >  is cleared unconditionally before and after the scenario, so no snapshot

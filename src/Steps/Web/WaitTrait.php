@@ -26,7 +26,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  *
  * A wait on `jQuery.active` alone misses `Drupal.ajax` updates, so an
  * assertion following a click can read the page before the update applies.
- * The wait here watches both.
+ * The wait here watches both, and a page without `Drupal` takes the jQuery
+ * check alone.
  *
  * Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
  *
@@ -133,8 +134,6 @@ trait WaitTrait {
    *   When the browser driver cannot run JavaScript.
    * @throws \RuntimeException
    *   When the AJAX calls are still running after the time is up.
-   *
-   * @see \Drupal\FunctionalJavascriptTests\JSWebAssert::assertWaitOnAjaxRequest()
    */
   public function waitForAjaxWithin(int $seconds): void {
     $this->browserDriverFor(JavascriptCapabilityInterface::class);

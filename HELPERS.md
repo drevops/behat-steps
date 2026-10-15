@@ -25,7 +25,7 @@
 | [RandomTrait](#randomtrait) | 10 | Replace random-value tokens in step arguments and table cells. |
 | [RegionTrait](#regiontrait) | 4 | Interact with and assert against named page regions. |
 | [ResponsiveTrait](#responsivetrait) | 7 | Test responsive layouts with viewport control. |
-| [RestTrait](#resttrait) | 2 | Test REST APIs with lightweight steps and no Drupal dependencies. |
+| [RestTrait](#resttrait) | 2 | Test REST APIs with lightweight steps. |
 | [TableTrait](#tabletrait) | 10 | Interact with HTML table elements and assert their content. |
 | [WaitTrait](#waittrait) | 2 | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | 9 | Assert XML responses with element and attribute checks. |
@@ -578,7 +578,7 @@ Whether to scroll elements to the center of the viewport
 <br/><br/>
 
 ```
-class FeatureContext extends DrupalContext {
+class FeatureContext extends WebContext {
   public function elementGetScrollIntoViewCenter(): bool {
     return FALSE;
   }
@@ -1452,7 +1452,7 @@ Set custom breakpoints
 
 [Source](src/Steps/Web/RestTrait.php), [Steps](STEPS.md#resttrait)
 
-> Test REST APIs with lightweight steps and no Drupal dependencies.
+> Test REST APIs with lightweight steps.
 
 <details>
   <summary><code>public function restGetClient(): mixed</code></summary>

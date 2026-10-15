@@ -10,7 +10,7 @@ use Behat\Step\Given;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Capability\ConfigCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\EntityDefinitionCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\TermCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
@@ -161,7 +161,7 @@ trait TaxonomyTrait {
       throw new ExpectationException(sprintf('The vocabulary "%s" does not exist.', $vocabulary), $this->getSession()->getDriver());
     }
 
-    $actual_name = $this->backendFor(ConfigCapabilityInterface::class)->configGet('taxonomy.vocabulary.' . $vocabulary, 'name');
+    $actual_name = $this->backendFor(EntityDefinitionCapabilityInterface::class)->getBundleLabel('taxonomy_term', $vocabulary);
 
     if ($actual_name !== $name) {
       throw new ExpectationException(sprintf('The vocabulary "%s" exists with a name "%s", but expected "%s".', $vocabulary, $actual_name, $name), $this->getSession()->getDriver());
@@ -320,11 +320,11 @@ trait TaxonomyTrait {
    *   not exist.
    */
   public function taxonomyFindVocabulary(string $vocabulary): ?EntityStubInterface {
-    $config = $this->backendFor(ConfigCapabilityInterface::class);
+    $backend = $this->backendFor(EntityDefinitionCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
-    return $config->configExists('taxonomy.vocabulary.' . $vocabulary) ? new EntityStub('taxonomy_vocabulary', NULL, ['vid' => $vocabulary]) : NULL;
+    return $backend->bundleExists('taxonomy_term', $vocabulary) ? new EntityStub('taxonomy_vocabulary', NULL, ['vid' => $vocabulary]) : NULL;
   }
 
   /**

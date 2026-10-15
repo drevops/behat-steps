@@ -36,7 +36,7 @@ trait CreationAliasRegistryTrait {
    * Returns creation aliases that apply to the given entity type.
    *
    * @param string $entity_type
-   *   The Drupal entity type id.
+   *   The entity type id.
    *
    * @return array<string, \DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface>
    *   Map of alias name to alias instance. Empty array when no aliases apply.
@@ -51,7 +51,7 @@ trait CreationAliasRegistryTrait {
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub
    *   The stub being prepared for creation.
    * @param string $entity_type
-   *   The Drupal entity type id whose aliases should run.
+   *   The entity type id whose aliases should run.
    */
   protected function applyPreCreateAliases(EntityStubInterface $stub, string $entity_type): void {
     foreach ($this->getCreationAliases($entity_type) as $alias) {
@@ -76,7 +76,7 @@ trait CreationAliasRegistryTrait {
    *   The entity that was just saved, or a placeholder object carrying only
    *   its id when the entity was saved in another process.
    * @param string $entity_type
-   *   The Drupal entity type id whose aliases should run.
+   *   The entity type id whose aliases should run.
    */
   protected function applyPostCreateAliases(EntityStubInterface $stub, object $entity, string $entity_type): void {
     foreach ($this->getCreationAliases($entity_type) as $alias) {

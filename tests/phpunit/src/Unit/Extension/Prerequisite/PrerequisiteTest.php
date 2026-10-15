@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Prerequisite;
 
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -18,15 +18,15 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class PrerequisiteTest extends UnitTestCase {
 
   public function testCapabilityCarriesItsDescription(): void {
-    $prerequisite = Prerequisite::capability(CoreCapabilityInterface::class, 'a backend runs Drupal in the Behat process');
+    $prerequisite = Prerequisite::capability(ContentCapabilityInterface::class, 'a backend creates entities');
 
-    $this->assertSame(CoreCapabilityInterface::class, $prerequisite->capability);
+    $this->assertSame(ContentCapabilityInterface::class, $prerequisite->capability);
     $this->assertNull($prerequisite->check);
-    $this->assertSame('a backend runs Drupal in the Behat process', $prerequisite->description);
+    $this->assertSame('a backend creates entities', $prerequisite->description);
   }
 
   public function testCapabilityDescriptionDefaultsToNamingTheCapability(): void {
-    $this->assertSame('a backend in the scenario\'s list provides "CoreCapabilityInterface"', Prerequisite::capability(CoreCapabilityInterface::class)->description);
+    $this->assertSame('a backend in the scenario\'s list provides "ContentCapabilityInterface"', Prerequisite::capability(ContentCapabilityInterface::class)->description);
   }
 
   public function testCheckTakesItsCapabilityFromTheClosure(): void {
@@ -49,7 +49,7 @@ class PrerequisiteTest extends UnitTestCase {
 
   public static function dataProviderRejectsMalformedDeclaration(): \Iterator {
     yield 'blank description' => [
-      static fn(): Prerequisite => Prerequisite::capability(CoreCapabilityInterface::class, ' '),
+      static fn(): Prerequisite => Prerequisite::capability(ContentCapabilityInterface::class, ' '),
       'A prerequisite declares a description.',
     ];
     yield 'capability that is not an interface' => [
@@ -91,7 +91,7 @@ class PrerequisiteTest extends UnitTestCase {
       'The prerequisite "nullable" declares a check taking exactly 1 parameter, typed to a capability interface.',
     ];
     yield 'check taking a union parameter' => [
-      static fn(): Prerequisite => Prerequisite::check(static fn(ModuleCapabilityInterface|CoreCapabilityInterface $backend): bool => TRUE, 'union'),
+      static fn(): Prerequisite => Prerequisite::check(static fn(ModuleCapabilityInterface|ContentCapabilityInterface $backend): bool => TRUE, 'union'),
       'The prerequisite "union" declares a check taking exactly 1 parameter, typed to a capability interface.',
     ];
     yield 'check taking a class' => [
@@ -99,8 +99,8 @@ class PrerequisiteTest extends UnitTestCase {
       'The prerequisite "class" names "stdClass", which is not an interface.',
     ];
     yield 'check typed to another capability' => [
-      static fn(): Prerequisite => new Prerequisite(CoreCapabilityInterface::class, static fn(ModuleCapabilityInterface $backend): bool => TRUE, 'other'),
-      sprintf('The prerequisite "other" declares a check whose parameter is typed to "%s" rather than to its capability "%s".', ModuleCapabilityInterface::class, CoreCapabilityInterface::class),
+      static fn(): Prerequisite => new Prerequisite(ContentCapabilityInterface::class, static fn(ModuleCapabilityInterface $backend): bool => TRUE, 'other'),
+      sprintf('The prerequisite "other" declares a check whose parameter is typed to "%s" rather than to its capability "%s".', ModuleCapabilityInterface::class, ContentCapabilityInterface::class),
     ];
     yield 'check returning true rather than bool' => [
       static fn(): Prerequisite => Prerequisite::check(static fn(ModuleCapabilityInterface $backend): true => TRUE, 'always'),

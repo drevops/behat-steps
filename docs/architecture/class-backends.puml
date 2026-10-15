@@ -111,6 +111,7 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   interface PathAliasCapabilityInterface
   interface QueueCapabilityInterface
   interface QueueItemCapabilityInterface
+  interface RedirectCapabilityInterface
   interface SearchApiCapabilityInterface
   interface SearchIndexCapabilityInterface
   interface StateCapabilityInterface
@@ -134,6 +135,7 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
   PathAliasCapabilityInterface -[hidden]down- QueueCapabilityInterface
   QueueCapabilityInterface -[hidden]down- QueueItemCapabilityInterface
 
+  RedirectCapabilityInterface -[hidden]down- SearchApiCapabilityInterface
   SearchApiCapabilityInterface -[hidden]down- SearchIndexCapabilityInterface
   SearchIndexCapabilityInterface -[hidden]down- StateCapabilityInterface
   StateCapabilityInterface -[hidden]down- TermCapabilityInterface
@@ -193,12 +195,12 @@ note right of BlackboxBackend
 end note
 
 note bottom of DrupalBackendInterface
-  DrupalBackendInterface extends 31 capability
+  DrupalBackendInterface extends 32 capability
   interfaces and DrushBackendInterface 13, of
   which DrushCapabilityInterface is its own.
   Both backend classes add
   CreationAliasCapabilityInterface, so
-  DrupalBackend provides 32 and DrushBackend 14.
+  DrupalBackend provides 33 and DrushBackend 14.
   Only a few edges are drawn here. A backend
   declares a capability only when it serves
   every method of it, so what only the

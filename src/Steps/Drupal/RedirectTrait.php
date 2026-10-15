@@ -7,15 +7,13 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
 use Behat\Step\Then;
-use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Capability\EntityLookupCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Capability\RedirectCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
-use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 
 /**
  * Manage Drupal redirect entities provided by the contrib `redirect` module.
@@ -30,7 +28,6 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 trait RedirectTrait {
 
   use EntityLifecycleTrait;
-  use QueryTrait;
 
   /**
    * Allowed HTTP status codes for redirects.
@@ -61,7 +58,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects exist:')]
   public function redirectCreateMultiple(TableNode $table): void {
-    $this->backendFor(ContentCapabilityInterface::class);
+    $this->backendFor(RedirectCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -94,7 +91,7 @@ trait RedirectTrait {
    */
   #[Given('the following redirects do not exist:')]
   public function redirectDeleteMultiple(TableNode $table): void {
-    $this->backendFor(ContentCapabilityInterface::class);
+    $this->backendFor(RedirectCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -126,7 +123,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should exist:')]
   public function redirectAssertExist(TableNode $table): void {
-    $this->backendFor(EntityLookupCapabilityInterface::class);
+    $this->backendFor(RedirectCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -152,7 +149,7 @@ trait RedirectTrait {
    */
   #[Then('the following redirects should not exist:')]
   public function redirectAssertNotExist(TableNode $table): void {
-    $this->backendFor(EntityLookupCapabilityInterface::class);
+    $this->backendFor(RedirectCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
 
@@ -179,11 +176,7 @@ trait RedirectTrait {
    *   The stub of the redirect, carrying its 'rid'.
    */
   public function redirectCreate(string $from, string $to, int $status_code = 301): EntityStubInterface {
-    $created = $this->backendFor(ContentCapabilityInterface::class)->createEntity(new EntityStub('redirect', NULL, [
-      'redirect_source' => ['path' => $from, 'query' => []],
-      'redirect_redirect' => ['uri' => $this->redirectNormalizeDestination($to)],
-      'status_code' => $status_code,
-    ]));
+    $created = $this->backendFor(RedirectCapabilityInterface::class)->createRedirect($from, $to, $status_code);
 
     $this->entityLifecycleRegister($created, 'rid');
 
@@ -197,10 +190,10 @@ trait RedirectTrait {
    *   The source path.
    */
   public function redirectDelete(string $from): void {
-    $backend = $this->backendFor(ContentCapabilityInterface::class);
+    $backend = $this->backendFor(RedirectCapabilityInterface::class);
 
-    foreach ($this->redirectQueryIds($from) as $rid) {
-      $backend->deleteEntity(new EntityStub('redirect', NULL, ['rid' => $rid]));
+    foreach ($backend->findRedirectIds($from) as $rid) {
+      $backend->deleteRedirect(new EntityStub('redirect', NULL, ['rid' => $rid]));
     }
   }
 
@@ -218,34 +211,7 @@ trait RedirectTrait {
    *   TRUE when a redirect matches, FALSE otherwise.
    */
   public function redirectExists(string $from, ?string $to = NULL, ?int $status_code = NULL): bool {
-    return $this->redirectQueryIds($from, $to, $status_code) !== [];
-  }
-
-  /**
-   * Query the IDs of the redirects matching a source path.
-   *
-   * @param string $from
-   *   The source path.
-   * @param string|null $to
-   *   The destination, or NULL to match any destination.
-   * @param int|null $status_code
-   *   The HTTP status code, or NULL to match any status code.
-   *
-   * @return array<int, string>
-   *   The redirect IDs.
-   */
-  protected function redirectQueryIds(string $from, ?string $to = NULL, ?int $status_code = NULL): array {
-    $conditions = ['redirect_source.path' => $this->redirectNormalizeSource($from)];
-
-    if ($to !== NULL) {
-      $conditions['redirect_redirect.uri'] = $this->redirectNormalizeDestination($to);
-    }
-
-    if ($status_code !== NULL) {
-      $conditions['status_code'] = $status_code;
-    }
-
-    return $this->queryEntityIds('redirect', $conditions);
+    return $this->backendFor(RedirectCapabilityInterface::class)->findRedirectIds($from, $to, $status_code) !== [];
   }
 
   /**
@@ -333,30 +299,6 @@ trait RedirectTrait {
   }
 
   /**
-   * Normalize a source path the same way the `redirect` module stores it.
-   */
-  protected function redirectNormalizeSource(string $path): string {
-    return ltrim(trim($path), '/');
-  }
-
-  /**
-   * Normalize a destination URI the same way `Redirect::setRedirect()` does.
-   *
-   * An internal path gains an `internal:/` prefix. A destination with a URL
-   * scheme, or opening with `//`, is external and passes through unchanged,
-   * as does a value that already begins with `internal:`.
-   */
-  protected function redirectNormalizeDestination(string $uri): string {
-    if (str_starts_with($uri, 'internal:')) {
-      return $uri;
-    }
-
-    $is_external = str_starts_with($uri, '//') || parse_url($uri, PHP_URL_SCHEME) !== NULL;
-
-    return $is_external ? $uri : 'internal:/' . ltrim($uri, '/');
-  }
-
-  /**
    * Format a redirect row for inclusion in an assertion failure message.
    */
   protected function redirectFormatRow(string $from, string $to, string $status_code): string {
@@ -381,7 +323,7 @@ trait RedirectTrait {
    */
   protected function redirectPrerequisites(): array {
     return [
-      Prerequisite::capability(ContentCapabilityInterface::class),
+      Prerequisite::capability(RedirectCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('redirect'), 'the "redirect" module from the "drupal/redirect" package is enabled'),
     ];
   }

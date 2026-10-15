@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Fixtures;
 
-use DrevOps\BehatSteps\Backend\Drupal\Capability\CoreCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Capability\ContentCapabilityInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\ModuleCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Config\Option;
 use DrevOps\BehatSteps\Extension\Prerequisite\Prerequisite;
 
 /**
- * Trait that can be switched off and needs an in-process backend and a module.
+ * Trait that can be switched off and needs a content backend and a module.
  */
 trait SamplePrerequisiteTrait {
 
@@ -34,7 +34,7 @@ trait SamplePrerequisiteTrait {
    */
   protected function samplePrerequisitePrerequisites(): array {
     return [
-      Prerequisite::capability(CoreCapabilityInterface::class),
+      Prerequisite::capability(ContentCapabilityInterface::class),
       Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('sample'), 'the "sample" module is enabled'),
     ];
   }

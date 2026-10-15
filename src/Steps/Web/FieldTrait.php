@@ -738,10 +738,10 @@ JS;
 
     $page = $this->getSession()->getPage();
 
-    // A Drupal multi-value widget wraps its rows and "Add another item" button
-    // in a `data-drupal-selector="edit-<field>-wrapper"` container. The XPath
-    // matches the title, which can be a nested <label>, <h4>, <legend>,
-    // <caption> or plain text element, then its nearest `-wrapper` ancestor.
+    // Drupal's multi-value widget wraps its rows and add-more button in a
+    // 'data-drupal-selector="edit-<field>-wrapper"' container, found here from
+    // the widget's title. The 3 lookups that follow are the fallbacks for a
+    // widget with other markup.
     $literal = $this->fieldXpathLiteral($field);
     $title_xpath = sprintf('//*[not(self::input or self::select or self::textarea) and (normalize-space(text())=%s or normalize-space(.)=%s)]', $literal, $literal);
     $wrapper_xpath = $title_xpath . '/ancestor::*[@data-drupal-selector and contains(@data-drupal-selector, "-wrapper")][1]';
@@ -1207,7 +1207,8 @@ JS;
     $page = $this->getSession()->getPage();
     $element = $page->find('xpath', $xpath);
 
-    // Drupal field labels can also render as a `<span>`.
+    // Drupal's datetime widget renders the label as a <span>, so that is the
+    // fallback.
     if ($element === NULL) {
       $xpath = sprintf(
         '//span[contains(text(), "%s")]/../..//input[contains(@name, "[%s][%s]")]',

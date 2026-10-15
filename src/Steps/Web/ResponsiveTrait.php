@@ -47,7 +47,7 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  *
  * Custom breakpoints:
  * @code
- * class FeatureContext extends DrupalContext {
+ * class FeatureContext extends WebContext {
  *   use ResponsiveTrait;
  *
  *   #[BeforeScenario]

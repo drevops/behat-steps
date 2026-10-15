@@ -666,6 +666,48 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * {@inheritdoc}
    */
+  public function createRedirect(string $source, string $destination, int $status_code = 301): EntityStubInterface {
+    return $this->getCore()->createRedirect($source, $destination, $status_code);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteRedirect(EntityStubInterface $stub): void {
+    $this->getCore()->deleteRedirect($stub);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function findRedirectIds(string $source, ?string $destination = NULL, ?int $status_code = NULL): array {
+    return $this->getCore()->findRedirectIds($source, $destination, $status_code);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function bundleExists(string $entity_type, string $bundle): bool {
+    return $this->getCore()->bundleExists($entity_type, $bundle);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBundleLabel(string $entity_type, string $bundle): string {
+    return $this->getCore()->getBundleLabel($entity_type, $bundle);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setModerationState(EntityStubInterface $stub, string $state): void {
+    $this->getCore()->setModerationState($stub, $state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function rebuildNodeAccess(?int $nid = NULL): void {
     $this->getCore()->rebuildNodeAccess($nid);
   }
