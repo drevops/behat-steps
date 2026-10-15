@@ -988,7 +988,10 @@ The `( containing)` variants are gone: every message step matches on a substring
 Several of these steps held 2 conditions to the same email, such as a recipient and a subject, or a subject and a link URL. No 4.0 step does, so each row keeps 1 of the conditions or checks each with its own step, and 2 steps can pass on 2 different emails. Clearing the queue right before the action that sends the mail usually leaves just that email. Where it doesn't, a step of your own holds both conditions to 1 email through the public helpers in [HELPERS.md](HELPERS.md). `emailGetMessagesToAddress()` and `emailGetMessagesWithSubject()` key each message as collected, so the emails that match both are:
 
 ```php
-$messages = array_intersect_key($this->emailGetMessagesToAddress($address), $this->emailGetMessagesWithSubject($subject));
+$messages = array_intersect_key(
+  $this->emailGetMessagesToAddress($address),
+  $this->emailGetMessagesWithSubject($subject),
+);
 ```
 
 For a link, `emailFindMessageBySubject()` finds the email and `emailExtractLinks()` lists the links in its body.
@@ -2315,7 +2318,9 @@ $paths = $this->getDriver('drupal')->getSubDriverPaths();
 
 // After.
 $backend = $this->getBackend('drupal');
-$paths = $backend instanceof DrupalBackendInterface ? $backend->getCore()->getExtensionPathList() : [];
+$paths = $backend instanceof DrupalBackendInterface
+  ? $backend->getCore()->getExtensionPathList()
+  : [];
 ```
 
 `createNode()`, `deleteNode()`, `createTerm()` and `deleteTerm()` sit on `NodeCapabilityInterface` and `TermCapabilityInterface` under `DrevOps\BehatSteps\Backend\Drupal\Capability`, beside the other capabilities only a Drupal backend provides, and `ContentCapabilityInterface` keeps `createEntity()` and `deleteEntity()`, which apply to any backend, beside the `updateEntity()` and `getEntityValues()` the table above adds. A backend of your own that creates nodes or terms declares the 2 interfaces, and a step of your own names the capability that holds the method it calls:

@@ -1,4 +1,4 @@
-# Contributing
+# 🤝 Contributing
 
 Below are some guidelines for developing and maintaining the Behat steps.
 
@@ -304,7 +304,7 @@ A file that needs both of a pair imports each under its own name, with no alias.
 
 The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the helpers the steps are built on). A project that outgrows the raw vocabulary stops calling the toolbox from Gherkin and starts calling it from PHP, so the helpers are public API in the same sense the step text is. [docs/scenario-styles.md](docs/scenario-styles.md) argues why.
 
-**Visibility is the marker.** A `public` method is the toolbox; a `protected` one is an implementation detail that promises nothing and may change in any release. Nothing else distinguishes the two, which is why a helper worth calling from a project's own step definitions is declared `public` and one that only serves the machinery stays `protected`.
+**Visibility is the marker.** A `public` method is the toolbox; a `protected` one is an implementation detail that promises nothing and may change in any release. Nothing else distinguishes the 2, which is why a helper worth calling from a project's own step definitions is declared `public` and one that only serves the machinery stays `protected`.
 
 A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
 
@@ -314,7 +314,7 @@ A member is published in [HELPERS.md](HELPERS.md) when all of the following hold
 - It carries no `#[Given]`, `#[When]`, `#[Then]`, `#[Transform]` or hook attribute. Those are registered with Behat and belong to the vocabulary.
 - Its docblock carries no `@internal`.
 
-Three obligations follow from publishing a member:
+3 obligations follow from publishing a member:
 
 - **It needs a summary.** `ahoy lint-docs` fails on a published helper with no docblock description, because the reference would carry a blank entry, and `PublicSurfaceTest` fails on the same thing from the other side. A `{@inheritdoc}` docblock is resolved to the interface or parent that declares the method, so implementing an interface is enough.
 - **It is named as carefully as a step.** The naming conventions above apply to a helper exactly as they do to a step method.
@@ -428,13 +428,13 @@ The package ships 3 layers, and the dependency only runs one way: `Steps` on `Ex
 - **`src/Extension`** is the Behat extension: `ServiceContainer/BehatStepsExtension` reads the `behat_steps` configuration and builds the container, and `ServiceContainer/BackendProviderInterface` is what each backend provider contributes to it, `Registry/` holds the backend, user and scenario tag registries, `Auth/` holds the authenticator and the basic authenticator, `Context/` holds the contracts the context initializer injects through, the initializer itself and the hook attribute reader, `Config/` holds option resolution and `ParametersTrait`, which reads the extension parameters, `Browser/` holds the browser capabilities, their adapters and resolver, the `DocumentElement` installed in place of Mink's own, and `MinkAwareTrait`, `ServiceContainer/Driver/` holds the `browserkit_http` browser driver factory, `Http/` holds the factory behind the detached and bare HTTP clients, `Prerequisite/` holds the prerequisite declarations and their reader, and `Hook/`, `Listener/`, `Selector/` and `Generator/` carry the entity and user creation hooks, the per-scenario backend selection and skip-tag check, the `region` Mink selector and the starter-class generator. `Extension\Drupal` holds what the extension needs for a Drupal site: `ServiceContainer/DrupalBackendProvider`, which adds the `drupal` and `drush` settings, the Drupal login text and selector defaults and the 2 backends' service definitions, and `Hook/`, the node, term and language creation hooks.
 - **`src/Steps`** is the step vocabulary - traits a context mixes in. Placement follows the subject: `Web/` holds the steps that mean something on any site, and `Drupal/` the ones that only mean something on a Drupal site, whether they reach a backend or only drive the page. The directory a trait sits in is the context [STEPS.md](STEPS.md) groups it under, so a project testing a site that isn't Drupal extends `WebContext` and gets no step it can't use. `Helper/` holds the step-free traits a step trait and a context both compose, split the same way into `Web/` (fixture directories, heading lookup, JavaScript error collection, last-step tracking, the request header bag, string shaping, table transposition, token replacement) and `Drupal/` (the entity lifecycle, authentication, static caches, fixture files, entity lookups). They register no Gherkin, so composing one twice shares its state instead of registering a step twice, and every member carries its trait's prefix so a name cannot collide once flattened. `Exception/AssertionException` is what a trait without a Mink session throws.
 
-The contexts are one chain. `WebRawContext` carries the plumbing, composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`) and registers no steps; `WebContext` extends it and composes every trait under `Steps/Web`; `DrupalContext` extends that and composes every trait under `Steps/Drupal`. `ContextCompositionTest` holds that directory-to-context coverage in both directions, and holds the chain to one composition of each trait, because a subclass re-composing a parent's trait registers its steps twice. `ClassNamingTest` holds the package root to the 3 contexts.
+The contexts are 1 chain. `WebRawContext` carries the plumbing, composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`) and registers no steps; `WebContext` extends it and composes every trait under `Steps/Web`; `DrupalContext` extends that and composes every trait under `Steps/Drupal`. `ContextCompositionTest` holds that directory-to-context coverage in both directions, and holds the chain to 1 composition of each trait, because a subclass re-composing a parent's trait registers its steps twice. `ClassNamingTest` holds the package root to the 3 contexts.
 
 A trait names the host it needs with `@phpstan-require-extends`, and composes the helper traits its own body calls. `ContextCompositionTest` walks every step trait and fails one that reaches a helper member it does not compose, so the plumbing a trait needs travels with it rather than being assumed of the host.
 
 The host is the base class that provides every method the trait calls without declaring it: `Behat\MinkExtension\Context\RawMinkContext` when a Mink session is all the trait touches, and `DrevOps\BehatSteps\WebRawContext` when it reaches a backend or the extension configuration. A trait that calls nothing outside itself names no host. A context that composes `AuthTrait` declares `UserAwareInterface`, so the initializer injects the user registry and the authenticator.
 
-That is what keeps `src/Steps/Helper` a library rather than a catch-all: teardown lives with the concern that creates the thing being torn down. A trait that creates entities composes `EntityLifecycleTrait` and so brings the `AfterScenario` pass that removes them; a context composing no such trait runs no entity teardown at all. Trait flattening is idempotent, so the fourteen traits that compose it still yield one registry, one hook and one deletion pass in reverse creation order.
+That is what keeps `src/Steps/Helper` a library rather than a catch-all: teardown lives with the concern that creates the thing being torn down. A trait that creates entities composes `EntityLifecycleTrait` and so brings the `AfterScenario` pass that removes them; a context composing no such trait runs no entity teardown at all. Trait flattening is idempotent, so the 14 traits that compose it still yield 1 registry, 1 hook and 1 deletion pass in reverse creation order.
 
 A trait's directory is its classification, so nothing has to be declared twice: `src/Steps/Web` and `src/Steps/Drupal` register Gherkin and `src/Steps/Helper` registers none. [scripts/lint-traits.php](scripts/lint-traits.php) fails a step trait composing another step trait, and a helper trait carrying a step or transform attribute. A helper may carry a hook: the trait that owns a teardown carries the hook that runs it. Shared logic goes in a helper trait under `src/Steps/Helper` named for its concern, composed by whoever needs it.
 
@@ -446,7 +446,7 @@ A trait's directory is its classification, so nothing has to be declared twice: 
 
 ## What a trait needs from the backend
 
-A step is only as portable as the backend behind it, so each trait falls into one of three bands. Which band a trait is in decides which capability its steps resolve, and therefore which suites can run them.
+A step is only as portable as the backend behind it, so each trait falls into 1 of 3 bands. Which band a trait is in decides which capability its steps resolve, and therefore which suites can run them.
 
 - **Nothing.** Every trait under `src/Steps/Web` except `MessageTrait`, `RegionTrait`, `MappingTrait` and `BasicAuthTrait` reads and drives the page through Mink alone. They run on any backend, against any site, with no Drupal at all. `BatchTrait`, `BigPipeTrait` and `ConfigOverrideTrait` need nothing from a backend either, and sit under `src/Steps/Drupal` because only a Drupal site renders the batch progress bar and the BigPipe placeholders, or reads the config override header `ConfigOverrideTrait` sends. That header also goes to every backend of the scenario providing `RequestEnvironmentCapabilityInterface`, without bootstrapping any, so the site code a backend runs reads it as the browser's requests do.
 - **Extension configuration, but no backend.** `MessageTrait` and `MappingTrait` read the `message.selectors` and `mapping.groups` options, `RegionTrait` reads the `regions` map through the `region` selector `BehatStepsExtension` registers, and `BasicAuthTrait` reads the basic authenticator. They need configuration, not a bootstrapped site.
@@ -615,7 +615,7 @@ The hook assigns the answer rather than returning, so a property that defaults t
 
 `__TRAIT__` resolves to the trait the code is written in, so the guard cannot name the wrong trait or fall out of step with a rename.
 
-Two other kinds of scenario hook carry no guard, because they have nothing to switch off:
+2 other kinds of scenario hook carry no guard, because they have nothing to switch off:
 
 - A hook that only resets in-memory state - its trait's own properties, or a static cache in this process - holds nothing a scenario would want to keep.
 - A hook that acts only on its trait's own activation tag, such as `@breakpoint:`, is switched off by removing the tag.
@@ -703,9 +703,9 @@ A patch against this repository's own vendor directory lives at `patches/<vendor
 
 ## Local environment setup
 
-Install [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy) and shut down local web services (Apache/Nginx, MAMP etc)
+Install [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy) and shut down local web services (Apache/Nginx, MAMP etc.).
 
-- Checkout project repository in one of the [supported Docker directories](https://docs.docker.com/desktop/settings-and-maintenance/settings/#file-sharing).
+- Check out the project repository in one of the [supported Docker directories](https://docs.docker.com/desktop/settings-and-maintenance/settings/#file-sharing).
 - `pygmy up`
 - `ahoy build`
 - Access the built site at `http://<directory>.docker.amazee.io/`, where `<directory>` is the name of your checkout directory. `ahoy info` prints the exact URL. Each checkout gets its own hostname, so several clones can run side by side.
@@ -823,7 +823,7 @@ Each Behat 4 leg provisions the fixture with `BEHAT=4`. [scripts/provision.php](
 
 On Drupal 11 it removes `dvdoug/behat-code-coverage`, which accepts Behat 4 only from 5.5. That release, and 5.4 before it, needs `phpunit/php-code-coverage` 12, while Drupal 11's `drupal/core-dev` holds the fixture on PHPUnit 11.5, which requires `^11.0.12`. The fixture therefore resolves 5.3.7, the newest release that still takes PHPUnit 11, and that one caps `behat/behat` at `^3`. The `composer.json` constraint is open at `^5.3.7`, so the repository root, running PHPUnit 12, does install 5.5 - only the Drupal 11 fixture is held back. [behat.php](behat.php) registers the coverage extension only when it is installed.
 
-Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup. The branch ruleset requires checks by name, so renaming a leg means updating the required checks on `4.x` to match.
+Every leg names the major it runs, as in `Test PHP 8.3, Drupal 11, Behat 3, Deps normal`, so a check name says what it covered without a lookup. The `main` branch ruleset requires checks by name, so renaming a leg means updating its required checks to match.
 
 `BEHAT` reaches the container through `ahoy`, so provisioning the fixture for Behat 4 locally is a matter of setting it. Run `ahoy provision` to switch back to Behat 3:
 
@@ -914,7 +914,7 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 | [HELPERS.md](HELPERS.md) | The toolbox |
 | [docs/configuration.md](docs/configuration.md) | The extension options and the tag reference |
 
-The same run validates the [steps format](#steps-format), that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
+The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
 
 ```
 ahoy update-docs  # Update documentation

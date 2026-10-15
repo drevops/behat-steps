@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="" rel="noopener"><img width=200px height=200px src="logo.png" alt="Behat Steps steps logo"></a>
+  <a href="" rel="noopener"><img width=200px height=200px src="logo.png" alt="Behat Steps logo"></a>
 </p>
 
 <h1 align="center">A collection of Behat steps</h1>
@@ -23,27 +23,27 @@
 
 ---
 
-## What is it?
+## 💡 What is it?
 
 This library is a collection of reusable testing actions and assertions for automated testing with [Behat](https://behat.org). It's designed to help you write reliable, readable, and maintainable tests faster.
 
-We provide a set of generic traits that can be used in any PHP project, with special support for Drupal through additional step definitions. All methods are properly namespaced, so they won't conflict with your existing custom step definitions.
+We provide a set of generic traits that can be used in any PHP project, with special support for Drupal through additional step definitions. Every method a trait contributes starts with the trait's own name, so it won't clash with the methods of your existing custom step definitions.
 
 Our goal is to make this a go-to library for Behat steps. We maintain solid [test coverage](tests/behat/features) to avoid false positives and negatives, and follow [clear guidelines](CONTRIBUTING.md#steps-format) to keep the step language consistent.
 
 We actively maintain this package and welcome [contributions](CONTRIBUTING.md) from the community.
 
-## Features
+## ✨ Features
 
-- 57 step traits: 28 that work on any website, and 29 that only mean something on a Drupal site.
-- Every step is a thin wrapper over named helpers, so a project's own domain steps call the same code. [HELPERS.md](HELPERS.md) lists the public ones.
-- A step names the capability it needs rather than a backend, so a step whose capability Drush provides, such as clearing caches or creating users, runs through Drush as well as in-process.
-- Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5.
-- BrowserKit, Selenium and Chrome DevTools browser drivers.
-- Entities a scenario creates through its steps are deleted after it, in reverse creation order.
-- AI-maintained architecture documentation in [docs/architecture/](docs/architecture/README.md) via the `update-architecture-docs` skill.
+- 🧩 57 step traits: 28 that work on any website, and 29 that only mean something on a Drupal site.
+- 🧰 Every step is a thin wrapper over named helpers, so a project's own domain steps call the same code. [HELPERS.md](HELPERS.md) lists the public ones.
+- 🔌 A step names the capability it needs rather than a backend, so a step whose capability Drush provides, such as clearing caches or creating users, runs through Drush as well as in-process.
+- ✅ Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5.
+- 🌐 BrowserKit, Selenium and Chrome DevTools browser drivers.
+- 🧹 [Entities a scenario creates](docs/usage.md#entities-a-scenario-creates) through its steps are deleted after it, in reverse creation order.
+- 📐 AI-maintained architecture documentation in [docs/architecture/](docs/architecture/README.md) via the `update-architecture-docs` skill.
 
-## Supported versions
+## 📅 Supported versions
 
 | Version | Behat | Drupal | PHP | Support |
 | --- | --- | --- | --- | --- |
@@ -58,93 +58,23 @@ We actively maintain this package and welcome [contributions](CONTRIBUTING.md) f
 Composer installs this package without the repository's `.claude/` directory, so the skill isn't in `vendor/`. Paste this into your agent from your project's root, on a clean branch, so `git diff` shows the whole migration:
 
 ```text
-Fetch https://raw.githubusercontent.com/drevops/behat-steps/main/.claude/skills/migrate-behat-steps/SKILL.md and follow it to migrate this project from drevops/behat-steps 3.x to 4.x. If you support skills, save it as .claude/skills/migrate-behat-steps/SKILL.md first, so the migration can run again.
+Fetch
+https://raw.githubusercontent.com/drevops/behat-steps/main/.claude/skills/migrate-behat-steps/SKILL.md
+and follow it to migrate this project from drevops/behat-steps 3.x to 4.x.
+If you support skills, save it as .claude/skills/migrate-behat-steps/SKILL.md
+first, so the migration can run again.
 ```
-
-## Available steps
-
-### Index of Web steps
-
-| Class | Description |
-| --- | --- |
-| [AccessibilityTrait](STEPS.md#accessibilitytrait) | Assess accessibility of rendered pages. |
-| [BasicAuthTrait](STEPS.md#basicauthtrait) | Keep HTTP basic authentication applied across session resets. |
-| [CommandTrait](STEPS.md#commandtrait) | Run local shell commands and assert on their result. |
-| [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
-| [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
-| [DiagnosticsTrait](STEPS.md#diagnosticstrait) | Append on-failure diagnostics to the failure message of any failed step. |
-| [DropzoneTrait](STEPS.md#dropzonetrait) | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
-| [ElementTrait](STEPS.md#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
-| [FieldTrait](STEPS.md#fieldtrait) | Manipulate form fields and verify widget functionality. |
-| [FileDownloadTrait](STEPS.md#filedownloadtrait) | Test file download functionality with content verification. |
-| [IframeTrait](STEPS.md#iframetrait) | Switch between iframes and the root document. |
-| [JavascriptTrait](STEPS.md#javascripttrait) | Automatically detect JavaScript errors during test execution. |
-| [JsonTrait](STEPS.md#jsontrait) | Assert JSON responses with path and schema checks. |
-| [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in the browser. |
-| [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
-| [MappingTrait](STEPS.md#mappingtrait) | Replace `{{ Key }}` tokens in step arguments and table cells. |
-| [MessageTrait](STEPS.md#messagetrait) | Assert status, error, warning and success messages rendered on the page. |
-| [MetatagTrait](STEPS.md#metatagtrait) | Assert `<meta>` tags and head/SEO markup in page markup. |
-| [ModalTrait](STEPS.md#modaltrait) | Interact with and assert modals. |
-| [PathTrait](STEPS.md#pathtrait) | Navigate and verify paths with URL validation. |
-| [RandomTrait](STEPS.md#randomtrait) | Replace random-value tokens in step arguments and table cells. |
-| [RegionTrait](STEPS.md#regiontrait) | Interact with and assert against named page regions. |
-| [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP response headers. |
-| [ResponsiveTrait](STEPS.md#responsivetrait) | Test responsive layouts with viewport control. |
-| [RestTrait](STEPS.md#resttrait) | Test REST APIs with lightweight steps. |
-| [TableTrait](STEPS.md#tabletrait) | Interact with HTML table elements and assert their content. |
-| [WaitTrait](STEPS.md#waittrait) | Wait for a period of time or for AJAX to finish. |
-| [XmlTrait](STEPS.md#xmltrait) | Assert XML responses with element and attribute checks. |
-
-### Index of Drupal steps
-
-| Class | Description |
-| --- | --- |
-| [Drupal\BatchTrait](STEPS.md#drupalbatchtrait) | Wait for Drupal's Batch API to finish. |
-| [Drupal\BigPipeTrait](STEPS.md#drupalbigpipetrait) | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
-| [Drupal\BlockTrait](STEPS.md#drupalblocktrait) | Manage Drupal blocks. |
-| [Drupal\CacheTrait](STEPS.md#drupalcachetrait) | Invalidate Drupal caches and run cron from within a scenario. |
-| [Drupal\ConfigOverrideTrait](STEPS.md#drupalconfigoverridetrait) | Disable Drupal config overrides from settings.php during a scenario. |
-| [Drupal\ConfigTrait](STEPS.md#drupalconfigtrait) | Assert and set stored Drupal configuration values with automatic revert. |
-| [Drupal\ContentBlockTrait](STEPS.md#drupalcontentblocktrait) | Manage Drupal content blocks. |
-| [Drupal\ContentTrait](STEPS.md#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
-| [Drupal\DraggableviewsTrait](STEPS.md#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
-| [Drupal\DrushTrait](STEPS.md#drupaldrushtrait) | Run Drush commands and assert their output. |
-| [Drupal\EckTrait](STEPS.md#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
-| [Drupal\EmailTrait](STEPS.md#drupalemailtrait) | Test Drupal email functionality with content verification. |
-| [Drupal\EntityTrait](STEPS.md#drupalentitytrait) | Create entities of a type that has no dedicated trait. |
-| [Drupal\FileTrait](STEPS.md#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
-| [Drupal\LanguageTrait](STEPS.md#drupallanguagetrait) | Create the languages a scenario needs. |
-| [Drupal\MediaTrait](STEPS.md#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
-| [Drupal\MenuTrait](STEPS.md#drupalmenutrait) | Manage Drupal menus and menu links. |
-| [Drupal\ModuleTrait](STEPS.md#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
-| [Drupal\ParagraphsTrait](STEPS.md#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
-| [Drupal\QueueTrait](STEPS.md#drupalqueuetrait) | Manage and assert Drupal queue state. |
-| [Drupal\RedirectTrait](STEPS.md#drupalredirecttrait) | Manage Drupal redirect entities provided by the contrib `redirect` module. |
-| [Drupal\SearchApiTrait](STEPS.md#drupalsearchapitrait) | Run Drupal Search API indexing and cron hooks. |
-| [Drupal\StateTrait](STEPS.md#drupalstatetrait) | Manage and assert Drupal State API values with automatic revert. |
-| [Drupal\TaxonomyTrait](STEPS.md#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
-| [Drupal\TestmodeTrait](STEPS.md#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
-| [Drupal\TimeTrait](STEPS.md#drupaltimetrait) | Control system time in tests using Drupal state overrides. |
-| [Drupal\UserTrait](STEPS.md#drupalusertrait) | Manage Drupal users with role and permission assignments. |
-| [Drupal\WatchdogTrait](STEPS.md#drupalwatchdogtrait) | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
-| [Drupal\WebformTrait](STEPS.md#drupalwebformtrait) | Manage Drupal webforms. |
-
-
-
-
-[//]: # (END)
 
 ## 📚 Documentation
 
-- [STEPS.md](STEPS.md) - the vocabulary: every step, with an example for each.
-- [HELPERS.md](HELPERS.md) - the toolbox: every helper the steps are built on, which your own step definitions call the same way.
-- [Usage](docs/usage.md) - the extension-plus-context model: composing a context, registering it, and configuring the traits it holds.
-- [Configuration](docs/configuration.md) - the 4 channels a project configures this package through, and the suite layout to start from.
-- [Scenario styles](docs/scenario-styles.md) - the imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to your own domain steps built on the same helpers.
-- [HTTP clients](docs/http-clients.md) - the 3 clients a step sends its own requests through, where their settings come from, and how to change them.
-- [Architecture](docs/architecture/README.md) - how the layers fit together and how a step travels from a feature file to a browser or a Drupal API, with UML diagrams.
-- [CONTRIBUTING.md](CONTRIBUTING.md) - conventions, layers and the local development setup.
+- 📖 [STEPS.md](STEPS.md) - the vocabulary: every step, with an example for each.
+- 🧰 [HELPERS.md](HELPERS.md) - the toolbox: every helper the steps are built on, which your own step definitions call the same way.
+- 🧱 [Usage](docs/usage.md) - the extension-plus-context model: composing a context, registering it, configuring the traits it holds and switching their hooks off, and what happens to the entities a scenario creates.
+- 🔧 [Configuration](docs/configuration.md) - the 4 channels a project configures this package through, and the suite layout to start from.
+- 📝 [Scenario styles](docs/scenario-styles.md) - the imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to your own domain steps built on the same helpers.
+- 🌐 [HTTP clients](docs/http-clients.md) - the 3 clients a step sends its own requests through, where their settings come from, and how to change them.
+- 📐 [Architecture](docs/architecture/README.md) - how the layers fit together and how a step travels from a feature file to a browser or a Drupal API, with UML diagrams.
+- 🤝 [CONTRIBUTING.md](CONTRIBUTING.md) - conventions, layers and the local development setup.
 
 [![Component architecture: the 3 library layers, the consuming project and the runtime around them](docs/architecture/architecture.svg)](docs/architecture/README.md)
 
@@ -157,7 +87,8 @@ composer require --dev drevops/behat-steps:^4
 With `minimum-stability: stable`, Composer's default, that installs Behat 3. Behat 4 needs `friends-of-behat/mink-extension` 3, which has only an alpha release so far, and Composer takes a stability flag such as `@alpha` only from your own `composer.json`. To install on Behat 4, ask for both:
 
 ```bash
-composer require --dev drevops/behat-steps:^4 behat/behat:^4 friends-of-behat/mink-extension:^3.0@alpha
+composer require --dev drevops/behat-steps:^4 behat/behat:^4 \
+  friends-of-behat/mink-extension:^3.0@alpha
 ```
 
 A project whose `minimum-stability` already admits alpha releases can get Behat 4 from the first command, but nothing in it pins the major. Require `behat/behat:^4`, as above, when the suite needs Behat 4.
@@ -171,11 +102,37 @@ To keep installs lean, packages needed by only some traits are declared as `sugg
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
 - **`@javascript` scenarios** need a JavaScript-capable browser driver - see [JavaScript browser drivers](#javascript-browser-drivers) below.
 
+### JavaScript browser drivers
+
+Steps that require a real browser (used by scenarios tagged `@javascript`) work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. Both are exercised by this library's own CI. Another browser driver needs [an adapter registered for it](MIGRATION.md#registering-an-adapter-for-another-browser-driver).
+
+To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension) (which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both.
+
+```php
+use Behat\Config\Extension;
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
+use DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension;
+
+$profile
+  ->withExtension(new Extension(ChromeExtension::class))
+  ->withExtension(new Extension(MinkExtension::class, [
+    'browser_name' => 'chrome',
+    'javascript_session' => 'chrome',
+    'sessions' => [
+      'chrome' => ['chrome' => ['api_url' => 'http://chrome:9222']],
+    ],
+  ]));
+```
+
+A profile holds 1 entry per extension, so a profile that already registers `MinkExtension` merges these settings into that entry rather than adding a second one.
+
+Any image that exposes a DevTools endpoint works (for example [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell)). For local visual debugging you can override `api_url` at runtime via Behat's `BEHAT_PARAMS` environment variable - for instance to drive a headed Chrome on your host - as long as that browser can reach your site's `base_url`.
+
 ## 🚀 Quick start
 
 ### 1. Register the vocabulary you need
 
-The vocabulary sits on one chain. `WebContext` carries every step that drives a page, and `DrupalContext` extends it with every step that reaches a Drupal site, so a suite registers exactly one of them:
+The vocabulary sits on 1 chain. `WebContext` carries every step that drives a page, and `DrupalContext` extends it with every step that reaches a Drupal site, so a suite registers exactly one of them:
 
 ```php
 $suite = (new Suite('default'))
@@ -208,7 +165,7 @@ class FeatureContext extends WebRawContext {
 
 ### 2. Enable the extension
 
-Ensure that your [`behat.php`](behat.php) enables the extension:
+Ensure that your `behat.php` enables the extension:
 
 ```php
 <?php
@@ -294,31 +251,91 @@ That is the lifecycle this package is built for: start in the vocabulary for cov
 
 [Scenario styles](docs/scenario-styles.md) explains when each style earns its keep, and [HELPERS.md](HELPERS.md) lists every helper a domain step can build on.
 
-### JavaScript browser drivers
+## 📋 Available steps
 
-Steps that require a real browser (used by scenarios tagged `@javascript`) work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. Both are exercised by this library's own CI. Another browser driver needs [an adapter registered for it](MIGRATION.md#registering-an-adapter-for-another-browser-driver).
+### Index of Web steps
 
-To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension) (which pulls in `dmore/chrome-mink-driver`) and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both.
+| Class | Description |
+| --- | --- |
+| [AccessibilityTrait](STEPS.md#accessibilitytrait) | Assess accessibility of rendered pages. |
+| [BasicAuthTrait](STEPS.md#basicauthtrait) | Keep HTTP basic authentication applied across session resets. |
+| [CommandTrait](STEPS.md#commandtrait) | Run local shell commands and assert on their result. |
+| [CookieTrait](STEPS.md#cookietrait) | Verify and inspect browser cookies. |
+| [DateTrait](STEPS.md#datetrait) | Convert relative date expressions into timestamps or formatted dates. |
+| [DiagnosticsTrait](STEPS.md#diagnosticstrait) | Append on-failure diagnostics to the failure message of any failed step. |
+| [DropzoneTrait](STEPS.md#dropzonetrait) | Simulate a real multi-file drag-and-drop gesture onto a Dropzone target. |
+| [ElementTrait](STEPS.md#elementtrait) | Interact with HTML elements using CSS selectors and DOM attributes. |
+| [FieldTrait](STEPS.md#fieldtrait) | Manipulate form fields and verify widget functionality. |
+| [FileDownloadTrait](STEPS.md#filedownloadtrait) | Test file download functionality with content verification. |
+| [IframeTrait](STEPS.md#iframetrait) | Switch between iframes and the root document. |
+| [JavascriptTrait](STEPS.md#javascripttrait) | Automatically detect JavaScript errors during test execution. |
+| [JsonTrait](STEPS.md#jsontrait) | Assert JSON responses with path and schema checks. |
+| [KeyboardTrait](STEPS.md#keyboardtrait) | Simulate keyboard interactions in the browser. |
+| [LinkTrait](STEPS.md#linktrait) | Verify link elements with attribute and content assertions. |
+| [MappingTrait](STEPS.md#mappingtrait) | Replace `{{ Key }}` tokens in step arguments and table cells. |
+| [MessageTrait](STEPS.md#messagetrait) | Assert status, error, warning and success messages rendered on the page. |
+| [MetatagTrait](STEPS.md#metatagtrait) | Assert `<meta>` tags and head/SEO markup in page markup. |
+| [ModalTrait](STEPS.md#modaltrait) | Interact with and assert modals. |
+| [PathTrait](STEPS.md#pathtrait) | Navigate and verify paths with URL validation. |
+| [RandomTrait](STEPS.md#randomtrait) | Replace random-value tokens in step arguments and table cells. |
+| [RegionTrait](STEPS.md#regiontrait) | Interact with and assert against named page regions. |
+| [ResponseTrait](STEPS.md#responsetrait) | Verify HTTP response headers. |
+| [ResponsiveTrait](STEPS.md#responsivetrait) | Test responsive layouts with viewport control. |
+| [RestTrait](STEPS.md#resttrait) | Test REST APIs with lightweight steps. |
+| [TableTrait](STEPS.md#tabletrait) | Interact with HTML table elements and assert their content. |
+| [WaitTrait](STEPS.md#waittrait) | Wait for a period of time or for AJAX to finish. |
+| [XmlTrait](STEPS.md#xmltrait) | Assert XML responses with element and attribute checks. |
 
-```php
-use Behat\Config\Extension;
-use Behat\MinkExtension\ServiceContainer\MinkExtension;
-use DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension;
+### Index of Drupal steps
 
-$profile
-  ->withExtension(new Extension(ChromeExtension::class))
-  ->withExtension(new Extension(MinkExtension::class, [
-    'browser_name' => 'chrome',
-    'javascript_session' => 'chrome',
-    'sessions' => [
-      'chrome' => ['chrome' => ['api_url' => 'http://chrome:9222']],
-    ],
-  ]));
-```
+| Class | Description |
+| --- | --- |
+| [Drupal\BatchTrait](STEPS.md#drupalbatchtrait) | Wait for Drupal's Batch API to finish. |
+| [Drupal\BigPipeTrait](STEPS.md#drupalbigpipetrait) | Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios. |
+| [Drupal\BlockTrait](STEPS.md#drupalblocktrait) | Manage Drupal blocks. |
+| [Drupal\CacheTrait](STEPS.md#drupalcachetrait) | Invalidate Drupal caches and run cron from within a scenario. |
+| [Drupal\ConfigOverrideTrait](STEPS.md#drupalconfigoverridetrait) | Disable Drupal config overrides from settings.php during a scenario. |
+| [Drupal\ConfigTrait](STEPS.md#drupalconfigtrait) | Assert and set stored Drupal configuration values with automatic revert. |
+| [Drupal\ContentBlockTrait](STEPS.md#drupalcontentblocktrait) | Manage Drupal content blocks. |
+| [Drupal\ContentTrait](STEPS.md#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
+| [Drupal\DraggableviewsTrait](STEPS.md#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
+| [Drupal\DrushTrait](STEPS.md#drupaldrushtrait) | Run Drush commands and assert their output. |
+| [Drupal\EckTrait](STEPS.md#drupalecktrait) | Manage Drupal ECK entities of an existing entity type and bundle. |
+| [Drupal\EmailTrait](STEPS.md#drupalemailtrait) | Test Drupal email functionality with content verification. |
+| [Drupal\EntityTrait](STEPS.md#drupalentitytrait) | Create entities of a type that has no dedicated trait. |
+| [Drupal\FileTrait](STEPS.md#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
+| [Drupal\LanguageTrait](STEPS.md#drupallanguagetrait) | Create the languages a scenario needs. |
+| [Drupal\MediaTrait](STEPS.md#drupalmediatrait) | Manage Drupal media entities with type-specific field handling. |
+| [Drupal\MenuTrait](STEPS.md#drupalmenutrait) | Manage Drupal menus and menu links. |
+| [Drupal\ModuleTrait](STEPS.md#drupalmoduletrait) | Enable and disable Drupal modules with automatic state restoration. |
+| [Drupal\ParagraphsTrait](STEPS.md#drupalparagraphstrait) | Manage Drupal paragraphs entities with structured field data. |
+| [Drupal\QueueTrait](STEPS.md#drupalqueuetrait) | Manage and assert Drupal queue state. |
+| [Drupal\RedirectTrait](STEPS.md#drupalredirecttrait) | Manage Drupal redirect entities provided by the contrib `redirect` module. |
+| [Drupal\SearchApiTrait](STEPS.md#drupalsearchapitrait) | Run Drupal Search API indexing and cron hooks. |
+| [Drupal\StateTrait](STEPS.md#drupalstatetrait) | Manage and assert Drupal State API values with automatic revert. |
+| [Drupal\TaxonomyTrait](STEPS.md#drupaltaxonomytrait) | Manage Drupal taxonomy terms with vocabulary organization. |
+| [Drupal\TestmodeTrait](STEPS.md#drupaltestmodetrait) | Configure Drupal Testmode module for controlled testing scenarios. |
+| [Drupal\TimeTrait](STEPS.md#drupaltimetrait) | Control system time in tests using Drupal state overrides. |
+| [Drupal\UserTrait](STEPS.md#drupalusertrait) | Manage Drupal users with role and permission assignments. |
+| [Drupal\WatchdogTrait](STEPS.md#drupalwatchdogtrait) | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
+| [Drupal\WebformTrait](STEPS.md#drupalwebformtrait) | Manage Drupal webforms. |
 
-A profile holds 1 entry per extension, so a profile that already registers `MinkExtension` merges these settings into that entry rather than adding a second one.
 
-Any image that exposes a DevTools endpoint works (for example [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell)). For local visual debugging you can override `api_url` at runtime via Behat's `BEHAT_PARAMS` environment variable - for instance to drive a headed Chrome on your host - as long as that browser can reach your site's `base_url`.
+
+
+[//]: # (END)
+
+## 🧭 Public API and versioning
+
+This package follows [semantic versioning](https://semver.org), and 5 surfaces are covered by it. A breaking change to any of them waits for a major release:
+
+- **Step text** - the pattern a scenario matches, listed in [STEPS.md](STEPS.md).
+- **Helpers** - every public method the step traits, the helper traits and `WebRawContext` contribute that is not a step, a hook or a transform, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
+- **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md).
+- **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) below.
+- **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
+
+2 things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Extension` that none of the surfaces above exposes.
 
 ### Exceptions
 
@@ -346,51 +363,6 @@ Select with id|name|label "My Select" not found.
 The cookie with name "session" was not set.
 ```
 
-### Skipping hooks
-
-Several traits carry hooks that run around every scenario or step. One tag switches off every hook of a trait:
-
-```gherkin
-@behat-steps-skip:TRAIT
-```
-
-`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag whose value isn't shaped like a trait name, such as a hook method, or that names a trait none of your suite's contexts compose, such as a misspelled one, fails the run before the scenario starts.
-
-### Automatic entity cleanup
-
-Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, keeping the test database clean across long suites. Reverse order means a node comes down before the term it references.
-
-A step of your own registers what it created, passing the stub the capability returned and the key its entity type stores the ID under:
-
-```php
-$created = $this->backendFor(ContentCapabilityInterface::class)->createEntity($stub);
-$this->entityLifecycleRegister($created, 'mid');
-```
-
-To keep **all** entities after a scenario, add `@behat-steps-skip:EntityLifecycleTrait` to the scenario or feature. `@behat-steps-skip:AuthTrait` does the same for users and roles.
-
-To keep only entities of a **named type**, add `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example `@behat-steps-entity-cleanup-skip:media`). Repeat the tag to keep several types.
-
-### Several entities with the same title
-
-When several entities share the title, label, name or description a step names, the step acts on the newest one. That's the entity the scenario just created, even on a site that already holds a page called "About us".
-
-- Nodes, terms, media, content blocks, menu links and ECK entities are compared by ID, which only grows when an entity is created, so the highest ID wins. Saving an older entity again doesn't make it newer.
-- Blocks and menus have machine names rather than numeric IDs, so the one the scenario created last wins. When the scenario created none of them, the machine name that comes last in natural order wins, so `block_10` beats `block_2`.
-- A `... does not exist` step removes every match, and a step that only checks whether an entity exists, such as `the :content_type content with the title :title should not exist`, looks at every match.
-
-## 🧭 Public API and versioning
-
-This package follows [semantic versioning](https://semver.org), and 5 surfaces are covered by it. A breaking change to any of them waits for a major release:
-
-- **Step text** - the pattern a scenario matches, listed in [STEPS.md](STEPS.md).
-- **Helpers** - every public method the step traits, the helper traits and `WebRawContext` contribute that is not a step, a hook or a transform, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
-- **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md).
-- **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) above.
-- **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
-
-Two things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Extension` that none of the surfaces above exposes.
-
 ## 🤖 Writing tests with AI assistants
 
 Copy and paste below into your project's `CLAUDE.md` or `AGENTS.md` file.
@@ -411,7 +383,7 @@ Regenerate after adding new step traits or updating dependencies.
 For detailed examples, see: vendor/drevops/behat-steps/STEPS.md
 ```
 
-## Contributing
+## 🤝 Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for local development setup and the linting and testing commands.
 

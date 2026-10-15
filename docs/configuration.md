@@ -1,6 +1,6 @@
-# Configuration
+# 🔧 Configuration
 
-Everything this package reads arrives through one of 4 channels, apart from the Mink settings it shares: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, and none of them is a substitute for another.
+Everything this package reads arrives through 1 of 4 channels, apart from the Mink settings it shares: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, and none of them is a substitute for another.
 
 | Channel | Answers | Scope |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ The tables in sections 2 and 3 are generated from the source by [docs.php](../do
 
 ### Suite per surface
 
-A suite is the unit that binds a set of feature files to a set of contexts. The default layout is one suite per surface under test, because each surface needs a different vocabulary and a different backend.
+A suite is the unit that binds a set of feature files to a set of contexts. The default layout is 1 suite per surface under test, because each surface needs a different vocabulary and a different backend.
 
 ```php
 <?php
@@ -56,9 +56,9 @@ $profile = (new Profile('default'))
 return (new Config())->withProfile($profile);
 ```
 
-Run one surface with `vendor/bin/behat --suite=api`, or all of them with a bare `vendor/bin/behat`.
+Run 1 surface with `vendor/bin/behat --suite=api`, or all of them with a bare `vendor/bin/behat`.
 
-Three properties follow from the layout:
+3 properties follow from the layout:
 
 - **Each suite composes only the vocabulary its surface needs.** `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that cannot work on a surface is not defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run.
 - **The spec suite and the regression suites do different jobs.** The spec suite holds domain-language scenarios written over your own step definitions; the regression suites hold broad scenarios written in the shipped vocabulary. See [Scenario styles](scenario-styles.md) for why both exist.
@@ -91,7 +91,7 @@ class UiContext extends WebRawContext {
 
 Behat matches the arguments to the constructor by name, so the array keys are the parameter names.
 
-`WebRawContext` declares one argument of its own, `config`, and every shipped and consuming context inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between two contexts of the same profile:
+`WebRawContext` declares 1 argument of its own, `config`, and every shipped and consuming context inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between 2 contexts of the same profile:
 
 ```php
 $ui = (new Suite('ui'))
@@ -201,7 +201,7 @@ A nested option is written as a section in the configuration and reads as a dott
 
 ### Backend resolution
 
-Five authorities decide which backend runs a step, and each decides exactly one thing.
+5 authorities decide which backend runs a step, and each decides exactly 1 thing.
 
 | Authority | Decides | Where |
 | --- | --- | --- |
@@ -279,7 +279,7 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-An option resolves through five layers, each overriding the one above it:
+An option resolves through 5 layers, each overriding the one above it:
 
 ```
 declaration default
@@ -289,12 +289,12 @@ declaration default
         -> scenario tag
 ```
 
-The two levels differ in how strictly they are read, because they know different things:
+The 2 levels differ in how strictly they are read, because they know different things:
 
-- **`steps` is permissive.** A group there may name a trait only one of the registered contexts composes, so a group or an option a context cannot serve is ignored. One profile can carry the defaults of every suite.
+- **`steps` is permissive.** A group there may name a trait only 1 of the registered contexts composes, so a group or an option a context cannot serve is ignored. 1 profile can carry the defaults of every suite.
 - **A context's `config` is strict.** The context knows which traits it composes, so an unknown group, an unknown option, or a value of the wrong type is an error naming what the context accepts.
 
-Two options recur, and they are deliberately separate switches:
+2 options recur, and they are deliberately separate switches:
 
 | Option | Effect |
 | --- | --- |
@@ -329,7 +329,7 @@ The declared default carries the option's type, and the composing context reads 
 
 ## 3. Tags
 
-A tag configures one scenario or one feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon names nothing and is ignored, except `@behat-steps-skip:` and `@backend:`, which fail at scenario start like any other value they cannot resolve. A flag tag stands alone. `@module:` also switches its value off with a `!`: `@module:!redirect`.
+A tag configures 1 scenario or 1 feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon names nothing and is ignored, except `@behat-steps-skip:` and `@backend:`, which fail at scenario start like any other value they cannot resolve. A flag tag stands alone. `@module:` also switches its value off with a `!`: `@module:!redirect`.
 
 ```gherkin
 @module:redirect @behat-steps-skip:WatchdogTrait
@@ -373,4 +373,4 @@ These vary a run without changing any committed configuration. Nothing else in t
 | `BEHAT_ACCESSIBILITY_PRINT` | `AccessibilityTrait` | Set to any non-empty value other than `0` to print a one-line accessibility summary per page to the console. |
 | `COMPOSER_BIN_DIR` | `DrushBackend` | When `drush.binary` is the bare `drush`, names the directory the Drush binary is resolved from, before the backend falls back to `vendor/bin/drush` under the working directory and then to `drush` on the `PATH`. Composer sets it inside its own scripts. |
 
-`BEHAT_PARAMS` is Behat's own override channel and applies here as it does to any extension: it carries a JSON object merged over the loaded configuration, which is the usual way to point `base_url` or a browser driver's `api_url` somewhere else for one run.
+`BEHAT_PARAMS` is Behat's own override channel and applies here as it does to any extension: it carries a JSON object merged over the loaded configuration, which is the usual way to point `base_url` or a browser driver's `api_url` somewhere else for 1 run.

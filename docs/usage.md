@@ -1,4 +1,4 @@
-# Usage
+# 🧱 Usage
 
 A project uses this package by composing a context out of traits and pointing an extension at the site. The extension and the context answer different questions, and a trait reads from both.
 
@@ -44,7 +44,7 @@ use DrevOps\BehatSteps\DrupalContext;
 class FeatureContext extends DrupalContext {}
 ```
 
-## Register one context, not two
+## Register 1 context, not 2
 
 `DrupalContext` extends `WebContext`, so a suite registering both would register the 28 web traits twice and die on a `RedundantStepException` naming an arbitrary step. `WebContext::assertOneContext()` runs on `BeforeSuite` and reports the real mistake instead. Register the class lowest in the chain and drop the rest:
 
@@ -57,7 +57,7 @@ $suite = (new Suite('default'))
 
 A Drupal suite needs `DrupalContext` alone: `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because `PathTrait`, `RandomTrait`, `MappingTrait` and `DateTrait` are inherited from `WebContext`.
 
-It costs one thing, stated plainly: there is no way to remove an inherited step, so a Drupal project cannot take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
+It costs 1 thing, stated plainly: there is no way to remove an inherited step, so a Drupal project cannot take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
 
 ## Compose your own context
 
@@ -124,7 +124,7 @@ The last row is the least discoverable: `HookRepository` does not deduplicate, s
 
 ## Register it against the extension
 
-One profile carries the extension; each suite carries its contexts.
+1 profile carries the extension; each suite carries its contexts.
 
 ```php
 $ui = (new Suite('ui'))
@@ -154,7 +154,7 @@ Each configurable trait declares its own options, named after the trait in snake
 ]));
 ```
 
-A value that has to differ between two suites of the same profile travels as the context's `config` argument instead. `UiContext` composes `JavascriptTrait` above, so it is the context that accepts the `javascript` group:
+A value that has to differ between 2 suites of the same profile travels as the context's `config` argument instead. `UiContext` composes `JavascriptTrait` above, so it is the context that accepts the `javascript` group:
 
 ```php
 $ui = (new Suite('ui'))
@@ -172,11 +172,11 @@ Scenario: The legacy report still renders
   Given I visit "/reports/legacy"
 ```
 
-The three reach the same value, most specific last: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and [STEPS.md](../STEPS.md) lists the options of each trait beside its steps.
+The 3 reach the same value, most specific last: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and [STEPS.md](../STEPS.md) lists the options of each trait beside its steps.
 
 ## Switch a trait off
 
-Two options recur across the traits that carry hooks, and they mean different things:
+2 options recur across the traits that carry hooks, and they mean different things:
 
 - `enabled` turns the trait's hooks off entirely: nothing is collected, and no backend is bootstrapped on its account.
 - `fail_on_errors` leaves the collection running and stops what it collects from failing the scenario.
@@ -188,6 +188,14 @@ A project that never wants a trait's gate sets it once:
 ```
 
 rather than tagging every feature file with `@behat-steps-skip:WatchdogTrait`.
+
+Several traits carry hooks that run around every scenario or step, and 1 tag switches off every hook of a trait for a single scenario or feature:
+
+```gherkin
+@behat-steps-skip:TRAIT
+```
+
+`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag whose value isn't shaped like a trait name, such as a hook method, or that names a trait none of your suite's contexts compose, such as a misspelled one, fails the run before the scenario starts.
 
 `WatchdogTrait` is the gate you're most likely to meet first, because `DrupalContext` composes it. It reads the errors each scenario logged from the `watchdog` table, and only the core `dblog` module creates that table. It reads the table in the Behat process, so it also needs a backend that loads Drupal there, such as `drupal`.
 
@@ -201,6 +209,34 @@ Those are the trait's prerequisites, and it checks them when a scenario starts. 
 A profile that lists no backend loading Drupal into the Behat process, such as `'backends' => ['drush', 'blackbox']`, fails at the start the same way. The error names the prerequisite that doesn't hold and both ways out: meet it, or switch the trait off as above. A scenario that uninstalls `dblog` itself starts with the table in place, so it fails at its last step instead.
 
 Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help with an unmet prerequisite. Both decide what happens to errors that were read, and without the table or a backend to read it through, there's nothing to read.
+
+## Entities a scenario creates
+
+### Automatic cleanup
+
+Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, keeping the test database clean across long suites. Reverse order means a node comes down before the term it references.
+
+A step of your own registers what it created, passing the stub the capability returned and the key its entity type stores the ID under:
+
+```php
+$created = $this->backendFor(ContentCapabilityInterface::class)
+  ->createEntity($stub);
+$this->entityLifecycleRegister($created, 'mid');
+```
+
+To keep **all** entities after a scenario, add `@behat-steps-skip:EntityLifecycleTrait` to the scenario or feature. `@behat-steps-skip:AuthTrait` does the same for users and roles.
+
+To keep only entities of a **named type**, add `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example `@behat-steps-entity-cleanup-skip:media`). Repeat the tag to keep several types.
+
+To keep what a whole run creates, set `BEHAT_STEPS_DISABLE_CLEANUP`, as [Environment variables](configuration.md#4-environment-variables) describes.
+
+### Several entities with the same title
+
+When several entities share the title, label, name or description a step names, the step acts on the newest one. That's the entity the scenario just created, even on a site that already holds a page called "About us".
+
+- Nodes, terms, media, content blocks, menu links and ECK entities are compared by ID, which only grows when an entity is created, so the highest ID wins. Saving an older entity again doesn't make it newer.
+- Blocks and menus have machine names rather than numeric IDs, so the one the scenario created last wins. When the scenario created none of them, the machine name that comes last in natural order wins, so `block_10` beats `block_2`.
+- A `... does not exist` step removes every match, and a step that only checks whether an entity exists, such as `the :content_type content with the title :title should not exist`, looks at every match.
 
 ## Go further than the options
 

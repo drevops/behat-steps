@@ -160,7 +160,7 @@ function main(array $options = []): void {
       ['# Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path) . PHP_EOL],
     ],
     'README.md' => [
-      ['## Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path, 'STEPS.md') . PHP_EOL],
+      ['## 📋 Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path, 'STEPS.md') . PHP_EOL],
     ],
     HELPERS_FILE => [
       ['# Available helpers', '[//]: # (END)', PHP_EOL . render_helpers($helpers, $base_path) . PHP_EOL],
