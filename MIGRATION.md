@@ -1358,13 +1358,13 @@ Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\Beh
 | `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\<Name>` | `EntityStub`, the creation alias contracts, the exceptions and the capabilities any backend may provide: `Authentication`, `Cache`, `Content`, `Cron`, `CreationAlias`, `Language`, `Mail`, `Role` and `User` |
 | `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\Drupal\<Name>` | `Core`, the field handlers and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `Core`, `Drush`, `Module`, `Node`, `State` and `Term` |
 | `Drupal\Driver\DriverInterface` | `DrevOps\BehatSteps\Backend\BackendInterface` | |
-| `Drupal\Driver\DrupalDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackend` | |
+| `Drupal\Driver\DrupalDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackend` | Builds its Core when it's constructed, from 2 more constructor arguments: the class the `drupal.core` option names and the random generator. A subclass that overrides the constructor passes both on, or the option never reaches the Core |
 | `Drupal\Driver\DrupalDriverInterface` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface` | Declares only `setCore()`; `getCore()` and `getDrupalVersion()` moved to `CoreCapabilityInterface` |
 | `Drupal\Driver\DrushDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrushBackend` | |
 | `Drupal\Driver\DrushDriverInterface` | `DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface` | |
 | `Drupal\Driver\BlackboxDriver` | `DrevOps\BehatSteps\Backend\BlackboxBackend` | |
 | `Drupal\Driver\BlackboxDriverInterface` | `DrevOps\BehatSteps\Backend\BlackboxBackendInterface` | |
-| `Drupal\Driver\Core<N>\Core` | `DrevOps\BehatSteps\Backend\Drupal\Core<N>\Core` | The namespace a version-specific core of this package sits in. A field handler of your own is registered through `drupal.field_handlers`; see [Fields, files and stored values](#fields-files-and-stored-values) |
+| `Drupal\Driver\Core<N>\Core` | `DrevOps\BehatSteps\Backend\Drupal\Core<N>\Core` | The namespace a version core of this package sits in. The `drupal` backend builds the newest one at or below the Drupal major it detects. A Core of your own is named by the `drupal.core` option, and a field handler of your own is registered through `drupal.field_handlers`; see [Fields, files and stored values](#fields-files-and-stored-values) |
 | `Drupal\Driver\Alias\RolesAlias` | `DrevOps\BehatSteps\Backend\Alias\RolesAlias` | Final |
 | `Drupal\Driver\Core\Alias\AuthorAlias` | `DrevOps\BehatSteps\Backend\Drupal\Core\Alias\AuthorAlias` | Final |
 | `Drupal\Driver\Core\Alias\ParentTermAlias` | `DrevOps\BehatSteps\Backend\Drupal\Core\Alias\ParentTermAlias` | Final |
@@ -1834,6 +1834,7 @@ A backend of your own that implements one of these interfaces renames the method
 | `DrupalDriverInterface::getCore()` | `CoreCapabilityInterface::getCore()` | |
 | `DrupalDriverInterface::getDrupalVersion()` | `CoreCapabilityInterface::getDrupalVersion()` | |
 | `DrupalDriver::getSubDriverPaths()` | Removed | See [Backend contracts](#backend-contracts) |
+| `DrupalDriver::setCoreFromVersion()` | Removed | `DrupalBackend` builds its Core when it's constructed: the class the `drupal.core` option names, or the version core for the Drupal major it detects |
 | `Exception::getDriver()` | `Exception::getBackend()` | On `DrevOps\BehatSteps\Backend\Exception\Exception` |
 | `AbstractHandler::normalise()` | `AbstractHandler::normalize()` | A field handler of your own that overrode it renames the override. It's protected, so semantic versioning doesn't cover it |
 
@@ -2400,7 +2401,7 @@ A project with a Behat extension of its own, or one that swaps an implementation
 | The `drupal.driver.drupal` service | The `behat_steps.backend.drupal` service |
 | The `drupal.driver.drush` service | The `behat_steps.backend.drush` service |
 | The `drupal.driver.blackbox` service | The `behat_steps.backend.blackbox` service |
-| The `drupal.driver.core` service | The `behat_steps.backend.core` service |
+| The `drupal.driver.core` service | Removed; the `drupal` backend builds its Core, and the `drupal.core` option names a class of your own |
 | The `drupal.driver.random` service | The `behat_steps.backend.random` service |
 | The `drupal.listener.driver` service | The `behat_steps.listener.backend` service |
 | The `drupal.context.initializer` service | The `behat_steps.context.initializer` service |
@@ -2411,9 +2412,9 @@ A project with a Behat extension of its own, or one that swaps an implementation
 | The `drupal.parameters` parameter | The `behat_steps.parameters` parameter |
 | The `drupal.regions` parameter | The `behat_steps.regions` parameter |
 | The `drupal.driver` service tag | The `behat_steps.backend` service tag |
-| The `drupal.core` service tag | The `behat_steps.core` service tag |
+| The `drupal.core` service tag | Removed; the `drupal.core` option names a Core of your own |
 
-The parameters follow their service: `drupal.drupal.class` becomes `behat_steps.backend_registry.class`, `drupal.driver.drupal.class` becomes `behat_steps.backend.drupal.class`, `drupal.driver.drush.binary` becomes `behat_steps.backend.drush.binary`, and so on for every `.class`, `drupal_root`, `alias`, `binary` and `root` parameter. These 4 don't follow the pattern:
+The parameters follow their service: `drupal.drupal.class` becomes `behat_steps.backend_registry.class`, `drupal.driver.drupal.class` becomes `behat_steps.backend.drupal.class`, `drupal.driver.drush.binary` becomes `behat_steps.backend.drush.binary`, and so on for every `.class`, `drupal_root`, `alias`, `binary` and `root` parameter. These 5 don't follow the pattern:
 
 | 3.14 | 4.0 |
 | --- | --- |
@@ -2421,6 +2422,7 @@ The parameters follow their service: `drupal.drupal.class` becomes `behat_steps.
 | `drupal.random.class` | `behat_steps.random.class` |
 | `drupal.context.attribute.reader.class` | `behat_steps.context.attribute_reader.class` |
 | `drupal.context.region_selector.class` | `behat_steps.region_selector.class` |
+| `drupal.driver.core.class` | The `drupal.core` option under `behat_steps` |
 
 A class set through `behat_steps.random.class` implements `DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface`. The default is the package's `RandomGenerator`, where it was `Drupal\Component\Utility\Random`; [Backend contracts](#backend-contracts) lists what the generator carries.
 

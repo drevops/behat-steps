@@ -40,7 +40,7 @@ class ExtensionPointTest extends UnitTestCase {
   protected const EXTENSION_POINTS = [
     WebRawContext::class => 'A project context extends one of the shipped contexts.',
     BackendInterface::class => 'A project backend may extend a shipped one.',
-    Core::class => 'A version core extends it, and so does the class the drupal.core option names.',
+    Core::class => 'A version core extends it, and so can the class the drupal.core option names.',
     FieldHandlerInterface::class => 'A handler for another field type extends a shipped one, as OgStandardReferenceHandler does.',
     BrowserAdapterInterface::class => "An adapter for a browser driver derived from a shipped one extends that driver's adapter.",
     HttpClientFactory::class => 'A package replaces the HTTP client factory service with a subclass.',

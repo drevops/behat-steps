@@ -337,7 +337,7 @@ This package follows [semantic versioning](https://semver.org), and 5 surfaces a
 
 2 things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Extension` that none of the surfaces above exposes.
 
-A project adds or replaces a field handler through the `drupal.field_handlers` option, or from a context through `FieldHandlerCapabilityInterface`, and a creation alias through the `drupal.creation_aliases` and `drush.creation_aliases` options, or from a context through `CreationAliasCapabilityInterface`, rather than a subclass of `Core` or a backend: a subclass of `Core`, a backend or a field handler relies on protected methods a minor release can rename or stop calling.
+A project adds or replaces a field handler through the `drupal.field_handlers` option, or from a context through `FieldHandlerCapabilityInterface`, and a creation alias through the `drupal.creation_aliases` and `drush.creation_aliases` options, or from a context through `CreationAliasCapabilityInterface`, rather than a subclass of `Core` or a backend: a subclass of `Core`, a backend or a field handler relies on protected methods a minor release can rename or stop calling. The same holds for a Core of your own that the `drupal.core` option names: the option is covered, and `CoreInterface` and the Core classes it builds on aren't. A release that adds a version core for the Drupal major a suite runs fails such a class until it extends the new version core, as [Core](docs/configuration.md#core) describes.
 
 ### Exceptions
 
