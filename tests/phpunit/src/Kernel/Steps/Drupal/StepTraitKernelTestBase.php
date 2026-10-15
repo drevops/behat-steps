@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Kernel\Steps\Drupal;
 
-use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Extension\Registry\BackendRegistry;
@@ -46,7 +45,6 @@ abstract class StepTraitKernelTestBase extends KernelTestBase {
    */
   protected function createContext(array $config = []): DrupalContext {
     $backend = new BootedDrupalBackend($this->root, 'default');
-    $backend->setCore(new Core($this->root));
 
     $backend_registry = new BackendRegistry(['test' => $backend]);
     $backend_registry->setScenarioBackends(['test' => 'test']);

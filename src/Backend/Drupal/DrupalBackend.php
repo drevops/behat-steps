@@ -30,11 +30,6 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   protected const string VERSION_CORE_CLASS = 'DrevOps\\BehatSteps\\Backend\\Drupal\\Core%d\\Core';
 
   /**
-   * Matches the class name of the base Core and of every version core.
-   */
-  protected const string PACKAGE_CORE_PATTERN = '/^DrevOps\\\\BehatSteps\\\\Backend\\\\Drupal\\\\Core\d*\\\\Core$/';
-
-  /**
    * Whether Drupal has been bootstrapped.
    */
   protected bool $bootstrapped = FALSE;
@@ -82,7 +77,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
     $this->drupalRoot = $resolved;
     $this->version = $this->detectMajorVersion();
 
-    $this->setCore($this->createCore($core_class ?? $this->findVersionCoreClass(), $random));
+    $this->setCore($this->createCore($core_class ?? $this->getVersionCoreClass(), $random));
   }
 
   /**
@@ -903,7 +898,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
     }
 
     if ((int) $major < static::MINIMUM_VERSION) {
-      throw new BootstrapException(sprintf('Unsupported Drupal core version %s. Drupal 11 or higher is required.', $version_string));
+      throw new BootstrapException(sprintf('Unsupported Drupal core version %s. Drupal %d or higher is required.', $version_string, static::MINIMUM_VERSION));
     }
 
     return (int) $major;
@@ -917,16 +912,16 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   }
 
   /**
-   * Finds the Core class this package ships for the detected major.
+   * Gets the Core class this package ships for the detected major.
    *
    * Takes the version core of the newest major at or below the detected one,
-   * so Drupal 14 runs on 'Core13\Core' while no 'Core14\Core' exists, and the
-   * base 'Core' when no version core applies.
+   * or the base 'Core' when there is none. Drupal 14 gets 'Core13\Core' while
+   * no 'Core14\Core' exists.
    *
    * @return class-string
    *   The Core class.
    */
-  protected function findVersionCoreClass(): string {
+  protected function getVersionCoreClass(): string {
     for ($major = $this->version; $major >= static::MINIMUM_VERSION; $major--) {
       $class = sprintf(static::VERSION_CORE_CLASS, $major);
 
@@ -939,7 +934,10 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   }
 
   /**
-   * Builds a Core of the given class for the Drupal root and URI.
+   * Builds a Core of the given class.
+   *
+   * The class is built with the Drupal root, the URI and the random
+   * generator, as the base 'Core' is.
    *
    * @param string $class
    *   The Core class to build.
@@ -950,8 +948,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    *   The Core.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   When the class does not exist, does not implement 'CoreInterface' or is
-   *   abstract.
+   *   When the class does not exist, does not implement 'CoreInterface' or
+   *   cannot be instantiated.
    */
   protected function createCore(string $class, ?RandomGeneratorInterface $random): CoreInterface {
     if (!class_exists($class)) {
@@ -962,7 +960,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
       throw new BootstrapException(sprintf('Core class "%s" must implement "%s".', $class, CoreInterface::class));
     }
 
-    if ((new \ReflectionClass($class))->isAbstract()) {
+    if (!(new \ReflectionClass($class))->isInstantiable()) {
       throw new BootstrapException(sprintf('Core class "%s" must be instantiable.', $class));
     }
 
@@ -983,9 +981,14 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    */
   protected function assertCoreFitsVersion(CoreInterface $core): void {
     $package_core = $this->findPackageCoreClass($core::class);
-    $version_core = $this->findVersionCoreClass();
 
-    if ($package_core === NULL || $package_core === $version_core) {
+    if ($package_core === NULL) {
+      return;
+    }
+
+    $version_core = $this->getVersionCoreClass();
+
+    if ($package_core === $version_core) {
       return;
     }
 
@@ -1001,6 +1004,9 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * Finds the Core of this package that a class is or extends.
    *
+   * A Core of this package is named by 'VERSION_CORE_CLASS' with the major
+   * filled in, or left out for the base 'Core'.
+   *
    * @param class-string $class
    *   The class to inspect.
    *
@@ -1009,8 +1015,10 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    *   package, or NULL when there is none.
    */
   protected function findPackageCoreClass(string $class): ?string {
+    $pattern = '/^' . str_replace('%d', '\d*', preg_quote(static::VERSION_CORE_CLASS, '/')) . '$/';
+
     for ($current = $class; $current !== FALSE; $current = get_parent_class($current)) {
-      if (preg_match(static::PACKAGE_CORE_PATTERN, $current) === 1) {
+      if (preg_match($pattern, $current) === 1) {
         return $current;
       }
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal;
 
 use ConsumerProject\Backend\ConsumerCore;
+use ConsumerProject\Backend\ConsumerCore99;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
 use DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface;
 use DrevOps\BehatSteps\Backend\Drupal\Core99\Core as Core99Core;
@@ -14,6 +15,7 @@ use DrevOps\BehatSteps\Backend\Random\RandomGenerator;
 use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\AbstractCore;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\FakeVersionDrupalBackend;
+use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\NonPublicConstructorCore;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -34,6 +36,16 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
    * A directory carrying both entry files the version detection requires.
    */
   protected const DRUPAL_ROOT = __DIR__ . '/../../../../fixtures/backend/drupal-root';
+
+  /**
+   * Message for a Core that extends a Core of this package for another major.
+   */
+  protected const string EXTENDS_ANOTHER_MAJOR = 'Core class "%s" extends "%s", which is not the Core for Drupal %d. Extend "%s" instead.';
+
+  /**
+   * Message for a Core of this package handed to a backend of another major.
+   */
+  protected const string IS_ANOTHER_MAJOR = 'Core class "%s" is not the Core for Drupal %d. Use "%s" instead.';
 
   protected function tearDown(): void {
     FakeVersionDrupalBackend::$nextVersion = '11.0.0';
@@ -63,10 +75,24 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
     yield 'a major older than every version core' => ['98.0.0', Core::class];
   }
 
-  public function testConstructorBuildsTheGivenCore(): void {
-    $backend = $this->createBackend('11.2.0', ConsumerCore::class);
+  /**
+   * Tests that the backend builds the Core class it is given.
+   *
+   * @param string $version
+   *   The Drupal version the backend detects.
+   * @param string $class
+   *   The Core class given to the backend.
+   */
+  #[DataProvider('dataProviderConstructorBuildsTheGivenCore')]
+  public function testConstructorBuildsTheGivenCore(string $version, string $class): void {
+    $backend = $this->createBackend($version, $class);
 
-    $this->assertSame(ConsumerCore::class, $backend->getCore()::class);
+    $this->assertSame($class, $backend->getCore()::class);
+  }
+
+  public static function dataProviderConstructorBuildsTheGivenCore(): \Iterator {
+    yield 'a subclass of the base Core on a major without a version core' => ['11.2.0', ConsumerCore::class];
+    yield 'a subclass of the version core on its major' => ['99.0.0', ConsumerCore99::class];
   }
 
   public function testConstructorHandsTheRandomGeneratorToTheCore(): void {
@@ -96,17 +122,17 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
   public static function dataProviderConstructorRejectsCoreClass(): \Iterator {
     $not_a_core = sprintf('Core class "ArrayObject" must implement "%s".', CoreInterface::class);
     $abstract = sprintf('Core class "%s" must be instantiable.', AbstractCore::class);
+    $non_public = sprintf('Core class "%s" must be instantiable.', NonPublicConstructorCore::class);
 
     yield 'a class that does not exist' => ['Acme\MissingCore', 'Core class "Acme\MissingCore" does not exist.'];
     yield 'a class that is not a Core' => [\ArrayObject::class, $not_a_core];
     yield 'an abstract Core' => [AbstractCore::class, $abstract];
+    yield 'a Core with a non-public constructor' => [NonPublicConstructorCore::class, $non_public];
   }
 
   public function testConstructorRejectsGivenCoreOfAnotherMajor(): void {
-    $message = sprintf('Core class "%s" extends "%s", which is not the Core for Drupal 99. Extend "%s" instead.', ConsumerCore::class, Core::class, Core99Core::class);
-
     $this->expectException(BootstrapException::class);
-    $this->expectExceptionMessage($message);
+    $this->expectExceptionMessage(sprintf(static::EXTENDS_ANOTHER_MAJOR, ConsumerCore::class, Core::class, 99, Core99Core::class));
 
     $this->createBackend('99.0.0', ConsumerCore::class);
   }
@@ -133,9 +159,9 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
   }
 
   public static function dataProviderSetCoreRejectsCoreOfAnotherMajor(): \Iterator {
-    $base = sprintf('Core class "%s" is not the Core for Drupal 99. Use "%s" instead.', Core::class, Core99Core::class);
-    $subclass = sprintf('Core class "%s" extends "%s", which is not the Core for Drupal 99. Extend "%s" instead.', ConsumerCore::class, Core::class, Core99Core::class);
-    $version = sprintf('Core class "%s" is not the Core for Drupal 50. Use "%s" instead.', Core99Core::class, Core::class);
+    $base = sprintf(static::IS_ANOTHER_MAJOR, Core::class, 99, Core99Core::class);
+    $subclass = sprintf(static::EXTENDS_ANOTHER_MAJOR, ConsumerCore::class, Core::class, 99, Core99Core::class);
+    $version = sprintf(static::IS_ANOTHER_MAJOR, Core99Core::class, 50, Core::class);
 
     yield 'the base Core on a major with a version core' => ['99.0.0', Core::class, $base];
     yield 'a subclass of the base Core on a major with a version core' => ['99.0.0', ConsumerCore::class, $subclass];
@@ -153,6 +179,15 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
 
   public function testSetCoreAcceptsCoreBuiltOnNoPackageCore(): void {
     $backend = $this->createBackend('99.0.0');
+    $core = $this->createStub(CoreInterface::class);
+
+    $backend->setCore($core);
+
+    $this->assertSame($core, $backend->getCore());
+  }
+
+  public function testSetCoreSkipsTheVersionLookupForCoreBuiltOnNoPackageCore(): void {
+    $backend = (new \ReflectionClass(DrupalBackend::class))->newInstanceWithoutConstructor();
     $core = $this->createStub(CoreInterface::class);
 
     $backend->setCore($core);

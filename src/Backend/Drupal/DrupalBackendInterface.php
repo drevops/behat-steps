@@ -85,9 +85,9 @@ interface DrupalBackendInterface extends
   /**
    * Replaces the Core the backend delegates to.
    *
-   * Any class implementing 'CoreInterface' is accepted. A class that is, or
-   * extends, a Core of this package has to be, or extend, the Core this
-   * package ships for the detected major.
+   * Any class implementing 'CoreInterface' is accepted unless it is, or
+   * extends, a Core of this package other than the one this package ships
+   * for the detected major.
    *
    * @param \DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface $core
    *   The Core instance the backend should delegate to.
