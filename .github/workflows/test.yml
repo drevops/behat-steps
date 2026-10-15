@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - 4.x
 
   pull_request:
     types:
@@ -13,7 +12,6 @@ on:
       - reopened
     branches:
       - main
-      - 4.x
 
 defaults:
   run:
