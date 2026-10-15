@@ -89,14 +89,16 @@ class CoreRedirectMethodsKernelTest extends KernelTestBase {
 
   public function testFindRedirectIdsMatchesTheNormalizedValues(): void {
     $first = (string) $this->core->createRedirect('/shared', '/about', 301)->getValue('rid');
-    $second = (string) $this->core->createRedirect('shared', 'https://example.com/promo', 302)->getValue('rid');
-    $this->core->createRedirect('/other', '/about', 301);
+    $second = (string) $this->core->createRedirect('other', 'https://example.com/promo', 302)->getValue('rid');
 
-    $this->assertSame([$first, $second], $this->core->findRedirectIds('shared'), 'The source matches with or without its leading slash.');
+    $this->assertSame([$first], $this->core->findRedirectIds('shared'), 'The source matches without its leading slash.');
+    $this->assertSame([$first], $this->core->findRedirectIds('/shared'), 'The source matches with its leading slash.');
     $this->assertSame([$first], $this->core->findRedirectIds('/shared', 'about'), 'The destination matches without its leading slash.');
     $this->assertSame([$first], $this->core->findRedirectIds('/shared', 'internal:/about'), 'The destination matches under its scheme.');
-    $this->assertSame([$second], $this->core->findRedirectIds('/shared', NULL, 302));
-    $this->assertSame([], $this->core->findRedirectIds('/shared', '/about', 302));
+    $this->assertSame([$second], $this->core->findRedirectIds('/other', 'https://example.com/promo'), 'An external destination matches as written.');
+    $this->assertSame([$second], $this->core->findRedirectIds('/other', NULL, 302));
+    $this->assertSame([], $this->core->findRedirectIds('/shared', '/about', 302), 'The status code narrows the match.');
+    $this->assertSame([], $this->core->findRedirectIds('/shared', '/elsewhere'), 'The destination narrows the match.');
     $this->assertSame([], $this->core->findRedirectIds('/missing'));
   }
 

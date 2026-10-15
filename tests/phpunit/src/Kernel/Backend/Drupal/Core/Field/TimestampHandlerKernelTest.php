@@ -29,10 +29,16 @@ class TimestampHandlerKernelTest extends FieldHandlerKernelTestBase {
     ...self::BASE_MODULES,
   ];
 
-  public function testTimestampRoundTrip(): void {
+  public function testTimestampTextualRoundTrip(): void {
     $this->attachField('field_when', 'timestamp');
 
-    $this->assertFieldRoundTripViaBackend('field_when', ['2014-10-17 8:00am', 1732319174]);
+    $this->assertFieldRoundTripViaBackend('field_when', ['2014-10-17 8:00am']);
+  }
+
+  public function testTimestampNumericRoundTrip(): void {
+    $this->attachField('field_when', 'timestamp');
+
+    $this->assertFieldRoundTripViaBackend('field_when', [1732319174]);
   }
 
 }
