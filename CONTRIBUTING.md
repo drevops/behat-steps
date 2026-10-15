@@ -161,7 +161,11 @@ A qualifier that the step opens with `with` reads `With` in the name, and a seco
 
 ### Consumer override points
 
-A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and semantic versioning covers it. A project's override relies on the package calling the method at the same point with the same signature, and a protected method promises neither, so a docblock never invites an override of one. `PublicSurfaceTest` fails a protected method whose docblock says `Override to`, `Override when` or `overrides this method`.
+A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and semantic versioning covers it. A project's override relies on the package calling the method at the same point with the same signature, and a protected method promises neither, so a docblock never invites an override of one.
+
+`src/Backend` publishes no override point at all, because semantic versioning covers none of its internals, so no docblock there invites an override, public or protected. A project adds or replaces a field handler through the `drupal.field_handlers` option rather than a subclass of `Core`.
+
+`PublicSurfaceTest` fails a docblock that says `Override to`, `Override when`, or `override this` followed by `method`, `to` or `when`, on a trait's protected method and on any method under `src/Backend`.
 
 A documented override point that supplies a value is `<trait>Get<Noun>()`, booleans included - `modalGetWaitTimeout()`, `commandGetTimeout()`, `accessibilityGetFailOnIncomplete()`, `diagnosticsGetShowUrl()`, `accessibilityGetBlankUrls()`. A method that computes rather than supplies keeps a verb describing what it does, as in `accessibilityFormatUrl()` or `restResolveUrl()`.
 
@@ -273,6 +277,8 @@ These are the extension points. Each one stays open, along with every class that
 - **`HttpClientFactory`**: a package replaces the `behat_steps.http_client_factory` service with a subclass, as [docs/http-clients.md](docs/http-clients.md) describes.
 
 `DocumentElement` stays open as well. It's installed in place of Mink's own `DocumentElement`, which other code extends. A class that another class under `src/` extends, such as `ParseException`, is open because PHP requires it.
+
+An open class promises a project nothing about its protected members. A subclass of a backend, `Core` or a field handler relies on methods a minor release can rename or stop calling, as [Consumer override points](#consumer-override-points) says. A project's own field handler implements `FieldHandlerInterface` and is registered through the `drupal.field_handlers` option.
 
 Every other class is replaced rather than extended. A suite that swaps in its own registry or authenticator through a `*.class` container parameter implements that class's interface, and option resolution is replaced through `TraitOptionResolverFactoryInterface`. A final class keeps its members `protected`, like every other class here, so `rector.php` skips the Rector rules that would make them private.
 

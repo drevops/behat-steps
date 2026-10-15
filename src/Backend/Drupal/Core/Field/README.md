@@ -110,7 +110,7 @@ The verbosity is the point: each call site documents exactly which F-rows it car
 
 `DrupalBackend` instantiates `DrevOps\BehatSteps\Backend\Drupal\Core{N}\Core` for the detected Drupal major when that class exists, and the base `Core` otherwise. A version-specific classifier lives beside that subclass, in `Core{N}\Field\FieldClassifier`.
 
-`Core` exposes `createFieldClassifier()` as a factory method. A `Core{N}\Core` subclass overrides it only when it needs a version-specific classifier class:
+`Core` creates its classifier in the protected factory `createFieldClassifier()`, and a `Core{N}\Core` in this package overrides it only when it needs a version-specific classifier class:
 
 ```php
 namespace DrevOps\BehatSteps\Backend\Drupal\Core12;
@@ -127,7 +127,9 @@ class Core extends BaseCore {
 }
 ```
 
-The default implementation returns the base `FieldClassifier`. The value-shape classifier follows the identical pattern - `Core::createFieldShapeClassifier()` returns the base `FieldShapeClassifier`, overridable by a `Core{N}\Field\FieldShapeClassifier`. Both mirror `registerDefaultFieldHandlers()`, which likewise allows subclasses to extend registration per version.
+The default implementation returns the base `FieldClassifier`. The value-shape classifier follows the identical pattern - `Core::createFieldShapeClassifier()` returns the base `FieldShapeClassifier`, and a `Core{N}\Field\FieldShapeClassifier` replaces it. A version core registers its own handlers the same way, by extending `registerDefaultFieldHandlers()` with a scan of its own `Field/` directory. Each scan is independent, so a version core re-registers only the types it changes, and the rest stay as the parent's scan registered them.
+
+These methods are protected, so semantic versioning doesn't cover them: they exist for a version core inside this package. A project adds or replaces a field handler through the `drupal.field_handlers` option instead, as [Field handlers](../../../../../docs/configuration.md#field-handlers) describes.
 
 ## Pipeline walk-through
 

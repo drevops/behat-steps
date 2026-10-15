@@ -337,6 +337,8 @@ This package follows [semantic versioning](https://semver.org), and 5 surfaces a
 
 2 things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Extension` that none of the surfaces above exposes.
 
+The `drupal.field_handlers` option takes classes that implement `FieldHandlerInterface`, so that interface is covered along with the option. A project adds or replaces a field handler through the option rather than a subclass of `Core`: a subclass of `Core`, a backend or a field handler relies on protected methods a minor release can rename or stop calling.
+
 ### Exceptions
 
 This library reports failures with a small, fixed set of exception types, mostly [Mink's](https://mink.behat.org/en/latest/):

@@ -6,6 +6,8 @@ namespace DrevOps\BehatSteps\Tests\Unit\Extension\Drupal\ServiceContainer;
 
 use DrevOps\BehatSteps\Backend\BlackboxBackend;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DatetimeHandler;
+use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DefaultHandler;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
 use DrevOps\BehatSteps\Extension\Drupal\ServiceContainer\DrupalBackendProvider;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -55,6 +57,27 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->processConfig(['drupal' => []]);
   }
 
+  public function testConfigureReadsTheFieldHandlers(): void {
+    $handlers = ['rating' => 'Acme\RatingHandler', 'date_recur' => 'Acme\ScheduleHandler'];
+
+    $config = $this->processConfig(['drupal' => ['drupal_root' => 'web', 'field_handlers' => $handlers]]);
+
+    $this->assertSame($handlers, $config['drupal']['field_handlers']);
+  }
+
+  public function testConfigureDefaultsToNoFieldHandlers(): void {
+    $config = $this->processConfig(['drupal' => ['drupal_root' => 'web']]);
+
+    $this->assertSame([], $config['drupal']['field_handlers']);
+  }
+
+  public function testConfigureRejectsAnEmptyFieldHandlerClass(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The path "behat_steps.drupal.field_handlers.rating" cannot contain an empty value');
+
+    $this->processConfig(['drupal' => ['drupal_root' => 'web', 'field_handlers' => ['rating' => '']]]);
+  }
+
   public function testParameterDefaultsNameTheDrupalLoginForm(): void {
     $defaults = (new DrupalBackendProvider())->getParameterDefaults();
 
@@ -77,6 +100,15 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertTrue($container->hasDefinition(DrupalBackendProvider::DRUPAL_SERVICE));
     $this->assertTrue($container->hasDefinition('behat_steps.backend.core'));
     $this->assertSame('web', $container->getParameter('behat_steps.backend.drupal.drupal_root'));
+    $this->assertSame([], $container->getParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER));
+  }
+
+  public function testLoadKeepsTheFieldHandlers(): void {
+    $handlers = ['rating' => 'Acme\RatingHandler'];
+
+    $container = $this->load(['drupal' => ['drupal_root' => 'web', 'field_handlers' => $handlers]]);
+
+    $this->assertSame($handlers, $container->getParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER));
   }
 
   public function testLoadRegistersTheDrushBackendWithItsRoot(): void {
@@ -194,6 +226,53 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertFalse($container->hasDefinition(DrupalBackendProvider::DRUPAL_SERVICE));
   }
 
+  public function testProcessRegistersTheFieldHandlersOnTheInjectedCore(): void {
+    $container = new ContainerBuilder();
+    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
+    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
+    $handlers = ['rating' => 'Acme\RatingHandler', 'datetime' => 'Acme\DateHandler'];
+    $container->setParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER, $handlers);
+
+    (new DrupalBackendProvider())->process($container);
+
+    $calls = $container->getDefinition('behat_steps.backend.core')->getMethodCalls();
+    $this->assertCount(2, $calls);
+    $this->assertSame(['registerFieldHandler', ['rating', 'Acme\RatingHandler']], $calls[0]);
+    $this->assertSame(['registerFieldHandler', ['datetime', 'Acme\DateHandler']], $calls[1]);
+  }
+
+  public function testProcessRegistersNoFieldHandlerWithoutTheSetting(): void {
+    $container = new ContainerBuilder();
+    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
+    $container->setDefinition('behat_steps.backend.core', (new Definition(Core::class))->addTag(DrupalBackendProvider::CORE_TAG));
+
+    (new DrupalBackendProvider())->process($container);
+
+    $this->assertSame([], $container->getDefinition('behat_steps.backend.core')->getMethodCalls());
+  }
+
+  public function testFieldHandlersReplaceAndExtendTheShippedOnes(): void {
+    $container = $this->loadCore(['address' => DefaultHandler::class, 'rating' => DefaultHandler::class]);
+
+    $core = $container->get('behat_steps.backend.core');
+    $this->assertInstanceOf(Core::class, $core);
+
+    $handlers = (new \ReflectionProperty(Core::class, 'fieldHandlers'))->getValue($core);
+    $this->assertIsArray($handlers);
+    $this->assertSame(DefaultHandler::class, $handlers['address']);
+    $this->assertSame(DefaultHandler::class, $handlers['rating']);
+    $this->assertSame(DatetimeHandler::class, $handlers['datetime']);
+  }
+
+  public function testMissingFieldHandlerClassFailsWhenTheCoreIsBuilt(): void {
+    $container = $this->loadCore(['rating' => 'Acme\MissingHandler']);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Handler class "Acme\MissingHandler" does not exist.');
+
+    $container->get('behat_steps.backend.core');
+  }
+
   public function testAbsoluteBinaryPathIsReturnedAsIs(): void {
     $this->assertSame('/usr/local/bin/drush', DrupalBackendProvider::resolveBinaryPath('/usr/local/bin/drush'));
   }
@@ -251,6 +330,24 @@ class DrupalBackendProviderTest extends UnitTestCase {
   protected function load(array $config): ContainerBuilder {
     $container = new ContainerBuilder();
     (new DrupalBackendProvider())->load($container, $this->processConfig($config));
+
+    return $container;
+  }
+
+  /**
+   * Loads and processes the in-process backend so its Core can be built.
+   *
+   * The test directory stands in for the Drupal root, because building Core
+   * resolves the root but bootstraps nothing.
+   *
+   * @param array<string, string> $field_handlers
+   *   The 'drupal.field_handlers' setting.
+   */
+  protected function loadCore(array $field_handlers): ContainerBuilder {
+    $container = $this->load(['drupal' => ['drupal_root' => __DIR__, 'field_handlers' => $field_handlers]]);
+    $container->setParameter('mink.base_url', 'http://example.com');
+
+    (new DrupalBackendProvider())->process($container);
 
     return $container;
   }

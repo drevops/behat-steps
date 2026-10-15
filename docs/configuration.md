@@ -191,6 +191,7 @@ A nested option is written as a section in the configuration and reads as a dott
 | `blackbox` | section | - | Settings of the backend that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve. |
 | `drupal` | section | - | Settings of the backend that bootstraps Drupal in-process. |
 | `drupal.drupal_root` | string | required | Path to the Drupal root the in-process backend bootstraps. |
+| `drupal.field_handlers` | map | `[]` | Map of field types to the handler classes that turn a value a step gives a field into the value Drupal stores. An entry adds a handler for a field type the package ships none for, or replaces the shipped one. A class implements FieldHandlerInterface.<br/>rating: Acme\Behat\Field\RatingHandler<br/>datetime: Acme\Behat\Field\FiscalDatetimeHandler |
 | `drush` | section | - | Settings of the backend that reaches the site by running Drush 13 or newer. |
 | `drush.alias` | string | - | Drush site alias to run every command against. |
 | `drush.binary` | string | `'vendor/bin/drush'` | Path to the Drush binary. |
@@ -260,6 +261,54 @@ The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to
 Repeated tags promote their names in the configured order: `@backend:blackbox @backend:api` and `@backend:api @backend:blackbox` both give `acme-jsonapi, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
 
 `@backend:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo cannot quietly run the wrong backend, and a `smoke` profile listing only `blackbox` cannot be handed a Drupal backend by any tag. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
+
+### Field handlers
+
+A step that creates or updates an entity on the `drupal` backend passes each field's value through a field handler, which turns the value a scenario writes into the value Drupal stores: a date in the site's timezone into UTC, a term name into its ID, a file path into a managed file. The package ships a handler for each field type it supports, and `DefaultHandler` relays any other plain-scalar value as written.
+
+`drupal.field_handlers` maps a field type to a handler class of your own. An entry for a field type the package ships no handler for adds one, and an entry for a shipped type replaces the shipped handler:
+
+```php
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'drupal' => [
+    'drupal_root' => 'web',
+    'field_handlers' => [
+      'rating' => RatingHandler::class,
+      'datetime' => FiscalDatetimeHandler::class,
+    ],
+  ],
+]));
+```
+
+A handler implements `FieldHandlerInterface`. Its constructor takes the stub of the entity, the entity type and the field name, and `expand()` returns the field's values the way Drupal's entity storage takes them, 1 array of columns per delta:
+
+```php
+namespace Acme\Behat\Field;
+
+use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+
+final class RatingHandler implements FieldHandlerInterface {
+
+  public function __construct(EntityStubInterface $stub, string $entity_type, string $field_name) {}
+
+  public function expand(mixed $values): array {
+    $deltas = [];
+
+    // "4 stars" stores 4.
+    foreach ((array) $values as $value) {
+      $deltas[] = ['value' => (int) $value];
+    }
+
+    return $deltas;
+  }
+
+}
+```
+
+The class has to be autoloadable when the run starts, through Composer or the suite's `autoload` setting. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
+
+The option and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename one of them.
 
 ### Trait options
 

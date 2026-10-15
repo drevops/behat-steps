@@ -142,9 +142,6 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
 
   /**
    * Populates the creation-alias registry with the backend's default aliases.
-   *
-   * A subclass that adds custom aliases should override this method and
-   * call 'parent::registerDefaultCreationAliases()' first.
    */
   protected function registerDefaultCreationAliases(): void {
     $this->registerCreationAlias(new RolesAlias($this));
