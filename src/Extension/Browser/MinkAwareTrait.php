@@ -113,7 +113,7 @@ trait MinkAwareTrait {
   /**
    * Locates a URL, based on the provided path.
    *
-   * A class composing this trait overrides this method to provide a custom
+   * A class composing this trait can override this method to provide a custom
    * routing mechanism.
    */
   public function locatePath(string $path): string {

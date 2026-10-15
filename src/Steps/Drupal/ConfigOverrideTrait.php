@@ -25,9 +25,9 @@ use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
  * from their original (unoverridden) values. The signal is the
  * `X-Config-No-Override` request header. The browser sends it, and every
  * backend providing `RequestEnvironmentCapabilityInterface` passes it to the
- * SUT code it runs: the in-process backend as the `HTTP_X_CONFIG_NO_OVERRIDE`
- * `$_SERVER` entry, and the Drush backend as the environment variable of the
- * same name for each command.
+ * SUT code it runs. The in-process backend passes it as the
+ * `HTTP_X_CONFIG_NO_OVERRIDE` `$_SERVER` entry, and the Drush backend as the
+ * environment variable of the same name for each command.
  *
  * The SUT is responsible for reading that signal and calling
  * `ImmutableConfig::getOriginal()` instead of `ImmutableConfig::get()` for
@@ -62,7 +62,7 @@ use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
  * The signal is also written to the request-header bag, so a trait that
  * issues its own HTTP requests - `RestTrait` - carries it too. The bag is a
  * property of the context object, so the signal reaches `RestTrait` when the
- * same context composes both traits, as the shipped `DrupalContext` does.
+ * same context composes both traits.
  *
  * Example:
  * @code

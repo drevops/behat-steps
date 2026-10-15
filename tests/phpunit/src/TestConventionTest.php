@@ -14,10 +14,13 @@ use PHPUnit\Framework\TestCase;
 /**
  * Asserts that the test suite follows the settled test conventions.
  *
- * Each rule has 1 check: the base a test extends, where a test covering
- * nothing sits, how a test reaches a static member, how a test helper is
- * named, how a test double names its test-only methods and itself, and how a
- * unit test writes a fixture and reflects a class.
+ * Each rule has 1 check:
+ * - the base a test extends.
+ * - where a test covering nothing sits.
+ * - how a test reaches a static member.
+ * - how a test helper is named.
+ * - how a test double names its test-only methods and itself.
+ * - how a unit test writes a fixture and reflects a class.
  *
  * CONTRIBUTING.md states the rules.
  */

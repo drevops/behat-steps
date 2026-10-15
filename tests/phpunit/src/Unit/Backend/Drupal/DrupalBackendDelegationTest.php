@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Exercises every 'DrupalBackend' public method to guarantee line coverage.
+ * Exercises every 'DrupalBackend' method that forwards to 'CoreInterface'.
  *
  * 'DrupalBackend' is a thin facade over 'CoreInterface'; the tests here verify
  * that each method delegates to the corresponding core method. Kernel tests

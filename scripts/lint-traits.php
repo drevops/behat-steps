@@ -119,7 +119,7 @@ function traits_collect(string $base_path): array {
 }
 
 /**
- * Reads the composition facts of one trait file.
+ * Reads the composition facts of 1 trait file.
  *
  * A trait declaration splits the file: an attribute after it belongs to a
  * member, and a 'use' after it composes another trait.

@@ -30,9 +30,6 @@ class DrupalBackendCreationAliasesTest extends UnitTestCase {
     $this->assertContains(CreationAliasCapabilityInterface::class, (array) class_implements(DrupalBackend::class));
   }
 
-  /**
-   * Tests that 'getCreationAliases()' returns '[]' for a non-alias core.
-   */
   public function testGetCreationAliasesReturnsEmptyForNonAliasCore(): void {
     $core = $this->createMock(CoreInterface::class);
     $backend = $this->createBackendWithCore($core);

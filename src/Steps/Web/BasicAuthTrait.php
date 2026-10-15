@@ -18,7 +18,9 @@ use DrevOps\BehatSteps\Extension\Config\Option;
  * Mink resets the session before every scenario and on every fast logout,
  * which clears request headers and drops the credentials. Without the
  * re-application, a site behind webserver-level basic auth answers 401
- * mid-scenario. The hooks are a no-op when no credentials are configured.
+ * mid-scenario.
+ *
+ * The hooks are a no-op when no credentials are configured.
  *
  * Skip with tag: `@behat-steps-skip:BasicAuthTrait`.
  *

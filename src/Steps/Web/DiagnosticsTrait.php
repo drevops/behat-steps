@@ -28,11 +28,12 @@ use DrevOps\BehatSteps\Steps\Helper\Web\JavascriptErrorTrait;
  * - `Re-run` - a ready-to-paste command that re-runs just the failing scenario.
  *
  * The trait is active with no further configuration once a context composes
- * it. The `enabled` option switches it off. Every field is individually
- * toggleable through its `show_*` option or by overriding its
- * `diagnosticsGetShow*()` method to return FALSE. Each value source degrades
- * to nothing when the browser driver cannot provide it, so a failed step is
- * never turned into a different failure.
+ * it. The `enabled` option switches it off.
+ *
+ * Every field is individually toggleable through its `show_*` option or by
+ * overriding its `diagnosticsGetShow*()` method to return FALSE. Each value
+ * source degrades to nothing when the browser driver cannot provide it, so a
+ * failed step is never turned into a different failure.
  *
  * Skip processing with tags: `@behat-steps-skip:DiagnosticsTrait`.
  *

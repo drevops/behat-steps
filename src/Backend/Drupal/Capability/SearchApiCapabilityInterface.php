@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Backend\Drupal\Capability;
 /**
  * Capability: index 1 entity and run a search module's cron hook.
  *
- * Both reach into the Search API module in the site's process, which a
- * backend that indexes waiting items by count may not be able to do, so they
- * sit apart from 'SearchIndexCapabilityInterface'.
+ * Both reach into the Search API module in the site's process. A backend that
+ * indexes waiting items by count may not be able to do that, so this interface
+ * is separate from 'SearchIndexCapabilityInterface'.
  */
 interface SearchApiCapabilityInterface {
 

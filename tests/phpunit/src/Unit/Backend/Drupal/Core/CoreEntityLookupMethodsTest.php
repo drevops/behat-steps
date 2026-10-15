@@ -18,7 +18,7 @@ use PHPUnit\Framework\Attributes\Group;
  * Tests the parts of the entity lookup on 'Core' that need no Drupal kernel.
  *
  * A condition is split into its operator and operand before any query is
- * built, and the entity type and bundle are checked before any storage call.
+ * built. The entity type and bundle are checked before any storage call.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

@@ -32,8 +32,8 @@ use DrevOps\BehatSteps\Extension\Tag;
  * authenticated-user assertion on such a browser driver silently misses the
  * content BigPipe deferred.
  *
- * A scenario tagged `@bigpipe` gets the `big_pipe_nojs` cookie, so Drupal
- * renders the page in full server-side.
+ * A scenario tagged `@bigpipe` on such a browser driver gets the
+ * `big_pipe_nojs` cookie, so Drupal renders the page in full server-side.
  *
  * Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
  *

@@ -21,9 +21,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * The whole lifecycle runs inside 1 test method: KernelTestBase's setUp()
  * runs per method and costs about 1 second of bootstrap. Bundling closely
  * related assertions keeps CI time down without sacrificing coverage.
- *
- * A method is split out only when a scenario needs its own clean state, such
- * as a failure path that leaves the container dirty.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

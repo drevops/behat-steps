@@ -4,11 +4,12 @@
  * @file
  * Layer dependency check.
  *
- * Each layer is guaranteed to reference nothing from the namespaces it
- * excludes: the backend runs without Behat loaded, the neutral root of each
- * layer runs without Drupal, the Drupal step traits and their context reach
- * Drupal only through a capability, and no layer reaches the one above it.
- * The guarantee holds only while the layer references nothing it excludes.
+ * The backend runs without Behat loaded, and the neutral root of each layer
+ * runs without Drupal. The Drupal step traits and their context reach Drupal
+ * only through a capability, and no layer reaches the one above it.
+ *
+ * Each of these guarantees holds only while the layer references nothing from
+ * the namespaces it excludes.
  *
  * This script reads every file of each layer and fails on any code reference
  * into those namespaces, and on any call the layer forbids.
@@ -26,15 +27,16 @@ use DrevOps\BehatSteps\WebRawContext;
 /**
  * Layers to check, each with its paths, exclusions and prefixes.
  *
- * A path is a directory that is walked or a single file, and an exclusion
- * is a directory or a file under a path that is skipped. A forbidden prefix
- * is a root namespace or a longer namespace prefix: a symbol equal to it or
- * below it is a violation, unless an allowed prefix at least as long matches
- * it too.
+ * A path is a directory that is walked or a single file. An exclusion is a
+ * directory or a file under a path that is skipped.
  *
- * A layer may also name methods it must not call, and may hold its function
- * calls to the functions PHP itself defines, which rules out a call whose
- * target only runtime knows as well.
+ * A forbidden prefix is a root namespace or a longer namespace prefix. A
+ * symbol equal to it or below it is a violation, unless an allowed prefix at
+ * least as long matches it too.
+ *
+ * A layer may also name methods it must not call. It may hold its function
+ * calls to the functions PHP defines, which also rules out a call whose target
+ * is known only at runtime.
  */
 const LAYERS = [
   [
@@ -95,8 +97,8 @@ const LAYERS = [
     'paths' => ['src/Steps/Drupal', 'src/Steps/Helper/Drupal', 'src/DrupalContext.php'],
     'exclude' => [],
     // This half reaches Drupal through capabilities only, so the backend's
-    // own classes and the core that 'getCore()' returns are forbidden too,
-    // along with the capability that declares 'getCore()'.
+    // own classes and the core that 'getCore()' returns are forbidden too.
+    // The capability that declares 'getCore()' is forbidden as well.
     'forbidden' => ['Drupal', 'DrevOps\\BehatSteps\\Backend\\Drupal', CoreCapabilityInterface::class],
     'allowed' => ['DrevOps\\BehatSteps\\Backend\\Drupal\\Capability'],
     'forbidden_methods' => ['getCore'],
@@ -110,7 +112,7 @@ const LAYERS = [
  * Functions PHP defines that call another function by name.
  *
  * A call through 1 of them names its target in a value the check does not
- * read, so a layer held to PHP's own functions forbids them.
+ * read. A layer held to PHP's own functions therefore forbids them.
  */
 const LAYER_DISPATCH_FUNCTIONS = [
   'call_user_func',
@@ -241,7 +243,7 @@ function layer_files(string $path): array {
 }
 
 /**
- * Finds references to forbidden namespace prefixes in one file.
+ * Finds references to forbidden namespace prefixes in 1 file.
  *
  * @param string $file
  *   Absolute path to the file to read.
@@ -321,10 +323,12 @@ function layer_imported_symbol(array $tokens, int $index): ?string {
  * Checks whether the longest prefix a symbol matches is a forbidden one.
  *
  * A prefix matches the symbol equal to it and every symbol below it, so a
- * root namespace forbids a whole vendor and a longer prefix forbids 1
- * namespace or 1 class. An allowed prefix reopens a namespace below a
- * forbidden one, and a longer forbidden prefix closes part of it again. An
- * allowed prefix as long as the forbidden one wins.
+ * root namespace forbids a whole vendor. A longer prefix forbids 1 namespace
+ * or 1 class.
+ *
+ * An allowed prefix reopens a namespace below a forbidden one, and a longer
+ * forbidden prefix closes part of it again. An allowed prefix as long as the
+ * forbidden one wins.
  *
  * @param string $symbol
  *   The qualified symbol, without a leading separator.
@@ -361,7 +365,7 @@ function layer_matching_prefix_length(string $symbol, array $prefixes): int {
 }
 
 /**
- * Finds the calls a layer forbids in one file.
+ * Finds the calls a layer forbids in 1 file.
  *
  * @param string $file
  *   Absolute path to the file to read.
@@ -395,9 +399,9 @@ function layer_file_call_violations(string $file, array $forbidden_methods, bool
 /**
  * Checks whether a layer forbids a call.
  *
- * A layer held to the functions PHP defines also forbids a call whose target
- * only runtime knows, unless it calls a closure the file assigns to the
- * variable, and a call through a function that calls another by name.
+ * A layer held to the functions PHP defines also forbids a dynamic call,
+ * unless it calls a closure the file assigns to the variable. It forbids a
+ * call through a function that calls another by name as well.
  *
  * @param array{name: string, operator: string|null, line: int, is_dynamic: bool} $call
  *   The call, as 'layer_call()' reads it.
@@ -463,8 +467,8 @@ function layer_code_tokens(string $code): array {
  * Reads the call a token makes, if it makes one.
  *
  * A name called after '->', '?->' or '::' is a method. A variable or a
- * braced expression called in place of a name is dynamic, because only
- * runtime knows what it calls.
+ * braced expression called in place of a name is dynamic, because what it
+ * calls is known only at runtime.
  *
  * @param list<array{int, string, int}|string> $tokens
  *   The code tokens, as 'layer_code_tokens()' returns them.
@@ -594,8 +598,8 @@ function layer_token_type(array|string|null $token): int|string|null {
 /**
  * Lists the variables a file assigns a closure or an arrow function to.
  *
- * The list covers the whole file rather than 1 scope, so a variable holding
- * a closure in 1 method counts as a closure in every other.
+ * The list covers the whole file rather than 1 scope. A variable holding a
+ * closure in 1 method therefore counts as a closure in every other.
  *
  * @param list<array{int, string, int}|string> $tokens
  *   The code tokens.

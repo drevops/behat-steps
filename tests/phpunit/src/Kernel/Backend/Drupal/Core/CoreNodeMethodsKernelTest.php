@@ -20,8 +20,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * Kernel test for node-related methods on Core via the backend.
  *
  * Exercises Core::createNode and Core::deleteNode end-to-end: bundle
- * validation, the optional 'author' to 'uid' remapping, expandEntityFields
- * (a no-op here, with no fields attached), save, and delete.
+ * validation, the optional 'author' to 'uid' remapping, expandEntityFields,
+ * save, and delete.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]

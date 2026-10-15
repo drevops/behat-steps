@@ -1,4 +1,4 @@
-# HTTP clients
+# 🌐 HTTP clients
 
 Most steps read the page the Mink session holds. A few send HTTP requests of their own from PHP: `FileDownloadTrait` downloads a file, `MetatagTrait` fetches the hreflang alternates of a page, `AccessibilityTrait` fetches its engine script, and `RestTrait` sends a request whose response becomes the page. Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from, and how to change them.
 
@@ -6,7 +6,7 @@ Most steps read the page the Mink session holds. A few send HTTP requests of the
 
 - **Backend** - Drupal, Drush or Blackbox under `src/Backend`, reached with `backendFor()`. Nothing on this page touches them.
 - **Browser driver** - Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
-- **HTTP client** - one of the 3 clients below. None of them is a backend or a browser driver.
+- **HTTP client** - 1 of the 3 clients below. None of them is a backend or a browser driver.
 
 ## The 3 clients
 
@@ -169,7 +169,7 @@ Then the downloaded file should contain:      reads the downloaded file
 And I should see "Reports"                    reads the page, still /reports
 ```
 
-One side effect to know about: `Then the response status code should be 200` after a download still reads the page's response. The download step checks its own status and fails on 400 or above.
+1 side effect to know about: `Then the response status code should be 200` after a download still reads the page's response. The download step checks its own status and fails on 400 or above.
 
 ## How a step reaches each client
 

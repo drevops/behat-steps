@@ -10,8 +10,8 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  * Capability: create, find and delete the redirects of the 'redirect' module.
  *
  * A source path is stored without its leading slash and an internal
- * destination under the 'internal:/' scheme, as the module stores them, so a
- * caller passes both as a scenario writes them.
+ * destination under the 'internal:/' scheme, as the module stores them. A
+ * caller therefore passes both as a scenario writes them.
  */
 interface RedirectCapabilityInterface {
 

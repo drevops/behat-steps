@@ -75,7 +75,7 @@ trait FeatureContextTrait {
   }
 
   /**
-   * Clean watchdog after feature with an error.
+   * Clean watchdog after a feature tagged '@test-errorcleanup'.
    */
   #[AfterFeature]
   public static function testAfterFeature(AfterFeatureScope $scope): void {

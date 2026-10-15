@@ -333,8 +333,8 @@ class EmailTraitTest extends UnitTestCase {
 /**
  * Test implementation of EmailTrait.
  *
- * Replaces the test email collector with the messages a test supplies, and
- * records the handler types the collector is enabled with instead of
+ * Replaces the test email collector with the messages a test supplies.
+ * Records the handler types the collector is enabled with instead of
  * switching the site's mail system.
  */
 class EmailTraitTestImplementation extends WebRawContext {

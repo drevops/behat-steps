@@ -49,8 +49,8 @@ class ClassNamingTest extends UnitTestCase {
   /**
    * Types that sit directly under `src/Extension`.
    *
-   * `Tag` is read by the step traits, the contexts, the listeners and the
-   * registries alike, so no sub-namespace owns it.
+   * `Tag` is read by the step traits, the contexts and the listeners alike, so
+   * no sub-namespace owns it.
    */
   protected const ROOT_TYPES = [Tag::class];
 

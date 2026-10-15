@@ -29,7 +29,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final class BehatStepsExtension implements ExtensionInterface {
 
   /**
-   * Key this extension's settings live under in the Behat configuration.
+   * Key the Behat configuration holds this extension's settings under.
    */
   public const string CONFIG_KEY = 'behat_steps';
 
@@ -456,7 +456,7 @@ final class BehatStepsExtension implements ExtensionInterface {
   /**
    * Defines the transport the detached and bare browsers send through.
    *
-   * Mink hands the 'browserkit_http' factory each session's options while the
+   * Mink passes the 'browserkit_http' factory each session's options while the
    * extensions load, so they are read here, in the process pass after it.
    *
    * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException

@@ -13,8 +13,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * A teardown deletes whatever a scenario created without checking first, so
  * a create returns a stub and a delete returns nothing. An update and a copy
- * return a stub as a create does. CONTRIBUTING.md states the contract,
- * including that a delete tolerates a missing target.
+ * return a stub as a create does.
+ *
+ * CONTRIBUTING.md states the contract, including that a delete tolerates a
+ * missing target.
  */
 #[CoversNothing]
 class CapabilityContractTest extends UnitTestCase {

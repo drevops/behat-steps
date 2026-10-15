@@ -35,7 +35,7 @@ use DrevOps\BehatSteps\Extension\Tag;
  *
  * Holds the registry every entity creation writes to, so the teardown
  * walks it in reverse and deletes a node before the term it references. The
- * same registry tells which of several entities the scenario created last.
+ * same registry records which of several entities the scenario created last.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
@@ -317,7 +317,7 @@ trait EntityLifecycleTrait {
    * or a compound 'key:"value"' cell. The backend resolves each against the
    * field's own definition before it saves the entity.
    *
-   * A consuming context overrides this method to parse the values its own
+   * A consuming context can override this method to parse the values its own
    * way.
    *
    * @param \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface $stub

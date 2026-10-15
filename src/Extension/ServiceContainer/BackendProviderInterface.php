@@ -10,10 +10,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * Contributes the backends that reach 1 kind of site to the extension.
  *
- * The extension's own tree, services and passes name no site technology. A
- * provider adds the settings node of each backend it ships, the defaults of
- * the login text and selectors for the sites those backends reach, the
- * service definitions of each backend whose settings are present, and the
+ * The extension's own tree, services and passes name no site technology.
+ *
+ * A provider adds the settings node of each backend it ships, and the login
+ * text and selector defaults for the sites those backends reach. It also adds
+ * the service definitions of each backend whose settings are present, and the
  * wiring those definitions need once every service is loaded.
  */
 interface BackendProviderInterface {

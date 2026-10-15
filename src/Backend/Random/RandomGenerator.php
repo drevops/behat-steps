@@ -10,7 +10,7 @@ use Random\Randomizer;
  * Generates random strings through a PHP randomizer.
  *
  * Uniqueness is tracked per instance and per method, so 2 generators can
- * return the same value, and a unique name can equal an earlier unique
+ * return the same value. A unique name can also equal an earlier unique
  * machine name.
  */
 final class RandomGenerator implements RandomGeneratorInterface {

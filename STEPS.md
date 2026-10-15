@@ -47,7 +47,7 @@
 | [Drupal\ContentTrait](#drupalcontenttrait) | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | Order items in the Drupal Draggable Views. |
 | [Drupal\DrushTrait](#drupaldrushtrait) | Run Drush commands and assert their output. |
-| [Drupal\EckTrait](#drupalecktrait) | Manage Drupal ECK entities with custom type and bundle creation. |
+| [Drupal\EckTrait](#drupalecktrait) | Manage Drupal ECK entities of an existing entity type and bundle. |
 | [Drupal\EmailTrait](#drupalemailtrait) | Test Drupal email functionality with content verification. |
 | [Drupal\EntityTrait](#drupalentitytrait) | Create entities of a type that has no dedicated trait. |
 | [Drupal\FileTrait](#drupalfiletrait) | Manage Drupal file entities with upload and storage operations. |
@@ -160,7 +160,9 @@ Then the page should pass accessibility checks for the tags "wcag2a"
 >  Mink resets the session before every scenario and on every fast logout,
 >  which clears request headers and drops the credentials. Without the
 >  re-application, a site behind webserver-level basic auth answers 401
->  mid-scenario. The hooks are a no-op when no credentials are configured.
+>  mid-scenario.
+>  <br/><br/>
+>  The hooks are a no-op when no credentials are configured.
 >  <br/><br/>
 >  Skip with tag: `@behat-steps-skip:BasicAuthTrait`.
 
@@ -575,11 +577,12 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  - `Re-run` - a ready-to-paste command that re-runs just the failing scenario.
 >  
 >  The trait is active with no further configuration once a context composes
->  it. The `enabled` option switches it off. Every field is individually
->  toggleable through its `show_*` option or by overriding its
->  `diagnosticsGetShow*()` method to return FALSE. Each value source degrades
->  to nothing when the browser driver cannot provide it, so a failed step is
->  never turned into a different failure.
+>  it. The `enabled` option switches it off.
+>  <br/><br/>
+>  Every field is individually toggleable through its `show_*` option or by
+>  overriding its `diagnosticsGetShow*()` method to return FALSE. Each value
+>  source degrades to nothing when the browser driver cannot provide it, so a
+>  failed step is never turned into a different failure.
 >  <br/><br/>
 >  Skip processing with tags: `@behat-steps-skip:DiagnosticsTrait`.
 >  <br/><br/>
@@ -4646,8 +4649,8 @@ When I wait for the batch job to finish
 >  authenticated-user assertion on such a browser driver silently misses the
 >  content BigPipe deferred.
 >  <br/><br/>
->  A scenario tagged `@bigpipe` gets the `big_pipe_nojs` cookie, so Drupal
->  renders the page in full server-side.
+>  A scenario tagged `@bigpipe` on such a browser driver gets the
+>  `big_pipe_nojs` cookie, so Drupal renders the page in full server-side.
 >  <br/><br/>
 >  Skip processing with tag: `@behat-steps-skip:BigPipeTrait`.
 >  <br/><br/>
@@ -4951,9 +4954,9 @@ When cron runs
 >  from their original (unoverridden) values. The signal is the
 >  `X-Config-No-Override` request header. The browser sends it, and every
 >  backend providing `RequestEnvironmentCapabilityInterface` passes it to the
->  SUT code it runs: the in-process backend as the `HTTP_X_CONFIG_NO_OVERRIDE`
->  `$_SERVER` entry, and the Drush backend as the environment variable of the
->  same name for each command.
+>  SUT code it runs. The in-process backend passes it as the
+>  `HTTP_X_CONFIG_NO_OVERRIDE` `$_SERVER` entry, and the Drush backend as the
+>  environment variable of the same name for each command.
 >  <br/><br/>
 >  The SUT is responsible for reading that signal and calling
 >  `ImmutableConfig::getOriginal()` instead of `ImmutableConfig::get()` for
@@ -4988,7 +4991,7 @@ When cron runs
 >  The signal is also written to the request-header bag, so a trait that
 >  issues its own HTTP requests - `RestTrait` - carries it too. The bag is a
 >  property of the context object, so the signal reaches `RestTrait` when the
->  same context composes both traits, as the shipped `DrupalContext` does.
+>  same context composes both traits.
 >  <br/><br/>
 >  Example:
 >  ```
@@ -5299,14 +5302,14 @@ Then the content block type "Search" should exist
 >  - Support content moderation transitions and scheduled publishing.
 >  - Set path aliases and assert the published state of content.
 >  
->  Steps that visit, modify or assert the published state of content by title
->  resolve to the most recently created node when several nodes of the same
->  type share that title. Steps that delete content or assert it does not
+>  Several nodes of the same type can share a title. Steps that visit, modify
+>  or assert the published state of content by title resolve to the most
+>  recently created of them. Steps that delete content or assert it does not
 >  exist match every such node.
 >  <br/><br/>
 >  When the contrib `pathauto` module is enabled, the path alias step switches
->  automatic alias generation off for the content, so that the provided alias
->  is preserved.
+>  automatic alias generation off for the content, so the provided alias is
+>  preserved.
 
 
 ### Prerequisites
@@ -5712,7 +5715,7 @@ Then the drush output should match "/Drupal [0-9]+/"
 
 [Source](src/Steps/Drupal/EckTrait.php), [Example](tests/behat/features/drupal_eck.feature)
 
->  Manage Drupal ECK entities with custom type and bundle creation.
+>  Manage Drupal ECK entities of an existing entity type and bundle.
 >  - Create structured ECK entities with defined field values.
 >  - Visit ECK entity pages and their edit pages.
 >  - Created entities are automatically removed at the end of the scenario.
@@ -7238,7 +7241,7 @@ Then the state "my_module.launched" should not exist
 [Source](src/Steps/Drupal/TaxonomyTrait.php), [Example](tests/behat/features/drupal_taxonomy.feature)
 
 >  Manage Drupal taxonomy terms with vocabulary organization.
->  - Create term vocabulary structures using field values.
+>  - Create terms in an existing vocabulary, with field values.
 >  - Navigate to term pages.
 >  - Verify vocabulary configurations.
 
@@ -7917,7 +7920,7 @@ Then the user "John" should not be blocked
 
 >  Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
 >  - Check for Watchdog messages after scenario completion.
->  - Optionally check only for specific message types.
+>  - Optionally check for more message types than `php`.
 >  - Optionally skip error checking for specific scenarios.
 >  
 >  The check is on by default. An opted-in scenario whose prerequisites do not
@@ -7929,7 +7932,8 @@ Then the user "John" should not be blocked
 >  Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
 >  <br/><br/>
 >  Special tags:
->  - `@watchdog:{type}` - limit watchdog messages to specific types.
+>  - `@watchdog:{type}` - track the named message type in addition to `php`,
+>  which is always tracked.
 >  - `@error` - add to scenarios that are expected to trigger an error. The
 >  errors are still read and cleared; the scenario is not failed.
 

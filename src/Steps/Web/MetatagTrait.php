@@ -100,8 +100,8 @@ trait MetatagTrait {
    * Assert the canonical URL equals a value.
    *
    * The actual and expected URLs are both resolved to absolute form against
-   * the Mink base URL. A relative expected value therefore matches an
-   * absolute canonical href for the same page.
+   * the origin of the Mink base URL. A relative expected value therefore
+   * matches an absolute canonical href for the same page.
    *
    * @code
    * Then the canonical URL should be "https://example.com/about"

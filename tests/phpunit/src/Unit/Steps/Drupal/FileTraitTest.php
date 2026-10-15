@@ -25,8 +25,8 @@ class FileTraitTest extends UnitTestCase {
   /**
    * Tests that a managed file step or helper fails without the file module.
    *
-   * The trait declares an 'enabled' option, which switches off its hooks but
-   * not a step, so the message names no way to switch the trait off.
+   * The trait's 'enabled' option switches off its hooks but not a step, so the
+   * message names no way to switch the trait off.
    *
    * @param string $method
    *   The step or helper to call.

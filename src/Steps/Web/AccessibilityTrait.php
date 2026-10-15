@@ -93,9 +93,11 @@ trait AccessibilityTrait {
    * Working directory captured before a backend bootstrap can change it.
    *
    * The default report directory is resolved against this value rather than
-   * a live `getcwd()` call. A backend that boots a site in this process can
-   * move the working directory to the site's root, so a live `getcwd()` would
-   * resolve the report directory away from the rest of the run's paths.
+   * a live `getcwd()` call.
+   *
+   * A backend that boots a site in this process can move the working
+   * directory to the site's root. A live `getcwd()` would then resolve the
+   * report directory away from the rest of the run's paths.
    */
   protected static ?string $accessibilityBaseDir = NULL;
 

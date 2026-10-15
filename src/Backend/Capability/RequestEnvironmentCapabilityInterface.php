@@ -8,9 +8,11 @@ namespace DrevOps\BehatSteps\Backend\Capability;
  * Capability: hand a request header to the site code a backend runs.
  *
  * A backend running the site in this process passes the header the way a web
- * server passes one to PHP, and a backend starting a process per command
- * passes it to each command. A header set before the backend is bootstrapped
- * applies from its first request on.
+ * server passes one to PHP. A backend starting a process per command passes it
+ * to each command.
+ *
+ * A header set before the backend is bootstrapped applies from its first
+ * request on.
  */
 interface RequestEnvironmentCapabilityInterface {
 

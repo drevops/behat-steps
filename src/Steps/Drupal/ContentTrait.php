@@ -33,14 +33,14 @@ use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
  * - Support content moderation transitions and scheduled publishing.
  * - Set path aliases and assert the published state of content.
  *
- * Steps that visit, modify or assert the published state of content by title
- * resolve to the most recently created node when several nodes of the same
- * type share that title. Steps that delete content or assert it does not
+ * Several nodes of the same type can share a title. Steps that visit, modify
+ * or assert the published state of content by title resolve to the most
+ * recently created of them. Steps that delete content or assert it does not
  * exist match every such node.
  *
  * When the contrib `pathauto` module is enabled, the path alias step switches
- * automatic alias generation off for the content, so that the provided alias
- * is preserved.
+ * automatic alias generation off for the content, so the provided alias is
+ * preserved.
  *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */

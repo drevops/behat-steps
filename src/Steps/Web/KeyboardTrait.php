@@ -106,9 +106,9 @@ trait KeyboardTrait {
    * @param string $char
    *   Character or one of the pre-defined special keyboard keys.
    * @param string|null $selector
-   *   CSS selector for an element to trigger the key on. Pass NULL to trigger
-   *   the key on the currently focused element. An exception is raised when no
-   *   element is focused.
+   *   CSS selector for an element to trigger the key on, or NULL for the
+   *   currently focused element. An exception is raised when no element is
+   *   focused.
    *
    * @throws \Behat\Mink\Exception\UnsupportedDriverActionException
    *   If method is used for invalid browser driver.

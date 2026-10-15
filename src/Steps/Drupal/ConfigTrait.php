@@ -411,7 +411,7 @@ trait ConfigTrait {
   /**
    * Determine whether a configuration value contains an expected value.
    *
-   * A string or scalar value is matched by substring; an array value is
+   * A string or scalar value is matched by substring. An array value is
    * matched by membership, comparing the stringified form of each scalar leaf
    * and recursing into nested arrays.
    *

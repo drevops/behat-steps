@@ -23,7 +23,7 @@ use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
 /**
  * Manage Drupal taxonomy terms with vocabulary organization.
  *
- * - Create term vocabulary structures using field values.
+ * - Create terms in an existing vocabulary, with field values.
  * - Navigate to term pages.
  * - Verify vocabulary configurations.
  *

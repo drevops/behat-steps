@@ -16,8 +16,8 @@ namespace DrevOps\BehatSteps\Extension\Config;
  * 'ParametersAwareInterface' and composes this trait.
  *
  * 'BackendAwareInitializer' then injects the parameter array through
- * 'setParameters()' before any scenario runs. No backend bootstrap is
- * required.
+ * 'setParameters()' when Behat builds the context, before its scenario runs.
+ * No backend bootstrap is required.
  *
  * @see \DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension
  */

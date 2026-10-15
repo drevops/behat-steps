@@ -748,10 +748,10 @@ class TraitMethodNamingTest extends UnitTestCase {
   }
 
   /**
-   * Pair every trait under `src/` with the file that declares it.
+   * Pair every PHP file under `COMPOSED_TRAIT_ROOTS` with its type name.
    *
    * @return array<string, array{string, string}>
-   *   Trait name and absolute file path, keyed by the path relative to `src/`.
+   *   Type name and absolute file path, keyed by the path relative to `src/`.
    */
   protected static function discoverTraitFiles(): array {
     $root = realpath(__DIR__ . '/../../../src');

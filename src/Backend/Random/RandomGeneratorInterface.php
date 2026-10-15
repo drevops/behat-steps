@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Backend\Random;
 /**
  * Generates random strings for test data.
  *
- * A backend hands one out through 'BackendInterface::getRandom()', so a step
- * that needs a name, a machine name or a password draws it from the same
- * generator the backend uses for its own values.
+ * A backend hands one out through 'BackendInterface::getRandom()'. A step
+ * draws a name, a machine name or a password from the same generator the
+ * backend uses for its own values.
  */
 interface RandomGeneratorInterface {
 

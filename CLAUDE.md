@@ -159,10 +159,12 @@ php scripts/check-coverage.php SomeTrait
 ahoy test-bdd-coverage tests/behat/features/some_feature.feature
 
 # Check main-run coverage
-grep 'class name="DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait"' .logs/coverage/behat/cobertura.xml | grep -o 'line-rate="[^"]*"'
+grep 'class name="DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait"' \
+  .logs/coverage/behat/cobertura.xml | grep -o 'line-rate="[^"]*"'
 
 # Check MERGED coverage (THIS IS THE TRUE COVERAGE)
-grep 'class name="DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait"' .logs/coverage/behat_cli/cobertura.xml | grep -o 'line-rate="[^"]*"'
+grep 'class name="DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait"' \
+  .logs/coverage/behat_cli/cobertura.xml | grep -o 'line-rate="[^"]*"'
 ```
 
 **Coverage Check Script Usage**:
@@ -175,7 +177,8 @@ php scripts/check-coverage.php <TraitName> <path/to/cobertura.xml>
 
 # Examples:
 php scripts/check-coverage.php ElementTrait
-php scripts/check-coverage.php ResponsiveTrait .logs/coverage/behat/cobertura.xml
+php scripts/check-coverage.php ResponsiveTrait \
+  .logs/coverage/behat/cobertura.xml
 ```
 
 **IMPORTANT**: Always use `php scripts/check-coverage.php` when you need to assess coverage for a trait. This script:

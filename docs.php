@@ -15,6 +15,7 @@
  *
  * - The steps read in the documented format.
  * - Every step declares its actor, and its wording matches it.
+ * - Every documented step matches exactly 1 definition.
  * - Every published helper carries a summary.
  * - Registered parametrized tags use `:` as their value separator.
  * - Every environment variable the source reads is documented.
@@ -96,7 +97,8 @@ const HELPERS_DIRECTORY = 'src/Steps/Helper';
  * Classes published in the toolbox reference alongside the step traits.
  *
  * The root context contributes the backend access and the scenario plumbing a
- * domain step is written against, so that surface is part of the toolbox too.
+ * domain step is written against. That surface is therefore part of the
+ * toolbox too.
  */
 const TOOLBOX_CLASSES = [WebRawContext::class];
 
@@ -158,7 +160,7 @@ function main(array $options = []): void {
       ['# Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path) . PHP_EOL],
     ],
     'README.md' => [
-      ['## Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path, 'STEPS.md') . PHP_EOL],
+      ['## 📋 Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path, 'STEPS.md') . PHP_EOL],
     ],
     HELPERS_FILE => [
       ['# Available helpers', '[//]: # (END)', PHP_EOL . render_helpers($helpers, $base_path) . PHP_EOL],
@@ -236,8 +238,8 @@ function file_declares_trait(string $file_path): bool {
  * Collect the vocabulary traits composed into the given classes.
  *
  * Every trait declared under the vocabulary directory has to be composed into
- * one of the classes, so a reference document covers the whole vocabulary
- * rather than the part one context uses.
+ * one of the classes. A reference document then covers the whole vocabulary
+ * rather than the part 1 context uses.
  *
  * @param array<int, class-string> $class_names
  *   The classes documenting the vocabulary, 1 per context.
@@ -462,11 +464,11 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
 }
 
 /**
- * Read the option declarations of one trait.
+ * Read the option declarations of 1 trait.
  *
- * Discovery goes through the reader the runtime uses, so the generator rejects
- * a malformed declaration with the same message rather than documenting an
- * incomplete option table.
+ * Discovery goes through the reader the runtime uses. The generator therefore
+ * rejects a malformed declaration with the same message rather than
+ * documenting an incomplete option table.
  *
  * @param string $class_name
  *   The context class composing the trait.
@@ -494,7 +496,7 @@ function trait_option_group(string $trait_name): string {
 }
 
 /**
- * Read the prerequisite declarations of one trait.
+ * Read the prerequisite declarations of 1 trait.
  *
  * Discovery goes through the reader the runtime uses, so the generator rejects
  * a malformed declaration with the same message.
@@ -753,8 +755,8 @@ function extract_method_steps(\ReflectionMethod $method): array {
 /**
  * Check whether a step method takes a table.
  *
- * A step taking a table and one taking a block of text both end with a colon,
- * so the type of the last parameter tells them apart.
+ * A step taking a table and one taking a block of text both end with a colon.
+ * The type of the last parameter therefore tells them apart.
  *
  * @param \ReflectionMethod $method
  *   The reflection method.
@@ -1013,7 +1015,7 @@ function heading_anchor(string $name): string {
 }
 
 /**
- * Parse the toolbox helpers from the class.
+ * Parse the toolbox helpers from the classes.
  *
  * A helper is a public method a project calls from its own domain steps: one
  * carrying no Behat attribute and no '@internal' tag.
@@ -1177,9 +1179,9 @@ function composes_trait(\ReflectionClass $reflection, string $trait_name): bool 
 /**
  * Collect the toolbox methods a class or trait contributes.
  *
- * Visibility is the marker: a public method that Behat does not register is
- * part of the toolbox. A protected method is an implementation detail with
- * no contract to a consuming project.
+ * Visibility is the marker: a public method that Behat does not register and
+ * that carries no '@internal' tag is part of the toolbox. A protected method
+ * is an implementation detail with no contract to a consuming project.
  *
  * @param \ReflectionClass<object> $reflection
  *   The class or trait reflection.
@@ -1244,8 +1246,8 @@ function collect_helper_methods(\ReflectionClass $reflection, ?string $prefix = 
  * @param \ReflectionMethod $method
  *   The reflection method.
  * @param array<int, \ReflectionClass<object>> $contracts
- *   Further classes or interfaces to search, ahead of the ones the declaring
- *   class states itself.
+ *   Further classes or interfaces to search after the parent class, ahead of
+ *   the interfaces the declaring class states itself.
  *
  * @return string
  *   The docblock that carries the description, or the method's own when the
@@ -1718,8 +1720,9 @@ function validate(array $info): array {
         }
       }
 
-      // "I visit :path" opens whatever page its argument names, so only a step
-      // naming its destination in words is held to naming a page or a link.
+      // "I visit :path" opens whatever page its argument names. Only a step
+      // naming its destination in words is therefore held to naming a page
+      // or a link.
       if (preg_match('/^@When I visit (?!:)/', $step) === 1 && preg_match('/ (?:page|link)\b/', $step) !== 1) {
         $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], 'Navigation step does not name the page it opens, as in "I visit the ... page"');
       }
@@ -1760,8 +1763,9 @@ function validate(array $info): array {
           $errors[] = sprintf('  %s::%s - %s' . PHP_EOL, $class_name, $method['name'], sprintf('Placeholder ":%s" follows a noun with a kind before it, so it should read "with the <property> :%s"', $placeholder, $placeholder));
         }
 
-        // A thing with no kind before its noun takes its name right after it,
-        // so "with the name" is only for a noun such as "the :vocabulary term".
+        // A thing with no kind before its noun takes its name right after it.
+        // The phrase "with the name" is therefore only for a noun such as
+        // "the :vocabulary term".
         if ($index >= 4 && array_slice($tokens, $index - 3, 3) === ['with', 'the', 'name']) {
           $before = $index - 4;
 
@@ -1803,9 +1807,9 @@ function validate(array $info): array {
 /**
  * Validate that every documented step matches exactly 1 definition.
  *
- * Behat resolves definitions per step text while a scenario runs, so a pattern
- * that shadows another one is only reported once a scenario uses the shadowed
- * step.
+ * Behat resolves definitions per step text while a scenario runs. A pattern
+ * that shadows another one is therefore only reported once a scenario uses the
+ * shadowed step.
  *
  * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
  *   Array of trait info keyed by trait name.
@@ -1913,8 +1917,8 @@ function extract_step_examples(string $example): array {
 /**
  * Check whether a placeholder sits right before the noun it is named after.
  *
- * The noun is 1 to 3 words joined with "_", as in ":media_type media type",
- * and a "(s)" plural token or the colon ending a step is not part of it.
+ * The noun is 1 to 3 words joined with "_", as in ":media_type media type".
+ * A "(s)" plural token or the colon ending a step is not part of it.
  *
  * @param string $placeholder
  *   The placeholder name, without the leading colon.
@@ -1994,7 +1998,7 @@ function placeholder_synonyms(): array {
  * Placeholder names that say what kind or how many, so they precede a noun.
  *
  * Every other placeholder says which one and follows its noun, as in "the
- * user :name", while these come first, as in "the :content_type content",
+ * user :name". These come first, as in "the :content_type content",
  * ":count item(s)" and "a REST :method request".
  *
  * @return array<int, string>
@@ -2036,7 +2040,8 @@ function rejected_step_phrases(): array {
     'I click on the button ' => 'I press the button ',
     'I press the link ' => 'I follow the link ',
     'I follow the button ' => 'I press the button ',
-    // Mink registers "I should see :text", so a step of ours names the text.
+    // Mink registers "I should see :text", so a step in this library names
+    // the text.
     'I should see :' => 'I should see the text :',
     'I should not see :' => 'I should not see the text :',
     'I edit the ' => 'I visit the ... edit page',
@@ -2080,8 +2085,9 @@ function step_acronyms(): array {
  *
  * The separator between a tag and its value is always a colon: a `parametrized`
  * tag is written `@prefix:value`, never `@prefix-value`. Hyphens only join
- * words inside a tag name (e.g. `@disable-form-validation`). A `flag` tag
- * stands alone and takes no value.
+ * words inside a tag name (e.g. `@disable-form-validation`).
+ *
+ * A `flag` tag stands alone and takes no value.
  *
  * @return array<string, array{form: string, description: string}>
  *   Map of tag prefix to its form, one of 'parametrized' or 'flag', and the
@@ -2391,8 +2397,8 @@ function extract_tags(string $text): array {
  */
 function validate_tag(string $tag, array $registry): ?string {
   $prefixes = array_keys($registry);
-  // The longest prefix is tried first, so a prefix that shares a leading
-  // segment with a shorter one is matched against its full, most specific
+  // The longest prefix is tried first. A prefix that shares a leading segment
+  // with a shorter one is therefore matched against its full, most specific
   // form.
   usort($prefixes, static fn(string $a, string $b): int => strlen($b) <=> strlen($a));
 
