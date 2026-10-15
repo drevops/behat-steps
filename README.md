@@ -331,13 +331,13 @@ This package follows [semantic versioning](https://semver.org), and 5 surfaces a
 
 - **Step text** - the pattern a scenario matches, listed in [STEPS.md](STEPS.md).
 - **Helpers** - every public method the step traits, the helper traits and `WebRawContext` contribute that is not a step, a hook or a transform, listed in [HELPERS.md](HELPERS.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
-- **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md).
+- **Configuration** - the options under the `behat_steps` key and the tags, listed in [docs/configuration.md](docs/configuration.md), along with `FieldHandlerInterface`, the contract a class the `drupal.field_handlers` option names implements.
 - **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) below.
 - **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
 
 2 things sit outside it: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Extension` that none of the surfaces above exposes.
 
-The `drupal.field_handlers` option and `FieldHandlerCapabilityInterface` register classes that implement `FieldHandlerInterface`, so that interface is covered along with them. A project adds or replaces a field handler through either rather than a subclass of `Core`: a subclass of `Core`, a backend or a field handler relies on protected methods a minor release can rename or stop calling.
+A project adds or replaces a field handler through the `drupal.field_handlers` option, or from a context through `FieldHandlerCapabilityInterface`, rather than a subclass of `Core`: a subclass of `Core`, a backend or a field handler relies on protected methods a minor release can rename or stop calling.
 
 ### Exceptions
 
