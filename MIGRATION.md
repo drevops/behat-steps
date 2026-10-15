@@ -2522,8 +2522,18 @@ A test that asserts on a failure message's text needs the 4.0 text. Each message
 | `ContentTrait` | `Content type "..." does not exist.` | `The content type "..." does not exist.` | |
 | `ContentTrait` | `"..." content with the title "..." should ...` | `The "..." content with the title "..." should ...` | The 3 existence and publishing messages |
 | `ContentTrait` | `The "path" module is not enabled. Enable it to manage content path aliases.` | `ContentTrait requires that the core "path" module is enabled, for the path alias step, which does not hold.` | |
-| `CookieTrait` | `The cookie with name "..." was set but it should not be.` | `The cookie with name "..." was set, but it should not be.` | |
-| `CookieTrait` | `The cookie with name containing "..." was set but it should not be.` | `The cookie with name containing "..." was set, but it should not be.` | |
+| `CookieTrait` | `The cookie with name "..." was not set.` | `The cookie "..." was not set.` | |
+| `CookieTrait` | `The cookie with name containing "..." was not set.` | `No cookie with a name containing "..." was set.` | |
+| `CookieTrait` | `The cookie with name "..." was set with value "...", but it should contain "...".` | `The cookie "..." was set with the value "...", but it should contain "...".` | |
+| `CookieTrait` | `The cookie with name containing "..." was set with value "...", but it should contain "...".` | `A cookie with a name containing "..." was set with the value "...", but it should contain "...".` | |
+| `CookieTrait` | `The cookie with name "..." was set with value "...", but it should be "...".` | `The cookie "..." was set with the value "...", but it should be "...".` | |
+| `CookieTrait` | `The cookie with name containing "..." was set with value "...", but it should be "...".` | `A cookie with a name containing "..." was set with the value "...", but it should be "...".` | |
+| `CookieTrait` | `The cookie with name "..." was set with value containing "...", but it should not contain "...".` | `The cookie "..." was set with the value "...", but it should not contain "...".` | |
+| `CookieTrait` | `The cookie with name containing "..." was set with value containing "...", but it should not contain "...".` | `A cookie with a name containing "..." was set with the value "...", but it should not contain "...".` | |
+| `CookieTrait` | `The cookie with name "..." was set with value "...", but it should not be "...".` | `The cookie "..." was set with the value "...", but it should not be "...".` | |
+| `CookieTrait` | `The cookie with name containing "..." was set with value "...", but it should not be "...".` | `A cookie with a name containing "..." was set with the value "...", but it should not be "...".` | |
+| `CookieTrait` | `The cookie with name "..." was set but it should not be.` | `The cookie "..." was set, but it should not be.` | |
+| `CookieTrait` | `The cookie with name containing "..." was set but it should not be.` | `A cookie with a name containing "..." was set, but it should not be.` | |
 | `DraggableviewsTrait` | `The "draggableviews" module is not enabled. Add "drupal/draggableviews" to the consumer project's composer.json and enable the module as part of the site setup.` | `DraggableviewsTrait requires that the "draggableviews" module from the "drupal/draggableviews" package is enabled, which does not hold.` | |
 | `ElementTrait` | `Element(s) defined by "..." selector is not displayed within a viewport.` | `The element "..." is not displayed within the viewport.` | |
 | `ElementTrait` | `Element(s) defined by "..." selector is not displayed within a viewport with a top offset of N pixels.` | `The element "..." is not displayed within the viewport with a top offset of N pixels.` | |

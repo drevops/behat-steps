@@ -29,7 +29,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was not set.
+      The cookie "testname" was not set.
       """
 
   @phpserver
@@ -58,7 +58,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was not set.
+      The cookie "testname" was not set.
       """
 
   @test-trait:CookieTrait
@@ -73,7 +73,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testothername" was set with value "testothervalue", but it should be "testvalue".
+      The cookie "testothername" was set with the value "testothervalue", but it should be "testvalue".
       """
 
   @phpserver
@@ -102,7 +102,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was not set.
+      The cookie "testname" was not set.
       """
 
   @test-trait:CookieTrait
@@ -117,7 +117,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set with value "testothervalue", but it should contain "estva".
+      The cookie "testname" was set with the value "testothervalue", but it should contain "estva".
       """
 
   @phpserver
@@ -144,7 +144,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was not set.
+      No cookie with a name containing "estna" was set.
       """
 
   @phpserver
@@ -171,7 +171,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was not set.
+      No cookie with a name containing "estna" was set.
       """
 
   @test-trait:CookieTrait
@@ -186,7 +186,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was set with value "prefixtestvaluesuffix", but it should be "testvalue".
+      A cookie with a name containing "estna" was set with the value "prefixtestvaluesuffix", but it should be "testvalue".
       """
 
   @phpserver
@@ -213,7 +213,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was not set.
+      No cookie with a name containing "estna" was set.
       """
 
   @test-trait:CookieTrait
@@ -228,7 +228,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "estna" was set with value "testothervalue", but it should contain "estval".
+      A cookie with a name containing "estna" was set with the value "testothervalue", but it should contain "estval".
       """
 
   @phpserver
@@ -255,7 +255,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set, but it should not be.
+      The cookie "testname" was set, but it should not be.
       """
 
   @phpserver
@@ -282,7 +282,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set with value "testvalue", but it should not be "testvalue".
+      The cookie "testname" was set with the value "testvalue", but it should not be "testvalue".
       """
 
   @phpserver
@@ -309,7 +309,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name "testname" was set with value containing "testvalue", but it should not contain "testval".
+      The cookie "testname" was set with the value "testvalue", but it should not contain "testval".
       """
 
   @phpserver
@@ -336,7 +336,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "testname" was set, but it should not be.
+      A cookie with a name containing "testname" was set, but it should not be.
       """
 
   @phpserver
@@ -363,7 +363,7 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "testname" was set with value "testvalue", but it should not be "testvalue".
+      A cookie with a name containing "testname" was set with the value "testvalue", but it should not be "testvalue".
       """
 
   @phpserver
@@ -390,5 +390,5 @@ Feature: Check that CookieTrait works
     When I run "behat --no-colors"
     Then it should fail with an error:
       """
-      The cookie with name containing "testname" was set with value containing "mytestvalue", but it should not contain "testval".
+      A cookie with a name containing "testname" was set with the value "mytestvalue", but it should not contain "testval".
       """
