@@ -17,7 +17,7 @@ class DatetimeHandler extends AbstractHandler {
    * {@inheritdoc}
    */
   protected function doExpand(array $records): array {
-    $site_timezone = new \DateTimeZone(\Drupal::config('system.date')->get('timezone.default') ?: 'UTC');
+    $site_timezone = $this->getSiteTimezone();
     $storage_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
     $formatted = [];
 
@@ -31,19 +31,26 @@ class DatetimeHandler extends AbstractHandler {
   }
 
   /**
+   * Returns the site's default timezone, or UTC when none is configured.
+   */
+  protected function getSiteTimezone(): \DateTimeZone {
+    return new \DateTimeZone(\Drupal::config('system.date')->get('timezone.default') ?: 'UTC');
+  }
+
+  /**
    * Formats a date value for storage based on the field's datetime_type.
    *
    * @param string|null $value
    *   The raw date value, optionally prefixed with "relative:".
-   * @param \DateTimeZone $site_timezone
-   *   The site timezone.
+   * @param \DateTimeZone $timezone
+   *   The timezone the value is written in.
    * @param \DateTimeZone $storage_timezone
    *   The storage timezone.
    *
    * @return string|null
    *   The formatted date string, or null for empty values.
    */
-  protected function formatDateValue(?string $value, \DateTimeZone $site_timezone, \DateTimeZone $storage_timezone): ?string {
+  protected function formatDateValue(?string $value, \DateTimeZone $timezone, \DateTimeZone $storage_timezone): ?string {
     if ($value === NULL || $value === '') {
       return NULL;
     }
@@ -54,7 +61,7 @@ class DatetimeHandler extends AbstractHandler {
 
     $is_date_only = $this->fieldInfo->getSetting('datetime_type') === DateTimeItem::DATETIME_TYPE_DATE;
 
-    $date = new DrupalDateTime($value, $site_timezone);
+    $date = new DrupalDateTime($value, $timezone);
 
     if ($is_date_only) {
       return $date->format(DateTimeItemInterface::DATE_STORAGE_FORMAT);

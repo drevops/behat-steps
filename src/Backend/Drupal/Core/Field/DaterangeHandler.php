@@ -46,7 +46,7 @@ class DaterangeHandler extends DatetimeHandler {
    * {@inheritdoc}
    */
   protected function doExpand(array $records): array {
-    $site_timezone = new \DateTimeZone(\Drupal::config('system.date')->get('timezone.default') ?: 'UTC');
+    $site_timezone = $this->getSiteTimezone();
     $storage_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
     $result = [];
 

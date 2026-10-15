@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal\Core\Field;
 
-use Composer\InstalledVersions;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\AbstractHandler;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DatetimeHandler;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
@@ -12,7 +11,6 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -34,7 +32,7 @@ class DatetimeHandlerTest extends FieldHandlerUnitTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    if (!$this->loadDatetimeModuleInterface()) {
+    if (!$this->loadDatetimeModuleClasses()) {
       $this->markTestSkipped('drupal/core datetime module classes are not available.');
     }
 
@@ -125,41 +123,6 @@ class DatetimeHandlerTest extends FieldHandlerUnitTestBase {
       \RuntimeException::class,
       'Field record must include the main property "value"',
     ];
-  }
-
-  /**
-   * Loads datetime module classes from the Composer-resolved drupal/core path.
-   *
-   * The datetime module is outside the default drupal/core PSR-4 namespace
-   * coverage, so the relevant files are loaded explicitly. Returns TRUE when
-   * DateTimeItemInterface is available after loading.
-   */
-  protected function loadDatetimeModuleInterface(): bool {
-    if (interface_exists(DateTimeItemInterface::class)) {
-      return TRUE;
-    }
-
-    if (!class_exists(InstalledVersions::class)) {
-      return FALSE;
-    }
-
-    $core_path = InstalledVersions::getInstallPath('drupal/core');
-
-    if ($core_path === NULL) {
-      return FALSE;
-    }
-
-    $interface_file = $core_path . '/modules/datetime/src/Plugin/Field/FieldType/DateTimeItemInterface.php';
-    $item_file = $core_path . '/modules/datetime/src/Plugin/Field/FieldType/DateTimeItem.php';
-
-    if (!is_file($interface_file) || !is_file($item_file)) {
-      return FALSE;
-    }
-
-    require_once $interface_file;
-    require_once $item_file;
-
-    return interface_exists(DateTimeItemInterface::class);
   }
 
 }
