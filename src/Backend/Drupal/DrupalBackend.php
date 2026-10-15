@@ -936,8 +936,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   /**
    * Builds a Core of the given class.
    *
-   * The class is built with the Drupal root, the URI and the random
-   * generator, as the base 'Core' is.
+   * The constructor receives the Drupal root, the URI and the random
+   * generator, in the order the base 'Core' constructor takes them.
    *
    * @param string $class
    *   The Core class to build.
@@ -976,8 +976,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    *   The Core to check.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   When the nearest Core of this package among the class and its parents
-   *   is for another major.
+   *   When the nearest Core of this package the Core is or extends is the one
+   *   for another major.
    */
   protected function assertCoreFitsVersion(CoreInterface $core): void {
     $package_core = $this->findPackageCoreClass($core::class);

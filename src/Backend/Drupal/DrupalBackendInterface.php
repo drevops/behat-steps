@@ -86,15 +86,15 @@ interface DrupalBackendInterface extends
    * Replaces the Core the backend delegates to.
    *
    * A class implementing 'CoreInterface' and built on no Core of this package
-   * is accepted as it is. Otherwise, the nearest Core of this package among
-   * the class and its parents has to be the one for the detected major.
+   * is accepted as it is. Otherwise, the nearest Core of this package it is
+   * or extends has to be the one this package ships for the detected major.
    *
    * @param \DrevOps\BehatSteps\Backend\Drupal\Core\CoreInterface $core
    *   The Core instance the backend should delegate to.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   When the nearest Core of this package among the class and its parents
-   *   is for another major.
+   *   When the nearest Core of this package the Core is or extends is the one
+   *   for another major.
    */
   public function setCore(CoreInterface $core): void;
 

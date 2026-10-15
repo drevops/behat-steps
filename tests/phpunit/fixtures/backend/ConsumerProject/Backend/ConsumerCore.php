@@ -11,7 +11,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Core\Core as BaseCore;
  *
  * Lives outside the 'DrevOps\BehatSteps\Backend' namespace on purpose:
  * 'DrupalBackend' takes a Core of any name and namespace. It checks only that
- * the nearest Core of this package the class extends is the one for the
+ * the nearest Core of this package the class extends is the Core for the
  * detected major.
  *
  * Registers consumer-owned field handlers by scanning its sibling 'Field/'

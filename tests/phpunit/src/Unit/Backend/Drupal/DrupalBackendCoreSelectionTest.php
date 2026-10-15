@@ -187,6 +187,7 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
   }
 
   public function testSetCoreSkipsTheVersionLookupForCoreBuiltOnNoPackageCore(): void {
+    // Built without its constructor, the backend has no Drupal version to read.
     $backend = (new \ReflectionClass(DrupalBackend::class))->newInstanceWithoutConstructor();
     $core = $this->createStub(CoreInterface::class);
 
