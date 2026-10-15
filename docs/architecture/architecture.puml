@@ -45,7 +45,7 @@ package "drevops/behat-steps" {
     component "Hooks\nsrc/Extension/Hook: entity and\nuser creation hooks, each\nattribute names its call" as Hooks
 
     package "Extension\\Drupal" #F3E5F5 {
-      component "DrupalBackendProvider\ndrupal: and drush: settings,\nlogin defaults, the 2 backends'\nservice definitions, Core wiring" as DrupalProvider
+      component "DrupalBackendProvider\ndrupal: and drush: settings,\nlogin defaults, the 2 backends'\nservice definitions, Core wiring,\nconfigured field handlers" as DrupalProvider
       component "Drupal hooks\nnode, term and language\ncreation hooks" as DrupalHooks
     }
   }
@@ -103,6 +103,7 @@ Ext --> DrupalProvider : loads
 Behat --> Listeners : before each scenario
 Listeners --> Registries : backend order,\nscenario tags
 DrupalProvider --> DrupalBe : defines,\nwires Core into
+DrupalProvider --> Core : registers the\nconfigured field handlers
 DrupalProvider --> DrushBe : defines
 Ext ..> BrowserKit : registers with Mink,\nreads the session options
 Ext --> HttpClients : defines the shared transport\nfrom the session options

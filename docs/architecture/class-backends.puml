@@ -145,9 +145,12 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal\\Capability" #E8F5E9 {
 
 package "DrevOps\\BehatSteps\\Backend\\Drupal\\Core" #E8F5E9 {
   interface CoreInterface
-  class Core
+  class Core {
+    +registerFieldHandler(field_type, class) : void
+  }
   interface FieldHandlerInterface {
-    one per field type
+    +__construct(stub, entity_type, field_name)
+    +expand(values) : array
   }
   class FieldClassifier
   class EntityFieldParser
