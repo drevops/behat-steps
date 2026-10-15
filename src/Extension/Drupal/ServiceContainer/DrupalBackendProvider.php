@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Extension\Drupal\ServiceContainer;
 
+use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BackendProviderInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\FileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
@@ -39,6 +41,16 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   public const string FIELD_HANDLERS_PARAMETER = 'behat_steps.backend.drupal.field_handlers';
 
   /**
+   * Parameter holding the alias classes the in-process backend registers.
+   */
+  public const string DRUPAL_CREATION_ALIASES_PARAMETER = 'behat_steps.backend.drupal.creation_aliases';
+
+  /**
+   * Parameter holding the alias classes the Drush backend registers.
+   */
+  public const string DRUSH_CREATION_ALIASES_PARAMETER = 'behat_steps.backend.drush.creation_aliases';
+
+  /**
    * {@inheritdoc}
    */
   public function configure(NodeBuilder $children): void {
@@ -60,6 +72,11 @@ final class DrupalBackendProvider implements BackendProviderInterface {
             ->useAttributeAsKey('field_type')
             ->prototype('scalar')->cannotBeEmpty()->end()
           ->end()
+          ->arrayNode('creation_aliases')
+            ->info('List of creation alias classes the backend registers after the ones it ships. An alias resolves a value a creation step gives an entity that is not a field of it, such as "author" on a node. An entry adds an alias, or replaces the shipped one with the same name on the same entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.' . PHP_EOL
+              . '  - Acme\Behat\Alias\OrganizationAlias' . PHP_EOL)
+            ->prototype('scalar')->cannotBeEmpty()->end()
+          ->end()
         ->end()
       ->end()
       ->arrayNode('drush')
@@ -69,6 +86,11 @@ final class DrupalBackendProvider implements BackendProviderInterface {
           ->scalarNode('binary')->defaultValue('vendor/bin/drush')->info('Path to the Drush binary.')->end()
           ->scalarNode('root')->info('Drupal root passed to Drush, for a site Drush cannot locate on its own.')->end()
           ->scalarNode('global_options')->info('Options appended to every Drush command, such as "--uri=http://example.com".')->end()
+          ->arrayNode('creation_aliases')
+            ->info('List of creation alias classes the backend registers after the ones it ships. The Drush backend creates only users, so it runs only the aliases for the "user" entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.' . PHP_EOL
+              . '  - Acme\Behat\Alias\DepartmentAlias' . PHP_EOL)
+            ->prototype('scalar')->cannotBeEmpty()->end()
+          ->end()
         ->end()
       ->end();
     // phpcs:enable
@@ -108,24 +130,10 @@ final class DrupalBackendProvider implements BackendProviderInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * The in-process backend takes a single Core, so only the first service
-   * tagged 'behat_steps.core' is injected.
    */
   public function process(ContainerBuilder $container): void {
-    if (!$container->hasDefinition(self::DRUPAL_SERVICE)) {
-      return;
-    }
-
-    $core_ids = array_keys($container->findTaggedServiceIds(self::CORE_TAG));
-
-    if ($core_ids === []) {
-      return;
-    }
-
-    $container->getDefinition(self::DRUPAL_SERVICE)->addMethodCall('setCore', [new Reference($core_ids[0])]);
-
-    $this->registerFieldHandlers($container);
+    $this->processDrupal($container);
+    $this->registerCreationAliases($container, self::DRUSH_SERVICE, self::DRUSH_CREATION_ALIASES_PARAMETER, 'drush.creation_aliases');
   }
 
   /**
@@ -167,6 +175,44 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   }
 
   /**
+   * Builds a creation alias from a class a 'creation_aliases' option names.
+   *
+   * @param string $option
+   *   The option naming the class, such as 'drupal.creation_aliases'.
+   * @param string $class
+   *   The alias class.
+   *
+   * @return \DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface
+   *   The alias, built with no constructor arguments.
+   *
+   * @throws \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+   *   When the class does not exist, does not implement
+   *   'CreationAliasInterface', cannot be instantiated or requires
+   *   constructor arguments.
+   */
+  public static function buildCreationAlias(string $option, string $class): CreationAliasInterface {
+    if (!class_exists($class) && !interface_exists($class)) {
+      throw new InvalidConfigurationException(sprintf('The "%s" option names the class "%s", which does not exist.', $option, $class));
+    }
+
+    if (!is_subclass_of($class, CreationAliasInterface::class)) {
+      throw new InvalidConfigurationException(sprintf('The "%s" option names the class "%s", which does not implement "%s".', $option, $class, CreationAliasInterface::class));
+    }
+
+    $reflection = new \ReflectionClass($class);
+
+    if (!$reflection->isInstantiable()) {
+      throw new InvalidConfigurationException(sprintf('The "%s" option names the class "%s", which cannot be instantiated.', $option, $class));
+    }
+
+    if (($reflection->getConstructor()?->getNumberOfRequiredParameters() ?? 0) > 0) {
+      throw new InvalidConfigurationException(sprintf('The "%s" option names the class "%s", whose constructor requires arguments. Build it in a context and register it through CreationAliasCapabilityInterface::registerCreationAlias().', $option, $class));
+    }
+
+    return new $class();
+  }
+
+  /**
    * Loads the in-process backend.
    *
    * @param \Symfony\Component\DependencyInjection\Loader\FileLoader $loader
@@ -181,6 +227,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
       $loader->load('backends/drupal.yml');
       $container->setParameter('behat_steps.backend.drupal.drupal_root', $config['drupal']['drupal_root']);
       $container->setParameter(self::FIELD_HANDLERS_PARAMETER, $config['drupal']['field_handlers'] ?? []);
+      $container->setParameter(self::DRUPAL_CREATION_ALIASES_PARAMETER, $config['drupal']['creation_aliases'] ?? []);
     }
   }
 
@@ -219,6 +266,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
       $container->setParameter('behat_steps.backend.drush.binary', $config['drush']['binary']);
 
       $container->setParameter('behat_steps.backend.drush.root', $config['drush']['root'] ?? NULL);
+      $container->setParameter(self::DRUSH_CREATION_ALIASES_PARAMETER, $config['drush']['creation_aliases'] ?? []);
 
       $this->setDrushOptions($container, $config);
     }
@@ -240,6 +288,34 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   }
 
   /**
+   * Injects the Core and its handlers and aliases into the in-process backend.
+   *
+   * The in-process backend takes a single Core, so only the first service
+   * tagged 'behat_steps.core' is injected. The backend registers field
+   * handlers and creation aliases on that Core, so their calls follow
+   * 'setCore()'.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+   *   The container builder.
+   */
+  protected function processDrupal(ContainerBuilder $container): void {
+    if (!$container->hasDefinition(self::DRUPAL_SERVICE)) {
+      return;
+    }
+
+    $core_ids = array_keys($container->findTaggedServiceIds(self::CORE_TAG));
+
+    if ($core_ids === []) {
+      return;
+    }
+
+    $container->getDefinition(self::DRUPAL_SERVICE)->addMethodCall('setCore', [new Reference($core_ids[0])]);
+
+    $this->registerFieldHandlers($container);
+    $this->registerCreationAliases($container, self::DRUPAL_SERVICE, self::DRUPAL_CREATION_ALIASES_PARAMETER, 'drupal.creation_aliases');
+  }
+
+  /**
    * Registers the configured field handlers on the in-process backend.
    *
    * The calls follow 'setCore()', so an entry for a shipped field type
@@ -257,6 +333,37 @@ final class DrupalBackendProvider implements BackendProviderInterface {
 
     foreach ((array) $container->getParameter(self::FIELD_HANDLERS_PARAMETER) as $field_type => $class) {
       $definition->addMethodCall('registerFieldHandler', [(string) $field_type, $class]);
+    }
+  }
+
+  /**
+   * Registers the configured creation aliases on a backend.
+   *
+   * Each class is built by 'buildCreationAlias()' when the container builds
+   * the backend rather than here, because a class on the suite's 'autoload'
+   * path cannot be loaded before the run starts.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+   *   The container builder.
+   * @param string $service
+   *   The ID of the backend service.
+   * @param string $parameter
+   *   The parameter holding the alias classes.
+   * @param string $option
+   *   The option the classes come from, such as 'drupal.creation_aliases'.
+   */
+  protected function registerCreationAliases(ContainerBuilder $container, string $service, string $parameter, string $option): void {
+    if (!$container->hasDefinition($service) || !$container->hasParameter($parameter)) {
+      return;
+    }
+
+    $definition = $container->getDefinition($service);
+
+    foreach ((array) $container->getParameter($parameter) as $class) {
+      $alias = new Definition(CreationAliasInterface::class, [$option, $class]);
+      $alias->setFactory([self::class, 'buildCreationAlias']);
+
+      $definition->addMethodCall('registerCreationAlias', [$alias]);
     }
   }
 

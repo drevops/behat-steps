@@ -10,6 +10,7 @@ use Behat\Config\Profile;
 use Behat\Config\Suite;
 use Behat\MinkExtension\Context\MinkContext;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
+use ConsumerProject\Backend\Alias\HeadlineAlias;
 use DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension;
 use DrevOps\BehatPhpServer\PhpServerContext;
 use DrevOps\BehatScreenshotExtension\Context\ScreenshotContext;
@@ -69,7 +70,9 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
     'backends' => ['drupal', 'drush', 'blackbox'],
     'blackbox' => NULL,
     // Behat runs from within "build", so both roots are relative to it.
-    'drupal' => ['drupal_root' => 'web'],
+    // 'HeadlineAlias' resolves the 'headline' column of the content scenario
+    // that covers 'creation_aliases'.
+    'drupal' => ['drupal_root' => 'web', 'creation_aliases' => [HeadlineAlias::class]],
     'drush' => [
       'root' => 'web',
       // Drush resolves a request URI for every command and does not

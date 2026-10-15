@@ -192,11 +192,13 @@ A nested option is written as a section in the configuration and reads as a dott
 | `drupal` | section | - | Settings of the backend that bootstraps Drupal in-process. |
 | `drupal.drupal_root` | string | required | Path to the Drupal root the in-process backend bootstraps. |
 | `drupal.field_handlers` | map | `[]` | Map of field types to the handler classes that turn a value a step gives a field into the value Drupal stores. An entry adds a handler for a field type the package ships none for, or replaces the shipped one. A class implements FieldHandlerInterface.<br/>rating: Acme\Behat\Field\RatingHandler<br/>datetime: Acme\Behat\Field\FiscalDatetimeHandler |
+| `drupal.creation_aliases` | map | `[]` | List of creation alias classes the backend registers after the ones it ships. An alias resolves a value a creation step gives an entity that is not a field of it, such as "author" on a node. An entry adds an alias, or replaces the shipped one with the same name on the same entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.<br/>- Acme\Behat\Alias\OrganizationAlias |
 | `drush` | section | - | Settings of the backend that reaches the site by running Drush 13 or newer. |
 | `drush.alias` | string | - | Drush site alias to run every command against. |
 | `drush.binary` | string | `'vendor/bin/drush'` | Path to the Drush binary. |
 | `drush.root` | string | - | Drupal root passed to Drush, for a site Drush cannot locate on its own. |
 | `drush.global_options` | string | - | Options appended to every Drush command, such as "--uri=http://example.com". |
+| `drush.creation_aliases` | map | `[]` | List of creation alias classes the backend registers after the ones it ships. The Drush backend creates only users, so it runs only the aliases for the "user" entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.<br/>- Acme\Behat\Alias\DepartmentAlias |
 
 [//]: # (END_EXTENSION_OPTIONS)
 
@@ -315,6 +317,101 @@ $this->backendFor(FieldHandlerCapabilityInterface::class)->registerFieldHandler(
 ```
 
 The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename one of them.
+
+### Creation aliases
+
+A creation step can take a column that isn't a field of the entity, such as `author` on a node, and a creation alias resolves it while the entity is created: `author` names a user, and the alias sets the node's `uid` to that user's ID. Your scenarios name things the way a person would, and the backend works out the IDs.
+
+The package ships 4, each registered on the backends that run it:
+
+| Alias | Entity type | Backends | What it does |
+| --- | --- | --- | --- |
+| `author` | `node` | `drupal` | Resolves a username into the node's `uid`, and fails when no user has that name |
+| `vocabulary_machine_name` | `taxonomy_term` | `drupal` | Sets the term's `vid` from a vocabulary machine name, when the step gives no bundle or `vid` |
+| `parent` | `taxonomy_term` | `drupal` | Resolves a parent term's name into its ID, within the term's vocabulary |
+| `roles` | `user` | `drupal`, `drush` | Assigns roles, by machine name or label, after the user is saved |
+
+`drupal.creation_aliases` and `drush.creation_aliases` list alias classes of your own. There's 1 list per backend because each backend keeps its own aliases: an alias that queries Drupal in the Behat process can't run on Drush. The backend registers each class after the aliases it ships, so an entry with the name and entity type of a shipped alias replaces it:
+
+```php
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'drupal' => [
+    'drupal_root' => 'web',
+    'creation_aliases' => [
+      OrganizationAlias::class,
+    ],
+  ],
+]));
+```
+
+An alias implements `PreCreateAliasInterface`, which changes the stub's values before the entity is saved, or `PostCreateAliasInterface`, which acts on the entity after it's saved. It runs only when the step gives its column. `getName()` returns the column, `getEntityType()` the entity type it applies to, and `getDescription()` a sentence for anyone listing a backend's aliases through `CreationAliasCapabilityInterface::getCreationAliases()`. A pre-create alias removes its own column once it has resolved it, so Drupal's entity storage sees fields only:
+
+```php
+namespace Acme\Behat\Alias;
+
+use DrevOps\BehatSteps\Backend\Alias\PreCreateAliasInterface;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
+use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
+
+final class OrganizationAlias implements PreCreateAliasInterface {
+
+  public function getName(): string {
+    return 'organization';
+  }
+
+  public function getEntityType(): string {
+    return 'node';
+  }
+
+  public function getDescription(): string {
+    return "Resolves an organization code supplied via 'organization' to the organization that carries it.";
+  }
+
+  public function applyToStub(EntityStubInterface $stub): void {
+    $code = (string) $stub->getValue('organization');
+
+    $ids = \Drupal::entityQuery('node')
+      ->accessCheck(FALSE)
+      ->condition('type', 'organization')
+      ->condition('field_code', $code)
+      ->execute();
+
+    if ($ids === []) {
+      throw new CreationAliasResolutionException(sprintf('No organization has the code "%s".', $code));
+    }
+
+    // "ACME" stores the ID of the organization with that code.
+    $stub->setValue('field_organization', (int) reset($ids));
+    $stub->removeValue('organization');
+  }
+
+}
+```
+
+With it registered, a scenario names the organization by its code:
+
+```gherkin
+Given the following article content exists:
+  | title      | organization |
+  | Lab report | ACME         |
+```
+
+The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable when the run starts, through Composer or the suite's `autoload` setting. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
+
+The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. An alias whose constructor takes arguments, such as a lookup service, is built by a context of your own and registered the same way. The registration holds for the rest of the run, because the backend does:
+
+```php
+$this->backendFor(CreationAliasCapabilityInterface::class)->registerCreationAlias(new OrganizationAlias($lookup));
+```
+
+`backendFor()` returns the first backend in the scenario's order that provides the capability, so with `drupal` listed first, that's where the alias lands. `$this->getBackend('drush')` reaches the Drush backend by name instead.
+
+Where an alias runs depends on the backend:
+
+- **`drupal`** runs an alias whenever a step creates an entity of its type: a node, a term, a user, a file, block content, or an entity the media, paragraph, menu link, ECK and `the following :entity_type entities exist:` steps create. Its field parser leaves the alias's column as written, where any other column that isn't a field fails the step with `The field "..." does not exist on entity type "...".` A `Core` of your own that doesn't implement `CreationAliasCapabilityInterface` keeps no aliases, so registering an alias on the `drupal` backend fails with an `UnsupportedBackendActionException`.
+- **`drush`** creates only users, so it runs only the aliases for `user`. A pre-create alias runs before `drush user:create`, which takes only the name, the password and the email, and a post-create alias runs after it, with an object carrying only the new user's `uid` in place of the entity. Drupal isn't loaded in the Behat process there, so an alias that reaches the site takes the backend in its constructor, the way the shipped `roles` alias takes `UserCapabilityInterface`, and is registered from a context.
+
+The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` are covered by semantic versioning. The shipped aliases are final, so an alias of your own implements an interface rather than extending one of them.
 
 ### Trait options
 

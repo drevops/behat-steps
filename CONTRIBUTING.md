@@ -163,7 +163,7 @@ A qualifier that the step opens with `with` reads `With` in the name, and a seco
 
 A documented override point is public, so [HELPERS.md](HELPERS.md) lists it and semantic versioning covers it. A project's override relies on the package calling the method at the same point with the same signature, and a protected method promises neither, so a docblock never invites an override of one.
 
-`src/Backend` publishes no override point at all, because semantic versioning covers none of its internals, so no docblock there invites an override, public or protected. A project adds or replaces a field handler through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface` rather than a subclass of `Core`.
+`src/Backend` publishes no override point at all, because semantic versioning covers none of its internals, so no docblock there invites an override, public or protected. A project adds or replaces a field handler through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface` rather than a subclass of `Core`, and a creation alias through the `drupal.creation_aliases` and `drush.creation_aliases` options or `CreationAliasCapabilityInterface` rather than a subclass of `Core` or a backend.
 
 `PublicSurfaceTest` fails a docblock that says `Override to`, `Override when`, or `override this` followed by `method`, `to` or `when`, on a trait's protected method and on any method under `src/Backend`.
 
@@ -278,7 +278,7 @@ These are the extension points. Each one stays open, along with every class that
 
 `DocumentElement` stays open as well. It's installed in place of Mink's own `DocumentElement`, which other code extends. A class that another class under `src/` extends, such as `ParseException`, is open because PHP requires it.
 
-An open class promises a project nothing about its protected members. A subclass of a backend, `Core` or a field handler relies on methods a minor release can rename or stop calling, as [Consumer override points](#consumer-override-points) says. A project's own field handler implements `FieldHandlerInterface` and is registered through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface`.
+An open class promises a project nothing about its protected members. A subclass of a backend, `Core` or a field handler relies on methods a minor release can rename or stop calling, as [Consumer override points](#consumer-override-points) says. A project's own field handler implements `FieldHandlerInterface` and is registered through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface`, and its own creation alias implements `PreCreateAliasInterface` or `PostCreateAliasInterface` and is registered through the `creation_aliases` options or `CreationAliasCapabilityInterface`.
 
 Every other class is replaced rather than extended. A suite that swaps in its own registry or authenticator through a `*.class` container parameter implements that class's interface, and option resolution is replaced through `TraitOptionResolverFactoryInterface`. A final class keeps its members `protected`, like every other class here, so `rector.php` skips the Rector rules that would make them private.
 
@@ -480,7 +480,7 @@ A capability sits at the root of `src/Backend` when any backend may provide it, 
 | `ConfigEntity` | in-process | No command creates, changes or copies a config entity through its storage |
 | `Content` | in-process | Creating or updating an entity expands its values through the field handlers of the process that saves it |
 | `Core` | in-process | Hands out the in-process core |
-| `CreationAlias` | yes | Both backend classes register their own aliases |
+| `CreationAlias` | yes | Each backend class keeps its own aliases; the Drush backend creates only users, so it runs only theirs |
 | `Cron` | yes | `core:cron` |
 | `Draggableviews` | in-process | No command writes a display's order |
 | `Drush` | yes | The Drush backend's own capability |
