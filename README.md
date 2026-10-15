@@ -362,7 +362,7 @@ Example error messages:
 Element matching css "#my-element" not found.
 Link with title "My Link" not found.
 Select with id|name|label "My Select" not found.
-The cookie with name "session" was not set.
+The cookie "session" was not set.
 ```
 
 ## 🤖 Writing tests with AI assistants
