@@ -646,8 +646,7 @@ trait UserTrait {
    * @param string $role
    *   The role name.
    * @param array<int, string> $permissions
-   *   The permissions. A blank entry, as an empty permissions cell splits
-   *   into, grants nothing.
+   *   The permissions. A blank entry grants nothing.
    *
    * @return \DrevOps\BehatSteps\Backend\Entity\EntityStubInterface
    *   The stub of the created role, carrying its 'id' and 'label'.

@@ -229,8 +229,8 @@ trait MenuTrait {
    * Find a menu by its label.
    *
    * When several menus carry the label, the menu the scenario created last is
-   * returned, and otherwise the one with the last machine name in natural
-   * order.
+   * returned. Otherwise, the one with the last machine name in natural order
+   * is returned.
    *
    * @param string $label
    *   The label of the menu.

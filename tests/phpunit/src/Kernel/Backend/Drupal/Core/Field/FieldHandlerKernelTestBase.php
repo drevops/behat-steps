@@ -75,7 +75,6 @@ abstract class FieldHandlerKernelTestBase extends KernelTestBase {
     $this->installEntitySchema('user');
     $this->installConfig(['system']);
 
-    // entity_test does not auto-register a default bundle in kernel tests.
     EntityTestHelper::createBundle(static::BUNDLE);
 
     // Core::bootstrap() is not called: KernelTestBase has already booted the

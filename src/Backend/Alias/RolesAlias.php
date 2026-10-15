@@ -14,10 +14,10 @@ use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
 final readonly class RolesAlias implements PostCreateAliasInterface {
 
   /**
-   * Constructs the alias with the backend that receives role calls.
+   * Constructs the alias with the user capability that receives role calls.
    *
    * @param \DrevOps\BehatSteps\Backend\Capability\UserCapabilityInterface $userCapability
-   *   The backend whose 'addUserRole()' will be called per role.
+   *   The user capability whose 'addUserRole()' is called per role.
    */
   public function __construct(protected UserCapabilityInterface $userCapability) {}
 

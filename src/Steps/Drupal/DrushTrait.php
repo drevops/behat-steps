@@ -64,7 +64,7 @@ trait DrushTrait {
   /**
    * Run a Drush command that is expected to fail.
    *
-   * A non-zero exit does not abort the step; the command output is kept in
+   * A non-zero exit does not abort the step. The command output is kept in
    * '$drushOutput' for later assertions, falling back to stderr when stdout is
    * empty.
    *

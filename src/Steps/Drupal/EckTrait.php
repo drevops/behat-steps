@@ -16,7 +16,7 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
 use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 
 /**
- * Manage Drupal ECK entities with custom type and bundle creation.
+ * Manage Drupal ECK entities of an existing entity type and bundle.
  *
  * - Create structured ECK entities with defined field values.
  * - Visit ECK entity pages and their edit pages.

@@ -130,8 +130,8 @@ trait CacheTrait {
    * with any query string and in any request format.
    *
    * Only a bin on the database backend can list its entries, so a bin on any
-   * other backend is emptied whole, as it is on a backend that reaches the
-   * site from outside its process.
+   * other backend is emptied whole. A bin is also emptied whole on a backend
+   * that reaches the site from outside its process.
    *
    * @param string $path
    *   The path, starting with '/'.

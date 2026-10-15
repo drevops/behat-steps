@@ -57,9 +57,8 @@ trait WebformTrait {
   /**
    * Clone a webform template into a new webform with the given title.
    *
-   * When several templates match, the newest is cloned: the template the
-   * scenario created last, and otherwise the one with the last machine name
-   * in natural order.
+   * The newest matching template is cloned: the template the scenario created
+   * last, and otherwise the one with the last machine name in natural order.
    *
    * @param string $title
    *   The title for the new webform.

@@ -9,9 +9,6 @@ use Behat\Mink\Selector\SelectorInterface;
 
 /**
  * Mink selector that resolves a human-readable region name to XPath.
- *
- * Registered in Mink's selector handler under the alias 'region', so any
- * context with a Mink session can call '$page->find("region", "Header")'.
  */
 final class RegionSelector implements SelectorInterface {
 

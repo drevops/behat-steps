@@ -317,7 +317,7 @@ trait ModalTrait {
    */
   public function modalWaitForAppearWithin(int $seconds): void {
     // Without the capability the wait times out when no modal container is on
-    // the page, so the browser driver is checked before the timeout is spent.
+    // the page, so the browser driver is checked before the wait.
     $this->browserDriverFor(JavascriptCapabilityInterface::class);
 
     $result = $this->getSession()->getPage()->waitFor($seconds, function (): bool {

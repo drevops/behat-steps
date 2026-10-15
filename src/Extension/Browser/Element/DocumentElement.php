@@ -14,9 +14,9 @@ use Behat\Mink\Element\TraversableElement;
  * is installed before the Mink class is autoloaded, so this class extends
  * 'TraversableElement' and not the class it replaces.
  *
- * Under BrowserKit, Mink reads the text of the '//html' node, so the contents
- * of '<head>', the JSON a site embeds in a script tag included, count as page
- * text. It also throws outright on a response that is not HTML.
+ * Under BrowserKit, Mink reads the text of the '//html' node, so '<head>'
+ * contents, such as JSON in a script tag, count as page text. It also throws
+ * outright on a response that is not HTML.
  *
  * @see https://github.com/minkphp/MinkBrowserKitDriver/issues/153
  */

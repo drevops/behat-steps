@@ -130,7 +130,7 @@ class DatetimeHandlerTest extends FieldHandlerUnitTestBase {
   /**
    * Loads datetime module classes from the Composer-resolved drupal/core path.
    *
-   * The datetime module lives outside the default drupal/core PSR-4 namespace
+   * The datetime module is outside the default drupal/core PSR-4 namespace
    * coverage, so the relevant files are loaded explicitly. Returns TRUE when
    * DateTimeItemInterface is available after loading.
    */

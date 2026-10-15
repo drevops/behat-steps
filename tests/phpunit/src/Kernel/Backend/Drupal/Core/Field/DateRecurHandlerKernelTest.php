@@ -41,9 +41,8 @@ class DateRecurHandlerKernelTest extends FieldHandlerKernelTestBase {
   public function testDateRecurRoundTrip(): void {
     $this->attachField('field_schedule', 'date_recur');
 
-    // date_recur stores 'value'/'end_value' verbatim in the record's own
-    // 'timezone' (not UTC), so the handler relays the storage-format strings
-    // through unchanged.
+    // date_recur stores 'value'/'end_value' verbatim, so the handler relays
+    // the storage-format strings through unchanged.
     $this->assertFieldRoundTripViaBackend('field_schedule', [
       [
         'value' => '2025-01-01T09:00:00',

@@ -148,8 +148,7 @@ class CoreMailMethodsKernelTest extends KernelTestBase {
     $this->assertSame([], $this->core->mailGet());
 
     // 'mailStopCollecting()' must not throw and must leave the collector in a
-    // reset state. Detailed pre-start restoration is out of scope for this
-    // kernel test because KernelTestBase pre-seeds the mail system.
+    // reset state.
     $this->core->mailStopCollecting();
     $this->assertSame([], $this->core->mailGet());
   }

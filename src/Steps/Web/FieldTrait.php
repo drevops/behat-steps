@@ -1044,8 +1044,8 @@ JS;
    * CSS selectors that indicate a required-field marker.
    *
    * A single-class selector such as `.form-required` and a bare-attribute
-   * selector such as `[required]` are read off the field and its label. Any
-   * other selector is matched against the label's subtree.
+   * selector such as `[required]` are also read off the field and its label.
+   * Every selector is matched against the label's subtree.
    *
    * @return array<int, string>
    *   CSS selectors to probe for a required marker.
@@ -1182,7 +1182,7 @@ JS;
   }
 
   /**
-   * Fill in one input of a datetime field.
+   * Fill in 1 input of a datetime field.
    *
    * @param string $label
    *   The field label text.

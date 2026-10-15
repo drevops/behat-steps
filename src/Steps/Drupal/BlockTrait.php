@@ -410,8 +410,8 @@ trait BlockTrait {
    * Find a block by its label.
    *
    * When several blocks carry the label, the block the scenario placed last
-   * is returned, and otherwise the one with the last machine name in natural
-   * order.
+   * is returned. Otherwise, the one with the last machine name in natural
+   * order is returned.
    *
    * @param string $label
    *   The visible label of the block to find.

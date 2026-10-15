@@ -42,10 +42,11 @@ interface CacheCapabilityInterface {
    * Deletes the internal page cache entries stored for a path.
    *
    * The path is compared with the whole path of each cached URL, on any host,
-   * with any query string and in any request format. Only a bin on the
-   * database backend can list its entries, so a bin on any other backend is
-   * emptied whole, as is a bin a backend reaches from outside the site's
-   * process.
+   * with any query string and in any request format.
+   *
+   * Only a bin on the database backend can list its entries, so a bin on any
+   * other backend is emptied whole. A bin a backend reaches from outside the
+   * site's process is emptied whole too.
    *
    * @param string $bin
    *   The bin holding the page cache, 'page' on a site with core's defaults.

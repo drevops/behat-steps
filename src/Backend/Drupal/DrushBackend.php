@@ -646,8 +646,8 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
     [$key, $value] = $this->resolveUserIdentifier($stub);
     $options = [$key => $value];
 
-    // Drush 13 opens the link in a browser unless told not to, and Drush 14
-    // dropped the option along with the browser launch.
+    // Drush 13 opens the link in a browser unless told not to. Drush 14 has
+    // neither the option nor the browser launch.
     if ($this->getDrushMajorVersion() < 14) {
       $options['no-browser'] = NULL;
     }
@@ -677,7 +677,7 @@ class DrushBackend implements DrushBackendInterface, CreationAliasCapabilityInte
    * {@inheritdoc}
    *
    * 'user:password' takes only a name, so a stub without a 'name' value is
-   * looked up by its id first, and an account without a name, such as the
+   * looked up by its id first. An account without a name, such as the
    * anonymous one, is rejected.
    */
   public function setUserPassword(EntityStubInterface $stub, string $password): void {

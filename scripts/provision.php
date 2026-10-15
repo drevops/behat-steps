@@ -79,7 +79,7 @@ const PROVISION_TEST_RUNNER_PACKAGES = [
 ];
 
 /**
- * Drupal's own test namespaces, and the docroot path each maps to.
+ * Drupal's own test namespaces.
  *
  * Drupal registers them from its PHPUnit bootstrap rather than from a
  * Composer entry. A tool that loads only the autoloader therefore cannot
@@ -810,8 +810,9 @@ function provision_merge_composer(array $package, array $fixture): array {
 /**
  * Prefixes every PSR-4 path of an autoload section with "../".
  *
- * The build sits 1 level below the package root, so a path the package
- * declares relative to itself only resolves from the build with the prefix.
+ * The build sits 1 level below the package root. A path the package declares
+ * relative to itself therefore only resolves from the build with the prefix.
+ *
  * A namespace may map to a list of directories rather than to one.
  *
  * @param array<array-key, mixed> $autoload
@@ -849,7 +850,7 @@ function provision_rebase_psr4(array $autoload): array {
 }
 
 /**
- * Rebases one autoload path on the package root.
+ * Rebases 1 autoload path on the package root.
  *
  * @param mixed $path
  *   A path declared relative to the package root.

@@ -11,9 +11,10 @@ namespace DrevOps\BehatSteps\Backend\Drupal\Core\Field;
  * multi-column records ('value', 'end_value', 'rrule', 'timezone',
  * 'infinite').
  *
- * The 'value' and 'end_value' columns are stored verbatim and interpreted in
- * the record's own 'timezone' (not UTC). The field type's preSave() derives
- * 'infinite' from the rrule.
+ * The 'value' and 'end_value' columns are stored verbatim and read as UTC.
+ * The record's own 'timezone' applies when the occurrences are computed.
+ *
+ * The field type's preSave() derives 'infinite' from the rrule.
  *
  * The handler therefore relays the multi-column records unchanged.
  *

@@ -556,9 +556,8 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * Returns a backend providing a capability, reusing one already reached.
    *
    * A read-only query such as a module check returns the same result through
-   * any backend. A backend the scenario already reached is then returned
-   * before the first one in the list, so no second backend starts when a
-   * reached backend provides the capability.
+   * any backend. A reached backend providing the capability is then returned
+   * before the first one in the list, so no second backend starts.
    *
    * @param class-string<T> $capability
    *   The capability interface the caller needs.
@@ -584,9 +583,8 @@ class WebRawContext extends RawMinkContext implements BackendAwareInterface {
    * a capability a backend in the scenario's list provides and, optionally,
    * a check that backend passes.
    *
-   * A backend the scenario already reached is used before the first one in
-   * the list, so checking starts no second one when a reached backend
-   * provides the capability.
+   * A reached backend providing the capability is used before the first one
+   * in the list, so checking starts no second one.
    *
    * @param string $trait
    *   The trait whose prerequisites to assert. A hook or a step passes

@@ -22,10 +22,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Kernel test for generic entity methods on Core via the backend.
  *
- * Covers 'createEntity()', 'updateEntity()', 'getEntityValues()' and
- * 'deleteEntity()' (both the stub-object branch and the loaded-entity
- * branch). Base-field expansion is exercised implicitly by any create or
- * update whose stub sets a base field.
+ * Covers 'createEntity()', 'updateEntity()', 'getEntityValues()',
+ * 'deleteEntity()', 'getEntityUrl()' and 'getEntityBundle()'. Base-field
+ * expansion is exercised implicitly by any create or update whose stub sets a
+ * base field.
  */
 #[CoversClass(Core::class)]
 #[Group('core')]
@@ -62,8 +62,7 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
    * Tests 'createEntity()' followed by 'deleteEntity()' using a stub object.
    *
    * The user entity type's id key is 'uid', so createEntity should populate
-   * the stub under 'uid' (not the generic 'id' property). deleteEntity should
-   * load by that same key.
+   * the stub under 'uid' (not the generic 'id' property).
    */
   public function testCreateEntityAndDeleteWithStub(): void {
     $stub = new EntityStub('user', NULL, [
@@ -80,8 +79,6 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
     $this->assertNotEmpty($stub->getValue('uid'), 'createEntity populated the entity type id key (uid) on the stub.');
     $this->assertFalse($stub->hasValue('id'), 'createEntity did not populate a generic "id" value on the stub.');
 
-    // Deleting via the stub triggers the load-by-id branch of deleteEntity(),
-    // resolved against the entity type id key.
     $this->core->deleteEntity($stub);
 
     $this->assertNull(User::load((int) $stub->getValue('uid')));
@@ -261,9 +258,6 @@ class CoreEntityMethodsKernelTest extends KernelTestBase {
 
   /**
    * Tests that 'createEntity()' rejects an unknown bundle for a bundled type.
-   *
-   * 'entity_test' has a 'type' bundle key but no bundles registered unless
-   * explicitly created; any supplied bundle therefore triggers the guard.
    */
   public function testCreateEntityRejectsUnknownBundle(): void {
     $stub = new EntityStub('entity_test', 'not_a_real_bundle', ['name' => 'orphan']);

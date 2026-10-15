@@ -7,9 +7,9 @@ namespace DrevOps\BehatSteps\Backend\Drupal\Capability;
 /**
  * Capability: add items to a queue.
  *
- * Adding an item hands the site arbitrary data for a worker, which a backend
- * that drives queues by name may not be able to do, so it sits apart from
- * 'QueueCapabilityInterface'.
+ * Adding an item hands the site arbitrary data for a worker. A backend that
+ * drives queues by name may not be able to do that, so this interface is
+ * separate from 'QueueCapabilityInterface'.
  */
 interface QueueItemCapabilityInterface {
 

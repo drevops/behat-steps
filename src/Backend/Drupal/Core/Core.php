@@ -202,7 +202,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * Scans a directory for handler classes and registers each one.
    *
-   * A class is registered when it (a) lives in '$namespace', (b) is named
+   * A class is registered when it (a) is in '$namespace', (b) is named
    * '*Handler' but is not 'DefaultHandler' (the registry's fallback), (c)
    * is concrete, and (d) implements 'FieldHandlerInterface'. The field
    * type id it gets registered under is derived from the short class name:
@@ -212,8 +212,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    *   Absolute filesystem path to the directory containing '*Handler.php'
    *   files.
    * @param string $namespace
-   *   Namespace the classes in '$directory' live under, without a trailing
-   *   backslash.
+   *   Namespace of the classes in '$directory', without a trailing backslash.
    */
   protected function registerHandlersFromDirectory(string $directory, string $namespace): void {
     foreach (glob($directory . '/*Handler.php') ?: [] as $file) {
@@ -1346,8 +1345,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
     drupal_static_reset();
     \Drupal::cache('memory')->deleteAll();
     // A config object or an entity loaded in this process stays as loaded
-    // until its own cache is reset, so a change made by another process is
-    // invisible until then.
+    // until its own cache is reset. Until then, a change made by another
+    // process is invisible.
     \Drupal::configFactory()->reset();
     \Drupal::service('entity.memory_cache')->deleteAll();
     $this->allPermissions = NULL;
@@ -1666,9 +1665,9 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    *
-   * The path is the route's own. It carries no base path, which a caller adds
-   * when it prefixes the site's URL, and no path alias, which this process
-   * may hold a stale copy of.
+   * The path is the route's own, with no base path and no path alias. A caller
+   * adds the base path when it prefixes the site's URL, and this process may
+   * hold a stale copy of the alias.
    */
   public function getEntityUrl(EntityStubInterface $stub, string $rel = 'canonical'): string {
     $entity = $this->getStubEntity($stub);
@@ -2121,11 +2120,13 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
   /**
    * {@inheritdoc}
    *
-   * A type the record already holds keeps its recorded handler, because a
-   * run that stopped before restoring it left the real handler there and the
-   * collector in 'system.mail'. A type that holds the collector with no
-   * record is recorded as it stands, so the stop restores what the site held
-   * rather than a guess at what another run replaced.
+   * A run that stopped before restoring a handler left the real handler in the
+   * record and the collector in 'system.mail'. A type the record already holds
+   * therefore keeps its recorded handler.
+   *
+   * A type that holds the collector with no record is recorded as it stands,
+   * so the stop restores what the site held. The stop does not guess at what
+   * another run replaced.
    */
   public function mailStartCollecting(array $handler_types = ['default']): void {
     if ($handler_types === []) {
@@ -2604,8 +2605,8 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
    * {@inheritdoc}
    *
    * The order is read at query time, so the tags the module's own form submit
-   * invalidates are invalidated here too: the list tags of the view's base
-   * entity type and the view's own.
+   * invalidates are invalidated here too. They are the list tags of the view's
+   * base entity type and the view's own.
    */
   public function draggableviewsSetOrder(string $view_id, string $display_id, array $entity_ids): void {
     $view = \Drupal::entityTypeManager()->getStorage('view')->load($view_id);

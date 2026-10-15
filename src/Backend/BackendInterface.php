@@ -9,8 +9,8 @@ use DrevOps\BehatSteps\Backend\Random\RandomGeneratorInterface;
 /**
  * Minimum contract that every backend must satisfy.
  *
- * Additional functionality is expressed through capability interfaces in the
- * 'DrevOps\BehatSteps\Backend\Capability' namespace.
+ * Additional functionality is expressed through capability interfaces, such
+ * as those in the 'DrevOps\BehatSteps\Backend\Capability' namespace.
  */
 interface BackendInterface {
 

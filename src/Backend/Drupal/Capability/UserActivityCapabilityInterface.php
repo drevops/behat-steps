@@ -9,9 +9,9 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 /**
  * Capability: set when a user last accessed the site and last logged in.
  *
- * Writing either time takes a save of the account, which a backend that
- * drives users through commands may not be able to do, so it sits apart from
- * 'UserCapabilityInterface'.
+ * Writing either time takes a save of the account. A backend that drives users
+ * through commands may not be able to do that, so this interface is separate
+ * from 'UserCapabilityInterface'.
  */
 interface UserActivityCapabilityInterface {
 

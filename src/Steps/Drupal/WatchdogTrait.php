@@ -22,7 +22,7 @@ use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
  * Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
  *
  * - Check for Watchdog messages after scenario completion.
- * - Optionally check only for specific message types.
+ * - Optionally check for more message types than `php`.
  * - Optionally skip error checking for specific scenarios.
  *
  * The check is on by default. An opted-in scenario whose prerequisites do not
@@ -34,7 +34,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
  * Skip processing with tag: `@behat-steps-skip:WatchdogTrait`.
  *
  * Special tags:
- * - `@watchdog:{type}` - limit watchdog messages to specific types.
+ * - `@watchdog:{type}` - track the named message type in addition to `php`,
+ *   which is always tracked.
  * - `@error` - add to scenarios that are expected to trigger an error. The
  *   errors are still read and cleared; the scenario is not failed.
  *

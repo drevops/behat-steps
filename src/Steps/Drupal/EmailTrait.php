@@ -642,8 +642,8 @@ trait EmailTrait {
   /**
    * Check whether this scenario's collector has replaced a handler type.
    *
-   * The answer comes from the handler types the scenario enabled, so a
-   * record a run that stopped early left on the site counts for nothing.
+   * The check reads the handler types the scenario enabled, so a record left
+   * on the site by a run that stopped early is ignored.
    *
    * @param string $type
    *   The handler type.

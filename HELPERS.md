@@ -46,7 +46,7 @@
 | [Drupal\ContentTrait](#drupalcontenttrait) | 8 | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | 3 | Order items in the Drupal Draggable Views. |
 | [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
-| [Drupal\EckTrait](#drupalecktrait) | 5 | Manage Drupal ECK entities with custom type and bundle creation. |
+| [Drupal\EckTrait](#drupalecktrait) | 5 | Manage Drupal ECK entities of an existing entity type and bundle. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 11 | Test Drupal email functionality with content verification. |
 | [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
 | [Drupal\MediaTrait](#drupalmediatrait) | 5 | Manage Drupal media entities with type-specific field handling. |
@@ -2119,7 +2119,7 @@ Run a Drush command expecting a non-zero exit, keeping its output
 
 [Source](src/Steps/Drupal/EckTrait.php), [Steps](STEPS.md#drupalecktrait)
 
-> Manage Drupal ECK entities with custom type and bundle creation.
+> Manage Drupal ECK entities of an existing entity type and bundle.
 
 <details>
   <summary><code>public function eckCreate(EntityStub $stub): void</code></summary>

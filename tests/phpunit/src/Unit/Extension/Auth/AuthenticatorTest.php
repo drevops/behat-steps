@@ -649,8 +649,8 @@ class AuthenticatorTest extends UnitTestCase {
   /**
    * Tests that login() polls until the page body renders.
    *
-   * A driver can return a page whose body has not been written yet, so the
-   * wait loop polls for the body before proceeding to the logged-in check.
+   * A driver can return a page before its body is written, so the wait loop
+   * polls for the body before the logged-in check.
    */
   public function testLoginWaitsForTheBodyToRender(): void {
     $submit = $this->createMock(NodeElement::class);
@@ -918,7 +918,7 @@ class AuthenticatorTest extends UnitTestCase {
   }
 
   /**
-   * Creates a mock for the AuthenticationCapability and BackendInterface.
+   * Creates a mock for AuthenticationCapabilityInterface and BackendInterface.
    *
    * @return \DrevOps\BehatSteps\Backend\Capability\AuthenticationCapabilityInterface&\DrevOps\BehatSteps\Backend\BackendInterface&\PHPUnit\Framework\MockObject\MockObject
    *   The mocked backend.

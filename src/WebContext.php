@@ -47,7 +47,7 @@ use DrevOps\BehatSteps\Steps\Web\XmlTrait;
  * carries an 'enabled' option. A project switches it off through
  * configuration rather than by composing its own context.
  *
- * A Drupal suite extends 'DrupalContext', which extends this class, so it
+ * A Drupal suite registers 'DrupalContext', which extends this class, so it
  * gets the web vocabulary too. Registering both is fatal.
  *
  * @see \DrevOps\BehatSteps\WebRawContext
