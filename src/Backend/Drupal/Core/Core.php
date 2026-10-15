@@ -331,7 +331,7 @@ class Core implements CoreInterface, AuthenticationCapabilityInterface, Creation
 
     if ($reason !== NULL) {
       throw new \RuntimeException(sprintf(
-        'No dedicated handler is registered for field "%s" (type "%s") on entity type "%s" bundle "%s", and DefaultHandler cannot marshal it: %s. Register a dedicated handler via Core::registerFieldHandler().',
+        'No dedicated handler is registered for field "%s" (type "%s") on entity type "%s" bundle "%s", and DefaultHandler cannot marshal it: %s. Map its field type to a handler class under the "drupal.field_handlers" option.',
         $field_name,
         $field_type,
         $entity_type,
