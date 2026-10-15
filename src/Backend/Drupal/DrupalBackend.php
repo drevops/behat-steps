@@ -976,8 +976,8 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    *   The Core to check.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   When the Core is, or extends, the Core of this package for another
-   *   major.
+   *   When the nearest Core of this package among the class and its parents
+   *   is for another major.
    */
   protected function assertCoreFitsVersion(CoreInterface $core): void {
     $package_core = $this->findPackageCoreClass($core::class);

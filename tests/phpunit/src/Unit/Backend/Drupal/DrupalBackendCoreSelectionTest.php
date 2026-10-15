@@ -35,7 +35,7 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
   /**
    * A directory carrying both entry files the version detection requires.
    */
-  protected const DRUPAL_ROOT = __DIR__ . '/../../../../fixtures/backend/drupal-root';
+  protected const string DRUPAL_ROOT = __DIR__ . '/../../../../fixtures/backend/drupal-root';
 
   /**
    * Message for a Core that extends a Core of this package for another major.

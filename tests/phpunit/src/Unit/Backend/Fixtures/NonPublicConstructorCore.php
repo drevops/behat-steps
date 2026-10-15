@@ -11,6 +11,9 @@ use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
  */
 class NonPublicConstructorCore extends Core {
 
+  /**
+   * Constructs a NonPublicConstructorCore.
+   */
   protected function __construct() {}
 
 }
