@@ -46,6 +46,8 @@ class TimestampHandlerTest extends FieldHandlerUnitTestBase {
     yield 'mixed positional and named keys rejected' => [[1732319174, 'extra' => 'unexpected'], NULL, \RuntimeException::class, 'Field value cannot mix positional and named keys'];
     yield 'record missing main property rejected' => [['unexpected' => 'oops'], NULL, \RuntimeException::class, 'Field record must include the main property "value"'];
     yield 'unparseable string rejected' => [['not a date at all'], NULL, \RuntimeException::class, 'Timestamp field value "not a date at all" is not parseable.'];
+    yield 'boolean rejected' => [[FALSE], NULL, \RuntimeException::class, 'Timestamp field value of type "bool" is not parseable.'];
+    yield 'nested array rejected' => [[['value' => ['nested']]], NULL, \RuntimeException::class, 'Timestamp field value of type "array" is not parseable.'];
   }
 
 }

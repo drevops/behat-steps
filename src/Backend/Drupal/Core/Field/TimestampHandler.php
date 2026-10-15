@@ -26,10 +26,14 @@ class TimestampHandler extends AbstractHandler {
         continue;
       }
 
-      $timestamp = strtotime((string) $value);
+      if (!is_string($value)) {
+        throw new \RuntimeException(sprintf('Timestamp field value of type "%s" is not parseable.', get_debug_type($value)));
+      }
+
+      $timestamp = strtotime($value);
 
       if ($timestamp === FALSE) {
-        throw new \RuntimeException(sprintf('Timestamp field value "%s" is not parseable.', (string) $value));
+        throw new \RuntimeException(sprintf('Timestamp field value "%s" is not parseable.', $value));
       }
 
       $timestamps[] = $timestamp;
