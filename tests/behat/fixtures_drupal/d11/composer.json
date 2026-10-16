@@ -30,7 +30,7 @@
     },
     "require-dev": {
         "drupal/address": "^2.0.4",
-        "drupal/commerce": "^3.3.11",
+        "drupal/commerce": "^3.3.12",
         "drupal/core-dev": "~11.4.10",
         "drupal/date_recur": "^3.9.3",
         "drupal/name": "^1.5.0",
