@@ -23,6 +23,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversClass(ConfigSchemaReader::class)]
 class ConfigSchemaReaderTest extends UnitTestCase {
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    // 'read()' caches each class for the whole process, so a context an
+    // earlier test read would skip the reflection under test.
+    (new \ReflectionProperty(ConfigSchemaReader::class, 'cache'))->setValue(NULL, []);
+  }
+
   #[DataProvider('dataProviderMethodFor')]
   public function testMethodFor(string $trait, string $expected): void {
     $this->assertSame($expected, ConfigSchemaReader::methodFor($trait));
