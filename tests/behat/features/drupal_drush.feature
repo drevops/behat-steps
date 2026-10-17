@@ -68,3 +68,77 @@ Feature: Check that DrushTrait works
       """
       No drush command has run in this scenario, so there is no output to read.
       """
+
+  @test-trait:Drupal\DrushTrait
+  Scenario: Assert negative "Then the drush output should contain :value" fails when the output lacks the text
+    Given a configuration listing the backends "drupal, drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I run the drush command "config:get" with the arguments "system.site name"
+      Then the drush output should contain "No such site name"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The last drush command output does not contain "No such site name". It was:
+      """
+
+  @test-trait:Drupal\DrushTrait
+  Scenario: Assert negative "Then the drush output should not contain :value" fails when the output has the text
+    Given a configuration listing the backends "drupal, drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I run the drush command "config:get" with the arguments "system.site name"
+      Then the drush output should not contain "Drush Site-Install"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The last drush command output contains "Drush Site-Install". It was:
+      """
+
+  @test-trait:Drupal\DrushTrait
+  Scenario: Assert negative "Then the drush output should match :pattern" fails when the output does not match
+    Given a configuration listing the backends "drupal, drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I run the drush command "config:get" with the arguments "system.site name"
+      Then the drush output should match "/^No such site name$/"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The last drush command output does not match "/^No such site name$/". It was:
+      """
+
+  @test-trait:Drupal\DrushTrait
+  Scenario: Assert negative "Then the drush output should match :pattern" fails for a pattern that is not a regular expression
+    Given a configuration listing the backends "drupal, drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I run the drush command "config:get" with the arguments "system.site name"
+      Then the drush output should match "Drush Site-Install"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      "Drush Site-Install" is not a valid regular expression: Internal error.
+      """
+
+  @test-trait:Drupal\DrushTrait
+  Scenario: Assert negative "When I run the failing drush command :command" fails when the command succeeds
+    Given a configuration listing the backends "drupal, drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I run the failing drush command "config:get" with the arguments "system.site name"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The drush command "config:get" was expected to fail, but it exited 0. Output:
+      """
