@@ -55,12 +55,15 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param string $target_type
+   *   The entity type the field references.
    */
-  protected function createHandler(): FieldHandlerInterface {
+  protected function createHandler(string $target_type = 'user'): FieldHandlerInterface {
     $field_info = $this->createMock(FieldStorageDefinitionInterface::class);
     $field_info->method('getSetting')
       ->with('target_type')
-      ->willReturn('user');
+      ->willReturn($target_type);
 
     $field_config = $this->createMock(FieldDefinitionInterface::class);
     $field_config->method('getSettings')->willReturn(['handler_settings' => []]);
@@ -154,6 +157,68 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
     $this->expectExceptionMessage('Entity reference record is missing the main property "target_id".');
 
     static::reflect($handler)->getMethod('doExpand')->invoke($handler, [['display' => 1]]);
+  }
+
+  public function testReferenceToAnEntityTypeWithoutAnIdKeyIsRejected(): void {
+    $conditions = [];
+    \Drupal::getContainer()->set('entity_type.manager', $this->createRecordingEntityTypeManager(['label' => 'name'], [], $conditions));
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Cannot resolve a reference to "user" because it declares no id key.');
+
+    $this->createHandler()->expand('alice');
+  }
+
+  public function testDigitLookupMatchesAnIdOrALabel(): void {
+    $conditions = [];
+    \Drupal::getContainer()->set('entity_type.manager', $this->createRecordingEntityTypeManager(['id' => 'uid', 'label' => 'name'], [8], $conditions));
+
+    $this->assertSame([['target_id' => 8]], $this->createHandler()->expand('8'));
+    $this->assertSame([['uid', 8], ['name', '8']], $conditions);
+  }
+
+  public function testLookupOnAnEntityTypeWithoutALabelMatchesTheId(): void {
+    $conditions = [];
+    \Drupal::getContainer()->set('entity_type.manager', $this->createRecordingEntityTypeManager(['id' => 'id'], [5], $conditions));
+
+    $this->assertSame([['target_id' => 5]], $this->createHandler('entity_test_no_label')->expand('5'));
+    $this->assertSame([['id', '5']], $conditions);
+  }
+
+  /**
+   * Builds an entity_type.manager stub whose entity query records conditions.
+   *
+   * @param array<string, string> $keys
+   *   The entity keys the definition declares; any other key reads FALSE.
+   * @param array<int, int> $matches
+   *   The ids the entity query returns.
+   * @param array<int, array{0: string, 1: mixed}> $conditions
+   *   Receives each field condition the query is given, as field and value.
+   */
+  protected function createRecordingEntityTypeManager(array $keys, array $matches, array &$conditions): object {
+    $entity_type = $this->createStub(EntityTypeInterface::class);
+    $entity_type->method('getKey')->willReturnCallback(static fn(string $key): string|false => $keys[$key] ?? FALSE);
+
+    $query = $this->createStub(QueryInterface::class);
+    $query->method('accessCheck')->willReturnSelf();
+    $query->method('orConditionGroup')->willReturnSelf();
+    $query->method('execute')->willReturn($matches);
+    $query->method('condition')
+      ->willReturnCallback(static function (mixed $field, mixed $value = NULL) use ($query, &$conditions): QueryInterface {
+        // The OR group is the query itself, so adding the group passes an
+        // object as the field.
+        if (is_string($field)) {
+          $conditions[] = [$field, $value];
+        }
+
+        return $query;
+      });
+
+    $entity_type_manager = $this->createStub(EntityTypeManagerInterface::class);
+    $entity_type_manager->method('getDefinition')->willReturn($entity_type);
+    $entity_type_manager->method('getStorage')->willReturn($this->createStorageWithQuery($query));
+
+    return $entity_type_manager;
   }
 
   /**
