@@ -309,7 +309,7 @@ final class RatingHandler implements FieldHandlerInterface {
 }
 ```
 
-The class has to be autoloadable through Composer, for example from an `autoload-dev` entry. The package builds the `drupal` backend before Behat registers the suite's `autoload` setting, so a class only that setting can load isn't found. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
+The class has to be autoloadable through Composer, for example from an `autoload-dev` entry. The package builds the `drupal` backend before Behat registers the paths in its `autoload` setting, so a class only those paths can load isn't found. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
 
 The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way, and the registration holds for the rest of the run, because the backend does:
 
