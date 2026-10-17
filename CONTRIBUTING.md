@@ -842,7 +842,7 @@ ahoy test-bdd
 
 Each major has its own fixture directory under [tests/behat/fixtures_drupal](tests/behat/fixtures_drupal), addressed as `d${DRUPAL_VERSION}`, and `DRUPAL_VERSION` defaults to `11` everywhere it is read. Renovate leaves Composer major updates alone, so moving to a new core major is a deliberate change rather than an automatic one.
 
-Code that differs between Drupal majors goes in a version core, `DrevOps\BehatSteps\Backend\Drupal\Core{N}\Core`. It extends the version core of the major before it, or the base `Core` when there is none, and overrides only what major `N` changed. `DrupalBackend` builds the newest version core at or below the major it detects, and rejects a Core whose nearest Core of the package is the one for another major. `DrupalBackendCoreSelectionTest` covers both with the `Core99\Core` fixture, which stands in for a version core no Drupal release has.
+Code that differs between Drupal majors goes in a version core, `DrevOps\BehatSteps\Backend\Drupal\Core{N}\Core`. It extends the newest version core below `N`, or the base `Core` when there is none, and overrides only what major `N` changed. `DrupalBackend` builds the newest version core at or below the major it detects, and rejects a Core whose nearest Core of the package is the one for another major. `DrupalBackendCoreSelectionTest` covers both with the `Core99\Core` fixture, which stands in for a version core no Drupal release has.
 
 Drupal 12 is pinned to `~12.0.0-beta1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
 

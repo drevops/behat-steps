@@ -446,9 +446,11 @@ class AcmeCore extends Core {
 }
 ```
 
-When a class builds on a Core of the package, the nearest one among its parents has to be the Core for the site's major. When it's another, building the backend fails with `Core class "..." extends "...", which is not the Core for Drupal N. Extend "..." instead.` That happens when a site moves to a major with a version core of its own, and when a release of the package adds a version core for the major a site already runs: in both cases `AcmeCore` moves onto the new version core. A suite running on 2 majors picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
+The class has to be autoloadable when the run starts, through Composer or the suite's `autoload` setting. A class that doesn't exist, doesn't implement `CoreInterface` or can't be instantiated fails with a `BootstrapException` naming it when the package builds the `drupal` backend.
 
-The option is covered by semantic versioning. `CoreInterface` and the Core classes aren't: a minor release can add a method to the interface, which the package's Core classes implement, or rename a protected method `AcmeCore` overrides. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
+When a class builds on a Core of the package, the nearest one among its parents has to be the Core for the site's major. When it's another, building the backend fails with `Core class "..." extends "...", which is not the Core for Drupal N. Extend "..." instead.` That happens when a site moves to a major whose Core is another class, and when a release of the package adds a version core for the major a site already runs: in both cases, change `AcmeCore` to extend the class the message names. A suite running on 2 majors whose Cores differ picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
+
+The option is covered by semantic versioning. `CoreInterface` and the Core classes aren't: a minor release can add a method to the interface, which breaks a class built from scratch but not one extending a Core of the package, or rename a protected method `AcmeCore` overrides. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
 
 ### Trait options
 

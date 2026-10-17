@@ -1358,13 +1358,13 @@ Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\Beh
 | `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\<Name>` | `EntityStub`, the creation alias contracts, the exceptions and the capabilities any backend may provide: `Authentication`, `Cache`, `Content`, `Cron`, `CreationAlias`, `Language`, `Mail`, `Role` and `User` |
 | `Drupal\Driver\<Name>` | `DrevOps\BehatSteps\Backend\Drupal\<Name>` | `Core`, the field handlers and the capabilities only a Drupal backend provides: `Batch`, `Block`, `Config`, `Core`, `Drush`, `Module`, `Node`, `State` and `Term` |
 | `Drupal\Driver\DriverInterface` | `DrevOps\BehatSteps\Backend\BackendInterface` | |
-| `Drupal\Driver\DrupalDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackend` | Builds its Core when it's constructed, from 2 more constructor arguments: the class the `drupal.core` option names and the random generator. A subclass that overrides the constructor passes both on, or the option never reaches the Core |
+| `Drupal\Driver\DrupalDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackend` | Builds its Core when it's constructed, from 2 more constructor arguments: the class the `drupal.core` option names and the random generator. A subclass that overrides the constructor passes both on, or the backend ignores the `drupal.core` option and the Core makes its own random generator |
 | `Drupal\Driver\DrupalDriverInterface` | `DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface` | Declares only `setCore()`; `getCore()` and `getDrupalVersion()` moved to `CoreCapabilityInterface` |
 | `Drupal\Driver\DrushDriver` | `DrevOps\BehatSteps\Backend\Drupal\DrushBackend` | |
 | `Drupal\Driver\DrushDriverInterface` | `DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface` | |
 | `Drupal\Driver\BlackboxDriver` | `DrevOps\BehatSteps\Backend\BlackboxBackend` | |
 | `Drupal\Driver\BlackboxDriverInterface` | `DrevOps\BehatSteps\Backend\BlackboxBackendInterface` | |
-| `Drupal\Driver\Core<N>\Core` | `DrevOps\BehatSteps\Backend\Drupal\Core<N>\Core` | The namespace a version core of this package sits in. The `drupal` backend builds the newest one at or below the Drupal major it detects. A Core of your own is named by the `drupal.core` option, and a field handler of your own is registered through `drupal.field_handlers`; see [Fields, files and stored values](#fields-files-and-stored-values) |
+| `Drupal\Driver\Core<N>\Core` | `DrevOps\BehatSteps\Backend\Drupal\Core<N>\Core` | The namespace a version core of this package sits in. The `drupal` backend builds the newest one at or below the Drupal major it detects. A Core of your own is named by the `drupal.core` option, as [Core](docs/configuration.md#core) describes, and a field handler of your own is registered through `drupal.field_handlers`; see [Fields, files and stored values](#fields-files-and-stored-values) |
 | `Drupal\Driver\Alias\RolesAlias` | `DrevOps\BehatSteps\Backend\Alias\RolesAlias` | Final |
 | `Drupal\Driver\Core\Alias\AuthorAlias` | `DrevOps\BehatSteps\Backend\Drupal\Core\Alias\AuthorAlias` | Final |
 | `Drupal\Driver\Core\Alias\ParentTermAlias` | `DrevOps\BehatSteps\Backend\Drupal\Core\Alias\ParentTermAlias` | Final |
@@ -1834,7 +1834,7 @@ A backend of your own that implements one of these interfaces renames the method
 | `DrupalDriverInterface::getCore()` | `CoreCapabilityInterface::getCore()` | |
 | `DrupalDriverInterface::getDrupalVersion()` | `CoreCapabilityInterface::getDrupalVersion()` | |
 | `DrupalDriver::getSubDriverPaths()` | Removed | See [Backend contracts](#backend-contracts) |
-| `DrupalDriver::setCoreFromVersion()` | Removed | `DrupalBackend` builds its Core when it's constructed: the class the `drupal.core` option names, or the version core for the Drupal major it detects |
+| `DrupalDriver::setCoreFromVersion()` | Removed | `DrupalBackend` builds its Core when it's constructed: the class the `drupal.core` option names, or the package's Core for the Drupal major it detects |
 | `Exception::getDriver()` | `Exception::getBackend()` | On `DrevOps\BehatSteps\Backend\Exception\Exception` |
 | `AbstractHandler::normalise()` | `AbstractHandler::normalize()` | A field handler of your own that overrode it renames the override. It's protected, so semantic versioning doesn't cover it |
 
