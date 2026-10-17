@@ -309,7 +309,7 @@ final class RatingHandler implements FieldHandlerInterface {
 }
 ```
 
-The class has to be autoloadable when the run starts, through Composer or the suite's `autoload` setting. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
+The class has to be autoloadable through Composer, for example from an `autoload-dev` entry. The package builds the `drupal` backend before Behat registers the suite's `autoload` setting, so a class only that setting can load isn't found. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
 
 The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way, and the registration holds for the rest of the run, because the backend does:
 
@@ -416,7 +416,7 @@ The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreC
 
 ### Core
 
-The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. The base `Core` serves every Drupal major the package supports. A major that changes something the base relies on gets a version core of its own, such as `DrevOps\BehatSteps\Backend\Drupal\Core13\Core`, and the backend builds the newest version core at or below the major it detects, or the base `Core` when none applies.
+The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. The base `Core` serves every supported Drupal major that has no version core of its own. A major that changes something the base relies on gets a version core of its own, such as `DrevOps\BehatSteps\Backend\Drupal\Core13\Core`, and the backend builds the newest version core at or below the major it detects, or the base `Core` when none applies.
 
 `drupal.core` names a class of your own instead, for a site whose modules change what an operation has to do:
 
@@ -446,7 +446,7 @@ class AcmeCore extends Core {
 }
 ```
 
-The class has to be autoloadable when the run starts, through Composer or the suite's `autoload` setting. A class that doesn't exist, doesn't implement `CoreInterface` or can't be instantiated fails with a `BootstrapException` naming it when the package builds the `drupal` backend.
+The class has to be autoloadable through Composer, for example from an `autoload-dev` entry, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CoreInterface` or can't be instantiated fails with a `BootstrapException` naming it when the package builds the `drupal` backend.
 
 When a class builds on a Core of the package, the nearest one among its parents has to be the Core for the site's major. When it's another, building the backend fails with `Core class "..." extends "...", which is not the Core for Drupal N. Extend "..." instead.` That happens when a site moves to a major whose Core is another class, and when a release of the package adds a version core for the major a site already runs: in both cases, change `AcmeCore` to extend the class the message names. Naming a Core of the package itself, such as the base `Core` on a major with a version core, fails the same way with `Core class "..." is not the Core for Drupal N. Use "..." instead.` A suite running on 2 majors whose Cores differ picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
 
