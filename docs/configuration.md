@@ -397,7 +397,7 @@ Given the following article content exists:
   | Lab report | ACME         |
 ```
 
-The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable when the run starts, through Composer or the suite's `autoload` setting. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
+The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable through Composer, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
 
 The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. An alias whose constructor takes arguments, such as a lookup service, is built by a context of your own and registered the same way. The registration holds for the rest of the run, because the backend does:
 

@@ -343,10 +343,6 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   /**
    * Registers the configured creation aliases on a backend.
    *
-   * Each class is built by 'buildCreationAlias()' when the container builds
-   * the backend rather than here, because a class on the suite's 'autoload'
-   * path cannot be loaded before the run starts.
-   *
    * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
    *   The container builder.
    * @param string $service
