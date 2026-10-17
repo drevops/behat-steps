@@ -1,3 +1,11 @@
+---
+title: Helpers
+sidebar_position: 6
+description: Every public helper the steps are built on, which your own step definitions call the same way.
+toc_max_heading_level: 2
+custom_edit_url: null
+---
+
 # Available helpers
 
 ### Index of Web helpers
@@ -77,7 +85,7 @@
 
 ## AccessibilityTrait
 
-[Source](src/Steps/Web/AccessibilityTrait.php), [Steps](STEPS.md#accessibilitytrait)
+[Source](../../src/Steps/Web/AccessibilityTrait.php), [Steps](steps.md#accessibilitytrait)
 
 > Assess accessibility of rendered pages.
 
@@ -272,7 +280,7 @@ Execute the engine against the current page and return raw results
 
 ## BasicAuthTrait
 
-[Source](src/Steps/Web/BasicAuthTrait.php), [Steps](STEPS.md#basicauthtrait)
+[Source](../../src/Steps/Web/BasicAuthTrait.php), [Steps](steps.md#basicauthtrait)
 
 > Keep HTTP basic authentication applied across session resets.
 
@@ -287,7 +295,7 @@ Apply the resolved credentials to the session
 
 ## CommandTrait
 
-[Source](src/Steps/Web/CommandTrait.php), [Steps](STEPS.md#commandtrait)
+[Source](../../src/Steps/Web/CommandTrait.php), [Steps](steps.md#commandtrait)
 
 > Run local shell commands and assert on their result.
 
@@ -311,7 +319,7 @@ The maximum time, in seconds, a command may run before it is terminated
 
 ## CookieTrait
 
-[Source](src/Steps/Web/CookieTrait.php), [Steps](STEPS.md#cookietrait)
+[Source](../../src/Steps/Web/CookieTrait.php), [Steps](steps.md#cookietrait)
 
 > Verify and inspect browser cookies.
 
@@ -353,7 +361,7 @@ Get all cookies
 
 ## DateTrait
 
-[Source](src/Steps/Web/DateTrait.php), [Steps](STEPS.md#datetrait)
+[Source](../../src/Steps/Web/DateTrait.php), [Steps](steps.md#datetrait)
 
 > Convert relative date expressions into timestamps or formatted dates.
 
@@ -392,7 +400,7 @@ Check whether a string holds a relative date token
 
 ## DiagnosticsTrait
 
-[Source](src/Steps/Web/DiagnosticsTrait.php), [Steps](STEPS.md#diagnosticstrait)
+[Source](../../src/Steps/Web/DiagnosticsTrait.php), [Steps](steps.md#diagnosticstrait)
 
 > Append on-failure diagnostics to the failure message of any failed step.
 
@@ -506,7 +514,7 @@ Return TRUE to include the current URL. Override to suppress
 
 ## DropzoneTrait
 
-[Source](src/Steps/Web/DropzoneTrait.php), [Steps](STEPS.md#dropzonetrait)
+[Source](../../src/Steps/Web/DropzoneTrait.php), [Steps](steps.md#dropzonetrait)
 
 > Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
 
@@ -521,7 +529,7 @@ Drop files on a target element in a single native drop event
 
 ## ElementTrait
 
-[Source](src/Steps/Web/ElementTrait.php), [Steps](STEPS.md#elementtrait)
+[Source](../../src/Steps/Web/ElementTrait.php), [Steps](steps.md#elementtrait)
 
 > Interact with HTML elements using CSS selectors and DOM attributes.
 
@@ -607,7 +615,7 @@ Check whether an element is displayed within the viewport
 
 ## FieldTrait
 
-[Source](src/Steps/Web/FieldTrait.php), [Steps](STEPS.md#fieldtrait)
+[Source](../../src/Steps/Web/FieldTrait.php), [Steps](steps.md#fieldtrait)
 
 > Manipulate form fields and verify widget functionality.
 
@@ -730,7 +738,7 @@ Remove a value from the selection of a select
 
 ## FileDownloadTrait
 
-[Source](src/Steps/Web/FileDownloadTrait.php), [Steps](STEPS.md#filedownloadtrait)
+[Source](../../src/Steps/Web/FileDownloadTrait.php), [Steps](steps.md#filedownloadtrait)
 
 > Test file download functionality with content verification.
 
@@ -808,7 +816,7 @@ Download file
 
 ## IframeTrait
 
-[Source](src/Steps/Web/IframeTrait.php), [Steps](STEPS.md#iframetrait)
+[Source](../../src/Steps/Web/IframeTrait.php), [Steps](steps.md#iframetrait)
 
 > Switch between iframes and the root document.
 
@@ -823,7 +831,7 @@ Get the name of an iframe, assigning one when it has none
 
 ## JavascriptTrait
 
-[Source](src/Steps/Web/JavascriptTrait.php), [Steps](STEPS.md#javascripttrait)
+[Source](../../src/Steps/Web/JavascriptTrait.php), [Steps](steps.md#javascripttrait)
 
 > Automatically detect JavaScript errors during test execution.
 
@@ -847,7 +855,7 @@ Return TRUE if a scenario that collected a console error should fail
 
 ## JsonTrait
 
-[Source](src/Steps/Web/JsonTrait.php), [Steps](STEPS.md#jsontrait)
+[Source](../../src/Steps/Web/JsonTrait.php), [Steps](steps.md#jsontrait)
 
 > Assert JSON responses with path and schema checks.
 
@@ -916,7 +924,7 @@ Run a JSONPath expression against the decoded response
 
 ## MappingTrait
 
-[Source](src/Steps/Web/MappingTrait.php), [Steps](STEPS.md#mappingtrait)
+[Source](../../src/Steps/Web/MappingTrait.php), [Steps](steps.md#mappingtrait)
 
 > Replace `{{ Key }}` tokens in step arguments and table cells.
 
@@ -949,7 +957,7 @@ Substitutes every mapping token found in a single string
 
 ## MessageTrait
 
-[Source](src/Steps/Web/MessageTrait.php), [Steps](STEPS.md#messagetrait)
+[Source](../../src/Steps/Web/MessageTrait.php), [Steps](steps.md#messagetrait)
 
 > Assert status, error, warning and success messages rendered on the page.
 
@@ -982,7 +990,7 @@ Return the configured CSS selector for a message type
 
 ## MetatagTrait
 
-[Source](src/Steps/Web/MetatagTrait.php), [Steps](STEPS.md#metatagtrait)
+[Source](../../src/Steps/Web/MetatagTrait.php), [Steps](steps.md#metatagtrait)
 
 > Assert `<meta>` tags and head/SEO markup in page markup.
 
@@ -1114,7 +1122,7 @@ Determine whether the X-Robots-Tag response header carries "noindex"
 
 ## ModalTrait
 
-[Source](src/Steps/Web/ModalTrait.php), [Steps](STEPS.md#modaltrait)
+[Source](../../src/Steps/Web/ModalTrait.php), [Steps](steps.md#modaltrait)
 
 > Interact with and assert modals.
 
@@ -1201,7 +1209,7 @@ Wait for the modal to appear within a number of seconds
 
 ## PathTrait
 
-[Source](src/Steps/Web/PathTrait.php), [Steps](STEPS.md#pathtrait)
+[Source](../../src/Steps/Web/PathTrait.php), [Steps](steps.md#pathtrait)
 
 > Navigate and verify paths with URL validation.
 
@@ -1243,7 +1251,7 @@ Check whether the current URL is at a path
 
 ## RandomTrait
 
-[Source](src/Steps/Web/RandomTrait.php), [Steps](STEPS.md#randomtrait)
+[Source](../../src/Steps/Web/RandomTrait.php), [Steps](steps.md#randomtrait)
 
 > Replace random-value tokens in step arguments and table cells.
 
@@ -1339,7 +1347,7 @@ Applies 'randomSubstitute()' across every cell in '$table'
 
 ## RegionTrait
 
-[Source](src/Steps/Web/RegionTrait.php), [Steps](STEPS.md#regiontrait)
+[Source](../../src/Steps/Web/RegionTrait.php), [Steps](steps.md#regiontrait)
 
 > Interact with and assert against named page regions.
 
@@ -1381,7 +1389,7 @@ Return an element in a region whose text matches exactly
 
 ## ResponsiveTrait
 
-[Source](src/Steps/Web/ResponsiveTrait.php), [Steps](STEPS.md#responsivetrait)
+[Source](../../src/Steps/Web/ResponsiveTrait.php), [Steps](steps.md#responsivetrait)
 
 > Test responsive layouts with viewport control.
 
@@ -1450,7 +1458,7 @@ Set custom breakpoints
 
 ## RestTrait
 
-[Source](src/Steps/Web/RestTrait.php), [Steps](STEPS.md#resttrait)
+[Source](../../src/Steps/Web/RestTrait.php), [Steps](steps.md#resttrait)
 
 > Test REST APIs with lightweight steps.
 
@@ -1474,7 +1482,7 @@ Resolve a relative URL against the Mink base URL
 
 ## TableTrait
 
-[Source](src/Steps/Web/TableTrait.php), [Steps](STEPS.md#tabletrait)
+[Source](../../src/Steps/Web/TableTrait.php), [Steps](steps.md#tabletrait)
 
 > Interact with HTML table elements and assert their content.
 
@@ -1570,7 +1578,7 @@ Get the body rows from a table element
 
 ## WaitTrait
 
-[Source](src/Steps/Web/WaitTrait.php), [Steps](STEPS.md#waittrait)
+[Source](../../src/Steps/Web/WaitTrait.php), [Steps](steps.md#waittrait)
 
 > Wait for a period of time or for AJAX to finish.
 
@@ -1594,7 +1602,7 @@ Return the configured AJAX timeout, in seconds
 
 ## XmlTrait
 
-[Source](src/Steps/Web/XmlTrait.php), [Steps](STEPS.md#xmltrait)
+[Source](../../src/Steps/Web/XmlTrait.php), [Steps](steps.md#xmltrait)
 
 > Assert XML responses with element and attribute checks.
 
@@ -1681,7 +1689,7 @@ Parse XML content without altering the cached document
 
 ## FixtureDirectoryTrait
 
-[Source](src/Steps/Helper/Web/FixtureDirectoryTrait.php)
+[Source](../../src/Steps/Helper/Web/FixtureDirectoryTrait.php)
 
 > Resolves fixture files in the directory Mink's `files_path` parameter names.
 
@@ -1732,7 +1740,7 @@ Read a file in the fixtures directory
 
 ## HeadingTrait
 
-[Source](src/Steps/Helper/Web/HeadingTrait.php)
+[Source](../../src/Steps/Helper/Web/HeadingTrait.php)
 
 > Finds a heading by its text within the page or an element of it.
 
@@ -1747,7 +1755,7 @@ Find a heading whose text matches exactly
 
 ## RequestHeadersTrait
 
-[Source](src/Steps/Helper/Web/RequestHeadersTrait.php)
+[Source](../../src/Steps/Helper/Web/RequestHeadersTrait.php)
 
 > Holds the request headers shared by the traits that issue HTTP requests.
 
@@ -1766,7 +1774,7 @@ $this->requestHeadersSet('X-Acme-Token', 'secret');
 
 ## TableTransposeTrait
 
-[Source](src/Steps/Helper/Web/TableTransposeTrait.php)
+[Source](../../src/Steps/Helper/Web/TableTransposeTrait.php)
 
 > Reads a vertical Gherkin table as 1 set of values per entity.
 
@@ -1790,7 +1798,7 @@ Transpose a vertical table format (field/value columns) to entity arrays
 
 ## Drupal\BigPipeTrait
 
-[Source](src/Steps/Drupal/BigPipeTrait.php), [Steps](STEPS.md#drupalbigpipetrait)
+[Source](../../src/Steps/Drupal/BigPipeTrait.php), [Steps](steps.md#drupalbigpipetrait)
 
 > Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios.
 
@@ -1814,7 +1822,7 @@ Wait until no BigPipe placeholder markers remain in the DOM
 
 ## Drupal\BlockTrait
 
-[Source](src/Steps/Drupal/BlockTrait.php), [Steps](STEPS.md#drupalblocktrait)
+[Source](../../src/Steps/Drupal/BlockTrait.php), [Steps](steps.md#drupalblocktrait)
 
 > Manage Drupal blocks.
 
@@ -1874,7 +1882,7 @@ Remove a visibility condition from a block and save it
 
 ## Drupal\CacheTrait
 
-[Source](src/Steps/Drupal/CacheTrait.php), [Steps](STEPS.md#drupalcachetrait)
+[Source](../../src/Steps/Drupal/CacheTrait.php), [Steps](steps.md#drupalcachetrait)
 
 > Invalidate Drupal caches and run cron from within a scenario.
 
@@ -1898,7 +1906,7 @@ Get the cache bin used for the page cache
 
 ## Drupal\ConfigTrait
 
-[Source](src/Steps/Drupal/ConfigTrait.php), [Steps](STEPS.md#drupalconfigtrait)
+[Source](../../src/Steps/Drupal/ConfigTrait.php), [Steps](steps.md#drupalconfigtrait)
 
 > Assert and set stored Drupal configuration values with automatic revert.
 
@@ -1931,7 +1939,7 @@ Set a stored configuration value, restored after the scenario
 
 ## Drupal\ContentBlockTrait
 
-[Source](src/Steps/Drupal/ContentBlockTrait.php), [Steps](STEPS.md#drupalcontentblocktrait)
+[Source](../../src/Steps/Drupal/ContentBlockTrait.php), [Steps](steps.md#drupalcontentblocktrait)
 
 > Manage Drupal content blocks.
 
@@ -1973,7 +1981,7 @@ Load multiple content blocks with specified type and conditions
 
 ## Drupal\ContentTrait
 
-[Source](src/Steps/Drupal/ContentTrait.php), [Steps](STEPS.md#drupalcontenttrait)
+[Source](../../src/Steps/Drupal/ContentTrait.php), [Steps](steps.md#drupalcontenttrait)
 
 > Manage Drupal content with workflow and moderation support.
 
@@ -2051,7 +2059,7 @@ Visit a page of the content with a specified title
 
 ## Drupal\DraggableviewsTrait
 
-[Source](src/Steps/Drupal/DraggableviewsTrait.php), [Steps](STEPS.md#drupaldraggableviewstrait)
+[Source](../../src/Steps/Drupal/DraggableviewsTrait.php), [Steps](steps.md#drupaldraggableviewstrait)
 
 > Order items in the Drupal Draggable Views.
 
@@ -2084,7 +2092,7 @@ Set the order of nodes in a Draggable Views display
 
 ## Drupal\DrushTrait
 
-[Source](src/Steps/Drupal/DrushTrait.php), [Steps](STEPS.md#drupaldrushtrait)
+[Source](../../src/Steps/Drupal/DrushTrait.php), [Steps](steps.md#drupaldrushtrait)
 
 > Run Drush commands and assert their output.
 
@@ -2117,7 +2125,7 @@ Run a Drush command expecting a non-zero exit, keeping its output
 
 ## Drupal\EckTrait
 
-[Source](src/Steps/Drupal/EckTrait.php), [Steps](STEPS.md#drupalecktrait)
+[Source](../../src/Steps/Drupal/EckTrait.php), [Steps](steps.md#drupalecktrait)
 
 > Manage Drupal ECK entities of an existing entity type and bundle.
 
@@ -2168,7 +2176,7 @@ Load multiple entities with specified type and conditions
 
 ## Drupal\EmailTrait
 
-[Source](src/Steps/Drupal/EmailTrait.php), [Steps](STEPS.md#drupalemailtrait)
+[Source](../../src/Steps/Drupal/EmailTrait.php), [Steps](steps.md#drupalemailtrait)
 
 > Test Drupal email functionality with content verification.
 
@@ -2273,7 +2281,7 @@ Get the collected emails with a subject
 
 ## Drupal\FileTrait
 
-[Source](src/Steps/Drupal/FileTrait.php), [Steps](STEPS.md#drupalfiletrait)
+[Source](../../src/Steps/Drupal/FileTrait.php), [Steps](steps.md#drupalfiletrait)
 
 > Manage Drupal file entities with upload and storage operations.
 
@@ -2333,7 +2341,7 @@ Write an unmanaged file, creating its directory when it is missing
 
 ## Drupal\MediaTrait
 
-[Source](src/Steps/Drupal/MediaTrait.php), [Steps](STEPS.md#drupalmediatrait)
+[Source](../../src/Steps/Drupal/MediaTrait.php), [Steps](steps.md#drupalmediatrait)
 
 > Manage Drupal media entities with type-specific field handling.
 
@@ -2384,7 +2392,7 @@ Visit a page of the media with a specified name
 
 ## Drupal\MenuTrait
 
-[Source](src/Steps/Drupal/MenuTrait.php), [Steps](STEPS.md#drupalmenutrait)
+[Source](../../src/Steps/Drupal/MenuTrait.php), [Steps](steps.md#drupalmenutrait)
 
 > Manage Drupal menus and menu links.
 
@@ -2444,7 +2452,7 @@ Load multiple menus with specified conditions
 
 ## Drupal\ModuleTrait
 
-[Source](src/Steps/Drupal/ModuleTrait.php), [Steps](STEPS.md#drupalmoduletrait)
+[Source](../../src/Steps/Drupal/ModuleTrait.php), [Steps](steps.md#drupalmoduletrait)
 
 > Enable and disable Drupal modules with automatic state restoration.
 
@@ -2495,7 +2503,7 @@ Enable or disable a module, restored after the scenario
 
 ## Drupal\ParagraphsTrait
 
-[Source](src/Steps/Drupal/ParagraphsTrait.php), [Steps](STEPS.md#drupalparagraphstrait)
+[Source](../../src/Steps/Drupal/ParagraphsTrait.php), [Steps](steps.md#drupalparagraphstrait)
 
 > Manage Drupal paragraphs entities with structured field data.
 
@@ -2537,7 +2545,7 @@ Get the entity to attach a paragraph to
 
 ## Drupal\QueueTrait
 
-[Source](src/Steps/Drupal/QueueTrait.php), [Steps](STEPS.md#drupalqueuetrait)
+[Source](../../src/Steps/Drupal/QueueTrait.php), [Steps](steps.md#drupalqueuetrait)
 
 > Manage and assert Drupal queue state.
 
@@ -2588,7 +2596,7 @@ Process items from a queue with the queue's worker
 
 ## Drupal\RedirectTrait
 
-[Source](src/Steps/Drupal/RedirectTrait.php), [Steps](STEPS.md#drupalredirecttrait)
+[Source](../../src/Steps/Drupal/RedirectTrait.php), [Steps](steps.md#drupalredirecttrait)
 
 > Manage Drupal redirect entities provided by the contrib `redirect` module.
 
@@ -2621,7 +2629,7 @@ Check whether a redirect exists
 
 ## Drupal\SearchApiTrait
 
-[Source](src/Steps/Drupal/SearchApiTrait.php), [Steps](STEPS.md#drupalsearchapitrait)
+[Source](../../src/Steps/Drupal/SearchApiTrait.php), [Steps](steps.md#drupalsearchapitrait)
 
 > Run Drupal Search API indexing and cron hooks.
 
@@ -2654,7 +2662,7 @@ Track a node in the search indexes, then index it on each
 
 ## Drupal\StateTrait
 
-[Source](src/Steps/Drupal/StateTrait.php), [Steps](STEPS.md#drupalstatetrait)
+[Source](../../src/Steps/Drupal/StateTrait.php), [Steps](steps.md#drupalstatetrait)
 
 > Manage and assert Drupal State API values with automatic revert.
 
@@ -2687,7 +2695,7 @@ Set a state value, restored after the scenario
 
 ## Drupal\TaxonomyTrait
 
-[Source](src/Steps/Drupal/TaxonomyTrait.php), [Steps](STEPS.md#drupaltaxonomytrait)
+[Source](../../src/Steps/Drupal/TaxonomyTrait.php), [Steps](steps.md#drupaltaxonomytrait)
 
 > Manage Drupal taxonomy terms with vocabulary organization.
 
@@ -2747,7 +2755,7 @@ Visit a page of the term with a specified name
 
 ## Drupal\TestmodeTrait
 
-[Source](src/Steps/Drupal/TestmodeTrait.php), [Steps](STEPS.md#drupaltestmodetrait)
+[Source](../../src/Steps/Drupal/TestmodeTrait.php), [Steps](steps.md#drupaltestmodetrait)
 
 > Configure Drupal Testmode module for controlled testing scenarios.
 
@@ -2771,7 +2779,7 @@ Enable test mode
 
 ## Drupal\UserTrait
 
-[Source](src/Steps/Drupal/UserTrait.php), [Steps](STEPS.md#drupalusertrait)
+[Source](../../src/Steps/Drupal/UserTrait.php), [Steps](steps.md#drupalusertrait)
 
 > Manage Drupal users with role and permission assignments.
 
@@ -2885,7 +2893,7 @@ Visit the password reset link for a user
 
 ## Drupal\WatchdogTrait
 
-[Source](src/Steps/Drupal/WatchdogTrait.php), [Steps](STEPS.md#drupalwatchdogtrait)
+[Source](../../src/Steps/Drupal/WatchdogTrait.php), [Steps](steps.md#drupalwatchdogtrait)
 
 > Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
 
@@ -2918,7 +2926,7 @@ Return TRUE if a scenario that logged an error should fail
 
 ## Drupal\WebformTrait
 
-[Source](src/Steps/Drupal/WebformTrait.php), [Steps](STEPS.md#drupalwebformtrait)
+[Source](../../src/Steps/Drupal/WebformTrait.php), [Steps](steps.md#drupalwebformtrait)
 
 > Manage Drupal webforms.
 
@@ -2960,7 +2968,7 @@ Load all webform templates whose title contains the given string
 
 ## Drupal\AuthTrait
 
-[Source](src/Steps/Helper/Drupal/AuthTrait.php)
+[Source](../../src/Steps/Helper/Drupal/AuthTrait.php)
 
 > Creates users and roles, logs them in, and removes them afterwards.
 
@@ -3020,7 +3028,7 @@ Logs the current user out
 
 ## Drupal\EntityLifecycleTrait
 
-[Source](src/Steps/Helper/Drupal/EntityLifecycleTrait.php)
+[Source](../../src/Steps/Helper/Drupal/EntityLifecycleTrait.php)
 
 > Creates Drupal entities and removes them when the scenario ends.
 
@@ -3089,7 +3097,7 @@ Registers an entity created outside the create pipeline for cleanup
 
 ## Drupal\FixtureFileTrait
 
-[Source](src/Steps/Helper/Drupal/FixtureFileTrait.php)
+[Source](../../src/Steps/Helper/Drupal/FixtureFileTrait.php)
 
 > Resolves a fixture file path for a file or image field.
 
@@ -3104,7 +3112,7 @@ Expand fixture file paths for file/image fields on an entity stub
 
 ## Drupal\QueryTrait
 
-[Source](src/Steps/Helper/Drupal/QueryTrait.php)
+[Source](../../src/Steps/Helper/Drupal/QueryTrait.php)
 
 > Finds the entities a step reads, asserts on or deletes.
 
@@ -3155,7 +3163,7 @@ Load the ids of the nodes of a content type matching the conditions
 
 ## WebRawContext
 
-[Source](src/WebRawContext.php)
+[Source](../../src/WebRawContext.php)
 
 > Root context carrying the plumbing every suite needs.
 

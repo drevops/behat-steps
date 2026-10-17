@@ -1,4 +1,10 @@
-# 🔧 Configuration
+---
+title: Configuration
+sidebar_position: 2
+description: The 4 channels Behat Steps reads its configuration from - suites and context arguments, the extension key, tags and environment variables - with every option and tag.
+---
+
+# Configuration
 
 Everything this package reads arrives through 1 of 4 channels, apart from the Mink settings it shares: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, and none of them is a substitute for another.
 

@@ -75,6 +75,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 #[CoversFunction('composes_trait')]
 #[CoversFunction('resolve_inherited_comment')]
 #[CoversFunction('relative_source_path')]
+#[CoversFunction('relative_link')]
 #[CoversFunction('render_helpers')]
 #[CoversFunction('validate_helpers')]
 #[CoversFunction('render_tag_reference')]
@@ -604,7 +605,7 @@ EOD,
       foreach ($info as $trait => $data) {
         $name_contextual = $data['name_contextual'] ?? $trait;
         $this->assertStringContainsString(sprintf("## %s", $name_contextual), $actual);
-        $this->assertStringContainsString(sprintf('[Source](%s/%s/%s.php)', STEPS_DIRECTORY, $data['context'] ?? 'Web', $trait), $actual);
+        $this->assertStringContainsString(sprintf('[Source](../../%s/%s/%s.php)', STEPS_DIRECTORY, $data['context'] ?? 'Web', $trait), $actual);
 
         if (isset($data['methods']) && is_array($data['methods'])) {
           foreach ($data['methods'] as $method) {
@@ -675,7 +676,7 @@ EOD,
 | [TestTrait](#testtrait) | Web | Test trait description |
 ## TestTrait
 
-[Source](src/Steps/Web/TestTrait.php), [Example](tests/behat/features/test.feature)
+[Source](../../src/Steps/Web/TestTrait.php), [Example](../../tests/behat/features/test.feature)
 
 Test trait description
 
@@ -731,7 +732,7 @@ EOD,
 | [SecondTrait](#secondtrait) | Drupal | Second trait description |
 ## FirstTrait
 
-[Source](src/Steps/Web/FirstTrait.php), [Example](tests/behat/features/first.feature)
+[Source](../../src/Steps/Web/FirstTrait.php), [Example](../../tests/behat/features/first.feature)
 
 First trait description
 
@@ -746,7 +747,7 @@ Given I am on the homepage
 
 ## SecondTrait
 
-[Source](src/Steps/Drupal/SecondTrait.php), [Example](tests/behat/features/second.feature)
+[Source](../../src/Steps/Drupal/SecondTrait.php), [Example](../../tests/behat/features/second.feature)
 
 Second trait description
 
@@ -793,7 +794,7 @@ EOD,
 | [MultiMethodTrait](#multimethodtrait) | Web | Multi-method trait description |
 ## MultiMethodTrait
 
-[Source](src/Steps/Web/MultiMethodTrait.php), [Example](tests/behat/features/multi_method.feature)
+[Source](../../src/Steps/Web/MultiMethodTrait.php), [Example](../../tests/behat/features/multi_method.feature)
 
 Multi-method trait description
 
@@ -842,7 +843,7 @@ EOD,
 | [StepsTrait](#stepstrait) | Drupal | Steps trait description |
 ## StepsTrait
 
-[Source](src/Steps/Drupal/StepsTrait.php), [Example](tests/behat/features/steps.feature)
+[Source](../../src/Steps/Drupal/StepsTrait.php), [Example](../../tests/behat/features/steps.feature)
 
 Steps trait description
 
@@ -911,7 +912,7 @@ EOD,
 | [MultiParaTrait](#multiparatrait) | Web | Multi-paragraph trait description |
 ## MultiParaTrait
 
-[Source](src/Steps/Web/MultiParaTrait.php), [Example](tests/behat/features/multi_para.feature)
+[Source](../../src/Steps/Web/MultiParaTrait.php), [Example](../../tests/behat/features/multi_para.feature)
 
 Multi-paragraph trait description
 
@@ -955,7 +956,7 @@ EOD,
 | [ListTrait](#listtrait) | Drupal | List trait description |
 ## ListTrait
 
-[Source](src/Steps/Drupal/ListTrait.php), [Example](tests/behat/features/list.feature)
+[Source](../../src/Steps/Drupal/ListTrait.php), [Example](../../tests/behat/features/list.feature)
 
 List trait description
 
@@ -999,7 +1000,7 @@ EOD,
 | [NonArrayTrait](#nonarraytrait) | Drupal | Non-array trait description |
 ## NonArrayTrait
 
-[Source](src/Steps/Drupal/NonArrayTrait.php), [Example](tests/behat/features/non_array.feature)
+[Source](../../src/Steps/Drupal/NonArrayTrait.php), [Example](../../tests/behat/features/non_array.feature)
 
 Non-array trait description
 
@@ -1039,7 +1040,7 @@ EOD,
 | [CodeBlockTrait](#codeblocktrait) | Web | Code block trait description |
 ## CodeBlockTrait
 
-[Source](src/Steps/Web/CodeBlockTrait.php), [Example](tests/behat/features/code_block.feature)
+[Source](../../src/Steps/Web/CodeBlockTrait.php), [Example](../../tests/behat/features/code_block.feature)
 
 >  Code block trait description
 >
@@ -1082,91 +1083,24 @@ EOD,
     ], static::$tmp);
   }
 
-  #[DataProvider('dataProviderRenderInfoWithPathForLinks')]
-  public function testRenderInfoWithPathForLinks(array $info, string $path_for_links, string $expected): void {
-    $base_path = static::$tmp;
+  public function testRenderInfoLinksFromStepsFile(): void {
+    $this->writeFixture(STEPS_DIRECTORY . '/Web/SomeTrait.php', '<?php');
+    $this->writeFixture('tests/behat/features/some.feature', 'Feature: Test');
 
-    $steps_dir = $base_path . '/' . STEPS_DIRECTORY;
-    $features_dir = $base_path . '/tests/behat/features';
-
-    mkdir($steps_dir . '/Web', 0777, TRUE);
-    mkdir($steps_dir . '/Drupal', 0777, TRUE);
-    mkdir($features_dir, 0777, TRUE);
-
-    // The files are created because render_info() checks they exist.
-    foreach ($info as $trait => $data) {
-      $context = $data['context'] ?? 'Web';
-
-      if (!isset($data['name_contextual'])) {
-        $info[$trait]['name_contextual'] = ($context !== 'Web' ? $context . '\\' : '') . $trait;
-      }
-
-      $this->writeFixture(sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait), '<?php');
-
-      $example_name = camel_to_snake(str_replace('Trait', '', $trait));
-      $prefix = $context === 'Drupal' ? 'drupal_' : '';
-      $this->writeFixture(sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name), 'Feature: Test');
-    }
-
-    $actual = render_info($info, $base_path, $path_for_links);
-
-    foreach ($info as $trait => $data) {
-      $name_contextual = $data['name_contextual'] ?? $trait;
-      $link_id = strtolower(preg_replace('/[^A-Za-z0-9_\-]/', '', $name_contextual));
-      $expected_link = sprintf("%s#%s", $path_for_links, $link_id);
-      $this->assertStringContainsString($expected_link, $actual);
-    }
-
-    // With path_for_links set, only the index is rendered.
-    $this->assertStringNotContainsString('<details>', $actual);
-    $this->assertStringNotContainsString('[Source]', $actual);
-  }
-
-  public static function dataProviderRenderInfoWithPathForLinks(): array {
-    return [
-      'with STEPS.md path' => [
-        [
-          'TestTrait' => [
-            'name' => 'TestTrait',
-            'context' => 'Web',
-            'description' => 'Test trait description',
-            'description_full' => 'Test trait description',
-            'methods' => [
-              [
-                'class_name' => 'TestTrait',
-                'name' => 'testMethod',
-                'steps' => ['@Given I am on the homepage'],
-                'description' => 'Test method description',
-                'example' => 'Given I am on the homepage',
-              ],
-            ],
-          ],
-        ],
-        'STEPS.md',
-        '',
+    $actual = render_info([
+      'SomeTrait' => [
+        'name' => 'SomeTrait',
+        'name_contextual' => 'SomeTrait',
+        'context' => 'Web',
+        'description' => 'Do the thing.',
+        'description_full' => 'Do the thing.',
+        'methods' => [],
       ],
-      'with custom path' => [
-        [
-          'FirstTrait' => [
-            'name' => 'FirstTrait',
-            'context' => 'Web',
-            'description' => 'First trait description',
-            'description_full' => 'First trait description',
-            'methods' => [
-              [
-                'class_name' => 'FirstTrait',
-                'name' => 'firstMethod',
-                'steps' => ['@Given I am on the homepage'],
-                'description' => 'First method description',
-                'example' => 'Given I am on the homepage',
-              ],
-            ],
-          ],
-        ],
-        'docs/REFERENCE.md',
-        '',
-      ],
-    ];
+    ], static::$tmp);
+
+    $this->assertStringContainsString('| [SomeTrait](#sometrait) | Do the thing. |', $actual);
+    $this->assertStringContainsString('[Source](../../src/Steps/Web/SomeTrait.php), [Example](../../tests/behat/features/some.feature)', $actual);
+    $this->assertStringContainsString('## SomeTrait', $actual);
   }
 
   #[DataProvider('dataProviderValidate')]
@@ -4049,8 +3983,8 @@ EOD);
 
     // A trait that contributes steps links to them; one that does not links
     // only to its source.
-    $this->assertStringContainsString('[Source](src/Steps/Web/SomeTrait.php), [Steps](STEPS.md#sometrait)', $actual);
-    $this->assertStringContainsString('[Source](src/Steps/Drupal/OtherTrait.php)' . PHP_EOL, $actual);
+    $this->assertStringContainsString('[Source](../../src/Steps/Web/SomeTrait.php), [Steps](steps.md#sometrait)', $actual);
+    $this->assertStringContainsString('[Source](../../src/Steps/Drupal/OtherTrait.php)' . PHP_EOL, $actual);
 
     $this->assertStringContainsString('<summary><code>protected function someValue(): string</code></summary>', $actual);
     $this->assertStringContainsString('Read the value' . PHP_EOL, $actual);
@@ -4225,7 +4159,7 @@ EOD);
   }
 
   public function testValidateEnvVars(): void {
-    $this->writeFixture('docs/configuration.md', 'The `BEHAT_STEPS_DOCUMENTED` and `BEHAT_STEPS_DISABLE_CLEANUP` variables are documented.');
+    $this->writeFixture(CONFIGURATION_FILE, 'The `BEHAT_STEPS_DOCUMENTED` and `BEHAT_STEPS_DISABLE_CLEANUP` variables are documented.');
     $this->writeFixture('src/Documented.php', '<?php $value = getenv("BEHAT_STEPS_DOCUMENTED");');
     $this->writeFixture('src/Nested/Undocumented.php', "<?php \$value = getenv('BEHAT_STEPS_UNDOCUMENTED');");
     // A documented name that only starts with the source name does not
@@ -4241,13 +4175,31 @@ EOD);
     $this->assertCount(2, $actual);
     $this->assertStringContainsString('BEHAT_STEPS_UNDOCUMENTED', $actual[0]);
     $this->assertStringContainsString('src/Nested/Undocumented.php', $actual[0]);
-    $this->assertStringContainsString('docs/configuration.md', $actual[0]);
+    $this->assertStringContainsString(CONFIGURATION_FILE, $actual[0]);
     $this->assertStringContainsString('BEHAT_STEPS_DISABLE', $actual[1]);
     $this->assertStringContainsString('src/Prefix.php', $actual[1]);
   }
 
   public function testValidateEnvVarsWithoutSourceOrReference(): void {
     $this->assertSame([], validate_env_vars(static::$tmp . '/missing'));
+  }
+
+  #[DataProvider('dataProviderRelativeLink')]
+  public function testRelativeLink(string $from_file, string $to_path, string $expected): void {
+    $this->assertSame($expected, relative_link($from_file, $to_path));
+  }
+
+  public static function dataProviderRelativeLink(): array {
+    return [
+      'a source file from the step reference' => ['docs/content/steps.md', 'src/Steps/Web/CookieTrait.php', '../../src/Steps/Web/CookieTrait.php'],
+      'a page in the same directory' => ['docs/content/helpers.md', 'docs/content/steps.md', 'steps.md'],
+      'a page in the parent directory' => ['docs/content/guides/configuration.md', 'docs/content/steps.md', '../steps.md'],
+      'a page from the repository root' => ['README.md', 'docs/content/steps.md', 'docs/content/steps.md'],
+      'a root file from a nested page' => ['docs/content/steps.md', 'README.md', '../../README.md'],
+      'a sibling directory' => ['docs/content/steps.md', 'docs/README.md', '../README.md'],
+      'the directory holding the file' => ['docs/content/steps.md', 'docs/content', '../content'],
+      'the file itself' => ['docs/content/steps.md', 'docs/content/steps.md', 'steps.md'],
+    ];
   }
 
 }

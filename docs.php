@@ -4,12 +4,14 @@
  * @file
  * Reference documentation generator.
  *
- * It parses the PHP attributes and docblock comments of the traits under the
- * vocabulary directory and writes:
+ * It parses the PHP attributes and docblock comments of the traits under
+ * the vocabulary directory and writes the reference pages of the
+ * documentation site:
  *
- * - STEPS.md, the step vocabulary, and the step index in README.md.
- * - HELPERS.md, the toolbox a project calls from its own domain steps.
- * - The generated tables in docs/configuration.md.
+ * - docs/content/steps.md, the step vocabulary.
+ * - docs/content/helpers.md, the toolbox a project calls from its own domain
+ *   steps.
+ * - The generated tables in docs/content/guides/configuration.md.
  *
  * It also validates that:
  *
@@ -103,14 +105,19 @@ const HELPERS_DIRECTORY = 'src/Steps/Helper';
 const TOOLBOX_CLASSES = [WebRawContext::class];
 
 /**
+ * File holding the step reference, relative to the repository root.
+ */
+const STEPS_FILE = 'docs/content/steps.md';
+
+/**
  * File holding the toolbox reference, relative to the repository root.
  */
-const HELPERS_FILE = 'HELPERS.md';
+const HELPERS_FILE = 'docs/content/helpers.md';
 
 /**
  * File holding the configuration reference, relative to the repository root.
  */
-const CONFIGURATION_FILE = 'docs/configuration.md';
+const CONFIGURATION_FILE = 'docs/content/guides/configuration.md';
 
 // The main function runs only when the script is run directly, not when it
 // is included.
@@ -156,11 +163,8 @@ function main(array $options = []): void {
   }
 
   $targets = [
-    'STEPS.md' => [
+    STEPS_FILE => [
       ['# Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path) . PHP_EOL],
-    ],
-    'README.md' => [
-      ['## 📋 Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path, 'STEPS.md') . PHP_EOL],
     ],
     HELPERS_FILE => [
       ['# Available helpers', '[//]: # (END)', PHP_EOL . render_helpers($helpers, $base_path) . PHP_EOL],
@@ -1307,6 +1311,33 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
 }
 
 /**
+ * Render the path of a link from one repository file to another.
+ *
+ * The reference documents are read in place, on GitHub and under a consuming
+ * project's vendor directory, so each link resolves from its own file.
+ *
+ * @param string $from_file
+ *   The file holding the link, relative to the repository root.
+ * @param string $to_path
+ *   The link target, relative to the repository root.
+ *
+ * @return string
+ *   The target's path relative to the directory of the linking file.
+ */
+function relative_link(string $from_file, string $to_path): string {
+  $from = dirname($from_file) === '.' ? [] : explode('/', dirname($from_file));
+  $to = explode('/', $to_path);
+
+  // The last segment of the target stays, so the link always names it.
+  while ($from !== [] && count($to) > 1 && $from[0] === $to[0]) {
+    array_shift($from);
+    array_shift($to);
+  }
+
+  return str_repeat('../', count($from)) . implode('/', $to);
+}
+
+/**
  * Convert info to content.
  *
  * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
@@ -1316,9 +1347,9 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
  *
  * @return string
  *   The index table of each context, followed by a horizontal rule and every
- *   trait's section, or the index tables alone when '$path_for_links' is set.
+ *   trait's section.
  */
-function render_info(array $info, string $base_path = __DIR__, ?string $path_for_links = NULL): string {
+function render_info(array $info, string $base_path = __DIR__): string {
   $content_output = [];
 
   $index_rows = [];
@@ -1345,12 +1376,15 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
       throw new \RuntimeException(sprintf('Example file %s does not exist', $example_file_path));
     }
 
+    $source_link = relative_link(STEPS_FILE, $src_file);
+    $example_link = relative_link(STEPS_FILE, $example_file);
+
     // @phpstan-ignore-next-line
     $content_output[$context] ??= '';
     // @phpstan-ignore-next-line
     $content_output[$context] .= sprintf('## %s', $class_info['name_contextual']) . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
-    $content_output[$context] .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
+    $content_output[$context] .= sprintf('[Source](%s), [Example](%s)', $source_link, $example_link) . PHP_EOL . PHP_EOL;
 
     $description_full = '';
     // @phpstan-ignore-next-line
@@ -1412,16 +1446,9 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
     // @phpstan-ignore-next-line
     $content_output[$context] .= render_trait_options($trait, $class_info['options'] ?? []);
     // @phpstan-ignore-next-line
-    $index_rows_path = '#' . heading_anchor((string) $class_info['name_contextual']);
-
-    if ($path_for_links) {
-      $index_rows_path = $path_for_links . $index_rows_path;
-    }
-
-    // @phpstan-ignore-next-line
     $index_rows[$context][] = [
       // @phpstan-ignore-next-line
-      sprintf('[%s](%s)', $class_info['name_contextual'], $index_rows_path),
+      sprintf('[%s](#%s)', $class_info['name_contextual'], heading_anchor((string) $class_info['name_contextual'])),
       $class_info['description'],
     ];
 
@@ -1491,11 +1518,8 @@ EOT;
   $output = '';
 
   $output .= $index_output . PHP_EOL;
-
-  if (!$path_for_links) {
-    $output .= '---' . PHP_EOL . PHP_EOL;
-    $output .= $content_output . PHP_EOL;
-  }
+  $output .= '---' . PHP_EOL . PHP_EOL;
+  $output .= $content_output . PHP_EOL;
 
   return $output;
 }
@@ -1528,10 +1552,10 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
     }
 
     $steps_anchor = $class_info['steps_anchor'] ?? NULL;
-    $links = sprintf('[Source](%s)', $src_file);
+    $links = sprintf('[Source](%s)', relative_link(HELPERS_FILE, $src_file));
 
     if (is_string($steps_anchor)) {
-      $links .= sprintf(', [Steps](STEPS.md#%s)', $steps_anchor);
+      $links .= sprintf(', [Steps](%s#%s)', relative_link(HELPERS_FILE, STEPS_FILE), $steps_anchor);
     }
 
     $content_output[$context] ??= '';
