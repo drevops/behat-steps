@@ -1,7 +1,6 @@
 parameters:
   behat_steps.backend.drupal.class: DrevOps\BehatSteps\Backend\Drupal\DrupalBackend
   behat_steps.random.class: DrevOps\BehatSteps\Backend\Random\RandomGenerator
-  behat_steps.backend.core.class: DrevOps\BehatSteps\Backend\Drupal\Core\Core
 
 services:
   behat_steps.backend.random:
@@ -11,13 +10,7 @@ services:
     arguments:
       - "%behat_steps.backend.drupal.drupal_root%"
       - "%mink.base_url%"
-    tags:
-      - { name: behat_steps.backend, alias: drupal }
-  behat_steps.backend.core:
-    class: "%behat_steps.backend.core.class%"
-    arguments:
-      - "%behat_steps.backend.drupal.drupal_root%"
-      - "%mink.base_url%"
+      - "%behat_steps.backend.drupal.core%"
       - "@behat_steps.backend.random"
     tags:
-      - { name: behat_steps.core }
+      - { name: behat_steps.backend, alias: drupal }

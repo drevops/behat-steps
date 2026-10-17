@@ -54,6 +54,12 @@ class DrupalBackendTest extends UnitTestCase {
    */
   protected const DRUPAL_ROOT = __DIR__ . '/../../../../fixtures/backend/drupal-root';
 
+  protected function tearDown(): void {
+    FakeVersionDrupalBackend::$nextVersion = '11.0.0';
+
+    parent::tearDown();
+  }
+
   public function testImplementsDrupalBackendInterface(): void {
     $interfaces = (array) class_implements(DrupalBackend::class);
 
