@@ -89,6 +89,7 @@ package "DrevOps\\BehatSteps\\Backend\\Drupal" #E8F5E9 {
 
   class DrupalBackend {
     bootstraps Drupal in-process
+    builds its Core for the detected major
   }
   class DrushBackend {
     shells out to drush

@@ -45,7 +45,7 @@ package "drevops/behat-steps" {
     component "Hooks\nsrc/Extension/Hook: entity and\nuser creation hooks, each\nattribute names its call" as Hooks
 
     package "Extension\\Drupal" #F3E5F5 {
-      component "DrupalBackendProvider\ndrupal: and drush: settings,\nlogin defaults, the 2 backends'\nservice definitions, Core wiring,\nconfigured field handlers\nand creation aliases" as DrupalProvider
+      component "DrupalBackendProvider\ndrupal: and drush: settings,\nlogin defaults, the 2 backends'\nservice definitions, the drupal.core\nclass, configured field handlers\nand creation aliases" as DrupalProvider
       component "Drupal hooks\nnode, term and language\ncreation hooks" as DrupalHooks
     }
   }
@@ -102,7 +102,7 @@ Ext --> BlackboxBe : registers
 Ext --> DrupalProvider : loads
 Behat --> Listeners : before each scenario
 Listeners --> Registries : backend order,\nscenario tags
-DrupalProvider --> DrupalBe : defines, wires Core into,\nregisters the configured\nfield handlers and\ncreation aliases on
+DrupalProvider --> DrupalBe : defines, hands the\ndrupal.core class to,\nregisters the configured\nfield handlers and\ncreation aliases on
 DrupalProvider --> DrushBe : defines, registers\nthe configured\ncreation aliases on
 Ext ..> BrowserKit : registers with Mink,\nreads the session options
 Ext --> HttpClients : defines the shared transport\nfrom the session options
@@ -128,7 +128,7 @@ DrupalBe ..|> DrupalCaps
 DrushBe ..|> BackendIface
 DrushBe ..|> DrupalCaps
 BlackboxBe ..|> BackendIface
-DrupalBe --> Core
+DrupalBe --> Core : builds the drupal.core\nclass, or the version core\nfor the detected major
 
 MinkExt --> Mink : builds sessions,\npicks one per scenario
 MinkExt ..> BrowserKit : builds the browserkit_http\nbrowser driver with
