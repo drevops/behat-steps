@@ -15,6 +15,17 @@ Feature: Check that DrushTrait works
     When I run the drush command "config:get" with the arguments "system.site"
     Then the drush output should contain "Drush Site-Install"
 
+  Scenario: Assert "When I run the drush command :command" passes the arguments the command carries
+    Given I am an anonymous user
+    When I run the drush command "config:get system.site name"
+    Then the drush output should contain "Drush Site-Install"
+    And the drush output should not contain "does not exist"
+
+  Scenario: Assert "When I run the drush command :command with the arguments :arguments" keeps a quoted part in 1 argument
+    Given I am an anonymous user
+    When I run the drush command "php:eval" with the arguments "'echo 6 * 7;'"
+    Then the drush output should contain "42"
+
   Scenario: Assert "When I run the failing drush command :command" works as expected
     Given I am an anonymous user
     When I run the failing drush command "pm:uninstall no_such_module"

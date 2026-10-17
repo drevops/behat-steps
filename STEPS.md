@@ -5607,6 +5607,7 @@ Run a Drush command
 
 ```gherkin
 When I run the drush command "status"
+When I run the drush command "config:get system.site name"
 
 ```
 

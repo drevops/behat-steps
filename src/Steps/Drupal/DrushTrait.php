@@ -32,22 +32,28 @@ trait DrushTrait {
   /**
    * Run a Drush command.
    *
+   * The command may carry its arguments, split into words as a shell splits
+   * them: whitespace separates 2 words, and a quoted part stays in 1 word.
+   *
    * @code
    * When I run the drush command "status"
+   * When I run the drush command "config:get system.site name"
    * @endcode
    *
    * @actor:person
    */
   #[When('I run the drush command :command')]
   public function drushRun(string $command): void {
-    $this->drushOutput = $this->drushGetBackend()->drush($command);
+    [$name, $words] = $this->drushParseCommand($command);
+    $this->drushOutput = $this->drushGetBackend()->drush($name, $words);
   }
 
   /**
    * Run a Drush command with arguments.
    *
-   * The arguments string is appended verbatim, so it may carry options as
-   * well as positional arguments.
+   * The arguments are split into words as a shell splits them, so they may
+   * carry options as well as positional arguments, and a quoted part stays in
+   * 1 word.
    *
    * @code
    * When I run the drush command "pm:list" with the arguments "--status=enabled"
@@ -58,7 +64,8 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command with the arguments :arguments')]
   public function drushRunWithArguments(string $command, string $arguments): void {
-    $this->drushOutput = $this->drushGetBackend()->drush($command, [$this->drushFixArgument($arguments)]);
+    [$name, $words] = $this->drushParseCommand($command, $arguments);
+    $this->drushOutput = $this->drushGetBackend()->drush($name, $words);
   }
 
   /**
@@ -190,16 +197,17 @@ trait DrushTrait {
    * Run a Drush command expecting a non-zero exit, keeping its output.
    *
    * @param string $command
-   *   The Drush command to run.
+   *   The Drush command to run, which may carry arguments of its own.
    * @param string|null $arguments
-   *   Arguments appended to the command verbatim, or NULL for none.
+   *   Arguments appended to the command, or NULL for none. Both are split into
+   *   words as a shell splits them.
    *
    * @throws \DrevOps\BehatSteps\Steps\Exception\AssertionException
    *   When the command exits zero.
    */
   public function drushRunExpectingFailure(string $command, ?string $arguments = NULL): void {
-    $args = $arguments === NULL ? [] : [$this->drushFixArgument($arguments)];
-    $result = $this->drushGetBackend()->drushResult($command, $args);
+    [$name, $words] = $this->drushParseCommand($command, $arguments);
+    $result = $this->drushGetBackend()->drushResult($name, $words);
 
     // The success path returns the command's output, so the failure path keeps
     // stdout and falls back to stderr when it is empty.
@@ -209,6 +217,93 @@ trait DrushTrait {
     if ($result->exitCode === 0) {
       throw new AssertionException(sprintf('The drush command "%s" was expected to fail, but it exited 0. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $output));
     }
+  }
+
+  /**
+   * Parse a command and its arguments into the words Drush receives.
+   *
+   * @param string $command
+   *   The command, which may carry arguments of its own.
+   * @param string|null $arguments
+   *   Arguments appended to the command, or NULL for none.
+   *
+   * @return array{0: string, 1: array<int, string>}
+   *   The Drush command and its arguments.
+   *
+   * @throws \RuntimeException
+   *   When the command is empty or a quote is not closed.
+   */
+  protected function drushParseCommand(string $command, ?string $arguments = NULL): array {
+    $words = $this->drushParseWords($command);
+
+    if ($words === []) {
+      throw new \RuntimeException('The drush command is empty.');
+    }
+
+    $name = array_shift($words);
+
+    return [$name, [...$words, ...$this->drushParseWords($arguments ?? '')]];
+  }
+
+  /**
+   * Split a command line into words as a shell splits them.
+   *
+   * Whitespace separates 2 words, and a single- or double-quoted part stays
+   * in 1 word without its quotes. Nothing is expanded.
+   *
+   * @param string $command_line
+   *   The command line, with any quote the Gherkin parser escaped.
+   *
+   * @return array<int, string>
+   *   The words, in order.
+   *
+   * @throws \RuntimeException
+   *   When a quote is not closed.
+   */
+  protected function drushParseWords(string $command_line): array {
+    $command_line = $this->drushFixArgument($command_line);
+    $length = strlen($command_line);
+    $words = [];
+    $word = NULL;
+    $i = 0;
+
+    while ($i < $length) {
+      $char = $command_line[$i];
+
+      if (ctype_space($char)) {
+        if ($word !== NULL) {
+          $words[] = $word;
+        }
+
+        $word = NULL;
+        $i++;
+
+        continue;
+      }
+
+      if ($char === '"' || $char === "'") {
+        $close = strpos($command_line, $char, $i + 1);
+
+        if ($close === FALSE) {
+          throw new \RuntimeException(sprintf('The quote in "%s" is not closed.', $command_line));
+        }
+
+        // An empty quoted part still makes a word, as '""' does in a shell.
+        $word = ($word ?? '') . substr($command_line, $i + 1, $close - $i - 1);
+        $i = $close + 1;
+
+        continue;
+      }
+
+      $word = ($word ?? '') . $char;
+      $i++;
+    }
+
+    if ($word !== NULL) {
+      $words[] = $word;
+    }
+
+    return $words;
   }
 
   /**
