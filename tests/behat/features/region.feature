@@ -227,3 +227,129 @@ Feature: Check that RegionTrait works
       """
       The element "a" with the text "About us" in the region "footer" does not have the attribute "href" with the value "/contact" on the page "http://cli:8888/regions.html".
       """
+
+  @test-trait:RegionTrait @phpserver
+  Scenario: Assert "When I follow the link :link in the region :region" fails when the region lacks the link
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/regions.html"
+      And I follow the link "Read more" in the region "footer"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Link in the region "footer" with id|title|alt|text "Read more" not found.
+      """
+
+  @test-trait:RegionTrait @phpserver
+  Scenario: Assert "When I press the button :button in the region :region" fails when the region lacks the button
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/regions.html"
+      And I press the button "Subscribe" in the region "content"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Button in the region "content" with id|name|title|alt|value "Subscribe" not found.
+      """
+
+  @test-trait:RegionTrait @phpserver
+  Scenario: Assert "Then I should see the heading :heading in the region :region" fails when the region lacks the heading
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/regions.html"
+      Then I should see the heading "Latest news" in the region "sidebar"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Heading in the region "sidebar" with text "Latest news" not found.
+      """
+
+  @test-trait:RegionTrait @phpserver
+  Scenario: Assert "Then I should see the link :link in the region :region" fails when the region lacks the link
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/regions.html"
+      Then I should see the link "About us" in the region "content"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Link in the region "content" with id|title|alt|text "About us" not found.
+      """
+
+  @test-trait:RegionTrait @phpserver
+  Scenario: Assert "Then I should see the button :button in the region :region" fails when the region lacks the button
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/regions.html"
+      Then I should see the button "Save" in the region "footer"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Button in the region "footer" with id|name|title|alt|value "Save" not found.
+      """
+
+  @test-trait:RegionTrait @phpserver
+  Scenario: Assert "Then the element :selector in the region :region should exist" fails when the region lacks the element
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/regions.html"
+      Then the element "img" in the region "footer" should exist
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element in the region "footer" matching css "img" not found.
+      """
+
+  @test-trait:RegionTrait @phpserver
+  Scenario: Assert "Then the element :selector in the region :region should have the value :value" fails when the region lacks the element
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/regions.html"
+      Then the element "blockquote" in the region "content" should have the value "Latest news"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Element in the region "content" matching css "blockquote" not found.
+      """
+
+  @test-trait:RegionTrait @phpserver
+  Scenario: Assert "Then I should see the text :text in the region :region" fails when the page does not render the region
+    Given some behat configuration
+    And scenario steps tagged with "@phpserver":
+      """
+      When I visit "http://cli:8888/links.html"
+      Then I should see the text "Sidebar copy." in the region "sidebar"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      Region with name "sidebar" not found.
+      """
+
+  @test-trait:RegionTrait
+  Scenario: Assert "Then the element :selector with the text :text in the region :region should have the CSS property :property with the value :value" fails when the value differs
+    Given some behat configuration
+    And scenario steps tagged with "@javascript @phpserver":
+      """
+      When I visit "http://cli:8888/regions.html"
+      Then the element "span" with the text "New" in the region "content" should have the CSS property "color" with the value "rgb(0, 0, 255)"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an error:
+      """
+      The element "span" with the text "New" in the region "content" has the CSS property "color" with the value "rgb(255, 0, 0)", but "rgb(0, 0, 255)" was expected.
+      """
