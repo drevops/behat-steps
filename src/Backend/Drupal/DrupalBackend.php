@@ -136,10 +136,6 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    * {@inheritdoc}
    */
   public function getCreationAliases(string $entity_type): array {
-    if (!isset($this->core)) {
-      return [];
-    }
-
     $core = $this->getCore();
 
     if (!$core instanceof CreationAliasCapabilityInterface) {

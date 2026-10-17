@@ -377,7 +377,7 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame(DefaultHandler::class, $this->readFieldHandlers($backend)['rating']);
   }
 
-  public function testACoreBuiltOnTheCoreOfAnotherMajorFailsTheBuild(): void {
+  public function testCoreBuiltOnTheCoreOfAnotherMajorFailsTheBuild(): void {
     $template = 'Core class "%s" extends "%s", which is not the Core for Drupal 99. Extend "%s" instead.';
     $message = sprintf($template, ConsumerCore::class, Core::class, Core99Core::class);
 
