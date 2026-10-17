@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Alias;
 use DrevOps\BehatSteps\Backend\Alias\PostCreateAliasInterface;
 use DrevOps\BehatSteps\Backend\Alias\RolesAlias;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\RecordingUserCapability;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -83,6 +84,49 @@ class RolesAliasTest extends UnitTestCase {
     $alias->applyAfterCreate($stub, $entity);
 
     $this->assertSame([], $backend->roles);
+  }
+
+  public function testApplyAfterCreateUnwrapsResolvedRecordsAndTrims(): void {
+    $backend = new RecordingUserCapability();
+    $alias = new RolesAlias($backend);
+
+    $stub = new EntityStub('user', NULL, ['name' => 'bob', 'roles' => [['target_id' => 'editor'], ' reviewer ']]);
+
+    $alias->applyAfterCreate($stub, new \stdClass());
+
+    $this->assertSame(['editor', 'reviewer'], $backend->roles);
+  }
+
+  /**
+   * Tests that a 'roles' entry that names no role is rejected.
+   *
+   * @param mixed $role
+   *   The entry placed in the 'roles' list.
+   * @param string $expected_message
+   *   The message the alias is expected to throw with.
+   */
+  #[DataProvider('dataProviderApplyAfterCreateRejectsUnusableEntry')]
+  public function testApplyAfterCreateRejectsUnusableEntry(mixed $role, string $expected_message): void {
+    $backend = new RecordingUserCapability();
+    $alias = new RolesAlias($backend);
+
+    $stub = new EntityStub('user', NULL, ['name' => 'bob', 'roles' => [$role]]);
+
+    try {
+      $alias->applyAfterCreate($stub, new \stdClass());
+      $this->fail('Expected CreationAliasResolutionException.');
+    }
+    catch (CreationAliasResolutionException $exception) {
+      $this->assertSame($expected_message, $exception->getMessage());
+      $this->assertSame([], $backend->roles, 'No role should be assigned when an entry is rejected.');
+    }
+  }
+
+  public static function dataProviderApplyAfterCreateRejectsUnusableEntry(): \Iterator {
+    yield 'record without an id' => [['label' => 'Editor'], "Cannot assign role because one of the 'roles' entries is not a scalar or stringable value."];
+    yield 'object' => [new \stdClass(), "Cannot assign role because one of the 'roles' entries is not a scalar or stringable value."];
+    yield 'whitespace' => ['   ', "Cannot assign role because one of the 'roles' entries is empty after trimming."];
+    yield 'record with an empty id' => [['target_id' => ''], "Cannot assign role because one of the 'roles' entries is empty after trimming."];
   }
 
 }

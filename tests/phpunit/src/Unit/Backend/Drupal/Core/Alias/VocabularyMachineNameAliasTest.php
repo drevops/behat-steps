@@ -83,6 +83,11 @@ class VocabularyMachineNameAliasTest extends UnitTestCase {
       ['vocabulary_machine_name' => ''],
       '',
     ];
+    yield 'no alias leaves the stub as it is' => [
+      NULL,
+      ['name' => 'Tag'],
+      NULL,
+    ];
   }
 
 }
