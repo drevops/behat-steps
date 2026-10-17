@@ -47,11 +47,18 @@ $profile = (new Profile('default'))
     'login_field' => 'name',
     'login_wait' => 0,
     'blackbox' => NULL,
-    // A 'field_handlers' entry such as 'rating' => RatingHandler::class adds a
-    // handler for a field type or replaces a shipped one. A 'creation_aliases'
-    // entry such as OrganizationAlias::class adds a creation alias or replaces
-    // the shipped one with the same name.
-    'drupal' => ['drupal_root' => 'web', 'field_handlers' => [], 'creation_aliases' => []],
+    'drupal' => [
+      'drupal_root' => 'web',
+      // A class such as AcmeCore::class replaces the Core the package ships
+      // for the site's Drupal major.
+      'core' => NULL,
+      // A 'field_handlers' entry such as 'rating' => RatingHandler::class adds
+      // a handler for a field type or replaces a shipped one.
+      'field_handlers' => [],
+      // A 'creation_aliases' entry such as OrganizationAlias::class adds a
+      // creation alias or replaces the shipped one with the same name.
+      'creation_aliases' => [],
+    ],
     'drush' => [
       'alias' => 'self',
       'binary' => 'vendor/bin/drush',

@@ -108,7 +108,7 @@ The verbosity is the point: each call site documents exactly which F-rows it car
 
 ## Version-specific classifiers
 
-`DrupalBackend` instantiates `DrevOps\BehatSteps\Backend\Drupal\Core{N}\Core` for the detected Drupal major when that class exists, and the base `Core` otherwise. A version-specific classifier lives beside that subclass, in `Core{N}\Field\FieldClassifier`.
+`DrupalBackend` builds `DrevOps\BehatSteps\Backend\Drupal\Core{N}\Core` for the newest major at or below the detected one when such a class exists, and the base `Core` otherwise, unless the `drupal.core` option names a class. A version-specific classifier lives beside that subclass, in `Core{N}\Field\FieldClassifier`.
 
 `Core` creates its classifier in the protected factory `createFieldClassifier()`, and a `Core{N}\Core` in this package overrides it only when it needs a version-specific classifier class:
 

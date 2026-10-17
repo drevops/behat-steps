@@ -191,6 +191,7 @@ A nested option is written as a section in the configuration and reads as a dott
 | `blackbox` | section | - | Settings of the backend that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve. |
 | `drupal` | section | - | Settings of the backend that bootstraps Drupal in-process. |
 | `drupal.drupal_root` | string | required | Path to the Drupal root the in-process backend bootstraps. |
+| `drupal.core` | string | - | Class of the Core the in-process backend delegates to, in place of the one the package ships for the Drupal major the backend detects. A class implements CoreInterface, and one built on a shipped Core extends the Core for that major. |
 | `drupal.field_handlers` | map | `[]` | Map of field types to the handler classes that turn a value a step gives a field into the value Drupal stores. An entry adds a handler for a field type the package ships none for, or replaces the shipped one. A class implements FieldHandlerInterface.<br/>rating: Acme\Behat\Field\RatingHandler<br/>datetime: Acme\Behat\Field\FiscalDatetimeHandler |
 | `drupal.creation_aliases` | map | `[]` | List of creation alias classes the backend registers after the ones it ships. An alias resolves a value a creation step gives an entity that is not a field of it, such as "author" on a node. An entry adds an alias, or replaces the shipped one with the same name on the same entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.<br/>- Acme\Behat\Alias\OrganizationAlias |
 | `drush` | section | - | Settings of the backend that reaches the site by running Drush 13 or newer. |
@@ -308,7 +309,7 @@ final class RatingHandler implements FieldHandlerInterface {
 }
 ```
 
-The class has to be autoloadable when the run starts, through Composer or the suite's `autoload` setting. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
+The class has to be autoloadable through Composer, for example from an `autoload-dev` entry. The package builds the `drupal` backend before Behat registers the paths in its `autoload` setting, so a class only those paths can load isn't found. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
 
 The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way, and the registration holds for the rest of the run, because the backend does:
 
@@ -396,7 +397,7 @@ Given the following article content exists:
   | Lab report | ACME         |
 ```
 
-The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable when the run starts, through Composer or the suite's `autoload` setting. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
+The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable through Composer, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
 
 The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. An alias whose constructor takes arguments, such as a lookup service, is built by a context of your own and registered the same way. The registration holds for the rest of the run, because the backend does:
 
@@ -412,6 +413,44 @@ Where an alias runs depends on the backend:
 - **`drush`** creates only users, so it runs only the aliases for `user`. A pre-create alias runs before `drush user:create`, which takes only the name, the password and the email, and a post-create alias runs after it, with an object carrying only the new user's `uid` in place of the entity. Drupal isn't loaded in the Behat process there, so an alias that reaches the site takes the backend in its constructor, the way the shipped `roles` alias takes `UserCapabilityInterface`, and is registered from a context.
 
 The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` are covered by semantic versioning. The shipped aliases are final, so an alias of your own implements an interface rather than extending one of them.
+
+### Core
+
+The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. The base `Core` serves every supported Drupal major that has no version core of its own. A major that changes something the base relies on gets a version core of its own, such as `DrevOps\BehatSteps\Backend\Drupal\Core13\Core`, and the backend builds the newest version core at or below the major it detects, or the base `Core` when none applies.
+
+`drupal.core` names a class of your own instead, for a site whose modules change what an operation has to do:
+
+```php
+$profile->withExtension(new Extension(BehatStepsExtension::class, [
+  'drupal' => [
+    'drupal_root' => 'web',
+    'core' => AcmeCore::class,
+  ],
+]));
+```
+
+The class implements `CoreInterface` and is built with the Drupal root, the base URL and the random generator, as the package's Core is. The backend builds it, so a Core that needs other collaborators creates them in its constructor. Extending the Core the package ships for your site's major keeps everything you don't override:
+
+```php
+namespace Acme\Behat;
+
+use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
+
+class AcmeCore extends Core {
+
+  public function cacheClear(): void {
+    parent::cacheClear();
+    // Purge the site's reverse proxy as well.
+  }
+
+}
+```
+
+The class has to be autoloadable through Composer, for example from an `autoload-dev` entry, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CoreInterface` or can't be instantiated fails with a `BootstrapException` naming it when the package builds the `drupal` backend.
+
+When a class builds on a Core of the package, the nearest one among its parents has to be the Core for the site's major. When it's another, building the backend fails with `Core class "..." extends "...", which is not the Core for Drupal N. Extend "..." instead.` That happens when a site moves to a major whose Core is another class, and when a release of the package adds a version core for the major a site already runs: in both cases, change `AcmeCore` to extend the class the message names. Naming a Core of the package itself, such as the base `Core` on a major with a version core, fails the same way with `Core class "..." is not the Core for Drupal N. Use "..." instead.` A suite running on 2 majors whose Cores differ picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
+
+The option is covered by semantic versioning. `CoreInterface` and the Core classes aren't: a minor release can add a method to the interface, which breaks a class built from scratch but not one extending a Core of the package, or rename a protected method `AcmeCore` overrides. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
 
 ### Trait options
 

@@ -198,7 +198,6 @@ class BehatStepsExtensionTest extends UnitTestCase {
     $container = $this->load(['drupal' => ['drupal_root' => 'web']]);
 
     $this->assertTrue($container->hasDefinition('behat_steps.backend.drupal'));
-    $this->assertTrue($container->hasDefinition('behat_steps.backend.core'));
     $this->assertSame('web', $container->getParameter('behat_steps.backend.drupal.drupal_root'));
   }
 

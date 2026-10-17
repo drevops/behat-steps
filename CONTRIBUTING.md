@@ -271,7 +271,7 @@ These are the extension points. Each one stays open, along with every class that
 
 - **The contexts**: `WebRawContext`, `WebContext` and `DrupalContext`, one of which a project's own context extends.
 - **The backends**: a project backend may extend `DrupalBackend`, `DrushBackend` or `BlackboxBackend` rather than implement `BackendInterface` from scratch.
-- **`Core`**: a version-specific core extends it and registers its own field handlers and creation aliases.
+- **`Core`**: a version core extends it to change what its Drupal major changed, and the class the `drupal.core` option names can extend the Core for the site's major.
 - **The field handlers**: a handler for another field type extends a shipped one, the way `OgStandardReferenceHandler` extends `EntityReferenceHandler`.
 - **The browser adapters**: an adapter for a browser driver derived from a shipped one extends that driver's adapter.
 - **`HttpClientFactory`**: a package replaces the `behat_steps.http_client_factory` service with a subclass, as [docs/http-clients.md](docs/http-clients.md) describes.
@@ -841,6 +841,8 @@ ahoy test-bdd
 ### Drupal versions
 
 Each major has its own fixture directory under [tests/behat/fixtures_drupal](tests/behat/fixtures_drupal), addressed as `d${DRUPAL_VERSION}`, and `DRUPAL_VERSION` defaults to `11` everywhere it is read. Renovate leaves Composer major updates alone, so moving to a new core major is a deliberate change rather than an automatic one.
+
+Code that differs between Drupal majors goes in a version core, `DrevOps\BehatSteps\Backend\Drupal\Core{N}\Core`. It extends the newest version core below `N`, or the base `Core` when there is none, and overrides only what major `N` changed. `DrupalBackend` builds the newest version core at or below the major it detects, and rejects a Core whose nearest Core of the package is the one for another major. `DrupalBackendCoreSelectionTest` covers both with the `Core99\Core` fixture, which stands in for a version core no Drupal release has.
 
 Drupal 12 is pinned to `~12.0.0-beta1` and runs 2 legs of its own - PHP 8.5, Behat 4, `normal` and `lowest` - so the `normal` / `lowest` pair covers both majors. Getting there takes a patched contrib set, because Drupal 12 and Symfony 8 broke most of what the fixture installs. See [Patched contrib](#patched-contrib).
 
