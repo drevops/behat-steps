@@ -57,7 +57,7 @@ npm run test:accessibility   # Check the built site for accessibility issues
 
 - **1 topic per page.** The sidebar follows the folder tree of `content/`, ordered by the `sidebar_position` in each page's front matter, and a folder's `_category_.json` names its category. A folder's `README.md` is its index page.
 - **Plain Markdown.** Pages are `.md` files, which Docusaurus reads as CommonMark, so they render the same on GitHub. Docusaurus-only syntax, such as a `:::note` admonition, shows as plain text there, so keep it rare. Name a page `.mdx` only when it needs a React component.
-- **Link by file.** Link to another page by its path relative to the page holding the link, and to any other file in the repository the same way. From a page at the top of `content/`, that's `[Backend resolution](guides/configuration.md#backend-resolution)` for a page and `[CONTRIBUTING.md](../../CONTRIBUTING.md#steps-format)` for a repository file. The build rewrites a link that leaves `content/` into a GitHub link at the tag or branch that a release build comes from, and at `main` for every other build. It fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
+- **Link by file.** Link to another page by its path relative to the page holding the link, and to any other file in the repository the same way. From a page at the top of `content/`, that's `[Backend resolution](guides/configuration.md#backend-resolution)` for a page and `[CONTRIBUTING.md](../../CONTRIBUTING.md#steps-format)` for a repository file. The build rewrites a link that leaves `content/` into a GitHub link that points at the tag or branch a release build comes from, at the commit a CI build comes from, and at `main` for a local build. It fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
 - **Diagrams.** The architecture diagrams are PlantUML sources in `content/architecture/`, and the `update-architecture-docs` skill renders them to committed SVGs.
 - **Spelling.** CSpell checks the hand-written pages, `docs/README.md` and the repository's root `README.md` in US English. The 2 references are generated from docblocks, so CSpell skips them. A word the docs use in several places goes in `cspell.json`, and so does a word only the architecture walkthrough uses, because its skill regenerates that page. Any other word goes below the front matter of the 1 page that uses it, as `<!-- cspell:ignore word -->`.
 
@@ -94,6 +94,8 @@ These builds show "development" as the version in the footer, and search engines
 
 - on every release tag, with the tag as the version;
 - on a manual run of the `Release docs` workflow from **Actions**, from the tag or branch you type, so the pages and their GitHub links come from the same place.
+
+A tag pushed on a maintenance branch that carries `release-docs.yml` republishes the site from that branch and replaces the newer docs, so remove the workflow from the branch when you cut it.
 
 The repository's GitHub Pages source must be **GitHub Actions**, and the `github-pages` environment must allow deployments from release tags and from the branch you start a manual run on. The custom domain needs 2 settings outside the repository: `behat-steps.drevops.com` as the custom domain in the GitHub Pages settings, and a DNS `CNAME` record pointing it at `drevops.github.io`.
 
