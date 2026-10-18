@@ -61,6 +61,15 @@ describe('repositoryLinks', () => {
     expect(rewrite('../../../MIGRATION.md', { type: 'definition' })).toBe('https://github.com/drevops/behat-steps/blob/main/MIGRATION.md');
   });
 
+  test('rewrites a link that follows a text node', () => {
+    const node = { type: 'link', url: '../../../CONTRIBUTING.md', children: [] };
+    const tree = { type: 'root', children: [{ type: 'paragraph', children: [{ type: 'text', value: 'See ' }, node] }] };
+
+    repositoryLinks(OPTIONS)(tree, { path: PAGE });
+
+    expect(node.url).toBe('https://github.com/drevops/behat-steps/blob/main/CONTRIBUTING.md');
+  });
+
   test('leaves an image alone', () => {
     expect(rewrite('../../../logo.png', { type: 'image' })).toBe('../../../logo.png');
   });

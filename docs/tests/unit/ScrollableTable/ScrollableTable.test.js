@@ -4,10 +4,12 @@ import ScrollableTable from '../../../src/components/ScrollableTable';
 describe('ScrollableTable', () => {
   let widths;
   let resize;
+  let observe;
   let disconnect;
 
   beforeEach(() => {
     widths = { scrollWidth: 600, clientWidth: 600 };
+    observe = jest.fn();
     disconnect = jest.fn();
 
     // jsdom has no layout, so the widths and the resize events are stubbed.
@@ -17,7 +19,7 @@ describe('ScrollableTable', () => {
     global.ResizeObserver = jest.fn((callback) => {
       resize = callback;
 
-      return { observe: jest.fn(), disconnect };
+      return { observe, disconnect };
     });
   });
 
@@ -52,6 +54,7 @@ describe('ScrollableTable', () => {
 
     const table = screen.getByRole('table');
 
+    expect(observe).toHaveBeenCalledWith(table);
     expect(table).not.toHaveAttribute('tabindex');
 
     widths = { scrollWidth: 900, clientWidth: 600 };

@@ -62,8 +62,8 @@ const MobileSidebarWrapper = (props) => {
       document.removeEventListener('keydown', closeOnEscape);
       restore();
 
-      // Focus left in the hidden sidebar is lost, while a page change has
-      // already moved it to the new content.
+      // Focus left in the hidden sidebar is lost, so it returns to the toggle.
+      // Focus that other code moved out of the sidebar stays where it is.
       if (sidebar.contains(document.activeElement) || document.activeElement === document.body) {
         document.querySelector('.navbar__toggle')?.focus({ preventScroll: true });
       }

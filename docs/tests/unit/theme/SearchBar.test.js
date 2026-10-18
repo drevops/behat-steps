@@ -33,6 +33,11 @@ describe('SearchBar', () => {
 
     input.setAttribute('role', 'combobox');
     screen.getByRole('listbox').before(input);
+
+    // Flushes the observer's insertion record, so only the 'aria-owns'
+    // change can trigger the next patch.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     input.setAttribute('aria-owns', 'listbox-2');
 
     await waitFor(() => expect(input).toHaveAttribute('aria-controls', 'listbox-2'));
