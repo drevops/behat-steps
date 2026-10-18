@@ -33,6 +33,7 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ScalarNode;
 
 /**
  * Tests for docs generation.
@@ -4082,8 +4083,34 @@ EOD);
     $this->assertStringContainsString("| `text.login_url` | string | `'/user'` |", $actual);
     $this->assertStringContainsString('| `drupal.drupal_root` | string | required |', $actual);
 
-    // Line breaks inside an option description are made table-safe.
-    $this->assertStringContainsString('<br/>', $actual);
+    // An example in an option description keeps its lines in a code block.
+    $this->assertStringContainsString('<pre><code>javascript:<br/>  enabled: true<br/>', $actual);
+  }
+
+  #[DataProvider('dataProviderExtensionOptionDescription')]
+  public function testExtensionOptionDescription(string $info, string $expected): void {
+    $node = new ScalarNode('option');
+    $node->setInfo($info);
+
+    $this->assertSame($expected, extension_option_description($node));
+  }
+
+  public static function dataProviderExtensionOptionDescription(): array {
+    return [
+      'no info' => ['', ''],
+      'a line' => ['Path to the binary.', 'Path to the binary.'],
+      'two lines' => ['Path to the binary.' . PHP_EOL . 'Relative to the root.', 'Path to the binary.<br/>Relative to the root.'],
+      'a quoted value' => ['Options such as "--uri=http://example.com".', 'Options such as `--uri=http://example.com`.'],
+      'a pipe' => ['Reads "a | b".', 'Reads `a \| b`.'],
+      'an example keeping its relative indentation' => [
+        'Defaults by group.' . PHP_EOL . '  javascript:' . PHP_EOL . '    enabled: true' . PHP_EOL,
+        'Defaults by group.<pre><code>javascript:<br/>  enabled: true<br/></code></pre>',
+      ],
+      'an example keeping its quotes and escaping its markup' => [
+        'Map of regions.' . PHP_EOL . '  Main: "#main > .region"' . PHP_EOL,
+        'Map of regions.<pre><code>Main: "#main &gt; .region"<br/></code></pre>',
+      ],
+    ];
   }
 
   #[DataProvider('dataProviderExtensionOptionType')]

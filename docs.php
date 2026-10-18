@@ -2310,6 +2310,14 @@ function extension_option_type(NodeInterface $node): string {
 /**
  * Render the description of a configuration node as 1 table cell.
  *
+ * An indented line of the node's info belongs to an example, which renders as
+ * a code block keeping its relative indentation. A double-quoted value in the
+ * description renders as code, so a URL in it does not become a link.
+ *
+ * Every line of an example ends in a '<br/>', since a line break would end the
+ * table row. The last line ends in one too, so the site renders a 1-line
+ * example as a block.
+ *
  * @param \Symfony\Component\Config\Definition\NodeInterface $node
  *   The configuration node.
  *
@@ -2319,9 +2327,32 @@ function extension_option_type(NodeInterface $node): string {
 function extension_option_description(NodeInterface $node): string {
   $info = method_exists($node, 'getInfo') ? (string) $node->getInfo() : '';
 
-  $lines = array_filter(array_map(trim(...), explode(PHP_EOL, $info)), static fn(string $line): bool => $line !== '');
+  $description = [];
+  $example = [];
 
-  return str_replace('|', '\\|', implode('<br/>', $lines));
+  foreach (explode(PHP_EOL, $info) as $line) {
+    if (trim($line) === '') {
+      continue;
+    }
+
+    if (str_starts_with($line, ' ')) {
+      $example[] = rtrim($line);
+      continue;
+    }
+
+    $description[] = (string) preg_replace('/"([^"]+)"/', '`$1`', trim($line));
+  }
+
+  $cell = implode('<br/>', $description);
+
+  if ($example !== []) {
+    $indentation = min(array_map(static fn(string $line): int => strspn($line, ' '), $example));
+    $example = array_map(static fn(string $line): string => htmlspecialchars(substr($line, $indentation), ENT_NOQUOTES), $example);
+
+    $cell .= '<pre><code>' . implode('<br/>', $example) . '<br/></code></pre>';
+  }
+
+  return str_replace('|', '\\|', $cell);
 }
 
 /**

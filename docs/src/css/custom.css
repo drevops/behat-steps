@@ -57,6 +57,14 @@
   --ifm-link-decoration: none;
 }
 
+/* A code block in a table cell scrolls inside the cell rather than widening
+   the table. */
+.markdown td .theme-code-block {
+  width: 0;
+  min-width: 100%;
+  margin: 0.5rem 0 0;
+}
+
 /* The footer is dark in both color modes, so its links take the dark-mode
    blue on hover. */
 .footer--dark {
