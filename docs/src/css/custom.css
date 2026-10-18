@@ -22,10 +22,9 @@
   --search-local-muted-color: var(--ifm-color-emphasis-700);
 }
 
-/* The dark-mode shades step from #84b2e6, the logo blue lightened until text
-   in it reaches 4.5:1 on the dark backgrounds. Chrome paints inline code on
-   a striped table row lighter than axe computes, so the blue keeps headroom
-   above 4.5:1. */
+/* The dark-mode shades step from #84b2e6, the logo blue lightened past 4.5:1
+   on the dark backgrounds. Chrome paints inline code on a striped table row
+   lighter than axe computes, so the blue keeps headroom above that ratio. */
 [data-theme='dark'] {
   --ifm-color-primary: var(--behat-steps-blue-on-dark);
   --ifm-color-primary-dark: #669fe0;
