@@ -1,5 +1,5 @@
 {
-    "extends": ["config:recommended"],
+    "extends": ["config:recommended", "security:minimumReleaseAgeNpm"],
     "automerge": true,
     "rangeStrategy": "bump",
     "dependencyDashboard": true,
@@ -64,21 +64,25 @@
             "enabled": false
         },
         {
-            "description": "An npm release waits 3 days before it is proposed, so a compromised version is usually unpublished before it can be automerged.",
-            "matchManagers": ["npm"],
-            "minimumReleaseAge": "3 days"
-        },
-        {
             "matchPackageNames": ["*"],
             "groupName": "all dependencies",
             "groupSlug": "all"
         },
         {
-            "description": "The docs site wraps theme components of Docusaurus and its search plugin, which a major release can change without failing a test, so a major npm update gets a pull request of its own that waits for review.",
+            "description": "The docs site wraps theme components of Docusaurus and its search plugin, which a major release can change without failing a test. These updates go to a separate group with automerge off, so the other updates still automerge.",
             "matchManagers": ["npm"],
             "matchUpdateTypes": ["major"],
-            "groupName": "docs site major updates",
-            "groupSlug": "docs-major",
+            "groupName": "docs site dependencies",
+            "groupSlug": "docs",
+            "automerge": false
+        },
+        {
+            "description": "A 0.x package such as the search plugin can break in a minor release, so those updates are held for review too.",
+            "matchManagers": ["npm"],
+            "matchCurrentVersion": "/^0\\./",
+            "matchUpdateTypes": ["minor"],
+            "groupName": "docs site dependencies",
+            "groupSlug": "docs",
             "automerge": false
         }
     ]

@@ -17,9 +17,11 @@ on:
         required: true
         type: string
 
+# A newer run queues behind the one in progress, so a run that fails
+# before deploying never cancels a good deploy.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -30,6 +32,7 @@ jobs:
     if: github.repository == 'drevops/behat-steps'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     permissions:
       contents: read # Read the documentation source.

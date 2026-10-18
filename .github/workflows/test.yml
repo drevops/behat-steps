@@ -297,7 +297,7 @@ jobs:
         run: npm ci --ignore-scripts
         working-directory: docs
 
-      # A preview links the repository files of the commit it was built from,
+      # Links point at the pull request's head commit, or the pushed commit,
       # so a file the pull request adds resolves.
       - name: Build documentation site
         run: npm run build
