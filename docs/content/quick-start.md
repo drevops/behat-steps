@@ -43,7 +43,7 @@ class FeatureContext extends WebRawContext {
 
 ## 2. Enable the extension
 
-Add the extension to the profile in your `behat.php`:
+Add the extension to the profile in your `behat.php`, next to Mink's own extension:
 
 ```php
 <?php
@@ -55,6 +55,7 @@ use Behat\Config\Extension;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
 use Behat\MinkExtension\Context\MinkContext;
+use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
@@ -65,6 +66,12 @@ $suite = (new Suite('default'))
 
 $profile = (new Profile('default'))
   ->withSuite($suite)
+  ->withExtension(new Extension(MinkExtension::class, [
+    'base_url' => 'http://your-site.local',
+    'sessions' => [
+      'browserkit_http' => ['browserkit_http' => NULL],
+    ],
+  ]))
   ->withExtension(new Extension(BehatStepsExtension::class, [
     'backends' => ['drupal', 'blackbox'],
     'drupal' => ['drupal_root' => 'web'],
@@ -80,7 +87,7 @@ The `steps` entry gives the message steps the selector of the success message, w
 
 The `backends` list says which backends a scenario may reach, and in what order. A step never names a backend, only the capability it needs, and the first backend in the list that provides that capability answers. See [Backend resolution](guides/configuration.md#backend-resolution).
 
-Browser sessions come from Mink's own extension, `Behat\MinkExtension\ServiceContainer\MinkExtension`, which you register in the same profile, as [behat.dist.php](../../behat.dist.php) shows. `BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and applies them to the requests that steps make from PHP, such as a file download, so the page and the download reach the site with the same settings. [HTTP clients](guides/http-clients.md) covers the rest.
+Browser sessions come from Mink's own extension. Set `base_url` to your site's address. The `browserkit_http` session loads pages over HTTP without a browser, which is all the scenario below needs, and a `@javascript` scenario also needs a JavaScript session, as [behat.dist.php](../../behat.dist.php) shows. `BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and applies them to the requests that steps make from PHP, such as a file download, so the page and the download reach the site with the same settings. [HTTP clients](guides/http-clients.md) covers the rest.
 
 By default, `DrupalContext` fails any scenario that logs a PHP error. It reads those errors from the table the core `dblog` module creates, through a backend that loads Drupal into the Behat process. On a site without `dblog`, or under a profile without such a backend, every scenario fails at its start until you provide what's missing or [switch the Watchdog check off](guides/usage.md#switch-a-trait-off).
 
