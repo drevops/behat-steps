@@ -3470,7 +3470,6 @@ Then the response header "Connection" should not contain "Keep-Alive"
 >  Custom breakpoints:
 >  ```
 >  class FeatureContext extends WebContext {
->    use ResponsiveTrait;
 >  
 >    #[BeforeScenario]
 >    public function setupCustomBreakpoints(): void {

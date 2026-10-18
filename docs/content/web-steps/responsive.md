@@ -41,7 +41,6 @@ custom_edit_url: null
 >  Custom breakpoints:
 >  ```
 >  class FeatureContext extends WebContext {
->    use ResponsiveTrait;
 >  
 >    #[BeforeScenario]
 >    public function setupCustomBreakpoints(): void {
