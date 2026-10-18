@@ -738,6 +738,8 @@ ahoy test-coverage  # Run both suites and write one coverage report
 
 Coverage is collected across both suites in a single run, so the report covers everything the tests reach. Its output paths are declared in [phpunit.xml](phpunit.xml).
 
+[phpunit.xml](phpunit.xml) also requires coverage metadata, so a test counts only the lines of the units its `#[CoversClass]` or `#[CoversTrait]` names. A class that only other classes' tests reach, such as an exception they expect, reads as uncovered until a test of its own names it, as `BootstrapExceptionTest` does.
+
 ### Behat tests
 
 Behat tests are used as functional/integration tests to validate the functionality of the traits. These Behat tests run in the same way they would be run in your project: one context, [FeatureContext.php](tests/behat/bootstrap/FeatureContext.php), extends `DrupalContext` and carries the test-only overrides, and is then run on the pre-configured [fixture Drupal site](tests/behat/fixtures_drupal/d11) using [test features](tests/behat/features).

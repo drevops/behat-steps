@@ -215,6 +215,14 @@ Feature: Check that FieldTrait works
     When I visit "http://cli:8888/fields.html"
     Then the field "field1" should not be required
 
+  @phpserver
+  Scenario: Assert that a field is required when it or its label carries a required marker
+    When I visit "http://cli:8888/fields.html"
+    Then the field "marker-field-class" should be required
+    And the field "marker-label-class" should be required
+    And the field "marker-asterisk" should be required
+    And the field "marker-descendant" should be required
+
   @test-trait:FieldTrait
   Scenario: Assert negative "the field :field should be required" for a non-required field
     Given some behat configuration
@@ -665,7 +673,7 @@ Feature: Check that FieldTrait works
       1 scenario (1 passed)
       """
 
-  @datetime @test-skipped
+  @datetime
   Scenario: Fill datetime field with date and time
     Given the following page content exists:
       | title                     |
@@ -675,8 +683,11 @@ Feature: Check that FieldTrait works
     And I fill in the datetime field "Event date" with the date "2024-01-15" and the time "14:30:00"
     And I press "Save"
     Then I should see "Page [TEST] Datetime test page has been updated."
+    When I visit the "page" content edit page with the title "[TEST] Datetime test page"
+    Then the "field_datetime[0][value][date]" field should contain "2024-01-15"
+    And the "field_datetime[0][value][time]" field should contain "14:30:00"
 
-  @datetime @test-skipped
+  @datetime
   Scenario: Fill datetime field using separate date and time steps
     Given the following page content exists:
       | title                          |
@@ -687,8 +698,11 @@ Feature: Check that FieldTrait works
     And I fill in the time part of the datetime field "Event date" with "15:45:00"
     And I press "Save"
     Then I should see "Page [TEST] Datetime separate steps has been updated."
+    When I visit the "page" content edit page with the title "[TEST] Datetime separate steps"
+    Then the "field_datetime[0][value][date]" field should contain "2024-02-20"
+    And the "field_datetime[0][value][time]" field should contain "15:45:00"
 
-  @datetime @test-skipped
+  @datetime
   Scenario: Fill date-only field
     Given the following page content exists:
       | title                      |
@@ -698,8 +712,10 @@ Feature: Check that FieldTrait works
     And I fill in the datetime field "Event date only" with the date "2024-03-10" and the time ""
     And I press "Save"
     Then I should see "Page [TEST] Date only test page has been updated."
+    When I visit the "page" content edit page with the title "[TEST] Date only test page"
+    Then the "field_date_only[0][value][date]" field should contain "2024-03-10"
 
-  @datetime @test-skipped
+  @datetime
   Scenario: Fill date-only field using date part step
     Given the following page content exists:
       | title                      |
@@ -709,8 +725,10 @@ Feature: Check that FieldTrait works
     And I fill in the date part of the datetime field "Event date only" with "2024-04-05"
     And I press "Save"
     Then I should see "Page [TEST] Date part test page has been updated."
+    When I visit the "page" content edit page with the title "[TEST] Date part test page"
+    Then the "field_date_only[0][value][date]" field should contain "2024-04-05"
 
-  @datetime @test-skipped
+  @datetime
   Scenario: Fill daterange field with start and end dates
     Given the following page content exists:
       | title                      |
@@ -721,8 +739,13 @@ Feature: Check that FieldTrait works
     And I fill in the end datetime field "Event period" with the date "2024-06-05" and the time "17:00:00"
     And I press "Save"
     Then I should see "Page [TEST] Daterange test page has been updated."
+    When I visit the "page" content edit page with the title "[TEST] Daterange test page"
+    Then the "field_daterange[0][value][date]" field should contain "2024-06-01"
+    And the "field_daterange[0][value][time]" field should contain "09:00:00"
+    And the "field_daterange[0][end_value][date]" field should contain "2024-06-05"
+    And the "field_daterange[0][end_value][time]" field should contain "17:00:00"
 
-  @datetime @test-skipped
+  @datetime
   Scenario: Fill daterange date-only field
     Given the following page content exists:
       | title                                |
@@ -733,6 +756,9 @@ Feature: Check that FieldTrait works
     And I fill in the end datetime field "Event period date only" with the date "2024-07-15" and the time ""
     And I press "Save"
     Then I should see "Page [TEST] Daterange date only test page has been updated."
+    When I visit the "page" content edit page with the title "[TEST] Daterange date only test page"
+    Then the "field_daterange_date_only[0][value][date]" field should contain "2024-07-10"
+    And the "field_daterange_date_only[0][end_value][date]" field should contain "2024-07-15"
 
   @test-trait:FieldTrait @datetime
   Scenario: Assert negative "fill in the datetime field" for non-existent field

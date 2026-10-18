@@ -278,3 +278,48 @@ Feature: Check that TaxonomyTrait works
     Then I should see "[TEST] V-Tag 1"
     And I should see "[TEST] V-Tag 2"
     And I should see "[TEST] V-Tag 3"
+
+  Scenario: Create a term with the "parent" column naming its parent term
+    Given the following "tags" terms exist:
+      | name               |
+      | [TEST] Parent term |
+    And the following "tags" terms exist:
+      | name              | parent             |
+      | [TEST] Child term | [TEST] Parent term |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "tags" term edit page with the name "[TEST] Child term"
+    Then the option "[TEST] Parent term" within the select "edit-parent" should be selected
+
+  @test-trait:Drupal\TaxonomyTrait
+  Scenario: Assert that a "parent" column naming a term that does not exist fails
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following "tags" terms exist:
+        | name              | parent                |
+        | [TEST] Child term | [TEST] Missing parent |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException" exception:
+      """
+      Cannot create term because parent term "[TEST] Missing parent" does not exist in vocabulary "tags".
+      """
+
+  @test-trait:Drupal\TaxonomyTrait
+  Scenario: Assert that a "parent" column naming a term that several terms share fails
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following "tags" terms exist:
+        | name                 |
+        | [TEST] Shared parent |
+        | [TEST] Shared parent |
+      And the following "tags" terms exist:
+        | name              | parent               |
+        | [TEST] Child term | [TEST] Shared parent |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException" exception:
+      """
+      Cannot resolve parent term "[TEST] Shared parent" in vocabulary "tags" because multiple terms share that name.
+      """

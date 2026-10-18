@@ -305,6 +305,17 @@ Feature: Check that ContentTrait works
     When I visit the "page" content page with the title "[TEST] Page from headline"
     Then I should see "[TEST] Page from headline"
 
+  Scenario: Create a node with the "author" column naming its author
+    Given the following users exist:
+      | name                 | mail                             |
+      | content_author_behat | content_author_behat@example.com |
+    And the following page content exists:
+      | title                | author               |
+      | [TEST] Authored page | content_author_behat |
+    And I am logged in as a user with the role "administrator"
+    When I go to "/admin/content"
+    Then I should see the text "content_author_behat" in the row containing "[TEST] Authored page"
+
   Scenario: Assert "Then the :content_type content with the title :title should not exist" works as expected
     Given I am logged in as a user with the role "administrator"
     Then the "page" content with the title "[TEST] Non-existing page" should not exist

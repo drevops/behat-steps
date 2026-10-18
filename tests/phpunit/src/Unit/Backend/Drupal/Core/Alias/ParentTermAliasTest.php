@@ -29,6 +29,12 @@ class ParentTermAliasTest extends UnitTestCase {
     $this->assertNotSame('', $alias->getDescription());
   }
 
+  public function testDefaultLookupTouchesNoDrupalUntilApplied(): void {
+    $alias = new ParentTermAlias();
+
+    $this->assertSame('parent', $alias->getName());
+  }
+
   public function testApplyToStubResolvesParent(): void {
     $alias = new ParentTermAlias(static fn(string $name, string $vid): int => $name === 'Frameworks' && $vid === 'tags' ? 99 : 0);
 
@@ -127,6 +133,39 @@ class ParentTermAliasTest extends UnitTestCase {
     yield 'null' => [NULL];
     yield 'zero integer' => [0];
     yield 'empty array' => [[]];
+  }
+
+  /**
+   * Tests that a parent the alias cannot resolve to a valid tid is rejected.
+   *
+   * @param array<string, mixed> $values
+   *   The stub values, which carry no bundle.
+   * @param int|string $tid
+   *   The tid the lookup returns.
+   * @param string $expected_message
+   *   The message the alias is expected to throw with.
+   */
+  #[DataProvider('dataProviderApplyToStubRejectsUnresolvableParent')]
+  public function testApplyToStubRejectsUnresolvableParent(array $values, int|string $tid, string $expected_message): void {
+    $alias = new ParentTermAlias(static fn(): int|string => $tid);
+
+    $stub = new EntityStub('taxonomy_term', NULL, $values);
+
+    try {
+      $alias->applyToStub($stub);
+      $this->fail('Expected CreationAliasResolutionException.');
+    }
+    catch (CreationAliasResolutionException $exception) {
+      $this->assertSame($expected_message, $exception->getMessage());
+      $this->assertSame($values['parent'], $stub->getValue('parent'), 'The parent value must stay as given when resolution fails.');
+    }
+  }
+
+  public static function dataProviderApplyToStubRejectsUnresolvableParent(): \Iterator {
+    yield 'parent that is not a name' => [['parent' => ['Frameworks'], 'vid' => 'tags'], 7, "Cannot resolve parent term because the 'parent' value is not a scalar or stringable object."];
+    yield 'vocabulary that is not a name' => [['parent' => 'Frameworks', 'vid' => ['tags']], 7, 'Cannot resolve parent term because the vocabulary value is not a scalar or stringable object.'];
+    yield 'lookup returning a tid of 0' => [['parent' => 'Frameworks', 'vid' => 'tags'], 0, 'Cannot resolve parent term "Frameworks" in vocabulary "tags" because the lookup returned an invalid tid.'];
+    yield 'lookup returning a tid that is not a number' => [['parent' => 'Frameworks', 'vid' => 'tags'], 'abc', 'Cannot resolve parent term "Frameworks" in vocabulary "tags" because the lookup returned an invalid tid.'];
   }
 
 }

@@ -86,6 +86,70 @@ class FieldTraitTest extends UnitTestCase {
     $this->testObject->fieldFillMultiValue('Tags', new TableNode([['value'], ['Drupal']]));
   }
 
+  public function testFillMultiValueWithNoValuesLooksUpNothing(): void {
+    $this->testObject->getBrowserCapabilityResolver()->registerAdapter(AnyDriverAdapter::class);
+
+    $this->page->expects($this->never())->method('find');
+
+    $this->testObject->fieldFillMultiValue('Tags', new TableNode([['value']]));
+  }
+
+  public function testFillMultiValueFindsTheWrapperFromTheFirstInput(): void {
+    $this->testObject->getBrowserCapabilityResolver()->registerAdapter(AnyDriverAdapter::class);
+
+    $row = $this->createMock(NodeElement::class);
+    $row->expects($this->once())->method('setValue')->with('Drupal');
+
+    $wrapper = $this->createMock(NodeElement::class);
+    $wrapper->method('findAll')->willReturn([$row]);
+
+    // Both title lookups miss, so the wrapper comes from the input's second
+    // ancestor lookup.
+    $first_input = $this->createMock(NodeElement::class);
+    $first_input->method('find')->willReturnOnConsecutiveCalls(NULL, $wrapper);
+
+    $this->page->method('find')->willReturn(NULL);
+    $this->page->expects($this->once())->method('findField')->with('Tags')->willReturn($first_input);
+
+    $this->testObject->fieldFillMultiValue('Tags', new TableNode([['value'], ['Drupal']]));
+  }
+
+  public function testFillMultiValueThrowsWhenAddMoreButtonIsMissing(): void {
+    $this->testObject->getBrowserCapabilityResolver()->registerAdapter(AnyDriverAdapter::class);
+
+    // 2 values and 1 row need 1 "Add another item" click, and the wrapper
+    // holds no button.
+    $wrapper = $this->createMock(NodeElement::class);
+    $wrapper->method('findAll')->willReturn([]);
+    $wrapper->method('find')->willReturn(NULL);
+    $this->page->method('find')->willReturn($wrapper);
+
+    $this->expectException(ElementNotFoundException::class);
+    $this->expectExceptionMessage('"Add another item" button matching css "');
+
+    $this->testObject->fieldFillMultiValue('Tags', new TableNode([['value'], ['Drupal'], ['Behat']]));
+  }
+
+  /**
+   * Tests that a value is quoted for XPath whatever quotes it holds.
+   *
+   * @param string $value
+   *   The value to quote.
+   * @param string $expected
+   *   The XPath literal.
+   */
+  #[DataProvider('dataProviderXpathLiteral')]
+  public function testXpathLiteral(string $value, string $expected): void {
+    $this->assertSame($expected, $this->testObject->callXpathLiteral($value));
+  }
+
+  public static function dataProviderXpathLiteral(): \Iterator {
+    yield 'no quotes' => ['Tags', "'Tags'"];
+    yield 'double quotes' => ['Say "hi"', "'Say \"hi\"'"];
+    yield 'single quote' => ["Editor's picks", "\"Editor's picks\""];
+    yield 'both quotes' => ["Editor's \"picks\"", "concat('Editor', \"'\", 's \"picks\"')"];
+  }
+
   /**
    * Tests that the validation tag is read from the scenario and its feature.
    *
@@ -122,6 +186,10 @@ class FieldTraitTestImplementation extends WebRawContext {
 
   public function testIsAllFormValidationDisabled(): bool {
     return $this->fieldDisableAllFormValidation;
+  }
+
+  public function callXpathLiteral(string $value): string {
+    return $this->fieldXpathLiteral($value);
   }
 
 }

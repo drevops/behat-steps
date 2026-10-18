@@ -256,6 +256,28 @@
   </div>
 
   <!-- ========================================
+       FORM 5: Required Markers
+       ======================================== -->
+  <div class="form-container">
+    <h2>Required Markers</h2>
+    <p class="field-description">Fields marked as required by a class or by their label, without the required attribute</p>
+
+    <form id="marker-form" action="/markers" method="post">
+      <label for="marker-field-class">Marked by its own class:</label>
+      <input type="text" id="marker-field-class" name="marker_field_class" class="form-required">
+
+      <label for="marker-label-class" class="form-required">Marked by its label class:</label>
+      <input type="text" id="marker-label-class" name="marker_label_class">
+
+      <label for="marker-asterisk">Marked by an asterisk: *</label>
+      <input type="text" id="marker-asterisk" name="marker_asterisk">
+
+      <label for="marker-descendant">Marked by an element in its label: <span class="form-required"></span></label>
+      <input type="text" id="marker-descendant" name="marker_descendant">
+    </form>
+  </div>
+
+  <!-- ========================================
        Display Area for Testing Values
        ======================================== -->
   <div class="form-container">

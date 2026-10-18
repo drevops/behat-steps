@@ -26,6 +26,19 @@ Feature: Check that RestTrait works
     When I send a REST "GET" request to "/"
     Then the REST response should contain "html"
 
+  @phpserver
+  Scenario: Assert "When I send a REST :method request to :url" sends an absolute URL as it is
+    Given the REST header "Accept" has the value "application/json"
+    When I send a REST "GET" request to "http://cli:8888/json_valid.json"
+    Then the REST response status code should be 200
+    And the REST response should contain "The Great Adventure"
+
+  @behat-steps-skip:RestTrait
+  Scenario: Assert that a scenario with the skip tag still sends REST requests
+    Given the REST header "Accept" has the value "text/html"
+    When I send a REST "GET" request to "/"
+    Then the REST response status code should be 200
+
   @test-trait:RestTrait
   Scenario: Assert that negative assertion for "Then the REST response status code should be :code" fails with an error
     Given some behat configuration

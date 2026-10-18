@@ -14,3 +14,9 @@ Feature: Check that BasicAuthTrait works
     When I log out
     And I visit "/"
     Then the response status code should be 200
+
+  @behat-steps-skip:BasicAuthTrait
+  Scenario: Assert that a scenario with the skip tag runs without re-applying the credentials
+    Given I am an anonymous user
+    When I visit "/"
+    Then the response status code should be 200

@@ -30,6 +30,12 @@ class AuthorAliasTest extends UnitTestCase {
     $this->assertNotSame('', $alias->getDescription());
   }
 
+  public function testDefaultLookupTouchesNoDrupalUntilApplied(): void {
+    $alias = new AuthorAlias();
+
+    $this->assertSame('author', $alias->getName());
+  }
+
   public function testApplyToStubResolvesKnownUser(): void {
     $alias = new AuthorAlias(static fn(string $name): object => new FakeUser(42));
 
@@ -124,6 +130,40 @@ class AuthorAliasTest extends UnitTestCase {
   public static function dataProviderApplyToStubThrowsOnEmptyAuthor(): \Iterator {
     yield 'empty string' => [''];
     yield 'null' => [NULL];
+  }
+
+  /**
+   * Tests that an 'author' that resolves to no valid user id is rejected.
+   *
+   * @param mixed $author
+   *   The 'author' value placed on the stub.
+   * @param object|null $user
+   *   The object the lookup returns.
+   * @param string $expected_message
+   *   The message the alias is expected to throw with.
+   */
+  #[DataProvider('dataProviderApplyToStubRejectsUnresolvableAuthor')]
+  public function testApplyToStubRejectsUnresolvableAuthor(mixed $author, ?object $user, string $expected_message): void {
+    $alias = new AuthorAlias(static fn(): ?object => $user);
+
+    $stub = new EntityStub('node', 'article', ['author' => $author]);
+
+    try {
+      $alias->applyToStub($stub);
+      $this->fail('Expected CreationAliasResolutionException.');
+    }
+    catch (CreationAliasResolutionException $exception) {
+      $this->assertSame($expected_message, $exception->getMessage());
+      $this->assertTrue($stub->hasValue('author'), 'Stub must still carry the alias when resolution fails.');
+      $this->assertFalse($stub->hasValue('uid'), 'No uid should be written when resolution fails.');
+    }
+  }
+
+  public static function dataProviderApplyToStubRejectsUnresolvableAuthor(): \Iterator {
+    yield 'value that cannot be read as a username' => [['alice'], NULL, "Cannot create node because the 'author' creation alias is array, which cannot be read as a username."];
+    yield 'user without an id accessor' => ['alice', new \stdClass(), "Cannot create node because the 'author' lookup returned an object without an 'id()' method while resolving \"alice\"."];
+    yield 'user with an id of 0' => ['alice', new FakeUser(0), "Cannot create node because the user resolved from 'author' = \"alice\" has an invalid id."];
+    yield 'user with an id that is not a number' => ['alice', new FakeUser('abc'), "Cannot create node because the user resolved from 'author' = \"alice\" has an invalid id."];
   }
 
 }
