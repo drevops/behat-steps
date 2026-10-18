@@ -865,7 +865,7 @@ EOD,
       ],
       'empty info' => [
         [],
-        '### Index of Web steps' . PHP_EOL . PHP_EOL . PHP_EOL,
+        '## Index of Web steps' . PHP_EOL . PHP_EOL . PHP_EOL,
       ],
       'with missing source file' => [
         [
@@ -1098,6 +1098,7 @@ EOD,
       ],
     ], static::$tmp);
 
+    $this->assertStringStartsWith('## Index of Web steps' . PHP_EOL, $actual);
     $this->assertStringContainsString('| [SomeTrait](#sometrait) | Do the thing. |', $actual);
     $this->assertStringContainsString('[Source](../../src/Steps/Web/SomeTrait.php), [Example](../../tests/behat/features/some.feature)', $actual);
     $this->assertStringContainsString('## SomeTrait', $actual);
@@ -4020,8 +4021,8 @@ EOD);
 
     $actual = render_helpers($info, $base_path);
 
-    $this->assertStringContainsString('### Index of Web helpers', $actual);
-    $this->assertStringContainsString('### Index of Drupal helpers', $actual);
+    $this->assertStringStartsWith('## Index of Web helpers' . PHP_EOL, $actual);
+    $this->assertStringContainsString(PHP_EOL . '## Index of Drupal helpers' . PHP_EOL, $actual);
     $this->assertStringContainsString('| [SomeTrait](#sometrait) | 1 | Do the generic thing. |', $actual);
     $this->assertStringContainsString('| [Drupal\\OtherTrait](#drupalothertrait) | 1 | Do the Drupal thing. |', $actual);
 
@@ -4126,7 +4127,7 @@ EOD);
 
   #[DataProvider('dataProviderRenderTraitOptions')]
   public function testRenderTraitOptions(mixed $options, string $expected): void {
-    $this->assertSame($expected, render_trait_options('DocumentedOptionsTrait', $options));
+    $this->assertSame($expected, render_trait_options('DocumentedOptionsTrait', 'Drupal\\DocumentedOptionsTrait', $options));
   }
 
   public static function dataProviderRenderTraitOptions(): array {
@@ -4147,7 +4148,7 @@ EOD);
           'not an option',
           new Option('limit', default: 7, description: 'Reads a | b.'),
         ],
-        '### Options' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
+        '### Drupal\\DocumentedOptionsTrait options' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
       ],
     ];
   }
@@ -4160,7 +4161,7 @@ EOD);
 
   #[DataProvider('dataProviderRenderTraitPrerequisites')]
   public function testRenderTraitPrerequisites(mixed $prerequisites, string $expected): void {
-    $this->assertSame($expected, render_trait_prerequisites($prerequisites));
+    $this->assertSame($expected, render_trait_prerequisites('Drupal\\DocumentedPrerequisitesTrait', $prerequisites));
   }
 
   public static function dataProviderRenderTraitPrerequisites(): array {
@@ -4181,7 +4182,7 @@ EOD);
           'not a prerequisite',
           Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('a|b'), 'the "a | b" module is enabled'),
         ],
-        '### Prerequisites' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
+        '### Drupal\\DocumentedPrerequisitesTrait prerequisites' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
       ],
     ];
   }

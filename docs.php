@@ -878,15 +878,21 @@ function render_value(mixed $value): string {
 /**
  * Render a trait's option declarations as a markdown table.
  *
+ * The heading names the trait, so a search result or a link that lands on it
+ * says which trait the options belong to.
+ *
  * @param string $trait_name
  *   The short trait name.
+ * @param string $name_contextual
+ *   The contextual trait name, such as 'Drupal\ContentTrait'.
  * @param mixed $options
  *   The options the trait declared, keyed by option name.
  *
  * @return string
- *   The table, or an empty string when the trait declares no option.
+ *   The table under its heading, or an empty string when the trait declares no
+ *   option.
  */
-function render_trait_options(string $trait_name, mixed $options): string {
+function render_trait_options(string $trait_name, string $name_contextual, mixed $options): string {
   $group = trait_option_group($trait_name);
   $rows = [];
 
@@ -916,19 +922,25 @@ function render_trait_options(string $trait_name, mixed $options): string {
     return '';
   }
 
-  return '### Options' . PHP_EOL . PHP_EOL . array_to_markdown_table(['Option', 'Type', 'Default', 'Tag', 'Description'], $rows) . PHP_EOL . PHP_EOL;
+  return sprintf('### %s options', $name_contextual) . PHP_EOL . PHP_EOL . array_to_markdown_table(['Option', 'Type', 'Default', 'Tag', 'Description'], $rows) . PHP_EOL . PHP_EOL;
 }
 
 /**
  * Render a trait's prerequisite declarations as a markdown table.
  *
+ * The heading names the trait, so a search result or a link that lands on it
+ * says which trait the prerequisites belong to.
+ *
+ * @param string $name_contextual
+ *   The contextual trait name, such as 'Drupal\ContentTrait'.
  * @param mixed $prerequisites
  *   The prerequisites the trait declared, in declaration order.
  *
  * @return string
- *   The table, or an empty string when the trait declares none.
+ *   The table under its heading, or an empty string when the trait declares
+ *   none.
  */
-function render_trait_prerequisites(mixed $prerequisites): string {
+function render_trait_prerequisites(string $name_contextual, mixed $prerequisites): string {
   $rows = [];
 
   foreach (is_array($prerequisites) ? $prerequisites : [] as $prerequisite) {
@@ -946,7 +958,7 @@ function render_trait_prerequisites(mixed $prerequisites): string {
     return '';
   }
 
-  return '### Prerequisites' . PHP_EOL . PHP_EOL . array_to_markdown_table(['Prerequisite', 'Capability'], $rows) . PHP_EOL . PHP_EOL;
+  return sprintf('### %s prerequisites', $name_contextual) . PHP_EOL . PHP_EOL . array_to_markdown_table(['Prerequisite', 'Capability'], $rows) . PHP_EOL . PHP_EOL;
 }
 
 /**
@@ -1439,9 +1451,9 @@ function render_info(array $info, string $base_path = __DIR__): string {
     // @phpstan-ignore-next-line
     $content_output[$context] .= $description_full . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
-    $content_output[$context] .= render_trait_prerequisites($class_info['prerequisites'] ?? []);
+    $content_output[$context] .= render_trait_prerequisites((string) $class_info['name_contextual'], $class_info['prerequisites'] ?? []);
     // @phpstan-ignore-next-line
-    $content_output[$context] .= render_trait_options($trait, $class_info['options'] ?? []);
+    $content_output[$context] .= render_trait_options($trait, (string) $class_info['name_contextual'], $class_info['options'] ?? []);
 
     // @phpstan-ignore-next-line
     $index_rows[$context][] = [
@@ -1501,7 +1513,7 @@ EOT;
   $index_output = '';
 
   foreach ($index_rows as $index_rows_context_name => $index_rows_contextual) {
-    $index_output .= sprintf('### Index of %s steps', $index_rows_context_name) . PHP_EOL . PHP_EOL;
+    $index_output .= sprintf('## Index of %s steps', $index_rows_context_name) . PHP_EOL . PHP_EOL;
     // @phpstan-ignore-next-line
     $index_output .= array_to_markdown_table(['Class', 'Description'], $index_rows_contextual) . PHP_EOL . PHP_EOL;
   }
@@ -1590,7 +1602,7 @@ function render_helpers(array $info, string $base_path = __DIR__): string {
   $output = '';
 
   foreach ($index_rows as $index_context => $rows) {
-    $output .= sprintf('### Index of %s helpers', $index_context) . PHP_EOL . PHP_EOL;
+    $output .= sprintf('## Index of %s helpers', $index_context) . PHP_EOL . PHP_EOL;
     $output .= array_to_markdown_table(['Class', 'Helpers', 'Description'], $rows) . PHP_EOL . PHP_EOL;
   }
 

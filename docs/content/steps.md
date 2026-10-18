@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Available steps
 
-### Index of Web steps
+## Index of Web steps
 
 | Class | Description |
 | --- | --- |
@@ -41,7 +41,7 @@ custom_edit_url: null
 | [WaitTrait](#waittrait) | Wait for a period of time or for AJAX to finish. |
 | [XmlTrait](#xmltrait) | Assert XML responses with element and attribute checks. |
 
-### Index of Drupal steps
+## Index of Drupal steps
 
 | Class | Description |
 | --- | --- |
@@ -116,7 +116,7 @@ custom_edit_url: null
 >  than `0`, or override `accessibilityGetPrintCli()`, to enable it.
 
 
-### Options
+### AccessibilityTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -173,7 +173,7 @@ Then the page should pass accessibility checks for the tags "wcag2a"
 >  Skip with tag: `@behat-steps-skip:BasicAuthTrait`.
 
 
-### Options
+### BasicAuthTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -195,7 +195,7 @@ Then the page should pass accessibility checks for the tags "wcag2a"
 >  interpolated into it.
 
 
-### Options
+### CommandTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -537,7 +537,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  Skip processing with tag: `@behat-steps-skip:DateTrait`.
 
 
-### Options
+### DateTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -583,7 +583,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 >  ```
 
 
-### Options
+### DiagnosticsTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -659,7 +659,7 @@ When I drop the following files on the dropzone ".dropzone":
 >  viewport.
 
 
-### Options
+### ElementTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -1230,7 +1230,7 @@ Then the element "#main-nav" should have 3 elements matching ".menu-item"
 >  Skip processing with tag: `@behat-steps-skip:FieldTrait`
 
 
-### Options
+### FieldTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -1663,7 +1663,7 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 >  - `@download` - enable download handling
 
 
-### Options
+### FileDownloadTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -1859,7 +1859,7 @@ When I switch to the root document
 >  ```
 
 
-### Options
+### JavascriptTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -2385,7 +2385,7 @@ Then the link "Return to site content" should not be an absolute link
 >  Skip processing with tag: `@behat-steps-skip:MappingTrait`.
 
 
-### Options
+### MappingTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -2406,7 +2406,7 @@ Then the link "Return to site content" should not be an absolute link
 >  expected string.
 
 
-### Options
+### MessageTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -2849,7 +2849,7 @@ Then the following Twitter Card tags should exist:
 >  options. All steps require a JavaScript-enabled browser driver.
 
 
-### Options
+### ModalTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -3101,7 +3101,7 @@ Then the URL should not have the query parameter "filter" with the value "recent
 >  Skip processing with tag: `@behat-steps-skip:RandomTrait`.
 
 
-### Options
+### RandomTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -3572,7 +3572,7 @@ When I set the viewport to "375" by "667"
 >  Skip processing with tag: `@behat-steps-skip:RestTrait`.
 
 
-### Options
+### RestTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -3664,7 +3664,7 @@ Then the REST response should contain "success"
 >  text.
 
 
-### Options
+### TableTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -3879,7 +3879,7 @@ Then I should not see the link "Delete" in the row containing "Article title"
 >  Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
 
 
-### Options
+### WaitTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -4401,7 +4401,7 @@ When I wait for the batch job to finish
 >  `$bigPipeWaitTimeout` to override it for 1 scenario.
 
 
-### Options
+### Drupal\BigPipeTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -4418,7 +4418,7 @@ When I wait for the batch job to finish
 >  - Created blocks are automatically removed at the end of the scenario.
 
 
-### Prerequisites
+### Drupal\BlockTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -4587,13 +4587,13 @@ Then the block "My block" in the region "content" should not exist
 >  - Run cron, which also flushes the caches cron itself invalidates.
 
 
-### Prerequisites
+### Drupal\CacheTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
 | A backend in the scenario's list provides "CacheCapabilityInterface" | `CacheCapabilityInterface` |
 
-### Options
+### Drupal\CacheTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -4728,7 +4728,7 @@ When cron runs
 >  Skip processing with tag: `@behat-steps-skip:ConfigOverrideTrait`.
 
 
-### Options
+### Drupal\ConfigOverrideTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -4770,7 +4770,7 @@ When cron runs
 >  ```
 
 
-### Options
+### Drupal\ConfigTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -4921,7 +4921,7 @@ Then the config "system.site" with the key "name" should not contain the effecti
 >  - Created entities are automatically removed at the end of the scenario.
 
 
-### Prerequisites
+### Drupal\ContentBlockTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -5021,7 +5021,7 @@ Then the content block type "Search" should exist
 >  preserved.
 
 
-### Prerequisites
+### Drupal\ContentTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -5253,7 +5253,7 @@ Then the "page" content with the title "Test page" should not be published
 >  Order items in the Drupal Draggable Views.
 
 
-### Prerequisites
+### Drupal\DraggableviewsTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -5406,7 +5406,7 @@ Then the drush output should match "/Drupal [0-9]+/"
 >  - Created entities are automatically removed at the end of the scenario.
 
 
-### Prerequisites
+### Drupal\EckTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -5487,13 +5487,13 @@ When I visit the ECK "contact" "contact_type" entity edit page with the title "T
 >  - `@debug` (enable detailed logs)
 
 
-### Prerequisites
+### Drupal\EmailTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
 | A backend in the scenario's list provides "MailCapabilityInterface" | `MailCapabilityInterface` |
 
-### Options
+### Drupal\EmailTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -5902,14 +5902,14 @@ Given the following "commerce_product" entities exist:
 >  Skip processing with tag: `@behat-steps-skip:FileTrait`.
 
 
-### Prerequisites
+### Drupal\FileTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
 | A backend in the scenario's list provides "FileCapabilityInterface" | `FileCapabilityInterface` |
 | The core "file" module is enabled, for the managed file steps | `ModuleCapabilityInterface` |
 
-### Options
+### Drupal\FileTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -6072,7 +6072,7 @@ Given the following languages exist:
 >  - Created entities are automatically removed at the end of the scenario.
 
 
-### Prerequisites
+### Drupal\MediaTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -6253,7 +6253,7 @@ Then the "image" media with the name "Test media image" should not exist
 >  - Created menus and menu links are automatically removed at the end of the scenario.
 
 
-### Prerequisites
+### Drupal\MenuTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -6336,7 +6336,7 @@ Given the following menu links exist in the menu "Main navigation":
 >  - `@module:!module_name` - disable module for scenario
 
 
-### Options
+### Drupal\ModuleTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -6465,7 +6465,7 @@ Then the following modules should be disabled:
 >  - Created paragraph items are automatically removed at the end of the scenario.
 
 
-### Prerequisites
+### Drupal\ParagraphsTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -6502,13 +6502,13 @@ Given the following fields for the "text" paragraph exist in the field "field_co
 >  deletion with `@behat-steps-skip:QueueTrait`.
 
 
-### Prerequisites
+### Drupal\QueueTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
 | A backend in the scenario's list provides "QueueCapabilityInterface" | `QueueCapabilityInterface` |
 
-### Options
+### Drupal\QueueTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -6608,7 +6608,7 @@ Then the queue "myqueue" should be empty
 >  - Created redirects are automatically removed at the end of the scenario.
 
 
-### Prerequisites
+### Drupal\RedirectTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -6689,7 +6689,7 @@ Then the following redirects should not exist:
 >  - Run the Search API and Search API Solr cron hooks.
 
 
-### Prerequisites
+### Drupal\SearchApiTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -6764,7 +6764,7 @@ When the Search API Solr cron runs
 >  persists across scenarios.
 
 
-### Options
+### Drupal\StateTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -6848,7 +6848,7 @@ Then the state "my_module.launched" should not exist
 >  - Verify vocabulary configurations.
 
 
-### Prerequisites
+### Drupal\TaxonomyTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -7003,7 +7003,7 @@ Then the "Fruits" term with the name "Apple" should not exist
 >  - `@testmode` - enable for scenario
 
 
-### Prerequisites
+### Drupal\TestmodeTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -7011,7 +7011,7 @@ Then the "Fruits" term with the name "Apple" should not exist
 | A backend in the scenario's list provides "CacheCapabilityInterface" | `CacheCapabilityInterface` |
 | The "testmode" module from the "drupal/testmode" package is enabled | `ModuleCapabilityInterface` |
 
-### Options
+### Drupal\TestmodeTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -7034,13 +7034,13 @@ Then the "Fruits" term with the name "Apple" should not exist
 >  Skip processing with tag: `@behat-steps-skip:TimeTrait`.
 
 
-### Prerequisites
+### Drupal\TimeTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
 | A backend in the scenario's list provides "StateCapabilityInterface" | `StateCapabilityInterface` |
 
-### Options
+### Drupal\TimeTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -7084,7 +7084,7 @@ When the system time is reset
 >  - Assert user account status (active/inactive).
 
 
-### Prerequisites
+### Drupal\UserTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
@@ -7500,14 +7500,14 @@ Then the user "John" should not be blocked
 >  errors are still read and cleared; the scenario is not failed.
 
 
-### Prerequisites
+### Drupal\WatchdogTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |
 | A backend in the scenario's list provides "LogCapabilityInterface" | `LogCapabilityInterface` |
 | The core "dblog" module is enabled | `ModuleCapabilityInterface` |
 
-### Options
+### Drupal\WatchdogTrait options
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
@@ -7524,7 +7524,7 @@ Then the user "John" should not be blocked
 >  - Cloned webforms are automatically removed at the end of the scenario.
 
 
-### Prerequisites
+### Drupal\WebformTrait prerequisites
 
 | Prerequisite | Capability |
 | --- | --- |

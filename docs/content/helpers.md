@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Available helpers
 
-### Index of Web helpers
+## Index of Web helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ custom_edit_url: null
 | [RequestHeadersTrait](#requestheaderstrait) | 1 | Holds the request headers shared by the traits that issue HTTP requests. |
 | [TableTransposeTrait](#tabletransposetrait) | 2 | Reads a vertical Gherkin table as 1 set of values per entity. |
 
-### Index of Drupal helpers
+## Index of Drupal helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
@@ -75,7 +75,7 @@ custom_edit_url: null
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
 | [Drupal\QueryTrait](#drupalquerytrait) | 5 | Finds the entities a step reads, asserts on or deletes. |
 
-### Index of Toolbox helpers
+## Index of Toolbox helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |
