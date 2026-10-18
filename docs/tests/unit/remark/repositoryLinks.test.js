@@ -25,6 +25,7 @@ describe('repositoryLinks', () => {
     { name: 'a repository file with an anchor', url: '../../../CONTRIBUTING.md#steps-format', expected: 'https://github.com/drevops/behat-steps/blob/main/CONTRIBUTING.md#steps-format' },
     { name: 'a repository file with a query', url: '../../../README.md?plain=1', expected: 'https://github.com/drevops/behat-steps/blob/main/README.md?plain=1' },
     { name: 'a repository file with a query and an anchor', url: '../../../README.md?plain=1#installation', expected: 'https://github.com/drevops/behat-steps/blob/main/README.md?plain=1#installation' },
+    { name: 'a percent-encoded path', url: '../../../CONTRIBUTING%2Emd', expected: 'https://github.com/drevops/behat-steps/blob/main/CONTRIBUTING.md' },
     { name: 'a repository directory', url: '../../../tests/behat/features', expected: 'https://github.com/drevops/behat-steps/tree/main/tests/behat/features' },
     { name: 'a file in docs/ outside the content', url: '../../package.json', expected: 'https://github.com/drevops/behat-steps/blob/main/docs/package.json' },
   ])('rewrites a link to $name', ({ url, expected }) => {

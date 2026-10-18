@@ -21,7 +21,7 @@ export default function repositoryLinks({ repositoryRoot, contentDir, repository
         return;
       }
 
-      const [, target, suffix] = node.url.match(/^([^?#]*)(.*)$/);
+      const [, target, suffix] = node.url.match(/^([^?#]*)(.*)$/s);
       const absolute = path.resolve(path.dirname(file.path), decodeURIComponent(target));
 
       if (isInside(contentDir, absolute)) {
