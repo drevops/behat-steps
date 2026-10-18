@@ -1,5 +1,6 @@
 ---
 title: Extending the extension layer
+sidebar_label: Extension layer
 sidebar_position: 2
 description: Replace the HTTP client factory, a registry, an authenticator or option resolution for every context at once from a Behat extension of your own, and give another browser driver a page client.
 ---

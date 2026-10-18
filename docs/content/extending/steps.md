@@ -1,5 +1,6 @@
 ---
 title: Extending the step vocabulary
+sidebar_label: Step vocabulary
 sidebar_position: 1
 description: Write steps of your own on the helpers, override a trait's seams and a context's HTTP client, declare options for a trait of your own, and follow the rules Behat applies when a context composes or overrides steps and hooks.
 ---

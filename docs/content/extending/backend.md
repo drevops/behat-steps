@@ -1,5 +1,6 @@
 ---
 title: Extending the backend layer
+sidebar_label: Backend layer
 sidebar_position: 3
 description: Add or replace the field handlers and creation aliases the Drupal backends use, name a Core of your own for the in-process backend, and register a backend of your own.
 ---
