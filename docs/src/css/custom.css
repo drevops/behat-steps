@@ -17,21 +17,21 @@
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --behat-steps-ink: #12191f;
-  --behat-steps-blue-on-dark: #5797dd;
+  --behat-steps-blue-on-dark: #80b0e5;
   --ifm-navbar-search-input-placeholder-color: var(--ifm-color-emphasis-700);
   --search-local-muted-color: var(--ifm-color-emphasis-700);
 }
 
-/* The dark-mode shades step from a lighter blue that keeps links readable on
-   the dark background and on the navbar. */
+/* The dark-mode shades step from #80b0e5, the logo blue lightened until text
+   in it reaches 4.5:1 on the dark backgrounds. */
 [data-theme='dark'] {
   --ifm-color-primary: var(--behat-steps-blue-on-dark);
-  --ifm-color-primary-dark: #3d87d8;
-  --ifm-color-primary-darker: #317fd5;
-  --ifm-color-primary-darkest: #2469b3;
-  --ifm-color-primary-light: #71a7e2;
-  --ifm-color-primary-lighter: #7dafe5;
-  --ifm-color-primary-lightest: #a4c7ed;
+  --ifm-color-primary-dark: #629edf;
+  --ifm-color-primary-darker: #5494dc;
+  --ifm-color-primary-darkest: #2a79cf;
+  --ifm-color-primary-light: #9ec2eb;
+  --ifm-color-primary-lighter: #acccee;
+  --ifm-color-primary-lightest: #d9e7f7;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
   --behat-steps-ink: #ffffff;
   /* The selected search result sits on the light blue, so its text takes the
@@ -56,10 +56,10 @@
   --ifm-link-decoration: none;
 }
 
-/* The footer is dark in both color modes, so its links take a lighter blue
-   on hover. */
+/* The footer is dark in both color modes, so its links take the dark-mode
+   blue on hover. */
 .footer--dark {
-  --ifm-footer-link-hover-color: #7dafe5;
+  --ifm-footer-link-hover-color: var(--behat-steps-blue-on-dark);
 }
 
 .footer__copyright-link {
