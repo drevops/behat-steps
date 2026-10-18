@@ -2,7 +2,6 @@
     "language": "en-US",
     "dictionaries": [
         "bash",
-        "misc",
         "node",
         "php",
         "softwareTerms"
@@ -25,6 +24,18 @@
         "Olivero",
         "phpcov",
         "webform"
+    ],
+    "flagWords": [
+        "amongst",
+        "cancelled",
+        "catalogue",
+        "centre",
+        "favour",
+        "judgement",
+        "labelled",
+        "learnt",
+        "modelled",
+        "whilst"
     ],
     "languageSettings": [
         {
