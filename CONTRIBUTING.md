@@ -720,7 +720,7 @@ Use `ahoy --help` to see the list of available commands.
 
 ## Running tests
 
-There are 3 types of tests in this repository: unit tests, kernel tests and Behat tests.
+There are 3 types of tests in this repository: unit tests, kernel tests and Behat tests. The documentation site in [docs/](docs) has its own unit and accessibility tests, which [Documentation](docs/content/contributing/documentation.md#working-locally) covers.
 
 ### Unit and kernel tests
 
@@ -804,7 +804,7 @@ If a reachable branch has no test, the fix is the test, not the marker.
 
 ## Continuous integration
 
-[.github/workflows/test.yml](.github/workflows/test.yml) runs 3 jobs. Lint and the test matrix cover all 3 test surfaces in this repository, and Docs builds and checks the documentation site.
+[.github/workflows/test.yml](.github/workflows/test.yml) runs 3 jobs. The test matrix runs the unit, kernel and Behat suites, Lint checks the code and the generated pages, and Docs builds and tests the documentation site.
 
 ### Lint
 
@@ -910,9 +910,9 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 
 ### Docs
 
-1 job, on Node 22, with no Docker stack. It builds the site in [docs/](docs), which fails on a broken link or anchor, then runs its unit tests, its spell check and its accessibility checks, as [Documentation](docs/content/contributing/documentation.md#checks-on-every-pull-request) describes. The unit tests include the check that the step and helper references ship in the Composer package.
+1 job, on Node 22, with no Docker stack. It builds the site in [docs/](docs), and a broken link or anchor fails the build. It then runs the site's unit tests, its spell check and its accessibility checks, as [Documentation](docs/content/contributing/documentation.md#checks-on-every-pull-request) describes. The unit tests include the check that the step and helper references ship in the Composer package. Last, when the Netlify secrets are set, it deploys the build: a preview for each pull request, linked in a comment on it, and the development site on every push to `main`, as [Previews](docs/content/contributing/documentation.md#previews) describes.
 
-[.github/workflows/release-docs.yml](.github/workflows/release-docs.yml) publishes the site to GitHub Pages on every release tag.
+[.github/workflows/release-docs.yml](.github/workflows/release-docs.yml) publishes the site to GitHub Pages on every release tag, and on a manual run from a tag or branch, as [Publishing](docs/content/contributing/documentation.md#publishing) describes.
 
 ## Updating fixture site
 
@@ -940,4 +940,4 @@ ahoy lint-docs    # Check documentation for errors
 
 An extension option and a tag are both generated from their definition in the source, so neither can be added without appearing in the reference. Write the option's `->info()` in [BehatStepsExtension](src/Extension/ServiceContainer/BehatStepsExtension.php) and the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never hand-edit inside a generated region.
 
-All 3 are pages of the documentation site in [docs/](docs), and `steps.md` and `helpers.md` also ship in the Composer package, where a consuming project's AI agent reads them. [Documentation](docs/content/contributing/documentation.md) covers the site: working on it locally, the writing conventions, the checks and publishing to [behat-steps.drevops.com](https://behat-steps.drevops.com).
+All 3 targets are pages of the documentation site in [docs/](docs), and `steps.md` and `helpers.md` also ship in the Composer package, where a consuming project's AI agent reads them. [Documentation](docs/content/contributing/documentation.md) covers the site: working on it locally, the writing conventions, the checks and publishing to [behat-steps.drevops.com](https://behat-steps.drevops.com).
