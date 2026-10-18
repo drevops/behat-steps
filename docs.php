@@ -922,7 +922,9 @@ function render_trait_options(string $trait_name, string $name_contextual, mixed
     return '';
   }
 
-  return sprintf('### %s options', $name_contextual) . PHP_EOL . PHP_EOL . array_to_markdown_table(['Option', 'Type', 'Default', 'Tag', 'Description'], $rows) . PHP_EOL . PHP_EOL;
+  $heading = sprintf('### %s options', $name_contextual);
+
+  return $heading . PHP_EOL . PHP_EOL . array_to_markdown_table(['Option', 'Type', 'Default', 'Tag', 'Description'], $rows) . PHP_EOL . PHP_EOL;
 }
 
 /**
@@ -958,7 +960,9 @@ function render_trait_prerequisites(string $name_contextual, mixed $prerequisite
     return '';
   }
 
-  return sprintf('### %s prerequisites', $name_contextual) . PHP_EOL . PHP_EOL . array_to_markdown_table(['Prerequisite', 'Capability'], $rows) . PHP_EOL . PHP_EOL;
+  $heading = sprintf('### %s prerequisites', $name_contextual);
+
+  return $heading . PHP_EOL . PHP_EOL . array_to_markdown_table(['Prerequisite', 'Capability'], $rows) . PHP_EOL . PHP_EOL;
 }
 
 /**
