@@ -29,7 +29,7 @@ This package replaces `drupal/drupal-extension` and `drupal/drupal-driver` and c
 
 ## Optional dependencies
 
-To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements. The hard requirements are Behat, Mink with its BrowserKit driver and extension, and a set of Symfony components. Add the ones for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
+To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements. The hard requirements are Behat, Mink with its BrowserKit driver and extension, and a set of Symfony components. Add the suggested packages for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
 
 - **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
 - **`@javascript` scenarios** need a JavaScript-capable browser driver, as [JavaScript browser drivers](#javascript-browser-drivers) describes.
