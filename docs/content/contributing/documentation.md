@@ -4,7 +4,7 @@ sidebar_position: 1
 description: Work on these docs locally, regenerate the reference pages, follow the writing conventions, and see how the site is checked, previewed and published.
 ---
 
-<!-- cspell:ignore docblocks WCAG -->
+<!-- cspell:ignore docblocks -->
 
 # Documentation
 
