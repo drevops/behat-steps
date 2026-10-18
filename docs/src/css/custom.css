@@ -1,0 +1,78 @@
+/**
+ * Global styles on top of Infima, the CSS framework of the classic theme.
+ *
+ * @see https://docusaurus.io/docs/styling-layout#styling-your-site-with-infima
+ */
+
+/* The primary shades step from #266fbd, the #2a77cd logo blue darkened until
+   text in it reaches 4.5:1 on the light backgrounds. */
+:root {
+  --ifm-color-primary: #266fbd;
+  --ifm-color-primary-dark: #2264aa;
+  --ifm-color-primary-darker: #205ea1;
+  --ifm-color-primary-darkest: #1b4e84;
+  --ifm-color-primary-light: #2a7ad0;
+  --ifm-color-primary-lighter: #3080d5;
+  --ifm-color-primary-lightest: #4c91db;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --behat-steps-ink: #12191f;
+  --behat-steps-blue-on-dark: #5797dd;
+  --ifm-navbar-search-input-placeholder-color: var(--ifm-color-emphasis-700);
+  --search-local-muted-color: var(--ifm-color-emphasis-700);
+}
+
+/* The dark-mode shades step from a lighter blue that keeps links readable on
+   the dark background and on the navbar. */
+[data-theme='dark'] {
+  --ifm-color-primary: var(--behat-steps-blue-on-dark);
+  --ifm-color-primary-dark: #3d87d8;
+  --ifm-color-primary-darker: #317fd5;
+  --ifm-color-primary-darkest: #2469b3;
+  --ifm-color-primary-light: #71a7e2;
+  --ifm-color-primary-lighter: #7dafe5;
+  --ifm-color-primary-lightest: #a4c7ed;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --behat-steps-ink: #ffffff;
+  /* The selected search result sits on the light blue, so its text takes the
+     dark background color. */
+  --search-local-hit-active-color: var(--ifm-background-color);
+}
+
+.navbar__logo {
+  height: 2.25rem;
+}
+
+.markdown h1:first-child {
+  color: var(--behat-steps-ink);
+}
+
+/* Color alone doesn't set a link apart from the text around it. */
+.markdown {
+  --ifm-link-decoration: underline;
+}
+
+.markdown .hash-link {
+  --ifm-link-decoration: none;
+}
+
+/* The footer is dark in both color modes, so its links take the dark-mode
+   blue on hover. */
+.footer--dark {
+  --ifm-footer-link-hover-color: var(--behat-steps-blue-on-dark);
+}
+
+.footer__copyright-link {
+  color: var(--ifm-footer-link-color);
+  text-decoration: underline;
+}
+
+.footer__copyright-link:hover {
+  color: var(--ifm-footer-link-hover-color);
+}
+
+/* WCAG 2.5.8 minimum target size. */
+.navbar__search [class*='searchClearButton_'] {
+  min-width: 24px;
+  min-height: 24px;
+}
