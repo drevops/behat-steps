@@ -17,7 +17,7 @@ Everything this package reads arrives through 1 of 4 channels, apart from the Mi
 | [Tags](#3-tags) | What a single scenario opts into | Per scenario or feature |
 | [Environment variables](#4-environment-variables) | What differs between one machine and another | Per run |
 
-The tables in sections 2 and 3 are generated from the source by [docs.php](../../../docs.php). Run `ahoy update-docs` after changing an option or a tag.
+The tables in sections 2 and 3 are generated from the source by [docs.php](../../../docs.php), and CI fails when they fall behind it. [Documentation](../contributing/documentation.md#generated-pages) covers regenerating them.
 
 ## 1. Suites and context arguments
 
