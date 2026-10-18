@@ -1,0 +1,9 @@
+{
+  "label": "Guides",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "slug": "/guides",
+    "description": "Compose a context and configure it, pick a scenario style, control the requests steps send, and point an AI coding agent at the reference."
+  }
+}
