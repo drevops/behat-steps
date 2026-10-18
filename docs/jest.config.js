@@ -21,6 +21,10 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(js|jsx)$': ['babel-jest', {
+      // The Docusaurus preset compiles a spread of a Set to '[].concat()', so
+      // the tests compile with the presets below only.
+      configFile: false,
+      babelrc: false,
       presets: [
         ['@babel/preset-env', { targets: { node: 'current' } }],
         ['@babel/preset-react', { runtime: 'automatic' }]

@@ -12,9 +12,13 @@ const SHIPPED = ['docs/content/helpers.md', 'docs/content/steps.md'];
 
 const git = (args, input) => execFileSync('git', args, { cwd: ROOT, input, encoding: 'utf8' });
 
+// 'git archive' checks each directory with a trailing slash, so a pattern
+// ending in '/' matches it.
+const ancestors = (file) => file.split('/').map((_, index, parts) => parts.slice(0, index + 1).join('/') + (index < parts.length - 1 ? '/' : ''));
+
 // 'git archive' skips everything below an ignored directory, so a path ships
 // only when neither it nor any directory above it is ignored.
-const withAncestors = (files) => Array.from(new Set(files.flatMap((file) => file.split('/').map((part, index, parts) => parts.slice(0, index + 1).join('/')))));
+const withAncestors = (files) => Array.from(new Set(files.flatMap(ancestors)));
 
 const ignoredPaths = (paths) => {
   const fields = git(['check-attr', '-z', '--stdin', 'export-ignore'], paths.join('\0')).split('\0');
@@ -32,7 +36,7 @@ const ignoredPaths = (paths) => {
 const archived = (files) => {
   const ignored = ignoredPaths(withAncestors(files));
 
-  return files.filter((file) => withAncestors([file]).every((part) => !ignored.has(part)));
+  return files.filter((file) => ancestors(file).every((ancestor) => !ignored.has(ancestor)));
 };
 
 describe('distribution archive', () => {

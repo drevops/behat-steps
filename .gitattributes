@@ -14,8 +14,8 @@
 /behat.php           export-ignore
 /docker-compose.yml  export-ignore
 # The step and helper references ship, so a consuming project's AI agent can
-# read them from vendor/. Git skips an ignored directory whole, so each level
-# above them is re-included.
+# read them from vendor/. 'git archive' skips everything below an ignored
+# directory, so no directory above them is ignored.
 /docs/*                  export-ignore
 /docs/content            -export-ignore
 /docs/content/*          export-ignore
