@@ -8,20 +8,20 @@ Looking for a reference instead? [Steps](../steps.md) lists the steps, [Helpers]
 
 ## Diagram sources
 
-Every diagram is a PlantUML source in this directory, rendered to a committed light `.svg`. Both are tracked, so a reviewer sees the source diff and the rendered result.
+Every diagram is a PlantUML source in `docs/content/architecture/`, rendered to a committed light `.svg`. Both are tracked, so a reviewer sees the source diff and the rendered result. Select a diagram, or its file in the table, to open it at full size.
 
 | Source | Renders | Shows |
 | --- | --- | --- |
-| `architecture.puml` | `architecture.svg` | The 3 library layers with the Drupal half of the 2 lower ones, the 3 contexts at the package root, the consuming project, and the runtime around them |
-| `class-traits.puml` | `class-traits.svg` | Every step trait in both namespaces, and the context hierarchy they mix into |
-| `class-context.puml` | `class-context.svg` | The context hierarchy and the contracts its initializer injects through, its services and prerequisite declarations, the helper traits, representative step traits, and the exceptions a failing step throws |
-| `class-backends.puml` | `class-backends.svg` | The Behat-free backend layer: the base contract and the capabilities any backend may provide at its root, the blackbox backend, and under `Backend\Drupal` the 2 Drupal backends, the Drupal-only capabilities and the Core bridge |
-| `class-browser.puml` | `class-browser.svg` | The browser capability layer and the 2 classes that resolve it, the HTTP client factory, and the `browserkit_http` browser driver factory |
-| `dataflow-step.puml` | `dataflow-step.svg` | A step running in a consuming project |
-| `dataflow-http.puml` | `dataflow-http.svg` | A step sending its own request through the page, detached or bare client |
-| `dataflow-docs.puml` | `dataflow-docs.svg` | `docs.php` reflecting, validating and rendering every reference document |
-| `dataflow-docs-site.puml` | `dataflow-docs-site.svg` | The documentation site building from `docs/content/`, linking repository files on GitHub, and being checked and published |
-| `dataflow-tests.puml` | `dataflow-tests.svg` | The fixture Drupal site, the nested Behat harness, and the coverage merge |
+| `architecture.puml` | [`architecture.svg`](architecture.svg) | The 3 library layers with the Drupal half of the 2 lower ones, the 3 contexts at the package root, the consuming project, and the runtime around them |
+| `class-traits.puml` | [`class-traits.svg`](class-traits.svg) | Every step trait in both namespaces, and the context hierarchy they mix into |
+| `class-context.puml` | [`class-context.svg`](class-context.svg) | The context hierarchy and the contracts its initializer injects through, its services and prerequisite declarations, the helper traits, representative step traits, and the exceptions a failing step throws |
+| `class-backends.puml` | [`class-backends.svg`](class-backends.svg) | The Behat-free backend layer: the base contract and the capabilities any backend may provide at its root, the blackbox backend, and under `Backend\Drupal` the 2 Drupal backends, the Drupal-only capabilities and the Core bridge |
+| `class-browser.puml` | [`class-browser.svg`](class-browser.svg) | The browser capability layer and the 2 classes that resolve it, the HTTP client factory, and the `browserkit_http` browser driver factory |
+| `dataflow-step.puml` | [`dataflow-step.svg`](dataflow-step.svg) | A step running in a consuming project |
+| `dataflow-http.puml` | [`dataflow-http.svg`](dataflow-http.svg) | A step sending its own request through the page, detached or bare client |
+| `dataflow-docs.puml` | [`dataflow-docs.svg`](dataflow-docs.svg) | `docs.php` reflecting, validating and rendering every reference document |
+| `dataflow-docs-site.puml` | [`dataflow-docs-site.svg`](dataflow-docs-site.svg) | The documentation site building from `docs/content/`, linking repository files on GitHub, and being checked and published |
+| `dataflow-tests.puml` | [`dataflow-tests.svg`](dataflow-tests.svg) | The fixture Drupal site, the nested Behat harness, and the coverage merge |
 
 Regenerate every SVG after editing any source:
 
@@ -45,7 +45,7 @@ The library is no longer just a bag of traits. It's 3 layers, stacked, and the b
 
 **`WebRawContext`, `WebContext` and `DrupalContext` - the package root.** The 3 contexts are the 1 place that reaches every layer: `WebRawContext` exposes the extension's services to the traits written against it, and the other 2 compose the vocabulary. They sit above the layers rather than inside 1 of them, and `ClassNamingTest` holds the root to those 3.
 
-![Component architecture](architecture.svg)
+[![Component architecture](architecture.svg)](architecture.svg)
 
 The layering rule is enforced, not just documented. `scripts/lint-layers.php` declares 6 boundaries and the namespaces each one excludes: `src/Backend` may not reference `Behat`, `Mink`, `Extension`, `Steps` or the 3 contexts; `src/Extension` may not reference `Steps` or the 3 contexts, apart from `ClassGenerator`, which writes `extends WebRawContext` into the starter class it generates; the root of each of those 2 layers, outside its `Drupal` sub-namespace, may not reference `Drupal` or either `Drupal` sub-namespace, apart from `BehatStepsExtension`, the composition root that lists the shipped backend providers; `src/Steps/Web` with `WebRawContext`, `WebContext`, `src/Steps/Exception` and every trait under `src/Steps/Helper/Web` may not reference `Drupal`; and `src/Steps/Drupal` with `src/Steps/Helper/Drupal` and `DrupalContext` may not reference `Drupal` either, nor any class under `Backend\Drupal` but its capabilities, and of those not `CoreCapabilityInterface`, which declares `getCore()`. When a forbidden and an allowed prefix both match a name, the longer one decides, which is how that 1 capability stays out while the rest are let in. `LintLayersTest` fails a file under `src/` that no boundary reads, so a new directory or a new class at the package root can't sit outside them all. The step traits are held to their calls too: a Drupal step trait never calls `getCore()`, which hands out the in-process core, and no step trait calls a function PHP doesn't define or a target only runtime knows, so Drupal's procedural API stays out as well. `ahoy lint` runs it alongside PHP_CodeSniffer, PHPStan, Rector, gherkinlint and `scripts/lint-traits.php`, which holds a step trait to composing no other step trait and a helper trait to registering no Gherkin. So the backend layer stays usable without Behat loaded, the neutral root of each layer without Drupal, a Drupal step trait reaches Drupal only through a capability, and the check catches the first import or call that would break any of those rather than the tenth.
 
@@ -61,7 +61,7 @@ That one is the odd one out. Resolving `CoreCapabilityInterface` bootstraps Drup
 
 The request environment is the capability a trait hands to every backend rather than the first. `ConfigOverrideTrait` signals an override with the `X-Config-No-Override` request header, which the browser carries only to the pages it loads. So before each step the trait also passes the header to each backend in the scenario's order that provides `RequestEnvironmentCapabilityInterface`, without bootstrapping one: `DrupalBackend` writes it to `$_SERVER` for the Drupal it runs, and `DrushBackend` to the environment of every command it starts. Whichever backend then serves the step, the site code it runs sees the same signal the browser sends.
 
-![Class structure: the backend layer](class-backends.svg)
+[![Class structure: the backend layer](class-backends.svg)](class-backends.svg)
 
 This is what makes a step's requirements explicit rather than implicit, and it is also how a backend is chosen. A step names the capability it needs - a step that creates a node asks for `NodeCapabilityInterface` - and `BackendRegistry` walks the scenario's backend order and hands back the first backend implementing it, bootstrapping only that one. When none does, the step fails with `UnsupportedBackendActionException` naming the capability and the order, instead of a fatal error somewhere deeper.
 
@@ -97,7 +97,7 @@ The browser half resolves by capability, the same way the backend half does. `Ex
 
 Requests a step sends itself go through `Extension\Http`. `WebRawContext` hands out 3 clients, and all 3 are BrowserKit browsers. `httpPageClient()` resolves the session's own `HttpBrowser` through the HTTP client capability, so its response becomes the page. `httpDetachedClient()` and `httpBareClient()` come from `HttpClientFactoryInterface`, the `behat_steps.http_client_factory` service, which builds a fresh `HttpBrowser` on the shared transport each time, with any options the caller passes taking precedence over the session's. The detached one carries an `HttpIdentity` - the session's cookies, the request header bag and the `base_url` credentials - and sends its headers and credentials to the `base_url` host only. [HTTP clients](../guides/http-clients.md) tells the same story from the consuming project's side.
 
-![Class structure: browser capabilities and HTTP clients](class-browser.svg)
+[![Class structure: browser capabilities and HTTP clients](class-browser.svg)](class-browser.svg)
 
 The 3 contexts at the package root are one chain. `WebRawContext` is its root and registers no steps:
 
@@ -127,7 +127,7 @@ Authentication splits along the same line, with both halves in `Extension\Auth`.
 
 A consumer extends exactly one class, and registering two of them is fatal: `DrupalContext` inherits `WebContext`'s 28 traits, so both registered would register every web step twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names that rather than letting Behat report a `RedundantStepException` about an arbitrary step. `ContextCompositionTest` holds the directory-to-context coverage in both directions and holds the chain to one composition of each trait.
 
-![Class detail: context, services, helpers and step traits](class-context.svg)
+[![Class detail: context, services, helpers and step traits](class-context.svg)](class-context.svg)
 
 ## The step vocabulary
 
@@ -144,7 +144,7 @@ Every trait declares what it needs from its host with `@phpstan-require-extends`
 
 A step body is a thin wrapper over those helpers and the trait's own: it parses its arguments, calls helpers and guards on what they return. `StepBodyTest` parses every step trait and fails a step that calls another step of its trait, or that holds a `switch`, a `match`, a `try`, a closure, a loop doing more than dispatching 1 call, or more than 4 statements besides its guards. That's what keeps the toolbox complete: every behavior a step has is a helper a project's own step definitions can call.
 
-![Class structure: step traits](class-traits.svg)
+[![Class structure: step traits](class-traits.svg)](class-traits.svg)
 
 Step traits never `use` other step traits. Shared logic goes in a trait under `src/Steps/Helper/` named for its concern - last-step tracking, the request header bag, string shaping and step argument parsing, table transposition and token replacement, fixture file resolution, heading lookup, the JavaScript error registry, and the whole Drupal scenario lifecycle - and nowhere else. A trait's directory is its classification: `src/Steps/Web` and `src/Steps/Drupal` register Gherkin, `src/Steps/Helper` registers none, and `scripts/lint-traits.php` makes that a lint rather than a convention. A helper trait composed by a step trait and by the context under it holds one property slot, so both reach the same state.
 
@@ -156,7 +156,7 @@ When Behat starts, it instantiates every registered context, injects those servi
 
 Because a step attribute is inherited through `use`, two registered contexts composing the same trait register its steps twice and Behat fails with a `RedundantStepException`. That is why each class in the chain composes a trait the ones above it do not, and why a project that hand-composes a trait registers its own context instead of the shipped one that already carries it.
 
-![Data flow: a step runs](dataflow-step.svg)
+[![Data flow: a step runs](dataflow-step.svg)](dataflow-step.svg)
 
 Assertions fail by throwing, and which exception is part of the public contract:
 
@@ -179,7 +179,7 @@ The transport comes first, and it's built once per run. Mink calls `BrowserKitFa
 
 Then a step asks for a client. `FileDownloadTrait` asks for the detached one: `WebRawContext` reads the session's cookies through the cookie capability, which all 3 adapters provide, adds the request header bag and the `base_url` credentials, and hands that `HttpIdentity` to the factory. The response lands in the trait's own state, so the next page assertion still reads the page. `RestTrait` asks for the page client instead, and only a BrowserKit session has one, so under Selenium2 or Chrome the step throws. `AccessibilityTrait` asks for the bare client, which carries nothing of the scenario and reaches the CDN with Symfony's defaults, since the transport applies the session options to the `base_url` host only.
 
-![Data flow: a step sends its own request](dataflow-http.svg)
+[![Data flow: a step sends its own request](dataflow-http.svg)](dataflow-http.svg)
 
 Under `@javascript` the detached and bare clients work the same way, as a sidecar. The browser holds the page, and the client sends from PHP next to it, taking its settings from `http_client_parameters` rather than from the browser's capabilities. So a suite whose sessions are all JavaScript still declares a `browserkit_http` session when those requests need options of their own.
 
@@ -193,7 +193,7 @@ The trick is that it doesn't scan the filesystem for step definitions. It reflec
 
 The same reflection pass yields both halves of the package, and visibility is what separates them. A public method carrying a `Behat\Step\*` attribute is vocabulary and goes to `docs/content/steps.md`; a public method carrying no Behat attribute at all is toolbox and goes to `docs/content/helpers.md`, unless its docblock withdraws it with `@internal`. A protected method is an implementation detail and appears in neither. A trait's steps are filtered by the trait-name prefix every member already carries, and its helpers by the file that declares them as well, so a helper borrowed from a composed helper trait is published under that helper trait alone. `TOOLBOX_CLASSES` adds `WebRawContext` to the toolbox half, because a project's own step definitions are written against its methods as much as against a trait's helpers. A class is read without the prefix filter, since its methods carry no trait name, but with the file filter, so the helper traits it composes aren't repeated under it.
 
-![Data flow: reference documentation generation](dataflow-docs.svg)
+[![Data flow: reference documentation generation](dataflow-docs.svg)](dataflow-docs.svg)
 
 The option and tag tables come from the code rather than from the reflection pass: the options are read off the config tree `BehatStepsExtension::configure()` builds, and the tags off `tag_registry()`. Neither can be added without appearing in the reference.
 
@@ -219,7 +219,7 @@ A page links another page, or any other file in the repository, by its relative 
 
 `docs/src/theme/` overrides 4 parts of the theme. `MDXComponents` renders every table through `ScrollableTable` from `docs/src/components/`, which takes keyboard focus when the table is wider than the page. `prism-include-languages` lets Prism's Gherkin grammar find a step keyword at the start of a line, not only after indentation. The mobile menu keeps keyboard focus inside while it's open and closes on Escape. The search box gets the ARIA attributes its autocomplete widget leaves out.
 
-![Data flow: building and publishing the documentation site](dataflow-docs-site.svg)
+[![Data flow: building and publishing the documentation site](dataflow-docs-site.svg)](dataflow-docs-site.svg)
 
 The checks and the 2 deploys in the diagram run in CI, as [Continuous integration](#continuous-integration) describes.
 
@@ -255,7 +255,7 @@ Asserting that a step *fails correctly* is awkward from inside the same run: the
 
 `BehatCliTrait::behatCliBeforeScenario` reads the trait names out of the tag, writes a minimal `WebRawContext` subclass composing just those traits into a temporary directory, and `BehatCliContext` runs a real `behat` subprocess against it. The generated context starts from the step-free root and composes `AuthTrait` and `StaticCacheTrait`, the two helpers no step trait body calls into, because a tag names a trait from either half. The outer scenario then asserts on the subprocess's exit code and output. The subprocess reads a `behat.php` that `BehatCliTrait` writes, and the generated context declares its steps and hooks as PHP attributes, because Behat 4 ignores docblock annotations. One quirk worth knowing: nested PyStrings are written with `'''` and converted to `"""` on the way out, because you can't nest `"""` inside `"""` in Gherkin.
 
-![Data flow: the fixture site and the nested Behat harness](dataflow-tests.svg)
+[![Data flow: the fixture site and the nested Behat harness](dataflow-tests.svg)](dataflow-tests.svg)
 
 ### Coverage, and the file everyone reads wrong
 

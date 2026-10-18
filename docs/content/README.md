@@ -27,7 +27,7 @@ The library [tests its own steps](../../tests/behat/features) to avoid false pos
 
 Your project registers 1 of the shipped contexts, or composes step traits into a context of its own, and registers the Behat Steps extension beside Mink's. The traits decide what each step does. A step that drives the page uses the browser session Mink's extension opens, and a step that needs the site itself names a capability, which the extension answers with the first backend in your `backends` list that provides it, such as Drupal or Drush.
 
-![Component architecture: the 3 library layers, the consuming project and the runtime around them](architecture/architecture.svg)
+[![Component architecture: the 3 library layers, the consuming project and the runtime around them](architecture/architecture.svg)](architecture/architecture.svg)
 
 [Usage](guides/usage.md) covers that model from your project's side, and [Architecture](architecture/README.md) walks through each layer.
 

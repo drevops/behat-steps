@@ -34,7 +34,7 @@ If it reports that the command is missing, stop before rendering, say explicitly
    - **A class diagram** (`class-*.puml`) - the real types: the trait inventory, the inheritance chain the context sits on, the `<<trait>>` stereotype, and the exceptions a failing step throws. Split it in two when one diagram would have to choose between breadth and member detail: an inventory diagram naming every type, and a detail diagram carrying members for a representative few.
 4. Draw one sequence diagram per primary flow (`dataflow-<flow>.puml`).
 5. Render every source to SVG, then confirm each `.svg` changed.
-6. Write `docs/content/architecture/README.md` as a walkthrough that embeds each SVG where the prose discusses it, and keep the source index table near the top current.
+6. Write `docs/content/architecture/README.md` as a walkthrough that embeds each SVG where the prose discusses it, and keep the source index table near the top current. Wrap each embedded SVG in a link to itself, as `[![Alt text](diagram.svg)](diagram.svg)`, and link each SVG in the index table the same way, because the page draws a wide diagram at the width of its column and the link opens it at full size.
 
 ## Task B: update after a structural change
 
@@ -42,7 +42,7 @@ If it reports that the command is missing, stop before rendering, say explicitly
 2. Re-trace the affected `.puml` sources from the current code.
 3. Re-render every SVG in the same pass, so the visuals and the prose can never drift apart.
 4. Update the surrounding prose so the visuals and the prose agree.
-5. Add any new diagram to the index table in `docs/content/architecture/README.md`.
+5. Add any new diagram to the index table in `docs/content/architecture/README.md`, linking its SVG there and where the prose embeds it, as Task A describes.
 
 A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new backend or capability interface, a change to how a context composes the scenario lifecycle, a change to what `BehatStepsExtension` wires up, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
 
