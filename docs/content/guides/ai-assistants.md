@@ -10,8 +10,8 @@ An AI coding agent writes better scenarios from the steps your suite registers t
 
 | File | Holds |
 | --- | --- |
-| `vendor/drevops/behat-steps/docs/content/steps.md` | Every step, with its description, its options and an example. The same page as [Steps](../steps.md) |
-| `vendor/drevops/behat-steps/docs/content/helpers.md` | Every helper your own step definitions can call, with its signature. The same page as [Helpers](../helpers.md) |
+| `vendor/drevops/behat-steps/STEPS.md` | Every step, with its description, its options and an example. The same content as [Steps](../steps/README.md), on 1 page |
+| `vendor/drevops/behat-steps/HELPERS.md` | Every helper your own step definitions can call, with its signature. The same content as [Helpers](../helpers/README.md), on 1 page |
 
 ## Point your agent at them
 
@@ -30,8 +30,8 @@ If `.behat-steps.txt` does not exist or is outdated, regenerate it:
 
 Regenerate after adding new step traits or updating dependencies.
 
-For detailed examples, see: vendor/drevops/behat-steps/docs/content/steps.md
-For the helpers behind the steps, see: vendor/drevops/behat-steps/docs/content/helpers.md
+For detailed examples, see: vendor/drevops/behat-steps/STEPS.md
+For the helpers behind the steps, see: vendor/drevops/behat-steps/HELPERS.md
 ```
 
 `behat --definitions=i` lists every step your suite registers, Mink's and your project's included, so it's the list to write scenarios from. The 2 references add what the list leaves out: an example for each step this package ships, the options that change it, and the helpers a step definition of your own can call.

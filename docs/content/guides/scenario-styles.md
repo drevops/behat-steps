@@ -72,6 +72,6 @@ The library serves both jobs at once through 1 design rule: every step body is a
 
 3 consequences follow:
 
-1. **Helpers are public API.** They're documented in [Helpers](../helpers.md), covered by semantic versioning and named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in your `FeatureContext`, so a domain step costs 3 lines; under a context model, every domain step would start with service lookups.
+1. **Helpers are public API.** They're documented in [Helpers](../helpers/README.md), covered by semantic versioning and named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in your `FeatureContext`, so a domain step costs 3 lines; under a context model, every domain step would start with service lookups.
 2. **Suites split by job.** A spec suite holds the few domain-language scenarios, and a regression suite holds the broad generic-vocabulary ones. That's also how Behat's own documentation says to use suites. [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
 3. **The docs teach a lifecycle.** Start with the vocabulary for instant coverage, then graduate the flows that matter to domain steps on the toolbox. The [quick start](../quick-start.md) shows both scenario styles side by side.

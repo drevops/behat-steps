@@ -14,8 +14,8 @@ The library [tests its own steps](../../tests/behat/features) to avoid false pos
 
 ## What you get
 
-- [Steps](steps.md) lists every step, grouped by trait, with an example for each.
-- Every step is a thin wrapper over named [helpers](helpers.md), so your own domain steps can call the same code.
+- [Steps](steps/README.md) lists every step, with a page per trait and an example for each step.
+- Every step is a thin wrapper over named [helpers](helpers/README.md), so your own domain steps can call the same code.
 - A step names the capability it needs rather than a [backend](guides/configuration.md#backend-resolution), so a step whose capability Drush provides, such as clearing caches or creating users, runs through Drush as well as in-process.
 - Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5 are [supported](#supported-versions).
 - The library supports the BrowserKit, Selenium and Chrome DevTools [browser drivers](installation.md#javascript-browser-drivers).
@@ -43,4 +43,4 @@ Your project registers 1 of the shipped contexts, or composes step traits into a
 
 - If you're new to Behat Steps, start with [Installation](installation.md), then the [Quick start](quick-start.md).
 - To upgrade a 3.x project, see [Migrating from 3.x](migrating.md), which covers the migration guide and the AI agent skill that applies it.
-- For steps of your own, [Scenario styles](guides/scenario-styles.md) explains when they pay off, and [Helpers](helpers.md) lists what they can call.
+- For steps of your own, [Scenario styles](guides/scenario-styles.md) explains when they pay off, and [Helpers](helpers/README.md) lists what they can call.

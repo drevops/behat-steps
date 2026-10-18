@@ -1,6 +1,6 @@
 ---
 title: Migrating from 3.x
-sidebar_position: 8
+sidebar_position: 9
 description: Move a project from Behat Steps 3.14 to 4.0 with the migration guide, by hand or with the migrate-behat-steps skill for AI coding agents.
 ---
 
@@ -30,4 +30,4 @@ Read [How to read this guide](../../MIGRATION.md#how-to-read-this-guide) first: 
 
 ## Update your AI agent's reference
 
-If your project's `CLAUDE.md` or `AGENTS.md` points its agent at `vendor/drevops/behat-steps/STEPS.md`, as the 3.x README suggested, change the path to `vendor/drevops/behat-steps/docs/content/steps.md` when you move to 4.0, and point it at `vendor/drevops/behat-steps/docs/content/helpers.md` for the helpers too. 4.0 doesn't ship a `STEPS.md`, so an agent still reading the old path finds nothing there. [Writing tests with AI assistants](guides/ai-assistants.md) has the full snippet to copy.
+If your project's `CLAUDE.md` or `AGENTS.md` points its agent at `vendor/drevops/behat-steps/STEPS.md`, as the 3.x README suggested, that path still works in 4.0. 4.0 adds `vendor/drevops/behat-steps/HELPERS.md`, the helpers your own step definitions can call, so point the agent at it too. [Writing tests with AI assistants](guides/ai-assistants.md) has the full snippet to copy.

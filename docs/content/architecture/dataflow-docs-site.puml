@@ -24,8 +24,9 @@ CI -> Build: npm run build, with repository links at\nRELEASE_VERSION, else DOCS
 activate Build
 Build -> Build: read every page under docs/content/,\n.md as CommonMark, the sidebar\nfrom the folder tree
 note right of Build
-  docs.php writes into 3 of the pages:
-  steps.md and helpers.md below their title,
+  docs.php writes 1 page per trait under
+  steps/ and per class under helpers/, the
+  index region of each folder's README.md,
   and the option and tag tables of
   guides/configuration.md.
 end note
@@ -53,7 +54,7 @@ deactivate Build
 opt Docs job
   CI -> Checks: after the build
   activate Checks
-  Checks -> Checks: Jest unit tests, then CSpell over\nevery page under docs/content/ except\nsteps.md and helpers.md, plus\ndocs/README.md and the root README.md
+  Checks -> Checks: Jest unit tests, then CSpell over\nevery page under docs/content/ but the\ngenerated pages and index regions, plus\ndocs/README.md and the root README.md
   Checks -> Out: serve it with docusaurus serve
   Checks -> Checks: axe on every page against WCAG A and AA,\nin light and dark, at desktop and phone width,\nthen the search box and the mobile menu
   Checks --> CI: pass, or fail the job

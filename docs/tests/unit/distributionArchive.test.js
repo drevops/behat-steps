@@ -8,7 +8,7 @@ import path from 'node:path';
 const ROOT = path.resolve(__dirname, '..', '..', '..');
 
 // A consuming project's AI agent reads both from vendor/.
-const SHIPPED = ['docs/content/helpers.md', 'docs/content/steps.md'];
+const SHIPPED = ['HELPERS.md', 'STEPS.md'];
 
 const git = (args, input) => execFileSync('git', args, { cwd: ROOT, input, encoding: 'utf8' });
 
@@ -44,9 +44,9 @@ describe('distribution archive', () => {
     expect(archived(SHIPPED)).toEqual(SHIPPED);
   });
 
-  test('ships nothing else from docs/', () => {
+  test('ships nothing from docs/', () => {
     const tracked = git(['ls-files', '-z', '--', 'docs']).split('\0').filter(Boolean);
 
-    expect(archived(tracked).sort()).toEqual(SHIPPED);
+    expect(archived(tracked)).toEqual([]);
   });
 });

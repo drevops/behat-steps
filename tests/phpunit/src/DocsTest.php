@@ -78,6 +78,22 @@ use Symfony\Component\Config\Definition\ScalarNode;
 #[CoversFunction('relative_source_path')]
 #[CoversFunction('relative_link')]
 #[CoversFunction('render_helpers')]
+#[CoversFunction('render_helper_index')]
+#[CoversFunction('render_helper_section')]
+#[CoversFunction('render_helper_pages')]
+#[CoversFunction('render_helper_links')]
+#[CoversFunction('render_helper_details')]
+#[CoversFunction('render_step_index')]
+#[CoversFunction('render_step_section')]
+#[CoversFunction('render_step_pages')]
+#[CoversFunction('render_step_links')]
+#[CoversFunction('render_step_details')]
+#[CoversFunction('render_class_description')]
+#[CoversFunction('render_titled')]
+#[CoversFunction('render_front_matter')]
+#[CoversFunction('reference_page')]
+#[CoversFunction('context_first')]
+#[CoversFunction('stale_pages')]
 #[CoversFunction('validate_helpers')]
 #[CoversFunction('render_tag_reference')]
 #[CoversFunction('render_extension_options')]
@@ -606,7 +622,7 @@ EOD,
       foreach ($info as $trait => $data) {
         $name_contextual = $data['name_contextual'] ?? $trait;
         $this->assertStringContainsString(sprintf("## %s", $name_contextual), $actual);
-        $this->assertStringContainsString(sprintf('[Source](../../%s/%s/%s.php)', STEPS_DIRECTORY, $data['context'] ?? 'Web', $trait), $actual);
+        $this->assertStringContainsString(sprintf('[Source](%s/%s/%s.php)', STEPS_DIRECTORY, $data['context'] ?? 'Web', $trait), $actual);
 
         if (isset($data['methods']) && is_array($data['methods'])) {
           foreach ($data['methods'] as $method) {
@@ -677,7 +693,7 @@ EOD,
 | [TestTrait](#testtrait) | Web | Test trait description |
 ## TestTrait
 
-[Source](../../src/Steps/Web/TestTrait.php), [Example](../../tests/behat/features/test.feature)
+[Source](src/Steps/Web/TestTrait.php), [Example](tests/behat/features/test.feature)
 
 Test trait description
 
@@ -733,7 +749,7 @@ EOD,
 | [SecondTrait](#secondtrait) | Drupal | Second trait description |
 ## FirstTrait
 
-[Source](../../src/Steps/Web/FirstTrait.php), [Example](../../tests/behat/features/first.feature)
+[Source](src/Steps/Web/FirstTrait.php), [Example](tests/behat/features/first.feature)
 
 First trait description
 
@@ -748,7 +764,7 @@ Given I am on the homepage
 
 ## SecondTrait
 
-[Source](../../src/Steps/Drupal/SecondTrait.php), [Example](../../tests/behat/features/second.feature)
+[Source](src/Steps/Drupal/SecondTrait.php), [Example](tests/behat/features/second.feature)
 
 Second trait description
 
@@ -795,7 +811,7 @@ EOD,
 | [MultiMethodTrait](#multimethodtrait) | Web | Multi-method trait description |
 ## MultiMethodTrait
 
-[Source](../../src/Steps/Web/MultiMethodTrait.php), [Example](../../tests/behat/features/multi_method.feature)
+[Source](src/Steps/Web/MultiMethodTrait.php), [Example](tests/behat/features/multi_method.feature)
 
 Multi-method trait description
 
@@ -844,7 +860,7 @@ EOD,
 | [StepsTrait](#stepstrait) | Drupal | Steps trait description |
 ## StepsTrait
 
-[Source](../../src/Steps/Drupal/StepsTrait.php), [Example](../../tests/behat/features/steps.feature)
+[Source](src/Steps/Drupal/StepsTrait.php), [Example](tests/behat/features/steps.feature)
 
 Steps trait description
 
@@ -913,7 +929,7 @@ EOD,
 | [MultiParaTrait](#multiparatrait) | Web | Multi-paragraph trait description |
 ## MultiParaTrait
 
-[Source](../../src/Steps/Web/MultiParaTrait.php), [Example](../../tests/behat/features/multi_para.feature)
+[Source](src/Steps/Web/MultiParaTrait.php), [Example](tests/behat/features/multi_para.feature)
 
 Multi-paragraph trait description
 
@@ -957,7 +973,7 @@ EOD,
 | [ListTrait](#listtrait) | Drupal | List trait description |
 ## ListTrait
 
-[Source](../../src/Steps/Drupal/ListTrait.php), [Example](../../tests/behat/features/list.feature)
+[Source](src/Steps/Drupal/ListTrait.php), [Example](tests/behat/features/list.feature)
 
 List trait description
 
@@ -1001,7 +1017,7 @@ EOD,
 | [NonArrayTrait](#nonarraytrait) | Drupal | Non-array trait description |
 ## NonArrayTrait
 
-[Source](../../src/Steps/Drupal/NonArrayTrait.php), [Example](../../tests/behat/features/non_array.feature)
+[Source](src/Steps/Drupal/NonArrayTrait.php), [Example](tests/behat/features/non_array.feature)
 
 Non-array trait description
 
@@ -1041,7 +1057,7 @@ EOD,
 | [CodeBlockTrait](#codeblocktrait) | Web | Code block trait description |
 ## CodeBlockTrait
 
-[Source](../../src/Steps/Web/CodeBlockTrait.php), [Example](../../tests/behat/features/code_block.feature)
+[Source](src/Steps/Web/CodeBlockTrait.php), [Example](tests/behat/features/code_block.feature)
 
 >  Code block trait description
 >
@@ -1101,7 +1117,7 @@ EOD,
 
     $this->assertStringStartsWith('## Index of Web steps' . PHP_EOL, $actual);
     $this->assertStringContainsString('| [SomeTrait](#sometrait) | Do the thing. |', $actual);
-    $this->assertStringContainsString('[Source](../../src/Steps/Web/SomeTrait.php), [Example](../../tests/behat/features/some.feature)', $actual);
+    $this->assertStringContainsString('[Source](src/Steps/Web/SomeTrait.php), [Example](tests/behat/features/some.feature)', $actual);
     $this->assertStringContainsString('## SomeTrait', $actual);
   }
 
@@ -3750,16 +3766,17 @@ EOD,
 
   public static function dataProviderRelativeLink(): array {
     return [
-      'a source file from the step reference' => ['docs/content/steps.md', 'src/Steps/Web/CookieTrait.php', '../../src/Steps/Web/CookieTrait.php'],
-      'a page in the same directory' => ['docs/content/helpers.md', 'docs/content/steps.md', 'steps.md'],
-      'a page in the parent directory' => ['docs/content/guides/configuration.md', 'docs/content/steps.md', '../steps.md'],
-      'a page in a sibling directory' => ['docs/content/guides/configuration.md', 'docs/content/architecture/README.md', '../architecture/README.md'],
-      'a page in a child directory' => ['docs/content/steps.md', 'docs/content/guides/configuration.md', 'guides/configuration.md'],
-      'a page from the repository root' => ['README.md', 'docs/content/steps.md', 'docs/content/steps.md'],
-      'a root file from a nested page' => ['docs/content/steps.md', 'README.md', '../../README.md'],
-      'a file in the parent directory' => ['docs/content/steps.md', 'docs/README.md', '../README.md'],
-      'the directory holding the file' => ['docs/content/steps.md', 'docs/content', '../content'],
-      'the file itself' => ['docs/content/steps.md', 'docs/content/steps.md', 'steps.md'],
+      'a source file from a root file' => ['STEPS.md', 'src/Steps/Web/CookieTrait.php', 'src/Steps/Web/CookieTrait.php'],
+      'a root file from a root file' => ['HELPERS.md', 'STEPS.md', 'STEPS.md'],
+      'a source file from a nested page' => ['docs/content/steps/web/cookie.md', 'src/Steps/Web/CookieTrait.php', '../../../../src/Steps/Web/CookieTrait.php'],
+      'a page in the same directory' => ['docs/content/steps/web/cookie.md', 'docs/content/steps/web/field.md', 'field.md'],
+      'a page in a child directory' => ['docs/content/steps/README.md', 'docs/content/steps/web/cookie.md', 'web/cookie.md'],
+      'a page in a sibling directory' => ['docs/content/helpers/web/cookie.md', 'docs/content/steps/web/cookie.md', '../../steps/web/cookie.md'],
+      'a page in the parent directory' => ['docs/content/guides/configuration.md', 'docs/content/README.md', '../README.md'],
+      'a page from the repository root' => ['README.md', 'docs/content/steps/README.md', 'docs/content/steps/README.md'],
+      'a root file from a nested page' => ['docs/content/steps/web/cookie.md', 'README.md', '../../../../README.md'],
+      'the directory holding the file' => ['docs/content/steps/web/cookie.md', 'docs/content/steps/web', '../web'],
+      'the file itself' => ['docs/content/steps/web/cookie.md', 'docs/content/steps/web/cookie.md', 'cookie.md'],
     ];
   }
 
@@ -4029,8 +4046,8 @@ EOD);
 
     // A trait that contributes steps links to them; one that does not links
     // only to its source.
-    $this->assertStringContainsString('[Source](../../src/Steps/Web/SomeTrait.php), [Steps](steps.md#sometrait)', $actual);
-    $this->assertStringContainsString('[Source](../../src/Steps/Drupal/OtherTrait.php)' . PHP_EOL, $actual);
+    $this->assertStringContainsString('[Source](src/Steps/Web/SomeTrait.php), [Steps](STEPS.md#sometrait)', $actual);
+    $this->assertStringContainsString('[Source](src/Steps/Drupal/OtherTrait.php)' . PHP_EOL, $actual);
 
     $this->assertStringContainsString('<summary><code>protected function someValue(): string</code></summary>', $actual);
     $this->assertStringContainsString('Read the value' . PHP_EOL, $actual);
@@ -4055,6 +4072,323 @@ EOD);
         'helpers' => [],
       ],
     ], static::$tmp);
+  }
+
+  #[DataProvider('dataProviderReferencePage')]
+  public function testReferencePage(string $directory, string $context, string $name, string $expected): void {
+    $this->assertSame($expected, reference_page($directory, $context, $name));
+  }
+
+  public static function dataProviderReferencePage(): array {
+    return [
+      'a trait of the generic context' => ['docs/content/steps', 'Web', 'AccessibilityTrait', 'docs/content/steps/web/accessibility.md'],
+      'a trait named in several words' => ['docs/content/steps', 'Drupal', 'BigPipeTrait', 'docs/content/steps/drupal/big-pipe.md'],
+      'a class that is not a trait' => ['docs/content/helpers', 'Toolbox', 'WebRawContext', 'docs/content/helpers/toolbox/web-raw-context.md'],
+    ];
+  }
+
+  #[DataProvider('dataProviderRenderFrontMatter')]
+  public function testRenderFrontMatter(array $fields, string $expected): void {
+    $this->assertSame($expected, render_front_matter($fields));
+  }
+
+  public static function dataProviderRenderFrontMatter(): array {
+    return [
+      'a string' => [['title' => 'Steps'], implode(PHP_EOL, ['---', 'title: "Steps"', '---', ''])],
+      'a string that would end a plain value early' => [['description' => 'Wait: 5 seconds # at most'], implode(PHP_EOL, ['---', 'description: "Wait: 5 seconds # at most"', '---', ''])],
+      'a backslash and a quote' => [['title' => 'Drupal\\BlockTrait "steps"'], implode(PHP_EOL, ['---', 'title: "Drupal\\\\BlockTrait \\"steps\\""', '---', ''])],
+      'a slash and a character outside ASCII' => [['description' => 'Café/bar'], implode(PHP_EOL, ['---', 'description: "Café/bar"', '---', ''])],
+      'a number and no value' => [['sidebar_position' => 3, 'custom_edit_url' => NULL], implode(PHP_EOL, ['---', 'sidebar_position: 3', 'custom_edit_url: null', '---', ''])],
+    ];
+  }
+
+  #[DataProvider('dataProviderRenderTitled')]
+  public function testRenderTitled(string $heading, string $body, string $expected): void {
+    $this->assertSame($expected, render_titled($heading, $body));
+  }
+
+  public static function dataProviderRenderTitled(): array {
+    return [
+      'a body' => ['## Options', '| Option |', '## Options' . PHP_EOL . PHP_EOL . '| Option |' . PHP_EOL . PHP_EOL],
+      'no body' => ['## Options', '', ''],
+    ];
+  }
+
+  public function testRenderStepIndex(): void {
+    $info = [
+      'OtherTrait' => ['name' => 'OtherTrait', 'name_contextual' => 'Drupal\\OtherTrait', 'context' => 'Drupal', 'description' => 'Do the Drupal thing.'],
+      'SomeTrait' => ['name' => 'SomeTrait', 'name_contextual' => 'SomeTrait', 'context' => 'Web', 'description' => 'Do the thing.'],
+    ];
+
+    $actual = render_step_index($info, static fn(array $class_info): string => $class_info['name'] . '.md');
+
+    // The generic context leads, whatever order the traits come in.
+    $this->assertSame(implode(PHP_EOL, [
+      '## Index of Web steps',
+      '',
+      '| Class | Description |',
+      '| --- | --- |',
+      '| [SomeTrait](SomeTrait.md) | Do the thing. |',
+      '',
+      '## Index of Drupal steps',
+      '',
+      '| Class | Description |',
+      '| --- | --- |',
+      '| [Drupal\\OtherTrait](OtherTrait.md) | Do the Drupal thing. |',
+      '',
+      '',
+    ]), $actual);
+  }
+
+  public function testRenderStepPages(): void {
+    $this->writeFixture(STEPS_DIRECTORY . '/Web/SomeTrait.php', '<?php');
+    $this->writeFixture(STEPS_DIRECTORY . '/Web/AnotherTrait.php', '<?php');
+    $this->writeFixture(STEPS_DIRECTORY . '/Drupal/OtherTrait.php', '<?php');
+    $this->writeFixture('tests/behat/features/some.feature', 'Feature: Test');
+    $this->writeFixture('tests/behat/features/another.feature', 'Feature: Test');
+    $this->writeFixture('tests/behat/features/drupal_other.feature', 'Feature: Test');
+
+    $info = [
+      'SomeTrait' => [
+        'name' => 'SomeTrait',
+        'name_contextual' => 'SomeTrait',
+        'context' => 'Web',
+        'description' => 'Replace `{{ Key }}` tokens.',
+        'description_full' => 'Replace `{{ Key }}` tokens.',
+        'methods' => [
+          ['steps' => ['@Given the thing is done'], 'description' => 'Do the thing.', 'example' => 'Given the thing is done'],
+        ],
+        'options' => [new Option('limit', default: 7, description: 'The limit.')],
+        'prerequisites' => [Prerequisite::capability(ContentCapabilityInterface::class)],
+      ],
+      'AnotherTrait' => [
+        'name' => 'AnotherTrait',
+        'name_contextual' => 'AnotherTrait',
+        'context' => 'Web',
+        'description' => 'Do another thing.',
+        'description_full' => 'Do another thing.',
+        'methods' => [
+          ['steps' => ['@When I do another thing'], 'description' => 'Do another thing.', 'example' => 'When I do another thing'],
+        ],
+      ],
+      'OtherTrait' => [
+        'name' => 'OtherTrait',
+        'name_contextual' => 'Drupal\\OtherTrait',
+        'context' => 'Drupal',
+        'description' => 'Do the Drupal thing.',
+        'description_full' => 'Do the Drupal thing.',
+        'methods' => [],
+      ],
+    ];
+    $helpers = ['SomeTrait' => ['name' => 'SomeTrait', 'context' => 'Web']];
+
+    $actual = render_step_pages($info, $helpers, static::$tmp);
+
+    $this->assertSame(['docs/content/steps/web/some.md', 'docs/content/steps/web/another.md', 'docs/content/steps/drupal/other.md'], array_keys($actual));
+
+    $this->assertSame(implode(PHP_EOL, [
+      '---',
+      'title: "SomeTrait steps"',
+      'sidebar_label: "SomeTrait"',
+      'sidebar_position: 1',
+      'description: "Replace {{ Key }} tokens."',
+      'custom_edit_url: null',
+      '---',
+      '',
+      '# SomeTrait steps',
+      '',
+      '[Source](../../../../src/Steps/Web/SomeTrait.php), [Example](../../../../tests/behat/features/some.feature), [Helpers](../../helpers/web/some.md)',
+      '',
+      '>  Replace `{{ Key }}` tokens.',
+      '',
+      '## Prerequisites',
+      '',
+      '| Prerequisite | Capability |',
+      '| --- | --- |',
+      '| A backend in the scenario\'s list provides "ContentCapabilityInterface" | `ContentCapabilityInterface` |',
+      '',
+      '## Options',
+      '',
+      '| Option | Type | Default | Tag | Description |',
+      '| --- | --- | --- | --- | --- |',
+      '| `some.limit` | integer | `7` | - | The limit. |',
+      '',
+      '## Steps',
+      '',
+      '<details>',
+      '  <summary><code>@Given the thing is done</code></summary>',
+      '',
+      '<br/>',
+      'Do the thing',
+      '<br/><br/>',
+      '',
+      '```gherkin',
+      'Given the thing is done',
+      '```',
+      '',
+      '</details>',
+      '',
+    ]), $actual['docs/content/steps/web/some.md']);
+
+    // A trait's position counts within its context, so the sidebar follows
+    // the index.
+    $this->assertStringContainsString('sidebar_position: 2' . PHP_EOL, $actual['docs/content/steps/web/another.md']);
+
+    $other = $actual['docs/content/steps/drupal/other.md'];
+    $this->assertStringContainsString('title: "Drupal\\\\OtherTrait steps"' . PHP_EOL . 'sidebar_label: "OtherTrait"' . PHP_EOL . 'sidebar_position: 1' . PHP_EOL, $other);
+
+    // A trait with no helpers links only its source and its example, and one
+    // declaring nothing renders no table.
+    $this->assertStringContainsString('[Source](../../../../src/Steps/Drupal/OtherTrait.php), [Example](../../../../tests/behat/features/drupal_other.feature)' . PHP_EOL, $other);
+    $this->assertStringNotContainsString('## Prerequisites', $other);
+    $this->assertStringNotContainsString('## Options', $other);
+    $this->assertStringNotContainsString('## Steps', $other);
+  }
+
+  public function testRenderStepPagesThrowsOnMissingSource(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('Source file %s/src/Steps/Web/SomeTrait.php does not exist', static::$tmp));
+
+    render_step_pages([
+      'SomeTrait' => [
+        'name' => 'SomeTrait',
+        'name_contextual' => 'SomeTrait',
+        'context' => 'Web',
+        'description' => 'Do the thing.',
+        'description_full' => 'Do the thing.',
+        'methods' => [],
+      ],
+    ], [], static::$tmp);
+  }
+
+  public function testRenderHelperIndex(): void {
+    $info = [
+      'WebRawContext' => ['name' => 'WebRawContext', 'name_contextual' => 'WebRawContext', 'context' => 'Toolbox', 'description' => 'Root context.', 'helpers' => [['name' => 'rawValue']]],
+      'SomeTrait' => ['name' => 'SomeTrait', 'name_contextual' => 'SomeTrait', 'context' => 'Web', 'description' => 'Do the thing.', 'helpers' => [['name' => 'someValue'], ['name' => 'someOther']]],
+    ];
+
+    $actual = render_helper_index($info, static fn(array $class_info): string => '#' . $class_info['name']);
+
+    $this->assertSame(implode(PHP_EOL, [
+      '## Index of Web helpers',
+      '',
+      '| Class | Helpers | Description |',
+      '| --- | --- | --- |',
+      '| [SomeTrait](#SomeTrait) | 2 | Do the thing. |',
+      '',
+      '## Index of Toolbox helpers',
+      '',
+      '| Class | Helpers | Description |',
+      '| --- | --- | --- |',
+      '| [WebRawContext](#WebRawContext) | 1 | Root context. |',
+      '',
+      '',
+    ]), $actual);
+  }
+
+  public function testRenderHelperPages(): void {
+    $this->writeFixture(STEPS_DIRECTORY . '/Web/SomeTrait.php', '<?php');
+    $this->writeFixture('src/WebRawContext.php', '<?php');
+
+    $info = [
+      'SomeTrait' => [
+        'name' => 'SomeTrait',
+        'name_contextual' => 'SomeTrait',
+        'context' => 'Web',
+        'source' => 'src/Steps/Web/SomeTrait.php',
+        'steps_anchor' => 'sometrait',
+        'description' => 'Do the `generic` thing.',
+        'helpers' => [
+          ['name' => 'someValue', 'signature' => 'public function someValue(): string', 'description' => 'Read the value.', 'example' => '$this->someValue();'],
+        ],
+      ],
+      'WebRawContext' => [
+        'name' => 'WebRawContext',
+        'name_contextual' => 'WebRawContext',
+        'context' => 'Toolbox',
+        'source' => 'src/WebRawContext.php',
+        'steps_anchor' => NULL,
+        'description' => 'Root context.',
+        'helpers' => [
+          ['name' => 'rawValue', 'signature' => 'public function rawValue(): void', 'description' => 'Write the value.', 'example' => ''],
+        ],
+      ],
+    ];
+
+    $actual = render_helper_pages($info, static::$tmp);
+
+    $this->assertSame(['docs/content/helpers/web/some.md', 'docs/content/helpers/toolbox/web-raw-context.md'], array_keys($actual));
+
+    $this->assertSame(implode(PHP_EOL, [
+      '---',
+      'title: "SomeTrait helpers"',
+      'sidebar_label: "SomeTrait"',
+      'sidebar_position: 1',
+      'description: "Do the generic thing."',
+      'custom_edit_url: null',
+      '---',
+      '',
+      '# SomeTrait helpers',
+      '',
+      '[Source](../../../../src/Steps/Web/SomeTrait.php), [Steps](../../steps/web/some.md)',
+      '',
+      '> Do the `generic` thing.',
+      '',
+      '<details>',
+      '  <summary><code>public function someValue(): string</code></summary>',
+      '',
+      '<br/>',
+      'Read the value',
+      '<br/><br/>',
+      '',
+      '```',
+      '$this->someValue();',
+      '```',
+      '',
+      '</details>',
+      '',
+    ]), $actual['docs/content/helpers/web/some.md']);
+
+    // A class with no steps links only its source, and a helper with no
+    // example renders no code block.
+    $toolbox = $actual['docs/content/helpers/toolbox/web-raw-context.md'];
+    $this->assertStringContainsString('# WebRawContext helpers' . PHP_EOL . PHP_EOL . '[Source](../../../../src/WebRawContext.php)' . PHP_EOL, $toolbox);
+    $this->assertStringNotContainsString('```', $toolbox);
+  }
+
+  public function testRenderHelperPagesThrowsOnMissingSource(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(sprintf('Source file %s/src/Steps/Web/MissingTrait.php does not exist', static::$tmp));
+
+    render_helper_pages([
+      'SomeTrait' => [
+        'name' => 'SomeTrait',
+        'name_contextual' => 'SomeTrait',
+        'context' => 'Web',
+        'source' => 'src/Steps/Web/MissingTrait.php',
+        'steps_anchor' => 'sometrait',
+        'description' => 'Do the thing.',
+        'helpers' => [],
+      ],
+    ], static::$tmp);
+  }
+
+  public function testStalePages(): void {
+    $this->writeFixture('docs/content/steps/README.md', 'Index');
+    $this->writeFixture('docs/content/steps/web/_category_.json', '{}');
+    $this->writeFixture('docs/content/steps/web/some.md', 'Some');
+    $this->writeFixture('docs/content/steps/web/gone.md', 'Gone');
+    $this->writeFixture('docs/content/steps/drupal/gone.md', 'Gone');
+
+    $actual = stale_pages(static::$tmp, 'docs/content/steps', ['docs/content/steps/web/some.md' => 'Some']);
+
+    // Only a page in a context directory is generated, so the index and the
+    // category files are never stale.
+    $this->assertSame(['docs/content/steps/drupal/gone.md', 'docs/content/steps/web/gone.md'], $actual);
+  }
+
+  public function testStalePagesWithoutTheDirectory(): void {
+    $this->assertSame([], stale_pages(static::$tmp, 'docs/content/steps', []));
   }
 
   public function testRenderTagReference(): void {
@@ -4154,7 +4488,7 @@ EOD);
 
   #[DataProvider('dataProviderRenderTraitOptions')]
   public function testRenderTraitOptions(mixed $options, string $expected): void {
-    $this->assertSame($expected, render_trait_options('DocumentedOptionsTrait', 'Drupal\\DocumentedOptionsTrait', $options));
+    $this->assertSame($expected, render_trait_options('DocumentedOptionsTrait', $options));
   }
 
   public static function dataProviderRenderTraitOptions(): array {
@@ -4175,7 +4509,7 @@ EOD);
           'not an option',
           new Option('limit', default: 7, description: 'Reads a | b.'),
         ],
-        '### Drupal\\DocumentedOptionsTrait options' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
+        $table,
       ],
     ];
   }
@@ -4188,7 +4522,7 @@ EOD);
 
   #[DataProvider('dataProviderRenderTraitPrerequisites')]
   public function testRenderTraitPrerequisites(mixed $prerequisites, string $expected): void {
-    $this->assertSame($expected, render_trait_prerequisites('Drupal\\DocumentedPrerequisitesTrait', $prerequisites));
+    $this->assertSame($expected, render_trait_prerequisites($prerequisites));
   }
 
   public static function dataProviderRenderTraitPrerequisites(): array {
@@ -4209,7 +4543,7 @@ EOD);
           'not a prerequisite',
           Prerequisite::check(static fn(ModuleCapabilityInterface $backend): bool => $backend->moduleIsEnabled('a|b'), 'the "a | b" module is enabled'),
         ],
-        '### Drupal\\DocumentedPrerequisitesTrait prerequisites' . PHP_EOL . PHP_EOL . $table . PHP_EOL . PHP_EOL,
+        $table,
       ],
     ];
   }

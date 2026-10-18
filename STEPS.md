@@ -1,11 +1,3 @@
----
-title: Steps
-sidebar_position: 5
-description: Every step Behat Steps registers, grouped by trait, with its options and an example for each.
-toc_max_heading_level: 2
-custom_edit_url: null
----
-
 # Available steps
 
 ## Index of Web steps
@@ -80,7 +72,7 @@ custom_edit_url: null
 
 ## AccessibilityTrait
 
-[Source](../../src/Steps/Web/AccessibilityTrait.php), [Example](../../tests/behat/features/accessibility.feature)
+[Source](src/Steps/Web/AccessibilityTrait.php), [Example](tests/behat/features/accessibility.feature)
 
 >  Assess accessibility of rendered pages.
 >  <br/><br/>
@@ -158,7 +150,7 @@ Then the page should pass accessibility checks for the tags "wcag2a"
 
 ## BasicAuthTrait
 
-[Source](../../src/Steps/Web/BasicAuthTrait.php), [Example](../../tests/behat/features/basic_auth.feature)
+[Source](src/Steps/Web/BasicAuthTrait.php), [Example](tests/behat/features/basic_auth.feature)
 
 >  Keep HTTP basic authentication applied across session resets.
 >  - Re-apply the configured credentials before every scenario and step.
@@ -181,7 +173,7 @@ Then the page should pass accessibility checks for the tags "wcag2a"
 
 ## CommandTrait
 
-[Source](../../src/Steps/Web/CommandTrait.php), [Example](../../tests/behat/features/command.feature)
+[Source](src/Steps/Web/CommandTrait.php), [Example](tests/behat/features/command.feature)
 
 >  Run local shell commands and assert on their result.
 >  - Run a shell command and capture its output, error output, and exit code.
@@ -343,7 +335,7 @@ Then the command should complete in more than 1 second
 
 ## CookieTrait
 
-[Source](../../src/Steps/Web/CookieTrait.php), [Example](../../tests/behat/features/cookie.feature)
+[Source](src/Steps/Web/CookieTrait.php), [Example](tests/behat/features/cookie.feature)
 
 >  Verify and inspect browser cookies.
 >  - Assert cookie existence and values with exact or partial matching.
@@ -509,7 +501,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 ## DateTrait
 
-[Source](../../src/Steps/Web/DateTrait.php), [Example](../../tests/behat/features/date.feature)
+[Source](src/Steps/Web/DateTrait.php), [Example](tests/behat/features/date.feature)
 
 >  Convert relative date expressions into timestamps or formatted dates.
 >  <br/><br/>
@@ -545,7 +537,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 ## DiagnosticsTrait
 
-[Source](../../src/Steps/Web/DiagnosticsTrait.php), [Example](../../tests/behat/features/diagnostics.feature)
+[Source](src/Steps/Web/DiagnosticsTrait.php), [Example](tests/behat/features/diagnostics.feature)
 
 >  Append on-failure diagnostics to the failure message of any failed step.
 >  <br/><br/>
@@ -598,7 +590,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 ## DropzoneTrait
 
-[Source](../../src/Steps/Web/DropzoneTrait.php), [Example](../../tests/behat/features/dropzone.feature)
+[Source](src/Steps/Web/DropzoneTrait.php), [Example](tests/behat/features/dropzone.feature)
 
 >  Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
 >  - Drop 1 or more files on a CSS-selected target in a single native event.
@@ -648,7 +640,7 @@ When I drop the following files on the dropzone ".dropzone":
 
 ## ElementTrait
 
-[Source](../../src/Steps/Web/ElementTrait.php), [Example](../../tests/behat/features/element.feature)
+[Source](src/Steps/Web/ElementTrait.php), [Example](tests/behat/features/element.feature)
 
 >  Interact with HTML elements using CSS selectors and DOM attributes.
 >  - Assert element visibility, attribute values, and viewport positioning.
@@ -1218,7 +1210,7 @@ Then the element "#main-nav" should have 3 elements matching ".menu-item"
 
 ## FieldTrait
 
-[Source](../../src/Steps/Web/FieldTrait.php), [Example](../../tests/behat/features/field.feature)
+[Source](src/Steps/Web/FieldTrait.php), [Example](tests/behat/features/field.feature)
 
 >  Manipulate form fields and verify widget functionality.
 >  - Set field values for various input types including selects and WYSIWYG.
@@ -1650,7 +1642,7 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 
 ## FileDownloadTrait
 
-[Source](../../src/Steps/Web/FileDownloadTrait.php), [Example](../../tests/behat/features/file_download.feature)
+[Source](src/Steps/Web/FileDownloadTrait.php), [Example](tests/behat/features/file_download.feature)
 
 >  Test file download functionality with content verification.
 >  - Download files through links and URLs with session cookie handling.
@@ -1791,7 +1783,7 @@ Then the downloaded file should be a zip archive not containing files with the f
 
 ## IframeTrait
 
-[Source](../../src/Steps/Web/IframeTrait.php), [Example](../../tests/behat/features/iframe.feature)
+[Source](src/Steps/Web/IframeTrait.php), [Example](tests/behat/features/iframe.feature)
 
 >  Switch between iframes and the root document.
 >  - Switch to iframes by CSS selector, including unnamed iframes.
@@ -1827,7 +1819,7 @@ When I switch to the root document
 
 ## JavascriptTrait
 
-[Source](../../src/Steps/Web/JavascriptTrait.php), [Example](../../tests/behat/features/javascript.feature)
+[Source](src/Steps/Web/JavascriptTrait.php), [Example](tests/behat/features/javascript.feature)
 
 >  Automatically detect JavaScript errors during test execution.
 >  - Collects JavaScript errors from `window.onerror`, `unhandledrejection`
@@ -1868,7 +1860,7 @@ When I switch to the root document
 
 ## JsonTrait
 
-[Source](../../src/Steps/Web/JsonTrait.php), [Example](../../tests/behat/features/json.feature)
+[Source](src/Steps/Web/JsonTrait.php), [Example](tests/behat/features/json.feature)
 
 >  Assert JSON responses with path and schema checks.
 >  - Assert response is valid JSON format.
@@ -2144,7 +2136,7 @@ Then the response should match the JSON schema in the file "json_schema.json"
 
 ## KeyboardTrait
 
-[Source](../../src/Steps/Web/KeyboardTrait.php), [Example](../../tests/behat/features/keyboard.feature)
+[Source](src/Steps/Web/KeyboardTrait.php), [Example](tests/behat/features/keyboard.feature)
 
 >  Simulate keyboard interactions in the browser.
 >  - Trigger key press events, including named special keys.
@@ -2208,7 +2200,7 @@ When I press the keys "abc" on the element "#edit-title"
 
 ## LinkTrait
 
-[Source](../../src/Steps/Web/LinkTrait.php), [Example](../../tests/behat/features/link.feature)
+[Source](src/Steps/Web/LinkTrait.php), [Example](tests/behat/features/link.feature)
 
 >  Verify link elements with attribute and content assertions.
 >  - Find links by text, by title, or by text and href, optionally within an
@@ -2366,7 +2358,7 @@ Then the link "Return to site content" should not be an absolute link
 
 ## MappingTrait
 
-[Source](../../src/Steps/Web/MappingTrait.php), [Example](../../tests/behat/features/mapping.feature)
+[Source](src/Steps/Web/MappingTrait.php), [Example](tests/behat/features/mapping.feature)
 
 >  Replace `{{ Key }}` tokens in step arguments and table cells.
 >  - Resolve a token against the `mapping.groups` option.
@@ -2394,7 +2386,7 @@ Then the link "Return to site content" should not be an absolute link
 
 ## MessageTrait
 
-[Source](../../src/Steps/Web/MessageTrait.php), [Example](../../tests/behat/features/message.feature)
+[Source](src/Steps/Web/MessageTrait.php), [Example](tests/behat/features/message.feature)
 
 >  Assert status, error, warning and success messages rendered on the page.
 >  - Match a single message by substring, per message type.
@@ -2603,7 +2595,7 @@ Then I should not see the following warning messages:
 
 ## MetatagTrait
 
-[Source](../../src/Steps/Web/MetatagTrait.php), [Example](../../tests/behat/features/metatag.feature)
+[Source](src/Steps/Web/MetatagTrait.php), [Example](tests/behat/features/metatag.feature)
 
 >  Assert `<meta>` tags and head/SEO markup in page markup.
 >  - Assert presence and content of meta tags.
@@ -2836,7 +2828,7 @@ Then the following Twitter Card tags should exist:
 
 ## ModalTrait
 
-[Source](../../src/Steps/Web/ModalTrait.php), [Example](../../tests/behat/features/modal.feature)
+[Source](src/Steps/Web/ModalTrait.php), [Example](tests/behat/features/modal.feature)
 
 >  Interact with and assert modals.
 >  - Assert modal visibility.
@@ -2953,7 +2945,7 @@ Then I should not see the text "Error message" in the modal
 
 ## PathTrait
 
-[Source](../../src/Steps/Web/PathTrait.php), [Example](../../tests/behat/features/path.feature)
+[Source](src/Steps/Web/PathTrait.php), [Example](tests/behat/features/path.feature)
 
 >  Navigate and verify paths with URL validation.
 >  - Assert current page location with front page special handling.
@@ -3085,7 +3077,7 @@ Then the URL should not have the query parameter "filter" with the value "recent
 
 ## RandomTrait
 
-[Source](../../src/Steps/Web/RandomTrait.php), [Example](../../tests/behat/features/random.feature)
+[Source](src/Steps/Web/RandomTrait.php), [Example](tests/behat/features/random.feature)
 
 >  Replace random-value tokens in step arguments and table cells.
 >  - Resolve `[?<name>:<type>[,<args>]]` tokens to generated values.
@@ -3109,7 +3101,7 @@ Then the URL should not have the query parameter "filter" with the value "recent
 
 ## RegionTrait
 
-[Source](../../src/Steps/Web/RegionTrait.php), [Example](../../tests/behat/features/region.feature)
+[Source](src/Steps/Web/RegionTrait.php), [Example](tests/behat/features/region.feature)
 
 >  Interact with and assert against named page regions.
 >  - Click links, press buttons, fill fields and toggle checkboxes in a region.
@@ -3382,7 +3374,7 @@ Then the element "span" with the text "New" in the region "content" should have 
 
 ## ResponseTrait
 
-[Source](../../src/Steps/Web/ResponseTrait.php), [Example](../../tests/behat/features/response.feature)
+[Source](src/Steps/Web/ResponseTrait.php), [Example](tests/behat/features/response.feature)
 
 >  Verify HTTP response headers.
 >  - Assert HTTP header presence and values.
@@ -3442,7 +3434,7 @@ Then the response header "Connection" should not contain "Keep-Alive"
 
 ## ResponsiveTrait
 
-[Source](../../src/Steps/Web/ResponsiveTrait.php), [Example](../../tests/behat/features/responsive.feature)
+[Source](src/Steps/Web/ResponsiveTrait.php), [Example](tests/behat/features/responsive.feature)
 
 >  Test responsive layouts with viewport control.
 >  - Default breakpoints: mobile_portrait, tablet_landscape, desktop, etc.
@@ -3562,7 +3554,7 @@ When I set the viewport to "375" by "667"
 
 ## RestTrait
 
-[Source](../../src/Steps/Web/RestTrait.php), [Example](../../tests/behat/features/rest.feature)
+[Source](src/Steps/Web/RestTrait.php), [Example](tests/behat/features/rest.feature)
 
 >  Test REST APIs with lightweight steps.
 >  - Set HTTP headers for subsequent requests.
@@ -3651,7 +3643,7 @@ Then the REST response should contain "success"
 
 ## TableTrait
 
-[Source](../../src/Steps/Web/TableTrait.php), [Example](../../tests/behat/features/table.feature)
+[Source](src/Steps/Web/TableTrait.php), [Example](tests/behat/features/table.feature)
 
 >  Interact with HTML table elements and assert their content.
 >  - Assert table row and column counts.
@@ -3864,7 +3856,7 @@ Then I should not see the link "Delete" in the row containing "Article title"
 
 ## WaitTrait
 
-[Source](../../src/Steps/Web/WaitTrait.php), [Example](../../tests/behat/features/wait.feature)
+[Source](src/Steps/Web/WaitTrait.php), [Example](tests/behat/features/wait.feature)
 
 >  Wait for a period of time or for AJAX to finish.
 >  - Wait a fixed number of seconds.
@@ -3929,7 +3921,7 @@ When I wait for 1 second for AJAX to finish
 
 ## XmlTrait
 
-[Source](../../src/Steps/Web/XmlTrait.php), [Example](../../tests/behat/features/xml.feature)
+[Source](src/Steps/Web/XmlTrait.php), [Example](tests/behat/features/xml.feature)
 
 >  Assert XML responses with element and attribute checks.
 >  - Assert response is valid XML format.
@@ -4344,7 +4336,7 @@ Then the response should be a valid Atom feed
 
 ## Drupal\BatchTrait
 
-[Source](../../src/Steps/Drupal/BatchTrait.php), [Example](../../tests/behat/features/drupal_batch.feature)
+[Source](src/Steps/Drupal/BatchTrait.php), [Example](tests/behat/features/drupal_batch.feature)
 
 >  Wait for Drupal's Batch API to finish.
 >  - Poll the batch progress element until the page no longer contains it.
@@ -4368,7 +4360,7 @@ When I wait for the batch job to finish
 
 ## Drupal\BigPipeTrait
 
-[Source](../../src/Steps/Drupal/BigPipeTrait.php), [Example](../../tests/behat/features/drupal_big_pipe.feature)
+[Source](src/Steps/Drupal/BigPipeTrait.php), [Example](tests/behat/features/drupal_big_pipe.feature)
 
 >  Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios.
 >  <br/><br/>
@@ -4410,7 +4402,7 @@ When I wait for the batch job to finish
 
 ## Drupal\BlockTrait
 
-[Source](../../src/Steps/Drupal/BlockTrait.php), [Example](../../tests/behat/features/drupal_block.feature)
+[Source](src/Steps/Drupal/BlockTrait.php), [Example](tests/behat/features/drupal_block.feature)
 
 >  Manage Drupal blocks.
 >  - Create and configure blocks with custom visibility conditions.
@@ -4579,7 +4571,7 @@ Then the block "My block" in the region "content" should not exist
 
 ## Drupal\CacheTrait
 
-[Source](../../src/Steps/Drupal/CacheTrait.php), [Example](../../tests/behat/features/drupal_cache.feature)
+[Source](src/Steps/Drupal/CacheTrait.php), [Example](tests/behat/features/drupal_cache.feature)
 
 >  Invalidate Drupal caches and run cron from within a scenario.
 >  - Clear every cache bin, or target a single path, a path pattern, or the
@@ -4666,7 +4658,7 @@ When cron runs
 
 ## Drupal\ConfigOverrideTrait
 
-[Source](../../src/Steps/Drupal/ConfigOverrideTrait.php), [Example](../../tests/behat/features/drupal_config_override.feature)
+[Source](src/Steps/Drupal/ConfigOverrideTrait.php), [Example](tests/behat/features/drupal_config_override.feature)
 
 >  Disable Drupal config overrides from settings.php during a scenario.
 >  <br/><br/>
@@ -4736,7 +4728,7 @@ When cron runs
 
 ## Drupal\ConfigTrait
 
-[Source](../../src/Steps/Drupal/ConfigTrait.php), [Example](../../tests/behat/features/drupal_config.feature)
+[Source](src/Steps/Drupal/ConfigTrait.php), [Example](tests/behat/features/drupal_config.feature)
 
 >  Assert and set stored Drupal configuration values with automatic revert.
 >  <br/><br/>
@@ -4912,7 +4904,7 @@ Then the config "system.site" with the key "name" should not contain the effecti
 
 ## Drupal\ContentBlockTrait
 
-[Source](../../src/Steps/Drupal/ContentBlockTrait.php), [Example](../../tests/behat/features/drupal_content_block.feature)
+[Source](src/Steps/Drupal/ContentBlockTrait.php), [Example](tests/behat/features/drupal_content_block.feature)
 
 >  Manage Drupal content blocks.
 >  - Define reusable custom block content with structured field data.
@@ -5003,7 +4995,7 @@ Then the content block type "Search" should exist
 
 ## Drupal\ContentTrait
 
-[Source](../../src/Steps/Drupal/ContentTrait.php), [Example](../../tests/behat/features/drupal_content.feature)
+[Source](src/Steps/Drupal/ContentTrait.php), [Example](tests/behat/features/drupal_content.feature)
 
 >  Manage Drupal content with workflow and moderation support.
 >  - Create, find, and manipulate nodes with structured field data.
@@ -5248,7 +5240,7 @@ Then the "page" content with the title "Test page" should not be published
 
 ## Drupal\DraggableviewsTrait
 
-[Source](../../src/Steps/Drupal/DraggableviewsTrait.php), [Example](../../tests/behat/features/drupal_draggableviews.feature)
+[Source](src/Steps/Drupal/DraggableviewsTrait.php), [Example](tests/behat/features/drupal_draggableviews.feature)
 
 >  Order items in the Drupal Draggable Views.
 
@@ -5278,7 +5270,7 @@ When the draggable views items of the view "draggableviews_demo" and the display
 
 ## Drupal\DrushTrait
 
-[Source](../../src/Steps/Drupal/DrushTrait.php), [Example](../../tests/behat/features/drupal_drush.feature)
+[Source](src/Steps/Drupal/DrushTrait.php), [Example](tests/behat/features/drupal_drush.feature)
 
 >  Run Drush commands and assert their output.
 >  - Run a command with or without arguments, through the Drush backend.
@@ -5398,7 +5390,7 @@ Then the drush output should match "/Drupal [0-9]+/"
 
 ## Drupal\EckTrait
 
-[Source](../../src/Steps/Drupal/EckTrait.php), [Example](../../tests/behat/features/drupal_eck.feature)
+[Source](src/Steps/Drupal/EckTrait.php), [Example](tests/behat/features/drupal_eck.feature)
 
 >  Manage Drupal ECK entities of an existing entity type and bundle.
 >  - Create structured ECK entities with defined field values.
@@ -5472,7 +5464,7 @@ When I visit the ECK "contact" "contact_type" entity edit page with the title "T
 
 ## Drupal\EmailTrait
 
-[Source](../../src/Steps/Drupal/EmailTrait.php), [Example](../../tests/behat/features/drupal_email.feature)
+[Source](src/Steps/Drupal/EmailTrait.php), [Example](tests/behat/features/drupal_email.feature)
 
 >  Test Drupal email functionality with content verification.
 >  - Capture and examine outgoing emails with header and body validation.
@@ -5860,7 +5852,7 @@ Then the file "report.xlsx" should be attached to the email with a subject conta
 
 ## Drupal\EntityTrait
 
-[Source](../../src/Steps/Drupal/EntityTrait.php), [Example](../../tests/behat/features/drupal_entity.feature)
+[Source](src/Steps/Drupal/EntityTrait.php), [Example](tests/behat/features/drupal_entity.feature)
 
 >  Create entities of a type that has no dedicated trait.
 >  - Create entities of any type from a table of field values.
@@ -5892,7 +5884,7 @@ Given the following "commerce_product" entities exist:
 
 ## Drupal\FileTrait
 
-[Source](../../src/Steps/Drupal/FileTrait.php), [Example](../../tests/behat/features/drupal_file.feature)
+[Source](src/Steps/Drupal/FileTrait.php), [Example](tests/behat/features/drupal_file.feature)
 
 >  Manage Drupal file entities with upload and storage operations.
 >  - Create managed and unmanaged files with specific URIs and content.
@@ -6031,7 +6023,7 @@ Then the unmanaged file at the URI "public://config.txt" should not contain "deb
 
 ## Drupal\LanguageTrait
 
-[Source](../../src/Steps/Drupal/LanguageTrait.php), [Example](../../tests/behat/features/drupal_language.feature)
+[Source](src/Steps/Drupal/LanguageTrait.php), [Example](tests/behat/features/drupal_language.feature)
 
 >  Create the languages a scenario needs.
 >  - Add languages by their ISO code, skipping ones already installed.
@@ -6062,7 +6054,7 @@ Given the following languages exist:
 
 ## Drupal\MediaTrait
 
-[Source](../../src/Steps/Drupal/MediaTrait.php), [Example](../../tests/behat/features/drupal_media.feature)
+[Source](src/Steps/Drupal/MediaTrait.php), [Example](tests/behat/features/drupal_media.feature)
 
 >  Manage Drupal media entities with type-specific field handling.
 >  - Create structured media items with proper file reference handling.
@@ -6245,7 +6237,7 @@ Then the "image" media with the name "Test media image" should not exist
 
 ## Drupal\MenuTrait
 
-[Source](../../src/Steps/Drupal/MenuTrait.php), [Example](../../tests/behat/features/drupal_menu.feature)
+[Source](src/Steps/Drupal/MenuTrait.php), [Example](tests/behat/features/drupal_menu.feature)
 
 >  Manage Drupal menus and menu links.
 >  - Create and remove menus by label.
@@ -6322,7 +6314,7 @@ Given the following menu links exist in the menu "Main navigation":
 
 ## Drupal\ModuleTrait
 
-[Source](../../src/Steps/Drupal/ModuleTrait.php), [Example](../../tests/behat/features/drupal_module.feature)
+[Source](src/Steps/Drupal/ModuleTrait.php), [Example](tests/behat/features/drupal_module.feature)
 
 >  Enable and disable Drupal modules with automatic state restoration.
 >  <br/><br/>
@@ -6456,7 +6448,7 @@ Then the following modules should be disabled:
 
 ## Drupal\ParagraphsTrait
 
-[Source](../../src/Steps/Drupal/ParagraphsTrait.php), [Example](../../tests/behat/features/drupal_paragraphs.feature)
+[Source](src/Steps/Drupal/ParagraphsTrait.php), [Example](tests/behat/features/drupal_paragraphs.feature)
 
 >  Manage Drupal paragraphs entities with structured field data.
 >  - Create paragraph items with type-specific field values.
@@ -6491,7 +6483,7 @@ Given the following fields for the "text" paragraph exist in the field "field_co
 
 ## Drupal\QueueTrait
 
-[Source](../../src/Steps/Drupal/QueueTrait.php), [Example](../../tests/behat/features/drupal_queue.feature)
+[Source](src/Steps/Drupal/QueueTrait.php), [Example](tests/behat/features/drupal_queue.feature)
 
 >  Manage and assert Drupal queue state.
 >  - Add items to a queue and empty queues.
@@ -6599,7 +6591,7 @@ Then the queue "myqueue" should be empty
 
 ## Drupal\RedirectTrait
 
-[Source](../../src/Steps/Drupal/RedirectTrait.php), [Example](../../tests/behat/features/drupal_redirect.feature)
+[Source](src/Steps/Drupal/RedirectTrait.php), [Example](tests/behat/features/drupal_redirect.feature)
 
 >  Manage Drupal redirect entities provided by the contrib `redirect` module.
 >  - Create 1 or more redirects from a table of source/destination/status.
@@ -6681,7 +6673,7 @@ Then the following redirects should not exist:
 
 ## Drupal\SearchApiTrait
 
-[Source](../../src/Steps/Drupal/SearchApiTrait.php), [Example](../../tests/behat/features/drupal_search_api.feature)
+[Source](src/Steps/Drupal/SearchApiTrait.php), [Example](tests/behat/features/drupal_search_api.feature)
 
 >  Run Drupal Search API indexing and cron hooks.
 >  - Add content to an index.
@@ -6751,7 +6743,7 @@ When the Search API Solr cron runs
 
 ## Drupal\StateTrait
 
-[Source](../../src/Steps/Drupal/StateTrait.php), [Example](../../tests/behat/features/drupal_state.feature)
+[Source](src/Steps/Drupal/StateTrait.php), [Example](tests/behat/features/drupal_state.feature)
 
 >  Manage and assert Drupal State API values with automatic revert.
 >  <br/><br/>
@@ -6840,7 +6832,7 @@ Then the state "my_module.launched" should not exist
 
 ## Drupal\TaxonomyTrait
 
-[Source](../../src/Steps/Drupal/TaxonomyTrait.php), [Example](../../tests/behat/features/drupal_taxonomy.feature)
+[Source](src/Steps/Drupal/TaxonomyTrait.php), [Example](tests/behat/features/drupal_taxonomy.feature)
 
 >  Manage Drupal taxonomy terms with vocabulary organization.
 >  - Create terms in an existing vocabulary, with field values.
@@ -6993,7 +6985,7 @@ Then the "Fruits" term with the name "Apple" should not exist
 
 ## Drupal\TestmodeTrait
 
-[Source](../../src/Steps/Drupal/TestmodeTrait.php), [Example](../../tests/behat/features/drupal_testmode.feature)
+[Source](src/Steps/Drupal/TestmodeTrait.php), [Example](tests/behat/features/drupal_testmode.feature)
 
 >  Configure Drupal Testmode module for controlled testing scenarios.
 >  <br/><br/>
@@ -7019,7 +7011,7 @@ Then the "Fruits" term with the name "Apple" should not exist
 
 ## Drupal\TimeTrait
 
-[Source](../../src/Steps/Drupal/TimeTrait.php), [Example](../../tests/behat/features/drupal_time.feature)
+[Source](src/Steps/Drupal/TimeTrait.php), [Example](tests/behat/features/drupal_time.feature)
 
 >  Control system time in tests using Drupal state overrides.
 >  <br/><br/>
@@ -7074,7 +7066,7 @@ When the system time is reset
 
 ## Drupal\UserTrait
 
-[Source](../../src/Steps/Drupal/UserTrait.php), [Example](../../tests/behat/features/drupal_user.feature)
+[Source](src/Steps/Drupal/UserTrait.php), [Example](tests/behat/features/drupal_user.feature)
 
 >  Manage Drupal users with role and permission assignments.
 >  - Create user accounts
@@ -7478,7 +7470,7 @@ Then the user "John" should not be blocked
 
 ## Drupal\WatchdogTrait
 
-[Source](../../src/Steps/Drupal/WatchdogTrait.php), [Example](../../tests/behat/features/drupal_watchdog.feature)
+[Source](src/Steps/Drupal/WatchdogTrait.php), [Example](tests/behat/features/drupal_watchdog.feature)
 
 >  Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
 >  - Check for Watchdog messages after scenario completion.
@@ -7516,7 +7508,7 @@ Then the user "John" should not be blocked
 
 ## Drupal\WebformTrait
 
-[Source](../../src/Steps/Drupal/WebformTrait.php), [Example](../../tests/behat/features/drupal_webform.feature)
+[Source](src/Steps/Drupal/WebformTrait.php), [Example](tests/behat/features/drupal_webform.feature)
 
 >  Manage Drupal webforms.
 >  - Delete webforms matching a given title for test isolation.

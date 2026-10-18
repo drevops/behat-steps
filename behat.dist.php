@@ -85,8 +85,8 @@ $profile = (new Profile('default'))
       'footer' => '#footer',
     ],
     // Example values of the options the step traits declare, keyed by trait
-    // group. docs/content/steps.md lists every group and option; the few
-    // below are the ones a project almost always sets.
+    // group. STEPS.md lists every group and option; the few below are the
+    // ones a project almost always sets.
     'steps' => [
       'javascript' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],
       'watchdog' => ['enabled' => TRUE, 'fail_on_errors' => TRUE],

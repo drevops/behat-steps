@@ -60,7 +60,7 @@ composer require --dev drevops/behat-steps:^4 behat/behat:^4 \
 
 ## Writing tests with AI assistants
 
-The step and helper references ship with the package as [docs/content/steps.md](docs/content/steps.md) and [docs/content/helpers.md](docs/content/helpers.md), so a coding agent in your project reads them from `vendor/drevops/behat-steps/`. [Writing tests with AI assistants](https://behat-steps.drevops.com/guides/ai-assistants) has a snippet for your `CLAUDE.md` or `AGENTS.md`.
+The step and helper references ship with the package as [STEPS.md](STEPS.md) and [HELPERS.md](HELPERS.md), so a coding agent in your project reads them from `vendor/drevops/behat-steps/`. [Writing tests with AI assistants](https://behat-steps.drevops.com/guides/ai-assistants) has a snippet for your `CLAUDE.md` or `AGENTS.md`.
 
 ## Contributing
 

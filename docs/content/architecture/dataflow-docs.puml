@@ -1,7 +1,8 @@
 @startuml
 ' drevops/behat-steps - data flow for generating the reference documentation.
 ' Traced from docs.php constants STEPS_DIRECTORY, TOOLBOX_CLASSES, STEPS_FILE,
-' HELPERS_FILE, CONFIGURATION_FILE and functions main, collect_step_traits,
+' HELPERS_FILE, STEPS_PAGES_DIRECTORY, HELPERS_PAGES_DIRECTORY,
+' CONFIGURATION_FILE and functions main, collect_step_traits,
 ' extract_info, extract_trait_options, extract_trait_prerequisites,
 ' extract_helpers, collect_helper_methods, file_declares_trait,
 ' parse_class_comment, parse_method_comment, extract_method_steps,
@@ -9,9 +10,12 @@
 ' kind_placeholders, placeholder_precedes_own_noun, step_acronyms,
 ' rejected_step_phrases, validate_step_patterns,
 ' extract_step_examples, validate_helpers, validate_tags,
-' validate_env_vars, tag_registry, render_info, render_trait_prerequisites,
-' render_trait_options, render_helpers, relative_link,
-' render_extension_options, render_tag_reference, replace_content.
+' validate_env_vars, tag_registry, render_info, render_step_index,
+' render_step_section, render_step_pages, render_helpers,
+' render_helper_index, render_helper_section, render_helper_pages,
+' render_trait_prerequisites, render_trait_options, render_front_matter,
+' reference_page, relative_link, render_extension_options,
+' render_tag_reference, replace_content, stale_pages.
 ' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -25,7 +29,7 @@ participant "collect_step_traits()" as Collect
 participant "WebContext\nDrupalContext" as Ctx
 participant "extract_info()\nextract_helpers()" as Extract
 participant "validate()\nvalidate_step_patterns()\nvalidate_helpers()\nvalidate_tags()\nvalidate_env_vars()" as Validate
-participant "render_info()\nrender_helpers()\nrender_extension_options()\nrender_tag_reference()" as Render
+participant "render_info()\nrender_helpers()\nrender_step_pages()\nrender_helper_pages()\nrender_extension_options()\nrender_tag_reference()" as Render
 
 Dev -> Main: php docs.php [~--fail-on-change]
 activate Main
@@ -94,19 +98,22 @@ deactivate Validate
 
 Main -> Render: render every target
 activate Render
+Render -> Render: STEPS.md and HELPERS.md: an index per context,\nthen every trait and class in 1 section each
+Render -> Render: the site: the same indexes, linking pages, and\n1 page per trait under docs/content/steps/<context>/\nand per class under docs/content/helpers/<context>/,\nat the path reference_page() builds, with front matter\nfor its title and its sidebar label and position
 Render -> Render: under each trait's description, its\nPrerequisites table, then its Options table
-Render -> Render: write each Source, Example and Steps link\nrelative to the page holding it, through\nrelative_link()
+Render -> Render: write each Source, Example, Steps and\nHelpers link relative to the page holding it,\nthrough relative_link()
 Render -> Render: build the option table from the\nBehatStepsExtension config tree\nand the tag table from tag_registry()
-Render --> Main: the generated blocks
+Render --> Main: the generated blocks and pages
 deactivate Render
-Main -> Main: swap each block between its start\nand end marker in docs/content/steps.md,\ndocs/content/helpers.md and\ndocs/content/guides/configuration.md
+Main -> Main: swap each block between its start and end\nmarker in STEPS.md, HELPERS.md, the README.md of\ndocs/content/steps/ and docs/content/helpers/,\nand docs/content/guides/configuration.md
+Main -> Main: compare each page with the file on disk, and\nmark a page in a context directory that no trait\nor class renders as stale, through stale_pages()
 
-alt every target is unchanged
+alt every target is unchanged and no page is stale
   Main --> Dev: exit 0, documentation is up to date
 else a target differs, with ~--fail-on-change
   Main --> Dev: exit 1, naming the outdated targets, nothing written
 else a target differs, update mode
-  Main --> Dev: write only the targets that changed
+  Main --> Dev: write the targets that changed,\nand remove the stale pages
 end
 deactivate Main
 @enduml

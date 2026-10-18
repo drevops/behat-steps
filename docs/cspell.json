@@ -7,8 +7,8 @@
         "softwareTerms"
     ],
     "ignorePaths": [
-        "content/helpers.md",
-        "content/steps.md"
+        "content/helpers/*/*.md",
+        "content/steps/*/*.md"
     ],
     "words": [
         "Behat",
@@ -22,7 +22,6 @@
         "Graphviz",
         "mglaman",
         "Olivero",
-        "pathtrait",
         "phpcov",
         "WCAG",
         "webform"
@@ -61,7 +60,8 @@
         {
             "languageId": "markdown",
             "ignoreRegExpList": [
-                "/^\\s*```(.|\\n)+?^\\s*```/gm"
+                "/^\\s*```(.|\\n)+?^\\s*```/gm",
+                "/^\\[\\/\\/\\]: # \\(START_INDEX\\)(.|\\n)+?^\\[\\/\\/\\]: # \\(END_INDEX\\)/gm"
             ]
         }
     ]

@@ -8,17 +8,21 @@ description: Work on these docs locally, regenerate the reference pages, follow 
 
 # Documentation
 
-These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/`. Most pages are hand-written. `docs.php` generates Steps and Helpers from the source code and fills 2 tables in Configuration. Steps and Helpers also ship with the Composer package.
+These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/`. Most pages are hand-written. `docs.php` generates Steps and Helpers from the source code and fills 2 tables in Configuration. It also writes both references as 1 file each, which ship with the Composer package.
 
 ## Generated pages
 
 [`docs.php`](../../../docs.php) reads the traits' step attributes and docblocks, the extension's configuration tree and the tag registry in its own `tag_registry()`, and writes:
 
-| Page | Holds | Ships with the package |
+| File | Holds | Ships with the package |
 | --- | --- | --- |
-| [Steps](../steps.md) | Every step, with its options and an example | Yes |
-| [Helpers](../helpers.md) | Every public helper, with its signature | Yes |
+| [Steps](../steps/README.md) | An index of the step traits, in the marked region of `steps/README.md`, and a page per trait under `steps/web/` and `steps/drupal/`, with its options and an example for each step | No |
+| [Helpers](../helpers/README.md) | An index of the classes with helpers, in the marked region of `helpers/README.md`, and a page per class under `helpers/web/`, `helpers/drupal/` and `helpers/toolbox/`, with each helper's signature | No |
+| [`STEPS.md`](../../../STEPS.md) | Every step on 1 page, at the repository root | Yes |
+| [`HELPERS.md`](../../../HELPERS.md) | Every public helper on 1 page, at the repository root | Yes |
 | [Configuration](../guides/configuration.md) | The extension options and the tag reference, in 2 marked regions | No |
+
+The run removes a page of a trait or class that no longer exists, so a renamed trait leaves no page behind.
 
 Run it from the repository root after changing a step, a helper, an option or a tag:
 
@@ -33,7 +37,7 @@ A tag appears in the reference only after you register it in `tag_registry()`, s
 
 ### The references in the package
 
-A coding agent in a consuming project reads `docs/content/steps.md` and `docs/content/helpers.md` from `vendor/drevops/behat-steps/` to learn the public surface, as [Writing tests with AI assistants](../guides/ai-assistants.md) describes. `.gitattributes` keeps every other file in `docs/` out of the distribution archive, and the docs unit tests fail when either reference stops shipping or when another file in `docs/` starts shipping.
+A coding agent in a consuming project reads `STEPS.md` and `HELPERS.md` from `vendor/drevops/behat-steps/` to learn the public surface, as [Writing tests with AI assistants](../guides/ai-assistants.md) describes. `.gitattributes` keeps `docs/` out of the distribution archive, and the docs unit tests fail when either reference stops shipping or when a file in `docs/` starts shipping.
 
 Both references link each trait's source by relative path, so those links resolve in `vendor/` as well as on GitHub. The Example links in Steps point into `tests/`, which the archive leaves out, so they resolve only on GitHub and on the site.
 

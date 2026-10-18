@@ -34,7 +34,7 @@ describe('repositoryLinks', () => {
   });
 
   test.each([
-    { name: 'a page', url: '../steps.md#cookietrait' },
+    { name: 'a page', url: '../migrating.md#migrate-by-hand' },
     { name: 'a page in the same folder', url: 'usage.md' },
     { name: 'the content directory', url: '..' },
   ])('leaves a link to $name alone', ({ url }) => {
@@ -54,7 +54,7 @@ describe('repositoryLinks', () => {
   });
 
   test('treats a directory that only shares the content prefix as outside it', () => {
-    expect(rewrite('../steps.md', { options: { contentDir: path.join(ROOT, 'docs', 'cont') } })).toBe('https://github.com/drevops/behat-steps/blob/main/docs/content/steps.md');
+    expect(rewrite('../migrating.md', { options: { contentDir: path.join(ROOT, 'docs', 'cont') } })).toBe('https://github.com/drevops/behat-steps/blob/main/docs/content/migrating.md');
   });
 
   test('rewrites a link definition', () => {
