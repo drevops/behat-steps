@@ -27,3 +27,7 @@ first, so the migration can run again.
 ## Migrate by hand
 
 Read [How to read this guide](../../MIGRATION.md#how-to-read-this-guide) first: every table follows the same conventions, and they decide how a row applies to your project. Then work through the sections in order, starting with [Requirements](../../MIGRATION.md#requirements), where you remove the Drupal Extension before Composer installs 4.0.
+
+## Update your AI agent's reference
+
+If your project's `CLAUDE.md` or `AGENTS.md` points its agent at `vendor/drevops/behat-steps/STEPS.md`, as the 3.x README suggested, change the path to `vendor/drevops/behat-steps/docs/content/steps.md` when you move to 4.0, and point it at `vendor/drevops/behat-steps/docs/content/helpers.md` for the helpers too. 4.0 doesn't ship a `STEPS.md`, so an agent still reading the old path finds nothing there. [Writing tests with AI assistants](guides/ai-assistants.md) has the full snippet to copy.
