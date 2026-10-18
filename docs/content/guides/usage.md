@@ -14,11 +14,11 @@ A project uses this package by composing a context out of traits and pointing an
 | The context | Which vocabulary a suite gets, and which of those defaults it overrides | Per context |
 | The trait | What a step does, and which options change it | Per trait |
 
-[Configuration](configuration.md) is the reference for every option and tag. This page is the model those options sit in.
+[Configuration](configuration.md) is the reference for every option and tag. This page explains the model those options sit in.
 
 ## The 3 entry points
 
-The vocabulary sits on a single chain. Every class is honest about what it drags in, and a consumer extends exactly one of them:
+The vocabulary sits on a single chain. Each entry point adds what's listed under its name to everything above it, and a consumer extends exactly 1 of them:
 
 ```
         Behat\MinkExtension\Context\RawMinkContext
@@ -40,7 +40,7 @@ The vocabulary sits on a single chain. Every class is honest about what it drags
 | `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
 
-`WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal` on top of it. A trait that could fail a scenario for a reason it did not ask about carries an `enabled` option, so a project switches it off through configuration rather than by composing its own context.
+`WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal` on top of it. A trait that could fail a scenario for a reason the scenario didn't ask about carries an `enabled` option, so a project switches it off through configuration instead of composing its own context.
 
 ```php
 <?php
@@ -63,7 +63,7 @@ $suite = (new Suite('default'))
 
 A Drupal suite needs `DrupalContext` alone: `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because `PathTrait`, `RandomTrait`, `MappingTrait` and `DateTrait` are inherited from `WebContext`.
 
-It costs 1 thing, stated plainly: there is no way to remove an inherited step, so a Drupal project cannot take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
+The chain has 1 cost: there's no way to remove an inherited step, so a Drupal project can't take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
 
 ## Compose your own context
 
@@ -108,11 +108,11 @@ class SpecContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` also composes 3 of the web helper traits - `LastStepTrait`, `RequestHeadersTrait` and `StringTrait` - so a project's own step definitions reach them on `$this`. Composing one of those helper traits in a step trait as well shares the same state rather than duplicating it.
+`WebRawContext` also composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`), so a project's own step definitions reach them on `$this`. Composing 1 of those helper traits in a step trait as well shares the same state rather than duplicating it.
 
 ## The rules that govern composition
 
-Behat's attribute inheritance behaves differently for a trait that is composed and a class that is extended, in opposite directions:
+Behat's attribute inheritance works in opposite directions for a trait that's composed and a class that's extended:
 
 | What the project does | Result |
 | --- | --- |
@@ -126,7 +126,7 @@ Behat's attribute inheritance behaves differently for a trait that is composed a
 | A subclass overrides an inherited hook, no attribute | Works, the subclass body runs |
 | A subclass overrides an inherited hook and repeats the attribute | **Runs twice, silently** |
 
-The last row is the least discoverable: `HookRepository` does not deduplicate, so a hook whose attribute is repeated on the override fires once for the parent declaration and once for the subclass one. Override an inherited hook without repeating its attribute.
+The last row is the least discoverable: `HookRepository` doesn't deduplicate, so a hook whose attribute is repeated on the override fires once for the parent declaration and once for the subclass one. Override an inherited hook without repeating its attribute.
 
 ## Register it against the extension
 
@@ -160,7 +160,7 @@ Each configurable trait declares its own options, named after the trait in snake
 ]));
 ```
 
-A value that has to differ between 2 suites of the same profile travels as the context's `config` argument instead. `UiContext` composes `JavascriptTrait` above, so it is the context that accepts the `javascript` group:
+A value that has to differ between 2 suites of the same profile goes in the context's `config` argument instead. `UiContext` above composes `JavascriptTrait`, so it's the context that accepts the `javascript` group:
 
 ```php
 $ui = (new Suite('ui'))
@@ -187,7 +187,7 @@ The 3 reach the same value, most specific last: `steps`, then the context's `con
 - `enabled` turns the trait's hooks off entirely: nothing is collected, and no backend is bootstrapped on its account.
 - `fail_on_errors` leaves the collection running and stops what it collects from failing the scenario.
 
-A project that never wants a trait's gate sets it once:
+A project that never wants a trait's gate turns it off once:
 
 ```php
 'steps' => ['watchdog' => ['enabled' => FALSE]],
@@ -201,9 +201,9 @@ Several traits carry hooks that run around every scenario or step, and 1 tag swi
 @behat-steps-skip:TRAIT
 ```
 
-`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag whose value isn't shaped like a trait name, such as a hook method, or that names a trait none of your suite's contexts compose, such as a misspelled one, fails the run before the scenario starts.
+`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag fails the run before the scenario starts when its value isn't shaped like a trait name, such as a hook method, or when it names a trait none of your suite's contexts compose, such as a misspelled one.
 
-`WatchdogTrait` is the gate you're most likely to meet first, because `DrupalContext` composes it. It reads the errors each scenario logged from the `watchdog` table, and only the core `dblog` module creates that table. It reads the table in the Behat process, so it also needs a backend that loads Drupal there, such as `drupal`.
+`WatchdogTrait` is the gate you're most likely to meet first, because `DrupalContext` composes it. It reads the errors each scenario logged from the `watchdog` table, which only the core `dblog` module creates. Since it reads that table in the Behat process, it also needs a backend that loads Drupal there, such as `drupal`.
 
 Those are the trait's prerequisites, and it checks them when a scenario starts. Here's what happens with and without `dblog`:
 
@@ -220,7 +220,7 @@ Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help 
 
 ### Automatic cleanup
 
-Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, keeping the test database clean across long suites. Reverse order means a node comes down before the term it references.
+Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, so the test database stays clean across long suites. Reverse order means a node comes down before the term it references.
 
 A step of your own registers what it created, passing the stub the capability returned and the key its entity type stores the ID under:
 
@@ -230,9 +230,9 @@ $created = $this->backendFor(ContentCapabilityInterface::class)
 $this->entityLifecycleRegister($created, 'mid');
 ```
 
-To keep **all** entities after a scenario, add `@behat-steps-skip:EntityLifecycleTrait` to the scenario or feature. `@behat-steps-skip:AuthTrait` does the same for users and roles.
+To keep all entities after a scenario, add `@behat-steps-skip:EntityLifecycleTrait` to the scenario or feature. `@behat-steps-skip:AuthTrait` does the same for users and roles.
 
-To keep only entities of a **named type**, add `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example `@behat-steps-entity-cleanup-skip:media`). Repeat the tag to keep several types.
+To keep only the entities of 1 type, add `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID` (for example `@behat-steps-entity-cleanup-skip:media`). Repeat the tag to keep several types.
 
 To keep what a whole run creates, set `BEHAT_STEPS_DISABLE_CLEANUP`, as [Environment variables](configuration.md#4-environment-variables) describes.
 
@@ -246,7 +246,7 @@ When several entities share the title, label, name or description a step names, 
 
 ## Go further than the options
 
-An option covers the values a trait expects to vary. Anything else is an override of the trait's own seam in the composing context:
+An option covers the values a trait expects to vary. Anything else means overriding the trait's own seam in the composing context:
 
 ```php
 class UiContext extends WebRawContext {

@@ -1,14 +1,14 @@
 ---
 title: Configuration
 sidebar_position: 2
-description: The 4 channels Behat Steps reads its configuration from - suites and context arguments, the extension key, tags and environment variables - with every option and tag.
+description: Behat Steps reads its configuration from suites and context arguments, the extension key, tags and environment variables. This page covers all 4 channels and lists every option and tag.
 ---
 
 <!-- cspell:ignore autoloadable bigpipe testmode -->
 
 # Configuration
 
-Everything this package reads arrives through 1 of 4 channels, apart from the Mink settings it shares: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, and none of them is a substitute for another.
+Everything this package reads arrives through 1 of 4 channels, apart from the Mink settings it shares: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, and they aren't interchangeable.
 
 | Channel | Answers | Scope |
 | --- | --- | --- |
@@ -23,7 +23,7 @@ The tables in sections 2 and 3 are generated from the source by [docs.php](../..
 
 ### Suite per surface
 
-A suite is the unit that binds a set of feature files to a set of contexts. The default layout is 1 suite per surface under test, because each surface needs a different vocabulary and a different backend.
+A suite binds a set of feature files to a set of contexts. The default layout is 1 suite per surface under test, because each surface needs a different vocabulary and a different backend.
 
 ```php
 <?php
@@ -68,13 +68,13 @@ Run 1 surface with `vendor/bin/behat --suite=api`, or all of them with a bare `v
 
 3 properties follow from the layout:
 
-- **Each suite composes only the vocabulary its surface needs.** `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that cannot work on a surface is not defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run.
-- **The spec suite and the regression suites do different jobs.** The spec suite holds domain-language scenarios written over your own step definitions; the regression suites hold broad scenarios written in the shipped vocabulary. See [Scenario styles](scenario-styles.md) for why both exist.
-- **A slow surface can be excluded without touching the others.** Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
+- Each suite composes only the vocabulary its surface needs. `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that can't work on a surface isn't defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run.
+- The spec suite and the regression suites do different jobs. The spec suite holds domain-language scenarios written over your own step definitions; the regression suites hold broad scenarios written in the shipped vocabulary. See [Scenario styles](scenario-styles.md) for why both exist.
+- You can exclude a slow surface without touching the others. Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
 
 ### Context constructor arguments
 
-The extension key in section 2 is read once per profile. A value that has to differ between suites travels as a context constructor argument instead:
+The extension key in section 2 is read once per profile. Pass a value that has to differ between suites as a context constructor argument instead:
 
 ```php
 $ui = (new Suite('ui'))
@@ -109,7 +109,7 @@ $ui = (new Suite('ui'))
   ]);
 ```
 
-A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others; `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. Setting a group no trait in the chain declares is an error at construction, naming what that context does accept.
+A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others; `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. Setting a group that no trait in the chain declares is an error at construction, naming what that context does accept.
 
 A context that adds arguments of its own forwards `config` to the parent, and the suite passes both:
 
@@ -137,7 +137,7 @@ $ui = (new Suite('ui'))
   ]);
 ```
 
-Behat 4 reads PHP configuration only, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Write `behat.php` first: it is the format both majors accept, and the only format Behat 4 accepts.
+Behat 4 reads PHP configuration only, from `behat.php` or, when there's no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Prefer `behat.php`: both majors accept it, and it's the only format Behat 4 accepts.
 
 While a project is still on Behat 3, the YAML form of the suite above is:
 
@@ -162,9 +162,9 @@ default:
 
 ## 2. The `behat_steps` extension key
 
-Settings under this key configure how the package reaches the site: which backends a scenario may resolve and in what order, how each of them connects, what the login form looks like, which CSS selector each named region resolves to. They are read once per profile.
+Settings under this key configure how the package reaches the site: which backends a scenario may resolve and in what order, how each of them connects, what the login form looks like and which CSS selector each named region resolves to. They're read once per profile.
 
-HTTP connection settings are the exception. Certificate checks, a proxy or DNS pinning live on Mink's `browserkit_http` session as `http_client_parameters`, and the requests steps send from PHP, such as a file download, share them with the page. [HTTP clients](http-clients.md) covers how.
+HTTP connection settings are the exception. Certificate checks, a proxy or DNS pinning live on Mink's `browserkit_http` session as `http_client_parameters`, and requests that steps send from PHP, such as a file download, share them with the page. [HTTP clients](http-clients.md) covers how.
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
@@ -174,7 +174,7 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-A nested option is written as a section in the configuration and reads as a dotted path below.
+A nested option is a section in the configuration and a dotted path in the table below.
 
 [//]: # (START_EXTENSION_OPTIONS)
 
@@ -237,7 +237,7 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-That aliasing is what lets a profile swap the implementation behind a name without touching any Gherkin:
+That aliasing lets a profile swap the implementation behind a name without touching any Gherkin:
 
 ```php
 // Default profile: "api" is the in-process backend.
@@ -247,7 +247,7 @@ That aliasing is what lets a profile swap the implementation behind a name witho
 'backends' => ['api' => 'acme-jsonapi', 'blackbox'],
 ```
 
-A name holds only letters, digits, `_` and `-`, so that `@backend:NAME` is a valid tag, and it is unique. A name the extension does not register fails the container build. A configuration that declares no list gets every registered backend, in registration order.
+A name is unique, and it holds only letters, digits, `_` and `-` so that `@backend:NAME` is a valid tag. A name the extension doesn't register fails the container build. A configuration that declares no list gets every registered backend, in registration order.
 
 Scoping a run to a restricted backend set is a profile's job, not a suite's: the package reads nothing from a Behat suite's settings.
 
@@ -267,15 +267,15 @@ Scenario: Content created over the public API is immediately visible
   Then I should see "Lab report"
 ```
 
-The order becomes `acme-jsonapi, drupal, blackbox`. The content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability - promotion only affects the capabilities the promoted backend actually provides.
+The order becomes `acme-jsonapi, drupal, blackbox`, and the content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability. Promotion only affects the capabilities the promoted backend provides.
 
 Repeated tags promote their names in the configured order: `@backend:blackbox @backend:api` and `@backend:api @backend:blackbox` both give `acme-jsonapi, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
 
-`@backend:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo cannot quietly run the wrong backend, and a `smoke` profile listing only `blackbox` cannot be handed a Drupal backend by any tag. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
+`@backend:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo can't silently run the wrong backend, and no tag can hand a Drupal backend to a `smoke` profile that lists only `blackbox`. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
 
 ### Field handlers
 
-A step that creates or updates an entity on the `drupal` backend passes each field's value through a field handler, which turns the value a scenario writes into the value Drupal stores: a date in the site's timezone into UTC, a term name into its ID, a file path into a managed file. The package ships a handler for each field type it supports, and `DefaultHandler` relays any other plain-scalar value as written.
+A step that creates or updates an entity on the `drupal` backend passes each field's value through a field handler, which turns the value a scenario writes into the value Drupal stores: a date in the site's timezone into UTC, a term name into its ID, or a file path into a managed file. The package ships a handler for each field type it supports, and `DefaultHandler` relays any other plain-scalar value as written.
 
 `drupal.field_handlers` maps a field type to a handler class of your own. An entry for a field type the package ships no handler for adds one, and an entry for a shipped type replaces the shipped handler:
 
@@ -319,13 +319,13 @@ final class RatingHandler implements FieldHandlerInterface {
 
 The class has to be autoloadable through Composer, for example from an `autoload-dev` entry. The package builds the `drupal` backend before Behat registers the paths in its `autoload` setting, so a class only those paths can load isn't found. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
 
-The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way, and the registration holds for the rest of the run, because the backend does:
+The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way, and the registration lasts for the rest of the run, because the backend does:
 
 ```php
 $this->backendFor(FieldHandlerCapabilityInterface::class)->registerFieldHandler('rating', RatingHandler::class);
 ```
 
-The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename one of them.
+The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename 1 of them.
 
 ### Creation aliases
 
@@ -407,7 +407,7 @@ Given the following article content exists:
 
 The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable through Composer, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
 
-The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. An alias whose constructor takes arguments, such as a lookup service, is built by a context of your own and registered the same way. The registration holds for the rest of the run, because the backend does:
+The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. A context of your own builds an alias whose constructor takes arguments, such as a lookup service, and registers it the same way. The registration lasts for the rest of the run, because the backend does:
 
 ```php
 $this->backendFor(CreationAliasCapabilityInterface::class)->registerCreationAlias(new OrganizationAlias($lookup));
@@ -417,14 +417,14 @@ $this->backendFor(CreationAliasCapabilityInterface::class)->registerCreationAlia
 
 Where an alias runs depends on the backend:
 
-- **`drupal`** runs an alias whenever a step creates an entity of its type: a node, a term, a user, a file, block content, or an entity the media, paragraph, menu link, ECK and `the following :entity_type entities exist:` steps create. Its field parser leaves the alias's column as written, where any other column that isn't a field fails the step with `The field "..." does not exist on entity type "...".` A `Core` of your own that doesn't implement `CreationAliasCapabilityInterface` keeps no aliases, so registering an alias on the `drupal` backend fails with an `UnsupportedBackendActionException`.
-- **`drush`** creates only users, so it runs only the aliases for `user`. A pre-create alias runs before `drush user:create`, which takes only the name, the password and the email, and a post-create alias runs after it, with an object carrying only the new user's `uid` in place of the entity. Drupal isn't loaded in the Behat process there, so an alias that reaches the site takes the backend in its constructor, the way the shipped `roles` alias takes `UserCapabilityInterface`, and is registered from a context.
+- `drupal` runs an alias whenever a step creates an entity of its type: a node, a term, a user, a file, block content, or an entity the media, paragraph, menu link, ECK and `the following :entity_type entities exist:` steps create. Its field parser leaves the alias's column as written, while any other column that isn't a field fails the step with `The field "..." does not exist on entity type "...".` A `Core` of your own that doesn't implement `CreationAliasCapabilityInterface` keeps no aliases, so registering an alias on the `drupal` backend fails with an `UnsupportedBackendActionException`.
+- `drush` creates only users, so it runs only the aliases for `user`. A pre-create alias runs before `drush user:create`, which takes only the name, the password and the email. A post-create alias runs after it, with an object carrying only the new user's `uid` in place of the entity. Drupal isn't loaded in the Behat process there, so an alias that reaches the site takes the backend in its constructor, the way the shipped `roles` alias takes `UserCapabilityInterface`, and is registered from a context.
 
-The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` are covered by semantic versioning. The shipped aliases are final, so an alias of your own implements an interface rather than extending one of them.
+The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` are covered by semantic versioning. The shipped aliases are final, so an alias of your own implements an interface rather than extending 1 of them.
 
 ### Core
 
-The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. The base `Core` serves every supported Drupal major that has no version core of its own. A major that changes something the base relies on gets a version core of its own, such as `DrevOps\BehatSteps\Backend\Drupal\Core13\Core`, and the backend builds the newest version core at or below the major it detects, or the base `Core` when none applies.
+The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. The base `Core` serves every supported Drupal major that has no version core of its own. A major that changes something the base relies on gets a version core of its own, such as `DrevOps\BehatSteps\Backend\Drupal\Core13\Core`. The backend builds the newest version core at or below the major it detects, or the base `Core` when none applies.
 
 `drupal.core` names a class of your own instead, for a site whose modules change what an operation has to do:
 
@@ -456,13 +456,15 @@ class AcmeCore extends Core {
 
 The class has to be autoloadable through Composer, for example from an `autoload-dev` entry, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CoreInterface` or can't be instantiated fails with a `BootstrapException` naming it when the package builds the `drupal` backend.
 
-When a class builds on a Core of the package, the nearest one among its parents has to be the Core for the site's major. When it's another, building the backend fails with `Core class "..." extends "...", which is not the Core for Drupal N. Extend "..." instead.` That happens when a site moves to a major whose Core is another class, and when a release of the package adds a version core for the major a site already runs: in both cases, change `AcmeCore` to extend the class the message names. Naming a Core of the package itself, such as the base `Core` on a major with a version core, fails the same way with `Core class "..." is not the Core for Drupal N. Use "..." instead.` A suite running on 2 majors whose Cores differ picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
+When a class builds on a Core of the package, the nearest one among its parents has to be the Core for the site's major. Otherwise, building the backend fails with `Core class "..." extends "...", which is not the Core for Drupal N. Extend "..." instead.` That happens when a site moves to a major whose Core is another class, and when a release of the package adds a version core for the major a site already runs. In both cases, change `AcmeCore` to extend the class the message names.
 
-The option is covered by semantic versioning. `CoreInterface` and the Core classes aren't: a minor release can add a method to the interface, which breaks a class built from scratch but not one extending a Core of the package, or rename a protected method `AcmeCore` overrides. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
+Naming a Core of the package itself, such as the base `Core` on a major with a version core, fails the same way with `Core class "..." is not the Core for Drupal N. Use "..." instead.` A suite running on 2 majors whose Cores differ picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
+
+The option is covered by semantic versioning. `CoreInterface` and the Core classes aren't: a minor release can add a method to the interface or rename a protected method `AcmeCore` overrides. A new interface method breaks a class built from scratch, but not one extending a Core of the package. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
 
 ### Trait options
 
-Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe`, `FileDownloadTrait` reads `file_download`. [Steps](../steps.md) lists the options of each trait beside its steps.
+Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. [Steps](../steps.md) lists the options of each trait beside its steps.
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
@@ -488,12 +490,12 @@ declaration default
         -> scenario tag
 ```
 
-The 2 levels differ in how strictly they are read, because they know different things:
+The 2 levels, `steps` and a context's `config`, differ in how strictly they're read, because they know different things:
 
-- **`steps` is permissive.** A group there may name a trait only 1 of the registered contexts composes, so a group or an option a context cannot serve is ignored. 1 profile can carry the defaults of every suite.
-- **A context's `config` is strict.** The context knows which traits it composes, so an unknown group, an unknown option, or a value of the wrong type is an error naming what the context accepts.
+- `steps` is permissive. A group there may name a trait that only 1 of the registered contexts composes, so a group or an option a context can't serve is ignored, and 1 profile can carry the defaults of every suite.
+- A context's `config` is strict. The context knows which traits it composes, so an unknown group, an unknown option or a value of the wrong type is an error naming what the context accepts.
 
-2 options recur, and they are deliberately separate switches:
+2 options recur, and they're deliberately separate switches:
 
 | Option | Effect |
 | --- | --- |
@@ -502,7 +504,7 @@ The 2 levels differ in how strictly they are read, because they know different t
 
 `fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
 
-Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in the composing context sits outside the chain and replaces the resolution entirely, which remains the escape hatch for anything the configuration cannot express.
+Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in the composing context sits outside the chain and replaces the resolution entirely. That override is the escape hatch for anything the configuration can't express.
 
 A project writing its own configurable trait declares each option as a `DrevOps\BehatSteps\Extension\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
 
@@ -528,14 +530,14 @@ The declared default carries the option's type, and the composing context reads 
 
 ## 3. Tags
 
-A tag configures 1 scenario or 1 feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon names nothing and is ignored, except `@behat-steps-skip:` and `@backend:`, which fail at scenario start like any other value they cannot resolve. A flag tag stands alone. `@module:` also switches its value off with a `!`: `@module:!redirect`.
+A tag configures 1 scenario or 1 feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon is ignored, except `@behat-steps-skip:` and `@backend:`, which fail at scenario start like any other value they can't resolve. A flag tag takes no value. `@module:` also switches its value off with a `!`: `@module:!redirect`.
 
 ```gherkin
 @module:redirect @behat-steps-skip:WatchdogTrait
 Scenario: Editor publishes a page
 ```
 
-A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line, and `@behat-steps-skip:VALUE`, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines. `@module:VALUE` for the same module, `@breakpoint:VALUE` and an `@accessibility:VALUE` threshold take the scenario's value over the feature's, while `@accessibility:strict` applies from either line. `@backend:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes.
+A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line. `@behat-steps-skip:VALUE`, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines. `@module:VALUE` for the same module, `@breakpoint:VALUE` and an `@accessibility:VALUE` threshold take the scenario's value over the feature's, while `@accessibility:strict` applies from either line. `@backend:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes.
 
 [//]: # (START_TAGS)
 
@@ -560,7 +562,7 @@ A tag on the `Feature:` line applies to every scenario in that feature. Where a 
 
 [//]: # (END_TAGS)
 
-`@javascript` is a Mink tag rather than a tag of this package: it selects the browser session. Which backend a step runs against is settled by [backend resolution](#backend-resolution) and the `@backend:NAME` tag above.
+`@javascript` is Mink's own tag: it selects the browser session. [Backend resolution](#backend-resolution) and the `@backend:NAME` tag above decide which backend a step runs against.
 
 ## 4. Environment variables
 

@@ -8,7 +8,7 @@ description: Work on these docs locally, regenerate the reference pages, follow 
 
 # Documentation
 
-These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/`. Most pages are hand-written. `docs.php` generates Steps and Helpers from the source code and fills 2 tables in Configuration, and Steps and Helpers also ship with the Composer package.
+These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/`. Most pages are hand-written. `docs.php` generates Steps and Helpers from the source code and fills 2 tables in Configuration. Steps and Helpers also ship with the Composer package.
 
 ## Generated pages
 
@@ -29,11 +29,11 @@ ahoy lint-docs    # Fail when a page is out of date, without writing
 
 Never edit inside a generated region: the next run overwrites it, and `ahoy lint-docs` fails CI until the page matches. [Validating and updating documentation](../../../CONTRIBUTING.md#validating-and-updating-documentation) lists everything else the generator checks.
 
-A tag reaches the reference only once it's registered in `tag_registry()`, so a new tag goes there before you regenerate.
+A tag appears in the reference only after you register it in `tag_registry()`, so add a new tag there before you regenerate.
 
 ### The references in the package
 
-A coding agent in a consuming project reads `docs/content/steps.md` and `docs/content/helpers.md` from `vendor/drevops/behat-steps/` to learn the public surface, as [Writing tests with AI assistants](../guides/ai-assistants.md) describes. `.gitattributes` keeps every other file in `docs/` out of the distribution archive, and the docs unit tests fail when either reference stops shipping or another file in `docs/` starts.
+A coding agent in a consuming project reads `docs/content/steps.md` and `docs/content/helpers.md` from `vendor/drevops/behat-steps/` to learn the public surface, as [Writing tests with AI assistants](../guides/ai-assistants.md) describes. `.gitattributes` keeps every other file in `docs/` out of the distribution archive, and the docs unit tests fail when either reference stops shipping or when another file in `docs/` starts shipping.
 
 Both references link each trait's source by relative path, so those links resolve in `vendor/` as well as on GitHub. The Example links in Steps point into `tests/`, which the archive leaves out, so they resolve only on GitHub and on the site.
 
@@ -57,22 +57,22 @@ npm run test:accessibility   # Check the built site for accessibility issues
 
 - **1 topic per page.** The sidebar follows the folder tree of `content/`, ordered by the `sidebar_position` in each page's front matter, and a folder's `_category_.json` names its category. A folder's `README.md` is its index page.
 - **Plain Markdown.** Pages are `.md` files, which Docusaurus reads as CommonMark, so they render the same on GitHub. Docusaurus-only syntax, such as a `:::note` admonition, shows as plain text there, so keep it rare. Name a page `.mdx` only when it needs a React component.
-- **Link by file.** Link to another page by its path relative to the page holding the link, and to any other file in the repository the same way. From a page at the top of `content/`, that's `[Backend resolution](guides/configuration.md#backend-resolution)` for a page and `[CONTRIBUTING.md](../../CONTRIBUTING.md#steps-format)` for a repository file. The build rewrites a link that leaves `content/` into a GitHub link, at the tag or branch a release build is made from and at `main` otherwise. It fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
-- **Diagrams.** The architecture diagrams are PlantUML sources in `content/architecture/`, rendered to committed SVGs by the `update-architecture-docs` skill.
+- **Link by file.** Link to another page by its path relative to the page holding the link, and to any other file in the repository the same way. From a page at the top of `content/`, that's `[Backend resolution](guides/configuration.md#backend-resolution)` for a page and `[CONTRIBUTING.md](../../CONTRIBUTING.md#steps-format)` for a repository file. The build rewrites a link that leaves `content/` into a GitHub link at the tag or branch that a release build comes from, and at `main` for every other build. It fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
+- **Diagrams.** The architecture diagrams are PlantUML sources in `content/architecture/`, and the `update-architecture-docs` skill renders them to committed SVGs.
 - **Spelling.** CSpell checks the hand-written pages, `docs/README.md` and the repository's root `README.md` in US English. The 2 references are generated from docblocks, so CSpell skips them. A word the docs use in several places goes in `cspell.json`, and so does a word only the architecture walkthrough uses, because its skill regenerates that page. Any other word goes below the front matter of the 1 page that uses it, as `<!-- cspell:ignore word -->`.
 
 ## Accessibility
 
 The site aims for [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA in both color modes. `npm run test:accessibility` runs [axe](https://github.com/dequelabs/axe-core) on every page of the build, in light and dark mode, at a desktop width and a phone width, against the WCAG A and AA rules. It also opens the search dropdown and the mobile menu, and checks how they behave from the keyboard. Automated checks catch many problems but miss others, so the writing still needs care.
 
-Some of it is handled for you:
+The site handles some of it for you:
 
 - Links in page text are underlined, because color alone doesn't set a link apart from the text around it.
-- Text colors reach at least 4.5:1 against their background. The light-mode blue is `#266fbd`, a darker shade of the `#2a77cd` logo blue, and the dark-mode blue is `#84b2e6`, a lighter one. The code block colors live in `src/codeThemes.js`, and a unit test checks every token color of both themes.
-- A table wider than the page takes keyboard focus, so it scrolls with <kbd>←</kbd> and <kbd>→</kbd>.
+- Text colors have at least 4.5:1 contrast against their background. The light-mode blue is `#266fbd`, a darker shade of the `#2a77cd` logo blue, and the dark-mode blue is `#84b2e6`, a lighter one. The code block colors live in `src/codeThemes.js`, and a unit test checks every token color of both themes.
+- A table wider than the page takes keyboard focus, so you can scroll it with <kbd>←</kbd> and <kbd>→</kbd>.
 - The mobile menu keeps keyboard focus inside while it's open and closes on <kbd>Esc</kbd>, and the search box gets the ARIA attributes its autocomplete widget leaves out. Both fixes live in `src/theme/`, so check them when Docusaurus or the search plugin changes its markup.
 
-The rest is down to the writing:
+The rest is up to you:
 
 - Give every image alt text that says what it shows.
 - Keep heading levels in order on hand-written pages.
@@ -95,6 +95,6 @@ These builds show "development" as the version in the footer, and search engines
 - on every release tag, with the tag as the version;
 - on a manual run of the `Release docs` workflow from **Actions**, from the tag or branch you type, so the pages and their GitHub links come from the same place.
 
-The repository's GitHub Pages source must be **GitHub Actions**, and the `github-pages` environment must let the tag or the branch you run from deploy. The custom domain needs 2 settings outside the repository: `behat-steps.drevops.com` as the custom domain in the GitHub Pages settings, and a DNS `CNAME` record pointing it at `drevops.github.io`.
+The repository's GitHub Pages source must be **GitHub Actions**, and the `github-pages` environment must allow deployments from release tags and from the branch you start a manual run on. The custom domain needs 2 settings outside the repository: `behat-steps.drevops.com` as the custom domain in the GitHub Pages settings, and a DNS `CNAME` record pointing it at `drevops.github.io`.
 
-The workflow reads the site URL and base path from the GitHub Pages settings, so changing the domain needs no change to the code. The published site links to the address it was built for, so run the workflow again after you change the domain. Only these release builds show the release in the footer and let search engines index the pages.
+The workflow reads the site URL and base path from the GitHub Pages settings, so you can change the domain without changing the code. The published site links to the address it was built for, so run the workflow again after you change the domain. Only these release builds show the release in the footer and let search engines index the pages.

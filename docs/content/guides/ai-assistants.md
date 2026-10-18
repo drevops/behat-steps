@@ -6,7 +6,7 @@ description: Point an AI coding agent at the step and helper references that shi
 
 # Writing tests with AI assistants
 
-An AI coding agent writes better scenarios when it works from the steps your suite registers, not the ones it imagines. Behat prints that list, and Behat Steps ships 2 references with the package that fill in the rest. They're plain Markdown, so an agent in your project reads them from `vendor/` at the version you installed:
+An AI coding agent writes better scenarios from the steps your suite registers than from steps it imagines. Behat prints that list, and 2 references that ship with the Behat Steps package fill in the rest. They're plain Markdown, so an agent in your project can read them from `vendor/` at the version you installed:
 
 | File | Holds |
 | --- | --- |

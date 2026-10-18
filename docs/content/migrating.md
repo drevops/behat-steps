@@ -6,13 +6,13 @@ description: Move a project from Behat Steps 3.14 to 4.0 with the migration guid
 
 # Migrating from 3.x
 
-[MIGRATION.md](../../MIGRATION.md) takes a project from 3.14 to 4.0, in the order an upgrade meets each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, whether it came from this package or from the Drupal Extension and Drupal Driver its Drupal traits built on, and what replaces it. A step the tables don't list kept its text.
+[MIGRATION.md](../../MIGRATION.md) takes a project from 3.14 to 4.0 in the order an upgrade runs into each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, and what replaces it, whether the name came from this package or from the Drupal Extension and Drupal Driver that its Drupal traits built on. If the tables don't list a step, its text didn't change.
 
-A project on an earlier 3.x release updates to 3.14 first.
+If your project is on an earlier 3.x release, update it to 3.14 first.
 
 ## Migrate with an AI coding agent
 
-An AI coding agent can apply the guide for you with the [`migrate-behat-steps`](../../.claude/skills/migrate-behat-steps/SKILL.md) skill: it reads the guide, plans every change the guide calls for in your project, and asks before it changes anything. Once you say yes, it applies the plan, runs your checks and reports what's left for you.
+An AI coding agent can apply the guide for you with the [`migrate-behat-steps`](../../.claude/skills/migrate-behat-steps/SKILL.md) skill: it reads the guide, plans every change the guide calls for in your project, and asks before it changes anything. Once you say yes, it applies the plan and runs your checks, then reports what's left for you.
 
 Composer installs this package without the repository's `.claude/` directory, so the skill isn't in `vendor/`. Paste this into your agent from your project's root, on a clean branch, so `git diff` shows the whole migration:
 
@@ -26,4 +26,4 @@ first, so the migration can run again.
 
 ## Migrate by hand
 
-Read [How to read this guide](../../MIGRATION.md#how-to-read-this-guide) first: every table follows the same conventions, and they decide how a row applies to your project. Then work through the sections in order, starting with [Requirements](../../MIGRATION.md#requirements), which removes the Drupal Extension before Composer installs 4.0.
+Read [How to read this guide](../../MIGRATION.md#how-to-read-this-guide) first: every table follows the same conventions, and they decide how a row applies to your project. Then work through the sections in order, starting with [Requirements](../../MIGRATION.md#requirements), where you remove the Drupal Extension before Composer installs 4.0.

@@ -6,11 +6,11 @@ description: Register a context, enable the extension, write a first scenario in
 
 # Quick start
 
-This page takes a project from an empty Behat configuration to a first scenario in 4 parts. It assumes the package is [installed](installation.md).
+This page takes a project from an empty Behat configuration to a first scenario in 4 parts. It assumes you've [installed](installation.md) the package.
 
 ## 1. Register the vocabulary you need
 
-The vocabulary sits on 1 chain. `WebContext` carries every step that drives a page, and `DrupalContext` extends it with every step that reaches a Drupal site, so a suite registers exactly one of them:
+The vocabulary sits on 1 chain of contexts. `WebContext` carries every step that drives a page, and `DrupalContext` extends it with every step that reaches a Drupal site, so a suite registers exactly 1 of them:
 
 ```php
 $suite = (new Suite('default'))
@@ -21,7 +21,7 @@ $suite = (new Suite('default'))
 
 Registering both is fatal, because `DrupalContext` already carries the 28 web traits and each of their steps would register twice. `MinkContext` is Mink's own context: it sits beside either one and brings the base browser steps, such as `I fill in` and `I press`.
 
-That needs no PHP of your own. To pick your own traits instead, extend the root context and compose them:
+Using a shipped context needs no PHP of your own. To pick your own traits instead, extend the root context and compose them:
 
 ```php
 <?php
@@ -43,7 +43,7 @@ class FeatureContext extends WebRawContext {
 
 ## 2. Enable the extension
 
-Ensure that your `behat.php` enables the extension:
+Add the extension to the profile in your `behat.php`:
 
 ```php
 <?php
@@ -78,19 +78,19 @@ return (new Config())->withProfile($profile);
 
 The `steps` entry gives the message steps the selector of the success message, which the scenario below asserts on. Message selectors have no default.
 
-The `backends` list says which backends a scenario may reach, and in what order. A step never names a backend - it names the capability it needs, and the first backend in the list providing that capability answers. See [Backend resolution](guides/configuration.md#backend-resolution).
+The `backends` list says which backends a scenario may reach, and in what order. A step never names a backend, only the capability it needs, and the first backend in the list that provides that capability answers. See [Backend resolution](guides/configuration.md#backend-resolution).
 
-Browser sessions come from Mink's own extension, `Behat\MinkExtension\ServiceContainer\MinkExtension`, registered in the same profile as [behat.dist.php](../../behat.dist.php) shows. `BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and sends the requests steps make from PHP, such as a file download, with the same options. So the page and the download reach the site with the same settings, and [HTTP clients](guides/http-clients.md) covers the rest.
+Browser sessions come from Mink's own extension, `Behat\MinkExtension\ServiceContainer\MinkExtension`, which you register in the same profile, as [behat.dist.php](../../behat.dist.php) shows. `BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and applies them to the requests that steps make from PHP, such as a file download, so the page and the download reach the site with the same settings. [HTTP clients](guides/http-clients.md) covers the rest.
 
-By default, `DrupalContext` fails any scenario that logs a PHP error, reading those errors from the table the core `dblog` module creates, through a backend that loads Drupal into the Behat process. On a site without `dblog`, or under a profile without such a backend, every scenario fails at its start until you provide what's missing or [switch the Watchdog check off](guides/usage.md#switch-a-trait-off).
+By default, `DrupalContext` fails any scenario that logs a PHP error. It reads those errors from the table the core `dblog` module creates, through a backend that loads Drupal into the Behat process. On a site without `dblog`, or under a profile without such a backend, every scenario fails at its start until you provide what's missing or [switch the Watchdog check off](guides/usage.md#switch-a-trait-off).
 
-Behat 4 reads only PHP configuration, from `behat.php` or, when there is no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
+Behat 4 reads only PHP configuration, from `behat.php` or, when there's no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
 
-[behat.dist.php](../../behat.dist.php) sets every extension option, plus the trait options a project almost always sets, as a reference, and [Configuration](guides/configuration.md) documents all 4 configuration channels, including the suite layout to start from.
+[behat.dist.php](../../behat.dist.php) is a reference that sets every extension option, plus the trait options a project almost always configures. [Configuration](guides/configuration.md) documents all 4 configuration channels, including the suite layout to start from.
 
 ## 3. Write a scenario in the shipped vocabulary
 
-The imperative style spells the interaction out and needs no PHP of your own, so the suite covers a flow the moment it is written:
+The imperative style spells the interaction out and needs no PHP of your own, so the suite covers a flow as soon as you write the scenario:
 
 ```gherkin
 Scenario: Editor publishes a page
@@ -102,7 +102,7 @@ Scenario: Editor publishes a page
   And I should see the success message "has been created"
 ```
 
-It assumes a site with an `editor` role and a URL alias pattern that turns "About us" into `/about-us`, so adjust both to your site.
+The scenario assumes a site with an `editor` role and a URL alias pattern that turns "About us" into `/about-us`, so adjust both to your site.
 
 ## 4. Graduate the flows that matter to domain steps
 
@@ -127,6 +127,6 @@ public function publishPage(string $title): void {
 }
 ```
 
-That is the lifecycle this package is built for: start in the vocabulary for coverage on day one, then graduate the flows that matter into domain steps on the toolbox. The scenarios change language; the code underneath them does not.
+That's the lifecycle this package is built for: start in the vocabulary for coverage on day one, then graduate the flows that matter into domain steps on the toolbox. The scenarios change language along the way, and the code underneath them stays the same.
 
 [Scenario styles](guides/scenario-styles.md) explains when each style earns its keep, and [Helpers](helpers.md) lists every helper a domain step can build on.

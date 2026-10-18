@@ -8,11 +8,11 @@ description: The imperative and declarative scenario styles, the job each one do
 
 # Scenario styles - the vocabulary and the toolbox
 
-Why a generic step library and BDD's own teaching point in different directions, and how this stack serves both.
+A generic step library and BDD's own teaching point in different directions, and this stack serves both.
 
 ## The 2 styles
 
-The same behavior can be scripted 2 ways. The first is the imperative style - the style a generic step vocabulary makes possible:
+You can script the same behavior 2 ways. The first is the imperative style, which a generic step vocabulary makes possible:
 
 ```gherkin
 Scenario: Editor publishes a page
@@ -25,7 +25,7 @@ Scenario: Editor publishes a page
   And I should see the success message "has been created"
 ```
 
-The second is the declarative style - the style Behat's own quick start teaches ("When I add the 'Sith Lord Lightsaber' to the basket"):
+The second is the declarative style, which Behat's own quick start teaches ("When I add the 'Sith Lord Lightsaber' to the basket"):
 
 ```gherkin
 Scenario: Editor publishes a page
@@ -34,7 +34,7 @@ Scenario: Editor publishes a page
   Then the page "About us" should be publicly visible at "/about-us"
 ```
 
-The declarative version has no shipped step behind it. The project writes each definition itself, as a few lines of PHP over the library's helpers:
+The declarative version has no shipped step behind it. You write each definition yourself, as a few lines of PHP over the library's helpers:
 
 ```php
 #[When('I publish a page titled :title')]
@@ -46,32 +46,32 @@ public function publishPage(string $title): void {
 }
 ```
 
-That is what "domain steps" means: the Gherkin speaks the project's language, and the translation into clicks, fields and API calls happens once, inside a definition, instead of being spelled out in every scenario.
+That's what "domain steps" means: the Gherkin speaks the project's language, and the translation into clicks, fields and API calls happens once, inside a definition, instead of being spelled out in every scenario.
 
 ## Why BDD teaches the declarative style
 
-3 arguments, all old and all well-tested. Audience: BDD's founding purpose is scenarios as a conversation artifact with stakeholders - "I fill in Title" is noise to a product owner, "I publish a page" is signal. Resilience: when the form is redesigned, an imperative suite changes in every scenario that touches the form, while a declarative suite changes in exactly 1 definition, because the scenario asserted the behavior, not the widget path. Intent: an imperative scenario can pass while the actual requirement fails, because it verifies mechanics, not meaning.
+The case rests on 3 arguments, all of them old and well tested. The first is audience: BDD's founding purpose is to use scenarios as a conversation artifact with stakeholders, and to a product owner, "I fill in Title" is noise and "I publish a page" is signal. The second is resilience: when the form is redesigned, an imperative suite changes in every scenario that touches the form. A declarative suite changes in exactly 1 definition, because its scenarios assert the behavior and leave the widget path to that definition. The third is intent: an imperative scenario verifies the mechanics, so it can pass while the requirement behind them fails.
 
-There is a famous precedent. `cucumber-rails`, the Rails integration for Cucumber - Behat's Ruby ancestor - used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. MinkContext is PHP's `web_steps.rb` that never got deleted, and this library is a larger, better-engineered descendant of the same pattern. The critique is real and has history behind it.
+The critique of the imperative style is real, and it has a well-known precedent. `cucumber-rails`, the Rails integration for Cucumber (Behat's Ruby ancestor), used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. MinkContext is PHP's `web_steps.rb` that never got deleted, and this library is a larger, better-engineered descendant of the same pattern.
 
 ## Why the imperative style wins in this ecosystem anyway
 
-The critique assumes a context that mostly does not hold for CMS delivery work:
+The critique assumes a context that mostly doesn't hold for CMS delivery work:
 
-- **The UI is the deliverable.** A Drupal site build is assembled configuration - content types, fields, forms, views, blocks. "The editor can fill this form and the page appears" is not incidental mechanics; it is the requirement. Testing the artifact in the artifact's own terms is legitimate verification.
-- **There is usually no stakeholder audience.** These suites are written and read by developers and QA, so the readability-for-business argument loses most of its force.
-- **Economics at fleet scale.** A domain vocabulary must be written per project, in PHP. A generic vocabulary is 0 PHP and instant coverage - and across dozens of sites, 1 shared vocabulary every developer already knows beats dozens of bespoke mini-DSLs. Cross-project consistency is itself a feature.
+- **The UI is the deliverable.** A Drupal site build is assembled configuration: content types, fields, forms, views and blocks. "The editor can fill this form and the page appears" isn't incidental mechanics here; it's the requirement, and testing the artifact in its own terms is legitimate verification.
+- **There's usually no stakeholder audience.** Developers and QA write and read these suites, so the readability-for-business argument loses most of its force.
+- **Economics at fleet scale.** Each project has to write its own domain vocabulary, in PHP, while a generic vocabulary takes 0 lines of PHP and gives instant coverage. Across dozens of sites, 1 shared vocabulary that every developer already knows beats dozens of bespoke mini-DSLs, and that cross-project consistency is a feature in itself.
 
 ## 2 different jobs
 
-These are 2 jobs, not 1 job done well or badly. Specification - BDD proper - uses domain language, faces stakeholders, and keeps its scenarios few and precious. Verification - functional regression - uses infrastructure language, faces developers, and wants its scenarios broad and cheap. Behat the tool supports both; Behat's tutorial teaches only the first; a generic step library equips only the second. Nothing is wrong except not knowing which job a given suite is doing.
+Specification and verification are separate jobs, and neither is a worse version of the other. Specification (BDD proper) uses domain language, faces stakeholders, and keeps its scenarios few and precious. Verification (functional regression) uses infrastructure language, faces developers, and wants its scenarios broad and cheap. Behat the tool supports both. Its tutorial teaches only the first, and a generic step library equips only the second. The only mistake is not knowing which job a given suite is doing.
 
 ## The vocabulary and the toolbox
 
-The library serves both jobs at once through 1 design rule: every step body is a thin wrapper over named helpers. That makes the package 2 products in 1 - the vocabulary (the steps: 1 skin over the helpers) and the toolbox (the helpers themselves). A project that outgrows the raw vocabulary does not leave the library; it stops calling the toolbox from Gherkin and starts calling it from PHP.
+The library serves both jobs at once through 1 design rule: every step body is a thin wrapper over named helpers. That makes the package 2 products in 1: the vocabulary (the steps, 1 skin over the helpers) and the toolbox (the helpers themselves). A project that outgrows the raw vocabulary stays with the library. It stops calling the toolbox from Gherkin and starts calling it from PHP.
 
 3 consequences follow:
 
-1. **Helpers are public API** - documented in [Helpers](../helpers.md), semver-covered, named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in the consumer's `FeatureContext`, so a domain step costs 3 lines; under a context model every domain step would start with service lookups.
-2. **Suites split by job**: a spec suite holding the few domain-language scenarios, a regression suite holding the broad generic-vocabulary ones - which is also how Behat's own documentation says suites should be used. [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
-3. **The docs teach a lifecycle, not a catalog**: start with the vocabulary for instant coverage, then graduate the flows that matter to domain steps on the toolbox. The [quick start](../quick-start.md) shows both scenario styles side by side.
+1. **Helpers are public API.** They're documented in [Helpers](../helpers.md), covered by semantic versioning and named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in your `FeatureContext`, so a domain step costs 3 lines; under a context model, every domain step would start with service lookups.
+2. **Suites split by job.** A spec suite holds the few domain-language scenarios, and a regression suite holds the broad generic-vocabulary ones. That's also how Behat's own documentation says to use suites. [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
+3. **The docs teach a lifecycle.** Start with the vocabulary for instant coverage, then graduate the flows that matter to domain steps on the toolbox. The [quick start](../quick-start.md) shows both scenario styles side by side.

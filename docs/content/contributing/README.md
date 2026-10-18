@@ -5,7 +5,7 @@ description: How to report a problem or send a change, where the rules for code 
 
 # Contributing
 
-Contributions are welcome, from a bug report to a new trait. Report a bug or suggest a change in the [issue queue](https://github.com/drevops/behat-steps/issues), and send changes as pull requests against `main`, or against `3.x` for a fix to the 3.x LTS release.
+Contributions are welcome, from a bug report to a new trait. Report a bug or suggest a change in the [issue queue](https://github.com/drevops/behat-steps/issues). Send changes as pull requests against `main`, or against `3.x` for a fix to the 3.x LTS release.
 
 ## Where the rules live
 

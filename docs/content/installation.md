@@ -23,7 +23,7 @@ composer require --dev drevops/behat-steps:^4 behat/behat:^4 \
   friends-of-behat/mink-extension:^3.0@alpha
 ```
 
-A project whose `minimum-stability` already admits alpha releases can get Behat 4 from the first command, but nothing in it pins the major. Require `behat/behat:^4`, as above, when the suite needs Behat 4.
+A project whose `minimum-stability` already admits alpha releases can get Behat 4 from the first command, but that command doesn't pin Behat's major version. When the suite needs Behat 4, require `behat/behat:^4` as above.
 
 ## Coming from the Drupal Extension
 
@@ -31,14 +31,14 @@ This package replaces `drupal/drupal-extension` and `drupal/drupal-driver` and c
 
 ## Optional dependencies
 
-To keep installs lean, packages needed by only some traits are declared as `suggest` rather than hard requirements. The hard requirements are Behat, Mink with its BrowserKit driver and extension, and a set of Symfony components. Add the suggested packages for the traits you use to your project's `require-dev` - run `composer suggests` to list them:
+To keep installs lean, Behat Steps declares the packages that only some traits need as `suggest` rather than as hard requirements. The hard requirements are Behat, Mink with its BrowserKit driver and extension, and a set of Symfony components. Run `composer suggests` to list the suggested packages, then add the ones for the traits you use to your project's `require-dev`:
 
-- **`JsonTrait`** needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
-- **`@javascript` scenarios** need a JavaScript-capable browser driver, as [JavaScript browser drivers](#javascript-browser-drivers) describes.
+- `JsonTrait` needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
+- `@javascript` scenarios need a JavaScript-capable browser driver, as [JavaScript browser drivers](#javascript-browser-drivers) describes.
 
 ## JavaScript browser drivers
 
-Steps that require a real browser, which scenarios tagged `@javascript` use, work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. Both are exercised by this library's own CI. Another browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
+Scenarios tagged `@javascript` use a real browser, and the steps that need one work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. This library's own CI tests against both. Another browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
 
 To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension), which pulls in `dmore/chrome-mink-driver`, and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both.
 
@@ -58,9 +58,9 @@ $profile
   ]));
 ```
 
-A profile holds 1 entry per extension, so a profile that already registers `MinkExtension` merges these settings into that entry rather than adding a second one.
+A profile holds 1 entry per extension, so if your profile already registers `MinkExtension`, merge these settings into that entry rather than adding a second one.
 
-Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell). For local visual debugging you can override `api_url` at runtime via Behat's `BEHAT_PARAMS` environment variable - for instance to drive a headed Chrome on your host - as long as that browser can reach your site's `base_url`.
+Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell). For local visual debugging, you can override `api_url` at runtime via Behat's `BEHAT_PARAMS` environment variable, for instance to drive a headed Chrome on your host, as long as that browser can reach your site's `base_url`.
 
 ## Next
 
