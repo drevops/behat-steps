@@ -61,7 +61,7 @@ The project is 3 layers, and the boundary between them is the architecture. Read
 - `behat.php` - the suites, contexts, profiles, and the `BehatStepsExtension` settings.
 - `tests/behat/bootstrap/` - `FeatureContext` and the nested-Behat harness in `BehatCliTrait`.
 - `scripts/lint-layers.php` and `scripts/lint-traits.php` - the enforced layer boundaries and trait composition rules. `scripts/provision.php` and `scripts/merge-coverage.php` - fixture-site provisioning and coverage merging.
-- `docs/docusaurus.config.js`, `docs/src/remark/repositoryLinks.js`, `docs/src/theme/`, `docs/package.json`, `docs/cspell.json`, `docs/playwright.config.js`, `docs/tests/` and `.gitattributes` - the documentation site, how it links repository files, its checks, and what the Composer package ships.
+- `docs/docusaurus.config.js`, `docs/sidebars.js`, `docs/src/remark/repositoryLinks.js`, `docs/src/theme/`, `docs/src/components/`, `docs/package.json`, `docs/cspell.json`, `docs/playwright.config.js`, `docs/tests/` and `.gitattributes` - the documentation site, how it links repository files, its checks, and what the Composer package ships.
 - `.ahoy.yml`, `.github/workflows/test.yml` and `.github/workflows/release-docs.yml` - the developer, CI and publishing entry points.
 
 ## Diagram conventions
