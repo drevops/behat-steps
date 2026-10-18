@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-// A URL with a scheme, a path from the site root or an anchor on the page.
+// A URL with a scheme, a path from the site root, a protocol-relative URL or
+// an anchor on the page.
 const NOT_RELATIVE = /^([a-z][a-z0-9+.-]*:|\/|#)/i;
 
 const isInside = (directory, target) => target === directory || target.startsWith(directory + path.sep);
@@ -20,8 +21,8 @@ export default function repositoryLinks({ repositoryRoot, contentDir, repository
         return;
       }
 
-      const [target, ...anchor] = node.url.split('#');
-      const absolute = path.resolve(path.dirname(file.path), decodeURI(target));
+      const [, target, suffix] = node.url.match(/^([^?#]*)(.*)$/);
+      const absolute = path.resolve(path.dirname(file.path), decodeURIComponent(target));
 
       if (isInside(contentDir, absolute)) {
         return;
@@ -32,9 +33,9 @@ export default function repositoryLinks({ repositoryRoot, contentDir, repository
       }
 
       const relative = path.relative(repositoryRoot, absolute).split(path.sep).join('/');
-      const hash = anchor.length > 0 ? `#${anchor.join('#')}` : '';
+      const kind = fs.statSync(absolute).isDirectory() ? 'tree' : 'blob';
 
-      node.url = `${repositoryUrl}/blob/${ref}/${relative}${hash}`;
+      node.url = `${repositoryUrl}/${kind}/${ref}/${relative}${suffix}`;
     });
   };
 }

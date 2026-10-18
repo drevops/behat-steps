@@ -10,7 +10,6 @@ const CONTENT = path.join(ROOT, 'docs', 'content');
 const PAGE = path.join(CONTENT, 'guides', 'page.md');
 const OPTIONS = { repositoryRoot: ROOT, contentDir: CONTENT, repositoryUrl: 'https://github.com/drevops/behat-steps', ref: 'main' };
 
-// Runs the plugin over a tree holding 1 node of the given type.
 const rewrite = (url, { type = 'link', options = {}, file = PAGE } = {}) => {
   const node = { type, url, children: [] };
   const tree = { type: 'root', children: [{ type: 'paragraph', children: [node] }] };
@@ -24,7 +23,9 @@ describe('repositoryLinks', () => {
   test.each([
     { name: 'a repository file', url: '../../../CONTRIBUTING.md', expected: 'https://github.com/drevops/behat-steps/blob/main/CONTRIBUTING.md' },
     { name: 'a repository file with an anchor', url: '../../../CONTRIBUTING.md#steps-format', expected: 'https://github.com/drevops/behat-steps/blob/main/CONTRIBUTING.md#steps-format' },
-    { name: 'a repository directory', url: '../../../tests/behat/features', expected: 'https://github.com/drevops/behat-steps/blob/main/tests/behat/features' },
+    { name: 'a repository file with a query', url: '../../../README.md?plain=1', expected: 'https://github.com/drevops/behat-steps/blob/main/README.md?plain=1' },
+    { name: 'a repository file with a query and an anchor', url: '../../../README.md?plain=1#installation', expected: 'https://github.com/drevops/behat-steps/blob/main/README.md?plain=1#installation' },
+    { name: 'a repository directory', url: '../../../tests/behat/features', expected: 'https://github.com/drevops/behat-steps/tree/main/tests/behat/features' },
     { name: 'a file in docs/ outside the content', url: '../../package.json', expected: 'https://github.com/drevops/behat-steps/blob/main/docs/package.json' },
   ])('rewrites a link to $name', ({ url, expected }) => {
     expect(rewrite(url)).toBe(expected);
@@ -34,12 +35,24 @@ describe('repositoryLinks', () => {
     { name: 'a page', url: '../steps.md#cookietrait' },
     { name: 'a page in the same folder', url: 'usage.md' },
     { name: 'the content directory', url: '..' },
-    { name: 'an anchor on the page', url: '#options' },
-    { name: 'a site path', url: '/steps' },
-    { name: 'an absolute URL', url: 'https://behat.org' },
-    { name: 'an email address', url: 'mailto:alex@drevops.com' },
   ])('leaves a link to $name alone', ({ url }) => {
     expect(rewrite(url)).toBe(url);
+  });
+
+  // The page sits outside this content directory, so a URL that reaches path
+  // resolution fails the test.
+  test.each([
+    { name: 'an anchor on the page', url: '#options' },
+    { name: 'a site path', url: '/steps' },
+    { name: 'a protocol-relative URL', url: '//example.com/page' },
+    { name: 'an absolute URL', url: 'https://behat.org' },
+    { name: 'an email address', url: 'mailto:alex@drevops.com' },
+  ])('leaves a link to $name alone without resolving it', ({ url }) => {
+    expect(rewrite(url, { options: { contentDir: path.join(ROOT, 'docs', 'static') } })).toBe(url);
+  });
+
+  test('treats a directory that only shares the content prefix as outside it', () => {
+    expect(rewrite('../steps.md', { options: { contentDir: path.join(ROOT, 'docs', 'cont') } })).toBe('https://github.com/drevops/behat-steps/blob/main/docs/content/steps.md');
   });
 
   test('rewrites a link definition', () => {
@@ -60,7 +73,7 @@ describe('repositoryLinks', () => {
 
   test.each([
     { name: 'a file that does not exist', url: '../../../missing.md' },
-    { name: 'a path outside the repository', url: '../../../../outside.md' },
+    { name: 'a path outside the repository', url: '../../../..' },
   ])('fails on a link to $name', ({ url }) => {
     expect(() => rewrite(url)).toThrow(`The link "${url}" in ${PAGE} names no file in the repository.`);
   });

@@ -56,10 +56,10 @@
   --ifm-link-decoration: none;
 }
 
-/* The footer is dark in both color modes, so its links take the dark-mode
-   blue on hover. */
+/* The footer is dark in both color modes, so its links take a lighter blue
+   on hover. */
 .footer--dark {
-  --ifm-footer-link-hover-color: var(--behat-steps-blue-on-dark);
+  --ifm-footer-link-hover-color: #7dafe5;
 }
 
 .footer__copyright-link {

@@ -5,8 +5,8 @@ import path from 'node:path';
 import {darkCodeTheme, lightCodeTheme} from './src/codeThemes.js';
 import repositoryLinks from './src/remark/repositoryLinks.js';
 
-// The release workflow sets the version. Other builds, such as pull request
-// previews, are not indexed.
+// A build without 'RELEASE_VERSION' is not a release, so search engines
+// skip it.
 const isRelease = Boolean(process.env.RELEASE_VERSION);
 
 const REPOSITORY_URL = 'https://github.com/drevops/behat-steps';
@@ -18,8 +18,8 @@ const config = {
   favicon: 'img/favicon.png',
   noIndex: !isRelease,
 
-  // The release workflow sets both from the GitHub Pages settings, so a
-  // custom domain needs no change here.
+  // 'DOCS_URL' and 'DOCS_BASE_URL' override the defaults, so a new host or
+  // path needs no change here.
   url: process.env.DOCS_URL || 'https://behat-steps.drevops.com',
   baseUrl: process.env.DOCS_BASE_URL || '/',
 
@@ -55,7 +55,7 @@ const config = {
               repositoryRoot: path.resolve(__dirname, '..'),
               contentDir: path.resolve(__dirname, 'content'),
               repositoryUrl: REPOSITORY_URL,
-              ref: process.env.RELEASE_VERSION || 'main',
+              ref: process.env.RELEASE_VERSION || process.env.DOCS_REF || 'main',
             }],
           ],
         },
@@ -98,7 +98,7 @@ const config = {
   themeConfig:
   /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: 'img/social-card.png',
+      image: 'img/social-card.jpg',
       metadata: [
         {name: 'keywords', content: 'behat, bdd, gherkin, mink, drupal, php, testing, step definitions'},
       ],
@@ -111,7 +111,6 @@ const config = {
       navbar: {
         title: 'Behat Steps',
         logo: {
-          alt: 'Behat Steps logo',
           src: 'img/logo.png',
         },
         items: [
@@ -169,7 +168,7 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
-        additionalLanguages: ['bash', 'gherkin', 'json', 'php'],
+        additionalLanguages: ['bash', 'gherkin', 'php'],
       },
       colorMode: {
         defaultMode: 'light',
