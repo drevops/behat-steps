@@ -1,6 +1,6 @@
 @startuml
 ' drevops/behat-steps - data flow for generating the reference documentation.
-' Traced from docs.php constants STEPS_DIRECTORY, TOOLBOX_CLASSES,
+' Traced from docs.php constants STEPS_DIRECTORY, TOOLBOX_CLASSES, STEPS_FILE,
 ' HELPERS_FILE, CONFIGURATION_FILE and functions main, collect_step_traits,
 ' extract_info, extract_trait_options, extract_trait_prerequisites,
 ' extract_helpers, collect_helper_methods, file_declares_trait,
@@ -10,8 +10,8 @@
 ' rejected_step_phrases, validate_step_patterns,
 ' extract_step_examples, validate_helpers, validate_tags,
 ' validate_env_vars, tag_registry, render_info, render_trait_prerequisites,
-' render_trait_options, render_helpers, render_extension_options,
-' render_tag_reference, replace_content.
+' render_trait_options, render_helpers, relative_link,
+' render_extension_options, render_tag_reference, replace_content.
 ' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
@@ -95,10 +95,11 @@ deactivate Validate
 Main -> Render: render every target
 activate Render
 Render -> Render: under each trait's description, its\nPrerequisites table, then its Options table
+Render -> Render: write each Source, Example and Steps link\nrelative to the page holding it, through\nrelative_link()
 Render -> Render: build the option table from the\nBehatStepsExtension config tree\nand the tag table from tag_registry()
-Render -> Render: swap each block between its\nstart marker and its end marker
-Render --> Main: STEPS.md, README.md, HELPERS.md\nand docs/configuration.md contents
+Render --> Main: the generated blocks
 deactivate Render
+Main -> Main: swap each block between its start\nand end marker in docs/content/steps.md,\ndocs/content/helpers.md and\ndocs/content/guides/configuration.md
 
 alt every target is unchanged
   Main --> Dev: exit 0, documentation is up to date

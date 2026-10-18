@@ -22,7 +22,9 @@
         "Graphviz",
         "mglaman",
         "Olivero",
+        "pathtrait",
         "phpcov",
+        "WCAG",
         "webform"
     ],
     "flagWords": [
