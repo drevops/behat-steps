@@ -804,7 +804,7 @@ If a reachable branch has no test, the fix is the test, not the marker.
 
 ## Continuous integration
 
-[.github/workflows/test.yml](.github/workflows/test.yml) runs 2 jobs, and between them they cover all 3 test surfaces in this repository.
+[.github/workflows/test.yml](.github/workflows/test.yml) runs 3 jobs. Lint and the test matrix cover all 3 test surfaces in this repository, and Docs builds and checks the documentation site.
 
 ### Lint
 
@@ -908,6 +908,12 @@ A patch stops being needed the day its module ships a Drupal 12 release, at whic
 
 Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is a pre-release.
 
+### Docs
+
+1 job, on Node 22, with no Docker stack. It builds the site in [docs/](docs), which fails on a broken link or anchor, then runs its unit tests, its spell check and its accessibility checks, as [Documentation](docs/content/contributing/documentation.md#checks-on-every-pull-request) describes. The unit tests include the check that the step and helper references ship in the Composer package.
+
+[.github/workflows/release-docs.yml](.github/workflows/release-docs.yml) publishes the site to GitHub Pages on every release tag.
+
 ## Updating fixture site
 
 - Build the fixture site and make the required changes
@@ -920,9 +926,9 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 
 | Target | Holds |
 | --- | --- |
-| [STEPS.md](STEPS.md) and the index in [README.md](README.md) | The step vocabulary |
-| [HELPERS.md](HELPERS.md) | The toolbox |
-| [docs/configuration.md](docs/configuration.md) | The extension options and the tag reference |
+| [docs/content/steps.md](docs/content/steps.md) | The step vocabulary |
+| [docs/content/helpers.md](docs/content/helpers.md) | The toolbox |
+| [docs/content/guides/configuration.md](docs/content/guides/configuration.md) | The extension options and the tag reference |
 
 The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
 
@@ -933,3 +939,5 @@ ahoy lint-docs    # Check documentation for errors
 ```
 
 An extension option and a tag are both generated from their definition in the source, so neither can be added without appearing in the reference. Write the option's `->info()` in [BehatStepsExtension](src/Extension/ServiceContainer/BehatStepsExtension.php) and the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never hand-edit inside a generated region.
+
+All 3 are pages of the documentation site in [docs/](docs), and `steps.md` and `helpers.md` also ship in the Composer package, where a consuming project's AI agent reads them. [Documentation](docs/content/contributing/documentation.md) covers the site: working on it locally, the writing conventions, the checks and publishing to [behat-steps.drevops.com](https://behat-steps.drevops.com).

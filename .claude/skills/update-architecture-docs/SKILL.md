@@ -7,7 +7,7 @@ description: Generate or update the architecture documentation and its PlantUML 
 
 `docs/content/architecture/README.md` is a narrative walkthrough of how this project works: what the main components are and how the primary data and control flows run through them, with diagrams embedded at the points in the story they support. It is a walkthrough, not an index.
 
-The walkthrough is also the Architecture section of the documentation site, so keep it plain Markdown and link a page or a repository file by its relative path, as the rest of `docs/content/` does.
+The walkthrough doubles as the Architecture section of the documentation site, so keep it plain Markdown and link a page or a repository file by its relative path, as the rest of `docs/content/` does.
 
 `docs/content/architecture/` also holds the diagram sources as PlantUML (`.puml`) plus their rendered light `.svg`. Both are committed, so a reviewer sees the source diff and the rendered result.
 
@@ -94,7 +94,9 @@ Before finishing, confirm that every path named in a traced-from comment exists,
 Then look at every diagram - one that renders without error can still be unreadably wide, and a Creole slip only shows up in the render:
 
 ```bash
-plantuml -tpng -o ../../../.artifacts/tmp docs/content/architecture/*.puml
+PLANTUML_LIMIT_SIZE=8192 plantuml -tpng -o ../../../.artifacts/tmp docs/content/architecture/*.puml
 ```
 
-PlantUML resolves a relative `-o` path against each **input** file, not the working directory, so `../../../` climbs out of `docs/content/architecture/` to the repository root. It creates the directory if it is missing. Open each generated PNG in an image viewer before committing.
+PlantUML resolves a relative `-o` path against each **input** file, not the working directory, so `../../../` climbs out of `docs/content/architecture/` to the repository root. It creates the directory if it is missing. The default size limit clips a diagram wider than 4096 px, so `PLANTUML_LIMIT_SIZE=8192` raises it. Open each generated PNG in an image viewer before committing.
+
+Finally, run `npm run build --prefix docs` and `npm run spellcheck --prefix docs`. The build fails on a broken page link or anchor and on a repository link to a file that doesn't exist. A word the spell check rejects goes into the `words` list in `docs/cspell.json`, because a `cspell:ignore` comment in the walkthrough wouldn't survive the next regeneration.
