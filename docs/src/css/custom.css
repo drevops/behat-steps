@@ -57,6 +57,19 @@
   --ifm-link-decoration: none;
 }
 
+/* Tables set several columns of code side by side, so they take a smaller
+   font and tighter cells than the prose. */
+.markdown table {
+  --ifm-table-cell-padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+}
+
+/* A long name in the last column, which holds a table's descriptions, breaks
+   rather than widening the table. Names in the other columns stay whole. */
+.markdown td:last-child code {
+  overflow-wrap: anywhere;
+}
+
 /* A code block in a table cell scrolls inside the cell rather than widening
    the table. */
 .markdown td .theme-code-block {
