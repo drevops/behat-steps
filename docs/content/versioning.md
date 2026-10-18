@@ -43,3 +43,8 @@ Link with title "My Link" not found.
 Select with id|name|label "My Select" not found.
 The cookie "session" was not set.
 ```
+
+## Where to next
+
+- [Supported versions](README.md#supported-versions) lists how long each major receives fixes.
+- [Migrating from 3.x](migrating.md) covers the move to 4.0.

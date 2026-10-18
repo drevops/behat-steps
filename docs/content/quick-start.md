@@ -6,7 +6,7 @@ description: Register a context, enable the extension, write a first scenario in
 
 # Quick start
 
-This page takes a project from an empty Behat configuration to a first scenario in 4 steps. It assumes the package is [installed](installation.md).
+This page takes a project from an empty Behat configuration to a first scenario in 4 parts. It assumes the package is [installed](installation.md).
 
 ## 1. Register the vocabulary you need
 
@@ -101,6 +101,8 @@ Scenario: Editor publishes a page
   Then the path should be "/about-us"
   And I should see the success message "has been created"
 ```
+
+It assumes a site with an `editor` role and a URL alias pattern that turns "About us" into `/about-us`, so adjust both to your site.
 
 ## 4. Graduate the flows that matter to domain steps
 

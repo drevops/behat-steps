@@ -5,7 +5,7 @@ description: How to report a problem or send a change, where the rules for code 
 
 # Contributing
 
-Contributions are welcome, from a bug report to a new trait. Report a bug or suggest a change in the [issue queue](https://github.com/drevops/behat-steps/issues), and send changes as pull requests against `main`.
+Contributions are welcome, from a bug report to a new trait. Report a bug or suggest a change in the [issue queue](https://github.com/drevops/behat-steps/issues), and send changes as pull requests against `main`, or against `3.x` for a fix to the 3.x LTS release.
 
 ## Where the rules live
 
@@ -16,11 +16,11 @@ It also covers the [local environment](../../../CONTRIBUTING.md#local-environmen
 ## What lives where
 
 - `src/` - the package: the backends, the Behat extension, the 3 contexts and the step and helper traits.
-- `tests/` - the unit, kernel and Behat suites, and the fixture Drupal sites the Behat suite runs against.
+- `tests/` - the unit, kernel and Behat suites, and the fixture Drupal sites for Drupal 11 and 12 that all 3 suites run against.
 - `docs.php` - the generator behind [Steps](../steps.md), [Helpers](../helpers.md) and the generated tables in [Configuration](../guides/configuration.md).
 - `docs/` - this site, with its pages in `docs/content/`.
 - `scripts/` - the fixture site provisioning, the coverage tools and the layer and trait linters.
-- `.claude/skills/` - the AI agent skills the repository ships: `migrate-behat-steps` for consuming projects, and `update-architecture-docs` for maintainers.
+- `.claude/skills/` - the AI agent skills kept in this repository: `migrate-behat-steps` for consuming projects, and `update-architecture-docs` for maintainers.
 
 ## See also
 

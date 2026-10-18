@@ -27,7 +27,7 @@
 
 ---
 
-**Behat Steps** is a collection of reusable testing actions and assertions for automated testing with [Behat](https://behat.org). It ships 28 step traits that work on any website and 29 that only mean something on a Drupal site, and every step is a thin wrapper over named helpers that your own step definitions can call too.
+**Behat Steps** is a collection of reusable testing actions and assertions for automated testing with [Behat](https://behat.org). It ships steps that work on any website and steps that only mean something on a Drupal site, and every step is a thin wrapper over named helpers that your own step definitions can call too.
 
 ## Features
 
@@ -45,7 +45,7 @@
 composer require --dev drevops/behat-steps:^4
 ```
 
-With Composer's default `minimum-stability: stable`, that installs Behat 3. Behat 4 needs the alpha release of `friends-of-behat/mink-extension` 3, and Composer takes a stability flag only from your own `composer.json`, so ask for both:
+With Composer's default `minimum-stability: stable`, that installs Behat 3. Behat 4 needs an alpha release of `friends-of-behat/mink-extension` 3, and Composer takes a stability flag only from your own `composer.json`, so ask for both:
 
 ```bash
 composer require --dev drevops/behat-steps:^4 behat/behat:^4 \

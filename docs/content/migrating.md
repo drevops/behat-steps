@@ -6,7 +6,7 @@ description: Move a project from Behat Steps 3.14 to 4.0 with the migration guid
 
 # Migrating from 3.x
 
-[MIGRATION.md](../../MIGRATION.md) takes a project from 3.14 to 4.0, in the order an upgrade meets each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables map every name a 3.14 project used, from this package or from the Drupal Extension its Drupal traits built on, to what replaces it in 4.0.
+[MIGRATION.md](../../MIGRATION.md) takes a project from 3.14 to 4.0, in the order an upgrade meets each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, whether it came from this package or from the Drupal Extension and Drupal Driver its Drupal traits built on, and what replaces it. A step the tables don't list kept its text.
 
 A project on an earlier 3.x release updates to 3.14 first.
 
