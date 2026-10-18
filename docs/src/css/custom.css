@@ -44,6 +44,12 @@
   height: 2.25rem;
 }
 
+/* A card wraps its title and description rather than truncating them, since a
+   phone can't show the tooltip that holds the rest. */
+.theme-doc-card-container .text--truncate {
+  white-space: normal;
+}
+
 .markdown h1:first-child {
   color: var(--behat-steps-ink);
 }
