@@ -4102,6 +4102,29 @@ EOD);
     ];
   }
 
+  #[DataProvider('dataProviderRenderClassDescription')]
+  public function testRenderClassDescription(string $description_full, string $expected): void {
+    $this->assertSame($expected, render_class_description($description_full));
+  }
+
+  public static function dataProviderRenderClassDescription(): array {
+    return [
+      'a line' => ['Do the thing.', '>  Do the thing.' . PHP_EOL],
+      'a paragraph break' => [
+        implode(PHP_EOL, ['First.', '', 'Second.']),
+        implode(PHP_EOL, ['>  First.', '>  <br/><br/>', '>  Second.', '']),
+      ],
+      'a list after a paragraph ending in a letter of the break' => [
+        implode(PHP_EOL, ['Set the counter', '', '- One', '- Two']),
+        implode(PHP_EOL, ['>  Set the counter', '>  - One', '>  - Two', '']),
+      ],
+      'a code block' => [
+        implode(PHP_EOL, ['Intro.', '@code', '  Given x', '@endcode']),
+        implode(PHP_EOL, ['>  Intro.', '>  ```', '>    Given x', '>  ```', '']),
+      ],
+    ];
+  }
+
   #[DataProvider('dataProviderRenderTitled')]
   public function testRenderTitled(string $heading, string $body, string $expected): void {
     $this->assertSame($expected, render_titled($heading, $body));

@@ -1610,8 +1610,10 @@ function render_class_description(string $description_full): string {
       $was_list = FALSE;
     }
     else {
-      if (str_ends_with($output, '<br/><br/>' . PHP_EOL)) {
-        $output = rtrim($output, '<br/><br/>' . PHP_EOL) . PHP_EOL;
+      $break = '<br/><br/>' . PHP_EOL;
+
+      if (str_ends_with($output, $break)) {
+        $output = substr($output, 0, -strlen($break));
       }
 
       $output .= $line . PHP_EOL;

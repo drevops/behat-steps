@@ -46,9 +46,11 @@ final class RatingHandler implements FieldHandlerInterface {
   public function expand(mixed $values): array {
     $deltas = [];
 
+    // A delta arrives as a bare value or as a record of columns, and
     // "4 stars" stores 4.
     foreach ((array) $values as $value) {
-      $deltas[] = ['value' => (int) $value];
+      $rating = is_array($value) ? ($value['value'] ?? '') : $value;
+      $deltas[] = ['value' => (int) $rating];
     }
 
     return $deltas;

@@ -43,9 +43,10 @@ class SpecContext extends WebRawContext {
 
 The `entityLifecycleCreate*()` helpers register each entity they create, so the end-of-scenario pass in [Automatic cleanup](../guides/usage.md#automatic-cleanup) deletes it. An entity created through a capability directly isn't registered until the step does it.
 
-A step of your own registers what it created, passing the stub the capability returned and the key its entity type stores the ID under:
+A step of your own registers what it created, passing the stub the capability returned and the key its entity type stores the ID under, `mid` for a media item:
 
 ```php
+$stub = new EntityStub('media', 'document', ['name' => 'Annual report']);
 $created = $this->backendFor(ContentCapabilityInterface::class)
   ->createEntity($stub);
 $this->entityLifecycleRegister($created, 'mid');
@@ -127,7 +128,7 @@ class FeatureContext extends DrupalContext {
 }
 ```
 
-That covers downloads, the hreflang check and the engine fetch for every trait in that context. `RetryableHttpClient` retries a request that failed in transit or came back with a status such as 429 or 503, up to 3 times. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
+That covers downloads, the hreflang check and the engine fetch for every trait in that context. `RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit only for an idempotent method such as `GET`, but it retries a 429 or 503 response whatever the method, so a `POST` a step sends can reach the server twice. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` that limits 429 and 503 to `GenericRetryStrategy::IDEMPOTENT_METHODS`. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
 
 ## Declare options for a trait of your own
 
