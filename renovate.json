@@ -64,9 +64,22 @@
             "enabled": false
         },
         {
+            "description": "An npm release waits 3 days before it is proposed, so a compromised version is usually unpublished before it can be automerged.",
+            "matchManagers": ["npm"],
+            "minimumReleaseAge": "3 days"
+        },
+        {
             "matchPackageNames": ["*"],
             "groupName": "all dependencies",
             "groupSlug": "all"
+        },
+        {
+            "description": "The docs site wraps theme components of Docusaurus and its search plugin, which a major release can change without failing a test, so a major npm update gets a pull request of its own that waits for review.",
+            "matchManagers": ["npm"],
+            "matchUpdateTypes": ["major"],
+            "groupName": "docs site major updates",
+            "groupSlug": "docs-major",
+            "automerge": false
         }
     ]
 }

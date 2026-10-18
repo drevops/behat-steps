@@ -1,0 +1,90 @@
+name: Release docs
+
+# Publishes 'docs' to GitHub Pages on a release tag, or on a manual run from
+# the tag or branch typed in.
+#
+# The site URL and base path come from the GitHub Pages settings at build
+# time. A custom domain set there takes effect on the next run.
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Tag or branch to publish'
+        required: true
+        type: string
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  release-docs:
+    name: Release docs
+    if: github.repository == 'drevops/behat-steps'
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # Read the documentation source.
+      pages: write # Deploy the built site with 'actions/deploy-pages'.
+      id-token: write # Authenticate 'actions/deploy-pages' to GitHub Pages.
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # The pages link repository files at the version they show, so a manual
+      # run builds from the tag or branch typed in. A name that doesn't exist
+      # fails here, so no dead links are published.
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.inputs.version || github.ref }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Setup GitHub Pages
+        id: pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
+
+      - name: Set release version
+        env:
+          INPUTS_VERSION: ${{ github.event.inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          version="${INPUTS_VERSION:-${REF_NAME}}"
+          echo "RELEASE_VERSION=${version}" >> "$GITHUB_ENV"
+          echo "Release version: ${version}"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+        working-directory: docs
+
+      - name: Build documentation site
+        run: npm run build
+        working-directory: docs
+        env:
+          DOCS_URL: ${{ steps.pages.outputs.origin }}
+          DOCS_BASE_URL: ${{ steps.pages.outputs.base_path }}/
+
+      - name: Upload documentation site
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: docs/build
+
+      - name: Deploy documentation site
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
