@@ -13,7 +13,14 @@
 /behat.dist.php      export-ignore
 /behat.php           export-ignore
 /docker-compose.yml  export-ignore
-/docs                export-ignore
+# The step and helper references ship, so a consuming project's AI agent can
+# read them from vendor/. Git skips an ignored directory whole, so each level
+# above them is re-included.
+/docs/*                  export-ignore
+/docs/content            -export-ignore
+/docs/content/*          export-ignore
+/docs/content/helpers.md -export-ignore
+/docs/content/steps.md   -export-ignore
 /docs.php            export-ignore
 /gherkinlint.json    export-ignore
 /logo.png            export-ignore
