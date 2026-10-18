@@ -8,7 +8,7 @@
 ' src/Extension/Listener/SkipTagListener.php,
 ' src/Extension/Listener/BackendListener.php, src/Backend/DrupalBackend.php, behat.php,
 ' src/Steps/Web/DateTrait.php, src/Steps/Web/AccessibilityTrait.php.
-' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica

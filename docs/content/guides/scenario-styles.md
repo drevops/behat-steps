@@ -1,4 +1,10 @@
-# 📝 Scenario styles - the vocabulary and the toolbox
+---
+title: Scenario styles
+sidebar_position: 3
+description: The imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to domain steps built on the same helpers.
+---
+
+# Scenario styles - the vocabulary and the toolbox
 
 Why a generic step library and BDD's own teaching point in different directions, and how this stack serves both.
 
@@ -64,6 +70,6 @@ The library serves both jobs at once through 1 design rule: every step body is a
 
 3 consequences follow:
 
-1. **Helpers are public API** - documented in [HELPERS.md](../HELPERS.md), semver-covered, named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in the consumer's `FeatureContext`, so a domain step costs 3 lines; under a context model every domain step would start with service lookups.
+1. **Helpers are public API** - documented in [Helpers](../helpers.md), semver-covered, named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in the consumer's `FeatureContext`, so a domain step costs 3 lines; under a context model every domain step would start with service lookups.
 2. **Suites split by job**: a spec suite holding the few domain-language scenarios, a regression suite holding the broad generic-vocabulary ones - which is also how Behat's own documentation says suites should be used. [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
-3. **The docs teach a lifecycle, not a catalog**: start with the vocabulary for instant coverage, then graduate the flows that matter to domain steps on the toolbox. The [quick start](../README.md#-quick-start) shows both scenario styles side by side.
+3. **The docs teach a lifecycle, not a catalog**: start with the vocabulary for instant coverage, then graduate the flows that matter to domain steps on the toolbox. The [quick start](../quick-start.md) shows both scenario styles side by side.

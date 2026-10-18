@@ -11,7 +11,7 @@ Nothing in the project changes until the user approves the plan.
 
 ## 1. Get the guide
 
-Fetch `https://raw.githubusercontent.com/drevops/behat-steps/main/MIGRATION.md` and save it as `.artifacts/behat-steps-migration/MIGRATION.md`. Check that its first line reads `# Migrating from 3.x to 4.0`: the copy in `vendor/drevops/behat-steps/` is the 3.x guide until Composer installs 4.x. Fetch the files it links to, such as `STEPS.md`, from the same place when you need them. If a fetch fails, stop and ask the user for the file.
+Fetch `https://raw.githubusercontent.com/drevops/behat-steps/main/MIGRATION.md` and save it as `.artifacts/behat-steps-migration/MIGRATION.md`. Check that its first line reads `# Migrating from 3.x to 4.0`: the copy in `vendor/drevops/behat-steps/` is the 3.x guide until Composer installs 4.x. Fetch the files it links to, such as `docs/content/steps.md`, from the same place when you need them. If a fetch fails, stop and ask the user for the file.
 
 Read the guide's opening paragraph and `## How to read this guide` first, and follow its conventions literally.
 
@@ -37,9 +37,9 @@ The guide says what changes. These rules say how to apply it:
 
 - **1 pass per table.** Match every name against the `3.14` column only, never against a name an earlier row produced.
 - **Step lines.** Match a step against a `3.14` cell the way Behat would: the keyword doesn't take part, and a quoted value is 1 argument, spaces and all.
-- **4.x text first.** Before matching a step against the guide's rows, check it against the steps 4.x registers: those in `STEPS.md`, those in Mink's `MinkContext` in `vendor/`, and the project's own. A step that already matches keeps its text and only takes the keyword of a row that also matches it, so a second run changes nothing.
+- **4.x text first.** Before matching a step against the guide's rows, check it against the steps 4.x registers: those in `docs/content/steps.md`, those in Mink's `MinkContext` in `vendor/`, and the project's own. A step that already matches keeps its text and only takes the keyword of a row that also matches it, so a second run changes nothing.
 - **Keywords.** Take a rewritten step's keyword from its `4.0` cell. `And` and `But` take the type of the step above them, so when a rewrite changes that type for the lines below it, give each of those lines the keyword its own step is registered with, or `And` where that matches the line above. Never reorder steps.
-- **Tables and docstrings** under a step stay as they are, unless the guide says how they change or the new step takes another shape. Build that from the new step's example in `STEPS.md`.
+- **Tables and docstrings** under a step stay as they are, unless the guide says how they change or the new step takes another shape. Build that from the new step's example in `docs/content/steps.md`.
 - **Step behavior.** Where a part of `## Step behavior` says how to change a step, make that change only as part of rewriting the step's `3.14` text, so a second run can't apply it again. Record everything else in that section as an item to review.
 
 Write the plan to `.artifacts/behat-steps-migration/plan.md`: a summary with the number of changes per guide section, the Composer commands, the open questions and the review items, followed by every change, per file.

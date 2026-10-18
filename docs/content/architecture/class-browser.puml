@@ -6,7 +6,7 @@
 ' src/Extension/Browser/Capability/, src/Extension/Browser/Adapter/,
 ' src/Extension/ServiceContainer/Driver/BrowserKitFactory.php,
 ' src/Extension/Http/, src/Extension/ServiceContainer/BehatStepsExtension.php.
-' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica

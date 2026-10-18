@@ -7,7 +7,7 @@
 ' src/Extension/Auth/BasicAuthenticator.php, src/Steps/Web/FileDownloadTrait.php,
 ' src/Steps/Web/MetatagTrait.php, src/Steps/Web/RestTrait.php,
 ' src/Steps/Web/AccessibilityTrait.php.
-' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica

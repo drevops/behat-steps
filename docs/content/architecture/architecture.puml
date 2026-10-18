@@ -4,7 +4,7 @@
 ' src/DrupalContext.php, src/Steps/, src/Steps/Helper/, src/Extension/,
 ' src/Extension/Drupal/, src/Backend/, src/Backend/Drupal/, behat.php,
 ' scripts/lint-layers.php.
-' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica

@@ -4,7 +4,7 @@
 ' tests/behat/fixtures_drupal/d12/composer.json, behat.php,
 ' tests/behat/bootstrap/BehatCliTrait.php,
 ' tests/behat/bootstrap/BehatCliContext.php, scripts/merge-coverage.php.
-' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica

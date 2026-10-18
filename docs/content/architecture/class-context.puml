@@ -8,7 +8,7 @@
 ' src/Extension/Auth/, src/Extension/Listener/, src/Steps/Helper/Web/, src/Steps/Helper/Drupal/,
 ' src/Steps/Web/PathTrait.php, src/Steps/Web/CommandTrait.php,
 ' src/Steps/Drupal/ContentTrait.php, src/Steps/Exception/AssertionException.php.
-' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica

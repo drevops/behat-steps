@@ -2,9 +2,9 @@
 
 This is a walkthrough of how Behat Steps works: what the pieces are, and how a Gherkin step travels from a feature file to a browser or a Drupal API. Each section is traced from the sources it names, and the diagrams sit next to the prose that explains them.
 
-This document and its diagrams are generated and maintained by an AI agent via the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](../../.claude/skills/update-architecture-docs/SKILL.md). The content is derived from the source code. If this documentation and the code disagree, the code wins.
+This document and its diagrams are generated and maintained by an AI agent via the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](../../../.claude/skills/update-architecture-docs/SKILL.md). The content is derived from the source code. If this documentation and the code disagree, the code wins.
 
-Looking for a reference instead? [STEPS.md](../../STEPS.md) lists the steps, [HELPERS.md](../../HELPERS.md) lists the toolbox behind them, and [docs/configuration.md](../configuration.md) lists the options and tags. All three are generated.
+Looking for a reference instead? [Steps](../steps.md) lists the steps, [Helpers](../helpers.md) lists the toolbox behind them, and [Configuration](../guides/configuration.md) lists the options and tags. All three are generated.
 
 ## Diagram sources
 
@@ -25,7 +25,7 @@ Every diagram is a PlantUML source in this directory, rendered to a committed li
 Regenerate every SVG after editing any source:
 
 ```bash
-plantuml -tsvg docs/architecture/*.puml
+plantuml -tsvg docs/content/architecture/*.puml
 ```
 
 PlantUML must be on the `PATH`. Install it with `brew install plantuml` on macOS or `apt-get install plantuml` on Debian and Ubuntu.
@@ -94,7 +94,7 @@ The factory keeps Mink's configuration tree and builds each session exactly as M
 
 The browser half resolves by capability, the same way the backend half does. `Extension\Browser\Capability` holds 5 interfaces - cookies, the page's HTTP client, JavaScript, the keyboard and request headers - and `Extension\Browser\Adapter` holds 1 adapter per shipped browser driver family, because a browser driver comes from another package and can't implement them itself. `BrowserCapabilityResolver` offers the session's browser driver to each adapter in turn, registered adapters first. `WebRawContext::browserDriverFor()` returns the adapter that answers, or throws `UnsupportedDriverActionException` naming the capability.
 
-Requests a step sends itself go through `Extension\Http`. `WebRawContext` hands out 3 clients, and all 3 are BrowserKit browsers. `httpPageClient()` resolves the session's own `HttpBrowser` through the HTTP client capability, so its response becomes the page. `httpDetachedClient()` and `httpBareClient()` come from `HttpClientFactoryInterface`, the `behat_steps.http_client_factory` service, which builds a fresh `HttpBrowser` on the shared transport each time, with any options the caller passes taking precedence over the session's. The detached one carries an `HttpIdentity` - the session's cookies, the request header bag and the `base_url` credentials - and sends its headers and credentials to the `base_url` host only. [HTTP clients](../http-clients.md) tells the same story from the consuming project's side.
+Requests a step sends itself go through `Extension\Http`. `WebRawContext` hands out 3 clients, and all 3 are BrowserKit browsers. `httpPageClient()` resolves the session's own `HttpBrowser` through the HTTP client capability, so its response becomes the page. `httpDetachedClient()` and `httpBareClient()` come from `HttpClientFactoryInterface`, the `behat_steps.http_client_factory` service, which builds a fresh `HttpBrowser` on the shared transport each time, with any options the caller passes taking precedence over the session's. The detached one carries an `HttpIdentity` - the session's cookies, the request header bag and the `base_url` credentials - and sends its headers and credentials to the `base_url` host only. [HTTP clients](../guides/http-clients.md) tells the same story from the consuming project's side.
 
 ![Class structure: browser capabilities and HTTP clients](class-browser.svg)
 

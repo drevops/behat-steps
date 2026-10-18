@@ -1,4 +1,10 @@
-# 🧱 Usage
+---
+title: Usage
+sidebar_position: 1
+description: The extension-plus-context model - composing a context, registering it, configuring the traits it holds and switching their hooks off, and what happens to the entities a scenario creates.
+---
+
+# Usage
 
 A project uses this package by composing a context out of traits and pointing an extension at the site. The extension and the context answer different questions, and a trait reads from both.
 
@@ -172,7 +178,7 @@ Scenario: The legacy report still renders
   Given I visit "/reports/legacy"
 ```
 
-The 3 reach the same value, most specific last: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and [STEPS.md](../STEPS.md) lists the options of each trait beside its steps.
+The 3 reach the same value, most specific last: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and [Steps](../steps.md) lists the options of each trait beside its steps.
 
 ## Switch a trait off
 
@@ -266,4 +272,4 @@ class AcmeWebContext extends WebContext {
 }
 ```
 
-An override replaces the resolution entirely, so the option, the `steps` default and any tag no longer reach that value. [HELPERS.md](../HELPERS.md) lists every seam a context can override.
+An override replaces the resolution entirely, so the option, the `steps` default and any tag no longer reach that value. [Helpers](../helpers.md) lists every seam a context can override.

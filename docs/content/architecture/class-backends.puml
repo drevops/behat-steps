@@ -7,7 +7,7 @@
 ' DrupalBackend.php, DrushBackend.php, src/Backend/Drupal/Capability/,
 ' src/Backend/Drupal/Core/, src/Backend/Entity/,
 ' src/Extension/Registry/BackendRegistry.php, scripts/lint-layers.php.
-' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica

@@ -15,7 +15,7 @@ Everything this package reads arrives through 1 of 4 channels, apart from the Mi
 | [Tags](#3-tags) | What a single scenario opts into | Per scenario or feature |
 | [Environment variables](#4-environment-variables) | What differs between one machine and another | Per run |
 
-The tables in sections 2 and 3 are generated from the source by [docs.php](../docs.php). Run `ahoy update-docs` after changing an option or a tag.
+The tables in sections 2 and 3 are generated from the source by [docs.php](../../../docs.php). Run `ahoy update-docs` after changing an option or a tag.
 
 ## 1. Suites and context arguments
 
@@ -156,7 +156,7 @@ default:
         drupal_root: web
 ```
 
-[behat.dist.php](../behat.dist.php) in this repository sets every extension option, plus the trait options a project almost always sets, as a reference.
+[behat.dist.php](../../../behat.dist.php) in this repository sets every extension option, plus the trait options a project almost always sets, as a reference.
 
 ## 2. The `behat_steps` extension key
 
@@ -460,7 +460,7 @@ The option is covered by semantic versioning. `CoreInterface` and the Core class
 
 ### Trait options
 
-Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe`, `FileDownloadTrait` reads `file_download`. [STEPS.md](../STEPS.md) lists the options of each trait beside its steps.
+Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe`, `FileDownloadTrait` reads `file_download`. [Steps](../steps.md) lists the options of each trait beside its steps.
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [

@@ -12,7 +12,7 @@
 ' validate_env_vars, tag_registry, render_info, render_trait_prerequisites,
 ' render_trait_options, render_helpers, render_extension_options,
 ' render_tag_reference, replace_content.
-' Regenerate every SVG with:  plantuml -tsvg docs/architecture/*.puml
+' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
 skinparam backgroundColor white
 skinparam defaultFontName Helvetica

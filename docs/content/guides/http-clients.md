@@ -1,8 +1,14 @@
-# 🌐 HTTP clients
+---
+title: HTTP clients
+sidebar_position: 4
+description: The 3 clients a step sends its own requests through, where their settings come from, and how to change them.
+---
+
+# HTTP clients
 
 Most steps read the page the Mink session holds. A few send HTTP requests of their own from PHP: `FileDownloadTrait` downloads a file, `MetatagTrait` fetches the hreflang alternates of a page, `AccessibilityTrait` fetches its engine script, and `RestTrait` sends a request whose response becomes the page. Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from, and how to change them.
 
-3 terms stay apart throughout, and [CONTRIBUTING.md](../CONTRIBUTING.md#backend-browser-driver-and-http-client) holds them for the whole codebase:
+3 terms stay apart throughout, and [CONTRIBUTING.md](../../../CONTRIBUTING.md#backend-browser-driver-and-http-client) holds them for the whole codebase:
 
 - **Backend** - Drupal, Drush or Blackbox under `src/Backend`, reached with `backendFor()`. Nothing on this page touches them.
 - **Browser driver** - Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
@@ -326,4 +332,4 @@ $this->getBrowserCapabilityResolver()
   ->registerAdapter(AcmeDriverAdapter::class);
 ```
 
-[Capabilities of the browser driver](../MIGRATION.md#capabilities-of-the-browser-driver) covers writing the adapter itself.
+[Capabilities of the browser driver](../../../MIGRATION.md#capabilities-of-the-browser-driver) covers writing the adapter itself.
