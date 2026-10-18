@@ -87,7 +87,7 @@ The `Docs` job of the `Test` workflow installs the dependencies, builds the site
 
 When the `NETLIFY_SITE_ID` and `NETLIFY_AUTH_TOKEN` repository secrets are set, the same job deploys the built site to [Netlify](https://www.netlify.com/): every push to `main` updates the development site, and every pull request gets a preview of its own, linked in a comment on the pull request. Without the secrets, the job skips the deployment, so a pull request from a fork still builds and tests the docs.
 
-These builds show "development" as the version in the footer, and search engines don't index them.
+These builds show "development" as the version in the footer. Search engines don't index them, and they don't load Google Analytics.
 
 ## Publishing
 
@@ -100,4 +100,4 @@ A tag pushed on a maintenance branch that carries `release-docs.yml` republishes
 
 The repository's GitHub Pages source must be **GitHub Actions**, and the `github-pages` environment must allow deployments from release tags and from the branch you start a manual run on. The custom domain needs 2 settings outside the repository: `behat-steps.drevops.com` as the custom domain in the GitHub Pages settings, and a DNS `CNAME` record pointing it at `drevops.github.io`.
 
-The workflow reads the site URL and base path from the GitHub Pages settings, so you can change the domain without changing the code. The published site links to the address it was built for, so run the workflow again after you change the domain. Only these release builds show the release in the footer and let search engines index the pages.
+The workflow reads the site URL and base path from the GitHub Pages settings, so you can change the domain without changing the code. The published site links to the address it was built for, so run the workflow again after you change the domain. Only these release builds show the release in the footer, let search engines index the pages and send page views to Google Analytics.

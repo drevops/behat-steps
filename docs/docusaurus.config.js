@@ -6,7 +6,7 @@ import {darkCodeTheme, lightCodeTheme} from './src/codeThemes.js';
 import repositoryLinks from './src/remark/repositoryLinks.js';
 
 // A build without 'RELEASE_VERSION' is not a release, so search engines
-// skip it.
+// skip it and it sends no analytics.
 const isRelease = Boolean(process.env.RELEASE_VERSION);
 
 const REPOSITORY_URL = 'https://github.com/drevops/behat-steps';
@@ -63,6 +63,7 @@ const config = {
         theme: {
           customCss: './src/css/custom.css',
         },
+        gtag: isRelease ? {trackingID: 'G-8EBLCFHHWR', anonymizeIP: true} : undefined,
       }),
     ],
   ],
