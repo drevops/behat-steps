@@ -4,7 +4,7 @@ sidebar_position: 1
 description: Work on these docs locally, regenerate the reference pages, follow the writing conventions, and see how the site is checked, previewed and published.
 ---
 
-<!-- cspell:ignore WCAG -->
+<!-- cspell:ignore docblocks WCAG -->
 
 # Documentation
 
@@ -59,7 +59,7 @@ npm run test:accessibility   # Check the built site for accessibility issues
 - **Plain Markdown.** Pages are `.md` files, which Docusaurus reads as CommonMark, so they render the same on GitHub. Docusaurus-only syntax, such as a `:::note` admonition, shows as plain text there, so keep it rare. Name a page `.mdx` only when it needs a React component.
 - **Link by file.** Link to another page by its path relative to the page holding the link, and to any other file in the repository the same way. From a page at the top of `content/`, that's `[Backend resolution](guides/configuration.md#backend-resolution)` for a page and `[CONTRIBUTING.md](../../CONTRIBUTING.md#steps-format)` for a repository file. The build rewrites a link that leaves `content/` into a GitHub link, at the tag or branch a release build is made from and at `main` otherwise. It fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
 - **Diagrams.** The architecture diagrams are PlantUML sources in `content/architecture/`, rendered to committed SVGs by the `update-architecture-docs` skill.
-- **Spelling.** CSpell checks the hand-written pages in US English, with the words in `cspell.json`. Add a word the docs use in several places there, and a word only 1 page uses to that page, as `<!-- cspell:ignore word -->`. The 2 references are generated from docblocks, so CSpell skips them. The architecture walkthrough is the other exception: its skill regenerates the page, so its words go in `cspell.json`.
+- **Spelling.** CSpell checks the hand-written pages in US English. The 2 references are generated from docblocks, so CSpell skips them. A word the docs use in several places goes in `cspell.json`, and so does a word only the architecture walkthrough uses, because its skill regenerates that page. Any other word goes below the front matter of the 1 page that uses it, as `<!-- cspell:ignore word -->`.
 
 ## Accessibility
 
