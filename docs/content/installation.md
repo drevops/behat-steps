@@ -4,6 +4,8 @@ sidebar_position: 2
 description: Install Behat Steps with Composer on Behat 3 or Behat 4, add the packages only some traits need, and set up a JavaScript browser driver.
 ---
 
+<!-- cspell:ignore chromedp dmore justinrainbow lullabot softcreatr -->
+
 # Installation
 
 Behat Steps is a Composer package. It needs PHP 8.3 or newer and Behat 3.33 or newer, and its Drupal steps need Drupal 11 or 12. [Supported versions](README.md#supported-versions) lists the full matrix.

@@ -4,6 +4,8 @@ sidebar_position: 3
 description: The imperative and declarative scenario styles, the job each one does, and how to graduate from the shipped steps to domain steps built on the same helpers.
 ---
 
+<!-- cspell:ignore Lightsaber Sith -->
+
 # Scenario styles - the vocabulary and the toolbox
 
 Why a generic step library and BDD's own teaching point in different directions, and how this stack serves both.

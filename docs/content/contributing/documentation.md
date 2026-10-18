@@ -4,6 +4,8 @@ sidebar_position: 1
 description: Work on these docs locally, regenerate the reference pages, follow the writing conventions, and see how the site is checked, previewed and published.
 ---
 
+<!-- cspell:ignore WCAG -->
+
 # Documentation
 
 These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/`. Most pages are hand-written. `docs.php` generates Steps and Helpers from the source code and fills 2 tables in Configuration, and Steps and Helpers also ship with the Composer package.

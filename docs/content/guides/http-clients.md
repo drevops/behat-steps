@@ -4,6 +4,8 @@ sidebar_position: 4
 description: The 3 clients a step sends its own requests through, where their settings come from, and how to change them.
 ---
 
+<!-- cspell:ignore Metatag -->
+
 # HTTP clients
 
 Most steps read the page the Mink session holds. A few send HTTP requests of their own from PHP: `FileDownloadTrait` downloads a file, `MetatagTrait` fetches the hreflang alternates of a page, `AccessibilityTrait` fetches its engine script, and `RestTrait` sends a request whose response becomes the page. Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from, and how to change them.

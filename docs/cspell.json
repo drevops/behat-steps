@@ -1,0 +1,37 @@
+{
+    "language": "en-US",
+    "dictionaries": [
+        "bash",
+        "misc",
+        "node",
+        "php",
+        "softwareTerms"
+    ],
+    "ignorePaths": [
+        "content/helpers.md",
+        "content/steps.md"
+    ],
+    "words": [
+        "Behat",
+        "blackbox",
+        "browserkit",
+        "draggableviews",
+        "DrevOps",
+        "Drush",
+        "dvdoug",
+        "gherkinlint",
+        "Graphviz",
+        "mglaman",
+        "Olivero",
+        "phpcov",
+        "webform"
+    ],
+    "languageSettings": [
+        {
+            "languageId": "markdown",
+            "ignoreRegExpList": [
+                "/^\\s*```(.|\\n)+?^\\s*```/gm"
+            ]
+        }
+    ]
+}
