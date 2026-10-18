@@ -3717,6 +3717,26 @@ EOD,
     ];
   }
 
+  #[DataProvider('dataProviderRelativeLink')]
+  public function testRelativeLink(string $from_file, string $to_path, string $expected): void {
+    $this->assertSame($expected, relative_link($from_file, $to_path));
+  }
+
+  public static function dataProviderRelativeLink(): array {
+    return [
+      'a source file from the step reference' => ['docs/content/steps.md', 'src/Steps/Web/CookieTrait.php', '../../src/Steps/Web/CookieTrait.php'],
+      'a page in the same directory' => ['docs/content/helpers.md', 'docs/content/steps.md', 'steps.md'],
+      'a page in the parent directory' => ['docs/content/guides/configuration.md', 'docs/content/steps.md', '../steps.md'],
+      'a page in a sibling directory' => ['docs/content/guides/configuration.md', 'docs/content/architecture/README.md', '../architecture/README.md'],
+      'a page in a child directory' => ['docs/content/steps.md', 'docs/content/guides/configuration.md', 'guides/configuration.md'],
+      'a page from the repository root' => ['README.md', 'docs/content/steps.md', 'docs/content/steps.md'],
+      'a root file from a nested page' => ['docs/content/steps.md', 'README.md', '../../README.md'],
+      'a file in the parent directory' => ['docs/content/steps.md', 'docs/README.md', '../README.md'],
+      'the directory holding the file' => ['docs/content/steps.md', 'docs/content', '../content'],
+      'the file itself' => ['docs/content/steps.md', 'docs/content/steps.md', 'steps.md'],
+    ];
+  }
+
   public function testExtractHelpers(): void {
     $setup = $this->setUpExtractInfoTest(['HelperSampleTrait']);
 
@@ -4182,24 +4202,6 @@ EOD);
 
   public function testValidateEnvVarsWithoutSourceOrReference(): void {
     $this->assertSame([], validate_env_vars(static::$tmp . '/missing'));
-  }
-
-  #[DataProvider('dataProviderRelativeLink')]
-  public function testRelativeLink(string $from_file, string $to_path, string $expected): void {
-    $this->assertSame($expected, relative_link($from_file, $to_path));
-  }
-
-  public static function dataProviderRelativeLink(): array {
-    return [
-      'a source file from the step reference' => ['docs/content/steps.md', 'src/Steps/Web/CookieTrait.php', '../../src/Steps/Web/CookieTrait.php'],
-      'a page in the same directory' => ['docs/content/helpers.md', 'docs/content/steps.md', 'steps.md'],
-      'a page in the parent directory' => ['docs/content/guides/configuration.md', 'docs/content/steps.md', '../steps.md'],
-      'a page from the repository root' => ['README.md', 'docs/content/steps.md', 'docs/content/steps.md'],
-      'a root file from a nested page' => ['docs/content/steps.md', 'README.md', '../../README.md'],
-      'a sibling directory' => ['docs/content/steps.md', 'docs/README.md', '../README.md'],
-      'the directory holding the file' => ['docs/content/steps.md', 'docs/content', '../content'],
-      'the file itself' => ['docs/content/steps.md', 'docs/content/steps.md', 'steps.md'],
-    ];
   }
 
 }

@@ -4,9 +4,8 @@
  * @file
  * Reference documentation generator.
  *
- * It parses the PHP attributes and docblock comments of the traits under
- * the vocabulary directory and writes the reference pages of the
- * documentation site:
+ * It parses the PHP attributes and docblock comments of the traits under the
+ * vocabulary directory and writes:
  *
  * - docs/content/steps.md, the step vocabulary.
  * - docs/content/helpers.md, the toolbox a project calls from its own domain
@@ -1313,9 +1312,6 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
 /**
  * Render the path of a link from one repository file to another.
  *
- * The reference documents are read in place, on GitHub and under a consuming
- * project's vendor directory, so each link resolves from its own file.
- *
  * @param string $from_file
  *   The file holding the link, relative to the repository root.
  * @param string $to_path
@@ -1325,7 +1321,8 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
  *   The target's path relative to the directory of the linking file.
  */
 function relative_link(string $from_file, string $to_path): string {
-  $from = dirname($from_file) === '.' ? [] : explode('/', dirname($from_file));
+  $directory = dirname($from_file);
+  $from = $directory === '.' ? [] : explode('/', $directory);
   $to = explode('/', $to_path);
 
   // The last segment of the target stays, so the link always names it.
@@ -1445,6 +1442,7 @@ function render_info(array $info, string $base_path = __DIR__): string {
     $content_output[$context] .= render_trait_prerequisites($class_info['prerequisites'] ?? []);
     // @phpstan-ignore-next-line
     $content_output[$context] .= render_trait_options($trait, $class_info['options'] ?? []);
+
     // @phpstan-ignore-next-line
     $index_rows[$context][] = [
       // @phpstan-ignore-next-line
