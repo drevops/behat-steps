@@ -30,6 +30,12 @@ class AuthorAliasTest extends UnitTestCase {
     $this->assertNotSame('', $alias->getDescription());
   }
 
+  public function testDefaultLookupTouchesNoDrupalUntilApplied(): void {
+    $alias = new AuthorAlias();
+
+    $this->assertSame('author', $alias->getName());
+  }
+
   public function testApplyToStubResolvesKnownUser(): void {
     $alias = new AuthorAlias(static fn(string $name): object => new FakeUser(42));
 

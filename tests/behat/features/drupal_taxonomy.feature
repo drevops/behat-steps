@@ -291,6 +291,21 @@ Feature: Check that TaxonomyTrait works
     Then the option "[TEST] Parent term" within the select "edit-parent" should be selected
 
   @test-trait:Drupal\TaxonomyTrait
+  Scenario: Assert that a "parent" column naming a term that does not exist fails
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following "tags" terms exist:
+        | name              | parent                |
+        | [TEST] Child term | [TEST] Missing parent |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with a "DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException" exception:
+      """
+      Cannot create term because parent term "[TEST] Missing parent" does not exist in vocabulary "tags".
+      """
+
+  @test-trait:Drupal\TaxonomyTrait
   Scenario: Assert that a "parent" column naming a term that several terms share fails
     Given some behat configuration
     And scenario steps:

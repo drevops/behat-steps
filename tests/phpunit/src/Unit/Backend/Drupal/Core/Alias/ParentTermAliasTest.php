@@ -29,6 +29,12 @@ class ParentTermAliasTest extends UnitTestCase {
     $this->assertNotSame('', $alias->getDescription());
   }
 
+  public function testDefaultLookupTouchesNoDrupalUntilApplied(): void {
+    $alias = new ParentTermAlias();
+
+    $this->assertSame('parent', $alias->getName());
+  }
+
   public function testApplyToStubResolvesParent(): void {
     $alias = new ParentTermAlias(static fn(string $name, string $vid): int => $name === 'Frameworks' && $vid === 'tags' ? 99 : 0);
 
