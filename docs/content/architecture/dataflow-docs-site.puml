@@ -45,7 +45,7 @@ loop every page
   deactivate Links
 end
 
-Build -> Build: bundle the theme with the overrides in\ndocs/src/theme/ for tables, the mobile\nmenu and the search box
+Build -> Build: bundle the theme with the overrides in\ndocs/src/theme/ for tables, Gherkin\nhighlighting, the mobile menu and\nthe search box
 Build -> Build: check every page link and anchor,\nand throw on a broken one
 Build -> Out: the static site and its search index
 deactivate Build

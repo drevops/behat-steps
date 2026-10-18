@@ -217,7 +217,7 @@ Run with `--fail-on-change` (that's `ahoy lint-docs`), the script regenerates th
 
 A page links another page, or any other file in the repository, by its relative path, which is also how `relative_link()` writes the generated links. The site serves only the pages, though, so `docs/src/remark/repositoryLinks.js`, a remark plugin, rewrites every relative link that leaves `docs/content/` into a GitHub URL for that file or directory. It runs before Docusaurus resolves links, since Docusaurus would reject a link to a Markdown file outside `docs/content/`. The URL points at `RELEASE_VERSION` in a release build, at `DOCS_REF` in a CI build and at `main` in a local one, and a link to a file the repository doesn't hold stops the build. Docusaurus stops it too, on a broken page link or anchor.
 
-`docs/src/theme/` overrides 3 parts of the theme. `MDXComponents` renders every table through `ScrollableTable` from `docs/src/components/`, which takes keyboard focus when the table is wider than the page. The mobile menu keeps keyboard focus inside while it's open and closes on Escape. The search box gets the ARIA attributes its autocomplete widget leaves out.
+`docs/src/theme/` overrides 4 parts of the theme. `MDXComponents` renders every table through `ScrollableTable` from `docs/src/components/`, which takes keyboard focus when the table is wider than the page. `prism-include-languages` lets Prism's Gherkin grammar find a step keyword at the start of a line, not only after indentation. The mobile menu keeps keyboard focus inside while it's open and closes on Escape. The search box gets the ARIA attributes its autocomplete widget leaves out.
 
 ![Data flow: building and publishing the documentation site](dataflow-docs-site.svg)
 
