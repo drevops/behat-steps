@@ -68,7 +68,7 @@ The site aims for [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA in both col
 Some of it is handled for you:
 
 - Links in page text are underlined, because color alone doesn't set a link apart from the text around it.
-- Text colors reach at least 4.5:1 against their background. The light-mode blue is `#266fbd`, a darker shade of the `#2a77cd` logo blue, and the dark-mode blue is `#80b0e5`, a lighter one. The code block colors live in `src/codeThemes.js`, and a unit test checks every token color of both themes.
+- Text colors reach at least 4.5:1 against their background. The light-mode blue is `#266fbd`, a darker shade of the `#2a77cd` logo blue, and the dark-mode blue is `#84b2e6`, a lighter one. The code block colors live in `src/codeThemes.js`, and a unit test checks every token color of both themes.
 - A table wider than the page takes keyboard focus, so it scrolls with <kbd>←</kbd> and <kbd>→</kbd>.
 - The mobile menu keeps keyboard focus inside while it's open and closes on <kbd>Esc</kbd>, and the search box gets the ARIA attributes its autocomplete widget leaves out. Both fixes live in `src/theme/`, so check them when Docusaurus or the search plugin changes its markup.
 

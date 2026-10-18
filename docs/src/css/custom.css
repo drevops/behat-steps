@@ -17,21 +17,22 @@
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --behat-steps-ink: #12191f;
-  --behat-steps-blue-on-dark: #80b0e5;
+  --behat-steps-blue-on-dark: #84b2e6;
   --ifm-navbar-search-input-placeholder-color: var(--ifm-color-emphasis-700);
   --search-local-muted-color: var(--ifm-color-emphasis-700);
 }
 
-/* The dark-mode shades step from #80b0e5, the logo blue lightened until text
-   in it reaches 4.5:1 on the dark backgrounds. */
+/* The dark-mode shades step from #84b2e6, the logo blue lightened until text
+   in it reaches 4.5:1 on the dark backgrounds. The lowest ratio is 4.61:1,
+   on inline code in a striped table row as rendered. */
 [data-theme='dark'] {
   --ifm-color-primary: var(--behat-steps-blue-on-dark);
-  --ifm-color-primary-dark: #629edf;
-  --ifm-color-primary-darker: #5494dc;
-  --ifm-color-primary-darkest: #2a79cf;
-  --ifm-color-primary-light: #9ec2eb;
-  --ifm-color-primary-lighter: #acccee;
-  --ifm-color-primary-lightest: #d9e7f7;
+  --ifm-color-primary-dark: #669fe0;
+  --ifm-color-primary-darker: #5796dd;
+  --ifm-color-primary-darkest: #2b7ad3;
+  --ifm-color-primary-light: #a2c5ec;
+  --ifm-color-primary-lighter: #b1ceef;
+  --ifm-color-primary-lightest: #deebf8;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
   --behat-steps-ink: #ffffff;
   /* The selected search result sits on the light blue, so its text takes the
