@@ -43,7 +43,13 @@ class DrushTraitTest extends UnitTestCase {
     yield 'quoted part inside a word' => ['--fields="name, uid"', ['--fields=name, uid']];
     yield 'one quote inside the other' => ['"it\'s" \'say "hi"\'', ["it's", 'say "hi"']];
     yield 'empty quoted part' => ['config:set system.site slogan ""', ['config:set', 'system.site', 'slogan', '']];
-    yield 'quotes the Gherkin parser escaped' => ['user:create \"Jane Doe\"', ['user:create', 'Jane Doe']];
+    yield 'escaped quote inside double quotes' => ['php:eval "echo \"hi\";"', ['php:eval', 'echo "hi";']];
+    yield 'escaped backslash inside double quotes' => ['"a\\\\b"', ['a\\b']];
+    yield 'other backslash inside double quotes' => ['"a\nb"', ['a\nb']];
+    yield 'backslash inside single quotes' => ["'a\\b'", ['a\\b']];
+    yield 'escaped quotes outside quotes' => ['user:create \"Jane Doe\"', ['user:create', '"Jane', 'Doe"']];
+    yield 'escaped space outside quotes' => ['foo\ bar', ['foo bar']];
+    yield 'trailing backslash' => ['foo\\', ['foo\\']];
   }
 
   public function testParseWordsRejectsAnUnclosedQuote(): void {

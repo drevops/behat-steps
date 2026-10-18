@@ -246,13 +246,15 @@ trait DrushTrait {
   }
 
   /**
-   * Split a command line into words as a shell splits them.
+   * Split a command line into words as a POSIX shell splits them.
    *
    * Whitespace separates 2 words, and a single- or double-quoted part stays
-   * in 1 word without its quotes. Nothing is expanded.
+   * in 1 word without its quotes. A backslash outside quotes keeps the next
+   * character as it is, and inside double quotes it does so for a double
+   * quote or a backslash. Nothing is expanded.
    *
    * @param string $command_line
-   *   The command line, with any quote the Gherkin parser escaped.
+   *   The command line.
    *
    * @return array<int, string>
    *   The words, in order.
@@ -261,14 +263,41 @@ trait DrushTrait {
    *   When a quote is not closed.
    */
   protected function drushParseWords(string $command_line): array {
-    $command_line = $this->drushFixArgument($command_line);
     $length = strlen($command_line);
     $words = [];
     $word = NULL;
-    $i = 0;
+    $quote = NULL;
 
-    while ($i < $length) {
+    for ($i = 0; $i < $length; $i++) {
       $char = $command_line[$i];
+      $next = $command_line[$i + 1] ?? '';
+      $is_escape = $char === '\\' && $next !== '' && ($quote === NULL || ($quote === '"' && ($next === '"' || $next === '\\')));
+
+      if ($is_escape) {
+        $word = ($word ?? '') . $next;
+        $i++;
+
+        continue;
+      }
+
+      if ($quote !== NULL) {
+        if ($char === $quote) {
+          $quote = NULL;
+        }
+        else {
+          $word = ($word ?? '') . $char;
+        }
+
+        continue;
+      }
+
+      if ($char === '"' || $char === "'") {
+        // An empty quoted part still makes a word, as '""' does in a shell.
+        $word ??= '';
+        $quote = $char;
+
+        continue;
+      }
 
       if (ctype_space($char)) {
         if ($word !== NULL) {
@@ -276,27 +305,15 @@ trait DrushTrait {
         }
 
         $word = NULL;
-        $i++;
-
-        continue;
-      }
-
-      if ($char === '"' || $char === "'") {
-        $close = strpos($command_line, $char, $i + 1);
-
-        if ($close === FALSE) {
-          throw new \RuntimeException(sprintf('The quote in "%s" is not closed.', $command_line));
-        }
-
-        // An empty quoted part still makes a word, as '""' does in a shell.
-        $word = ($word ?? '') . substr($command_line, $i + 1, $close - $i - 1);
-        $i = $close + 1;
 
         continue;
       }
 
       $word = ($word ?? '') . $char;
-      $i++;
+    }
+
+    if ($quote !== NULL) {
+      throw new \RuntimeException(sprintf('The quote in "%s" is not closed.', $command_line));
     }
 
     if ($word !== NULL) {
