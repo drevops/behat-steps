@@ -1103,6 +1103,30 @@ EOD,
     $this->assertStringContainsString('## SomeTrait', $actual);
   }
 
+  public function testRenderInfoClosesTheExampleAfterItsLastLine(): void {
+    $this->writeFixture(STEPS_DIRECTORY . '/Web/SomeTrait.php', '<?php');
+    $this->writeFixture('tests/behat/features/some.feature', 'Feature: Test');
+
+    $actual = render_info([
+      'SomeTrait' => [
+        'name' => 'SomeTrait',
+        'name_contextual' => 'SomeTrait',
+        'context' => 'Web',
+        'description' => 'Do the thing.',
+        'description_full' => 'Do the thing.',
+        'methods' => [
+          [
+            'steps' => ['@Given the thing is done'],
+            'description' => 'Do the thing.',
+            'example' => 'Given the thing is done' . PHP_EOL,
+          ],
+        ],
+      ],
+    ], static::$tmp);
+
+    $this->assertStringContainsString('```gherkin' . PHP_EOL . 'Given the thing is done' . PHP_EOL . '```', $actual);
+  }
+
   #[DataProvider('dataProviderValidate')]
   public function testValidate(array $info, array $expected): void {
     $actual = validate($info);

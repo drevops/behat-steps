@@ -139,7 +139,6 @@ Assert that the current page passes accessibility checks
 
 ```gherkin
 Then the page should pass accessibility checks
-
 ```
 
 </details>
@@ -153,7 +152,6 @@ Assert that the current page passes accessibility checks for given tags
 
 ```gherkin
 Then the page should pass accessibility checks for the tags "wcag2a"
-
 ```
 
 </details>
@@ -213,7 +211,6 @@ Run a shell command
 ```gherkin
 When I run the command "php -v"
 When I run the command "./vendor/bin/phpunit --version"
-
 ```
 
 </details>
@@ -228,7 +225,6 @@ Assert that the last command succeeded
 ```gherkin
 When I run the command "php -v"
 Then the command should succeed
-
 ```
 
 </details>
@@ -243,7 +239,6 @@ Assert that the last command failed
 ```gherkin
 When I run the command "phpcs --standard=NonExisting"
 Then the command should fail
-
 ```
 
 </details>
@@ -258,7 +253,6 @@ Assert that the last command exited with a specific code
 ```gherkin
 When I run the command "php -r 'exit(3);'"
 Then the command exit code should be 3
-
 ```
 
 </details>
@@ -273,7 +267,6 @@ Assert that the command output contains a string
 ```gherkin
 When I run the command "echo hello"
 Then the command output should contain "hello"
-
 ```
 
 </details>
@@ -288,7 +281,6 @@ Assert that the command output does not contain a string
 ```gherkin
 When I run the command "echo hello"
 Then the command output should not contain "goodbye"
-
 ```
 
 </details>
@@ -303,7 +295,6 @@ Assert that the command output equals a string
 ```gherkin
 When I run the command "echo hello"
 Then the command output should be "hello"
-
 ```
 
 </details>
@@ -318,7 +309,6 @@ Assert that the command error output contains a string
 ```gherkin
 When I run the command "ls /nonexistent"
 Then the command error output should contain "No such file"
-
 ```
 
 </details>
@@ -333,7 +323,6 @@ Assert that the command completed in less than a number of seconds
 ```gherkin
 When I run the command "echo hello"
 Then the command should complete in less than 5 seconds
-
 ```
 
 </details>
@@ -348,7 +337,6 @@ Assert that the command completed in more than a number of seconds
 ```gherkin
 When I run the command "sleep 2"
 Then the command should complete in more than 1 second
-
 ```
 
 </details>
@@ -372,7 +360,6 @@ Assert that a cookie exists
 
 ```gherkin
 Then the cookie "session_id" should exist
-
 ```
 
 </details>
@@ -386,7 +373,6 @@ Assert that a cookie exists with a specific value
 
 ```gherkin
 Then the cookie "language" with the value "en" should exist
-
 ```
 
 </details>
@@ -400,7 +386,6 @@ Assert that a cookie exists with a value containing a partial value
 
 ```gherkin
 Then the cookie "preferences" with a value containing "darkmode" should exist
-
 ```
 
 </details>
@@ -414,7 +399,6 @@ Assert that a cookie with a partial name exists
 
 ```gherkin
 Then a cookie with a name containing "session" should exist
-
 ```
 
 </details>
@@ -428,7 +412,6 @@ Assert that a cookie with a partial name and value exists
 
 ```gherkin
 Then a cookie with a name containing "user" and the value "admin" should exist
-
 ```
 
 </details>
@@ -442,7 +425,6 @@ Assert that a cookie with a partial name and partial value exists
 
 ```gherkin
 Then a cookie with a name containing "user" and a value containing "admin" should exist
-
 ```
 
 </details>
@@ -456,7 +438,6 @@ Assert that a cookie does not exist
 
 ```gherkin
 Then the cookie "old_session" should not exist
-
 ```
 
 </details>
@@ -470,7 +451,6 @@ Assert that a cookie with a specific value does not exist
 
 ```gherkin
 Then the cookie "language" with the value "fr" should not exist
-
 ```
 
 </details>
@@ -484,7 +464,6 @@ Assert that a cookie with a value containing a partial value does not exist
 
 ```gherkin
 Then the cookie "preferences" with a value containing "lightmode" should not exist
-
 ```
 
 </details>
@@ -498,7 +477,6 @@ Assert that a cookie with a partial name does not exist
 
 ```gherkin
 Then a cookie with a name containing "old" should not exist
-
 ```
 
 </details>
@@ -512,7 +490,6 @@ Assert that a cookie with a partial name and value does not exist
 
 ```gherkin
 Then a cookie with a name containing "user" and the value "guest" should not exist
-
 ```
 
 </details>
@@ -526,7 +503,6 @@ Assert that a cookie with a partial name and partial value does not exist
 
 ```gherkin
 Then a cookie with a name containing "user" and a value containing "guest" should not exist
-
 ```
 
 </details>
@@ -650,7 +626,6 @@ Drop a single file on the target element
 
 ```gherkin
 When I drop the file "document.pdf" on the dropzone ".dropzone"
-
 ```
 
 </details>
@@ -667,7 +642,6 @@ When I drop the following files on the dropzone ".dropzone":
   | document.pdf |
   | image.png    |
   | text.txt     |
-
 ```
 
 </details>
@@ -700,7 +674,6 @@ Accept confirmation dialogs appearing on the page
 
 ```gherkin
 Given I accept all confirmation dialogs
-
 ```
 
 </details>
@@ -714,7 +687,6 @@ Do not accept confirmation dialogs appearing on the page
 
 ```gherkin
 Given I decline all confirmation dialogs
-
 ```
 
 </details>
@@ -728,7 +700,6 @@ Click on the element defined by the selector
 
 ```gherkin
 When I click on the element ".button"
-
 ```
 
 </details>
@@ -742,7 +713,6 @@ Click on the element at the 1-based index among all selector matches
 
 ```gherkin
 When I click on the element ".card" with the index 2
-
 ```
 
 </details>
@@ -756,7 +726,6 @@ Follow the link at the 1-based index among all links with the text
 
 ```gherkin
 When I follow the link "Read more" with the index 2
-
 ```
 
 </details>
@@ -770,7 +739,6 @@ Press the button at the 1-based index among all buttons with the label
 
 ```gherkin
 When I press the button "Delete" with the index 2
-
 ```
 
 </details>
@@ -784,7 +752,6 @@ Trigger a JS event on the element defined by the selector
 
 ```gherkin
 When the JS event "click" is triggered on the element "#submit-button"
-
 ```
 
 </details>
@@ -798,7 +765,6 @@ Scroll to the element matching a CSS selector
 
 ```gherkin
 When I scroll to the element "#footer"
-
 ```
 
 </details>
@@ -813,7 +779,6 @@ Hover over an element identified by CSS selector
 ```gherkin
 When I hover over the element ".menu-item"
 When I hover over the element "#tooltip-trigger"
-
 ```
 
 </details>
@@ -828,7 +793,6 @@ Focus on an element by CSS selector
 ```gherkin
 When I focus on the element "#edit-name"
 When I focus on the element ".form-text"
-
 ```
 
 </details>
@@ -842,7 +806,6 @@ Assert that a heading with the text exists
 
 ```gherkin
 Then I should see the heading "Latest news"
-
 ```
 
 </details>
@@ -856,7 +819,6 @@ Assert that no heading with the text exists
 
 ```gherkin
 Then I should not see the heading "Admin"
-
 ```
 
 </details>
@@ -870,7 +832,6 @@ Assert that a button exists
 
 ```gherkin
 Then I should see the button "Save"
-
 ```
 
 </details>
@@ -884,7 +845,6 @@ Assert that a button does not exist
 
 ```gherkin
 Then I should not see the button "Delete"
-
 ```
 
 </details>
@@ -898,7 +858,6 @@ Assert that one element appears after another on the page
 
 ```gherkin
 Then the element "body" should appear after the element "head"
-
 ```
 
 </details>
@@ -912,7 +871,6 @@ Assert that one text string appears after another on the page
 
 ```gherkin
 Then I should see the text "Welcome" after the text "Home"
-
 ```
 
 </details>
@@ -926,7 +884,6 @@ Assert an element with selector and attribute with a value exists
 
 ```gherkin
 Then the element "#main-content" with the attribute "class" and the value "content-wrapper" should exist
-
 ```
 
 </details>
@@ -940,7 +897,6 @@ Assert an element with selector and attribute containing a value exists
 
 ```gherkin
 Then the element "#main-content" with the attribute "class" and a value containing "content" should exist
-
 ```
 
 </details>
@@ -954,7 +910,6 @@ Assert an element with selector and attribute with a value does not exist
 
 ```gherkin
 Then the element "#main-content" with the attribute "class" and the value "hidden" should not exist
-
 ```
 
 </details>
@@ -968,7 +923,6 @@ Assert an element with selector and attribute containing a value does not exist
 
 ```gherkin
 Then the element "#main-content" with the attribute "class" and a value containing "hidden" should not exist
-
 ```
 
 </details>
@@ -982,7 +936,6 @@ Assert an element has a computed CSS property with a value
 
 ```gherkin
 Then the element ".button" should have the CSS property "background-color" with the value "rgb(0, 0, 255)"
-
 ```
 
 </details>
@@ -996,7 +949,6 @@ Assert an element has a computed CSS property containing a value
 
 ```gherkin
 Then the element ".card" should have the CSS property "box-shadow" with a value containing "rgb(0, 0, 0)"
-
 ```
 
 </details>
@@ -1010,7 +962,6 @@ Assert an element does not have a computed CSS property with a value
 
 ```gherkin
 Then the element ".button" should not have the CSS property "display" with the value "none"
-
 ```
 
 </details>
@@ -1024,7 +975,6 @@ Assert an element does not have a computed CSS property containing a value
 
 ```gherkin
 Then the element ".card" should not have the CSS property "box-shadow" with a value containing "inset"
-
 ```
 
 </details>
@@ -1038,7 +988,6 @@ Assert that one element stacks above another
 
 ```gherkin
 Then the element "#modal" should stack above the element "#page-header"
-
 ```
 
 </details>
@@ -1052,7 +1001,6 @@ Assert that one element stacks below another
 
 ```gherkin
 Then the element "#page-header" should stack below the element "#modal"
-
 ```
 
 </details>
@@ -1066,7 +1014,6 @@ Assert that the element is at the top of the viewport
 
 ```gherkin
 Then the element "#header" should be at the top of the viewport
-
 ```
 
 </details>
@@ -1080,7 +1027,6 @@ Assert that the element is centered in the viewport
 
 ```gherkin
 Then the element "#content" should be centered in the viewport
-
 ```
 
 </details>
@@ -1095,7 +1041,6 @@ Assert that an element is pinned to the top of the viewport
 ```gherkin
 When I scroll to the element "#footer"
 Then the element "#header" should be pinned to the top of the viewport
-
 ```
 
 </details>
@@ -1109,7 +1054,6 @@ Assert that an element is pinned to the top of the viewport within a tolerance
 
 ```gherkin
 Then the element "#header" should be pinned to the top of the viewport within 10 pixels
-
 ```
 
 </details>
@@ -1124,7 +1068,6 @@ Assert that an element is not pinned to the top of the viewport
 ```gherkin
 When I scroll to the element "#footer"
 Then the element "#header" should not be pinned to the top of the viewport
-
 ```
 
 </details>
@@ -1138,7 +1081,6 @@ Assert that the element has keyboard focus
 
 ```gherkin
 Then the element "#edit-name" should have keyboard focus
-
 ```
 
 </details>
@@ -1152,7 +1094,6 @@ Assert that the element does not have keyboard focus
 
 ```gherkin
 Then the element "#edit-name" should not have keyboard focus
-
 ```
 
 </details>
@@ -1166,7 +1107,6 @@ Assert that the element has a visible focus indicator
 
 ```gherkin
 Then the element "#edit-name" should have a visible focus outline
-
 ```
 
 </details>
@@ -1180,7 +1120,6 @@ Assert that the element does not have a visible focus indicator
 
 ```gherkin
 Then the element "#decorative-icon" should not have a visible focus outline
-
 ```
 
 </details>
@@ -1194,7 +1133,6 @@ Assert that element with specified CSS is visible on page
 
 ```gherkin
 Then the element ".alert-success" should be displayed
-
 ```
 
 </details>
@@ -1208,7 +1146,6 @@ Assert that element with specified CSS is not visible on page
 
 ```gherkin
 Then the element ".error-message" should not be displayed
-
 ```
 
 </details>
@@ -1222,7 +1159,6 @@ Assert that element with specified CSS is displayed within the viewport
 
 ```gherkin
 Then the element ".hero-banner" should be displayed within the viewport
-
 ```
 
 </details>
@@ -1237,7 +1173,6 @@ Assert that element with specified CSS is displayed within the viewport with a t
 ```gherkin
 Then the element "#main-content" should be displayed within the viewport with a top offset of 80 pixels
 Then the element ".sticky-header" should be displayed within the viewport with a top offset of -200 pixels
-
 ```
 
 </details>
@@ -1251,7 +1186,6 @@ Assert that element with specified CSS is not displayed within the viewport with
 
 ```gherkin
 Then the element ".announcement-bar" should not be displayed within the viewport with a top offset of -200 pixels
-
 ```
 
 </details>
@@ -1265,7 +1199,6 @@ Assert that element with specified CSS is visually hidden on page
 
 ```gherkin
 Then the element ".visually-hidden" should not be displayed within the viewport
-
 ```
 
 </details>
@@ -1279,7 +1212,6 @@ Assert the number of elements matching a selector within a parent element
 
 ```gherkin
 Then the element "#main-nav" should have 3 elements matching ".menu-item"
-
 ```
 
 </details>
@@ -1318,7 +1250,6 @@ Given the browser validation for the form "#node-article-form" is disabled
 When I go to "node/add/article"
 And I press "Save"
 Then I should see "Title field is required"
-
 ```
 
 </details>
@@ -1336,7 +1267,6 @@ When I fill in the multi-value field "Tags" with the following values:
   | Drupal  |
   | Behat   |
   | Testing |
-
 ```
 
 </details>
@@ -1350,7 +1280,6 @@ Fill value for color field
 
 ```gherkin
 When I fill in the color field "#edit-text-color" with "#3366FF"
-
 ```
 
 </details>
@@ -1364,7 +1293,6 @@ Set value for WYSIWYG field
 
 ```gherkin
 When I fill in the WYSIWYG field "edit-body-0-value" with "<p>This is a <strong>formatted</strong> paragraph.</p>"
-
 ```
 
 </details>
@@ -1379,7 +1307,6 @@ Unselect an option from a select field
 ```gherkin
 When I unselect the option "Administrator" from the select "edit-roles"
 When I unselect the option "Option B" from the select "field_multi_select"
-
 ```
 
 </details>
@@ -1394,7 +1321,6 @@ Clear all selections from a select field
 ```gherkin
 When I clear the select "edit-roles"
 When I clear the select "field_multi_select"
-
 ```
 
 </details>
@@ -1409,7 +1335,6 @@ Check the checkbox
 ```gherkin
 When I check the checkbox "Checkbox label"
 When I check the checkbox "edit-field-terms-0-value"
-
 ```
 
 </details>
@@ -1424,7 +1349,6 @@ Uncheck the checkbox
 ```gherkin
 When I uncheck the checkbox "Checkbox label"
 When I uncheck the checkbox "edit-field-terms-0-value"
-
 ```
 
 </details>
@@ -1439,7 +1363,6 @@ Select a radio button
 ```gherkin
 When I choose the radio button "Option A"
 When I choose the radio button "edit-field-choice-option-a"
-
 ```
 
 </details>
@@ -1454,7 +1377,6 @@ Fill in a field identified by CSS selector
 ```gherkin
 When I fill in the field ".field--name-body textarea" with "Hello world"
 When I fill in the field "#edit-field-custom-0-value" with "Test value"
-
 ```
 
 </details>
@@ -1469,7 +1391,6 @@ Fill in datetime field with date and optionally time
 ```gherkin
 When I fill in the datetime field "Event date" with the date "2024-01-15" and the time "14:30:00"
 When I fill in the datetime field "Event date" with the date "2024-01-15" and the time ""
-
 ```
 
 </details>
@@ -1483,7 +1404,6 @@ Fill in the date part of a datetime field
 
 ```gherkin
 When I fill in the date part of the datetime field "Event date" with "2024-01-15"
-
 ```
 
 </details>
@@ -1497,7 +1417,6 @@ Fill in the time part of a datetime field
 
 ```gherkin
 When I fill in the time part of the datetime field "Event date" with "14:30:00"
-
 ```
 
 </details>
@@ -1512,7 +1431,6 @@ Fill in start datetime field with date and optionally time
 ```gherkin
 When I fill in the start datetime field "Event period" with the date "2024-01-15" and the time "14:30:00"
 When I fill in the start datetime field "Event period" with the date "2024-01-15" and the time ""
-
 ```
 
 </details>
@@ -1527,7 +1445,6 @@ Fill in end datetime field with date and optionally time
 ```gherkin
 When I fill in the end datetime field "Event period" with the date "2024-01-20" and the time "18:00:00"
 When I fill in the end datetime field "Event period" with the date "2024-01-20" and the time ""
-
 ```
 
 </details>
@@ -1541,7 +1458,6 @@ Assert that field is empty
 
 ```gherkin
 Then the field "Name" should be empty
-
 ```
 
 </details>
@@ -1555,7 +1471,6 @@ Assert that a field is not empty
 
 ```gherkin
 Then the field "Name" should not be empty
-
 ```
 
 </details>
@@ -1570,7 +1485,6 @@ Assert that field exists on the page using id,name,label or value
 ```gherkin
 Then the field "Body" should exist
 Then the field "field_body" should exist
-
 ```
 
 </details>
@@ -1585,7 +1499,6 @@ Assert that field does not exist on the page using id,name,label or value
 ```gherkin
 Then the field "Body" should not exist
 Then the field "field_body" should not exist
-
 ```
 
 </details>
@@ -1599,7 +1512,6 @@ Assert that a field is enabled
 
 ```gherkin
 Then the field "Tags" should be enabled
-
 ```
 
 </details>
@@ -1613,7 +1525,6 @@ Assert that a field is disabled
 
 ```gherkin
 Then the field "Body" should be disabled
-
 ```
 
 </details>
@@ -1627,7 +1538,6 @@ Assert that a field is marked as required
 
 ```gherkin
 Then the field "Email" should be required
-
 ```
 
 </details>
@@ -1641,7 +1551,6 @@ Assert that a field is not marked as required
 
 ```gherkin
 Then the field "Nickname" should not be required
-
 ```
 
 </details>
@@ -1655,7 +1564,6 @@ Assert that a color field has a value
 
 ```gherkin
 Then the color field "#edit-background-color" should have the value "#FF5733"
-
 ```
 
 </details>
@@ -1669,7 +1577,6 @@ Assert that a select has an option
 
 ```gherkin
 Then the option "Administrator" within the select "edit-roles" should exist
-
 ```
 
 </details>
@@ -1683,7 +1590,6 @@ Assert that a select does not have an option
 
 ```gherkin
 Then the option "Guest" within the select "edit-roles" should not exist
-
 ```
 
 </details>
@@ -1697,7 +1603,6 @@ Assert that a select option is selected
 
 ```gherkin
 Then the option "Administrator" within the select "edit-roles" should be selected
-
 ```
 
 </details>
@@ -1711,7 +1616,6 @@ Assert that a select option is not selected
 
 ```gherkin
 Then the option "Editor" within the select "edit-roles" should not be selected
-
 ```
 
 </details>
@@ -1726,7 +1630,6 @@ Assert that a radio button is selected
 ```gherkin
 Then the radio button "Option A" should be selected
 Then the radio button "edit-field-choice-option-a" should be selected
-
 ```
 
 </details>
@@ -1741,7 +1644,6 @@ Assert that a radio button is not selected
 ```gherkin
 Then the radio button "Option B" should not be selected
 Then the radio button "edit-field-choice-option-b" should not be selected
-
 ```
 
 </details>
@@ -1779,7 +1681,6 @@ Download a file from the specified URL
 ```gherkin
 When I download the file from the URL "/files/document.pdf"
 When I download the file from the URL "http://example.com/files/report.xlsx"
-
 ```
 
 </details>
@@ -1794,7 +1695,6 @@ Download the file from the specified HTML link
 ```gherkin
 When I download the file from the link "Download PDF"
 When I download the file from the link "Get Report"
-
 ```
 
 </details>
@@ -1811,7 +1711,6 @@ Then the downloaded file should contain:
 """
 Financial Report 2023
 """
-
 ```
 
 </details>
@@ -1825,7 +1724,6 @@ Assert the file name of the downloaded file
 
 ```gherkin
 Then the downloaded file name should be "report.pdf"
-
 ```
 
 </details>
@@ -1839,7 +1737,6 @@ Assert the downloaded file name contains a specific string
 
 ```gherkin
 Then the downloaded file name should contain "report"
-
 ```
 
 </details>
@@ -1856,7 +1753,6 @@ Then the downloaded file should be a zip archive containing files with the follo
   | document.pdf |
   | image.jpg    |
   | data.csv     |
-
 ```
 
 </details>
@@ -1873,7 +1769,6 @@ Then the downloaded file should be a zip archive containing files with the follo
   | report |
   | data   |
   | image  |
-
 ```
 
 </details>
@@ -1890,7 +1785,6 @@ Then the downloaded file should be a zip archive not containing files with the f
   | confidential |
   | private      |
   | draft        |
-
 ```
 
 </details>
@@ -1914,7 +1808,6 @@ Switch to an iframe identified by CSS selector
 ```gherkin
 When I switch to the iframe "iframe.payment-form"
 When I switch to the iframe "#recaptcha iframe"
-
 ```
 
 </details>
@@ -1928,7 +1821,6 @@ Switch back to the root (top-level) document from an iframe
 
 ```gherkin
 When I switch to the root document
-
 ```
 
 </details>
@@ -1999,7 +1891,6 @@ Set the response JSON content from a fixture file
 
 ```gherkin
 Given the response JSON is loaded from the file "json_valid.json"
-
 ```
 
 </details>
@@ -2016,7 +1907,6 @@ Given the response JSON is the following:
   """
   {"name": "John Doe", "roles": ["admin", "editor"]}
   """
-
 ```
 
 </details>
@@ -2030,7 +1920,6 @@ Print the last JSON response
 
 ```gherkin
 When I print the last JSON response
-
 ```
 
 </details>
@@ -2048,7 +1937,6 @@ Then the response should be in JSON format
 # Content set by a fixture step is validated instead of the page content.
 Given the response JSON is loaded from the file "json_valid.json"
 Then the response should be in JSON format
-
 ```
 
 </details>
@@ -2062,7 +1950,6 @@ Assert that a response is not valid JSON
 
 ```gherkin
 Then the response should not be in JSON format
-
 ```
 
 </details>
@@ -2077,7 +1964,6 @@ Assert that a JSONPath expression matches at least 1 value
 ```gherkin
 Then the JSON path "$.name" should exist
 Then the JSON path "$.user.roles[0]" should exist
-
 ```
 
 </details>
@@ -2091,7 +1977,6 @@ Assert that a JSONPath expression matches no values
 
 ```gherkin
 Then the JSON path "$.nonexistent" should not exist
-
 ```
 
 </details>
@@ -2106,7 +1991,6 @@ Assert that the value at a JSONPath equals the expected value
 ```gherkin
 Then the JSON path "$.name" should have the value "John Doe"
 Then the JSON path "$.age" should have the value "42"
-
 ```
 
 </details>
@@ -2120,7 +2004,6 @@ Assert that the value at a JSONPath does not equal the expected value
 
 ```gherkin
 Then the JSON path "$.name" should not have the value "Jane Doe"
-
 ```
 
 </details>
@@ -2134,7 +2017,6 @@ Assert that the value at a JSONPath contains the expected text
 
 ```gherkin
 Then the JSON path "$.name" should contain "John"
-
 ```
 
 </details>
@@ -2148,7 +2030,6 @@ Assert that the value at a JSONPath does not contain the expected text
 
 ```gherkin
 Then the JSON path "$.name" should not contain "Jane"
-
 ```
 
 </details>
@@ -2162,7 +2043,6 @@ Assert that the value at a JSONPath matches a regular expression
 
 ```gherkin
 Then the JSON path "$.email" should match "/^[^@]+@example\.com$/"
-
 ```
 
 </details>
@@ -2176,7 +2056,6 @@ Assert that the value at a JSONPath does not match a regular expression
 
 ```gherkin
 Then the JSON path "$.email" should not match "/^admin@/"
-
 ```
 
 </details>
@@ -2190,7 +2069,6 @@ Assert that the value at a JSONPath is null
 
 ```gherkin
 Then the JSON path "$.deleted_at" should be null
-
 ```
 
 </details>
@@ -2204,7 +2082,6 @@ Assert that the value at a JSONPath is boolean true
 
 ```gherkin
 Then the JSON path "$.active" should be true
-
 ```
 
 </details>
@@ -2218,7 +2095,6 @@ Assert that the value at a JSONPath is boolean false
 
 ```gherkin
 Then the JSON path "$.disabled" should be false
-
 ```
 
 </details>
@@ -2233,7 +2109,6 @@ Assert that the array or object at a JSONPath has a number of elements
 ```gherkin
 Then the JSON path "$.items" should have "3" elements
 Then the JSON path "$.user" should have "2" elements
-
 ```
 
 </details>
@@ -2250,7 +2125,6 @@ Then the response should match the following JSON schema:
   """
   {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}}}
   """
-
 ```
 
 </details>
@@ -2264,7 +2138,6 @@ Assert that the response validates against a JSON Schema from a file
 
 ```gherkin
 Then the response should match the JSON schema in the file "json_schema.json"
-
 ```
 
 </details>
@@ -2289,7 +2162,6 @@ Press a single keyboard key
 ```gherkin
 When I press the key "a"
 When I press the key "tab"
-
 ```
 
 </details>
@@ -2304,7 +2176,6 @@ Press a single keyboard key on the element
 ```gherkin
 When I press the key "a" on the element "#edit-title"
 When I press the key "tab" on the element "#edit-title"
-
 ```
 
 </details>
@@ -2318,7 +2189,6 @@ Press multiple keyboard keys
 
 ```gherkin
 When I press the keys "abc"
-
 ```
 
 </details>
@@ -2332,7 +2202,6 @@ Press multiple keyboard keys on the element
 
 ```gherkin
 When I press the keys "abc" on the element "#edit-title"
-
 ```
 
 </details>
@@ -2357,7 +2226,6 @@ Click on the link with a title
 
 ```gherkin
 When I follow the link with the title "Return to site content"
-
 ```
 
 </details>
@@ -2371,7 +2239,6 @@ Assert that a link exists
 
 ```gherkin
 Then I should see the link "About us"
-
 ```
 
 </details>
@@ -2385,7 +2252,6 @@ Assert that a link does not exist
 
 ```gherkin
 Then I should not see the link "Admin"
-
 ```
 
 </details>
@@ -2400,7 +2266,6 @@ Assert a link with a href exists
 ```gherkin
 Then the link "About us" with the href "/about-us" should exist
 Then the link "About us" with the href "/about*" should exist
-
 ```
 
 </details>
@@ -2415,7 +2280,6 @@ Assert link with a href exists within an element
 ```gherkin
 Then the link "About us" with the href "/about-us" within the element ".main-nav" should exist
 Then the link "About us" with the href "/about*" within the element ".main-nav" should exist
-
 ```
 
 </details>
@@ -2430,7 +2294,6 @@ Assert link with a href does not exist
 ```gherkin
 Then the link "About us" with the href "/about-us" should not exist
 Then the link "About us" with the href "/about*" should not exist
-
 ```
 
 </details>
@@ -2445,7 +2308,6 @@ Assert link with a href does not exist within an element
 ```gherkin
 Then the link "About us" with the href "/about-us" within the element ".main-nav" should not exist
 Then the link "About us" with the href "/about*" within the element ".main-nav" should not exist
-
 ```
 
 </details>
@@ -2459,7 +2321,6 @@ Assert that a link with a title exists
 
 ```gherkin
 Then the link with the title "Return to site content" should exist
-
 ```
 
 </details>
@@ -2473,7 +2334,6 @@ Assert that a link with a title does not exist
 
 ```gherkin
 Then the link with the title "Some non-existing title" should not exist
-
 ```
 
 </details>
@@ -2487,7 +2347,6 @@ Assert that the link with a text is absolute
 
 ```gherkin
 Then the link "my-link-title" should be an absolute link
-
 ```
 
 </details>
@@ -2501,7 +2360,6 @@ Assert that the link is not absolute
 
 ```gherkin
 Then the link "Return to site content" should not be an absolute link
-
 ```
 
 </details>
@@ -2563,7 +2421,6 @@ Assert that a status message is present
 
 ```gherkin
 Then I should see the message "Changes saved"
-
 ```
 
 </details>
@@ -2577,7 +2434,6 @@ Assert that a status message is absent
 
 ```gherkin
 Then I should not see the message "Access denied"
-
 ```
 
 </details>
@@ -2591,7 +2447,6 @@ Assert that an error message is present
 
 ```gherkin
 Then I should see the error message "Username field is required"
-
 ```
 
 </details>
@@ -2605,7 +2460,6 @@ Assert that an error message is absent
 
 ```gherkin
 Then I should not see the error message "Access denied"
-
 ```
 
 </details>
@@ -2619,7 +2473,6 @@ Assert that a success message is present
 
 ```gherkin
 Then I should see the success message "Article has been created"
-
 ```
 
 </details>
@@ -2633,7 +2486,6 @@ Assert that a success message is absent
 
 ```gherkin
 Then I should not see the success message "Changes saved"
-
 ```
 
 </details>
@@ -2647,7 +2499,6 @@ Assert that a warning message is present
 
 ```gherkin
 Then I should see the warning message "This action cannot be undone"
-
 ```
 
 </details>
@@ -2661,7 +2512,6 @@ Assert that a warning message is absent
 
 ```gherkin
 Then I should not see the warning message "deprecated"
-
 ```
 
 </details>
@@ -2677,7 +2527,6 @@ Assert that every error message in the table is present
 Then I should see the following error messages:
   | Username field is required |
   | Password field is required |
-
 ```
 
 </details>
@@ -2692,7 +2541,6 @@ Assert that no error message in the table is present
 ```gherkin
 Then I should not see the following error messages:
   | Access denied |
-
 ```
 
 </details>
@@ -2707,7 +2555,6 @@ Assert that every success message in the table is present
 ```gherkin
 Then I should see the following success messages:
   | Article has been created |
-
 ```
 
 </details>
@@ -2722,7 +2569,6 @@ Assert that no success message in the table is present
 ```gherkin
 Then I should not see the following success messages:
   | Changes saved |
-
 ```
 
 </details>
@@ -2737,7 +2583,6 @@ Assert that every warning message in the table is present
 ```gherkin
 Then I should see the following warning messages:
   | This action cannot be undone |
-
 ```
 
 </details>
@@ -2752,7 +2597,6 @@ Assert that no warning message in the table is present
 ```gherkin
 Then I should not see the following warning messages:
   | deprecated |
-
 ```
 
 </details>
@@ -2780,7 +2624,6 @@ Assert that a meta tag with specific attributes and values exists
 Then the meta tag with the following attributes should exist:
   | name    | description          |
   | content | My page description  |
-
 ```
 
 </details>
@@ -2796,7 +2639,6 @@ Assert that a meta tag with specific attributes and values does not exist
 Then the meta tag with the following attributes should not exist:
   | name    | nonexistent          |
   | content | Some content         |
-
 ```
 
 </details>
@@ -2811,7 +2653,6 @@ Assert a meta tag does not contain HTML tags
 ```gherkin
 Then the meta tag "og:description" should not contain any HTML tags
 Then the meta tag "description" should not contain any HTML tags
-
 ```
 
 </details>
@@ -2826,7 +2667,6 @@ Assert the canonical URL equals a value
 ```gherkin
 Then the canonical URL should be "https://example.com/about"
 Then the canonical URL should be "/about"
-
 ```
 
 </details>
@@ -2840,7 +2680,6 @@ Assert the canonical URL is present
 
 ```gherkin
 Then the canonical URL should exist
-
 ```
 
 </details>
@@ -2854,7 +2693,6 @@ Assert the canonical URL is absent
 
 ```gherkin
 Then the canonical URL should not exist
-
 ```
 
 </details>
@@ -2868,7 +2706,6 @@ Assert the page is indexable
 
 ```gherkin
 Then the page should be indexable
-
 ```
 
 </details>
@@ -2882,7 +2719,6 @@ Assert the page is not indexable
 
 ```gherkin
 Then the page should not be indexable
-
 ```
 
 </details>
@@ -2897,7 +2733,6 @@ Assert the robots meta tag contains a directive
 ```gherkin
 Then the robots meta tag should contain "noindex"
 Then the robots meta tag should contain "nofollow"
-
 ```
 
 </details>
@@ -2912,7 +2747,6 @@ Assert the robots meta tag does not contain a directive
 ```gherkin
 Then the robots meta tag should not contain "noindex"
 Then the robots meta tag should not contain "nofollow"
-
 ```
 
 </details>
@@ -2926,7 +2760,6 @@ Assert hreflang alternates are valid
 
 ```gherkin
 Then the hreflang alternates should be valid
-
 ```
 
 </details>
@@ -2940,7 +2773,6 @@ Assert hreflang alternates have reciprocal return links
 
 ```gherkin
 Then the hreflang alternates should have reciprocal return links
-
 ```
 
 </details>
@@ -2954,7 +2786,6 @@ Assert the required Open Graph meta tags are present and non-empty
 
 ```gherkin
 Then the Open Graph tags should be valid
-
 ```
 
 </details>
@@ -2971,7 +2802,6 @@ Then the following Open Graph tags should exist:
   | og:title |
   | og:image |
   | og:url   |
-
 ```
 
 </details>
@@ -2985,7 +2815,6 @@ Assert the required Twitter Card meta tags are present and non-empty
 
 ```gherkin
 Then the Twitter Card tags should be valid
-
 ```
 
 </details>
@@ -3001,7 +2830,6 @@ Assert the listed Twitter Card meta tags are present and non-empty
 Then the following Twitter Card tags should exist:
   | twitter:card  |
   | twitter:title |
-
 ```
 
 </details>
@@ -3039,7 +2867,6 @@ Close the modal by clicking the close button
 
 ```gherkin
 When I close the modal
-
 ```
 
 </details>
@@ -3055,7 +2882,6 @@ Click an element in the modal by CSS selector, button label, or link text
 When I click on the element "Save" in the modal
 When I click on the element ".btn-save" in the modal
 When I click on the element "Cancel" in the modal
-
 ```
 
 </details>
@@ -3069,7 +2895,6 @@ Wait for the modal to appear
 
 ```gherkin
 When I wait for the modal to appear
-
 ```
 
 </details>
@@ -3083,7 +2908,6 @@ Assert that the modal is visible
 
 ```gherkin
 Then I should see the modal
-
 ```
 
 </details>
@@ -3097,7 +2921,6 @@ Assert that the modal is not visible
 
 ```gherkin
 Then I should not see the modal
-
 ```
 
 </details>
@@ -3111,7 +2934,6 @@ Assert that the modal contains text
 
 ```gherkin
 Then I should see the text "Welcome message" in the modal
-
 ```
 
 </details>
@@ -3125,7 +2947,6 @@ Assert that the modal does not contain text
 
 ```gherkin
 Then I should not see the text "Error message" in the modal
-
 ```
 
 </details>
@@ -3149,7 +2970,6 @@ Set basic authentication for the current session
 
 ```gherkin
 Given I am using basic authentication with the username "myusername" and the password "mypassword"
-
 ```
 
 </details>
@@ -3164,7 +2984,6 @@ Navigate to a path
 ```gherkin
 When I visit "/about-us"
 When I visit "https://example.com/about-us"
-
 ```
 
 </details>
@@ -3178,7 +2997,6 @@ Navigate back in browser history
 
 ```gherkin
 When I go back
-
 ```
 
 </details>
@@ -3194,7 +3012,6 @@ Assert that the current page is a specified path
 Then the path should be "/about-us"
 Then the path should be "/"
 Then the path should be "<front>"
-
 ```
 
 </details>
@@ -3210,7 +3027,6 @@ Assert that the current page is not a specified path
 Then the path should not be "/about-us"
 Then the path should not be "/"
 Then the path should not be "<front>"
-
 ```
 
 </details>
@@ -3224,7 +3040,6 @@ Assert that current URL has a query parameter
 
 ```gherkin
 Then the URL should have the query parameter "filter"
-
 ```
 
 </details>
@@ -3238,7 +3053,6 @@ Assert that current URL has a query parameter with a specific value
 
 ```gherkin
 Then the URL should have the query parameter "filter" with the value "recent"
-
 ```
 
 </details>
@@ -3252,7 +3066,6 @@ Assert that current URL has no query parameter
 
 ```gherkin
 Then the URL should not have the query parameter "filter"
-
 ```
 
 </details>
@@ -3266,7 +3079,6 @@ Assert that current URL does not have a query parameter with a value
 
 ```gherkin
 Then the URL should not have the query parameter "filter" with the value "recent"
-
 ```
 
 </details>
@@ -3317,7 +3129,6 @@ Click a link within a region
 
 ```gherkin
 When I follow the link "Read more" in the region "content"
-
 ```
 
 </details>
@@ -3331,7 +3142,6 @@ Press a button within a region
 
 ```gherkin
 When I press the button "Save" in the region "sidebar"
-
 ```
 
 </details>
@@ -3345,7 +3155,6 @@ Fill a field within a region
 
 ```gherkin
 When I fill in the field "Search" with "test" in the region "header"
-
 ```
 
 </details>
@@ -3359,7 +3168,6 @@ Check a checkbox within a region
 
 ```gherkin
 When I check the checkbox "Published" in the region "content"
-
 ```
 
 </details>
@@ -3373,7 +3181,6 @@ Uncheck a checkbox within a region
 
 ```gherkin
 When I uncheck the checkbox "Promoted" in the region "content"
-
 ```
 
 </details>
@@ -3387,7 +3194,6 @@ Assert that the text of a region contains a string
 
 ```gherkin
 Then I should see the text "Welcome" in the region "content"
-
 ```
 
 </details>
@@ -3401,7 +3207,6 @@ Assert that the text of a region does not contain a string
 
 ```gherkin
 Then I should not see the text "Error" in the region "content"
-
 ```
 
 </details>
@@ -3415,7 +3220,6 @@ Assert that a region contains the heading
 
 ```gherkin
 Then I should see the heading "Latest news" in the region "sidebar"
-
 ```
 
 </details>
@@ -3429,7 +3233,6 @@ Assert that a region does not contain the heading
 
 ```gherkin
 Then I should not see the heading "Admin" in the region "sidebar"
-
 ```
 
 </details>
@@ -3443,7 +3246,6 @@ Assert that a region contains the link
 
 ```gherkin
 Then I should see the link "About us" in the region "footer"
-
 ```
 
 </details>
@@ -3457,7 +3259,6 @@ Assert that a region does not contain the link
 
 ```gherkin
 Then I should not see the link "Admin" in the region "footer"
-
 ```
 
 </details>
@@ -3471,7 +3272,6 @@ Assert that a region contains the button
 
 ```gherkin
 Then I should see the button "Save" in the region "content"
-
 ```
 
 </details>
@@ -3485,7 +3285,6 @@ Assert that a region does not contain the button
 
 ```gherkin
 Then I should not see the button "Delete" in the region "content"
-
 ```
 
 </details>
@@ -3499,7 +3298,6 @@ Assert that a region contains an element matching the selector
 
 ```gherkin
 Then the element "blockquote" in the region "content" should exist
-
 ```
 
 </details>
@@ -3513,7 +3311,6 @@ Assert that a region contains no element matching the selector
 
 ```gherkin
 Then the element "blockquote" in the region "content" should not exist
-
 ```
 
 </details>
@@ -3527,7 +3324,6 @@ Assert that an element in a region has text exactly equal to a value
 
 ```gherkin
 Then the element "h2" in the region "content" should have the value "News"
-
 ```
 
 </details>
@@ -3541,7 +3337,6 @@ Assert that no element in a region has text exactly equal to a value
 
 ```gherkin
 Then the element "h2" in the region "content" should not have the value "News"
-
 ```
 
 </details>
@@ -3555,7 +3350,6 @@ Assert that an element in a region has the attribute value
 
 ```gherkin
 Then the element "img" in the region "content" should have the attribute "alt" with the value "Logo"
-
 ```
 
 </details>
@@ -3569,7 +3363,6 @@ Assert that an element in a region with the text has the attribute value
 
 ```gherkin
 Then the element "a" with the text "Home" in the region "header" should have the attribute "href" with the value "/"
-
 ```
 
 </details>
@@ -3583,7 +3376,6 @@ Assert that an element in a region with the text has the CSS value
 
 ```gherkin
 Then the element "span" with the text "New" in the region "content" should have the CSS property "color" with the value "rgb(255, 0, 0)"
-
 ```
 
 </details>
@@ -3605,7 +3397,6 @@ Assert that a response contains a header with specified name
 
 ```gherkin
 Then the response should contain the header "Connection"
-
 ```
 
 </details>
@@ -3619,7 +3410,6 @@ Assert that a response does not contain a header with a specified name
 
 ```gherkin
 Then the response should not contain the header "Connection"
-
 ```
 
 </details>
@@ -3633,7 +3423,6 @@ Assert that a response contains a header with a specified name and value
 
 ```gherkin
 Then the response header "Connection" should contain "Keep-Alive"
-
 ```
 
 </details>
@@ -3647,7 +3436,6 @@ Assert a response does not contain a header with a specified name and value
 
 ```gherkin
 Then the response header "Connection" should not contain "Keep-Alive"
-
 ```
 
 </details>
@@ -3712,7 +3500,6 @@ Given the following responsive breakpoints exist:
   | name       | dimensions |
   | iphone_12  | 390x844    |
   | 4k_display | 3840x2160  |
-
 ```
 
 </details>
@@ -3727,7 +3514,6 @@ Set the viewport to a specific breakpoint
 ```gherkin
 When I set the viewport to the breakpoint "mobile_portrait"
 When I set the viewport to the breakpoint "desktop"
-
 ```
 
 </details>
@@ -3742,7 +3528,6 @@ Set the viewport width
 ```gherkin
 When I set the viewport width to "1920"
 When I set the viewport width to "768"
-
 ```
 
 </details>
@@ -3757,7 +3542,6 @@ Set the viewport height
 ```gherkin
 When I set the viewport height to "1080"
 When I set the viewport height to "900"
-
 ```
 
 </details>
@@ -3772,7 +3556,6 @@ Set the viewport to specific dimensions
 ```gherkin
 When I set the viewport to "1920" by "1080"
 When I set the viewport to "375" by "667"
-
 ```
 
 </details>
@@ -3805,7 +3588,6 @@ Set a REST header for subsequent requests
 ```gherkin
 Given the REST header "Accept" has the value "application/json"
 Given the REST header "Authorization" has the value "Bearer abc123"
-
 ```
 
 </details>
@@ -3820,7 +3602,6 @@ Send a REST request to a URL
 ```gherkin
 When I send a REST "GET" request to "/api/resource"
 When I send a REST "DELETE" request to "/api/resource/1"
-
 ```
 
 </details>
@@ -3837,7 +3618,6 @@ When I send a REST "POST" request to "/api/resource" with the body:
   """
   {"name": "example"}
   """
-
 ```
 
 </details>
@@ -3852,7 +3632,6 @@ Assert the REST response status code
 ```gherkin
 Then the REST response status code should be 200
 Then the REST response status code should be 404
-
 ```
 
 </details>
@@ -3866,7 +3645,6 @@ Assert the REST response contains text
 
 ```gherkin
 Then the REST response should contain "success"
-
 ```
 
 </details>
@@ -3902,7 +3680,6 @@ Click a link within a row
 
 ```gherkin
 When I follow the link "Edit" in the row containing "Article title"
-
 ```
 
 </details>
@@ -3916,7 +3693,6 @@ Press a button within a row
 
 ```gherkin
 When I press the button "Remove" in the row containing "Article title"
-
 ```
 
 </details>
@@ -3930,7 +3706,6 @@ Assert that a table has the expected number of body rows
 
 ```gherkin
 Then the table ".mytable" should have 5 rows
-
 ```
 
 </details>
@@ -3944,7 +3719,6 @@ Assert that a table has the expected number of columns
 
 ```gherkin
 Then the table ".mytable" should have 5 columns
-
 ```
 
 </details>
@@ -3961,7 +3735,6 @@ Then the table ".mytable" should contain the following columns:
   | Title  |
   | Author |
   | Status |
-
 ```
 
 </details>
@@ -3975,7 +3748,6 @@ Assert that a table is empty (has no body rows)
 
 ```gherkin
 Then the table ".mytable" should be empty
-
 ```
 
 </details>
@@ -3989,7 +3761,6 @@ Assert that a table is not empty (has body rows)
 
 ```gherkin
 Then the table ".mytable" should not be empty
-
 ```
 
 </details>
@@ -4004,7 +3775,6 @@ Assert that a table is sorted by a column in a specific direction
 ```gherkin
 Then the table ".mytable" should be sorted by "Title" in "ascending" order
 Then the table ".mytable" should be sorted by "Date" in "descending" order
-
 ```
 
 </details>
@@ -4021,7 +3791,6 @@ Then the table ".mytable" should contain the following rows:
   | Title     | Status    |
   | Article 1 | Published |
   | Article 2 | Draft     |
-
 ```
 
 </details>
@@ -4037,7 +3806,6 @@ Assert that a table row containing a text has the expected values
 Then I should see the following text in the row containing "Article title":
   | Published |
   | admin     |
-
 ```
 
 </details>
@@ -4051,7 +3819,6 @@ Assert that a row contains a string
 
 ```gherkin
 Then I should see the text "Published" in the row containing "Article title"
-
 ```
 
 </details>
@@ -4065,7 +3832,6 @@ Assert that a row does not contain a string
 
 ```gherkin
 Then I should not see the text "Unpublished" in the row containing "Article title"
-
 ```
 
 </details>
@@ -4079,7 +3845,6 @@ Assert that a row contains the link
 
 ```gherkin
 Then I should see the link "Edit" in the row containing "Article title"
-
 ```
 
 </details>
@@ -4093,7 +3858,6 @@ Assert that a row does not contain the link
 
 ```gherkin
 Then I should not see the link "Delete" in the row containing "Article title"
-
 ```
 
 </details>
@@ -4131,7 +3895,6 @@ Wait for the AJAX calls to finish, using the configured timeout
 
 ```gherkin
 When I wait for AJAX to finish
-
 ```
 
 </details>
@@ -4146,7 +3909,6 @@ Wait for a specified number of seconds
 ```gherkin
 When I wait for 5 seconds
 When I wait for 1 second
-
 ```
 
 </details>
@@ -4161,7 +3923,6 @@ Wait for the AJAX calls to finish
 ```gherkin
 When I wait for 5 seconds for AJAX to finish
 When I wait for 1 second for AJAX to finish
-
 ```
 
 </details>
@@ -4186,7 +3947,6 @@ Set the response XML content from a fixture file
 
 ```gherkin
 Given the response XML is loaded from the file "xml_valid.xml"
-
 ```
 
 </details>
@@ -4203,7 +3963,6 @@ Given the response XML is the following:
   """
   <?xml version="1.0"?><root><item>value</item></root>
   """
-
 ```
 
 </details>
@@ -4217,7 +3976,6 @@ Print the last XML response
 
 ```gherkin
 When I print the last XML response
-
 ```
 
 </details>
@@ -4235,7 +3993,6 @@ Then the response should be in XML format
 # Content set by a fixture step is validated instead of the page content.
 Given the response XML is loaded from the file "xml_valid.xml"
 Then the response should be in XML format
-
 ```
 
 </details>
@@ -4253,7 +4010,6 @@ Then the response should not be in XML format
 # Content set by a fixture step is validated instead of the page content.
 Given the response XML is loaded from the file "xml_invalid.xml"
 Then the response should not be in XML format
-
 ```
 
 </details>
@@ -4268,7 +4024,6 @@ Assert that an XML element exists
 ```gherkin
 Then the XML element "//book" should exist
 Then the XML element "/library/book[@id='123']" should exist
-
 ```
 
 </details>
@@ -4283,7 +4038,6 @@ Assert that an XML element does not exist
 ```gherkin
 Then the XML element "//nonexistent" should not exist
 Then the XML element "/library/book[@id='999']" should not exist
-
 ```
 
 </details>
@@ -4298,7 +4052,6 @@ Assert that an XML element content equals specified text
 ```gherkin
 Then the XML element "//title" should have the value "The Great Adventure"
 Then the XML element "/library/book[1]/author" should have the value "John Doe"
-
 ```
 
 </details>
@@ -4313,7 +4066,6 @@ Assert that an XML element content does not equal specified text
 ```gherkin
 Then the XML element "//title" should not have the value "Wrong Title"
 Then the XML element "/library/book[1]/author" should not have the value "Wrong Author"
-
 ```
 
 </details>
@@ -4328,7 +4080,6 @@ Assert that an XML element contains specified text
 ```gherkin
 Then the XML element "//description" should contain "sample book"
 Then the XML element "/library/book[1]/description" should contain "detailed"
-
 ```
 
 </details>
@@ -4343,7 +4094,6 @@ Assert that an XML element does not contain specified text
 ```gherkin
 Then the XML element "//description" should not contain "nonexistent"
 Then the XML element "/library/book[1]/title" should not contain "wrong"
-
 ```
 
 </details>
@@ -4358,7 +4108,6 @@ Assert that an XML attribute exists on an element
 ```gherkin
 Then the XML attribute "id" on the element "//book" should exist
 Then the XML attribute "category" on the element "/library/book[1]" should exist
-
 ```
 
 </details>
@@ -4373,7 +4122,6 @@ Assert that an XML attribute does not exist on an element
 ```gherkin
 Then the XML attribute "nonexistent" on the element "//book" should not exist
 Then the XML attribute "missing" on the element "/library/book[1]" should not exist
-
 ```
 
 </details>
@@ -4388,7 +4136,6 @@ Assert that an XML attribute value equals specified text
 ```gherkin
 Then the XML attribute "id" on the element "//book" should have the value "123"
 Then the XML attribute "category" on the element "/library/book[1]" should have the value "fiction"
-
 ```
 
 </details>
@@ -4403,7 +4150,6 @@ Assert that an XML attribute value does not equal specified text
 ```gherkin
 Then the XML attribute "id" on the element "//book" should not have the value "999"
 Then the XML attribute "category" on the element "/library/book[1]" should not have the value "science"
-
 ```
 
 </details>
@@ -4418,7 +4164,6 @@ Assert that an XML attribute value contains specified text
 ```gherkin
 Then the XML attribute "category" on the element "//book" should contain "fic"
 Then the XML attribute "id" on the element "/library/book[1]" should contain "12"
-
 ```
 
 </details>
@@ -4433,7 +4178,6 @@ Assert that an XML attribute value does not contain specified text
 ```gherkin
 Then the XML attribute "category" on the element "//book" should not contain "science"
 Then the XML attribute "id" on the element "/library/book[1]" should not contain "999"
-
 ```
 
 </details>
@@ -4448,7 +4192,6 @@ Assert that an XML element has a specific number of child elements
 ```gherkin
 Then the XML element "//library" should have "3" elements
 Then the XML element "/library" should have "3" elements
-
 ```
 
 </details>
@@ -4462,7 +4205,6 @@ Assert that the XML uses a specific namespace
 
 ```gherkin
 Then the XML should use the namespace "http://example.com/custom"
-
 ```
 
 </details>
@@ -4476,7 +4218,6 @@ Assert that the XML does not use a specific namespace
 
 ```gherkin
 Then the XML should not use the namespace "http://example.com/nonexistent"
-
 ```
 
 </details>
@@ -4496,7 +4237,6 @@ Then the response should match the following XSD schema:
     <xs:element name="note" type="xs:string"/>
   </xs:schema>
   """
-
 ```
 
 </details>
@@ -4510,7 +4250,6 @@ Assert that the response validates against an XSD schema from a file
 
 ```gherkin
 Then the response should match the XSD schema in the file "xml_schema.xsd"
-
 ```
 
 </details>
@@ -4527,7 +4266,6 @@ Then the response should match the following DTD:
   """
   <!ELEMENT note (#PCDATA)>
   """
-
 ```
 
 </details>
@@ -4541,7 +4279,6 @@ Assert that the response validates against a DTD from a file
 
 ```gherkin
 Then the response should match the DTD in the file "xml_schema.dtd"
-
 ```
 
 </details>
@@ -4560,7 +4297,6 @@ Then the response should match the following RelaxNG schema:
     <text/>
   </element>
   """
-
 ```
 
 </details>
@@ -4574,7 +4310,6 @@ Assert that the response validates against a RelaxNG schema from a file
 
 ```gherkin
 Then the response should match the RelaxNG schema in the file "xml_schema.rng"
-
 ```
 
 </details>
@@ -4588,7 +4323,6 @@ Assert that the response is a valid RSS 2.0 feed
 
 ```gherkin
 Then the response should be a valid RSS feed
-
 ```
 
 </details>
@@ -4602,7 +4336,6 @@ Assert that the response is a valid Atom feed
 
 ```gherkin
 Then the response should be a valid Atom feed
-
 ```
 
 </details>
@@ -4629,7 +4362,6 @@ Wait for the batch job to finish
 
 ```gherkin
 When I wait for the batch job to finish
-
 ```
 
 </details>
@@ -4706,7 +4438,6 @@ Given the instance of the block "My block" with the following configuration exis
   | label_display | 1        |
   | region        | content  |
   | status        | 1        |
-
 ```
 
 </details>
@@ -4723,7 +4454,6 @@ Given the block "My block" has the following configuration:
   | label_display | 1       |
   | region        | content |
   | status        | 1       |
-
 ```
 
 </details>
@@ -4737,7 +4467,6 @@ Remove every block in the default theme with the label
 
 ```gherkin
 Given the block "My block" does not exist
-
 ```
 
 </details>
@@ -4751,7 +4480,6 @@ Enable a block specified by label
 
 ```gherkin
 Given the block "My block" is enabled
-
 ```
 
 </details>
@@ -4765,7 +4493,6 @@ Disable a block specified by label
 
 ```gherkin
 Given the block "My block" is disabled
-
 ```
 
 </details>
@@ -4781,7 +4508,6 @@ Set a visibility condition for a block
 Given the block "My block" has the condition "request_path" with the following configuration:
   | pages  | /node/1\r\n/about |
   | negate | 0                 |
-
 ```
 
 </details>
@@ -4795,7 +4521,6 @@ Remove a visibility condition from the specified block
 
 ```gherkin
 Given the block "My block" has the condition "request_path" removed
-
 ```
 
 </details>
@@ -4809,7 +4534,6 @@ Assert that a block with the specified label exists
 
 ```gherkin
 Then the block "My block" should exist
-
 ```
 
 </details>
@@ -4823,7 +4547,6 @@ Assert that a block with the specified label does not exist
 
 ```gherkin
 Then the block "My block" should not exist
-
 ```
 
 </details>
@@ -4837,7 +4560,6 @@ Assert that a block with the specified label exists in a region
 
 ```gherkin
 Then the block "My block" in the region "content" should exist
-
 ```
 
 </details>
@@ -4851,7 +4573,6 @@ Assert that a block with the specified label does not exist in a region
 
 ```gherkin
 Then the block "My block" in the region "content" should not exist
-
 ```
 
 </details>
@@ -4887,7 +4608,6 @@ Clear every cache bin
 
 ```gherkin
 Given the cache has been cleared
-
 ```
 
 </details>
@@ -4901,7 +4621,6 @@ Clear the page cache for a single path
 
 ```gherkin
 Given the page cache for the path "/about" has been cleared
-
 ```
 
 </details>
@@ -4915,7 +4634,6 @@ Clear the page cache for all paths matching a glob-style pattern
 
 ```gherkin
 Given the page cache for the paths matching "/news*" has been cleared
-
 ```
 
 </details>
@@ -4929,7 +4647,6 @@ Clear the render cache
 
 ```gherkin
 Given the render cache has been cleared
-
 ```
 
 </details>
@@ -4943,7 +4660,6 @@ Run cron
 
 ```gherkin
 When cron runs
-
 ```
 
 </details>
@@ -5069,7 +4785,6 @@ Set a stored Drupal configuration value
 
 ```gherkin
 Given the config "system.site" with the key "page.front" has the value "/node"
-
 ```
 
 </details>
@@ -5087,7 +4802,6 @@ Given the following config values exist:
   | system.site       | name         | My site                 |
   | mymodule.settings | api.endpoint | https://api.example.com |
   | mymodule.settings | roles        | ["editor","reviewer"]   |
-
 ```
 
 </details>
@@ -5101,7 +4815,6 @@ Assert that a stored configuration value equals an expected value
 
 ```gherkin
 Then the config "system.site" with the key "name" should have the value "My site"
-
 ```
 
 </details>
@@ -5115,7 +4828,6 @@ Assert that a stored configuration value does not equal a value
 
 ```gherkin
 Then the config "system.site" with the key "name" should not have the value "Wrong"
-
 ```
 
 </details>
@@ -5129,7 +4841,6 @@ Assert that a stored configuration value contains an expected value
 
 ```gherkin
 Then the config "system.site" with the key "name" should contain "site"
-
 ```
 
 </details>
@@ -5143,7 +4854,6 @@ Assert that a stored configuration value does not contain a value
 
 ```gherkin
 Then the config "system.site" with the key "name" should not contain "xyz"
-
 ```
 
 </details>
@@ -5157,7 +4867,6 @@ Assert that an effective configuration value equals an expected value
 
 ```gherkin
 Then the config "system.site" with the key "name" should have the effective value "Overridden"
-
 ```
 
 </details>
@@ -5171,7 +4880,6 @@ Assert that an effective configuration value does not equal a value
 
 ```gherkin
 Then the config "system.site" with the key "name" should not have the effective value "Wrong"
-
 ```
 
 </details>
@@ -5185,7 +4893,6 @@ Assert that an effective configuration value contains an expected value
 
 ```gherkin
 Then the config "system.site" with the key "name" should contain the effective value "Over"
-
 ```
 
 </details>
@@ -5199,7 +4906,6 @@ Assert that an effective configuration value does not contain a value
 
 ```gherkin
 Then the config "system.site" with the key "name" should not contain the effective value "xyz"
-
 ```
 
 </details>
@@ -5233,7 +4939,6 @@ Remove content blocks of a specified type with the given descriptions
 Given the following "basic" content blocks do not exist:
   | [TEST] Footer Block  |
   | [TEST] Contact Form  |
-
 ```
 
 </details>
@@ -5250,7 +4955,6 @@ Given the following "basic" content blocks exist:
   | info                  | status | body                   |
   | [TEST] Footer Contact | 1      | Call us at 555-1234    |
   | [TEST] Copyright      | 1      | © 2023 Example Company |
-
 ```
 
 </details>
@@ -5267,7 +4971,6 @@ Given the following basic content blocks with fields exist:
   | info   | [TEST] Block 1        | [TEST] Block 2        |
   | body   | First block content   | Second block content  |
   | status | 1                     | 1                     |
-
 ```
 
 </details>
@@ -5281,7 +4984,6 @@ Visit the edit page of the content block with the specified description
 
 ```gherkin
 When I visit the "basic" content block edit page with the description "[TEST] Footer Block"
-
 ```
 
 </details>
@@ -5295,7 +4997,6 @@ Assert that a content block type exists
 
 ```gherkin
 Then the content block type "Search" should exist
-
 ```
 
 </details>
@@ -5336,7 +5037,6 @@ Delete content type
 
 ```gherkin
 Given the content type "article" does not exist
-
 ```
 
 </details>
@@ -5353,7 +5053,6 @@ Given the following "article" content does not exist:
   | title                |
   | Test article         |
   | Another test article |
-
 ```
 
 </details>
@@ -5370,7 +5069,6 @@ Given the following page content with fields exists:
   | title  | [TEST] Page 1        | [TEST] Page 2        |
   | body   | First page content   | Second page content  |
   | status | 1                    | 1                    |
-
 ```
 
 </details>
@@ -5387,7 +5085,6 @@ Given the following page content exists:
   | title         | status |
   | [TEST] Page 1 | 1      |
   | [TEST] Page 2 | 0      |
-
 ```
 
 </details>
@@ -5401,7 +5098,6 @@ Visit a page of a type with a specified title
 
 ```gherkin
 When I visit the "article" content page with the title "Test article"
-
 ```
 
 </details>
@@ -5415,7 +5111,6 @@ Visit an edit page of a type with a specified title
 
 ```gherkin
 When I visit the "article" content edit page with the title "Test article"
-
 ```
 
 </details>
@@ -5429,7 +5124,6 @@ Visit a delete page of a type with a specified title
 
 ```gherkin
 When I visit the "article" content delete page with the title "Test article"
-
 ```
 
 </details>
@@ -5443,7 +5137,6 @@ Visit a scheduled transitions page of a type with a specified title
 
 ```gherkin
 When I visit the "article" content scheduled transitions page with the title "Test article"
-
 ```
 
 </details>
@@ -5457,7 +5150,6 @@ Visit a revisions page of a type with a specified title
 
 ```gherkin
 When I visit the "article" content revisions page with the title "Test article"
-
 ```
 
 </details>
@@ -5471,7 +5163,6 @@ Change moderation state of a content with the specified title
 
 ```gherkin
 When the moderation state of the "article" content with the title "Test article" changes to the state "published"
-
 ```
 
 </details>
@@ -5485,7 +5176,6 @@ Rebuild node access grants for a content with the specified title
 
 ```gherkin
 When the access grants for the "article" content with the title "My article" are rebuilt
-
 ```
 
 </details>
@@ -5499,7 +5189,6 @@ Rebuild node access grants for all content
 
 ```gherkin
 When the access grants for all content are rebuilt
-
 ```
 
 </details>
@@ -5513,7 +5202,6 @@ Set the path alias of a content with the specified title
 
 ```gherkin
 When the path alias of the "article" content with the title "Test article" is set to "/my-test-article"
-
 ```
 
 </details>
@@ -5528,7 +5216,6 @@ Assert content with specified type and title does not exist
 ```gherkin
 Then the "page" content with the title "Test page" should not exist
 Then the "article" content with the title "Test article" should not exist
-
 ```
 
 </details>
@@ -5542,7 +5229,6 @@ Assert content with specified type and title is published
 
 ```gherkin
 Then the "page" content with the title "Test page" should be published
-
 ```
 
 </details>
@@ -5556,7 +5242,6 @@ Assert content with specified type and title is not published
 
 ```gherkin
 Then the "page" content with the title "Test page" should not be published
-
 ```
 
 </details>
@@ -5587,7 +5272,6 @@ When the draggable views items of the view "draggableviews_demo" and the display
   | First Article  |
   | Second Article |
   | Third Article  |
-
 ```
 
 </details>
@@ -5616,7 +5300,6 @@ Run a Drush command
 ```gherkin
 When I run the drush command "status"
 When I run the drush command "config:get system.site name"
-
 ```
 
 </details>
@@ -5631,7 +5314,6 @@ Run a Drush command with arguments
 ```gherkin
 When I run the drush command "pm:list" with the arguments "--status=enabled"
 When I run the drush command "config:get" with the arguments "system.site uuid"
-
 ```
 
 </details>
@@ -5645,7 +5327,6 @@ Run a Drush command that is expected to fail
 
 ```gherkin
 When I run the failing drush command "pm:uninstall no_such_module"
-
 ```
 
 </details>
@@ -5659,7 +5340,6 @@ Run a Drush command with arguments that is expected to fail
 
 ```gherkin
 When I run the failing drush command "pm:uninstall" with the arguments "no_such_module"
-
 ```
 
 </details>
@@ -5673,7 +5353,6 @@ Print the output of the most recent Drush command
 
 ```gherkin
 When I print the last drush output
-
 ```
 
 </details>
@@ -5687,7 +5366,6 @@ Assert that the last Drush output contains the text
 
 ```gherkin
 Then the drush output should contain "Drupal version"
-
 ```
 
 </details>
@@ -5701,7 +5379,6 @@ Assert that the last Drush output does not contain the text
 
 ```gherkin
 Then the drush output should not contain "error"
-
 ```
 
 </details>
@@ -5715,7 +5392,6 @@ Assert that the last Drush output matches the pattern
 
 ```gherkin
 Then the drush output should match "/Drupal [0-9]+/"
-
 ```
 
 </details>
@@ -5749,7 +5425,6 @@ Given the following ECK "contact" "contact_type" entities exist:
   | title  | field_marine_animal     | field_fish_type | ... |
   | Snook  | Fish                    | Marine fish     | 10  |
   | ...    | ...                     | ...             | ... |
-
 ```
 
 </details>
@@ -5765,7 +5440,6 @@ Remove custom entities by field
 Given the following ECK "contact" "contact_type" entities do not exist:
   | title           |
   | Entity label    |
-
 ```
 
 </details>
@@ -5779,7 +5453,6 @@ Visit the page of the eck entity with the specified type and title
 
 ```gherkin
 When I visit the ECK "contact" "contact_type" entity page with the title "Test contact"
-
 ```
 
 </details>
@@ -5793,7 +5466,6 @@ Visit the edit page of the eck entity with the specified type and title
 
 ```gherkin
 When I visit the ECK "contact" "contact_type" entity edit page with the title "Test contact"
-
 ```
 
 </details>
@@ -5836,7 +5508,6 @@ Clear test email system queue
 
 ```gherkin
 When the test email system queue is cleared
-
 ```
 
 </details>
@@ -5850,7 +5521,6 @@ Follow the link at the 1-based index in an email with the given subject
 
 ```gherkin
 When I follow the link with the index "1" in the email with the subject "Account Verification"
-
 ```
 
 </details>
@@ -5864,7 +5534,6 @@ Follow the first link whose URL contains a fragment in an email
 
 ```gherkin
 When I follow the link with a URL containing "user/reset" in the email
-
 ```
 
 </details>
@@ -5878,7 +5547,6 @@ Follow the link at the 1-based index in an email whose subject contains the give
 
 ```gherkin
 When I follow the link with the index "1" in the email with a subject containing "Verification"
-
 ```
 
 </details>
@@ -5892,7 +5560,6 @@ Enable the test email system
 
 ```gherkin
 When the test email system is enabled
-
 ```
 
 </details>
@@ -5906,7 +5573,6 @@ Disable test email system
 
 ```gherkin
 When the test email system is disabled
-
 ```
 
 </details>
@@ -5920,7 +5586,6 @@ Assert that an email was sent to an address
 
 ```gherkin
 Then an email should have been sent to the address "user@example.com"
-
 ```
 
 </details>
@@ -5934,7 +5599,6 @@ Assert the number of emails sent
 
 ```gherkin
 Then the number of emails sent should be 2
-
 ```
 
 </details>
@@ -5948,7 +5612,6 @@ Assert the number of emails sent to an address
 
 ```gherkin
 Then the number of emails sent to the address "user@example.com" should be 2
-
 ```
 
 </details>
@@ -5962,7 +5625,6 @@ Assert the number of emails sent with a subject
 
 ```gherkin
 Then the number of emails sent with the subject "Welcome" should be 1
-
 ```
 
 </details>
@@ -5976,7 +5638,6 @@ Assert that no email was sent
 
 ```gherkin
 Then no emails should have been sent
-
 ```
 
 </details>
@@ -5990,7 +5651,6 @@ Assert that no email was sent to an address
 
 ```gherkin
 Then no emails should have been sent to the address "user@example.com"
-
 ```
 
 </details>
@@ -6007,7 +5667,6 @@ Then the email header "Subject" should contain:
 """
 Account details
 """
-
 ```
 
 </details>
@@ -6024,7 +5683,6 @@ Then the email header "Subject" should be:
 """
 Your Account Details
 """
-
 ```
 
 </details>
@@ -6042,7 +5700,6 @@ Then an email should have been sent to the address "user@example.com" with the c
 Welcome to our site!
 Click the link below to verify your account.
 """
-
 ```
 
 </details>
@@ -6059,7 +5716,6 @@ Then an email should have been sent to the address "user@example.com" with the c
 """
 verification link
 """
-
 ```
 
 </details>
@@ -6076,7 +5732,6 @@ Then an email should have been sent to the address "user@example.com" with the c
 """
 password
 """
-
 ```
 
 </details>
@@ -6093,7 +5748,6 @@ Then no emails should have been sent to the address "wrong@example.com" with the
 """
 Welcome to our site!
 """
-
 ```
 
 </details>
@@ -6110,7 +5764,6 @@ Then no emails should have been sent to the address "wrong@example.com" with the
 """
 verification link
 """
-
 ```
 
 </details>
@@ -6127,7 +5780,6 @@ Then the email field "body" should contain:
 """
 Please verify your account
 """
-
 ```
 
 </details>
@@ -6144,7 +5796,6 @@ Then the email field "subject" should be:
 """
 Account Verification
 """
-
 ```
 
 </details>
@@ -6161,7 +5812,6 @@ Then the email field "body" should not contain:
 """
 password
 """
-
 ```
 
 </details>
@@ -6178,7 +5828,6 @@ Then the email field "subject" should not be:
 """
 Password Reset
 """
-
 ```
 
 </details>
@@ -6192,7 +5841,6 @@ Assert that a file is attached to an email message with specified subject
 
 ```gherkin
 Then the file "document.pdf" should be attached to the email with the subject "Your document"
-
 ```
 
 </details>
@@ -6206,7 +5854,6 @@ Assert that a file is attached to an email message with a subject containing the
 
 ```gherkin
 Then the file "report.xlsx" should be attached to the email with a subject containing "Monthly Report"
-
 ```
 
 </details>
@@ -6239,7 +5886,6 @@ Given the following "commerce_product" entities exist:
   | title | type    | status |
   | TNT   | product | 1      |
   | Anvil | product | 1      |
-
 ```
 
 </details>
@@ -6281,7 +5927,6 @@ Given the following managed files exist:
   | path         | uri                    | status |
   | document.pdf | public://document.pdf  | 1      |
   | image.jpg    | public://images/pic.jpg| 1      |
-
 ```
 
 </details>
@@ -6302,7 +5947,6 @@ Given the following managed files do not exist:
   | uri                    |
   | public://myfile.jpg    |
   | public://otherfile.jpg |
-
 ```
 
 </details>
@@ -6316,7 +5960,6 @@ Create an unmanaged file
 
 ```gherkin
 Given the unmanaged file at the URI "public://sample.txt" exists
-
 ```
 
 </details>
@@ -6330,7 +5973,6 @@ Create an unmanaged file with specified content
 
 ```gherkin
 Given the unmanaged file at the URI "public://data.txt" exists with the content "Sample content"
-
 ```
 
 </details>
@@ -6344,7 +5986,6 @@ Assert that an unmanaged file with specified URI exists
 
 ```gherkin
 Then the unmanaged file at the URI "public://sample.txt" should exist
-
 ```
 
 </details>
@@ -6358,7 +5999,6 @@ Assert that an unmanaged file with specified URI does not exist
 
 ```gherkin
 Then the unmanaged file at the URI "public://temp.txt" should not exist
-
 ```
 
 </details>
@@ -6372,7 +6012,6 @@ Assert that an unmanaged file exists and has specified content
 
 ```gherkin
 Then the unmanaged file at the URI "public://config.txt" should contain "debug=true"
-
 ```
 
 </details>
@@ -6386,7 +6025,6 @@ Assert that an unmanaged file exists and does not have specified content
 
 ```gherkin
 Then the unmanaged file at the URI "public://config.txt" should not contain "debug=false"
-
 ```
 
 </details>
@@ -6418,7 +6056,6 @@ Given the following languages exist:
   | langcode |
   | fr       |
   | de       |
-
 ```
 
 </details>
@@ -6451,7 +6088,6 @@ Remove media type
 
 ```gherkin
 Given the media type "video" does not exist
-
 ```
 
 </details>
@@ -6468,7 +6104,6 @@ Given the following "video" media exist:
   | name     | field1   | field2 | field3           |
   | My media | file.jpg | value  | value            |
   | ...      | ...      | ...    | ...              |
-
 ```
 
 </details>
@@ -6484,7 +6119,6 @@ Create media entities with vertical field format
 Given the following image media with fields exist:
   | name              | [TEST] Image 1       | [TEST] Image 2       |
   | field_media_image | image1.jpg           | image2.jpg           |
-
 ```
 
 </details>
@@ -6501,7 +6135,6 @@ Given the following "image" media do not exist:
   | name               |
   | Media item         |
   | Another media item |
-
 ```
 
 </details>
@@ -6515,7 +6148,6 @@ Visit the page of the media with the specified type and name
 
 ```gherkin
 When I visit the "image" media page with the name "Test media image"
-
 ```
 
 </details>
@@ -6529,7 +6161,6 @@ Visit the edit page of the media with the specified type and name
 
 ```gherkin
 When I visit the "document" media edit page with the name "Test document"
-
 ```
 
 </details>
@@ -6543,7 +6174,6 @@ Visit the delete page of the media with the specified type and name
 
 ```gherkin
 When I visit the "image" media delete page with the name "Test media image"
-
 ```
 
 </details>
@@ -6557,7 +6187,6 @@ Visit the revisions page of the media with the specified type and name
 
 ```gherkin
 When I visit the "image" media revisions page with the name "Test media image"
-
 ```
 
 </details>
@@ -6571,7 +6200,6 @@ Assert that a media type exists
 
 ```gherkin
 Then the media type "image" should exist
-
 ```
 
 </details>
@@ -6585,7 +6213,6 @@ Assert that a media type does not exist
 
 ```gherkin
 Then the media type "test_type" should not exist
-
 ```
 
 </details>
@@ -6599,7 +6226,6 @@ Assert that a media entity with a specific type and name exists
 
 ```gherkin
 Then the "image" media with the name "Test media image" should exist
-
 ```
 
 </details>
@@ -6613,7 +6239,6 @@ Assert that a media entity with a specific type and name does not exist
 
 ```gherkin
 Then the "image" media with the name "Test media image" should not exist
-
 ```
 
 </details>
@@ -6644,7 +6269,6 @@ Remove every menu with a label
 
 ```gherkin
 Given the menu "Test Menu" does not exist
-
 ```
 
 </details>
@@ -6661,7 +6285,6 @@ Given the following menus exist:
   | label            | description                    |
   | Footer Menu     | Links displayed in the footer  |
   | Secondary Menu  | Secondary navigation menu      |
-
 ```
 
 </details>
@@ -6677,7 +6300,6 @@ Remove every menu link with each of the titles
 Given the following menu links do not exist in the menu "Main navigation":
   | About Us     |
   | Contact      |
-
 ```
 
 </details>
@@ -6694,7 +6316,6 @@ Given the following menu links exist in the menu "Main navigation":
   | title           | enabled | uri                     | parent       |
   | Products        | 1       | /products               |              |
   | Latest Products | 1       | /products/latest        | Products     |
-
 ```
 
 </details>
@@ -6730,7 +6351,6 @@ Enable a module
 
 ```gherkin
 Given the module "ctools" is enabled
-
 ```
 
 </details>
@@ -6744,7 +6364,6 @@ Disable a module
 
 ```gherkin
 Given the module "shield" is disabled
-
 ```
 
 </details>
@@ -6760,7 +6379,6 @@ Enable multiple modules
 Given the following modules are enabled:
   | ctools |
   | views  |
-
 ```
 
 </details>
@@ -6776,7 +6394,6 @@ Disable multiple modules
 Given the following modules are disabled:
   | shield           |
   | stage_file_proxy |
-
 ```
 
 </details>
@@ -6790,7 +6407,6 @@ Assert that a module is enabled
 
 ```gherkin
 Then the module "ctools" should be enabled
-
 ```
 
 </details>
@@ -6804,7 +6420,6 @@ Assert that a module is disabled
 
 ```gherkin
 Then the module "shield" should be disabled
-
 ```
 
 </details>
@@ -6820,7 +6435,6 @@ Assert that multiple modules are enabled
 Then the following modules should be enabled:
   | ctools |
   | views  |
-
 ```
 
 </details>
@@ -6836,7 +6450,6 @@ Assert that multiple modules are disabled
 Then the following modules should be disabled:
   | shield           |
   | stage_file_proxy |
-
 ```
 
 </details>
@@ -6872,7 +6485,6 @@ Given the following fields for the "text" paragraph exist in the field "field_co
   | field_paragraph_longtext:value  | My paragraph message |
   | field_paragraph_longtext:format | full_html            |
   | ...                             | ...                  |
-
 ```
 
 </details>
@@ -6914,7 +6526,6 @@ Add an item to a queue
 ```gherkin
 Given the following item is in the queue "myqueue":
   | data | {"nid":1} |
-
 ```
 
 </details>
@@ -6928,7 +6539,6 @@ Empty a queue
 
 ```gherkin
 Given the queue "myqueue" is empty
-
 ```
 
 </details>
@@ -6943,7 +6553,6 @@ Process a specific number of items from a queue
 ```gherkin
 When the queue "myqueue" processes 5 items
 When the queue "myqueue" processes 1 item
-
 ```
 
 </details>
@@ -6957,7 +6566,6 @@ Process all items from a queue
 
 ```gherkin
 When the queue "myqueue" is processed
-
 ```
 
 </details>
@@ -6972,7 +6580,6 @@ Assert that a queue has a specific number of items
 ```gherkin
 Then the queue "myqueue" should have 5 items
 Then the queue "myqueue" should have 1 item
-
 ```
 
 </details>
@@ -6986,7 +6593,6 @@ Assert that a queue is empty
 
 ```gherkin
 Then the queue "myqueue" should be empty
-
 ```
 
 </details>
@@ -7022,7 +6628,6 @@ Given the following redirects exist:
   | /old/about        | /about                    | 301         |
   | /promo            | https://example.com/promo | 302         |
   | /legacy/contact   | /contact                  |             |
-
 ```
 
 </details>
@@ -7038,7 +6643,6 @@ Delete redirects by source path
 Given the following redirects do not exist:
   | /old/about      |
   | /legacy/contact |
-
 ```
 
 </details>
@@ -7056,7 +6660,6 @@ Then the following redirects should exist:
   | /old/about        | /about                    | 301         |
   | /promo            | https://example.com/promo |             |
   | /legacy/contact   |                           |             |
-
 ```
 
 </details>
@@ -7072,7 +6675,6 @@ Assert that no redirect exists for 1 or more source paths
 Then the following redirects should not exist:
   | /old/about      |
   | /legacy/contact |
-
 ```
 
 </details>
@@ -7103,7 +6705,6 @@ Index a node of a specific content type with a specific title
 
 ```gherkin
 When the "article" content with the title "Test Article" is indexed
-
 ```
 
 </details>
@@ -7118,7 +6719,6 @@ Run indexing for a specific number of items
 ```gherkin
 When search indexing runs for 5 items
 When search indexing runs for 1 item
-
 ```
 
 </details>
@@ -7132,7 +6732,6 @@ Run the Search API module cron hook
 
 ```gherkin
 When the Search API cron runs
-
 ```
 
 </details>
@@ -7146,7 +6745,6 @@ Run the Search API Solr module cron hook
 
 ```gherkin
 When the Search API Solr cron runs
-
 ```
 
 </details>
@@ -7181,7 +6779,6 @@ Set a Drupal state value
 
 ```gherkin
 Given the state "my_module.launched" has the value "1"
-
 ```
 
 </details>
@@ -7195,7 +6792,6 @@ Delete a Drupal state value
 
 ```gherkin
 Given the state "my_module.launched" does not exist
-
 ```
 
 </details>
@@ -7212,7 +6808,6 @@ Given the following state values exist:
   | name                   | value |
   | my_module.launched     | 1     |
   | my_module.feature_flag | 0     |
-
 ```
 
 </details>
@@ -7226,7 +6821,6 @@ Assert that a Drupal state value equals an expected value
 
 ```gherkin
 Then the state "my_module.launched" should have the value "1"
-
 ```
 
 </details>
@@ -7240,7 +6834,6 @@ Assert that a Drupal state key does not exist
 
 ```gherkin
 Then the state "my_module.launched" should not exist
-
 ```
 
 </details>
@@ -7273,7 +6866,6 @@ Create taxonomy terms with vertical field format
 Given the following tags terms with fields exist:
   | name        | [TEST] Behat    | [TEST] Testing  |
   | description | Testing tag     | QA tag          |
-
 ```
 
 </details>
@@ -7289,7 +6881,6 @@ Create taxonomy terms in a vocabulary from a table of field values
 Given the following tags terms exist:
   | name         | description |
   | [TEST] Behat | Testing tag |
-
 ```
 
 </details>
@@ -7305,7 +6896,6 @@ Remove terms from a specified vocabulary
 Given the following "fruits" terms do not exist:
   | Apple |
   | Pear  |
-
 ```
 
 </details>
@@ -7319,7 +6909,6 @@ Visit specified vocabulary term page
 
 ```gherkin
 When I visit the "fruits" term page with the name "Apple"
-
 ```
 
 </details>
@@ -7333,7 +6922,6 @@ Visit specified vocabulary term edit page
 
 ```gherkin
 When I visit the "fruits" term edit page with the name "Apple"
-
 ```
 
 </details>
@@ -7347,7 +6935,6 @@ Visit specified vocabulary term delete page
 
 ```gherkin
 When I visit the "tags" term delete page with the name "[TEST] Remove"
-
 ```
 
 </details>
@@ -7361,7 +6948,6 @@ Assert that a vocabulary with a specific name exists
 
 ```gherkin
 Then the vocabulary "topics" with the name "Topics" should exist
-
 ```
 
 </details>
@@ -7375,7 +6961,6 @@ Assert that a vocabulary does not exist by machine name
 
 ```gherkin
 Then the vocabulary "topics" should not exist
-
 ```
 
 </details>
@@ -7389,7 +6974,6 @@ Assert that a taxonomy term exists by name
 
 ```gherkin
 Then the "Fruits" term with the name "Apple" should exist
-
 ```
 
 </details>
@@ -7403,7 +6987,6 @@ Assert that a taxonomy term does not exist by name
 
 ```gherkin
 Then the "Fruits" term with the name "Apple" should not exist
-
 ```
 
 </details>
@@ -7472,7 +7055,6 @@ Sets the system time for testing
 
 ```gherkin
 When the system time is set to "1737849900"
-
 ```
 
 </details>
@@ -7486,7 +7068,6 @@ Resets the system time to real time
 
 ```gherkin
 When the system time is reset
-
 ```
 
 </details>
@@ -7525,7 +7106,6 @@ Given the following users do not exist:
    | mail             |
    | john@example.com |
    | jane@example.com |
-
 ```
 
 </details>
@@ -7542,7 +7122,6 @@ Given the following users with fields exist:
   | name  | [TEST] user1         | [TEST] user2         |
   | mail  | user1@example.com    | user2@example.com    |
   | roles | editor               | author               |
-
 ```
 
 </details>
@@ -7558,7 +7137,6 @@ Create users from a table of field values
 Given the following users exist:
   | name         | mail              | roles  |
   | [TEST] user1 | user1@example.com | editor |
-
 ```
 
 </details>
@@ -7572,7 +7150,6 @@ Log the current user out so the session is anonymous
 
 ```gherkin
 Given I am an anonymous user
-
 ```
 
 </details>
@@ -7586,7 +7163,6 @@ Set a password for a user
 
 ```gherkin
 Given the password for the user "John" is "password"
-
 ```
 
 </details>
@@ -7601,7 +7177,6 @@ Set last access time for a user
 ```gherkin
 Given the last access time for the user "John" is "Friday, 22 November 2024 13:46:14"
 Given the last access time for the user "John" is "1732319174"
-
 ```
 
 </details>
@@ -7616,7 +7191,6 @@ Set last login time for a user
 ```gherkin
 Given the last login time for the user "John" is "Friday, 22 November 2024 13:46:14"
 Given the last login time for the user "John" is "1732319174"
-
 ```
 
 </details>
@@ -7630,7 +7204,6 @@ Create a single role with specified permissions
 
 ```gherkin
 Given the role "Content Manager" has the permissions "access content, create article content, edit any article content"
-
 ```
 
 </details>
@@ -7647,7 +7220,6 @@ Given the following roles exist:
   | name              | permissions                              |
   | Content Editor    | access content, create article content   |
   | Content Approver  | access content, edit any article content |
-
 ```
 
 </details>
@@ -7662,7 +7234,6 @@ Create a user with the roles and log in as them
 ```gherkin
 Given I am logged in as a user with the role "editor"
 Given I am logged in as a user with the roles "editor, admin"
-
 ```
 
 </details>
@@ -7678,7 +7249,6 @@ Create a user with the roles and fields, and log in as them
 Given I am logged in as a user with the role "editor" and I have the following fields:
   | field_user_name    | John  |
   | field_user_surname | Smith |
-
 ```
 
 </details>
@@ -7693,7 +7263,6 @@ Create a role carrying the permissions, then log in as a user with it
 ```gherkin
 Given I am logged in as a user with the permission "administer nodes"
 Given I am logged in as a user with the permissions "administer nodes, access content"
-
 ```
 
 </details>
@@ -7707,7 +7276,6 @@ Log in as an existing user created earlier in the scenario
 
 ```gherkin
 Given I am logged in as the user "[TEST] user1"
-
 ```
 
 </details>
@@ -7721,7 +7289,6 @@ Log the current user out
 
 ```gherkin
 When I log out
-
 ```
 
 </details>
@@ -7735,7 +7302,6 @@ Visit the profile page of the specified user
 
 ```gherkin
 When I visit the profile page of the user "John"
-
 ```
 
 </details>
@@ -7749,7 +7315,6 @@ Visit the profile page of the current user
 
 ```gherkin
 When I visit my own profile page
-
 ```
 
 </details>
@@ -7763,7 +7328,6 @@ Visit the profile edit page of the specified user
 
 ```gherkin
 When I visit the profile edit page of the user "John"
-
 ```
 
 </details>
@@ -7777,7 +7341,6 @@ Visit the profile edit page of the current user
 
 ```gherkin
 When I visit my own profile edit page
-
 ```
 
 </details>
@@ -7791,7 +7354,6 @@ Visit the profile delete page of the specified user
 
 ```gherkin
 When I visit the profile delete page of the user "John"
-
 ```
 
 </details>
@@ -7805,7 +7367,6 @@ Visit the profile delete page of the current user
 
 ```gherkin
 When I visit my own profile delete page
-
 ```
 
 </details>
@@ -7820,7 +7381,6 @@ Visit the password reset link for a user
 ```gherkin
 When I visit the password reset link for the user "admin"
 When I visit the password reset link for the user "test_user"
-
 ```
 
 </details>
@@ -7834,7 +7394,6 @@ Visit the password reset link for the currently logged-in user
 
 ```gherkin
 When I visit my own password reset link
-
 ```
 
 </details>
@@ -7848,7 +7407,6 @@ Assert that a user has roles assigned
 
 ```gherkin
 Then the user "John" should have the roles "administrator, editor" assigned
-
 ```
 
 </details>
@@ -7862,7 +7420,6 @@ Assert that a user does not have roles assigned
 
 ```gherkin
 Then the user "John" should not have the roles "administrator, editor" assigned
-
 ```
 
 </details>
@@ -7876,7 +7433,6 @@ Assert that a user with an email address exists
 
 ```gherkin
 Then the user with the email "alice@example.com" should exist
-
 ```
 
 </details>
@@ -7890,7 +7446,6 @@ Assert that a user with an email address does not exist
 
 ```gherkin
 Then the user with the email "alice@example.com" should not exist
-
 ```
 
 </details>
@@ -7904,7 +7459,6 @@ Assert that a user is blocked
 
 ```gherkin
 Then the user "John" should be blocked
-
 ```
 
 </details>
@@ -7918,7 +7472,6 @@ Assert that a user is not blocked
 
 ```gherkin
 Then the user "John" should not be blocked
-
 ```
 
 </details>
@@ -7987,7 +7540,6 @@ Remove all webforms with a title containing the given string
 
 ```gherkin
 Given the webform "Test form" does not exist
-
 ```
 
 </details>
@@ -8001,7 +7553,6 @@ Clone a webform template into a new webform with the given title
 
 ```gherkin
 Given the webform "My contact form" has been created from the template "Contact"
-
 ```
 
 </details>

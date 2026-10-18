@@ -1483,7 +1483,7 @@ EOT;
         [
           '[description]' => $method['description'],
           '[step]' => $method['steps'],
-          '[example]' => $method['example'],
+          '[example]' => rtrim($method['example']),
         ]
       );
 
