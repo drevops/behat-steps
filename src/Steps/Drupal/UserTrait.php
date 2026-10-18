@@ -30,6 +30,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
  * - Assert user roles.
  * - Assert user account status (active/inactive).
  *
+ * @title Users
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait UserTrait {

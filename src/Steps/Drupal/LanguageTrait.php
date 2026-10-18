@@ -22,6 +22,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
  * installs the 'language' module therefore leaves that removal to the module
  * uninstall, with '@behat-steps-entity-cleanup-skip:language'.
  *
+ * @title Languages
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait LanguageTrait {

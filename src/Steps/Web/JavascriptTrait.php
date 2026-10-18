@@ -49,6 +49,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
  *   Given I visit "/legacy-page"
  * @endcode
  *
+ * @title JavaScript errors
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait JavascriptTrait {

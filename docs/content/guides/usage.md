@@ -138,7 +138,7 @@ Scenario: The legacy report still renders
   Given I visit "/reports/legacy"
 ```
 
-The 3 reach the same value, most specific last: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and [Steps](../steps/README.md) lists the options of each trait beside its steps.
+The 3 reach the same value, most specific last: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and a trait's page under [Web steps](../web-steps/README.md) or [Drupal steps](../drupal-steps/README.md) lists its options beside its steps.
 
 ## Switch a trait off
 

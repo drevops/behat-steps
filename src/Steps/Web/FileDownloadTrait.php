@@ -32,6 +32,8 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  * Special tags:
  * - `@download` - enable download handling
  *
+ * @title File downloads
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait FileDownloadTrait {

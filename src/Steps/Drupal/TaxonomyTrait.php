@@ -27,6 +27,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
  * - Navigate to term pages.
  * - Verify vocabulary configurations.
  *
+ * @title Taxonomy
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait TaxonomyTrait {

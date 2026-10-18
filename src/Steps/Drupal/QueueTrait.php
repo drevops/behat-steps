@@ -27,6 +27,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * Every queue a step names is deleted once the scenario finishes. Skip the
  * deletion with `@behat-steps-skip:QueueTrait`.
  *
+ * @title Queues
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait QueueTrait {

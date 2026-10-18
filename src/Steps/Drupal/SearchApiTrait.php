@@ -22,6 +22,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * - Run indexing for a specific number of items.
  * - Run the Search API and Search API Solr cron hooks.
  *
+ * @title Search API
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait SearchApiTrait {

@@ -45,7 +45,7 @@ describe('repositoryLinks', () => {
   // resolution fails the test.
   test.each([
     { name: 'an anchor on the page', url: '#options' },
-    { name: 'a site path', url: '/steps' },
+    { name: 'a site path', url: '/web-steps' },
     { name: 'a protocol-relative URL', url: '//example.com/page' },
     { name: 'an absolute URL', url: 'https://behat.org' },
     { name: 'an email address', url: 'mailto:alex@drevops.com' },

@@ -74,6 +74,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\RequestHeadersTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:ConfigOverrideTrait`.
  *
+ * @title Config overrides
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ConfigOverrideTrait {

@@ -60,6 +60,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * }
  * @endcode
  *
+ * @title Responsive layouts
+ *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait ResponsiveTrait {

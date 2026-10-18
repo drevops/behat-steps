@@ -8,7 +8,7 @@ description: Work on these docs locally, regenerate the reference pages, follow 
 
 # Documentation
 
-These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/`. Most pages are hand-written. `docs.php` generates Steps and Helpers from the source code and fills 2 tables in Configuration. It also writes both references as 1 file each, which ship with the Composer package.
+These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/`. Most pages are hand-written. `docs.php` generates the step and helper pages from the source code and fills 2 tables in Configuration. It also writes both references as 1 file each, which ship with the Composer package.
 
 ## Generated pages
 
@@ -16,11 +16,13 @@ These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its
 
 | File | Holds | Ships with the package |
 | --- | --- | --- |
-| [Steps](../steps/README.md) | An index of the step traits, in the marked region of `steps/README.md`, and a page per trait under `steps/web/` and `steps/drupal/`, with its options and an example for each step | No |
-| [Helpers](../helpers/README.md) | An index of the classes with helpers, in the marked region of `helpers/README.md`, and a page per class under `helpers/web/`, `helpers/drupal/` and `helpers/toolbox/`, with each helper's signature | No |
+| [Web steps](../web-steps/README.md), [Drupal steps](../drupal-steps/README.md) | An index of the context's step traits, in the marked region of the section's `README.md`, and a page per trait beside it, with its options and an example for each step | No |
+| [Web helpers](../web-helpers/README.md), [Drupal helpers](../drupal-helpers/README.md) | An index of the context's classes with helpers, in the marked region of the section's `README.md`, and a page per class beside it, with each helper's signature. `WebRawContext` has its page in Web helpers | No |
 | [`STEPS.md`](../../../STEPS.md) | Every step on 1 page, at the repository root | Yes |
 | [`HELPERS.md`](../../../HELPERS.md) | Every public helper on 1 page, at the repository root | Yes |
 | [Configuration](../guides/configuration.md) | The extension options and the tag reference, in 2 marked regions | No |
+
+A page takes its name from the `@title` tag in the docblock of its trait or class, such as `@title Batch API` on `Drupal\BatchTrait`, and the sidebar and the index list a section's pages in the order of those names. `ahoy lint-docs` fails on a trait or class with a page and no title.
 
 The run removes a page of a trait or class that no longer exists, so a renamed trait leaves no page behind.
 
@@ -39,7 +41,7 @@ A tag appears in the reference only after you register it in `tag_registry()`, s
 
 A coding agent in a consuming project reads `STEPS.md` and `HELPERS.md` from `vendor/drevops/behat-steps/` to learn the public surface, as [Writing tests with AI assistants](../guides/ai-assistants.md) describes. `.gitattributes` keeps `docs/` out of the distribution archive, and the docs unit tests fail when either reference stops shipping or when a file in `docs/` starts shipping.
 
-Both references link each trait's source by relative path, so those links resolve in `vendor/` as well as on GitHub. The Example links in Steps point into `tests/`, which the archive leaves out, so they resolve only on GitHub and on the site.
+Both references link each trait's source by relative path, so those links resolve in `vendor/` as well as on GitHub. The Example links in `STEPS.md` point into `tests/`, which the archive leaves out, so they resolve only on GitHub and on the site.
 
 ## Working locally
 
@@ -64,7 +66,7 @@ npm run test:accessibility   # Check the built site for accessibility issues
 - **Code blocks.** Name the language on each fence, such as `php`, `bash`, `yaml` or `gherkin`. Prism's Gherkin grammar recognizes a step keyword only after indentation, so `src/theme/prism-include-languages.js` widens it to the start of a line, and a step example highlights the same with or without indentation.
 - **Link by file.** Link to another page by its path relative to the page holding the link, and to any other file in the repository the same way. From a page at the top of `content/`, that's `[Backend resolution](guides/configuration.md#backend-resolution)` for a page and `[CONTRIBUTING.md](../../CONTRIBUTING.md#steps-format)` for a repository file. The build rewrites a link that leaves `content/` into a GitHub link that points at the tag or branch a release build comes from, at the commit a CI build comes from, and at `main` for a local build. It fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
 - **Diagrams.** The architecture diagrams are PlantUML sources in `content/architecture/`, and the `update-architecture-docs` skill renders them to committed SVGs.
-- **Spelling.** CSpell checks the hand-written pages, `docs/README.md` and the repository's root `README.md` in US English. The 2 references are generated from docblocks, so CSpell skips them. A word the docs use in several places goes in `cspell.json`, and so does a word only the architecture walkthrough uses, because its skill regenerates that page. Any other word goes below the front matter of the 1 page that uses it, as `<!-- cspell:ignore word -->`.
+- **Spelling.** CSpell checks the hand-written pages, `docs/README.md` and the repository's root `README.md` in US English. The step and helper pages are generated from docblocks, so CSpell skips them, apart from the hand-written `README.md` of each section. A word the docs use in several places goes in `cspell.json`, and so does a word only the architecture walkthrough uses, because its skill regenerates that page. Any other word goes below the front matter of the 1 page that uses it, as `<!-- cspell:ignore word -->`.
 
 ## Accessibility
 

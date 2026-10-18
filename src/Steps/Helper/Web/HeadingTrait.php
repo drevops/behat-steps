@@ -9,6 +9,8 @@ use Behat\Mink\Element\TraversableElement;
 
 /**
  * Finds a heading by its text within the page or an element of it.
+ *
+ * @title Headings
  */
 trait HeadingTrait {
 

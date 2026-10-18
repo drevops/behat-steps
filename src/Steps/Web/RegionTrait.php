@@ -21,6 +21,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\HeadingTrait;
  * `regions:` map in the extension configuration. Every step throws when the
  * name is not mapped or the mapped selector matches nothing on the page.
  *
+ * @title Page regions
+ *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait RegionTrait {

@@ -136,4 +136,4 @@ public function publishPage(string $title): void {
 
 That's the lifecycle this package is built for: start in the vocabulary for coverage on day one, then graduate the flows that matter into domain steps on the toolbox. The scenarios change language along the way, and the code underneath them stays the same.
 
-[Scenario styles](guides/scenario-styles.md) explains when each style earns its keep, and [Helpers](helpers/README.md) lists every helper a domain step can build on.
+[Scenario styles](guides/scenario-styles.md) explains when each style earns its keep. [Web helpers](web-helpers/README.md) and [Drupal helpers](drupal-helpers/README.md) list every helper a domain step can build on.

@@ -279,7 +279,7 @@ The backends also take classes of your own through the `drupal.field_handlers`, 
 
 ### Trait options
 
-Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. [Steps](../steps/README.md) lists the options of each trait beside its steps.
+Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. A trait's page under [Web steps](../web-steps/README.md) or [Drupal steps](../drupal-steps/README.md) lists its options beside its steps.
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [

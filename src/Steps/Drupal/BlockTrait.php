@@ -22,6 +22,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
  * - Place blocks in regions and assert their configured region.
  * - Created blocks are automatically removed at the end of the scenario.
  *
+ * @title Blocks
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait BlockTrait {

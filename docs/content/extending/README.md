@@ -21,7 +21,7 @@ Behat Steps ships 3 layers, and each one takes code of your own where the shippe
 | Extension point | What semantic versioning covers |
 | --- | --- |
 | [A step of your own](steps.md#writing-a-step-of-your-own) | The helpers it calls, such as `entityLifecycleCreateNode()`, `entityLifecycleRegister()` and `httpDetachedClient()` |
-| [A trait's seam](steps.md#go-further-than-the-options) | The seam itself, a public `<trait>Get<Noun>()` method that [Helpers](../helpers/README.md) lists, such as `modalGetSelectors()` |
+| [A trait's seam](steps.md#go-further-than-the-options) | The seam itself, a public `<trait>Get<Noun>()` method that the trait's helpers page lists, such as `modalGetSelectors()` on [Modals](../web-helpers/modal.md) |
 | [A context's HTTP client](steps.md#a-context-override-a-flaky-staging-server) | `getHttpClientFactory()`, a helper |
 | [Options for a trait of your own](steps.md#declare-options-for-a-trait-of-your-own) | `getOption()` and the typed readers such as `getOptionBool()`, which are helpers. `Option` and the `<prefix>ConfigSchema()` method name sit on none of the 5 surfaces, so they aren't covered |
 | [Inherited steps and hooks](steps.md#the-rules-that-govern-composition) | The step text and the 3 context base classes. The rules in the table there are Behat's own |

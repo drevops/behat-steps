@@ -28,6 +28,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
  *
  * `@javascript`-only: requires a headless browser session.
  *
+ * @title Dropzone uploads
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait DropzoneTrait {

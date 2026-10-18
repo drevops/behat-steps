@@ -20,6 +20,8 @@ use DrevOps\BehatSteps\Steps\Exception\AssertionException;
  * the scenario's order. They work in a scenario driven by any other backend
  * as long as the suite lists a Drush-capable one.
  *
+ * @title Drush
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait DrushTrait {

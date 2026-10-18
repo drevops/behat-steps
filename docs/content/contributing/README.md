@@ -17,7 +17,7 @@ It also covers the [local environment](../../../CONTRIBUTING.md#local-environmen
 
 - `src/` - the package: the backends, the Behat extension, the 3 contexts and the step and helper traits.
 - `tests/` - the unit, kernel and Behat suites, and the fixture Drupal sites for Drupal 11 and 12 that all 3 suites run against.
-- `docs.php` - the generator behind [Steps](../steps/README.md), [Helpers](../helpers/README.md) and the generated tables in [Configuration](../guides/configuration.md).
+- `docs.php` - the generator behind the [Web steps](../web-steps/README.md), [Drupal steps](../drupal-steps/README.md), [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) pages and the generated tables in [Configuration](../guides/configuration.md).
 - `docs/` - this site, with its pages in `docs/content/`.
 - `scripts/` - the fixture site provisioning, the coverage tools and the layer and trait linters.
 - `.claude/skills/` - the AI agent skills kept in this repository: `migrate-behat-steps` for consuming projects, and `update-architecture-docs` for maintainers.

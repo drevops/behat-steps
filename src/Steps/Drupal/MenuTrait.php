@@ -23,6 +23,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
  * - Create and remove menu links, including parent-child hierarchies.
  * - Created menus and menu links are automatically removed at the end of the scenario.
  *
+ * @title Menus
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait MenuTrait {

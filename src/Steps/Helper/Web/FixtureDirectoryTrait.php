@@ -10,6 +10,8 @@ namespace DrevOps\BehatSteps\Steps\Helper\Web;
  * A path resolves only to a file inside that directory, so a `..` segment
  * cannot reach a file elsewhere on disk.
  *
+ * @title Fixture files
+ *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait FixtureDirectoryTrait {

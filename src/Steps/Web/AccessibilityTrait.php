@@ -56,6 +56,8 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  * `BEHAT_ACCESSIBILITY_PRINT` environment variable to a non-empty value other
  * than `0`, or override `accessibilityGetPrintCli()`, to enable it.
  *
+ * @title Accessibility
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait AccessibilityTrait {

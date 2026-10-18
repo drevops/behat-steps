@@ -22,6 +22,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
  * - Visit ECK entity pages and their edit pages.
  * - Created entities are automatically removed at the end of the scenario.
  *
+ * @title ECK entities
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait EckTrait {

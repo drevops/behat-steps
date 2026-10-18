@@ -11,7 +11,7 @@ The step vocabulary is the step and helper traits under `src/Steps` and the 3 co
 
 ## Writing a step of your own
 
-A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [Helpers](../helpers/README.md) lists every one of them.
+A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) list every one of them.
 
 A suite that writes its own Drupal steps composes the helper for the concern it touches. `EntityLifecycleTrait` brings entity creation and the `AfterScenario` pass that removes what was created:
 
@@ -102,7 +102,7 @@ class AcmeWebContext extends WebContext {
 }
 ```
 
-An override replaces the resolution entirely, so the option, the `steps` default and any tag no longer reach that value. [Helpers](../helpers/README.md) lists every seam a context can override.
+An override replaces the resolution entirely, so the option, the `steps` default and any tag no longer reach that value. [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) list every seam a context can override.
 
 ### A context override: a flaky staging server
 

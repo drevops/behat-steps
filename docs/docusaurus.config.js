@@ -115,8 +115,24 @@ const config = {
           src: 'img/logo.png',
         },
         items: [
-          {to: '/steps', label: 'Steps', position: 'left'},
-          {to: '/helpers', label: 'Helpers', position: 'left'},
+          {
+            type: 'dropdown',
+            label: 'Steps',
+            position: 'left',
+            items: [
+              {to: '/web-steps', label: 'Web steps'},
+              {to: '/drupal-steps', label: 'Drupal steps'},
+            ],
+          },
+          {
+            type: 'dropdown',
+            label: 'Helpers',
+            position: 'left',
+            items: [
+              {to: '/web-helpers', label: 'Web helpers'},
+              {to: '/drupal-helpers', label: 'Drupal helpers'},
+            ],
+          },
           {
             href: 'https://packagist.org/packages/drevops/behat-steps',
             label: 'Packagist',
@@ -143,8 +159,10 @@ const config = {
             items: [
               {label: 'Installation', to: '/installation'},
               {label: 'Quick start', to: '/quick-start'},
-              {label: 'Steps', to: '/steps'},
-              {label: 'Helpers', to: '/helpers'},
+              {label: 'Web steps', to: '/web-steps'},
+              {label: 'Drupal steps', to: '/drupal-steps'},
+              {label: 'Web helpers', to: '/web-helpers'},
+              {label: 'Drupal helpers', to: '/drupal-helpers'},
             ],
           },
           {

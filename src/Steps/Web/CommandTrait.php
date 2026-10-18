@@ -27,6 +27,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * is subject to shell expansion, so untrusted input must never be
  * interpolated into it.
  *
+ * @title Shell commands
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait CommandTrait {

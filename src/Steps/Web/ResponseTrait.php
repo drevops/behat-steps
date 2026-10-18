@@ -12,6 +12,8 @@ use Behat\Step\Then;
  *
  * - Assert HTTP header presence and values.
  *
+ * @title Response headers
+ *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait ResponseTrait {

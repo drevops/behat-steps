@@ -23,6 +23,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
  * - Attach paragraphs to various entity types with parent-child relationships.
  * - Created paragraph items are automatically removed at the end of the scenario.
  *
+ * @title Paragraphs
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ParagraphsTrait {

@@ -6,9 +6,15 @@
         "php",
         "softwareTerms"
     ],
-    "ignorePaths": [
-        "content/helpers/*/*.md",
-        "content/steps/*/*.md"
+    "overrides": [
+        {
+            "filename": ["content/*-helpers/*.md", "content/*-steps/*.md"],
+            "enabled": false
+        },
+        {
+            "filename": ["content/*-helpers/README.md", "content/*-steps/README.md"],
+            "enabled": true
+        }
     ],
     "words": [
         "Behat",

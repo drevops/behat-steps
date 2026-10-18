@@ -24,10 +24,11 @@ CI -> Build: npm run build, with repository links at\nRELEASE_VERSION, else DOCS
 activate Build
 Build -> Build: read every page under docs/content/,\n.md as CommonMark, the sidebar\nfrom the folder tree
 note right of Build
-  docs.php writes 1 page per trait under
-  steps/ and per class under helpers/, the
-  index region of each folder's README.md,
-  and the option and tag tables of
+  docs.php writes 1 page per trait or class
+  into a section per context, such as
+  web-steps/ or drupal-helpers/, the index
+  region of each section's README.md, and
+  the option and tag tables of
   guides/configuration.md.
 end note
 

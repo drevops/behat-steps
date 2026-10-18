@@ -19,6 +19,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\StaticCacheTrait;
  *   render cache.
  * - Run cron, which also flushes the caches cron itself invalidates.
  *
+ * @title Caches and cron
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait CacheTrait {

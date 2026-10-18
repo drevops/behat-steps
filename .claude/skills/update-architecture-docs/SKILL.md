@@ -11,7 +11,7 @@ The walkthrough doubles as the Architecture section of the documentation site, s
 
 `docs/content/architecture/` also holds the diagram sources as PlantUML (`.puml`) plus their rendered light `.svg`. Both are committed, so a reviewer sees the source diff and the rendered result.
 
-`STEPS.md` and the pages under `docs/content/steps/` are the index of the step vocabulary, and `docs.php` generates them. Never duplicate their per-step listing here: this document explains how a step reaches a browser or a Drupal API, not what each step does.
+`STEPS.md` and the pages under `docs/content/web-steps/` and `docs/content/drupal-steps/` are the index of the step vocabulary, and `docs.php` generates them. Never duplicate their per-step listing here: this document explains how a step reaches a browser or a Drupal API, not what each step does.
 
 All content is derived from the actual source code: sources, entry scripts, manifests, and CI workflows. Never derive content from wishes, plans, or design documents. If the documentation and the code disagree, the code wins.
 

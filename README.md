@@ -31,8 +31,8 @@ Behat Steps is a collection of reusable testing actions and assertions for autom
 
 ## Features
 
-- [Steps](https://behat-steps.drevops.com/steps) for pages, forms, APIs, email, caches, content and more, with an example for each.
-- [Helpers](https://behat-steps.drevops.com/helpers) behind every step, for the domain steps you write yourself.
+- [Web](https://behat-steps.drevops.com/web-steps) and [Drupal](https://behat-steps.drevops.com/drupal-steps) steps for pages, forms, APIs, email, caches, content and more, with an example for each.
+- [Web](https://behat-steps.drevops.com/web-helpers) and [Drupal](https://behat-steps.drevops.com/drupal-helpers) helpers behind every step, for the domain steps you write yourself.
 - [Backends](https://behat-steps.drevops.com/guides/configuration#backend-resolution) picked by capability, so a step runs in-process or through Drush.
 - Support for Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5.
 - BrowserKit, Selenium and Chrome DevTools [browser drivers](https://behat-steps.drevops.com/installation#javascript-browser-drivers).

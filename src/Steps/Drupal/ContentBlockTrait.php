@@ -28,6 +28,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
  *   visit their edit pages.
  * - Created entities are automatically removed at the end of the scenario.
  *
+ * @title Content blocks
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ContentBlockTrait {

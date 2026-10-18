@@ -928,11 +928,13 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 | --- | --- |
 | [STEPS.md](STEPS.md) | The step vocabulary, on 1 page |
 | [HELPERS.md](HELPERS.md) | The toolbox, on 1 page |
-| [docs/content/steps/](docs/content/steps) | The step vocabulary on the documentation site: the index in the marked region of `README.md`, and 1 page per trait |
-| [docs/content/helpers/](docs/content/helpers) | The toolbox on the documentation site: the index in the marked region of `README.md`, and 1 page per class |
+| [docs/content/web-steps/](docs/content/web-steps), [docs/content/drupal-steps/](docs/content/drupal-steps) | The step vocabulary on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per trait |
+| [docs/content/web-helpers/](docs/content/web-helpers), [docs/content/drupal-helpers/](docs/content/drupal-helpers) | The toolbox on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per class, with `WebRawContext` among the web helpers |
 | [docs/content/guides/configuration.md](docs/content/guides/configuration.md) | The extension options and the tag reference |
 
-The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
+A trait or class with a page names it with a `@title` tag in its docblock, in its own group before any other tag: `@title Batch API` names the pages of `Drupal\BatchTrait`. The title names what the trait or class works with, in sentence case, so it reads as an entry in the sidebar, and each section lists its pages in title order.
+
+The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every trait or class with a page carries a title, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
 
 ```
 ahoy update-docs  # Update documentation

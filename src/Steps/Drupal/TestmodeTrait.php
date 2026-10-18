@@ -23,6 +23,8 @@ use DrevOps\BehatSteps\Extension\Tag;
  * Special tags:
  * - `@testmode` - enable for scenario
  *
+ * @title Testmode
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait TestmodeTrait {

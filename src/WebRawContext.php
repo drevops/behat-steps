@@ -52,6 +52,8 @@ use Symfony\Component\HttpClient\HttpClient;
  * step definitions. A step trait that composes one of them again shares the
  * same state.
  *
+ * @title Root context
+ *
  * @see \DrevOps\BehatSteps\WebContext
  * @see \DrevOps\BehatSteps\DrupalContext
  */
