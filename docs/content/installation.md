@@ -1,7 +1,7 @@
 ---
 title: Installation
 sidebar_position: 2
-description: Install Behat Steps with Composer on Behat 3 or Behat 4, add the packages only some traits need, and set up a JavaScript browser driver.
+description: Install Behat Steps with Composer, add the packages only some steps need, and set up a JavaScript browser driver.
 ---
 
 <!-- cspell:ignore chromedp dmore justinrainbow lullabot softcreatr -->
@@ -16,14 +16,7 @@ Behat Steps is a Composer package. It needs PHP 8.3 or newer and Behat 3.33 or n
 composer require --dev drevops/behat-steps:^4
 ```
 
-With `minimum-stability: stable`, Composer's default, that installs Behat 3. Behat 4 needs `friends-of-behat/mink-extension` 3, which has only an alpha release so far, and Composer takes a stability flag such as `@alpha` only from your own `composer.json`. To install on Behat 4, ask for both:
-
-```bash
-composer require --dev drevops/behat-steps:^4 behat/behat:^4 \
-  friends-of-behat/mink-extension:^3.0@alpha
-```
-
-A project whose `minimum-stability` already admits alpha releases can get Behat 4 from the first command, but that command doesn't pin Behat's major version. When the suite needs Behat 4, require `behat/behat:^4` as above.
+That's the only package you need to require. Behat, Mink with its BrowserKit driver and extension, and the Symfony components the steps use are all requirements of Behat Steps, so Composer installs them along with it. A few steps need 1 more package, which [Optional dependencies](#optional-dependencies) lists.
 
 ## Coming from the Drupal Extension
 
@@ -31,10 +24,20 @@ This package replaces `drupal/drupal-extension` and `drupal/drupal-driver` and c
 
 ## Optional dependencies
 
-To keep installs lean, Behat Steps declares the packages that only some traits need as `suggest` rather than as hard requirements. The hard requirements are Behat, Mink with its BrowserKit driver and extension, and a set of Symfony components. Run `composer suggests` to list the suggested packages, then add the ones for the traits you use to your project's `require-dev`:
+Behat Steps lists the packages that only some steps need under `suggest` in its `composer.json` rather than requiring them, so a suite that doesn't use those steps doesn't install them. `composer suggests` lists them from your project. Add the ones your suite needs to its `require-dev`:
 
-- `JsonTrait` needs `softcreatr/jsonpath` for JSON path steps and `justinrainbow/json-schema` for JSON schema steps.
-- `@javascript` scenarios need a JavaScript-capable browser driver, as [JavaScript browser drivers](#javascript-browser-drivers) describes.
+| Package | What needs it |
+| --- | --- |
+| `softcreatr/jsonpath` | The JSON path steps of [JSON responses](web-steps/json.md), such as `Then the JSON path :path should exist` |
+| `justinrainbow/json-schema` | The JSON schema steps of [JSON responses](web-steps/json.md), such as `Then the response should match the JSON schema in the file :filename` |
+| `lullabot/mink-selenium2-driver` | `@javascript` scenarios run through a Selenium server |
+| `dmore/behat-chrome-extension` | `@javascript` scenarios run in headless Chrome, with no Selenium server |
+
+The 2 browser drivers do the same job, so a suite that runs `@javascript` scenarios installs 1 of them, as [JavaScript browser drivers](#javascript-browser-drivers) describes. A suite that uses every JSON step adds both JSON packages:
+
+```bash
+composer require --dev softcreatr/jsonpath justinrainbow/json-schema
+```
 
 ## JavaScript browser drivers
 

@@ -28,6 +28,9 @@ use JsonSchema\Validator;
  *
  * JSONPath expressions use the standard `$.path.to[0].value` syntax.
  *
+ * The JSON path steps require the optional `softcreatr/jsonpath` package:
+ * `composer require --dev softcreatr/jsonpath`.
+ *
  * The JSON Schema steps require the optional `justinrainbow/json-schema`
  * package: `composer require --dev justinrainbow/json-schema`.
  *

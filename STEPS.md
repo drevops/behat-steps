@@ -1870,6 +1870,9 @@ When I switch to the root document
 >  
 >  JSONPath expressions use the standard `$.path.to[0].value` syntax.
 >  <br/><br/>
+>  The JSON path steps require the optional `softcreatr/jsonpath` package:
+>  `composer require --dev softcreatr/jsonpath`.
+>  <br/><br/>
 >  The JSON Schema steps require the optional `justinrainbow/json-schema`
 >  package: `composer require --dev justinrainbow/json-schema`.
 

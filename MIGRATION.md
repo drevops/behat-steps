@@ -21,7 +21,7 @@ Every table follows the same conventions, so a tool can apply it as written:
 
 - PHP 8.3 or newer. 3.14 ran on PHP 8.2.
 - Drupal 11 or 12 on a Drupal site. 4.0 requires no Drupal package of its own, and its Drupal backend throws a `BootstrapException` on Drupal 10.
-- Behat 3 or Behat 4. 3.14 refused Behat 4. On Behat 4, it also needs `friends-of-behat/mink-extension` 3, which only has an alpha release so far, so the installation section of the [README](README.md) shows how to require both.
+- Behat 3 or Behat 4. 3.14 refused Behat 4. 4.0 requires Behat and `friends-of-behat/mink-extension` itself, so Composer installs both with it.
 - Drush 13 or newer for the Drush backend, as [Backend contracts](#backend-contracts) explains.
 
 4.0 replaces `drupal/drupal-extension` and `drupal/drupal-driver`, and it conflicts with every version of both, so Composer won't install it while your project requires either one. Remove the extension before updating, and add `drupal/drupal-driver` to the same command if your `composer.json` requires it directly:

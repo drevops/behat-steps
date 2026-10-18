@@ -45,12 +45,12 @@ Behat Steps is a collection of reusable testing actions and assertions for autom
 composer require --dev drevops/behat-steps:^4
 ```
 
-With Composer's default `minimum-stability: stable`, that installs Behat 3. Behat 4 needs an alpha release of `friends-of-behat/mink-extension` 3, and Composer takes a stability flag only from your own `composer.json`, so ask for both:
+Composer installs Behat, Mink and the rest of what the steps run on along with it. A few steps need a package of their own, which Behat Steps suggests rather than requires:
 
-```bash
-composer require --dev drevops/behat-steps:^4 behat/behat:^4 \
-  friends-of-behat/mink-extension:^3.0@alpha
-```
+<!-- cspell:ignore dmore justinrainbow lullabot softcreatr -->
+
+- `softcreatr/jsonpath` and `justinrainbow/json-schema` for the JSON path and JSON schema steps.
+- `lullabot/mink-selenium2-driver` or `dmore/behat-chrome-extension` for `@javascript` scenarios, which drive a real browser.
 
 [Installation](https://behat-steps.drevops.com/installation) covers the optional dependencies and the JavaScript browser drivers, and the [Quick start](https://behat-steps.drevops.com/quick-start) takes you to a first scenario.
 
