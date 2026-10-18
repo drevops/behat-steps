@@ -129,7 +129,7 @@ class Core extends BaseCore {
 
 The default implementation returns the base `FieldClassifier`. The value-shape classifier follows the identical pattern - `Core::createFieldShapeClassifier()` returns the base `FieldShapeClassifier`, and a `Core{N}\Field\FieldShapeClassifier` replaces it. A version core registers its own handlers the same way, by extending `registerDefaultFieldHandlers()` with a scan of its own `Field/` directory. Each scan is independent, so a version core re-registers only the types it changes, and the rest stay as the parent's scan registered them.
 
-These methods are protected, so semantic versioning doesn't cover them: they exist for a version core inside this package. A project adds or replaces a field handler through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface` instead, as [Field handlers](../../../../../docs/content/guides/configuration.md#field-handlers) describes.
+These methods are protected, so semantic versioning doesn't cover them: they exist for a version core inside this package. A project adds or replaces a field handler through the `drupal.field_handlers` option or `FieldHandlerCapabilityInterface` instead, as [Field handlers](../../../../../docs/content/extending/backend.md#field-handlers) describes.
 
 ## Pipeline walk-through
 

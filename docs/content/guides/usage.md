@@ -84,49 +84,9 @@ class UiContext extends WebRawContext {
 }
 ```
 
-A suite that writes its own Drupal steps composes the helper for the concern it touches. `EntityLifecycleTrait` brings entity creation and the `AfterScenario` pass that removes what was created:
+A context that adds steps of its own builds them on the helpers, as [Writing a step of your own](../extending/steps.md#writing-a-step-of-your-own) describes.
 
-```php
-<?php
-
-use Behat\Step\When;
-use DrevOps\BehatSteps\Backend\Entity\EntityStub;
-use DrevOps\BehatSteps\WebRawContext;
-use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
-
-class SpecContext extends WebRawContext {
-
-  use EntityLifecycleTrait;
-
-  #[When('I publish a page titled :title')]
-  public function publish(string $title): void {
-    $this->entityLifecycleCreateNode(new EntityStub('node', 'page', [
-      'title' => $title,
-    ]));
-  }
-
-}
-```
-
-`WebRawContext` also composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`), so a project's own step definitions reach them on `$this`. Composing 1 of those helper traits in a step trait as well shares the same state rather than duplicating it.
-
-## The rules that govern composition
-
-Behat's attribute inheritance works in opposite directions for a trait that's composed and a class that's extended:
-
-| What the project does | Result |
-| --- | --- |
-| Registers 2 contexts composing the same trait | Fatal, `RedundantStepException` |
-| A subclass re-composes a trait its parent already has | Fatal, every step in it registers twice |
-| A subclass overrides an inherited step, no attribute | Works, the subclass body runs, the step text is inherited |
-| A subclass overrides an inherited step and repeats the attribute | Fatal, the pattern registers twice |
-| A subclass overrides an inherited step with a different pattern | Both patterns register, both run the subclass body |
-| A composed trait's method is redeclared without the attribute | The step is silently removed |
-| A composed trait is aliased `as protected` and the attribute redeclared | Works, wraps the original |
-| A subclass overrides an inherited hook, no attribute | Works, the subclass body runs |
-| A subclass overrides an inherited hook and repeats the attribute | **Runs twice, silently** |
-
-The last row is the least discoverable: `HookRepository` doesn't deduplicate, so a hook whose attribute is repeated on the override fires once for the parent declaration and once for the subclass one. Override an inherited hook without repeating its attribute.
+[The rules that govern composition](../extending/steps.md#the-rules-that-govern-composition) cover what Behat does when a context re-composes a trait or overrides an inherited step or hook.
 
 ## Register it against the extension
 
@@ -178,7 +138,7 @@ Scenario: The legacy report still renders
   Given I visit "/reports/legacy"
 ```
 
-The 3 reach the same value, most specific last: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and [Steps](../steps.md) lists the options of each trait beside its steps.
+The 3 reach the same value, most specific last: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and [Steps](../steps/README.md) lists the options of each trait beside its steps.
 
 ## Switch a trait off
 
@@ -222,13 +182,7 @@ Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help 
 
 Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, so the test database stays clean across long suites. Reverse order means a node comes down before the term it references.
 
-A step of your own registers what it created, passing the stub the capability returned and the key its entity type stores the ID under:
-
-```php
-$created = $this->backendFor(ContentCapabilityInterface::class)
-  ->createEntity($stub);
-$this->entityLifecycleRegister($created, 'mid');
-```
+[Register what it creates](../extending/steps.md#register-what-it-creates) covers a step of your own that creates an entity itself.
 
 To keep all entities after a scenario, add `@behat-steps-skip:EntityLifecycleTrait` to the scenario or feature. `@behat-steps-skip:AuthTrait` does the same for users and roles.
 
@@ -244,32 +198,6 @@ When several entities share the title, label, name or description a step names, 
 - Blocks and menus have machine names rather than numeric IDs, so the one the scenario created last wins. When the scenario created none of them, the machine name that comes last in natural order wins, so `block_10` beats `block_2`.
 - A `... does not exist` step removes every match, and a step that only checks whether an entity exists, such as `the :content_type content with the title :title should not exist`, looks at every match.
 
-## Go further than the options
+## Where to next
 
-An option covers the values a trait expects to vary. Anything else means overriding the trait's own seam in the composing context:
-
-```php
-class UiContext extends WebRawContext {
-
-  use ModalTrait;
-
-  public function modalGetSelectors(): array {
-    return ['.acme-dialog'];
-  }
-
-}
-```
-
-A suite that registers `WebContext` overrides the same seam by extending it and redeclaring the method, without repeating any Behat attribute:
-
-```php
-class AcmeWebContext extends WebContext {
-
-  public function modalGetSelectors(): array {
-    return ['.acme-dialog'];
-  }
-
-}
-```
-
-An override replaces the resolution entirely, so the option, the `steps` default and any tag no longer reach that value. [Helpers](../helpers.md) lists every seam a context can override.
+For a value no option reaches, [Go further than the options](../extending/steps.md#go-further-than-the-options) shows how to override the trait's own seam in the composing context, and the rest of [Extending the step vocabulary](../extending/steps.md) covers steps of your own.

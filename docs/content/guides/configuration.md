@@ -4,7 +4,7 @@ sidebar_position: 2
 description: Behat Steps reads its configuration from suites and context arguments, the extension key, tags and environment variables. This page covers all 4 channels and lists every option and tag.
 ---
 
-<!-- cspell:ignore autoloadable bigpipe testmode -->
+<!-- cspell:ignore bigpipe testmode -->
 
 # Configuration
 
@@ -249,6 +249,8 @@ That aliasing lets a profile swap the implementation behind a name without touch
 
 A name is unique, and it holds only letters, digits, `_` and `-` so that `@backend:NAME` is a valid tag. A name the extension doesn't register fails the container build. A configuration that declares no list gets every registered backend, in registration order.
 
+`acme-jsonapi` here stands for a backend of your own, which [A backend of your own](../extending/backend.md#a-backend-of-your-own) shows how to write and register.
+
 Scoping a run to a restricted backend set is a profile's job, not a suite's: the package reads nothing from a Behat suite's settings.
 
 At step time the resolution is:
@@ -273,198 +275,11 @@ Repeated tags promote their names in the configured order: `@backend:blackbox @b
 
 `@backend:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo can't silently run the wrong backend, and no tag can hand a Drupal backend to a `smoke` profile that lists only `blackbox`. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
 
-### Field handlers
-
-A step that creates or updates an entity on the `drupal` backend passes each field's value through a field handler, which turns the value a scenario writes into the value Drupal stores: a date in the site's timezone into UTC, a term name into its ID, or a file path into a managed file. The package ships a handler for each field type it supports, and `DefaultHandler` relays any other plain-scalar value as written.
-
-`drupal.field_handlers` maps a field type to a handler class of your own. An entry for a field type the package ships no handler for adds one, and an entry for a shipped type replaces the shipped handler:
-
-```php
-$profile->withExtension(new Extension(BehatStepsExtension::class, [
-  'drupal' => [
-    'drupal_root' => 'web',
-    'field_handlers' => [
-      'rating' => RatingHandler::class,
-      'datetime' => FiscalDatetimeHandler::class,
-    ],
-  ],
-]));
-```
-
-A handler implements `FieldHandlerInterface`. Its constructor takes the stub of the entity, the entity type and the field name, and `expand()` returns the field's values the way Drupal's entity storage takes them, 1 array of columns per delta:
-
-```php
-namespace Acme\Behat\Field;
-
-use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
-use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-
-final class RatingHandler implements FieldHandlerInterface {
-
-  public function __construct(EntityStubInterface $stub, string $entity_type, string $field_name) {}
-
-  public function expand(mixed $values): array {
-    $deltas = [];
-
-    // "4 stars" stores 4.
-    foreach ((array) $values as $value) {
-      $deltas[] = ['value' => (int) $value];
-    }
-
-    return $deltas;
-  }
-
-}
-```
-
-The class has to be autoloadable through Composer, for example from an `autoload-dev` entry. The package builds the `drupal` backend before Behat registers the paths in its `autoload` setting, so a class only those paths can load isn't found. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
-
-The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way, and the registration lasts for the rest of the run, because the backend does:
-
-```php
-$this->backendFor(FieldHandlerCapabilityInterface::class)->registerFieldHandler('rating', RatingHandler::class);
-```
-
-The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename 1 of them.
-
-### Creation aliases
-
-A creation step can take a column that isn't a field of the entity, such as `author` on a node, and a creation alias resolves it while the entity is created: `author` names a user, and the alias sets the node's `uid` to that user's ID. Your scenarios name things the way a person would, and the backend works out the IDs.
-
-The package ships 4, each registered on the backends that run it:
-
-| Alias | Entity type | Backends | What it does |
-| --- | --- | --- | --- |
-| `author` | `node` | `drupal` | Resolves a username into the node's `uid`, and fails when no user has that name |
-| `vocabulary_machine_name` | `taxonomy_term` | `drupal` | Sets the term's `vid` from a vocabulary machine name, when the step gives no bundle or `vid` |
-| `parent` | `taxonomy_term` | `drupal` | Resolves a parent term's name into its ID, within the term's vocabulary |
-| `roles` | `user` | `drupal`, `drush` | Assigns roles, by machine name or label, after the user is saved |
-
-`drupal.creation_aliases` and `drush.creation_aliases` list alias classes of your own. There's 1 list per backend because each backend keeps its own aliases: an alias that queries Drupal in the Behat process can't run on Drush. The backend registers each class after the aliases it ships, so an entry with the name and entity type of a shipped alias replaces it:
-
-```php
-$profile->withExtension(new Extension(BehatStepsExtension::class, [
-  'drupal' => [
-    'drupal_root' => 'web',
-    'creation_aliases' => [
-      OrganizationAlias::class,
-    ],
-  ],
-]));
-```
-
-An alias implements `PreCreateAliasInterface`, which changes the stub's values before the entity is saved, or `PostCreateAliasInterface`, which acts on the entity after it's saved. It runs only when the step gives its column. `getName()` returns the column, `getEntityType()` the entity type it applies to, and `getDescription()` a sentence for anyone listing a backend's aliases through `CreationAliasCapabilityInterface::getCreationAliases()`. A pre-create alias removes its own column once it has resolved it, so Drupal's entity storage sees fields only:
-
-```php
-namespace Acme\Behat\Alias;
-
-use DrevOps\BehatSteps\Backend\Alias\PreCreateAliasInterface;
-use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
-use DrevOps\BehatSteps\Backend\Exception\CreationAliasResolutionException;
-
-final class OrganizationAlias implements PreCreateAliasInterface {
-
-  public function getName(): string {
-    return 'organization';
-  }
-
-  public function getEntityType(): string {
-    return 'node';
-  }
-
-  public function getDescription(): string {
-    return "Resolves an organization code supplied via 'organization' to the organization that carries it.";
-  }
-
-  public function applyToStub(EntityStubInterface $stub): void {
-    $code = (string) $stub->getValue('organization');
-
-    $ids = \Drupal::entityQuery('node')
-      ->accessCheck(FALSE)
-      ->condition('type', 'organization')
-      ->condition('field_code', $code)
-      ->execute();
-
-    if ($ids === []) {
-      throw new CreationAliasResolutionException(sprintf('No organization has the code "%s".', $code));
-    }
-
-    // "ACME" stores the ID of the organization with that code.
-    $stub->setValue('field_organization', (int) reset($ids));
-    $stub->removeValue('organization');
-  }
-
-}
-```
-
-With it registered, a scenario names the organization by its code:
-
-```gherkin
-Given the following article content exists:
-  | title      | organization |
-  | Lab report | ACME         |
-```
-
-The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable through Composer, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
-
-The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. A context of your own builds an alias whose constructor takes arguments, such as a lookup service, and registers it the same way. The registration lasts for the rest of the run, because the backend does:
-
-```php
-$this->backendFor(CreationAliasCapabilityInterface::class)->registerCreationAlias(new OrganizationAlias($lookup));
-```
-
-`backendFor()` returns the first backend in the scenario's order that provides the capability, so with `drupal` listed first, that's where the alias lands. `$this->getBackend('drush')` reaches the Drush backend by name instead.
-
-Where an alias runs depends on the backend:
-
-- `drupal` runs an alias whenever a step creates an entity of its type: a node, a term, a user, a file, block content, or an entity the media, paragraph, menu link, ECK and `the following :entity_type entities exist:` steps create. Its field parser leaves the alias's column as written, while any other column that isn't a field fails the step with `The field "..." does not exist on entity type "...".` A `Core` of your own that doesn't implement `CreationAliasCapabilityInterface` keeps no aliases, so registering an alias on the `drupal` backend fails with an `UnsupportedBackendActionException`.
-- `drush` creates only users, so it runs only the aliases for `user`. A pre-create alias runs before `drush user:create`, which takes only the name, the password and the email. A post-create alias runs after it, with an object carrying only the new user's `uid` in place of the entity. Drupal isn't loaded in the Behat process there, so an alias that reaches the site takes the backend in its constructor, the way the shipped `roles` alias takes `UserCapabilityInterface`, and is registered from a context.
-
-The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` are covered by semantic versioning. The shipped aliases are final, so an alias of your own implements an interface rather than extending 1 of them.
-
-### Core
-
-The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. The base `Core` serves every supported Drupal major that has no version core of its own. A major that changes something the base relies on gets a version core of its own, such as `DrevOps\BehatSteps\Backend\Drupal\Core13\Core`. The backend builds the newest version core at or below the major it detects, or the base `Core` when none applies.
-
-`drupal.core` names a class of your own instead, for a site whose modules change what an operation has to do:
-
-```php
-$profile->withExtension(new Extension(BehatStepsExtension::class, [
-  'drupal' => [
-    'drupal_root' => 'web',
-    'core' => AcmeCore::class,
-  ],
-]));
-```
-
-The class implements `CoreInterface` and is built with the Drupal root, the base URL and the random generator, as the package's Core is. The backend builds it, so a Core that needs other collaborators creates them in its constructor. Extending the Core the package ships for your site's major keeps everything you don't override:
-
-```php
-namespace Acme\Behat;
-
-use DrevOps\BehatSteps\Backend\Drupal\Core\Core;
-
-class AcmeCore extends Core {
-
-  public function cacheClear(): void {
-    parent::cacheClear();
-    // Purge the site's reverse proxy as well.
-  }
-
-}
-```
-
-The class has to be autoloadable through Composer, for example from an `autoload-dev` entry, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CoreInterface` or can't be instantiated fails with a `BootstrapException` naming it when the package builds the `drupal` backend.
-
-When a class builds on a Core of the package, the nearest one among its parents has to be the Core for the site's major. Otherwise, building the backend fails with `Core class "..." extends "...", which is not the Core for Drupal N. Extend "..." instead.` That happens when a site moves to a major whose Core is another class, and when a release of the package adds a version core for the major a site already runs. In both cases, change `AcmeCore` to extend the class the message names.
-
-Naming a Core of the package itself, such as the base `Core` on a major with a version core, fails the same way with `Core class "..." is not the Core for Drupal N. Use "..." instead.` A suite running on 2 majors whose Cores differ picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
-
-The option is covered by semantic versioning. `CoreInterface` and the Core classes aren't: a minor release can add a method to the interface or rename a protected method `AcmeCore` overrides. A new interface method breaks a class built from scratch, but not one extending a Core of the package. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
+The backends also take classes of your own through the `drupal.field_handlers`, `drupal.creation_aliases`, `drush.creation_aliases` and `drupal.core` options, which [Extending the backend layer](../extending/backend.md) covers.
 
 ### Trait options
 
-Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. [Steps](../steps.md) lists the options of each trait beside its steps.
+Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. [Steps](../steps/README.md) lists the options of each trait beside its steps.
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
@@ -506,27 +321,7 @@ The 2 levels, `steps` and a context's `config`, differ in how strictly they're r
 
 Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in the composing context sits outside the chain and replaces the resolution entirely. That override is the escape hatch for anything the configuration can't express.
 
-A project writing its own configurable trait declares each option as a `DrevOps\BehatSteps\Extension\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
-
-```php
-protected function acmeConfigSchema(): array {
-  return [
-    new Option(
-      'enabled',
-      default: TRUE,
-      description: 'Whether the Acme hook runs.',
-    ),
-    new Option(
-      'wait_timeout',
-      default: 5000,
-      description: 'How long to wait, in milliseconds.',
-      tags: ['slow' => 30000],
-    ),
-  ];
-}
-```
-
-The declared default carries the option's type, and the composing context reads it at that type with `getOptionBool()`, `getOptionInt()`, `getOptionFloat()`, `getOptionString()` or `getOptionArray()`. A default of `NULL` names no type, and `getOption()` reads it. Resolution itself is the `behat_steps.config.resolver_factory` service, so a project that needs a chain of its own registers another `TraitOptionResolverFactoryInterface` under that id.
+[Extending the step vocabulary](../extending/steps.md#declare-options-for-a-trait-of-your-own) covers declaring options for a trait of your own, and [Extending the extension layer](../extending/extension.md#replace-option-resolution) covers replacing the resolution itself.
 
 ## 3. Tags
 

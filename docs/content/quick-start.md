@@ -39,7 +39,7 @@ class FeatureContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` registers no steps of its own: it owns the backend access, the configuration and 3 of the web helper traits. A step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created. [Usage](guides/usage.md) covers the 3 entry points and the rules that govern composing them.
+`WebRawContext` registers no steps of its own: it owns the backend access, the configuration and 3 of the web helper traits. A step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created. [Usage](guides/usage.md) covers the 3 entry points, and [Extending the step vocabulary](extending/steps.md#the-rules-that-govern-composition) covers the rules that govern composing them.
 
 ## 2. Enable the extension
 
@@ -136,4 +136,4 @@ public function publishPage(string $title): void {
 
 That's the lifecycle this package is built for: start in the vocabulary for coverage on day one, then graduate the flows that matter into domain steps on the toolbox. The scenarios change language along the way, and the code underneath them stays the same.
 
-[Scenario styles](guides/scenario-styles.md) explains when each style earns its keep, and [Helpers](helpers.md) lists every helper a domain step can build on.
+[Scenario styles](guides/scenario-styles.md) explains when each style earns its keep, and [Helpers](helpers/README.md) lists every helper a domain step can build on.
