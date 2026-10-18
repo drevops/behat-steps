@@ -112,7 +112,7 @@ class RandomTraitTest extends UnitTestCase {
     $this->assertLessThanOrEqual(9, $value);
   }
 
-  public function testEquivalentTokensShareAValue(): void {
+  public function testEquivalentTokensShareTheirValue(): void {
     $default = $this->testObject->randomResolveLiteral('[?t]');
 
     $this->assertSame($default, $this->testObject->randomResolveLiteral('[?t:string]'));

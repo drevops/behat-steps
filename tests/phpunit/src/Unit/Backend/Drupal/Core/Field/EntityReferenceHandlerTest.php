@@ -169,7 +169,7 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
     $this->createHandler()->expand('alice');
   }
 
-  public function testDigitLookupMatchesAnIdOrALabel(): void {
+  public function testDigitLookupMatchesAnIdOrLabel(): void {
     $conditions = [];
     \Drupal::getContainer()->set('entity_type.manager', $this->createRecordingEntityTypeManager(['id' => 'uid', 'label' => 'name'], [8], $conditions));
 
@@ -177,7 +177,7 @@ class EntityReferenceHandlerTest extends FieldHandlerUnitTestBase {
     $this->assertSame([['uid', 8], ['name', '8']], $conditions);
   }
 
-  public function testLookupOnAnEntityTypeWithoutALabelMatchesTheId(): void {
+  public function testLookupOnAnEntityTypeWithoutLabelMatchesTheId(): void {
     $conditions = [];
     \Drupal::getContainer()->set('entity_type.manager', $this->createRecordingEntityTypeManager(['id' => 'id'], [5], $conditions));
 
