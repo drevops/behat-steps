@@ -2,7 +2,7 @@
 title: Introduction
 slug: /introduction
 sidebar_position: 1
-description: Behat Steps is a library of reusable Behat steps for testing websites, with steps for Drupal sites and the helpers behind every step.
+description: Behat Steps is a library of reusable Behat steps for testing websites, with steps for Drupal sites and the helpers behind the steps.
 ---
 
 # Behat Steps
@@ -16,11 +16,11 @@ The library [tests its own steps](../../tests/behat/features) to avoid false pos
 ## What you get
 
 - [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) list every step, with a page per trait and an example for each step.
-- Every step is a thin wrapper over named helpers, listed in [Web helpers](web-helpers/README.md) and [Drupal helpers](drupal-helpers/README.md), so your own domain steps can call the same code.
+- Most steps are thin wrappers over named helpers, listed in [Web helpers](web-helpers/README.md) and [Drupal helpers](drupal-helpers/README.md), so your own domain steps can call the same code.
 - A step names the capability it needs rather than a [backend](guides/configuration.md#backend-resolution), so a step whose capability Drush provides, such as clearing caches or creating users, runs through Drush as well as in-process.
 - Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5 are [supported](#supported-versions).
 - The library supports the BrowserKit, Selenium and Chrome DevTools [browser drivers](installation.md#javascript-browser-drivers).
-- After each scenario, the library [deletes the entities](guides/usage.md#entities-a-scenario-creates) that scenario's steps created, in reverse creation order.
+- After each scenario, the library [deletes the entities](guides/usage.md#entities-a-scenario-creates) that scenario's steps created, in reverse creation order, along with the users and roles they created.
 - The step and helper references ship with the package as Markdown, so an [AI coding agent](guides/ai-assistants.md) in your project reads the same reference you do.
 - [Architecture](architecture/README.md) shows how the layers fit together in 3 diagrams, which an AI agent maintains through the `update-architecture-docs` skill.
 

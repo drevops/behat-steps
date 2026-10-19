@@ -39,9 +39,11 @@ The 2 browser drivers do the same job, so a suite that runs `@javascript` scenar
 composer require --dev softcreatr/jsonpath justinrainbow/json-schema
 ```
 
+The [Drush](drupal-steps/drush.md) steps need Drush itself, 13 or newer, because they run through the `drush` backend.
+
 ## JavaScript browser drivers
 
-Scenarios tagged `@javascript` use a real browser, and the steps that need one work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. This library's own CI tests against both. Another browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
+Scenarios tagged `@javascript` use a real browser, and the steps that need one work with the 2 JavaScript browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. This library's own CI tests against both. Another browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
 
 To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension), which pulls in `dmore/chrome-mink-driver`, and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both.
 
