@@ -116,4 +116,4 @@ Behat builds a context before the initializer injects the service, so the contex
 ## Where to next
 
 - [Extending the step vocabulary](steps.md) covers what a single context of yours overrides without a Behat extension.
-- [Architecture](../architecture/README.md#the-extension-layer) walks through the services the extension builds and how they reach a context.
+- [Architecture](../architecture/README.md#data-flow) shows when the services the extension builds run and how they reach a context.
