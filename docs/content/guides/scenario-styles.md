@@ -8,7 +8,7 @@ description: The imperative and declarative scenario styles, the job each one do
 
 # Scenario styles - the vocabulary and the toolbox
 
-A generic step library and BDD's own teaching point in different directions, and this library serves both. This page compares the 2 scenario styles and the job each one does, then shows how a flow graduates from the shipped steps to domain steps built on the same helpers.
+A generic step library and what BDD itself teaches point in different directions, and this library serves both. This page compares the 2 scenario styles and the job each one does, then shows how a flow graduates from the shipped steps to domain steps built on the same helpers.
 
 ## The 2 styles
 
