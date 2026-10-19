@@ -65,19 +65,9 @@ Behat Steps ships its step definitions as PHP traits, each holding the steps for
 
 You don't register the traits 1 by 1. The library composes them into 3 contexts, and each one extends the one above it:
 
-```text
-        Behat\MinkExtension\Context\RawMinkContext
-                          |
-                    WebRawContext
-      backend access, configuration, hook dispatch,
-               3 web helper traits, no steps
-                          |
-                     WebContext
-                use Steps\Web\*  (28)
-                          |
-                   DrupalContext
-                use Steps\Drupal\*  (29)
-```
+1. `WebRawContext` extends Mink's `RawMinkContext` and adds backend access, configuration, hook dispatch and 3 web helper traits. It has no steps.
+2. `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`, 28 in all.
+3. `DrupalContext` extends `WebContext` and adds every trait under `Steps\Drupal`, 29 in all.
 
 Because each context extends the one above it, `DrupalContext` already holds every web step. That's why your suite registers exactly 1 of them:
 
