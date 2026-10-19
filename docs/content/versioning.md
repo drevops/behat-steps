@@ -1,6 +1,6 @@
 ---
 title: Public API and versioning
-sidebar_position: 10
+sidebar_position: 11
 description: The 5 surfaces semantic versioning covers, what sits outside them, and the exception types a failing step reports.
 ---
 
