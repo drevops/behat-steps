@@ -79,7 +79,7 @@ The page's words sit in lists at the top of `src/pages/index.js`, 1 per section:
 - **Example scenarios.** The feature files in the hero use shipped steps only. A unit test matches every step in them against the patterns in `STEPS.md`, so renaming a step fails the test until the example follows.
 - **Components.** The feature file, the install command with its copy button and the icons are `FeatureFile`, `CopyCommand` and `Icon` in `src/components`.
 - **Look.** The colors come from the `--behat-steps-*` tokens in `src/css/custom.css`, and the accents of each section take the 4 bar colors of the logo in turn. The feature file and the commands stay dark in both color modes, so the code keeps the colors of the dark code theme. The page uses the system fonts, like the doc pages.
-- **Motion.** The feature file marks its steps as passed one after another, and each block below the fold plays a short entrance as it scrolls into view. Without JavaScript, or when the reader's system asks for reduced motion, everything shows at once.
+- **Motion.** The feature file marks its steps as passed one after another, and each block below the fold plays a short entrance as it scrolls into view. Without JavaScript, or when the reader's system asks for reduced motion, everything shows at once, and a printout shows every block too.
 
 ## Accessibility
 
