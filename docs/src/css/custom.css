@@ -20,6 +20,23 @@
   --behat-steps-blue-on-dark: #84b2e6;
   --ifm-navbar-search-input-placeholder-color: var(--ifm-color-emphasis-700);
   --search-local-muted-color: var(--ifm-color-emphasis-700);
+  /* The 4 bars of the logo and the circle behind them. The bars reach less
+     than 4.5:1 on white, so on a light background they color shapes, never
+     text. */
+  --behat-steps-bar-blue: #2b77cd;
+  --behat-steps-bar-green: #6dc243;
+  --behat-steps-bar-orange: #fc822f;
+  --behat-steps-bar-yellow: #fbc237;
+  --behat-steps-night: #151a20;
+  --behat-steps-text: #3a4450;
+  --behat-steps-muted: #4f5a66;
+  --behat-steps-faint: #5c6773;
+  --behat-steps-surface: #ffffff;
+  --behat-steps-surface-2: #f4f6f9;
+  --behat-steps-border: #e3e7ec;
+  --behat-steps-border-2: #d3d9e0;
+  --behat-steps-shadow: 0 2px 8px -3px rgba(18, 25, 31, 0.12), 0 8px 24px -12px rgba(18, 25, 31, 0.16);
+  --behat-steps-shadow-lg: 0 24px 60px -22px rgba(18, 25, 31, 0.32), 0 2px 8px -4px rgba(18, 25, 31, 0.1);
 }
 
 /* The dark-mode shades step from #84b2e6, the logo blue lightened past 4.5:1
@@ -38,6 +55,24 @@
   /* The selected search result sits on the light blue, so its text takes the
      dark background color. */
   --search-local-hit-active-color: var(--ifm-background-color);
+  --behat-steps-text: #c9d1d9;
+  --behat-steps-muted: #aab4bf;
+  --behat-steps-faint: #9aa5b1;
+  --behat-steps-surface: #242526;
+  --behat-steps-surface-2: #2b2d31;
+  --behat-steps-border: #33363c;
+  --behat-steps-border-2: #44484f;
+  --behat-steps-shadow: 0 2px 10px -4px rgba(0, 0, 0, 0.5), 0 10px 30px -16px rgba(0, 0, 0, 0.6);
+  --behat-steps-shadow-lg: 0 30px 70px -24px rgba(0, 0, 0, 0.7), 0 2px 8px -4px rgba(0, 0, 0, 0.5);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .navbar__logo {

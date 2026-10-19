@@ -3,6 +3,7 @@
 
 import path from 'node:path';
 import {darkCodeTheme, lightCodeTheme} from './src/codeThemes.js';
+import referenceCounts from './src/referenceCounts.js';
 import repositoryLinks from './src/remark/repositoryLinks.js';
 
 // A build without 'RELEASE_VERSION' is not a release, so search engines
@@ -32,6 +33,8 @@ const config = {
 
   onBrokenLinks: 'throw',
   onBrokenAnchors: 'throw',
+  // Pages and docs share the site root, so a doc slug can shadow a page.
+  onDuplicateRoutes: 'throw',
 
   i18n: {
     defaultLocale: 'en',
@@ -67,6 +70,9 @@ const config = {
       }),
     ],
   ],
+
+  // Counts the steps and helpers of the generated pages for the home page.
+  plugins: [[referenceCounts, {contentDir: path.resolve(__dirname, 'content')}]],
 
   markdown: {
     // A '.md' page is CommonMark, so the generated references keep their raw
@@ -116,6 +122,12 @@ const config = {
         },
         items: [
           {
+            type: 'docSidebar',
+            sidebarId: 'docs',
+            label: 'Docs',
+            position: 'left',
+          },
+          {
             type: 'dropdown',
             label: 'Steps',
             position: 'left',
@@ -157,6 +169,7 @@ const config = {
           {
             title: 'Docs',
             items: [
+              {label: 'Introduction', to: '/introduction'},
               {label: 'Installation', to: '/installation'},
               {label: 'Quick start', to: '/quick-start'},
               {label: 'Web steps', to: '/web-steps'},
