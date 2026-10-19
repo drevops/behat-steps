@@ -2,9 +2,9 @@
 ' drevops/behat-steps - data flow for building, checking and publishing the
 ' documentation site.
 ' Traced from docs/package.json, docs/docusaurus.config.js, docs/sidebars.js,
-' docs/src/remark/repositoryLinks.js, docs/src/theme/,
-' docs/src/components/ScrollableTable/, docs/cspell.json,
-' docs/playwright.config.js, docs/tests/accessibility/,
+' docs/src/remark/repositoryLinks.js, docs/src/referenceCounts.js,
+' docs/src/pages/index.js, docs/src/theme/, docs/src/components/,
+' docs/cspell.json, docs/playwright.config.js, docs/tests/accessibility/,
 ' .github/workflows/test.yml, .github/workflows/release-docs.yml.
 ' Regenerate every SVG with:  plantuml -tsvg docs/content/architecture/*.puml
 !theme plain
@@ -16,13 +16,14 @@ title Data flow: building and publishing the documentation site
 participant "Docs job or\nRelease docs" as CI
 participant "docusaurus build" as Build
 participant "repositoryLinks()" as Links
+participant "referenceCounts()" as Counts
 participant "docs/build/" as Out
 participant "npm test\nnpm run test:accessibility" as Checks
 participant "Netlify or\nGitHub Pages" as Host
 
 CI -> Build: npm run build, with repository links at\nRELEASE_VERSION, else DOCS_REF, else main
 activate Build
-Build -> Build: read every page under docs/content/,\n.md as CommonMark, the sidebar\nfrom the folder tree
+Build -> Build: read every page under docs/content/,\n.md as CommonMark, the sidebar\nfrom the folder tree, the introduction\nat its /introduction slug
 note right of Build
   docs.php writes 1 page per trait or class
   into a section per context, such as
@@ -47,8 +48,20 @@ loop every page
   deactivate Links
 end
 
+Build -> Counts: load the plugin's content
+activate Counts
+Counts -> Counts: count the pages of web-steps/,\ndrupal-steps/, web-helpers/ and\ndrupal-helpers/ but each README.md,\nand the steps and helpers on them
+alt a section holds no steps or helpers
+  Counts -> Build: throw, naming the section
+  Build --> CI: the build fails
+else every section holds them
+  Counts --> Build: the counts, as the plugin's global data
+end
+deactivate Counts
+
+Build -> Build: render the home page from\ndocs/src/pages/index.js with the counts
 Build -> Build: bundle the theme with the overrides in\ndocs/src/theme/ for tables, Gherkin\nhighlighting, the mobile menu and\nthe search box
-Build -> Build: check every page link and anchor,\nand throw on a broken one
+Build -> Build: check every page link and anchor, and that\nno doc slug shadows a page, and throw\non a broken link or a duplicate route
 Build -> Out: the static site and its search index
 deactivate Build
 
@@ -57,7 +70,7 @@ opt Docs job
   activate Checks
   Checks -> Checks: Jest unit tests, then CSpell over\nevery page under docs/content/ but the\ngenerated pages and index regions, plus\ndocs/README.md and the root README.md
   Checks -> Out: serve it with docusaurus serve
-  Checks -> Checks: axe on every page against WCAG A and AA,\nin light and dark, at desktop and phone width,\nthen the search box and the mobile menu
+  Checks -> Checks: axe on every page against WCAG A and AA,\nin light and dark, at desktop and phone width,\nwith reduced motion, then the search box,\nthe mobile menu and the home page
   Checks --> CI: pass, or fail the job
   deactivate Checks
 end
