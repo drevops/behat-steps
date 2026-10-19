@@ -14,6 +14,8 @@ use Behat\Step\When;
  * A batch page reloads itself until the operation completes, so a following
  * assertion would otherwise read the progress screen rather than the result.
  *
+ * @title Batch API
+ *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait BatchTrait {

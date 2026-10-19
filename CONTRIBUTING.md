@@ -2,7 +2,7 @@
 
 Below are some guidelines for developing and maintaining the Behat steps.
 
-New here? [docs/architecture/](docs/architecture/README.md) walks through how the pieces fit together - the trait library, the generated step documentation, and the fixture site the tests run against - with UML component, class and sequence diagrams.
+New here? [docs/content/architecture/](docs/content/architecture/README.md) walks through how the pieces fit together - the trait library, the generated step documentation, and the fixture site the tests run against - with UML component, class and sequence diagrams.
 
 ## Steps format
 
@@ -274,7 +274,7 @@ These are the extension points. Each one stays open, along with every class that
 - **`Core`**: a version core extends it to change what its Drupal major changed, and the class the `drupal.core` option names can extend the Core for the site's major.
 - **The field handlers**: a handler for another field type extends a shipped one, the way `OgStandardReferenceHandler` extends `EntityReferenceHandler`.
 - **The browser adapters**: an adapter for a browser driver derived from a shipped one extends that driver's adapter.
-- **`HttpClientFactory`**: a package replaces the `behat_steps.http_client_factory` service with a subclass, as [docs/http-clients.md](docs/http-clients.md) describes.
+- **`HttpClientFactory`**: a package replaces the `behat_steps.http_client_factory` service with a subclass, as [docs/content/extending/extension.md](docs/content/extending/extension.md#the-http-client-factory-and-browser-adapters) describes.
 
 `DocumentElement` stays open as well. It's installed in place of Mink's own `DocumentElement`, which other code extends. A class that another class under `src/` extends, such as `ParseException`, is open because PHP requires it.
 
@@ -308,7 +308,7 @@ A file that needs both of a pair imports each under its own name, with no alias.
 
 ## The helper API
 
-The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the helpers the steps are built on). A project that outgrows the raw vocabulary stops calling the toolbox from Gherkin and starts calling it from PHP, so the helpers are public API in the same sense the step text is. [docs/scenario-styles.md](docs/scenario-styles.md) argues why.
+The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the helpers the steps are built on). A project that outgrows the raw vocabulary stops calling the toolbox from Gherkin and starts calling it from PHP, so the helpers are public API in the same sense the step text is. [docs/content/guides/scenario-styles.md](docs/content/guides/scenario-styles.md) argues why.
 
 **Visibility is the marker.** A `public` method is the toolbox; a `protected` one is an implementation detail that promises nothing and may change in any release. Nothing else distinguishes the 2, which is why a helper worth calling from a project's own step definitions is declared `public` and one that only serves the machinery stays `protected`.
 
@@ -462,7 +462,7 @@ A step is only as portable as the backend behind it, so each trait falls into 1 
 
 A capability method leaves the site consistent behind it, so a step compensates for nothing a backend does. `moduleInstall()` and `moduleUninstall()` leave the container and the router rebuilt, `deleteUser()` drains the batch that cancelling an account queues, and `draggableviewsSetOrder()` invalidates the caches the order it saved feeds, so `ModuleTrait`, `AuthTrait` and `DraggableviewsTrait` call the method and nothing else. A method that changes the site owns the cache tags, batches and rebuilds that follow from the change, and a step that clears a cache after calling a capability is the sign of a method that doesn't.
 
-A step names a capability and never a backend. `WebRawContext::backendFor()` walks the scenario's backend order, returns the first backend implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedBackendActionException` naming the capability and the order. The order itself comes from the `backends` list under `behat_steps` and the `@backend:NAME` tag, documented in [docs/configuration.md](docs/configuration.md#backend-resolution).
+A step names a capability and never a backend. `WebRawContext::backendFor()` walks the scenario's backend order, returns the first backend implementing that capability and bootstraps only that one; when none does, it throws an `UnsupportedBackendActionException` naming the capability and the order. The order itself comes from the `backends` list under `behat_steps` and the `@backend:NAME` tag, documented in [docs/content/guides/configuration.md](docs/content/guides/configuration.md#backend-resolution).
 
 Every create and delete on a capability interface follows 1 contract, so teardown code can delete whatever a scenario created without checking first. A create returns the stub, flagged as saved once the backend holds the created entity: `createLanguage()` leaves a language that already exists alone and returns the stub unsaved, and `createRole()`, which takes no stub, builds a `user_role` one. A backend running outside the test process holds no entity, so the Drush backend's `createUser()` and `createRole()` return their stubs unsaved, carrying the new `uid` or `id` value. An update and a copy return a stub the same way: `updateEntity()` and `updateConfigEntity()` return the stub they were given, flagged as saved, and `duplicateConfigEntity()` returns a stub of the copy. A delete returns `void` and does nothing when its target doesn't exist. A stub with no identifier at all still throws, since that's a malformed argument rather than a miss. [tests/phpunit/src/CapabilityContractTest.php](tests/phpunit/src/CapabilityContractTest.php) holds every create, update, copy and delete to its return type, and the backend tests pin the miss.
 
@@ -532,7 +532,7 @@ Never build a client of your own, whether that's cURL, `file_get_contents()` ove
 
 The page client exists only under BrowserKit, and throws `UnsupportedDriverActionException` in a JavaScript session, so a step built on it fails there by design. The detached and bare clients work under every browser driver. In a `@javascript` scenario they're a sidecar: the browser holds the page while the step sends its request from PHP, so a download keeps working there. Keep a detached or bare response in the trait's own state, as `FileDownloadTrait` does, or inside the step, as the hreflang check does. Never write it to the session, or the next page assertion reads the wrong content.
 
-In a unit test, the test implementation overrides `httpDetachedClient()` or `httpBareClient()` to return an `HttpBrowser` over Symfony's `MockHttpClient`, as `FileDownloadTraitTest` and `MetatagTraitTest` do. [docs/http-clients.md](docs/http-clients.md) covers the settings, the identity the detached client carries, and the extension points.
+In a unit test, the test implementation overrides `httpDetachedClient()` or `httpBareClient()` to return an `HttpBrowser` over Symfony's `MockHttpClient`, as `FileDownloadTraitTest` and `MetatagTraitTest` do. [docs/content/guides/http-clients.md](docs/content/guides/http-clients.md) covers the settings and the identity the detached client carries, and [docs/content/extending/](docs/content/extending) covers the extension points.
 
 A step never reaches into Drupal itself: no `\Drupal::`, no `Drupal\` class and no Drupal function. What it needs from the site goes on a capability, adding a method or a capability when none covers it. A step resolves the capability it works through as its first statement, so a suite without that capability fails naming it before the step changes anything. A step whose trait declares prerequisites calls `$this->assertPrerequisites(__TRAIT__)` next, as [Deciding whether a trait acts](#deciding-whether-a-trait-acts) describes.
 
@@ -542,7 +542,7 @@ A step never reaches into Drupal itself: no `\Drupal::`, no `Drupal\` class and 
 
 `composer.json` declares `behat/behat: ^3.33.0 || ^4.0` and `friends-of-behat/mink-extension: ^2.7.5 || ^3.0@alpha`, so the library installs on either Behat major. Behat 4 needs Mink extension 3, which has only an alpha release so far, and Composer applies an inline stability flag only to the root package's own requirements. So the `@alpha` lets this repository resolve Behat 4 and does nothing for a consumer:
 
-- A project on the default `stable` minimum stability resolves Behat 3 with Mink extension 2.7. It gets Behat 4 by requiring `behat/behat:^4` and `friends-of-behat/mink-extension:^3.0@alpha` itself, as the installation section of the [README](README.md) shows.
+- A project on the default `stable` minimum stability resolves Behat 3 with Mink extension 2.7. It gets Behat 4 only by requiring `behat/behat:^4` and `friends-of-behat/mink-extension:^3.0@alpha` itself.
 - A project whose minimum stability admits alpha releases can resolve Behat 4 with the Mink extension alpha, as a project requiring only this library does under `prefer-stable`. Nothing pins the major, though, so the project's other requirements can still settle it on Behat 3. Requiring `behat/behat:^4` is what guarantees Behat 4.
 
 Working on this repository makes it the root package, so its own flag applies: a plain `composer install` here resolves Behat 4.0 with Mink extension 3.0.0-ALPHA.1, and provisioning narrows the fixture to the major each leg runs.
@@ -720,7 +720,7 @@ Use `ahoy --help` to see the list of available commands.
 
 ## Running tests
 
-There are 3 types of tests in this repository: unit tests, kernel tests and Behat tests.
+There are 3 types of tests in this repository: unit tests, kernel tests and Behat tests. The documentation site in [docs/](docs) has its own unit and accessibility tests, which [Documentation](docs/content/contributing/documentation.md#working-locally) covers.
 
 ### Unit and kernel tests
 
@@ -804,7 +804,7 @@ If a reachable branch has no test, the fix is the test, not the marker.
 
 ## Continuous integration
 
-[.github/workflows/test.yml](.github/workflows/test.yml) runs 2 jobs, and between them they cover all 3 test surfaces in this repository.
+[.github/workflows/test.yml](.github/workflows/test.yml) runs 3 jobs. The test matrix runs the unit, kernel and Behat suites, Lint checks the code and the generated pages, and Docs builds and tests the documentation site.
 
 ### Lint
 
@@ -908,6 +908,12 @@ A patch stops being needed the day its module ships a Drupal 12 release, at whic
 
 Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so `dvdoug/behat-code-coverage` 5.5 does install there and Behat 4 coverage becomes possible for the first time, but the coverage report stays on the settled Drupal 11 legs while core 12 is a pre-release.
 
+### Docs
+
+1 job, on Node 22, with no Docker stack. It builds the site in [docs/](docs), and a broken link or anchor fails the build. It then runs the site's unit tests, its spell check and its accessibility checks, as [Documentation](docs/content/contributing/documentation.md#checks-on-every-pull-request) describes. The unit tests include the check that the step and helper references ship in the Composer package. Last, when the Netlify secrets are set, it deploys the build: a preview for each pull request, linked in a comment on it, and the development site on every push to `main`, as [Previews](docs/content/contributing/documentation.md#previews) describes.
+
+[.github/workflows/release-docs.yml](.github/workflows/release-docs.yml) publishes the site to GitHub Pages on every release tag, and on a manual run from a tag or branch, as [Publishing](docs/content/contributing/documentation.md#publishing) describes.
+
 ## Updating fixture site
 
 - Build the fixture site and make the required changes
@@ -916,15 +922,19 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 
 ## Validating and updating documentation
 
-[docs.php](docs.php) is the only generator of reference documentation. One run writes every generated region:
+[docs.php](docs.php) is the only generator of reference documentation. One run writes every generated page and region:
 
 | Target | Holds |
 | --- | --- |
-| [STEPS.md](STEPS.md) and the index in [README.md](README.md) | The step vocabulary |
-| [HELPERS.md](HELPERS.md) | The toolbox |
-| [docs/configuration.md](docs/configuration.md) | The extension options and the tag reference |
+| [STEPS.md](STEPS.md) | The step vocabulary, on 1 page |
+| [HELPERS.md](HELPERS.md) | The toolbox, on 1 page |
+| [docs/content/web-steps/](docs/content/web-steps), [docs/content/drupal-steps/](docs/content/drupal-steps) | The step vocabulary on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per trait |
+| [docs/content/web-helpers/](docs/content/web-helpers), [docs/content/drupal-helpers/](docs/content/drupal-helpers) | The toolbox on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per class, with `WebRawContext` among the web helpers |
+| [docs/content/guides/configuration.md](docs/content/guides/configuration.md) | The extension options and the tag reference |
 
-The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
+A trait or class with a page names it with a `@title` tag in its docblock, in its own group before any other tag: `@title Batch API` names the pages of `Drupal\BatchTrait`. The title names what the trait or class works with, in sentence case, so it reads as an entry in the sidebar, and each section lists its pages in title order.
+
+The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every trait or class with a page carries a title, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
 
 ```
 ahoy update-docs  # Update documentation
@@ -933,3 +943,5 @@ ahoy lint-docs    # Check documentation for errors
 ```
 
 An extension option and a tag are both generated from their definition in the source, so neither can be added without appearing in the reference. Write the option's `->info()` in [BehatStepsExtension](src/Extension/ServiceContainer/BehatStepsExtension.php) and the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never hand-edit inside a generated region.
+
+`STEPS.md` and `HELPERS.md` ship in the Composer package, where a consuming project's AI agent reads them, and the rest are pages of the documentation site in [docs/](docs). [Documentation](docs/content/contributing/documentation.md) covers the site: working on it locally, the writing conventions, the checks and publishing to [behat-steps.drevops.com](https://behat-steps.drevops.com).

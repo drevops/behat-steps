@@ -25,6 +25,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * - Click links and press buttons within a row identified by part of its
  *   text.
  *
+ * @title Tables
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait TableTrait {

@@ -24,6 +24,8 @@ use DrevOps\BehatSteps\Extension\Config\Option;
  *
  * Skip with tag: `@behat-steps-skip:BasicAuthTrait`.
  *
+ * @title Basic authentication
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait BasicAuthTrait {

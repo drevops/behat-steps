@@ -22,6 +22,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
  * - Clone webform templates into new webforms for scenario setup.
  * - Cloned webforms are automatically removed at the end of the scenario.
  *
+ * @title Webforms
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait WebformTrait {

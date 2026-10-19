@@ -16,6 +16,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\QueryTrait;
 /**
  * Order items in the Drupal Draggable Views.
  *
+ * @title DraggableViews
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait DraggableviewsTrait {

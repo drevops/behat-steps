@@ -1,0 +1,74 @@
+{
+    "language": "en-US",
+    "dictionaries": [
+        "bash",
+        "node",
+        "php",
+        "softwareTerms"
+    ],
+    "overrides": [
+        {
+            "filename": ["content/*-helpers/*.md", "content/*-steps/*.md"],
+            "enabled": false
+        },
+        {
+            "filename": ["content/*-helpers/README.md", "content/*-steps/README.md"],
+            "enabled": true
+        }
+    ],
+    "words": [
+        "Behat",
+        "blackbox",
+        "browserkit",
+        "draggableviews",
+        "DrevOps",
+        "Drush",
+        "dvdoug",
+        "gherkinlint",
+        "Graphviz",
+        "mglaman",
+        "Olivero",
+        "phpcov",
+        "WCAG",
+        "webform"
+    ],
+    "flagWords": [
+        "amongst",
+        "artefact",
+        "cancelled",
+        "cancelling",
+        "catalogue",
+        "catalogued",
+        "catalogues",
+        "centre",
+        "centred",
+        "centres",
+        "cheque",
+        "enrol",
+        "favour",
+        "favoured",
+        "favours",
+        "fulfil",
+        "honour",
+        "judgement",
+        "labelled",
+        "labelling",
+        "learnt",
+        "modelled",
+        "modelling",
+        "programme",
+        "spelt",
+        "storey",
+        "tyre",
+        "whilst"
+    ],
+    "languageSettings": [
+        {
+            "languageId": "markdown",
+            "ignoreRegExpList": [
+                "/^\\s*```(.|\\n)+?^\\s*```/gm",
+                "/^\\[\\/\\/\\]: # \\(START_INDEX\\)(.|\\n)+?^\\[\\/\\/\\]: # \\(END_INDEX\\)/gm"
+            ]
+        }
+    ]
+}

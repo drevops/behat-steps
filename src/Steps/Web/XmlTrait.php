@@ -25,6 +25,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * - Assert XML attribute values.
  * - Assert XML structure and namespace usage.
  *
+ * @title XML responses
+ *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait XmlTrait {

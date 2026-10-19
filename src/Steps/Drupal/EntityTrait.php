@@ -22,6 +22,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
  * Skip cleanup for 1 type with tag:
  * `@behat-steps-entity-cleanup-skip:commerce_product`.
  *
+ * @title Entities
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait EntityTrait {

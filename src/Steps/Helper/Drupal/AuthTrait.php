@@ -27,6 +27,8 @@ use DrevOps\BehatSteps\Extension\Registry\UserRegistryInterface;
  * Keep the users and roles a scenario created with tag:
  * `@behat-steps-skip:AuthTrait`.
  *
+ * @title Authentication
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait AuthTrait {

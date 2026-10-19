@@ -31,6 +31,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  *
  * Skip the automatic waits with tag: `@behat-steps-skip:WaitTrait`.
  *
+ * @title Waits
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait WaitTrait {

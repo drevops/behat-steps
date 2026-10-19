@@ -42,6 +42,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
  * automatic alias generation off for the content, so the provided alias is
  * preserved.
  *
+ * @title Content
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ContentTrait {

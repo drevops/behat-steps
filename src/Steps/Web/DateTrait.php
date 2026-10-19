@@ -37,6 +37,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\TokenTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:DateTrait`.
  *
+ * @title Relative dates
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait DateTrait {

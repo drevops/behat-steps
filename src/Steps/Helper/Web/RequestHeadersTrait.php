@@ -9,6 +9,8 @@ namespace DrevOps\BehatSteps\Steps\Helper\Web;
  *
  * The array is a property of the context object, so every composing trait
  * in that object reads the same headers.
+ *
+ * @title Request headers
  */
 trait RequestHeadersTrait {
 

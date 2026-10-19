@@ -21,7 +21,7 @@ Every table follows the same conventions, so a tool can apply it as written:
 
 - PHP 8.3 or newer. 3.14 ran on PHP 8.2.
 - Drupal 11 or 12 on a Drupal site. 4.0 requires no Drupal package of its own, and its Drupal backend throws a `BootstrapException` on Drupal 10.
-- Behat 3 or Behat 4. 3.14 refused Behat 4. On Behat 4, it also needs `friends-of-behat/mink-extension` 3, which only has an alpha release so far, so the installation section of the [README](README.md) shows how to require both.
+- Behat 3 or Behat 4. 3.14 refused Behat 4. 4.0 requires Behat and `friends-of-behat/mink-extension` itself, so Composer installs both with it.
 - Drush 13 or newer for the Drush backend, as [Backend contracts](#backend-contracts) explains.
 
 4.0 replaces `drupal/drupal-extension` and `drupal/drupal-driver`, and it conflicts with every version of both, so Composer won't install it while your project requires either one. Remove the extension before updating, and add `drupal/drupal-driver` to the same command if your `composer.json` requires it directly:
@@ -208,7 +208,7 @@ extensions:
 | `proxy` | `proxy` |
 | `headers` | `headers` |
 
-The page applies the options to every host, as it did with Guzzle. The requests steps send from PHP apply them to `base_url` only, and every `browserkit_http` session has to declare the same ones; [HTTP clients](docs/http-clients.md) explains both rules.
+The page applies the options to every host, as it did with Guzzle. The requests steps send from PHP apply them to `base_url` only, and every `browserkit_http` session has to declare the same ones; [HTTP clients](docs/content/guides/http-clients.md) explains both rules.
 
 ### Backends
 
@@ -268,7 +268,7 @@ Trait options are new in 4.0. 3.14 tuned a trait by overriding a `Get` method in
 - for 1 context, through its `config` argument, as [Constructor](#constructor) shows;
 - for 1 feature or scenario, through the tag the option declares, where it declares one.
 
-An option resolves through the declaration default, then `behat_steps: steps:`, then the context's `config` argument, then the feature tag, then the scenario tag. Each group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. [STEPS.md](STEPS.md) lists each trait's options beside its steps, and [Trait options](docs/configuration.md#trait-options) shows how a trait of your own declares one.
+An option resolves through the declaration default, then `behat_steps: steps:`, then the context's `config` argument, then the feature tag, then the scenario tag. Each group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. [STEPS.md](STEPS.md) lists each trait's options beside its steps, and [Trait options](docs/content/extending/steps.md#declare-options-for-a-trait-of-your-own) shows how a trait of your own declares one.
 
 A `config` argument that names a group or an option its context can't serve fails while Behat builds the context, and the error names what the context accepts. `WebContext` accepts the groups its web traits declare, such as `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics`, and `DrupalContext` adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. The extension's `steps` section is read permissively: a group there may name a trait that only 1 of the registered contexts composes.
 
@@ -381,7 +381,7 @@ A constructor that doesn't forward it fails as soon as a hook or a step reads an
 UiContext declares a constructor that does not call parent::__construct(), so its "config" argument was never set. Add "array $config = []" to the constructor and forward it.
 ```
 
-[Context constructor arguments](docs/configuration.md#context-constructor-arguments) shows how a suite passes `config`.
+[Context constructor arguments](docs/content/guides/configuration.md#context-constructor-arguments) shows how a suite passes `config`.
 
 ### Interfaces
 
@@ -1330,8 +1330,8 @@ The redirect steps go through `RedirectCapabilityInterface`, which only the in-p
 - A state value holding a JSON object is stored as an array. `StateTrait` decoded JSON to a `stdClass` while `ConfigTrait` decoded it to an array, and both now share `stringNormalizeValue()`, so `the state :name has the value :value` with `{"a":1}` stores `['a' => 1]`.
 - `the draggable views items ... are saved in the following order:` resolves every title before it writes a weight. It used to write each row's weight as it went, so a missing title left the order half-saved. A missing title now fails before anything is written. A view that doesn't exist fails with `\RuntimeException` (`No view with the id "..." exists.`), where the weights used to be written under any name, and the saved order invalidates the list tags of the view's base entity type and the view's and the display's own tags, as the module's own form does, where `node_list` alone was invalidated.
 - A textual `created`, `changed`, `revision_timestamp` or `timestamp` value, such as `-1 hour` or `2014-10-17 8:00am`, is read by the field handlers, so it works on every entity type with such a field where 3.14 converted it for a node alone. A value `strtotime()` can't read fails with `Timestamp field value "..." is not parseable.`
-- A field handler of your own is registered through the `drupal.field_handlers` option, a map of field type to handler class, or from a context through `FieldHandlerCapabilityInterface::registerFieldHandler()`, as [Field handlers](docs/configuration.md#field-handlers) describes. 3.14 registered one with `registerFieldHandler()` on the driver's `Core`, or through a `Core` subclass that overrode `registerDefaultFieldHandlers()`. `FieldHandlerInterface` now declares the constructor every handler takes, `__construct(EntityStubInterface $stub, string $entity_type, string $field_name)`, so a handler that implements the interface directly declares it too. A handler extending `AbstractHandler` inherits it.
-- A creation alias of your own is registered through the `drupal.creation_aliases` and `drush.creation_aliases` options, 1 list of classes per backend, or from a context through `CreationAliasCapabilityInterface::registerCreationAlias()`, as [Creation aliases](docs/configuration.md#creation-aliases) describes. 3.14 registered one with `registerCreationAlias()` on the driver's `Core` or `DrushDriver`, or through a subclass that overrode `registerDefaultCreationAliases()`. The `drupal` backend also runs aliases for the media, paragraphs, block content, menu links, ECK entities and files a step creates, and for the entities `the following :entity_type entities exist:` creates, where 3.14 ran them for nodes, terms and users only, and its field parser leaves a registered alias's column as written. The Drush backend runs the `PreCreateAliasInterface` aliases for a user before `drush user:create`, where 3.14 ran only the `PostCreateAliasInterface` ones. An alias that implements neither interface fails to register, where 3.14 registered it and never ran it.
+- A field handler of your own is registered through the `drupal.field_handlers` option, a map of field type to handler class, or from a context through `FieldHandlerCapabilityInterface::registerFieldHandler()`, as [Field handlers](docs/content/extending/backend.md#field-handlers) describes. 3.14 registered one with `registerFieldHandler()` on the driver's `Core`, or through a `Core` subclass that overrode `registerDefaultFieldHandlers()`. `FieldHandlerInterface` now declares the constructor every handler takes, `__construct(EntityStubInterface $stub, string $entity_type, string $field_name)`, so a handler that implements the interface directly declares it too. A handler extending `AbstractHandler` inherits it.
+- A creation alias of your own is registered through the `drupal.creation_aliases` and `drush.creation_aliases` options, 1 list of classes per backend, or from a context through `CreationAliasCapabilityInterface::registerCreationAlias()`, as [Creation aliases](docs/content/extending/backend.md#creation-aliases) describes. 3.14 registered one with `registerCreationAlias()` on the driver's `Core` or `DrushDriver`, or through a subclass that overrode `registerDefaultCreationAliases()`. The `drupal` backend also runs aliases for the media, paragraphs, block content, menu links, ECK entities and files a step creates, and for the entities `the following :entity_type entities exist:` creates, where 3.14 ran them for nodes, terms and users only, and its field parser leaves a registered alias's column as written. The Drush backend runs the `PreCreateAliasInterface` aliases for a user before `drush user:create`, where 3.14 ran only the `PostCreateAliasInterface` ones. An alias that implements neither interface fails to register, where 3.14 registered it and never ran it.
 - A `date_recur` field's `value` and `end_value` are read in the record's `timezone` and stored in UTC, as the module's own form stores them. `2025-01-01T09:00:00` with `Australia/Sydney` starts the first occurrence at 09:00 in Sydney, where 3.14 stored the value as written and the module read it as UTC, 20:00 in Sydney. A value with its own offset keeps it, so `2025-01-01T09:00:00Z` stores what 3.14 stored. A record with a date but no `timezone` takes the site timezone, where 3.14 failed to save it with `Missing time zone`, and an invalid `timezone` fails with `Date recur field record has an invalid timezone "...".`
 
 ### Prerequisites
@@ -1364,7 +1364,7 @@ Everything the Drupal Driver kept under `Drupal\Driver` moved under `DrevOps\Beh
 | `Drupal\Driver\DrushDriverInterface` | `DrevOps\BehatSteps\Backend\Drupal\DrushBackendInterface` | |
 | `Drupal\Driver\BlackboxDriver` | `DrevOps\BehatSteps\Backend\BlackboxBackend` | |
 | `Drupal\Driver\BlackboxDriverInterface` | `DrevOps\BehatSteps\Backend\BlackboxBackendInterface` | |
-| `Drupal\Driver\Core<N>\Core` | `DrevOps\BehatSteps\Backend\Drupal\Core<N>\Core` | The namespace a version core of this package sits in. The `drupal` backend builds the newest one at or below the Drupal major it detects. A Core of your own is named by the `drupal.core` option, as [Core](docs/configuration.md#core) describes, and a field handler of your own is registered through `drupal.field_handlers`; see [Fields, files and stored values](#fields-files-and-stored-values) |
+| `Drupal\Driver\Core<N>\Core` | `DrevOps\BehatSteps\Backend\Drupal\Core<N>\Core` | The namespace a version core of this package sits in. The `drupal` backend builds the newest one at or below the Drupal major it detects. A Core of your own is named by the `drupal.core` option, as [Core](docs/content/extending/backend.md#core) describes, and a field handler of your own is registered through `drupal.field_handlers`; see [Fields, files and stored values](#fields-files-and-stored-values) |
 | `Drupal\Driver\Alias\RolesAlias` | `DrevOps\BehatSteps\Backend\Alias\RolesAlias` | Final |
 | `Drupal\Driver\Core\Alias\AuthorAlias` | `DrevOps\BehatSteps\Backend\Drupal\Core\Alias\AuthorAlias` | Final |
 | `Drupal\Driver\Core\Alias\ParentTermAlias` | `DrevOps\BehatSteps\Backend\Drupal\Core\Alias\ParentTermAlias` | Final |
@@ -1436,7 +1436,7 @@ A class a project isn't meant to extend is `final`. The classes left open are th
 PHP Fatal error:  Class Acme\AcmeAuthenticator cannot extend final class DrevOps\BehatSteps\Extension\Auth\Authenticator
 ```
 
-Implement its interface instead. A suite that swaps in its own registry or authenticator through a `*.class` parameter implements `BackendRegistryInterface`, `ScenarioTagRegistryInterface`, `UserRegistryInterface`, `AuthenticatorInterface` with `FastLogoutInterface`, or `BasicAuthenticatorInterface`. A creation alias of your own implements `PreCreateAliasInterface` or `PostCreateAliasInterface`, as [Creation aliases](docs/configuration.md#creation-aliases) describes, and option resolution is replaced through `TraitOptionResolverFactoryInterface`, as [Trait options](docs/configuration.md#trait-options) describes. PHPUnit can't double a final class either, so a test that built a mock of one fails with `Class "..." is declared "final" and cannot be doubled`; double its interface instead.
+Implement its interface instead. A suite that swaps in its own registry or authenticator through a `*.class` parameter implements `BackendRegistryInterface`, `ScenarioTagRegistryInterface`, `UserRegistryInterface`, `AuthenticatorInterface` with `FastLogoutInterface`, or `BasicAuthenticatorInterface`. A creation alias of your own implements `PreCreateAliasInterface` or `PostCreateAliasInterface`, as [Creation aliases](docs/content/extending/backend.md#creation-aliases) describes, and option resolution is replaced through `TraitOptionResolverFactoryInterface`, as [Trait options](docs/content/extending/extension.md#replace-option-resolution) describes. PHPUnit can't double a final class either, so a test that built a mock of one fails with `Class "..." is declared "final" and cannot be doubled`; double its interface instead.
 
 ## Methods
 
@@ -2489,7 +2489,7 @@ An adapter extends `BrowserAdapterBase`, implements the capability interfaces it
 
 ## HTTP clients
 
-Every request a step sends from PHP goes through 1 of 3 clients on `WebRawContext`. `httpPageClient()` sends a request whose response becomes the page, `httpDetachedClient()` sends one as the scenario's visitor, with its cookies, headers and credentials, and leaves the page alone, and `httpBareClient()` sends one that carries nothing of the scenario. All 3 return BrowserKit's `AbstractBrowser`, and [HTTP clients](docs/http-clients.md) covers them in full.
+Every request a step sends from PHP goes through 1 of 3 clients on `WebRawContext`. `httpPageClient()` sends a request whose response becomes the page, `httpDetachedClient()` sends one as the scenario's visitor, with its cookies, headers and credentials, and leaves the page alone, and `httpBareClient()` sends one that carries nothing of the scenario. All 3 return BrowserKit's `AbstractBrowser`, and [HTTP clients](docs/content/guides/http-clients.md) covers them in full.
 
 `FileDownloadTrait` downloads through the detached client instead of cURL, so `fileDownloadProcess()` takes Symfony HttpClient options in place of `CURLOPT_*` constants:
 

@@ -24,6 +24,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:RestTrait`.
  *
+ * @title REST APIs
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait RestTrait {

@@ -48,7 +48,6 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * Custom breakpoints:
  * @code
  * class FeatureContext extends WebContext {
- *   use ResponsiveTrait;
  *
  *   #[BeforeScenario]
  *   public function setupCustomBreakpoints(): void {
@@ -59,6 +58,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  *   }
  * }
  * @endcode
+ *
+ * @title Responsive layouts
  *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */

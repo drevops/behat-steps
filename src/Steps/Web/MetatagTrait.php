@@ -22,6 +22,8 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  * - Assert hreflang alternates are valid and reciprocal.
  * - Assert Open Graph and Twitter Card completeness.
  *
+ * @title Meta tags
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait MetatagTrait {

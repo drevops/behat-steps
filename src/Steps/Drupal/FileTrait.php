@@ -32,6 +32,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:FileTrait`.
  *
+ * @title Files
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait FileTrait {

@@ -272,3 +272,67 @@ jobs:
           fail_ci_if_error: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  docs:
+    name: Docs
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read # Read the documentation source.
+      pull-requests: write # Post the Netlify preview link on the pull request.
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+        working-directory: docs
+
+      # Links point at the pull request's head commit, or the pushed commit,
+      # so a file the pull request adds resolves.
+      - name: Build documentation site
+        run: npm run build
+        working-directory: docs
+        env:
+          DOCS_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Test documentation
+        run: npm test
+        working-directory: docs
+
+      - name: Install browser for accessibility checks
+        run: npx playwright install --with-deps chromium
+        working-directory: docs
+
+      - name: Check documentation accessibility
+        run: npm run test:accessibility
+        working-directory: docs
+
+      # A push to 'main' updates the development site, and any other build
+      # deploys a preview. Fork pull requests get no secrets, so they skip it.
+      - name: Deploy documentation to Netlify
+        if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != '' }}
+        uses: nwtgck/actions-netlify@d22a32a27c918fe470bbc562e984f80ec48c2668 # v4.0
+        with:
+          publish-dir: docs/build
+          production-deploy: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: Deploy from GitHub Actions
+          enable-pull-request-comment: true
+          overwrites-pull-request-comment: true
+          enable-commit-comment: false
+          enable-commit-status: false
+          enable-github-deployment: false
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        timeout-minutes: 5

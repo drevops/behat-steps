@@ -23,6 +23,8 @@ use DrevOps\BehatSteps\Steps\Helper\Drupal\EntityLifecycleTrait;
  * - Assert that redirects do or do not exist for given source paths.
  * - Created redirects are automatically removed at the end of the scenario.
  *
+ * @title Redirects
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait RedirectTrait {

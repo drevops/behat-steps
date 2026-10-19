@@ -14,7 +14,8 @@
     "homepage": "https://github.com/drevops/behat-steps",
     "support": {
         "issues": "https://github.com/drevops/behat-steps/issues",
-        "source": "https://github.com/drevops/behat-steps"
+        "source": "https://github.com/drevops/behat-steps",
+        "docs": "https://behat-steps.drevops.com"
     },
     "require": {
         "php": ">=8.3",

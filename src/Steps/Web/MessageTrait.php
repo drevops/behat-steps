@@ -21,6 +21,8 @@ use DrevOps\BehatSteps\Extension\Config\Option;
  * matches when the text of any element found by that selector contains the
  * expected string.
  *
+ * @title Messages
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait MessageTrait {

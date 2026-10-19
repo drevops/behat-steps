@@ -14,6 +14,8 @@ use DrevOps\BehatSteps\Extension\Browser\Capability\JavascriptCapabilityInterfac
  * - Switch to iframes by CSS selector, including unnamed iframes.
  * - Switch back to the root (top-level) document.
  *
+ * @title Iframes
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait IframeTrait {

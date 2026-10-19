@@ -32,6 +32,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * - `@email:{type}` - enable email tracking using a `{type}` handler
  * - `@debug` (enable detailed logs)
  *
+ * @title Email
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait EmailTrait {

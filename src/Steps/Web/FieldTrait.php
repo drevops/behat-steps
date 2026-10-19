@@ -33,6 +33,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:FieldTrait`
  *
+ * @title Form fields
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait FieldTrait {

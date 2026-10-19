@@ -24,6 +24,8 @@ use DrevOps\BehatSteps\Extension\Config\Option;
  * `modal.selectors`, `modal.content_selectors` and `modal.close_selectors`
  * options. All steps require a JavaScript-enabled browser driver.
  *
+ * @title Modals
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ModalTrait {

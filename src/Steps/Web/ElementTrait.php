@@ -24,6 +24,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  *   below the top of the viewport. A negative offset scrolls it above the
  *   viewport.
  *
+ * @title Elements
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ElementTrait {

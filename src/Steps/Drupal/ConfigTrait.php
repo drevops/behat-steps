@@ -48,6 +48,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  *   And the config "system.site" with the key "name" should have the effective value "My overridden site"
  * @endcode
  *
+ * @title Configuration
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait ConfigTrait {

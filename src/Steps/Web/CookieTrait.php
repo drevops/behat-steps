@@ -15,6 +15,8 @@ use DrevOps\BehatSteps\Extension\Browser\Capability\CookieCapabilityInterface;
  * - Read cookies through whichever browser driver provides the cookie
  *   capability.
  *
+ * @title Cookies
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait CookieTrait {

@@ -1,0 +1,106 @@
+/**
+ * Global styles on top of Infima, the CSS framework of the classic theme.
+ *
+ * @see https://docusaurus.io/docs/styling-layout#styling-your-site-with-infima
+ */
+
+/* The primary shades step from #266fbd, the #2a77cd logo blue darkened until
+   text in it reaches 4.5:1 on the light backgrounds. */
+:root {
+  --ifm-color-primary: #266fbd;
+  --ifm-color-primary-dark: #2264aa;
+  --ifm-color-primary-darker: #205ea1;
+  --ifm-color-primary-darkest: #1b4e84;
+  --ifm-color-primary-light: #2a7ad0;
+  --ifm-color-primary-lighter: #3080d5;
+  --ifm-color-primary-lightest: #4c91db;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --behat-steps-ink: #12191f;
+  --behat-steps-blue-on-dark: #84b2e6;
+  --ifm-navbar-search-input-placeholder-color: var(--ifm-color-emphasis-700);
+  --search-local-muted-color: var(--ifm-color-emphasis-700);
+}
+
+/* The dark-mode shades step from #84b2e6, the logo blue lightened past 4.5:1
+   on the dark backgrounds. Chrome paints inline code on a striped table row
+   lighter than axe computes, so the blue keeps headroom above that ratio. */
+[data-theme='dark'] {
+  --ifm-color-primary: var(--behat-steps-blue-on-dark);
+  --ifm-color-primary-dark: #669fe0;
+  --ifm-color-primary-darker: #5796dd;
+  --ifm-color-primary-darkest: #2b7ad3;
+  --ifm-color-primary-light: #a2c5ec;
+  --ifm-color-primary-lighter: #b1ceef;
+  --ifm-color-primary-lightest: #deebf8;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --behat-steps-ink: #ffffff;
+  /* The selected search result sits on the light blue, so its text takes the
+     dark background color. */
+  --search-local-hit-active-color: var(--ifm-background-color);
+}
+
+.navbar__logo {
+  height: 2.25rem;
+}
+
+/* A card wraps its title and description rather than truncating them, since a
+   phone can't show the tooltip that holds the rest. */
+.theme-doc-card-container .text--truncate {
+  white-space: normal;
+}
+
+.markdown h1:first-child {
+  color: var(--behat-steps-ink);
+}
+
+/* Color alone doesn't set a link apart from the text around it. */
+.markdown {
+  --ifm-link-decoration: underline;
+}
+
+.markdown .hash-link {
+  --ifm-link-decoration: none;
+}
+
+/* Tables set several columns of code side by side, so they take a smaller
+   font and tighter cells than the prose. */
+.markdown table {
+  --ifm-table-cell-padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+}
+
+/* A long name in the last column, which holds a table's descriptions, breaks
+   rather than widening the table. Names in the other columns stay whole. */
+.markdown td:last-child code {
+  overflow-wrap: anywhere;
+}
+
+/* A code block in a table cell scrolls inside the cell rather than widening
+   the table. */
+.markdown td .theme-code-block {
+  width: 0;
+  min-width: 100%;
+  margin: 0.5rem 0 0;
+}
+
+/* The footer is dark in both color modes, so its links take the dark-mode
+   blue on hover. */
+.footer--dark {
+  --ifm-footer-link-hover-color: var(--behat-steps-blue-on-dark);
+}
+
+.footer__copyright-link {
+  color: var(--ifm-footer-link-color);
+  text-decoration: underline;
+}
+
+.footer__copyright-link:hover {
+  color: var(--ifm-footer-link-hover-color);
+}
+
+/* WCAG 2.5.8 minimum target size. */
+.navbar__search [class*='searchClearButton_'] {
+  min-width: 24px;
+  min-height: 24px;
+}

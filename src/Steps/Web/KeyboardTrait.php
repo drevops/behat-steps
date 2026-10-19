@@ -15,6 +15,8 @@ use DrevOps\BehatSteps\Extension\Browser\Capability\KeyboardCapabilityInterface;
  * - Press a string of characters 1 key at a time.
  * - Target a key press at a page element or at the focused element.
  *
+ * @title Keyboard
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait KeyboardTrait {

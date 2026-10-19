@@ -39,6 +39,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\LastStepTrait;
  * - `@error` - add to scenarios that are expected to trigger an error. The
  *   errors are still read and cleared; the scenario is not failed.
  *
+ * @title Watchdog
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait WatchdogTrait {

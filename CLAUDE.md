@@ -50,18 +50,20 @@ composer require --dev drevops/behat-steps:^4
 
 ## Documentation
 
-[docs.php](docs.php) generates [STEPS.md](STEPS.md), the list of every step, from the traits' step attributes and docblock comments. Run `ahoy update-docs` after adding or changing a step, and `ahoy lint-docs` to check the result. [Validating and updating documentation](CONTRIBUTING.md#validating-and-updating-documentation) lists everything else it generates and validates.
+[docs/](docs) is the Docusaurus documentation site published at [behat-steps.drevops.com](https://behat-steps.drevops.com), with its pages in [docs/content/](docs/content). [docs.php](docs.php) generates the list of every step and the toolbox from the traits' step attributes and docblock comments, twice: as [STEPS.md](STEPS.md) and [HELPERS.md](HELPERS.md), which ship in the Composer package for consuming projects' AI agents, and as 1 site page per trait under [docs/content/web-steps/](docs/content/web-steps), [docs/content/drupal-steps/](docs/content/drupal-steps), [docs/content/web-helpers/](docs/content/web-helpers) and [docs/content/drupal-helpers/](docs/content/drupal-helpers), each named by the `@title` tag in its trait's docblock. Never hand-edit those files, the generated region of each `README.md` there or the 2 generated regions of [docs/content/guides/configuration.md](docs/content/guides/configuration.md), since the next `ahoy update-docs` overwrites them. Run `ahoy update-docs` after changing a step, a helper, an extension option or a tag, and `ahoy lint-docs` to check the result. [Validating and updating documentation](CONTRIBUTING.md#validating-and-updating-documentation) lists everything else it generates and validates.
+
+The site is an npm project of its own, run on the host rather than in the Docker stack, from `docs/` or from the repository root with `--prefix docs`: `npm install`, `npm start`, `npm run build`, `npm test` and `npm run test:accessibility`. `npm test` runs the unit tests and the spell check, which also covers the root `README.md`, and `npm run test:accessibility` checks the last build. [Documentation](docs/content/contributing/documentation.md) covers writing pages, the checks and publishing.
 
 ### Architecture Documentation
 
-[docs/architecture/README.md](docs/architecture/README.md) is the narrative walkthrough of how the project works - components, primary flows, and the diagrams that go with them. The diagrams are PlantUML sources (`docs/architecture/*.puml`) rendered to committed light SVGs; both are tracked. It is owned by the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](.claude/skills/update-architecture-docs/SKILL.md), which holds the rules for writing it. Do not hand-edit it against those rules; invoke the skill.
+[docs/content/architecture/README.md](docs/content/architecture/README.md) is the narrative walkthrough of how the project works - components, primary flows, and the diagrams that go with them. The diagrams are PlantUML sources (`docs/content/architecture/*.puml`) rendered to committed light SVGs; both are tracked. It is owned by the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](.claude/skills/update-architecture-docs/SKILL.md), which holds the rules for writing it. Do not hand-edit it against those rules; invoke the skill.
 
 **Regenerate it before opening any pull request.** Run the skill (say "update architecture docs") as part of the pre-PR checks, alongside `ahoy update-docs` and `ahoy lint`. When the branch changed nothing structural, the skill is a no-op and the document stays as it is - that is the expected outcome for most PRs, and it is still worth the check.
 
 After editing any `.puml`, re-render every SVG so the sources and the renders cannot drift:
 
 ```bash
-plantuml -tsvg docs/architecture/*.puml
+plantuml -tsvg docs/content/architecture/*.puml
 ```
 
 A change is structural when it moves, adds, or removes a component or alters a flow between components: a new trait directory or namespace, a change to how a shipped context composes traits, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.

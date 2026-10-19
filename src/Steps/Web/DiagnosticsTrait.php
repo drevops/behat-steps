@@ -49,6 +49,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\JavascriptErrorTrait;
  *   # Re-run: vendor/bin/behat features/example.feature:3
  * @endcode
  *
+ * @title Failure diagnostics
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait DiagnosticsTrait {

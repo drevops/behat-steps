@@ -1,5 +1,5 @@
 {
-    "extends": ["config:recommended"],
+    "extends": ["config:recommended", "security:minimumReleaseAgeNpm"],
     "automerge": true,
     "rangeStrategy": "bump",
     "dependencyDashboard": true,
@@ -67,6 +67,23 @@
             "matchPackageNames": ["*"],
             "groupName": "all dependencies",
             "groupSlug": "all"
+        },
+        {
+            "description": "The docs site wraps theme components of Docusaurus and its search plugin, which a major release can change without failing a test. These updates go to a separate group with automerge off, so the other updates still automerge.",
+            "matchManagers": ["npm"],
+            "matchUpdateTypes": ["major"],
+            "groupName": "docs site dependencies",
+            "groupSlug": "docs",
+            "automerge": false
+        },
+        {
+            "description": "A 0.x package such as the search plugin can break in a minor release, so those updates are held for review too.",
+            "matchManagers": ["npm"],
+            "matchCurrentVersion": "/^0\\./",
+            "matchUpdateTypes": ["minor"],
+            "groupName": "docs site dependencies",
+            "groupSlug": "docs",
+            "automerge": false
         }
     ]
 }

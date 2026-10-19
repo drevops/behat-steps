@@ -27,6 +27,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * is cleared unconditionally before and after the scenario, so no snapshot
  * persists across scenarios.
  *
+ * @title State API
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait StateTrait {

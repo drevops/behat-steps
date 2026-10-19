@@ -7,15 +7,19 @@
  * It parses the PHP attributes and docblock comments of the traits under the
  * vocabulary directory and writes:
  *
- * - STEPS.md, the step vocabulary, and the step index in README.md.
+ * - STEPS.md, the step vocabulary.
  * - HELPERS.md, the toolbox a project calls from its own domain steps.
- * - The generated tables in docs/configuration.md.
+ * - Both again for the documentation site, in 1 section per context, such as
+ *   docs/content/drupal-steps/: an index in the README.md of the section, and
+ *   1 page per trait or class.
+ * - The generated tables in docs/content/guides/configuration.md.
  *
  * It also validates that:
  *
  * - The steps read in the documented format.
  * - Every step declares its actor, and its wording matches it.
  * - Every documented step matches exactly 1 definition.
+ * - Every trait or class with a page names it with a title.
  * - Every published helper carries a summary.
  * - Registered parametrized tags use `:` as their value separator.
  * - Every environment variable the source reads is documented.
@@ -103,14 +107,32 @@ const HELPERS_DIRECTORY = 'src/Steps/Helper';
 const TOOLBOX_CLASSES = [WebRawContext::class];
 
 /**
+ * Context the toolbox classes are published under.
+ */
+const TOOLBOX_CONTEXT = 'Toolbox';
+
+/**
+ * File holding the step reference, relative to the repository root.
+ */
+const STEPS_FILE = 'STEPS.md';
+
+/**
  * File holding the toolbox reference, relative to the repository root.
  */
 const HELPERS_FILE = 'HELPERS.md';
 
 /**
+ * Directory of the documentation site's pages, relative to the repository root.
+ *
+ * The steps and the helpers of each context get a section directory in it,
+ * such as 'drupal-steps', whose README.md holds the index of its pages.
+ */
+const PAGES_DIRECTORY = 'docs/content';
+
+/**
  * File holding the configuration reference, relative to the repository root.
  */
-const CONFIGURATION_FILE = 'docs/configuration.md';
+const CONFIGURATION_FILE = 'docs/content/guides/configuration.md';
 
 // The main function runs only when the script is run directly, not when it
 // is included.
@@ -142,6 +164,7 @@ function main(array $options = []): void {
   $errors = validate($info);
   $errors = array_merge($errors, validate_step_patterns($info));
   $errors = array_merge($errors, validate_helpers($helpers));
+  $errors = array_merge($errors, validate_titles($info, $helpers));
   $errors = array_merge($errors, validate_tags($info, $base_path));
   $errors = array_merge($errors, validate_env_vars($base_path));
 
@@ -156,11 +179,8 @@ function main(array $options = []): void {
   }
 
   $targets = [
-    'STEPS.md' => [
+    STEPS_FILE => [
       ['# Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path) . PHP_EOL],
-    ],
-    'README.md' => [
-      ['## 📋 Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path, 'STEPS.md') . PHP_EOL],
     ],
     HELPERS_FILE => [
       ['# Available helpers', '[//]: # (END)', PHP_EOL . render_helpers($helpers, $base_path) . PHP_EOL],
@@ -174,6 +194,10 @@ function main(array $options = []): void {
       ['[//]: # (START_TAGS)', '[//]: # (END_TAGS)', PHP_EOL . render_tag_reference() . PHP_EOL],
     ],
   ];
+
+  foreach (render_page_indexes('steps', $info) + render_page_indexes('helpers', $helpers) as $index => $table) {
+    $targets[$index] = [['[//]: # (START_INDEX)', '[//]: # (END_INDEX)', PHP_EOL . $table . PHP_EOL]];
+  }
 
   $outdated = [];
   $updated = [];
@@ -200,6 +224,24 @@ function main(array $options = []): void {
     }
   }
 
+  $pages = render_step_pages($info, $helpers, $base_path) + render_helper_pages($helpers, $base_path);
+
+  foreach ($pages as $file => $contents) {
+    $path = $base_path . '/' . $file;
+
+    if (!is_file($path) || file_get_contents($path) !== $contents) {
+      $outdated[] = $file;
+      $updated[$path] = $contents;
+    }
+  }
+
+  $removed = [];
+
+  foreach (stale_pages($base_path, $pages) as $file) {
+    $outdated[] = $file;
+    $removed[] = $base_path . '/' . $file;
+  }
+
   if ($outdated === []) {
     echo 'Documentation is up to date. No changes were made.' . PHP_EOL;
     exit(0);
@@ -211,7 +253,15 @@ function main(array $options = []): void {
   }
 
   foreach ($updated as $path => $contents) {
+    if (!is_dir(dirname($path))) {
+      mkdir(dirname($path), 0777, TRUE);
+    }
+
     file_put_contents($path, $contents);
+  }
+
+  foreach ($removed as $path) {
+    unlink($path);
   }
 
   printf('Documentation updated: %s.' . PHP_EOL, implode(', ', $outdated));
@@ -395,8 +445,9 @@ function collect_helper_traits(string $base_path = __DIR__): array {
  *   Base path for the repository.
  *
  * @return array<string, array<string, mixed>>
- *   Array of info with 'name', 'name_contextual', 'context', 'methods',
- *   'options', 'prerequisites', 'description' and 'description_full' keys.
+ *   Array of info with 'name', 'name_contextual', 'class', 'context',
+ *   'methods', 'options', 'prerequisites', 'description' and
+ *   'description_full' keys, and a 'title' key when the trait declares one.
  *
  * @throws \ReflectionException
  */
@@ -410,6 +461,7 @@ function extract_info(array $class_names, array $exclude = [], string $base_path
     $class_info = [
       'name' => $trait_name,
       'name_contextual' => ($context !== DEFAULT_CONTEXT ? $context . '\\' : '') . $trait_name,
+      'class' => $trait->getName(),
       'context' => $context,
       'methods' => [],
       'options' => extract_trait_options($collected['host'], $trait_name),
@@ -526,7 +578,12 @@ function extract_trait_prerequisites(string $class_name, string $trait): array {
  *   The comment.
  *
  * @return array<string, string>
- *   Array of 'description' and 'description_full' keys.
+ *   Array of 'description' and 'description_full' keys, and a 'title' key
+ *   when the comment declares one.
+ *
+ * @throws \RuntimeException
+ *   When the comment is empty or malformed, or its title is empty or
+ *   repeated.
  */
 function parse_class_comment(string $trait_name, string $comment): array {
   if (empty($comment)) {
@@ -570,6 +627,21 @@ function parse_class_comment(string $trait_name, string $comment): array {
   // for the reader of the generated documentation.
   $lines = array_values(array_filter($lines, static fn(string $line): bool => !str_starts_with($line, '@phpstan-')));
 
+  // The title names the class's pages on the documentation site, so it is
+  // not part of the description.
+  $titles = array_values(array_filter($lines, static fn(string $line): bool => preg_match('/^@title\b/', $line) === 1));
+  $lines = array_values(array_filter($lines, static fn(string $line): bool => preg_match('/^@title\b/', $line) !== 1));
+
+  if (count($titles) > 1) {
+    throw new \RuntimeException(sprintf('Class comment for %s has more than 1 title', $trait_name));
+  }
+
+  $title = $titles === [] ? NULL : trim(substr($titles[0], strlen('@title')));
+
+  if ($title === '') {
+    throw new \RuntimeException(sprintf('Class comment for %s has an empty title', $trait_name));
+  }
+
   while ($lines !== [] && end($lines) === '') {
     array_pop($lines);
   }
@@ -594,10 +666,12 @@ function parse_class_comment(string $trait_name, string $comment): array {
     throw new \RuntimeException(sprintf('Class inline code block is not closed for %s', $trait_name));
   }
 
-  return [
+  $parsed = [
     'description' => $description,
     'description_full' => $full_description,
   ];
+
+  return $title === NULL ? $parsed : $parsed + ['title' => $title];
 }
 
 /**
@@ -909,11 +983,7 @@ function render_trait_options(string $trait_name, mixed $options): string {
     ];
   }
 
-  if ($rows === []) {
-    return '';
-  }
-
-  return '### Options' . PHP_EOL . PHP_EOL . array_to_markdown_table(['Option', 'Type', 'Default', 'Tag', 'Description'], $rows) . PHP_EOL . PHP_EOL;
+  return array_to_markdown_table(['Option', 'Type', 'Default', 'Tag', 'Description'], $rows);
 }
 
 /**
@@ -939,11 +1009,7 @@ function render_trait_prerequisites(mixed $prerequisites): string {
     ];
   }
 
-  if ($rows === []) {
-    return '';
-  }
-
-  return '### Prerequisites' . PHP_EOL . PHP_EOL . array_to_markdown_table(['Prerequisite', 'Capability'], $rows) . PHP_EOL . PHP_EOL;
+  return array_to_markdown_table(['Prerequisite', 'Capability'], $rows);
 }
 
 /**
@@ -1028,9 +1094,10 @@ function heading_anchor(string $name): string {
  *   Base path for the repository.
  *
  * @return array<string, array<string, mixed>>
- *   Array of info with 'name', 'name_contextual', 'context', 'source',
- *   'steps_anchor', 'helpers', 'description' and 'description_full' keys,
- *   keyed by trait short name. Traits contributing no helper are left out.
+ *   Array of info with 'name', 'name_contextual', 'class', 'context',
+ *   'source', 'steps_anchor', 'helpers', 'description' and 'description_full'
+ *   keys, and a 'title' key when the class declares one, keyed by short name.
+ *   Traits contributing no helper are left out.
  *
  * @throws \ReflectionException
  */
@@ -1052,6 +1119,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $class_info = [
       'name' => $trait_name,
       'name_contextual' => $name_contextual,
+      'class' => $trait->getName(),
       'context' => $context,
       'source' => sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait_name),
       'steps_anchor' => heading_anchor($name_contextual),
@@ -1075,6 +1143,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $class_info = [
       'name' => $trait_name,
       'name_contextual' => $name_contextual,
+      'class' => $trait->getName(),
       'context' => $context,
       'source' => sprintf('%s/%s/%s.php', HELPERS_DIRECTORY, $context, $trait_name),
       'steps_anchor' => NULL,
@@ -1102,7 +1171,8 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $class_info = [
       'name' => $short_name,
       'name_contextual' => $short_name,
-      'context' => 'Toolbox',
+      'class' => $reflection->getName(),
+      'context' => TOOLBOX_CONTEXT,
       'source' => relative_source_path((string) $reflection->getFileName(), $base_path),
       'steps_anchor' => NULL,
       'helpers' => $helpers,
@@ -1307,136 +1377,288 @@ function relative_source_path(string $file_path, string $base_path = __DIR__): s
 }
 
 /**
+ * Render the path of a link from one repository file to another.
+ *
+ * @param string $from_file
+ *   The file holding the link, relative to the repository root.
+ * @param string $to_path
+ *   The link target, relative to the repository root.
+ *
+ * @return string
+ *   The target's path relative to the directory of the linking file.
+ */
+function relative_link(string $from_file, string $to_path): string {
+  $directory = dirname($from_file);
+  $from = $directory === '.' ? [] : explode('/', $directory);
+  $to = explode('/', $to_path);
+
+  // The last segment of the target stays, so the link always names it.
+  while ($from !== [] && count($to) > 1 && $from[0] === $to[0]) {
+    array_shift($from);
+    array_shift($to);
+  }
+
+  return str_repeat('../', count($from)) . implode('/', $to);
+}
+
+/**
  * Convert info to content.
  *
- * @param array<string,array<string, array<int, array<string, array<int,string>|string>>|string>> $info
+ * @param array<string, array<string, mixed>> $info
  *   The extracted trait info from extract_info().
  * @param string $base_path
  *   Base path for the repository.
  *
  * @return string
  *   The index table of each context, followed by a horizontal rule and every
- *   trait's section, or the index tables alone when '$path_for_links' is set.
+ *   trait's section.
  */
-function render_info(array $info, string $base_path = __DIR__, ?string $path_for_links = NULL): string {
-  $content_output = [];
-
-  $index_rows = [];
+function render_info(array $info, string $base_path = __DIR__): string {
+  $sections = [];
 
   foreach ($info as $trait => $class_info) {
-    $context = $class_info['context'];
-    // @phpstan-ignore-next-line
-    $src_file = sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait);
-    $src_file_path = $base_path . '/' . $src_file;
+    $context = (string) $class_info['context'];
+    $sections[$context] ??= '';
+    $sections[$context] .= render_step_section((string) $trait, $class_info, $base_path);
+  }
 
-    if (!file_exists($src_file_path)) {
-      throw new \RuntimeException(sprintf('Source file %s does not exist', $src_file_path));
+  $index = render_step_index($info, static fn(array $class_info): string => '#' . heading_anchor((string) $class_info['name_contextual']));
+
+  return $index . PHP_EOL . '---' . PHP_EOL . PHP_EOL . implode(PHP_EOL . PHP_EOL, context_first($sections, '')) . PHP_EOL;
+}
+
+/**
+ * Render the index of the step traits, 1 table per context.
+ *
+ * @param array<string, array<string, mixed>> $info
+ *   The extracted trait info from extract_info().
+ * @param callable(array<string, mixed>): string $link
+ *   Returns the link target of a trait's row.
+ *
+ * @return string
+ *   The table of each context under its heading, the generic context's first.
+ */
+function render_step_index(array $info, callable $link): string {
+  $rows = [];
+
+  foreach ($info as $class_info) {
+    $rows[(string) $class_info['context']][] = [
+      sprintf('[%s](%s)', $class_info['name_contextual'], $link($class_info)),
+      (string) $class_info['description'],
+    ];
+  }
+
+  $output = '';
+
+  foreach (context_first($rows, []) as $context => $context_rows) {
+    $output .= sprintf('## Index of %s steps', $context) . PHP_EOL . PHP_EOL;
+    $output .= array_to_markdown_table(['Class', 'Description'], $context_rows) . PHP_EOL . PHP_EOL;
+  }
+
+  return $output;
+}
+
+/**
+ * Render a trait's section of the step reference.
+ *
+ * The headings name the trait, so a search result or a link that lands on one
+ * of them says which trait it belongs to.
+ *
+ * @param string $trait
+ *   The short trait name.
+ * @param array<string, mixed> $class_info
+ *   The trait info from extract_info().
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return string
+ *   The section, from the trait's heading to its last step.
+ */
+function render_step_section(string $trait, array $class_info, string $base_path): string {
+  $name_contextual = (string) $class_info['name_contextual'];
+
+  $output = sprintf('## %s', $name_contextual) . PHP_EOL . PHP_EOL;
+  $output .= render_step_links($trait, $class_info, STEPS_FILE, $base_path) . PHP_EOL . PHP_EOL;
+  $output .= render_class_description((string) $class_info['description_full']) . PHP_EOL . PHP_EOL;
+  $output .= render_titled(sprintf('### %s prerequisites', $name_contextual), render_trait_prerequisites($class_info['prerequisites'] ?? []));
+  $output .= render_titled(sprintf('### %s options', $name_contextual), render_trait_options($trait, $class_info['options'] ?? []));
+
+  return $output . render_step_details(is_array($class_info['methods'] ?? NULL) ? $class_info['methods'] : []);
+}
+
+/**
+ * Render the documentation site's page of each step trait.
+ *
+ * @param array<string, array<string, mixed>> $info
+ *   The extracted trait info from extract_info().
+ * @param array<string, array<string, mixed>> $helpers
+ *   The helper info from extract_helpers(), so a trait with helpers links to
+ *   their page.
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return array<string, string>
+ *   The contents of each page, keyed by its path relative to the repository
+ *   root.
+ */
+function render_step_pages(array $info, array $helpers, string $base_path = __DIR__): array {
+  $pages = [];
+  $positions = page_positions('steps', $info);
+
+  foreach ($info as $trait => $class_info) {
+    $trait = (string) $trait;
+    $context = (string) $class_info['context'];
+    $title = (string) $class_info['title'];
+    $page = reference_page('steps', $context, $trait);
+
+    $links = render_step_links($trait, $class_info, $page, $base_path);
+
+    if (($helpers[$trait]['context'] ?? NULL) === $context) {
+      $links .= sprintf(', [Helpers](%s)', relative_link($page, reference_page('helpers', $context, $trait)));
     }
 
-    $example_name = camel_to_snake(str_replace('Trait', '', $trait));
-    $prefix = $context !== DEFAULT_CONTEXT
-      // @phpstan-ignore-next-line
-      ? strtolower((string) $context) . '_'
-      : '';
-    $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, $example_name);
-    $example_file_path = $base_path . '/' . $example_file;
+    $output = render_front_matter([
+      'title' => sprintf('%s - %s steps', $title, page_section($context)),
+      'sidebar_label' => $title,
+      'sidebar_position' => $positions[$trait],
+      'description' => str_replace('`', '', (string) $class_info['description']),
+      'custom_edit_url' => NULL,
+    ]) . PHP_EOL;
+    $output .= '# ' . $title . PHP_EOL . PHP_EOL;
+    $output .= sprintf('`%s` - %s', $class_info['class'], $links) . PHP_EOL . PHP_EOL;
+    $output .= rtrim(render_class_description((string) $class_info['description_full'])) . PHP_EOL . PHP_EOL;
+    $output .= render_titled('## Prerequisites', render_trait_prerequisites($class_info['prerequisites'] ?? []));
+    $output .= render_titled('## Options', render_trait_options($trait, $class_info['options'] ?? []));
+    $output .= render_titled('## Steps', rtrim(render_step_details(is_array($class_info['methods'] ?? NULL) ? $class_info['methods'] : [])));
 
-    if (!file_exists($example_file_path)) {
-      throw new \RuntimeException(sprintf('Example file %s does not exist', $example_file_path));
+    $pages[$page] = rtrim($output) . PHP_EOL;
+  }
+
+  return $pages;
+}
+
+/**
+ * Render the links of a trait to its source and its example feature.
+ *
+ * @param string $trait
+ *   The short trait name.
+ * @param array<string, mixed> $class_info
+ *   The trait info from extract_info().
+ * @param string $from_file
+ *   The file holding the links, relative to the repository root.
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return string
+ *   The links, separated by commas.
+ *
+ * @throws \RuntimeException
+ *   When the source or the example feature does not exist.
+ */
+function render_step_links(string $trait, array $class_info, string $from_file, string $base_path): string {
+  $context = (string) $class_info['context'];
+  $src_file = sprintf('%s/%s/%s.php', STEPS_DIRECTORY, $context, $trait);
+
+  if (!file_exists($base_path . '/' . $src_file)) {
+    throw new \RuntimeException(sprintf('Source file %s does not exist', $base_path . '/' . $src_file));
+  }
+
+  $prefix = $context !== DEFAULT_CONTEXT ? strtolower($context) . '_' : '';
+  $example_file = sprintf('tests/behat/features/%s%s.feature', $prefix, camel_to_snake(str_replace('Trait', '', $trait)));
+
+  if (!file_exists($base_path . '/' . $example_file)) {
+    throw new \RuntimeException(sprintf('Example file %s does not exist', $base_path . '/' . $example_file));
+  }
+
+  return sprintf('[Source](%s), [Example](%s)', relative_link($from_file, $src_file), relative_link($from_file, $example_file));
+}
+
+/**
+ * Render a class description as a blockquote.
+ *
+ * A '@code' block becomes a fenced block, and an empty line becomes 2 line
+ * breaks, except before a list.
+ *
+ * @param string $description_full
+ *   The full class description from parse_class_comment().
+ *
+ * @return string
+ *   The description, with every line quoted.
+ */
+function render_class_description(string $description_full): string {
+  $output = '';
+  $was_list = FALSE;
+  $in_code_block = FALSE;
+  $code_block = '';
+
+  foreach (explode(PHP_EOL, $description_full) as $line) {
+    $trimmed_line = trim($line);
+
+    if (str_starts_with($trimmed_line, '@code')) {
+      $in_code_block = TRUE;
+      $code_block = '';
+      continue;
     }
 
-    // @phpstan-ignore-next-line
-    $content_output[$context] ??= '';
-    // @phpstan-ignore-next-line
-    $content_output[$context] .= sprintf('## %s', $class_info['name_contextual']) . PHP_EOL . PHP_EOL;
-    // @phpstan-ignore-next-line
-    $content_output[$context] .= sprintf('[Source](%s), [Example](%s)', $src_file, $example_file) . PHP_EOL . PHP_EOL;
+    if (str_starts_with($trimmed_line, '@endcode')) {
+      $in_code_block = FALSE;
+      $output .= '```' . PHP_EOL;
+      $output .= rtrim($code_block) . PHP_EOL;
+      $output .= '```' . PHP_EOL;
+      $code_block = '';
+      continue;
+    }
 
-    $description_full = '';
-    // @phpstan-ignore-next-line
-    $lines = explode(PHP_EOL, $class_info['description_full']);
-    $was_list = FALSE;
-    $in_code_block = FALSE;
-    $code_block = '';
+    if ($in_code_block) {
+      $code_block .= $line . PHP_EOL;
+      continue;
+    }
 
-    foreach ($lines as $line) {
-      $trimmed_line = trim($line);
+    $is_list = str_starts_with($trimmed_line, '-');
 
-      if (str_starts_with($trimmed_line, '@code')) {
-        $in_code_block = TRUE;
-        $code_block = '';
-        continue;
-      }
-
-      if (str_starts_with($trimmed_line, '@endcode')) {
-        $in_code_block = FALSE;
-        $description_full .= '```' . PHP_EOL;
-        $description_full .= rtrim($code_block) . PHP_EOL;
-        $description_full .= '```' . PHP_EOL;
-        $code_block = '';
-        continue;
-      }
-
-      if ($in_code_block) {
-        $code_block .= $line . PHP_EOL;
-        continue;
-      }
-
-      $is_list = str_starts_with($trimmed_line, '-');
-
-      if (!$is_list) {
-        if (empty($line) && !$was_list) {
-          $description_full .= $line . '<br/><br/>' . PHP_EOL;
-        }
-        else {
-          $description_full .= $line . PHP_EOL;
-        }
-
-        $was_list = FALSE;
+    if (!$is_list) {
+      if (empty($line) && !$was_list) {
+        $output .= $line . '<br/><br/>' . PHP_EOL;
       }
       else {
-        if (str_ends_with($description_full, '<br/><br/>' . PHP_EOL)) {
-          $description_full = rtrim($description_full, '<br/><br/>' . PHP_EOL) . PHP_EOL;
-        }
-
-        $description_full .= $line . PHP_EOL;
-        $was_list = TRUE;
+        $output .= $line . PHP_EOL;
       }
+
+      $was_list = FALSE;
     }
+    else {
+      $break = '<br/><br/>' . PHP_EOL;
 
-    $description_full = preg_replace('/^/m', '>  ', $description_full);
-    // @phpstan-ignore-next-line
-    $content_output[$context] .= $description_full . PHP_EOL . PHP_EOL;
-    // @phpstan-ignore-next-line
-    $content_output[$context] .= render_trait_prerequisites($class_info['prerequisites'] ?? []);
-    // @phpstan-ignore-next-line
-    $content_output[$context] .= render_trait_options($trait, $class_info['options'] ?? []);
-    // @phpstan-ignore-next-line
-    $index_rows_path = '#' . heading_anchor((string) $class_info['name_contextual']);
+      if (str_ends_with($output, $break)) {
+        $output = substr($output, 0, -strlen($break));
+      }
 
-    if ($path_for_links) {
-      $index_rows_path = $path_for_links . $index_rows_path;
+      $output .= $line . PHP_EOL;
+      $was_list = TRUE;
     }
+  }
 
-    // @phpstan-ignore-next-line
-    $index_rows[$context][] = [
-      // @phpstan-ignore-next-line
-      sprintf('[%s](%s)', $class_info['name_contextual'], $index_rows_path),
-      $class_info['description'],
-    ];
+  return (string) preg_replace('/^/m', '>  ', $output);
+}
 
-    // @phpstan-ignore-next-line
-    foreach ($class_info['methods'] as $method) {
-      $method['steps'] = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
-      $method['description'] = is_string($method['description']) ? $method['description'] : '';
-      $method['example'] = is_string($method['example']) ? $method['example'] : '';
+/**
+ * Render each step method of a trait as a collapsible block.
+ *
+ * @param array<int|string, mixed> $methods
+ *   The trait's step methods from extract_info().
+ *
+ * @return string
+ *   1 block per method, with its steps, its description and its example.
+ */
+function render_step_details(array $methods): string {
+  $output = '';
 
-      $method['steps'] = array_reduce($method['steps'], static fn(string $carry, string $item): string => $carry . sprintf("%s\n", $item), '');
-      $method['steps'] = rtrim((string) $method['steps'], "\n");
+  foreach ($methods as $method) {
+    $steps = is_array($method['steps']) ? $method['steps'] : [$method['steps']];
+    $description = is_string($method['description']) ? $method['description'] : '';
+    $example = is_string($method['example']) ? $method['example'] : '';
 
-      $method['description'] = rtrim((string) $method['description'], '.');
-
-      $template = <<<EOT
+    $template = <<<EOT
 <details>
   <summary><code>[step]</code></summary>
 
@@ -1452,49 +1674,11 @@ function render_info(array $info, string $base_path = __DIR__, ?string $path_for
 
 EOT;
 
-      // @phpstan-ignore-next-line
-      $content_output[$context] .= strtr(
-        $template,
-        [
-          '[description]' => $method['description'],
-          '[step]' => $method['steps'],
-          '[example]' => $method['example'],
-        ]
-      );
-
-      // @phpstan-ignore-next-line
-      $content_output[$context] .= PHP_EOL;
-    }
-  }
-
-  $index_rows[DEFAULT_CONTEXT] ??= [];
-  $index_rows = array_merge(
-    [DEFAULT_CONTEXT => $index_rows[DEFAULT_CONTEXT]],
-    array_diff_key($index_rows, [DEFAULT_CONTEXT => []])
-  );
-
-  $index_output = '';
-
-  foreach ($index_rows as $index_rows_context_name => $index_rows_contextual) {
-    $index_output .= sprintf('### Index of %s steps', $index_rows_context_name) . PHP_EOL . PHP_EOL;
-    // @phpstan-ignore-next-line
-    $index_output .= array_to_markdown_table(['Class', 'Description'], $index_rows_contextual) . PHP_EOL . PHP_EOL;
-  }
-
-  $content_output[DEFAULT_CONTEXT] ??= '';
-  $content_output = array_merge(
-    [DEFAULT_CONTEXT => $content_output[DEFAULT_CONTEXT]],
-    array_diff_key($content_output, [DEFAULT_CONTEXT => []])
-  );
-  $content_output = implode(PHP_EOL . PHP_EOL, $content_output);
-
-  $output = '';
-
-  $output .= $index_output . PHP_EOL;
-
-  if (!$path_for_links) {
-    $output .= '---' . PHP_EOL . PHP_EOL;
-    $output .= $content_output . PHP_EOL;
+    $output .= strtr($template, [
+      '[description]' => rtrim($description, '.'),
+      '[step]' => implode("\n", $steps),
+      '[example]' => rtrim($example),
+    ]) . PHP_EOL;
   }
 
   return $output;
@@ -1512,73 +1696,386 @@ EOT;
  *   Markdown content.
  */
 function render_helpers(array $info, string $base_path = __DIR__): string {
-  $content_output = [];
-  $index_rows = [];
+  $sections = [];
 
   foreach ($info as $class_info) {
     $context = (string) $class_info['context'];
-    $name_contextual = (string) $class_info['name_contextual'];
-    $anchor = heading_anchor($name_contextual);
-    $helpers = is_array($class_info['helpers']) ? $class_info['helpers'] : [];
+    $sections[$context] ??= '';
+    $sections[$context] .= render_helper_section($class_info, $base_path);
+  }
 
-    $src_file = (string) $class_info['source'];
+  $output = render_helper_index($info, static fn(array $class_info): string => '#' . heading_anchor((string) $class_info['name_contextual']));
+  $output .= '---' . PHP_EOL . PHP_EOL;
+  $output .= implode('', context_first($sections, ''));
 
-    if (!file_exists($base_path . '/' . $src_file)) {
-      throw new \RuntimeException(sprintf('Source file %s does not exist', $base_path . '/' . $src_file));
-    }
+  return rtrim($output) . PHP_EOL;
+}
 
-    $steps_anchor = $class_info['steps_anchor'] ?? NULL;
-    $links = sprintf('[Source](%s)', $src_file);
+/**
+ * Render the index of the classes contributing helpers, 1 table per context.
+ *
+ * @param array<string, array<string, mixed>> $info
+ *   Array of helper info items from extract_helpers().
+ * @param callable(array<string, mixed>): string $link
+ *   Returns the link target of a class's row.
+ *
+ * @return string
+ *   The table of each context under its heading, the generic context's first.
+ */
+function render_helper_index(array $info, callable $link): string {
+  $rows = [];
 
-    if (is_string($steps_anchor)) {
-      $links .= sprintf(', [Steps](STEPS.md#%s)', $steps_anchor);
-    }
-
-    $content_output[$context] ??= '';
-    $content_output[$context] .= sprintf('## %s', $name_contextual) . PHP_EOL . PHP_EOL;
-    $content_output[$context] .= $links . PHP_EOL . PHP_EOL;
-    $content_output[$context] .= '> ' . $class_info['description'] . PHP_EOL . PHP_EOL;
-
-    foreach ($helpers as $helper) {
-      $example = (string) $helper['example'];
-
-      $content_output[$context] .= '<details>' . PHP_EOL;
-      $content_output[$context] .= sprintf('  <summary><code>%s</code></summary>', (string) $helper['signature']) . PHP_EOL . PHP_EOL;
-      $content_output[$context] .= '<br/>' . PHP_EOL;
-      $content_output[$context] .= rtrim((string) $helper['description'], '.') . PHP_EOL;
-      $content_output[$context] .= '<br/><br/>' . PHP_EOL . PHP_EOL;
-
-      if ($example !== '') {
-        $content_output[$context] .= '```' . PHP_EOL . rtrim($example) . PHP_EOL . '```' . PHP_EOL . PHP_EOL;
-      }
-
-      $content_output[$context] .= '</details>' . PHP_EOL . PHP_EOL;
-    }
-
-    $index_rows[$context][] = [
-      sprintf('[%s](#%s)', $name_contextual, $anchor),
-      (string) count($helpers),
+  foreach ($info as $class_info) {
+    $rows[(string) $class_info['context']][] = [
+      sprintf('[%s](%s)', $class_info['name_contextual'], $link($class_info)),
+      (string) count(is_array($class_info['helpers']) ? $class_info['helpers'] : []),
       (string) $class_info['description'],
     ];
   }
 
-  $index_rows[DEFAULT_CONTEXT] ??= [];
-  $index_rows = array_merge([DEFAULT_CONTEXT => $index_rows[DEFAULT_CONTEXT]], array_diff_key($index_rows, [DEFAULT_CONTEXT => []]));
-
   $output = '';
 
-  foreach ($index_rows as $index_context => $rows) {
-    $output .= sprintf('### Index of %s helpers', $index_context) . PHP_EOL . PHP_EOL;
-    $output .= array_to_markdown_table(['Class', 'Helpers', 'Description'], $rows) . PHP_EOL . PHP_EOL;
+  foreach (context_first($rows, []) as $context => $context_rows) {
+    $output .= sprintf('## Index of %s helpers', $context) . PHP_EOL . PHP_EOL;
+    $output .= array_to_markdown_table(['Class', 'Helpers', 'Description'], $context_rows) . PHP_EOL . PHP_EOL;
   }
 
-  $content_output[DEFAULT_CONTEXT] ??= '';
-  $content_output = array_merge([DEFAULT_CONTEXT => $content_output[DEFAULT_CONTEXT]], array_diff_key($content_output, [DEFAULT_CONTEXT => []]));
+  return $output;
+}
 
-  $output .= '---' . PHP_EOL . PHP_EOL;
-  $output .= implode('', $content_output);
+/**
+ * Render a class's section of the toolbox reference.
+ *
+ * @param array<string, mixed> $class_info
+ *   The helper info of the class from extract_helpers().
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return string
+ *   The section, from the class's heading to its last helper.
+ */
+function render_helper_section(array $class_info, string $base_path): string {
+  $steps_anchor = $class_info['steps_anchor'] ?? NULL;
+  $steps_link = is_string($steps_anchor) ? relative_link(HELPERS_FILE, STEPS_FILE) . '#' . $steps_anchor : NULL;
 
-  return rtrim($output) . PHP_EOL;
+  $output = sprintf('## %s', $class_info['name_contextual']) . PHP_EOL . PHP_EOL;
+  $output .= render_helper_links($class_info, HELPERS_FILE, $steps_link, $base_path) . PHP_EOL . PHP_EOL;
+  $output .= '> ' . $class_info['description'] . PHP_EOL . PHP_EOL;
+
+  return $output . render_helper_details(is_array($class_info['helpers']) ? $class_info['helpers'] : []);
+}
+
+/**
+ * Render the documentation site's page of each class contributing helpers.
+ *
+ * @param array<string, array<string, mixed>> $info
+ *   Array of helper info items from extract_helpers().
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return array<string, string>
+ *   The contents of each page, keyed by its path relative to the repository
+ *   root.
+ */
+function render_helper_pages(array $info, string $base_path = __DIR__): array {
+  $pages = [];
+  $positions = page_positions('helpers', $info);
+
+  foreach ($info as $key => $class_info) {
+    $name = (string) $class_info['name'];
+    $context = (string) $class_info['context'];
+    $title = (string) $class_info['title'];
+    $page = reference_page('helpers', $context, $name);
+    $steps_link = is_string($class_info['steps_anchor'] ?? NULL) ? relative_link($page, reference_page('steps', $context, $name)) : NULL;
+
+    $output = render_front_matter([
+      'title' => sprintf('%s - %s helpers', $title, page_section($context)),
+      'sidebar_label' => $title,
+      'sidebar_position' => $positions[(string) $key],
+      'description' => str_replace('`', '', (string) $class_info['description']),
+      'custom_edit_url' => NULL,
+    ]) . PHP_EOL;
+    $output .= '# ' . $title . PHP_EOL . PHP_EOL;
+    $output .= sprintf('`%s` - %s', $class_info['class'], render_helper_links($class_info, $page, $steps_link, $base_path)) . PHP_EOL . PHP_EOL;
+    $output .= '> ' . $class_info['description'] . PHP_EOL . PHP_EOL;
+    $output .= render_helper_details(is_array($class_info['helpers']) ? $class_info['helpers'] : []);
+
+    $pages[$page] = rtrim($output) . PHP_EOL;
+  }
+
+  return $pages;
+}
+
+/**
+ * Render the links of a class to its source and to its steps.
+ *
+ * @param array<string, mixed> $class_info
+ *   The helper info of the class from extract_helpers().
+ * @param string $from_file
+ *   The file holding the links, relative to the repository root.
+ * @param string|null $steps_link
+ *   The link target of the class's steps, or NULL when it has none.
+ * @param string $base_path
+ *   Base path for the repository.
+ *
+ * @return string
+ *   The links, separated by commas.
+ *
+ * @throws \RuntimeException
+ *   When the source does not exist.
+ */
+function render_helper_links(array $class_info, string $from_file, ?string $steps_link, string $base_path): string {
+  $src_file = (string) $class_info['source'];
+
+  if (!file_exists($base_path . '/' . $src_file)) {
+    throw new \RuntimeException(sprintf('Source file %s does not exist', $base_path . '/' . $src_file));
+  }
+
+  $links = sprintf('[Source](%s)', relative_link($from_file, $src_file));
+
+  return $steps_link === NULL ? $links : $links . sprintf(', [Steps](%s)', $steps_link);
+}
+
+/**
+ * Render each helper of a class as a collapsible block.
+ *
+ * @param array<int|string, mixed> $helpers
+ *   The helpers of the class from extract_helpers().
+ *
+ * @return string
+ *   1 block per helper, with its signature, its description and its example.
+ */
+function render_helper_details(array $helpers): string {
+  $output = '';
+
+  foreach ($helpers as $helper) {
+    $example = (string) $helper['example'];
+
+    $output .= '<details>' . PHP_EOL;
+    $output .= sprintf('  <summary><code>%s</code></summary>', (string) $helper['signature']) . PHP_EOL . PHP_EOL;
+    $output .= '<br/>' . PHP_EOL;
+    $output .= rtrim((string) $helper['description'], '.') . PHP_EOL;
+    $output .= '<br/><br/>' . PHP_EOL . PHP_EOL;
+
+    if ($example !== '') {
+      $output .= '```' . PHP_EOL . rtrim($example) . PHP_EOL . '```' . PHP_EOL . PHP_EOL;
+    }
+
+    $output .= '</details>' . PHP_EOL . PHP_EOL;
+  }
+
+  return $output;
+}
+
+/**
+ * Render a block under its heading.
+ *
+ * @param string $heading
+ *   The heading, with its level.
+ * @param string $body
+ *   The block.
+ *
+ * @return string
+ *   The heading and the block, or an empty string when the block is empty.
+ */
+function render_titled(string $heading, string $body): string {
+  return $body === '' ? '' : $heading . PHP_EOL . PHP_EOL . $body . PHP_EOL . PHP_EOL;
+}
+
+/**
+ * Render the front matter of a generated page.
+ *
+ * A string is written as a JSON string, which YAML reads as a double-quoted
+ * scalar, so no character in the string ends the value early.
+ *
+ * @param array<string, string|int|null> $fields
+ *   The values, keyed by field name.
+ *
+ * @return string
+ *   The fields between the 2 delimiter lines.
+ */
+function render_front_matter(array $fields): string {
+  $lines = ['---'];
+
+  foreach ($fields as $name => $value) {
+    $lines[] = sprintf('%s: %s', $name, match (TRUE) {
+      is_string($value) => json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+      $value === NULL => 'null',
+      default => (string) $value,
+    });
+  }
+
+  $lines[] = '---';
+
+  return implode(PHP_EOL, $lines) . PHP_EOL;
+}
+
+/**
+ * Name the documentation site's section that lists a context's pages.
+ *
+ * @param string $context
+ *   The context of a class, such as 'Drupal'.
+ *
+ * @return string
+ *   The context the section is named after.
+ */
+function page_section(string $context): string {
+  // The site has no section for the toolbox, so its pages sit with the helpers
+  // of the generic context.
+  return $context === TOOLBOX_CONTEXT ? DEFAULT_CONTEXT : $context;
+}
+
+/**
+ * Render the directory of a section of the documentation site.
+ *
+ * @param string $kind
+ *   The kind of page, 'steps' or 'helpers'.
+ * @param string $context
+ *   The context of a class, such as 'Drupal'.
+ *
+ * @return string
+ *   The directory relative to the repository root, such as
+ *   'docs/content/drupal-steps'.
+ */
+function page_directory(string $kind, string $context): string {
+  return sprintf('%s/%s-%s', PAGES_DIRECTORY, strtolower(page_section($context)), $kind);
+}
+
+/**
+ * Render the path of the documentation site's page of a class.
+ *
+ * @param string $kind
+ *   The kind of page, 'steps' or 'helpers'.
+ * @param string $context
+ *   The context of the class, such as 'Drupal'.
+ * @param string $name
+ *   The short class name, such as 'BigPipeTrait'.
+ *
+ * @return string
+ *   The path relative to the repository root, in the directory of the class's
+ *   section and named after the class without its 'Trait' suffix.
+ */
+function reference_page(string $kind, string $context, string $name): string {
+  return sprintf('%s/%s.md', page_directory($kind, $context), camel_to_snake((string) preg_replace('/Trait$/', '', $name), '-'));
+}
+
+/**
+ * Number the pages of each section of the documentation site by their title.
+ *
+ * @param string $kind
+ *   The kind of page, 'steps' or 'helpers'.
+ * @param array<string, array<string, mixed>> $info
+ *   The info of the classes, keyed by short name, from extract_info() for
+ *   steps or from extract_helpers() for helpers.
+ *
+ * @return array<string, int>
+ *   The position of each class's page in its section, from 1, keyed like the
+ *   info.
+ */
+function page_positions(string $kind, array $info): array {
+  $titles = [];
+
+  foreach ($info as $key => $class_info) {
+    $titles[page_directory($kind, (string) $class_info['context'])][(string) $key] = (string) $class_info['title'];
+  }
+
+  $positions = [];
+
+  foreach ($titles as $section_titles) {
+    uasort($section_titles, strcasecmp(...));
+    $positions += array_combine(array_keys($section_titles), range(1, count($section_titles)));
+  }
+
+  return $positions;
+}
+
+/**
+ * Render the index of each section of the documentation site.
+ *
+ * @param string $kind
+ *   The kind of page, 'steps' or 'helpers'.
+ * @param array<string, array<string, mixed>> $info
+ *   The info of the classes, keyed by short name, from extract_info() for
+ *   steps or from extract_helpers() for helpers.
+ *
+ * @return array<string, string>
+ *   The table linking the pages of each section in their sidebar order, keyed
+ *   by the path of the section's README.md relative to the repository root.
+ */
+function render_page_indexes(string $kind, array $info): array {
+  $positions = page_positions($kind, $info);
+  $rows = [];
+
+  foreach ($info as $key => $class_info) {
+    $context = (string) $class_info['context'];
+    $index = page_directory($kind, $context) . '/README.md';
+    $link = relative_link($index, reference_page($kind, $context, (string) $class_info['name']));
+    $row = [sprintf('[%s](%s)', $class_info['title'], $link), sprintf('`%s`', $class_info['name_contextual'])];
+
+    if ($kind === 'helpers') {
+      $row[] = (string) count(is_array($class_info['helpers']) ? $class_info['helpers'] : []);
+    }
+
+    $row[] = (string) $class_info['description'];
+    $rows[$index][$positions[(string) $key]] = $row;
+  }
+
+  $headers = $kind === 'helpers' ? ['Name', 'Class', 'Helpers', 'Description'] : ['Name', 'Trait', 'Description'];
+  $indexes = [];
+
+  foreach ($rows as $index => $section_rows) {
+    ksort($section_rows);
+    $indexes[$index] = array_to_markdown_table($headers, $section_rows);
+  }
+
+  return $indexes;
+}
+
+/**
+ * Order entries keyed by context with the generic context first.
+ *
+ * @param array<string, mixed> $entries
+ *   The entries, keyed by context.
+ * @param mixed $default
+ *   The entry of the generic context when the entries hold none.
+ *
+ * @return array<string, mixed>
+ *   The entries, the generic context's first and the rest in their order.
+ */
+function context_first(array $entries, mixed $default): array {
+  return array_merge([DEFAULT_CONTEXT => $entries[DEFAULT_CONTEXT] ?? $default], array_diff_key($entries, [DEFAULT_CONTEXT => $default]));
+}
+
+/**
+ * List the generated pages of the documentation site the run no longer writes.
+ *
+ * Every page of a section directory but its README.md is generated, and the
+ * README.md holds the index.
+ *
+ * @param string $base_path
+ *   Base path for the repository.
+ * @param array<string, string> $pages
+ *   The pages the run writes, keyed by path relative to the repository root.
+ *
+ * @return array<int, string>
+ *   The paths of the pages to remove, relative to the repository root, sorted.
+ */
+function stale_pages(string $base_path, array $pages): array {
+  $stale = [];
+
+  foreach (['steps', 'helpers'] as $kind) {
+    foreach (glob(sprintf('%s/%s/*-%s/*.md', $base_path, PAGES_DIRECTORY, $kind)) ?: [] as $file) {
+      $relative = substr($file, strlen($base_path) + 1);
+
+      if (basename($file) !== 'README.md' && !isset($pages[$relative])) {
+        $stale[] = $relative;
+      }
+    }
+  }
+
+  sort($stale);
+
+  return $stale;
 }
 
 /**
@@ -1607,6 +2104,31 @@ function validate_helpers(array $info): array {
   }
 
   return $errors;
+}
+
+/**
+ * Validate that every class with a page on the documentation site names it.
+ *
+ * @param array<string, array<string, mixed>> $info
+ *   The extracted trait info from extract_info().
+ * @param array<string, array<string, mixed>> $helpers
+ *   The helper info from extract_helpers().
+ *
+ * @return array<string>
+ *   Array of errors, 1 per class without a title.
+ */
+function validate_titles(array $info, array $helpers): array {
+  $errors = [];
+
+  foreach (array_merge(array_values($info), array_values($helpers)) as $class_info) {
+    $name = (string) $class_info['name_contextual'];
+
+    if (!isset($class_info['title'])) {
+      $errors[$name] = sprintf('  %s - %s' . PHP_EOL, $name, 'Class comment has no "@title" naming its pages on the documentation site');
+    }
+  }
+
+  return array_values($errors);
 }
 
 /**
@@ -2276,6 +2798,14 @@ function extension_option_type(NodeInterface $node): string {
 /**
  * Render the description of a configuration node as 1 table cell.
  *
+ * An indented line of the node's info belongs to an example, which renders as
+ * a code block keeping its relative indentation. A double-quoted value in the
+ * description renders as code, so a URL in it does not become a link.
+ *
+ * Every line of an example ends in a '<br/>', since a line break would end the
+ * table row. The last line ends in one too, so the site renders a 1-line
+ * example as a block.
+ *
  * @param \Symfony\Component\Config\Definition\NodeInterface $node
  *   The configuration node.
  *
@@ -2285,9 +2815,32 @@ function extension_option_type(NodeInterface $node): string {
 function extension_option_description(NodeInterface $node): string {
   $info = method_exists($node, 'getInfo') ? (string) $node->getInfo() : '';
 
-  $lines = array_filter(array_map(trim(...), explode(PHP_EOL, $info)), static fn(string $line): bool => $line !== '');
+  $description = [];
+  $example = [];
 
-  return str_replace('|', '\\|', implode('<br/>', $lines));
+  foreach (explode(PHP_EOL, $info) as $line) {
+    if (trim($line) === '') {
+      continue;
+    }
+
+    if (str_starts_with($line, ' ')) {
+      $example[] = rtrim($line);
+      continue;
+    }
+
+    $description[] = (string) preg_replace('/"([^"]+)"/', '`$1`', trim($line));
+  }
+
+  $cell = implode('<br/>', $description);
+
+  if ($example !== []) {
+    $indentation = min(array_map(static fn(string $line): int => strspn($line, ' '), $example));
+    $example = array_map(static fn(string $line): string => htmlspecialchars(substr($line, $indentation), ENT_NOQUOTES), $example);
+
+    $cell .= '<pre><code>' . implode('<br/>', $example) . '<br/></code></pre>';
+  }
+
+  return str_replace('|', '\\|', $cell);
 }
 
 /**

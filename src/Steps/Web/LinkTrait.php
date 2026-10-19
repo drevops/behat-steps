@@ -19,6 +19,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  * - Assert link existence and href match.
  * - Assert absolute and relative link paths.
  *
+ * @title Links
+ *
  * @phpstan-require-extends \Behat\MinkExtension\Context\RawMinkContext
  */
 trait LinkTrait {

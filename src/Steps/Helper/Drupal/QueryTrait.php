@@ -15,6 +15,8 @@ use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
  * backend providing it. An entity found comes back as an id or as a stub
  * carrying the id, never as a loaded entity.
  *
+ * @title Entity queries
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait QueryTrait {

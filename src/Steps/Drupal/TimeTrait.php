@@ -25,6 +25,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\StringTrait;
  *
  * Skip processing with tag: `@behat-steps-skip:TimeTrait`.
  *
+ * @title System time
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait TimeTrait {

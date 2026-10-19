@@ -30,6 +30,8 @@ use DrevOps\BehatSteps\Steps\Helper\Web\TableTransposeTrait;
  * - Support for multiple media types with field value expansion handling.
  * - Created entities are automatically removed at the end of the scenario.
  *
+ * @title Media
+ *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait MediaTrait {
