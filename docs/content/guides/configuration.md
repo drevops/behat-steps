@@ -99,7 +99,7 @@ class UiContext extends WebRawContext {
 
 Behat matches the arguments to the constructor by name, so the array keys are the parameter names.
 
-`WebRawContext` declares 1 argument of its own, `config`, and every shipped and consuming context inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between 2 contexts of the same profile:
+`WebRawContext` declares 1 argument of its own, `config`, and every context inherits it, the shipped ones and yours, without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between 2 contexts of the same profile:
 
 ```php
 $ui = (new Suite('ui'))
@@ -109,7 +109,7 @@ $ui = (new Suite('ui'))
   ]);
 ```
 
-A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others; `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. Setting a group that no trait in the chain declares is an error at construction, naming what that context does accept.
+A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others. `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. A group that no trait in the chain declares fails when the context is built, and the error names the groups that context does accept.
 
 A context that adds arguments of its own forwards `config` to the parent, and the suite passes both:
 
@@ -137,9 +137,9 @@ $ui = (new Suite('ui'))
   ]);
 ```
 
-Behat 4 reads PHP configuration only, from `behat.php` or, when there's no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Prefer `behat.php`: both majors accept it, and it's the only format Behat 4 accepts.
+Behat 4 reads PHP configuration only: `behat.php`, or `behat.dist.php` when there's no `behat.php`. Behat 3 also reads the same settings from `behat.yml`. Prefer `behat.php`: both majors accept it, and it's the only format Behat 4 accepts.
 
-While a project is still on Behat 3, the YAML form of the suite above is:
+If your project is still on Behat 3, here's the YAML form of the suite above:
 
 ```yaml
 default:
@@ -325,14 +325,24 @@ Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it 
 
 ## 3. Tags
 
-A tag configures 1 scenario or 1 feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon is ignored, except `@behat-steps-skip:` and `@backend:`, which fail at scenario start like any other value they can't resolve. A flag tag takes no value. `@module:` also switches its value off with a `!`: `@module:!redirect`.
+A tag configures 1 scenario or 1 feature. A flag tag takes no value. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`, and `@module:` also switches its value off with a `!`, as in `@module:!redirect`. A tag with nothing after the colon is ignored, except `@behat-steps-skip:` and `@backend:`, which fail at scenario start like any other value they can't resolve.
 
 ```gherkin
 @module:redirect @behat-steps-skip:WatchdogTrait
 Scenario: Editor publishes a page
 ```
 
-A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line. `@behat-steps-skip:VALUE`, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines. `@module:VALUE` for the same module, `@breakpoint:VALUE` and an `@accessibility:VALUE` threshold take the scenario's value over the feature's, while `@accessibility:strict` applies from either line. `@backend:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes.
+A tag on the `Feature:` line applies to every scenario in that feature. When a scenario and its feature carry the same kind of tag, the 2 combine like this:
+
+| Tag | When both lines carry it |
+| --- | --- |
+| A flag tag | It takes effect from either line |
+| `@behat-steps-skip:VALUE`, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE`, `@behat-steps-entity-cleanup-skip:VALUE` | The values from both lines add up |
+| `@module:VALUE` for the same module, `@breakpoint:VALUE`, an `@accessibility:VALUE` threshold | The scenario's value wins over the feature's |
+| `@accessibility:strict` | It applies from either line |
+| `@backend:VALUE` | Both lines promote, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes |
+
+These are the tags the package defines:
 
 [//]: # (START_TAGS)
 
@@ -369,4 +379,4 @@ These vary a run without changing any committed configuration. Nothing else in t
 | `BEHAT_ACCESSIBILITY_PRINT` | `AccessibilityTrait` | Set to any non-empty value other than `0` to print a one-line accessibility summary per page to the console. |
 | `COMPOSER_BIN_DIR` | `DrushBackend` | When `drush.binary` is the bare `drush`, names the directory the Drush binary is resolved from, before the backend falls back to `vendor/bin/drush` under the working directory and then to `drush` on the `PATH`. Composer reads this variable but never sets it, so it applies only when you set it yourself. |
 
-`BEHAT_PARAMS` is Behat's own override channel and applies here as it does to any extension: it carries a JSON object merged over the loaded configuration, which is the usual way to point `base_url` or a browser driver's `api_url` somewhere else for 1 run.
+`BEHAT_PARAMS` is Behat's own override channel, and it applies here as it does to any extension. It carries a JSON object that Behat merges over the loaded configuration, which makes it the usual way to point `base_url` or a browser driver's `api_url` somewhere else for 1 run.

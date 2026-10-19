@@ -74,9 +74,11 @@ Connection settings come from 1 place, and per-trait settings from another:
                               per-trait options, per request
 ```
 
-Connection settings are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. Because it builds the session exactly as Mink does, the page client applies the options to every host. The factory also records the options, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
+Connection settings are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest.
 
-To a project this looks like stock Mink: it registers only Mink's own extension and `BehatStepsExtension`, and never sees the factory.
+Here's how they reach all 3 clients. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. Because it builds the session exactly as Mink does, the page client applies the options to every host. The factory also records the options, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
+
+From your project's side, this looks like stock Mink: you register only Mink's own extension and `BehatStepsExtension`, and never see the factory.
 
 Per-trait settings stay in the per-trait options under `behat_steps: steps`, applied to each request a step makes:
 

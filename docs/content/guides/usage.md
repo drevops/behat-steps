@@ -6,7 +6,7 @@ description: The extension-plus-context model - composing a context, registering
 
 # Usage
 
-A project uses this package by composing a context out of traits and pointing an extension at the site. The extension and the context answer different questions, and a trait reads from both.
+You use this package in 2 parts: a context composed out of traits, and an extension pointed at your site. They answer different questions, and a trait reads from both.
 
 | Layer | Answers | Scope |
 | --- | --- | --- |
@@ -18,7 +18,7 @@ A project uses this package by composing a context out of traits and pointing an
 
 ## The 3 entry points
 
-The vocabulary sits on a single chain. Each entry point adds what's listed under its name to everything above it, and a consumer extends exactly 1 of them:
+The steps sit on a single chain of contexts. Each entry point adds what's listed under its name to everything above it, and you extend exactly 1 of them:
 
 ```
         Behat\MinkExtension\Context\RawMinkContext
@@ -40,7 +40,7 @@ The vocabulary sits on a single chain. Each entry point adds what's listed under
 | `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
 
-`WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal` on top of it. A trait that could fail a scenario for a reason the scenario didn't ask about carries an `enabled` option, so a project switches it off through configuration instead of composing its own context.
+`WebContext` composes every trait under `Steps\Web`, and `DrupalContext` adds every trait under `Steps\Drupal` on top of it. Some traits can fail a scenario for a reason the scenario never asked about, such as a PHP error in the site's log. Each of those carries an `enabled` option, so you switch it off in configuration instead of composing a context of your own.
 
 ```php
 <?php
@@ -52,7 +52,7 @@ class FeatureContext extends DrupalContext {}
 
 ## Register 1 context, not 2
 
-`DrupalContext` extends `WebContext`, so a suite registering both would register the 28 web traits twice and die on a `RedundantStepException` naming an arbitrary step. `WebContext::assertOneContext()` runs on `BeforeSuite` and reports the real mistake instead. Register the class lowest in the chain and drop the rest:
+`DrupalContext` extends `WebContext`, so a suite registering both would register the 28 web traits twice and die on a `RedundantStepException` that names an arbitrary step. `WebContext::assertOneContext()` runs on `BeforeSuite` and reports the real mistake instead. Register the class lowest in the chain, and drop the rest:
 
 ```php
 $suite = (new Suite('default'))
@@ -63,11 +63,11 @@ $suite = (new Suite('default'))
 
 A Drupal suite needs `DrupalContext` alone: `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because `PathTrait`, `RandomTrait`, `MappingTrait` and `DateTrait` are inherited from `WebContext`.
 
-The chain has 1 cost: there's no way to remove an inherited step, so a Drupal project can't take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
+The chain has 1 cost. There's no way to remove an inherited step, so you can't take the Drupal step traits without the 28 web ones. If a step of your own collides with a shipped web step, drop to `WebRawContext` and compose what you want by hand.
 
 ## Compose your own context
 
-A context of your own is `WebRawContext` plus the traits whose steps the suite needs.
+A context of your own is `WebRawContext` plus the traits whose steps your suite needs.
 
 ```php
 <?php
@@ -84,13 +84,13 @@ class UiContext extends WebRawContext {
 }
 ```
 
-A context that adds steps of its own builds them on the helpers, as [Writing a step of your own](../extending/steps.md#writing-a-step-of-your-own) describes.
+To add steps of your own, build them on the helpers, as [Writing a step of your own](../extending/steps.md#writing-a-step-of-your-own) describes.
 
 [The rules that govern composition](../extending/steps.md#the-rules-that-govern-composition) cover what Behat does when a context re-composes a trait or overrides an inherited step or hook.
 
 ## Register it against the extension
 
-1 profile carries the extension; each suite carries its contexts.
+The profile carries the extension, and each suite carries its own contexts:
 
 ```php
 $ui = (new Suite('ui'))
@@ -107,7 +107,7 @@ $profile = (new Profile('default'))
 
 ## Configure a trait
 
-Each configurable trait declares its own options, named after the trait in snake case. Their profile-wide defaults live under `steps`:
+Each configurable trait declares its own options, in a group named after the trait in snake case: `WaitTrait` reads `wait`. Their profile-wide defaults live under `steps`:
 
 ```php
 ->withExtension(new Extension(BehatStepsExtension::class, [
@@ -130,7 +130,7 @@ $ui = (new Suite('ui'))
   ]);
 ```
 
-And a single scenario opts out with the tag the option declares:
+And a single scenario opts out with the tag the option declares, here `@js-errors`:
 
 ```gherkin
 @javascript @js-errors
@@ -138,7 +138,7 @@ Scenario: The legacy report still renders
   Given I visit "/reports/legacy"
 ```
 
-The 3 reach the same value, most specific last: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and a trait's page under [Web steps](../web-steps/README.md) or [Drupal steps](../drupal-steps/README.md) lists its options beside its steps.
+All 3 set the same value, and the most specific wins: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and a trait's page under [Web steps](../web-steps/README.md) or [Drupal steps](../drupal-steps/README.md) lists its options beside its steps.
 
 ## Switch a trait off
 
@@ -147,13 +147,11 @@ The 3 reach the same value, most specific last: `steps`, then the context's `con
 - `enabled` turns the trait's hooks off: nothing is collected, and no backend is bootstrapped on its account.
 - `fail_on_errors` leaves the collection running and stops what it collects from failing the scenario.
 
-A project that never wants a trait's gate turns it off once:
+If you never want a trait's gate, turn it off once in the profile instead of tagging every feature file with `@behat-steps-skip:WatchdogTrait`:
 
 ```php
 'steps' => ['watchdog' => ['enabled' => FALSE]],
 ```
-
-rather than tagging every feature file with `@behat-steps-skip:WatchdogTrait`.
 
 Several traits carry hooks that run around every scenario or step, and 1 tag switches a trait's hooks off for a single scenario or feature:
 
@@ -161,7 +159,7 @@ Several traits carry hooks that run around every scenario or step, and 1 tag swi
 @behat-steps-skip:TRAIT
 ```
 
-`TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag fails the run before the scenario starts when its value isn't shaped like a trait name, such as a hook method, or when it names a trait none of your suite's contexts compose, such as a misspelled one.
+`TRAIT` is the trait's name, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A typo can't slip through quietly: the run fails before the scenario starts when the value isn't shaped like a trait name, such as a hook method, or names a trait none of your suite's contexts compose, such as a misspelled one.
 
 2 kinds of hook ignore the tag, because they have nothing to switch off. A hook that only resets the trait's own state still runs, and so does a hook that acts only on the trait's own tag, such as `ResponsiveTrait`'s on `@breakpoint:`: removing that tag is what switches it off.
 
@@ -182,7 +180,7 @@ Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help 
 
 ### Automatic cleanup
 
-Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, so the test database stays clean across long suites. Reverse order means a node comes down before the term it references.
+Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context. When the scenario ends, they're deleted in reverse creation order, so the test database stays clean across long suites. Reverse order means a node comes down before the term it references.
 
 [Register what it creates](../extending/steps.md#register-what-it-creates) covers a step of your own that creates an entity itself.
 
@@ -203,4 +201,4 @@ When several entities share the title, label, name or description a step names, 
 
 ## Where to next
 
-For a value no option reaches, [Go further than the options](../extending/steps.md#go-further-than-the-options) shows how to override the trait's own seam in the composing context, and the rest of [Extending the step vocabulary](../extending/steps.md) covers steps of your own.
+For a value no option reaches, [Go further than the options](../extending/steps.md#go-further-than-the-options) shows how to override the trait's own seam in your context. The rest of [Extending the step vocabulary](../extending/steps.md) covers steps of your own.

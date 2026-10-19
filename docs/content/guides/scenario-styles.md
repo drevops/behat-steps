@@ -52,9 +52,13 @@ That's what "domain steps" means: the Gherkin speaks the project's language, and
 
 ## Why BDD teaches the declarative style
 
-The case rests on 3 arguments, all of them old and well tested. The first is audience: BDD's founding purpose is to use scenarios as a conversation artifact with stakeholders, and to a product owner, "I fill in Title" is noise and "I publish a page" is signal. The second is resilience: when the form is redesigned, an imperative suite changes in every scenario that touches the form. A declarative suite changes in exactly 1 definition, because its scenarios assert the behavior and leave the widget path to that definition. The third is intent: an imperative scenario verifies only the mechanics, so it can pass while the requirement behind them fails.
+The case rests on 3 arguments, all of them old and well tested:
 
-The critique of the imperative style is real, and it has a well-known precedent. `cucumber-rails`, the Rails integration for Cucumber (Behat's Ruby ancestor), used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. MinkContext is PHP's `web_steps.rb` that never got deleted, and this library is a larger, better-engineered descendant of the same pattern.
+- **Audience.** BDD's founding purpose is to use scenarios as a conversation artifact with stakeholders. To a product owner, "I fill in Title" is noise and "I publish a page" is signal.
+- **Resilience.** When the form is redesigned, an imperative suite changes in every scenario that touches the form. A declarative suite changes in exactly 1 definition, because its scenarios assert the behavior and leave the widget path to that definition.
+- **Intent.** An imperative scenario verifies only the mechanics, so it can pass while the requirement behind them fails.
+
+The critique of the imperative style is real, and it has a well-known precedent. `cucumber-rails`, the Rails integration for Cucumber (Behat's Ruby ancestor), used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. `MinkContext` is PHP's `web_steps.rb`, the one that never got deleted, and this library is a larger, better-engineered descendant of the same pattern.
 
 ## Why the imperative style wins in this ecosystem anyway
 
