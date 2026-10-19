@@ -8,7 +8,7 @@ description: Install Behat Steps with Composer, add the packages only some steps
 
 # Installation
 
-Behat Steps is a Composer package. It needs PHP 8.3 or newer and Behat 3.33 or newer, and its Drupal steps need Drupal 11 or 12. [Supported versions](README.md#supported-versions) lists the full matrix.
+Behat Steps installs with Composer. It needs PHP 8.3 or newer and Behat 3.33 or newer, and its Drupal steps need Drupal 11 or 12. [Supported versions](README.md#supported-versions) lists the full matrix.
 
 ## Install the package
 
@@ -16,15 +16,15 @@ Behat Steps is a Composer package. It needs PHP 8.3 or newer and Behat 3.33 or n
 composer require --dev drevops/behat-steps:^4
 ```
 
-That's the only package you need to require. Behat, Mink with its BrowserKit driver and extension, and the Symfony components the steps use are all requirements of Behat Steps, so Composer installs them along with it. A few steps need 1 more package, which [Optional dependencies](#optional-dependencies) lists.
+That's the only package you need to require. Behat, Mink with its BrowserKit driver and extension, and the Symfony components the steps use are all requirements of Behat Steps, so Composer brings them in for you. A few steps need 1 more package, which [Optional dependencies](#optional-dependencies) lists.
 
 ## Coming from the Drupal Extension
 
-This package replaces `drupal/drupal-extension` and `drupal/drupal-driver` and conflicts with both, so Composer won't install it while your project still requires either one. The [migration guide](../../MIGRATION.md#requirements) shows how to remove them.
+This package replaces `drupal/drupal-extension` and `drupal/drupal-driver`, and it conflicts with both, so Composer won't install it while your project still requires either one. The [migration guide](../../MIGRATION.md#requirements) shows how to remove them.
 
 ## Optional dependencies
 
-Behat Steps lists the packages that only some steps need under `suggest` in its `composer.json` rather than requiring them, so a suite that doesn't use those steps doesn't install them. `composer suggests` lists them from your project. Add the ones your suite needs to its `require-dev`:
+Some steps need a package the rest don't. Behat Steps lists those under `suggest` in its `composer.json` instead of requiring them, so you don't install a JSON schema validator for a suite that never checks a schema. Run `composer suggests` in your project to see them, and add the ones your suite needs to its `require-dev`:
 
 | Package | What needs it |
 | --- | --- |
@@ -33,19 +33,24 @@ Behat Steps lists the packages that only some steps need under `suggest` in its 
 | `lullabot/mink-selenium2-driver` | `@javascript` scenarios run through a Selenium server |
 | `dmore/behat-chrome-extension` | `@javascript` scenarios run in headless Chrome, with no Selenium server |
 
-The 2 browser drivers do the same job, so a suite that runs `@javascript` scenarios installs 1 of them, as [JavaScript browser drivers](#javascript-browser-drivers) describes. A suite that uses every JSON step adds both JSON packages:
+The 2 browser drivers do the same job, so if your suite runs `@javascript` scenarios, install 1 of them, as [JavaScript browser drivers](#javascript-browser-drivers) describes. If it uses every JSON step, add both JSON packages:
 
 ```bash
 composer require --dev softcreatr/jsonpath justinrainbow/json-schema
 ```
 
-The [Drush](drupal-steps/drush.md) steps need Drush itself, 13 or newer, because they run through the `drush` backend.
+The [Drush](drupal-steps/drush.md) steps also need Drush itself, version 13 or newer, because they run through the `drush` backend.
 
 ## JavaScript browser drivers
 
-Scenarios tagged `@javascript` use a real browser, and the steps that need one work with the 2 JavaScript browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. This library's own CI tests against both. Another browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
+A scenario tagged `@javascript` runs in a real browser. The steps that need one work with the 2 JavaScript browser drivers this library ships adapters for:
 
-To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension), which pulls in `dmore/chrome-mink-driver`, and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both.
+- The Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`.
+- The Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol.
+
+The library's own CI tests against both. Any other browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
+
+To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension), which pulls in `dmore/chrome-mink-driver`, and point it at a headless Chrome. It accepts Behat 3, and Behat 4 from version 1.5.0, and the library's CI runs it on both.
 
 ```php
 use Behat\Config\Extension;
@@ -63,9 +68,9 @@ $profile
   ]));
 ```
 
-A profile holds 1 entry per extension, so if your profile already registers `MinkExtension`, merge these settings into that entry rather than adding a second one.
+A profile holds 1 entry per extension, so if your profile already registers `MinkExtension`, merge these settings into that entry instead of adding a second one.
 
-Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell). For local visual debugging, you can override `api_url` at runtime via Behat's `BEHAT_PARAMS` environment variable, for instance to drive a headed Chrome on your host, as long as that browser can reach your site's `base_url`.
+Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell). To watch the browser while you debug, override `api_url` for a run through Behat's `BEHAT_PARAMS` environment variable, for instance to drive a headed Chrome on your host. That browser has to reach your site's `base_url`.
 
 ## Next
 

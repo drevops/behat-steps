@@ -6,11 +6,11 @@ description: Register a context, enable the extension, write a first scenario in
 
 # Quick start
 
-This page takes a project from an empty Behat configuration to a first scenario in 4 parts. It assumes you've [installed](installation.md) the package.
+This page takes you from an empty Behat configuration to a first scenario, in 4 parts. It assumes you've [installed](installation.md) the package.
 
 ## 1. Register the vocabulary you need
 
-The vocabulary sits on 1 chain of contexts. `WebContext` carries every step that drives a page, and `DrupalContext` extends it with every step that reaches a Drupal site, so a suite registers exactly 1 of them:
+The steps sit on 1 chain of contexts. `WebContext` carries every step that drives a page, and `DrupalContext` extends it with every step that reaches a Drupal site, so your suite registers exactly 1 of them:
 
 ```php
 $suite = (new Suite('default'))
@@ -19,9 +19,9 @@ $suite = (new Suite('default'))
   ->addContext(MinkContext::class);
 ```
 
-Registering both is fatal, because `DrupalContext` already carries the 28 web traits and each of their steps would register twice. `MinkContext` is Mink's own context: it sits beside either one and brings the base browser steps, such as `I fill in` and `I press`.
+Registering both is fatal: `DrupalContext` already carries the 28 web traits, so each of their steps would register twice. `MinkContext` is Mink's own context. It sits beside either one and brings the base browser steps, such as `I fill in` and `I press`.
 
-Using a shipped context needs no PHP of your own. To pick your own traits instead, extend the root context and compose them:
+A shipped context needs no PHP of your own. To pick your own traits instead, extend the root context and compose them:
 
 ```php
 <?php
@@ -39,7 +39,7 @@ class FeatureContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` registers no steps of its own: it owns the backend access, the configuration and 3 of the web helper traits. A step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created. [Usage](guides/usage.md) covers the 3 entry points, and [Extending the step vocabulary](extending/steps.md#the-rules-that-govern-composition) covers the rules that govern composing them.
+`WebRawContext` registers no steps of its own. It owns the backend access, the configuration and 3 of the web helper traits. Each step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created. [Usage](guides/usage.md) covers the 3 entry points, and [Extending the step vocabulary](extending/steps.md#the-rules-that-govern-composition) covers the rules for composing them.
 
 ## 2. Enable the extension
 
@@ -83,21 +83,23 @@ $profile = (new Profile('default'))
 return (new Config())->withProfile($profile);
 ```
 
-The `steps` entry gives the message steps the selector of the success message, which the scenario below asserts on. Message selectors have no default.
+The `steps` entry gives the message steps a selector for success messages, which the scenario below asserts on. Message selectors have no default, so a message step whose type has no selector fails and names the key to set.
 
 The `backends` list says which backends a scenario may reach, and in what order. A step never names a backend, only the capability it needs, and the first backend in the list that provides that capability answers. See [Backend resolution](guides/configuration.md#backend-resolution).
 
-Browser sessions come from Mink's own extension. Set `base_url` to your site's address. The `browserkit_http` session loads pages over HTTP without a browser, which is all the scenario below needs, and a `@javascript` scenario also needs a JavaScript session, as [behat.dist.php](../../behat.dist.php) shows. `BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and applies them to the requests that steps make from PHP, such as a file download, so the page and the download reach the site with the same settings. [HTTP clients](guides/http-clients.md) covers the rest.
+Browser sessions come from Mink's own extension, so set `base_url` there to your site's address. The `browserkit_http` session loads pages over HTTP without a browser, which is all the scenario below needs. A `@javascript` scenario also needs a JavaScript session, as [behat.dist.php](../../behat.dist.php) shows.
 
-By default, `DrupalContext` fails any scenario that logs a PHP error. It reads those errors from the table the core `dblog` module creates, through a backend that can read the site's log, such as `drupal` or `drush`. On a site without `dblog`, or under a profile without such a backend, such as `'backends' => ['blackbox']`, every scenario fails at its start until you provide what's missing or [switch the Watchdog check off](guides/usage.md#switch-a-trait-off).
+`BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and applies them to the requests steps send from PHP, such as a file download. That way the page and the download reach the site with the same settings. [HTTP clients](guides/http-clients.md) covers the rest.
 
-Behat 4 reads only PHP configuration, from `behat.php` or, when there's no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
+By default, `DrupalContext` fails any scenario that logs a PHP error. It reads those errors from the table the core `dblog` module creates, through a backend that can read the site's log, such as `drupal` or `drush`. So on a site without `dblog`, or under a profile without such a backend, such as `'backends' => ['blackbox']`, every scenario fails at its start. Provide what's missing, or [switch the Watchdog check off](guides/usage.md#switch-a-trait-off).
 
-[behat.dist.php](../../behat.dist.php) is a reference that sets every extension option, plus the trait options a project almost always configures. [Configuration](guides/configuration.md) documents all 4 configuration channels, including the suite layout to start from.
+Behat 4 reads only PHP configuration: `behat.php`, or `behat.dist.php` when there's no `behat.php`. Behat 3 also accepts the same settings in `behat.yml`.
+
+[behat.dist.php](../../behat.dist.php) is a reference: it sets every extension option, plus the trait options a project almost always configures. [Configuration](guides/configuration.md) documents all 4 configuration channels, including the suite layout to start from.
 
 ## 3. Write a scenario in the shipped vocabulary
 
-The imperative style spells the interaction out and needs no PHP of your own, so the suite covers a flow as soon as you write the scenario:
+The imperative style spells out every interaction. It needs no PHP of your own, so a flow is covered the moment you write its scenario:
 
 ```gherkin
 Scenario: Editor publishes a page
@@ -109,7 +111,7 @@ Scenario: Editor publishes a page
   And I should see the success message "has been created"
 ```
 
-The scenario assumes a site with an `editor` role and a URL alias pattern that turns "About us" into `/about-us`, so adjust both to your site.
+The scenario assumes your site has an `editor` role and a URL alias pattern that turns "About us" into `/about-us`, so adjust both to match.
 
 ## 4. Graduate the flows that matter to domain steps
 
@@ -122,7 +124,7 @@ Scenario: Editor publishes a page
   Then the page "About us" should be publicly visible at "/about-us"
 ```
 
-No shipped step matches those lines. You write them yourself, over the same helpers the shipped steps are built on:
+No shipped step matches those lines. You write them yourself, on the same helpers the shipped steps are built on:
 
 ```php
 #[When('I publish a page titled :title')]

@@ -7,26 +7,28 @@ description: Behat Steps is a library of reusable Behat steps for testing websit
 
 # Behat Steps
 
-Behat Steps is a collection of reusable testing actions and assertions for automated testing with [Behat](https://behat.org). The steps most projects need are already written and documented, so you can write tests faster and keep them readable and maintainable.
+Behat Steps is a library of reusable actions and assertions for testing with [Behat](https://behat.org). The steps most projects need are already written and documented, so you write tests faster, and they stay readable and maintainable.
 
-The steps come as PHP traits: 28 that work on any website, and 29 that only mean something on a Drupal site. Every method starts with the name of the trait that declares it, such as `cookieGetAll()` in `CookieTrait`, so none of them collides with a method in your own context. Step text can still collide: Behat refuses to register 2 definitions with the same pattern, so drop any step of your own whose text matches a shipped one, or [compose your own context](guides/usage.md#compose-your-own-context) without that trait.
+The steps come as PHP traits: 28 that work on any website, and 29 that only mean something on a Drupal site. Every method starts with the name of the trait that declares it, such as `cookieGetAll()` in `CookieTrait`, so none of them collides with a method in your own context.
 
-The library [tests its own steps](../../tests/behat/features) to avoid false positives and negatives, and every step follows [the same wording rules](../../CONTRIBUTING.md#steps-format), so the language stays consistent from one trait to the next.
+Step text is another matter. Behat refuses to register 2 definitions with the same pattern, so if one of your steps has the same text as a shipped one, drop yours, or [compose your own context](guides/usage.md#compose-your-own-context) without that trait.
+
+The library [tests its own steps](../../tests/behat/features), so a step that passes when it should fail, or fails when it should pass, gets caught here rather than in your suite. Every step also follows [the same wording rules](../../CONTRIBUTING.md#steps-format), so the language stays consistent from one trait to the next.
 
 ## What you get
 
 - [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) list every step, with a page per trait and an example for each step.
 - Most steps are thin wrappers over named helpers, listed in [Web helpers](web-helpers/README.md) and [Drupal helpers](drupal-helpers/README.md), so your own domain steps can call the same code.
-- A step names the capability it needs rather than a [backend](guides/configuration.md#backend-resolution), so a step whose capability Drush provides, such as clearing caches or creating users, runs through Drush as well as in-process.
-- Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5 are [supported](#supported-versions).
-- The library supports the BrowserKit, Selenium and Chrome DevTools [browser drivers](installation.md#javascript-browser-drivers).
+- A step asks for the capability it needs, never for a [backend](guides/configuration.md#backend-resolution), so a step whose capability Drush provides, such as clearing caches or creating users, runs through Drush as well as in-process.
+- Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5 are all [supported](#supported-versions).
+- It works with the BrowserKit, Selenium and Chrome DevTools [browser drivers](installation.md#javascript-browser-drivers).
 - After each scenario, the library [deletes the entities](guides/usage.md#entities-a-scenario-creates) that scenario's steps created, in reverse creation order, along with the users and roles they created.
 - The step and helper references ship with the package as Markdown, so an [AI coding agent](guides/ai-assistants.md) in your project reads the same reference you do.
 - [Architecture](architecture/README.md) shows how the layers fit together in 3 diagrams, which an AI agent maintains through the `update-architecture-docs` skill.
 
 ## How it fits together
 
-Your project registers 1 of the shipped contexts, or composes step traits into a context of its own, and registers the Behat Steps extension beside Mink's. The traits decide what each step does. A step that drives the page uses the browser session Mink's extension opens, and a step that needs the site itself names a capability, which the extension answers with the first backend in your `backends` list that provides it, such as Drupal or Drush.
+You register 1 of the shipped contexts, or compose step traits into a context of your own, and register the Behat Steps extension beside Mink's. From there, the traits decide what each step does. A step that drives the page uses the browser session Mink's extension opens. A step that needs the site itself asks for a capability, and the extension answers with the first backend in your `backends` list that provides it, such as Drupal or Drush.
 
 [![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](architecture/logical-architecture.svg)](architecture/logical-architecture.svg)
 
