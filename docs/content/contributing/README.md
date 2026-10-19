@@ -24,5 +24,5 @@ It also covers the [local environment](../../../CONTRIBUTING.md#local-environmen
 
 ## See also
 
-- [Documentation](documentation.md) - how these docs are written, generated, checked and published.
+- [Documentation](documentation.md): how to write these docs and regenerate the step and helper pages.
 - [Architecture](../architecture/README.md) - how the layers fit together, in logical architecture, class inheritance and data flow diagrams.
