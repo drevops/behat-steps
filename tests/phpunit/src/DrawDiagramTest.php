@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('draw_diagram_check')]
 #[CoversFunction('draw_diagram_create_directory')]
 #[CoversFunction('draw_diagram_describe_event')]
+#[CoversFunction('draw_diagram_describe_system_event')]
 #[CoversFunction('draw_diagram_describe_input')]
 #[CoversFunction('draw_diagram_expand')]
 #[CoversFunction('draw_diagram_export')]
@@ -527,6 +528,20 @@ class DrawDiagramTest extends UnitTestCase {
       'the start, naming its model' => [['type' => 'system', 'subtype' => 'init', 'model' => 'claude-test'], ['Session started on claude-test.']],
       'the start, naming no model' => [['type' => 'system', 'subtype' => 'init'], ['Session started on the configured model.']],
       'another system event' => [['type' => 'system', 'subtype' => 'status'], []],
+      'reasoning reaching a step' => [
+        ['type' => 'system', 'subtype' => 'thinking_tokens', 'estimated_tokens' => 20400, 'estimated_tokens_delta' => 800],
+        ['  Reasoning: about 20000 tokens so far in this response.'],
+      ],
+      'reasoning within a step' => [['type' => 'system', 'subtype' => 'thinking_tokens', 'estimated_tokens' => 20400, 'estimated_tokens_delta' => 300], []],
+      'reasoning without an estimate' => [['type' => 'system', 'subtype' => 'thinking_tokens'], []],
+      'a retried API call' => [
+        ['type' => 'system', 'subtype' => 'api_retry', 'attempt' => 2, 'max_retries' => 10, 'retry_delay_ms' => 3500, 'error_status' => 529, 'error' => 'overloaded_error'],
+        ['  The API call failed with 529 overloaded_error: retry 2 of 10 in 4 seconds.'],
+      ],
+      'a retried API call naming no reason' => [
+        ['type' => 'system', 'subtype' => 'api_retry'],
+        ['  The API call failed with no reason given: retry 0 of 0 in 0 seconds.'],
+      ],
       'text' => [['type' => 'assistant', 'message' => ['content' => [['type' => 'text', 'text' => "\nDrawing the layers.\nThen the edges."]]]], ['  Drawing the layers.']],
       'blank text' => [['type' => 'assistant', 'message' => ['content' => [['type' => 'text', 'text' => " \n "]]]], []],
       'a tool call' => [['type' => 'assistant', 'message' => ['content' => [['type' => 'tool_use', 'name' => 'Bash', 'input' => ['command' => 'ls']]]]], ['  > Bash: ls']],

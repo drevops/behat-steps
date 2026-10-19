@@ -69,6 +69,11 @@ const DRAW_DIAGRAM_EFFORT = 'medium';
 const DRAW_DIAGRAM_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
 
 /**
+ * Reasoning tokens between 2 progress lines about a response's reasoning.
+ */
+const DRAW_DIAGRAM_REASONING_STEP = 10000;
+
+/**
  * Seconds 1 export runs before it is stopped.
  */
 const DRAW_DIAGRAM_EXPORT_TIMEOUT = 120;
@@ -727,10 +732,8 @@ function draw_diagram_session_command(string $prompt, string $skill, string $dra
 function draw_diagram_describe_event(array $event): array {
   $type = $event['type'] ?? NULL;
 
-  if ($type === 'system' && ($event['subtype'] ?? NULL) === 'init') {
-    $model = $event['model'] ?? NULL;
-
-    return [sprintf('Session started on %s.', is_string($model) ? $model : 'the configured model')];
+  if ($type === 'system') {
+    return draw_diagram_describe_system_event($event);
   }
 
   $message = $event['message'] ?? NULL;
@@ -760,6 +763,58 @@ function draw_diagram_describe_event(array $event): array {
   }
 
   return $lines;
+}
+
+/**
+ * Describes 1 system event of the session's stream as progress lines.
+ *
+ * Reasoning streams no text, so its token estimate is the only sign of
+ * progress in a response that has not produced a tool call yet. It is
+ * printed once per DRAW_DIAGRAM_REASONING_STEP tokens.
+ *
+ * @param array<mixed> $event
+ *   The decoded event.
+ *
+ * @return array<int, string>
+ *   The lines to print, none for an event without progress.
+ */
+function draw_diagram_describe_system_event(array $event): array {
+  $subtype = $event['subtype'] ?? NULL;
+
+  if ($subtype === 'init') {
+    $model = $event['model'] ?? NULL;
+
+    return [sprintf('Session started on %s.', is_string($model) ? $model : 'the configured model')];
+  }
+
+  if ($subtype === 'thinking_tokens') {
+    $estimate = $event['estimated_tokens'] ?? NULL;
+    $delta = $event['estimated_tokens_delta'] ?? NULL;
+
+    if (!is_int($estimate) || !is_int($delta)) {
+      return [];
+    }
+
+    $step = intdiv($estimate, DRAW_DIAGRAM_REASONING_STEP);
+
+    if ($step === intdiv(max(0, $estimate - $delta), DRAW_DIAGRAM_REASONING_STEP)) {
+      return [];
+    }
+
+    return [sprintf('  Reasoning: about %d tokens so far in this response.', $step * DRAW_DIAGRAM_REASONING_STEP)];
+  }
+
+  if ($subtype === 'api_retry') {
+    $reason = trim(sprintf('%s %s', $event['error_status'] ?? '', $event['error'] ?? ''));
+    $reason = $reason === '' ? 'no reason given' : $reason;
+    $delay = $event['retry_delay_ms'] ?? NULL;
+    $seconds = is_int($delay) ? (int) ceil($delay / 1000) : 0;
+    $line = sprintf('  The API call failed with %s: retry %d of %d in %d seconds.', $reason, $event['attempt'] ?? 0, $event['max_retries'] ?? 0, $seconds);
+
+    return [$line];
+  }
+
+  return [];
 }
 
 /**
