@@ -109,7 +109,7 @@ A step never names a backend. It asks for a capability, such as creating content
 
 ### Cleanup after each scenario
 
-Whatever a scenario's steps create, such as content, users or roles, the library deletes when the scenario ends, newest first, so your test site stays clean across long runs. [Entities a scenario creates](guides/usage.md#entities-a-scenario-creates) covers keeping them when you're debugging.
+Whatever the library's steps create, such as content, users or roles, the library deletes when the scenario ends, newest first, so your test site stays clean across long runs. A step of your own gets the same cleanup when it creates entities through the `entityLifecycleCreate*()` helpers, and otherwise has to [register what it creates](extending/steps.md#register-what-it-creates). [Entities a scenario creates](guides/usage.md#entities-a-scenario-creates) covers keeping them when you're debugging.
 
 ### Checks, tags and options
 
