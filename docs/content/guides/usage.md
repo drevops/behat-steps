@@ -36,7 +36,7 @@ The vocabulary sits on a single chain. Each entry point adds what's listed under
 
 | Extend | When |
 | --- | --- |
-| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits. The Watchdog check needs the core `dblog` module and a backend such as `drupal`, or it's [switched off](#switch-a-trait-off) |
+| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits. The Watchdog check needs the core `dblog` module and a backend that reads the log, such as `drupal` or `drush`, or it's [switched off](#switch-a-trait-off) |
 | `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
 
@@ -163,7 +163,7 @@ Several traits carry hooks that run around every scenario or step, and 1 tag swi
 
 `TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag fails the run before the scenario starts when its value isn't shaped like a trait name, such as a hook method, or when it names a trait none of your suite's contexts compose, such as a misspelled one.
 
-`WatchdogTrait` is the gate you're most likely to meet first, because `DrupalContext` composes it. It reads the errors each scenario logged from the `watchdog` table, which only the core `dblog` module creates. Since it reads that table in the Behat process, it also needs a backend that loads Drupal there, such as `drupal`.
+`WatchdogTrait` is the gate you're most likely to meet first, because `DrupalContext` composes it. It reads the errors each scenario logged from the `watchdog` table, which only the core `dblog` module creates. It reads that table through `LogCapabilityInterface`, so it also needs a backend that provides it. Both `drupal` and `drush` do: the in-process backend queries the table, and the Drush backend runs `watchdog:show`.
 
 Those are the trait's prerequisites, and it checks them when a scenario starts. Here's what happens with and without `dblog`:
 
@@ -172,7 +172,7 @@ Those are the trait's prerequisites, and it checks them when a scenario starts. 
 | On, the default | Reads the errors after the last step, and fails a scenario that logged one | Fails the scenario at its start, before any step runs |
 | Off, through `watchdog.enabled` or `@behat-steps-skip:WatchdogTrait` | Reads nothing and bootstraps no backend | Reads nothing and bootstraps no backend |
 
-A profile that lists no backend loading Drupal into the Behat process, such as `'backends' => ['drush', 'blackbox']`, fails at the start the same way. The error names the prerequisite that doesn't hold and both ways out: meet it, or switch the trait off as above. A scenario that uninstalls `dblog` itself starts with the table in place, so it fails at its last step instead.
+A profile that lists no backend providing `LogCapabilityInterface`, such as `'backends' => ['blackbox']`, fails at the start the same way. The error names the prerequisite that doesn't hold and both ways out: meet it, or switch the trait off as above. A scenario that uninstalls `dblog` itself starts with the table in place, so it fails at its last step instead.
 
 Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help with an unmet prerequisite. Both decide what happens to errors that were read, and without the table or a backend to read it through, there's nothing to read.
 

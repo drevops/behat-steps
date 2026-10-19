@@ -89,7 +89,7 @@ The `backends` list says which backends a scenario may reach, and in what order.
 
 Browser sessions come from Mink's own extension. Set `base_url` to your site's address. The `browserkit_http` session loads pages over HTTP without a browser, which is all the scenario below needs, and a `@javascript` scenario also needs a JavaScript session, as [behat.dist.php](../../behat.dist.php) shows. `BehatStepsExtension` reads the `http_client_parameters` a `browserkit_http` session declares and applies them to the requests that steps make from PHP, such as a file download, so the page and the download reach the site with the same settings. [HTTP clients](guides/http-clients.md) covers the rest.
 
-By default, `DrupalContext` fails any scenario that logs a PHP error. It reads those errors from the table the core `dblog` module creates, through a backend that loads Drupal into the Behat process. On a site without `dblog`, or under a profile without such a backend, every scenario fails at its start until you provide what's missing or [switch the Watchdog check off](guides/usage.md#switch-a-trait-off).
+By default, `DrupalContext` fails any scenario that logs a PHP error. It reads those errors from the table the core `dblog` module creates, through a backend that can read the site's log, such as `drupal` or `drush`. On a site without `dblog`, or under a profile without such a backend, such as `'backends' => ['blackbox']`, every scenario fails at its start until you provide what's missing or [switch the Watchdog check off](guides/usage.md#switch-a-trait-off).
 
 Behat 4 reads only PHP configuration, from `behat.php` or, when there's no `behat.php`, from `behat.dist.php`. Behat 3 also accepts the same settings in `behat.yml`.
 
