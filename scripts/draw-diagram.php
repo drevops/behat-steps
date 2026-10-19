@@ -58,10 +58,10 @@ const DRAW_DIAGRAM_TIMEOUT = 3600;
 /**
  * Effort of a drawing session unless --effort says otherwise.
  *
- * At a higher effort, a session spends most of its time planning coordinates
- * before it draws anything.
+ * At a higher effort, a session plans every coordinate before it draws, and
+ * the plan for a large diagram runs past the output token limit.
  */
-const DRAW_DIAGRAM_EFFORT = 'high';
+const DRAW_DIAGRAM_EFFORT = 'medium';
 
 /**
  * Efforts a drawing session accepts.
@@ -101,9 +101,17 @@ const DRAW_DIAGRAM_SVG_FLAGS = ['--format', 'svg', '--embed-svg-images'];
 const DRAW_DIAGRAM_PNG_FLAGS = ['--format', 'png', '--width', '2000'];
 
 /**
- * Tools the drawing session may use besides the draw.io binary.
+ * Tools the drawing session may use besides running commands.
  */
-const DRAW_DIAGRAM_SESSION_TOOLS = ['Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash(python3 *)'];
+const DRAW_DIAGRAM_SESSION_TOOLS = ['Read', 'Write', 'Edit', 'Glob', 'Grep'];
+
+/**
+ * Commands the drawing session may run besides the draw.io binary.
+ *
+ * The session runs the drawio-skill's validator with python3 and its own
+ * diagram generator with php.
+ */
+const DRAW_DIAGRAM_SESSION_COMMANDS = ['python3', 'php'];
 
 /**
  * Pattern of the comment naming the source an SVG was exported from.
@@ -111,9 +119,14 @@ const DRAW_DIAGRAM_SESSION_TOOLS = ['Read', 'Write', 'Edit', 'Glob', 'Grep', 'Ba
 const DRAW_DIAGRAM_MARKER_PATTERN = '/<!-- Exported by scripts\/draw-diagram\.php from (\S+) with sha256 ([0-9a-f]{64})\. -->\n?/';
 
 /**
- * Options that take a value, mapped to whether they may repeat.
+ * Options that take a value.
  */
-const DRAW_DIAGRAM_VALUE_OPTIONS = ['brief' => TRUE, 'model' => FALSE, 'effort' => FALSE, 'budget' => FALSE, 'timeout' => FALSE];
+const DRAW_DIAGRAM_VALUE_OPTIONS = ['brief', 'model', 'effort', 'budget', 'timeout'];
+
+/**
+ * Value options that may repeat.
+ */
+const DRAW_DIAGRAM_REPEATABLE_OPTIONS = ['brief'];
 
 /**
  * Options that select what the script does instead of drawing.
@@ -139,7 +152,7 @@ Options:
   --brief    A file describing the diagram. Repeat it to add files in order.
   --model    The model of the session. Defaults to the configured model.
   --effort   The effort of the session: low, medium, high, xhigh or max.
-             Defaults to high.
+             Defaults to medium.
   --budget   The most the session may spend, in US dollars.
   --timeout  The seconds the session may run. Defaults to 3600.
   --export   Exports each diagram again, after an edit in draw.io.
@@ -160,6 +173,7 @@ const DRAW_DIAGRAM_PROMPT = <<<'PROMPT'
 This session runs unattended, so ask nothing: settle every open point yourself and name each decision in the final report.
 
 - {state}
+- Keep every response short. Claude Code discards a response that runs past the output token limit, reasoning included, so settle the layout in a few lines rather than cell by cell, and write at most 300 lines in 1 call.
 - Save the diagram to `{diagram}` as uncompressed XML, with 1 page. Keep every draft and scratch file in `{scratch}`, and change no other file.
 - Give the diagram a white background, as `background="#ffffff"` on `mxGraphModel`, so it stays readable on a dark page.
 - Validate it with `python3 {skill}/scripts/validate.py {diagram} --score`, and fix every error it reports.
@@ -175,7 +189,7 @@ PROMPT;
 /**
  * The prompt's first rule when the diagram does not exist yet.
  */
-const DRAW_DIAGRAM_STATE_CREATE = '`{diagram}` does not exist yet: draw it from scratch.';
+const DRAW_DIAGRAM_STATE_CREATE = '`{diagram}` does not exist yet: draw it from scratch with a PHP generator in `{scratch}`. Write the helpers that turn a container, a node or an edge into XML in 1 file, and the cells with their coordinates in 1 file per part of the diagram, each file in its own call. Then run the generator with `php` to write the diagram.';
 
 /**
  * The prompt's first rule when the diagram exists.
@@ -333,7 +347,7 @@ function draw_diagram_parse_arguments(array $arguments): array {
       continue;
     }
 
-    if (!array_key_exists($name, DRAW_DIAGRAM_VALUE_OPTIONS)) {
+    if (!in_array($name, DRAW_DIAGRAM_VALUE_OPTIONS, TRUE)) {
       throw draw_diagram_usage_error(sprintf('Unknown option "%s".', $argument));
     }
 
@@ -341,7 +355,7 @@ function draw_diagram_parse_arguments(array $arguments): array {
       throw draw_diagram_usage_error(sprintf('The --%s option needs a value, as --%s=<value>.', $name, $name));
     }
 
-    if (isset($values[$name]) && !DRAW_DIAGRAM_VALUE_OPTIONS[$name]) {
+    if (isset($values[$name]) && !in_array($name, DRAW_DIAGRAM_REPEATABLE_OPTIONS, TRUE)) {
       throw draw_diagram_usage_error(sprintf('The --%s option is given more than once.', $name));
     }
 
@@ -669,7 +683,9 @@ function draw_diagram_prompt(string $diagram, string $briefs, string $skill, str
  *   The command and its arguments.
  */
 function draw_diagram_session_command(string $prompt, string $skill, string $drawio, ?string $model, string $effort, ?string $budget): array {
-  $tools = [...DRAW_DIAGRAM_SESSION_TOOLS, sprintf('Bash(%s *)', $drawio)];
+  $binaries = [...DRAW_DIAGRAM_SESSION_COMMANDS, $drawio];
+  $commands = array_map(static fn(string $binary): string => sprintf('Bash(%s *)', $binary), $binaries);
+  $tools = [...DRAW_DIAGRAM_SESSION_TOOLS, ...$commands];
 
   // Without a person to answer, a permission prompt would block the session,
   // so every tool outside the list is denied instead.
@@ -986,9 +1002,10 @@ function draw_diagram_export(string $diagram, string $drawio, string $root, call
 /**
  * Removes the raster copies of the HTML labels from an exported SVG.
  *
- * draw.io writes a PNG copy beside every HTML label, for viewers that can't
- * draw HTML in an SVG. Every browser draws the HTML, and the copies make up
- * most of the file. A shared image no remaining element uses goes too.
+ * The draw.io export writes a PNG copy beside every HTML label, for viewers
+ * that can't draw HTML in an SVG. Every browser draws the HTML, and the
+ * copies make up most of the file. A shared image that no remaining element
+ * uses is removed too.
  *
  * @param string $contents
  *   The SVG.

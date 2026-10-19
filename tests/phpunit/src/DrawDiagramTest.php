@@ -189,7 +189,7 @@ class DrawDiagramTest extends UnitTestCase {
   }
 
   public static function dataProviderParseArguments(): array {
-    $defaults = ['mode' => 'draw', 'paths' => [], 'briefs' => [], 'model' => NULL, 'effort' => 'high', 'budget' => NULL, 'timeout' => 3600];
+    $defaults = ['mode' => 'draw', 'paths' => [], 'briefs' => [], 'model' => NULL, 'effort' => 'medium', 'budget' => NULL, 'timeout' => 3600];
 
     return [
       'draw with 2 briefs' => [
@@ -454,7 +454,8 @@ class DrawDiagramTest extends UnitTestCase {
     $prompt = draw_diagram_prompt('/docs/flow.drawio', 'Draw a box.', '/skills/drawio-skill', '/bin/drawio', '/tmp/diagrams');
 
     $this->assertStringStartsWith('/drawio-skill Create the draw.io diagram `/docs/flow.drawio` from the brief below.' . "\n", $prompt);
-    $this->assertStringContainsString('- `/docs/flow.drawio` does not exist yet: draw it from scratch.' . "\n", $prompt);
+    $this->assertStringContainsString('- `/docs/flow.drawio` does not exist yet: draw it from scratch with a PHP generator in `/tmp/diagrams`.', $prompt);
+    $this->assertStringContainsString('- Keep every response short.', $prompt);
     $this->assertStringContainsString('`python3 /skills/drawio-skill/scripts/validate.py /docs/flow.drawio --score`', $prompt);
     $this->assertStringContainsString('`/bin/drawio --export --format png --width 2000 --output /tmp/diagrams/draft.png /docs/flow.drawio`', $prompt);
     $this->assertStringEndsWith("## Brief\n\nDraw a box.", $prompt);
@@ -492,7 +493,7 @@ class DrawDiagramTest extends UnitTestCase {
       '--permission-mode=acceptEdits',
       '--permission-prompts=none',
       '--add-dir=/skills/drawio-skill',
-      '--allowedTools=Read,Write,Edit,Glob,Grep,Bash(python3 *),Bash(/bin/drawio *)',
+      '--allowedTools=Read,Write,Edit,Glob,Grep,Bash(python3 *),Bash(php *),Bash(/bin/drawio *)',
       '--effort=medium',
       ...$expected_options,
       'Draw a box.',
