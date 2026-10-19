@@ -144,8 +144,8 @@ All 3 set the same value, and the most specific wins: `steps`, then the context'
 
 2 options recur across the traits that carry hooks, and they mean different things:
 
-- `enabled` turns the trait's hooks off: nothing is collected, and no backend is bootstrapped on its account.
-- `fail_on_errors` leaves the collection running and stops what it collects from failing the scenario.
+- `enabled` set to `FALSE` turns the trait's hooks off: nothing is collected, and no backend is bootstrapped on its account.
+- `fail_on_errors` set to `FALSE` leaves the collection running and stops what it collects from failing the scenario.
 
 If you never want a trait's gate, turn it off once in the profile instead of tagging every feature file with `@behat-steps-skip:WatchdogTrait`:
 

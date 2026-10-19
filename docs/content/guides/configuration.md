@@ -314,8 +314,8 @@ The 2 levels, `steps` and a context's `config`, differ in how strictly they're r
 
 | Option | Effect |
 | --- | --- |
-| `enabled` | The trait's hooks do nothing, apart from the ones that only reset its own state. Equivalent to `@behat-steps-skip:<TraitName>` on every scenario. |
-| `fail_on_errors` | The trait still collects, and does not fail the scenario on what it found. |
+| `enabled` | When `FALSE`, the trait's hooks do nothing, apart from the ones that only reset its own state. Equivalent to `@behat-steps-skip:<TraitName>` on every scenario. |
+| `fail_on_errors` | When `FALSE`, the trait still collects, and does not fail the scenario on what it found. |
 
 `fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
 
