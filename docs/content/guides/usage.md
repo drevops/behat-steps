@@ -8,7 +8,7 @@ description: Pick a context or compose your own, register it, configure the trai
 
 This guide covers using Behat Steps day to day: which context to register, how to build your own, how to configure the traits inside it, and what happens to the content your scenarios create. If contexts, traits or backends are new to you, read [Key concepts](../concepts.md) first.
 
-Your setup has 3 parts, and each answers a different question:
+You compose a context out of traits and point the extension at your site. The extension and the context answer different questions, and each trait reads from both:
 
 | Layer | Answers | Scope |
 | --- | --- | --- |
