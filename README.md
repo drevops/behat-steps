@@ -27,12 +27,23 @@
 
 ---
 
-Behat Steps is a collection of reusable testing actions and assertions for automated testing with [Behat](https://behat.org). It ships steps that work on any website and steps that only mean something on a Drupal site, and every step is a thin wrapper over named helpers that your own step definitions can call too.
+[Behat](https://behat.org) lets you write tests as plain-English scenarios, then runs them against your site:
+
+```gherkin
+Feature: Contact page
+
+  Scenario: Visitor finds the contact page
+    When I visit "/contact"
+    Then the response status code should be 200
+    And I should see the heading "Contact"
+```
+
+Behat can only run a step once some PHP code stands behind it, and Behat Steps is that code, already written and tested. It ships steps that work on any website and steps that only mean something on a Drupal site. Every step is a thin wrapper over named helpers, which your own steps can call too.
 
 ## Features
 
 - [Web](https://behat-steps.drevops.com/web-steps) and [Drupal](https://behat-steps.drevops.com/drupal-steps) steps for pages, forms, APIs, email, caches, content and more, with an example for each.
-- [Web](https://behat-steps.drevops.com/web-helpers) and [Drupal](https://behat-steps.drevops.com/drupal-helpers) helpers behind every step, for the domain steps you write yourself.
+- [Web](https://behat-steps.drevops.com/web-helpers) and [Drupal](https://behat-steps.drevops.com/drupal-helpers) helpers behind every step, for the steps you write in your project's own words.
 - [Backends](https://behat-steps.drevops.com/guides/configuration#backend-resolution) picked by capability, so a step runs in-process or through Drush.
 - Support for Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5.
 - BrowserKit, Selenium and Chrome DevTools [browser drivers](https://behat-steps.drevops.com/installation#javascript-browser-drivers).
@@ -52,7 +63,7 @@ Composer installs Behat, Mink and the rest of what the steps run on along with i
 - `softcreatr/jsonpath` and `justinrainbow/json-schema` for the JSON path and JSON schema steps.
 - `lullabot/mink-selenium2-driver` or `dmore/behat-chrome-extension` for `@javascript` scenarios, which drive a real browser.
 
-[Installation](https://behat-steps.drevops.com/installation) covers the optional dependencies and the JavaScript browser drivers, and the [Quick start](https://behat-steps.drevops.com/quick-start) takes you to a first scenario.
+The [Quick start](https://behat-steps.drevops.com/quick-start) takes you from here to a passing scenario, and [Installation](https://behat-steps.drevops.com/installation) covers the optional dependencies and the JavaScript browser drivers. New to Behat? [Key concepts](https://behat-steps.drevops.com/concepts) explains its moving parts in plain words.
 
 ## Migrating from 3.x
 
@@ -64,7 +75,7 @@ The step and helper references ship with the package as [STEPS.md](STEPS.md) and
 
 ## Contributing
 
-Contributions are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) holds the rules for code in this repository and the local development setup. The documentation site's [Contributing](https://behat-steps.drevops.com/contributing) section covers the repository layout and how the site is built.
+Contributions are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) holds the rules for code in this repository and the local development setup. The documentation site's [Contributing](https://behat-steps.drevops.com/contributing) section covers the repository layout and writing the docs.
 
 ---
 _This repository was created using the [Scaffold](https://getscaffold.dev/) project template_
