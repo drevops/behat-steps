@@ -37,7 +37,7 @@ The diagram holds 7 inheritance trees, 1 per panel:
 - **Entity creation hooks.** Each hook attribute, such as `#[BeforeEntityCreate]`, names a call class built on `EntityHook`, and the hook's scope carries the stub of the entity being created.
 - **Exceptions.** What a failing step throws is part of the public contract, and [Exception types](../../../CONTRIBUTING.md#exception-types) says which one when.
 
-The services the extension builds each have 1 implementation of their interface, and [Extending the extension layer](../extending/extension.md) shows how to put a class of your own in place of one:
+The services the extension builds each have 1 implementation of their interface, and [Extend the extension layer](../extending/extension.md) shows how to put a class of your own in place of one:
 
 | Interface | Implementation |
 | --- | --- |
