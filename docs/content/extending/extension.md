@@ -100,7 +100,7 @@ Only the class changes: the container builds yours with the arguments in the tab
 
 ## Replace option resolution
 
-[Trait options](../guides/configuration.md#trait-options) states the chain a trait option resolves through. Resolution itself is the `behat_steps.config.resolver_factory` service, so a project that needs a chain of its own registers another `TraitOptionResolverFactoryInterface` under that id:
+[Trait options](../guides/configuration.md#trait-options) states the chain a trait option resolves through. Resolution itself is the `behat_steps.config.resolver_factory` service, so if you need a chain of your own, register another `TraitOptionResolverFactoryInterface` under that id:
 
 ```php
 public function process(ContainerBuilder $container): void {

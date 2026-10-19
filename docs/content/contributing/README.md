@@ -15,14 +15,14 @@ It also covers the [local environment](../../../CONTRIBUTING.md#local-environmen
 
 ## What lives where
 
-- `src/` - the package: the backends, the Behat extension, the 3 contexts and the step and helper traits.
-- `tests/` - the unit, kernel and Behat suites, and the fixture Drupal sites for Drupal 11 and 12 that all 3 suites run against.
-- `docs.php` - the generator behind the [Web steps](../web-steps/README.md), [Drupal steps](../drupal-steps/README.md), [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) pages and the generated tables in [Configuration](../guides/configuration.md).
-- `docs/` - this site, with its pages in `docs/content/`.
-- `scripts/` - the fixture site provisioning, the coverage tools, the layer and trait linters, and the script that draws the architecture diagrams.
-- `.claude/skills/` - the AI agent skills kept in this repository: `migrate-behat-steps` for consuming projects, and `update-architecture-docs` for maintainers.
+- `src/` holds the package: the backends, the Behat extension, the 3 contexts and the step and helper traits.
+- `tests/` holds the unit, kernel and Behat suites, and the fixture Drupal sites for Drupal 11 and 12 that all 3 suites run against.
+- `docs.php` generates the [Web steps](../web-steps/README.md), [Drupal steps](../drupal-steps/README.md), [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) pages and the generated tables in [Configuration](../guides/configuration.md).
+- `docs/` holds this site, with its pages in `docs/content/`.
+- `scripts/` holds the fixture site provisioning, the coverage tools, the layer and trait linters, and the script that draws the architecture diagrams.
+- `.claude/skills/` holds the AI agent skills kept in this repository: `migrate-behat-steps` for projects that use the package, and `update-architecture-docs` for maintainers.
 
 ## See also
 
 - [Documentation](documentation.md): how to write these docs and regenerate the step and helper pages.
-- [Architecture](../architecture/README.md) - how the layers fit together, in logical architecture, class inheritance and data flow diagrams.
+- [Architecture](../architecture/README.md): how the layers fit together, in logical architecture, class inheritance and data flow diagrams.

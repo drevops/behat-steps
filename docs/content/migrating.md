@@ -1,12 +1,12 @@
 ---
 title: Migrating from 3.x
 sidebar_position: 12
-description: Move a project from Behat Steps 3.14 to 4.0 with the migration guide, by hand or with the migrate-behat-steps skill for AI coding agents.
+description: Move your project from Behat Steps 3.14 to 4.0 with the migration guide, by hand or with the migrate-behat-steps skill for AI coding agents.
 ---
 
 # Migrating from 3.x
 
-[MIGRATION.md](../../MIGRATION.md) takes a project from 3.14 to 4.0 in the order an upgrade runs into each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, and what replaces it, whether the name came from this package or from the Drupal Extension and Drupal Driver that its Drupal traits built on. If the tables don't list a step, its text didn't change.
+[MIGRATION.md](../../MIGRATION.md) takes your project from 3.14 to 4.0 in the order an upgrade runs into each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, and what replaces it, whether the name came from this package or from the Drupal Extension and Drupal Driver that its Drupal traits built on. If the tables don't list a step, its text didn't change.
 
 If your project is on an earlier 3.x release, update it to 3.14 first.
 

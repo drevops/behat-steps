@@ -1,7 +1,7 @@
 ---
 title: Extending
 sidebar_position: 7
-description: What each of the 3 layers lets a project extend, which page covers it, and what semantic versioning covers for each extension point.
+description: What each of the 3 layers lets you extend, which page covers it, and what semantic versioning covers for each extension point.
 ---
 
 # Extending

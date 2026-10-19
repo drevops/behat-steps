@@ -11,9 +11,9 @@ The step vocabulary is the step and helper traits under `src/Steps` and the 3 co
 
 ## Writing a step of your own
 
-A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) list every one of them.
+A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) list every one of them, and the [quick start](../quick-start.md#6-add-a-step-of-your-own) shows where the class lives and how Behat finds it.
 
-A suite that writes its own Drupal steps composes the helper for the concern it touches. `EntityLifecycleTrait` brings entity creation and the `AfterScenario` pass that removes what was created:
+If you write your own Drupal steps, compose the helper trait for the concern they touch. `EntityLifecycleTrait` brings entity creation and the `AfterScenario` pass that removes what was created:
 
 ```php
 <?php
@@ -37,7 +37,7 @@ class SpecContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` also composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`), so a project's own step definitions reach them on `$this`. Composing 1 of those helper traits in a step trait as well shares the same state rather than duplicating it.
+`WebRawContext` also composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`), so your own step definitions reach them on `$this`. Composing 1 of those helper traits in a step trait as well shares the same state rather than duplicating it.
 
 ### Register what it creates
 
@@ -76,7 +76,7 @@ The page stays where the scenario left it, and the sitemap is fetched as the sce
 
 ## Go further than the options
 
-An option covers the values a trait expects to vary. Anything else means overriding the trait's own seam in the composing context:
+An option covers the values a trait expects to vary. For anything else, override the trait's own seam in your context:
 
 ```php
 class UiContext extends WebRawContext {
@@ -90,7 +90,7 @@ class UiContext extends WebRawContext {
 }
 ```
 
-A suite that registers `WebContext` overrides the same seam by extending it and redeclaring the method, without repeating any Behat attribute:
+If your suite registers `WebContext`, override the same seam by extending it and redeclaring the method, without repeating any Behat attribute:
 
 ```php
 class AcmeWebContext extends WebContext {
@@ -132,7 +132,7 @@ That covers downloads, the hreflang check and the engine fetch for every trait i
 
 ## Declare options for a trait of your own
 
-A project writing its own configurable trait declares each option as a `DrevOps\BehatSteps\Extension\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
+A configurable trait of your own declares each option as a `DrevOps\BehatSteps\Extension\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
 
 ```php
 protected function acmeConfigSchema(): array {
@@ -152,7 +152,7 @@ protected function acmeConfigSchema(): array {
 }
 ```
 
-The declared default carries the option's type, and the composing context reads it at that type with `getOptionBool()`, `getOptionInt()`, `getOptionFloat()`, `getOptionString()` or `getOptionArray()`. A default of `NULL` names no type, and `getOption()` reads it.
+The declared default carries the option's type, and your trait reads it at that type with `getOptionBool()`, `getOptionInt()`, `getOptionFloat()`, `getOptionString()` or `getOptionArray()`. A default of `NULL` names no type, and `getOption()` reads it.
 
 Behat Steps finds the method by its name, so the trait needs no registration. The group is the method's prefix in snake case: `acmeConfigSchema()` declares the `acme` group, and its options resolve through the chain [Trait options](../guides/configuration.md#trait-options) states, from `steps` and the context's `config` to the tags.
 
