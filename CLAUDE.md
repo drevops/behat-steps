@@ -66,7 +66,7 @@ After editing a `.drawio` source in draw.io, export every SVG again so the sourc
 php scripts/draw-diagram.php --export docs/content/architecture
 ```
 
-A change is structural when it moves, adds, or removes a component or alters a flow between components: a new trait directory or namespace, a new backend or capability, a change to how a shipped context composes traits, a change to an inheritance tree the class diagram shows, a change to the scenario lifecycle, or a change to what `docs.php`, the fixture site provisioning or the test harness read or write. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
+[Task B](.claude/skills/update-architecture-docs/SKILL.md#task-b-update-after-a-structural-change) in the skill defines what makes a change structural.
 
 ## Implementation Patterns and Learnings
 

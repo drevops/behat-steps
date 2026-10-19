@@ -55,7 +55,7 @@ When one is missing, stop before drawing, say which diagrams were not redrawn, a
 3. Write a brief for each affected diagram naming only what changes: the nodes, edges and labels to add, move or remove, with the position and size of every cell it adds or moves. Run the command from Task A with it. The diagram exists, so the session edits it in place and keeps the layout of everything the brief leaves alone.
 4. Update the prose so the diagrams and the prose agree.
 
-A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new backend or capability interface, a change to what `BehatStepsExtension` wires up, a change to how a context composes traits, a change to an inheritance tree the class diagram shows, a change to the scenario lifecycle, or a change to what the repository tooling reads or writes. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
+A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new backend or capability interface, a change to what `BehatStepsExtension` wires up, a change to how a context composes traits, a change to an inheritance tree the class diagram shows, a change to the scenario lifecycle, or a change to what the repository tooling reads or writes: `docs.php`, the fixture site provisioning or the test harness. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
 
 ## The page
 
