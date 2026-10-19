@@ -89,7 +89,7 @@ Per-trait settings stay in the per-trait options under `behat_steps: steps`, app
 | `file_download.timeout` | `120` | How long each download may wait for data, in seconds |
 | `accessibility.fetch_timeout` | `10` | How long each attempt at fetching the engine may wait for data, in seconds |
 | `accessibility.fetch_attempts` | `3` | How many times the engine fetch is attempted |
-| `accessibility.cdn_url` | `'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js'` | Where the engine is fetched from. A location that isn't an `http` or `https` URL is read from the local filesystem, without the bare client |
+| `accessibility.cdn_url` | axe-core 4.11.4 on jsDelivr | Where the engine is fetched from. A location that isn't an `http` or `https` URL is read from the local filesystem, without the bare client |
 
 Both timeouts are idle timeouts: a slow download that keeps receiving data never hits one. The hreflang return-link check waits up to 30 seconds for data from each alternate.
 
