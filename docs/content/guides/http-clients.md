@@ -21,8 +21,8 @@ Most steps read the page the Mink session holds. A few send HTTP requests of the
 | Client | `WebRawContext` method | What it starts with | Its response | Used by |
 | --- | --- | --- | --- | --- |
 | Page | `httpPageClient()` | The Mink session's own browser, with its cookies, history and credentials | Becomes the page | `RestTrait` |
-| Detached | `httpDetachedClient()` | A fresh browser holding the scenario's identity: the session's cookies, the headers steps set, the basic-auth credentials | Stays inside the step | `FileDownloadTrait`, and the hreflang return-link check in `MetatagTrait` |
-| Bare | `httpBareClient()` | A fresh browser with an empty cookie jar | Stays inside the step | The engine fetch in `AccessibilityTrait` |
+| Detached | `httpDetachedClient()` | A fresh browser holding the scenario's identity: the session's cookies, the headers steps set, the basic-auth credentials | Never becomes the page | `FileDownloadTrait`, and the hreflang return-link check in `MetatagTrait` |
+| Bare | `httpBareClient()` | A fresh browser with an empty cookie jar | Never becomes the page | The engine fetch in `AccessibilityTrait` |
 
 All 3 return BrowserKit's `AbstractBrowser`, so the calls are the same whichever one a step picks. Only the instance differs, and the state it starts with:
 
@@ -85,6 +85,7 @@ Per-trait settings stay in the per-trait options under `behat_steps: steps`, app
 | `file_download.timeout` | `120` | How long each download may wait for data, in seconds |
 | `accessibility.fetch_timeout` | `10` | How long each attempt at fetching the engine may wait for data, in seconds |
 | `accessibility.fetch_attempts` | `3` | How many times the engine fetch is attempted |
+| `accessibility.cdn_url` | `'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js'` | Where the engine is fetched from. A location that isn't an `http` or `https` URL is read from the local filesystem, without the bare client |
 
 Both timeouts are idle timeouts: a slow download that keeps receiving data never hits one. The hreflang return-link check waits up to 30 seconds for data from each alternate.
 
@@ -166,7 +167,7 @@ A step never has to guess which content it reads, because each kind lives in its
 
 - The page lives in the Mink session: the browser's DOM under JavaScript, the last response under BrowserKit. Page visits and the page client replace it, and page assertions read it.
 - The downloaded file lives in `FileDownloadTrait`'s own state. Only the next download replaces it, and only the `the downloaded file ...` steps read it. A download never writes to the session.
-- Transient fetches (the hreflang alternates and the accessibility engine) live only inside the step that fetches them, and are thrown away when it ends.
+- The hreflang alternates live only inside the step that fetches them, and are thrown away when it ends. The accessibility engine's script is fetched once and kept for the rest of the run, so later scans reuse it.
 
 So a scenario can mix page steps and download steps freely:
 

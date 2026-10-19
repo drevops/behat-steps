@@ -13,7 +13,7 @@ The container sits outside the 5 surfaces semantic versioning covers, so check [
 
 ## From a Behat extension of your own
 
-Each container change on this page runs in the `process()` method of a Behat extension of your own. Behat calls the `load()` method of every extension before it calls any `process()`, and Behat Steps defines its services in `load()`. So the changes below hold whichever order the profile lists the extensions in:
+Each container change on this page runs in the `process()` method of a Behat extension of your own. Behat calls the `load()` method of every extension before it calls any `process()`, and Behat Steps defines the services this page changes in `load()`. So the changes below hold whichever order the profile lists the extensions in:
 
 ```php
 <?php
@@ -52,6 +52,8 @@ Register it on the profile beside `BehatStepsExtension`:
 $profile->withExtension(new Extension(AcmeExtension::class));
 ```
 
+2 things exist only once Behat Steps' own `process()` has run: the shared transport, the `behat_steps.http_client` service, and the `registerBackend()` calls on the backend registry. A `process()` of yours that runs earlier finds neither.
+
 ## The HTTP client factory and browser adapters
 
 [A context override](steps.md#a-context-override-a-flaky-staging-server) decorates the transport for 1 context. 2 heavier extension points are meant for package authors rather than projects.
@@ -64,6 +66,8 @@ public function process(ContainerBuilder $container): void {
     ->setClass(AcmeHttpClientFactory::class);
 }
 ```
+
+Setting the `behat_steps.http_client_factory.class` parameter does the same.
 
 Register a browser adapter that implements `HttpClientCapabilityInterface` to give another browser driver a page client:
 
@@ -96,7 +100,9 @@ public function process(ContainerBuilder $container): void {
 
 Only the class changes: the container builds yours with the arguments in the table, in that order. Everything that receives 1 of these services takes it by its interface, the contexts included, so nothing else needs replacing.
 
-`FastLogoutInterface` changes how `AuthTrait` logs out in the teardown after each scenario. With it, `AuthTrait` calls `fastLogout()`, which resets the session without reaching a backend, so the site runs no logout hook. Without it, `AuthTrait` calls `logout()`, and only while a user is still logged in.
+The `behat_steps.random.class` parameter swaps the random generator the `drupal` and `drush` backends hand out the same way. The shipped `RandomGenerator` is final too, so your class implements `RandomGeneratorInterface`, and the container passes it nothing.
+
+`FastLogoutInterface` changes how `AuthTrait` logs out, in the teardown after each scenario and in the `Given I am an anonymous user` and `When I log out` steps. With it, they call `fastLogout()`, which resets the session and logs out of the backend the scenario already reached, without visiting the logout page, so the site runs no logout hook. Without it, they call `logout()`, which visits `logout_url` first, and the teardown calls it only while a user is still logged in.
 
 ## Replace option resolution
 
@@ -110,6 +116,8 @@ public function process(ContainerBuilder $container): void {
 ```
 
 The factory's `create()` takes the context class, the context's `config` argument and the extension's `steps` section, and returns the `TraitOptionResolverInterface` that `getOption()`, `getOptionBool()` and the other typed readers go through. The shipped `TraitOptionResolverFactory` is final, so a factory of your own implements the interface.
+
+`create()` receives no tags. The shipped factory reads them from the `behat_steps.scenario_tag_registry` service, which `BackendListener` fills as each scenario starts, so a factory of your own that keeps the tag layers of the chain needs that service too. Setting the `behat_steps.config.resolver_factory.class` parameter instead of replacing the definition keeps the shipped arguments: the schema reader, the scenario tag registry and the tag override resolver.
 
 Behat builds a context before the initializer injects the service, so the context's constructor still checks its `config` argument through the shipped factory. A `config` value the shipped resolution rejects fails there, whatever factory the service holds.
 
