@@ -910,7 +910,7 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 
 ### Docs
 
-1 job, on Node 22, with no Docker stack. It builds the site in [docs/](docs), and a broken link or anchor fails the build. It then runs the site's unit tests, its spell check and its accessibility checks, as [Documentation](docs/content/contributing/documentation.md#checks-on-every-pull-request) describes. The unit tests include the check that the step and helper references ship in the Composer package. Last, when the Netlify secrets are set, it deploys the build: a preview for each pull request, linked in a comment on it, and the development site on every push to `main`, as [Previews](docs/content/contributing/documentation.md#previews) describes.
+1 job, on Node 24, with no Docker stack. It builds the site in [docs/](docs), and a broken link or anchor fails the build. It then runs the site's unit tests, its spell check and its accessibility checks, as [Documentation](docs/content/contributing/documentation.md#checks-on-every-pull-request) describes. The unit tests include the check that the step and helper references ship in the Composer package. Last, when the Netlify secrets are set, it deploys the build: a preview for each pull request, linked in a comment on it, and the development site on every push to `main`, as [Previews](docs/content/contributing/documentation.md#previews) describes.
 
 [.github/workflows/release-docs.yml](.github/workflows/release-docs.yml) publishes the site to GitHub Pages on every release tag, and on a manual run from a tag or branch, as [Publishing](docs/content/contributing/documentation.md#publishing) describes.
 

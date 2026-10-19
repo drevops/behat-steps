@@ -45,7 +45,7 @@ Both references link each trait's source by relative path, so those links resolv
 
 ## Working locally
 
-The site is an npm project of its own, separate from the Docker stack, and it needs Node.js 20 or newer. Run these from `docs/`:
+The site is an npm project of its own, separate from the Docker stack, and it needs Node.js 24 or newer. Run these from `docs/`:
 
 ```bash
 npm install                  # Install the dependencies
