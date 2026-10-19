@@ -8,7 +8,7 @@ description: Work on these docs locally, regenerate the reference pages, follow 
 
 # Documentation
 
-These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/`. Most pages are hand-written. `docs.php` generates the step and helper pages from the source code and fills 2 tables in Configuration. It also writes both references as 1 file each, which ship with the Composer package.
+These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/` and a [home page](#the-home-page) of its own. Most pages are hand-written. `docs.php` generates the step and helper pages from the source code and fills 2 tables in Configuration. It also writes both references as 1 file each, which ship with the Composer package.
 
 ## Generated pages
 
@@ -68,9 +68,22 @@ npm run test:accessibility   # Check the built site for accessibility issues
 - **Diagrams.** The architecture diagrams are PlantUML sources in `content/architecture/`, and the `update-architecture-docs` skill renders them to committed SVGs.
 - **Spelling.** CSpell checks the hand-written pages, `docs/README.md` and the repository's root `README.md` in US English. The step and helper pages are generated from docblocks, so CSpell skips them, apart from the hand-written `README.md` of each section. A word the docs use in several places goes in `cspell.json`, and so does a word only the architecture walkthrough uses, because its skill regenerates that page. Any other word goes below the front matter of the 1 page that uses it, as `<!-- cspell:ignore word -->`.
 
+## The home page
+
+The home page at `/` isn't a Markdown page: it's a React page, `src/pages/index.js`. The introduction it links to lives at `/introduction`, set by the `slug` in the front matter of `content/README.md`. Pages and docs share the site root, so `onDuplicateRoutes: 'throw'` in `docusaurus.config.js` fails the build when a doc's slug claims a page's path.
+
+The page's words sit in lists at the top of `src/pages/index.js`, 1 per section: the example feature files, the "works with" row, the features, the flow, the reasons, the quick start steps and the docs cards. Changing what the page says usually means changing a list, not the markup.
+
+- **Counts.** The step, trait and helper counts come from the generated pages. `src/referenceCounts.js`, a local plugin, counts them in the 4 reference sections at build time, so they follow `ahoy update-docs` with no edit to the page. The build fails when a section holds no steps or helpers.
+- **Versions.** `BEHAT_VERSIONS`, `DRUPAL_VERSIONS` and `PHP_VERSIONS` hold the versions the page names. A unit test compares them with the 4.x row of the [supported versions](../README.md#supported-versions) table and fails until they match.
+- **Example scenarios.** The feature files in the hero use shipped steps only. A unit test matches every step in them against the patterns in `STEPS.md`, so renaming a step fails the test until the example follows.
+- **Components.** The feature file, the install command with its copy button and the icons are `FeatureFile`, `CopyCommand` and `Icon` in `src/components`.
+- **Look.** The colors come from the `--behat-steps-*` tokens in `src/css/custom.css`, and the accents of each section take the 4 bar colors of the logo in turn. The feature file and the commands stay dark in both color modes, so the code keeps the colors of the dark code theme. The page uses the system fonts, like the doc pages.
+- **Motion.** The feature file marks its steps as passed one after another, and each block below the fold plays a short entrance as it scrolls into view. Without JavaScript, or when the reader's system asks for reduced motion, everything shows at once.
+
 ## Accessibility
 
-The site aims for [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA in both color modes. `npm run test:accessibility` runs [axe](https://github.com/dequelabs/axe-core) on every page of the build, in light and dark mode, at a desktop width and a phone width, against the WCAG A and AA rules. It also opens the search dropdown and the mobile menu, and checks how they behave from the keyboard. Automated checks catch many problems but miss others, so the writing still needs care.
+The site aims for [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA in both color modes. `npm run test:accessibility` runs [axe](https://github.com/dequelabs/axe-core) on every page of the build, in light and dark mode, at a desktop width and a phone width, against the WCAG A and AA rules. These scans run with reduced motion, so the home page shows every block at once, and a separate check scans the home page again after scrolling through it with motion on. It also opens the search dropdown and the mobile menu, switches the home page's feature file from the keyboard and copies its install command, and checks how they behave. Automated checks catch many problems but miss others, so the writing still needs care.
 
 The site handles some of it for you:
 

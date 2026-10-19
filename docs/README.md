@@ -1,6 +1,6 @@
 # Behat Steps documentation
 
-This directory holds the source of the [Behat Steps documentation site](https://behat-steps.drevops.com), built with [Docusaurus](https://docusaurus.io/). The pages live in `content/`.
+This directory holds the source of the [Behat Steps documentation site](https://behat-steps.drevops.com), built with [Docusaurus](https://docusaurus.io/). The pages live in `content/`, and the home page in `src/pages/index.js`.
 
 ```bash
 npm install                  # Install the dependencies
