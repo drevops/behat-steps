@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import FeatureFile, { isStep, summarize } from '../../../src/components/FeatureFile';
+import FeatureFile, { isStep, splitExtension, summarize } from '../../../src/components/FeatureFile';
 
 const FILES = [
   {
@@ -41,6 +41,16 @@ describe('isStep', () => {
   });
 });
 
+describe('splitExtension', () => {
+  test.each([
+    { name: 'drafts.feature', expected: ['drafts', '.feature'] },
+    { name: 'search.page.feature', expected: ['search.page', '.feature'] },
+    { name: 'README', expected: ['README'] },
+  ])('splits $name before its extension', ({ name, expected }) => {
+    expect(splitExtension(name)).toEqual(expected);
+  });
+});
+
 describe('summarize', () => {
   test.each([
     { name: '1 scenario and 1 step', code: 'Scenario: A\n  Given I visit "/"', expected: ['1 scenario (1 passed)', '1 step (1 passed)'] },
@@ -63,6 +73,13 @@ describe('FeatureFile', () => {
     expect(screen.getByRole('tabpanel', { name: 'login.feature' })).toHaveAttribute('tabindex', '0');
     expect(screen.getByRole('tabpanel').textContent).toContain('Feature: Login');
     expect(container.querySelector('figcaption')).toHaveTextContent('Logs a user in.');
+  });
+
+  test('names each tab by its file, with the extension in a part of its own', () => {
+    render(<FeatureFile files={[...FILES, { name: 'README', code: 'Feature: Notes', caption: 'Takes notes.' }]} label="Examples" />);
+
+    expect(Array.from(tab('login.feature').children).map((part) => [part.textContent, part.getAttribute('class')])).toEqual([['login', null], ['.feature', 'extension']]);
+    expect(Array.from(tab('README').children).map((part) => [part.textContent, part.getAttribute('class')])).toEqual([['README', null]]);
   });
 
   test('draws every file in the same place and shows only the chosen one', () => {

@@ -1,1 +1,1 @@
-export { default, isStep, summarize } from './FeatureFile';
+export { default, isStep, splitExtension, summarize } from './FeatureFile';

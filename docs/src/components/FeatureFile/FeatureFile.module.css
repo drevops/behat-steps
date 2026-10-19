@@ -95,6 +95,14 @@
   outline-offset: -2px;
 }
 
+/* On a phone, the tabs show the file names without their extension, so more
+   tabs fit its width. */
+@media (max-width: 560px) {
+  .extension {
+    display: none;
+  }
+}
+
 /* The panels share 1 grid cell, so the cell takes the height of the tallest
    file at any width. */
 .panels {

@@ -11,6 +11,10 @@ const SCENARIO = /^\s*Scenario( Outline)?:/;
 
 export const isStep = (line) => STEP.test(line);
 
+// Splits a file name before its extension: 'drafts.feature' gives 'drafts'
+// and '.feature'.
+export const splitExtension = (name) => name.split(/(?=\.[^.]+$)/);
+
 const counted = (count, noun) => `${count} ${noun}${count === 1 ? '' : 's'}`;
 
 // The 2 lines Behat prints after a run in which every scenario passed.
@@ -92,13 +96,19 @@ const FeatureFile = ({ files, label }) => {
                 type="button"
                 role="tab"
                 className={styles.tab}
+                aria-label={item.name}
                 aria-selected={index === active}
                 aria-controls={`${id}-panel-${index}`}
                 tabIndex={index === active ? 0 : -1}
                 onClick={() => setActive(index)}
                 onKeyDown={moveTo}
               >
-                {item.name}
+                {splitExtension(item.name).map((part, position) => (
+                  // The parts never reorder, so the key is their position.
+                  <span key={position} className={position > 0 ? styles.extension : undefined}>
+                    {part}
+                  </span>
+                ))}
               </button>
             ))}
           </div>
