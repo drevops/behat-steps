@@ -68,7 +68,7 @@ Run 1 surface with `vendor/bin/behat --suite=api`, or all of them with a bare `v
 
 The layout gives you 3 things:
 
-- Each suite composes only the steps its surface needs. `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`, and never loads a trait that expects a rendered page. A step that can't work on a surface isn't defined on it, so a mistake shows up as "step not found" when Behat reads the feature file, not as a confusing failure halfway through a run.
+- Each suite composes only the steps its surface needs. `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`, and never loads a trait that expects a rendered page. A step that can't work on a surface isn't defined on it, so when a scenario uses it there, Behat reports the step as undefined instead of running it into a confusing failure.
 - The spec suite and the regression suites do different jobs. The spec suite holds domain-language scenarios written over your own step definitions, and the regression suites hold broad scenarios written in the shipped steps. [Scenario styles](scenario-styles.md) explains why both exist.
 - You can exclude a slow surface without touching the others. Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
 

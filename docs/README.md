@@ -6,7 +6,7 @@ This README covers the site itself: running it on your machine, how the home pag
 
 ## Working locally
 
-The site is an npm project of its own, separate from the Docker stack, and it needs Node.js 24 or newer. Run these from `docs/`, or from the repository root with `--prefix docs`:
+The site is an npm project of its own, separate from the Docker stack, and it needs Node.js 24.22.0 or newer, as `engines` in `package.json` states. Run these from `docs/`, or from the repository root with `--prefix docs`:
 
 ```bash
 npm install                  # Install the dependencies
@@ -65,7 +65,7 @@ These builds show "development" as the version in the footer. Search engines don
 
 `.github/workflows/release-docs.yml` publishes the docs to [behat-steps.drevops.com](https://behat-steps.drevops.com) on GitHub Pages:
 
-- on every release tag, with the tag as the version;
+- on every pushed tag whose name holds no `/`, release tags included, with the tag as the version;
 - on a manual run of the `Release docs` workflow from **Actions**, from the tag or branch you type, so the pages and their GitHub links come from the same place.
 
 A tag pushed on a maintenance branch that carries `release-docs.yml` republishes the site from that branch and replaces the newer docs, so remove the workflow from the branch when you cut it.

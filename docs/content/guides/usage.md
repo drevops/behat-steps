@@ -194,7 +194,7 @@ To keep what a whole run creates, set `BEHAT_STEPS_DISABLE_CLEANUP`, as [Environ
 
 ### Several entities with the same title
 
-When several entities share the title, label, name or description a step names, the step acts on the newest one. That's the entity your scenario just created, even on a site that already holds a page called "About us".
+When several entities share the title, label, name or description a step names, the step acts on the newest one. If your scenario created 1 of them, that's the one it acts on, even on a site that already holds a page called "About us". If it created none, the step acts on the newest of the entities already there.
 
 - Nodes, terms, media, content blocks, menu links and ECK entities are compared by ID, which only grows when an entity is created, so the highest ID wins. Saving an older entity again doesn't make it newer.
 - Blocks and menus have machine names rather than numeric IDs, so the one the scenario created last wins. When the scenario created none of them, the machine name that comes last in natural order wins, so `block_10` beats `block_2`.
