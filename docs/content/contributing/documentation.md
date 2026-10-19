@@ -8,7 +8,7 @@ description: Work on these docs locally, regenerate the reference pages, follow 
 
 # Documentation
 
-These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/` and a [home page](#the-home-page) of its own. Most pages are hand-written. `docs.php` generates the step and helper pages from the source code and fills 2 tables in Configuration. It also writes both references as 1 file each, which ship with the Composer package.
+These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/` and a [home page](#the-home-page) of its own. `docs.php` generates most of the pages, 1 per trait or class in the 4 step and helper sections, from the source code, and fills 2 tables in Configuration. It also writes both references as 1 file each, which ship with the Composer package. The other pages are hand-written.
 
 ## Generated pages
 
@@ -45,7 +45,7 @@ Both references link each trait's source by relative path, so those links resolv
 
 ## Working locally
 
-The site is an npm project of its own, separate from the Docker stack, and it needs Node.js 24 or newer. Run these from `docs/`:
+The site is an npm project of its own, separate from the Docker stack, and it needs Node.js 24.22 or newer. Run these from `docs/`:
 
 ```bash
 npm install                  # Install the dependencies
@@ -72,7 +72,7 @@ npm run test:accessibility   # Check the built site for accessibility issues
 
 The home page at `/` isn't a Markdown page: it's a React page, `src/pages/index.js`. The introduction it links to lives at `/introduction`, set by the `slug` in the front matter of `content/README.md`. Pages and docs share the site root, so `onDuplicateRoutes: 'throw'` in `docusaurus.config.js` fails the build when a doc's slug claims a page's path.
 
-The page's words sit in lists at the top of `src/pages/index.js`, 1 per section: the example feature files, the "works with" row, the features, the flow, the reasons, the quick start steps and the docs cards. Changing what the page says usually means changing a list, not the markup.
+Most of the page's words sit in lists at the top of `src/pages/index.js`, 1 per section: the example feature files, the "works with" row, the features, the flow, the reasons, the quick start steps and the docs cards. The hero, the section headings and their leads, the stats labels and the closing call to action sit in the markup.
 
 - **Counts.** The step, trait and helper counts come from the generated pages. `src/referenceCounts.js`, a local plugin, counts them in the 4 reference sections at build time, so they follow `ahoy update-docs` with no edit to the page. The build fails when a section holds no steps or helpers.
 - **Versions.** `BEHAT_VERSIONS`, `DRUPAL_VERSIONS` and `PHP_VERSIONS` hold the versions the page names. A unit test compares them with the 4.x row of the [supported versions](../README.md#supported-versions) table and fails until they match.
@@ -112,7 +112,7 @@ These builds show "development" as the version in the footer. Search engines don
 
 `.github/workflows/release-docs.yml` publishes the docs to [behat-steps.drevops.com](https://behat-steps.drevops.com) on GitHub Pages:
 
-- on every release tag, with the tag as the version;
+- on every tag pushed to the repository, with the tag as the version. The workflow can't tell a release tag from any other, so a stray tag republishes the site too;
 - on a manual run of the `Release docs` workflow from **Actions**, from the tag or branch you type, so the pages and their GitHub links come from the same place.
 
 A tag pushed on a maintenance branch that carries `release-docs.yml` republishes the site from that branch and replaces the newer docs, so remove the workflow from the branch when you cut it.

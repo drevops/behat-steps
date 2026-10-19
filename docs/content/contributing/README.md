@@ -17,9 +17,13 @@ It also covers the [local environment](../../../CONTRIBUTING.md#local-environmen
 
 - `src/` - the package: the backends, the Behat extension, the 3 contexts and the step and helper traits.
 - `tests/` - the unit, kernel and Behat suites, and the fixture Drupal sites for Drupal 11 and 12 that all 3 suites run against.
-- `docs.php` - the generator behind the [Web steps](../web-steps/README.md), [Drupal steps](../drupal-steps/README.md), [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) pages and the generated tables in [Configuration](../guides/configuration.md).
+- `docs.php` - the generator behind the [Web steps](../web-steps/README.md), [Drupal steps](../drupal-steps/README.md), [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) pages, the generated tables in [Configuration](../guides/configuration.md), and the `STEPS.md` and `HELPERS.md` references at the repository root.
+- `MIGRATION.md` - the guide from 3.14 to 4.0, which [Migrating from 3.x](../migrating.md) introduces.
 - `docs/` - this site, with its pages in `docs/content/`.
 - `scripts/` - the fixture site provisioning, the coverage tools, the layer and trait linters, and the script that draws the architecture diagrams.
+- `.github/workflows/` - continuous integration: `test.yml` lints, tests and builds these docs, `release-docs.yml` publishes them, and the other 2 draft the release notes and assign each pull request to its author.
+- `.docker/` - the image of the `cli` container the `ahoy` commands run in.
+- `patches/` - the patches Composer applies to dependencies, as [Dependency patches](../../../CONTRIBUTING.md#dependency-patches) describes.
 - `.claude/skills/` - the AI agent skills kept in this repository: `migrate-behat-steps` for consuming projects, and `update-architecture-docs` for maintainers.
 
 ## See also
