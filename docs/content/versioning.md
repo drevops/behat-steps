@@ -10,11 +10,11 @@ This package follows [semantic versioning](https://semver.org), which covers 5 s
 
 - **Step text** - the pattern a scenario matches, listed in [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md).
 - **Helpers** - every public method the step traits, the helper traits and `WebRawContext` contribute that isn't a step, a hook or a transform, listed in [Web helpers](web-helpers/README.md) and [Drupal helpers](drupal-helpers/README.md). They sit on `$this` in your own context, so a domain step depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
-- **Configuration** - the options under the `behat_steps` key and the tags, listed in [Configuration](guides/configuration.md), along with the contracts that a class named in those options implements: `FieldHandlerInterface` for `drupal.field_handlers`, and `PreCreateAliasInterface` or `PostCreateAliasInterface` for `drupal.creation_aliases` and `drush.creation_aliases`.
-- **Exceptions** - which exception type a failure reports, listed under [Exceptions](#exceptions) below.
+- **Configuration** - the options under the `behat_steps` key and the tags, listed in [Configuration](guides/configuration.md), along with the contracts that a class named in those options implements: `FieldHandlerInterface` for `drupal.field_handlers`, and `PreCreateAliasInterface` or `PostCreateAliasInterface` for `drupal.creation_aliases` and `drush.creation_aliases`. The surface also takes in `FieldHandlerCapabilityInterface` and `CreationAliasCapabilityInterface`, which register those classes from a context.
+- **Exceptions** - which exception type a failure reports, listed in [Exceptions](#exceptions).
 - **Context base classes** - `WebRawContext`, `WebContext` and `DrupalContext`, which a project extends.
 
-Semantic versioning doesn't cover 2 things: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Extension` that none of the surfaces above exposes.
+Semantic versioning doesn't cover 2 things: any member whose docblock carries `@internal`, and the internals of `src/Backend` and `src/Extension` that none of the 5 surfaces exposes.
 
 To add or replace a field handler, use the `drupal.field_handlers` option, or do it from a context through `FieldHandlerCapabilityInterface`. For a creation alias, use the `drupal.creation_aliases` and `drush.creation_aliases` options, or do it from a context through `CreationAliasCapabilityInterface`. Don't subclass `Core` or a backend for either: a subclass of `Core`, a backend or a field handler relies on protected methods that a minor release can rename or stop calling.
 
@@ -22,7 +22,7 @@ The same goes for a Core of your own that the `drupal.core` option names: semant
 
 ## Exceptions
 
-This library reports failures with a small, fixed set of exception types, mostly [Mink's](https://mink.behat.org/en/latest/):
+This library reports failures with a small, fixed set of exception types, 3 of them [Mink's](https://mink.behat.org/en/latest/):
 
 | Exception                           | When thrown                                                        |
 |-------------------------------------|--------------------------------------------------------------------|
@@ -37,9 +37,9 @@ This library reports failures with a small, fixed set of exception types, mostly
 
 Traits that never touch the browser, such as `Steps\Web\CommandTrait` and `Steps\Drupal\ConfigTrait`, throw `DrevOps\BehatSteps\Steps\Exception\AssertionException` when an assertion fails, because `ExpectationException` needs a browser driver, which those traits don't have.
 
-Example error messages:
+A failing step reports messages like these:
 
-```
+```text
 Element matching css "#my-element" not found.
 Link with title "My Link" not found.
 Select with id|name|label "My Select" not found.
@@ -50,4 +50,4 @@ The cookie "session" was not set.
 
 - [Extending](extending/README.md#what-semantic-versioning-covers) goes through each extension point and what semantic versioning covers for it.
 - [Supported versions](README.md#supported-versions) lists which majors still receive fixes, and when 3.x LTS ends.
-- [Migrating from 3.x](migrating.md) covers the move to 4.0.
+- [Migrate from 3.x](migrating.md) covers the move to 4.0.

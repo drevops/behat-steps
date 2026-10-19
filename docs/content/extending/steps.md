@@ -1,15 +1,15 @@
 ---
-title: Extending the step vocabulary
+title: Extend the step vocabulary
 sidebar_label: Step vocabulary
 sidebar_position: 1
 description: Write steps of your own on the helpers, override a trait's seams and a context's HTTP client, declare options for a trait of your own, and follow the rules Behat applies when a context composes or overrides steps and hooks.
 ---
 
-# Extending the step vocabulary
+# Extend the step vocabulary
 
-The step vocabulary is the step and helper traits under `src/Steps` and the 3 contexts that compose them: `WebRawContext`, `WebContext` and `DrupalContext`. [Usage](../guides/usage.md) explains how to use it as it ships, and this page covers what you add on top: steps of your own, overrides for what no option reaches, options for a trait of your own, and the rules Behat applies when your context composes or overrides what it inherits. You'll need it once a flow deserves a step in your project's own words, or a trait needs a value its options can't give it.
+The step vocabulary is the step and helper traits under `src/Steps` and the 3 contexts that compose them: `WebRawContext`, `WebContext` and `DrupalContext`. [Usage](../guides/usage.md) explains how to use it as it ships, and this page covers what you add on top: steps of your own, overrides for what no option reaches, options for a trait of your own, and the rules Behat applies when your context composes or overrides what it inherits. You'll need it when a flow deserves a step in your project's own words, or when a trait needs a value its options can't give it.
 
-## Writing a step of your own
+## Write a step of your own
 
 A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) list every one of them.
 
@@ -56,7 +56,7 @@ $this->entityLifecycleRegister($created, 'mid');
 
 [HTTP clients](../guides/http-clients.md) covers the 3 clients a step sends its own requests through.
 
-A domain step that needs a response without disturbing the page asks for the detached client, exactly as the shipped traits do. The browser starts with no history, so it takes an absolute URL:
+A domain step that needs a response without disturbing the page asks for the detached client, exactly as the shipped traits do. The detached client starts with no history, so it takes an absolute URL:
 
 ```php
 #[Then('the sitemap should list the path :path')]
@@ -128,7 +128,9 @@ class FeatureContext extends DrupalContext {
 }
 ```
 
-That covers downloads, the hreflang check and the engine fetch for every trait in that context. `RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit only for an idempotent method such as `GET`, but it retries a 429 or 503 response whatever the method, so a `POST` a step sends can reach the server twice. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` that limits 429 and 503 to `GenericRetryStrategy::IDEMPOTENT_METHODS`. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
+That covers downloads, the hreflang check and the engine fetch for every trait in that context. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
+
+`RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit only for an idempotent method such as `GET`, but it retries a 423, 425, 429, 502 or 503 response whatever the method, so a `POST` a step sends can reach the server more than once. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` that limits those 5 status codes to `GenericRetryStrategy::IDEMPOTENT_METHODS`.
 
 ## Declare options for a trait of your own
 
@@ -156,6 +158,8 @@ The declared default carries the option's type, and the composing context reads 
 
 Behat Steps finds the method by its name, so the trait needs no registration. The group is the method's prefix in snake case: `acmeConfigSchema()` declares the `acme` group, and its options resolve through the chain [Trait options](../guides/configuration.md#trait-options) states, from `steps` and the context's `config` to the tags.
 
+The readers are helpers, so semantic versioning covers them, but `Option` and the `<prefix>ConfigSchema()` method name sit outside it, as [What semantic versioning covers](README.md#what-semantic-versioning-covers) notes.
+
 ## The rules that govern composition
 
 Behat's attribute inheritance works in opposite directions for a trait that's composed and a class that's extended:
@@ -177,5 +181,5 @@ The last row is the least discoverable: `HookRepository` doesn't deduplicate, so
 ## Where to next
 
 - [Scenario styles](../guides/scenario-styles.md) explains when a domain step pays off, and when the shipped vocabulary is the better fit.
-- [Extending the extension layer](extension.md) covers replacing the services behind these helpers for every context at once.
-- [Extending the backend layer](backend.md) covers the field handlers and creation aliases an entity you create passes through.
+- [Extend the extension layer](extension.md) covers replacing the services behind these helpers for every context at once.
+- [Extend the backend layer](backend.md) covers the field handlers and creation aliases an entity you create passes through.

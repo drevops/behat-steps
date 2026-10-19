@@ -20,7 +20,7 @@ A project uses this package by composing a context out of traits and pointing an
 
 The vocabulary sits on a single chain. Each entry point adds what's listed under its name to everything above it, and a consumer extends exactly 1 of them:
 
-```
+```text
         Behat\MinkExtension\Context\RawMinkContext
                           |
                     WebRawContext
@@ -34,13 +34,17 @@ The vocabulary sits on a single chain. Each entry point adds what's listed under
                 use Steps\Drupal\*  (29)
 ```
 
+Which one to extend depends on what the suite tests and which traits it wants:
+
 | Extend | When |
 | --- | --- |
-| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits. The Watchdog check needs the core `dblog` module and a backend that reads the log, such as `drupal` or `drush`, or it's [switched off](#switch-a-trait-off) |
+| `DrupalContext` | The suite tests a Drupal site and wants all 57 step traits. The Watchdog check needs the core `dblog` module and a backend that reads the log, such as `drupal` or `drush`, unless you [switch it off](#switch-a-trait-off) |
 | `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
 
 `WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal` on top of it. A trait that could fail a scenario for a reason the scenario didn't ask about carries an `enabled` option, so a project switches it off through configuration instead of composing its own context.
+
+A Drupal project's context extends `DrupalContext`:
 
 ```php
 <?php
@@ -61,13 +65,13 @@ $suite = (new Suite('default'))
   ->addContext(MinkContext::class);
 ```
 
-A Drupal suite needs `DrupalContext` alone: `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because `PathTrait`, `RandomTrait`, `MappingTrait` and `DateTrait` are inherited from `WebContext`.
+A Drupal suite needs `DrupalContext` alone: `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because `PathTrait`, `MappingTrait`, `RandomTrait` and `DateTrait` are inherited from `WebContext`.
 
 The chain has 1 cost: there's no way to remove an inherited step, so a Drupal project can't take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step drops to `WebRawContext` and composes what it wants by hand.
 
 ## Compose your own context
 
-A context of your own is `WebRawContext` plus the traits whose steps the suite needs.
+A context of your own is `WebRawContext` plus the traits whose steps the suite needs:
 
 ```php
 <?php
@@ -84,13 +88,13 @@ class UiContext extends WebRawContext {
 }
 ```
 
-A context that adds steps of its own builds them on the helpers, as [Writing a step of your own](../extending/steps.md#writing-a-step-of-your-own) describes.
+A context that adds steps of its own builds them on the helpers, as [Write a step of your own](../extending/steps.md#write-a-step-of-your-own) describes.
 
 [The rules that govern composition](../extending/steps.md#the-rules-that-govern-composition) cover what Behat does when a context re-composes a trait or overrides an inherited step or hook.
 
-## Register it against the extension
+## Register your context against the extension
 
-1 profile carries the extension; each suite carries its contexts.
+1 profile carries the extension; each suite carries its contexts:
 
 ```php
 $ui = (new Suite('ui'))
@@ -107,7 +111,7 @@ $profile = (new Profile('default'))
 
 ## Configure a trait
 
-Each configurable trait declares its own options, named after the trait in snake case. Their profile-wide defaults live under `steps`:
+Each configurable trait declares its own options, in a group named after the trait in snake case. Their profile-wide defaults live under `steps`:
 
 ```php
 ->withExtension(new Extension(BehatStepsExtension::class, [
@@ -120,7 +124,7 @@ Each configurable trait declares its own options, named after the trait in snake
 ]));
 ```
 
-A value that has to differ between 2 suites of the same profile goes in the context's `config` argument instead. `UiContext` above composes `JavascriptTrait`, so it's the context that accepts the `javascript` group:
+A value that has to differ between 2 suites of the same profile goes in the context's `config` argument instead. The `UiContext` from [Compose your own context](#compose-your-own-context) composes `JavascriptTrait`, so it's the context that accepts the `javascript` group:
 
 ```php
 $ui = (new Suite('ui'))
@@ -147,13 +151,11 @@ The 3 reach the same value, most specific last: `steps`, then the context's `con
 - `enabled` turns the trait's hooks off entirely: nothing is collected, and no backend is bootstrapped on its account.
 - `fail_on_errors` leaves the collection running and stops what it collects from failing the scenario.
 
-A project that never wants a trait's gate turns it off once:
+A project that never wants a trait's gate turns it off once in `steps`, rather than tagging every feature file with `@behat-steps-skip:WatchdogTrait`:
 
 ```php
 'steps' => ['watchdog' => ['enabled' => FALSE]],
 ```
-
-rather than tagging every feature file with `@behat-steps-skip:WatchdogTrait`.
 
 Several traits carry hooks that run around every scenario or step, and 1 tag switches off every hook of a trait for a single scenario or feature:
 
@@ -172,7 +174,7 @@ Those are the trait's prerequisites, and it checks them when a scenario starts. 
 | On, the default | Reads the errors after the last step, and fails a scenario that logged one | Fails the scenario at its start, before any step runs |
 | Off, through `watchdog.enabled` or `@behat-steps-skip:WatchdogTrait` | Reads nothing and bootstraps no backend | Reads nothing and bootstraps no backend |
 
-A profile that lists no backend providing `LogCapabilityInterface`, such as `'backends' => ['blackbox']`, fails at the start the same way. The error names the prerequisite that doesn't hold and both ways out: meet it, or switch the trait off as above. A scenario that uninstalls `dblog` itself starts with the table in place, so it fails at its last step instead.
+A profile that lists no backend providing `LogCapabilityInterface`, such as `'backends' => ['blackbox']`, fails at the start the same way. The error names the prerequisite that doesn't hold and both ways out: meet it, or switch the trait off with `watchdog.enabled` or `@behat-steps-skip:WatchdogTrait`. A scenario that uninstalls `dblog` itself starts with the table in place, so it fails at its last step instead.
 
 Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help with an unmet prerequisite. Both decide what happens to errors that were read, and without the table or a backend to read it through, there's nothing to read.
 
@@ -200,4 +202,4 @@ When several entities share the title, label, name or description a step names, 
 
 ## Where to next
 
-For a value no option reaches, [Go further than the options](../extending/steps.md#go-further-than-the-options) shows how to override the trait's own seam in the composing context, and the rest of [Extending the step vocabulary](../extending/steps.md) covers steps of your own.
+For a value no option reaches, [Go further than the options](../extending/steps.md#go-further-than-the-options) shows how to override the trait's own seam in the composing context. For steps of your own, see [Extend the step vocabulary](../extending/steps.md).

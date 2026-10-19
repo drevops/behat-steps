@@ -8,7 +8,7 @@ description: The imperative and declarative scenario styles, the job each one do
 
 # Scenario styles - the vocabulary and the toolbox
 
-A generic step library and BDD's own teaching point in different directions, and this stack serves both.
+A generic step library and BDD's own teaching point in different directions, and this library serves both. This page compares the 2 scenario styles and the job each one does, then shows how a flow graduates from the shipped steps to domain steps built on the same helpers.
 
 ## The 2 styles
 
@@ -19,7 +19,6 @@ Scenario: Editor publishes a page
   Given I am logged in as a user with the role "editor"
   When I visit "/node/add/page"
   And I fill in "Title" with "About us"
-  And I select "Published" from "Save as"
   And I press "Save"
   Then the path should be "/about-us"
   And I should see the success message "has been created"
@@ -52,7 +51,7 @@ That's what "domain steps" means: the Gherkin speaks the project's language, and
 
 The case rests on 3 arguments, all of them old and well tested. The first is audience: BDD's founding purpose is to use scenarios as a conversation artifact with stakeholders, and to a product owner, "I fill in Title" is noise and "I publish a page" is signal. The second is resilience: when the form is redesigned, an imperative suite changes in every scenario that touches the form. A declarative suite changes in exactly 1 definition, because its scenarios assert the behavior and leave the widget path to that definition. The third is intent: an imperative scenario verifies only the mechanics, so it can pass while the requirement behind them fails.
 
-The critique of the imperative style is real, and it has a well-known precedent. `cucumber-rails`, the Rails integration for Cucumber (Behat's Ruby ancestor), used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. MinkContext is PHP's `web_steps.rb` that never got deleted, and this library is a larger, better-engineered descendant of the same pattern.
+The critique of the imperative style is real, and it has a well-known precedent. `cucumber-rails`, the Rails integration for Cucumber (Behat's Ruby ancestor), used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. `MinkContext` is PHP's `web_steps.rb` that never got deleted, and this library is a larger descendant of the same pattern.
 
 ## Why the imperative style wins in this ecosystem anyway
 
@@ -72,6 +71,6 @@ The library serves both jobs at once through 1 design rule: every step body is a
 
 3 consequences follow:
 
-1. **Helpers are public API.** They're documented in [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md), covered by semantic versioning and named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in your `FeatureContext`, so a domain step costs 3 lines; under a context model, every domain step would start with service lookups.
+1. **Helpers are public API.** They're documented in [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md), covered by semantic versioning and named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in your `FeatureContext`, so the body of a domain step can be 1 helper call; under a context model, every domain step would start with service lookups.
 2. **Suites split by job.** A spec suite holds the few domain-language scenarios, and a regression suite holds the broad generic-vocabulary ones. That's also how Behat's own documentation says to use suites. [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
 3. **The docs teach a lifecycle.** Start with the vocabulary for instant coverage, then graduate the flows that matter to domain steps on the toolbox. The [quick start](../quick-start.md) shows both scenario styles side by side.

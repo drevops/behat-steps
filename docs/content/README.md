@@ -34,6 +34,8 @@ Your project registers 1 of the shipped contexts, or composes step traits into a
 
 ## Supported versions
 
+The following table lists the Behat, Drupal and PHP versions each release series supports, and the fixes it receives:
+
 | Version | Behat | Drupal | PHP | Support |
 | --- | --- | --- | --- | --- |
 | 4.x | 3.33+, 4 | 11, 12 | 8.3, 8.4, 8.5 | The current major. Receives new features, bugfixes and security updates. |
@@ -43,5 +45,5 @@ Your project registers 1 of the shipped contexts, or composes step traits into a
 ## Where to next
 
 - If you're new to Behat Steps, start with [Installation](installation.md), then the [Quick start](quick-start.md).
-- To upgrade a 3.x project, see [Migrating from 3.x](migrating.md), which covers the migration guide and the AI agent skill that applies it.
+- To upgrade a 3.x project, see [Migrate from 3.x](migrating.md), which covers the migration guide and the AI agent skill that applies it.
 - For steps of your own, [Scenario styles](guides/scenario-styles.md) explains when they pay off. [Web helpers](web-helpers/README.md) and [Drupal helpers](drupal-helpers/README.md) list what they can call.

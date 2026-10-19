@@ -1,19 +1,19 @@
 ---
-title: Extending the extension layer
+title: Extend the extension layer
 sidebar_label: Extension layer
 sidebar_position: 2
 description: Replace the HTTP client factory, a registry, an authenticator or option resolution for every context at once from a Behat extension of your own, and give another browser driver a page client.
 ---
 
-# Extending the extension layer
+# Extend the extension layer
 
 The extension layer is `src/Extension`: `BehatStepsExtension` and the services it builds into Behat's container, which the context initializer injects into the contexts. You extend it from a Behat extension of your own, for a change that has to reach every context at once. This page covers 3 changes to the container: replacing the HTTP client factory, swapping a registry or an authenticator through its `*.class` parameter, and replacing option resolution. It also covers registering a browser adapter, which a context does.
 
-The container sits outside the 5 surfaces semantic versioning covers, so check [what it does cover](README.md#what-semantic-versioning-covers) before you build on any of these.
+The container sits outside the 5 surfaces semantic versioning covers, so check [What semantic versioning covers](README.md#what-semantic-versioning-covers) before you build on any of these.
 
-## From a Behat extension of your own
+## Set up a Behat extension of your own
 
-Each container change on this page runs in the `process()` method of a Behat extension of your own. Behat calls the `load()` method of every extension before it calls any `process()`, and Behat Steps defines its services in `load()`. So the changes below hold whichever order the profile lists the extensions in:
+Each container change on this page runs in the `process()` method of a Behat extension of your own. Behat calls the `load()` method of every extension before it calls any `process()`, and Behat Steps defines the services this page changes in `load()`. So the changes on this page hold whichever order the profile lists the extensions in. The extension starts from this skeleton:
 
 ```php
 <?php
@@ -54,9 +54,9 @@ $profile->withExtension(new Extension(AcmeExtension::class));
 
 ## The HTTP client factory and browser adapters
 
-[A context override](steps.md#a-context-override-a-flaky-staging-server) decorates the transport for 1 context. 2 heavier extension points are meant for package authors rather than projects.
+[A context override](steps.md#a-context-override-a-flaky-staging-server) decorates the transport for 1 context. 2 heavier extension points go further: replacing the factory changes every context at once, and registering an adapter gives another browser driver a page client.
 
-Replace `behat_steps.http_client_factory` from a Behat extension to change every context at once, for example with a tracing client for debugging or a mock client for offline tests. The service takes the shared transport and the base URL, so extending `HttpClientFactory` keeps the rules [HTTP clients](../guides/http-clients.md#the-rules-the-clients-follow) describes:
+To change every context at once, for example with a tracing client for debugging or a mock client for offline tests, replace `behat_steps.http_client_factory` from a Behat extension. The service takes the shared transport and the base URL, so extending `HttpClientFactory` keeps the rules [HTTP clients](../guides/http-clients.md#the-rules-the-clients-follow) describes:
 
 ```php
 public function process(ContainerBuilder $container): void {
@@ -65,7 +65,7 @@ public function process(ContainerBuilder $container): void {
 }
 ```
 
-Register a browser adapter that implements `HttpClientCapabilityInterface` to give another browser driver a page client:
+To give another browser driver a page client, register a browser adapter that implements `HttpClientCapabilityInterface`. Each context builds its own capability resolver, and Behat builds new contexts for every scenario, so register the adapter in code that runs for every context, such as the context's constructor:
 
 ```php
 $this->getBrowserCapabilityResolver()
@@ -100,7 +100,7 @@ Only the class changes: the container builds yours with the arguments in the tab
 
 ## Replace option resolution
 
-[Trait options](../guides/configuration.md#trait-options) states the chain a trait option resolves through. Resolution itself is the `behat_steps.config.resolver_factory` service, so a project that needs a chain of its own registers another `TraitOptionResolverFactoryInterface` under that id:
+[Trait options](../guides/configuration.md#trait-options) states the chain a trait option resolves through. Resolution itself is the `behat_steps.config.resolver_factory` service, so a project that needs a chain of its own registers another `TraitOptionResolverFactoryInterface` under that ID:
 
 ```php
 public function process(ContainerBuilder $container): void {
@@ -115,5 +115,5 @@ Behat builds a context before the initializer injects the service, so the contex
 
 ## Where to next
 
-- [Extending the step vocabulary](steps.md) covers what a single context of yours overrides without a Behat extension.
+- [Extend the step vocabulary](steps.md) covers what a single context of yours overrides without a Behat extension.
 - [Architecture](../architecture/README.md#data-flow) shows when the services the extension builds run and how they reach a context.

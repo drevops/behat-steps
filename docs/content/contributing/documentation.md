@@ -8,7 +8,7 @@ description: Work on these docs locally, regenerate the reference pages, follow 
 
 # Documentation
 
-These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/` and a [home page](#the-home-page) of its own. Most pages are hand-written. `docs.php` generates the step and helper pages from the source code and fills 2 tables in Configuration. It also writes both references as 1 file each, which ship with the Composer package.
+This page covers the generated pages, the local setup and the writing conventions, and how the site is checked, previewed and published. These docs live in `docs/`, a [Docusaurus](https://docusaurus.io/) site with its pages in `docs/content/` and a [home page](#the-home-page) of its own. `docs.php` generates the step and helper pages from the source code and fills 2 tables in Configuration. It also writes both references as 1 file each, which ship with the Composer package. The other pages are hand-written.
 
 ## Generated pages
 
@@ -26,7 +26,7 @@ A page takes its name from the `@title` tag in the docblock of its trait or clas
 
 The run removes a page of a trait or class that no longer exists, so a renamed trait leaves no page behind.
 
-Run it from the repository root after changing a step, a helper, an option or a tag:
+After you change a step, a helper, an option or a tag, run these from the repository root:
 
 ```bash
 ahoy update-docs  # Regenerate the pages
@@ -39,13 +39,13 @@ A tag appears in the reference only after you register it in `tag_registry()`, s
 
 ### The references in the package
 
-A coding agent in a consuming project reads `STEPS.md` and `HELPERS.md` from `vendor/drevops/behat-steps/` to learn the public surface, as [Writing tests with AI assistants](../guides/ai-assistants.md) describes. `.gitattributes` keeps `docs/` out of the distribution archive, and the docs unit tests fail when either reference stops shipping or when a file in `docs/` starts shipping.
+A coding agent in a consuming project reads `STEPS.md` and `HELPERS.md` from `vendor/drevops/behat-steps/` to learn the public surface; see [Write tests with an AI coding agent](../guides/ai-assistants.md). `.gitattributes` keeps `docs/` out of the distribution archive, and the docs unit tests fail when either reference stops shipping or when a file in `docs/` starts shipping.
 
 Both references link each trait's source by relative path, so those links resolve in `vendor/` as well as on GitHub. The Example links in `STEPS.md` point into `tests/`, which the archive leaves out, so they resolve only on GitHub and on the site.
 
-## Working locally
+## Work locally
 
-The site is an npm project of its own, separate from the Docker stack, and it needs Node.js 24 or newer. Run these from `docs/`:
+The site is an npm project of its own, separate from the Docker stack, and it needs the Node.js version that the `engines` field of `package.json` sets. Run these from `docs/`:
 
 ```bash
 npm install                  # Install the dependencies
@@ -59,14 +59,16 @@ npm run test:accessibility   # Check the built site for accessibility issues
 
 `npm run test:accessibility` checks the site in `build/`, so run `npm run build` first. It drives a browser through [Playwright](https://playwright.dev/), which needs its own copy of Chromium: `npx playwright install chromium` downloads it once.
 
-## Writing pages
+## Write pages
+
+Follow these conventions on every hand-written page:
 
 - **1 topic per page.** The sidebar follows the folder tree of `content/`, ordered by the `sidebar_position` in each page's front matter, and a folder's `_category_.json` names its category. A folder's `README.md` is its index page.
 - **Plain Markdown.** Pages are `.md` files, which Docusaurus reads as CommonMark, so they render the same on GitHub. Docusaurus-only syntax, such as a `:::note` admonition, shows as plain text there, so keep it rare. Name a page `.mdx` only when it needs a React component.
 - **Code blocks.** Name the language on each fence, such as `php`, `bash`, `yaml` or `gherkin`. Prism's Gherkin grammar recognizes a step keyword only after indentation, so `src/theme/prism-include-languages.js` widens it to the start of a line, and a step example highlights the same with or without indentation.
 - **Link by file.** Link to another page by its path relative to the page holding the link, and to any other file in the repository the same way. From a page at the top of `content/`, that's `[Backend resolution](guides/configuration.md#backend-resolution)` for a page and `[CONTRIBUTING.md](../../CONTRIBUTING.md#steps-format)` for a repository file. The build rewrites a link that leaves `content/` into a GitHub link that points at the tag or branch a release build comes from, at the commit a CI build comes from, and at `main` for a local build. It fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
-- **Diagrams.** An architecture diagram is a draw.io source in `content/architecture/`, beside the SVG the page embeds. The `update-architecture-docs` skill draws them through [scripts/draw-diagram.php](../../../scripts/draw-diagram.php). After editing a source in draw.io, export the SVGs again with `php scripts/draw-diagram.php --export docs/content/architecture` from the repository root, because the unit suite fails an SVG exported from an older source.
-- **Spelling.** CSpell checks the hand-written pages, `docs/README.md` and the repository's root `README.md` in US English. The step and helper pages are generated from docblocks, so CSpell skips them, apart from the hand-written `README.md` of each section. A word the docs use in several places goes in `cspell.json`, and so does a word only the architecture walkthrough uses, because its skill regenerates that page. Any other word goes below the front matter of the 1 page that uses it, as `<!-- cspell:ignore word -->`.
+- **Diagrams.** An architecture diagram is a draw.io source in `content/architecture/`, beside the SVG the page embeds. The `update-architecture-docs` skill draws them through [scripts/draw-diagram.php](../../../scripts/draw-diagram.php). After editing a source in draw.io, export the SVGs again with `php scripts/draw-diagram.php --export docs/content/architecture` from the repository root, because the PHP unit suite, which `ahoy test-unit` runs, fails an SVG exported from an older source.
+- **Spelling.** CSpell checks the hand-written pages, `docs/README.md` and the repository's root `README.md` in US English. The step and helper pages are generated from docblocks, so CSpell skips them, apart from the hand-written `README.md` of each section. A word the docs use in several places goes in `cspell.json`, and so does a word only the architecture walkthrough uses, because its skill regenerates that page. Any other word goes below the front matter of the 1 page that uses it, as `<!-- cspell:ignore WORD -->`, where `WORD` is that word.
 
 ## The home page
 
@@ -74,12 +76,14 @@ The home page at `/` isn't a Markdown page: it's a React page, `src/pages/index.
 
 The page's words sit in lists at the top of `src/pages/index.js`, 1 per section: the example feature files, the "works with" row, the features, the flow, the reasons, the quick start steps and the docs cards. Changing what the page says usually means changing a list, not the markup.
 
+The rest of the page works like this:
+
 - **Counts.** The step, trait and helper counts come from the generated pages. `src/referenceCounts.js`, a local plugin, counts them in the 4 reference sections at build time, so they follow `ahoy update-docs` with no edit to the page. The build fails when a section holds no steps or helpers.
 - **Versions.** `BEHAT_VERSIONS`, `DRUPAL_VERSIONS` and `PHP_VERSIONS` hold the versions the page names. A unit test compares them with the 4.x row of the [supported versions](../README.md#supported-versions) table and fails until they match.
 - **Example scenarios.** The feature files in the hero use shipped steps only. A unit test matches every step in them against the patterns in `STEPS.md`, so renaming a step fails the test until the example follows.
 - **Components.** The feature file, the install command with its copy button and the icons are `FeatureFile`, `CopyCommand` and `Icon` in `src/components`.
-- **Look.** The colors come from the `--behat-steps-*` tokens in `src/css/custom.css`, and the accents of each section take the 4 bar colors of the logo in turn. The feature file and the commands stay dark in both color modes, so the code keeps the colors of the dark code theme. The page uses the system fonts, like the doc pages.
-- **Motion.** The feature file marks its steps as passed one after another, and each block below the fold plays a short entrance as it scrolls into view. Without JavaScript, or when the reader's system asks for reduced motion, everything shows at once, and a printout shows every block too.
+- **Look.** The shared colors come from the `--behat-steps-*` tokens in `src/css/custom.css`, while `src/pages/index.module.css` and the CSS files in `src/components` set the rest. The accents of each section take the 4 bar colors of the logo in turn. The feature file and the commands stay dark in both color modes, so the code keeps the colors of the dark code theme. The page uses the system fonts, like the doc pages.
+- **Motion.** The feature file marks its steps as passed one after another, and each block below the fold plays a short entrance as it scrolls into view. When the reader's system asks for reduced motion, everything shows at once. Without JavaScript, every block shows at once too, and so does a printout.
 
 ## Accessibility
 
@@ -104,11 +108,11 @@ The `Docs` job of the `Test` workflow installs the dependencies, builds the site
 
 ## Previews
 
-When the `NETLIFY_SITE_ID` and `NETLIFY_AUTH_TOKEN` repository secrets are set, the same job deploys the built site to [Netlify](https://www.netlify.com/): every push to `main` updates the development site, and every pull request gets a preview of its own, linked in a comment on the pull request. Without the secrets, the job skips the deployment, so a pull request from a fork still builds and tests the docs.
+When the `NETLIFY_SITE_ID` and `NETLIFY_AUTH_TOKEN` repository secrets are set, the `Docs` job deploys the built site to [Netlify](https://www.netlify.com/): every push to `main` updates the development site, and every pull request gets a preview of its own, linked in a comment on the pull request. Without the secrets, the job skips the deployment, so a pull request from a fork still builds and tests the docs.
 
 These builds show "development" as the version in the footer. Search engines don't index them, and they don't load Google Analytics.
 
-## Publishing
+## Publish the site
 
 `.github/workflows/release-docs.yml` publishes the docs to [behat-steps.drevops.com](https://behat-steps.drevops.com) on GitHub Pages:
 

@@ -14,9 +14,11 @@ Most steps read the page the Mink session holds. A few send HTTP requests of the
 
 - **Backend** - Drupal, Drush or Blackbox under `src/Backend`, reached with `backendFor()`. Nothing on this page touches them.
 - **Browser driver** - Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
-- **HTTP client** - 1 of the 3 clients below. None of them is a backend or a browser driver.
+- **HTTP client** - 1 of the 3 clients that [The 3 clients](#the-3-clients) lists. None of them is a backend or a browser driver.
 
 ## The 3 clients
+
+The following table compares the 3 clients:
 
 | Client | `WebRawContext` method | What it starts with | Its response | Used by |
 | --- | --- | --- | --- | --- |
@@ -42,7 +44,7 @@ $browser->request('GET', $engine_url);
 
 Picking one comes down to what the response is for:
 
-- If the next steps assert against it, use the page client. Only a BrowserKit session has one. Under Selenium or Chrome, `httpPageClient()` throws `UnsupportedDriverActionException`, because a real browser has no PHP client to lend out, and a REST step can't run there anyway.
+- If the next steps assert against it, use the page client. Only a BrowserKit session has one. Under Selenium2 or Chrome, `httpPageClient()` throws `UnsupportedDriverActionException`, because a real browser has no PHP client to lend out, and a REST step can't run there anyway.
 - If the request is the visitor's own but its response isn't the page, such as a file behind a login or another page to compare against, use the detached client.
 - If the request isn't the visitor's at all, such as a script from a CDN or a third-party service, use the bare client.
 
@@ -52,7 +54,7 @@ Picking one comes down to what the response is for:
 
 Connection settings come from 1 place, and per-trait settings from another:
 
-```
+```text
  Mink: sessions.<name>.browserkit_http          behat_steps: steps
        http_client_parameters                     file_download.timeout
                │                                  accessibility.fetch_timeout
@@ -76,7 +78,7 @@ Connection settings come from 1 place, and per-trait settings from another:
 
 Connection settings are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. Because it builds the session exactly as Mink does, the page client applies the options to every host. The factory also records the options, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
 
-To a project this looks like stock Mink: it registers only Mink's own extension and `BehatStepsExtension`, and never sees the factory.
+To a project this looks like stock Mink: it registers only Mink's own extension and `BehatStepsExtension`, and never configures the factory.
 
 Per-trait settings stay in the per-trait options under `behat_steps: steps`, applied to each request a step makes:
 
@@ -90,13 +92,15 @@ Both timeouts are idle timeouts: a slow download that keeps receiving data never
 
 ### The rules the clients follow
 
+The 3 clients apply the connection settings by the following rules:
+
 - The page client applies the settings to every host, as stock Mink does. It's Mink's own client, so a redirect to a single sign-on provider on another domain, or a visit to another domain of a multi-domain site, gets the same `verify_peer`, `proxy` and `headers` as the site.
 - The detached and bare clients apply them to the site only. The options reach a request whose scheme, host and port match `base_url`. Credentials in the URL and the letter case of the host don't matter. A request to any other host gets Symfony's defaults plus the step's own options, such as its timeout, so `verify_peer: false` for a staging site never relaxes certificate checks on a CDN, and a header meant for the site never reaches a third party.
 - A proxy that every host needs belongs in the environment. Symfony reads `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY` for any request that carries no `proxy` option, so a suite that reaches the internet only through a proxy sets those, and the accessibility engine's fetch from the CDN goes through it too.
 - A step's own options win over the site's. A download from the site waits `file_download.timeout` for data even when the session declares a `timeout` of its own.
 - A `base_url` without a host applies the options to every request, and the detached client sends no step headers or credentials.
-- A suite without a `browserkit_http` session sends every request with Symfony's defaults and the step's own options.
-- Every `browserkit_http` session has to declare the same options. Mink lets a suite declare any number of named sessions, and more than 1 can use the `browserkit_http` browser driver. The detached and bare clients send with 1 set of options, so the sessions can't carry different ones, and Behat stops at startup rather than pick 1 set silently. Key order doesn't count as a difference. This suite fails:
+- A profile without a `browserkit_http` session sends every request with Symfony's defaults and the step's own options.
+- Every `browserkit_http` session has to declare the same options. Mink lets a profile declare any number of named sessions, and more than 1 can use the `browserkit_http` browser driver. The detached and bare clients send with 1 set of options, so the sessions can't carry different ones, and Behat stops at startup rather than pick 1 set silently. Key order doesn't count as a difference. This configuration fails:
 
   ```php
   'sessions' => [
@@ -110,7 +114,7 @@ Both timeouts are idle timeouts: a slow download that keeps receiving data never
   ],
   ```
 
-  ```
+  ```text
   The 2 "browserkit_http" sessions declare different "http_client_parameters". Behat Steps sends its own requests with 1 set of connection options, so give every "browserkit_http" session the same options.
   ```
 
@@ -118,17 +122,17 @@ Both timeouts are idle timeouts: a slow download that keeps receiving data never
 
 The detached client acts as the scenario's visitor, so it carries whatever makes the site recognize that visitor:
 
-- The session's cookies, read through the browser driver's cookie capability, so they come across under BrowserKit, Selenium and Chrome alike. Before the scenario opens a page there are none.
+- The session's cookies, read through the browser driver's cookie capability, so they come across under BrowserKit, Selenium2 and Chrome alike. Before the scenario opens a page there are none.
 - The headers the steps set: the ones from `the REST header :name has the value :value`, the `X-Config-No-Override` header `ConfigOverrideTrait` sets, and the header the credentials step records.
 - Basic-auth credentials, from the `base_url` userinfo (`https://user:pass@staging.example.com`) or from `I am using basic authentication with the username :username and the password :password`. That step hands the credentials to the browser driver, which has no way to give them back, so it also records them as an `Authorization` header for the detached client. An `Authorization` header a step set takes precedence over the credentials.
 
 None of it leaks off the site: headers and credentials go to the site's own host only, and cookies go only to the host they were read from and its subdomains. A download link or an hreflang alternate on another domain gets the request with none of the scenario's identity. The cost is that a multi-domain site whose other domains sit behind the same basic auth still returns 401 there.
 
-## JavaScript scenarios: the sidecar client
+## JavaScript scenarios: requests from PHP
 
 In a `@javascript` scenario, 2 things talk to the site:
 
-```
+```text
 @javascript scenario
   visits, clicks, AJAX ──► browser ──────────► site
                            set by the browser's capabilities
@@ -139,7 +143,7 @@ In a `@javascript` scenario, 2 things talk to the site:
 
 The browser makes the page's requests, and its capabilities or flags configure them. Some steps still send requests from PHP while the scenario runs, because doing them in the browser would either put the result out of PHP's reach or navigate away from the page. `FileDownloadTrait` is the clearest case: it reads the browser's cookies and downloads the file itself.
 
-Those PHP requests take their settings from `http_client_parameters`, which only a `browserkit_http` session holds. So a JavaScript-only suite testing a site with a self-signed certificate needs 2 settings: `acceptInsecureCerts` in the browser's capabilities so the browser accepts the certificate, and `verify_peer: false` so PHP does. The second one has nowhere to live unless the suite declares a `browserkit_http` session, even one no scenario ever browses with. Mink builds every session it's given, and building the session hands the options over:
+Those PHP requests take their settings from `http_client_parameters`, which only a `browserkit_http` session holds. So a JavaScript-only suite testing a site with a self-signed certificate needs 2 settings: `acceptInsecureCerts` in the browser's capabilities so the browser accepts the certificate, and `verify_peer: false` so PHP does. The second one has nowhere to live unless the profile declares a `browserkit_http` session, even one no scenario ever browses with. Mink builds every session it's given, and building the session hands the options over:
 
 ```php
 ->withExtension(new Extension(MinkExtension::class, [
@@ -162,15 +166,15 @@ The Selenium2 browser driver doesn't need that session; the requests that steps 
 
 ## Where content lives
 
-A step never has to guess which content it reads, because each kind lives in its own place:
+Each kind of content lives in its own place, so no step reads one kind in place of another:
 
 - The page lives in the Mink session: the browser's DOM under JavaScript, the last response under BrowserKit. Page visits and the page client replace it, and page assertions read it.
 - The downloaded file lives in `FileDownloadTrait`'s own state. Only the next download replaces it, and only the `the downloaded file ...` steps read it. A download never writes to the session.
-- Transient fetches (the hreflang alternates and the accessibility engine) live only inside the step that fetches them, and are thrown away when it ends.
+- The hreflang alternates live only inside the step that fetches them, and are thrown away when it ends. The accessibility engine is fetched once per process and stays in `AccessibilityTrait`'s own cache for the rest of the run.
 
 So a scenario can mix page steps and download steps freely:
 
-```
+```text
 When I visit "/reports"                       writes the page (browser DOM)
 And I download the file from the link "CSV"   writes the downloaded file
 Then the downloaded file should contain:      reads the downloaded file
@@ -183,7 +187,7 @@ After a download, `Then the response status code should be 200` still reads the 
 
 The page client is a browser capability, and the other 2 come from a factory:
 
-```
+```text
 WebRawContext
   │
   ├─ httpPageClient()
@@ -203,6 +207,8 @@ WebRawContext
 - Whether a page client exists depends on the browser driver, so `httpPageClient()` resolves `HttpClientCapabilityInterface` through `browserDriverFor()`, like any other capability. The BrowserKit adapter provides it; the Selenium2 and Chrome adapters don't.
 - The detached and bare clients exist under every browser driver, so there's nothing to resolve for each one. `HttpClientFactoryInterface` builds them, and the context initializer injects the `behat_steps.http_client_factory` service into `WebRawContext`, the same way it injects the option resolver factory. The scenario's identity reaches the factory as an `HttpIdentity` value object: the cookies, the URL they were read from, the headers and the credentials.
 
+The factory implements `HttpClientFactoryInterface`:
+
 ```php
 interface HttpClientFactoryInterface {
 
@@ -218,13 +224,15 @@ interface HttpClientFactoryInterface {
 }
 ```
 
-Traits never see the factory: they call 1 of the 3 methods, so the choice is visible where it's made. A context Behat hasn't initialized, such as one built by hand in a unit test, builds a standalone factory on first use, which applies no connection options.
+Traits never reference the factory: they call 1 of the 3 methods, so the choice is visible where it's made. A context Behat hasn't initialized, such as one built by hand in a unit test, builds a standalone factory on first use, which applies no connection options.
 
-## Changing it
+## Change how the clients send requests
 
-The sections below go from the lightest change to the heaviest.
+The following sections go from the lightest change to the heaviest.
 
 ### Configuration: a staging site with a self-signed certificate behind Docker's DNS
+
+The following Mink configuration skips the certificate checks and resolves the staging hostname to the container's address:
 
 ```php
 ->withExtension(new Extension(MinkExtension::class, [
@@ -268,8 +276,13 @@ A server that takes longer than 120 seconds to start sending an export fails the
 ]))
 ```
 
-To change it for 1 context only, pass it through that context's `config` argument, like every other [trait option](configuration.md#context-constructor-arguments).
+To change it for 1 context only, pass it through that context's `config` argument, like every other trait option, as [Context constructor arguments](configuration.md#context-constructor-arguments) shows.
 
 ### Changes in code
 
-[A context that retries a flaky server](../extending/steps.md#a-context-override-a-flaky-staging-server) and [a step of your own that sends a request](../extending/steps.md#a-step-that-sends-its-own-request) are in Extending the step vocabulary, and [replacing the client factory for every context at once](../extending/extension.md#the-http-client-factory-and-browser-adapters) is in Extending the extension layer.
+See [A context that retries a flaky server](../extending/steps.md#a-context-override-a-flaky-staging-server) and [a step of your own that sends a request](../extending/steps.md#a-step-that-sends-its-own-request) for a single context, and [replacing the client factory](../extending/extension.md#the-http-client-factory-and-browser-adapters) for every context at once.
+
+## Where to next
+
+- [Configuration](configuration.md#trait-options) covers how a trait option resolves through its 5 layers, from the declaration default to a scenario tag.
+- [Usage](usage.md#configure-a-trait) covers setting a trait option for a whole profile, for 1 context or for a single scenario.

@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://behat-steps.drevops.com" rel="noopener"><img width=200px height=200px src="logo.png" alt="Behat Steps logo"></a>
+  <a href="https://behat-steps.drevops.com" rel="noopener"><img width=200px height=200px src="logo.png" alt="Behat Steps documentation"></a>
 </p>
 
 <h1 align="center">Behat Steps</h1>
@@ -31,8 +31,8 @@ Behat Steps is a collection of reusable testing actions and assertions for autom
 
 ## Features
 
-- [Web](https://behat-steps.drevops.com/web-steps) and [Drupal](https://behat-steps.drevops.com/drupal-steps) steps for pages, forms, APIs, email, caches, content and more, with an example for each.
-- [Web](https://behat-steps.drevops.com/web-helpers) and [Drupal](https://behat-steps.drevops.com/drupal-helpers) helpers behind every step, for the domain steps you write yourself.
+- [Web steps](https://behat-steps.drevops.com/web-steps) and [Drupal steps](https://behat-steps.drevops.com/drupal-steps) for pages, forms, APIs, email, caches, content and more, with an example for each.
+- [Web helpers](https://behat-steps.drevops.com/web-helpers) and [Drupal helpers](https://behat-steps.drevops.com/drupal-helpers) behind every step, for the domain steps you write yourself.
 - [Backends](https://behat-steps.drevops.com/guides/configuration#backend-resolution) picked by capability, so a step runs in-process or through Drush.
 - Support for Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5.
 - BrowserKit, Selenium and Chrome DevTools [browser drivers](https://behat-steps.drevops.com/installation#javascript-browser-drivers).
@@ -41,26 +41,26 @@ Behat Steps is a collection of reusable testing actions and assertions for autom
 
 ## Installation
 
+Add the package to your project's development dependencies:
+
 ```bash
 composer require --dev drevops/behat-steps:^4
 ```
 
 Composer installs Behat, Mink and the rest of what the steps run on along with it. A few steps need a package of their own, which Behat Steps suggests rather than requires:
 
-<!-- cspell:ignore dmore justinrainbow lullabot softcreatr -->
-
 - `softcreatr/jsonpath` and `justinrainbow/json-schema` for the JSON path and JSON schema steps.
 - `lullabot/mink-selenium2-driver` or `dmore/behat-chrome-extension` for `@javascript` scenarios, which drive a real browser.
 
 [Installation](https://behat-steps.drevops.com/installation) covers the optional dependencies and the JavaScript browser drivers, and the [Quick start](https://behat-steps.drevops.com/quick-start) takes you to a first scenario.
 
-## Migrating from 3.x
+## Migrate from 3.x
 
-[MIGRATION.md](MIGRATION.md) takes a project from 3.14 to 4.0, and an AI coding agent can apply it for you. [Migrating from 3.x](https://behat-steps.drevops.com/migrating) shows how.
+[MIGRATION.md](MIGRATION.md) takes a project from 3.14 to 4.0, and an AI coding agent can apply it for you. To migrate by hand or with an agent, see [Migrate from 3.x](https://behat-steps.drevops.com/migrating).
 
-## Writing tests with AI assistants
+## Write tests with an AI coding agent
 
-The step and helper references ship with the package as [STEPS.md](STEPS.md) and [HELPERS.md](HELPERS.md), so a coding agent in your project reads them from `vendor/drevops/behat-steps/`. [Writing tests with AI assistants](https://behat-steps.drevops.com/guides/ai-assistants) has a snippet for your `CLAUDE.md` or `AGENTS.md`.
+The step and helper references ship with the package as [STEPS.md](STEPS.md) and [HELPERS.md](HELPERS.md), so a coding agent in your project reads them from `vendor/drevops/behat-steps/`. For a snippet to add to your `CLAUDE.md` or `AGENTS.md`, see [Write tests with an AI coding agent](https://behat-steps.drevops.com/guides/ai-assistants).
 
 ## Contributing
 

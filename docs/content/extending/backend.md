@@ -1,5 +1,5 @@
 ---
-title: Extending the backend layer
+title: Extend the backend layer
 sidebar_label: Backend layer
 sidebar_position: 3
 description: Add or replace the field handlers and creation aliases the Drupal backends use, name a Core of your own for the in-process backend, and register a backend of your own.
@@ -7,7 +7,7 @@ description: Add or replace the field handlers and creation aliases the Drupal b
 
 <!-- cspell:ignore autoloadable -->
 
-# Extending the backend layer
+# Extend the backend layer
 
 The backend layer is `src/Backend`, the part that talks to the site. You extend it with classes of your own, which the `drupal` and `drush` backends take through options under the `behat_steps` key. A field handler covers a field type the package ships no handler for, or replaces a shipped one. A creation alias lets your scenarios fill in a column the way a person would, and a Core of your own serves a site whose modules change what an operation has to do. When none of the shipped backends reaches the site the way your suite needs, a backend of your own can, registered from a Behat extension of yours.
 
@@ -67,7 +67,7 @@ The option registers each class through `FieldHandlerCapabilityInterface`, which
 $this->backendFor(FieldHandlerCapabilityInterface::class)->registerFieldHandler('rating', RatingHandler::class);
 ```
 
-The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename 1 of them.
+Semantic versioning covers the option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface`. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename 1 of them.
 
 ## Creation aliases
 
@@ -95,7 +95,7 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-An alias implements `PreCreateAliasInterface`, which changes the stub's values before the entity is saved, or `PostCreateAliasInterface`, which acts on the entity after it's saved. It runs only when the step gives its column. `getName()` returns the column, `getEntityType()` the entity type it applies to, and `getDescription()` a sentence for anyone listing a backend's aliases through `CreationAliasCapabilityInterface::getCreationAliases()`. A pre-create alias removes its own column once it has resolved it, so Drupal's entity storage sees fields only:
+An alias implements `PreCreateAliasInterface`, which changes the stub's values before the entity is saved, or `PostCreateAliasInterface`, which acts on the entity after it's saved. It runs only when the step gives its column. `getName()` returns the column, `getEntityType()` the entity type it applies to, and `getDescription()` a sentence for anyone listing a backend's aliases through `CreationAliasCapabilityInterface::getCreationAliases()`. A pre-create alias removes its own column after it resolves it, so Drupal's entity storage receives only fields:
 
 ```php
 namespace Acme\Behat\Alias;
@@ -149,7 +149,7 @@ Given the following article content exists:
 
 The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable through Composer, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
 
-The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. A context of your own builds an alias whose constructor takes arguments, such as a lookup service, and registers it the same way. The registration lasts for the rest of the run, because the backend does:
+The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. A context of your own builds an alias whose constructor takes arguments, such as a version of `OrganizationAlias` that takes a lookup service, and registers it the same way. The registration lasts for the rest of the run, because the backend does:
 
 ```php
 $this->backendFor(CreationAliasCapabilityInterface::class)->registerCreationAlias(new OrganizationAlias($lookup));
@@ -162,11 +162,11 @@ Where an alias runs depends on the backend:
 - `drupal` runs an alias whenever a step creates an entity of its type: a node, a term, a user, a file, block content, or an entity the media, paragraph, menu link, ECK and `the following :entity_type entities exist:` steps create. Its field parser leaves the alias's column as written, while any other column that isn't a field fails the step with `The field "..." does not exist on entity type "...".` A `Core` of your own that doesn't implement `CreationAliasCapabilityInterface` keeps no aliases, so registering an alias on the `drupal` backend fails with an `UnsupportedBackendActionException`.
 - `drush` creates only users, so it runs only the aliases for `user`. A pre-create alias runs before `drush user:create`, which takes only the name, the password and the email. A post-create alias runs after it, with an object carrying only the new user's `uid` in place of the entity. Drupal isn't loaded in the Behat process there, so an alias that reaches the site takes the backend in its constructor, the way the shipped `roles` alias takes `UserCapabilityInterface`, and is registered from a context.
 
-The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` are covered by semantic versioning. The shipped aliases are final, so an alias of your own implements an interface rather than extending 1 of them.
+Semantic versioning covers the options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface`. The shipped aliases are final, so an alias of your own implements an interface rather than extending 1 of them.
 
 ## Core
 
-The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. The base `Core` serves every supported Drupal major that has no version core of its own. A major that changes something the base relies on gets a version core of its own, such as `DrevOps\BehatSteps\Backend\Drupal\Core13\Core`. The backend builds the newest version core at or below the major it detects, or the base `Core` when none applies.
+The `drupal` backend works through a Core, the class that creates entities, clears caches, collects mail and runs every other in-process operation through Drupal's API. A Drupal major that changes something the base `Core` relies on gets a version core of its own, `DrevOps\BehatSteps\Backend\Drupal\Core<N>\Core`, where `<N>` is the major. The backend builds the newest version core at or below the major it detects, or the base `Core` when there's none.
 
 `drupal.core` names a class of your own instead, for a site whose modules change what an operation has to do:
 
@@ -202,17 +202,24 @@ When a class builds on a Core of the package, the nearest one among its parents 
 
 Naming a Core of the package itself, such as the base `Core` on a major with a version core, fails the same way with `Core class "..." is not the Core for Drupal N. Use "..." instead.` A suite running on 2 majors whose Cores differ picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
 
-The option is covered by semantic versioning. `CoreInterface` and the Core classes aren't: a minor release can add a method to the interface or rename a protected method `AcmeCore` overrides. A new interface method breaks a class built from scratch, but not one extending a Core of the package. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
+Semantic versioning covers the option, but not `CoreInterface` or the Core classes: a minor release can add a method to the interface or rename a protected method `AcmeCore` overrides. A new interface method breaks a class built from scratch, but not one extending a Core of the package. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
 
 ## A backend of your own
 
-A backend of your own reaches the site in a way none of the shipped ones does, such as over the site's own API. A step names the capability it needs and never a backend, so a shipped step runs on your backend once it implements that capability and comes first among the backends in the scenario's order that do. [Backend resolution](../guides/configuration.md#backend-resolution) describes that order.
+A backend of your own reaches the site in a way none of the shipped ones does, such as over the site's own API. A step names the capability it needs and never a backend, so a shipped step runs on your backend when it implements that capability and comes first among the backends in the scenario's order that do. [Backend resolution](../guides/configuration.md#backend-resolution) describes that order.
+
+Adding a backend takes 4 steps, and the rest of this section covers each one:
+
+1. Write a class that implements `BackendInterface` and every capability interface your backend serves in full.
+2. Define its service in the `load()` method of a Behat extension of your own, tagged `behat_steps.backend` with the name the backend answers to as the `alias`.
+3. Register that extension on the profile beside `BehatStepsExtension`.
+4. Name the backend in the `backends` list under `behat_steps`.
 
 Every backend implements `BackendInterface`, which declares 3 methods. `getRandom()` returns the `RandomGeneratorInterface` that a context's `getRandom()` hands out when your backend comes first in the order. `bootstrap()` bootstraps the backend, and `isBootstrapped()` reports whether that has happened. The registry calls `bootstrap()` the first time a scenario resolves the backend, unless `isBootstrapped()` already returns `TRUE`, and it bootstraps only the backend it resolves.
 
 Everything else a backend does sits on a capability interface, named `<Name>CapabilityInterface`. The 11 that any backend may provide sit in `DrevOps\BehatSteps\Backend\Capability`: `Authentication`, `Cache`, `Content`, `CreationAlias`, `Cron`, `EntityLookup`, `Language`, `Mail`, `RequestEnvironment`, `Role` and `User`. The 24 that need a Drupal site behind the backend sit in `DrevOps\BehatSteps\Backend\Drupal\Capability`: `Batch`, `Block`, `Config`, `ConfigEntity`, `Core`, `Draggableviews`, `Drush`, `EntityDefinition`, `FieldHandler`, `File`, `Log`, `MenuLink`, `Module`, `Node`, `PathAlias`, `Queue`, `QueueItem`, `Redirect`, `SearchApi`, `SearchIndex`, `State`, `Term`, `UserActivity` and `Workflow`. No step resolves `CoreCapabilityInterface`, which hands out the in-process backend's Core.
 
-A step that resolves a capability can call any of its methods, so declare a capability only when your backend serves all of it, as the shipped backends do. A create returns the stub it was given, and a delete does nothing when its target doesn't exist, so teardown deletes whatever a scenario created without checking first. [What a trait needs from the backend](../../../CONTRIBUTING.md#what-a-trait-needs-from-the-backend) covers the rest of that contract, a backend outside the test process included.
+A step that resolves a capability can call any of its methods, so declare a capability only when your backend serves all of it, as the shipped backends do. A create returns the stub it was given, or one it builds when it takes none, as `createRole()` does. A delete does nothing when its target doesn't exist, so teardown deletes whatever a scenario created without checking first. [What a trait needs from the backend](../../../CONTRIBUTING.md#what-a-trait-needs-from-the-backend) covers the rest of that contract, a backend outside the test process included.
 
 `BlackboxBackend` shows the minimum: it returns the shipped `RandomGenerator`, has nothing to bootstrap and reports itself bootstrapped. It implements `BackendInterface` through `BlackboxBackendInterface`, which promises no capability at all, so a backend with capabilities implements `BackendInterface` itself instead of extending `BlackboxBackend`. A backend can extend `DrupalBackend` or `DrushBackend`, but a subclass relies on protected methods that a minor release can rename or stop calling.
 
@@ -265,7 +272,7 @@ public function load(ContainerBuilder $container, array $config): void {
 }
 ```
 
-Behat Steps collects the tagged services in its own `process()` and registers each one on the backend registry under its alias, lowercased. Behat calls every `load()` before any `process()`, so a backend defined in `load()` is registered whichever order the profile lists the extensions in. A backend defined in a `process()` that runs after Behat Steps' own isn't registered. A services file that `load()` reads carries the same tag, as the shipped [`blackbox.yml`](../../../src/Extension/ServiceContainer/config/backends/blackbox.yml) does. [From a Behat extension of your own](extension.md#from-a-behat-extension-of-your-own) shows the extension class and how a profile registers it.
+Behat Steps collects the tagged services in its own `process()` and registers each one on the backend registry under its alias, lowercased. Behat calls every `load()` before any `process()`, so a backend defined in `load()` is registered whichever order the profile lists the extensions in. A backend defined in a `process()` that runs after Behat Steps' own isn't registered. A services file that `load()` reads carries the same tag, as the shipped [`blackbox.yml`](../../../src/Extension/ServiceContainer/config/backends/blackbox.yml) does. [Set up a Behat extension of your own](extension.md#set-up-a-behat-extension-of-your-own) shows the extension class and how a profile registers it.
 
 `BehatStepsExtension` builds its backend providers in its own constructor, so `BackendProviderInterface` can't add yours, and the `behat_steps` key has no place for your backend's settings. Your extension takes them under its own config key and passes them to the backend's constructor.
 
@@ -284,9 +291,9 @@ A bare entry names a backend by its alias, so that alias holds only letters, dig
 
 [Service container](../../../MIGRATION.md#service-container) maps the 3.x service names and the `drupal.driver` tag to their 4.0 names.
 
-Semantic versioning covers the `backends` option, and the `backendFor()` and `getBackend()` helpers that reach a backend. It doesn't cover the `behat_steps.backend` tag. Only 3 capability interfaces appear in a helper's signature: `UserCapabilityInterface`, `EntityDefinitionCapabilityInterface` and `DrushCapabilityInterface`. The rest sit on none of the 5 surfaces [Public API and versioning](../versioning.md) lists, so a minor release can add a method to 1 of them that your backend then has to implement.
+Semantic versioning covers the `backends` option, and the `backendFor()` and `getBackend()` helpers that reach a backend. It doesn't cover the `behat_steps.backend` tag. Only 3 capability interfaces appear in a helper's signature: `UserCapabilityInterface`, `EntityDefinitionCapabilityInterface` and `DrushCapabilityInterface`. `FieldHandlerCapabilityInterface` and `CreationAliasCapabilityInterface` sit on the configuration surface. The rest sit on none of the 5 surfaces [Public API and versioning](../versioning.md) lists, so a minor release can add a method to 1 of them that your backend then has to implement.
 
 ## Where to next
 
-- A step of your own that creates an entity goes through the same handlers and aliases, and [Extending the step vocabulary](steps.md#writing-a-step-of-your-own) covers writing one.
+- A step of your own that creates an entity goes through the same handlers and aliases, and [Write a step of your own](steps.md#write-a-step-of-your-own) covers writing one.
 - [Architecture](../architecture/README.md#class-inheritance) shows the backends, their capabilities and the Core in its class inheritance diagram.

@@ -4,23 +4,26 @@ sidebar_position: 2
 description: Install Behat Steps with Composer, add the packages only some steps need, and set up a JavaScript browser driver.
 ---
 
-<!-- cspell:ignore chromedp dmore justinrainbow lullabot softcreatr -->
+<!-- cspell:ignore chromedp -->
 
 # Installation
 
-Behat Steps is a Composer package. It needs PHP 8.3 or newer and Behat 3.33 or newer, and its Drupal steps need Drupal 11 or 12. [Supported versions](README.md#supported-versions) lists the full matrix.
+Behat Steps is a Composer package. To set it up, you install it, add the packages only some steps need and, for `@javascript` scenarios, set up a browser driver.
+
+## Before you begin
+
+- Your project runs PHP 8.3 or newer and Behat 3.33 or newer, plus Drupal 11 or 12 for the Drupal steps. [Supported versions](README.md#supported-versions) lists the full matrix.
+- Your project doesn't require `drupal/drupal-extension` or `drupal/drupal-driver`. This package replaces both and conflicts with them, so Composer won't install it while your project still requires either one. The [migration guide](../../MIGRATION.md#requirements) shows how to remove them.
 
 ## Install the package
+
+Add the package to your project's development dependencies:
 
 ```bash
 composer require --dev drevops/behat-steps:^4
 ```
 
-That's the only package you need to require. Behat, Mink with its BrowserKit driver and extension, and the Symfony components the steps use are all requirements of Behat Steps, so Composer installs them along with it. A few steps need 1 more package, which [Optional dependencies](#optional-dependencies) lists.
-
-## Coming from the Drupal Extension
-
-This package replaces `drupal/drupal-extension` and `drupal/drupal-driver` and conflicts with both, so Composer won't install it while your project still requires either one. The [migration guide](../../MIGRATION.md#requirements) shows how to remove them.
+That's the only package you need to require. Behat, Mink with its BrowserKit browser driver and its extension, and the Symfony components the steps use are all requirements of Behat Steps, so Composer installs them along with it. A few steps need 1 more package, which [Optional dependencies](#optional-dependencies) lists.
 
 ## Optional dependencies
 
@@ -41,9 +44,9 @@ composer require --dev softcreatr/jsonpath justinrainbow/json-schema
 
 ## JavaScript browser drivers
 
-Scenarios tagged `@javascript` use a real browser, and the steps that need one work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. This library's own CI tests against both. Another browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
+Scenarios tagged `@javascript` use a real browser. This library ships adapters for 3 browser drivers, and 2 of them drive a real browser: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, and the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. The third, BrowserKit, loads pages over HTTP without a browser. This library's own CI tests against both. Another browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
 
-To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension), which pulls in `dmore/chrome-mink-driver`, and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both.
+To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension), which pulls in `dmore/chrome-mink-driver`, and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both. Register the extension and add a `chrome` session, with `api_url` set to Chrome's DevTools endpoint, as the JavaScript session:
 
 ```php
 use Behat\Config\Extension;
@@ -63,8 +66,8 @@ $profile
 
 A profile holds 1 entry per extension, so if your profile already registers `MinkExtension`, merge these settings into that entry rather than adding a second one.
 
-Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell). For local visual debugging, you can override `api_url` at runtime via Behat's `BEHAT_PARAMS` environment variable, for instance to drive a headed Chrome on your host, as long as that browser can reach your site's `base_url`.
+Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell). For local visual debugging, such as driving a headed Chrome on your host, point `api_url` at that browser, as long as it can reach your site's `base_url`. Behat's `BEHAT_PARAMS` environment variable can't change a value that `behat.php` sets, because Behat loads the variable first and the file's value wins. To change `api_url` for 1 run, have `behat.php` read it from an environment variable with `getenv()`.
 
-## Next
+## Where to next
 
 [Quick start](quick-start.md) takes you from an empty `behat.php` to a first scenario.

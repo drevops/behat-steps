@@ -5,7 +5,7 @@ description: How to report a problem or send a change, where the rules for code 
 
 # Contributing
 
-Contributions are welcome, from a bug report to a new trait. Report a bug or suggest a change in the [issue queue](https://github.com/drevops/behat-steps/issues). Send changes as pull requests against `main`, or against `3.x` for a fix to the 3.x LTS release.
+Contributions are welcome, from a bug report to a new trait. Report a bug or suggest a change in the [issue queue](https://github.com/drevops/behat-steps/issues). Report a security vulnerability privately instead, as [SECURITY.md](../../../SECURITY.md) describes. Send changes as pull requests against `main`, or against `3.x` for a fix to the 3.x LTS release.
 
 ## Where the rules live
 
@@ -22,7 +22,7 @@ It also covers the [local environment](../../../CONTRIBUTING.md#local-environmen
 - `scripts/` - the fixture site provisioning, the coverage tools, the layer and trait linters, and the script that draws the architecture diagrams.
 - `.claude/skills/` - the AI agent skills kept in this repository: `migrate-behat-steps` for consuming projects, and `update-architecture-docs` for maintainers.
 
-## See also
+## Where to next
 
 - [Documentation](documentation.md) - how these docs are written, generated, checked and published.
 - [Architecture](../architecture/README.md) - how the layers fit together, in logical architecture, class inheritance and data flow diagrams.
