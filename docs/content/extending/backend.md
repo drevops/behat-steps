@@ -9,7 +9,9 @@ description: Add or replace the field handlers and creation aliases the Drupal b
 
 # Extending the backend layer
 
-The backend layer is `src/Backend`, the part that talks to the site. You extend it with classes of your own, which the `drupal` and `drush` backends take through options under the `behat_steps` key. A field handler covers a field type the package ships no handler for, or replaces a shipped one. A creation alias lets your scenarios fill in a column the way a person would, and a Core of your own serves a site whose modules change what an operation has to do. When none of the shipped backends reaches the site the way your suite needs, a backend of your own can, registered from a Behat extension of yours.
+The backend layer is `src/Backend`, the part that talks to the site. You extend it with classes of your own, which the `drupal` and `drush` backends take through options under the `behat_steps` key.
+
+A field handler covers a field type the package ships no handler for, or replaces a shipped one. A creation alias lets your scenarios fill in a column the way a person would, and a Core of your own serves a site whose modules change what an operation has to do. When none of the shipped backends reaches the site the way your suite needs, a backend of your own can, registered from a Behat extension of yours.
 
 [Configuration](../guides/configuration.md#2-the-behat_steps-extension-key) lists the 4 options, `drupal.field_handlers`, `drupal.creation_aliases`, `drush.creation_aliases` and `drupal.core`, with every other option of the extension.
 
@@ -265,7 +267,9 @@ public function load(ContainerBuilder $container, array $config): void {
 }
 ```
 
-Behat Steps collects the tagged services in its own `process()` and registers each one on the backend registry under its alias, lowercased. Behat calls every `load()` before any `process()`, so a backend defined in `load()` is registered whichever order the profile lists the extensions in. A backend defined in a `process()` that runs after Behat Steps' own isn't registered. A services file that `load()` reads carries the same tag, as the shipped [`blackbox.yml`](../../../src/Extension/ServiceContainer/config/backends/blackbox.yml) does. [From a Behat extension of your own](extension.md#from-a-behat-extension-of-your-own) shows the extension class and how a profile registers it.
+Behat Steps collects the tagged services in its own `process()` and registers each one on the backend registry under its alias, lowercased. Behat calls every `load()` before any `process()`, so a backend defined in `load()` is registered whichever order the profile lists the extensions in. A backend defined in a `process()` that runs after Behat Steps' own isn't registered.
+
+A services file that `load()` reads carries the same tag, as the shipped [`blackbox.yml`](../../../src/Extension/ServiceContainer/config/backends/blackbox.yml) does. [From a Behat extension of your own](extension.md#from-a-behat-extension-of-your-own) shows the extension class and how a profile registers it.
 
 `BehatStepsExtension` builds its backend providers in its own constructor, so `BackendProviderInterface` can't add yours, and the `behat_steps` key has no place for your backend's settings. Your extension takes them under its own config key and passes them to the backend's constructor.
 
@@ -284,7 +288,9 @@ A bare entry names a backend by its alias, so that alias holds only letters, dig
 
 [Service container](../../../MIGRATION.md#service-container) maps the 3.x service names and the `drupal.driver` tag to their 4.0 names.
 
-Semantic versioning covers the `backends` option, and the `backendFor()` and `getBackend()` helpers that reach a backend. It doesn't cover the `behat_steps.backend` tag. Only 3 capability interfaces appear in a helper's signature: `UserCapabilityInterface`, `EntityDefinitionCapabilityInterface` and `DrushCapabilityInterface`. 2 more are covered as the way a context registers a class of its own: `FieldHandlerCapabilityInterface` and `CreationAliasCapabilityInterface`. The rest sit on none of the 5 surfaces [Public API and versioning](../versioning.md) lists, so a minor release can add a method to 1 of them that your backend then has to implement.
+Semantic versioning covers the `backends` option, and the `backendFor()` and `getBackend()` helpers that reach a backend. It doesn't cover the `behat_steps.backend` tag.
+
+Only 3 capability interfaces appear in a helper's signature: `UserCapabilityInterface`, `EntityDefinitionCapabilityInterface` and `DrushCapabilityInterface`. 2 more are covered as the way a context registers a class of its own: `FieldHandlerCapabilityInterface` and `CreationAliasCapabilityInterface`. The rest sit on none of the 5 surfaces [Public API and versioning](../versioning.md) lists, so a minor release can add a method to 1 of them that your backend then has to implement.
 
 ## Where to next
 

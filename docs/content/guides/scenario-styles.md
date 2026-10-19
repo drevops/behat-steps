@@ -70,7 +70,9 @@ The critique assumes a context that mostly doesn't hold for CMS delivery work:
 
 ## 2 different jobs
 
-Specification and verification are separate jobs, and neither is a worse version of the other. Specification (BDD proper) uses domain language, faces stakeholders, and keeps its scenarios few and precious. Verification (functional regression) uses infrastructure language, faces developers, and wants its scenarios broad and cheap. Behat the tool supports both. Its tutorial teaches only the first, and a generic step library equips only the second. The only mistake is not knowing which job a given suite is doing.
+Specification and verification are separate jobs, and neither is a worse version of the other. Specification (BDD proper) uses domain language, faces stakeholders, and keeps its scenarios few and precious. Verification (functional regression) uses infrastructure language, faces developers, and wants its scenarios broad and cheap.
+
+Behat the tool supports both. Its tutorial teaches only the first, and a generic step library equips only the second. The only mistake is not knowing which job a given suite is doing.
 
 ## The vocabulary and the toolbox
 

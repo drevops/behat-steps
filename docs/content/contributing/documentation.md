@@ -83,7 +83,9 @@ Most of the page's words sit in lists at the top of `src/pages/index.js`, 1 per 
 
 ## Accessibility
 
-The site aims for [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA in both color modes. `npm run test:accessibility` runs [axe](https://github.com/dequelabs/axe-core) on every page of the build, in light and dark mode, at a desktop width and a phone width, against the WCAG A and AA rules. These scans run with reduced motion, so the home page shows every block at once, and a separate check scans the home page again after scrolling through it with motion on. It also opens the search dropdown and the mobile menu, switches the home page's feature file from the keyboard and copies its install command, and checks how they behave. Automated checks catch many problems but miss others, so the writing still needs care.
+The site aims for [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA in both color modes. `npm run test:accessibility` runs [axe](https://github.com/dequelabs/axe-core) on every page of the build, in light and dark mode, at a desktop width and a phone width, against the WCAG A and AA rules.
+
+These scans run with reduced motion, so the home page shows every block at once, and a separate check scans the home page again after scrolling through it with motion on. It also opens the search dropdown and the mobile menu, switches the home page's feature file from the keyboard and copies its install command, and checks how they behave. Automated checks catch many problems but miss others, so the writing still needs care.
 
 The site handles some of it for you:
 
