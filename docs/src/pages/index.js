@@ -367,7 +367,7 @@ const Home = () => {
 
         <section className={styles.section}>
           <div className={styles.wrap}>
-            <SectionHead eyebrow="What you get" title="Steps and helpers for the whole suite" lead="Every step has its own example in the reference, and every trait page lists the helpers behind its steps." />
+            <SectionHead eyebrow="What you get" title="Steps and helpers for the whole suite" lead="Every step comes with an example, and every helper with its signature and a summary, in references generated from the code." />
             <div className={styles.featureGrid} data-reveal="children">
               {features(counts).map((feature, index) => (
                 <Card key={feature.title} {...feature} index={index} />
