@@ -91,7 +91,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
           ->scalarNode('root')->info('Drupal root passed to Drush, for a site Drush cannot locate on its own.')->end()
           ->scalarNode('global_options')->info('Options appended to every Drush command, such as "--uri=http://example.com".')->end()
           ->arrayNode('creation_aliases')
-            ->info('List of creation alias classes the backend registers after the ones it ships. The Drush backend creates only users, so it runs only the aliases for the "user" entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.' . PHP_EOL
+            ->info('List of creation alias classes the backend registers after the ones it ships. The Drush backend runs aliases only when it creates a user, so it runs only the aliases for the "user" entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.' . PHP_EOL
               . '  - Acme\Behat\Alias\DepartmentAlias' . PHP_EOL)
             ->prototype('scalar')->cannotBeEmpty()->end()
           ->end()

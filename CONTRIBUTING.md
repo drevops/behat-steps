@@ -480,7 +480,7 @@ A capability sits at the root of `src/Backend` when any backend may provide it, 
 | `ConfigEntity` | in-process | No command creates, changes or copies a config entity through its storage |
 | `Content` | in-process | Creating or updating an entity expands its values through the field handlers of the process that saves it |
 | `Core` | in-process | Hands out the in-process core |
-| `CreationAlias` | yes | Each backend class keeps its own aliases; the Drush backend creates only users, so it runs only theirs |
+| `CreationAlias` | yes | Each backend class keeps its own aliases; the Drush backend runs them only when it creates a user, so it runs only theirs |
 | `Cron` | yes | `core:cron` |
 | `Draggableviews` | in-process | No command writes a display's order |
 | `Drush` | yes | The Drush backend's own capability |

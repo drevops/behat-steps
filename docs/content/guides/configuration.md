@@ -207,7 +207,7 @@ A nested option is a section in the configuration and a dotted path in the table
 | `drush.binary` | string | `'vendor/bin/drush'` | Path to the Drush binary. |
 | `drush.root` | string | - | Drupal root passed to Drush, for a site Drush cannot locate on its own. |
 | `drush.global_options` | string | - | Options appended to every Drush command, such as `--uri=http://example.com`. |
-| `drush.creation_aliases` | map | `[]` | List of creation alias classes the backend registers after the ones it ships. The Drush backend creates only users, so it runs only the aliases for the `user` entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.<pre><code>- Acme\Behat\Alias\DepartmentAlias<br/></code></pre> |
+| `drush.creation_aliases` | map | `[]` | List of creation alias classes the backend registers after the ones it ships. The Drush backend runs aliases only when it creates a user, so it runs only the aliases for the `user` entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.<pre><code>- Acme\Behat\Alias\DepartmentAlias<br/></code></pre> |
 
 [//]: # (END_EXTENSION_OPTIONS)
 

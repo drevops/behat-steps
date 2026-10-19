@@ -128,7 +128,7 @@ class FeatureContext extends DrupalContext {
 }
 ```
 
-That covers downloads, the hreflang check and the engine fetch for every trait in that context. `RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit only for an idempotent method such as `GET`, but it retries a 429 or 503 response whatever the method, so a `POST` a step sends can reach the server twice. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` that limits 429 and 503 to `GenericRetryStrategy::IDEMPOTENT_METHODS`. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
+That covers downloads, the hreflang check and the engine fetch for every trait in that context. `RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit, or a 500, 504, 507 or 510 response, only for an idempotent method such as `GET`. It retries a 423, 425, 429, 502 or 503 response whatever the method, so a `POST` a step sends can reach the server up to 4 times. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` whose status codes limit those 5 to `GenericRetryStrategy::IDEMPOTENT_METHODS`. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
 
 ## Declare options for a trait of your own
 
