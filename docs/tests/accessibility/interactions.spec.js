@@ -125,7 +125,7 @@ test.describe('home page', () => {
   test('shows every block in print, scrolled into view or not', async ({ page }) => {
     await open(page, '/', 'light');
 
-    const waiting = page.locator('[data-revealed="false"], [data-revealed="false"] > *');
+    const waiting = page.locator('[data-reveal=""][data-revealed="false"], [data-reveal="children"][data-revealed="false"] > *');
 
     await expect(waiting.first()).toBeAttached();
     await page.emulateMedia({ media: 'print' });
