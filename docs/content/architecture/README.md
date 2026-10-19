@@ -13,13 +13,13 @@ Looking for a reference instead? [Web steps](../web-steps/README.md) and [Drupal
 The library is 3 layers with 3 contexts on top, and every dependency points down:
 
 - **Contexts.** `WebRawContext` registers no steps: it hands the traits their backends, browser capabilities, HTTP clients and options. `WebContext` adds the 28 web step traits, and `DrupalContext` adds the 29 Drupal ones. A project registers 1 of them, or a context of its own that extends 1.
-- **Step vocabulary**, `src/Steps`. The step traits under `Steps\Web` and `Steps\Drupal`, and the 13 helper traits under `Steps\Helper`, which register no steps. A step body is a thin wrapper over those helpers.
-- **Extension layer**, `src/Extension`. `BehatStepsExtension` wires the library into Behat: the listeners and registries that set up each scenario, option resolution and prerequisites, the authenticators, the browser capability adapters, the HTTP clients and the creation hooks.
+- **Step vocabulary**, `src/Steps`. The step traits under `Steps\Web` and `Steps\Drupal`, and the 13 helper traits under `Steps\Helper`, which register no steps. A step body is a thin wrapper over named helpers, declared in the step trait itself or in a helper trait it composes.
+- **Extension layer**, `src/Extension`. `BehatStepsExtension` wires the library into Behat: the listeners and registries that set up each scenario, option resolution, the authenticators, the HTTP clients and the creation hooks. The layer also holds the prerequisite declarations with their reader, and the browser capability adapters with their resolver, which `WebRawContext` builds itself.
 - **Backend layer**, `src/Backend`. A backend talks to the site and knows nothing about Behat. `BackendInterface` declares only bootstrapping and a random value generator, and everything else a backend can do is a capability interface. `DrupalBackend` runs Drupal in the same PHP process and provides 34 of the 35 capabilities, `DrushBackend` runs `drush` and provides 14, and `BlackboxBackend` provides none, for a site the suite can only browse.
 
 A step never names a backend. It asks for a capability, and `BackendRegistry` answers with the first backend in the scenario's order that provides it. That's why the same steps run in-process, over Drush, or on a backend of a project's own.
 
-`scripts/lint-layers.php` keeps the arrows pointing down: `src/Backend` references no Behat, Mink, extension or step code, and `src/Extension` no step code. [Layers](../../../CONTRIBUTING.md#layers) lists every rule.
+`scripts/lint-layers.php` keeps the arrows pointing down: `src/Backend` references no Behat, Mink, extension or step code, and `src/Extension` no step code. [Layers](../../../CONTRIBUTING.md#layers) explains the boundaries, and [Sending a request from a trait](../../../CONTRIBUTING.md#sending-a-request-from-a-trait) lists every rule the script checks.
 
 Beside the library sits the tooling that ships with the repository but not with the package. `docs.php` reflects `WebContext` and `DrupalContext` to write the step and helper references, `docs/` builds this site, `scripts/provision.php` builds the fixture Drupal site, and `tests/` runs the unit, kernel and Behat suites against it.
 
@@ -37,7 +37,7 @@ The diagram holds 7 inheritance trees, 1 per panel:
 - **Entity creation hooks.** Each hook attribute, such as `#[BeforeEntityCreate]`, names a call class built on `EntityHook`, and the hook's scope carries the stub of the entity being created.
 - **Exceptions.** What a failing step throws is part of the public contract, and [Exception types](../../../CONTRIBUTING.md#exception-types) says which one when.
 
-The services the extension builds each have 1 implementation of their interface, and [Extending the extension layer](../extending/extension.md) shows how to put a class of your own in place of one:
+Each of these interfaces has 1 implementation in the package. [Extending the extension layer](../extending/extension.md) shows how to put a class of your own in place of the registries, the authenticators and the 2 factories:
 
 | Interface | Implementation |
 | --- | --- |
@@ -56,15 +56,18 @@ The services the extension builds each have 1 implementation of their interface,
 | `Backend\Drupal\Core\Field\FieldShapeClassifierInterface` | `FieldShapeClassifier` |
 | `Backend\Drupal\Core\Field\Parser\EntityFieldParserInterface` | `EntityFieldParser` |
 
-These classes are where the library plugs into Behat, Mink and Symfony:
+These types are where the library plugs into Behat, Mink and Symfony:
 
-| Class | Extends or implements |
+| Type | Extends or implements |
 | --- | --- |
 | `Extension\ServiceContainer\BehatStepsExtension` | `Behat\Testwork\ServiceContainer\Extension` |
 | `Extension\ServiceContainer\BackendPass` | `Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface` |
 | `Extension\ServiceContainer\Driver\BrowserKitFactory` | `Behat\MinkExtension\ServiceContainer\Driver\BrowserKitFactory`, which it replaces for `browserkit_http` sessions |
+| `Extension\Context\BackendAwareInterface`, `UserAwareInterface` | `Behat\Behat\Context\Context` |
 | `Extension\Context\Initializer\BackendAwareInitializer` | `Behat\Behat\Context\Initializer\ContextInitializer` |
 | `Extension\Context\Attribute\HookAttributeReader` | `Behat\Behat\Context\Attribute\AttributeReader` |
+| `Extension\Hook\Call\EntityHook` | `Behat\Testwork\Hook\Call\RuntimeHook` |
+| `Extension\Hook\Scope\EntityScopeInterface` | `Behat\Testwork\Hook\Scope\HookScope` |
 | `Extension\Listener\BackendListener`, `SkipTagListener` | `Symfony\Component\EventDispatcher\EventSubscriberInterface` |
 | `Extension\Selector\RegionSelector` | `Behat\Mink\Selector\SelectorInterface` |
 | `Extension\Generator\ClassGenerator` | `Behat\Behat\Context\ContextClass\ClassGenerator` |
@@ -76,8 +79,8 @@ These classes are where the library plugs into Behat, Mink and Symfony:
 
 Behat owns the loop, and the library runs at 4 points in it. The diagram numbers every step in the order it runs and colors it by the part of the system that runs it:
 
-1. **The suite starts.** Behat loads `BehatStepsExtension`, which registers the backends the configuration lists and wires the services. `WebContext::assertOneContext()` fails a suite that registers 2 of the shipped contexts, since both would register every web step.
-2. **A scenario starts.** Behat builds fresh contexts, and `BackendAwareInitializer` injects the extension's services into each. `SkipTagListener` rejects a `@behat-steps-skip:` tag that names no composed trait. `BackendListener` gives `BackendRegistry` the scenario's backend order: the configured `backends` list, with any backend a `@backend:` tag names moved to the front. Then each trait's `BeforeScenario` hook asks `skipTag()` whether the trait is switched off, and `assertPrerequisites()` fails the scenario when the site lacks what the trait needs.
+1. **The suite starts.** Behat loads `BehatStepsExtension`, which wires the services and registers the backends: `blackbox` always, `drupal` and `drush` when the configuration has a section for them, and any tagged backend of a project's own. `WebContext::assertOneContext()` fails a suite that registers 2 of the shipped contexts, since both would register every web step.
+2. **A scenario starts.** Behat builds fresh contexts, and `BackendAwareInitializer` injects the extension's services into each. `SkipTagListener` rejects a `@behat-steps-skip:` tag that names no composed trait. `BackendListener` gives `BackendRegistry` the scenario's backend order: the configured `backends` list, with any backend a `@backend:` tag names moved to the front. Then the traits' `BeforeScenario` hooks run. A hook with something to switch off asks `skipTag()` first, and a trait that needs something from the site before its first step, such as `WatchdogTrait`, calls `assertPrerequisites()`, which fails the scenario when the site lacks it. Most traits check their prerequisites in the steps that need them instead.
 3. **Each step runs.** Behat matches the Gherkin line to a `#[Given]`, `#[When]` or `#[Then]` attribute on a trait method and calls it on the context. The step reaches out 1 of 3 ways: it drives the page through the Mink session, it asks `backendFor()` for a capability to read or change the site, or it sends a request of its own through 1 of the 3 HTTP clients. It then asserts on what came back, and a failure throws.
 4. **The scenario ends.** `EntityLifecycleTrait` deletes what the scenario created, newest first, and `AuthTrait` deletes the scenario's users and then its roles, each through the capability that deletes that entity type.
 
