@@ -74,6 +74,8 @@ class UiContext extends WebRawContext {
 }
 ```
 
+Each step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created.
+
 When it adds steps of its own, build them on the helpers, as [Writing a step of your own](../extending/steps.md#writing-a-step-of-your-own) describes. [The rules that govern composition](../extending/steps.md#the-rules-that-govern-composition) cover what Behat does when a context re-composes a trait or overrides an inherited step or hook.
 
 ## Register it against the extension
