@@ -1,0 +1,131 @@
+/* Dark in both color modes, like a terminal. */
+.command {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid #2c333b;
+  border-radius: 12px;
+  background: var(--behat-steps-night);
+  box-shadow: var(--behat-steps-shadow);
+}
+
+/* A scrolling command would need its own tab stop, so a long command wraps
+   instead, with its continuation lines indented past the prompt. */
+.code {
+  flex: 1;
+  min-width: 0;
+  padding: 0.95rem 1.1rem 0.95rem calc(1.1rem + 2ch);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #e6edf3;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  text-indent: -2ch;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  vertical-align: baseline;
+}
+
+/* The line breaks around a part, and inside it only when the part alone is
+   wider than the line. */
+.segment {
+  display: inline-block;
+  max-width: 100%;
+  text-indent: 0;
+}
+
+.prompt,
+.operator {
+  color: #9aa5b1;
+}
+
+.prompt {
+  user-select: none;
+}
+
+.program {
+  color: var(--behat-steps-blue-on-dark);
+  font-weight: 600;
+}
+
+.flag {
+  color: var(--behat-steps-bar-yellow);
+}
+
+.button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 1.05rem;
+  border: 0;
+  border-left: 1px solid #2c333b;
+  background: #1e252d;
+  color: #c9d1d9;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.button:hover {
+  background: #262e37;
+  color: #ffffff;
+}
+
+.copied,
+.copied:hover {
+  color: var(--behat-steps-bar-green);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--behat-steps-blue-on-dark);
+  outline-offset: -5px;
+  border-radius: 10px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.compact {
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.compact .code {
+  padding: 0.65rem 0.8rem 0.65rem calc(0.8rem + 2ch);
+  font-size: 0.8rem;
+}
+
+.compact .button {
+  padding: 0 0.8rem;
+  border-left-color: transparent;
+  background: none;
+}
+
+/* On a phone, the button's label is read out but not shown, so the command
+   has more room. */
+@media (max-width: 560px) {
+  .code {
+    font-size: 0.86rem;
+  }
+
+  .button {
+    padding: 0 0.85rem;
+  }
+
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

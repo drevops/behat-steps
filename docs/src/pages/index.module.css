@@ -1,0 +1,1033 @@
+/* The home page takes its colors from the '--behat-steps-*' tokens of
+   'src/css/custom.css', and its accents from the 4 bars of the logo. */
+.home {
+  --gutter: clamp(18px, 4vw, 40px);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --stripes: linear-gradient(90deg, var(--behat-steps-bar-blue) 0 25%, var(--behat-steps-bar-green) 25% 50%, var(--behat-steps-bar-orange) 50% 75%, var(--behat-steps-bar-yellow) 75%);
+  --blue-ink: var(--ifm-color-primary);
+  --green-ink: #3a7d22;
+  --orange-ink: #b4501a;
+  --yellow-ink: #866300;
+
+  overflow-x: clip;
+  color: var(--behat-steps-text);
+  line-height: 1.65;
+}
+
+/* Each accent pairs a bar color for shapes with a shade for text and icons
+   that reaches 4.5:1 on the page and card backgrounds. */
+.blue {
+  --accent: var(--behat-steps-bar-blue);
+  --accent-ink: var(--blue-ink);
+}
+
+.green {
+  --accent: var(--behat-steps-bar-green);
+  --accent-ink: var(--green-ink);
+}
+
+.orange {
+  --accent: var(--behat-steps-bar-orange);
+  --accent-ink: var(--orange-ink);
+}
+
+.yellow {
+  --accent: var(--behat-steps-bar-yellow);
+  --accent-ink: var(--yellow-ink);
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-top: clamp(64px, 8vw, 112px);
+}
+
+/* Section heads */
+
+.sectionHead {
+  max-width: 760px;
+  margin-bottom: clamp(32px, 4.5vw, 52px);
+}
+
+.centered {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0 0 0.9rem;
+  color: var(--ifm-color-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  width: 28px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--stripes);
+  content: '';
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--behat-steps-ink);
+  font-size: clamp(1.75rem, 3.6vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.lead {
+  max-width: 62ch;
+  margin: 1rem 0 0;
+  color: var(--behat-steps-muted);
+  font-size: clamp(1rem, 1.4vw, 1.1rem);
+}
+
+.centered .lead {
+  margin-inline: auto;
+}
+
+/* Buttons */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.8rem 1.35rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  transition:
+    transform 150ms var(--ease),
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 3px;
+}
+
+.buttonIcon {
+  width: 18px;
+  height: 18px;
+}
+
+/* The primary button takes the dark of the logo's circle, and the link blue
+   on hover. */
+.primary,
+.primary:hover {
+  color: #ffffff;
+}
+
+.primary {
+  background: var(--behat-steps-night);
+}
+
+.primary:hover {
+  background: var(--ifm-color-primary);
+}
+
+.ghost {
+  border-color: var(--behat-steps-border-2);
+  background: var(--behat-steps-surface);
+  color: var(--behat-steps-ink);
+}
+
+.ghost:hover {
+  border-color: var(--behat-steps-ink);
+  color: var(--behat-steps-ink);
+}
+
+/* Icon tiles */
+
+.iconTile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent-ink);
+  transition: transform 220ms var(--ease);
+}
+
+.iconTile svg {
+  width: 24px;
+  height: 24px;
+}
+
+.iconTileSmall {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.iconTileSmall svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Hero */
+
+/* 'clip' cuts off the bars without making the hero a scroll container, so a
+   focus inside the feature file can't slide the hero sideways. 'hidden' is
+   the fallback for browsers without 'clip'. */
+.hero {
+  position: relative;
+  overflow: hidden;
+  overflow: clip;
+  padding: clamp(48px, 7vw, 92px) 0 clamp(52px, 7vw, 88px);
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(36px, 5vw, 64px);
+  align-items: center;
+}
+
+.heroText,
+.install {
+  position: relative;
+  z-index: 1;
+}
+
+/* The bars sit behind the feature file in its own stacking context. */
+.heroMedia {
+  position: relative;
+  z-index: 0;
+}
+
+.heroText {
+  animation: behat-steps-rise 700ms var(--ease) backwards;
+}
+
+.heroMedia {
+  animation: behat-steps-rise 700ms 120ms var(--ease) backwards;
+}
+
+.install {
+  margin-top: clamp(36px, 5vw, 60px);
+  animation: behat-steps-rise 700ms 240ms var(--ease) backwards;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.4rem;
+  padding: 0.35rem 0.9rem 0.35rem 0.7rem;
+  border: 1px solid var(--behat-steps-border-2);
+  border-radius: 999px;
+  background: var(--behat-steps-surface);
+  color: var(--behat-steps-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.badge::before {
+  flex: none;
+  width: 18px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--stripes);
+  content: '';
+}
+
+.heroTitle {
+  margin: 0 0 1.4rem;
+  color: var(--behat-steps-ink);
+  font-size: clamp(2.4rem, 5.2vw, 3.8rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+/* Each part of the title balances its own lines. */
+.titleLine {
+  display: block;
+}
+
+/* The logo's 4 colors underline the words, which keep the ink color. */
+.underline {
+  padding-bottom: 0.06em;
+  background: var(--stripes) no-repeat 0 100% / 100% 0.13em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.heroLead {
+  max-width: 54ch;
+  margin: 0 0 2rem;
+  color: var(--behat-steps-muted);
+  font-size: clamp(1.02rem, 1.5vw, 1.15rem);
+  line-height: 1.7;
+}
+
+.installLabel {
+  margin: 0 0 0.8rem;
+  color: var(--behat-steps-faint);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.installNote {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.85rem 0 0;
+  color: var(--behat-steps-faint);
+  font-size: 0.85rem;
+}
+
+.noteIcon {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: var(--green-ink);
+}
+
+/* The bars of the logo */
+
+.barsArt {
+  position: absolute;
+  pointer-events: none;
+}
+
+.barBlue {
+  fill: var(--behat-steps-bar-blue);
+}
+
+.barGreen {
+  fill: var(--behat-steps-bar-green);
+}
+
+.barOrange {
+  fill: var(--behat-steps-bar-orange);
+}
+
+.barYellow {
+  fill: var(--behat-steps-bar-yellow);
+}
+
+/* Each bar rises after the one before it. */
+.barsArt rect {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: behat-steps-grow 900ms var(--ease) backwards;
+}
+
+.barsArt .barGreen {
+  animation-delay: 90ms;
+}
+
+.barsArt .barOrange {
+  animation-delay: 180ms;
+}
+
+.barsArt .barYellow {
+  animation-delay: 270ms;
+}
+
+/* The tops of the bars rise above the feature file, like the logo's steps. */
+.heroBars {
+  top: -78px;
+  right: 28px;
+  z-index: -1;
+  width: 220px;
+  opacity: 0.38;
+}
+
+@media (max-width: 960px) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heroMedia {
+    max-width: 640px;
+  }
+
+  .heroBars {
+    top: -64px;
+    width: 180px;
+  }
+}
+
+/* Stats */
+
+.stats {
+  border-block: 1px solid var(--behat-steps-border);
+  background: var(--behat-steps-surface-2);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+/* The label comes first in the markup, as a term before its value, and shows
+   below it. Each cell's bar stands taller than the one before, like the bars
+   of the logo. */
+.stat {
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  padding: clamp(24px, 3.4vw, 38px) 1rem clamp(24px, 3.4vw, 38px) calc(1rem + 22px);
+  border-left: 1px solid var(--behat-steps-border);
+}
+
+.stat:first-child {
+  border-left: 0;
+}
+
+.stat::before {
+  position: absolute;
+  bottom: clamp(24px, 3.4vw, 38px);
+  left: 1rem;
+  width: 8px;
+  height: var(--bar-height);
+  border-radius: 4px;
+  background: var(--accent);
+  content: '';
+}
+
+.stat:nth-child(1) {
+  --bar-height: 34%;
+}
+
+.stat:nth-child(2) {
+  --bar-height: 46%;
+}
+
+.stat:nth-child(3) {
+  --bar-height: 58%;
+}
+
+.stat:nth-child(4) {
+  --bar-height: 70%;
+}
+
+.statValue {
+  margin: 0;
+  color: var(--behat-steps-ink);
+  font-size: clamp(1.8rem, 3.4vw, 2.5rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.statLabel {
+  color: var(--behat-steps-muted);
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+@media (max-width: 720px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stat:nth-child(3) {
+    border-left: 0;
+  }
+
+  .stat:nth-child(n + 3) {
+    border-top: 1px solid var(--behat-steps-border);
+  }
+}
+
+/* Works with */
+
+.worksWith {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 1rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--behat-steps-border);
+}
+
+.worksWithLabel {
+  margin: 0;
+  color: var(--behat-steps-faint);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--behat-steps-border-2);
+  border-radius: 999px;
+  background: var(--behat-steps-surface);
+  color: var(--behat-steps-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chip::before {
+  width: 4px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--accent);
+  content: '';
+}
+
+/* Cards */
+
+.featureGrid,
+.docsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.threeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 1080px) {
+  .featureGrid,
+  .docsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 880px) {
+  .threeGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .featureGrid,
+  .docsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card,
+.docCard,
+.flowNode,
+.step {
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--behat-steps-border);
+  border-radius: 16px;
+  background: var(--behat-steps-surface);
+  transition:
+    transform 220ms var(--ease),
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.card {
+  padding: 1.5rem 1.35rem;
+}
+
+/* A hovered card shows its accent as a bar along its top edge. */
+.card::before,
+.docCard::before {
+  position: absolute;
+  top: -1px;
+  left: 1.35rem;
+  width: 40px;
+  height: 4px;
+  border-radius: 0 0 4px 4px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 220ms ease;
+  content: '';
+}
+
+.card:hover,
+.docCard:hover {
+  border-color: var(--behat-steps-border-2);
+  box-shadow: var(--behat-steps-shadow);
+  transform: translateY(-4px);
+}
+
+.card:hover::before,
+.docCard:hover::before {
+  opacity: 1;
+}
+
+.card:hover .iconTile {
+  transform: translateY(-2px) rotate(-4deg);
+}
+
+.cardTitle {
+  margin: 1rem 0 0.5rem;
+  color: var(--behat-steps-ink);
+  font-size: 1.06rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.cardText {
+  margin: 0;
+  color: var(--behat-steps-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* The link covers its whole card, while its name stays the card title. */
+.stretchedLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.stretchedLink::after {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  content: '';
+}
+
+.stretchedLink:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.stretchedLink:focus-visible {
+  outline: none;
+}
+
+.stretchedLink:focus-visible::after {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 3px;
+}
+
+/* Flow */
+
+.flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 36px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each node opens with a thick bar of its color, and an arrow sits in the gap
+   before the next node. */
+.flowNode {
+  padding: 1.6rem 1.35rem 1.5rem;
+  border-top: 6px solid var(--accent);
+}
+
+.flowNode:not(:last-child)::after {
+  position: absolute;
+  top: 50%;
+  right: -29px;
+  width: 22px;
+  height: 22px;
+  background: var(--behat-steps-faint);
+  content: '';
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: translateY(-50%);
+}
+
+@media (max-width: 960px) {
+  .flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .flowNode:nth-child(2)::after {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .flowNode:not(:last-child)::after {
+    display: block;
+    top: auto;
+    right: auto;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%) rotate(90deg);
+  }
+}
+
+/* Steps */
+
+/* Each step sits higher than the one before it, so the 3 form a staircase. */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  padding: 1.6rem 1.4rem 1.5rem;
+  border-top: 6px solid var(--accent);
+}
+
+.step:nth-child(1) {
+  margin-top: 5rem;
+}
+
+.step:nth-child(2) {
+  margin-top: 2.5rem;
+}
+
+.stepNumber {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1.1rem;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--behat-steps-night);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+/* The ink of the logo reaches only 3.9:1 on its blue, so the blue step
+   number is white on the darker blue of the links. */
+.blue .stepNumber {
+  background: var(--blue-ink);
+  color: #ffffff;
+}
+
+.stepTitle {
+  margin: 0 0 0.45rem;
+  color: var(--behat-steps-ink);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.stepCommand {
+  margin-top: 1rem;
+}
+
+/* Color alone doesn't set a link apart from the text around it. */
+.step a {
+  text-decoration: underline;
+}
+
+@media (max-width: 880px) {
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .step:nth-child(1),
+  .step:nth-child(2) {
+    margin-top: 0;
+  }
+}
+
+/* Docs */
+
+.docCard {
+  display: flex;
+  gap: 0.95rem;
+  align-items: flex-start;
+  padding: 1.3rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.docCard:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.docCard:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 3px;
+}
+
+.docBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.docTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--behat-steps-ink);
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.docArrow {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  color: var(--behat-steps-faint);
+  transition:
+    transform 200ms var(--ease),
+    color 200ms ease;
+}
+
+.docCard:hover .docArrow {
+  color: var(--accent-ink);
+  transform: translate(3px, -3px);
+}
+
+/* Closing call to action, on the dark of the logo's circle */
+
+.ctaSection {
+  padding-bottom: clamp(64px, 8vw, 112px);
+}
+
+.cta {
+  position: relative;
+  overflow: hidden;
+  overflow: clip;
+  isolation: isolate;
+  padding: clamp(44px, 6vw, 80px) clamp(22px, 5vw, 64px);
+  border-radius: 28px;
+  background: var(--behat-steps-night);
+  box-shadow: var(--behat-steps-shadow-lg);
+  text-align: center;
+}
+
+.ctaBars {
+  right: clamp(-90px, -4vw, -30px);
+  bottom: -30px;
+  z-index: -1;
+  width: clamp(200px, 26vw, 320px);
+  opacity: 0.32;
+}
+
+.ctaTitle {
+  max-width: 20ch;
+  margin: 0 auto 1.1rem;
+  color: #ffffff;
+  font-size: clamp(1.8rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.ctaLead {
+  max-width: 52ch;
+  margin: 0 auto 2rem;
+  color: #c9d1d9;
+  font-size: clamp(1rem, 1.5vw, 1.1rem);
+}
+
+.ctaCommand {
+  max-width: 640px;
+  margin: 0 auto 1.6rem;
+  border-color: #33404d;
+  text-align: left;
+}
+
+.ctaActions {
+  justify-content: center;
+}
+
+.cta .primary,
+.cta .primary:hover {
+  color: var(--behat-steps-night);
+}
+
+.cta .primary {
+  background: var(--behat-steps-blue-on-dark);
+}
+
+.cta .primary:hover {
+  background: #a2c5ec;
+}
+
+.cta .ghost {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.cta .ghost:hover {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.cta .button:focus-visible {
+  outline-color: #ffffff;
+}
+
+/* Dark mode */
+
+:global(html[data-theme='dark']) .home {
+  --blue-ink: var(--behat-steps-blue-on-dark);
+  --green-ink: #8fd16d;
+  --orange-ink: #fd9a57;
+  --yellow-ink: var(--behat-steps-bar-yellow);
+}
+
+:global(html[data-theme='dark']) .heroBars {
+  opacity: 0.5;
+}
+
+:global(html[data-theme='dark']) .primary,
+:global(html[data-theme='dark']) .primary:hover {
+  color: var(--behat-steps-night);
+}
+
+:global(html[data-theme='dark']) .primary {
+  background: var(--behat-steps-blue-on-dark);
+}
+
+:global(html[data-theme='dark']) .primary:hover {
+  background: #a2c5ec;
+}
+
+:global(html[data-theme='dark']) .ghost:hover {
+  border-color: var(--behat-steps-blue-on-dark);
+  color: var(--behat-steps-blue-on-dark);
+}
+
+:global(html[data-theme='dark']) .blue .stepNumber {
+  background: var(--behat-steps-blue-on-dark);
+  color: var(--behat-steps-night);
+}
+
+:global(html[data-theme='dark']) .cta {
+  border: 1px solid var(--behat-steps-border-2);
+}
+
+/* Reveal on scroll: the script marks the blocks below the fold, and each one
+   plays its entrance once it scrolls into view. Filling only backwards hands
+   the block back to its own hover effects when the entrance ends. */
+
+.home [data-reveal=''][data-revealed='false'],
+.home [data-reveal='children'][data-revealed='false'] > * {
+  opacity: 0;
+}
+
+.home [data-reveal=''][data-revealed='true'] {
+  animation: behat-steps-rise 640ms var(--ease) backwards;
+}
+
+.home [data-reveal='children'][data-revealed='true'] > * {
+  animation: behat-steps-rise 560ms var(--ease) backwards;
+}
+
+.home [data-reveal='children'][data-revealed='true'] > :nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.home [data-reveal='children'][data-revealed='true'] > :nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.home [data-reveal='children'][data-revealed='true'] > :nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.home [data-reveal='children'][data-revealed='true'] > :nth-child(5) {
+  animation-delay: 240ms;
+}
+
+.home [data-reveal='children'][data-revealed='true'] > :nth-child(6) {
+  animation-delay: 300ms;
+}
+
+.home [data-reveal='children'][data-revealed='true'] > :nth-child(7) {
+  animation-delay: 360ms;
+}
+
+.home [data-reveal='children'][data-revealed='true'] > :nth-child(n + 8) {
+  animation-delay: 420ms;
+}
+
+@keyframes behat-steps-rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+@keyframes behat-steps-grow {
+  from {
+    transform: scaleY(0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home *,
+  .home *::before,
+  .home *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

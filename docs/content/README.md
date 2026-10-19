@@ -1,5 +1,6 @@
 ---
 title: Introduction
+slug: /introduction
 sidebar_position: 1
 description: Behat Steps is a library of reusable Behat steps for testing websites, with steps for Drupal sites and the helpers behind every step.
 ---

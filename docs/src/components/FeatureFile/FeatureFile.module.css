@@ -1,0 +1,245 @@
+.featureFile {
+  margin: 0;
+}
+
+/* The window takes its colors from the dark code theme, in both color modes,
+   so every token keeps the contrast its unit test checks. */
+.window {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--code-background) 82%, #ffffff);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--code-background) 72%, #000000);
+  box-shadow: var(--behat-steps-shadow-lg);
+}
+
+.bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.9rem;
+  padding: 0.55rem 0.85rem 0;
+}
+
+/* The 4 bars of the logo, the first one tilted as it is there. */
+.bars {
+  display: flex;
+  flex: none;
+  align-self: center;
+  align-items: flex-end;
+  gap: 3px;
+  height: 15px;
+  margin-bottom: 0.35rem;
+}
+
+.bars span {
+  width: 4px;
+  border-radius: 2px;
+  background: var(--behat-steps-bar-blue);
+}
+
+.bars span:nth-child(1) {
+  height: 9px;
+  transform: rotate(-8deg);
+}
+
+.bars span:nth-child(2) {
+  height: 11px;
+  background: var(--behat-steps-bar-green);
+}
+
+.bars span:nth-child(3) {
+  height: 13px;
+  background: var(--behat-steps-bar-orange);
+}
+
+.bars span:nth-child(4) {
+  height: 15px;
+  background: var(--behat-steps-bar-yellow);
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab {
+  flex: none;
+  padding: 0.55rem 0.9rem;
+  border: 0;
+  border-radius: 9px 9px 0 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--code-color) 70%, var(--code-background));
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.tab:hover,
+.tab[aria-selected='true'] {
+  color: var(--code-color);
+}
+
+.tab[aria-selected='true'] {
+  background: var(--code-background);
+  box-shadow: inset 0 2px 0 var(--behat-steps-bar-green);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--behat-steps-blue-on-dark);
+  outline-offset: -2px;
+}
+
+/* The panels share 1 grid cell, so the cell takes the height of the tallest
+   file at any width. */
+.panels {
+  display: grid;
+  background: var(--code-background);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  grid-area: 1 / 1;
+  color: var(--code-color);
+  visibility: hidden;
+}
+
+.active {
+  visibility: visible;
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--behat-steps-blue-on-dark);
+  outline-offset: -2px;
+}
+
+/* A long line wraps beside its mark rather than scrolling, so the panel needs
+   no scrollbar on a phone. */
+.code {
+  flex: 1;
+  margin: 0;
+  padding: 1.15rem 1.25rem;
+  border-radius: 0;
+  background: none;
+  font-size: 0.84rem;
+  line-height: 1.7;
+}
+
+.code code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  min-height: 1.7em;
+}
+
+.status {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: calc((1.7em - 1.05rem) / 2);
+  border-radius: 50%;
+}
+
+.passed {
+  border: 1.5px solid #50fa7b;
+  background: rgba(80, 250, 123, 0.14);
+  color: #50fa7b;
+}
+
+/* Each step of the file on show passes after the one before it, and showing
+   a file again plays its steps again. */
+.active .passed {
+  animation: behat-steps-pass 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--step) * 380ms + 500ms);
+}
+
+.statusIcon {
+  width: 0.68rem;
+  height: 0.68rem;
+  stroke-width: 3.2;
+}
+
+/* A wrapped line continues 2 characters past the start of its text. */
+.text {
+  flex: 1;
+  min-width: 0;
+  padding-left: calc((var(--indent) + 2) * 1ch);
+  text-indent: calc((var(--indent) + 2) * -1ch);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.summary {
+  margin: 0;
+  padding: 0.8rem 1.25rem 0.95rem;
+  border-top: 1px dashed color-mix(in srgb, var(--code-color) 22%, var(--code-background));
+  color: #50fa7b;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+/* The summary shows once the last step has passed. */
+.active .summary {
+  animation: behat-steps-appear 400ms ease backwards;
+  animation-delay: calc(var(--steps) * 380ms + 700ms);
+}
+
+.summary span {
+  display: block;
+}
+
+.caption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  color: var(--behat-steps-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.captionIcon {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  margin-top: 0.12rem;
+  color: var(--ifm-color-primary);
+}
+
+@keyframes behat-steps-pass {
+  from {
+    border-color: color-mix(in srgb, var(--code-color) 35%, var(--code-background));
+    background: transparent;
+    color: transparent;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes behat-steps-appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .active .passed,
+  .active .summary {
+    animation: none;
+  }
+}
