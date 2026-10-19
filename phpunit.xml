@@ -42,6 +42,7 @@
         <include>
             <directory>src</directory>
             <file>docs.php</file>
+            <file>scripts/draw-diagram.php</file>
             <file>scripts/lint-layers.php</file>
             <file>scripts/lint-traits.php</file>
             <file>scripts/provision.php</file>

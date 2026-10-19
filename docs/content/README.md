@@ -22,13 +22,13 @@ The library [tests its own steps](../../tests/behat/features) to avoid false pos
 - The library supports the BrowserKit, Selenium and Chrome DevTools [browser drivers](installation.md#javascript-browser-drivers).
 - After each scenario, the library [deletes the entities](guides/usage.md#entities-a-scenario-creates) that scenario's steps created, in reverse creation order.
 - The step and helper references ship with the package as Markdown, so an [AI coding agent](guides/ai-assistants.md) in your project reads the same reference you do.
-- [Architecture](architecture/README.md) explains how the layers fit together, with UML diagrams, and an AI agent maintains it through the `update-architecture-docs` skill.
+- [Architecture](architecture/README.md) shows how the layers fit together in 3 diagrams, which an AI agent maintains through the `update-architecture-docs` skill.
 
 ## How it fits together
 
 Your project registers 1 of the shipped contexts, or composes step traits into a context of its own, and registers the Behat Steps extension beside Mink's. The traits decide what each step does. A step that drives the page uses the browser session Mink's extension opens, and a step that needs the site itself names a capability, which the extension answers with the first backend in your `backends` list that provides it, such as Drupal or Drush.
 
-[![Component architecture: the 3 library layers, the consuming project and the runtime around them](architecture/architecture.svg)](architecture/architecture.svg)
+[![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](architecture/logical-architecture.svg)](architecture/logical-architecture.svg)
 
 [Usage](guides/usage.md) covers that model from your project's side, and [Architecture](architecture/README.md) walks through each layer.
 
