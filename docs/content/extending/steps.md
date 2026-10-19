@@ -7,13 +7,13 @@ description: Write steps of your own on the helpers, override a trait's seams an
 
 # Extending the step vocabulary
 
-The step vocabulary is the step and helper traits under `src/Steps` and the 3 contexts that compose them: `WebRawContext`, `WebContext` and `DrupalContext`. [Usage](../guides/usage.md) explains how to use it as it ships, and this page covers what you add on top: steps of your own, overrides for what no option reaches, options for a trait of your own, and the rules Behat applies when your context composes or overrides what it inherits. You'll need it once a flow deserves a step in your project's own words, or a trait needs a value its options can't give it.
+The step vocabulary is the step and helper traits under `src/Steps` and the 3 contexts that compose them: `WebRawContext`, `WebContext` and `DrupalContext`. [Usage](../guides/usage.md) explains how to use it as it ships. This page covers what you add on top: steps of your own, overrides for what no option reaches, options for a trait of your own, and the rules Behat applies when your context composes or overrides what it inherits. You'll need it once a flow deserves a step in your project's own words, or a trait needs a value its options can't give it.
 
 ## Writing a step of your own
 
 A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) list every one of them.
 
-A suite that writes its own Drupal steps composes the helper for the concern it touches. `EntityLifecycleTrait` brings entity creation and the `AfterScenario` pass that removes what was created:
+For a Drupal step, compose the helper trait for the concern it touches. `EntityLifecycleTrait` brings entity creation, and the `AfterScenario` pass that removes what was created:
 
 ```php
 <?php
@@ -37,13 +37,13 @@ class SpecContext extends WebRawContext {
 }
 ```
 
-`WebRawContext` also composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`), so a project's own step definitions reach them on `$this`. Composing 1 of those helper traits in a step trait as well shares the same state rather than duplicating it.
+`WebRawContext` also composes 3 of the web helper traits (`LastStepTrait`, `RequestHeadersTrait` and `StringTrait`), so your own step definitions reach them on `$this`. Composing 1 of those helper traits in a step trait as well shares the same state instead of duplicating it.
 
 ### Register what it creates
 
-The `entityLifecycleCreate*()` helpers register each entity they create, so the end-of-scenario pass in [Automatic cleanup](../guides/usage.md#automatic-cleanup) deletes it. An entity created through a capability directly isn't registered until the step does it.
+The `entityLifecycleCreate*()` helpers register each entity they create, so the end-of-scenario pass in [Automatic cleanup](../guides/usage.md#automatic-cleanup) deletes it. An entity you create through a capability directly isn't registered until your step registers it.
 
-A step of your own registers what it created, passing the stub the capability returned and the key its entity type stores the ID under, `mid` for a media item:
+To register it, pass `entityLifecycleRegister()` the stub the capability returned and the key its entity type stores the ID under, `mid` for a media item:
 
 ```php
 $stub = new EntityStub('media', 'document', ['name' => 'Annual report']);
@@ -76,7 +76,7 @@ The page stays where the scenario left it, and the sitemap is fetched as the sce
 
 ## Go further than the options
 
-An option covers the values a trait expects to vary. Anything else means overriding the trait's own seam in the composing context:
+An option covers the values a trait expects to vary. For anything else, override the trait's own seam in your context:
 
 ```php
 class UiContext extends WebRawContext {
@@ -90,7 +90,7 @@ class UiContext extends WebRawContext {
 }
 ```
 
-A suite that registers `WebContext` overrides the same seam by extending it and redeclaring the method, without repeating any Behat attribute:
+If your suite registers `WebContext`, override the same seam by extending it and redeclaring the method, without repeating any Behat attribute:
 
 ```php
 class AcmeWebContext extends WebContext {
@@ -128,11 +128,13 @@ class FeatureContext extends DrupalContext {
 }
 ```
 
-That covers downloads, the hreflang check and the engine fetch for every trait in that context. `RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit, or a 500, 504, 507 or 510 response, only for an idempotent method such as `GET`. It retries a 423, 425, 429, 502 or 503 response whatever the method, so a `POST` a step sends can reach the server up to 4 times. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` whose status codes limit those 5 to `GenericRetryStrategy::IDEMPOTENT_METHODS`. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
+That covers downloads, the hreflang check and the engine fetch for every trait in that context. The decorator receives the shared transport, so the site's settings still apply. Page requests aren't affected, because Mink builds the page client.
+
+Retries have a sharp edge. `RetryableHttpClient` retries a request up to 3 times. Its default strategy retries a request that failed in transit, or a 500, 504, 507 or 510 response, only for an idempotent method such as `GET`. It retries a 423, 425, 429, 502 or 503 response whatever the method, so a `POST` a step sends can reach the server up to 4 times. For a context whose steps send writes, pass `RetryableHttpClient` a `GenericRetryStrategy` whose status codes limit those 5 to `GenericRetryStrategy::IDEMPOTENT_METHODS`.
 
 ## Declare options for a trait of your own
 
-A project writing its own configurable trait declares each option as a `DrevOps\BehatSteps\Extension\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
+To make a trait of your own configurable, declare each option as a `DrevOps\BehatSteps\Extension\Config\Option` returned from a `<prefix>ConfigSchema()` method, where `<prefix>` is the prefix the trait's other members carry:
 
 ```php
 protected function acmeConfigSchema(): array {

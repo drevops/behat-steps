@@ -67,7 +67,7 @@ The option registers each class through `FieldHandlerCapabilityInterface`, which
 $this->backendFor(FieldHandlerCapabilityInterface::class)->registerFieldHandler('rating', RatingHandler::class);
 ```
 
-The option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface` are covered by semantic versioning. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename 1 of them.
+Semantic versioning covers the option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface`. A handler can extend a shipped one, such as `DatetimeHandler`, and change only what differs, but the shipped handlers' protected methods aren't covered, so a minor release can rename 1 of them.
 
 ## Creation aliases
 
@@ -149,7 +149,7 @@ Given the following article content exists:
 
 The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable through Composer, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
 
-The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. A context of your own builds an alias whose constructor takes arguments, such as a lookup service, and registers it the same way. The registration lasts for the rest of the run, because the backend does:
+The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. For an alias whose constructor takes arguments, such as a lookup service, build it in a context of your own and register it the same way. The registration lasts for the rest of the run, because the backend does:
 
 ```php
 $this->backendFor(CreationAliasCapabilityInterface::class)->registerCreationAlias(new OrganizationAlias($lookup));
@@ -162,7 +162,7 @@ Where an alias runs depends on the backend:
 - `drupal` runs an alias whenever a step creates an entity of its type: a node, a term, a user, a file, block content, or an entity the media, paragraph, menu link, ECK and `the following :entity_type entities exist:` steps create. Its field parser leaves the alias's column as written, while any other column that isn't a field fails the step with `The field "..." does not exist on entity type "...".` The menu link steps are the exception: they pass their columns to the entity without parsing them. A `Core` of your own that doesn't implement `CreationAliasCapabilityInterface` keeps no aliases, so registering an alias on the `drupal` backend fails with an `UnsupportedBackendActionException`.
 - `drush` runs aliases only when it creates a user, so it runs only the aliases for `user`. A pre-create alias runs before `drush user:create`, which takes only the name, the password and the email. A post-create alias runs after it, with an object carrying only the new user's `uid` in place of the entity. Drupal isn't loaded in the Behat process there, so an alias that reaches the site takes the backend in its constructor, the way the shipped `roles` alias takes `UserCapabilityInterface`, and is registered from a context.
 
-The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` are covered by semantic versioning. The shipped aliases are final, so an alias of your own implements an interface rather than extending 1 of them.
+Semantic versioning covers the options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface`. The shipped aliases are final, so an alias of your own implements an interface rather than extending 1 of them.
 
 ## Core
 
@@ -202,7 +202,7 @@ When a class builds on a Core of the package, the nearest one among its parents 
 
 Naming a Core of the package itself, such as the base `Core` on a major with a version core, fails the same way with `Core class "..." is not the Core for Drupal N. Use "..." instead.` A suite running on 2 majors whose Cores differ picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
 
-The option is covered by semantic versioning. `CoreInterface` and the Core classes aren't: a minor release can add a method to the interface or rename a protected method `AcmeCore` overrides. A new interface method breaks a class built from scratch, but not one extending a Core of the package. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
+Semantic versioning covers the option, but not `CoreInterface` or the Core classes: a minor release can add a method to the interface or rename a protected method `AcmeCore` overrides. A new interface method breaks a class built from scratch, but not one extending a Core of the package. To change how a field's value is stored, register a [field handler](#field-handlers) rather than a Core of your own.
 
 ## A backend of your own
 
@@ -216,7 +216,7 @@ A step that resolves a capability can call any of its methods, so declare a capa
 
 `BlackboxBackend` shows the minimum: it returns the shipped `RandomGenerator`, has nothing to bootstrap and reports itself bootstrapped. It implements `BackendInterface` through `BlackboxBackendInterface`, which promises no capability at all, so a backend with capabilities implements `BackendInterface` itself instead of extending `BlackboxBackend`. A backend can extend `DrupalBackend` or `DrushBackend`, but a subclass relies on protected methods that a minor release can rename or stop calling.
 
-This backend runs cron through an API client of the project's own:
+This backend runs cron through an API client of your project's own:
 
 ```php
 namespace Acme\Behat\Backend;

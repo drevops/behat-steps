@@ -2,12 +2,12 @@
 title: Extending the extension layer
 sidebar_label: Extension layer
 sidebar_position: 2
-description: Replace the HTTP client factory, a registry, an authenticator or option resolution for every context at once from a Behat extension of your own, and give another browser driver a page client.
+description: Replace the HTTP client factory, a registry, an authenticator, the random generator or option resolution for every context at once from a Behat extension of your own, and give another browser driver a page client.
 ---
 
 # Extending the extension layer
 
-The extension layer is `src/Extension`: `BehatStepsExtension` and the services it builds into Behat's container, which the context initializer injects into the contexts. You extend it from a Behat extension of your own, for a change that has to reach every context at once. This page covers 3 changes to the container: replacing the HTTP client factory, swapping a registry or an authenticator through its `*.class` parameter, and replacing option resolution. It also covers registering a browser adapter, which a context does.
+The extension layer is `src/Extension`: `BehatStepsExtension` and the services it builds into Behat's container, which the context initializer injects into the contexts. You extend it from a Behat extension of your own, for a change that has to reach every context at once. This page covers 3 changes to the container: replacing the HTTP client factory, swapping a registry, an authenticator or the random generator through its `*.class` parameter, and replacing option resolution. It also covers registering a browser adapter, which a context does.
 
 The container sits outside the 5 surfaces semantic versioning covers, so check [what it does cover](README.md#what-semantic-versioning-covers) before you build on any of these.
 
@@ -106,7 +106,7 @@ The `behat_steps.random.class` parameter swaps the random generator the `drupal`
 
 ## Replace option resolution
 
-[Trait options](../guides/configuration.md#trait-options) states the chain a trait option resolves through. Resolution itself is the `behat_steps.config.resolver_factory` service, so a project that needs a chain of its own registers another `TraitOptionResolverFactoryInterface` under that id:
+[Trait options](../guides/configuration.md#trait-options) states the chain a trait option resolves through. Resolution itself is the `behat_steps.config.resolver_factory` service, so if you need a chain of your own, register another `TraitOptionResolverFactoryInterface` under that id:
 
 ```php
 public function process(ContainerBuilder $container): void {
