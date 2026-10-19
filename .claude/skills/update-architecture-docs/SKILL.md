@@ -5,13 +5,13 @@ description: Generate or update the architecture documentation in docs/content/a
 
 # Update architecture docs
 
-`docs/content/architecture/README.md` explains how this project works in 3 views, each 1 diagram with a short walkthrough:
+`docs/content/architecture/` explains how this project works in 3 views, each 1 diagram with a short walkthrough on a page of its own, and its `README.md` is the index:
 
 - **Logical architecture** (`logical-architecture.drawio`) - the layers and the components inside them, and which way every dependency points, from the consuming project down to the site under test, with the repository tooling beside them.
 - **Class inheritance** (`class-inheritance.drawio`) - the real inheritance trees: the contexts, the backends and their capabilities, the field handlers, the creation aliases, the browser adapters, the creation hooks and the exceptions.
 - **Data flow** (`data-flow.drawio`) - what runs when a suite starts, when a scenario starts, on each step and when a scenario ends.
 
-The page doubles as the Architecture section of the documentation site, so keep it plain Markdown and link a page or a repository file by its relative path, as the rest of `docs/content/` does. It is a short walkthrough, not a reference: `STEPS.md`, `HELPERS.md` and the generated pages list the steps and helpers, and `CONTRIBUTING.md` holds the rules. Never repeat either here.
+The pages make up the Architecture section of the documentation site, so keep them plain Markdown and link a page or a repository file by its relative path, as the rest of `docs/content/` does. They are a short walkthrough, not a reference: `STEPS.md`, `HELPERS.md` and the generated pages list the steps and helpers, and `CONTRIBUTING.md` holds the rules. Never repeat either here.
 
 All content is derived from the actual source code: sources, entry scripts, manifests and service definitions. Never derive content from wishes, plans or design documents. If the documentation and the code disagree, the code wins.
 
@@ -46,7 +46,7 @@ When one is missing, stop before drawing, say which diagrams were not redrawn, a
 
    A session with a pinned brief runs for about 15 minutes. The command prints the session's progress, with an estimate of its reasoning every 10000 tokens, then its report and the paths of the SVG and the review PNG. A session that reasons past 50000 tokens before its first write is planning a layout the brief left open: stop it, and pin that part of the layout.
 4. Look at every review PNG as "Verification" describes. Redraw a diagram that fails it with a brief that names what to fix.
-5. Write `docs/content/architecture/README.md` as "The page" describes.
+5. Write the pages in `docs/content/architecture/` as "The pages" describes.
 
 ## Task B: update after a structural change
 
@@ -57,12 +57,12 @@ When one is missing, stop before drawing, say which diagrams were not redrawn, a
 
 A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new backend or capability interface, a change to what `BehatStepsExtension` wires up, a change to how a context composes traits, a change to an inheritance tree the class diagram shows, a change to the scenario lifecycle, or a change to what the repository tooling reads or writes: `docs.php`, the fixture site provisioning or the test harness. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
 
-## The page
+## The pages
 
-- Open with what the 3 views are, the maintenance note naming this skill and the drawio-skill, and pointers to the step, helper and configuration references.
-- Give each view a section, in the order logical architecture, class inheritance, data flow, so their anchors stay `#logical-architecture`, `#class-inheritance` and `#data-flow`: other pages link them. Each section embeds its SVG, wrapped in a link to itself as `[![Alt text](diagram.svg)](diagram.svg)`, because the page draws a wide diagram at the width of its column and the link opens it at full size. A few short paragraphs or a list then walk through the diagram, naming what it shows without restating every label.
-- Put 1-to-1 relationships in Markdown tables rather than in a diagram: an interface and the 1 service implementing it, or a class and the Behat, Mink or Symfony type it extends.
-- End with the table of diagram sources and how to edit a source by hand.
+- `README.md` is the index. Open it with what the 3 views are, each linked to its page, the maintenance note naming this skill and the drawio-skill, and pointers to the step, helper and configuration references. End it with the table of diagram sources and how to edit a source by hand.
+- Give each view a page of its own, named after its diagram: `logical-architecture.md`, `class-inheritance.md` and `data-flow.md`. Other pages link them by those names, so keep them. Each page opens with front matter holding a `title`, a `sidebar_position` of 1, 2 and 3 in that order, and a `description`.
+- Each view page embeds its SVG, wrapped in a link to itself as `[![Alt text](diagram.svg)](diagram.svg)`, because the page draws a wide diagram at the width of its column and the link opens it at full size. A few short paragraphs or a list then walk through the diagram, naming what it shows without restating every label.
+- Put 1-to-1 relationships in Markdown tables on the page of their view rather than in a diagram: an interface and the 1 service implementing it, or a class and the Behat, Mink or Symfony type it extends.
 - Every diagram is a draw.io source with its SVG. Never add a diagram in any other format, ASCII art included.
 
 ## Sources to trace from
@@ -83,4 +83,4 @@ The project is 3 layers, and the boundary between them is the architecture. Read
 1. Run `php scripts/draw-diagram.php --check docs/content/architecture`. It fails a diagram with no SVG, an SVG exported from an older version of its source, a source with more than 1 page or no background, and an SVG with no source. `DrawDiagramTest` runs the same check in the unit suite, so CI fails a drifted render too.
 2. Look at every review PNG in `.artifacts/tmp/diagrams/`. A diagram that validates can still be unreadable: look for overlapping shapes, clipped labels, edges crossing nodes, an edge pointing the opposite way to the prose, a missing legend, and a name the code doesn't have.
 3. Confirm that every class, trait, method and count a diagram names exists in the code, and that the prose around each diagram states only what the diagram and the code show.
-4. Run `npm run build --prefix docs` and `npm run spellcheck --prefix docs`. When either reports `command not found`, install the site's dependencies with `npm ci --ignore-scripts --prefix docs`, as CI does, and run it again. The build fails on a broken page link or anchor and on a repository link to a file that doesn't exist. A word the spell check rejects in the page goes into the `words` list in `docs/cspell.json`, because a `cspell:ignore` comment in the page wouldn't survive the next regeneration.
+4. Run `npm run build --prefix docs` and `npm run spellcheck --prefix docs`. When either reports `command not found`, install the site's dependencies with `npm ci --ignore-scripts --prefix docs`, as CI does, and run it again. The build fails on a broken page link or anchor and on a repository link to a file that doesn't exist. A word the spell check rejects in a page goes into the `words` list in `docs/cspell.json`, because a `cspell:ignore` comment in the page wouldn't survive the next regeneration.

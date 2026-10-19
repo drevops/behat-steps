@@ -6,7 +6,7 @@ description: What each of the 3 layers lets a project extend, which page covers 
 
 # Extending
 
-Behat Steps ships 3 layers, and each one takes code of your own where the shipped behavior stops short of what your suite needs. This section has 1 page per layer, and [Architecture](../architecture/README.md#logical-architecture) shows how the layers stack.
+Behat Steps ships 3 layers, and each one takes code of your own where the shipped behavior stops short of what your suite needs. This section has 1 page per layer, and [Logical architecture](../architecture/logical-architecture.md) shows how the layers stack.
 
 | Layer | What you extend | Page |
 | --- | --- | --- |

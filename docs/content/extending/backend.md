@@ -289,4 +289,4 @@ Semantic versioning covers the `backends` option, and the `backendFor()` and `ge
 ## Where to next
 
 - A step of your own that creates an entity goes through the same handlers and aliases, and [Extending the step vocabulary](steps.md#writing-a-step-of-your-own) covers writing one.
-- [Architecture](../architecture/README.md#class-inheritance) shows the backends, their capabilities and the Core in its class inheritance diagram.
+- [Class inheritance](../architecture/class-inheritance.md) shows the backends, their capabilities and the Core in its diagram.
