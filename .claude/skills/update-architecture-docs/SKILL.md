@@ -8,7 +8,7 @@ description: Generate or update the architecture documentation in docs/content/a
 `docs/content/architecture/README.md` explains how this project works in 3 views, each 1 diagram with a short walkthrough:
 
 - **Logical architecture** (`logical-architecture.drawio`) - the layers and the components inside them, and which way every dependency points, from the consuming project down to the site under test, with the repository tooling beside them.
-- **Class inheritance** (`class-inheritance.drawio`) - the real inheritance trees: the contexts, the backends and their capabilities, the field handlers, the browser adapters, the creation hooks and the exceptions.
+- **Class inheritance** (`class-inheritance.drawio`) - the real inheritance trees: the contexts, the backends and their capabilities, the field handlers, the creation aliases, the browser adapters, the creation hooks and the exceptions.
 - **Data flow** (`data-flow.drawio`) - what runs when a suite starts, when a scenario starts, on each step and when a scenario ends.
 
 The page doubles as the Architecture section of the documentation site, so keep it plain Markdown and link a page or a repository file by its relative path, as the rest of `docs/content/` does. It is a short walkthrough, not a reference: `STEPS.md`, `HELPERS.md` and the generated pages list the steps and helpers, and `CONTRIBUTING.md` holds the rules. Never repeat either here.
@@ -35,14 +35,16 @@ When one is missing, stop before drawing, say which diagrams were not redrawn, a
 ## Task A: first generation
 
 1. Analyze the codebase from the sources under "Sources to trace from".
-2. Write 1 brief per diagram to `.artifacts/tmp/briefs/<diagram>.md`: the title and a 1-line subtitle, where each group sits, every node with 1 or 2 lines saying what it does, every edge with its label, and the legend. Spell code names exactly as the source does, and state only counts the code confirms. A brief says what a diagram shows. [references/house-style.md](references/house-style.md) says how every diagram looks, so a brief never repeats it.
+2. Write 1 brief per diagram to `.artifacts/tmp/briefs/<diagram>.md`: the title and a 1-line subtitle, every group and node with its id, text, role, position and size, every edge with its label and, where a straight line won't do, its route, and the legend with its position. Spell code names exactly as the source does, and state only counts the code confirms. A brief says what a diagram shows and where. [references/house-style.md](references/house-style.md) says how every diagram looks, so a brief never repeats it.
+
+   Pin the layout on a grid, such as 240 x 70 boxes 280 px apart in columns and 120 px apart in rows. A session left to plan the layout of a large diagram reasons through every coordinate before it writes anything, and once that reasoning runs past the output token limit, Claude Code discards the response and the session starts the plan again. Given every position, the session transcribes the brief, validates it and fixes what its draft shows. A wide base class drawn as a bar across its children's columns lets every inheritance edge run straight up.
 3. Draw the 3 diagrams in parallel, 1 background command each, from the repository root:
 
    ```bash
    php scripts/draw-diagram.php --brief=.claude/skills/update-architecture-docs/references/house-style.md --brief=.artifacts/tmp/briefs/<diagram>.md docs/content/architecture/<diagram>.drawio
    ```
 
-   A session runs for 10 to 30 minutes. The command prints the session's progress, its report, and the paths of the SVG and the review PNG.
+   A session with a pinned brief runs for about 15 minutes. The command prints the session's progress, with an estimate of its reasoning every 10000 tokens, then its report and the paths of the SVG and the review PNG. A session that reasons past 50000 tokens before its first write is planning a layout the brief left open: stop it, and pin that part of the layout.
 4. Look at every review PNG as "Verification" describes. Redraw a diagram that fails it with a brief that names what to fix.
 5. Write `docs/content/architecture/README.md` as "The page" describes.
 
@@ -50,7 +52,7 @@ When one is missing, stop before drawing, say which diagrams were not redrawn, a
 
 1. Identify the diagrams and the prose the change affects.
 2. Re-trace them from the current code.
-3. Write a brief for each affected diagram naming only what changes: the nodes, edges and labels to add, move or remove. Run the command from Task A with it. The diagram exists, so the session edits it in place and keeps the layout of everything the brief leaves alone.
+3. Write a brief for each affected diagram naming only what changes: the nodes, edges and labels to add, move or remove, with the position and size of every cell it adds or moves. Run the command from Task A with it. The diagram exists, so the session edits it in place and keeps the layout of everything the brief leaves alone.
 4. Update the prose so the diagrams and the prose agree.
 
 A change is structural when it moves, adds, or removes a component or alters a flow between components: a new layer or namespace, a new backend or capability interface, a change to what `BehatStepsExtension` wires up, a change to how a context composes traits, a change to an inheritance tree the class diagram shows, a change to the scenario lifecycle, or a change to what the repository tooling reads or writes. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
@@ -61,7 +63,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 - Give each view a section, in the order logical architecture, class inheritance, data flow, so their anchors stay `#logical-architecture`, `#class-inheritance` and `#data-flow`: other pages link them. Each section embeds its SVG, wrapped in a link to itself as `[![Alt text](diagram.svg)](diagram.svg)`, because the page draws a wide diagram at the width of its column and the link opens it at full size. A few short paragraphs or a list then walk through the diagram, naming what it shows without restating every label.
 - Put 1-to-1 relationships in Markdown tables rather than in a diagram: an interface and the 1 service implementing it, or a class and the Behat, Mink or Symfony type it extends.
 - End with the table of diagram sources and how to edit a source by hand.
-- Every diagram is a draw.io source with its SVG. Never add a PlantUML, Mermaid or ASCII diagram.
+- Every diagram is a draw.io source with its SVG. Never add a diagram in any other format, ASCII art included.
 
 ## Sources to trace from
 
