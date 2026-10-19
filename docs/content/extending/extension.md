@@ -52,7 +52,7 @@ Register it on the profile beside `BehatStepsExtension`:
 $profile->withExtension(new Extension(AcmeExtension::class));
 ```
 
-2 things exist only once Behat Steps' own `process()` has run: the shared transport, the `behat_steps.http_client` service, and the `registerBackend()` calls on the backend registry. A `process()` of yours that runs earlier finds neither.
+3 things exist only once Behat Steps' own `process()` has run: the shared transport, the `behat_steps.http_client` service, the `registerBackend()` calls on the backend registry, and the `registerFieldHandler()` and `registerCreationAlias()` calls the options add to the backends. A `process()` of yours that runs earlier finds none of them.
 
 ## The HTTP client factory and browser adapters
 

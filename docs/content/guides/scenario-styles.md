@@ -58,7 +58,7 @@ The case rests on 3 arguments, all of them old and well tested:
 - **Resilience.** When the form is redesigned, an imperative suite changes in every scenario that touches the form. A declarative suite changes in exactly 1 definition, because its scenarios assert the behavior and leave the widget path to that definition.
 - **Intent.** An imperative scenario verifies only the mechanics, so it can pass while the requirement behind them fails.
 
-The critique of the imperative style is real, and it has a well-known precedent. `cucumber-rails`, the Rails integration for Cucumber (Behat's Ruby ancestor), used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. `MinkContext` is PHP's `web_steps.rb`, the one that never got deleted, and this library is a larger, better-engineered descendant of the same pattern.
+The critique of the imperative style is real, and it has a well-known precedent. `cucumber-rails`, the Rails integration for Cucumber (Behat's Ruby ancestor), used to ship `web_steps.rb`, a generic click/fill/see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train users into brittle, implementation-coupled suites. `MinkContext` is PHP's `web_steps.rb`, the one that never got deleted, and this library is a larger descendant of the same pattern.
 
 ## Why the imperative style wins in this ecosystem anyway
 

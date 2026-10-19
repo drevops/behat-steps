@@ -11,7 +11,7 @@ Behat Steps is a library of reusable actions and assertions for testing with [Be
 
 The steps come as PHP traits: 28 that work on any website, and 29 that only mean something on a Drupal site. Every method starts with the name of the trait that declares it, such as `cookieGetAll()` in `CookieTrait`, so none of them collides with a method in your own context.
 
-Step text is another matter. Behat refuses to register 2 definitions with the same pattern, so if one of your steps has the same text as a shipped one, drop yours, or [compose your own context](guides/usage.md#compose-your-own-context) without that trait.
+Step text is another matter. Behat refuses to register 2 definitions with the same pattern, so if 1 of your steps has the same text as a shipped one, drop yours, or [compose your own context](guides/usage.md#compose-your-own-context) without that trait.
 
 The library [tests its own steps](../../tests/behat/features), so a step that passes when it should fail, or fails when it should pass, gets caught here rather than in your suite. Every step also follows [the same wording rules](../../CONTRIBUTING.md#steps-format), so the language stays consistent from one trait to the next.
 

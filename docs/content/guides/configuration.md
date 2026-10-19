@@ -307,14 +307,14 @@ declaration default
 
 The 2 levels, `steps` and a context's `config`, differ in how strictly they're read, because they know different things:
 
-- `steps` is permissive about names. A group there may name a trait that only 1 of the registered contexts composes, so a group or an option a context can't serve is ignored, and 1 profile can carry the defaults of every suite. A group that isn't a map of options, or a value of the wrong type for an option the context does serve, still fails, at the first read of an option.
+- `steps` is permissive about names. A group there may name a trait that only 1 of the registered contexts composes, so a group or an option a context can't serve is ignored, and 1 profile can carry the defaults of every suite. A group the context declares that isn't a map of options, or a value of the wrong type for an option the context declares, still fails, at the first read of an option.
 - A context's `config` is strict. The context knows which traits it composes, so an unknown group, an unknown option or a value of the wrong type is an error naming what the context accepts.
 
 2 options recur, and they're deliberately separate switches:
 
 | Option | Effect |
 | --- | --- |
-| `enabled` | When `FALSE`, the trait's hooks do nothing, apart from the ones that only reset its own state. Equivalent to `@behat-steps-skip:<TraitName>` on every scenario. |
+| `enabled` | When `FALSE`, the trait's hooks do nothing, apart from the ones that only reset in-memory state. Equivalent to `@behat-steps-skip:<TraitName>` on every scenario. |
 | `fail_on_errors` | When `FALSE`, the trait still collects, and does not fail the scenario on what it found. |
 
 `fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.

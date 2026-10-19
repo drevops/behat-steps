@@ -24,7 +24,7 @@ This package replaces `drupal/drupal-extension` and `drupal/drupal-driver`, and 
 
 ## Optional dependencies
 
-Some steps need a package the rest don't. Behat Steps lists those under `suggest` in its `composer.json` instead of requiring them, so you don't install a JSON schema validator for a suite that never checks a schema. Run `composer suggests` in your project to see them, and add the ones your suite needs to its `require-dev`:
+Some steps need a package the rest don't. Behat Steps lists those under `suggest` in its `composer.json` instead of requiring them, so a suite that doesn't use those steps doesn't install them: no JSON schema validator for a suite that never checks a schema. Run `composer suggests` in your project to see them, and add the ones your suite needs to its `require-dev`:
 
 | Package | What needs it |
 | --- | --- |

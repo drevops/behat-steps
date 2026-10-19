@@ -114,7 +114,7 @@ These builds show "development" as the version in the footer. Search engines don
 
 `.github/workflows/release-docs.yml` publishes the docs to [behat-steps.drevops.com](https://behat-steps.drevops.com) on GitHub Pages:
 
-- on every tag pushed to the repository, with the tag as the version. The workflow can't tell a release tag from any other, so a stray tag republishes the site too;
+- on every tag pushed to the repository whose name holds no `/`, with the tag as the version. The workflow can't tell a release tag from any other, so a stray tag republishes the site too;
 - on a manual run of the `Release docs` workflow from **Actions**, from the tag or branch you type, so the pages and their GitHub links come from the same place.
 
 A tag pushed on a maintenance branch that carries `release-docs.yml` republishes the site from that branch and replaces the newer docs, so remove the workflow from the branch when you cut it.
