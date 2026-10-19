@@ -179,7 +179,7 @@ const STEPS = [
     text: (
       <>
         Add <code>WebContext</code>, or <code>DrupalContext</code> for a Drupal site, and the extension to your <code>behat.php</code>.{' '}
-        <Link to="/quick-start#2-enable-the-extension">See the whole file</Link>.
+        <Link to="/quick-start#2-create-the-configuration-file">See the whole file</Link>.
       </>
     ),
   },
