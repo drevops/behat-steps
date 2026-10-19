@@ -967,11 +967,14 @@
 
 /* Reveal on scroll: the script marks the blocks below the fold, and each one
    plays its entrance once it scrolls into view. Filling only backwards hands
-   the block back to its own hover effects when the entrance ends. */
+   the block back to its own hover effects when the entrance ends. Print never
+   scrolls a block into view, so only a screen hides one. */
 
-.home [data-reveal=''][data-revealed='false'],
-.home [data-reveal='children'][data-revealed='false'] > * {
-  opacity: 0;
+@media screen {
+  .home [data-reveal=''][data-revealed='false'],
+  .home [data-reveal='children'][data-revealed='false'] > * {
+    opacity: 0;
+  }
 }
 
 .home [data-reveal=''][data-revealed='true'] {

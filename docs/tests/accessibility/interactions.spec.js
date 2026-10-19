@@ -122,6 +122,17 @@ test.describe('home page', () => {
     await expect(page.getByRole('tabpanel', { name: 'cookies.feature' })).toContainText('Scenario: Visitor accepts the cookies');
   });
 
+  test('shows every block in print, scrolled into view or not', async ({ page }) => {
+    await open(page, '/', 'light');
+
+    const waiting = page.locator('[data-revealed="false"], [data-revealed="false"] > *');
+
+    await expect(waiting.first()).toBeAttached();
+    await page.emulateMedia({ media: 'print' });
+
+    expect(await waiting.evaluateAll((blocks) => blocks.filter((block) => getComputedStyle(block).opacity !== '1').length)).toBe(0);
+  });
+
   test('copies the install command', async ({ page, context }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await open(page, '/', 'light');
