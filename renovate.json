@@ -64,6 +64,12 @@
             "enabled": false
         },
         {
+            "description": "Docusaurus 3 compiles the site with the top-level '@babel/core' and its own Babel 7 presets, which throw on a Babel 8 core.",
+            "matchPackageNames": ["@babel/core", "@babel/preset-env", "@babel/preset-react"],
+            "matchUpdateTypes": ["major"],
+            "enabled": false
+        },
+        {
             "matchPackageNames": ["*"],
             "groupName": "all dependencies",
             "groupSlug": "all"

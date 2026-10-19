@@ -277,7 +277,7 @@ The step-coverage rule is the one that reads the feature files rather than the s
 
 ## Continuous integration
 
-`.github/workflows/test.yml` has 3 jobs. `lint` and `test` run inside the project's own Docker Compose stack, so CI and local development execute the same commands, and `docs` runs the documentation site's npm scripts on Node 22, outside the stack.
+`.github/workflows/test.yml` has 3 jobs. `lint` and `test` run inside the project's own Docker Compose stack, so CI and local development execute the same commands, and `docs` runs the documentation site's npm scripts on Node 24, outside the stack.
 
 `lint` runs on PHP 8.4. It provisions the fixture site, checks that `composer.json` is normalized, and runs `ahoy lint` - `composer validate`, `parallel-lint`, PHP_CodeSniffer, PHPStan, Rector in dry-run mode, gherkinlint over the feature files, and `scripts/lint-layers.php` for the 6 layer boundaries - followed by `ahoy lint-docs`, which is the `docs.php --fail-on-change` gate.
 
