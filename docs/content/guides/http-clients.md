@@ -99,7 +99,7 @@ The 3 clients apply the connection settings by the following rules:
 - A proxy that every host needs belongs in the environment. Symfony reads `HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY` for any request that carries no `proxy` option, so a suite that reaches the internet only through a proxy sets those, and the accessibility engine's fetch from the CDN goes through it too.
 - A step's own options win over the site's. A download from the site waits `file_download.timeout` for data even when the session declares a `timeout` of its own.
 - A `base_url` without a host applies the options to every request, and the detached client sends no step headers or credentials.
-- A profile without a `browserkit_http` session sends every request with Symfony's defaults and the step's own options.
+- Without a `browserkit_http` session in the profile, the detached and bare clients send every request with Symfony's defaults and the step's own options.
 - Every `browserkit_http` session has to declare the same options. Mink lets a profile declare any number of named sessions, and more than 1 can use the `browserkit_http` browser driver. The detached and bare clients send with 1 set of options, so the sessions can't carry different ones, and Behat stops at startup rather than pick 1 set silently. Key order doesn't count as a difference. This configuration fails:
 
   ```php
