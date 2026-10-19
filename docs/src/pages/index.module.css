@@ -860,12 +860,20 @@
   text-align: center;
 }
 
+/* All 4 bars stay inside the panel, rising from its bottom edge. A phone
+   stacks the buttons where the bars would stand, so it shows none. */
 .ctaBars {
-  right: clamp(-90px, -4vw, -30px);
-  bottom: -30px;
+  right: clamp(16px, 3vw, 40px);
+  bottom: -36px;
   z-index: -1;
-  width: clamp(200px, 26vw, 320px);
+  width: clamp(140px, 20vw, 260px);
   opacity: 0.32;
+}
+
+@media (max-width: 560px) {
+  .ctaBars {
+    display: none;
+  }
 }
 
 .ctaTitle {
