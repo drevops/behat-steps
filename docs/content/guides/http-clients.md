@@ -78,7 +78,7 @@ Connection settings are `http_client_parameters` on a `browserkit_http` session,
 
 Here's how they reach all 3 clients. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. Because it builds the session exactly as Mink does, the page client applies the options to every host.
 
-The factory also records the options, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
+The factory also records the options, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets a download from the site through.
 
 From your project's side, this looks like stock Mink: you register only Mink's own extension and `BehatStepsExtension`, and never see the factory.
 
