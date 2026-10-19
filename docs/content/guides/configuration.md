@@ -8,7 +8,7 @@ description: Behat Steps reads its configuration from suites and context argumen
 
 # Configuration
 
-Everything this package reads arrives through 1 of 4 channels, apart from the Mink settings it shares: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, and they aren't interchangeable.
+This page is the reference for everything you can set. Behat Steps reads its configuration through 4 channels, apart from the Mink settings it shares with Mink: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, so they aren't interchangeable.
 
 | Channel | Answers | Scope |
 | --- | --- | --- |
@@ -23,7 +23,7 @@ The tables in sections 2 and 3 are generated from the source by [docs.php](../..
 
 ### Suite per surface
 
-A suite binds a set of feature files to a set of contexts. The default layout is 1 suite per surface under test, because each surface needs a different vocabulary and a different backend.
+A suite pairs a set of feature files with a set of contexts. The [quick start](../quick-start.md) uses 1 suite. Once you test more than 1 surface, such as pages in a browser and an API, give each surface a suite of its own, because each needs different steps and a different backend.
 
 ```php
 <?php
@@ -66,10 +66,10 @@ return (new Config())->withProfile($profile);
 
 Run 1 surface with `vendor/bin/behat --suite=api`, or all of them with a bare `vendor/bin/behat`.
 
-3 properties follow from the layout:
+The layout gives you 3 things:
 
-- Each suite composes only the vocabulary its surface needs. `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that can't work on a surface isn't defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run.
-- The spec suite and the regression suites do different jobs. The spec suite holds domain-language scenarios written over your own step definitions; the regression suites hold broad scenarios written in the shipped vocabulary. See [Scenario styles](scenario-styles.md) for why both exist.
+- Each suite composes only the steps its surface needs. `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`, and never loads a trait that expects a rendered page. A step that can't work on a surface isn't defined on it, so a mistake shows up as "step not found" when Behat reads the feature file, not as a confusing failure halfway through a run.
+- The spec suite and the regression suites do different jobs. The spec suite holds domain-language scenarios written over your own step definitions, and the regression suites hold broad scenarios written in the shipped steps. [Scenario styles](scenario-styles.md) explains why both exist.
 - You can exclude a slow surface without touching the others. Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
 
 ### Context constructor arguments
@@ -99,7 +99,7 @@ class UiContext extends WebRawContext {
 
 Behat matches the arguments to the constructor by name, so the array keys are the parameter names.
 
-`WebRawContext` declares 1 argument of its own, `config`, and every shipped and consuming context inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between 2 contexts of the same profile:
+`WebRawContext` declares 1 argument of its own, `config`, and every shipped context and every context of yours inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between 2 contexts of the same profile:
 
 ```php
 $ui = (new Suite('ui'))
@@ -139,7 +139,7 @@ $ui = (new Suite('ui'))
 
 Behat 4 reads PHP configuration only, from `behat.php` or, when there's no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Prefer `behat.php`: both majors accept it, and it's the only format Behat 4 accepts.
 
-While a project is still on Behat 3, the YAML form of the suite above is:
+While your project is still on Behat 3, the YAML form of the suite above is:
 
 ```yaml
 default:
@@ -158,7 +158,7 @@ default:
         drupal_root: web
 ```
 
-[behat.dist.php](../../../behat.dist.php) in this repository sets every extension option, plus the trait options a project almost always sets, as a reference.
+[behat.dist.php](../../../behat.dist.php) in this repository sets every extension option, plus the trait options most projects set, as a reference.
 
 ## 2. The `behat_steps` extension key
 

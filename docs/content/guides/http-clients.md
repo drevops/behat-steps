@@ -10,11 +10,13 @@ description: The 3 clients a step sends its own requests through, where their se
 
 Most steps read the page the Mink session holds. A few send HTTP requests of their own from PHP: `FileDownloadTrait` downloads a file, `MetatagTrait` fetches the hreflang alternates of a page, `AccessibilityTrait` fetches its engine script, and `RestTrait` sends a request whose response becomes the page. Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from, and how to change them.
 
-3 terms stay apart on this page, and [CONTRIBUTING.md](../../../CONTRIBUTING.md#backend-browser-driver-and-http-client) defines them for the whole codebase:
+You'll need it when your site needs special connection settings, such as a self-signed certificate or a proxy, or when you write a step that sends a request of its own.
 
-- **Backend** - Drupal, Drush or Blackbox under `src/Backend`, reached with `backendFor()`. Nothing on this page touches them.
-- **Browser driver** - Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
-- **HTTP client** - 1 of the 3 clients below. None of them is a backend or a browser driver.
+This page keeps 3 terms apart, which [CONTRIBUTING.md](../../../CONTRIBUTING.md#backend-browser-driver-and-http-client) defines for the whole codebase:
+
+- A backend is Drupal, Drush or Blackbox under `src/Backend`, reached with `backendFor()`. Nothing on this page touches them.
+- A browser driver is Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
+- An HTTP client is 1 of the 3 clients below. None of them is a backend or a browser driver.
 
 ## The 3 clients
 
@@ -76,7 +78,7 @@ Connection settings come from 1 place, and per-trait settings from another:
 
 Connection settings are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. Because it builds the session exactly as Mink does, the page client applies the options to every host. The factory also records the options, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
 
-To a project this looks like stock Mink: it registers only Mink's own extension and `BehatStepsExtension`, and never sees the factory.
+From your side this looks like stock Mink: you register only Mink's own extension and `BehatStepsExtension`, and never see the factory.
 
 Per-trait settings stay in the per-trait options under `behat_steps: steps`, applied to each request a step makes:
 

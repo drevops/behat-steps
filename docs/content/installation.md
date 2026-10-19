@@ -1,7 +1,7 @@
 ---
 title: Installation
 sidebar_position: 2
-description: Install Behat Steps with Composer, add the packages only some steps need, and set up a JavaScript browser driver.
+description: Install Behat Steps with Composer, add the packages only some steps need, and set up a browser driver for scenarios that need JavaScript.
 ---
 
 <!-- cspell:ignore chromedp dmore justinrainbow lullabot softcreatr -->
@@ -11,6 +11,8 @@ description: Install Behat Steps with Composer, add the packages only some steps
 Behat Steps is a Composer package. It needs PHP 8.3 or newer and Behat 3.33 or newer, and its Drupal steps need Drupal 11 or 12. [Supported versions](README.md#supported-versions) lists the full matrix.
 
 ## Install the package
+
+Run this in your project's root:
 
 ```bash
 composer require --dev drevops/behat-steps:^4
@@ -24,7 +26,7 @@ This package replaces `drupal/drupal-extension` and `drupal/drupal-driver` and c
 
 ## Optional dependencies
 
-Behat Steps lists the packages that only some steps need under `suggest` in its `composer.json` rather than requiring them, so a suite that doesn't use those steps doesn't install them. `composer suggests` lists them from your project. Add the ones your suite needs to its `require-dev`:
+Behat Steps lists the packages that only some steps need under `suggest` in its `composer.json` rather than requiring them, so you don't install what your suite never uses. Run `composer suggests` in your project to list them, and add the ones your suite needs to its `require-dev`:
 
 | Package | What needs it |
 | --- | --- |
@@ -41,7 +43,9 @@ composer require --dev softcreatr/jsonpath justinrainbow/json-schema
 
 ## JavaScript browser drivers
 
-Scenarios tagged `@javascript` use a real browser, and the steps that need one work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. This library's own CI tests against both. Another browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
+Mink, the library Behat uses to drive a browser, talks to the browser through a browser driver. The BrowserKit driver that comes with Behat Steps loads pages over plain HTTP from PHP: it's fast, but it never runs the page's JavaScript. When a scenario needs JavaScript, tag it `@javascript`, and Mink runs it in a real browser through a second driver instead.
+
+The steps that need a real browser work with the 2 browser drivers this library ships adapters for: the Selenium/WebDriver browser driver from `lullabot/mink-selenium2-driver`, or the Selenium-less `dmore/chrome-mink-driver`, which talks to Chrome directly over the Chrome DevTools Protocol. This library's own CI tests against both. Another browser driver needs [an adapter registered for it](../../MIGRATION.md#registering-an-adapter-for-another-browser-driver).
 
 To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chrome-extension`](https://gitlab.com/behat-chrome/behat-chrome-extension), which pulls in `dmore/chrome-mink-driver`, and point it at a headless Chrome. It accepts Behat 3 and, from 1.5.0, Behat 4, and this library's own CI runs it on both.
 
@@ -63,8 +67,8 @@ $profile
 
 A profile holds 1 entry per extension, so if your profile already registers `MinkExtension`, merge these settings into that entry rather than adding a second one.
 
-Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell). For local visual debugging, you can override `api_url` at runtime via Behat's `BEHAT_PARAMS` environment variable, for instance to drive a headed Chrome on your host, as long as that browser can reach your site's `base_url`.
+Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell). For visual debugging on your machine, you can override `api_url` at runtime through Behat's `BEHAT_PARAMS` environment variable, for instance to drive a headed Chrome on your host, as long as that browser can reach your site's `base_url`.
 
 ## Next
 
-[Quick start](quick-start.md) takes you from an empty `behat.php` to a first scenario.
+The [Quick start](quick-start.md) takes you from an empty `behat.php` to a passing scenario.
