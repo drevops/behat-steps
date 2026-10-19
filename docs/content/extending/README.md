@@ -32,7 +32,7 @@ Behat Steps ships 3 layers, and each one takes code of your own where the shippe
 | [Field handlers](backend.md#field-handlers) | The `drupal.field_handlers` option, `FieldHandlerCapabilityInterface` and `FieldHandlerInterface`. The shipped handlers' protected methods aren't covered |
 | [Creation aliases](backend.md#creation-aliases) | The `drupal.creation_aliases` and `drush.creation_aliases` options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` |
 | [A Core of your own](backend.md#core) | The `drupal.core` option. `CoreInterface` and the Core classes aren't covered |
-| [A backend of your own](backend.md#a-backend-of-your-own) | The `backends` option, and the `backendFor()` and `getBackend()` helpers. The `behat_steps.backend` service tag isn't covered, and neither is any capability interface that no helper's signature names |
+| [A backend of your own](backend.md#a-backend-of-your-own) | The `backends` option, and the `backendFor()` and `getBackend()` helpers. The `behat_steps.backend` service tag isn't covered, and neither is any capability interface that no helper's signature names, apart from `FieldHandlerCapabilityInterface` and `CreationAliasCapabilityInterface` |
 
 ## Where to next
 

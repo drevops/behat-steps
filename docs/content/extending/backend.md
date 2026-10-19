@@ -284,7 +284,7 @@ A bare entry names a backend by its alias, so that alias holds only letters, dig
 
 [Service container](../../../MIGRATION.md#service-container) maps the 3.x service names and the `drupal.driver` tag to their 4.0 names.
 
-Semantic versioning covers the `backends` option, and the `backendFor()` and `getBackend()` helpers that reach a backend. It doesn't cover the `behat_steps.backend` tag. Only 3 capability interfaces appear in a helper's signature: `UserCapabilityInterface`, `EntityDefinitionCapabilityInterface` and `DrushCapabilityInterface`. The rest sit on none of the 5 surfaces [Public API and versioning](../versioning.md) lists, so a minor release can add a method to 1 of them that your backend then has to implement.
+Semantic versioning covers the `backends` option, and the `backendFor()` and `getBackend()` helpers that reach a backend. It doesn't cover the `behat_steps.backend` tag. Only 3 capability interfaces appear in a helper's signature: `UserCapabilityInterface`, `EntityDefinitionCapabilityInterface` and `DrushCapabilityInterface`. 2 more are covered as the way a context registers a class of its own: `FieldHandlerCapabilityInterface` and `CreationAliasCapabilityInterface`. The rest sit on none of the 5 surfaces [Public API and versioning](../versioning.md) lists, so a minor release can add a method to 1 of them that your backend then has to implement.
 
 ## Where to next
 
