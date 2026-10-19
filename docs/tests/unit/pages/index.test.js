@@ -175,10 +175,15 @@ describe('Home', () => {
     expect(screen.getByRole('link', { name: new RegExp(`^${name.replace('.', '\\.')} `) })).toHaveAttribute('href', href);
   });
 
-  test('links the quick start from the step that registers a context', () => {
+  test.each([
+    ['Install the package', 'Installation', '/installation#optional-dependencies'],
+    ['Register a context', 'See the whole file', '/quick-start#2-enable-the-extension'],
+  ])('links the docs from the step "%s"', (step, name, href) => {
     render(<Home />);
 
-    expect(screen.getByRole('link', { name: 'See the whole file' })).toHaveAttribute('href', '/quick-start#2-enable-the-extension');
+    const item = screen.getByRole('heading', { name: step }).closest('li');
+
+    expect(within(item).getByRole('link', { name })).toHaveAttribute('href', href);
   });
 
   test('says that every external link opens a new tab', () => {

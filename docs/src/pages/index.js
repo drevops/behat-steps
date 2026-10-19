@@ -166,7 +166,11 @@ const REASONS = [
 const STEPS = [
   {
     title: 'Install the package',
-    text: 'Composer brings Behat, Mink and everything else the steps run on.',
+    text: (
+      <>
+        Add it to your project's dev dependencies. A few steps need 1 more package, which <Link to="/installation#optional-dependencies">Installation</Link> lists.
+      </>
+    ),
     command: INSTALL_COMMAND,
     name: 'install command',
   },
