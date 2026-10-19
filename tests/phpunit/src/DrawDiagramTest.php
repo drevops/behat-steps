@@ -457,6 +457,8 @@ class DrawDiagramTest extends UnitTestCase {
     $this->assertStringStartsWith('/drawio-skill Create the draw.io diagram `/docs/flow.drawio` from the brief below.' . "\n", $prompt);
     $this->assertStringContainsString('- `/docs/flow.drawio` does not exist yet: draw it from scratch with a PHP generator in `/tmp/diagrams`.', $prompt);
     $this->assertStringContainsString('- Keep every response short.', $prompt);
+    $this->assertStringContainsString('run the generator as `php /tmp/diagrams/<file>.php`', $prompt);
+    $this->assertStringContainsString('- Run only the validator, a PHP file in `/tmp/diagrams` and the draw.io export', $prompt);
     $this->assertStringContainsString('`python3 /skills/drawio-skill/scripts/validate.py /docs/flow.drawio --score`', $prompt);
     $this->assertStringContainsString('`/bin/drawio --export --format png --width 2000 --output /tmp/diagrams/draft.png /docs/flow.drawio`', $prompt);
     $this->assertStringEndsWith("## Brief\n\nDraw a box.", $prompt);
@@ -494,13 +496,13 @@ class DrawDiagramTest extends UnitTestCase {
       '--permission-mode=acceptEdits',
       '--permission-prompts=none',
       '--add-dir=/skills/drawio-skill',
-      '--allowedTools=Read,Write,Edit,Glob,Grep,Bash(python3 *),Bash(php *),Bash(/bin/drawio *)',
+      '--allowedTools=Read,Write,Edit,Glob,Grep,Bash(python3 /skills/drawio-skill/scripts/validate.py *),Bash(php /scratch/flow/*),Bash(/bin/drawio --export *)',
       '--effort=medium',
       ...$expected_options,
       'Draw a box.',
     ];
 
-    $this->assertSame($expected, draw_diagram_session_command('Draw a box.', '/skills/drawio-skill', '/bin/drawio', $model, 'medium', $budget));
+    $this->assertSame($expected, draw_diagram_session_command('Draw a box.', '/skills/drawio-skill', '/bin/drawio', '/scratch/flow', $model, 'medium', $budget));
   }
 
   public static function dataProviderSessionCommand(): array {

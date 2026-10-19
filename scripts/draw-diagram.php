@@ -111,14 +111,6 @@ const DRAW_DIAGRAM_PNG_FLAGS = ['--format', 'png', '--width', '2000'];
 const DRAW_DIAGRAM_SESSION_TOOLS = ['Read', 'Write', 'Edit', 'Glob', 'Grep'];
 
 /**
- * Commands the drawing session may run besides the draw.io binary.
- *
- * The session runs the drawio-skill's validator with python3 and its own
- * diagram generator with php.
- */
-const DRAW_DIAGRAM_SESSION_COMMANDS = ['python3', 'php'];
-
-/**
  * Pattern of the comment naming the source an SVG was exported from.
  */
 const DRAW_DIAGRAM_MARKER_PATTERN = '/<!-- Exported by scripts\/draw-diagram\.php from (\S+) with sha256 ([0-9a-f]{64})\. -->\n?/';
@@ -180,6 +172,7 @@ This session runs unattended, so ask nothing: settle every open point yourself a
 - {state}
 - Keep every response short. Claude Code discards a response that runs past the output token limit, reasoning included, so settle the layout in a few lines rather than cell by cell, and write at most 300 lines in 1 call.
 - Save the diagram to `{diagram}` as uncompressed XML, with 1 page. Keep every draft and scratch file in `{scratch}`, and change no other file.
+- Run only the validator, a PHP file in `{scratch}` and the draw.io export, each by the full path given here: no other command is allowed. Read and search with the Read, Glob and Grep tools.
 - Give the diagram a white background, as `background="#ffffff"` on `mxGraphModel`, so it stays readable on a dark page.
 - Validate it with `python3 {skill}/scripts/validate.py {diagram} --score`, and fix every error it reports.
 - Export a draft with `{drawio} --export --format png --width 2000 --output {scratch}/draft.png {diagram}`, then read the PNG. Fix overlapping shapes, clipped or unreadable labels, edges crossing shapes and stacked edges, in at most 2 rounds of repairs.
@@ -194,7 +187,7 @@ PROMPT;
 /**
  * The prompt's first rule when the diagram does not exist yet.
  */
-const DRAW_DIAGRAM_STATE_CREATE = '`{diagram}` does not exist yet: draw it from scratch with a PHP generator in `{scratch}`. Write the helpers that turn a container, a node or an edge into XML in 1 file, and the cells with their coordinates in 1 file per part of the diagram, each file in its own call. Then run the generator with `php` to write the diagram.';
+const DRAW_DIAGRAM_STATE_CREATE = '`{diagram}` does not exist yet: draw it from scratch with a PHP generator in `{scratch}`. Write the helpers that turn a container, a node or an edge into XML in 1 file, and the cells with their coordinates in 1 file per part of the diagram, each file in its own call. Then run the generator as `php {scratch}/<file>.php` to write the diagram.';
 
 /**
  * The prompt's first rule when the diagram exists.
@@ -284,7 +277,7 @@ function draw_diagram(array $arguments, array $environment, string $working_dire
   draw_diagram_create_directory($scratch);
 
   $prompt = draw_diagram_prompt($diagram, draw_diagram_read_briefs($options['briefs'], $working_directory), $skill, $drawio, $scratch);
-  $command = draw_diagram_session_command($prompt, $skill, $drawio, $options['model'], $options['effort'], $options['budget']);
+  $command = draw_diagram_session_command($prompt, $skill, $drawio, $scratch, $options['model'], $options['effort'], $options['budget']);
 
   echo sprintf('Drawing %s with /%s.', $diagram, DRAW_DIAGRAM_SKILL) . PHP_EOL;
 
@@ -676,7 +669,9 @@ function draw_diagram_prompt(string $diagram, string $briefs, string $skill, str
  * @param string $skill
  *   The skill directory, which the session reads from.
  * @param string $drawio
- *   The draw.io desktop binary, which the session runs.
+ *   The draw.io desktop binary, which the session exports drafts with.
+ * @param string $scratch
+ *   The directory for drafts, whose PHP generator the session runs.
  * @param string|null $model
  *   The model of the session, or NULL for the configured model.
  * @param string $effort
@@ -687,10 +682,13 @@ function draw_diagram_prompt(string $diagram, string $briefs, string $skill, str
  * @return list<string>
  *   The command and its arguments.
  */
-function draw_diagram_session_command(string $prompt, string $skill, string $drawio, ?string $model, string $effort, ?string $budget): array {
-  $binaries = [...DRAW_DIAGRAM_SESSION_COMMANDS, $drawio];
-  $commands = array_map(static fn(string $binary): string => sprintf('Bash(%s *)', $binary), $binaries);
-  $tools = [...DRAW_DIAGRAM_SESSION_TOOLS, ...$commands];
+function draw_diagram_session_command(string $prompt, string $skill, string $drawio, string $scratch, ?string $model, string $effort, ?string $budget): array {
+  // A rule for a bare interpreter also allows a one-liner, so each rule names
+  // the script or subcommand the session runs.
+  $validator = sprintf('Bash(python3 %s/scripts/validate.py *)', $skill);
+  $generator = sprintf('Bash(php %s/*)', $scratch);
+  $export = sprintf('Bash(%s --export *)', $drawio);
+  $tools = [...DRAW_DIAGRAM_SESSION_TOOLS, $validator, $generator, $export];
 
   // Without a person to answer, a permission prompt would block the session,
   // so every tool outside the list is denied instead.
