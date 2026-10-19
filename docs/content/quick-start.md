@@ -28,12 +28,12 @@ Behat reads its settings from `behat.php` in your project's root. Your scenarios
 
 ```text
 your-project/
-├── behat.php                     Behat's configuration
+├── behat.php
 ├── composer.json
 ├── tests/
 │   └── behat/
 │       └── features/
-│           └── homepage.feature  Your first scenario
+│           └── homepage.feature
 └── vendor/
 ```
 
@@ -203,7 +203,7 @@ your-project/
 └── tests/
     └── behat/
         ├── bootstrap/
-        │   └── FeatureContext.php    Your own steps
+        │   └── FeatureContext.php
         └── features/
             └── homepage.feature
 ```
