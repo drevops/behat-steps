@@ -128,7 +128,7 @@ vendor/bin/behat --definitions=l
 
 [Web steps](web-steps/README.md) has the same steps with an example for each.
 
-## 5. Testing a Drupal site
+## 5. Add the Drupal steps
 
 Skip this part if your site isn't built with Drupal.
 
