@@ -2,7 +2,7 @@
 
 Below are some guidelines for developing and maintaining the Behat steps.
 
-New here? [docs/content/architecture/](docs/content/architecture/README.md) walks through how the pieces fit together - the trait library, the generated step documentation, and the fixture site the tests run against - with UML component, class and sequence diagrams.
+New here? [docs/content/architecture/](docs/content/architecture/README.md) shows how the pieces fit together - the layers, the step traits, and the tooling that documents and tests them - in a logical architecture, a class inheritance and a data flow diagram.
 
 ## Steps format
 

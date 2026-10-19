@@ -56,17 +56,17 @@ The site is an npm project of its own, run on the host rather than in the Docker
 
 ### Architecture Documentation
 
-[docs/content/architecture/README.md](docs/content/architecture/README.md) is the narrative walkthrough of how the project works - components, primary flows, and the diagrams that go with them. The diagrams are PlantUML sources (`docs/content/architecture/*.puml`) rendered to committed light SVGs; both are tracked. It is owned by the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](.claude/skills/update-architecture-docs/SKILL.md), which holds the rules for writing it. Do not hand-edit it against those rules; invoke the skill.
+[docs/content/architecture/README.md](docs/content/architecture/README.md) explains how the project works in 3 views - the logical architecture, the class inheritance and the data flow - each 1 diagram with a short walkthrough. Each diagram is a draw.io source (`docs/content/architecture/*.drawio`) and the SVG exported from it; both are tracked. It is owned by the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](.claude/skills/update-architecture-docs/SKILL.md), which holds the rules for writing it and draws the diagrams with the [drawio-skill](https://github.com/Agents365-ai/drawio-skill) through [scripts/draw-diagram.php](scripts/draw-diagram.php). Do not hand-edit it against those rules; invoke the skill.
 
 **Regenerate it before opening any pull request.** Run the skill (say "update architecture docs") as part of the pre-PR checks, alongside `ahoy update-docs` and `ahoy lint`. When the branch changed nothing structural, the skill is a no-op and the document stays as it is - that is the expected outcome for most PRs, and it is still worth the check.
 
-After editing any `.puml`, re-render every SVG so the sources and the renders cannot drift:
+After editing a `.drawio` source in draw.io, export every SVG again so the sources and the renders cannot drift. Each SVG records the hash of the source it came from, and the unit suite fails an SVG exported from an older source:
 
 ```bash
-plantuml -tsvg docs/content/architecture/*.puml
+php scripts/draw-diagram.php --export docs/content/architecture
 ```
 
-A change is structural when it moves, adds, or removes a component or alters a flow between components: a new trait directory or namespace, a change to how a shipped context composes traits, a change to how `docs.php` discovers or renders steps, a change to how the fixture site is provisioned, a change to the nested-Behat harness, or a change to the CI matrix. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
+A change is structural when it moves, adds, or removes a component or alters a flow between components: a new trait directory or namespace, a new backend or capability, a change to how a shipped context composes traits, a change to an inheritance tree the class diagram shows, a change to the scenario lifecycle, or a change to what `docs.php`, the fixture site provisioning or the test harness read or write. Adding a step to an existing trait, renaming step text, or fixing an assertion is not structural.
 
 ## Implementation Patterns and Learnings
 
