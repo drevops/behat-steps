@@ -53,7 +53,20 @@ const DRAW_DIAGRAM_DRAWIO_RELEASES = 'https://github.com/jgraph/drawio-desktop/r
 /**
  * Seconds a drawing session runs before it is stopped.
  */
-const DRAW_DIAGRAM_TIMEOUT = 1800;
+const DRAW_DIAGRAM_TIMEOUT = 3600;
+
+/**
+ * Effort of a drawing session unless --effort says otherwise.
+ *
+ * At a higher effort, a session spends most of its time planning coordinates
+ * before it draws anything.
+ */
+const DRAW_DIAGRAM_EFFORT = 'high';
+
+/**
+ * Efforts a drawing session accepts.
+ */
+const DRAW_DIAGRAM_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
 
 /**
  * Seconds 1 export runs before it is stopped.
@@ -61,7 +74,10 @@ const DRAW_DIAGRAM_TIMEOUT = 1800;
 const DRAW_DIAGRAM_EXPORT_TIMEOUT = 120;
 
 /**
- * Directory for drafts and review images, relative to the repository root.
+ * Directory for review images, relative to the repository root.
+ *
+ * Each drawing session keeps its drafts in a directory of its own below it,
+ * so sessions drawing in parallel never overwrite each other's files.
  */
 const DRAW_DIAGRAM_SCRATCH_DIRECTORY = '.artifacts/tmp/diagrams';
 
@@ -97,7 +113,7 @@ const DRAW_DIAGRAM_MARKER_PATTERN = '/<!-- Exported by scripts\/draw-diagram\.ph
 /**
  * Options that take a value, mapped to whether they may repeat.
  */
-const DRAW_DIAGRAM_VALUE_OPTIONS = ['brief' => TRUE, 'model' => FALSE, 'budget' => FALSE, 'timeout' => FALSE];
+const DRAW_DIAGRAM_VALUE_OPTIONS = ['brief' => TRUE, 'model' => FALSE, 'effort' => FALSE, 'budget' => FALSE, 'timeout' => FALSE];
 
 /**
  * Options that select what the script does instead of drawing.
@@ -111,7 +127,7 @@ const DRAW_DIAGRAM_USAGE = <<<'USAGE'
 Draws a draw.io diagram through the drawio-skill and exports it to SVG.
 
 Usage:
-  php scripts/draw-diagram.php --brief=<file> [--brief=<file>]... [--model=<name>] [--budget=<usd>] [--timeout=<seconds>] <diagram.drawio>
+  php scripts/draw-diagram.php --brief=<file> [--brief=<file>]... [--model=<name>] [--effort=<level>] [--budget=<usd>] [--timeout=<seconds>] <diagram.drawio>
   php scripts/draw-diagram.php --export <diagram.drawio|directory>...
   php scripts/draw-diagram.php --check <diagram.drawio|directory>...
 
@@ -122,8 +138,10 @@ PNG to .artifacts/tmp/diagrams/. An existing diagram is updated in place.
 Options:
   --brief    A file describing the diagram. Repeat it to add files in order.
   --model    The model of the session. Defaults to the configured model.
+  --effort   The effort of the session: low, medium, high, xhigh or max.
+             Defaults to high.
   --budget   The most the session may spend, in US dollars.
-  --timeout  The seconds the session may run. Defaults to 1800.
+  --timeout  The seconds the session may run. Defaults to 3600.
   --export   Exports each diagram again, after an edit in draw.io.
   --check    Fails when an SVG was not exported from its current source.
   --help     Prints this help.
@@ -145,7 +163,7 @@ This session runs unattended, so ask nothing: settle every open point yourself a
 - Save the diagram to `{diagram}` as uncompressed XML, with 1 page. Keep every draft and scratch file in `{scratch}`, and change no other file.
 - Give the diagram a white background, as `background="#ffffff"` on `mxGraphModel`, so it stays readable on a dark page.
 - Validate it with `python3 {skill}/scripts/validate.py {diagram} --score`, and fix every error it reports.
-- Export a draft with `{drawio} --export --format png --width 2000 --output {scratch}/{name}.png {diagram}`, then read the PNG. Fix overlapping shapes, clipped or unreadable labels, edges crossing shapes and stacked edges, in at most 2 rounds of repairs.
+- Export a draft with `{drawio} --export --format png --width 2000 --output {scratch}/draft.png {diagram}`, then read the PNG. Fix overlapping shapes, clipped or unreadable labels, edges crossing shapes and stacked edges, in at most 2 rounds of repairs.
 - Leave the SVG alone: the script that started this session exports it once the session ends.
 - End with a short report: what the diagram shows, the validation score, and every decision and compromise.
 
@@ -243,11 +261,11 @@ function draw_diagram(array $arguments, array $environment, string $working_dire
   }
 
   $skill = draw_diagram_find_skill($root, $environment);
-  $scratch = $root . '/' . DRAW_DIAGRAM_SCRATCH_DIRECTORY;
+  $scratch = $root . '/' . DRAW_DIAGRAM_SCRATCH_DIRECTORY . '/' . basename($diagram, '.drawio');
   draw_diagram_create_directory($scratch);
 
   $prompt = draw_diagram_prompt($diagram, draw_diagram_read_briefs($options['briefs'], $working_directory), $skill, $drawio, $scratch);
-  $command = draw_diagram_session_command($prompt, $skill, $drawio, $options['model'], $options['budget']);
+  $command = draw_diagram_session_command($prompt, $skill, $drawio, $options['model'], $options['effort'], $options['budget']);
 
   echo sprintf('Drawing %s with /%s.', $diagram, DRAW_DIAGRAM_SKILL) . PHP_EOL;
 
@@ -287,7 +305,7 @@ function draw_diagram(array $arguments, array $environment, string $working_dire
  * @param array<int, string> $arguments
  *   The command line arguments, without the script name.
  *
- * @return array{mode: string, paths: array<int, string>, briefs: array<int, string>, model: string|null, budget: string|null, timeout: int}
+ * @return array{mode: string, paths: array<int, string>, briefs: array<int, string>, model: string|null, effort: string, budget: string|null, timeout: int}
  *   The selected mode, the diagram paths and the drawing options.
  *
  * @throws \RuntimeException
@@ -338,6 +356,12 @@ function draw_diagram_parse_arguments(array $arguments): array {
     }
   }
 
+  $effort = $values['effort'][0] ?? DRAW_DIAGRAM_EFFORT;
+
+  if (!in_array($effort, DRAW_DIAGRAM_EFFORTS, TRUE)) {
+    throw draw_diagram_usage_error(sprintf('The --effort option takes 1 of %s, not "%s".', implode(', ', DRAW_DIAGRAM_EFFORTS), $effort));
+  }
+
   $budget = $values['budget'][0] ?? NULL;
 
   if ($budget !== NULL && (!is_numeric($budget) || (float) $budget <= 0)) {
@@ -355,6 +379,7 @@ function draw_diagram_parse_arguments(array $arguments): array {
     'paths' => $paths,
     'briefs' => $values['brief'] ?? [],
     'model' => $values['model'][0] ?? NULL,
+    'effort' => $effort,
     'budget' => $budget,
     'timeout' => (int) $timeout,
   ];
@@ -614,7 +639,6 @@ function draw_diagram_prompt(string $diagram, string $briefs, string $skill, str
   return strtr($template, [
     '{action}' => $is_update ? 'Update' : 'Create',
     '{diagram}' => $diagram,
-    '{name}' => basename($diagram, '.drawio'),
     '{skill}' => $skill,
     '{drawio}' => $drawio,
     '{scratch}' => $scratch,
@@ -636,13 +660,15 @@ function draw_diagram_prompt(string $diagram, string $briefs, string $skill, str
  *   The draw.io desktop binary, which the session runs.
  * @param string|null $model
  *   The model of the session, or NULL for the configured model.
+ * @param string $effort
+ *   The effort of the session.
  * @param string|null $budget
  *   The most the session may spend in US dollars, or NULL for no cap.
  *
  * @return list<string>
  *   The command and its arguments.
  */
-function draw_diagram_session_command(string $prompt, string $skill, string $drawio, ?string $model, ?string $budget): array {
+function draw_diagram_session_command(string $prompt, string $skill, string $drawio, ?string $model, string $effort, ?string $budget): array {
   $tools = [...DRAW_DIAGRAM_SESSION_TOOLS, sprintf('Bash(%s *)', $drawio)];
 
   // Without a person to answer, a permission prompt would block the session,
@@ -657,6 +683,7 @@ function draw_diagram_session_command(string $prompt, string $skill, string $dra
     '--permission-prompts=none',
     '--add-dir=' . $skill,
     '--allowedTools=' . implode(',', $tools),
+    '--effort=' . $effort,
   ];
 
   if ($model !== NULL) {
@@ -950,9 +977,31 @@ function draw_diagram_export(string $diagram, string $drawio, string $root, call
     }
   }
 
+  file_put_contents($svg, draw_diagram_strip_fallbacks((string) file_get_contents($svg)));
   draw_diagram_stamp($svg, $diagram);
 
   return $png;
+}
+
+/**
+ * Removes the raster copies of the HTML labels from an exported SVG.
+ *
+ * draw.io writes a PNG copy beside every HTML label, for viewers that can't
+ * draw HTML in an SVG. Every browser draws the HTML, and the copies make up
+ * most of the file. A shared image no remaining element uses goes too.
+ *
+ * @param string $contents
+ *   The SVG.
+ *
+ * @return string
+ *   The SVG without the copies.
+ */
+function draw_diagram_strip_fallbacks(string $contents): string {
+  $contents = (string) preg_replace('#(</foreignObject>)<(?:image|use)\b[^>]*/>#', '$1', $contents);
+  preg_match_all('/href="#(mx-image-[^"]+)"/', $contents, $matches);
+  $used = array_flip($matches[1]);
+
+  return (string) preg_replace_callback('#<symbol id="(mx-image-[^"]+)"[^>]*>.*?</symbol>#s', static fn(array $symbol): string => isset($used[$symbol[1]]) ? $symbol[0] : '', $contents);
 }
 
 /**

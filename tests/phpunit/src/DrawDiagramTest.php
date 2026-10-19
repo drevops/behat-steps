@@ -33,6 +33,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('draw_diagram_session_command')]
 #[CoversFunction('draw_diagram_shorten')]
 #[CoversFunction('draw_diagram_stamp')]
+#[CoversFunction('draw_diagram_strip_fallbacks')]
 #[CoversFunction('draw_diagram_svg_path')]
 #[CoversFunction('draw_diagram_usage_error')]
 class DrawDiagramTest extends UnitTestCase {
@@ -188,7 +189,7 @@ class DrawDiagramTest extends UnitTestCase {
   }
 
   public static function dataProviderParseArguments(): array {
-    $defaults = ['mode' => 'draw', 'paths' => [], 'briefs' => [], 'model' => NULL, 'budget' => NULL, 'timeout' => 1800];
+    $defaults = ['mode' => 'draw', 'paths' => [], 'briefs' => [], 'model' => NULL, 'effort' => 'high', 'budget' => NULL, 'timeout' => 3600];
 
     return [
       'draw with 2 briefs' => [
@@ -196,8 +197,8 @@ class DrawDiagramTest extends UnitTestCase {
         array_merge($defaults, ['paths' => ['flow.drawio'], 'briefs' => ['style.md', 'flow.md']]),
       ],
       'draw with every option' => [
-        ['--model=opus', '--budget=2.5', '--timeout=60', '--brief=flow.md', 'flow.drawio'],
-        array_merge($defaults, ['paths' => ['flow.drawio'], 'briefs' => ['flow.md'], 'model' => 'opus', 'budget' => '2.5', 'timeout' => 60]),
+        ['--model=opus', '--effort=max', '--budget=2.5', '--timeout=60', '--brief=flow.md', 'flow.drawio'],
+        array_merge($defaults, ['paths' => ['flow.drawio'], 'briefs' => ['flow.md'], 'model' => 'opus', 'effort' => 'max', 'budget' => '2.5', 'timeout' => 60]),
       ],
       'a value holding an equals sign' => [
         ['--brief=a=b.md', 'flow.drawio'],
@@ -252,6 +253,7 @@ class DrawDiagramTest extends UnitTestCase {
       'drawing 2 diagrams' => [['--brief=a.md', 'a.drawio', 'b.drawio'], 'Drawing takes exactly 1 diagram.'],
       'drawing without a brief' => [['flow.drawio'], 'Drawing needs at least 1 --brief.'],
       'drawing a file that is not a diagram' => [['--brief=a.md', 'flow.svg'], 'The diagram flow.svg does not end in ".drawio".'],
+      'an unknown effort' => [['--brief=a.md', '--effort=huge', 'flow.drawio'], 'The --effort option takes 1 of low, medium, high, xhigh, max, not "huge".'],
       'a budget that is not a number' => [['--brief=a.md', '--budget=lots', 'flow.drawio'], 'The --budget option takes a positive amount in US dollars, not "lots".'],
       'a budget of 0' => [['--brief=a.md', '--budget=0', 'flow.drawio'], 'The --budget option takes a positive amount in US dollars, not "0".'],
       'a negative budget' => [['--brief=a.md', '--budget=-1', 'flow.drawio'], 'The --budget option takes a positive amount in US dollars, not "-1".'],
@@ -454,7 +456,7 @@ class DrawDiagramTest extends UnitTestCase {
     $this->assertStringStartsWith('/drawio-skill Create the draw.io diagram `/docs/flow.drawio` from the brief below.' . "\n", $prompt);
     $this->assertStringContainsString('- `/docs/flow.drawio` does not exist yet: draw it from scratch.' . "\n", $prompt);
     $this->assertStringContainsString('`python3 /skills/drawio-skill/scripts/validate.py /docs/flow.drawio --score`', $prompt);
-    $this->assertStringContainsString('`/bin/drawio --export --format png --width 2000 --output /tmp/diagrams/flow.png /docs/flow.drawio`', $prompt);
+    $this->assertStringContainsString('`/bin/drawio --export --format png --width 2000 --output /tmp/diagrams/draft.png /docs/flow.drawio`', $prompt);
     $this->assertStringEndsWith("## Brief\n\nDraw a box.", $prompt);
     $this->assertDoesNotMatchRegularExpression('/\{[a-z]+\}/', $prompt);
   }
@@ -491,11 +493,12 @@ class DrawDiagramTest extends UnitTestCase {
       '--permission-prompts=none',
       '--add-dir=/skills/drawio-skill',
       '--allowedTools=Read,Write,Edit,Glob,Grep,Bash(python3 *),Bash(/bin/drawio *)',
+      '--effort=medium',
       ...$expected_options,
       'Draw a box.',
     ];
 
-    $this->assertSame($expected, draw_diagram_session_command('Draw a box.', '/skills/drawio-skill', '/bin/drawio', $model, $budget));
+    $this->assertSame($expected, draw_diagram_session_command('Draw a box.', '/skills/drawio-skill', '/bin/drawio', $model, 'medium', $budget));
   }
 
   public static function dataProviderSessionCommand(): array {
@@ -805,6 +808,39 @@ class DrawDiagramTest extends UnitTestCase {
     $this->expectExceptionMessage(static::$tmp . '/flow.svg holds no <svg> element to record its source in.');
 
     draw_diagram_export($diagram, '/bin/drawio', static::$tmp, $runner);
+  }
+
+  /**
+   * Assert that the raster copies of the labels are removed from an SVG.
+   *
+   * @param string $contents
+   *   The SVG.
+   * @param string $expected
+   *   The expected SVG.
+   */
+  #[DataProvider('dataProviderStripFallbacks')]
+  public function testStripFallbacks(string $contents, string $expected): void {
+    $this->assertSame($expected, draw_diagram_strip_fallbacks($contents));
+  }
+
+  public static function dataProviderStripFallbacks(): array {
+    $label = '<switch><foreignObject width="100%%"><div>Name</div></foreignObject>%s</switch>';
+    $shared = '<symbol id="mx-image-shared" viewBox="0 0 1 1"><image href="data:image/png;base64,AAAA"/></symbol>';
+    $kept = '<symbol id="mx-image-kept" viewBox="0 0 1 1"><image href="data:image/png;base64,BBBB"/></symbol>';
+
+    return [
+      'a label without a copy' => [sprintf($label, ''), sprintf($label, '')],
+      'an inline copy' => [sprintf($label, '<image x="1" y="2" xlink:href="data:image/png;base64,iVBORw0KGgo/+="/>'), sprintf($label, '')],
+      'a shared copy' => [
+        '<defs>' . $shared . '</defs>' . sprintf($label, '<use x="1" href="#mx-image-shared" xlink:href="#mx-image-shared"/>'),
+        '<defs></defs>' . sprintf($label, ''),
+      ],
+      'a shared image a shape still uses' => [
+        '<defs>' . $kept . '</defs><use href="#mx-image-kept"/>' . sprintf($label, '<use href="#mx-image-kept"/>'),
+        '<defs>' . $kept . '</defs><use href="#mx-image-kept"/>' . sprintf($label, ''),
+      ],
+      'an image that is not a copy' => ['<g><image href="data:image/png;base64,CCCC"/></g>', '<g><image href="data:image/png;base64,CCCC"/></g>'],
+    ];
   }
 
   public function testCreateDirectoryCreatesItsParents(): void {
