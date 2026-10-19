@@ -25,6 +25,8 @@ Scenario: Editor publishes a page
   And I should see the success message "has been created"
 ```
 
+3 of those lines, `I fill in`, `I select` and `I press`, are Mink's own steps from `MinkContext`, which a suite registers beside this library's context.
+
 The second is the declarative style, which Behat's own quick start teaches ("When I add the 'Sith Lord Lightsaber' to the basket"):
 
 ```gherkin
@@ -73,5 +75,5 @@ The library serves both jobs at once through 1 design rule: every step body is a
 3 consequences follow:
 
 1. **Helpers are public API.** They're documented in [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md), covered by semantic versioning and named as carefully as the steps. The helper surface is half the product. This is also where the trait model earns its keep: the helpers sit on `$this` in your `FeatureContext`, so a domain step costs 3 lines; under a context model, every domain step would start with service lookups.
-2. **Suites split by job.** A spec suite holds the few domain-language scenarios, and a regression suite holds the broad generic-vocabulary ones. That's also how Behat's own documentation says to use suites. [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
+2. **Suites split by job.** A spec suite holds the few domain-language scenarios, and a regression suite holds the broad generic-vocabulary ones. Behat's own documentation presents suites for this kind of split: each one tests a different kind of feature with a different kind of context, in 1 run. [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
 3. **The docs teach a lifecycle.** Start with the vocabulary for instant coverage, then graduate the flows that matter to domain steps on the toolbox. The [quick start](../quick-start.md) shows both scenario styles side by side.

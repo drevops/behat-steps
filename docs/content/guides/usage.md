@@ -14,7 +14,7 @@ A project uses this package by composing a context out of traits and pointing an
 | The context | Which vocabulary a suite gets, and which of those defaults it overrides | Per context |
 | The trait | What a step does, and which options change it | Per trait |
 
-[Configuration](configuration.md) is the reference for every option and tag. This page explains the model those options sit in.
+[Configuration](configuration.md) is the reference for every extension option and tag, and a trait's own page lists the trait's options. This page explains the model those options sit in.
 
 ## The 3 entry points
 
@@ -144,7 +144,7 @@ The 3 reach the same value, most specific last: `steps`, then the context's `con
 
 2 options recur across the traits that carry hooks, and they mean different things:
 
-- `enabled` turns the trait's hooks off entirely: nothing is collected, and no backend is bootstrapped on its account.
+- `enabled` turns the trait's hooks off: nothing is collected, and no backend is bootstrapped on its account.
 - `fail_on_errors` leaves the collection running and stops what it collects from failing the scenario.
 
 A project that never wants a trait's gate turns it off once:
@@ -155,13 +155,15 @@ A project that never wants a trait's gate turns it off once:
 
 rather than tagging every feature file with `@behat-steps-skip:WatchdogTrait`.
 
-Several traits carry hooks that run around every scenario or step, and 1 tag switches off every hook of a trait for a single scenario or feature:
+Several traits carry hooks that run around every scenario or step, and 1 tag switches a trait's hooks off for a single scenario or feature:
 
 ```gherkin
 @behat-steps-skip:TRAIT
 ```
 
 `TRAIT` is the name of the trait, as in `@behat-steps-skip:EmailTrait`, and the tag works on the `Feature:` line as well as the `Scenario:` line. A skip tag fails the run before the scenario starts when its value isn't shaped like a trait name, such as a hook method, or when it names a trait none of your suite's contexts compose, such as a misspelled one.
+
+2 kinds of hook ignore the tag, because they have nothing to switch off. A hook that only resets the trait's own state still runs, and so does a hook that acts only on the trait's own tag, such as `ResponsiveTrait`'s on `@breakpoint:`: removing that tag is what switches it off.
 
 `WatchdogTrait` is the gate you're most likely to meet first, because `DrupalContext` composes it. It reads the errors each scenario logged from the `watchdog` table, which only the core `dblog` module creates. It reads that table through `LogCapabilityInterface`, so it also needs a backend that provides it. Both `drupal` and `drush` do: the in-process backend queries the table, and the Drush backend runs `watchdog:show`.
 
@@ -194,9 +196,10 @@ To keep what a whole run creates, set `BEHAT_STEPS_DISABLE_CLEANUP`, as [Environ
 
 When several entities share the title, label, name or description a step names, the step acts on the newest one. That's the entity the scenario just created, even on a site that already holds a page called "About us".
 
-- Nodes, terms, media, content blocks, menu links and ECK entities are compared by ID, which only grows when an entity is created, so the highest ID wins. Saving an older entity again doesn't make it newer.
-- Blocks and menus have machine names rather than numeric IDs, so the one the scenario created last wins. When the scenario created none of them, the machine name that comes last in natural order wins, so `block_10` beats `block_2`.
+- Nodes, terms, users, media, content blocks, menu links and ECK entities are compared by ID, which only grows when an entity is created, so the highest ID wins. Saving an older entity again doesn't make it newer.
+- Blocks, menus and webform templates have machine names rather than numeric IDs, so the one the scenario created last wins. When the scenario created none of them, the machine name that comes last in natural order wins, so `block_10` beats `block_2`.
 - A `... does not exist` step removes every match, and a step that only checks whether an entity exists, such as `the :content_type content with the title :title should not exist`, looks at every match.
+- 2 lookups inside the creation steps take the first match instead. An entity reference field given a label takes the first entity the lookup returns, which isn't necessarily the newest, and a vocabulary that `the following :vocabulary terms exist:` names by its label resolves to the machine name that comes first in natural order. Give the referenced entity's ID or the vocabulary's machine name to pick a specific one.
 
 ## Where to next
 

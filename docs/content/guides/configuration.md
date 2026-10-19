@@ -1,7 +1,7 @@
 ---
 title: Configuration
 sidebar_position: 2
-description: Behat Steps reads its configuration from suites and context arguments, the extension key, tags and environment variables. This page covers all 4 channels and lists every option and tag.
+description: Behat Steps reads its configuration from suites and context arguments, the extension key, tags and environment variables. This page covers all 4 channels and lists every extension option and tag.
 ---
 
 <!-- cspell:ignore bigpipe testmode -->
@@ -68,7 +68,7 @@ Run 1 surface with `vendor/bin/behat --suite=api`, or all of them with a bare `v
 
 3 properties follow from the layout:
 
-- Each suite composes only the vocabulary its surface needs. `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that can't work on a surface isn't defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run.
+- Each suite composes only the vocabulary its surface needs. `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that can't work on a surface isn't defined on it, so a mistake shows up as an undefined step, which names the problem, rather than a confusing failure inside a step that can't work there. `vendor/bin/behat --dry-run` finds undefined steps without running anything.
 - The spec suite and the regression suites do different jobs. The spec suite holds domain-language scenarios written over your own step definitions; the regression suites hold broad scenarios written in the shipped vocabulary. See [Scenario styles](scenario-styles.md) for why both exist.
 - You can exclude a slow surface without touching the others. Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
 
@@ -307,14 +307,14 @@ declaration default
 
 The 2 levels, `steps` and a context's `config`, differ in how strictly they're read, because they know different things:
 
-- `steps` is permissive. A group there may name a trait that only 1 of the registered contexts composes, so a group or an option a context can't serve is ignored, and 1 profile can carry the defaults of every suite.
+- `steps` is permissive about names. A group there may name a trait that only 1 of the registered contexts composes, so a group or an option a context can't serve is ignored, and 1 profile can carry the defaults of every suite. A group that isn't a map of options, or a value of the wrong type for an option the context does serve, still fails, at the first read of an option.
 - A context's `config` is strict. The context knows which traits it composes, so an unknown group, an unknown option or a value of the wrong type is an error naming what the context accepts.
 
 2 options recur, and they're deliberately separate switches:
 
 | Option | Effect |
 | --- | --- |
-| `enabled` | The trait's hooks do nothing at all. Equivalent to `@behat-steps-skip:<TraitName>` on every scenario. |
+| `enabled` | The trait's hooks do nothing, apart from the ones that only reset its own state. Equivalent to `@behat-steps-skip:<TraitName>` on every scenario. |
 | `fail_on_errors` | The trait still collects, and does not fail the scenario on what it found. |
 
 `fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
@@ -365,8 +365,8 @@ These vary a run without changing any committed configuration. Nothing else in t
 
 | Variable | Read by | Effect |
 | --- | --- | --- |
-| `BEHAT_STEPS_DISABLE_CLEANUP` | `EntityLifecycleTrait`, `AuthTrait` | Set to `1`, `true`, `yes` or `on` to keep the entities, users and roles a scenario created, instead of deleting them in the teardown. The logged-in user also stays logged in for the scenarios that follow. For inspecting the state a failing scenario left behind, not for CI. |
+| `BEHAT_STEPS_DISABLE_CLEANUP` | `WebRawContext`, for `EntityLifecycleTrait` and `AuthTrait` | Set to `1`, `true`, `yes` or `on`, in any letter case, to keep the entities, users and roles a scenario created, instead of deleting them in the teardown. `AuthTrait` skips its logout too, so the `drupal` backend stays logged in as the scenario's user, although Mink still resets the browser session before the next scenario. For inspecting the state a failing scenario left behind, not for CI. |
 | `BEHAT_ACCESSIBILITY_PRINT` | `AccessibilityTrait` | Set to any non-empty value other than `0` to print a one-line accessibility summary per page to the console. |
-| `COMPOSER_BIN_DIR` | `DrushBackend` | When `drush.binary` is the bare `drush`, names the directory the Drush binary is resolved from, before the backend falls back to `vendor/bin/drush` under the working directory and then to `drush` on the `PATH`. Composer sets it inside its own scripts. |
+| `COMPOSER_BIN_DIR` | `DrushBackend` | When `drush.binary` is the bare `drush`, names the directory the Drush binary is resolved from, before the backend falls back to `vendor/bin/drush` under the working directory and then to `drush` on the `PATH`. Composer reads this variable but never sets it, so it applies only when you set it yourself. |
 
 `BEHAT_PARAMS` is Behat's own override channel and applies here as it does to any extension: it carries a JSON object merged over the loaded configuration, which is the usual way to point `base_url` or a browser driver's `api_url` somewhere else for 1 run.
