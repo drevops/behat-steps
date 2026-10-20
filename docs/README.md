@@ -24,6 +24,7 @@ npm run test:accessibility   # Check the built site for accessibility issues
 
 - **Links.** The build rewrites a link that leaves `content/` into a GitHub link. It points at the tag or branch a release build comes from, at the commit a CI build comes from, and at `main` for a local build. The build fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
 - **Gherkin highlighting.** Prism's Gherkin grammar recognizes a step keyword only after indentation, so `src/theme/prism-include-languages.js` widens it to the start of a line. A step example highlights the same with or without indentation.
+- **Diagrams in 2 color modes.** A diagram's page embeds its light SVG with a `#gh-light-mode-only` fragment and its dark SVG with `#gh-dark-mode-only`, the convention GitHub follows. Docusaurus keeps the fragment on the built image, and `src/css/custom.css` hides the image for the other color mode, with the link around it, so the site's own color toggle switches the diagram. `tests/unit/content/diagrams.test.js` fails a diagram embedded without its pair.
 
 ## The home page
 
