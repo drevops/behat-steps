@@ -47,6 +47,7 @@ use Symfony\Component\Config\Definition\ScalarNode;
 #[CoversFunction('camel_to_snake')]
 #[CoversFunction('array_to_markdown_table')]
 #[CoversFunction('render_info')]
+#[CoversFunction('render_step_skill_link')]
 #[CoversFunction('validate')]
 #[CoversFunction('validate_step_patterns')]
 #[CoversFunction('extract_step_examples')]
@@ -3856,6 +3857,21 @@ EOD,
       'a root file from a nested page' => ['docs/content/web-steps/cookie.md', 'README.md', '../../../README.md'],
       'the directory holding the file' => ['docs/content/web-steps/cookie.md', 'docs/content/web-steps', '../web-steps'],
       'the file itself' => ['docs/content/web-steps/cookie.md', 'docs/content/web-steps/cookie.md', 'cookie.md'],
+    ];
+  }
+
+  #[DataProvider('dataProviderRenderStepSkillLink')]
+  public function testRenderStepSkillLink(string $from_file, string $expected_link): void {
+    $expected = 'When no step says what a scenario needs, an AI coding agent can write a step of your own on the helpers with the `create-behat-step` skill, in [skills/create-behat-step/SKILL.md](' . $expected_link . ').' . PHP_EOL . PHP_EOL;
+
+    $this->assertSame($expected, render_step_skill_link($from_file));
+  }
+
+  public static function dataProviderRenderStepSkillLink(): array {
+    return [
+      'the step reference' => ['STEPS.md', 'skills/create-behat-step/SKILL.md'],
+      'the helper reference' => ['HELPERS.md', 'skills/create-behat-step/SKILL.md'],
+      'a nested page' => ['docs/content/guides/ai-assistants.md', '../../../skills/create-behat-step/SKILL.md'],
     ];
   }
 
