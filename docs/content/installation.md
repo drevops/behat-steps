@@ -41,7 +41,7 @@ A few steps need 1 more package each, which [Optional dependencies](#optional-de
 
 ## Coming from the Drupal Extension
 
-Behat Steps does the job of `drupal/drupal-extension` and `drupal/drupal-driver` itself, and its `composer.json` declares a conflict with both, so Composer won't install it while either one is installed, whether your project requires it or another package pulls it in. The [migration guide](../../MIGRATION.md#requirements), which takes a project from Behat Steps 3.x to 4.0, shows how to remove them.
+Behat Steps does the job of `drupal/drupal-extension` and `drupal/drupal-driver` itself, and its `composer.json` declares a conflict with both, so Composer won't install it while either one is installed, whether your project requires it or another package pulls it in. The [migration guide](../../MIGRATION.md#requirements) shows how to remove them. It's written for Behat Steps 3.x projects, which ran on the Drupal Extension, so it also lists what replaces the Drupal Extension's steps and classes.
 
 ## Optional dependencies
 
@@ -91,9 +91,11 @@ $profile
   ]));
 ```
 
-This is the whole `MinkExtension` entry. A profile takes each extension once, and Behat stops with an error saying the extension already exists when a profile registers it twice. So if your profile already registers `MinkExtension`, add these settings to that entry, and keep any of your own that it doesn't set. Mink runs every scenario tagged `@javascript` on the `javascript_session`, and every other scenario on the first session that can't run JavaScript, `browserkit_http` here. Only the tagged scenarios run in Chrome.
+This is the whole `MinkExtension` entry. A profile takes each extension once, and Behat stops with an error saying the extension already exists when a profile registers it twice. So if your profile already registers `MinkExtension`, add `javascript_session` and the `chrome` session to that entry, and keep your own `base_url` and sessions. Mink runs every scenario tagged `@javascript` on the `javascript_session`, and every other scenario on the first session that can't run JavaScript, `browserkit_http` here. Only the tagged scenarios run in Chrome.
 
-`api_url` is the address of Chrome's DevTools endpoint. In the example, `chrome` is the host name Chrome answers on, such as the name of its Docker Compose service, and 9222 is its port, so replace both with your own. Chrome loads your site itself, so it has to reach your `base_url` too. Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell).
+In `'chrome' => ['chrome' => [...]]`, the first `chrome` names the session, which `javascript_session` points at, and the second picks the Chrome driver, whose settings follow. `api_url` is the address of Chrome's DevTools endpoint.
+
+In `http://chrome:9222`, `chrome` is the host name Chrome answers on, such as the name of its Docker Compose service, and 9222 is its port, so replace both with your own. Chrome loads your site itself, so it has to reach your `base_url` too. Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell).
 
 When your site runs in Docker Compose, a service like this one starts a headless Chrome beside it:
 
@@ -123,11 +125,13 @@ $headed = (new Profile('headed'))
 return (new Config())->withProfile($profile)->withProfile($headed);
 ```
 
-A profile other than `default` starts from `default` and overrides only what it sets, so the headed run keeps every other setting. This setup suits a Behat that runs on your machine, beside that Chrome: `http://localhost:9222` reaches the Chrome, and the Chrome has to reach your site's `base_url` in turn. When Behat runs in a container, `localhost` is the container itself, and a Chrome on your machine can't open a Compose address such as `http://nginx:8080`. To watch a browser in that setup, run `@javascript` scenarios through Selenium on an image that shows its browser in a web page, such as `selenium/standalone-chromium` on its port 7900, as this repository's `chrome` service does. `BEHAT_PARAMS` can't make this change, because it can't override a setting `behat.php` makes, as [Environment variables](guides/configuration.md#4-environment-variables) explains.
+A profile other than `default` starts from `default` and overrides only what it sets, so registering `MinkExtension` again in `headed` is fine, and the headed run keeps every other setting. `BEHAT_PARAMS` can't make this change, because it can't override a setting `behat.php` makes, as [Environment variables](guides/configuration.md#4-environment-variables) explains.
 
-To run `@javascript` scenarios through Selenium instead, add `lullabot/mink-selenium2-driver` and give Mink a `selenium2` session that points at your Selenium server, with `javascript_session` set to `selenium2`. [behat.dist.php](../../behat.dist.php) sets it up that way, with `browser_name` naming the browser Selenium starts.
+This setup suits a Behat that runs on your machine, beside that Chrome: `http://localhost:9222` reaches the Chrome, and the Chrome has to reach your site's `base_url` in turn. When Behat runs in a container, `localhost` is the container itself, and a Chrome on your machine can't open a Compose address such as `http://nginx:8080`. To watch a browser in that setup, run `@javascript` scenarios through Selenium on an image that shows its browser in a web page, such as `selenium/standalone-chromium` on its port 7900, as this repository's Selenium service, `chrome`, does.
 
-`lullabot/mink-selenium2-driver` is a fork of `behat/mink-selenium2-driver` that works with Selenium 4. The original, up to its 1.7.0 release, opens a session through the JSON Wire Protocol, which Selenium 4 dropped, so a Selenium 4 server refuses it with `Could not start a new session. No nodes support the capabilities in the request`. The fork speaks the W3C WebDriver protocol Selenium 4 expects. It provides the same `Selenium2Driver` class and declares that it replaces the original, so Composer installs only 1 of them. A Drupal project that requires `drupal/core-dev` already has the fork, because `core-dev` requires it, and `composer show lullabot/mink-selenium2-driver` tells you whether yours does. To switch from the original, remove it and require the fork:
+To run `@javascript` scenarios through Selenium instead, add `lullabot/mink-selenium2-driver` and give Mink a `selenium2` session that points at your Selenium server, with `javascript_session` set to `selenium2`. [behat.dist.php](../../behat.dist.php) sets it up that way, with `wd_host` naming the Selenium server's address and `browser_name` the browser it starts.
+
+`lullabot/mink-selenium2-driver` is a fork of `behat/mink-selenium2-driver` that works with Selenium 4. The original, in every release up to 1.7.0, opens a session through the JSON Wire Protocol, which Selenium 4 dropped, so a Selenium 4 server refuses it with `Could not start a new session. No nodes support the capabilities in the request`. The fork speaks the W3C WebDriver protocol Selenium 4 expects. It provides the same `Selenium2Driver` class and declares that it replaces the original, so Composer installs only 1 of them. A Drupal project that requires `drupal/core-dev` already has the fork, because `core-dev` requires it, and `composer show lullabot/mink-selenium2-driver` tells you whether yours does. To switch from the original, remove it and require the fork:
 
 ```bash
 composer remove --dev behat/mink-selenium2-driver

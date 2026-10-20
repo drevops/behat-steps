@@ -6,7 +6,7 @@ description: Move your project from Behat Steps 3.14 to 4.0 with the migration g
 
 # Migrating from 3.x
 
-[MIGRATION.md](../../MIGRATION.md) takes your project from 3.14 to 4.0 in the order an upgrade runs into each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, and what replaces it, whether the name came from this package or from the Drupal Extension (`drupal/drupal-extension`) and Drupal Driver (`drupal/drupal-driver`) that its Drupal traits built on. If the tables don't list a step, its text didn't change. The 4.x releases after 4.0 make no breaking change to the public API, as [Public API and versioning](architecture/versioning.md) explains, so the same changes take your project to any 4.x release.
+[MIGRATION.md](../../MIGRATION.md) takes your project from 3.14 to 4.0 in the order an upgrade runs into each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, and what replaces it, whether the name came from this package or from the Drupal Extension (`drupal/drupal-extension`) and Drupal Driver (`drupal/drupal-driver`) that its Drupal traits built on. If the tables don't list a step, its text didn't change. The 4.x releases after 4.0 make no breaking change to the public API, as [Public API and versioning](architecture/versioning.md) explains, so the same changes take your project to any 4.x release. `composer require --dev drevops/behat-steps:^4` installs the latest one.
 
 Read the guide through the link on this page rather than from your project: until Composer installs 4.0, the copy in your project's `vendor/drevops/behat-steps/` is the 3.x guide.
 
@@ -54,13 +54,13 @@ To migrate with your agent:
    When a check fails, the agent traces the failure to the guide row behind it before it changes any code.
 4. Read the agent's report in `.artifacts/behat-steps-migration/report.md`. It gives the result of each check and lists what's left for you: every `TODO(behat-steps 4.x)` comment it added for a question you left unanswered, every change to review and every open question.
 
-Confirm that the migration is complete: every check in the report passes, and you've resolved every item it lists. The agent doesn't commit, so review `git status` and `git diff` and commit the changes yourself. If your agent saved the skill, commit `.claude/skills/migrate-behat-steps/SKILL.md` to keep the migration repeatable, or delete it. `.artifacts/behat-steps-migration/` stays out of version control, so delete it when you no longer need the plan and the report.
+Confirm that the migration is complete: you've resolved every item the report lists, and the checks in step 3 pass when you run them again. The agent doesn't commit, so review `git status` and `git diff` and commit the changes yourself. If your agent saved the skill, commit `.claude/skills/migrate-behat-steps/SKILL.md` to keep the migration repeatable, or delete it. `.artifacts/behat-steps-migration/` stays out of version control, so delete it when you no longer need the plan and the report.
 
 ## Migrate by hand
 
 To migrate by hand:
 
-1. Create a branch from a clean working tree, so `git status` and `git diff` show the whole migration.
+1. With your project on 3.14, create a branch from a clean working tree, so `git status` and `git diff` show the whole migration.
 2. Read [How to read this guide](../../MIGRATION.md#how-to-read-this-guide): every table follows the same conventions, and they decide how a row applies to your project.
 3. Work through the guide's sections in order, starting with [Requirements](../../MIGRATION.md#requirements), which also covers removing the Drupal Extension from a Drupal project before Composer installs 4.0.
 
