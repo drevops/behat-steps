@@ -12,6 +12,7 @@ use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebContext;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests the guard against a suite registering 2 web vocabularies.
@@ -25,19 +26,60 @@ class WebContextTest extends UnitTestCase {
     WebContext::assertOneContext($this->createBeforeSuiteScope());
   }
 
-  public function testOneRegisteredVocabularyIsAccepted(): void {
+  /**
+   * Tests that a suite registering 1 class of the chain is accepted.
+   *
+   * @param array<int, class-string> $classes
+   *   The context classes the suite registers.
+   */
+  #[DataProvider('dataProviderOneRegisteredVocabularyIsAccepted')]
+  public function testOneRegisteredVocabularyIsAccepted(array $classes): void {
     $this->expectNotToPerformAssertions();
 
-    WebContext::assertOneContext($this->createContextSuiteScope([DrupalContext::class, UnrelatedContext::class]));
+    WebContext::assertOneContext($this->createContextSuiteScope($classes));
   }
 
-  public function testTwoRegisteredVocabulariesNameTheMistake(): void {
-    $scope = $this->createContextSuiteScope([WebContext::class, DrupalContext::class]);
+  public static function dataProviderOneRegisteredVocabularyIsAccepted(): \Iterator {
+    yield 'a shipped context' => [[DrupalContext::class, UnrelatedContext::class]];
+    yield 'a project context extending a shipped one' => [[FeatureContext::class, UnrelatedContext::class]];
+  }
 
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage(sprintf('The "default" suite registers %s and %s, which all carry the %s vocabulary', WebContext::class, DrupalContext::class, WebContext::class));
+  /**
+   * Tests that the message names the registered class to keep.
+   *
+   * @param array<int, class-string> $classes
+   *   The context classes the suite registers, in registration order.
+   * @param string $expected_message
+   *   The whole message the guard throws with.
+   */
+  #[DataProvider('dataProviderTwoRegisteredVocabulariesNameTheMistake')]
+  public function testTwoRegisteredVocabulariesNameTheMistake(array $classes, string $expected_message): void {
+    try {
+      WebContext::assertOneContext($this->createContextSuiteScope($classes));
+      $this->fail('A suite registering 2 web vocabularies was accepted.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertSame($expected_message, $exception->getMessage());
+    }
+  }
 
-    WebContext::assertOneContext($scope);
+  public static function dataProviderTwoRegisteredVocabulariesNameTheMistake(): \Iterator {
+    yield 'both shipped contexts' => [
+      [WebContext::class, DrupalContext::class],
+      sprintf('The "default" suite registers %1$s and %2$s, which all carry the %1$s vocabulary, so every web step would register more than once. Keep %2$s, which extends every other one, and drop %1$s.', WebContext::class, DrupalContext::class),
+    ];
+    yield 'a project context beside the shipped context it extends' => [
+      [FeatureContext::class, DrupalContext::class],
+      sprintf('The "default" suite registers %1$s and %2$s, which all carry the %3$s vocabulary, so every web step would register more than once. Keep %1$s, which extends every other one, and drop %2$s.', FeatureContext::class, DrupalContext::class, WebContext::class),
+    ];
+    yield 'a project context registered between both shipped contexts' => [
+      [WebContext::class, FeatureContext::class, DrupalContext::class],
+      sprintf('The "default" suite registers %1$s and %2$s and %3$s, which all carry the %1$s vocabulary, so every web step would register more than once. Keep %2$s, which extends every other one, and drop %1$s and %3$s.', WebContext::class, FeatureContext::class, DrupalContext::class),
+    ];
+    yield 'project contexts neither of which extends the other' => [
+      [FeatureContext::class, UiContext::class],
+      sprintf('The "default" suite registers %1$s and %2$s, which all carry the %3$s vocabulary, so every web step would register more than once. None of them extends every other one, so keep 1 and move the steps of the rest into it.', FeatureContext::class, UiContext::class, WebContext::class),
+    ];
   }
 
   /**
@@ -63,3 +105,14 @@ class WebContextTest extends UnitTestCase {
  * Context carrying none of the shipped vocabulary.
  */
 class UnrelatedContext {}
+
+/**
+ * Context extending 'DrupalContext', as a project's own context does.
+ */
+class FeatureContext extends DrupalContext {}
+
+/**
+ * Context extending 'WebContext', so neither it nor 'FeatureContext' extends
+ * the other.
+ */
+class UiContext extends WebContext {}
