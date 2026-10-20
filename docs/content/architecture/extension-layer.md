@@ -13,16 +13,16 @@ The extension layer, `src/Extension`, connects Behat Steps to Behat and Mink. `B
 
 ## What it plugs in
 
-| Behat or Mink lets in | Behat Steps adds | What it does |
-| --- | --- | --- |
-| Configuration | `BehatStepsExtension::configure()` | Declares the `behat_steps` key: `backends`, `regions`, the login text and selectors, `steps`, and the `drupal` and `drush` settings that `DrupalBackendProvider` adds |
-| Context initializers | `BackendAwareInitializer` | Hands every context Behat builds the services below |
-| Event dispatcher | `SkipTagListener`, then `BackendListener` | As each scenario starts, rejects a `@behat-steps-skip:` tag that names no composed trait, then sets the backend order and publishes the scenario's tags |
-| Attribute readers | `HookAttributeReader` | Turns `#[BeforeNodeCreate]` and the other creation hook attributes into hooks |
-| Class generator | `ClassGenerator` | Writes the starter context of `behat --init`, which extends `WebRawContext` |
-| Mink's browser driver factories | `BrowserKitFactory` | Builds `browserkit_http` sessions exactly as Mink does, and records their `http_client_parameters` for the HTTP clients |
-| Mink's selectors | `RegionSelector` | Adds the `region` selector, which turns a region name from `regions` into its CSS |
-| Mink's `DocumentElement` | `DocumentElement` | Takes its place, so page text reads the way a browser renders it |
+Each entry names a place where Behat or Mink lets an extension in, then the piece Behat Steps adds there:
+
+- Configuration: `BehatStepsExtension::configure()` declares the `behat_steps` key, with `backends`, `regions`, the login text and selectors, `steps`, and the `drupal` and `drush` settings that `DrupalBackendProvider` adds.
+- Context initializers: `BackendAwareInitializer` hands every context Behat builds the services below.
+- Event dispatcher: `SkipTagListener` and then `BackendListener` run as each scenario starts. The first rejects a `@behat-steps-skip:` tag that names no composed trait, and the second sets the backend order and publishes the scenario's tags.
+- Attribute readers: `HookAttributeReader` turns `#[BeforeNodeCreate]` and the other creation hook attributes into hooks.
+- Class generator: `ClassGenerator` writes the starter context of `behat --init`, which extends `WebRawContext`.
+- Mink's browser driver factories: `BrowserKitFactory` builds `browserkit_http` sessions exactly as Mink does, and records their `http_client_parameters` for the HTTP clients.
+- Mink's selectors: `RegionSelector` adds the `region` selector, which turns a region name from `regions` into its CSS.
+- Mink's `DocumentElement`: a `DocumentElement` of Behat Steps' own takes its place, so page text reads the way a browser renders it.
 
 ## What your context receives
 

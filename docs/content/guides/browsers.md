@@ -26,13 +26,21 @@ The Chrome browser driver, from `dmore/chrome-mink-driver`, controls Chrome dire
 
 A step never asks for a browser by name. It asks for a capability, such as running JavaScript, and Behat Steps checks it against an adapter that declares what each browser driver provides. Here's what the 3 adapters declare:
 
-| Capability | BrowserKit | Selenium2 | Chrome | What needs it |
-| --- | --- | --- | --- | --- |
-| Run the page's JavaScript | No | Yes | Yes | The AJAX waits, iframes, modals, drag-and-drop uploads and some form widgets |
-| Press keys | No | Yes | Yes | The [Keyboard](../web-steps/keyboard.md) steps |
-| Read cookies | Yes | Yes | Yes | The [Cookies](../web-steps/cookie.md) steps, and the detached [HTTP client](http-clients.md), which sends the visitor's cookies |
-| Set request headers | Yes | No | Yes | The header [Config overrides](../drupal-steps/config-override.md) sends, which a Selenium2 session goes without |
-| Lend its HTTP client to a step | Yes | No | No | The [REST APIs](../web-steps/rest.md) steps, whose response becomes the page |
+| Capability | BrowserKit | Selenium2 | Chrome |
+| --- | --- | --- | --- |
+| Run the page's JavaScript | No | Yes | Yes |
+| Press keys | No | Yes | Yes |
+| Read cookies | Yes | Yes | Yes |
+| Set request headers | Yes | No | Yes |
+| Lend its HTTP client to a step | Yes | No | No |
+
+Here's what needs each one:
+
+- Running the page's JavaScript: the AJAX waits, iframes, modals, drag-and-drop uploads and some form widgets.
+- Pressing keys: the [Keyboard](../web-steps/keyboard.md) steps.
+- Reading cookies: the [Cookies](../web-steps/cookie.md) steps, and the detached [HTTP client](http-clients.md), which sends the visitor's cookies.
+- Setting request headers: the header [Config overrides](../drupal-steps/config-override.md) sends, which a Selenium2 session goes without.
+- Lending its HTTP client to a step: the [REST APIs](../web-steps/rest.md) steps, whose response becomes the page.
 
 A step that needs a capability the session's browser lacks fails with an `UnsupportedDriverActionException` naming it. A few checks make do instead: the JavaScript error check of [JavaScript errors](../web-steps/javascript.md) switches itself off on a browser that can't run JavaScript, so a BrowserKit scenario never fails for it.
 

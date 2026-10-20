@@ -81,6 +81,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 
   The site and GitHub both read the fragments and show the image matching the color mode, and `docs/tests/unit/content/diagrams.test.js` fails a diagram embedded without its pair. A few short paragraphs or a list then walk through the diagram, naming what it shows without restating every label.
 - Put 1-to-1 relationships in Markdown tables on the page of their view rather than in a diagram: an interface and the 1 service implementing it, or a class and the Behat, Mink or Symfony type it extends.
+- Keep a table's cells to names, counts and short phrases, so the table fits a phone screen. An entry that needs a sentence goes in a list instead, because a narrow column wraps a sentence a word or 2 per line.
 - Every diagram is a draw.io source with its 2 SVGs. Never add a diagram in any other format, ASCII art included.
 
 ## Sources to trace from

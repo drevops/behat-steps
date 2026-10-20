@@ -25,11 +25,9 @@ So the same step runs in-process under `backends: [drupal, drush]` and over Drus
 
 ## The 3 backends
 
-| Backend | Class | How it reaches the site | Capabilities |
-| --- | --- | --- | --- |
-| `drupal` | `Backend\Drupal\DrupalBackend` | Bootstraps Drupal inside the Behat process and calls its API through `Core` | 34 of the 35 |
-| `drush` | `Backend\Drupal\DrushBackend` | Runs `drush` commands against the site | 14 |
-| `blackbox` | `Backend\BlackboxBackend` | It doesn't: it stands for a site you can only browse | None |
+- `drupal` is `Backend\Drupal\DrupalBackend`. It bootstraps Drupal inside the Behat process, calls Drupal's API through `Core`, and provides 34 of the 35 capabilities.
+- `drush` is `Backend\Drupal\DrushBackend`. It runs `drush` commands against the site and provides 14.
+- `blackbox` is `Backend\BlackboxBackend`. It doesn't reach the site at all: it stands for a site you can only browse, and provides none.
 
 The `drupal` backend exists once your `behat.php` sets the `drupal` key, and `drush` once it sets the `drush` key. `blackbox` always exists.
 

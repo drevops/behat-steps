@@ -13,15 +13,13 @@ The steps layer, `src/Steps`, is the part you use every day: the traits that hol
 
 ## What's in it
 
-| Directory | Holds | Registers steps |
-| --- | --- | --- |
-| `src/Steps/Web` | 28 step traits for any website | Yes |
-| `src/Steps/Drupal` | 29 step traits for a Drupal site | Yes |
-| `src/Steps/Helper/Web` | 8 helper traits: fixture directories, heading lookup, JavaScript error collection, last-step tracking, the request header bag, string shaping, table transposition and token replacement | No |
-| `src/Steps/Helper/Drupal` | 5 helper traits: the entity lifecycle, authentication, static caches, fixture files and entity lookups | No |
-| `src/Steps/Exception` | `AssertionException`, which a trait without a Mink session throws when an assertion fails | No |
+- `src/Steps/Web` holds 28 step traits for any website.
+- `src/Steps/Drupal` holds 29 step traits for a Drupal site.
+- `src/Steps/Helper/Web` holds 8 helper traits: fixture directories, heading lookup, JavaScript error collection, last-step tracking, the request header bag, string shaping, table transposition and token replacement.
+- `src/Steps/Helper/Drupal` holds 5 helper traits: the entity lifecycle, authentication, static caches, fixture files and entity lookups.
+- `src/Steps/Exception` holds `AssertionException`, which a trait without a Mink session throws when an assertion fails.
 
-A trait's directory is its classification. `Web` holds the steps that mean something on any site, and `Drupal` the ones that only mean something on a Drupal site, whether they reach a backend or only drive the page. [scripts/lint-traits.php](../../../scripts/lint-traits.php) fails a step trait that composes another step trait, and a helper trait that carries a step.
+Only the 2 step trait directories register steps. A trait's directory is its classification. `Web` holds the steps that mean something on any site, and `Drupal` the ones that only mean something on a Drupal site, whether they reach a backend or only drive the page. [scripts/lint-traits.php](../../../scripts/lint-traits.php) fails a step trait that composes another step trait, and a helper trait that carries a step.
 
 ## How the contexts compose it
 

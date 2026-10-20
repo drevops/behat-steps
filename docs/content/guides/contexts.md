@@ -10,11 +10,9 @@ A context is the PHP class Behat finds step definitions in, as [Key concepts](..
 
 ## What each context includes
 
-| Context | Extends | What it adds |
-| --- | --- | --- |
-| `WebRawContext` | Mink's `RawMinkContext` | No steps. The plumbing every step relies on: the backends, the browser's capabilities, the 3 HTTP clients, trait options, prerequisite checks and hook dispatch, with 3 helper traits: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait` |
-| `WebContext` | `WebRawContext` | Every trait under `Steps\Web`: the 28 traits of [web steps](../web-steps/README.md), which work on any website |
-| `DrupalContext` | `WebContext` | Every trait under `Steps\Drupal`: the 29 traits of [Drupal steps](../drupal-steps/README.md), and the user registry their login steps need |
+- `WebRawContext` extends Mink's `RawMinkContext` and has no steps. It holds the plumbing every step relies on: the backends, the browser's capabilities, the 3 HTTP clients, trait options, prerequisite checks and hook dispatch. It comes with 3 helper traits too: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait`.
+- `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`: the 28 traits of [web steps](../web-steps/README.md), which work on any website.
+- `DrupalContext` extends `WebContext` and adds every trait under `Steps\Drupal`: the 29 traits of [Drupal steps](../drupal-steps/README.md), and the user registry their login steps need.
 
 A step trait also brings the helper traits it calls, so the traits that create content bring `EntityLifecycleTrait`, which deletes what a scenario created. [Steps layer](../architecture/steps-layer.md) draws how it all fits together.
 
