@@ -6,7 +6,7 @@ description: The step traits and helper traits under src/Steps, how the 3 contex
 
 # Steps layer
 
-The steps layer, `src/Steps`, is the part you use every day: the traits that hold every step and every helper, which [Extending](../extending/steps.md) calls the step vocabulary. The 3 contexts at the package root compose them, and your `FeatureContext` extends 1 of those. Select the diagram to open it at full size.
+The steps layer, `src/Steps`, is the part you use every day: the traits that hold every step and every helper, which [Extending](../extending/steps.md) calls the step vocabulary. The 3 contexts at the package root compose them, and your `FeatureContext` extends 1 of those. Select the diagram to zoom in.
 
 [![Steps layer: the contexts from WebRawContext to your FeatureContext, and the trait directories each one composes](steps-layer.svg#gh-light-mode-only)](steps-layer.svg)
 [![Steps layer: the contexts from WebRawContext to your FeatureContext, and the trait directories each one composes](steps-layer.dark.svg#gh-dark-mode-only)](steps-layer.dark.svg)

@@ -6,7 +6,7 @@ description: What runs when a suite starts, when a scenario starts, on each step
 
 # Data flow
 
-This view shows what runs when, and whose code it is. Select the diagram to open it at full size.
+This view shows what runs when, and whose code it is. Select the diagram to zoom in.
 
 [![Data flow: the 4 phases of a run as columns, and bands for Behat and Mink, Behat Steps and the site under test, with every step numbered in the order it runs](data-flow.svg#gh-light-mode-only)](data-flow.svg)
 [![Data flow: the 4 phases of a run as columns, and bands for Behat and Mink, Behat Steps and the site under test, with every step numbered in the order it runs](data-flow.dark.svg#gh-dark-mode-only)](data-flow.dark.svg)

@@ -6,7 +6,7 @@ description: What BehatStepsExtension plugs into Behat and Mink, the services it
 
 # Extension layer
 
-The extension layer, `src/Extension`, connects Behat Steps to Behat and Mink. `BehatStepsExtension` reads the `behat_steps` settings in your `behat.php` and registers the backends. It also plugs a small piece into each place where Behat and Mink let an extension in. Select the diagram to open it at full size.
+The extension layer, `src/Extension`, connects Behat Steps to Behat and Mink. `BehatStepsExtension` reads the `behat_steps` settings in your `behat.php` and registers the backends. It also plugs a small piece into each place where Behat and Mink let an extension in. Select the diagram to zoom in.
 
 [![Extension layer: the extension points of Behat and Mink, what BehatStepsExtension registers into each one and the services it hands to your context](extension-layer.svg#gh-light-mode-only)](extension-layer.svg)
 [![Extension layer: the extension points of Behat and Mink, what BehatStepsExtension registers into each one and the services it hands to your context](extension-layer.dark.svg#gh-dark-mode-only)](extension-layer.dark.svg)
