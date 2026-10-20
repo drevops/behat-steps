@@ -121,6 +121,11 @@ const STEPS_FILE = 'STEPS.md';
 const HELPERS_FILE = 'HELPERS.md';
 
 /**
+ * File holding the step skill, relative to the repository root.
+ */
+const STEP_SKILL_FILE = 'skills/create-behat-step/SKILL.md';
+
+/**
  * Directory of the documentation site's pages, relative to the repository root.
  *
  * The steps of each context get a section directory in it, such as
@@ -179,10 +184,18 @@ function main(array $options = []): void {
 
   $targets = [
     STEPS_FILE => [
-      ['# Available steps', '[//]: # (END)', PHP_EOL . render_info($info, $base_path) . PHP_EOL],
+      [
+        '# Available steps',
+        '[//]: # (END)',
+        PHP_EOL . render_step_skill_link(STEPS_FILE) . render_info($info, $base_path) . PHP_EOL,
+      ],
     ],
     HELPERS_FILE => [
-      ['# Available helpers', '[//]: # (END)', PHP_EOL . render_helpers($helpers, $base_path) . PHP_EOL],
+      [
+        '# Available helpers',
+        '[//]: # (END)',
+        PHP_EOL . render_step_skill_link(HELPERS_FILE) . render_helpers($helpers, $base_path) . PHP_EOL,
+      ],
     ],
     CONFIGURATION_FILE => [
       [
@@ -1398,6 +1411,21 @@ function relative_link(string $from_file, string $to_path): string {
   }
 
   return str_repeat('../', count($from)) . implode('/', $to);
+}
+
+/**
+ * Render the paragraph opening a reference that points at the step skill.
+ *
+ * @param string $from_file
+ *   The reference holding the paragraph, relative to the repository root.
+ *
+ * @return string
+ *   The paragraph, followed by a blank line.
+ */
+function render_step_skill_link(string $from_file): string {
+  $link = sprintf('[%s](%s)', STEP_SKILL_FILE, relative_link($from_file, STEP_SKILL_FILE));
+
+  return sprintf('When no step says what a scenario needs, an AI coding agent can write a step of your own on the helpers with the `%s` skill, in %s.', basename(dirname(STEP_SKILL_FILE)), $link) . PHP_EOL . PHP_EOL;
 }
 
 /**

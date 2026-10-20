@@ -3,12 +3,17 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve(__dirname, '..', '..', '..');
 
-// A consuming project's AI agent reads both from vendor/.
-const SHIPPED = ['HELPERS.md', 'STEPS.md'];
+// A consuming project's AI agent reads these from vendor/.
+const SHIPPED = ['HELPERS.md', 'STEPS.md', 'skills/create-behat-step/SKILL.md'];
+
+// A shipped skill names the package files it reads by their path in a
+// consuming project.
+const PACKAGE_PATH = /vendor\/drevops\/behat-steps\/([^\s`"')]*)/g;
 
 const git = (args, input) => execFileSync('git', args, { cwd: ROOT, input, encoding: 'utf8' });
 
@@ -48,5 +53,26 @@ describe('distribution archive', () => {
     const tracked = git(['ls-files', '-z', '--', 'docs']).split('\0').filter(Boolean);
 
     expect(archived(tracked)).toEqual([]);
+  });
+
+  test('ships every skill under skills/', () => {
+    const skills = git(['ls-files', '-z', '--', 'skills']).split('\0').filter(Boolean);
+
+    expect(skills.length).toBeGreaterThan(0);
+    expect(archived(skills)).toEqual(skills);
+  });
+
+  test('ships every package file a shipped skill reads', () => {
+    const skills = git(['ls-files', '-z', '--', 'skills/*/SKILL.md']).split('\0').filter(Boolean);
+    const paths = new Set(skills.flatMap((skill) => Array.from(fs.readFileSync(path.join(ROOT, skill), 'utf8').matchAll(PACKAGE_PATH), (match) => match[1].replace(/[.,:;]+$/, '')).filter(Boolean)));
+
+    expect(paths.size).toBeGreaterThan(0);
+
+    paths.forEach((packagePath) => {
+      const tracked = git(['ls-files', '-z', '--', packagePath]).split('\0').filter(Boolean);
+
+      expect({ packagePath, tracked: tracked.length > 0 }).toEqual({ packagePath, tracked: true });
+      expect(archived(tracked)).toEqual(tracked);
+    });
   });
 });

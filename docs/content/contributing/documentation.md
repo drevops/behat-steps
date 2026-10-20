@@ -40,7 +40,7 @@ A tag appears in the reference only after you register it in `tag_registry()`, s
 
 ### The references in the package
 
-A coding agent in a consuming project reads `STEPS.md` and `HELPERS.md` from `vendor/drevops/behat-steps/` to learn the public surface, as [Writing tests with AI assistants](../guides/ai-assistants.md) describes. `.gitattributes` keeps `docs/` out of the distribution archive, and the docs unit tests fail when either reference stops shipping or when a file in `docs/` starts shipping.
+A coding agent in a consuming project reads `STEPS.md` and `HELPERS.md` from `vendor/drevops/behat-steps/` to learn the public surface, and follows the `create-behat-step` skill from `skills/` beside them to write a step of the project's own, as [Writing tests with AI assistants](../guides/ai-assistants.md) describes. Both references open with a link to the skill, which `docs.php` writes. `.gitattributes` keeps `docs/` out of the distribution archive, and the docs unit tests fail when either reference or a skill stops shipping, when a package file a shipped skill reads stops shipping, or when a file in `docs/` starts shipping. [Shipped skills](../../../CONTRIBUTING.md#shipped-skills) has the rules for a skill.
 
 Both references link each trait's source by relative path, so those links resolve in `vendor/` as well as on GitHub. The Example links in `STEPS.md` point into `tests/`, which the archive leaves out, so they resolve only on GitHub and on the site.
 

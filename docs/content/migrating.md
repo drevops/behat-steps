@@ -60,4 +60,4 @@ Confirm that the migration is complete with the same checks the agent runs, whic
 
 ## Update your AI agent's reference
 
-If your project's `CLAUDE.md` or `AGENTS.md` points its agent at `vendor/drevops/behat-steps/STEPS.md`, as the 3.x README suggested, that path still works in 4.0. 4.0 adds `vendor/drevops/behat-steps/HELPERS.md`, the helpers your own step definitions can call, so point the agent at it too: add a line for it, or replace your snippet with the full one in [Writing tests with AI assistants](guides/ai-assistants.md). The migration guide doesn't cover these files, so update them yourself.
+If your project's `CLAUDE.md` or `AGENTS.md` points its agent at `vendor/drevops/behat-steps/STEPS.md`, as the 3.x README suggested, that path still works in 4.0. 4.0 adds `vendor/drevops/behat-steps/HELPERS.md`, the helpers your own step definitions can call, and the `create-behat-step` skill, which writes a step of your own on them, so point the agent at both: add a line for each, or replace your snippet with the full one in [Writing tests with AI assistants](guides/ai-assistants.md). The migration guide doesn't cover these files, so update them yourself.

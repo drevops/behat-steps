@@ -20,6 +20,8 @@ You'll need it when a flow deserves a step in your project's own words, or a tra
 
 A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [HELPERS.md](../../../HELPERS.md) lists every one of them, and the [quick start](../quick-start.md#7-add-a-step-of-your-own) shows where the class lives and how Behat finds it. [Contexts](../guides/contexts.md#your-own-steps-in-traits-of-your-own) shows how to group your steps into traits of your own, and [Anatomy of a trait](../architecture/anatomy-of-a-trait.md) walks through a trait with options and hooks.
 
+An AI coding agent can write the step for you: the `create-behat-step` skill, which ships with the package, writes it on the public helpers, in a trait your `FeatureContext` uses. [Writing tests with AI assistants](../guides/ai-assistants.md#write-a-step-of-your-own) shows how to run it.
+
 If you write your own Drupal steps, compose the helper trait for the concern they touch. `EntityLifecycleTrait` brings entity creation and the `AfterScenario` pass that removes what was created:
 
 ```php

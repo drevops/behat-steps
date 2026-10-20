@@ -18,6 +18,7 @@ This repository contains Behat step definitions for PHP projects (with specializ
 - Writing a unit, kernel or Behat test: [Running tests](CONTRIBUTING.md#running-tests), [Test suite conventions](CONTRIBUTING.md#test-suite-conventions), [Behat harness conventions](CONTRIBUTING.md#behat-harness-conventions) and [Coverage markers](CONTRIBUTING.md#coverage-markers).
 - Editing a fixture file or the fixture site: [Static fixtures](CONTRIBUTING.md#static-fixtures), [Updating fixture site](CONTRIBUTING.md#updating-fixture-site) and [Drupal versions](CONTRIBUTING.md#drupal-versions).
 - Changing `docs.php` or a generated document: [Validating and updating documentation](CONTRIBUTING.md#validating-and-updating-documentation).
+- Changing a skill under `skills/`, or renaming, publishing or unpublishing a helper a shipped skill names: [Shipped skills](CONTRIBUTING.md#shipped-skills).
 - Adding a dependency: [Dependency policy](CONTRIBUTING.md#dependency-policy).
 - Reading a CI failure: [Continuous integration](CONTRIBUTING.md#continuous-integration).
 - Code style: [Settled style questions](CONTRIBUTING.md#settled-style-questions) and [Unsettled style questions](CONTRIBUTING.md#unsettled-style-questions).

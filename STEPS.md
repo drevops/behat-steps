@@ -1,5 +1,7 @@
 # Available steps
 
+When no step says what a scenario needs, an AI coding agent can write a step of your own on the helpers with the `create-behat-step` skill, in [skills/create-behat-step/SKILL.md](skills/create-behat-step/SKILL.md).
+
 ## Index of Web steps
 
 | Class | Description |
