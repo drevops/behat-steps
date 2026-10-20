@@ -97,10 +97,10 @@ class UiContext extends WebRawContext {
 }
 ```
 
-If your suite registers `WebContext`, override the same seam by extending it and redeclaring the method, without repeating any Behat attribute:
+In a `FeatureContext` that extends `WebContext` or `DrupalContext`, override the same seam by redeclaring the method, without repeating any Behat attribute:
 
 ```php
-class AcmeWebContext extends WebContext {
+class FeatureContext extends WebContext {
 
   public function modalGetSelectors(): array {
     return ['.acme-dialog'];
