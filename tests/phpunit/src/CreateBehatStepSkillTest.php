@@ -88,7 +88,7 @@ class CreateBehatStepSkillTest extends UnitTestCase {
     }
   }
 
-  public function testTheExampleStepsTakeAStringPerPlaceholder(): void {
+  public function testTheExampleStepParametersMatchTheirPlaceholders(): void {
     foreach ($this->collectExampleSteps() as $method_name => [, $pattern]) {
       preg_match_all('/:([a-z][a-z0-9_]*)/', (string) $pattern, $matches);
 
@@ -113,10 +113,10 @@ class CreateBehatStepSkillTest extends UnitTestCase {
     $this->assertNotEmpty($calls, sprintf('%s holds code that calls helpers.', static::SKILL));
 
     $unpublished = array_values(array_filter($calls, fn(string $method): bool => !in_array($method, $published, TRUE) && !$this->isMinkMethod($method)));
-    $this->assertSame([], $unpublished, sprintf('The code in %s calls only the helpers %s publishes and the public methods of Mink\'s RawMinkContext.', static::SKILL, static::HELPERS));
+    $this->assertSame([], $unpublished, sprintf("The code in %s calls only the helpers %s publishes and the public methods of Mink's RawMinkContext.", static::SKILL, static::HELPERS));
   }
 
-  public function testEveryNamedMethodIsAHelperOrAWarning(): void {
+  public function testTheSkillNamesOnlyHelpersAndWarnings(): void {
     $this->loadExample();
 
     $known = array_merge($this->collectPublishedHelpers(), static::PROTECTED_METHODS, static::STEP_METHODS, array_map(static fn(\ReflectionMethod $method): string => $method->getName(), static::reflect(static::EXAMPLE_TRAIT)->getMethods()));
@@ -124,7 +124,7 @@ class CreateBehatStepSkillTest extends UnitTestCase {
     preg_match_all('/`(?:\$this->)?([a-z][A-Za-z0-9]*)\(\)`/', $this->readSkill(), $matches);
 
     $unknown = array_values(array_filter(array_unique($matches[1]), fn(string $method): bool => !in_array($method, $known, TRUE) && !$this->isMinkMethod($method)));
-    $this->assertSame([], $unknown, sprintf('%s names only the helpers %s publishes, the public methods of Mink\'s RawMinkContext, the methods of its example and the methods it warns against.', static::SKILL, static::HELPERS));
+    $this->assertSame([], $unknown, sprintf("%s names only the helpers %s publishes, the public methods of Mink's RawMinkContext, the methods of its example and the methods it warns against.", static::SKILL, static::HELPERS));
   }
 
   #[DataProvider('dataProviderNamedProtectedMethodIsUnpublished')]
@@ -138,15 +138,15 @@ class CreateBehatStepSkillTest extends UnitTestCase {
     return static::buildRows(static::PROTECTED_METHODS);
   }
 
-  #[DataProvider('dataProviderNamedStepMethodIsAStep')]
-  public function testNamedStepMethodIsAStep(string $method): void {
+  #[DataProvider('dataProviderNamedStepMethodIsShippedStep')]
+  public function testNamedStepMethodIsShippedStep(string $method): void {
     $this->assertStringContainsString('`' . $method . '()`', $this->readSkill(), sprintf('%s names %s().', static::SKILL, $method));
 
     $kinds = array_map(static fn(\ReflectionAttribute $attribute): string => $attribute->getName(), (new \ReflectionMethod(DrupalContext::class, $method))->getAttributes());
     $this->assertNotSame([], array_intersect($kinds, [Given::class, When::class, Then::class]), sprintf('%s() is a shipped step, as %s says.', $method, static::SKILL));
   }
 
-  public static function dataProviderNamedStepMethodIsAStep(): array {
+  public static function dataProviderNamedStepMethodIsShippedStep(): array {
     return static::buildRows(static::STEP_METHODS);
   }
 

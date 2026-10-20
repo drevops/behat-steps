@@ -121,8 +121,7 @@ const STEPS_FILE = 'STEPS.md';
 const HELPERS_FILE = 'HELPERS.md';
 
 /**
- * File holding the skill that writes a project's own step, relative to the
- * repository root.
+ * File holding the step skill, relative to the repository root.
  */
 const STEP_SKILL_FILE = 'skills/create-behat-step/SKILL.md';
 
@@ -185,10 +184,18 @@ function main(array $options = []): void {
 
   $targets = [
     STEPS_FILE => [
-      ['# Available steps', '[//]: # (END)', PHP_EOL . render_step_skill_link(STEPS_FILE) . render_info($info, $base_path) . PHP_EOL],
+      [
+        '# Available steps',
+        '[//]: # (END)',
+        PHP_EOL . render_step_skill_link(STEPS_FILE) . render_info($info, $base_path) . PHP_EOL,
+      ],
     ],
     HELPERS_FILE => [
-      ['# Available helpers', '[//]: # (END)', PHP_EOL . render_step_skill_link(HELPERS_FILE) . render_helpers($helpers, $base_path) . PHP_EOL],
+      [
+        '# Available helpers',
+        '[//]: # (END)',
+        PHP_EOL . render_step_skill_link(HELPERS_FILE) . render_helpers($helpers, $base_path) . PHP_EOL,
+      ],
     ],
     CONFIGURATION_FILE => [
       [

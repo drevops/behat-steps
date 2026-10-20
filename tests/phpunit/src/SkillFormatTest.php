@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests;
 
 use DrevOps\BehatSteps\DrupalContext;
+use Drupal\Component\Serialization\Yaml;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * Tests the agent skills the package ships under 'skills/'.
@@ -118,7 +118,7 @@ class SkillFormatTest extends UnitTestCase {
     $this->assertMatchesRegularExpression('/^---\n.*?\n---\n/s', $content, sprintf('%s opens with frontmatter between 2 "---" lines.', $file));
     preg_match('/^---\n(.*?)\n---\n/s', $content, $matches);
 
-    $frontmatter = Yaml::parse($matches[1]);
+    $frontmatter = Yaml::decode($matches[1] ?? '');
     $this->assertIsArray($frontmatter, sprintf('%s holds frontmatter that parses to a map.', $file));
 
     /** @var array<string, mixed> $frontmatter */
