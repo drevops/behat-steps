@@ -1120,8 +1120,8 @@ function draw_diagram_export(string $diagram, string $drawio, string $root, call
 /**
  * Asserts that an exported SVG declares the theme it was exported in.
  *
- * draw.io desktop ignores an option it doesn't know, so a release without
- * '--theme' exports the light theme for both.
+ * The draw.io desktop command line ignores an option it doesn't know, so a
+ * release without '--theme' exports the light theme for both.
  *
  * @param string $svg
  *   The SVG file.
