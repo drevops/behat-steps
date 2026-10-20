@@ -1,6 +1,6 @@
 ---
 title: HTTP clients
-sidebar_position: 6
+sidebar_position: 7
 description: The 3 clients a step sends its own requests through, where their settings come from and how to change them.
 ---
 

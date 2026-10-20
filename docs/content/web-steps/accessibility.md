@@ -47,15 +47,15 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `accessibility.enabled` | boolean | `TRUE` | `@behat-steps-skip:AccessibilityTrait` | Assess every page an `@accessibility` scenario visits. |
-| `accessibility.auto_tag` | string | `'accessibility'` | - | Base tag name, without its `@`, that puts a scenario into automatic mode. |
-| `accessibility.default_rules` | string | `'wcag2a,wcag2aa'` | - | Rule identifier passed to the engine when a scenario names none. |
-| `accessibility.failure_threshold` | string | `'any'` | - | Impact level at which a violation fails the scenario: `any`, `never`, or one impact identifier. |
-| `accessibility.fail_on_incomplete` | boolean | `FALSE` | - | Fail the scenario on a finding the engine could not decide. |
-| `accessibility.cdn_url` | string | `'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js'` | - | Location the engine source is read from. |
-| `accessibility.fetch_timeout` | integer | `10` | - | Per-attempt timeout, in seconds, for the engine fetch. |
-| `accessibility.fetch_attempts` | integer | `3` | - | How many times the engine fetch is attempted before failing. |
-| `accessibility.report_dir` | string | `'.logs/test_results/accessibility'` | - | Directory the per-scenario reports are written to. A relative path resolves against the directory the run was launched from. |
+| `accessibility.enabled` | boolean | `TRUE` | `@behat-steps-skip:AccessibilityTrait` | If `TRUE`, assesses every page an `@accessibility` scenario visits and writes its reports. If `FALSE`, no page is assessed automatically and no report is written, while the accessibility steps still assess the page they run on. |
+| `accessibility.auto_tag` | string | `'accessibility'` | - | The name, without the `@`, of the tag that switches on automatic assessment for a scenario and carries its threshold, as in `@accessibility:serious`. |
+| `accessibility.default_rules` | string | `'wcag2a,wcag2aa'` | - | The comma-separated axe-core tags that select the rules to check, in automatic mode and in the step that names no tags. |
+| `accessibility.failure_threshold` | string | `'any'` | - | The impact at which a violation fails the scenario: `critical`, `serious`, `moderate` or `minor` fails on that impact or a worse one, `any` on every violation and `never` on none. Any other value fails on every violation, like `any`. An `@accessibility:VALUE` tag overrides it for 1 scenario. |
+| `accessibility.fail_on_incomplete` | boolean | `FALSE` | - | If `TRUE`, a finding axe-core can't decide fails the scenario, whatever the threshold. If `FALSE`, it doesn't. `@accessibility:strict` sets it to `TRUE` for 1 scenario. |
+| `accessibility.cdn_url` | string | `'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js'` | - | The URL of the axe-core script the trait loads into each page it assesses, or the absolute path of a local copy. The script is read once per run. |
+| `accessibility.fetch_timeout` | integer | `10` | - | The time, in seconds, an attempt to fetch the axe-core script over HTTP can go without receiving data before it fails. |
+| `accessibility.fetch_attempts` | integer | `3` | - | The number of attempts to fetch the axe-core script before the step fails, with a pause after each failed attempt that grows by half a second. A value below 1 counts as 1. |
+| `accessibility.report_dir` | string | `'.logs/test_results/accessibility'` | - | The directory each scenario's HTML and JUnit reports and the run's summary report are written to. A relative path resolves against the directory the run was launched from. |
 
 ## Steps
 

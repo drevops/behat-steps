@@ -39,4 +39,4 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `date.enabled` | boolean | `TRUE` | `@behat-steps-skip:DateTrait` | Replace `[relative:...]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched. |
+| `date.enabled` | boolean | `TRUE` | `@behat-steps-skip:DateTrait` | If `TRUE`, replaces `[relative:...]` tokens in table cells and in the `:datetime`, `:value`, `:partial_value`, `:expected_value`, `:text` and `:content` arguments of a step. If `FALSE`, tokens stay as written. |

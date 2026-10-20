@@ -126,20 +126,20 @@ final class BehatStepsExtension implements ExtensionInterface {
 
     $children
       ->arrayNode('backends')
-        ->info('Ordered list of the backends a scenario may resolve, most preferred first. It is both the allow-list and the precedence order: a step names the capability it needs and the first backend here providing it answers. A bare entry names a registered backend; a "tag: backend" entry gives it a name of its own, so the same feature file runs against a different backend in another profile. Omit it to get every registered backend, in registration order.' . PHP_EOL
+        ->info('The backends a scenario can use, most preferred first. A step asks for a capability, and the first backend in the list that provides it does the work, so the list is both the allowlist and the precedence order. A bare entry names a registered backend, such as "drupal", "drush" or "blackbox". A "name: backend" entry gives the backend a name of its own, so each profile can map the same "@backend:name" tag to a different backend. A name holds only letters, digits, "_" and "-", and appears once, whatever its case. An empty list, the default, allows every registered backend, in registration order.' . PHP_EOL
           . '  - drupal' . PHP_EOL
-          . '  - api: acme-jsonapi' . PHP_EOL
+          . '  - remote: drush' . PHP_EOL
           . '  - blackbox' . PHP_EOL)
         ->normalizeKeys(FALSE)
         ->prototype('scalar')->end()
       ->end()
       ->scalarNode('login_field')
         ->defaultValue('name')
-        ->info('User entity property submitted as the login value. Defaults to "name". Set to "mail" for sites that authenticate by email, or any other user property.')
+        ->info('The user property whose value the login steps type into the username field. Set it to "mail" for a site that signs users in by email, or to any other property the site accepts as a login. "text.username_field" holds the label of the field the value goes into.')
       ->end()
       ->arrayNode('regions')
-        ->info("Map of named regions to CSS selectors. Region steps such as 'I press the button :button in the region :region' resolve against this map." . PHP_EOL
-          . '  My region: "#css-selector"' . PHP_EOL
+        ->info('The named regions the region steps look in, each mapped to a CSS selector. A step such as "I press the button :button in the region :region" takes the name as written, and a name the map doesn\'t hold fails the step.' . PHP_EOL
+          . '  Header: "#header"' . PHP_EOL
           . '  Content: "#main .region-content"' . PHP_EOL
           . '  Right sidebar: "#sidebar-second"' . PHP_EOL)
         ->useAttributeAsKey('key')
@@ -147,55 +147,55 @@ final class BehatStepsExtension implements ExtensionInterface {
       ->end()
       ->arrayNode('text')
         ->info(
-          'Text strings, such as Log out or the Username field can be altered in the Behat configuration if they vary from the default values.' . PHP_EOL
-          . '  login_url: "/user"' . PHP_EOL
-          . '  logout_url: "/user/logout"' . PHP_EOL
-          . '  logout_confirm_url: "/user/logout/confirm"' . PHP_EOL
-          . '  logout: "Sign out"' . PHP_EOL
+          "The paths and labels of the login and logout forms, for a site whose forms differ from the defaults. The section accepts keys it doesn't declare, so a misspelled key is ignored, and the key it was meant to set keeps its default." . PHP_EOL
+          . '  login_url: "/account/login"' . PHP_EOL
+          . '  logout_url: "/account/logout"' . PHP_EOL
+          . '  logout_confirm_url: "/account/logout/confirm"' . PHP_EOL
           . '  login: "Sign in"' . PHP_EOL
+          . '  logout: "Sign out"' . PHP_EOL
           . '  password_field: "Enter your password"' . PHP_EOL
-          . '  username_field: "Nickname"'
+          . '  username_field: "Email address"'
         )
         ->ignoreExtraKeys(FALSE)
         ->addDefaultsIfNotSet()
         ->children()
           ->scalarNode('login_url')
             ->defaultValue($defaults['text']['login_url'] ?? NULL)
-            ->info('Path the login steps submit the login form on.')
+            ->info('The path of the login form the login steps fill in and submit.')
           ->end()
           ->scalarNode('logout_url')
             ->defaultValue($defaults['text']['logout_url'] ?? NULL)
-            ->info('Path the logout steps request.')
+            ->info('The path the logout steps visit to log out.')
           ->end()
           ->scalarNode('logout_confirm_url')
             ->defaultValue($defaults['text']['logout_confirm_url'] ?? NULL)
-            ->info('Path of the logout confirmation form, submitted when the site asks to confirm.')
+            ->info('The path of the logout confirmation form. When the logout steps land on it, they press the button "text.logout" names.')
           ->end()
           ->scalarNode('login')
             ->defaultValue($defaults['text']['login'] ?? NULL)
-            ->info('Text of the login submit button.')
+            ->info("The label of the login form's submit button.")
           ->end()
           ->scalarNode('logout')
             ->defaultValue($defaults['text']['logout'] ?? NULL)
-            ->info('Text of the logout link.')
+            ->info('The text of the logout link, and the label of the button on the logout confirmation form.')
           ->end()
           ->scalarNode('password_field')
             ->defaultValue($defaults['text']['password_field'] ?? NULL)
-            ->info('Label of the password field on the login form.')
+            ->info('The label of the password field on the login form.')
           ->end()
           ->scalarNode('username_field')
             ->defaultValue($defaults['text']['username_field'] ?? NULL)
-            ->info('Label of the username field on the login form.')
+            ->info('The label of the username field on the login form.')
           ->end()
         ->end()
       ->end()
       ->integerNode('login_wait')
         ->min(0)
         ->defaultValue(0)
-        ->info(sprintf('Maximum seconds to wait for post-login DOM signals (URL change, body render, logged-in selector, logout link). Set to 0 to disable waiting. A JavaScript session still waits up to %d seconds, or this value when it is larger, for the browser to leave the login form or show the logged-in selector, and for the logged-in selector or the logout link on the homepage. Each wait ends as soon as its signal appears.', Authenticator::JAVASCRIPT_LOGIN_WAIT))
+        ->info(sprintf('The longest time, in seconds, the login steps wait for each sign that a login took effect: the browser leaving the login form, the page rendering and the logged-in selector matching. At "0", the lowest value, they don\'t wait. In a JavaScript session, 2 waits last up to %d seconds each even at "0", or this value when it\'s larger: the one for the browser to leave the login form, and the one for the logged-in selector or the logout link to show on the homepage, the last place the login steps check. Each wait ends as soon as its sign appears.', Authenticator::JAVASCRIPT_LOGIN_WAIT))
       ->end()
       ->arrayNode('steps')
-        ->info('Default values of the options the step traits declare, keyed by trait group and then by option name. Each group is named after the trait that declares it, so "JavascriptTrait" reads "javascript" and "BigPipeTrait" reads "big_pipe". A group naming a trait none of the registered contexts composes is ignored, so one profile can carry the defaults of every suite.' . PHP_EOL
+        ->info('The profile-wide defaults of the options the step traits declare, keyed by group and then by option name. A group takes the name of the trait that declares it, in snake case, so "JavascriptTrait" reads "javascript" and "BigPipeTrait" reads "big_pipe". A group or an option that no registered context declares is ignored, so 1 profile can carry the defaults of every suite. A value of the wrong type fails the context that declares the option.' . PHP_EOL
           . '  javascript:' . PHP_EOL
           . '    enabled: true' . PHP_EOL
           . '    fail_on_errors: false' . PHP_EOL
@@ -205,22 +205,22 @@ final class BehatStepsExtension implements ExtensionInterface {
         ->prototype('variable')->end()
       ->end()
       ->arrayNode('selectors')
-        ->info('CSS selectors the steps resolve page structures against.')
+        ->info("The CSS selectors the login steps check pages against. The section accepts keys it doesn't declare, so a misspelled key is ignored, and the key it was meant to set keeps its default.")
         ->ignoreExtraKeys(FALSE)
         ->addDefaultsIfNotSet()
         ->children()
           ->scalarNode('login_form_selector')
             ->defaultValue($defaults['selectors']['login_form_selector'] ?? NULL)
-            ->info('Selector of the login form, used to tell a login page from a page that merely holds a login block.')
+            ->info('The CSS selector of the login form. When the page at "text.login_url" shows it and "selectors.logged_in_selector" matches nothing, the login steps count nobody as logged in.')
           ->end()
           ->scalarNode('logged_in_selector')
             ->defaultValue($defaults['selectors']['logged_in_selector'] ?? NULL)
-            ->info('Selector present only while a user is authenticated, used to confirm a login took effect.')
+            ->info('The CSS selector that matches only while a user is logged in, such as a class on "body". The login steps wait for it to confirm a login took effect.')
           ->end()
         ->end()
       ->end()
       ->arrayNode('blackbox')
-        ->info('Settings of the backend that drives the site through the browser only. It has no options, and it performs no backend operation, so it provides no capability a step can resolve.')
+        ->info("The backend that drives the site through the browser only. It's always registered and takes no options, so this section changes nothing. It provides no capability, so a step that asks for one fails when no other backend in the scenario's order provides it.")
       ->end();
 
     // phpcs:enable

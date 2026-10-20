@@ -929,7 +929,7 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 | [STEPS.md](STEPS.md) | The step vocabulary, on 1 page |
 | [HELPERS.md](HELPERS.md) | Every helper, on 1 page. The documentation site has no helper pages, so this is the only helper reference |
 | [docs/content/web-steps/](docs/content/web-steps), [docs/content/drupal-steps/](docs/content/drupal-steps) | The step vocabulary on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per trait, linking the trait's helpers in `HELPERS.md` |
-| [docs/content/guides/configuration.md](docs/content/guides/configuration.md) | The extension options and the tag reference |
+| [docs/content/guides/configuration-reference.md](docs/content/guides/configuration-reference.md) | The extension options and the tag reference |
 
 A step trait names its page with a `@title` tag in its docblock, in its own group before any other tag: `@title Batch API` names the page of `Drupal\BatchTrait`. The title names what the trait works with, in sentence case, so it reads as an entry in the sidebar, and each section lists its pages in title order. A helper trait has no page, so it carries no title.
 

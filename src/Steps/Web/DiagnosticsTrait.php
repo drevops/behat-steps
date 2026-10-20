@@ -332,14 +332,14 @@ trait DiagnosticsTrait {
    */
   protected function diagnosticsConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Append a diagnostics block to the message of a failing step.'),
-      new Option('header', default: '--- Failure diagnostics ---', description: 'Header line that precedes the diagnostics block.'),
-      new Option('rerun_binary', default: 'vendor/bin/behat', description: 'Binary named in the re-run command the block prints.'),
-      new Option('show_url', default: TRUE, description: 'Include the current URL in the block.'),
-      new Option('show_status_code', default: TRUE, description: 'Include the HTTP status code in the block.'),
-      new Option('show_browser_driver', default: TRUE, description: 'Include the browser driver class in the block.'),
-      new Option('show_js_errors', default: TRUE, description: 'Include the JavaScript console errors in the block.'),
-      new Option('show_rerun', default: TRUE, description: 'Include the command that re-runs the failing scenario in the block.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, appends a diagnostics block to the message of a failing step. If `FALSE`, the message stays as the step threw it.'),
+      new Option('header', default: '--- Failure diagnostics ---', description: 'The line the diagnostics block starts with.'),
+      new Option('rerun_binary', default: 'vendor/bin/behat', description: "The command the block's re-run line starts with, before the failing scenario's file and line. It can carry options too, such as `vendor/bin/behat -p ci`."),
+      new Option('show_url', default: TRUE, description: 'If `TRUE`, the block includes the current URL.'),
+      new Option('show_status_code', default: TRUE, description: 'If `TRUE`, the block includes the HTTP status code of the last response, when the browser driver reports one.'),
+      new Option('show_browser_driver', default: TRUE, description: "If `TRUE`, the block includes the class of the session's browser driver."),
+      new Option('show_js_errors', default: TRUE, description: 'If `TRUE`, the block includes the JavaScript errors `JavascriptTrait` collected, which it does only in a `@javascript` scenario.'),
+      new Option('show_rerun', default: TRUE, description: 'If `TRUE`, the block includes the command that re-runs the failing scenario.'),
     ];
   }
 

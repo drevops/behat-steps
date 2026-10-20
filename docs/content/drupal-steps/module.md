@@ -25,7 +25,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `module.enabled` | boolean | `TRUE` | `@behat-steps-skip:ModuleTrait` | Apply the `@module:` tags of a scenario and restore the original module states afterwards. |
+| `module.enabled` | boolean | `TRUE` | `@behat-steps-skip:ModuleTrait` | If `TRUE`, applies a scenario's `@module:` tags before it starts, and restores every module the tags and the module steps changed after it finishes. If `FALSE`, the tags do nothing and the steps' changes stay. |
 
 ## Steps
 

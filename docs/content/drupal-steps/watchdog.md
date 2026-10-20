@@ -40,5 +40,5 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `watchdog.enabled` | boolean | `TRUE` | `@behat-steps-skip:WatchdogTrait` | Read the errors a scenario logged to Watchdog. Nothing is read when this is off. |
-| `watchdog.fail_on_errors` | boolean | `TRUE` | `@error` | Fail a scenario that logged an error. The errors are still read and cleared when this is off. |
+| `watchdog.enabled` | boolean | `TRUE` | `@behat-steps-skip:WatchdogTrait` | If `TRUE`, checks that the `dblog` module is enabled, then reads the PHP warnings and errors, and the entries of the `@watchdog:` types, that every scenario logs. If `FALSE`, nothing is checked or read. |
+| `watchdog.fail_on_errors` | boolean | `TRUE` | `@error` | If `TRUE`, a logged warning or error fails the scenario. If `FALSE`, they are still read and cleared without failing it. |

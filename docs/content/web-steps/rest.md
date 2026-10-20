@@ -21,7 +21,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | Reset the request state this trait accumulates between scenarios. |
+| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | If `TRUE`, clears the context's request headers before each scenario. If `FALSE`, they aren't cleared, which changes nothing, because Behat builds a new context for each scenario and its headers start empty. |
 
 ## Steps
 

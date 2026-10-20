@@ -1,6 +1,6 @@
 ---
 title: Writing tests with AI assistants
-sidebar_position: 7
+sidebar_position: 8
 description: Point an AI coding agent at the step and helper references that ship with the package, so it writes scenarios from steps that exist, and at the skill that writes steps of your own on the helpers.
 ---
 

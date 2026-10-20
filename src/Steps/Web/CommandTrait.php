@@ -424,7 +424,7 @@ trait CommandTrait {
    */
   protected function commandConfigSchema(): array {
     return [
-      new Option('timeout', default: 300, description: 'Maximum time, in seconds, a command may run before it is terminated.'),
+      new Option('timeout', default: 300, description: 'The longest time, in seconds, a command can run before the step stops it and fails. A value of 0 or less stops every command at once.'),
     ];
   }
 

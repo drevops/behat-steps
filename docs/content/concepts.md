@@ -92,7 +92,7 @@ Each helper's name starts with the name of its trait, such as `cookieGetAll()` i
 - Which CSS selector each named region of your pages has.
 - The defaults of the traits' own options.
 
-A plain website needs none of them, and [Configuration](guides/configuration.md#2-the-behat_steps-extension-key) lists them all.
+A plain website needs none of them, and [Configuration reference](guides/configuration-reference.md#extension-options) lists them all.
 
 ### Backends: reaching the site without the browser
 
@@ -112,7 +112,7 @@ Whatever the library's steps create, such as content, users or roles, the librar
 
 Some traits run checks around every scenario instead of waiting to be called as a step. `WatchdogTrait`, which `DrupalContext` includes, fails a scenario that logs a PHP error, and `JavascriptTrait` fails one that hits a JavaScript error.
 
-Tags are Gherkin's labels for a scenario or a feature, such as `@javascript`. Behat Steps reads tags of its own, such as `@behat-steps-skip:WatchdogTrait`, which switches a trait's checks off for 1 scenario. Many traits also declare options, settings you can change for the whole profile, for 1 context or for 1 scenario. [Configure a trait](guides/usage.md#configure-a-trait) shows how to set them, and [Configuration](guides/configuration.md#3-tags) lists every tag. [How a trait gets options without a constructor](architecture/extension-layer.md#how-a-trait-gets-options-without-a-constructor) shows how a trait declares them.
+Tags are Gherkin's labels for a scenario or a feature, such as `@javascript`. Behat Steps reads tags of its own, such as `@behat-steps-skip:WatchdogTrait`, which switches a trait's checks off for 1 scenario. Many traits also declare options, settings you can change for the whole profile, for 1 context or for 1 scenario. [Configure a trait](guides/usage.md#configure-a-trait) shows how to set them, and [Configuration reference](guides/configuration-reference.md#tags) lists every tag. [How a trait gets options without a constructor](architecture/extension-layer.md#how-a-trait-gets-options-without-a-constructor) shows how a trait declares them.
 
 ## The big picture
 

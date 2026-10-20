@@ -32,7 +32,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `time.enabled` | boolean | `TRUE` | `@behat-steps-skip:TimeTrait` | Restore the site clock after a scenario that moved it. |
+| `time.enabled` | boolean | `TRUE` | `@behat-steps-skip:TimeTrait` | If `TRUE`, removes the system time that `the system time is set to :value` sets, after the scenario finishes. If `FALSE`, the site keeps that time. |
 
 ## Steps
 

@@ -22,7 +22,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `element.scroll_into_view_center` | boolean | `TRUE` | - | Center an element in the viewport when scrolling to it, rather than aligning it to the top. |
+| `element.scroll_into_view_center` | boolean | `TRUE` | - | If `TRUE`, `I scroll to the element :selector` centers the element in the browser window, across and down. If `FALSE`, it aligns the element's top with the top of the window. |
 
 ## Steps
 

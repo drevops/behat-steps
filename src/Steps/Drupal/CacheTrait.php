@@ -178,7 +178,7 @@ trait CacheTrait {
    */
   protected function cacheConfigSchema(): array {
     return [
-      new Option('page_cache_bin', default: 'page', description: 'Name of the cache bin holding the internal page cache.'),
+      new Option('page_cache_bin', default: 'page', description: "The cache bin that holds Drupal's internal page cache, which the steps clearing the page cache for a path delete entries from. The Drush backend empties the whole bin."),
     ];
   }
 

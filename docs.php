@@ -12,7 +12,7 @@
  * - The steps again for the documentation site, in 1 section per context,
  *   such as docs/content/drupal-steps/: an index in the README.md of the
  *   section, and 1 page per trait.
- * - The generated tables in docs/content/guides/configuration.md.
+ * - The generated tables in docs/content/guides/configuration-reference.md.
  *
  * It also validates that:
  *
@@ -136,7 +136,7 @@ const PAGES_DIRECTORY = 'docs/content';
 /**
  * File holding the configuration reference, relative to the repository root.
  */
-const CONFIGURATION_FILE = 'docs/content/guides/configuration.md';
+const CONFIGURATION_FILE = 'docs/content/guides/configuration-reference.md';
 
 // The main function runs only when the script is run directly, not when it
 // is included.
@@ -2570,67 +2570,67 @@ function tag_registry(): array {
   return [
     'behat-steps-skip' => [
       'form' => 'parametrized',
-      'description' => 'Switch off every hook of the named trait, such as `EmailTrait`. On a trait that declares an `enabled` option, the tag sets it to FALSE. A value not shaped like a trait name, or naming a trait no context of the suite composes, fails the run at scenario start.',
+      'description' => "Switches off every hook of the named trait, such as `EmailTrait`, for the scenario, and the trait's steps still work. On a trait that declares an `enabled` option, the tag sets it to `FALSE`. A value that isn't a trait name, a missing value or a trait that no context of the suite composes stops the whole run at that scenario's start.",
     ],
     'behat-steps-entity-cleanup-skip' => [
       'form' => 'parametrized',
-      'description' => 'Keep entities of the named entity type after the scenario. Repeat the tag to keep several types.',
+      'description' => "Keeps the entities of the named entity type, such as `node`, that the scenario's steps created, instead of deleting them after the scenario. Repeated tags keep several types. Users and roles that the user steps create are deleted either way.",
     ],
     'backend' => [
       'form' => 'parametrized',
-      'description' => 'Move the named backend to the front of the configured backend list for the scenario. Repeat the tag to promote several: they keep the configured order among themselves, so the order the tags are written in does not matter. The tag reorders the list; it never adds to it.',
+      'description' => "Moves the named backend to the front of the configured `backends` list for the scenario. Repeated tags promote several: the scenario's names go first, then the feature's, each group in the configured order, so the order the tags are written in doesn't matter. The tag reorders the list and never adds to it, so a name the list doesn't hold, or no name, stops the whole run at that scenario's start.",
     ],
     'module' => [
       'form' => 'parametrized',
-      'description' => 'Enable the named module for the scenario, or disable it when the name is prefixed with `!`. The original state is restored afterwards.',
+      'description' => "Installs the named module for the scenario, or uninstalls it when the name starts with `!`, as in `@module:!redirect`, and restores the module's original state afterwards. Uninstalling deletes the module's data, which the restore doesn't bring back. A module the codebase doesn't hold fails the scenario.",
     ],
     'breakpoint' => [
       'form' => 'parametrized',
-      'description' => "Resize the viewport to the named breakpoint before the first step. A scenario and its feature take 1 tag each, and the scenario's replaces the feature's. The scenario or its feature has to be `@javascript`.",
+      'description' => "Resizes the browser window to the named breakpoint before the first step: `mobile_portrait`, `mobile_landscape`, `tablet_portrait`, `tablet_landscape`, `laptop`, `desktop` or a breakpoint a context's constructor adds through `responsiveSetBreakpoints()`. A scenario and its feature take 1 tag each, and the scenario's replaces the feature's. The scenario or its feature has to be `@javascript`, and an unknown name fails the scenario.",
     ],
     'email' => [
       'form' => 'parametrized',
-      'description' => 'Collect email for the scenario with the named handler type. A bare `@email` uses the `default` handler.',
+      'description' => "Collects the email the site sends during the scenario, by pointing the named key of `system.mail`'s `interface` map, such as `default`, at a test collector and restoring it afterwards. A bare `@email` collects the `default` key, and repeated tags collect several.",
     ],
     'watchdog' => [
       'form' => 'parametrized',
-      'description' => 'Track the named Watchdog message type in addition to `php`, which is always tracked.',
+      'description' => 'Adds the named log type, such as `my_module`, to the types the Watchdog check reads, beside `php`, which it always reads. An entry of a tracked type at warning severity or worse fails the scenario, unless `@error` allows it.',
     ],
     'disable-config-override' => [
       'form' => 'parametrized',
-      'description' => 'Disable `settings.php` overrides for the named configuration object for the duration of the scenario.',
+      'description' => 'Asks the site to ignore the `settings.php` overrides of the named configuration object, by sending its name in an `X-Config-No-Override` header with each request of the scenario. The site has to read the header itself, and a Selenium2 session sends no request headers.',
     ],
     'accessibility' => [
       'form' => 'parametrized',
-      'description' => 'Assess every page the scenario visits. The value sets the impact threshold that fails the scenario: `critical`, `serious`, `moderate`, `minor`, `any`, `warning` or `strict`.',
+      'description' => "Assesses every page the scenario visits with axe-core, and fails the scenario on the violations a threshold selects. `critical`, `serious`, `moderate` or `minor` fails on that impact or a worse one, `any` fails on every violation and `warning`, or `warn`, reports without failing. `strict` also fails the scenario on findings axe-core can't decide, whatever the threshold. A bare `@accessibility`, or a value outside these, uses the `accessibility.failure_threshold` option. The scenario has to be `@javascript`.",
     ],
     'bigpipe' => [
       'form' => 'flag',
-      'description' => 'Render BigPipe placeholders server-side, for a browser driver without JavaScript.',
+      'description' => "Sets the `big_pipe_nojs` cookie before each step, so Drupal renders BigPipe placeholders on the server, for a browser driver that can't run JavaScript. A driver that runs JavaScript doesn't get the cookie.",
     ],
     'disable-form-validation' => [
       'form' => 'flag',
-      'description' => 'Strip HTML5 validation from every form on the page so a scenario can submit values the browser would block.',
+      'description' => "Adds `novalidate` to every form on the page after each step, so a scenario can submit values the browser's own validation would block. It acts only in a browser that runs JavaScript, since BrowserKit doesn't validate forms.",
     ],
     'js-errors' => [
       'form' => 'flag',
-      'description' => 'Allow JavaScript errors, which otherwise fail the scenario. They are still collected. Sets the `javascript.fail_on_errors` option to FALSE.',
+      'description' => 'Lets a `@javascript` scenario pass with JavaScript errors, which otherwise fail it. The errors are still collected. Sets the `javascript.fail_on_errors` option to `FALSE`.',
     ],
     'download' => [
       'form' => 'flag',
-      'description' => 'Prepare the download directory for the scenario and clean it up afterwards.',
+      'description' => 'Empties and creates the directory the `file_download.temp_dir` option names before the scenario, and deletes it afterwards, so the download steps write into an empty directory. Anything already in that directory is deleted.',
     ],
     'testmode' => [
       'form' => 'flag',
-      'description' => 'Enable the Testmode module for the scenario.',
+      'description' => 'Switches on the test mode of the Testmode module, from `drupal/testmode`, for the scenario, and switches it off afterwards. The module has to be enabled already, or the scenario fails at its start.',
     ],
     'debug' => [
       'form' => 'flag',
-      'description' => 'Print detailed diagnostics while the scenario runs.',
+      'description' => 'Prints every email the collector holds, with its subject, body and addresses, each time an email step reads it. It works only in an `@email` scenario.',
     ],
     'error' => [
       'form' => 'flag',
-      'description' => 'Expect the scenario to log an error. The errors are still read and cleared, and the scenario is not failed. Sets the `watchdog.fail_on_errors` option to FALSE.',
+      'description' => 'Lets the scenario pass when it logs errors to Watchdog, which otherwise fail it. The errors are still read and cleared, and a scenario that logs none passes too. Sets the `watchdog.fail_on_errors` option to `FALSE`.',
     ],
   ];
 }

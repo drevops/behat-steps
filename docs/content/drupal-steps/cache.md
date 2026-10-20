@@ -25,7 +25,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `cache.page_cache_bin` | string | `'page'` | - | Name of the cache bin holding the internal page cache. |
+| `cache.page_cache_bin` | string | `'page'` | - | The cache bin that holds Drupal's internal page cache, which the steps clearing the page cache for a path delete entries from. The Drush backend empties the whole bin. |
 
 ## Steps
 

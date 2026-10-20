@@ -180,8 +180,8 @@ trait MappingTrait {
    */
   protected function mappingConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Replace `{{ Key }}` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched.'),
-      new Option('groups', default: [], description: 'Named value mappings grouped for organization. Group names take no part in the lookup, so a key must be unique across all groups.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, replaces `{{ Key }}` tokens in step arguments and table cells with values from `groups`, though not in multiline text. If `FALSE`, tokens stay as written.'),
+      new Option('groups', default: [], description: 'The values `{{ Key }}` tokens resolve to, as a map of group names to maps of keys and their values. Group names only organize the keys, so a key has to be unique across all groups, and it matches as written, case included. A token whose key no group holds fails the step.'),
     ];
   }
 

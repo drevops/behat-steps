@@ -26,7 +26,7 @@ The repository holds these parts:
 
 - `src/` holds the package: the backends, the Behat extension, the 3 contexts and the step and helper traits.
 - `tests/` holds the unit, kernel and Behat suites, and the fixture Drupal sites for Drupal 11 and 12 that all 3 suites run against.
-- `docs.php` generates [STEPS.md](../../../STEPS.md) and [HELPERS.md](../../../HELPERS.md), the [Web steps](../web-steps/README.md) and [Drupal steps](../drupal-steps/README.md) pages and the generated tables in [Configuration](../guides/configuration.md).
+- `docs.php` generates [STEPS.md](../../../STEPS.md) and [HELPERS.md](../../../HELPERS.md), the [Web steps](../web-steps/README.md) and [Drupal steps](../drupal-steps/README.md) pages and the generated tables in [Configuration reference](../guides/configuration-reference.md).
 - `docs/` holds this site, with its pages in `docs/content/`.
 - `scripts/` holds the fixture site provisioning, the coverage tools, the layer and trait linters and the script that draws the architecture diagrams.
 - `skills/` holds the AI agent skills that ship with the package, for projects that use it: `create-behat-step`, which writes a step of a project's own on the helpers.

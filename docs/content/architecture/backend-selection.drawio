@@ -1,110 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mxfile host="drawio" version="26.0.0">
   <diagram id="backend-selection" name="Backend selection">
-    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="2400" pageHeight="860" background="#ffffff" math="0" shadow="0">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1220" pageHeight="990" background="#ffffff" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="title" value="Behat Steps: backend selection" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=22;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="title" value="Behat Steps: backend selection" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;strokeColor=none;fillColor=none;fontColor=#263238;fontSize=22;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="16" y="16" width="900" height="34" as="geometry" />
         </mxCell>
-        <mxCell id="subtitle" value="A step asks for a capability, never for a backend. The first backend in the scenario's order that provides the capability does the work." style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;fontColor=#546E7A;" vertex="1" parent="1">
-          <mxGeometry x="16" y="54" width="1500" height="22" as="geometry" />
+        <mxCell id="subtitle" value="A step asks for a capability, never for a backend. The first backend in the scenario's order that provides the capability does the work." style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;strokeColor=none;fillColor=none;fontSize=13;fontColor=#546E7A;" vertex="1" parent="1">
+          <mxGeometry x="16" y="54" width="1160" height="22" as="geometry" />
         </mxCell>
         <mxCell id="step" value="&lt;b&gt;Given the cache has been cleared&lt;/b&gt;&lt;br&gt;CacheTrait calls backendFor() with CacheCapabilityInterface" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1">
           <mxGeometry x="40" y="140" width="300" height="90" as="geometry" />
         </mxCell>
+        <mxCell id="note" value="With backends [drupal, drush, blackbox], the step runs in-process. Tag a scenario @backend:drush and drush comes first, so the same step runs over Drush. A backend of your own serves the step as soon as it implements CacheCapabilityInterface." style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFFFFF;strokeColor=#546E7A;fontFamily=Helvetica;fontSize=12;fontColor=#263238;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="460" y="140" width="720" height="90" as="geometry" />
+        </mxCell>
         <mxCell id="registry" value="&lt;b&gt;BackendRegistry::getBackendFor()&lt;/b&gt;&lt;br&gt;walks the scenario's backends in order, asking each with instanceof" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
-          <mxGeometry x="500" y="140" width="300" height="90" as="geometry" />
+          <mxGeometry x="40" y="320" width="300" height="90" as="geometry" />
         </mxCell>
         <mxCell id="listener" value="&lt;b&gt;BackendListener&lt;/b&gt;&lt;br&gt;at scenario start: @backend: tags first, then the backends list in behat.php" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
-          <mxGeometry x="500" y="320" width="300" height="90" as="geometry" />
+          <mxGeometry x="40" y="500" width="300" height="90" as="geometry" />
         </mxCell>
         <mxCell id="cand-1" value="&lt;b&gt;1st in the order: drupal&lt;/b&gt;&lt;br&gt;DrupalBackend, 34 of the 35 capabilities" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1">
-          <mxGeometry x="900" y="140" width="280" height="90" as="geometry" />
+          <mxGeometry x="460" y="320" width="300" height="90" as="geometry" />
         </mxCell>
         <mxCell id="cand-2" value="&lt;b&gt;2nd: drush&lt;/b&gt;&lt;br&gt;DrushBackend, 14 capabilities" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1">
-          <mxGeometry x="1290" y="140" width="280" height="90" as="geometry" />
+          <mxGeometry x="460" y="500" width="300" height="90" as="geometry" />
         </mxCell>
         <mxCell id="cand-3" value="&lt;b&gt;3rd: blackbox&lt;/b&gt;&lt;br&gt;BlackboxBackend, no capabilities: a site you can only browse" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1">
-          <mxGeometry x="1680" y="140" width="280" height="90" as="geometry" />
+          <mxGeometry x="460" y="680" width="300" height="90" as="geometry" />
         </mxCell>
         <mxCell id="none" value="&lt;b&gt;UnsupportedBackendActionException&lt;/b&gt;&lt;br&gt;names the capability and the scenario's order" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFEBEE;strokeColor=#C62828;" vertex="1" parent="1">
-          <mxGeometry x="2070" y="140" width="300" height="90" as="geometry" />
+          <mxGeometry x="460" y="860" width="300" height="90" as="geometry" />
         </mxCell>
         <mxCell id="run-1" value="&lt;b&gt;Runs in-process&lt;/b&gt;&lt;br&gt;bootstrapped the first time a step needs it; Core clears every cache" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1">
-          <mxGeometry x="900" y="320" width="280" height="90" as="geometry" />
+          <mxGeometry x="880" y="320" width="300" height="90" as="geometry" />
         </mxCell>
         <mxCell id="run-2" value="&lt;b&gt;Runs over Drush&lt;/b&gt;&lt;br&gt;drush cache:rebuild" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1">
-          <mxGeometry x="1290" y="320" width="280" height="90" as="geometry" />
+          <mxGeometry x="880" y="500" width="300" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="note" value="With backends [drupal, drush, blackbox], the step runs in-process. Tag a scenario @backend:drush and drush comes first, so the same step runs over Drush. A backend of your own serves the step as soon as it implements CacheCapabilityInterface." style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FFFFFF;strokeColor=#546E7A;fontFamily=Helvetica;fontSize=12;fontColor=#263238;align=left;verticalAlign=middle;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
-          <mxGeometry x="900" y="480" width="1060" height="76" as="geometry" />
-        </mxCell>
-        <mxCell id="grp-legend" value="Legend" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;strokeWidth=1.5;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#455A64;" vertex="1" parent="1">
-          <mxGeometry x="1890" y="620" width="480" height="210" as="geometry" />
+        <mxCell id="grp-legend" value="Legend" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;strokeWidth=1.5;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#455A64;" vertex="1" parent="1">
+          <mxGeometry x="880" y="770" width="300" height="180" as="geometry" />
         </mxCell>
         <mxCell id="lg-steps" value="" style="rounded=1;arcSize=12;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=1.5;" vertex="1" parent="grp-legend">
-          <mxGeometry x="20" y="50" width="40" height="20" as="geometry" />
+          <mxGeometry x="16" y="42" width="40" height="16" as="geometry" />
         </mxCell>
-        <mxCell id="lg-steps-label" value="Steps layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
-          <mxGeometry x="80" y="50" width="150" height="20" as="geometry" />
+        <mxCell id="lg-steps-label" value="Steps layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;strokeColor=none;fillColor=none;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="68" y="40" width="216" height="20" as="geometry" />
         </mxCell>
         <mxCell id="lg-extension" value="" style="rounded=1;arcSize=12;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=1.5;" vertex="1" parent="grp-legend">
-          <mxGeometry x="20" y="90" width="40" height="20" as="geometry" />
+          <mxGeometry x="16" y="64" width="40" height="16" as="geometry" />
         </mxCell>
-        <mxCell id="lg-extension-label" value="Extension layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
-          <mxGeometry x="80" y="90" width="150" height="20" as="geometry" />
+        <mxCell id="lg-extension-label" value="Extension layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;strokeColor=none;fillColor=none;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="68" y="62" width="216" height="20" as="geometry" />
         </mxCell>
         <mxCell id="lg-backend" value="" style="rounded=1;arcSize=12;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=1.5;" vertex="1" parent="grp-legend">
-          <mxGeometry x="20" y="130" width="40" height="20" as="geometry" />
+          <mxGeometry x="16" y="86" width="40" height="16" as="geometry" />
         </mxCell>
-        <mxCell id="lg-backend-label" value="Backend layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
-          <mxGeometry x="80" y="130" width="150" height="20" as="geometry" />
+        <mxCell id="lg-backend-label" value="Backend layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;strokeColor=none;fillColor=none;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="68" y="84" width="216" height="20" as="geometry" />
         </mxCell>
         <mxCell id="lg-error" value="" style="rounded=1;arcSize=12;html=1;fillColor=#FFEBEE;strokeColor=#C62828;strokeWidth=1.5;" vertex="1" parent="grp-legend">
-          <mxGeometry x="20" y="170" width="40" height="20" as="geometry" />
+          <mxGeometry x="16" y="108" width="40" height="16" as="geometry" />
         </mxCell>
-        <mxCell id="lg-error-label" value="Tests and exceptions" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
-          <mxGeometry x="80" y="170" width="150" height="20" as="geometry" />
+        <mxCell id="lg-error-label" value="Tests and exceptions" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;strokeColor=none;fillColor=none;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="68" y="106" width="216" height="20" as="geometry" />
         </mxCell>
         <mxCell id="lg-call" value="" style="edgeStyle=none;html=1;strokeWidth=1.5;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;" edge="1" parent="grp-legend">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="250" y="60" as="sourcePoint" /><mxPoint x="290" y="60" as="targetPoint" /></mxGeometry>
+          <mxGeometry relative="1" as="geometry"><mxPoint x="16" y="138" as="sourcePoint" /><mxPoint x="56" y="138" as="targetPoint" /></mxGeometry>
         </mxCell>
-        <mxCell id="lg-call-label" value="Call or dependency" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
-          <mxGeometry x="310" y="50" width="150" height="20" as="geometry" />
+        <mxCell id="lg-call-label" value="Call or dependency" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;strokeColor=none;fillColor=none;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="68" y="128" width="216" height="20" as="geometry" />
         </mxCell>
         <mxCell id="lg-back" value="" style="edgeStyle=none;html=1;strokeWidth=1.5;endSize=8;strokeColor=#78909C;dashed=1;endArrow=open;endFill=0;" edge="1" parent="grp-legend">
-          <mxGeometry relative="1" as="geometry"><mxPoint x="250" y="100" as="sourcePoint" /><mxPoint x="290" y="100" as="targetPoint" /></mxGeometry>
+          <mxGeometry relative="1" as="geometry"><mxPoint x="16" y="160" as="sourcePoint" /><mxPoint x="56" y="160" as="targetPoint" /></mxGeometry>
         </mxCell>
-        <mxCell id="lg-back-label" value="Data coming back" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
-          <mxGeometry x="310" y="90" width="150" height="20" as="geometry" />
+        <mxCell id="lg-back-label" value="Data comes back" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;strokeColor=none;fillColor=none;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="68" y="150" width="216" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="e-call" value="backendFor(capability)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.3;entryDx=0;entryDy=0;" edge="1" parent="1" source="step" target="registry">
-          <mxGeometry relative="1" as="geometry"><mxPoint y="-14" as="offset" /></mxGeometry>
+        <mxCell id="e-call" value="backendFor(capability)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.2;exitY=1;exitDx=0;exitDy=0;entryX=0.2;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="step" target="registry">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="d-return" value="the backend, bootstrapped" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#78909C;dashed=1;endArrow=open;endFill=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="registry" target="step">
-          <mxGeometry relative="1" as="geometry"><mxPoint y="14" as="offset" /></mxGeometry>
+        <mxCell id="d-return" value="the backend, bootstrapped" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#78909C;dashed=1;endArrow=open;endFill=0;exitX=0.8;exitY=0;exitDx=0;exitDy=0;entryX=0.8;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="registry" target="step">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ask" value="asks in order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="registry" target="cand-1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e-order" value="sets the order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="listener" target="registry">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e-ask" value="asks in order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="registry" target="cand-1">
-          <mxGeometry relative="1" as="geometry"><mxPoint y="-14" as="offset" /></mxGeometry>
-        </mxCell>
-        <mxCell id="e-no-1" value="doesn't provide it" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-1" target="cand-2">
-          <mxGeometry relative="1" as="geometry"><mxPoint y="-14" as="offset" /></mxGeometry>
-        </mxCell>
-        <mxCell id="e-no-2" value="doesn't provide it" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-2" target="cand-3">
-          <mxGeometry relative="1" as="geometry"><mxPoint y="-14" as="offset" /></mxGeometry>
-        </mxCell>
-        <mxCell id="e-no-3" value="no backend left" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-3" target="none">
-          <mxGeometry relative="1" as="geometry"><mxPoint y="-14" as="offset" /></mxGeometry>
-        </mxCell>
-        <mxCell id="e-yes-1" value="provides it" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-1" target="run-1">
+        <mxCell id="e-yes-1" value="provides it" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-1" target="run-1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e-yes-2" value="provides it" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-2" target="run-2">
+        <mxCell id="e-no-1" value="doesn't provide it" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-1" target="cand-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-yes-2" value="provides it" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-2" target="run-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-no-2" value="doesn't provide it" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-2" target="cand-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-no-3" value="no backend left" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="cand-3" target="none">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>

@@ -13,7 +13,7 @@ The backend layer is `src/Backend`, the part that talks to the site. You extend 
 
 A field handler covers a field type the package ships no handler for, or replaces a shipped one. A creation alias lets your scenarios fill in a column the way a person would, and a Core of your own serves a site whose modules change what an operation has to do. When none of the shipped backends reaches the site the way your suite needs, a backend of your own can, registered from a Behat extension of yours.
 
-[Configuration](../guides/configuration.md#2-the-behat_steps-extension-key) lists the 4 options, `drupal.field_handlers`, `drupal.creation_aliases`, `drush.creation_aliases` and `drupal.core`, with every other option of the extension.
+[Configuration reference](../guides/configuration-reference.md#extension-options) lists the 4 options, `drupal.field_handlers`, `drupal.creation_aliases`, `drush.creation_aliases` and `drupal.core`, with every other option of the extension.
 
 ## Field handlers
 

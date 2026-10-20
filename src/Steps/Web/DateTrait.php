@@ -166,7 +166,7 @@ trait DateTrait {
    */
   protected function dateConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Replace `[relative:...]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, replaces `[relative:...]` tokens in table cells and in the `:datetime`, `:value`, `:partial_value`, `:expected_value`, `:text` and `:content` arguments of a step. If `FALSE`, tokens stay as written.'),
     ];
   }
 
