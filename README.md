@@ -48,7 +48,7 @@ Behat can only run a step once some PHP code stands behind it, and Behat Steps i
 - Support for Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5.
 - BrowserKit, Selenium and Chrome DevTools [browser drivers](https://behat-steps.drevops.com/installation#javascript-browser-drivers).
 - [Cleanup](https://behat-steps.drevops.com/guides/usage#entities-a-scenario-creates) of the entities a scenario creates.
-- Step and helper references that ship with the package, for [AI coding agents](https://behat-steps.drevops.com/guides/ai-assistants).
+- Step and helper references that ship with the package, for [AI coding agents](https://behat-steps.drevops.com/guides/ai-assistants), and a skill that has the agent write a step of your own on the helpers.
 
 ## Installation
 
@@ -71,7 +71,7 @@ The [Quick start](https://behat-steps.drevops.com/quick-start) takes you from he
 
 ## Writing tests with AI assistants
 
-The step and helper references ship with the package as [STEPS.md](STEPS.md) and [HELPERS.md](HELPERS.md), so a coding agent in your project reads them from `vendor/drevops/behat-steps/`. [Writing tests with AI assistants](https://behat-steps.drevops.com/guides/ai-assistants) has a snippet for your `CLAUDE.md` or `AGENTS.md`.
+The step and helper references ship with the package as [STEPS.md](STEPS.md) and [HELPERS.md](HELPERS.md), so a coding agent in your project reads them from `vendor/drevops/behat-steps/`. The [create-behat-step](skills/create-behat-step/SKILL.md) skill ships beside them: describe a step, and your agent writes it on the helpers, in a trait your `FeatureContext` uses. [Writing tests with AI assistants](https://behat-steps.drevops.com/guides/ai-assistants) has a snippet for your `CLAUDE.md` or `AGENTS.md`, and shows how to install the skill.
 
 ## Contributing
 

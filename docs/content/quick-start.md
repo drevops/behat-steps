@@ -282,4 +282,4 @@ That step describes your site in its own terms. When you have more than a few st
 - [Contexts](guides/contexts.md) covers what each context includes and where your own steps go, and [Usage](guides/usage.md) covers configuring the traits and the cleanup after each scenario.
 - [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) list every step, with an example for each.
 - [Configuration](guides/configuration.md) lists every option and tag, and [behat.dist.php](../../behat.dist.php) sets every extension option as a reference.
-- [Writing tests with AI assistants](guides/ai-assistants.md) points a coding agent at the same reference.
+- [Writing tests with AI assistants](guides/ai-assistants.md) points a coding agent at the same reference, and at the skill that writes a step of your own.

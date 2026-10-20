@@ -29,7 +29,8 @@ The repository holds these parts:
 - `docs.php` generates [STEPS.md](../../../STEPS.md) and [HELPERS.md](../../../HELPERS.md), the [Web steps](../web-steps/README.md) and [Drupal steps](../drupal-steps/README.md) pages and the generated tables in [Configuration](../guides/configuration.md).
 - `docs/` holds this site, with its pages in `docs/content/`.
 - `scripts/` holds the fixture site provisioning, the coverage tools, the layer and trait linters and the script that draws the architecture diagrams.
-- `.claude/skills/` holds the AI agent skills kept in this repository: `migrate-behat-steps` for projects that use the package, and `update-architecture-docs` for maintainers.
+- `skills/` holds the AI agent skills that ship with the package, for projects that use it: `create-behat-step`, which writes a step of a project's own on the helpers.
+- `.claude/skills/` holds the AI agent skills kept in this repository and left out of the package: `migrate-behat-steps` for projects that use the package, which they fetch from GitHub, and `update-architecture-docs` for maintainers.
 
 ## See also
 

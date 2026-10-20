@@ -943,4 +943,20 @@ ahoy lint-docs    # Check documentation for errors
 
 An extension option and a tag are both generated from their definition in the source, so neither can be added without appearing in the reference. Write the option's `->info()` in [BehatStepsExtension](src/Extension/ServiceContainer/BehatStepsExtension.php) and the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never hand-edit inside a generated region.
 
-`STEPS.md` and `HELPERS.md` ship in the Composer package, where a consuming project's AI agent reads them, and the rest are pages of the documentation site in [docs/](docs). [docs/README.md](docs/README.md) covers the site: working on it locally, the checks and publishing to [behat-steps.drevops.com](https://behat-steps.drevops.com). [Documentation](docs/content/contributing/documentation.md) covers the writing conventions.
+`STEPS.md` and `HELPERS.md` ship in the Composer package, where a consuming project's AI agent reads them, and the rest are pages of the documentation site in [docs/](docs). [docs/README.md](docs/README.md) covers the site: working on it locally, the checks and publishing to [behat-steps.drevops.com](https://behat-steps.drevops.com). [Documentation](docs/content/contributing/documentation.md) covers the writing conventions. Both references open with a link to the skill in `STEP_SKILL_FILE`, as [Shipped skills](#shipped-skills) describes.
+
+## Shipped skills
+
+[skills/](skills) holds the AI agent skills the package ships, 1 directory per skill in the [Agent Skills](https://agentskills.io/specification) format, and Composer installs them in a consuming project's `vendor/drevops/behat-steps/skills/`. [skills/create-behat-step/SKILL.md](skills/create-behat-step/SKILL.md) writes a step of the project's own on the helpers, in a trait its `FeatureContext` uses.
+
+A shipped skill runs against the release it ships with, so it reads the facts it needs from that release's `STEPS.md`, `HELPERS.md` and `src/`, and states only the procedure and the rules a project's code follows. Its frontmatter holds only the keys the specification defines, so every agent accepts it, and it takes its arguments from the request rather than from a placeholder only 1 agent fills in.
+
+[.claude/skills/](.claude/skills) holds the skills that stay out of the package: `update-architecture-docs` for working on this repository, and `migrate-behat-steps`, which a project fetches from GitHub because it runs while `vendor/` still holds 3.x.
+
+3 tests hold a shipped skill to its release:
+
+- [tests/phpunit/src/SkillFormatTest.php](tests/phpunit/src/SkillFormatTest.php) fails a skill whose frontmatter strays from the specification, or that names a method neither `DrupalContext` nor the skill's own code declares.
+- [tests/phpunit/src/CreateBehatStepSkillTest.php](tests/phpunit/src/CreateBehatStepSkillTest.php) composes the example trait of `create-behat-step` onto a `DrupalContext` subclass. It fails when the skill's code calls a method that `HELPERS.md` doesn't publish and Mink's `RawMinkContext` doesn't declare public, and when the skill names a method that is none of those, no method of its example and none of the protected and step methods it warns against. Its `PROTECTED_METHODS` and `STEP_METHODS` list those, and it fails when 1 of them stops being protected or a step.
+- `docs/tests/unit/distributionArchive.test.js` fails when a skill, or a package file a skill reads, stays out of the archive.
+
+So renaming, unpublishing or publishing a helper that a skill names fails the unit suite until the skill follows. Change both in the same pull request.

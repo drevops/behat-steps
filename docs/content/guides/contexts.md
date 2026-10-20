@@ -141,6 +141,8 @@ Feature: Publishing
     Then I should see the heading "About us"
 ```
 
+An AI coding agent writes steps like these with the `create-behat-step` skill, which ships with the package: describe the step, and the agent writes it in a trait like this one and adds the trait to `FeatureContext`. [Writing tests with AI assistants](ai-assistants.md#write-a-step-of-your-own) shows how to run it.
+
 [Scenario styles](scenario-styles.md) explains when steps in your own words pay off. [Anatomy of a trait](../architecture/anatomy-of-a-trait.md) walks through a trait with options and hooks, for when yours needs them.
 
 ## Compose your own context

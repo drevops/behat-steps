@@ -32,7 +32,7 @@ Here's what comes with the library:
 - It supports Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5, as [Supported versions](#supported-versions) shows.
 - The steps work with 3 [browsers](guides/browsers.md): BrowserKit for plain HTTP, and Selenium2 or Chrome for a real browser that runs JavaScript.
 - After each scenario, the library [deletes the entities](guides/usage.md#entities-a-scenario-creates) its steps created, in reverse creation order.
-- The step and helper references ship with the package as Markdown, so an [AI coding agent](guides/ai-assistants.md) in your project reads the same reference you do.
+- The step and helper references ship with the package as Markdown, so an [AI coding agent](guides/ai-assistants.md) in your project reads the same reference you do. A skill ships beside them that has the agent write a step of your own on the helpers.
 - [Architecture](architecture/README.md) shows how the layers fit together, with a page per layer and a trait taken apart line by line. An AI agent maintains its diagrams through the `update-architecture-docs` skill.
 
 ## How it fits together
