@@ -1,6 +1,6 @@
 ---
 title: Browsers
-sidebar_position: 4
+sidebar_position: 5
 description: The 3 browsers Behat Steps works with, BrowserKit, Selenium2 and Chrome, what each one can do, which steps need which and how a scenario picks one.
 ---
 

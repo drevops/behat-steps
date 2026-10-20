@@ -19,7 +19,7 @@ These pages show how Behat Steps works inside. You don't need any of it to write
 
 An AI agent maintains these pages and their diagrams through the `update-architecture-docs` skill in [.claude/skills/update-architecture-docs/SKILL.md](../../../.claude/skills/update-architecture-docs/SKILL.md), which draws them with the [drawio-skill](https://github.com/Agents365-ai/drawio-skill). Everything here is traced from the source code, and where the 2 disagree, the code wins.
 
-Looking for a reference instead? [Web steps](../web-steps/README.md) and [Drupal steps](../drupal-steps/README.md) list the steps, [HELPERS.md](../../../HELPERS.md) lists the helpers behind them and [Configuration](../guides/configuration.md) lists the options and tags.
+Looking for a reference instead? [Web steps](../web-steps/README.md) and [Drupal steps](../drupal-steps/README.md) list the steps, [HELPERS.md](../../../HELPERS.md) lists the helpers behind them and [Configuration reference](../guides/configuration-reference.md) lists the options and tags.
 
 ## Diagram sources
 

@@ -8,7 +8,7 @@ description: Change these docs, from regenerating the step pages and the 2 refer
 
 This page is for you when you change these docs, whether that's a guide, a page in this section or the docblock of a step you added. Most pages are hand-written.
 
-`docs.php` generates the step pages from the source code and fills 2 tables in Configuration. It also writes the step and helper references, `STEPS.md` and `HELPERS.md`, which ship with the Composer package. The site has no helper pages, so `HELPERS.md` is the only helper reference.
+`docs.php` generates the step pages from the source code and fills 2 tables in Configuration reference. It also writes the step and helper references, `STEPS.md` and `HELPERS.md`, which ship with the Composer package. The site has no helper pages, so `HELPERS.md` is the only helper reference.
 
 The site that renders these pages is a project of its own. Its README, [docs/README.md](../../README.md), covers running it on your machine to preview a change, the checks every pull request runs, previews and publishing.
 
@@ -21,7 +21,7 @@ The site that renders these pages is a project of its own. Its README, [docs/REA
 | [Web steps](../web-steps/README.md), [Drupal steps](../drupal-steps/README.md) | An index of the context's step traits, in the marked region of the section's `README.md`, and a page per trait beside it, with its options, an example for each step and a link to its helpers in `HELPERS.md` | No |
 | [`STEPS.md`](../../../STEPS.md) | Every step on 1 page, at the repository root | Yes |
 | [`HELPERS.md`](../../../HELPERS.md) | Every public helper on 1 page, at the repository root | Yes |
-| [Configuration](../guides/configuration.md) | The extension options and the tag reference, in 2 marked regions | No |
+| [Configuration reference](../guides/configuration-reference.md) | The extension options and the tag reference, in 2 marked regions | No |
 
 A step page takes its name from the `@title` tag in the docblock of its trait, such as `@title Batch API` on `Drupal\BatchTrait`, and the sidebar and the index list a section's pages in the order of those names. `ahoy lint-docs` fails on a step trait with no title.
 

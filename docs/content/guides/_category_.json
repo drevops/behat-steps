@@ -4,6 +4,6 @@
     "link": {
         "type": "generated-index",
         "slug": "/guides",
-        "description": "Pick the context to extend and where your own steps go, configure the traits, choose a browser and a scenario style, control the requests steps send, and point an AI coding agent at the reference."
+        "description": "Pick the context to extend and where your own steps go, configure the traits and look up every option and tag, choose a browser and a scenario style, control the requests steps send, and point an AI coding agent at the reference."
     }
 }

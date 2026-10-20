@@ -12,7 +12,7 @@
  * - The steps again for the documentation site, in 1 section per context,
  *   such as docs/content/drupal-steps/: an index in the README.md of the
  *   section, and 1 page per trait.
- * - The generated tables in docs/content/guides/configuration.md.
+ * - The generated tables in docs/content/guides/configuration-reference.md.
  *
  * It also validates that:
  *
@@ -136,7 +136,7 @@ const PAGES_DIRECTORY = 'docs/content';
 /**
  * File holding the configuration reference, relative to the repository root.
  */
-const CONFIGURATION_FILE = 'docs/content/guides/configuration.md';
+const CONFIGURATION_FILE = 'docs/content/guides/configuration-reference.md';
 
 // The main function runs only when the script is run directly, not when it
 // is included.

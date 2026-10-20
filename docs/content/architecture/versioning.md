@@ -10,7 +10,7 @@ This package follows [semantic versioning](https://semver.org), which covers 5 s
 
 - Step text: the pattern a scenario matches, listed in [Web steps](../web-steps/README.md) and [Drupal steps](../drupal-steps/README.md).
 - Helpers: every public method the step traits, the helper traits and `WebRawContext` contribute that isn't a step, a hook or a transform, listed in [HELPERS.md](../../../HELPERS.md). They sit on `$this` in your own context, so a step of yours depends on them exactly as a scenario depends on step text. A `protected` method is an implementation detail and carries no such promise.
-- Configuration: the options under the `behat_steps` key and the tags, listed in [Configuration](../guides/configuration.md), along with the contracts that a class named in those options implements: `FieldHandlerInterface` for `drupal.field_handlers`, and `PreCreateAliasInterface` or `PostCreateAliasInterface` for `drupal.creation_aliases` and `drush.creation_aliases`.
+- Configuration: the options under the `behat_steps` key and the tags, listed in [Configuration reference](../guides/configuration-reference.md), along with the contracts that a class named in those options implements: `FieldHandlerInterface` for `drupal.field_handlers`, and `PreCreateAliasInterface` or `PostCreateAliasInterface` for `drupal.creation_aliases` and `drush.creation_aliases`.
 - Exceptions: which exception type a failure reports, listed under [Exceptions](#exceptions).
 - Context base classes: `WebRawContext`, `WebContext` and `DrupalContext`, which your contexts extend.
 

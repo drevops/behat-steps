@@ -1,6 +1,6 @@
 ---
 title: Scenario styles
-sidebar_position: 5
+sidebar_position: 6
 description: The imperative and declarative scenario styles, the job each one does and how to move from the shipped steps to domain steps built on the same helpers.
 ---
 

@@ -140,7 +140,7 @@ Here's what each part does:
 - The suite tells Behat where your scenarios live and which contexts to load: your `FeatureContext`, and Mink's `MinkContext`, which adds Mink's own basic steps, such as `I fill in "Title" with "About us"` and `I press "Save"`. `%paths.base%` is the folder that holds `behat.php`. Register only these 2: your context already holds every Behat Steps step, and registering `WebContext` or `DrupalContext` beside it would define every web step twice, so Behat Steps stops the run with an error that says so.
 - The profile's `autoload` setting tells Behat to load your classes from `tests/behat/bootstrap`, where `FeatureContext.php` lives.
 - The Mink extension gives your scenarios a browser. The `browserkit_http` session loads pages over plain HTTP from PHP, with no real browser behind it. It's quick, but it doesn't run JavaScript, and [Browsers](guides/browsers.md) covers the real browsers you can add when you need one.
-- The last extension switches Behat Steps on. A site that isn't Drupal needs no settings here, and [Configuration](guides/configuration.md) lists them for when you do.
+- The last extension switches Behat Steps on. A site that isn't Drupal needs no settings here, and [Configuration reference](guides/configuration-reference.md#extension-options) lists them for when you do.
 
 On a Drupal site, `drupal_root` is the folder that holds Drupal's `index.php`, as a path from the folder you run Behat in, such as `web` or `docroot`. With it, the Drupal steps load Drupal inside the test run and create content, users and the rest directly, without going through your site's forms. Behat Steps calls this way of reaching a site a backend, and [Key concepts](concepts.md#backends-reaching-the-site-without-the-browser) explains backends, Drush included.
 
@@ -281,5 +281,5 @@ That step describes your site in its own terms. When you have more than a few st
 - [Key concepts](concepts.md) explains each piece you just used, from contexts to backends.
 - [Contexts](guides/contexts.md) covers what each context includes and where your own steps go, and [Usage](guides/usage.md) covers configuring the traits and the cleanup after each scenario.
 - [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) list every step, with an example for each.
-- [Configuration](guides/configuration.md) lists every option and tag, and [behat.dist.php](../../behat.dist.php) sets every extension option as a reference.
+- [Configuration reference](guides/configuration-reference.md) lists every option and tag, and [behat.dist.php](../../behat.dist.php) sets every extension option as a reference.
 - [Writing tests with AI assistants](guides/ai-assistants.md) points a coding agent at the same reference, and at the skill that writes a step of your own.

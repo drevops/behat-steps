@@ -16,7 +16,7 @@ Your context is built out of traits, and the extension points it at your site. T
 | The context | Which steps a suite gets, and which of those defaults it overrides | Per context |
 | The trait | What a step does, and which options change it | Per trait |
 
-[Configuration](configuration.md) is the reference for every option and tag. This page explains how they fit together.
+[Configuration reference](configuration-reference.md) lists every option and tag. This page explains how they fit together.
 
 ## Configure a trait
 
@@ -113,7 +113,7 @@ To keep all entities after a scenario, add `@behat-steps-skip:EntityLifecycleTra
 
 To keep only the entities of 1 type, add `@behat-steps-entity-cleanup-skip:ENTITY_TYPE_ID`, such as `@behat-steps-entity-cleanup-skip:media`. Repeat the tag to keep several types.
 
-To keep what a whole run creates, set `BEHAT_STEPS_DISABLE_CLEANUP`, as [Environment variables](configuration.md#4-environment-variables) describes.
+To keep what a whole run creates, set `BEHAT_STEPS_DISABLE_CLEANUP`, as [Environment variables](configuration-reference.md#environment-variables) describes.
 
 ### Several entities with the same title
 
