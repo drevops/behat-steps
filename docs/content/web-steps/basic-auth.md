@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Basic authentication
 
-`DrevOps\BehatSteps\Steps\Web\BasicAuthTrait` - [Source](../../../src/Steps/Web/BasicAuthTrait.php), [Example](../../../tests/behat/features/basic_auth.feature), [Helpers](../web-helpers/basic-auth.md)
+`DrevOps\BehatSteps\Steps\Web\BasicAuthTrait` - [Source](../../../src/Steps/Web/BasicAuthTrait.php), [Example](../../../tests/behat/features/basic_auth.feature), [Helpers](../../../HELPERS.md#basicauthtrait)
 
 >  Keep HTTP basic authentication applied across session resets.
 >  - Re-apply the configured credentials before every scenario and step.

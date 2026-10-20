@@ -104,7 +104,7 @@ const features = (counts) => [
     icon: 'code',
     title: 'Helpers behind every step',
     text: 'Each step is a thin wrapper over a named helper, so a step of your own reuses the same code.',
-    to: '/web-helpers',
+    to: '/concepts#helpers-behind-every-step',
   },
   {
     icon: 'layers',
@@ -304,7 +304,7 @@ const Stats = ({ counts }) => {
   const stats = [
     { value: counts.webSteps.entries + counts.drupalSteps.entries, label: 'Steps, each with an example' },
     { value: counts.webSteps.pages + counts.drupalSteps.pages, label: 'Traits for web and Drupal' },
-    { value: counts.webHelpers.entries + counts.drupalHelpers.entries, label: 'Helpers for steps of your own' },
+    { value: counts.helpers.entries, label: 'Helpers for steps of your own' },
     { value: '2018', label: 'Released since' },
   ];
 

@@ -106,7 +106,7 @@ trait PublishingTrait {
 }
 ```
 
-- Each step calls 1 of the library's helpers on `$this`. [Drupal helpers](../drupal-helpers/README.md) and [Web helpers](../web-helpers/README.md) list them all. Call only the public ones: a protected method can change in any release.
+- Each step calls 1 of the library's helpers on `$this`. [HELPERS.md](../../../HELPERS.md) lists them all. Call only the public ones: a protected method can change in any release.
 - The page and the user these helpers create are deleted when the scenario ends, as they are for the shipped steps.
 - The `@phpstan-require-extends` line tells your editor and PHPStan which class the helpers come from.
 - Every method starts with the trait's name, as the library's own do, so it can't collide with a shipped method or with another trait of yours.

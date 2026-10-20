@@ -35,7 +35,7 @@ The [Architecture](../architecture/README.md) pages explain each layer, and [Lay
 2. Name its method by [the method naming conventions](../../../CONTRIBUTING.md#method-naming-conventions), and keep its body [thin](../../../CONTRIBUTING.md#thin-step-bodies): it parses its arguments, calls helpers and guards on what they return.
 3. Give it a docblock with an example between `@code` and `@endcode`, and an `@actor:person` or `@actor:system` line. The trait's page and `STEPS.md` are generated from both.
 4. Add a scenario that runs the step to the trait's feature file in `tests/behat/features`. A unit test fails any step that no scenario runs, as [Behat tests](../../../CONTRIBUTING.md#behat-tests) explains.
-5. Run `ahoy update-docs` to regenerate the step and helper pages, `STEPS.md` and `HELPERS.md`.
+5. Run `ahoy update-docs` to regenerate the step pages, `STEPS.md` and `HELPERS.md`.
 
 A step's text is public API, so renaming 1 is a breaking change that waits for the next major release, as [Public API and versioning](../architecture/versioning.md) describes.
 

@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Queues
 
-`DrevOps\BehatSteps\Steps\Drupal\QueueTrait` - [Source](../../../src/Steps/Drupal/QueueTrait.php), [Example](../../../tests/behat/features/drupal_queue.feature), [Helpers](../drupal-helpers/queue.md)
+`DrevOps\BehatSteps\Steps\Drupal\QueueTrait` - [Source](../../../src/Steps/Drupal/QueueTrait.php), [Example](../../../tests/behat/features/drupal_queue.feature), [Helpers](../../../HELPERS.md#drupalqueuetrait)
 
 >  Manage and assert Drupal queue state.
 >  - Add items to a queue and empty queues.

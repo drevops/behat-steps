@@ -20,7 +20,7 @@ description: Generate or update the architecture documentation in docs/content/a
 
 The skill also owns the 3 diagrams beside `docs/content/guides/http-clients.md`: `http-client-settings.drawio`, where the clients' settings come from, `http-client-sidecar.drawio`, the detached client beside the browser in a JavaScript scenario, and `http-client-methods.drawio`, how a step reaches each client.
 
-The pages make up the Architecture section of the documentation site, so keep them plain Markdown and link a page or a repository file by its relative path, as the rest of `docs/content/` does. They are a short walkthrough, not a reference: `STEPS.md`, `HELPERS.md` and the generated pages list the steps and helpers, and `CONTRIBUTING.md` holds the rules. Never repeat either here.
+The pages make up the Architecture section of the documentation site, so keep them plain Markdown and link a page or a repository file by its relative path, as the rest of `docs/content/` does. They are a short walkthrough, not a reference: `STEPS.md` and the generated step pages list the steps, `HELPERS.md` lists the helpers, and `CONTRIBUTING.md` holds the rules. Never repeat either here.
 
 All content is derived from the actual source code: sources, entry scripts, manifests and service definitions. Never derive content from wishes, plans or design documents. If the documentation and the code disagree, the code wins.
 

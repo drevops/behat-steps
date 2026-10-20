@@ -72,6 +72,6 @@ The library serves both jobs through 1 design rule: every step body is a thin wr
 
 3 consequences follow:
 
-1. Helpers are public API. They're documented in [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md), covered by semantic versioning and named as carefully as the steps. Traits help here too: the helpers sit on `$this` in your `FeatureContext` and in every trait it uses, so a domain step costs 3 lines, where a context model would start every domain step with service lookups.
+1. Helpers are public API. They're listed in [HELPERS.md](../../../HELPERS.md), covered by semantic versioning and named as carefully as the steps. Traits help here too: the helpers sit on `$this` in your `FeatureContext` and in every trait it uses, so a domain step costs 3 lines, where a context model would start every domain step with service lookups.
 2. Suites split by job. A spec suite holds the few domain-language scenarios, and a regression suite holds the broad ones written in the shipped steps. That's also how Behat's own documentation says to use suites, and [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
 3. The docs teach a path. Start with the shipped steps for coverage on day one, then move the flows that matter to domain steps built on the helpers. The [quick start](../quick-start.md) starts you on the shipped steps and ends with a step of your own.

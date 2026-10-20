@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # DraggableViews
 
-`DrevOps\BehatSteps\Steps\Drupal\DraggableviewsTrait` - [Source](../../../src/Steps/Drupal/DraggableviewsTrait.php), [Example](../../../tests/behat/features/drupal_draggableviews.feature), [Helpers](../drupal-helpers/draggableviews.md)
+`DrevOps\BehatSteps\Steps\Drupal\DraggableviewsTrait` - [Source](../../../src/Steps/Drupal/DraggableviewsTrait.php), [Example](../../../tests/behat/features/drupal_draggableviews.feature), [Helpers](../../../HELPERS.md#drupaldraggableviewstrait)
 
 >  Order items in the Drupal Draggable Views.
 

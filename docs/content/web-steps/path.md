@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Paths
 
-`DrevOps\BehatSteps\Steps\Web\PathTrait` - [Source](../../../src/Steps/Web/PathTrait.php), [Example](../../../tests/behat/features/path.feature), [Helpers](../web-helpers/path.md)
+`DrevOps\BehatSteps\Steps\Web\PathTrait` - [Source](../../../src/Steps/Web/PathTrait.php), [Example](../../../tests/behat/features/path.feature), [Helpers](../../../HELPERS.md#pathtrait)
 
 >  Navigate and verify paths with URL validation.
 >  - Assert current page location with front page special handling.

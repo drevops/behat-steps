@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # ECK entities
 
-`DrevOps\BehatSteps\Steps\Drupal\EckTrait` - [Source](../../../src/Steps/Drupal/EckTrait.php), [Example](../../../tests/behat/features/drupal_eck.feature), [Helpers](../drupal-helpers/eck.md)
+`DrevOps\BehatSteps\Steps\Drupal\EckTrait` - [Source](../../../src/Steps/Drupal/EckTrait.php), [Example](../../../tests/behat/features/drupal_eck.feature), [Helpers](../../../HELPERS.md#drupalecktrait)
 
 >  Manage Drupal ECK entities of an existing entity type and bundle.
 >  - Create structured ECK entities with defined field values.

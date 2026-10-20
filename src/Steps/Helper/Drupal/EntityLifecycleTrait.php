@@ -37,8 +37,6 @@ use DrevOps\BehatSteps\Extension\Tag;
  * walks it in reverse and deletes a node before the term it references. The
  * same registry records which of several entities the scenario created last.
  *
- * @title Entity lifecycle
- *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait EntityLifecycleTrait {

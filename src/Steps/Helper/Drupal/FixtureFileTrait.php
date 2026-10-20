@@ -14,8 +14,6 @@ use DrevOps\BehatSteps\Steps\Helper\Web\FixtureDirectoryTrait;
  * A feature names a fixture by its path relative to the fixtures directory.
  * The stored value has to be a path the site can read.
  *
- * @title File field fixtures
- *
  * @phpstan-require-extends \DrevOps\BehatSteps\WebRawContext
  */
 trait FixtureFileTrait {

@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Users
 
-`DrevOps\BehatSteps\Steps\Drupal\UserTrait` - [Source](../../../src/Steps/Drupal/UserTrait.php), [Example](../../../tests/behat/features/drupal_user.feature), [Helpers](../drupal-helpers/user.md)
+`DrevOps\BehatSteps\Steps\Drupal\UserTrait` - [Source](../../../src/Steps/Drupal/UserTrait.php), [Example](../../../tests/behat/features/drupal_user.feature), [Helpers](../../../HELPERS.md#drupalusertrait)
 
 >  Manage Drupal users with role and permission assignments.
 >  - Create user accounts

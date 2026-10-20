@@ -12,8 +12,6 @@ use Behat\Gherkin\Node\TableNode;
  * A vertical table names a field per row and carries 1 column of values per
  * entity. It reads better than a wide horizontal table when an entity has
  * many fields.
- *
- * @title Vertical tables
  */
 trait TableTransposeTrait {
 

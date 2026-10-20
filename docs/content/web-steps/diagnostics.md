@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Failure diagnostics
 
-`DrevOps\BehatSteps\Steps\Web\DiagnosticsTrait` - [Source](../../../src/Steps/Web/DiagnosticsTrait.php), [Example](../../../tests/behat/features/diagnostics.feature), [Helpers](../web-helpers/diagnostics.md)
+`DrevOps\BehatSteps\Steps\Web\DiagnosticsTrait` - [Source](../../../src/Steps/Web/DiagnosticsTrait.php), [Example](../../../tests/behat/features/diagnostics.feature), [Helpers](../../../HELPERS.md#diagnosticstrait)
 
 >  Append on-failure diagnostics to the failure message of any failed step.
 >  <br/><br/>

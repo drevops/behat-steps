@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Blocks
 
-`DrevOps\BehatSteps\Steps\Drupal\BlockTrait` - [Source](../../../src/Steps/Drupal/BlockTrait.php), [Example](../../../tests/behat/features/drupal_block.feature), [Helpers](../drupal-helpers/block.md)
+`DrevOps\BehatSteps\Steps\Drupal\BlockTrait` - [Source](../../../src/Steps/Drupal/BlockTrait.php), [Example](../../../tests/behat/features/drupal_block.feature), [Helpers](../../../HELPERS.md#drupalblocktrait)
 
 >  Manage Drupal blocks.
 >  - Create and configure blocks with custom visibility conditions.

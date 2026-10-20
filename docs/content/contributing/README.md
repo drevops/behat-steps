@@ -10,7 +10,7 @@ Contributions are welcome, from a bug report to a new trait. Report a bug or sug
 ## Where to start
 
 - [Code](code.md) walks through a code change: setting up the fixture site, finding where the change goes, adding a step or a helper, running the tests and the linters, and opening the pull request.
-- [Documentation](documentation.md) covers changing these docs and regenerating the step and helper pages.
+- [Documentation](documentation.md) covers changing these docs and regenerating the step pages and the 2 references.
 
 ## Where the rules live
 
@@ -22,7 +22,7 @@ It also covers the [local environment](../../../CONTRIBUTING.md#local-environmen
 
 - `src/` holds the package: the backends, the Behat extension, the 3 contexts and the step and helper traits.
 - `tests/` holds the unit, kernel and Behat suites, and the fixture Drupal sites for Drupal 11 and 12 that all 3 suites run against.
-- `docs.php` generates the [Web steps](../web-steps/README.md), [Drupal steps](../drupal-steps/README.md), [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) pages and the generated tables in [Configuration](../guides/configuration.md).
+- `docs.php` generates [STEPS.md](../../../STEPS.md) and [HELPERS.md](../../../HELPERS.md), the [Web steps](../web-steps/README.md) and [Drupal steps](../drupal-steps/README.md) pages, and the generated tables in [Configuration](../guides/configuration.md).
 - `docs/` holds this site, with its pages in `docs/content/`.
 - `scripts/` holds the fixture site provisioning, the coverage tools, the layer and trait linters, and the script that draws the architecture diagrams.
 - `.claude/skills/` holds the AI agent skills kept in this repository: `migrate-behat-steps` for projects that use the package, and `update-architecture-docs` for maintainers.

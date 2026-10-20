@@ -9,9 +9,9 @@
  *
  * - STEPS.md, the step vocabulary.
  * - HELPERS.md, the helpers a project calls from its own domain steps.
- * - Both again for the documentation site, in 1 section per context, such as
- *   docs/content/drupal-steps/: an index in the README.md of the section, and
- *   1 page per trait or class.
+ * - The steps again for the documentation site, in 1 section per context,
+ *   such as docs/content/drupal-steps/: an index in the README.md of the
+ *   section, and 1 page per trait.
  * - The generated tables in docs/content/guides/configuration.md.
  *
  * It also validates that:
@@ -19,7 +19,7 @@
  * - The steps read in the documented format.
  * - Every step declares its actor, and its wording matches it.
  * - Every documented step matches exactly 1 definition.
- * - Every trait or class with a page names it with a title.
+ * - Every step trait names its page with a title.
  * - Every published helper carries a summary.
  * - Registered parametrized tags use `:` as their value separator.
  * - Every environment variable the source reads is documented.
@@ -123,8 +123,8 @@ const HELPERS_FILE = 'HELPERS.md';
 /**
  * Directory of the documentation site's pages, relative to the repository root.
  *
- * The steps and the helpers of each context get a section directory in it,
- * such as 'drupal-steps', whose README.md holds the index of its pages.
+ * The steps of each context get a section directory in it, such as
+ * 'drupal-steps', whose README.md holds the index of its pages.
  */
 const PAGES_DIRECTORY = 'docs/content';
 
@@ -163,7 +163,7 @@ function main(array $options = []): void {
   $errors = validate($info);
   $errors = array_merge($errors, validate_step_patterns($info));
   $errors = array_merge($errors, validate_helpers($helpers));
-  $errors = array_merge($errors, validate_titles($info, $helpers));
+  $errors = array_merge($errors, validate_titles($info));
   $errors = array_merge($errors, validate_tags($info, $base_path));
   $errors = array_merge($errors, validate_env_vars($base_path));
 
@@ -194,7 +194,7 @@ function main(array $options = []): void {
     ],
   ];
 
-  foreach (render_page_indexes('steps', $info) + render_page_indexes('helpers', $helpers) as $index => $table) {
+  foreach (render_page_indexes($info) as $index => $table) {
     $targets[$index] = [['[//]: # (START_INDEX)', '[//]: # (END_INDEX)', PHP_EOL . $table . PHP_EOL]];
   }
 
@@ -223,7 +223,7 @@ function main(array $options = []): void {
     }
   }
 
-  $pages = render_step_pages($info, $helpers, $base_path) + render_helper_pages($helpers, $base_path);
+  $pages = render_step_pages($info, $helpers, $base_path);
 
   foreach ($pages as $file => $contents) {
     $path = $base_path . '/' . $file;
@@ -1492,7 +1492,7 @@ function render_step_section(string $trait, array $class_info, string $base_path
  *   The extracted trait info from extract_info().
  * @param array<string, array<string, mixed>> $helpers
  *   The helper info from extract_helpers(), so a trait with helpers links to
- *   their page.
+ *   its section of the helper reference.
  * @param string $base_path
  *   Base path for the repository.
  *
@@ -1502,22 +1502,22 @@ function render_step_section(string $trait, array $class_info, string $base_path
  */
 function render_step_pages(array $info, array $helpers, string $base_path = __DIR__): array {
   $pages = [];
-  $positions = page_positions('steps', $info);
+  $positions = page_positions($info);
 
   foreach ($info as $trait => $class_info) {
     $trait = (string) $trait;
     $context = (string) $class_info['context'];
     $title = (string) $class_info['title'];
-    $page = reference_page('steps', $context, $trait);
+    $page = reference_page($context, $trait);
 
     $links = render_step_links($trait, $class_info, $page, $base_path);
 
     if (($helpers[$trait]['context'] ?? NULL) === $context) {
-      $links .= sprintf(', [Helpers](%s)', relative_link($page, reference_page('helpers', $context, $trait)));
+      $links .= sprintf(', [Helpers](%s#%s)', relative_link($page, HELPERS_FILE), heading_anchor((string) $helpers[$trait]['name_contextual']));
     }
 
     $output = render_front_matter([
-      'title' => sprintf('%s - %s steps', $title, page_section($context)),
+      'title' => sprintf('%s - %s steps', $title, $context),
       'sidebar_label' => $title,
       'sidebar_position' => $positions[$trait],
       'description' => str_replace('`', '', (string) $class_info['description']),
@@ -1765,47 +1765,6 @@ function render_helper_section(array $class_info, string $base_path): string {
 }
 
 /**
- * Render the documentation site's page of each class contributing helpers.
- *
- * @param array<string, array<string, mixed>> $info
- *   Array of helper info items from extract_helpers().
- * @param string $base_path
- *   Base path for the repository.
- *
- * @return array<string, string>
- *   The contents of each page, keyed by its path relative to the repository
- *   root.
- */
-function render_helper_pages(array $info, string $base_path = __DIR__): array {
-  $pages = [];
-  $positions = page_positions('helpers', $info);
-
-  foreach ($info as $key => $class_info) {
-    $name = (string) $class_info['name'];
-    $context = (string) $class_info['context'];
-    $title = (string) $class_info['title'];
-    $page = reference_page('helpers', $context, $name);
-    $steps_link = is_string($class_info['steps_anchor'] ?? NULL) ? relative_link($page, reference_page('steps', $context, $name)) : NULL;
-
-    $output = render_front_matter([
-      'title' => sprintf('%s - %s helpers', $title, page_section($context)),
-      'sidebar_label' => $title,
-      'sidebar_position' => $positions[(string) $key],
-      'description' => str_replace('`', '', (string) $class_info['description']),
-      'custom_edit_url' => NULL,
-    ]) . PHP_EOL;
-    $output .= '# ' . $title . PHP_EOL . PHP_EOL;
-    $output .= sprintf('`%s` - %s', $class_info['class'], render_helper_links($class_info, $page, $steps_link, $base_path)) . PHP_EOL . PHP_EOL;
-    $output .= '> ' . $class_info['description'] . PHP_EOL . PHP_EOL;
-    $output .= render_helper_details(is_array($class_info['helpers']) ? $class_info['helpers'] : []);
-
-    $pages[$page] = rtrim($output) . PHP_EOL;
-  }
-
-  return $pages;
-}
-
-/**
  * Render the links of a class to its source and to its steps.
  *
  * @param array<string, mixed> $class_info
@@ -1910,72 +1869,50 @@ function render_front_matter(array $fields): string {
 }
 
 /**
- * Name the documentation site's section that lists a context's pages.
- *
- * @param string $context
- *   The context of a class, such as 'Drupal'.
- *
- * @return string
- *   The context the section is named after.
- */
-function page_section(string $context): string {
-  // The site has no section for the helper classes, so their pages sit with
-  // the helpers of the generic context.
-  return $context === HELPER_CLASSES_CONTEXT ? DEFAULT_CONTEXT : $context;
-}
-
-/**
  * Render the directory of a section of the documentation site.
  *
- * @param string $kind
- *   The kind of page, 'steps' or 'helpers'.
  * @param string $context
- *   The context of a class, such as 'Drupal'.
+ *   The context of a trait, such as 'Drupal'.
  *
  * @return string
  *   The directory relative to the repository root, such as
  *   'docs/content/drupal-steps'.
  */
-function page_directory(string $kind, string $context): string {
-  return sprintf('%s/%s-%s', PAGES_DIRECTORY, strtolower(page_section($context)), $kind);
+function page_directory(string $context): string {
+  return sprintf('%s/%s-steps', PAGES_DIRECTORY, strtolower($context));
 }
 
 /**
- * Render the path of the documentation site's page of a class.
+ * Render the path of the documentation site's page of a trait.
  *
- * @param string $kind
- *   The kind of page, 'steps' or 'helpers'.
  * @param string $context
- *   The context of the class, such as 'Drupal'.
+ *   The context of the trait, such as 'Drupal'.
  * @param string $name
- *   The short class name, such as 'BigPipeTrait'.
+ *   The short trait name, such as 'BigPipeTrait'.
  *
  * @return string
- *   The path relative to the repository root, in the directory of the class's
- *   section and named after the class without its 'Trait' suffix.
+ *   The path relative to the repository root, in the directory of the trait's
+ *   section and named after the trait without its 'Trait' suffix.
  */
-function reference_page(string $kind, string $context, string $name): string {
-  return sprintf('%s/%s.md', page_directory($kind, $context), camel_to_snake((string) preg_replace('/Trait$/', '', $name), '-'));
+function reference_page(string $context, string $name): string {
+  return sprintf('%s/%s.md', page_directory($context), camel_to_snake((string) preg_replace('/Trait$/', '', $name), '-'));
 }
 
 /**
  * Number the pages of each section of the documentation site by their title.
  *
- * @param string $kind
- *   The kind of page, 'steps' or 'helpers'.
  * @param array<string, array<string, mixed>> $info
- *   The info of the classes, keyed by short name, from extract_info() for
- *   steps or from extract_helpers() for helpers.
+ *   The extracted trait info from extract_info(), keyed by short name.
  *
  * @return array<string, int>
- *   The position of each class's page in its section, from 1, keyed like the
+ *   The position of each trait's page in its section, from 1, keyed like the
  *   info.
  */
-function page_positions(string $kind, array $info): array {
+function page_positions(array $info): array {
   $titles = [];
 
   foreach ($info as $key => $class_info) {
-    $titles[page_directory($kind, (string) $class_info['context'])][(string) $key] = (string) $class_info['title'];
+    $titles[page_directory((string) $class_info['context'])][(string) $key] = (string) $class_info['title'];
   }
 
   $positions = [];
@@ -1991,40 +1928,33 @@ function page_positions(string $kind, array $info): array {
 /**
  * Render the index of each section of the documentation site.
  *
- * @param string $kind
- *   The kind of page, 'steps' or 'helpers'.
  * @param array<string, array<string, mixed>> $info
- *   The info of the classes, keyed by short name, from extract_info() for
- *   steps or from extract_helpers() for helpers.
+ *   The extracted trait info from extract_info(), keyed by short name.
  *
  * @return array<string, string>
  *   The table linking the pages of each section in their sidebar order, keyed
  *   by the path of the section's README.md relative to the repository root.
  */
-function render_page_indexes(string $kind, array $info): array {
-  $positions = page_positions($kind, $info);
+function render_page_indexes(array $info): array {
+  $positions = page_positions($info);
   $rows = [];
 
   foreach ($info as $key => $class_info) {
     $context = (string) $class_info['context'];
-    $index = page_directory($kind, $context) . '/README.md';
-    $link = relative_link($index, reference_page($kind, $context, (string) $class_info['name']));
-    $row = [sprintf('[%s](%s)', $class_info['title'], $link), sprintf('`%s`', $class_info['name_contextual'])];
-
-    if ($kind === 'helpers') {
-      $row[] = (string) count(is_array($class_info['helpers']) ? $class_info['helpers'] : []);
-    }
-
-    $row[] = (string) $class_info['description'];
-    $rows[$index][$positions[(string) $key]] = $row;
+    $index = page_directory($context) . '/README.md';
+    $link = relative_link($index, reference_page($context, (string) $class_info['name']));
+    $rows[$index][$positions[(string) $key]] = [
+      sprintf('[%s](%s)', $class_info['title'], $link),
+      sprintf('`%s`', $class_info['name_contextual']),
+      (string) $class_info['description'],
+    ];
   }
 
-  $headers = $kind === 'helpers' ? ['Name', 'Class', 'Helpers', 'Description'] : ['Name', 'Trait', 'Description'];
   $indexes = [];
 
   foreach ($rows as $index => $section_rows) {
     ksort($section_rows);
-    $indexes[$index] = array_to_markdown_table($headers, $section_rows);
+    $indexes[$index] = array_to_markdown_table(['Name', 'Trait', 'Description'], $section_rows);
   }
 
   return $indexes;
@@ -2062,13 +1992,11 @@ function context_first(array $entries, mixed $default): array {
 function stale_pages(string $base_path, array $pages): array {
   $stale = [];
 
-  foreach (['steps', 'helpers'] as $kind) {
-    foreach (glob(sprintf('%s/%s/*-%s/*.md', $base_path, PAGES_DIRECTORY, $kind)) ?: [] as $file) {
-      $relative = substr($file, strlen($base_path) + 1);
+  foreach (glob(sprintf('%s/%s/*-steps/*.md', $base_path, PAGES_DIRECTORY)) ?: [] as $file) {
+    $relative = substr($file, strlen($base_path) + 1);
 
-      if (basename($file) !== 'README.md' && !isset($pages[$relative])) {
-        $stale[] = $relative;
-      }
+    if (basename($file) !== 'README.md' && !isset($pages[$relative])) {
+      $stale[] = $relative;
     }
   }
 
@@ -2106,28 +2034,24 @@ function validate_helpers(array $info): array {
 }
 
 /**
- * Validate that every class with a page on the documentation site names it.
+ * Validate that every step trait names its page on the documentation site.
  *
  * @param array<string, array<string, mixed>> $info
  *   The extracted trait info from extract_info().
- * @param array<string, array<string, mixed>> $helpers
- *   The helper info from extract_helpers().
  *
  * @return array<string>
- *   Array of errors, 1 per class without a title.
+ *   Array of errors, 1 per trait without a title.
  */
-function validate_titles(array $info, array $helpers): array {
+function validate_titles(array $info): array {
   $errors = [];
 
-  foreach (array_merge(array_values($info), array_values($helpers)) as $class_info) {
-    $name = (string) $class_info['name_contextual'];
-
+  foreach ($info as $class_info) {
     if (!isset($class_info['title'])) {
-      $errors[$name] = sprintf('  %s - %s' . PHP_EOL, $name, 'Class comment has no "@title" naming its pages on the documentation site');
+      $errors[] = sprintf('  %s - %s' . PHP_EOL, $class_info['name_contextual'], 'Class comment has no "@title" naming its page on the documentation site');
     }
   }
 
-  return array_values($errors);
+  return $errors;
 }
 
 /**

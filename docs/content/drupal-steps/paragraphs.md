@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Paragraphs
 
-`DrevOps\BehatSteps\Steps\Drupal\ParagraphsTrait` - [Source](../../../src/Steps/Drupal/ParagraphsTrait.php), [Example](../../../tests/behat/features/drupal_paragraphs.feature), [Helpers](../drupal-helpers/paragraphs.md)
+`DrevOps\BehatSteps\Steps\Drupal\ParagraphsTrait` - [Source](../../../src/Steps/Drupal/ParagraphsTrait.php), [Example](../../../tests/behat/features/drupal_paragraphs.feature), [Helpers](../../../HELPERS.md#drupalparagraphstrait)
 
 >  Manage Drupal paragraphs entities with structured field data.
 >  - Create paragraph items with type-specific field values.

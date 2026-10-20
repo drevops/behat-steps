@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Responsive layouts
 
-`DrevOps\BehatSteps\Steps\Web\ResponsiveTrait` - [Source](../../../src/Steps/Web/ResponsiveTrait.php), [Example](../../../tests/behat/features/responsive.feature), [Helpers](../web-helpers/responsive.md)
+`DrevOps\BehatSteps\Steps\Web\ResponsiveTrait` - [Source](../../../src/Steps/Web/ResponsiveTrait.php), [Example](../../../tests/behat/features/responsive.feature), [Helpers](../../../HELPERS.md#responsivetrait)
 
 >  Test responsive layouts with viewport control.
 >  - Default breakpoints: mobile_portrait, tablet_landscape, desktop, etc.

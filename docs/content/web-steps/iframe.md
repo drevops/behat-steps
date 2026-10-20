@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Iframes
 
-`DrevOps\BehatSteps\Steps\Web\IframeTrait` - [Source](../../../src/Steps/Web/IframeTrait.php), [Example](../../../tests/behat/features/iframe.feature), [Helpers](../web-helpers/iframe.md)
+`DrevOps\BehatSteps\Steps\Web\IframeTrait` - [Source](../../../src/Steps/Web/IframeTrait.php), [Example](../../../tests/behat/features/iframe.feature), [Helpers](../../../HELPERS.md#iframetrait)
 
 >  Switch between iframes and the root document.
 >  - Switch to iframes by CSS selector, including unnamed iframes.

@@ -8,11 +8,11 @@
     ],
     "overrides": [
         {
-            "filename": ["content/*-helpers/*.md", "content/*-steps/*.md"],
+            "filename": ["content/*-steps/*.md"],
             "enabled": false
         },
         {
-            "filename": ["content/*-helpers/README.md", "content/*-steps/README.md"],
+            "filename": ["content/*-steps/README.md"],
             "enabled": true
         }
     ],

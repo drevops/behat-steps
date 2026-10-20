@@ -12,8 +12,7 @@ const ROOT = path.join(__dirname, '..', '..', '..', '..');
 const COUNTS = {
   webSteps: { pages: 28, entries: 220 },
   drupalSteps: { pages: 29, entries: 229 },
-  webHelpers: { pages: 30, entries: 150 },
-  drupalHelpers: { pages: 29, entries: 173 },
+  helpers: { entries: 323 },
 };
 
 // Records what the hook observes, and plays the entries a test passes it.
@@ -123,7 +122,7 @@ describe('Home', () => {
   test.each([
     ['Web steps', '/web-steps'],
     ['Drupal steps', '/drupal-steps'],
-    ['Helpers behind every step', '/web-helpers'],
+    ['Helpers behind every step', '/concepts#helpers-behind-every-step'],
     ['Backends by capability', '/guides/configuration#backend-resolution'],
     ['Browser drivers', '/installation#javascript-browser-drivers'],
     ['Cleanup after each scenario', '/guides/usage#entities-a-scenario-creates'],

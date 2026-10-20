@@ -32,7 +32,7 @@ The home page at `/` isn't a Markdown page: it's a React page, `src/pages/index.
 
 The page's words sit in lists at the top of `src/pages/index.js`, 1 per section: the example feature files, the "works with" row, the features, the flow, the reasons, the quick start steps and the docs cards. Changing what the page says usually means changing a list, not the markup.
 
-- **Counts.** The step, trait and helper counts come from the generated pages. `src/referenceCounts.js`, a local plugin, counts them in the 4 reference sections at build time, so they follow `ahoy update-docs` with no edit to the page. The build fails when a section holds no steps or helpers.
+- **Counts.** The step and trait counts come from the generated pages of the 2 step sections, and the helper count from `HELPERS.md` at the repository root, since the site has no helper pages. `src/referenceCounts.js`, a local plugin, counts them at build time, so they follow `ahoy update-docs` with no edit to the page. The build fails when a section holds no steps or `HELPERS.md` holds no helpers.
 - **Versions.** `BEHAT_VERSIONS`, `DRUPAL_VERSIONS` and `PHP_VERSIONS` hold the versions the page names. A unit test compares them with the 4.x row of the [supported versions](content/README.md#supported-versions) table and fails until they match.
 - **Example scenarios.** The feature files in the hero use shipped steps only. A unit test matches every step in them against the patterns in `STEPS.md`, so renaming a step fails the test until the example follows.
 - **Components.** The feature file, the install command with its copy button and the icons are `FeatureFile`, `CopyCommand` and `Icon` in `src/components`.

@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Configuration
 
-`DrevOps\BehatSteps\Steps\Drupal\ConfigTrait` - [Source](../../../src/Steps/Drupal/ConfigTrait.php), [Example](../../../tests/behat/features/drupal_config.feature), [Helpers](../drupal-helpers/config.md)
+`DrevOps\BehatSteps\Steps\Drupal\ConfigTrait` - [Source](../../../src/Steps/Drupal/ConfigTrait.php), [Example](../../../tests/behat/features/drupal_config.feature), [Helpers](../../../HELPERS.md#drupalconfigtrait)
 
 >  Assert and set stored Drupal configuration values with automatic revert.
 >  <br/><br/>

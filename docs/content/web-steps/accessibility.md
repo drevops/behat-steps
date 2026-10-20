@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Accessibility
 
-`DrevOps\BehatSteps\Steps\Web\AccessibilityTrait` - [Source](../../../src/Steps/Web/AccessibilityTrait.php), [Example](../../../tests/behat/features/accessibility.feature), [Helpers](../web-helpers/accessibility.md)
+`DrevOps\BehatSteps\Steps\Web\AccessibilityTrait` - [Source](../../../src/Steps/Web/AccessibilityTrait.php), [Example](../../../tests/behat/features/accessibility.feature), [Helpers](../../../HELPERS.md#accessibilitytrait)
 
 >  Assess accessibility of rendered pages.
 >  <br/><br/>

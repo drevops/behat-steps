@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Elements
 
-`DrevOps\BehatSteps\Steps\Web\ElementTrait` - [Source](../../../src/Steps/Web/ElementTrait.php), [Example](../../../tests/behat/features/element.feature), [Helpers](../web-helpers/element.md)
+`DrevOps\BehatSteps\Steps\Web\ElementTrait` - [Source](../../../src/Steps/Web/ElementTrait.php), [Example](../../../tests/behat/features/element.feature), [Helpers](../../../HELPERS.md#elementtrait)
 
 >  Interact with HTML elements using CSS selectors and DOM attributes.
 >  - Assert element visibility, attribute values, and viewport positioning.

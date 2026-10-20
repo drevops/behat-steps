@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Drush
 
-`DrevOps\BehatSteps\Steps\Drupal\DrushTrait` - [Source](../../../src/Steps/Drupal/DrushTrait.php), [Example](../../../tests/behat/features/drupal_drush.feature), [Helpers](../drupal-helpers/drush.md)
+`DrevOps\BehatSteps\Steps\Drupal\DrushTrait` - [Source](../../../src/Steps/Drupal/DrushTrait.php), [Example](../../../tests/behat/features/drupal_drush.feature), [Helpers](../../../HELPERS.md#drupaldrushtrait)
 
 >  Run Drush commands and assert their output.
 >  - Run a command with or without arguments, through the Drush backend.

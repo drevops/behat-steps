@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Tables
 
-`DrevOps\BehatSteps\Steps\Web\TableTrait` - [Source](../../../src/Steps/Web/TableTrait.php), [Example](../../../tests/behat/features/table.feature), [Helpers](../web-helpers/table.md)
+`DrevOps\BehatSteps\Steps\Web\TableTrait` - [Source](../../../src/Steps/Web/TableTrait.php), [Example](../../../tests/behat/features/table.feature), [Helpers](../../../HELPERS.md#tabletrait)
 
 >  Interact with HTML table elements and assert their content.
 >  - Assert table row and column counts.

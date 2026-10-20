@@ -11,7 +11,7 @@ An AI coding agent writes better scenarios from the steps your suite registers t
 | File | Holds |
 | --- | --- |
 | `vendor/drevops/behat-steps/STEPS.md` | Every step, with its description, its options and an example. The same content as [Web steps](../web-steps/README.md) and [Drupal steps](../drupal-steps/README.md), on 1 page |
-| `vendor/drevops/behat-steps/HELPERS.md` | Every helper your own step definitions can call, with its signature. The same content as [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md), on 1 page |
+| `vendor/drevops/behat-steps/HELPERS.md` | Every helper your own step definitions can call, with its signature. It's the only helper reference: this site doesn't list the helpers |
 
 ## Point your agent at them
 

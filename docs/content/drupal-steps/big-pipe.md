@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # BigPipe
 
-`DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait` - [Source](../../../src/Steps/Drupal/BigPipeTrait.php), [Example](../../../tests/behat/features/drupal_big_pipe.feature), [Helpers](../drupal-helpers/big-pipe.md)
+`DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait` - [Source](../../../src/Steps/Drupal/BigPipeTrait.php), [Example](../../../tests/behat/features/drupal_big_pipe.feature), [Helpers](../../../HELPERS.md#drupalbigpipetrait)
 
 >  Wait for Drupal BigPipe placeholders to be replaced on JavaScript scenarios.
 >  <br/><br/>

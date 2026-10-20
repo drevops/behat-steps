@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Search API
 
-`DrevOps\BehatSteps\Steps\Drupal\SearchApiTrait` - [Source](../../../src/Steps/Drupal/SearchApiTrait.php), [Example](../../../tests/behat/features/drupal_search_api.feature), [Helpers](../drupal-helpers/search-api.md)
+`DrevOps\BehatSteps\Steps\Drupal\SearchApiTrait` - [Source](../../../src/Steps/Drupal/SearchApiTrait.php), [Example](../../../tests/behat/features/drupal_search_api.feature), [Helpers](../../../HELPERS.md#drupalsearchapitrait)
 
 >  Run Drupal Search API indexing and cron hooks.
 >  - Add content to an index.

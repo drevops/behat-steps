@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # JSON responses
 
-`DrevOps\BehatSteps\Steps\Web\JsonTrait` - [Source](../../../src/Steps/Web/JsonTrait.php), [Example](../../../tests/behat/features/json.feature), [Helpers](../web-helpers/json.md)
+`DrevOps\BehatSteps\Steps\Web\JsonTrait` - [Source](../../../src/Steps/Web/JsonTrait.php), [Example](../../../tests/behat/features/json.feature), [Helpers](../../../HELPERS.md#jsontrait)
 
 >  Assert JSON responses with path and schema checks.
 >  - Assert response is valid JSON format.

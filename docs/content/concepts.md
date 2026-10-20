@@ -81,7 +81,7 @@ Your own steps then go in `FeatureContext`, or in traits of your own that it use
 
 Every step is a thin wrapper over public methods called helpers. The step `the cookie :name should exist` is 1 line that calls `cookieAssertExists()`. Your own steps call the same helpers on `$this`, so a step in your project's own words takes a few lines of PHP. [Scenario styles](guides/scenario-styles.md) explains when that pays off.
 
-Each helper's name starts with the name of its trait, such as `cookieGetAll()` in `CookieTrait`, so none collides with a method in your own context. [Web helpers](web-helpers/README.md) and [Drupal helpers](drupal-helpers/README.md) list them all.
+Each helper's name starts with the name of its trait, such as `cookieGetAll()` in `CookieTrait`, so none collides with a method in your own context. [HELPERS.md](../../HELPERS.md) lists them all, and since it ships with the package, your project has it at `vendor/drevops/behat-steps/HELPERS.md`.
 
 ### The extension and its settings
 

@@ -230,7 +230,7 @@ class FeatureContext extends WebContext {
 On a Drupal site, keep `extends DrupalContext` and its `use` line, and add the same method.
 
 - The `#[Then(...)]` attribute holds the step's text. `:text` is a placeholder: Behat captures the quoted value in that position and passes it to the method as `$text`.
-- The method uses Mink's `assertSession()`, which fails the step when the page's `footer` element doesn't contain the text. Your step can also call the methods the shipped steps are built on, which [Web helpers](web-helpers/README.md) and [Drupal helpers](drupal-helpers/README.md) list.
+- The method uses Mink's `assertSession()`, which fails the step when the page's `footer` element doesn't contain the text. Your step can also call the helpers, the methods the shipped steps are built on. [HELPERS.md](../../HELPERS.md) lists them, and your project has it at `vendor/drevops/behat-steps/HELPERS.md`.
 - Pick text that no shipped step uses. Behat refuses to start when 2 step definitions share the same text, so reword any step of your own that matches a shipped one.
 
 `behat.php` already registers `FeatureContext` and loads it from `tests/behat/bootstrap`, so there's nothing to change there. Use your step in `homepage.feature`, with text from your own site's footer:

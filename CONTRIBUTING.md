@@ -927,14 +927,13 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 | Target | Holds |
 | --- | --- |
 | [STEPS.md](STEPS.md) | The step vocabulary, on 1 page |
-| [HELPERS.md](HELPERS.md) | Every helper, on 1 page |
-| [docs/content/web-steps/](docs/content/web-steps), [docs/content/drupal-steps/](docs/content/drupal-steps) | The step vocabulary on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per trait |
-| [docs/content/web-helpers/](docs/content/web-helpers), [docs/content/drupal-helpers/](docs/content/drupal-helpers) | The helpers on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per class, with `WebRawContext` among the web helpers |
+| [HELPERS.md](HELPERS.md) | Every helper, on 1 page. The documentation site has no helper pages, so this is the only helper reference |
+| [docs/content/web-steps/](docs/content/web-steps), [docs/content/drupal-steps/](docs/content/drupal-steps) | The step vocabulary on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per trait, linking the trait's helpers in `HELPERS.md` |
 | [docs/content/guides/configuration.md](docs/content/guides/configuration.md) | The extension options and the tag reference |
 
-A trait or class with a page names it with a `@title` tag in its docblock, in its own group before any other tag: `@title Batch API` names the pages of `Drupal\BatchTrait`. The title names what the trait or class works with, in sentence case, so it reads as an entry in the sidebar, and each section lists its pages in title order.
+A step trait names its page with a `@title` tag in its docblock, in its own group before any other tag: `@title Batch API` names the page of `Drupal\BatchTrait`. The title names what the trait works with, in sentence case, so it reads as an entry in the sidebar, and each section lists its pages in title order. A helper trait has no page, so it carries no title.
 
-The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every trait or class with a page carries a title, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
+The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every step trait carries a title, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
 
 ```
 ahoy update-docs  # Update documentation

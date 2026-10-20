@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # XML responses
 
-`DrevOps\BehatSteps\Steps\Web\XmlTrait` - [Source](../../../src/Steps/Web/XmlTrait.php), [Example](../../../tests/behat/features/xml.feature), [Helpers](../web-helpers/xml.md)
+`DrevOps\BehatSteps\Steps\Web\XmlTrait` - [Source](../../../src/Steps/Web/XmlTrait.php), [Example](../../../tests/behat/features/xml.feature), [Helpers](../../../HELPERS.md#xmltrait)
 
 >  Assert XML responses with element and attribute checks.
 >  - Assert response is valid XML format.

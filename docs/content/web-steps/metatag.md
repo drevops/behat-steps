@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Meta tags
 
-`DrevOps\BehatSteps\Steps\Web\MetatagTrait` - [Source](../../../src/Steps/Web/MetatagTrait.php), [Example](../../../tests/behat/features/metatag.feature), [Helpers](../web-helpers/metatag.md)
+`DrevOps\BehatSteps\Steps\Web\MetatagTrait` - [Source](../../../src/Steps/Web/MetatagTrait.php), [Example](../../../tests/behat/features/metatag.feature), [Helpers](../../../HELPERS.md#metatagtrait)
 
 >  Assert `<meta>` tags and head/SEO markup in page markup.
 >  - Assert presence and content of meta tags.
