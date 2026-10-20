@@ -1,10 +1,8 @@
 ---
 title: Documentation
-sidebar_position: 1
+sidebar_position: 2
 description: Change these docs, from regenerating the step and helper pages after a code change to the conventions for writing a page.
 ---
-
-<!-- cspell:ignore docblocks -->
 
 # Documentation
 
@@ -51,6 +49,13 @@ Both references link each trait's source by relative path, so those links resolv
 - **Plain Markdown.** Pages are `.md` files, which Docusaurus reads as CommonMark, so they render the same on GitHub. Docusaurus-only syntax, such as a `:::note` admonition, shows as plain text there, so keep it rare. Name a page `.mdx` only when it needs a React component.
 - **Code blocks.** Name the language on each fence, such as `php`, `bash`, `yaml` or `gherkin`. A step example highlights the same with or without indentation.
 - **Link by file.** Link to another page by its path relative to the page holding the link, and to any other file in the repository the same way. From a page at the top of `content/`, that's `[Backend resolution](guides/configuration.md#backend-resolution)` for a page and `[CONTRIBUTING.md](../../CONTRIBUTING.md#steps-format)` for a repository file. The build turns a link that leaves `content/` into a GitHub link, and it fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
-- **Diagrams.** An architecture diagram is a draw.io source in `content/architecture/`, beside the SVG its page embeds. The `update-architecture-docs` skill draws them through [scripts/draw-diagram.php](../../../scripts/draw-diagram.php). After you edit a source in draw.io, export the SVGs again with `php scripts/draw-diagram.php --export docs/content/architecture` from the repository root, because the unit suite fails an SVG exported from an older source.
+- **Diagrams.** A diagram is a draw.io source beside the page that embeds it, in `content/architecture/` or `content/guides/`, with 2 SVGs exported from it: `<name>.svg` for the light color mode and `<name>.dark.svg` for the dark one. The `update-architecture-docs` skill draws them through [scripts/draw-diagram.php](../../../scripts/draw-diagram.php). A page embeds both, each linked to itself so it opens at full size, and the `#gh-light-mode-only` and `#gh-dark-mode-only` fragments let the site, and GitHub, show the one that matches the color mode:
+
+  ```markdown
+  [![What the diagram shows](flow.svg#gh-light-mode-only)](flow.svg)
+  [![What the diagram shows](flow.dark.svg#gh-dark-mode-only)](flow.dark.svg)
+  ```
+
+  After you edit a source in draw.io, export both SVGs again with `php scripts/draw-diagram.php --export docs/content/architecture docs/content/guides` from the repository root. The unit suite fails an SVG exported from an older source, and a docs unit test fails a diagram embedded without its pair.
 - **Spelling.** CSpell checks the hand-written pages, `docs/README.md` and the repository's root `README.md` in US English. The step and helper pages are generated from docblocks, so CSpell skips them, apart from the hand-written `README.md` of each section. A word the docs use in several places goes in `cspell.json`, and so does a word only the architecture pages use, because their skill regenerates them. Any other word goes below the front matter of the 1 page that uses it, as `<!-- cspell:ignore word -->`.
 - **Accessibility.** Give every image alt text that says what it shows, keep heading levels in order, and make link text say where it goes, such as [Configuration](../guides/configuration.md) rather than "here". Automated checks catch many problems but miss others, so the writing still needs care.

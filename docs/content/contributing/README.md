@@ -7,6 +7,11 @@ description: How to report a problem or send a change, where the rules for code 
 
 Contributions are welcome, from a bug report to a new trait. Report a bug or suggest a change in the [issue queue](https://github.com/drevops/behat-steps/issues). Send changes as pull requests against `main`, or against `3.x` for a fix to the 3.x LTS release.
 
+## Where to start
+
+- [Code](code.md) walks through a code change: setting up the fixture site, finding where the change goes, adding a step or a helper, running the tests and the linters, and opening the pull request.
+- [Documentation](documentation.md) covers changing these docs and regenerating the step and helper pages.
+
 ## Where the rules live
 
 [CONTRIBUTING.md](../../../CONTRIBUTING.md) holds the rules for code in this repository: how a step reads, how methods and classes are named, what each layer may reach, and how the tests are organized. Tests, linters and `docs.php` enforce most of them, so read the sections your change touches before you start.
@@ -24,5 +29,4 @@ It also covers the [local environment](../../../CONTRIBUTING.md#local-environmen
 
 ## See also
 
-- [Documentation](documentation.md): how to write these docs and regenerate the step and helper pages.
-- [Architecture](../architecture/README.md): how the layers fit together, in logical architecture, class inheritance and data flow diagrams.
+- [Architecture](../architecture/README.md): how the layers fit together, a page per layer, and a trait taken apart line by line.

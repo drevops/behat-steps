@@ -1,6 +1,6 @@
 ---
 title: Migrating from 3.x
-sidebar_position: 12
+sidebar_position: 13
 description: Move your project from Behat Steps 3.14 to 4.0 with the migration guide, by hand or with the migrate-behat-steps skill for AI coding agents.
 ---
 
