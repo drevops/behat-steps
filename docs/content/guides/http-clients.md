@@ -61,7 +61,7 @@ Picking one comes down to what the response is for:
 
 ## Where the settings come from
 
-Connection settings come from 1 place, and per-trait settings from another. Select the diagram to zoom in:
+Connection settings come from 1 place, and per-trait settings from another. Select the diagram to zoom in.
 
 [![Where HTTP client settings come from: the browserkit_http session's options reach the page client through Mink and the detached and bare clients through 1 shared transport, and the steps options reach the detached and bare clients per request](http-client-settings.svg#gh-light-mode-only)](http-client-settings.svg)
 [![Where HTTP client settings come from: the browserkit_http session's options reach the page client through Mink and the detached and bare clients through 1 shared transport, and the steps options reach the detached and bare clients per request](http-client-settings.dark.svg#gh-dark-mode-only)](http-client-settings.dark.svg)
