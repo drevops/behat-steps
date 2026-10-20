@@ -20,6 +20,7 @@ Make sure you have the following:
 
 - PHP 8.3 or newer, and a PHP project that uses Composer. For a site that isn't built with PHP, that can be a project of its own that holds only the tests.
 - A site running at an address Behat can reach from where it runs, such as `http://your-site.local`. It can be built with anything, and a Drupal site gets the Drupal steps as well.
+- On a Drupal site, Drupal 11 or 12.
 - On a Drupal site, a place to run Behat that reaches the same site's code and database, such as the site's own container, because the Drupal steps load Drupal inside the test run and the browser then visits what they create. Run this page's commands there.
 - On a Drupal site, a copy you can write to rather than your live site, because the Drupal steps create content and users in its database and delete them afterwards.
 - On a Drupal site, the core Database Logging module (`dblog`) enabled, because `DrupalContext` checks its log in every scenario. Part 3 shows how to switch the check off instead.

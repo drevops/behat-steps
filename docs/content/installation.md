@@ -106,7 +106,7 @@ services:
     shm_size: 1gb
 ```
 
-A container in the same Compose project, such as the one Behat runs in, reaches it at `http://chrome:9222`, the `api_url` in the preceding example. Chrome reaches the site by its service name in turn, so `base_url` uses that name and the port the site listens on inside the Compose network, such as `http://nginx:8080`, rather than a port published to your machine. `shm_size` gives Chrome more shared memory than Docker's 64 MB default, which a large page can run out of. This repository runs the same image as its `chrome_headless` service, in [docker-compose.yml](../../docker-compose.yml).
+A container in the same Compose project, such as the one Behat runs in, reaches it at `http://chrome:9222`, the `api_url` in the preceding example. Chrome reaches the site by its service name in turn, so `base_url` uses that name and the port the site listens on inside the Compose network, such as `http://nginx:8080`, rather than a port published to your machine. `shm_size` gives Chrome more shared memory than Docker's 64 MB default, which a large page can run out of. This repository runs the same image as its `chrome_headless` service in [docker-compose.yml](../../docker-compose.yml), which its own tests reach at `http://chrome_headless:9222`.
 
 For visual debugging on your machine, start a headed Chrome on your host with `--remote-debugging-port=9222` and a `--user-data-dir` of its own, since Chrome 136 and newer ignore the port on your everyday profile. Then add a profile that points `api_url` at it, and pick that profile when you run Behat:
 

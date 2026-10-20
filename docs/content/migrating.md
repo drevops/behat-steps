@@ -16,7 +16,7 @@ Read the guide through the link on this page rather than from your project: unti
 composer require --dev drevops/behat-steps:~3.14.0
 ```
 
-Commit that update before you start, so the migration begins from a clean working tree.
+Commit that update before you start, so the migration begins from a clean working tree, and check that your suite passes on 3.14, so a failure after the migration points at a change it made.
 
 ## Migrate with an AI coding agent
 
