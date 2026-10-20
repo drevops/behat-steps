@@ -60,7 +60,7 @@ The `Docs` job of the `Test` workflow installs the dependencies, builds the site
 
 ## Previews
 
-When the `NETLIFY_SITE_ID` and `NETLIFY_AUTH_TOKEN` repository secrets are set, the same job deploys the built site to [Netlify](https://www.netlify.com/). Every push to `main` updates the development site, and every pull request gets a preview of its own, linked in a comment on the pull request. Without the secrets, the job skips the deployment, so a pull request from a fork still builds and tests the docs.
+When the `NETLIFY_SITE_ID` and `NETLIFY_AUTH_TOKEN` repository secrets are set, the same job deploys the built site to [Netlify](https://www.netlify.com/). Every push to `main` updates the [development site](https://behat-steps-docs.netlify.app/), and every pull request gets a preview of its own, linked in a comment on the pull request. Without the secrets, the job skips the deployment, so a pull request from a fork still builds and tests the docs.
 
 These builds show "development" as the version in the footer. Search engines don't index them, and they don't load Google Analytics.
 
