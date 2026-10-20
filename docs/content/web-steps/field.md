@@ -24,7 +24,7 @@ custom_edit_url: null
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
 | `field.enabled` | boolean | `TRUE` | `@behat-steps-skip:FieldTrait` | If `TRUE`, strips HTML5 validation after each step from every form of a `@disable-form-validation` scenario, and from the forms `the browser validation for the form :selector is disabled` names. If `FALSE`, the tag does nothing, and that step strips validation only from the page it runs on. |
-| `field.add_more_button_selectors` | map | `[...]` | - | The CSS selectors of the "Add another item" button of a multi-value field, tried in order within the field's wrapper. When none matches, the step looks for a button whose name contains `_add_more` or whose text contains `Add another`. |
+| `field.add_more_button_selectors` | map | `[...]` | - | The CSS selectors of the "Add another item" button of a multi-value field, tried in order within the field's wrapper. When none matches, the step looks for a submit input whose name contains `_add_more` or whose value contains `Add another`, or a button whose name contains `_add_more` or whose text contains `Add another`. |
 | `field.required_marker_selectors` | map | `[...]` | - | The CSS selectors that mark a field as required, checked on the field, on its label and inside the label. On the field and the label, only a class such as `.form-required` or an attribute such as `[required]` counts. A `*` in the label's text also marks the field as required. |
 
 ## Steps

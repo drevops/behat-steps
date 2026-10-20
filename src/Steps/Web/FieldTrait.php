@@ -1250,7 +1250,7 @@ JS;
       new Option(
         'add_more_button_selectors',
         default: ['input[value="Add another item"]', 'button.field-add-more-submit'],
-        description: 'The CSS selectors of the "Add another item" button of a multi-value field, tried in order within the field\'s wrapper. When none matches, the step looks for a button whose name contains `_add_more` or whose text contains `Add another`.'
+        description: 'The CSS selectors of the "Add another item" button of a multi-value field, tried in order within the field\'s wrapper. When none matches, the step looks for a submit input whose name contains `_add_more` or whose value contains `Add another`, or a button whose name contains `_add_more` or whose text contains `Add another`.'
       ),
       new Option('required_marker_selectors', default: ['.form-required', '[required]'], description: "The CSS selectors that mark a field as required, checked on the field, on its label and inside the label. On the field and the label, only a class such as `.form-required` or an attribute such as `[required]` counts. A `*` in the label's text also marks the field as required."),
     ];
