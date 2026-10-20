@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Files
 
-`DrevOps\BehatSteps\Steps\Drupal\FileTrait` - [Source](../../../src/Steps/Drupal/FileTrait.php), [Example](../../../tests/behat/features/drupal_file.feature), [Helpers](../drupal-helpers/file.md)
+`DrevOps\BehatSteps\Steps\Drupal\FileTrait` - [Source](../../../src/Steps/Drupal/FileTrait.php), [Example](../../../tests/behat/features/drupal_file.feature), [Helpers](../../../HELPERS.md#drupalfiletrait)
 
 >  Manage Drupal file entities with upload and storage operations.
 >  - Create managed and unmanaged files with specific URIs and content.

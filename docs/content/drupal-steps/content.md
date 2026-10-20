@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Content
 
-`DrevOps\BehatSteps\Steps\Drupal\ContentTrait` - [Source](../../../src/Steps/Drupal/ContentTrait.php), [Example](../../../tests/behat/features/drupal_content.feature), [Helpers](../drupal-helpers/content.md)
+`DrevOps\BehatSteps\Steps\Drupal\ContentTrait` - [Source](../../../src/Steps/Drupal/ContentTrait.php), [Example](../../../tests/behat/features/drupal_content.feature), [Helpers](../../../HELPERS.md#drupalcontenttrait)
 
 >  Manage Drupal content with workflow and moderation support.
 >  - Create, find, and manipulate nodes with structured field data.

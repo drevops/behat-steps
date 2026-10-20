@@ -119,6 +119,16 @@
   margin: 0.5rem 0 0;
 }
 
+/* A diagram is exported once per color mode, and its 2 images carry GitHub's
+   mode fragments, so the site shows the one matching its own color mode. The
+   link around the hidden image goes too, so it can't take keyboard focus. */
+[data-theme='light'] .markdown a:has(> img[src$='#gh-dark-mode-only']),
+[data-theme='light'] .markdown img[src$='#gh-dark-mode-only'],
+[data-theme='dark'] .markdown a:has(> img[src$='#gh-light-mode-only']),
+[data-theme='dark'] .markdown img[src$='#gh-light-mode-only'] {
+  display: none;
+}
+
 /* The footer is dark in both color modes, so its links take the dark-mode
    blue on hover. */
 .footer--dark {

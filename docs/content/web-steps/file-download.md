@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # File downloads
 
-`DrevOps\BehatSteps\Steps\Web\FileDownloadTrait` - [Source](../../../src/Steps/Web/FileDownloadTrait.php), [Example](../../../tests/behat/features/file_download.feature), [Helpers](../web-helpers/file-download.md)
+`DrevOps\BehatSteps\Steps\Web\FileDownloadTrait` - [Source](../../../src/Steps/Web/FileDownloadTrait.php), [Example](../../../tests/behat/features/file_download.feature), [Helpers](../../../HELPERS.md#filedownloadtrait)
 
 >  Test file download functionality with content verification.
 >  - Download files through links and URLs with session cookie handling.

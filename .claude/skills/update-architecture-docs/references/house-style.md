@@ -1,6 +1,6 @@
 # House style
 
-These rules apply to every diagram in `docs/content/architecture/`, so the diagrams read as a set. A diagram's own brief says what it shows; this file says how it looks.
+These rules apply to every diagram under `docs/content/`, in `architecture/` and beside the guide that embeds it, so the diagrams read as a set. A diagram's own brief says what it shows; this file says how it looks.
 
 ## Canvas
 
@@ -21,10 +21,12 @@ These rules apply to every diagram in `docs/content/architecture/`, so the diagr
 
 Each role has a fill and a stroke. A container takes its role's fill with its role's stroke. A node inside a container is white with its role's stroke, so it stands out from the container around it.
 
+The colors below are the light theme's. The export draws every diagram a second time in draw.io's dark theme, which derives the dark colors from these, so a diagram never sets a dark color of its own.
+
 | Role | Fill | Stroke |
 | --- | --- | --- |
 | Backend layer, `src/Backend` | `#E8F5E9` | `#2E7D32` |
-| Step vocabulary, `src/Steps` | `#E3F2FD` | `#1565C0` |
+| Steps layer, `src/Steps` | `#E3F2FD` | `#1565C0` |
 | Extension layer, `src/Extension` | `#F3E5F5` | `#6A1B9A` |
 | Contexts at the package root | `#FFF8E1` | `#F9A825` |
 | Consuming project and documentation | `#FFF3E0` | `#EF6C00` |
@@ -35,6 +37,7 @@ Each role has a fill and a stroke. A container takes its role's fill with its ro
 
 - A node is a rounded rectangle: `rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;`.
 - A group is a swimlane container: `swimlane;startSize=30;rounded=1;arcSize=6;html=1;` with a bold header.
+- An owner band is a group that spans the diagram's width and holds the nodes 1 owner's code runs: Behat and Mink, Behat Steps, or the site under test. Behat and Mink and the site take the External role. The Behat Steps band is white with a `#263238` stroke 2 px wide, and the nodes inside keep their own layer's stroke, so the band says whose code it is and the node says which layer.
 - A type in a class diagram is a rounded rectangle holding its name and no members. A stereotype goes on the first line in 11 px italics: `«interface»`, `«abstract»` or `«trait»`.
 
 ## Edges

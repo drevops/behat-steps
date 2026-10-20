@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram id="http-client-settings" name="HTTP client settings">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1440" pageHeight="900" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Behat Steps: where HTTP client settings come from" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=22;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="16" y="16" width="900" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Connection settings come from 1 place, and per-trait settings from another. Arrows point the way the settings travel." style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;fontColor=#546E7A;" vertex="1" parent="1">
+          <mxGeometry x="16" y="54" width="1400" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="src-mink" value="&lt;b&gt;Mink: sessions.NAME.browserkit_http&lt;/b&gt;&lt;br&gt;http_client_parameters:&lt;br&gt;verify_peer, proxy, resolve, headers, timeout" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="src-steps" value="&lt;b&gt;behat_steps: steps&lt;/b&gt;&lt;br&gt;file_download.timeout, accessibility.fetch_timeout" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="120" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="factory" value="&lt;b&gt;BrowserKitFactory::buildDriver()&lt;/b&gt;&lt;br&gt;builds the session as Mink does,&lt;br&gt;and records its options" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="mink-client" value="&lt;b&gt;Mink's own client&lt;/b&gt;&lt;br&gt;applies the settings to every host" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ECEFF1;strokeColor=#546E7A;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="440" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="transport" value="&lt;b&gt;behat_steps.http_client&lt;/b&gt;&lt;br&gt;1 shared transport;&lt;br&gt;applies the settings to base_url only" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="520" y="440" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="c-page" value="&lt;b&gt;Page client&lt;/b&gt;&lt;br&gt;the HttpBrowser in the session:&lt;br&gt;its response becomes the page" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ECEFF1;strokeColor=#546E7A;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="600" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="c-detached" value="&lt;b&gt;Detached client&lt;/b&gt;&lt;br&gt;a fresh HttpBrowser holding the scenario's identity" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="520" y="600" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="c-bare" value="&lt;b&gt;Bare client&lt;/b&gt;&lt;br&gt;a fresh HttpBrowser with the settings only" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="600" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="grp-legend" value="Legend" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;strokeWidth=1.5;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#455A64;" vertex="1" parent="1">
+          <mxGeometry x="840" y="750" width="540" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-project" value="" style="rounded=1;arcSize=12;html=1;strokeWidth=1.5;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="grp-legend">
+          <mxGeometry x="20" y="50" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-project-label" value="Consuming project and documentation" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="75" y="50" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-extension" value="" style="rounded=1;arcSize=12;html=1;strokeWidth=1.5;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="grp-legend">
+          <mxGeometry x="20" y="90" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-extension-label" value="Extension layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="75" y="90" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-external" value="" style="rounded=1;arcSize=12;html=1;strokeWidth=1.5;fillColor=#ECEFF1;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-legend">
+          <mxGeometry x="340" y="50" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-external-label" value="External" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="395" y="50" width="125" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-travels" value="" style="edgeStyle=none;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;" edge="1" parent="grp-legend">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="340" y="100" as="sourcePoint" /><mxPoint x="380" y="100" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="lg-travels-label" value="a setting travels" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontColor=#263238;fontSize=13;" vertex="1" parent="grp-legend">
+          <mxGeometry x="395" y="90" width="125" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e-read" value="read when Mink builds the session" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="src-mink" target="factory">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e-mink" value="hands them to" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="factory" target="mink-client">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e-record" value="records them for" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="factory" target="transport">
+          <mxGeometry x="-0.2840" relative="1" as="geometry"><Array as="points"><mxPoint x="710" y="325" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e-page" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="mink-client" target="c-page">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e-detached" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="transport" target="c-detached">
+          <mxGeometry relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e-steps-detached" value="per request" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="src-steps" target="c-detached">
+          <mxGeometry x="-0.7711" relative="1" as="geometry"><Array as="points"><mxPoint x="1114" y="560" /><mxPoint x="805" y="560" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e-steps-bare" value="per request" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=0.7;exitY=1;exitDx=0;exitDy=0;entryX=0.7;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="src-steps" target="c-bare">
+          <mxGeometry x="-0.5897" relative="1" as="geometry"></mxGeometry>
+        </mxCell>
+        <mxCell id="e-bare" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;jumpStyle=arc;jumpSize=10;" edge="1" parent="1" source="transport" target="c-bare">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1190" y="485" /></Array></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram id="extension-layer" name="Extension layer">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1740" pageHeight="930" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Behat Steps: the extension layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=22;fontStyle=1;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="16" y="16" width="900" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="What BehatStepsExtension plugs into Behat and Mink, and the services it hands to your context." style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#546E7A;" vertex="1" parent="1">
+          <mxGeometry x="16" y="54" width="1500" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="grp-points" value="Behat and Mink: extension points" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#ECEFF1;swimlaneFillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=1.5;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="110" width="400" height="780" as="geometry" />
+        </mxCell>
+        <mxCell id="pt-config" value="&lt;b&gt;Configuration&lt;/b&gt;&lt;br&gt;the behat_steps key in behat.php" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-points">
+          <mxGeometry x="30" y="50" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="pt-initializer" value="&lt;b&gt;Context initializers&lt;/b&gt;&lt;br&gt;run on every context Behat builds" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-points">
+          <mxGeometry x="30" y="140" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="pt-events" value="&lt;b&gt;Event dispatcher&lt;/b&gt;&lt;br&gt;the events around each scenario" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-points">
+          <mxGeometry x="30" y="230" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="pt-attributes" value="&lt;b&gt;Attribute readers&lt;/b&gt;&lt;br&gt;turn a method's attributes into hooks" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-points">
+          <mxGeometry x="30" y="320" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="pt-generator" value="&lt;b&gt;Class generator&lt;/b&gt;&lt;br&gt;writes the starter context of behat --init" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-points">
+          <mxGeometry x="30" y="410" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="pt-drivers" value="&lt;b&gt;Mink driver factories&lt;/b&gt;&lt;br&gt;build each session's browser driver" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-points">
+          <mxGeometry x="30" y="500" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="pt-selectors" value="&lt;b&gt;Mink selectors&lt;/b&gt;&lt;br&gt;named ways to find an element" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-points">
+          <mxGeometry x="30" y="590" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="pt-document" value="&lt;b&gt;Mink's DocumentElement&lt;/b&gt;&lt;br&gt;the page a step reads text from" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-points">
+          <mxGeometry x="30" y="680" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="grp-ext" value="BehatStepsExtension registers" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#F3E5F5;swimlaneFillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="500" y="110" width="400" height="780" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-config" value="&lt;b&gt;configure()&lt;/b&gt;&lt;br&gt;backends, regions, login text, selectors, steps; drupal and drush" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
+          <mxGeometry x="30" y="50" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-initializer" value="&lt;b&gt;BackendAwareInitializer&lt;/b&gt;&lt;br&gt;hands each context its services" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
+          <mxGeometry x="30" y="140" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-listeners" value="&lt;b&gt;BackendListener, SkipTagListener&lt;/b&gt;&lt;br&gt;set the backend order; reject a bad skip tag" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
+          <mxGeometry x="30" y="230" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-attributes" value="&lt;b&gt;HookAttributeReader&lt;/b&gt;&lt;br&gt;reads #[BeforeNodeCreate] and the other creation hooks" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
+          <mxGeometry x="30" y="320" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-generator" value="&lt;b&gt;ClassGenerator&lt;/b&gt;&lt;br&gt;a starter context that extends WebRawContext" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
+          <mxGeometry x="30" y="410" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-browserkit" value="&lt;b&gt;BrowserKitFactory&lt;/b&gt;&lt;br&gt;builds browserkit_http sessions and records their HTTP options" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
+          <mxGeometry x="30" y="500" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-region" value="&lt;b&gt;RegionSelector&lt;/b&gt;&lt;br&gt;the region selector: a region name to its CSS" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
+          <mxGeometry x="30" y="590" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext-document" value="&lt;b&gt;DocumentElement&lt;/b&gt;&lt;br&gt;aliased over Mink's, so page text reads as a browser renders it" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
+          <mxGeometry x="30" y="680" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="grp-services" value="Services in Behat's container" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#F3E5F5;swimlaneFillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="960" y="400" width="420" height="490" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-backends" value="&lt;b&gt;BackendRegistry&lt;/b&gt;&lt;br&gt;the backends: blackbox, plus drupal and drush when configured" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-services">
+          <mxGeometry x="30" y="50" width="360" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-tags" value="&lt;b&gt;ScenarioTagRegistry&lt;/b&gt;&lt;br&gt;the running scenario's tags" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-services">
+          <mxGeometry x="30" y="140" width="360" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-users" value="&lt;b&gt;UserRegistry and the authenticators&lt;/b&gt;&lt;br&gt;who is logged in, and how to log in and out" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-services">
+          <mxGeometry x="30" y="230" width="360" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-options" value="&lt;b&gt;TraitOptionResolverFactory&lt;/b&gt;&lt;br&gt;builds each context's option resolver" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-services">
+          <mxGeometry x="30" y="320" width="360" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-http" value="&lt;b&gt;HttpClientFactory&lt;/b&gt;&lt;br&gt;the detached and bare clients, on 1 shared transport" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-services">
+          <mxGeometry x="30" y="410" width="360" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ctx" value="&lt;b&gt;Your context&lt;/b&gt;&lt;br&gt;WebRawContext and every context built on it: receives each service through a set*() method" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
+          <mxGeometry x="990" y="230" width="360" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="grp-legend" value="Legend" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#455A64;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="680" width="260" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-external" value="" style="rounded=1;arcSize=12;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=1.5;dashed=1;" vertex="1" parent="grp-legend">
+          <mxGeometry x="20" y="50" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-external-label" value="External: Behat and Mink" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#263238;" vertex="1" parent="grp-legend">
+          <mxGeometry x="80" y="50" width="170" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-extension" value="" style="rounded=1;arcSize=12;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=1.5;" vertex="1" parent="grp-legend">
+          <mxGeometry x="20" y="90" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-extension-label" value="Extension layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#263238;" vertex="1" parent="grp-legend">
+          <mxGeometry x="80" y="90" width="170" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-contexts" value="" style="rounded=1;arcSize=12;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;strokeWidth=1.5;" vertex="1" parent="grp-legend">
+          <mxGeometry x="20" y="130" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-contexts-label" value="Contexts" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#263238;" vertex="1" parent="grp-legend">
+          <mxGeometry x="80" y="130" width="170" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-call" value="" style="edgeStyle=none;html=1;strokeColor=#455A64;strokeWidth=1.5;endArrow=block;endFill=1;endSize=8;" edge="1" parent="grp-legend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="180" as="sourcePoint" />
+            <mxPoint x="60" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg-call-label" value="Call or dependency" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#263238;" vertex="1" parent="grp-legend">
+          <mxGeometry x="80" y="170" width="170" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e-config" value="plugs into" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-config" target="pt-config">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-initializer" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-initializer" target="pt-initializer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-events" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-listeners" target="pt-events">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-attributes" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-attributes" target="pt-attributes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-generator" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-generator" target="pt-generator">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-drivers" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-browserkit" target="pt-drivers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-selectors" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-region" target="pt-selectors">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-document" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-document" target="pt-document">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-inject" value="injects" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-initializer" target="ctx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-services" value="what it injects" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="grp-services" target="ctx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-order" value="sets the&lt;br&gt;order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ext-listeners" target="svc-backends">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="930" y="375" />
+              <mxPoint x="930" y="485" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

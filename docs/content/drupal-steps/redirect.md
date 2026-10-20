@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Redirects
 
-`DrevOps\BehatSteps\Steps\Drupal\RedirectTrait` - [Source](../../../src/Steps/Drupal/RedirectTrait.php), [Example](../../../tests/behat/features/drupal_redirect.feature), [Helpers](../drupal-helpers/redirect.md)
+`DrevOps\BehatSteps\Steps\Drupal\RedirectTrait` - [Source](../../../src/Steps/Drupal/RedirectTrait.php), [Example](../../../tests/behat/features/drupal_redirect.feature), [Helpers](../../../HELPERS.md#drupalredirecttrait)
 
 >  Manage Drupal redirect entities provided by the contrib `redirect` module.
 >  - Create 1 or more redirects from a table of source/destination/status.

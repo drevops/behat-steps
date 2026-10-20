@@ -8,7 +8,7 @@
  * through its Skill tool, while a typed '/drawio-skill' command still does.
  * This script starts a separate, unattended Claude Code session whose prompt
  * opens with that command. The session writes the '.drawio' source, and this
- * script exports the SVG beside it and a PNG to review.
+ * script exports a light and a dark SVG beside it and a PNG of each to review.
  *
  * Each SVG carries the SHA-256 of the source it was exported from, so the
  * check finds a render that fell behind its source without draw.io installed.
@@ -88,10 +88,16 @@ const DRAW_DIAGRAM_SCRATCH_DIRECTORY = '.artifacts/tmp/diagrams';
 
 /**
  * Export flags every export takes.
- *
- * The light theme fixes the colors whatever the viewer's color scheme.
  */
-const DRAW_DIAGRAM_EXPORT_FLAGS = ['--export', '--theme', 'light', '--border', '16'];
+const DRAW_DIAGRAM_EXPORT_FLAGS = ['--export', '--border', '16'];
+
+/**
+ * Themes each diagram is exported in, mapped to the suffix of their files.
+ *
+ * Each export names its theme, so its colors stay fixed whatever the viewer's
+ * color scheme, and the page shows the export matching its own color mode.
+ */
+const DRAW_DIAGRAM_THEMES = ['light' => '', 'dark' => '.dark'];
 
 /**
  * Export flags of the SVG the documentation embeds.
@@ -142,8 +148,9 @@ Usage:
   php scripts/draw-diagram.php --check <diagram.drawio|directory>...
 
 Drawing starts an unattended Claude Code session that runs /drawio-skill
-with the briefs, then exports <diagram>.svg beside the source and a review
-PNG to .artifacts/tmp/diagrams/. An existing diagram is updated in place.
+with the briefs, then exports <diagram>.svg and <diagram>.dark.svg beside the
+source, in the light and the dark theme, and a review PNG of each to
+.artifacts/tmp/diagrams/. An existing diagram is updated in place.
 
 Options:
   --brief    A file describing the diagram. Repeat it to add files in order.
@@ -259,8 +266,7 @@ function draw_diagram(array $arguments, array $environment, string $working_dire
 
   if ($options['mode'] === 'export') {
     foreach (draw_diagram_expand($paths) as $diagram) {
-      $png = draw_diagram_export($diagram, $drawio, $root, $runner);
-      echo sprintf('Exported %s. Review image: %s', draw_diagram_svg_path($diagram), $png) . PHP_EOL;
+      echo draw_diagram_describe_export($diagram, draw_diagram_export($diagram, $drawio, $root, $runner)) . PHP_EOL;
     }
 
     return 0;
@@ -304,11 +310,27 @@ function draw_diagram(array $arguments, array $environment, string $working_dire
   echo PHP_EOL . draw_diagram_assert_session($result, $run, $options['timeout']) . PHP_EOL . PHP_EOL;
 
   draw_diagram_assert_written($diagram, $since);
-  $png = draw_diagram_export($diagram, $drawio, $root, $runner);
 
-  echo sprintf('Exported %s. Review image: %s', draw_diagram_svg_path($diagram), $png) . PHP_EOL;
+  echo draw_diagram_describe_export($diagram, draw_diagram_export($diagram, $drawio, $root, $runner)) . PHP_EOL;
 
   return 0;
+}
+
+/**
+ * Describes the files an export wrote.
+ *
+ * @param string $diagram
+ *   The diagram file.
+ * @param array<int, string> $pngs
+ *   The review images, 1 per theme.
+ *
+ * @return string
+ *   1 line naming the SVGs and the review images.
+ */
+function draw_diagram_describe_export(string $diagram, array $pngs): string {
+  $svgs = array_map(static fn(string $theme): string => draw_diagram_svg_path($diagram, $theme), array_keys(DRAW_DIAGRAM_THEMES));
+
+  return sprintf('Exported %s. Review images: %s', implode(' and ', $svgs), implode(' and ', $pngs));
 }
 
 /**
@@ -510,16 +532,44 @@ function draw_diagram_expand(array $paths): array {
 }
 
 /**
- * Returns the path of the SVG exported from a diagram.
+ * Returns the path of the SVG exported from a diagram in a theme.
  *
  * @param string $diagram
  *   The diagram file.
+ * @param string $theme
+ *   A key of DRAW_DIAGRAM_THEMES.
  *
  * @return string
- *   The SVG file beside it.
+ *   The SVG file beside it, such as 'flow.svg' or 'flow.dark.svg'.
  */
-function draw_diagram_svg_path(string $diagram): string {
-  return substr($diagram, 0, -strlen('.drawio')) . '.svg';
+function draw_diagram_svg_path(string $diagram, string $theme = 'light'): string {
+  return substr($diagram, 0, -strlen('.drawio')) . DRAW_DIAGRAM_THEMES[$theme] . '.svg';
+}
+
+/**
+ * Finds the diagram beside an SVG that the SVG could be exported from.
+ *
+ * Both 'flow.svg' and 'flow.dark.svg' come from 'flow.drawio'. The themes are
+ * tried in the order of DRAW_DIAGRAM_THEMES, so 'night.dark.svg' is the light
+ * export of 'night.dark.drawio' when that diagram exists.
+ *
+ * @param string $svg
+ *   The SVG file.
+ *
+ * @return string|null
+ *   The diagram file, or NULL when no diagram beside the SVG matches it.
+ */
+function draw_diagram_find_source(string $svg): ?string {
+  foreach (DRAW_DIAGRAM_THEMES as $suffix) {
+    $extension = $suffix . '.svg';
+    $diagram = substr($svg, 0, -strlen($extension)) . '.drawio';
+
+    if (str_ends_with($svg, $extension) && is_file($diagram)) {
+      return $diagram;
+    }
+  }
+
+  return NULL;
 }
 
 /**
@@ -1001,24 +1051,25 @@ function draw_diagram_assert_written(string $diagram, int $since): void {
 }
 
 /**
- * Exports a diagram to the SVG beside it and to a PNG to review.
+ * Exports a diagram to an SVG beside it and a PNG to review, in each theme.
  *
  * @param string $diagram
  *   The diagram file.
  * @param string $drawio
  *   The draw.io desktop binary.
  * @param string $root
- *   The repository root, where the review image goes.
+ *   The repository root, where the review images go.
  * @param callable(list<string>, string, int, (callable(string): void)|null): array{exit_code: int, output: string, errors: string, is_timed_out: bool} $runner
  *   Runs a command, as draw_diagram_run() does.
  *
- * @return string
- *   The review image.
+ * @return array<int, string>
+ *   The review images, 1 per theme in the order of DRAW_DIAGRAM_THEMES.
  *
  * @throws \RuntimeException
- *   When the diagram is missing or unfit, or an export fails.
+ *   When the diagram is missing or unfit, an export fails, or draw.io ignores
+ *   the theme.
  */
-function draw_diagram_export(string $diagram, string $drawio, string $root, callable $runner): string {
+function draw_diagram_export(string $diagram, string $drawio, string $root, callable $runner): array {
   if (!is_file($diagram)) {
     throw new \RuntimeException(sprintf('%s does not exist.', $diagram));
   }
@@ -1032,10 +1083,21 @@ function draw_diagram_export(string $diagram, string $drawio, string $root, call
   $scratch = $root . '/' . DRAW_DIAGRAM_SCRATCH_DIRECTORY;
   draw_diagram_create_directory($scratch);
 
-  $svg = draw_diagram_svg_path($diagram);
-  $png = $scratch . '/' . basename($diagram, '.drawio') . '.png';
+  $svgs = [];
+  $pngs = [];
+  $exports = [];
 
-  foreach ([$svg => DRAW_DIAGRAM_SVG_FLAGS, $png => DRAW_DIAGRAM_PNG_FLAGS] as $target => $flags) {
+  foreach (DRAW_DIAGRAM_THEMES as $theme => $suffix) {
+    $svg = draw_diagram_svg_path($diagram, $theme);
+    $png = $scratch . '/' . basename($diagram, '.drawio') . $suffix . '.png';
+
+    $svgs[$theme] = $svg;
+    $pngs[] = $png;
+    $exports[] = [$svg, ['--theme', $theme, ...DRAW_DIAGRAM_SVG_FLAGS]];
+    $exports[] = [$png, ['--theme', $theme, ...DRAW_DIAGRAM_PNG_FLAGS]];
+  }
+
+  foreach ($exports as [$target, $flags]) {
     $since = time();
     $run = $runner([$drawio, ...DRAW_DIAGRAM_EXPORT_FLAGS, ...$flags, '--output', $target, $diagram], $root, DRAW_DIAGRAM_EXPORT_TIMEOUT, NULL);
     clearstatcache(TRUE, $target);
@@ -1046,10 +1108,35 @@ function draw_diagram_export(string $diagram, string $drawio, string $root, call
     }
   }
 
-  file_put_contents($svg, draw_diagram_strip_fallbacks((string) file_get_contents($svg)));
-  draw_diagram_stamp($svg, $diagram);
+  foreach ($svgs as $theme => $svg) {
+    file_put_contents($svg, draw_diagram_strip_fallbacks((string) file_get_contents($svg)));
+    draw_diagram_stamp($svg, $diagram);
+    draw_diagram_assert_theme($svg, $theme);
+  }
 
-  return $png;
+  return $pngs;
+}
+
+/**
+ * Asserts that an exported SVG declares the theme it was exported in.
+ *
+ * The draw.io desktop command line ignores an option it doesn't know, so a
+ * release without '--theme' exports the light theme for both.
+ *
+ * @param string $svg
+ *   The SVG file.
+ * @param string $theme
+ *   A key of DRAW_DIAGRAM_THEMES.
+ *
+ * @throws \RuntimeException
+ *   When the root element of the SVG declares another color scheme or none.
+ */
+function draw_diagram_assert_theme(string $svg, string $theme): void {
+  if (preg_match('/<svg\b[^>]*\bcolor-scheme:\s*' . preg_quote($theme, '/') . '\b/', (string) file_get_contents($svg)) === 1) {
+    return;
+  }
+
+  throw new \RuntimeException(sprintf('draw.io ignored "--theme %s" when it exported %s. Update draw.io desktop to a release that supports "--theme".', $theme, $svg));
 }
 
 /**
@@ -1166,29 +1253,32 @@ function draw_diagram_check(array $paths): array {
 
     array_push($violations, ...draw_diagram_problems($diagram));
 
-    $svg = draw_diagram_svg_path($diagram);
     $export = sprintf('export it with: php scripts/draw-diagram.php --export %s', $diagram);
 
-    if (!is_file($svg)) {
-      $violations[] = sprintf('%s has no SVG: %s', $diagram, $export);
+    foreach (array_keys(DRAW_DIAGRAM_THEMES) as $theme) {
+      $svg = draw_diagram_svg_path($diagram, $theme);
 
-      continue;
-    }
+      if (!is_file($svg)) {
+        $violations[] = sprintf('%s has no %s SVG: %s', $diagram, $theme, $export);
 
-    if (preg_match(DRAW_DIAGRAM_MARKER_PATTERN, (string) file_get_contents($svg), $matches) !== 1) {
-      $violations[] = sprintf('%s was not exported by scripts/draw-diagram.php: %s', $svg, $export);
+        continue;
+      }
 
-      continue;
-    }
+      if (preg_match(DRAW_DIAGRAM_MARKER_PATTERN, (string) file_get_contents($svg), $matches) !== 1) {
+        $violations[] = sprintf('%s was not exported by scripts/draw-diagram.php: %s', $svg, $export);
 
-    if ($matches[1] !== basename($diagram) || $matches[2] !== draw_diagram_hash((string) file_get_contents($diagram))) {
-      $violations[] = sprintf('%s is out of date with %s: %s', $svg, $diagram, $export);
+        continue;
+      }
+
+      if ($matches[1] !== basename($diagram) || $matches[2] !== draw_diagram_hash((string) file_get_contents($diagram))) {
+        $violations[] = sprintf('%s is out of date with %s: %s', $svg, $diagram, $export);
+      }
     }
   }
 
   foreach ($paths as $path) {
     foreach (is_dir($path) ? (glob($path . '/*.svg') ?: []) : [] as $svg) {
-      if (!is_file(substr($svg, 0, -strlen('.svg')) . '.drawio')) {
+      if (draw_diagram_find_source($svg) === NULL) {
         $violations[] = sprintf('%s has no .drawio source beside it.', $svg);
       }
     }

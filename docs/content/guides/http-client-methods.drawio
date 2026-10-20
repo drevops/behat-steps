@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram id="http-client-methods" name="HTTP client methods">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="700" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Behat Steps: how a step reaches each HTTP client" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=22;fontStyle=1;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="16" y="16" width="900" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="The page client is a browser capability, so only a BrowserKit session has one. The other 2 come from a factory under every browser driver." style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#546E7A;" vertex="1" parent="1">
+          <mxGeometry x="16" y="54" width="1180" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="ctx" value="&lt;b&gt;WebRawContext&lt;/b&gt;&lt;br&gt;the 3 methods a step calls" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="m-page" value="&lt;b&gt;httpPageClient()&lt;/b&gt;" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
+          <mxGeometry x="380" y="130" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="m-detached" value="&lt;b&gt;httpDetachedClient()&lt;/b&gt;" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
+          <mxGeometry x="380" y="310" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="m-bare" value="&lt;b&gt;httpBareClient()&lt;/b&gt;" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
+          <mxGeometry x="380" y="470" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="r-page" value="&lt;b&gt;browserDriverFor()&lt;/b&gt;&lt;br&gt;resolves HttpClientCapabilityInterface&lt;br&gt;for the session's browser driver" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="760" y="120" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="r-detached" value="&lt;b&gt;HttpClientFactoryInterface::createDetached()&lt;/b&gt;&lt;br&gt;takes the scenario's HttpIdentity" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="760" y="300" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="r-bare" value="&lt;b&gt;HttpClientFactoryInterface::createBare()&lt;/b&gt;&lt;br&gt;takes the step's own options only" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1">
+          <mxGeometry x="760" y="460" width="380" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="o-page" value="&lt;b&gt;The session's HttpBrowser&lt;/b&gt;&lt;br&gt;through the BrowserKit adapter" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ECEFF1;strokeColor=#546E7A;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="60" width="360" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="x-page" value="&lt;b&gt;UnsupportedDriverActionException&lt;/b&gt;&lt;br&gt;under Selenium2 or Chrome:&lt;br&gt;a real browser has no PHP client" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFEBEE;strokeColor=#C62828;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="190" width="360" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="o-detached" value="&lt;b&gt;A fresh HttpBrowser&lt;/b&gt;&lt;br&gt;holding the scenario's identity" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ECEFF1;strokeColor=#546E7A;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="305" width="360" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="o-bare" value="&lt;b&gt;A fresh HttpBrowser&lt;/b&gt;&lt;br&gt;with an empty cookie jar" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ECEFF1;strokeColor=#546E7A;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="465" width="360" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="grp-legend" value="Legend" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;strokeWidth=1.5;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#455A64;" vertex="1" parent="1">
+          <mxGeometry x="680" y="590" width="900" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-contexts" value="" style="rounded=1;arcSize=12;html=1;strokeWidth=1.5;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="grp-legend">
+          <mxGeometry x="20" y="50" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-contexts-label" value="Contexts" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#263238;" vertex="1" parent="grp-legend">
+          <mxGeometry x="72" y="50" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-extension" value="" style="rounded=1;arcSize=12;html=1;strokeWidth=1.5;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="grp-legend">
+          <mxGeometry x="182" y="50" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-extension-label" value="Extension layer" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#263238;" vertex="1" parent="grp-legend">
+          <mxGeometry x="234" y="50" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-external" value="" style="rounded=1;arcSize=12;html=1;strokeWidth=1.5;fillColor=#ECEFF1;strokeColor=#546E7A;dashed=1;" vertex="1" parent="grp-legend">
+          <mxGeometry x="384" y="50" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-external-label" value="External" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#263238;" vertex="1" parent="grp-legend">
+          <mxGeometry x="436" y="50" width="70" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-error" value="" style="rounded=1;arcSize=12;html=1;strokeWidth=1.5;fillColor=#FFEBEE;strokeColor=#C62828;" vertex="1" parent="grp-legend">
+          <mxGeometry x="546" y="50" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-error-label" value="Tests and exceptions" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#263238;" vertex="1" parent="grp-legend">
+          <mxGeometry x="598" y="50" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-call" value="" style="edgeStyle=none;html=1;strokeWidth=1.5;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;" edge="1" parent="grp-legend">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="778" y="60" as="sourcePoint" /><mxPoint x="818" y="60" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="lg-call-label" value="Call" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=13;fontColor=#263238;" vertex="1" parent="grp-legend">
+          <mxGeometry x="838" y="50" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e-page" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.2;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ctx" target="m-page">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="340" y="165" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e-detached" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ctx" target="m-detached">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-bare" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ctx" target="m-bare">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="340" y="505" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e-page-r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m-page" target="r-page">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-detached-r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m-detached" target="r-detached">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-bare-r" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m-bare" target="r-bare">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-page-o" value="BrowserKit" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="r-page" target="o-page">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1180" y="147" /><mxPoint x="1180" y="100" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e-page-x" value="Selenium2,&lt;br&gt;Chrome" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="r-page" target="x-page">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1180" y="183" /><mxPoint x="1180" y="230" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e-detached-o" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="r-detached" target="o-detached">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-bare-o" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endSize=8;strokeColor=#455A64;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="r-bare" target="o-bare">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Mapped values
 
-`DrevOps\BehatSteps\Steps\Web\MappingTrait` - [Source](../../../src/Steps/Web/MappingTrait.php), [Example](../../../tests/behat/features/mapping.feature), [Helpers](../web-helpers/mapping.md)
+`DrevOps\BehatSteps\Steps\Web\MappingTrait` - [Source](../../../src/Steps/Web/MappingTrait.php), [Example](../../../tests/behat/features/mapping.feature), [Helpers](../../../HELPERS.md#mappingtrait)
 
 >  Replace `{{ Key }}` tokens in step arguments and table cells.
 >  - Resolve a token against the `mapping.groups` option.

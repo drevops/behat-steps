@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Webforms
 
-`DrevOps\BehatSteps\Steps\Drupal\WebformTrait` - [Source](../../../src/Steps/Drupal/WebformTrait.php), [Example](../../../tests/behat/features/drupal_webform.feature), [Helpers](../drupal-helpers/webform.md)
+`DrevOps\BehatSteps\Steps\Drupal\WebformTrait` - [Source](../../../src/Steps/Drupal/WebformTrait.php), [Example](../../../tests/behat/features/drupal_webform.feature), [Helpers](../../../HELPERS.md#drupalwebformtrait)
 
 >  Manage Drupal webforms.
 >  - Delete webforms matching a given title for test isolation.

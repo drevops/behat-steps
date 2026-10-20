@@ -175,7 +175,7 @@ A trait reads each of its options inside a public `<trait>Get...()` method and n
 
 Every published helper names what it does with a verb: `messageGetSelector()`, not `messageSelector()`. A yes-or-no question takes `Is` or `Has`, as in `authIsLoggedIn()` and `metatagResponseHasNoindexHeader()`. A verb in the trait prefix counts, as `query` does in `queryEntityIds()`.
 
-`TraitMethodNamingTest` reads the words of every public helper against its `VERBS` list, so a helper built on a verb the toolbox hasn't used yet adds that verb to the list in the same change. Steps take their verb from the step text and hooks are named for their event, so the check skips both.
+`TraitMethodNamingTest` reads the words of every public helper against its `VERBS` list, so a helper built on a verb no helper has used yet adds that verb to the list in the same change. Steps take their verb from the step text and hooks are named for their event, so the check skips both.
 
 ### Hooks
 
@@ -308,15 +308,15 @@ A file that needs both of a pair imports each under its own name, with no alias.
 
 ## The helper API
 
-The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the helpers the steps are built on). A project that outgrows the raw vocabulary stops calling the toolbox from Gherkin and starts calling it from PHP, so the helpers are public API in the same sense the step text is. [docs/content/guides/scenario-styles.md](docs/content/guides/scenario-styles.md) argues why.
+The package is 2 products in 1: the steps, and the helpers the steps are built on. A project that outgrows the shipped steps stops calling the helpers from Gherkin and starts calling them from PHP, so the helpers are public API in the same sense the step text is. [docs/content/guides/scenario-styles.md](docs/content/guides/scenario-styles.md) argues why.
 
-**Visibility is the marker.** A `public` method is the toolbox; a `protected` one is an implementation detail that promises nothing and may change in any release. Nothing else distinguishes the 2, which is why a helper worth calling from a project's own step definitions is declared `public` and one that only serves the machinery stays `protected`.
+**Visibility is the marker.** A `public` method is a helper; a `protected` one is an implementation detail that promises nothing and may change in any release. Nothing else distinguishes the 2, which is why a helper worth calling from a project's own step definitions is declared `public` and one that only serves the machinery stays `protected`.
 
 A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
 
-- It is declared by a trait under `src/Steps` or `src/Steps/Helper`, or by a class in `docs.php`'s `TOOLBOX_CLASSES`. A helper is published once, under the trait whose file declares it, never under a trait that composes that one.
+- It is declared by a trait under `src/Steps` or `src/Steps/Helper`, or by a class in `docs.php`'s `HELPER_CLASSES`. A helper is published once, under the trait whose file declares it, never under a trait that composes that one.
 - It is `public`. A `private` member cannot be reached from a project's context that extends a shipped one, and has no place in a trait.
-- A trait member begins with its trait's name, which is the collision rule every trait member follows anyway. A member of a `TOOLBOX_CLASSES` class, such as `WebRawContext::backendFor()`, carries none.
+- A trait member begins with its trait's name, which is the collision rule every trait member follows anyway. A member of a `HELPER_CLASSES` class, such as `WebRawContext::backendFor()`, carries none.
 - It carries no `#[Given]`, `#[When]`, `#[Then]`, `#[Transform]` or hook attribute. Those are registered with Behat and belong to the vocabulary.
 - Its docblock carries no `@internal`.
 
@@ -720,7 +720,7 @@ Use `ahoy --help` to see the list of available commands.
 
 ## Running tests
 
-There are 3 types of tests in this repository: unit tests, kernel tests and Behat tests. The documentation site in [docs/](docs) has its own unit and accessibility tests, which [Documentation](docs/content/contributing/documentation.md#working-locally) covers.
+There are 3 types of tests in this repository: unit tests, kernel tests and Behat tests. The documentation site in [docs/](docs) has its own unit and accessibility tests, which [docs/README.md](docs/README.md#working-locally) covers.
 
 ### Unit and kernel tests
 
@@ -910,9 +910,9 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 
 ### Docs
 
-1 job, on Node 24, with no Docker stack. It builds the site in [docs/](docs), and a broken link or anchor fails the build. It then runs the site's unit tests, its spell check and its accessibility checks, as [Documentation](docs/content/contributing/documentation.md#checks-on-every-pull-request) describes. The unit tests include the check that the step and helper references ship in the Composer package. Last, when the Netlify secrets are set, it deploys the build: a preview for each pull request, linked in a comment on it, and the development site on every push to `main`, as [Previews](docs/content/contributing/documentation.md#previews) describes.
+1 job, on Node 24, with no Docker stack. It builds the site in [docs/](docs), and a broken link or anchor fails the build. It then runs the site's unit tests, its spell check and its accessibility checks, as [docs/README.md](docs/README.md#checks-on-every-pull-request) describes. The unit tests include the check that the step and helper references ship in the Composer package. Last, when the Netlify secrets are set, it deploys the build: a preview for each pull request, linked in a comment on it, and the development site on every push to `main`, as [Previews](docs/README.md#previews) describes.
 
-[.github/workflows/release-docs.yml](.github/workflows/release-docs.yml) publishes the site to GitHub Pages on every release tag, and on a manual run from a tag or branch, as [Publishing](docs/content/contributing/documentation.md#publishing) describes.
+[.github/workflows/release-docs.yml](.github/workflows/release-docs.yml) publishes the site to GitHub Pages on every release tag, and on a manual run from a tag or branch, as [Publishing](docs/README.md#publishing) describes.
 
 ## Updating fixture site
 
@@ -927,14 +927,13 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 | Target | Holds |
 | --- | --- |
 | [STEPS.md](STEPS.md) | The step vocabulary, on 1 page |
-| [HELPERS.md](HELPERS.md) | The toolbox, on 1 page |
-| [docs/content/web-steps/](docs/content/web-steps), [docs/content/drupal-steps/](docs/content/drupal-steps) | The step vocabulary on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per trait |
-| [docs/content/web-helpers/](docs/content/web-helpers), [docs/content/drupal-helpers/](docs/content/drupal-helpers) | The toolbox on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per class, with `WebRawContext` among the web helpers |
+| [HELPERS.md](HELPERS.md) | Every helper, on 1 page. The documentation site has no helper pages, so this is the only helper reference |
+| [docs/content/web-steps/](docs/content/web-steps), [docs/content/drupal-steps/](docs/content/drupal-steps) | The step vocabulary on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per trait, linking the trait's helpers in `HELPERS.md` |
 | [docs/content/guides/configuration.md](docs/content/guides/configuration.md) | The extension options and the tag reference |
 
-A trait or class with a page names it with a `@title` tag in its docblock, in its own group before any other tag: `@title Batch API` names the pages of `Drupal\BatchTrait`. The title names what the trait or class works with, in sentence case, so it reads as an entry in the sidebar, and each section lists its pages in title order.
+A step trait names its page with a `@title` tag in its docblock, in its own group before any other tag: `@title Batch API` names the page of `Drupal\BatchTrait`. The title names what the trait works with, in sentence case, so it reads as an entry in the sidebar, and each section lists its pages in title order. A helper trait has no page, so it carries no title.
 
-The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every trait or class with a page carries a title, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
+The same run validates the [steps format](#steps-format), that every documented step matches exactly 1 definition, that every step trait carries a title, that every published helper carries a summary, that every registered tag in a docblock, an example or a feature file takes its value after `:`, and that every environment variable the source reads is documented.
 
 ```
 ahoy update-docs  # Update documentation
@@ -944,4 +943,4 @@ ahoy lint-docs    # Check documentation for errors
 
 An extension option and a tag are both generated from their definition in the source, so neither can be added without appearing in the reference. Write the option's `->info()` in [BehatStepsExtension](src/Extension/ServiceContainer/BehatStepsExtension.php) and the tag's description in `tag_registry()`, then run `ahoy update-docs`. Never hand-edit inside a generated region.
 
-`STEPS.md` and `HELPERS.md` ship in the Composer package, where a consuming project's AI agent reads them, and the rest are pages of the documentation site in [docs/](docs). [Documentation](docs/content/contributing/documentation.md) covers the site: working on it locally, the writing conventions, the checks and publishing to [behat-steps.drevops.com](https://behat-steps.drevops.com).
+`STEPS.md` and `HELPERS.md` ship in the Composer package, where a consuming project's AI agent reads them, and the rest are pages of the documentation site in [docs/](docs). [docs/README.md](docs/README.md) covers the site: working on it locally, the checks and publishing to [behat-steps.drevops.com](https://behat-steps.drevops.com). [Documentation](docs/content/contributing/documentation.md) covers the writing conventions.

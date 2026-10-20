@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Modules
 
-`DrevOps\BehatSteps\Steps\Drupal\ModuleTrait` - [Source](../../../src/Steps/Drupal/ModuleTrait.php), [Example](../../../tests/behat/features/drupal_module.feature), [Helpers](../drupal-helpers/module.md)
+`DrevOps\BehatSteps\Steps\Drupal\ModuleTrait` - [Source](../../../src/Steps/Drupal/ModuleTrait.php), [Example](../../../tests/behat/features/drupal_module.feature), [Helpers](../../../HELPERS.md#drupalmoduletrait)
 
 >  Enable and disable Drupal modules with automatic state restoration.
 >  <br/><br/>

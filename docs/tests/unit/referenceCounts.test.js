@@ -4,7 +4,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import referenceCounts, { countSection, SECTIONS } from '../../src/referenceCounts';
+import referenceCounts, { countHelpers, countSection, SECTIONS } from '../../src/referenceCounts';
 
 const FIXTURES = path.join(__dirname, 'fixtures');
 const CONTENT_DIR = path.join(__dirname, '..', '..', 'content');
@@ -16,8 +16,6 @@ describe('countSection', () => {
   test.each([
     { section: 'web-steps', expected: { pages: 2, entries: 3 } },
     { section: 'drupal-steps', expected: { pages: 1, entries: 3 } },
-    { section: 'web-helpers', expected: { pages: 1, entries: 1 } },
-    { section: 'drupal-helpers', expected: { pages: 1, entries: 2 } },
   ])('counts the pages and entries of $section', ({ section, expected }) => {
     expect(countSection(path.join(FIXTURES, 'content', section))).toEqual(expected);
   });
@@ -25,7 +23,7 @@ describe('countSection', () => {
   test('fails on a section without generated entries', () => {
     const directory = path.join(FIXTURES, 'empty', 'web-steps');
 
-    expect(() => countSection(directory)).toThrow(`${directory} holds no generated steps or helpers. Run "ahoy update-docs" from the repository root.`);
+    expect(() => countSection(directory)).toThrow(`${directory} holds no generated steps. Run "ahoy update-docs" from the repository root.`);
   });
 
   test('fails on a section that does not exist', () => {
@@ -33,16 +31,32 @@ describe('countSection', () => {
   });
 });
 
-describe('referenceCounts', () => {
-  const plugin = referenceCounts({}, { contentDir: path.join(FIXTURES, 'content') });
+describe('countHelpers', () => {
+  test('counts the helpers of the reference', () => {
+    expect(countHelpers(path.join(FIXTURES, 'HELPERS.md'))).toEqual({ entries: 3 });
+  });
 
-  test('loads the counts of every section', () => {
+  test('fails on a reference without generated helpers', () => {
+    const file = path.join(FIXTURES, 'empty', 'HELPERS.md');
+
+    expect(() => countHelpers(file)).toThrow(`${file} holds no generated helpers. Run "ahoy update-docs" from the repository root.`);
+  });
+
+  test('fails on a reference that does not exist', () => {
+    expect(() => countHelpers(path.join(FIXTURES, 'missing.md'))).toThrow(/ENOENT/);
+  });
+});
+
+describe('referenceCounts', () => {
+  const helpersFile = path.join(FIXTURES, 'HELPERS.md');
+  const plugin = referenceCounts({}, { contentDir: path.join(FIXTURES, 'content'), helpersFile });
+
+  test('loads the counts of every section and of the helper reference', () => {
     expect(plugin.name).toBe('reference-counts');
     expect(plugin.loadContent()).toEqual({
       webSteps: { pages: 2, entries: 3 },
       drupalSteps: { pages: 1, entries: 3 },
-      webHelpers: { pages: 1, entries: 1 },
-      drupalHelpers: { pages: 1, entries: 2 },
+      helpers: { entries: 3 },
     });
   });
 
@@ -55,17 +69,15 @@ describe('referenceCounts', () => {
     expect(actions.setGlobalData).toHaveBeenCalledWith(content);
   });
 
-  test('watches the pages of every section', () => {
-    expect(plugin.getPathsToWatch()).toEqual(Object.values(SECTIONS).map((section) => path.join(FIXTURES, 'content', section, '*.md')));
+  test('watches the pages of every section and the helper reference', () => {
+    expect(plugin.getPathsToWatch()).toEqual([...Object.values(SECTIONS).map((section) => path.join(FIXTURES, 'content', section, '*.md')), helpersFile]);
   });
 
-  // The site pages and the 1-file references come from the same run of
-  // docs.php, so their totals agree unless the markup the count relies on
-  // changes.
-  test('counts every step of STEPS.md and every helper of HELPERS.md', () => {
-    const counts = referenceCounts({}, { contentDir: CONTENT_DIR }).loadContent();
+  // The site pages and STEPS.md come from the same run of docs.php, so their
+  // totals agree unless the markup the count relies on changes.
+  test('counts every step of STEPS.md', () => {
+    const counts = referenceCounts({}, { contentDir: CONTENT_DIR, helpersFile: path.join(ROOT, 'HELPERS.md') }).loadContent();
 
     expect(counts.webSteps.entries + counts.drupalSteps.entries).toBe(occurrences('STEPS.md', /^ *<summary><code>@/gm));
-    expect(counts.webHelpers.entries + counts.drupalHelpers.entries).toBe(occurrences('HELPERS.md', /^ *<summary><code>/gm));
   });
 });

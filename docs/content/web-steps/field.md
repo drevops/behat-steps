@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Form fields
 
-`DrevOps\BehatSteps\Steps\Web\FieldTrait` - [Source](../../../src/Steps/Web/FieldTrait.php), [Example](../../../tests/behat/features/field.feature), [Helpers](../web-helpers/field.md)
+`DrevOps\BehatSteps\Steps\Web\FieldTrait` - [Source](../../../src/Steps/Web/FieldTrait.php), [Example](../../../tests/behat/features/field.feature), [Helpers](../../../HELPERS.md#fieldtrait)
 
 >  Manipulate form fields and verify widget functionality.
 >  - Set field values for various input types including selects and WYSIWYG.

@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Watchdog
 
-`DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait` - [Source](../../../src/Steps/Drupal/WatchdogTrait.php), [Example](../../../tests/behat/features/drupal_watchdog.feature), [Helpers](../drupal-helpers/watchdog.md)
+`DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait` - [Source](../../../src/Steps/Drupal/WatchdogTrait.php), [Example](../../../tests/behat/features/drupal_watchdog.feature), [Helpers](../../../HELPERS.md#drupalwatchdogtrait)
 
 >  Assert Drupal does not trigger PHP errors during scenarios using Watchdog.
 >  - Check for Watchdog messages after scenario completion.

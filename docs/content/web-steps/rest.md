@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # REST APIs
 
-`DrevOps\BehatSteps\Steps\Web\RestTrait` - [Source](../../../src/Steps/Web/RestTrait.php), [Example](../../../tests/behat/features/rest.feature), [Helpers](../web-helpers/rest.md)
+`DrevOps\BehatSteps\Steps\Web\RestTrait` - [Source](../../../src/Steps/Web/RestTrait.php), [Example](../../../tests/behat/features/rest.feature), [Helpers](../../../HELPERS.md#resttrait)
 
 >  Test REST APIs with lightweight steps.
 >  - Set HTTP headers for subsequent requests.

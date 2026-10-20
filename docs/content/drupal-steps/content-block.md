@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Content blocks
 
-`DrevOps\BehatSteps\Steps\Drupal\ContentBlockTrait` - [Source](../../../src/Steps/Drupal/ContentBlockTrait.php), [Example](../../../tests/behat/features/drupal_content_block.feature), [Helpers](../drupal-helpers/content-block.md)
+`DrevOps\BehatSteps\Steps\Drupal\ContentBlockTrait` - [Source](../../../src/Steps/Drupal/ContentBlockTrait.php), [Example](../../../tests/behat/features/drupal_content_block.feature), [Helpers](../../../HELPERS.md#drupalcontentblocktrait)
 
 >  Manage Drupal content blocks.
 >  - Define reusable custom block content with structured field data.

@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Modals
 
-`DrevOps\BehatSteps\Steps\Web\ModalTrait` - [Source](../../../src/Steps/Web/ModalTrait.php), [Example](../../../tests/behat/features/modal.feature), [Helpers](../web-helpers/modal.md)
+`DrevOps\BehatSteps\Steps\Web\ModalTrait` - [Source](../../../src/Steps/Web/ModalTrait.php), [Example](../../../tests/behat/features/modal.feature), [Helpers](../../../HELPERS.md#modaltrait)
 
 >  Interact with and assert modals.
 >  - Assert modal visibility.

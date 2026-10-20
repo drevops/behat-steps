@@ -1,14 +1,36 @@
 ---
 title: Web steps
-description: The steps that work on any website, with a page per trait that gives each step an example and lists the trait's options and prerequisites.
+sidebar_label: Overview
+sidebar_position: 0
+description: The steps that work on any website, how to read a trait's page and find a step, and every web trait with what it covers.
 custom_edit_url: null
 ---
 
 # Web steps
 
-These steps work on any website, whatever it's built with. `WebContext` composes all of them, and so does `DrupalContext`, which extends it. A trait's page gives each of its steps an example and lists the options and the prerequisites the trait declares.
+Web steps work on any website, whatever it's built with. They visit pages, fill in and submit forms, follow links and read cookies and response headers. They also check JSON, XML and tables, all through the browser Mink drives. `WebContext` brings every one of them, and `DrupalContext` extends `WebContext`, so a `FeatureContext` built on either already has them all. [Contexts](../guides/contexts.md) explains which one to extend.
 
-[STEPS.md](../../../STEPS.md) holds these steps and the [Drupal steps](../drupal-steps/README.md) on 1 page. It ships with the package, so an [AI coding agent](../guides/ai-assistants.md) in your project can read it from `vendor/`.
+The steps come grouped into traits, 1 per job, such as cookies, form fields or JSON responses. The table at the end of this page lists every trait and what it covers, and each name opens the trait's page.
+
+## How a trait's page reads
+
+The page opens with the trait's class and its links: the source, the feature file that tests it and its helpers in `HELPERS.md`. A description of what the trait does follows. Then, where the trait has them:
+
+- Prerequisites: what the site has to provide before the trait's steps can run.
+- Options: the settings the trait reads, with their defaults and the tags that change them for 1 scenario. [Configure a trait](../guides/usage.md#configure-a-trait) shows where to set them.
+- Steps: every step of the trait, each under its `Given`, `When` or `Then` keyword. Open a step to see what it does and an example you can copy into a scenario.
+
+A few steps need a real browser, because they run the page's JavaScript, press keys or resize the window. They fail under the BrowserKit session the quick start sets up, and [Browsers](../guides/browsers.md) covers the browsers that run them.
+
+## Find a step
+
+You can find a step in 3 ways:
+
+- Search the site with the box at the top of the page.
+- Run `vendor/bin/behat --definitions=l` in your project. It lists every step your suite registers, Mink's and your own included.
+- Open [STEPS.md](../../../STEPS.md), which holds these steps and the [Drupal steps](../drupal-steps/README.md) on 1 page. It ships with the package, so an [AI coding agent](../guides/ai-assistants.md) in your project can read it from `vendor/`.
+
+## Every web trait
 
 [//]: # (START_INDEX)
 

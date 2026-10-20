@@ -71,8 +71,9 @@ const config = {
     ],
   ],
 
-  // Counts the steps and helpers of the generated pages for the home page.
-  plugins: [[referenceCounts, {contentDir: path.resolve(__dirname, 'content')}]],
+  // Counts the steps of the generated pages and the helpers of HELPERS.md for
+  // the home page.
+  plugins: [[referenceCounts, {contentDir: path.resolve(__dirname, 'content'), helpersFile: path.resolve(__dirname, '..', 'HELPERS.md')}]],
 
   markdown: {
     // A '.md' page is CommonMark, so the generated references keep their raw
@@ -137,15 +138,6 @@ const config = {
             ],
           },
           {
-            type: 'dropdown',
-            label: 'Helpers',
-            position: 'left',
-            items: [
-              {to: '/web-helpers', label: 'Web helpers'},
-              {to: '/drupal-helpers', label: 'Drupal helpers'},
-            ],
-          },
-          {
             href: 'https://packagist.org/packages/drevops/behat-steps',
             label: 'Packagist',
             position: 'right',
@@ -174,8 +166,6 @@ const config = {
               {label: 'Quick start', to: '/quick-start'},
               {label: 'Web steps', to: '/web-steps'},
               {label: 'Drupal steps', to: '/drupal-steps'},
-              {label: 'Web helpers', to: '/web-helpers'},
-              {label: 'Drupal helpers', to: '/drupal-helpers'},
             ],
           },
           {

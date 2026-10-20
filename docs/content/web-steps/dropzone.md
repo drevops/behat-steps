@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Dropzone uploads
 
-`DrevOps\BehatSteps\Steps\Web\DropzoneTrait` - [Source](../../../src/Steps/Web/DropzoneTrait.php), [Example](../../../tests/behat/features/dropzone.feature), [Helpers](../web-helpers/dropzone.md)
+`DrevOps\BehatSteps\Steps\Web\DropzoneTrait` - [Source](../../../src/Steps/Web/DropzoneTrait.php), [Example](../../../tests/behat/features/dropzone.feature), [Helpers](../../../HELPERS.md#dropzonetrait)
 
 >  Simulate a real multi-file drag-and-drop gesture onto a Dropzone target.
 >  - Drop 1 or more files on a CSS-selected target in a single native event.

@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Caches and cron
 
-`DrevOps\BehatSteps\Steps\Drupal\CacheTrait` - [Source](../../../src/Steps/Drupal/CacheTrait.php), [Example](../../../tests/behat/features/drupal_cache.feature), [Helpers](../drupal-helpers/cache.md)
+`DrevOps\BehatSteps\Steps\Drupal\CacheTrait` - [Source](../../../src/Steps/Drupal/CacheTrait.php), [Example](../../../tests/behat/features/drupal_cache.feature), [Helpers](../../../HELPERS.md#drupalcachetrait)
 
 >  Invalidate Drupal caches and run cron from within a scenario.
 >  - Clear every cache bin, or target a single path, a path pattern, or the

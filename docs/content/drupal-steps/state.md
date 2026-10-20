@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # State API
 
-`DrevOps\BehatSteps\Steps\Drupal\StateTrait` - [Source](../../../src/Steps/Drupal/StateTrait.php), [Example](../../../tests/behat/features/drupal_state.feature), [Helpers](../drupal-helpers/state.md)
+`DrevOps\BehatSteps\Steps\Drupal\StateTrait` - [Source](../../../src/Steps/Drupal/StateTrait.php), [Example](../../../tests/behat/features/drupal_state.feature), [Helpers](../../../HELPERS.md#drupalstatetrait)
 
 >  Manage and assert Drupal State API values with automatic revert.
 >  <br/><br/>

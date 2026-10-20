@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Page regions
 
-`DrevOps\BehatSteps\Steps\Web\RegionTrait` - [Source](../../../src/Steps/Web/RegionTrait.php), [Example](../../../tests/behat/features/region.feature), [Helpers](../web-helpers/region.md)
+`DrevOps\BehatSteps\Steps\Web\RegionTrait` - [Source](../../../src/Steps/Web/RegionTrait.php), [Example](../../../tests/behat/features/region.feature), [Helpers](../../../HELPERS.md#regiontrait)
 
 >  Interact with and assert against named page regions.
 >  - Click links, press buttons, fill fields and toggle checkboxes in a region.

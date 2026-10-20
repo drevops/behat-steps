@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Shell commands
 
-`DrevOps\BehatSteps\Steps\Web\CommandTrait` - [Source](../../../src/Steps/Web/CommandTrait.php), [Example](../../../tests/behat/features/command.feature), [Helpers](../web-helpers/command.md)
+`DrevOps\BehatSteps\Steps\Web\CommandTrait` - [Source](../../../src/Steps/Web/CommandTrait.php), [Example](../../../tests/behat/features/command.feature), [Helpers](../../../HELPERS.md#commandtrait)
 
 >  Run local shell commands and assert on their result.
 >  - Run a shell command and capture its output, error output, and exit code.

@@ -67,7 +67,7 @@
 | [Drupal\FixtureFileTrait](#drupalfixturefiletrait) | 1 | Resolves a fixture file path for a file or image field. |
 | [Drupal\QueryTrait](#drupalquerytrait) | 5 | Finds the entities a step reads, asserts on or deletes. |
 
-## Index of Toolbox helpers
+## Index of Root context helpers
 
 | Class | Helpers | Description |
 | --- | --- | --- |

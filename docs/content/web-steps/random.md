@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Random values
 
-`DrevOps\BehatSteps\Steps\Web\RandomTrait` - [Source](../../../src/Steps/Web/RandomTrait.php), [Example](../../../tests/behat/features/random.feature), [Helpers](../web-helpers/random.md)
+`DrevOps\BehatSteps\Steps\Web\RandomTrait` - [Source](../../../src/Steps/Web/RandomTrait.php), [Example](../../../tests/behat/features/random.feature), [Helpers](../../../HELPERS.md#randomtrait)
 
 >  Replace random-value tokens in step arguments and table cells.
 >  - Resolve `[?<name>:<type>[,<args>]]` tokens to generated values.

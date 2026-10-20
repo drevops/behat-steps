@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Cookies
 
-`DrevOps\BehatSteps\Steps\Web\CookieTrait` - [Source](../../../src/Steps/Web/CookieTrait.php), [Example](../../../tests/behat/features/cookie.feature), [Helpers](../web-helpers/cookie.md)
+`DrevOps\BehatSteps\Steps\Web\CookieTrait` - [Source](../../../src/Steps/Web/CookieTrait.php), [Example](../../../tests/behat/features/cookie.feature), [Helpers](../../../HELPERS.md#cookietrait)
 
 >  Verify and inspect browser cookies.
 >  - Assert cookie existence and values with exact or partial matching.

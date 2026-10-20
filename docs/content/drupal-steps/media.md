@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Media
 
-`DrevOps\BehatSteps\Steps\Drupal\MediaTrait` - [Source](../../../src/Steps/Drupal/MediaTrait.php), [Example](../../../tests/behat/features/drupal_media.feature), [Helpers](../drupal-helpers/media.md)
+`DrevOps\BehatSteps\Steps\Drupal\MediaTrait` - [Source](../../../src/Steps/Drupal/MediaTrait.php), [Example](../../../tests/behat/features/drupal_media.feature), [Helpers](../../../HELPERS.md#drupalmediatrait)
 
 >  Manage Drupal media entities with type-specific field handling.
 >  - Create structured media items with proper file reference handling.

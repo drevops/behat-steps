@@ -1,6 +1,6 @@
 ---
 title: Configuration
-sidebar_position: 2
+sidebar_position: 3
 description: Behat Steps reads its configuration from suites and context arguments, the extension key, tags and environment variables. This page covers all 4 channels and lists every option and tag.
 ---
 
@@ -8,22 +8,22 @@ description: Behat Steps reads its configuration from suites and context argumen
 
 # Configuration
 
-Everything this package reads arrives through 1 of 4 channels, apart from the Mink settings it shares: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, and they aren't interchangeable.
+This page is the reference for everything you can set. Behat Steps reads its configuration through 4 channels, apart from the Mink settings it shares with Mink: `base_url`, `files_path` and each `browserkit_http` session's `http_client_parameters`. Each channel answers a different question, so they aren't interchangeable:
 
 | Channel | Answers | Scope |
 | --- | --- | --- |
-| [Suites and context arguments](#1-suites-and-context-arguments) | Which scenarios run against which surface, with which vocabulary | Per suite |
+| [Suites and context arguments](#1-suites-and-context-arguments) | Which scenarios run against which surface, with which steps | Per suite |
 | [The `behat_steps` extension key](#2-the-behat_steps-extension-key) | How the package talks to the site | Per profile |
 | [Tags](#3-tags) | What a single scenario opts into | Per scenario or feature |
 | [Environment variables](#4-environment-variables) | What differs between one machine and another | Per run |
 
-The tables in sections 2 and 3 are generated from the source by [docs.php](../../../docs.php), and CI fails when they fall behind it. [Documentation](../contributing/documentation.md#generated-pages) covers regenerating them.
+[docs.php](../../../docs.php) generates the tables in sections 2 and 3 from the source, and CI fails when they fall behind it. [Documentation](../contributing/documentation.md#generated-pages) covers regenerating them.
 
 ## 1. Suites and context arguments
 
 ### Suite per surface
 
-A suite binds a set of feature files to a set of contexts. The default layout is 1 suite per surface under test, because each surface needs a different vocabulary and a different backend.
+A suite pairs a set of feature files with a set of contexts. The [quick start](../quick-start.md) uses 1 suite with your `FeatureContext` in it, and many projects never need another. When you test more than 1 surface, such as pages in a browser and an API, you can give each surface a suite of its own, and every suite registers the same `FeatureContext`:
 
 ```php
 <?php
@@ -32,28 +32,29 @@ declare(strict_types=1);
 
 use Behat\Config\Config;
 use Behat\Config\Extension;
-use Behat\Config\Filter\TagFilter;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
+use Behat\MinkExtension\Context\MinkContext;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
 // The browser surface: what an editor or a visitor can do in a page.
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class);
+  ->addContext(FeatureContext::class)
+  ->addContext(MinkContext::class);
 
 // The API surface: responses, headers and payloads, with no browser.
 $api = (new Suite('api'))
   ->withPaths('%paths.base%/tests/behat/features/api')
-  ->addContext(ApiContext::class);
+  ->addContext(FeatureContext::class);
 
 // The specification surface: the few domain-language scenarios a
 // stakeholder reads.
 $spec = (new Suite('spec'))
   ->withPaths('%paths.base%/tests/behat/features/spec')
-  ->addContext(SpecContext::class);
+  ->addContext(FeatureContext::class);
 
-$profile = (new Profile('default'))
+$profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
   ->withSuite($ui)
   ->withSuite($api)
   ->withSuite($spec)
@@ -66,60 +67,35 @@ return (new Config())->withProfile($profile);
 
 Run 1 surface with `vendor/bin/behat --suite=api`, or all of them with a bare `vendor/bin/behat`.
 
-3 properties follow from the layout:
+The layout gives you 3 things:
 
-- Each suite composes only the vocabulary its surface needs. `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`; it never loads a trait that expects a rendered page. A step that can't work on a surface isn't defined on it, so a mistake is a "step not found" at parse time instead of a confusing failure mid-run.
-- The spec suite and the regression suites do different jobs. The spec suite holds domain-language scenarios written over your own step definitions; the regression suites hold broad scenarios written in the shipped vocabulary. See [Scenario styles](scenario-styles.md) for why both exist.
+- The spec suite and the regression suites do different jobs. The spec suite holds domain-language scenarios written over your own step definitions, and the regression suites hold broad scenarios written in the shipped steps. [Scenario styles](scenario-styles.md) explains why both exist.
 - You can exclude a slow surface without touching the others. Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
+- A surface can offer only the steps that work on it. Register a narrower context there instead of `FeatureContext`, [composed from `WebRawContext`](contexts.md#compose-your-own-context): an API suite built on `RestTrait`, `JsonTrait` and `ResponseTrait` never loads a trait that expects a rendered page. A step that can't work on a surface then isn't defined on it, so when a scenario uses it there, Behat reports the step as undefined instead of running it into a confusing failure.
 
 ### Context constructor arguments
 
-The extension key in section 2 is read once per profile. Pass a value that has to differ between suites as a context constructor argument instead:
+The extension key in section 2 is read once per profile. Pass a value that has to differ between suites as a context constructor argument instead.
+
+`WebRawContext` declares 1 argument of its own, `config`, and every shipped context and every context of yours inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between 2 suites of the same profile:
 
 ```php
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class, [
-    'fixtures_path' => '%paths.base%/tests/behat/fixtures',
-  ]);
-```
-
-```php
-class UiContext extends WebRawContext {
-
-  public function __construct(
-    protected string $fixtures_path,
-    array $config = [],
-  ) {
-    parent::__construct($config);
-  }
-
-}
-```
-
-Behat matches the arguments to the constructor by name, so the array keys are the parameter names.
-
-`WebRawContext` declares 1 argument of its own, `config`, and every shipped and consuming context inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between 2 contexts of the same profile:
-
-```php
-$ui = (new Suite('ui'))
-  ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(WebContext::class, [
+  ->addContext(FeatureContext::class, [
     'config' => ['wait' => ['ajax_timeout' => 10]],
   ]);
 ```
 
-A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others; `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. Setting a group that no trait in the chain declares is an error at construction, naming what that context does accept.
+A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others. `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`, and a `FeatureContext` that extends `DrupalContext` takes them all. A group that no trait of the context declares, counting the traits of the classes it extends, fails the context at construction, with an error that names the groups it accepts.
 
-A context that adds arguments of its own forwards `config` to the parent, and the suite passes both:
+A context can take arguments of its own too. It declares them in its constructor and forwards `config` to the parent. A default keeps an argument optional, so a suite that doesn't pass it, like the `api` suite in the first example, still builds the context:
 
 ```php
-class UiContext extends WebRawContext {
-
-  use JavascriptTrait;
+class FeatureContext extends DrupalContext {
 
   public function __construct(
-    protected string $fixtures_path,
+    protected ?string $fixtures_path = NULL,
     array $config = [],
   ) {
     parent::__construct($config);
@@ -128,10 +104,12 @@ class UiContext extends WebRawContext {
 }
 ```
 
+Behat matches the arguments to the constructor by name, so the array keys are the parameter names, and the suite passes both:
+
 ```php
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class, [
+  ->addContext(FeatureContext::class, [
     'fixtures_path' => '%paths.base%/tests/behat/fixtures',
     'config' => ['javascript' => ['fail_on_errors' => FALSE]],
   ]);
@@ -139,7 +117,7 @@ $ui = (new Suite('ui'))
 
 Behat 4 reads PHP configuration only, from `behat.php` or, when there's no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Prefer `behat.php`: both majors accept it, and it's the only format Behat 4 accepts.
 
-While a project is still on Behat 3, the YAML form of the suite above is:
+While your project is still on Behat 3, the YAML form of the 2 preceding suites is:
 
 ```yaml
 default:
@@ -147,24 +125,26 @@ default:
     ui:
       paths: ['%paths.base%/tests/behat/features/ui']
       contexts:
-        - UiContext:
+        - FeatureContext:
             fixtures_path: '%paths.base%/tests/behat/fixtures'
     api:
       paths: ['%paths.base%/tests/behat/features/api']
-      contexts: [ApiContext]
+      contexts: [FeatureContext]
   extensions:
     DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension:
       drupal:
         drupal_root: web
 ```
 
-[behat.dist.php](../../../behat.dist.php) in this repository sets every extension option, plus the trait options a project almost always sets, as a reference.
+[behat.dist.php](../../../behat.dist.php) in this repository sets every extension option, plus the trait options most projects set, as a reference.
 
 ## 2. The `behat_steps` extension key
 
 Settings under this key configure how the package reaches the site: which backends a scenario may resolve and in what order, how each of them connects, what the login form looks like and which CSS selector each named region resolves to. They're read once per profile.
 
 HTTP connection settings are the exception. Certificate checks, a proxy or DNS pinning live on Mink's `browserkit_http` session as `http_client_parameters`, and requests that steps send from PHP, such as a file download, share them with the page. [HTTP clients](http-clients.md) covers how.
+
+For example, this profile allows 2 backends, tells the Drupal backend where Drupal lives and names 1 region:
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
@@ -174,7 +154,7 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-A nested option is a section in the configuration and a dotted path in the table below.
+The following table lists every option. A nested option is a section in the configuration and a dotted path in the table.
 
 [//]: # (START_EXTENSION_OPTIONS)
 
@@ -213,7 +193,7 @@ A nested option is a section in the configuration and a dotted path in the table
 
 ### Backend resolution
 
-5 authorities decide which backend runs a step, and each decides exactly 1 thing.
+5 authorities decide which backend runs a step, and each decides exactly 1 thing:
 
 | Authority | Decides | Where |
 | --- | --- | --- |
@@ -223,7 +203,7 @@ A nested option is a section in the configuration and a dotted path in the table
 | Step | Which capability it needs | `backendFor(X::class)` |
 | Capability interface | Which backends are even eligible | `instanceof` during the walk |
 
-The `backends` list is both the allow-list and the precedence order. Each entry names a backend the extension registers; a keyed entry gives the backend a name of its own, so the same feature file can run against a different backend in another profile.
+The `backends` list is both the allow-list and the precedence order. Each entry names a backend the extension registers; a keyed entry gives the backend a name of its own, so the same feature file can run against a different backend in another profile. In this profile, `api` names the backend registered as `acme-jsonapi`:
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
@@ -259,6 +239,8 @@ At step time the resolution is:
 2. Move every name a `@backend:` tag promotes to the front: the names on the scenario line first, then those on the feature line. Each group keeps the configured order, so the order the tags are written in never changes the result.
 3. Walk that order and return the first backend implementing the capability the step asked for, bootstrapping only that one.
 
+For example, with the `backends` list `drupal`, `api` and `blackbox` from the first example in this section, this scenario promotes `api`:
+
 ```gherkin
 @backend:api
 Scenario: Content created over the public API is immediately visible
@@ -269,9 +251,9 @@ Scenario: Content created over the public API is immediately visible
   Then I should see "Lab report"
 ```
 
-The order becomes `acme-jsonapi, drupal, blackbox`, and the content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability. Promotion only affects the capabilities the promoted backend provides.
+The order becomes `api, drupal, blackbox`, and the content step resolves to `api`, the `acme-jsonapi` backend. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability. Promotion only affects the capabilities the promoted backend provides.
 
-Repeated tags promote their names in the configured order: `@backend:blackbox @backend:api` and `@backend:api @backend:blackbox` both give `acme-jsonapi, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
+Repeated tags promote their names in the configured order: `@backend:blackbox @backend:api` and `@backend:api @backend:blackbox` both give `api, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
 
 `@backend:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo can't silently run the wrong backend, and no tag can hand a Drupal backend to a `smoke` profile that lists only `blackbox`. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
 
@@ -279,7 +261,7 @@ The backends also take classes of your own through the `drupal.field_handlers`, 
 
 ### Trait options
 
-Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. A trait's page under [Web steps](../web-steps/README.md) or [Drupal steps](../drupal-steps/README.md) lists its options beside its steps.
+Every configurable trait declares its own options, and the `steps` section holds their profile-wide defaults. A group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. A trait's page under [Web steps](../web-steps/README.md) or [Drupal steps](../drupal-steps/README.md) lists its options beside its steps. This profile sets defaults for 5 groups:
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
@@ -295,15 +277,13 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-An option resolves through 5 layers, each overriding the one above it:
+An option resolves through 5 layers, each overriding the one before it:
 
-```
-declaration default
-  -> behat_steps.steps        (profile-wide)
-    -> context config          (per context)
-      -> feature tag
-        -> scenario tag
-```
+1. The default the trait declares.
+2. `behat_steps.steps`, for the whole profile.
+3. The context's `config` argument, for 1 context.
+4. A tag on the feature.
+5. A tag on the scenario.
 
 The 2 levels, `steps` and a context's `config`, differ in how strictly they're read, because they know different things:
 
@@ -314,25 +294,34 @@ The 2 levels, `steps` and a context's `config`, differ in how strictly they're r
 
 | Option | Effect |
 | --- | --- |
-| `enabled` | The trait's hooks do nothing at all. Equivalent to `@behat-steps-skip:<TraitName>` on every scenario. |
-| `fail_on_errors` | The trait still collects, and does not fail the scenario on what it found. |
+| `enabled` | The trait's hooks do nothing at all. Equivalent to `@behat-steps-skip:TRAIT` on every scenario. |
+| `fail_on_errors` | The trait still collects, and doesn't fail the scenario on what it found. |
 
 `fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
 
-Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in the composing context sits outside the chain and replaces the resolution entirely. That override is the escape hatch for anything the configuration can't express.
+Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in your context sits outside these layers and replaces the resolution entirely. Use that override for anything the configuration can't express.
 
 [Extending the step vocabulary](../extending/steps.md#declare-options-for-a-trait-of-your-own) covers declaring options for a trait of your own, and [Extending the extension layer](../extending/extension.md#replace-option-resolution) covers replacing the resolution itself.
 
 ## 3. Tags
 
-A tag configures 1 scenario or 1 feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A tag with nothing after the colon is ignored, except `@behat-steps-skip:` and `@backend:`, which fail at scenario start like any other value they can't resolve. A flag tag takes no value. `@module:` also switches its value off with a `!`: `@module:!redirect`.
+A tag configures 1 scenario or 1 feature. A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A flag tag takes no value.
+
+A tag with nothing after the colon is ignored, except `@behat-steps-skip:` and `@backend:`, which fail at scenario start like any other value they can't resolve. `@module:` also switches its value off with a `!`: `@module:!redirect`. A scenario can carry several tags:
 
 ```gherkin
 @module:redirect @behat-steps-skip:WatchdogTrait
 Scenario: Editor publishes a page
 ```
 
-A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, a flag takes effect from either line. `@behat-steps-skip:VALUE`, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines. `@module:VALUE` for the same module, `@breakpoint:VALUE` and an `@accessibility:VALUE` threshold take the scenario's value over the feature's, while `@accessibility:strict` applies from either line. `@backend:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes.
+A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, they combine as follows:
+
+- A flag takes effect from either line.
+- `@behat-steps-skip:VALUE`, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines.
+- `@module:VALUE` for the same module, `@breakpoint:VALUE` and an `@accessibility:VALUE` threshold take the scenario's value over the feature's, while `@accessibility:strict` applies from either line.
+- `@backend:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes.
+
+The following table lists every tag:
 
 [//]: # (START_TAGS)
 
@@ -357,11 +346,11 @@ A tag on the `Feature:` line applies to every scenario in that feature. Where a 
 
 [//]: # (END_TAGS)
 
-`@javascript` is Mink's own tag: it selects the browser session. [Backend resolution](#backend-resolution) and the `@backend:NAME` tag above decide which backend a step runs against.
+`@javascript` is Mink's own tag: it selects the browser session. [Backend resolution](#backend-resolution) and the `@backend:NAME` tag decide which backend a step runs against.
 
 ## 4. Environment variables
 
-These vary a run without changing any committed configuration. Nothing else in the package reads the environment.
+The package reads the following environment variables, and nothing else from the environment. Each one varies a run without changing any committed configuration:
 
 | Variable | Read by | Effect |
 | --- | --- | --- |

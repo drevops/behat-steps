@@ -1,22 +1,33 @@
 ---
 title: HTTP clients
-sidebar_position: 4
-description: The 3 clients a step sends its own requests through, where their settings come from, and how to change them.
+sidebar_position: 6
+description: The 3 clients a step sends its own requests through, where their settings come from and how to change them.
 ---
 
 <!-- cspell:ignore Metatag -->
 
 # HTTP clients
 
-Most steps read the page the Mink session holds. A few send HTTP requests of their own from PHP: `FileDownloadTrait` downloads a file, `MetatagTrait` fetches the hreflang alternates of a page, `AccessibilityTrait` fetches its engine script, and `RestTrait` sends a request whose response becomes the page. Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from, and how to change them.
+Most steps read the page the Mink session holds. A few send HTTP requests of their own from PHP:
 
-3 terms stay apart on this page, and [CONTRIBUTING.md](../../../CONTRIBUTING.md#backend-browser-driver-and-http-client) defines them for the whole codebase:
+- `FileDownloadTrait` downloads a file.
+- `MetatagTrait` fetches the hreflang alternates of a page.
+- `AccessibilityTrait` fetches its engine script.
+- `RestTrait` sends a request whose response becomes the page.
 
-- **Backend** - Drupal, Drush or Blackbox under `src/Backend`, reached with `backendFor()`. Nothing on this page touches them.
-- **Browser driver** - Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`.
-- **HTTP client** - 1 of the 3 clients below. None of them is a backend or a browser driver.
+Every one of those requests goes through 1 of 3 clients. This page covers which is which, where their settings come from and how to change them.
+
+You'll need it when your site needs special connection settings, such as a self-signed certificate or a proxy, or when you write a step that sends a request of its own.
+
+This page keeps 3 terms apart, which [CONTRIBUTING.md](../../../CONTRIBUTING.md#backend-browser-driver-and-http-client) defines for the whole codebase:
+
+- A backend is Drupal, Drush or Blackbox under `src/Backend`, reached with `backendFor()`. Nothing on this page touches them.
+- A browser driver is Mink's driver behind the session (BrowserKit, Selenium2 or Chrome), reached through an adapter with `browserDriverFor()`. [Browsers](browsers.md) compares the 3.
+- An HTTP client is 1 of the 3 clients that [The 3 clients](#the-3-clients) describes. None of them is a backend or a browser driver.
 
 ## The 3 clients
+
+Each client starts from a different state, and its response goes to a different place:
 
 | Client | `WebRawContext` method | What it starts with | Its response | Used by |
 | --- | --- | --- | --- | --- |
@@ -50,33 +61,16 @@ Picking one comes down to what the response is for:
 
 ## Where the settings come from
 
-Connection settings come from 1 place, and per-trait settings from another:
+Connection settings come from 1 place, and per-trait settings from another. Select the diagram to open it at full size:
 
-```
- Mink: sessions.<name>.browserkit_http          behat_steps: steps
-       http_client_parameters                     file_download.timeout
-               │                                  accessibility.fetch_timeout
-               ▼                                             │
- BrowserKitFactory::buildDriver()                            │
-        │                   │                                │
-        ▼                   ▼                                │
- Mink's own client   behat_steps.http_client                 │
- settings for        1 transport; settings                   │
- every host          for base_url only                       │
-        │                   ├──────────────────┐             │
-        ▼                   ▼                  ▼             │
-   page client       detached client      bare client        │
-   HttpBrowser       HttpBrowser          HttpBrowser        │
-   in the session    + scenario           settings only      │
-                     identity                                │
-                            ▲                  ▲             │
-                            └──────────────────┴─────────────┘
-                              per-trait options, per request
-```
+[![Where HTTP client settings come from: the browserkit_http session's options reach the page client through Mink and the detached and bare clients through 1 shared transport, and the steps options reach the detached and bare clients per request](http-client-settings.svg#gh-light-mode-only)](http-client-settings.svg)
+[![Where HTTP client settings come from: the browserkit_http session's options reach the page client through Mink and the detached and bare clients through 1 shared transport, and the steps options reach the detached and bare clients per request](http-client-settings.dark.svg#gh-dark-mode-only)](http-client-settings.dark.svg)
 
-Connection settings are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own, keeps its configuration tree, and receives each session's options when Mink builds that session. Because it builds the session exactly as Mink does, the page client applies the options to every host. The factory also records the options, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
+Connection settings are `http_client_parameters` on a `browserkit_http` session, the Symfony HttpClient options Mink documents: `verify_peer`, `proxy`, `resolve`, `headers`, `timeout` and the rest. `BehatStepsExtension` registers its own factory for the `browserkit_http` browser driver with Mink's extension. The factory extends Mink's own and keeps its configuration tree. It receives each session's options when Mink builds that session. Because it builds the session exactly as Mink does, the page client applies the options to every host.
 
-To a project this looks like stock Mink: it registers only Mink's own extension and `BehatStepsExtension`, and never sees the factory.
+The factory also records the options, and `BehatStepsExtension` turns them into 1 shared transport, the `behat_steps.http_client` service, which the detached and bare clients send through. So a setting that lets the page load also lets the download through.
+
+From your side this looks like stock Mink: you register only Mink's own extension and `BehatStepsExtension`, and never see the factory.
 
 Per-trait settings stay in the per-trait options under `behat_steps: steps`, applied to each request a step makes:
 
@@ -110,7 +104,9 @@ Both timeouts are idle timeouts: a slow download that keeps receiving data never
   ],
   ```
 
-  ```
+  Behat stops with this error:
+
+  ```text
   The 2 "browserkit_http" sessions declare different "http_client_parameters". Behat Steps sends its own requests with 1 set of connection options, so give every "browserkit_http" session the same options.
   ```
 
@@ -128,14 +124,8 @@ None of it leaks off the site: headers and credentials go to the site's own host
 
 In a `@javascript` scenario, 2 things talk to the site:
 
-```
-@javascript scenario
-  visits, clicks, AJAX ──► browser ──────────► site
-                           set by the browser's capabilities
-  file download,       ──► detached client ──► site
-  hreflang fetch           (PHP, the sidecar)
-                           set by http_client_parameters
-```
+[![The sidecar client: in a JavaScript scenario, visits, clicks and AJAX go through the browser, while a file download or the hreflang check goes through the detached client in PHP](http-client-sidecar.svg#gh-light-mode-only)](http-client-sidecar.svg)
+[![The sidecar client: in a JavaScript scenario, visits, clicks and AJAX go through the browser, while a file download or the hreflang check goes through the detached client in PHP](http-client-sidecar.dark.svg#gh-dark-mode-only)](http-client-sidecar.dark.svg)
 
 The browser makes the page's requests, and its capabilities or flags configure them. Some steps still send requests from PHP while the scenario runs, because doing them in the browser would either put the result out of PHP's reach or navigate away from the page. `FileDownloadTrait` is the clearest case: it reads the browser's cookies and downloads the file itself.
 
@@ -170,7 +160,7 @@ A step never has to guess which content it reads, because each kind lives in its
 
 So a scenario can mix page steps and download steps freely:
 
-```
+```text
 When I visit "/reports"                       writes the page (browser DOM)
 And I download the file from the link "CSV"   writes the downloaded file
 Then the downloaded file should contain:      reads the downloaded file
@@ -183,25 +173,13 @@ After a download, `Then the response status code should be 200` still reads the 
 
 The page client is a browser capability, and the other 2 come from a factory:
 
-```
-WebRawContext
-  │
-  ├─ httpPageClient()
-  │    ──► browserDriverFor(HttpClientCapabilityInterface)
-  │        └─► the session's HttpBrowser, through the BrowserKit adapter
-  │            (Selenium2, Chrome: UnsupportedDriverActionException)
-  │
-  ├─ httpDetachedClient()
-  │    ──► HttpClientFactoryInterface::createDetached(HttpIdentity)
-  │        └─► a fresh HttpBrowser holding the scenario's identity
-  │
-  └─ httpBareClient()
-       ──► HttpClientFactoryInterface::createBare()
-           └─► a fresh HttpBrowser with an empty cookie jar
-```
+[![How a step reaches each HTTP client: httpPageClient() resolves a browser capability that only BrowserKit provides, while httpDetachedClient() and httpBareClient() ask the HTTP client factory for a fresh browser](http-client-methods.svg#gh-light-mode-only)](http-client-methods.svg)
+[![How a step reaches each HTTP client: httpPageClient() resolves a browser capability that only BrowserKit provides, while httpDetachedClient() and httpBareClient() ask the HTTP client factory for a fresh browser](http-client-methods.dark.svg#gh-dark-mode-only)](http-client-methods.dark.svg)
 
 - Whether a page client exists depends on the browser driver, so `httpPageClient()` resolves `HttpClientCapabilityInterface` through `browserDriverFor()`, like any other capability. The BrowserKit adapter provides it; the Selenium2 and Chrome adapters don't.
 - The detached and bare clients exist under every browser driver, so there's nothing to resolve for each one. `HttpClientFactoryInterface` builds them, and the context initializer injects the `behat_steps.http_client_factory` service into `WebRawContext`, the same way it injects the option resolver factory. The scenario's identity reaches the factory as an `HttpIdentity` value object: the cookies, the URL they were read from, the headers and the credentials.
+
+`HttpClientFactoryInterface` declares 3 methods:
 
 ```php
 interface HttpClientFactoryInterface {
@@ -222,9 +200,11 @@ Traits never see the factory: they call 1 of the 3 methods, so the choice is vis
 
 ## Changing it
 
-The sections below go from the lightest change to the heaviest.
+The following sections go from the lightest change to the heaviest.
 
 ### Configuration: a staging site with a self-signed certificate behind Docker's DNS
+
+To reach a staging site whose certificate is self-signed and whose name only Docker resolves, accept the certificate and pin the name to the container's address on the `browserkit_http` session:
 
 ```php
 ->withExtension(new Extension(MinkExtension::class, [

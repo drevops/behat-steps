@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Messages
 
-`DrevOps\BehatSteps\Steps\Web\MessageTrait` - [Source](../../../src/Steps/Web/MessageTrait.php), [Example](../../../tests/behat/features/message.feature), [Helpers](../web-helpers/message.md)
+`DrevOps\BehatSteps\Steps\Web\MessageTrait` - [Source](../../../src/Steps/Web/MessageTrait.php), [Example](../../../tests/behat/features/message.feature), [Helpers](../../../HELPERS.md#messagetrait)
 
 >  Assert status, error, warning and success messages rendered on the page.
 >  - Match a single message by substring, per message type.

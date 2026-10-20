@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Relative dates
 
-`DrevOps\BehatSteps\Steps\Web\DateTrait` - [Source](../../../src/Steps/Web/DateTrait.php), [Example](../../../tests/behat/features/date.feature), [Helpers](../web-helpers/date.md)
+`DrevOps\BehatSteps\Steps\Web\DateTrait` - [Source](../../../src/Steps/Web/DateTrait.php), [Example](../../../tests/behat/features/date.feature), [Helpers](../../../HELPERS.md#datetrait)
 
 >  Convert relative date expressions into timestamps or formatted dates.
 >  <br/><br/>

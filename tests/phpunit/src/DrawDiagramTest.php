@@ -16,12 +16,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversFunction('draw_diagram_check')]
 #[CoversFunction('draw_diagram_create_directory')]
 #[CoversFunction('draw_diagram_describe_event')]
+#[CoversFunction('draw_diagram_describe_export')]
 #[CoversFunction('draw_diagram_describe_system_event')]
 #[CoversFunction('draw_diagram_describe_input')]
 #[CoversFunction('draw_diagram_expand')]
 #[CoversFunction('draw_diagram_export')]
 #[CoversFunction('draw_diagram_find_drawio')]
 #[CoversFunction('draw_diagram_find_skill')]
+#[CoversFunction('draw_diagram_find_source')]
 #[CoversFunction('draw_diagram_hash')]
 #[CoversFunction('draw_diagram_join_lines')]
 #[CoversFunction('draw_diagram_marker')]
@@ -59,10 +61,10 @@ class DrawDiagramTest extends UnitTestCase {
   }
 
   public function testShippedDiagramsMatchTheirSources(): void {
-    $directory = dirname(__DIR__, 3) . '/docs/content/architecture';
+    $directories = array_values(array_filter(glob(dirname(__DIR__, 3) . '/docs/content/*', GLOB_ONLYDIR) ?: [], static fn(string $directory): bool => (glob($directory . '/*.drawio') ?: []) !== []));
 
-    $this->assertNotEmpty(draw_diagram_expand([$directory]));
-    $this->assertSame([], draw_diagram_check([$directory]));
+    $this->assertNotEmpty($directories);
+    $this->assertSame([], draw_diagram_check($directories));
   }
 
   public function testHelpPrintsTheUsage(): void {
@@ -96,8 +98,15 @@ class DrawDiagramTest extends UnitTestCase {
 
     [$exit_code, $output] = $this->runScript(['--check', 'flow.drawio']);
 
+    $export = ': export it with: php scripts/draw-diagram.php --export ' . static::$tmp . '/flow.drawio';
+
     $this->assertSame(1, $exit_code);
-    $this->assertSame('Diagrams and their SVGs disagree:' . PHP_EOL . PHP_EOL . static::$tmp . '/flow.drawio has no SVG: export it with: php scripts/draw-diagram.php --export ' . static::$tmp . '/flow.drawio' . PHP_EOL, $output);
+    $this->assertSame(
+      'Diagrams and their SVGs disagree:' . PHP_EOL . PHP_EOL
+      . static::$tmp . '/flow.drawio has no light SVG' . $export . PHP_EOL
+      . static::$tmp . '/flow.drawio has no dark SVG' . $export . PHP_EOL,
+      $output
+    );
   }
 
   public function testExportExportsEveryDiagram(): void {
@@ -108,12 +117,15 @@ class DrawDiagramTest extends UnitTestCase {
 
     [$exit_code, $output] = $this->runScript(['--export', 'diagrams'], ['DRAWIO_BIN' => $drawio], $this->buildRunner($commands));
 
+    $diagrams = static::$tmp . '/diagrams/';
+    $images = static::$tmp . '/.artifacts/tmp/diagrams/';
+
     $this->assertSame(0, $exit_code);
-    $this->assertCount(4, $commands);
+    $this->assertCount(8, $commands);
     $this->assertSame([], draw_diagram_check([static::$tmp . '/diagrams']));
     $this->assertSame(
-      'Exported ' . static::$tmp . '/diagrams/flow.svg. Review image: ' . static::$tmp . '/.artifacts/tmp/diagrams/flow.png' . PHP_EOL
-      . 'Exported ' . static::$tmp . '/diagrams/layers.svg. Review image: ' . static::$tmp . '/.artifacts/tmp/diagrams/layers.png' . PHP_EOL,
+      'Exported ' . $diagrams . 'flow.svg and ' . $diagrams . 'flow.dark.svg. Review images: ' . $images . 'flow.png and ' . $images . 'flow.dark.png' . PHP_EOL
+      . 'Exported ' . $diagrams . 'layers.svg and ' . $diagrams . 'layers.dark.svg. Review images: ' . $images . 'layers.png and ' . $images . 'layers.dark.png' . PHP_EOL,
       $output
     );
   }
@@ -130,8 +142,10 @@ class DrawDiagramTest extends UnitTestCase {
 
     [$exit_code, $output] = $this->runScript(['--brief=brief.md', 'flow.drawio'], ['DRAWIO_BIN' => $drawio], $this->buildRunner($commands, $lines, 'flow.drawio'));
 
+    $images = static::$tmp . '/.artifacts/tmp/diagrams/';
+
     $this->assertSame(0, $exit_code);
-    $this->assertCount(3, $commands);
+    $this->assertCount(5, $commands);
     $this->assertSame('claude', $commands[0][0]);
     $this->assertStringStartsWith('/drawio-skill Create the draw.io diagram `' . static::$tmp . '/flow.drawio`', end($commands[0]));
     $this->assertSame([], draw_diagram_check([static::$tmp . '/flow.drawio']));
@@ -140,7 +154,7 @@ class DrawDiagramTest extends UnitTestCase {
       . 'Session started on claude-test.' . PHP_EOL
       . '  > Write: flow.drawio' . PHP_EOL
       . PHP_EOL . 'Drew 1 box.' . PHP_EOL . PHP_EOL . 'Session: 3 turns, $0.50.' . PHP_EOL . PHP_EOL
-      . 'Exported ' . static::$tmp . '/flow.svg. Review image: ' . static::$tmp . '/.artifacts/tmp/diagrams/flow.png' . PHP_EOL,
+      . 'Exported ' . static::$tmp . '/flow.svg and ' . static::$tmp . '/flow.dark.svg. Review images: ' . $images . 'flow.png and ' . $images . 'flow.dark.png' . PHP_EOL,
       $output
     );
   }
@@ -323,6 +337,39 @@ class DrawDiagramTest extends UnitTestCase {
 
   public function testSvgPathSitsBesideTheDiagram(): void {
     $this->assertSame('/docs/flow.svg', draw_diagram_svg_path('/docs/flow.drawio'));
+    $this->assertSame('/docs/flow.svg', draw_diagram_svg_path('/docs/flow.drawio', 'light'));
+    $this->assertSame('/docs/flow.dark.svg', draw_diagram_svg_path('/docs/flow.drawio', 'dark'));
+  }
+
+  /**
+   * Assert that an SVG is matched to the diagram it is exported from.
+   *
+   * @param array<int, string> $diagrams
+   *   Diagrams to write, relative to the workspace.
+   * @param string $svg
+   *   The SVG, relative to the workspace.
+   * @param string|null $expected
+   *   The expected diagram, relative to the workspace, or NULL for none.
+   */
+  #[DataProvider('dataProviderFindSource')]
+  public function testFindSource(array $diagrams, string $svg, ?string $expected): void {
+    foreach ($diagrams as $diagram) {
+      $this->writeFixture($diagram, static::DIAGRAM);
+    }
+
+    $this->assertSame($expected === NULL ? NULL : static::$tmp . '/' . $expected, draw_diagram_find_source(static::$tmp . '/' . $svg));
+  }
+
+  public static function dataProviderFindSource(): array {
+    return [
+      'a light export' => [['d/flow.drawio'], 'd/flow.svg', 'd/flow.drawio'],
+      'a dark export' => [['d/flow.drawio'], 'd/flow.dark.svg', 'd/flow.drawio'],
+      'an SVG with no diagram' => [[], 'd/logo.svg', NULL],
+      'a dark SVG with no diagram' => [[], 'd/logo.dark.svg', NULL],
+      'the light export of a diagram named like a dark export' => [['d/night.dark.drawio', 'd/night.drawio'], 'd/night.dark.svg', 'd/night.dark.drawio'],
+      'the dark export of the diagram beside it' => [['d/night.drawio'], 'd/night.dark.svg', 'd/night.drawio'],
+      'a file that is not an SVG' => [['d/flow.drawio'], 'd/flow.png', NULL],
+    ];
   }
 
   public function testFindSkillPrefersTheProjectSkill(): void {
@@ -736,17 +783,22 @@ class DrawDiagramTest extends UnitTestCase {
     ];
   }
 
-  public function testExportWritesTheSvgAndTheReviewImage(): void {
+  public function testExportWritesTheSvgsAndTheReviewImages(): void {
     $diagram = $this->writeFixture('docs/flow.drawio', static::DIAGRAM);
     $commands = [];
 
-    $png = draw_diagram_export($diagram, '/bin/drawio', static::$tmp, $this->buildRunner($commands));
+    $pngs = draw_diagram_export($diagram, '/bin/drawio', static::$tmp, $this->buildRunner($commands));
 
-    $this->assertSame(static::$tmp . '/.artifacts/tmp/diagrams/flow.png', $png);
+    $png = static::$tmp . '/.artifacts/tmp/diagrams/flow.png';
+    $dark_png = static::$tmp . '/.artifacts/tmp/diagrams/flow.dark.png';
+    $this->assertSame([$png, $dark_png], $pngs);
     $this->assertFileExists($png);
+    $this->assertFileExists($dark_png);
     $this->assertSame([
-      ['/bin/drawio', '--export', '--theme', 'light', '--border', '16', '--format', 'svg', '--embed-svg-images', '--output', static::$tmp . '/docs/flow.svg', $diagram],
-      ['/bin/drawio', '--export', '--theme', 'light', '--border', '16', '--format', 'png', '--width', '2000', '--output', $png, $diagram],
+      ['/bin/drawio', '--export', '--border', '16', '--theme', 'light', '--format', 'svg', '--embed-svg-images', '--output', static::$tmp . '/docs/flow.svg', $diagram],
+      ['/bin/drawio', '--export', '--border', '16', '--theme', 'light', '--format', 'png', '--width', '2000', '--output', $png, $diagram],
+      ['/bin/drawio', '--export', '--border', '16', '--theme', 'dark', '--format', 'svg', '--embed-svg-images', '--output', static::$tmp . '/docs/flow.dark.svg', $diagram],
+      ['/bin/drawio', '--export', '--border', '16', '--theme', 'dark', '--format', 'png', '--width', '2000', '--output', $dark_png, $diagram],
     ], $commands);
     $this->assertSame([], draw_diagram_check([$diagram]));
   }
@@ -811,6 +863,36 @@ class DrawDiagramTest extends UnitTestCase {
       'an exit code' => [['exit_code' => 1, 'output' => "Exporting.\n", 'errors' => 'Error: no display'] + $run, TRUE, 'draw.io could not export :svg.' . PHP_EOL . 'Exporting.' . PHP_EOL . 'Error: no display'],
       'a timeout' => [['is_timed_out' => TRUE] + $run, TRUE, 'draw.io could not export :svg.'],
       'no file' => [$run, FALSE, 'draw.io could not export :svg.'],
+    ];
+  }
+
+  /**
+   * Assert that an export in a theme draw.io ignored is reported.
+   *
+   * @param string $svg
+   *   The SVG draw.io writes for every export.
+   * @param string $expected_message
+   *   The expected message, with ':tmp' for the workspace.
+   */
+  #[DataProvider('dataProviderExportReportsAnIgnoredTheme')]
+  public function testExportReportsAnIgnoredTheme(string $svg, string $expected_message): void {
+    $diagram = $this->writeFixture('flow.drawio', static::DIAGRAM);
+    $runner = function (array $command) use ($svg): array {
+      $this->writeFixture($this->findOutput($command), $svg);
+
+      return ['exit_code' => 0, 'output' => '', 'errors' => '', 'is_timed_out' => FALSE];
+    };
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(str_replace(':tmp', static::$tmp, $expected_message));
+
+    draw_diagram_export($diagram, '/bin/drawio', static::$tmp, $runner);
+  }
+
+  public static function dataProviderExportReportsAnIgnoredTheme(): array {
+    return [
+      'no color scheme' => [static::SVG, 'draw.io ignored "--theme light" when it exported :tmp/flow.svg. Update draw.io desktop to a release that supports "--theme".'],
+      'the light color scheme for both' => [str_replace('<svg ', '<svg style="color-scheme: light;" ', static::SVG), 'draw.io ignored "--theme dark" when it exported :tmp/flow.dark.svg. Update draw.io desktop to a release that supports "--theme".'],
     ];
   }
 
@@ -902,11 +984,11 @@ class DrawDiagramTest extends UnitTestCase {
   }
 
   /**
-   * Assert that every disagreement between a diagram and its SVG is found.
+   * Assert that every disagreement between a diagram and its SVGs is found.
    *
    * @param array<string, string> $files
-   *   Files to write, keyed by path relative to the workspace, with ':stamp'
-   *   standing for the marker of the diagram beside the file.
+   *   Files to write, keyed by path relative to the workspace, with
+   *   ':stamp(<diagram>)' standing for the marker of that diagram.
    * @param array<int, string> $paths
    *   The paths to check, relative to the workspace.
    * @param array<int, string> $expected
@@ -914,9 +996,13 @@ class DrawDiagramTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderCheck')]
   public function testCheck(array $files, array $paths, array $expected): void {
-    foreach ($files as $path => $contents) {
-      $diagram = static::$tmp . '/' . substr($path, 0, -strlen('.svg')) . '.drawio';
-      $this->writeFixture($path, str_contains($contents, ':stamp') ? str_replace(':stamp', draw_diagram_marker($diagram), $contents) : $contents);
+    // A marker hashes its diagram, so the diagrams go first.
+    foreach (array_filter($files, static fn(string $path): bool => str_ends_with($path, '.drawio'), ARRAY_FILTER_USE_KEY) as $path => $contents) {
+      $this->writeFixture($path, $contents);
+    }
+
+    foreach (array_filter($files, static fn(string $path): bool => !str_ends_with($path, '.drawio'), ARRAY_FILTER_USE_KEY) as $path => $contents) {
+      $this->writeFixture($path, (string) preg_replace_callback('/:stamp\(([^)]+)\)/', static fn(array $matches): string => draw_diagram_marker(static::$tmp . '/' . $matches[1]), $contents));
     }
 
     $absolute_paths = array_map(static fn(string $path): string => static::$tmp . '/' . $path, $paths);
@@ -925,39 +1011,50 @@ class DrawDiagramTest extends UnitTestCase {
   }
 
   public static function dataProviderCheck(): array {
-    $stamped = str_replace('<svg ', ":stamp\n<svg ", static::SVG);
+    $stamped = static fn(string $diagram): string => str_replace('<svg ', ':stamp(' . $diagram . ")\n<svg ", static::SVG);
+    $marked = static fn(string $diagram, string $contents): string => str_replace('<svg ', '<!-- Exported by scripts/draw-diagram.php from ' . $diagram . ' with sha256 ' . hash('sha256', $contents) . ". -->\n<svg ", static::SVG);
     $export = ': export it with: php scripts/draw-diagram.php --export :tmp/d/flow.drawio';
+    $exported = ['d/flow.drawio' => static::DIAGRAM, 'd/flow.svg' => $stamped('d/flow.drawio'), 'd/flow.dark.svg' => $stamped('d/flow.drawio')];
 
     return [
-      'a diagram and its SVG' => [['d/flow.drawio' => static::DIAGRAM, 'd/flow.svg' => $stamped], ['d'], []],
+      'a diagram and both its SVGs' => [$exported, ['d'], []],
       'a missing diagram' => [[], ['d/flow.drawio'], [':tmp/d/flow.drawio does not exist.']],
       'a diagram unfit to export' => [
-        ['d/flow.drawio' => '<mxfile/>', 'd/flow.svg' => $stamped],
+        ['d/flow.drawio' => '<mxfile/>'] + $exported,
         ['d/flow.drawio'],
         [':tmp/d/flow.drawio is not a draw.io file: it holds no <mxfile> with a <diagram>.'],
       ],
-      'a diagram without SVG' => [['d/flow.drawio' => static::DIAGRAM], ['d'], [':tmp/d/flow.drawio has no SVG' . $export]],
-      'an SVG exported elsewhere' => [['d/flow.drawio' => static::DIAGRAM, 'd/flow.svg' => static::SVG], ['d'], [':tmp/d/flow.svg was not exported by scripts/draw-diagram.php' . $export]],
+      'a diagram without SVGs' => [['d/flow.drawio' => static::DIAGRAM], ['d'], [':tmp/d/flow.drawio has no light SVG' . $export, ':tmp/d/flow.drawio has no dark SVG' . $export]],
+      'a diagram without its dark SVG' => [
+        ['d/flow.drawio' => static::DIAGRAM, 'd/flow.svg' => $stamped('d/flow.drawio')],
+        ['d'],
+        [':tmp/d/flow.drawio has no dark SVG' . $export],
+      ],
+      'an SVG exported elsewhere' => [['d/flow.svg' => static::SVG] + $exported, ['d'], [':tmp/d/flow.svg was not exported by scripts/draw-diagram.php' . $export]],
+      'a dark SVG exported elsewhere' => [['d/flow.dark.svg' => static::SVG] + $exported, ['d'], [':tmp/d/flow.dark.svg was not exported by scripts/draw-diagram.php' . $export]],
       'an SVG exported from another diagram' => [
-        ['d/flow.drawio' => static::DIAGRAM, 'd/flow.svg' => str_replace('<svg ', '<!-- Exported by scripts/draw-diagram.php from other.drawio with sha256 ' . hash('sha256', static::DIAGRAM) . ". -->\n<svg ", static::SVG)],
+        ['d/flow.svg' => $marked('other.drawio', static::DIAGRAM)] + $exported,
         ['d'],
         [':tmp/d/flow.svg is out of date with :tmp/d/flow.drawio' . $export],
       ],
       'an SVG exported from an earlier version' => [
-        ['d/flow.drawio' => static::DIAGRAM, 'd/flow.svg' => str_replace('<svg ', '<!-- Exported by scripts/draw-diagram.php from flow.drawio with sha256 ' . hash('sha256', '<mxfile/>') . ". -->\n<svg ", static::SVG)],
+        ['d/flow.svg' => $marked('flow.drawio', '<mxfile/>')] + $exported,
         ['d'],
         [':tmp/d/flow.svg is out of date with :tmp/d/flow.drawio' . $export],
       ],
-      'an SVG without a diagram' => [
-        ['d/flow.drawio' => static::DIAGRAM, 'd/flow.svg' => $stamped, 'd/logo.svg' => static::SVG],
+      'a dark SVG exported from an earlier version' => [
+        ['d/flow.dark.svg' => $marked('flow.drawio', '<mxfile/>')] + $exported,
         ['d'],
-        [':tmp/d/logo.svg has no .drawio source beside it.'],
+        [':tmp/d/flow.dark.svg is out of date with :tmp/d/flow.drawio' . $export],
       ],
-      'an SVG without a diagram outside the checked directory' => [
-        ['d/flow.drawio' => static::DIAGRAM, 'd/flow.svg' => $stamped, 'd/logo.svg' => static::SVG],
-        ['d/flow.drawio'],
+      'an SVG without a diagram' => [$exported + ['d/logo.svg' => static::SVG], ['d'], [':tmp/d/logo.svg has no .drawio source beside it.']],
+      'a dark SVG without a diagram' => [$exported + ['d/logo.dark.svg' => static::SVG], ['d'], [':tmp/d/logo.dark.svg has no .drawio source beside it.']],
+      'a diagram named like a dark export' => [
+        ['d/night.dark.drawio' => static::DIAGRAM, 'd/night.dark.svg' => $stamped('d/night.dark.drawio'), 'd/night.dark.dark.svg' => $stamped('d/night.dark.drawio')],
+        ['d'],
         [],
       ],
+      'an SVG without a diagram outside the checked directory' => [$exported + ['d/logo.svg' => static::SVG], ['d/flow.drawio'], []],
     ];
   }
 
@@ -1012,7 +1109,8 @@ class DrawDiagramTest extends UnitTestCase {
 
       if ($command[0] !== 'claude') {
         $target = $this->findOutput($command);
-        $this->writeFixture($target, str_ends_with($target, '.svg') ? static::SVG : 'PNG');
+        $theme = $command[(int) array_search('--theme', $command, TRUE) + 1];
+        $this->writeFixture($target, str_ends_with($target, '.svg') ? str_replace('<svg ', '<svg style="color-scheme: ' . $theme . ';" ', static::SVG) : 'PNG');
 
         return ['exit_code' => 0, 'output' => '', 'errors' => '', 'is_timed_out' => FALSE];
       }
@@ -1061,16 +1159,17 @@ class DrawDiagramTest extends UnitTestCase {
   }
 
   /**
-   * Write a diagram and the SVG exported from it.
+   * Write a diagram and the SVGs exported from it.
    *
    * @param string $path
    *   The diagram, relative to the workspace.
    */
   protected function writeExportedDiagram(string $path): void {
     $diagram = $this->writeFixture($path, static::DIAGRAM);
-    $svg = $this->writeFixture(substr($path, 0, -strlen('.drawio')) . '.svg', static::SVG);
 
-    draw_diagram_stamp($svg, $diagram);
+    foreach (array_keys(DRAW_DIAGRAM_THEMES) as $theme) {
+      draw_diagram_stamp($this->writeFixture(draw_diagram_svg_path($path, $theme), static::SVG), $diagram);
+    }
   }
 
   /**

@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # JavaScript errors
 
-`DrevOps\BehatSteps\Steps\Web\JavascriptTrait` - [Source](../../../src/Steps/Web/JavascriptTrait.php), [Example](../../../tests/behat/features/javascript.feature), [Helpers](../web-helpers/javascript.md)
+`DrevOps\BehatSteps\Steps\Web\JavascriptTrait` - [Source](../../../src/Steps/Web/JavascriptTrait.php), [Example](../../../tests/behat/features/javascript.feature), [Helpers](../../../HELPERS.md#javascripttrait)
 
 >  Automatically detect JavaScript errors during test execution.
 >  - Collects JavaScript errors from `window.onerror`, `unhandledrejection`

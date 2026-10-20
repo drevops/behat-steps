@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Testmode
 
-`DrevOps\BehatSteps\Steps\Drupal\TestmodeTrait` - [Source](../../../src/Steps/Drupal/TestmodeTrait.php), [Example](../../../tests/behat/features/drupal_testmode.feature), [Helpers](../drupal-helpers/testmode.md)
+`DrevOps\BehatSteps\Steps\Drupal\TestmodeTrait` - [Source](../../../src/Steps/Drupal/TestmodeTrait.php), [Example](../../../tests/behat/features/drupal_testmode.feature), [Helpers](../../../HELPERS.md#drupaltestmodetrait)
 
 >  Configure Drupal Testmode module for controlled testing scenarios.
 >  <br/><br/>

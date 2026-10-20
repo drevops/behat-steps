@@ -104,7 +104,7 @@ const features = (counts) => [
     icon: 'code',
     title: 'Helpers behind every step',
     text: 'Each step is a thin wrapper over a named helper, so a step of your own reuses the same code.',
-    to: '/web-helpers',
+    to: '/concepts#helpers-behind-every-step',
   },
   {
     icon: 'layers',
@@ -175,11 +175,11 @@ const STEPS = [
     name: 'install command',
   },
   {
-    title: 'Register a context',
+    title: 'Create your context',
     text: (
       <>
-        Add <code>WebContext</code>, or <code>DrupalContext</code> for a Drupal site, and the extension to your <code>behat.php</code>.{' '}
-        <Link to="/quick-start#2-enable-the-extension">See the whole file</Link>.
+        Extend <code>WebContext</code>, or <code>DrupalContext</code> for a Drupal site, in your <code>FeatureContext</code>, and register it with the extension in <code>behat.php</code>.{' '}
+        <Link to="/quick-start#3-create-your-context-and-configuration">See both files</Link>.
       </>
     ),
   },
@@ -195,7 +195,7 @@ const DOCS = [
   { icon: 'info', title: 'Introduction', text: 'What Behat Steps is and how it fits together.', to: '/introduction' },
   { icon: 'download', title: 'Installation', text: 'The package, its optional dependencies and the browser drivers.', to: '/installation' },
   { icon: 'zap', title: 'Quick start', text: 'From an empty behat.php to a first scenario.', to: '/quick-start' },
-  { icon: 'book', title: 'Usage', text: 'The 3 entry points, trait options and the cleanup after each scenario.', to: '/guides/usage' },
+  { icon: 'book', title: 'Usage', text: 'Trait options, switching a check off and the cleanup after each scenario.', to: '/guides/usage' },
   { icon: 'sliders', title: 'Configuration', text: 'Suites, extension options, backends, tags and environment variables.', to: '/guides/configuration' },
   { icon: 'package', title: 'Extending', text: 'Steps, extension points and backends of your own.', to: '/extending' },
   { icon: 'refresh', title: 'Migrating from 3.x', text: 'Upgrade by hand or with an AI coding agent.', to: '/migrating' },
@@ -304,7 +304,7 @@ const Stats = ({ counts }) => {
   const stats = [
     { value: counts.webSteps.entries + counts.drupalSteps.entries, label: 'Steps, each with an example' },
     { value: counts.webSteps.pages + counts.drupalSteps.pages, label: 'Traits for web and Drupal' },
-    { value: counts.webHelpers.entries + counts.drupalHelpers.entries, label: 'Helpers for steps of your own' },
+    { value: counts.helpers.entries, label: 'Helpers for steps of your own' },
     { value: '2018', label: 'Released since' },
   ];
 

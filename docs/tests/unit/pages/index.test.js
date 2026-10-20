@@ -5,41 +5,15 @@ import { act, cleanup, render, screen, within } from '@testing-library/react';
 import { usePluginData } from '@docusaurus/useGlobalData';
 import { isStep } from '../../../src/components/FeatureFile';
 import Home, { BEHAT_VERSIONS, DRUPAL_VERSIONS, FEATURE_FILES, INSTALL_COMMAND, PHP_VERSIONS, RUN_COMMAND, WORKS_WITH, listOf, useReveal } from '../../../src/pages';
+import { shippedSteps } from '../stepPatterns';
 
 const ROOT = path.join(__dirname, '..', '..', '..', '..');
 
 const COUNTS = {
   webSteps: { pages: 28, entries: 220 },
   drupalSteps: { pages: 29, entries: 229 },
-  webHelpers: { pages: 30, entries: 150 },
-  drupalHelpers: { pages: 29, entries: 173 },
+  helpers: { entries: 323 },
 };
-
-// A Behat turnip pattern as a regular expression: a ':name' placeholder takes
-// a quoted string or a single word, '(s)' is optional and 'a/b' is either.
-const turnip = (pattern) => {
-  const escape = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const source = pattern.split(/(:\w+|\([^)]+\)|\w+\/\w+)/).map((part) => {
-    if (/^:\w+$/.test(part)) {
-      return '(?:"[^"]*"|\'[^\']*\'|-?[\\w.,]+)';
-    }
-
-    if (/^\([^)]+\)$/.test(part)) {
-      return `(?:${escape(part.slice(1, -1))})?`;
-    }
-
-    if (/^\w+\/\w+$/.test(part)) {
-      return `(?:${part.split('/').map(escape).join('|')})`;
-    }
-
-    return escape(part);
-  }).join('');
-
-  return new RegExp(`^${source}$`);
-};
-
-// Every step pattern the library ships, without its keyword.
-const shippedSteps = () => Array.from(fs.readFileSync(path.join(ROOT, 'STEPS.md'), 'utf8').matchAll(/<summary><code>@(?:Given|When|Then) ([^<]+)<\/code>/g), (match) => turnip(match[1].replaceAll('&quot;', '"')));
 
 // Records what the hook observes, and plays the entries a test passes it.
 class FakeObserver {
@@ -148,7 +122,7 @@ describe('Home', () => {
   test.each([
     ['Web steps', '/web-steps'],
     ['Drupal steps', '/drupal-steps'],
-    ['Helpers behind every step', '/web-helpers'],
+    ['Helpers behind every step', '/concepts#helpers-behind-every-step'],
     ['Backends by capability', '/guides/configuration#backend-resolution'],
     ['Browser drivers', '/installation#javascript-browser-drivers'],
     ['Cleanup after each scenario', '/guides/usage#entities-a-scenario-creates'],
@@ -177,7 +151,7 @@ describe('Home', () => {
 
   test.each([
     ['Install the package', 'Installation', '/installation#optional-dependencies'],
-    ['Register a context', 'See the whole file', '/quick-start#2-enable-the-extension'],
+    ['Create your context', 'See both files', '/quick-start#3-create-your-context-and-configuration'],
   ])('links the docs from the step "%s"', (step, name, href) => {
     render(<Home />);
 

@@ -82,7 +82,6 @@ use Symfony\Component\Config\Definition\ScalarNode;
 #[CoversFunction('render_helpers')]
 #[CoversFunction('render_helper_index')]
 #[CoversFunction('render_helper_section')]
-#[CoversFunction('render_helper_pages')]
 #[CoversFunction('render_helper_links')]
 #[CoversFunction('render_helper_details')]
 #[CoversFunction('render_step_index')]
@@ -93,7 +92,6 @@ use Symfony\Component\Config\Definition\ScalarNode;
 #[CoversFunction('render_class_description')]
 #[CoversFunction('render_titled')]
 #[CoversFunction('render_front_matter')]
-#[CoversFunction('page_section')]
 #[CoversFunction('page_directory')]
 #[CoversFunction('reference_page')]
 #[CoversFunction('page_positions')]
@@ -3852,7 +3850,7 @@ EOD,
       'a source file from a nested page' => ['docs/content/web-steps/cookie.md', 'src/Steps/Web/CookieTrait.php', '../../../src/Steps/Web/CookieTrait.php'],
       'a page in the same directory' => ['docs/content/web-steps/cookie.md', 'docs/content/web-steps/field.md', 'field.md'],
       'a page in a child directory' => ['docs/content/README.md', 'docs/content/web-steps/cookie.md', 'web-steps/cookie.md'],
-      'a page in a sibling directory' => ['docs/content/web-helpers/cookie.md', 'docs/content/web-steps/cookie.md', '../web-steps/cookie.md'],
+      'a page in a sibling directory' => ['docs/content/drupal-steps/user.md', 'docs/content/web-steps/cookie.md', '../web-steps/cookie.md'],
       'a page in the parent directory' => ['docs/content/guides/configuration.md', 'docs/content/README.md', '../README.md'],
       'a page from the repository root' => ['README.md', 'docs/content/web-steps/README.md', 'docs/content/web-steps/README.md'],
       'a root file from a nested page' => ['docs/content/web-steps/cookie.md', 'README.md', '../../../README.md'],
@@ -3936,7 +3934,7 @@ EOD);
     $this->assertArrayNotHasKey('BareHelperTrait', extract_helpers([], [], static::$tmp));
   }
 
-  public function testExtractHelpersPublishesToolboxClasses(): void {
+  public function testExtractHelpersPublishesHelperClasses(): void {
     $setup = $this->setUpExtractInfoTest(['HelperSampleTrait']);
 
     /** @var class-string $class_name */
@@ -3944,9 +3942,9 @@ EOD);
     $actual = extract_helpers([$class_name], [], $setup['base_path']);
 
     $this->assertArrayHasKey('WebRawContext', $actual);
-    $this->assertSame('Toolbox', $actual['WebRawContext']['context']);
+    $this->assertSame('Root context', $actual['WebRawContext']['context']);
     $this->assertSame(WebRawContext::class, $actual['WebRawContext']['class']);
-    $this->assertSame('Root context', $actual['WebRawContext']['title']);
+    $this->assertSame('Root context carrying the plumbing every suite needs.', $actual['WebRawContext']['description']);
     $this->assertNull($actual['WebRawContext']['steps_anchor']);
     $this->assertSame('src/WebRawContext.php', $actual['WebRawContext']['source']);
 
@@ -3967,7 +3965,7 @@ EOD);
 
     $this->assertSame('Web', $actual['RequestHeadersTrait']['context']);
     $this->assertSame(RequestHeadersTrait::class, $actual['RequestHeadersTrait']['class']);
-    $this->assertSame('Request headers', $actual['RequestHeadersTrait']['title']);
+    $this->assertSame('Holds the request headers shared by the traits that issue HTTP requests.', $actual['RequestHeadersTrait']['description']);
     $this->assertNull($actual['RequestHeadersTrait']['steps_anchor']);
     $this->assertSame('src/Steps/Helper/Web/RequestHeadersTrait.php', $actual['RequestHeadersTrait']['source']);
     $this->assertSame(['requestHeadersSet'], array_column($actual['RequestHeadersTrait']['helpers'], 'name'));
@@ -4097,23 +4095,14 @@ EOD);
       'SomeTrait' => ['name_contextual' => 'SomeTrait', 'title' => 'Some things'],
       'OtherTrait' => ['name_contextual' => 'Drupal\\OtherTrait'],
     ];
-    $helpers = [
-      'OtherTrait' => ['name_contextual' => 'Drupal\\OtherTrait'],
-      'WebRawContext' => ['name_contextual' => 'WebRawContext'],
-    ];
 
-    // A trait with both steps and helpers is reported once.
     $this->assertSame([
-      '  Drupal\\OtherTrait - Class comment has no "@title" naming its pages on the documentation site' . PHP_EOL,
-      '  WebRawContext - Class comment has no "@title" naming its pages on the documentation site' . PHP_EOL,
-    ], validate_titles($info, $helpers));
+      '  Drupal\\OtherTrait - Class comment has no "@title" naming its page on the documentation site' . PHP_EOL,
+    ], validate_titles($info));
   }
 
   public function testValidateTitlesFromSource(): void {
-    $contexts = [WebContext::class, DrupalContext::class];
-    $base_path = dirname(__DIR__, 3);
-
-    $this->assertSame([], validate_titles(extract_info($contexts, [], $base_path), extract_helpers($contexts, [], $base_path)));
+    $this->assertSame([], validate_titles(extract_info([WebContext::class, DrupalContext::class], [], dirname(__DIR__, 3))));
   }
 
   public function testRenderHelpers(): void {
@@ -4183,43 +4172,27 @@ EOD);
     ], static::$tmp);
   }
 
-  #[DataProvider('dataProviderPageSection')]
-  public function testPageSection(string $context, string $expected): void {
-    $this->assertSame($expected, page_section($context));
-  }
-
-  public static function dataProviderPageSection(): array {
-    return [
-      'the generic context' => ['Web', 'Web'],
-      'another context' => ['Drupal', 'Drupal'],
-      'the toolbox' => ['Toolbox', 'Web'],
-    ];
-  }
-
   #[DataProvider('dataProviderPageDirectory')]
-  public function testPageDirectory(string $kind, string $context, string $expected): void {
-    $this->assertSame($expected, page_directory($kind, $context));
+  public function testPageDirectory(string $context, string $expected): void {
+    $this->assertSame($expected, page_directory($context));
   }
 
   public static function dataProviderPageDirectory(): array {
     return [
-      'the steps of the generic context' => ['steps', 'Web', 'docs/content/web-steps'],
-      'the helpers of another context' => ['helpers', 'Drupal', 'docs/content/drupal-helpers'],
-      'the toolbox' => ['helpers', 'Toolbox', 'docs/content/web-helpers'],
+      'the generic context' => ['Web', 'docs/content/web-steps'],
+      'another context' => ['Drupal', 'docs/content/drupal-steps'],
     ];
   }
 
   #[DataProvider('dataProviderReferencePage')]
-  public function testReferencePage(string $kind, string $context, string $name, string $expected): void {
-    $this->assertSame($expected, reference_page($kind, $context, $name));
+  public function testReferencePage(string $context, string $name, string $expected): void {
+    $this->assertSame($expected, reference_page($context, $name));
   }
 
   public static function dataProviderReferencePage(): array {
     return [
-      'a trait of the generic context' => ['steps', 'Web', 'AccessibilityTrait', 'docs/content/web-steps/accessibility.md'],
-      'a trait named in several words' => ['steps', 'Drupal', 'BigPipeTrait', 'docs/content/drupal-steps/big-pipe.md'],
-      'the helpers of a trait' => ['helpers', 'Drupal', 'BigPipeTrait', 'docs/content/drupal-helpers/big-pipe.md'],
-      'a class of the toolbox' => ['helpers', 'Toolbox', 'WebRawContext', 'docs/content/web-helpers/web-raw-context.md'],
+      'a trait of the generic context' => ['Web', 'AccessibilityTrait', 'docs/content/web-steps/accessibility.md'],
+      'a trait named in several words' => ['Drupal', 'BigPipeTrait', 'docs/content/drupal-steps/big-pipe.md'],
     ];
   }
 
@@ -4228,23 +4201,20 @@ EOD);
       'SomeTrait' => ['context' => 'Web', 'title' => 'Zebras'],
       'AnotherTrait' => ['context' => 'Web', 'title' => 'apples'],
       'OtherTrait' => ['context' => 'Drupal', 'title' => 'Mangoes'],
-      'WebRawContext' => ['context' => 'Toolbox', 'title' => 'Root context'],
     ];
 
-    // Positions follow the title within each section, ignoring case, and the
-    // toolbox is numbered with the generic context.
-    $this->assertSame(['AnotherTrait' => 1, 'WebRawContext' => 2, 'SomeTrait' => 3, 'OtherTrait' => 1], page_positions('helpers', $info));
+    // Positions follow the title within each section, ignoring case.
+    $this->assertSame(['AnotherTrait' => 1, 'SomeTrait' => 2, 'OtherTrait' => 1], page_positions($info));
   }
 
   #[DataProvider('dataProviderRenderPageIndexes')]
-  public function testRenderPageIndexes(string $kind, array $info, array $expected): void {
-    $this->assertSame($expected, render_page_indexes($kind, $info));
+  public function testRenderPageIndexes(array $info, array $expected): void {
+    $this->assertSame($expected, render_page_indexes($info));
   }
 
   public static function dataProviderRenderPageIndexes(): array {
     return [
       'steps, by title within each section' => [
-        'steps',
         [
           'SomeTrait' => ['name' => 'SomeTrait', 'name_contextual' => 'SomeTrait', 'context' => 'Web', 'title' => 'Some things', 'description' => 'Do the thing.'],
           'AnotherTrait' => ['name' => 'AnotherTrait', 'name_contextual' => 'AnotherTrait', 'context' => 'Web', 'title' => 'Another thing', 'description' => 'Do another thing.'],
@@ -4261,21 +4231,6 @@ EOD);
             '| Name | Trait | Description |',
             '| --- | --- | --- |',
             '| [Other things](other.md) | `Drupal\\OtherTrait` | Do the Drupal thing. |',
-          ]),
-        ],
-      ],
-      'helpers, with the toolbox in the generic section' => [
-        'helpers',
-        [
-          'SomeTrait' => ['name' => 'SomeTrait', 'name_contextual' => 'SomeTrait', 'context' => 'Web', 'title' => 'Some things', 'description' => 'Do the thing.', 'helpers' => [['name' => 'someValue'], ['name' => 'someOther']]],
-          'WebRawContext' => ['name' => 'WebRawContext', 'name_contextual' => 'WebRawContext', 'context' => 'Toolbox', 'title' => 'Root context', 'description' => 'Root context.', 'helpers' => [['name' => 'rawValue']]],
-        ],
-        [
-          'docs/content/web-helpers/README.md' => implode(PHP_EOL, [
-            '| Name | Class | Helpers | Description |',
-            '| --- | --- | --- | --- |',
-            '| [Root context](web-raw-context.md) | `WebRawContext` | 1 | Root context. |',
-            '| [Some things](some.md) | `SomeTrait` | 2 | Do the thing. |',
           ]),
         ],
       ],
@@ -4404,7 +4359,7 @@ EOD);
         'methods' => [],
       ],
     ];
-    $helpers = ['SomeTrait' => ['name' => 'SomeTrait', 'context' => 'Web']];
+    $helpers = ['SomeTrait' => ['name' => 'SomeTrait', 'name_contextual' => 'SomeTrait', 'context' => 'Web']];
 
     $actual = render_step_pages($info, $helpers, static::$tmp);
 
@@ -4421,7 +4376,7 @@ EOD);
       '',
       '# Some things',
       '',
-      '`DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait` - [Source](../../../src/Steps/Web/SomeTrait.php), [Example](../../../tests/behat/features/some.feature), [Helpers](../web-helpers/some.md)',
+      '`DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait` - [Source](../../../src/Steps/Web/SomeTrait.php), [Example](../../../tests/behat/features/some.feature), [Helpers](../../../HELPERS.md#sometrait)',
       '',
       '>  Replace `{{ Key }}` tokens.',
       '',
@@ -4489,7 +4444,7 @@ EOD);
 
   public function testRenderHelperIndex(): void {
     $info = [
-      'WebRawContext' => ['name' => 'WebRawContext', 'name_contextual' => 'WebRawContext', 'context' => 'Toolbox', 'description' => 'Root context.', 'helpers' => [['name' => 'rawValue']]],
+      'WebRawContext' => ['name' => 'WebRawContext', 'name_contextual' => 'WebRawContext', 'context' => 'Root context', 'description' => 'Root context.', 'helpers' => [['name' => 'rawValue']]],
       'SomeTrait' => ['name' => 'SomeTrait', 'name_contextual' => 'SomeTrait', 'context' => 'Web', 'description' => 'Do the thing.', 'helpers' => [['name' => 'someValue'], ['name' => 'someOther']]],
     ];
 
@@ -4502,7 +4457,7 @@ EOD);
       '| --- | --- | --- |',
       '| [SomeTrait](#SomeTrait) | 2 | Do the thing. |',
       '',
-      '## Index of Toolbox helpers',
+      '## Index of Root context helpers',
       '',
       '| Class | Helpers | Description |',
       '| --- | --- | --- |',
@@ -4512,114 +4467,19 @@ EOD);
     ]), $actual);
   }
 
-  public function testRenderHelperPages(): void {
-    $this->writeFixture(STEPS_DIRECTORY . '/Web/SomeTrait.php', '<?php');
-    $this->writeFixture('src/WebRawContext.php', '<?php');
-
-    $info = [
-      'SomeTrait' => [
-        'name' => 'SomeTrait',
-        'name_contextual' => 'SomeTrait',
-        'class' => 'DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait',
-        'context' => 'Web',
-        'title' => 'Some things',
-        'source' => 'src/Steps/Web/SomeTrait.php',
-        'steps_anchor' => 'sometrait',
-        'description' => 'Do the `generic` thing.',
-        'helpers' => [
-          ['name' => 'someValue', 'signature' => 'public function someValue(): string', 'description' => 'Read the value.', 'example' => '$this->someValue();'],
-        ],
-      ],
-      'WebRawContext' => [
-        'name' => 'WebRawContext',
-        'name_contextual' => 'WebRawContext',
-        'class' => WebRawContext::class,
-        'context' => 'Toolbox',
-        'title' => 'Root context',
-        'source' => 'src/WebRawContext.php',
-        'steps_anchor' => NULL,
-        'description' => 'Root context.',
-        'helpers' => [
-          ['name' => 'rawValue', 'signature' => 'public function rawValue(): void', 'description' => 'Write the value.', 'example' => ''],
-        ],
-      ],
-    ];
-
-    $actual = render_helper_pages($info, static::$tmp);
-
-    $this->assertSame(['docs/content/web-helpers/some.md', 'docs/content/web-helpers/web-raw-context.md'], array_keys($actual));
-
-    $this->assertSame(implode(PHP_EOL, [
-      '---',
-      'title: "Some things - Web helpers"',
-      'sidebar_label: "Some things"',
-      'sidebar_position: 2',
-      'description: "Do the generic thing."',
-      'custom_edit_url: null',
-      '---',
-      '',
-      '# Some things',
-      '',
-      '`DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait` - [Source](../../../src/Steps/Web/SomeTrait.php), [Steps](../web-steps/some.md)',
-      '',
-      '> Do the `generic` thing.',
-      '',
-      '<details>',
-      '  <summary><code>public function someValue(): string</code></summary>',
-      '',
-      '<br/>',
-      'Read the value',
-      '<br/><br/>',
-      '',
-      '```',
-      '$this->someValue();',
-      '```',
-      '',
-      '</details>',
-      '',
-    ]), $actual['docs/content/web-helpers/some.md']);
-
-    // The toolbox page is in the generic section, positioned by its title. A
-    // class with no steps links only its source, and a helper with no example
-    // renders no code block.
-    $toolbox = $actual['docs/content/web-helpers/web-raw-context.md'];
-    $this->assertStringContainsString('title: "Root context - Web helpers"' . PHP_EOL . 'sidebar_label: "Root context"' . PHP_EOL . 'sidebar_position: 1' . PHP_EOL, $toolbox);
-    $this->assertStringContainsString('# Root context' . PHP_EOL . PHP_EOL . '`DrevOps\\BehatSteps\\WebRawContext` - [Source](../../../src/WebRawContext.php)' . PHP_EOL, $toolbox);
-    $this->assertStringNotContainsString('```', $toolbox);
-  }
-
-  public function testRenderHelperPagesThrowsOnMissingSource(): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage(sprintf('Source file %s/src/Steps/Web/MissingTrait.php does not exist', static::$tmp));
-
-    render_helper_pages([
-      'SomeTrait' => [
-        'name' => 'SomeTrait',
-        'name_contextual' => 'SomeTrait',
-        'class' => 'DrevOps\\BehatSteps\\Steps\\Web\\SomeTrait',
-        'context' => 'Web',
-        'title' => 'Some things',
-        'source' => 'src/Steps/Web/MissingTrait.php',
-        'steps_anchor' => 'sometrait',
-        'description' => 'Do the thing.',
-        'helpers' => [],
-      ],
-    ], static::$tmp);
-  }
-
   public function testStalePages(): void {
     $this->writeFixture('docs/content/web-steps/README.md', 'Index');
     $this->writeFixture('docs/content/web-steps/_category_.json', '{}');
     $this->writeFixture('docs/content/web-steps/some.md', 'Some');
     $this->writeFixture('docs/content/web-steps/gone.md', 'Gone');
-    $this->writeFixture('docs/content/drupal-helpers/gone.md', 'Gone');
+    $this->writeFixture('docs/content/drupal-steps/gone.md', 'Gone');
     $this->writeFixture('docs/content/guides/usage.md', 'Usage');
 
     $actual = stale_pages(static::$tmp, ['docs/content/web-steps/some.md' => 'Some']);
 
     // Only a page in a section directory is generated, so the index, the
     // category file and a page anywhere else are never stale.
-    $this->assertSame(['docs/content/drupal-helpers/gone.md', 'docs/content/web-steps/gone.md'], $actual);
+    $this->assertSame(['docs/content/drupal-steps/gone.md', 'docs/content/web-steps/gone.md'], $actual);
   }
 
   public function testStalePagesWithoutTheDirectory(): void {

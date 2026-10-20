@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Email
 
-`DrevOps\BehatSteps\Steps\Drupal\EmailTrait` - [Source](../../../src/Steps/Drupal/EmailTrait.php), [Example](../../../tests/behat/features/drupal_email.feature), [Helpers](../drupal-helpers/email.md)
+`DrevOps\BehatSteps\Steps\Drupal\EmailTrait` - [Source](../../../src/Steps/Drupal/EmailTrait.php), [Example](../../../tests/behat/features/drupal_email.feature), [Helpers](../../../HELPERS.md#drupalemailtrait)
 
 >  Test Drupal email functionality with content verification.
 >  - Capture and examine outgoing emails with header and body validation.

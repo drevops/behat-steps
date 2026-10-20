@@ -1,27 +1,27 @@
 ---
 title: Extending
 sidebar_position: 7
-description: What each of the 3 layers lets a project extend, which page covers it, and what semantic versioning covers for each extension point.
+description: What each of the 3 layers lets you extend, which page covers it, and what semantic versioning covers for each extension point.
 ---
 
 # Extending
 
-Behat Steps ships 3 layers, and each one takes code of your own where the shipped behavior stops short of what your suite needs. This section has 1 page per layer, and [Architecture](../architecture/README.md#logical-architecture) shows how the layers stack.
+Behat Steps ships 3 layers, and each one takes code of your own where the shipped behavior stops short of what your suite needs. [Logical architecture](../architecture/logical-architecture.md) shows how the layers stack. This section has 1 page per layer:
 
 | Layer | What you extend | Page |
 | --- | --- | --- |
-| The step vocabulary: `src/Steps` and the 3 contexts | Steps of your own, a trait's seams, a context's HTTP client, options for a trait of your own, and inherited steps and hooks | [Extending the step vocabulary](steps.md) |
-| The extension layer: `src/Extension` | The HTTP client factory, browser adapters, the registries and authenticators, and option resolution | [Extending the extension layer](extension.md) |
-| The backend layer: `src/Backend` | Field handlers, creation aliases, the Core of the `drupal` backend, and a backend of your own | [Extending the backend layer](backend.md) |
+| The step vocabulary: `src/Steps` and the 3 contexts | Steps of your own, a trait's seams, a context's HTTP client, options for a trait of your own and inherited steps or hooks | [Extending the step vocabulary](steps.md) |
+| The extension layer: `src/Extension` | The HTTP client factory, option resolution, browser adapters and the registries and authenticators | [Extending the extension layer](extension.md) |
+| The backend layer: `src/Backend` | Field handlers, creation aliases, the Core of the `drupal` backend and a backend of your own | [Extending the backend layer](backend.md) |
 
 ## What semantic versioning covers
 
-[Public API and versioning](../versioning.md) lists the 5 surfaces semantic versioning covers. It doesn't cover the internals of `src/Extension` and `src/Backend` that none of them exposes, so a minor release can change those, and several extension points reach into them:
+[Public API and versioning](../architecture/versioning.md) lists the 5 surfaces semantic versioning covers. It doesn't cover the internals of `src/Extension` and `src/Backend` that none of them exposes, so a minor release can change those, and several extension points reach into them:
 
 | Extension point | What semantic versioning covers |
 | --- | --- |
 | [A step of your own](steps.md#writing-a-step-of-your-own) | The helpers it calls, such as `entityLifecycleCreateNode()`, `entityLifecycleRegister()` and `httpDetachedClient()` |
-| [A trait's seam](steps.md#go-further-than-the-options) | The seam itself, a public `<trait>Get<Noun>()` method that the trait's helpers page lists, such as `modalGetSelectors()` on [Modals](../web-helpers/modal.md) |
+| [A trait's seam](steps.md#go-further-than-the-options) | The seam itself, a public `<trait>Get<Noun>()` method that [HELPERS.md](../../../HELPERS.md) lists under its trait, such as `modalGetSelectors()` under [ModalTrait](../../../HELPERS.md#modaltrait) |
 | [A context's HTTP client](steps.md#a-context-override-a-flaky-staging-server) | `getHttpClientFactory()`, a helper |
 | [Options for a trait of your own](steps.md#declare-options-for-a-trait-of-your-own) | `getOption()` and the typed readers such as `getOptionBool()`, which are helpers. `Option` and the `<prefix>ConfigSchema()` method name sit on none of the 5 surfaces, so they aren't covered |
 | [Inherited steps and hooks](steps.md#the-rules-that-govern-composition) | The step text and the 3 context base classes. The rules in the table there are Behat's own |
@@ -37,4 +37,4 @@ Behat Steps ships 3 layers, and each one takes code of your own where the shippe
 ## Where to next
 
 - [Extending the step vocabulary](steps.md) is the place to start for a first step of your own.
-- [Public API and versioning](../versioning.md) lists the 5 surfaces in full, with the exception types a failing step reports.
+- [Public API and versioning](../architecture/versioning.md) lists the 5 surfaces in full, with the exception types a failing step reports.

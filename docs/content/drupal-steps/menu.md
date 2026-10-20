@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Menus
 
-`DrevOps\BehatSteps\Steps\Drupal\MenuTrait` - [Source](../../../src/Steps/Drupal/MenuTrait.php), [Example](../../../tests/behat/features/drupal_menu.feature), [Helpers](../drupal-helpers/menu.md)
+`DrevOps\BehatSteps\Steps\Drupal\MenuTrait` - [Source](../../../src/Steps/Drupal/MenuTrait.php), [Example](../../../tests/behat/features/drupal_menu.feature), [Helpers](../../../HELPERS.md#drupalmenutrait)
 
 >  Manage Drupal menus and menu links.
 >  - Create and remove menus by label.

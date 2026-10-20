@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Taxonomy
 
-`DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait` - [Source](../../../src/Steps/Drupal/TaxonomyTrait.php), [Example](../../../tests/behat/features/drupal_taxonomy.feature), [Helpers](../drupal-helpers/taxonomy.md)
+`DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait` - [Source](../../../src/Steps/Drupal/TaxonomyTrait.php), [Example](../../../tests/behat/features/drupal_taxonomy.feature), [Helpers](../../../HELPERS.md#drupaltaxonomytrait)
 
 >  Manage Drupal taxonomy terms with vocabulary organization.
 >  - Create terms in an existing vocabulary, with field values.

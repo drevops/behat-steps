@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Waits
 
-`DrevOps\BehatSteps\Steps\Web\WaitTrait` - [Source](../../../src/Steps/Web/WaitTrait.php), [Example](../../../tests/behat/features/wait.feature), [Helpers](../web-helpers/wait.md)
+`DrevOps\BehatSteps\Steps\Web\WaitTrait` - [Source](../../../src/Steps/Web/WaitTrait.php), [Example](../../../tests/behat/features/wait.feature), [Helpers](../../../HELPERS.md#waittrait)
 
 >  Wait for a period of time or for AJAX to finish.
 >  - Wait a fixed number of seconds.
