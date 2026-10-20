@@ -152,7 +152,7 @@ describe('Home', () => {
 
   test.each([
     ['Install the package', 'Installation', '/installation#optional-dependencies'],
-    ['Register a context', 'See the whole file', '/quick-start#2-create-the-configuration-file'],
+    ['Create your context', 'See both files', '/quick-start#3-create-your-context-and-configuration'],
   ])('links the docs from the step "%s"', (step, name, href) => {
     render(<Home />);
 

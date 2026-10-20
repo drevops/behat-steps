@@ -1,14 +1,14 @@
 ---
 title: Usage
-sidebar_position: 1
-description: Pick a context or compose your own, register it, configure the traits it holds or switch their checks off, and learn what happens to the content a scenario creates.
+sidebar_position: 2
+description: Configure the traits your context holds or switch their checks off, and learn what happens to the content a scenario creates.
 ---
 
 # Usage
 
-This guide covers using Behat Steps day to day: which context to register, how to build your own, how to configure the traits inside it, and what happens to the content your scenarios create. If contexts, traits or backends are new to you, read [Key concepts](../concepts.md) first.
+This guide covers the traits inside your context day to day: how to configure them, how to switch a trait's checks off, and what happens to the content your scenarios create. [Contexts](contexts.md) covers which context to extend and where your own steps go, and if traits or backends are new to you, [Key concepts](../concepts.md) explains them first.
 
-You compose a context out of traits and point the extension at your site. The extension and the context answer different questions, and each trait reads from both:
+Your context is built out of traits, and the extension points it at your site. The extension and the context answer different questions, and each trait reads from both:
 
 | Layer | Answers | Scope |
 | --- | --- | --- |
@@ -17,83 +17,6 @@ You compose a context out of traits and point the extension at your site. The ex
 | The trait | What a step does, and which options change it | Per trait |
 
 [Configuration](configuration.md) is the reference for every option and tag. This page explains how they fit together.
-
-## Pick a context
-
-The library ships 3 contexts, and each one extends the one before it, as [Key concepts](../concepts.md#3-contexts-each-building-on-the-last) shows. You register or extend exactly 1 of them:
-
-| Extend | When |
-| --- | --- |
-| `DrupalContext` | Your suite tests a Drupal site and wants all 57 step traits. Its Watchdog check needs the core `dblog` module and a backend that reads the log, such as `drupal` or `drush`, or it has to be [switched off](#switch-a-trait-off) |
-| `WebContext` | Your suite tests web pages and wants the 28 web step traits |
-| `WebRawContext` | You pick your own traits, and each one brings the helpers it needs |
-
-`WebContext` composes every trait under `Steps\Web`, and `DrupalContext` every trait under `Steps\Drupal` on top of it. A trait that could fail a scenario for a reason the scenario didn't ask about carries an `enabled` option, so you can switch it off through configuration instead of composing your own context.
-
-To add steps of your own to the full set, extend the context you'd otherwise register:
-
-```php
-<?php
-
-use DrevOps\BehatSteps\DrupalContext;
-
-class FeatureContext extends DrupalContext {}
-```
-
-## Register 1 context, not 2
-
-`DrupalContext` extends `WebContext`, so a suite registering both would register the 28 web traits twice and die on a `RedundantStepException` naming an arbitrary step. `WebContext::assertOneContext()` runs on `BeforeSuite` and reports the real mistake instead. Register the class lowest in the chain and drop the rest:
-
-```php
-$suite = (new Suite('default'))
-  ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext(FeatureContext::class)
-  ->addContext(MinkContext::class);
-```
-
-A Drupal suite needs `DrupalContext` alone. `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` transforms come with it, because it inherits `PathTrait`, `RandomTrait`, `MappingTrait` and `DateTrait` from `WebContext`.
-
-That design has 1 cost: there's no way to remove an inherited step, so a Drupal project can't take the Drupal step traits without the 28 web ones. If your own step text collides with a shipped web step, drop to `WebRawContext` and compose what you want by hand.
-
-## Compose your own context
-
-A context of your own is `WebRawContext` plus the traits whose steps your suite needs:
-
-```php
-<?php
-
-use DrevOps\BehatSteps\WebRawContext;
-use DrevOps\BehatSteps\Steps\Web\JavascriptTrait;
-use DrevOps\BehatSteps\Steps\Web\WaitTrait;
-
-class UiContext extends WebRawContext {
-
-  use JavascriptTrait;
-  use WaitTrait;
-
-}
-```
-
-Each step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity teardown that removes what its steps created.
-
-When it adds steps of its own, build them on the helpers, as [Writing a step of your own](../extending/steps.md#writing-a-step-of-your-own) describes. [The rules that govern composition](../extending/steps.md#the-rules-that-govern-composition) cover what Behat does when a context re-composes a trait or overrides an inherited step or hook.
-
-## Register it against the extension
-
-1 profile carries the extension, and each suite carries its contexts:
-
-```php
-$ui = (new Suite('ui'))
-  ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class);
-
-$profile = (new Profile('default'))
-  ->withSuite($ui)
-  ->withExtension(new Extension(BehatStepsExtension::class, [
-    'backends' => ['drupal', 'blackbox'],
-    'drupal' => ['drupal_root' => 'web'],
-  ]));
-```
 
 ## Configure a trait
 
@@ -122,12 +45,12 @@ The message steps are 1 group you'll almost always set. Steps such as `I should 
 
 It takes 1 selector per severity: `default`, `error`, `success` and `warning`.
 
-When a value has to differ between 2 suites of the same profile, put it in the context's `config` argument instead. `UiContext` above composes `JavascriptTrait`, so it's the context that accepts the `javascript` group:
+When a value has to differ between 2 suites of the same profile, put it in the context's `config` argument instead. A context accepts the groups of the traits it holds, and `FeatureContext` extends `DrupalContext`, which holds `JavascriptTrait`, so it accepts the `javascript` group:
 
 ```php
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class, [
+  ->addContext(FeatureContext::class, [
     'config' => ['javascript' => ['fail_on_errors' => FALSE]],
   ]);
 ```
@@ -140,7 +63,7 @@ Scenario: The legacy report still renders
   Given I visit "/reports/legacy"
 ```
 
-All 3 set the same value, and the most specific wins: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full chain, and a trait's page under [Web steps](../web-steps/README.md) or [Drupal steps](../drupal-steps/README.md) lists its options beside its steps.
+All 3 set the same value, and the most specific wins: `steps`, then the context's `config`, then the feature and scenario tags. [Trait options](configuration.md#trait-options) states the full order, and a trait's page under [Web steps](../web-steps/README.md) or [Drupal steps](../drupal-steps/README.md) lists its options beside its steps.
 
 ## Switch a trait off
 

@@ -1,0 +1,174 @@
+---
+title: Contexts
+sidebar_position: 1
+description: What each of the 3 contexts includes and why the library ships them this way, which one your FeatureContext extends, and where your own steps go.
+---
+
+# Contexts
+
+A context is the PHP class Behat finds step definitions in, as [Key concepts](../concepts.md#how-behat-runs-a-scenario) explains. Behat Steps ships 3 of them, each building on the one before it. Your project extends exactly 1 in a class of its own, `FeatureContext`, registers that class, and keeps its own steps there or in traits that class uses.
+
+## What each context includes
+
+| Context | Extends | What it adds |
+| --- | --- | --- |
+| `WebRawContext` | Mink's `RawMinkContext` | No steps. The plumbing every step relies on: the backends, the browser's capabilities, the 3 HTTP clients, trait options, prerequisite checks and hook dispatch, with 3 helper traits: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait` |
+| `WebContext` | `WebRawContext` | Every trait under `Steps\Web`: the 28 traits of [web steps](../web-steps/README.md), which work on any website |
+| `DrupalContext` | `WebContext` | Every trait under `Steps\Drupal`: the 29 traits of [Drupal steps](../drupal-steps/README.md), and the user registry their login steps need |
+
+A step trait also brings the helper traits it calls, so the traits that create content bring `EntityLifecycleTrait`, which deletes what a scenario created. [Steps layer](../architecture/steps-layer.md) draws how it all fits together.
+
+## Which one to extend
+
+- On a Drupal site, extend `DrupalContext`. It already holds every web step, `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` value transforms included, because it inherits `PathTrait`, `RandomTrait`, `MappingTrait` and `DateTrait` from `WebContext`. So `WebContext` never goes beside it. Its Watchdog check fails every scenario on a site without the core `dblog` module until you enable the module or [switch the check off](usage.md#switch-a-trait-off).
+- On any other site, extend `WebContext`.
+- Extend `WebRawContext` only when you want to pick every trait yourself, as [Compose your own context](#compose-your-own-context) shows.
+
+`FeatureContext` lives in `tests/behat/bootstrap/FeatureContext.php`, and on a Drupal site it can start empty:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use DrevOps\BehatSteps\DrupalContext;
+
+class FeatureContext extends DrupalContext {
+
+}
+```
+
+Your suite registers `FeatureContext` and Mink's `MinkContext`, and nothing else. The [quick start](../quick-start.md) shows the whole `behat.php`.
+
+## Why 1 context holds every step
+
+Behat lets a suite register as many contexts as it likes, and plenty of step libraries ship a context per topic for you to combine. Behat Steps puts every step on 1 context instead, for 3 reasons:
+
+- There's nothing to pick. Every shipped step is on the context you extend, so a scenario can use any of them without a change to your PHP.
+- Your own steps have 1 home. With several contexts, every new step raises the question of which one it belongs in, and a step in 1 context can't call a helper that only another context has. With 1 `FeatureContext`, every helper is on `$this`.
+- Nothing gets defined twice. Behat registers a trait's steps once for every registered context that has the trait, and refuses to run when 2 definitions share the same text. Registering 2 contexts built on `WebContext`, such as `DrupalContext` beside your `FeatureContext`, would define every web step twice, so `WebContext::assertOneContext()` stops the run before the first scenario and says which to drop.
+
+Having every step costs little. A trait for a contrib module looks for its module only when one of its steps runs, and a check that could fail a scenario for a reason the scenario didn't ask about, such as the Watchdog check, carries an `enabled` option you can [switch off](usage.md#switch-a-trait-off) in `behat.php`. What you can't do is remove an inherited step: if a step of yours needs the exact text of a shipped one, reword yours, or [compose your own context](#compose-your-own-context) without the trait that ships it.
+
+## Your own steps in traits of your own
+
+A step of your own can go straight into `FeatureContext`, as the [quick start](../quick-start.md#7-add-a-step-of-your-own) shows. Once you have more than a few, group them into traits, 1 per area of your site, the way the library groups its own steps, and have `FeatureContext` use them:
+
+```text
+tests/behat/
+├── bootstrap/
+│   ├── FeatureContext.php
+│   └── PublishingTrait.php
+└── features/
+    └── publishing.feature
+```
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use DrevOps\BehatSteps\DrupalContext;
+
+class FeatureContext extends DrupalContext {
+
+  use PublishingTrait;
+
+}
+```
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Behat\Step\Given;
+use Behat\Step\When;
+
+/**
+ * @phpstan-require-extends \DrevOps\BehatSteps\DrupalContext
+ */
+trait PublishingTrait {
+
+  #[Given('a page titled :title exists')]
+  public function publishingCreatePage(string $title): void {
+    $this->contentCreate('page', ['title' => $title]);
+  }
+
+  #[Given('I am a site administrator')]
+  public function publishingLoginAsAdministrator(): void {
+    $this->userCreateAndLogin('administrator');
+  }
+
+  #[When('I open the page titled :title')]
+  public function publishingVisitPage(string $title): void {
+    $this->contentVisitActionPageWithTitle('page', $title);
+  }
+
+}
+```
+
+- Each step calls 1 of the library's helpers on `$this`. [Drupal helpers](../drupal-helpers/README.md) and [Web helpers](../web-helpers/README.md) list them all. Call only the public ones: a protected method can change in any release.
+- The page and the user these helpers create are deleted when the scenario ends, as they are for the shipped steps.
+- The `@phpstan-require-extends` line tells your editor and PHPStan which class the helpers come from.
+- Every method starts with the trait's name, as the library's own do, so it can't collide with a shipped method or with another trait of yours.
+
+Behat loads both files from `tests/behat/bootstrap` by their names, through the profile's `autoload` setting in `behat.php`:
+
+```php
+$profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
+```
+
+A scenario in `tests/behat/features/publishing.feature` then reads in your site's own words:
+
+```gherkin
+Feature: Publishing
+
+  Scenario: Administrator opens a new page
+    Given a page titled "About us" exists
+    And I am a site administrator
+    When I open the page titled "About us"
+    Then I should see the heading "About us"
+```
+
+[Scenario styles](scenario-styles.md) explains when steps in your own words pay off. [Anatomy of a trait](../architecture/anatomy-of-a-trait.md) walks through a trait with options and hooks, for when yours needs them.
+
+## Compose your own context
+
+A context built on `WebRawContext` takes only the traits you list:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use DrevOps\BehatSteps\Steps\Web\JavascriptTrait;
+use DrevOps\BehatSteps\Steps\Web\WaitTrait;
+use DrevOps\BehatSteps\WebRawContext;
+
+class UiContext extends WebRawContext {
+
+  use JavascriptTrait;
+  use WaitTrait;
+
+}
+```
+
+Reach for it when a shipped step's text collides with a step you need to keep, or when a suite should offer only a narrow set of steps, such as an API suite built on `RestTrait`, `JsonTrait` and `ResponseTrait`. Each step trait brings the helper traits it needs, so composing `ContentTrait` also brings the entity cleanup that removes what its steps created.
+
+1 profile carries the extension, and each suite registers its own context:
+
+```php
+$ui = (new Suite('ui'))
+  ->withPaths('%paths.base%/tests/behat/features/ui')
+  ->addContext(UiContext::class);
+
+$profile = (new Profile('default'))
+  ->withSuite($ui)
+  ->withExtension(new Extension(BehatStepsExtension::class, [
+    'backends' => ['drupal', 'blackbox'],
+    'drupal' => ['drupal_root' => 'web'],
+  ]));
+```
+
+[The rules that govern composition](../extending/steps.md#the-rules-that-govern-composition) cover what Behat does when a context composes a trait twice or overrides an inherited step or hook.

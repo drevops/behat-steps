@@ -1,6 +1,6 @@
 ---
 title: Scenario styles
-sidebar_position: 3
+sidebar_position: 5
 description: The imperative and declarative scenario styles, the job each one does, and how to move from the shipped steps to domain steps built on the same helpers.
 ---
 
@@ -34,11 +34,11 @@ Scenario: Editor publishes a page
   Then the page "About us" should be publicly visible at "/about-us"
 ```
 
-No shipped step stands behind the declarative version. You write each definition yourself, as a few lines of PHP over the library's helpers:
+No shipped step stands behind the declarative version. You write each definition yourself, as a few lines of PHP over the library's helpers, in a trait of your own that your `FeatureContext` uses, as [Contexts](contexts.md#your-own-steps-in-traits-of-your-own) shows:
 
 ```php
 #[When('I publish a page titled :title')]
-public function publishPage(string $title): void {
+public function publishingPublishPage(string $title): void {
   $this->entityLifecycleCreateNode(new EntityStub('node', 'page', [
     'title' => $title,
     'moderation_state' => 'published',
@@ -66,12 +66,12 @@ The critique assumes a context that mostly doesn't hold for CMS delivery work:
 
 Specification and verification are 2 different jobs, and both are worth doing. Specification, BDD proper, uses domain language, faces stakeholders and keeps its scenarios few and precious. Verification, functional regression testing, uses infrastructure language, faces developers and wants its scenarios broad and cheap. Behat the tool supports both. Its tutorial teaches only the first, and a generic step library equips only the second. So decide which job each of your suites does before you pick its style.
 
-## The vocabulary and the toolbox
+## Steps and the helpers behind them
 
-The library serves both jobs through 1 design rule: every step body is a thin wrapper over named helpers. So the package gives you 2 things. The vocabulary is the steps, 1 layer over the helpers, and the toolbox is the helpers themselves. When your project outgrows the shipped vocabulary, you don't leave the library. You stop calling the toolbox from Gherkin and start calling it from PHP.
+The library serves both jobs through 1 design rule: every step body is a thin wrapper over named helpers. So the package gives you 2 things: the steps, and the helpers they're built on. When your project outgrows the shipped steps, you don't leave the library. You stop calling the helpers from Gherkin and start calling them from PHP.
 
 3 consequences follow:
 
-1. Helpers are public API. They're documented in [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md), covered by semantic versioning and named as carefully as the steps. Traits help here too: the helpers sit on `$this` in your `FeatureContext`, so a domain step costs 3 lines, where a context model would start every domain step with service lookups.
+1. Helpers are public API. They're documented in [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md), covered by semantic versioning and named as carefully as the steps. Traits help here too: the helpers sit on `$this` in your `FeatureContext` and in every trait it uses, so a domain step costs 3 lines, where a context model would start every domain step with service lookups.
 2. Suites split by job. A spec suite holds the few domain-language scenarios, and a regression suite holds the broad ones written in the shipped steps. That's also how Behat's own documentation says to use suites, and [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
 3. The docs teach a path. Start with the shipped steps for coverage on day one, then move the flows that matter to domain steps built on the helpers. The [quick start](../quick-start.md) starts you on the shipped steps and ends with a step of your own.

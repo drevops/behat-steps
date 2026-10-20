@@ -75,7 +75,7 @@ The step and helper references ship with the package as [STEPS.md](STEPS.md) and
 
 ## Contributing
 
-Contributions are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) holds the rules for code in this repository and the local development setup. The documentation site's [Contributing](https://behat-steps.drevops.com/contributing) section covers the repository layout and writing the docs.
+Contributions are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) holds the rules for code in this repository and the local development setup. The documentation site's [Contributing](https://behat-steps.drevops.com/contributing) section walks through a code change and writing the docs.
 
 ---
 _This repository was created using the [Scaffold](https://getscaffold.dev/) project template_

@@ -11,7 +11,7 @@ The step vocabulary is the step and helper traits under `src/Steps` and the 3 co
 
 ## Writing a step of your own
 
-A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) list every one of them, and the [quick start](../quick-start.md#6-add-a-step-of-your-own) shows where the class lives and how Behat finds it.
+A step of your own is a method with a Behat step attribute on a context of your own, built on the same helpers the shipped steps call. [Web helpers](../web-helpers/README.md) and [Drupal helpers](../drupal-helpers/README.md) list every one of them, and the [quick start](../quick-start.md#7-add-a-step-of-your-own) shows where the class lives and how Behat finds it. [Contexts](../guides/contexts.md#your-own-steps-in-traits-of-your-own) shows how to group your steps into traits of your own, and [Anatomy of a trait](../architecture/anatomy-of-a-trait.md) walks through a trait with options and hooks.
 
 If you write your own Drupal steps, compose the helper trait for the concern they touch. `EntityLifecycleTrait` brings entity creation and the `AfterScenario` pass that removes what was created:
 

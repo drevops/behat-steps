@@ -48,10 +48,10 @@ Behat 4 reads this configuration only from PHP, in `behat.php`, or `behat.dist.p
 
 Mink is the library Behat uses to drive a browser. A step that visits a page, clicks a link or reads text does it through a Mink session, a browser Mink controls for your scenarios.
 
-Each session runs on a browser driver, and the 2 kinds behave differently:
+Each session runs on a browser driver. Behat Steps works with 3 of them, and they come in 2 kinds:
 
 - BrowserKit, behind the `browserkit_http` session in the quick start, sends HTTP requests from PHP and reads the HTML that comes back. It's fast, and it doesn't run JavaScript.
-- Selenium and Chrome drive a real browser, so the page's JavaScript runs. A scenario tagged `@javascript` uses this kind of session, and [JavaScript browser drivers](installation.md#javascript-browser-drivers) covers setting 1 up.
+- Selenium2 and Chrome drive a real browser, so the page's JavaScript runs. A scenario tagged `@javascript` uses this kind of session, and [Browsers](guides/browsers.md) compares the 3 and shows which steps need which.
 
 Mink also ships `MinkContext`, a context with Mink's own basic steps, such as `I fill in "Title" with "About us"` and `I press "Save"`. You register it beside a Behat Steps context.
 
@@ -69,13 +69,13 @@ You don't register the traits 1 by 1. The library composes them into 3 contexts,
 2. `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`, 28 in all.
 3. `DrupalContext` extends `WebContext` and adds every trait under `Steps\Drupal`, 29 in all.
 
-Because each context extends the one above it, `DrupalContext` already holds every web step. That's why your suite registers exactly 1 of them:
+Because each context extends the one above it, `DrupalContext` already holds every web step. Your project extends exactly 1 of them in a class of its own, `FeatureContext`, and registers that class alone:
 
-- `WebContext` for any website.
-- `DrupalContext` for a Drupal site.
-- `WebRawContext` as the base of a context of your own that picks its traits, as [Compose your own context](guides/usage.md#compose-your-own-context) shows.
+- `FeatureContext extends DrupalContext` on a Drupal site.
+- `FeatureContext extends WebContext` on any other site.
+- `WebRawContext` is the base of a context that picks its own traits, as [Compose your own context](guides/contexts.md#compose-your-own-context) shows.
 
-If a suite registers both `WebContext` and `DrupalContext`, every web step would be defined twice. Behat Steps stops the run before the first scenario, with a message telling you to keep only 1.
+Your own steps then go in `FeatureContext`, or in traits of your own that it uses. If a suite registers 2 contexts built on `WebContext`, such as `DrupalContext` beside your `FeatureContext`, every web step would be defined twice, so Behat Steps stops the run before the first scenario with a message telling you to keep only 1. [Contexts](guides/contexts.md) explains what each context includes and why it's built this way.
 
 ### Helpers behind every step
 
@@ -105,13 +105,14 @@ Whatever the library's steps create, such as content, users or roles, the librar
 
 Some traits run checks around every scenario instead of waiting to be called as a step. `WatchdogTrait`, which `DrupalContext` includes, fails a scenario that logs a PHP error, and `JavascriptTrait` fails one that hits a JavaScript error.
 
-Tags are Gherkin's labels for a scenario or a feature, such as `@javascript`. Behat Steps reads tags of its own, such as `@behat-steps-skip:WatchdogTrait`, which switches a trait's checks off for 1 scenario. Many traits also declare options, settings you can change for the whole profile, for 1 context or for 1 scenario. [Configure a trait](guides/usage.md#configure-a-trait) shows how, and [Configuration](guides/configuration.md#3-tags) lists every tag.
+Tags are Gherkin's labels for a scenario or a feature, such as `@javascript`. Behat Steps reads tags of its own, such as `@behat-steps-skip:WatchdogTrait`, which switches a trait's checks off for 1 scenario. Many traits also declare options, settings you can change for the whole profile, for 1 context or for 1 scenario. [Configure a trait](guides/usage.md#configure-a-trait) shows how, [How a trait gets options without a constructor](architecture/extension-layer.md#how-a-trait-gets-options-without-a-constructor) shows how a trait declares them, and [Configuration](guides/configuration.md#3-tags) lists every tag.
 
 ## The big picture
 
 Your project registers 1 of the shipped contexts, or a context of its own, and the Behat Steps extension beside Mink's. The traits decide what each step does. A step that drives the page uses the browser session Mink's extension opens, and a step that needs the site itself asks for a capability, which the first backend in your `backends` list that provides it answers.
 
-[![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](architecture/logical-architecture.svg)](architecture/logical-architecture.svg)
+[![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](architecture/logical-architecture.svg#gh-light-mode-only)](architecture/logical-architecture.svg)
+[![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](architecture/logical-architecture.dark.svg#gh-dark-mode-only)](architecture/logical-architecture.dark.svg)
 
 [Logical architecture](architecture/logical-architecture.md) walks through each layer of that diagram.
 
@@ -120,11 +121,12 @@ Your project registers 1 of the shipped contexts, or a context of its own, and t
 | Term | What it means |
 | --- | --- |
 | Backend | How a step reaches the site without the browser: `drupal`, `drush` or `blackbox` |
-| Browser driver | What runs behind a Mink session: BrowserKit for plain HTTP, Selenium or Chrome for a real browser |
+| Browser driver | What runs behind a Mink session: BrowserKit for plain HTTP, Selenium2 or Chrome for a real browser |
 | Capability | A job a backend can do, such as creating content. A step asks for a capability, never for a backend |
 | Context | A PHP class holding step definitions and hooks. Behat builds a fresh one for every scenario |
 | Extension | A package that plugs into Behat, such as Mink's extension or `BehatStepsExtension` |
 | Feature file | A `.feature` file holding a feature and its scenarios, written in Gherkin |
+| FeatureContext | Your own context: it extends `DrupalContext` or `WebContext` and holds your own steps, directly or through traits of your own |
 | Gherkin | The plain-text format of feature files, built on `Feature:`, `Scenario:`, `Given`, `When` and `Then` |
 | Helper | A public method a step is built on, which your own steps can call too |
 | Hook | A method that runs before or after a scenario or a step |
@@ -135,7 +137,6 @@ Your project registers 1 of the shipped contexts, or a context of its own, and t
 | Step definition | The PHP method behind a step, matched by the pattern in its attribute |
 | Suite | A set of feature files and the contexts their steps come from |
 | Tag | A label such as `@javascript` on a scenario or a feature, which changes how it runs |
-| Toolbox | The library's helpers as a whole |
 | Trait | A PHP trait grouping the steps or the helpers for 1 job |
 | Trait option | A setting a trait declares, such as `ajax_timeout` in the `wait` group |
-| Vocabulary | The library's steps as a whole |
+| Vocabulary | The library's steps as a whole, which Extending calls the step vocabulary |

@@ -16,7 +16,7 @@ Behat Steps ships 3 layers, and each one takes code of your own where the shippe
 
 ## What semantic versioning covers
 
-[Public API and versioning](../versioning.md) lists the 5 surfaces semantic versioning covers. It doesn't cover the internals of `src/Extension` and `src/Backend` that none of them exposes, so a minor release can change those, and several extension points reach into them:
+[Public API and versioning](../architecture/versioning.md) lists the 5 surfaces semantic versioning covers. It doesn't cover the internals of `src/Extension` and `src/Backend` that none of them exposes, so a minor release can change those, and several extension points reach into them:
 
 | Extension point | What semantic versioning covers |
 | --- | --- |
@@ -37,4 +37,4 @@ Behat Steps ships 3 layers, and each one takes code of your own where the shippe
 ## Where to next
 
 - [Extending the step vocabulary](steps.md) is the place to start for a first step of your own.
-- [Public API and versioning](../versioning.md) lists the 5 surfaces in full, with the exception types a failing step reports.
+- [Public API and versioning](../architecture/versioning.md) lists the 5 surfaces in full, with the exception types a failing step reports.

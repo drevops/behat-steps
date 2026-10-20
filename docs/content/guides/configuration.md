@@ -1,6 +1,6 @@
 ---
 title: Configuration
-sidebar_position: 2
+sidebar_position: 3
 description: Behat Steps reads its configuration from suites and context arguments, the extension key, tags and environment variables. This page covers all 4 channels and lists every option and tag.
 ---
 
@@ -12,7 +12,7 @@ This page is the reference for everything you can set. Behat Steps reads its con
 
 | Channel | Answers | Scope |
 | --- | --- | --- |
-| [Suites and context arguments](#1-suites-and-context-arguments) | Which scenarios run against which surface, with which vocabulary | Per suite |
+| [Suites and context arguments](#1-suites-and-context-arguments) | Which scenarios run against which surface, with which steps | Per suite |
 | [The `behat_steps` extension key](#2-the-behat_steps-extension-key) | How the package talks to the site | Per profile |
 | [Tags](#3-tags) | What a single scenario opts into | Per scenario or feature |
 | [Environment variables](#4-environment-variables) | What differs between one machine and another | Per run |
@@ -23,7 +23,7 @@ The tables in sections 2 and 3 are generated from the source by [docs.php](../..
 
 ### Suite per surface
 
-A suite pairs a set of feature files with a set of contexts. The [quick start](../quick-start.md) uses 1 suite. Once you test more than 1 surface, such as pages in a browser and an API, give each surface a suite of its own, because each needs different steps and a different backend.
+A suite pairs a set of feature files with a set of contexts. The [quick start](../quick-start.md) uses 1 suite with your `FeatureContext` in it, and many projects never need another. Once you test more than 1 surface, such as pages in a browser and an API, you can give each surface a suite of its own, and every suite registers the same `FeatureContext`:
 
 ```php
 <?php
@@ -32,28 +32,29 @@ declare(strict_types=1);
 
 use Behat\Config\Config;
 use Behat\Config\Extension;
-use Behat\Config\Filter\TagFilter;
 use Behat\Config\Profile;
 use Behat\Config\Suite;
+use Behat\MinkExtension\Context\MinkContext;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
 // The browser surface: what an editor or a visitor can do in a page.
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class);
+  ->addContext(FeatureContext::class)
+  ->addContext(MinkContext::class);
 
 // The API surface: responses, headers and payloads, with no browser.
 $api = (new Suite('api'))
   ->withPaths('%paths.base%/tests/behat/features/api')
-  ->addContext(ApiContext::class);
+  ->addContext(FeatureContext::class);
 
 // The specification surface: the few domain-language scenarios a
 // stakeholder reads.
 $spec = (new Suite('spec'))
   ->withPaths('%paths.base%/tests/behat/features/spec')
-  ->addContext(SpecContext::class);
+  ->addContext(FeatureContext::class);
 
-$profile = (new Profile('default'))
+$profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
   ->withSuite($ui)
   ->withSuite($api)
   ->withSuite($spec)
@@ -68,58 +69,33 @@ Run 1 surface with `vendor/bin/behat --suite=api`, or all of them with a bare `v
 
 The layout gives you 3 things:
 
-- Each suite composes only the steps its surface needs. `ApiContext` mixes in `RestTrait`, `JsonTrait` and `ResponseTrait`, and never loads a trait that expects a rendered page. A step that can't work on a surface isn't defined on it, so when a scenario uses it there, Behat reports the step as undefined instead of running it into a confusing failure.
 - The spec suite and the regression suites do different jobs. The spec suite holds domain-language scenarios written over your own step definitions, and the regression suites hold broad scenarios written in the shipped steps. [Scenario styles](scenario-styles.md) explains why both exist.
 - You can exclude a slow surface without touching the others. Accessibility, visual and `@javascript` scenarios sit behind their own suite or a tag filter, so the fast suites stay fast.
+- A surface can offer only the steps that work on it. Register a narrower context there instead of `FeatureContext`, [composed from `WebRawContext`](contexts.md#compose-your-own-context): an API suite built on `RestTrait`, `JsonTrait` and `ResponseTrait` never loads a trait that expects a rendered page. A step that can't work on a surface then isn't defined on it, so when a scenario uses it there, Behat reports the step as undefined instead of running it into a confusing failure.
 
 ### Context constructor arguments
 
-The extension key in section 2 is read once per profile. Pass a value that has to differ between suites as a context constructor argument instead:
+The extension key in section 2 is read once per profile. Pass a value that has to differ between suites as a context constructor argument instead.
+
+`WebRawContext` declares 1 argument of its own, `config`, and every shipped context and every context of yours inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between 2 suites of the same profile:
 
 ```php
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class, [
-    'fixtures_path' => '%paths.base%/tests/behat/fixtures',
-  ]);
-```
-
-```php
-class UiContext extends WebRawContext {
-
-  public function __construct(
-    protected string $fixtures_path,
-    array $config = [],
-  ) {
-    parent::__construct($config);
-  }
-
-}
-```
-
-Behat matches the arguments to the constructor by name, so the array keys are the parameter names.
-
-`WebRawContext` declares 1 argument of its own, `config`, and every shipped context and every context of yours inherits it without redeclaring a constructor. It carries the [trait options](#trait-options) that differ between 2 contexts of the same profile:
-
-```php
-$ui = (new Suite('ui'))
-  ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(WebContext::class, [
+  ->addContext(FeatureContext::class, [
     'config' => ['wait' => ['ajax_timeout' => 10]],
   ]);
 ```
 
-A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others; `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. Setting a group that no trait in the chain declares is an error at construction, naming what that context does accept.
+A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others. `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`, and a `FeatureContext` that extends `DrupalContext` takes them all. Setting a group that no trait of the context or the classes it extends declares is an error at construction, naming what that context does accept.
 
-A context that adds arguments of its own forwards `config` to the parent, and the suite passes both:
+A context can take arguments of its own too. It declares them in its constructor and forwards `config` to the parent. A default keeps an argument optional, so a suite that doesn't pass it, like `api` below, still builds the context:
 
 ```php
-class UiContext extends WebRawContext {
-
-  use JavascriptTrait;
+class FeatureContext extends DrupalContext {
 
   public function __construct(
-    protected string $fixtures_path,
+    protected ?string $fixtures_path = NULL,
     array $config = [],
   ) {
     parent::__construct($config);
@@ -128,10 +104,12 @@ class UiContext extends WebRawContext {
 }
 ```
 
+Behat matches the arguments to the constructor by name, so the array keys are the parameter names, and the suite passes both:
+
 ```php
 $ui = (new Suite('ui'))
   ->withPaths('%paths.base%/tests/behat/features/ui')
-  ->addContext(UiContext::class, [
+  ->addContext(FeatureContext::class, [
     'fixtures_path' => '%paths.base%/tests/behat/fixtures',
     'config' => ['javascript' => ['fail_on_errors' => FALSE]],
   ]);
@@ -139,7 +117,7 @@ $ui = (new Suite('ui'))
 
 Behat 4 reads PHP configuration only, from `behat.php` or, when there's no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Prefer `behat.php`: both majors accept it, and it's the only format Behat 4 accepts.
 
-While your project is still on Behat 3, the YAML form of the suite above is:
+While your project is still on Behat 3, the YAML form of the 2 suites above is:
 
 ```yaml
 default:
@@ -147,11 +125,11 @@ default:
     ui:
       paths: ['%paths.base%/tests/behat/features/ui']
       contexts:
-        - UiContext:
+        - FeatureContext:
             fixtures_path: '%paths.base%/tests/behat/fixtures'
     api:
       paths: ['%paths.base%/tests/behat/features/api']
-      contexts: [ApiContext]
+      contexts: [FeatureContext]
   extensions:
     DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension:
       drupal:
@@ -295,15 +273,13 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-An option resolves through 5 layers, each overriding the one above it:
+An option resolves through 5 layers, each overriding the one before it:
 
-```
-declaration default
-  -> behat_steps.steps        (profile-wide)
-    -> context config          (per context)
-      -> feature tag
-        -> scenario tag
-```
+1. The default the trait declares.
+2. `behat_steps.steps`, for the whole profile.
+3. The context's `config` argument, for 1 context.
+4. A tag on the feature.
+5. A tag on the scenario.
 
 The 2 levels, `steps` and a context's `config`, differ in how strictly they're read, because they know different things:
 
@@ -319,7 +295,7 @@ The 2 levels, `steps` and a context's `config`, differ in how strictly they're r
 
 `fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
 
-Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in the composing context sits outside the chain and replaces the resolution entirely. That override is the escape hatch for anything the configuration can't express.
+Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in your context sits outside these layers and replaces the resolution entirely. That override is the escape hatch for anything the configuration can't express.
 
 [Extending the step vocabulary](../extending/steps.md#declare-options-for-a-trait-of-your-own) covers declaring options for a trait of your own, and [Extending the extension layer](../extending/extension.md#replace-option-resolution) covers replacing the resolution itself.
 

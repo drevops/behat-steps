@@ -5,9 +5,18 @@ import { shippedSteps, turnip } from '../stepPatterns';
 
 const ROOT = path.join(__dirname, '..', '..', '..', '..');
 
-// The pages a newcomer reads first. Their scenarios use only shipped steps,
-// Mink's steps below and steps the page itself defines, so they run as written.
-const PAGES = ['README.md', 'docs/content/README.md', 'docs/content/quick-start.md', 'docs/content/concepts.md'];
+// The pages a newcomer reads first, and the pages that show a trait or a
+// context of your own. Their scenarios use only shipped steps, Mink's steps
+// below and steps the page itself defines, so they run as written.
+const PAGES = [
+  'README.md',
+  'docs/content/README.md',
+  'docs/content/quick-start.md',
+  'docs/content/concepts.md',
+  'docs/content/guides/contexts.md',
+  'docs/content/guides/browsers.md',
+  'docs/content/architecture/anatomy-of-a-trait.md',
+];
 
 // The steps of Mink's own context the pages use, which STEPS.md doesn't list.
 const MINK_STEPS = [/^the response status code should be \d+$/];

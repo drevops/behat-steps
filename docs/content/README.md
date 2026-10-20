@@ -26,16 +26,16 @@ The steps come as PHP traits: 28 that work on any website, and 29 that only mean
 
 - [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) list every step, with a page per trait and an example for each step.
 - Every step is a thin wrapper over named helpers, which [Web helpers](web-helpers/README.md) and [Drupal helpers](drupal-helpers/README.md) list, so your own steps can call the same code.
-- A step asks for the capability it needs, never for a [backend](guides/configuration.md#backend-resolution), so a step whose capability Drush provides, such as clearing caches or creating users, runs through Drush as well as in-process.
+- A step asks for the capability it needs, never for a [backend](architecture/backend-layer.md#how-a-step-picks-a-backend), so a step whose capability Drush provides, such as clearing caches or creating users, runs through Drush as well as in-process.
 - Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5 are [supported](#supported-versions).
-- The steps work with the BrowserKit, Selenium and Chrome DevTools [browser drivers](installation.md#javascript-browser-drivers).
+- The steps work with 3 [browsers](guides/browsers.md): BrowserKit for plain HTTP, and Selenium2 or Chrome for a real browser that runs JavaScript.
 - After each scenario, the library [deletes the entities](guides/usage.md#entities-a-scenario-creates) its steps created, in reverse creation order.
 - The step and helper references ship with the package as Markdown, so an [AI coding agent](guides/ai-assistants.md) in your project reads the same reference you do.
-- [Architecture](architecture/README.md) shows how the layers fit together in 3 diagrams, which an AI agent maintains through the `update-architecture-docs` skill.
+- [Architecture](architecture/README.md) shows how the layers fit together, a page per layer, and a trait taken apart line by line, with diagrams an AI agent maintains through the `update-architecture-docs` skill.
 
 ## How it fits together
 
-You register 1 of the library's contexts, the classes that hold its steps, in your Behat configuration, along with the Behat Steps extension and Mink, the library that drives the browser. A step that works on a page goes through Mink's browser session. A step that needs the site itself, such as one that creates a user, goes through a backend such as Drupal or Drush. [Key concepts](concepts.md) explains each piece, with a diagram of the whole.
+You extend 1 of the library's contexts, the classes that hold its steps, in a context of your own, `FeatureContext`, and register that in your Behat configuration along with the Behat Steps extension and Mink, the library that drives the browser. [Contexts](guides/contexts.md) explains which one to extend. A step that works on a page goes through Mink's browser session. A step that needs the site itself, such as one that creates a user, goes through a backend such as Drupal or Drush. [Key concepts](concepts.md) explains each piece, with a diagram of the whole.
 
 ## Supported versions
 
