@@ -6,13 +6,13 @@ description: What each of the 3 layers lets you extend, which page covers it, an
 
 # Extending
 
-Behat Steps ships 3 layers, and each one takes code of your own where the shipped behavior stops short of what your suite needs. This section has 1 page per layer, and [Logical architecture](../architecture/logical-architecture.md) shows how the layers stack.
+Behat Steps ships 3 layers, and each one takes code of your own where the shipped behavior stops short of what your suite needs. [Logical architecture](../architecture/logical-architecture.md) shows how the layers stack. This section has 1 page per layer:
 
 | Layer | What you extend | Page |
 | --- | --- | --- |
-| The step vocabulary: `src/Steps` and the 3 contexts | Steps of your own, a trait's seams, a context's HTTP client, options for a trait of your own, and inherited steps and hooks | [Extending the step vocabulary](steps.md) |
-| The extension layer: `src/Extension` | The HTTP client factory, browser adapters, the registries and authenticators, and option resolution | [Extending the extension layer](extension.md) |
-| The backend layer: `src/Backend` | Field handlers, creation aliases, the Core of the `drupal` backend, and a backend of your own | [Extending the backend layer](backend.md) |
+| The step vocabulary: `src/Steps` and the 3 contexts | Steps of your own, a trait's seams, a context's HTTP client, options for a trait of your own and inherited steps or hooks | [Extending the step vocabulary](steps.md) |
+| The extension layer: `src/Extension` | The HTTP client factory, option resolution, browser adapters and the registries and authenticators | [Extending the extension layer](extension.md) |
+| The backend layer: `src/Backend` | Field handlers, creation aliases, the Core of the `drupal` backend and a backend of your own | [Extending the backend layer](backend.md) |
 
 ## What semantic versioning covers
 

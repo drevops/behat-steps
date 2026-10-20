@@ -1,7 +1,7 @@
 ---
 title: Scenario styles
 sidebar_position: 5
-description: The imperative and declarative scenario styles, the job each one does, and how to move from the shipped steps to domain steps built on the same helpers.
+description: The imperative and declarative scenario styles, the job each one does and how to move from the shipped steps to domain steps built on the same helpers.
 ---
 
 <!-- cspell:ignore Lightsaber Sith -->
@@ -50,9 +50,13 @@ That's what "domain steps" means: the Gherkin speaks your project's language, an
 
 ## Why BDD teaches the declarative style
 
-3 arguments back it, all of them old and well tested. The first is audience. BDD's founding purpose is to use scenarios as a conversation with stakeholders, and to a product owner, "I fill in Title" is noise while "I publish a page" is the point. The second is resilience. When the form is redesigned, an imperative suite changes in every scenario that touches the form, while a declarative suite changes in exactly 1 definition, because its scenarios assert the behavior and leave the path through the widgets to that definition. The third is intent. An imperative scenario verifies only the mechanics, so it can pass while the requirement behind them fails.
+3 arguments back it, all of them old and well tested:
 
-There's a well-known precedent for this critique. `cucumber-rails`, the Rails integration for Cucumber (Behat's Ruby ancestor), used to ship `web_steps.rb`, a generic click, fill and see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train people into brittle suites coupled to the implementation. MinkContext is PHP's `web_steps.rb` that never got deleted, and this library is a larger and, we'd argue, better-engineered descendant of the same pattern.
+- Audience. BDD's founding purpose is to use scenarios as a conversation with stakeholders, and to a product owner, "I fill in Title" is noise while "I publish a page" is the point.
+- Resilience. When the form is redesigned, an imperative suite changes in every scenario that touches the form, while a declarative suite changes in exactly 1 definition, because its scenarios assert the behavior and leave the path through the widgets to that definition.
+- Intent. An imperative scenario verifies only the mechanics, so it can pass while the requirement behind them fails.
+
+There's a well-known precedent for this critique. `cucumber-rails`, the Rails integration for Cucumber (Behat's Ruby ancestor), used to ship `web_steps.rb`, a generic click, fill and see vocabulary. In 2011 its maintainers deleted it from the project, arguing that generic steps train people into brittle suites coupled to the implementation. MinkContext is PHP's `web_steps.rb` that never got deleted, and this library is a larger descendant of the same pattern, with every step built on a helper your own steps can call.
 
 ## Why the imperative style wins in this ecosystem anyway
 
@@ -64,7 +68,9 @@ The critique assumes a context that mostly doesn't hold for CMS delivery work:
 
 ## 2 different jobs
 
-Specification and verification are 2 different jobs, and both are worth doing. Specification, BDD proper, uses domain language, faces stakeholders and keeps its scenarios few and precious. Verification, functional regression testing, uses infrastructure language, faces developers and wants its scenarios broad and cheap. Behat the tool supports both. Its tutorial teaches only the first, and a generic step library equips only the second. So decide which job each of your suites does before you pick its style.
+Specification and verification are 2 different jobs, and both are worth doing. Specification, BDD proper, uses domain language, faces stakeholders and keeps its scenarios few and precious. Verification, functional regression testing, uses infrastructure language, faces developers and wants its scenarios broad and cheap.
+
+Behat the tool supports both. Its tutorial teaches only the first, and a generic step library equips only the second. So decide which job each of your suites does before you pick its style.
 
 ## Steps and the helpers behind them
 
@@ -72,6 +78,6 @@ The library serves both jobs through 1 design rule: every step body is a thin wr
 
 3 consequences follow:
 
-1. Helpers are public API. They're listed in [HELPERS.md](../../../HELPERS.md), covered by semantic versioning and named as carefully as the steps. Traits help here too: the helpers sit on `$this` in your `FeatureContext` and in every trait it uses, so a domain step costs 3 lines, where a context model would start every domain step with service lookups.
-2. Suites split by job. A spec suite holds the few domain-language scenarios, and a regression suite holds the broad ones written in the shipped steps. That's also how Behat's own documentation says to use suites, and [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
-3. The docs teach a path. Start with the shipped steps for coverage on day one, then move the flows that matter to domain steps built on the helpers. The [quick start](../quick-start.md) starts you on the shipped steps and ends with a step of your own.
+- Helpers are public API. They're listed in [HELPERS.md](../../../HELPERS.md), covered by semantic versioning and named as carefully as the steps. Traits help here too: the helpers sit on `$this` in your `FeatureContext` and in every trait it uses, so a domain step costs 3 lines, where a context model would start every domain step with service lookups.
+- Suites split by job. A spec suite holds the few domain-language scenarios, and a regression suite holds the broad ones written in the shipped steps. That's also how Behat's own documentation says to use suites, and [Configuration](configuration.md#1-suites-and-context-arguments) gives the layout.
+- The docs teach a path. Start with the shipped steps for coverage on day one, then move the flows that matter to domain steps built on the helpers. The [quick start](../quick-start.md) starts you on the shipped steps and ends with a step of your own.

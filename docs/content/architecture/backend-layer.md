@@ -6,16 +6,16 @@ description: How a step reaches the site without the browser, from capability-dr
 
 # Backend layer
 
-The backend layer, `src/Backend`, is the part of Behat Steps that talks to the site directly: it creates content and users, clears caches, runs cron and reads the log, without going through the site's pages. It knows nothing about Behat or Mink, which keeps it usable outside a test run.
+The backend layer, `src/Backend`, is the part of Behat Steps that talks to the site directly: it creates content and users, clears caches, runs cron and reads the log, without going through the site's pages. It references nothing from Behat or Mink, which keeps it usable outside a test run.
 
 ## How a step picks a backend
 
-A step never names a backend. It asks for a capability, the 1 job it needs done, such as clearing caches, and the first backend in the scenario's order that provides that capability does the work. Select the diagram to open it at full size.
+A step never names a backend. It requests a capability, the 1 job it needs done, such as clearing caches, and the first backend in the scenario's order that provides that capability does the work. Select the diagram to open it at full size.
 
-[![Backend selection: a step asks BackendRegistry for a capability, which asks the scenario's backends in order and runs the first one that provides it](backend-selection.svg#gh-light-mode-only)](backend-selection.svg)
-[![Backend selection: a step asks BackendRegistry for a capability, which asks the scenario's backends in order and runs the first one that provides it](backend-selection.dark.svg#gh-dark-mode-only)](backend-selection.dark.svg)
+[![Backend selection: a step requests a capability from BackendRegistry, which checks the scenario's backends in order and returns the first one that provides it](backend-selection.svg#gh-light-mode-only)](backend-selection.svg)
+[![Backend selection: a step requests a capability from BackendRegistry, which checks the scenario's backends in order and returns the first one that provides it](backend-selection.dark.svg#gh-dark-mode-only)](backend-selection.dark.svg)
 
-Take `Given the cache has been cleared`. Its step method calls `backendFor(CacheCapabilityInterface::class)`, and `BackendRegistry` asks the scenario's backends in order whether they implement `CacheCapabilityInterface`:
+Take `Given the cache has been cleared`. Its step method calls `backendFor(CacheCapabilityInterface::class)`, and `BackendRegistry` checks the scenario's backends in order for `CacheCapabilityInterface`:
 
 1. The order comes from the `backends` list in your `behat.php`. A `@backend:NAME` tag on the scenario or its feature moves that backend to the front, and `BackendListener` settles the order as each scenario starts. Without a `backends` list, every registered backend takes part, in the order it was registered.
 2. The first backend that implements the capability does the work. The registry bootstraps it the first time any step needs it, and every later step reuses it.
@@ -25,17 +25,17 @@ So the same step runs in-process under `backends: [drupal, drush]` and over Drus
 
 ## The 3 backends
 
-- `drupal` is `Backend\Drupal\DrupalBackend`. It bootstraps Drupal inside the Behat process, calls Drupal's API through `Core`, and provides 34 of the 35 capabilities.
+- `drupal` is `Backend\Drupal\DrupalBackend`. It bootstraps Drupal inside the Behat process, calls Drupal's API through `Core` and provides 34 of the 35 capabilities.
 - `drush` is `Backend\Drupal\DrushBackend`. It runs `drush` commands against the site and provides 14.
 - `blackbox` is `Backend\BlackboxBackend`. It doesn't reach the site at all: it stands for a site you can only browse, and provides none.
 
-The `drupal` backend exists once your `behat.php` sets the `drupal` key, and `drush` once it sets the `drush` key. `blackbox` always exists.
+The `drupal` backend exists when your `behat.php` sets the `drupal` key, and `drush` when it sets the `drush` key. `blackbox` always exists.
 
 The 1 capability the `drupal` backend lacks is `DrushCapabilityInterface`, which runs a Drush command, so a step that runs Drush itself always reaches the `drush` backend. [Which backend serves a capability](../../../CONTRIBUTING.md#which-backend-serves-a-capability) lists the capabilities Drush serves, and why each other one stays in-process.
 
 ## Capabilities
 
-A capability is an interface, such as `CacheCapabilityInterface` or `UserCapabilityInterface`. A backend provides one by implementing it, so asking whether it does is an `instanceof` check, and a backend implements a capability only when it serves every method of it.
+A capability is an interface, such as `CacheCapabilityInterface` or `UserCapabilityInterface`. A backend provides one by implementing it, so asking whether it does is an `instanceof` check, and a backend implements a capability only when it serves every method of it. Capabilities come in 2 groups:
 
 - The 11 capabilities any backend may provide sit in `src/Backend/Capability`: authentication, cache, content, creation aliases, cron, entity lookups, languages, mail, the request environment, roles and users.
 - The 24 that only a Drupal backend provides sit in `src/Backend/Drupal/Capability`, such as blocks, config, files, the log, modules, nodes, queues, the State API, terms and workflows.
@@ -50,7 +50,7 @@ A capability method also leaves the site consistent behind it. `moduleInstall()`
 
 ## What the layer may reach
 
-[scripts/lint-layers.php](../../../scripts/lint-layers.php) holds the boundary. `src/Backend` references no Behat, Mink, extension or step code, and its root references no Drupal code either, so its contracts speak of entity types and storage values rather than of Drupal. The Drupal and Drush backends, `Core` with its field handlers and creation aliases, and the Drupal-only capabilities live in `src/Backend/Drupal`. [Layers](../../../CONTRIBUTING.md#layers) lists every rule.
+[scripts/lint-layers.php](../../../scripts/lint-layers.php) holds the boundary. `src/Backend` references no Behat, Mink, extension or step code, and its root references no Drupal code either, so its contracts speak of entity types and storage values rather than of Drupal. `src/Backend/Drupal` holds the Drupal-only capabilities, the Drupal and Drush backends and `Core`, with its field handlers and creation aliases. [Layers](../../../CONTRIBUTING.md#layers) lists every rule.
 
 ## Where to next
 

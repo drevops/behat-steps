@@ -13,13 +13,13 @@ This view shows what extends what. Select the diagram to open it at full size.
 
 The diagram holds 7 inheritance trees, 1 per panel:
 
-- **Contexts.** `WebRawContext` extends Mink's `RawMinkContext` and implements `BackendAwareInterface`, which the context initializer injects the extension's services through. `DrupalContext` adds `UserAwareInterface`, for the user registry and the authenticator. Your project's context extends 1 of the 3.
-- **Backends.** A backend declares each capability it provides as an interface it implements, most of them through its own backend interface, so asking whether it provides 1 is an `instanceof`. `DrupalBackend` hands the Drupal work to `Core`, which the `drupal.core` option replaces.
-- **Field handlers.** 1 handler per field type, all built on `AbstractHandler`. The `drupal.field_handlers` option adds a handler or replaces a shipped one.
-- **Creation aliases.** A creation alias handles a column an entity can't take as written: `AuthorAlias` turns an author's name into a `uid` before a node is created, and `RolesAlias` assigns a user's roles after the user is created.
-- **Browser adapters.** 1 adapter per browser driver family, declaring the browser capabilities that driver provides. A step asks for a capability such as `JavascriptCapabilityInterface`, never for a browser driver.
-- **Entity creation hooks.** Each hook attribute, such as `#[BeforeEntityCreate]`, names a call class built on `EntityHook`, and the hook's scope carries the stub of the entity being created.
-- **Exceptions.** What a failing step throws is part of the public contract, and [Exception types](../../../CONTRIBUTING.md#exception-types) says which one when.
+- Contexts. `WebRawContext` extends Mink's `RawMinkContext` and implements `BackendAwareInterface`, which the context initializer injects the extension's services through. `DrupalContext` adds `UserAwareInterface`, for the user registry and the authenticator. Your project's context extends 1 of the 3.
+- Backends. A backend declares each capability it provides as an interface it implements, most of them through its own backend interface, so checking whether it provides a capability is an `instanceof`. `DrupalBackend` hands the Drupal work to `Core`, which the `drupal.core` option replaces.
+- Field handlers. 1 handler per field type, all built on `AbstractHandler`. The `drupal.field_handlers` option adds a handler or replaces a shipped one.
+- Creation aliases. A creation alias handles a column an entity can't take as written: `AuthorAlias` turns an author's name into a `uid` before a node is created, and `RolesAlias` assigns a user's roles after the user is created.
+- Browser adapters. 1 adapter per browser driver family, declaring the browser capabilities that driver provides. A step requests a capability such as `JavascriptCapabilityInterface`, never a browser driver.
+- Entity creation hooks. Each hook attribute, such as `#[BeforeEntityCreate]`, names a call class built on `EntityHook`, and the hook's scope carries the stub of the entity being created.
+- Exceptions. What a failing step throws is part of the public contract, and [Exception types](../../../CONTRIBUTING.md#exception-types) says which one when.
 
 The services the extension builds each have 1 implementation of their interface, and [Extending the extension layer](../extending/extension.md) shows how to put a class of your own in place of one:
 

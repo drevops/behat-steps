@@ -13,6 +13,8 @@ The steps layer, `src/Steps`, is the part you use every day: the traits that hol
 
 ## What's in it
 
+The layer has 5 directories:
+
 - `src/Steps/Web` holds 28 step traits for any website.
 - `src/Steps/Drupal` holds 29 step traits for a Drupal site.
 - `src/Steps/Helper/Web` holds 8 helper traits: fixture directories, heading lookup, JavaScript error collection, last-step tracking, the request header bag, string shaping, table transposition and token replacement.
@@ -23,13 +25,15 @@ Only the 2 step trait directories register steps. A trait's directory is its cla
 
 ## How the contexts compose it
 
+Each context builds on the one before it:
+
 - `WebRawContext` registers no steps. It carries the plumbing and composes 3 web helper traits: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait`.
 - `WebContext` extends it and composes every trait under `Steps/Web`.
 - `DrupalContext` extends that and composes every trait under `Steps/Drupal`.
 
 `ContextCompositionTest` holds that coverage in both directions, and holds each trait to 1 composition across the 3 contexts, because a subclass that composes its parent's trait again registers every step in it twice. [Contexts](../guides/contexts.md) covers which context you extend and why 1 holds everything.
 
-A step trait composes the helper traits its own body calls, so what it needs travels with it. The traits that create entities compose `EntityLifecycleTrait` and so bring the `AfterScenario` pass that deletes what they created. PHP flattens a trait composed several times into 1, so those traits still share 1 registry, 1 hook and 1 deletion pass, newest entity first.
+A step trait composes the helper traits its own body calls, so it brings what it needs into any context that composes it. The traits that create entities compose `EntityLifecycleTrait` and so bring the `AfterScenario` pass that deletes what they created. PHP flattens a trait composed several times into 1, so those traits still share 1 registry, 1 hook and 1 deletion pass, newest entity first.
 
 A trait names the class it needs with `@phpstan-require-extends`: Mink's `RawMinkContext` when a Mink session is all it touches, and `WebRawContext` when it reaches a backend, an option or an HTTP client.
 
@@ -41,7 +45,13 @@ A step works through 1 of 3 doors, each on `WebRawContext` or Mink:
 - The site itself, through `backendFor()` and a capability, as [Backend layer](backend-layer.md) describes.
 - A request of its own, through 1 of the 3 [HTTP clients](../guides/http-clients.md).
 
-That splits the traits into 3 groups by what they need from a backend. Most web traits need none, because they work through the page alone. `MessageTrait`, `MappingTrait`, `RegionTrait` and `BasicAuthTrait` need the extension's configuration but no backend. Every other trait names the capabilities it works through, so it runs on any backend that provides them. [What a trait needs from the backend](../../../CONTRIBUTING.md#what-a-trait-needs-from-the-backend) lists which trait uses which.
+That splits the traits into 3 groups by what they need from a backend:
+
+- Most web traits need none, because they work through the page alone.
+- `MessageTrait`, `MappingTrait`, `RegionTrait` and `BasicAuthTrait` need the extension's configuration but no backend.
+- Every other trait names the capabilities it works through, so it runs on any backend that provides them.
+
+[What a trait needs from the backend](../../../CONTRIBUTING.md#what-a-trait-needs-from-the-backend) lists which trait uses which.
 
 ## The rules every trait follows
 

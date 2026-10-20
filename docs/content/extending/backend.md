@@ -9,13 +9,15 @@ description: Add or replace the field handlers and creation aliases the Drupal b
 
 # Extending the backend layer
 
-The backend layer is `src/Backend`, the part that talks to the site. You extend it with classes of your own, which the `drupal` and `drush` backends take through options under the `behat_steps` key. A field handler covers a field type the package ships no handler for, or replaces a shipped one. A creation alias lets your scenarios fill in a column the way a person would, and a Core of your own serves a site whose modules change what an operation has to do. When none of the shipped backends reaches the site the way your suite needs, a backend of your own can, registered from a Behat extension of yours.
+The backend layer is `src/Backend`, the part that talks to the site. You extend it with classes of your own, which the `drupal` and `drush` backends take through options under the `behat_steps` key.
+
+A field handler covers a field type the package ships no handler for, or replaces a shipped one. A creation alias lets your scenarios fill in a column the way a person would, and a Core of your own serves a site whose modules change what an operation has to do. When none of the shipped backends reaches the site the way your suite needs, a backend of your own can, registered from a Behat extension of yours.
 
 [Configuration](../guides/configuration.md#2-the-behat_steps-extension-key) lists the 4 options, `drupal.field_handlers`, `drupal.creation_aliases`, `drush.creation_aliases` and `drupal.core`, with every other option of the extension.
 
 ## Field handlers
 
-A step that creates or updates an entity on the `drupal` backend passes each field's value through a field handler, which turns the value a scenario writes into the value Drupal stores: a date in the site's timezone into UTC, a term name into its ID, or a file path into a managed file. The package ships a handler for each field type it supports, and `DefaultHandler` relays any other plain-scalar value as written.
+A step that creates or updates an entity on the `drupal` backend passes each field's value through a field handler, which turns the value a scenario writes into the value Drupal stores: a date in the site's timezone into UTC, a term name into its ID or a file path into a managed file. The package ships a handler for each field type it supports, and `DefaultHandler` relays any other plain-scalar value as written.
 
 `drupal.field_handlers` maps a field type to a handler class of your own. An entry for a field type the package ships no handler for adds one, and an entry for a shipped type replaces the shipped handler:
 
@@ -95,7 +97,9 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-An alias implements `PreCreateAliasInterface`, which changes the stub's values before the entity is saved, or `PostCreateAliasInterface`, which acts on the entity after it's saved. It runs only when the step gives its column. `getName()` returns the column, `getEntityType()` the entity type it applies to, and `getDescription()` a sentence for anyone listing a backend's aliases through `CreationAliasCapabilityInterface::getCreationAliases()`. A pre-create alias removes its own column once it has resolved it, so Drupal's entity storage sees fields only:
+An alias implements `PreCreateAliasInterface`, which changes the stub's values before the entity is saved, or `PostCreateAliasInterface`, which acts on the entity after it's saved. It runs only when the step gives its column.
+
+`getName()` returns the column, `getEntityType()` the entity type it applies to and `getDescription()` a sentence for anyone listing a backend's aliases through `CreationAliasCapabilityInterface::getCreationAliases()`. A pre-create alias removes its own column after it has resolved it, so Drupal's entity storage sees fields only:
 
 ```php
 namespace Acme\Behat\Alias;
@@ -159,7 +163,7 @@ $this->backendFor(CreationAliasCapabilityInterface::class)->registerCreationAlia
 
 Where an alias runs depends on the backend:
 
-- `drupal` runs an alias whenever a step creates an entity of its type: a node, a term, a user, a file, block content, or an entity the media, paragraph, menu link, ECK and `the following :entity_type entities exist:` steps create. Its field parser leaves the alias's column as written, while any other column that isn't a field fails the step with `The field "..." does not exist on entity type "...".` A `Core` of your own that doesn't implement `CreationAliasCapabilityInterface` keeps no aliases, so registering an alias on the `drupal` backend fails with an `UnsupportedBackendActionException`.
+- `drupal` runs an alias whenever a step creates an entity of its type: a node, a term, a user, a file, block content or an entity the media, paragraph, menu link, ECK and `the following :entity_type entities exist:` steps create. Its field parser leaves the alias's column as written, while any other column that isn't a field fails the step with `The field "..." does not exist on entity type "...".` A `Core` of your own that doesn't implement `CreationAliasCapabilityInterface` keeps no aliases, so registering an alias on the `drupal` backend fails with an `UnsupportedBackendActionException`.
 - `drush` creates only users, so it runs only the aliases for `user`. A pre-create alias runs before `drush user:create`, which takes only the name, the password and the email. A post-create alias runs after it, with an object carrying only the new user's `uid` in place of the entity. Drupal isn't loaded in the Behat process there, so an alias that reaches the site takes the backend in its constructor, the way the shipped `roles` alias takes `UserCapabilityInterface`, and is registered from a context.
 
 The options, `CreationAliasCapabilityInterface`, `CreationAliasInterface`, `PreCreateAliasInterface` and `PostCreateAliasInterface` are covered by semantic versioning. The shipped aliases are final, so an alias of your own implements an interface rather than extending 1 of them.
@@ -206,7 +210,7 @@ The option is covered by semantic versioning. `CoreInterface` and the Core class
 
 ## A backend of your own
 
-A backend of your own reaches the site in a way none of the shipped ones does, such as over the site's own API. A step names the capability it needs and never a backend, so a shipped step runs on your backend once it implements that capability and comes first among the backends in the scenario's order that do. [Backend resolution](../guides/configuration.md#backend-resolution) describes that order.
+A backend of your own reaches the site in a way none of the shipped ones does, such as over the site's own API. A step names the capability it needs and never a backend, so a shipped step runs on your backend when it implements that capability and comes first among the backends in the scenario's order that do. [Backend resolution](../guides/configuration.md#backend-resolution) describes that order.
 
 Every backend implements `BackendInterface`, which declares 3 methods. `getRandom()` returns the `RandomGeneratorInterface` that a context's `getRandom()` hands out when your backend comes first in the order. `bootstrap()` bootstraps the backend, and `isBootstrapped()` reports whether that has happened. The registry calls `bootstrap()` the first time a scenario resolves the backend, unless `isBootstrapped()` already returns `TRUE`, and it bootstraps only the backend it resolves.
 
@@ -265,7 +269,9 @@ public function load(ContainerBuilder $container, array $config): void {
 }
 ```
 
-Behat Steps collects the tagged services in its own `process()` and registers each one on the backend registry under its alias, lowercased. Behat calls every `load()` before any `process()`, so a backend defined in `load()` is registered whichever order the profile lists the extensions in. A backend defined in a `process()` that runs after Behat Steps' own isn't registered. A services file that `load()` reads carries the same tag, as the shipped [`blackbox.yml`](../../../src/Extension/ServiceContainer/config/backends/blackbox.yml) does. [From a Behat extension of your own](extension.md#from-a-behat-extension-of-your-own) shows the extension class and how a profile registers it.
+Behat Steps collects the tagged services in its own `process()` and registers each one on the backend registry under its alias, lowercased. Behat calls every `load()` before any `process()`, so a backend defined in `load()` is registered whichever order the profile lists the extensions in. A backend defined in a `process()` that runs after Behat Steps' own isn't registered.
+
+A services file that `load()` reads carries the same tag, as the shipped [`blackbox.yml`](../../../src/Extension/ServiceContainer/config/backends/blackbox.yml) does. [From a Behat extension of your own](extension.md#from-a-behat-extension-of-your-own) shows the extension class and how a profile registers it.
 
 `BehatStepsExtension` builds its backend providers in its own constructor, so `BackendProviderInterface` can't add yours, and the `behat_steps` key has no place for your backend's settings. Your extension takes them under its own config key and passes them to the backend's constructor.
 

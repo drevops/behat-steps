@@ -6,9 +6,13 @@ description: What each of the 3 contexts includes and why the library ships them
 
 # Contexts
 
-A context is the PHP class Behat finds step definitions in, as [Key concepts](../concepts.md#how-behat-runs-a-scenario) explains. Behat Steps ships 3 of them, each building on the one before it. Your project extends exactly 1 in a class of its own, `FeatureContext`, registers that class, and keeps its own steps there or in traits that class uses.
+A context is the PHP class Behat finds step definitions in, as [Key concepts](../concepts.md#how-behat-runs-a-scenario) explains. Behat Steps ships 3 of them, each building on the one before it. Your project extends exactly 1 in a class of its own, `FeatureContext`, then registers that class and keeps its own steps there or in traits that class uses.
+
+This page shows what each context includes, which one to extend and where your own steps go. Configuring the traits inside your context is covered in [Usage](usage.md).
 
 ## What each context includes
+
+Each context builds on the one before it:
 
 - `WebRawContext` extends Mink's `RawMinkContext` and has no steps. It holds the plumbing every step relies on: the backends, the browser's capabilities, the 3 HTTP clients, trait options, prerequisite checks and hook dispatch. It comes with 3 helper traits too: `LastStepTrait`, `RequestHeadersTrait` and `StringTrait`.
 - `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`: the 28 traits of [web steps](../web-steps/README.md), which work on any website.
@@ -17,6 +21,8 @@ A context is the PHP class Behat finds step definitions in, as [Key concepts](..
 A step trait also brings the helper traits it calls, so the traits that create content bring `EntityLifecycleTrait`, which deletes what a scenario created. [Steps layer](../architecture/steps-layer.md) draws how it all fits together.
 
 ## Which one to extend
+
+Pick the context that matches your site:
 
 - On a Drupal site, extend `DrupalContext`. It already holds every web step, `I visit` and the `{{ }}`, `[?...]` and `[relative:...]` value transforms included, because it inherits `PathTrait`, `RandomTrait`, `MappingTrait` and `DateTrait` from `WebContext`. So `WebContext` never goes beside it. Its Watchdog check fails every scenario on a site without the core `dblog` module until you enable the module or [switch the check off](usage.md#switch-a-trait-off).
 - On any other site, extend `WebContext`.
@@ -40,17 +46,17 @@ Your suite registers `FeatureContext` and Mink's `MinkContext`, and nothing else
 
 ## Why 1 context holds every step
 
-Behat lets a suite register as many contexts as it likes, and plenty of step libraries ship a context per topic for you to combine. Behat Steps puts every step on 1 context instead, for 3 reasons:
+Behat lets a suite register as many contexts as you want, and plenty of step libraries ship a context per topic for you to combine. Behat Steps puts every step on 1 context instead, for 3 reasons:
 
 - There's nothing to pick. Every shipped step is on the context you extend, so a scenario can use any of them without a change to your PHP.
 - Your own steps have 1 home. With several contexts, every new step raises the question of which one it belongs in, and a step in 1 context can't call a helper that only another context has. With 1 `FeatureContext`, every helper is on `$this`.
-- Nothing gets defined twice. Behat registers a trait's steps once for every registered context that has the trait, and refuses to run when 2 definitions share the same text. Registering 2 contexts built on `WebContext`, such as `DrupalContext` beside your `FeatureContext`, would define every web step twice, so `WebContext::assertOneContext()` stops the run before the first scenario and says which to drop.
+- Nothing gets defined twice. Behat registers a trait's steps once for every registered context that has the trait, and stops with an error when 2 definitions share the same text. Registering 2 contexts built on `WebContext`, such as `DrupalContext` beside your `FeatureContext`, would define every web step twice, so `WebContext::assertOneContext()` stops the run before the first scenario and says which to drop.
 
-Having every step costs little. A trait for a contrib module looks for its module only when one of its steps runs, and a check that could fail a scenario for a reason the scenario didn't ask about, such as the Watchdog check, carries an `enabled` option you can [switch off](usage.md#switch-a-trait-off) in `behat.php`. What you can't do is remove an inherited step: if a step of yours needs the exact text of a shipped one, reword yours, or [compose your own context](#compose-your-own-context) without the trait that ships it.
+Having every step costs little. A trait for a contrib module looks for its module only when one of its steps runs, and a check that could fail a scenario for a reason unrelated to what the scenario tests, such as the Watchdog check, carries an `enabled` option you can [switch off](usage.md#switch-a-trait-off) in `behat.php`. What you can't do is remove an inherited step: if a step of yours needs the exact text of a shipped one, reword yours, or [compose your own context](#compose-your-own-context) without the trait that ships it.
 
 ## Your own steps in traits of your own
 
-A step of your own can go straight into `FeatureContext`, as the [quick start](../quick-start.md#7-add-a-step-of-your-own) shows. Once you have more than a few, group them into traits, 1 per area of your site, the way the library groups its own steps, and have `FeatureContext` use them:
+A step of your own can go straight into `FeatureContext`, as the [quick start](../quick-start.md#7-add-a-step-of-your-own) shows. When you have more than a few, group them into traits, 1 per area of your site, the way the library groups its own steps, and have `FeatureContext` use them:
 
 ```text
 tests/behat/
@@ -60,6 +66,8 @@ tests/behat/
 └── features/
     └── publishing.feature
 ```
+
+`FeatureContext` uses the trait:
 
 ```php
 <?php
@@ -74,6 +82,8 @@ class FeatureContext extends DrupalContext {
 
 }
 ```
+
+The trait holds the steps, each built on a helper:
 
 ```php
 <?php
@@ -105,6 +115,8 @@ trait PublishingTrait {
 
 }
 ```
+
+Here's what each part of the trait does:
 
 - Each step calls 1 of the library's helpers on `$this`. [HELPERS.md](../../../HELPERS.md) lists them all. Call only the public ones: a protected method can change in any release.
 - The page and the user these helpers create are deleted when the scenario ends, as they are for the shipped steps.

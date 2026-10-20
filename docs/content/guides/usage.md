@@ -6,7 +6,7 @@ description: Configure the traits your context holds or switch their checks off,
 
 # Usage
 
-This guide covers the traits inside your context day to day: how to configure them, how to switch a trait's checks off, and what happens to the content your scenarios create. [Contexts](contexts.md) covers which context to extend and where your own steps go, and if traits or backends are new to you, [Key concepts](../concepts.md) explains them first.
+This guide covers the traits inside your context day to day: how to configure them, how to switch a trait's checks off and what happens to the content your scenarios create. [Contexts](contexts.md) covers which context to extend and where your own steps go, and if traits or backends are new to you, [Key concepts](../concepts.md) explains them first.
 
 Your context is built out of traits, and the extension points it at your site. The extension and the context answer different questions, and each trait reads from both:
 
@@ -97,7 +97,7 @@ Those are the trait's prerequisites, and it checks them when a scenario starts. 
 | On, the default | Reads the errors after the last step, and fails a scenario that logged one | Fails the scenario at its start, before any step runs |
 | Off, through `watchdog.enabled` or `@behat-steps-skip:WatchdogTrait` | Reads nothing and bootstraps no backend | Reads nothing and bootstraps no backend |
 
-A profile that lists no backend providing `LogCapabilityInterface`, such as `'backends' => ['blackbox']`, fails at the start the same way. The error names the prerequisite that doesn't hold and both ways out: meet it, or switch the trait off as above. A scenario that uninstalls `dblog` itself starts with the table in place, so it fails at its last step instead.
+A profile that lists no backend providing `LogCapabilityInterface`, such as `'backends' => ['blackbox']`, fails at the start the same way. The error names the prerequisite that doesn't hold and both fixes: meet it, or switch the trait off with `watchdog.enabled` or the skip tag. A scenario that uninstalls `dblog` itself starts with the table in place, so it fails at its last step instead.
 
 Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help with an unmet prerequisite. Both decide what happens to errors that were read, and without the table or a backend to read it through, there's nothing to read.
 
@@ -105,7 +105,7 @@ Setting `fail_on_errors` to `FALSE` or tagging the scenario `@error` won't help 
 
 ### Automatic cleanup
 
-Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, so your test database stays clean across long suites. Reverse order means a node comes down before the term it references.
+Every entity a scenario creates through a creation step or an `entityLifecycleCreate*()` helper is registered on the context and deleted in reverse creation order at the end of the scenario, so your test database stays clean across long suites. Reverse order means a node is deleted before the term it references.
 
 [Register what it creates](../extending/steps.md#register-what-it-creates) covers a step of your own that creates an entity itself.
 

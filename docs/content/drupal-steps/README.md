@@ -8,7 +8,7 @@ custom_edit_url: null
 
 # Drupal steps
 
-Drupal steps only mean something on a Drupal site. They create content, users, terms and media, clear caches, run cron and queues, check the emails the site sends and the errors it logs, and more. `DrupalContext` brings every one of them, on top of the [web steps](../web-steps/README.md) it inherits from `WebContext`. So on a Drupal site, your `FeatureContext` extends `DrupalContext` and has both, as [Contexts](../guides/contexts.md) explains.
+Drupal steps only mean something on a Drupal site. They create content, users, terms and media, clear caches and run cron and queues. They also check the emails the site sends and the errors it logs. `DrupalContext` brings every one of them, on top of the [web steps](../web-steps/README.md) it inherits from `WebContext`. So on a Drupal site, your `FeatureContext` extends `DrupalContext` and has both, as [Contexts](../guides/contexts.md) explains.
 
 The steps come grouped into traits, 1 per job, such as content, users or the State API. The table at the end of this page lists every trait and what it covers, and each name opens the trait's page.
 
@@ -20,13 +20,15 @@ Traits for contrib modules, such as Webform, Search API or Redirect, cost nothin
 
 ## How a trait's page reads
 
-The page opens with the trait's class name, links to its source, to the feature file that tests it and to its helpers, and a description of what it does. Then, where the trait has them:
+The page opens with the trait's class and its links: the source, the feature file that tests it and its helpers in `HELPERS.md`. A description of what the trait does follows. Then, where the trait has them:
 
 - Prerequisites: what the site has to provide before the trait's steps can run, such as the core `dblog` module that [Watchdog](watchdog.md) reads.
 - Options: the settings the trait reads, with their defaults and the tags that change them for 1 scenario. [Configure a trait](../guides/usage.md#configure-a-trait) shows where to set them.
 - Steps: every step of the trait, each under its `Given`, `When` or `Then` keyword. Open a step to see what it does and an example you can copy into a scenario.
 
-## Finding a step
+## Find a step
+
+You can find a step in 3 ways:
 
 - Search the site with the box at the top of the page.
 - Run `vendor/bin/behat --definitions=l` in your project. It lists every step your suite registers, Mink's and your own included.

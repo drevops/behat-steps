@@ -8,13 +8,13 @@ custom_edit_url: null
 
 # Web steps
 
-Web steps work on any website, whatever it's built with. They visit pages, fill in and submit forms, follow links, read cookies and response headers, and check JSON, XML and tables, all through the browser Mink drives. `WebContext` brings every one of them, and `DrupalContext` extends `WebContext`, so a `FeatureContext` built on either already has them all. [Contexts](../guides/contexts.md) explains which one to extend.
+Web steps work on any website, whatever it's built with. They visit pages, fill in and submit forms, follow links and read cookies and response headers. They also check JSON, XML and tables, all through the browser Mink drives. `WebContext` brings every one of them, and `DrupalContext` extends `WebContext`, so a `FeatureContext` built on either already has them all. [Contexts](../guides/contexts.md) explains which one to extend.
 
 The steps come grouped into traits, 1 per job, such as cookies, form fields or JSON responses. The table at the end of this page lists every trait and what it covers, and each name opens the trait's page.
 
 ## How a trait's page reads
 
-The page opens with the trait's class name, links to its source, to the feature file that tests it and to its helpers, and a description of what it does. Then, where the trait has them:
+The page opens with the trait's class and its links: the source, the feature file that tests it and its helpers in `HELPERS.md`. A description of what the trait does follows. Then, where the trait has them:
 
 - Prerequisites: what the site has to provide before the trait's steps can run.
 - Options: the settings the trait reads, with their defaults and the tags that change them for 1 scenario. [Configure a trait](../guides/usage.md#configure-a-trait) shows where to set them.
@@ -22,7 +22,9 @@ The page opens with the trait's class name, links to its source, to the feature 
 
 A few steps need a real browser, because they run the page's JavaScript, press keys or resize the window. They fail under the BrowserKit session the quick start sets up, and [Browsers](../guides/browsers.md) covers the browsers that run them.
 
-## Finding a step
+## Find a step
+
+You can find a step in 3 ways:
 
 - Search the site with the box at the top of the page.
 - Run `vendor/bin/behat --definitions=l` in your project. It lists every step your suite registers, Mink's and your own included.

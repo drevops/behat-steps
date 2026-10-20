@@ -1,7 +1,7 @@
 ---
 title: Browsers
 sidebar_position: 4
-description: The 3 browsers Behat Steps works with, BrowserKit, Selenium2 and Chrome, what each one can do, which steps need which, and how a scenario picks one.
+description: The 3 browsers Behat Steps works with, BrowserKit, Selenium2 and Chrome, what each one can do, which steps need which and how a scenario picks one.
 ---
 
 <!-- cspell:ignore chromedp dmore lullabot -->
@@ -20,11 +20,11 @@ The Selenium2 browser driver, from `lullabot/mink-selenium2-driver`, controls a 
 
 ## Chrome
 
-The Chrome browser driver, from `dmore/chrome-mink-driver`, controls Chrome directly over the Chrome DevTools Protocol, with no Selenium server in between. Chrome usually runs headless, with no window on screen, and any image that exposes a DevTools endpoint will do, such as `chromedp/headless-shell`. `dmore/behat-chrome-extension` registers it with Mink, and [Installation](../installation.md#javascript-browser-drivers) shows the settings.
+The Chrome browser driver, from `dmore/chrome-mink-driver`, controls Chrome directly over the Chrome DevTools Protocol, with no Selenium server in between. Chrome usually runs headless, with no window on screen, and any image that exposes a DevTools endpoint works, such as `chromedp/headless-shell`. `dmore/behat-chrome-extension` registers it with Mink, and [Installation](../installation.md#javascript-browser-drivers) shows the settings.
 
 ## What each one can do
 
-A step never asks for a browser by name. It asks for a capability, such as running JavaScript, and Behat Steps checks it against an adapter that declares what each browser driver provides. Here's what the 3 adapters declare:
+A step never names a browser. It requests a capability, such as running JavaScript, and Behat Steps checks it against an adapter that declares what each browser driver provides. Here's what the 3 adapters declare:
 
 | Capability | BrowserKit | Selenium2 | Chrome |
 | --- | --- | --- | --- |
@@ -42,7 +42,7 @@ Here's what needs each one:
 - Setting request headers: the header [Config overrides](../drupal-steps/config-override.md) sends, which a Selenium2 session goes without.
 - Lending its HTTP client to a step: the [REST APIs](../web-steps/rest.md) steps, whose response becomes the page.
 
-A step that needs a capability the session's browser lacks fails with an `UnsupportedDriverActionException` naming it. A few checks make do instead: the JavaScript error check of [JavaScript errors](../web-steps/javascript.md) switches itself off on a browser that can't run JavaScript, so a BrowserKit scenario never fails for it.
+A step that needs a capability the session's browser lacks fails with an `UnsupportedDriverActionException` naming it. A few checks switch themselves off instead: the JavaScript error check of [JavaScript errors](../web-steps/javascript.md) does on a browser that can't run JavaScript, so a BrowserKit scenario never fails for it.
 
 Some steps ask Mink directly for something only a real browser has, such as resizing the window for [Responsive layouts](../web-steps/responsive.md). Under BrowserKit, Mink reports that it can't.
 
@@ -81,11 +81,11 @@ Scenario: Visitor opens the menu
 
 The Chrome session also needs `ChromeExtension` registered beside Mink's extension, as [Installation](../installation.md#javascript-browser-drivers) shows.
 
-## Choosing between Selenium2 and Chrome
+## Choose between Selenium2 and Chrome
 
 They do the same job for a JavaScript scenario, so a suite installs 1 of them:
 
 - Pick Chrome for the shorter setup: it needs no Selenium server, and it can set request headers. This library's own CI runs it on both Behat 3 and Behat 4.
 - Pick Selenium2 when you need a browser other than Chrome, such as Firefox, or already run a Selenium grid.
 
-A browser driver beyond these 3 works once you register an adapter that declares its capabilities, as [Registering an adapter for another browser driver](../../../MIGRATION.md#registering-an-adapter-for-another-browser-driver) shows.
+A browser driver beyond these 3 works after you register an adapter that declares its capabilities, as [Registering an adapter for another browser driver](../../../MIGRATION.md#registering-an-adapter-for-another-browser-driver) shows.

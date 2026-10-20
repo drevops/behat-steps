@@ -1,12 +1,12 @@
 ---
 title: Key concepts
 sidebar_position: 4
-description: What feature files, steps, contexts, suites and extensions are, how Mink drives the browser, and what Behat Steps adds on top, from helpers and backends to the cleanup after each scenario.
+description: What feature files, steps, contexts, suites and extensions are, how Mink drives the browser and what Behat Steps adds on top, from helpers and backends to the cleanup after each scenario.
 ---
 
 # Key concepts
 
-The [quick start](quick-start.md) had you write a `behat.php`, a feature file and a step of your own. This page explains what each of those pieces is, how Behat and Mink run them, and what Behat Steps adds on top. If you've used Behat before, skip ahead to [What Behat Steps adds](#what-behat-steps-adds).
+The [quick start](quick-start.md) had you write a `behat.php`, a feature file and a step of your own. This page explains what each of those pieces is, how Behat and Mink run them and what Behat Steps adds on top. If you've used Behat before, skip ahead to [What Behat Steps adds](#what-behat-steps-adds).
 
 ## How Behat runs a scenario
 
@@ -21,9 +21,9 @@ Feature: Homepage
     And I should see the heading "Welcome!"
 ```
 
-Each line under `Scenario:` is a step. `Given` sets up what a scenario needs, `When` does the thing you're testing, and `Then` checks the result. `And` and `But` continue whichever keyword came before them.
+Each line under `Scenario:` is a step. `Given` sets up what a scenario needs, `When` does the thing you're testing and `Then` checks the result. `And` and `But` continue whichever keyword came before them.
 
-Behat doesn't read English, though. It matches each step against step definitions: PHP methods carrying an attribute with a pattern. This is the definition behind the first step above:
+Behat doesn't read English, though. It matches each step against step definitions: PHP methods carrying an attribute with a pattern. This is the definition behind the first step of that scenario:
 
 ```php
 #[When('I visit :path')]
@@ -63,19 +63,19 @@ Behat Steps ships its step definitions as PHP traits, each holding the steps for
 
 ### 3 contexts, each building on the last
 
-You don't register the traits 1 by 1. The library composes them into 3 contexts, and each one extends the one above it:
+You don't register the traits 1 by 1. The library composes them into 3 contexts, and each one extends the one before it:
 
 1. `WebRawContext` extends Mink's `RawMinkContext` and adds backend access, configuration, hook dispatch and 3 web helper traits. It has no steps.
 2. `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`, 28 in all.
 3. `DrupalContext` extends `WebContext` and adds every trait under `Steps\Drupal`, 29 in all.
 
-Because each context extends the one above it, `DrupalContext` already holds every web step. Your project extends exactly 1 of them in a class of its own, `FeatureContext`, and registers that class alone:
+Because each context extends the one before it, `DrupalContext` already holds every web step. Your project extends exactly 1 of them in a class of its own, `FeatureContext`, and registers that class alone:
 
 - `FeatureContext extends DrupalContext` on a Drupal site.
 - `FeatureContext extends WebContext` on any other site.
 - `WebRawContext` is the base of a context that picks its own traits, as [Compose your own context](guides/contexts.md#compose-your-own-context) shows.
 
-Your own steps then go in `FeatureContext`, or in traits of your own that it uses. If a suite registers 2 contexts built on `WebContext`, such as `DrupalContext` beside your `FeatureContext`, every web step would be defined twice, so Behat Steps stops the run before the first scenario with a message telling you to keep only 1. [Contexts](guides/contexts.md) explains what each context includes and why it's built this way.
+Your own steps then go in `FeatureContext`, or in traits of your own that it uses. If a suite registers 2 contexts built on `WebContext`, such as `DrupalContext` beside your `FeatureContext`, every web step would be defined twice. Behat Steps stops that run before the first scenario, with an error that names both contexts and says to keep only the one lowest in the chain, here your `FeatureContext`. [Contexts](guides/contexts.md) explains what each context includes and why it's built this way.
 
 ### Helpers behind every step
 
@@ -85,7 +85,14 @@ Each helper's name starts with the name of its trait, such as `cookieGetAll()` i
 
 ### The extension and its settings
 
-`BehatStepsExtension` connects the steps to Behat. It reads its settings from your `behat.php`: which backends the steps may use, what your login form looks like, which CSS selector each named region of your pages has, and the defaults of the traits' own options. A plain website needs none of them, and [Configuration](guides/configuration.md#2-the-behat_steps-extension-key) lists them all.
+`BehatStepsExtension` connects the steps to Behat. It reads the following settings from your `behat.php`:
+
+- Which backends the steps may use.
+- What your login form looks like.
+- Which CSS selector each named region of your pages has.
+- The defaults of the traits' own options.
+
+A plain website needs none of them, and [Configuration](guides/configuration.md#2-the-behat_steps-extension-key) lists them all.
 
 ### Backends: reaching the site without the browser
 
@@ -95,7 +102,7 @@ Some steps need the site itself rather than a page. `Given the following "page" 
 - `drush` runs Drush commands against the site.
 - `blackbox` stands for a site you can only browse, and does nothing on its own.
 
-A step never names a backend. It asks for a capability, such as creating content or clearing caches, and the first backend in your `backends` list that provides it does the work. So the same step can run in-process or through Drush, depending on that list. [How a step picks a backend](architecture/backend-layer.md#how-a-step-picks-a-backend) walks through it with a diagram, and [Backend resolution](guides/configuration.md#backend-resolution) states the rules.
+A step never names a backend. It requests a capability, such as creating content or clearing caches, and the first backend in your `backends` list that provides it does the work. So the same step can run in-process or through Drush, depending on that list. [How a step picks a backend](architecture/backend-layer.md#how-a-step-picks-a-backend) walks through it with a diagram, and [Backend resolution](guides/configuration.md#backend-resolution) states the rules.
 
 ### Cleanup after each scenario
 
@@ -105,11 +112,11 @@ Whatever the library's steps create, such as content, users or roles, the librar
 
 Some traits run checks around every scenario instead of waiting to be called as a step. `WatchdogTrait`, which `DrupalContext` includes, fails a scenario that logs a PHP error, and `JavascriptTrait` fails one that hits a JavaScript error.
 
-Tags are Gherkin's labels for a scenario or a feature, such as `@javascript`. Behat Steps reads tags of its own, such as `@behat-steps-skip:WatchdogTrait`, which switches a trait's checks off for 1 scenario. Many traits also declare options, settings you can change for the whole profile, for 1 context or for 1 scenario. [Configure a trait](guides/usage.md#configure-a-trait) shows how, [How a trait gets options without a constructor](architecture/extension-layer.md#how-a-trait-gets-options-without-a-constructor) shows how a trait declares them, and [Configuration](guides/configuration.md#3-tags) lists every tag.
+Tags are Gherkin's labels for a scenario or a feature, such as `@javascript`. Behat Steps reads tags of its own, such as `@behat-steps-skip:WatchdogTrait`, which switches a trait's checks off for 1 scenario. Many traits also declare options, settings you can change for the whole profile, for 1 context or for 1 scenario. [Configure a trait](guides/usage.md#configure-a-trait) shows how to set them, and [Configuration](guides/configuration.md#3-tags) lists every tag. [How a trait gets options without a constructor](architecture/extension-layer.md#how-a-trait-gets-options-without-a-constructor) shows how a trait declares them.
 
 ## The big picture
 
-Your project registers its `FeatureContext`, which extends 1 of the shipped contexts, and the Behat Steps extension beside Mink's. The traits decide what each step does. A step that drives the page uses the browser session Mink's extension opens, and a step that needs the site itself asks for a capability, which the first backend in your `backends` list that provides it answers.
+Your project registers its `FeatureContext`, which extends 1 of the shipped contexts, and the Behat Steps extension beside Mink's. The traits decide what each step does. A step that drives the page uses the browser session Mink's extension opens. A step that needs the site itself requests a capability, and the first backend in your `backends` list that provides it does the work.
 
 [![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](architecture/logical-architecture.svg#gh-light-mode-only)](architecture/logical-architecture.svg)
 [![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](architecture/logical-architecture.dark.svg#gh-dark-mode-only)](architecture/logical-architecture.dark.svg)
@@ -118,11 +125,13 @@ Your project registers its `FeatureContext`, which extends 1 of the shipped cont
 
 ## Words you'll see in these docs
 
+The rest of these docs use the following terms, listed in alphabetical order:
+
 | Term | What it means |
 | --- | --- |
 | Backend | How a step reaches the site without the browser: `drupal`, `drush` or `blackbox` |
 | Browser driver | What runs behind a Mink session: BrowserKit for plain HTTP, Selenium2 or Chrome for a real browser |
-| Capability | A job a backend can do, such as creating content. A step asks for a capability, never for a backend |
+| Capability | A job a backend can do, such as creating content. A step requests a capability, never a backend |
 | Context | A PHP class holding step definitions and hooks. Behat builds a fresh one for every scenario |
 | Extension | A package that plugs into Behat, such as Mink's extension or `BehatStepsExtension` |
 | Feature file | A `.feature` file holding a feature and its scenarios, written in Gherkin |

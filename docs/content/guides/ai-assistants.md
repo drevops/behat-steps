@@ -6,7 +6,7 @@ description: Point an AI coding agent at the step and helper references that shi
 
 # Writing tests with AI assistants
 
-An AI coding agent writes better scenarios from the steps your suite registers than from steps it imagines. Behat prints that list, and 2 references that ship with the Behat Steps package fill in the rest. They're plain Markdown, so an agent in your project can read them from `vendor/` at the version you installed:
+An AI coding agent writes better scenarios from the steps your suite registers than from steps it invents. Behat prints that list, and 2 references that ship with the Behat Steps package fill in the rest. This page gives you the snippet that points your agent at all 3. The references are plain Markdown, so an agent in your project can read them from `vendor/` at the version you installed:
 
 | File | Holds |
 | --- | --- |
@@ -17,7 +17,7 @@ An AI coding agent writes better scenarios from the steps your suite registers t
 
 Copy this into your project's `CLAUDE.md` or `AGENTS.md` file:
 
-```
+```markdown
 ## Writing Behat Tests
 
 Available step definitions are listed in `.behat-steps.txt`.
@@ -34,4 +34,4 @@ For detailed examples, see: vendor/drevops/behat-steps/STEPS.md
 For the helpers behind the steps, see: vendor/drevops/behat-steps/HELPERS.md
 ```
 
-`behat --definitions=i` lists every step your suite registers, Mink's and your project's included, so it's the list to write scenarios from. The 2 references add what the list leaves out: an example for each step this package ships, the options that change it, and the helpers a step definition of your own can call.
+`behat --definitions=i` lists every step your suite registers, Mink's and your project's included, so it's the list to write scenarios from. The 2 references add what the list leaves out: an example for each step this package ships, the options that change it and the helpers a step definition of your own can call.

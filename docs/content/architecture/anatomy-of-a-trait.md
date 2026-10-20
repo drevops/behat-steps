@@ -6,11 +6,13 @@ description: A made-up trait with options, hooks, steps and helpers, commented l
 
 # Anatomy of a trait
 
-Every step in Behat Steps lives in a trait, and so can yours. This page takes 1 made-up trait, `ConsentBannerTrait`, which deals with a site's cookie consent banner, and walks through it from top to bottom. It's written the way the library's own traits are, so it shows what to copy whether you're writing a trait for your project or contributing 1 to the library.
+Every step in Behat Steps lives in a trait, and so can yours. This page takes 1 made-up trait, `ConsentBannerTrait`, which deals with a site's cookie consent banner, and walks through it from top to bottom. It's written the way the library's own traits are, so it shows what to copy whether you're writing a trait for your project or contributing a trait to the library.
 
 The trait has every part a trait can have: a property, 2 hooks, a `Given`, a `When` and 2 `Then` steps, public helpers, protected methods and 4 options.
 
 ## The whole trait
+
+Here's the whole trait, ready to save in your project:
 
 ```php
 <?php
@@ -249,11 +251,11 @@ trait ConsentBannerTrait {
 }
 ```
 
-## Reading it from top to bottom
+## The trait, part by part
 
 ### The docblock
 
-The summary says what the trait is for. `@title` names the trait's page on this site, and `@phpstan-require-extends` names the class the trait needs: `WebRawContext`, which provides `skipTag()`, `getOptionString()` and everything else the trait calls without declaring. Your editor and PHPStan read that line to know where those methods come from.
+The summary says what the trait is for. `@title` names the trait's page on this site, and `@phpstan-require-extends` names the class the trait needs: `WebRawContext`, which provides `skipTag()`, `getOptionString()` and everything else the trait calls without declaring. Your editor and PHPStan read that line to find where those methods come from.
 
 ### Properties
 
@@ -261,19 +263,19 @@ A trait keeps its own state in properties, and every name starts with the trait'
 
 ### Hooks
 
-A hook is a method Behat runs by itself, at a point in the run its attribute names: `#[BeforeScenario]`, `#[AfterStep]` and so on. Its name is the trait's prefix and the event, such as `consentBannerAfterStep()`.
+A hook is a method Behat runs by itself, at a point in the run its attribute names: `#[BeforeSuite]`, `#[AfterSuite]`, `#[BeforeFeature]`, `#[AfterFeature]`, `#[BeforeScenario]`, `#[AfterScenario]`, `#[BeforeStep]` or `#[AfterStep]`. Its name is the trait's prefix and the event, such as `consentBannerAfterStep()`.
 
-A step hook can't see the scenario's tags, so the `BeforeScenario` hook makes the decision once and stores it in the property, and the `AfterStep` hook reads it. That decision starts with `skipTag(__TRAIT__, $scope)`, the same question the shipped traits' hooks ask, so you can switch the trait off with its `enabled` option for a whole profile, or with `@behat-steps-skip:ConsentBannerTrait` for 1 scenario.
+A step hook has no access to the scenario's tags, so the `BeforeScenario` hook makes the decision once and stores it in the property, and the `AfterStep` hook reads it. That decision starts with `skipTag(__TRAIT__, $scope)`, the same check the shipped traits' hooks run, so you can switch the trait off with its `enabled` option for a whole profile, or with `@behat-steps-skip:ConsentBannerTrait` for 1 scenario.
 
 ### Steps
 
 Each step is a method with a `#[Given]`, `#[When]` or `#[Then]` attribute holding its text, and it stays thin: it calls a helper or 2 and leaves the real work to them. That's what lets your own steps reach everything a shipped step can.
 
-- The `Given` makes sure of a state, so it's happy when the banner is already gone.
+- The `Given` makes sure of a state, so it passes when the banner is already gone.
 - The `When` does the thing the scenario tests, so it fails when there's no banner to accept.
 - Each `Then` checks something and throws Mink's `ExpectationException` when the check fails, with a message that says what it found and closes with "but it should be" or "but it should not be".
 
-The docblock above each step carries an example between `@code` and `@endcode`, and `@actor:person` or `@actor:system` says whether the step is something a person does. The library's docs generator reads both, so a shipped trait's page shows every example.
+The docblock of each step carries an example between `@code` and `@endcode`, and `@actor:person` or `@actor:system` says whether the step is something a person does. The library's docs generator reads both, so a shipped trait's page shows every example.
 
 ### Helpers
 
@@ -283,11 +285,11 @@ The protected methods at the bottom are the trait's own business. They aren't pa
 
 ### Options
 
-`consentBannerConfigSchema()` declares the trait's options, and the method's name is the whole registration: the prefix `consentBanner` becomes the group `consent_banner`. Each `Option` has a name, a default that also sets its type, and a description, and it can name tags that set it for 1 scenario, as `auto_accept` does with `@consent-accepted`. [How a trait gets options without a constructor](extension-layer.md#how-a-trait-gets-options-without-a-constructor) explains how the context finds and resolves them.
+`consentBannerConfigSchema()` declares the trait's options, and the method's name is the whole registration: the prefix `consentBanner` becomes the group `consent_banner`. Each `Option` has a name, a default that also sets its type and a description, and it can name tags that set it for 1 scenario, as `auto_accept` does with `@consent-accepted`. [How a trait gets options without a constructor](extension-layer.md#how-a-trait-gets-options-without-a-constructor) explains how the context finds and resolves them.
 
-## Using it in your project
+## Use it in your project
 
-Save it as `tests/behat/bootstrap/ConsentBannerTrait.php`, beside your `FeatureContext`, and have `FeatureContext` use it, as [Contexts](../guides/contexts.md#your-own-steps-in-traits-of-your-own) shows. Then set its options under `steps` in `behat.php`, if your banner doesn't use the defaults:
+Save it as `tests/behat/bootstrap/ConsentBannerTrait.php`, beside your `FeatureContext`, and have `FeatureContext` use it, as [Contexts](../guides/contexts.md#your-own-steps-in-traits-of-your-own) shows. If your banner doesn't use the defaults, set its options under `steps` in `behat.php`:
 
 ```php
 ->withExtension(new Extension(BehatStepsExtension::class, [
@@ -297,7 +299,7 @@ Save it as `tests/behat/bootstrap/ConsentBannerTrait.php`, beside your `FeatureC
 ]))
 ```
 
-And use its steps:
+Then use its steps in a feature file:
 
 ```gherkin
 Feature: Consent banner
@@ -316,7 +318,7 @@ Feature: Consent banner
 
 In the second scenario, the `@consent-accepted` tag turns `auto_accept` on, so the `AfterStep` hook accepts the banner right after the visit.
 
-## Contributing a trait like it
+## Contribute a trait like it
 
 A trait you contribute to Behat Steps follows the same shape, with a few more obligations:
 
