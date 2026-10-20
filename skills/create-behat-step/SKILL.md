@@ -151,9 +151,10 @@ trait PublishingTrait {
    */
   #[Then('the page titled :title should be authored by the user :name')]
   public function publishingAssertPageAuthoredBy(string $title, string $name): void {
+    $nid = $this->contentGetNidByTitle('page', $title);
     $uid = $this->queryGetEntityId($this->userGetByName($name), 'uid');
 
-    if ($this->queryNodeIds('page', ['title' => $title, 'uid' => $uid]) === []) {
+    if ($this->queryNodeIds('page', ['nid' => $nid, 'uid' => $uid]) === []) {
       throw new ExpectationException(sprintf('The page "%s" is not authored by the user "%s", but it should be.', $title, $name), $this->getSession()->getDriver());
     }
   }
