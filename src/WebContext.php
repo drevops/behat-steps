@@ -39,16 +39,17 @@ use DrevOps\BehatSteps\Steps\Web\XmlTrait;
 /**
  * Zero-config context carrying the whole web vocabulary.
  *
- * Registering this context in a suite is enough to write features against a
- * web page without writing any PHP. It defines no steps of its own: it is
+ * Extending this class is enough to write features against a web page
+ * without declaring a step. It defines no steps of its own: it is
  * 'WebRawContext' plus every trait under 'Steps\Web'.
  *
  * A trait that can fail a scenario on a check the scenario did not ask for
  * carries an 'enabled' option. A project switches it off through
  * configuration rather than by composing its own context.
  *
- * A Drupal suite registers 'DrupalContext', which extends this class, so it
- * gets the web vocabulary too. Registering both is fatal.
+ * 'DrupalContext' extends this class, so a context extending 'DrupalContext'
+ * carries the web vocabulary too. Registering 2 classes of this chain in 1
+ * suite is fatal.
  *
  * @see \DrevOps\BehatSteps\WebRawContext
  * @see \DrevOps\BehatSteps\DrupalContext
@@ -109,7 +110,17 @@ class WebContext extends WebRawContext {
       return;
     }
 
-    throw new \RuntimeException(sprintf('The "%s" suite registers %s, which all carry the %s vocabulary, so every web step would register more than once. Register the one lowest in the chain and drop the rest: a Drupal suite needs %s alone.', $scope->getSuite()->getName(), implode(' and ', $registered), self::class, DrupalContext::class));
+    $message = sprintf('The "%s" suite registers %s, which all carry the %s vocabulary, so every web step would register more than once.', $scope->getSuite()->getName(), implode(' and ', $registered), self::class);
+
+    foreach ($registered as $class) {
+      $others = array_diff($registered, [$class]);
+
+      if (array_filter($others, static fn(string $other): bool => !is_a($class, $other, TRUE)) === []) {
+        throw new \RuntimeException(sprintf('%s Keep %s, which extends every other one, and drop %s.', $message, $class, implode(' and ', $others)));
+      }
+    }
+
+    throw new \RuntimeException($message . ' None of them extends every other one, so keep 1 and move the steps of the rest into it.');
   }
 
 }

@@ -87,6 +87,8 @@ $ui = (new Suite('ui'))
   ]);
 ```
 
+Behat passes a context only the arguments on its own registration, so `config` goes on the registration of `FeatureContext`, the class your suite registers. An argument registered for `DrupalContext` or `WebContext` never reaches a `FeatureContext` that extends it.
+
 A group names the trait that declares it, so a context accepts only the groups its own traits bring. `WaitTrait` and `JavascriptTrait` are web traits, so `WebContext` takes `wait` and `javascript`, among others. `DrupalContext` extends it and adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`, and a `FeatureContext` that extends `DrupalContext` takes them all. A group that no trait of the context declares, counting the traits of the classes it extends, fails the context at construction, with an error that names the groups it accepts.
 
 A context can take arguments of its own too. It declares them in its constructor and forwards `config` to the parent. A default keeps an argument optional, so a suite that doesn't pass it, like the `api` suite in the first example, still builds the context:

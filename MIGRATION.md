@@ -265,23 +265,90 @@ Removing `@api` changes 3 things to check in an existing project:
 Trait options are new in 4.0. 3.14 tuned a trait by overriding a `Get` method in your `FeatureContext`, such as `modalGetSelectors()`, `tableGetHeaderSelector()` or `queueGetProcessLimit()`. Those methods still exist and return the matching option, so an override still wins once it's declared `public`, as [Visibility changes](#visibility-changes) explains. The option itself can be set without code:
 
 - for a profile, under the extension's `steps` section;
-- for 1 context, through its `config` argument, as [Constructor](#constructor) shows;
+- for 1 context, through the `config` argument of its registration, as [Contexts to register](#contexts-to-register) shows;
 - for 1 feature or scenario, through the tag the option declares, where it declares one.
 
 An option resolves through the declaration default, then `behat_steps: steps:`, then the context's `config` argument, then the feature tag, then the scenario tag. Each group is named after the trait that declares it, in snake case: `JavascriptTrait` reads `javascript`, `BigPipeTrait` reads `big_pipe` and `FileDownloadTrait` reads `file_download`. [STEPS.md](STEPS.md) lists each trait's options beside its steps, and [Trait options](docs/content/extending/steps.md#declare-options-for-a-trait-of-your-own) shows how a trait of your own declares one.
 
-A `config` argument that names a group or an option its context can't serve fails while Behat builds the context, and the error names what the context accepts. `WebContext` accepts the groups its web traits declare, such as `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics`, and `DrupalContext` adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. The extension's `steps` section is read permissively: a group there may name a trait that only 1 of the registered contexts composes.
+A `config` argument that names a group or an option its context can't serve fails while Behat builds the context, and the error names what the context accepts. A `FeatureContext` that extends `WebContext` accepts the groups the web traits declare, such as `javascript`, `modal`, `wait`, `message`, `mapping` and `diagnostics`, and one that extends `DrupalContext` adds the groups of the Drupal traits, such as `watchdog`, `big_pipe`, `cache`, `queue` and `email`. The extension's `steps` section is read permissively: a group there may name a trait that only 1 of the registered contexts composes.
 
 ### Contexts to register
 
-A 3.14 suite registered the Drupal Extension's contexts, such as `DrupalContext`, `MinkContext`, `MessageContext` and `DrushContext`, beside a context of its own that composed this package's traits. 4.0's `DrevOps\BehatSteps\DrupalContext` composes all 57 step traits, which carry the Drupal Extension's vocabulary, so `$suite->addContext(DrupalContext::class)` alone gives a Drupal suite every step this package ships.
+A 4.0 suite registers 1 context of your own, `FeatureContext`, beside Mink's `MinkContext`, and none of the 3 contexts this package ships. On a Drupal site, `FeatureContext` extends `DrevOps\BehatSteps\DrupalContext`, which composes all 57 step traits. On any other site, it extends `DrevOps\BehatSteps\WebContext`, which composes the 28 web ones. Your own steps go in `FeatureContext` too.
 
-Register Mink's own `Behat\MinkExtension\Context\MinkContext` where the suite registered the Drupal Extension's `MinkContext`, which extended it. It brings the base browser steps, such as `I am on`, `I go to`, `I should see`, `I fill in`, `I press`, `I follow`, `I check`, `I select`, `I attach the file` and `the response status code should be`, with their text unchanged. Don't register the Drupal Extension's `RandomContext` or `MappingContext` either: `RandomTrait` and `MappingTrait` carry the `[?name:type]` and `{{ Key }}` tokens unchanged, and `WebContext` composes both.
+In `behat.php`:
 
-- Registering `WebContext` beside `DrupalContext` is fatal, because the 28 web traits would register their steps twice. `WebContext::assertOneContext()` runs on `BeforeSuite` and names the mistake.
-- 2 registered contexts can't compose the same trait: Behat throws a `RedundantStepException`. Drop the trait from the context you composed by hand, or register the shipped context instead of it.
+```php
+use Behat\Config\Suite;
+use Behat\MinkExtension\Context\MinkContext;
+
+$suite = (new Suite('default'))
+  ->withPaths('%paths.base%/tests/behat/features')
+  ->addContext(FeatureContext::class)
+  ->addContext(MinkContext::class);
+```
+
+In `FeatureContext.php`:
+
+```php
+use DrevOps\BehatSteps\DrupalContext;
+
+class FeatureContext extends DrupalContext {
+
+}
+```
+
+`behat.php` imports no context of this package: only `FeatureContext.php` names `DrupalContext` or `WebContext`. A context from another package, such as `ScreenshotContext`, stays registered as it was.
+
+How a 3.14 suite gets there depends on what it registered:
+
+- A suite that registered a `FeatureContext` extending the Drupal Extension's `DrupalContext`, as the 3.14 README showed, keeps that registration. `FeatureContext` changes its parent to `DrevOps\BehatSteps\DrupalContext`, as [Base classes](#base-classes) shows, and carries every step this package ships beside its own.
+- A suite that registered the Drupal Extension's `DrupalContext` directly drops it and registers a `FeatureContext` that extends `DrevOps\BehatSteps\DrupalContext` instead. A context of its own that extended `RawDrupalContext` can be that `FeatureContext`: it changes its parent the same way and drops the `use` lines for this package's traits.
+- A suite on a site that isn't Drupal, whose context extended Mink's `RawMinkContext`, keeps registering it. The context extends `DrevOps\BehatSteps\WebContext` and drops the `use` lines for this package's traits, or extends `DrevOps\BehatSteps\WebRawContext` and keeps them to compose only the traits it picked, as [Base classes](#base-classes) shows.
+
+In `behat.yml`, a suite of the first kind changes like this:
+
+```yaml
+# Before.
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MarkupContext
+        - Drupal\DrupalExtension\Context\MessageContext
+
+# After.
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext
+        - Behat\MinkExtension\Context\MinkContext
+```
+
+Drop the rest of the Drupal Extension's contexts the suite registered, such as `MarkupContext`, `MessageContext`, `DrushContext`, `ConfigContext` and `MailContext`: `DrupalContext` composes the traits that carry their steps, as [Drupal Extension steps](#drupal-extension-steps) lists. `RandomContext` and `MappingContext` go too, because `RandomTrait` and `MappingTrait` carry the `[?name:type]` and `{{ Key }}` tokens unchanged, and `WebContext` composes both.
+
+Register Mink's own `Behat\MinkExtension\Context\MinkContext` where the suite registered the Drupal Extension's `MinkContext`, which extended it. It brings the base browser steps, such as `I am on`, `I go to`, `I should see`, `I fill in`, `I press`, `I follow`, `I check`, `I select`, `I attach the file` and `the response status code should be`, with their text unchanged.
+
+A `config` argument goes on the `FeatureContext` registration. Behat passes a context only the arguments registered with its own class, so a `config` argument written for `DrupalContext::class` never reaches a `FeatureContext` that extends it:
+
+```php
+$suite = (new Suite('default'))
+  ->withPaths('%paths.base%/tests/behat/features')
+  ->addContext(FeatureContext::class, [
+    'config' => ['wait' => ['ajax_timeout' => 10]],
+  ])
+  ->addContext(MinkContext::class);
+```
+
+The extension's `steps` section reaches every registered context, whatever its class, as [Trait options](#trait-options) describes.
+
+- Registering a shipped context beside a `FeatureContext` that extends it is fatal, and so is registering `WebContext` beside `DrupalContext`, because the 28 web traits would register their steps twice. `WebContext::assertOneContext()` runs on `BeforeSuite`, names the contexts and says which one to keep.
+- 2 registered contexts can't compose the same trait: Behat throws a `RedundantStepException`. Drop the trait from the context you composed by hand, or move that context's steps into `FeatureContext`.
 - An inherited step can't be removed, so a Drupal project can't take the Drupal step traits without the 28 web ones. A project whose own step text collides with a shipped web step extends `WebRawContext` and composes the traits it wants.
-- `DrupalContext` composes `WatchdogTrait`, so a suite that registers it fails any scenario that logs a PHP error, even when your 3.14 context never composed the trait. The check reads the `watchdog` table, which only the core `dblog` module creates, through a backend that provides `LogCapabilityInterface`, such as `drupal` or `drush`. On a site without `dblog`, or under a profile that lists no such backend, such as `'backends' => ['blackbox']`, every scenario fails at its start until you meet the prerequisite or switch the check off for the profile with `'steps' => ['watchdog' => ['enabled' => FALSE]]`. Setting `fail_on_errors` to `FALSE`, or tagging a scenario `@error`, doesn't cover an unmet prerequisite, because both only apply to errors that were read.
+- `DrupalContext` composes `WatchdogTrait`, so a suite whose context extends it fails any scenario that logs a PHP error, even when your 3.14 context never composed the trait. The check reads the `watchdog` table, which only the core `dblog` module creates, through a backend that provides `LogCapabilityInterface`, such as `drupal` or `drush`. On a site without `dblog`, or under a profile that lists no such backend, such as `'backends' => ['blackbox']`, every scenario fails at its start until you meet the prerequisite or switch the check off for the profile with `'steps' => ['watchdog' => ['enabled' => FALSE]]`. Setting `fail_on_errors` to `FALSE`, or tagging a scenario `@error`, doesn't cover an unmet prerequisite, because both only apply to errors that were read.
 
 ### Environment variables
 
@@ -311,11 +378,11 @@ A 3.14 context extended the Drupal Extension's `DrupalContext` or `RawDrupalCont
 | `WebContext` | The suite tests a web page and wants the 28 web step traits |
 | `WebRawContext` | The project picks its own traits; each one brings the helpers it needs |
 
-| 3.14 parent | 4.0 parent |
-| --- | --- |
-| `Drupal\DrupalExtension\Context\RawDrupalContext` | `DrevOps\BehatSteps\WebRawContext` |
-| `Behat\MinkExtension\Context\RawMinkContext`, composing this package's traits | `DrevOps\BehatSteps\WebRawContext` |
-| `Drupal\DrupalExtension\Context\DrupalContext` | `DrevOps\BehatSteps\DrupalContext`, without the `use` lines for the traits it already composes |
+| 3.14 parent | 4.0 parent | Notes |
+| --- | --- | --- |
+| `Drupal\DrupalExtension\Context\RawDrupalContext` | `DrevOps\BehatSteps\WebRawContext` | A context the suite registered beside the Drupal Extension's `DrupalContext` extends `DrevOps\BehatSteps\DrupalContext` instead; see [Contexts to register](#contexts-to-register) |
+| `Behat\MinkExtension\Context\RawMinkContext`, composing this package's traits | `DrevOps\BehatSteps\WebRawContext` | A context that takes all 28 web step traits extends `DrevOps\BehatSteps\WebContext` instead, without the `use` lines; see [Contexts to register](#contexts-to-register) |
+| `Drupal\DrupalExtension\Context\DrupalContext` | `DrevOps\BehatSteps\DrupalContext` | Drop the `use` lines for the traits it already composes. The suite keeps registering the context; see [Contexts to register](#contexts-to-register) |
 
 ```php
 // Before.
@@ -381,7 +448,7 @@ A constructor that doesn't forward it fails as soon as a hook or a step reads an
 UiContext declares a constructor that does not call parent::__construct(), so its "config" argument was never set. Add "array $config = []" to the constructor and forward it.
 ```
 
-[Context constructor arguments](docs/content/guides/configuration.md#context-constructor-arguments) shows how a suite passes `config`.
+The suite passes `config`, and any argument of the context's own, on that context's registration, as [Context constructor arguments](docs/content/guides/configuration.md#context-constructor-arguments) shows.
 
 ### Interfaces
 
@@ -1084,7 +1151,7 @@ A skip tag naming a trait that no context of the suite composes fails the same w
 The "@behat-steps-skip:EmialTrait" tag names no trait a context of the "default" suite composes, so it would switch nothing off. Check the trait name for a typo, or remove the tag.
 ```
 
-A trait counts as composed when a context uses it directly, through a parent class or through another trait, so `@behat-steps-skip:EntityLifecycleTrait` works in a suite that registers `DrupalContext`. The name has to match the trait's own, case included. A feature that 2 suites share, carrying a skip tag for a trait only 1 suite's contexts compose, fails in the other suite: drop the tag and switch the trait off with its `enabled` option instead, in the `config` argument of the context that composes it.
+A trait counts as composed when a context uses it directly, through a parent class or through another trait, so `@behat-steps-skip:EntityLifecycleTrait` works in a suite whose `FeatureContext` extends `DrupalContext`. The name has to match the trait's own, case included. A feature that 2 suites share, carrying a skip tag for a trait only 1 suite's contexts compose, fails in the other suite: drop the tag and switch the trait off with its `enabled` option instead, in the `config` argument of the context that composes it.
 
 The trait's tag reaches every hook of its trait. For `ConfigTrait`, `ConfigOverrideTrait`, `QueueTrait`, `RestTrait`, `StateTrait`, `TimeTrait` and `WatchdogTrait`, it does exactly what the hook-method tag did, because the trait has 1 hook to switch off or both of its tags had the same effect. For the others, a tag that skipped the teardown alone now skips the setup as well. `@behat-steps-skip:EmailTrait`, for one, keeps an `@email` scenario from enabling the test email system, not only from disabling it afterwards, and a scenario that wants the collector without the teardown enables it with `When the test email system is enabled`.
 

@@ -4,15 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests;
 
-use Behat\Behat\Context\Context;
-use Behat\Behat\Context\Environment\UninitializedContextEnvironment;
 use Behat\Config\Config;
-use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
-use Behat\Testwork\Specification\SpecificationIterator;
-use Behat\Testwork\Suite\GenericSuite;
-use DrevOps\BehatSteps\DrupalContext;
+use Behat\MinkExtension\Context\MinkContext;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
-use DrevOps\BehatSteps\WebContext;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -31,12 +25,18 @@ class BehatDistConfigTest extends UnitTestCase {
     $this->assertSame([], $this->collectUncoveredPaths(static::buildConfigTree(), static::readSetting('default', 'extensions', BehatStepsExtension::class), ''));
   }
 
-  public function testTheSuiteRegistersDrupalContextAlone(): void {
-    $environment = static::buildContextEnvironment('default');
+  public function testTheSuiteRegistersFeatureContextAndMinkContext(): void {
+    $contexts = [];
 
-    WebContext::assertOneContext(new BeforeSuiteScope($environment, $this->createStub(SpecificationIterator::class)));
+    foreach ((array) (static::readSetting('default', 'suites', 'default')['contexts'] ?? []) as $context) {
+      $contexts[] = is_array($context) ? array_key_first($context) : $context;
+    }
 
-    $this->assertContains(DrupalContext::class, $environment->getContextClasses());
+    $this->assertSame(['FeatureContext', MinkContext::class], $contexts);
+  }
+
+  public function testTheProfileAutoloadsFeatureContext(): void {
+    $this->assertSame(['%paths.base%/tests/behat/bootstrap'], static::readSetting('default')['autoload'] ?? NULL);
   }
 
   /**
@@ -70,29 +70,6 @@ class BehatDistConfigTest extends UnitTestCase {
     }
 
     return $paths;
-  }
-
-  /**
-   * Builds the context environment Behat passes to a reference suite's hooks.
-   *
-   * @param string $name
-   *   The name of the suite in the default profile.
-   */
-  protected static function buildContextEnvironment(string $name): UninitializedContextEnvironment {
-    $settings = static::readSetting('default', 'suites', $name);
-    $environment = new UninitializedContextEnvironment(new GenericSuite($name, $settings));
-
-    foreach ((array) ($settings['contexts'] ?? []) as $context) {
-      $class = (string) (is_array($context) ? array_key_first($context) : $context);
-
-      if (!is_a($class, Context::class, TRUE)) {
-        self::fail(sprintf('The "%s" suite in behat.dist.php registers "%s", which is not a Behat context.', $name, $class));
-      }
-
-      $environment->registerContextClass($class);
-    }
-
-    return $environment;
   }
 
   /**
