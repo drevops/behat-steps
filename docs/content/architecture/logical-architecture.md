@@ -6,7 +6,7 @@ description: The 3 layers of Behat Steps, the contexts on top of them, which way
 
 # Logical architecture
 
-This view shows the parts of the library and which way they depend on each other. Select the diagram to open it at full size.
+This view shows the parts of the library and which way they depend on each other. Select the diagram to zoom in.
 
 [![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](logical-architecture.svg#gh-light-mode-only)](logical-architecture.svg)
 [![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](logical-architecture.dark.svg#gh-dark-mode-only)](logical-architecture.dark.svg)

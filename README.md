@@ -22,7 +22,7 @@
 
 [![Join our community](https://img.shields.io/badge/Join%20our%20community-Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)](https://drupal.slack.com/archives/C4T2JHG9K)
 
-[Read the documentation](https://behat-steps.drevops.com)
+[Read the documentation](https://behat-steps.drevops.com) for the latest release, or the [development documentation](https://behat-steps-docs.netlify.app/) built from `main`.
 </div>
 
 ---

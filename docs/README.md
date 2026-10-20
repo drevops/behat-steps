@@ -25,6 +25,10 @@ npm run test:accessibility   # Check the built site for accessibility issues
 - **Links.** The build rewrites a link that leaves `content/` into a GitHub link. It points at the tag or branch a release build comes from, at the commit a CI build comes from, and at `main` for a local build. The build fails on a broken page link or anchor, and on a link to a repository file that doesn't exist.
 - **Gherkin highlighting.** Prism's Gherkin grammar recognizes a step keyword only after indentation, so `src/theme/prism-include-languages.js` widens it to the start of a line. A step example highlights the same with or without indentation.
 - **Diagrams in 2 color modes.** A diagram's page embeds its light SVG with a `#gh-light-mode-only` fragment and its dark SVG with `#gh-dark-mode-only`, the convention GitHub follows. Docusaurus keeps the fragment on the built image, and `src/css/custom.css` hides the image for the other color mode, with the link around it, so the site's own color toggle switches the diagram. `tests/unit/content/diagrams.test.js` fails a diagram embedded without its pair.
+- **Images in a lightbox.** `src/theme/MDXComponents.js` hands every Markdown image and link to the components in `src/components/Lightbox`, which open an image in a dialog over the page:
+  - Selecting an image with alt text opens it, and so does selecting a link to an `.avif`, `.gif`, `.jpeg`, `.jpg`, `.png`, `.svg` or `.webp` file that holds only an image with alt text, which is how a diagram is embedded. A double-click opens the dialog once, fitted, as a single click does. An image without alt text, an image inside any other link and a link with text beside its image stay a plain image or an ordinary link. A click on the link with a modifier key keeps the browser's own behavior, so <kbd>Ctrl</kbd>-click, or <kbd>Cmd</kbd>-click on a Mac, opens the linked file in a new tab.
+  - In the dialog, selecting the image zooms it to whichever is larger, its natural size or twice its fitted size, and selecting it again fits it back in the window. A mouse drag pans a zoomed image.
+  - The **Close** button, <kbd>Esc</kbd> and a click beside the image close the dialog. For a linked image, the **Open the image in a new tab** button opens the linked file.
 
 ## The home page
 
@@ -41,7 +45,7 @@ The page's words sit in lists at the top of `src/pages/index.js`, 1 per section:
 
 ## Accessibility
 
-The site aims for [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA in both color modes. `npm run test:accessibility` runs [axe](https://github.com/dequelabs/axe-core) on every page of the build, in light and dark mode, at a desktop width and a phone width, against the WCAG A and AA rules. These scans run with reduced motion, so the home page shows every block at once, and a separate check scans the home page again after scrolling through it with motion on. It also opens the search dropdown and the mobile menu, switches the home page's feature file from the keyboard and copies its install command, and checks how they behave.
+The site aims for [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA in both color modes. `npm run test:accessibility` runs [axe](https://github.com/dequelabs/axe-core) on every page of the build, in light and dark mode, at a desktop width and a phone width, against the WCAG A and AA rules. These scans run with reduced motion, so the home page shows every block at once, and a separate check scans the home page again after scrolling through it with motion on. It also opens the search dropdown, the mobile menu and a diagram in the lightbox, switches the home page's feature file from the keyboard and copies its install command, and checks how they behave.
 
 Automated checks catch many problems but miss others. The site handles some of it for you:
 
@@ -49,6 +53,7 @@ Automated checks catch many problems but miss others. The site handles some of i
 - Text colors have at least 4.5:1 contrast against their background. The light-mode blue is `#266fbd`, a darker shade of the `#2a77cd` logo blue, and the dark-mode blue is `#84b2e6`, a lighter one. The code block colors live in `src/codeThemes.js`, and a unit test checks every token color of both themes.
 - A table wider than the page takes keyboard focus, so you can scroll it with <kbd>←</kbd> and <kbd>→</kbd>.
 - The mobile menu keeps keyboard focus inside while it's open and closes on <kbd>Esc</kbd>, and the search box gets the ARIA attributes its autocomplete widget leaves out. Both fixes live in `src/theme/`, so check them when Docusaurus or the search plugin changes its markup.
+- The lightbox is a modal dialog named after the image's alt text, and nothing on the page behind it can take keyboard focus. Focus starts on the image, where <kbd>Enter</kbd> zooms in and out and the arrow keys scroll a zoomed image, and <kbd>Esc</kbd> closes the dialog and returns focus to the image or link that opened it.
 
 The rest is up to whoever writes the page, and [Documentation](content/contributing/documentation.md#writing-pages) lists what that takes.
 
@@ -58,7 +63,7 @@ The `Docs` job of the `Test` workflow installs the dependencies, builds the site
 
 ## Previews
 
-When the `NETLIFY_SITE_ID` and `NETLIFY_AUTH_TOKEN` repository secrets are set, the same job deploys the built site to [Netlify](https://www.netlify.com/). Every push to `main` updates the development site, and every pull request gets a preview of its own, linked in a comment on the pull request. Without the secrets, the job skips the deployment, so a pull request from a fork still builds and tests the docs.
+When the `NETLIFY_SITE_ID` and `NETLIFY_AUTH_TOKEN` repository secrets are set, the same job deploys the built site to [Netlify](https://www.netlify.com/). Every push to `main` updates the [development site](https://behat-steps-docs.netlify.app/), and every pull request gets a preview of its own, linked in a comment on the pull request. Without the secrets, the job skips the deployment, so a pull request from a fork still builds and tests the docs.
 
 These builds show "development" as the version in the footer. Search engines don't index them, and they don't load Google Analytics.
 

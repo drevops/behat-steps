@@ -72,7 +72,7 @@ A change is structural when it moves, adds, or removes a component or alters a f
 
 - `README.md` is the index. Open it with what each page covers, each linked, the maintenance note naming this skill and the drawio-skill, and pointers to the step, helper and configuration references. End it with the table of diagram sources, their pages and both renders, and how to edit a source by hand.
 - Name each page as the table above does, and give it front matter holding a `title`, its `sidebar_position` from that table and a `description`. Other pages link them by those names, so keep them.
-- A page with a diagram embeds both of its SVGs, each wrapped in a link to itself, because the page draws a wide diagram at the width of its column and the link opens it at full size. The light 1 carries `#gh-light-mode-only` and the dark 1 `#gh-dark-mode-only`, and they sit on consecutive lines of 1 paragraph:
+- A page with a diagram embeds both of its SVGs, each wrapped in a link to itself, because the page draws a wide diagram at the width of its column. On the site, selecting the diagram opens it in the lightbox, which zooms it to its natural size, and on GitHub the link opens the SVG. The sentence before the diagram ends with "Select the diagram to zoom in." The light 1 carries `#gh-light-mode-only` and the dark 1 `#gh-dark-mode-only`, and they sit on consecutive lines of 1 paragraph:
 
   ```markdown
   [![Alt text](diagram.svg#gh-light-mode-only)](diagram.svg)

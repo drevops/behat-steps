@@ -10,7 +10,7 @@ The backend layer, `src/Backend`, is the part of Behat Steps that talks to the s
 
 ## How a step picks a backend
 
-A step never names a backend. It requests a capability, the 1 job it needs done, such as clearing caches, and the first backend in the scenario's order that provides that capability does the work. Select the diagram to open it at full size.
+A step never names a backend. It requests a capability, the 1 job it needs done, such as clearing caches, and the first backend in the scenario's order that provides that capability does the work. Select the diagram to zoom in.
 
 [![Backend selection: a step requests a capability from BackendRegistry, which checks the scenario's backends in order and returns the first one that provides it](backend-selection.svg#gh-light-mode-only)](backend-selection.svg)
 [![Backend selection: a step requests a capability from BackendRegistry, which checks the scenario's backends in order and returns the first one that provides it](backend-selection.dark.svg#gh-dark-mode-only)](backend-selection.dark.svg)
