@@ -15,6 +15,7 @@ const ICONS = {
     </>
   ),
   check: <path d="M20 6 9 17l-5-5" />,
+  close: <path d="M6 6l12 12M18 6 6 18" />,
   code: <path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 6l-3 12" />,
   copy: (
     <>

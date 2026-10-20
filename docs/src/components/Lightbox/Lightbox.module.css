@@ -1,0 +1,159 @@
+.opener {
+  cursor: zoom-in;
+}
+
+/* The button shows nothing but the image it holds. */
+.imageButton {
+  display: inline-block;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  vertical-align: top;
+}
+
+.imageButton img {
+  display: block;
+}
+
+/* The dialog fills the window and is its own overlay, dark in both color
+   modes. */
+.lightbox {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: color-mix(in srgb, var(--behat-steps-night) 92%, transparent);
+  animation: behat-steps-lightbox-in 150ms ease-out;
+}
+
+/* A wheel over the dialog would otherwise scroll the page behind it. */
+:global(html):has(.lightbox[open]) {
+  overflow: hidden;
+}
+
+/* Auto margins center the image, and unlike centering by alignment they keep
+   the start edges of a zoomed image in reach of the scrollbars. */
+.view {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 4rem 1rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  user-select: none;
+}
+
+/* The hairline ring marks the edge of an image as dark as the overlay. */
+.zoom {
+  flex: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #ffffff 14%, transparent),
+    var(--behat-steps-shadow-lg);
+  cursor: zoom-in;
+}
+
+.zoom:focus-visible {
+  outline: 2px solid var(--behat-steps-blue-on-dark);
+  outline-offset: 4px;
+}
+
+/* The limits match the padding of the view, so a fitted image never scrolls.
+   The dynamic viewport height leaves out a phone's browser toolbars. */
+.zoom img {
+  display: block;
+  width: auto;
+  max-width: calc(100vw - 2rem);
+  height: auto;
+  max-height: calc(100vh - 8rem);
+  max-height: calc(100dvh - 8rem);
+  border-radius: inherit;
+}
+
+.zoomed {
+  cursor: zoom-out;
+}
+
+.zoomed img {
+  max-width: none;
+  max-height: none;
+}
+
+.dragging,
+.dragging .zoom {
+  cursor: grabbing;
+}
+
+/* The view's top padding keeps a fitted image clear of the toolbar. */
+.toolbar {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid color-mix(in srgb, #ffffff 14%, transparent);
+  border-radius: 999px;
+  background: var(--behat-steps-night);
+  box-shadow: var(--behat-steps-shadow);
+}
+
+/* 40px targets, well past the 24px minimum of WCAG 2.5.8. */
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: color-mix(in srgb, #ffffff 82%, transparent);
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.action:hover {
+  background: color-mix(in srgb, #ffffff 10%, transparent);
+  color: #ffffff;
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--behat-steps-blue-on-dark);
+  outline-offset: 2px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes behat-steps-lightbox-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox {
+    animation: none;
+  }
+
+  .action {
+    transition: none;
+  }
+}

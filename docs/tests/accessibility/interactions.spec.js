@@ -106,6 +106,102 @@ test.describe('mobile menu', () => {
   }
 });
 
+test.describe('lightbox', () => {
+  const DIAGRAM_PAGE = '/architecture/logical-architecture';
+  const DIAGRAM = /^Logical architecture: /;
+
+  // The scans run once the dialog has faded in.
+  test.use({ reducedMotion: 'reduce' });
+
+  // Each diagram is embedded once per color mode, and only 1 of the 2 shows.
+  const diagramLink = (page) => page.locator('article a[aria-haspopup="dialog"]:visible');
+
+  const lightbox = (page) => page.getByRole('dialog', { name: DIAGRAM });
+
+  for (const colorMode of COLOR_MODES) {
+    test(`shows the diagram of the color mode, fitted and zoomed, in ${colorMode} mode`, async ({ page }) => {
+      await open(page, DIAGRAM_PAGE, colorMode);
+
+      const link = diagramLink(page);
+      const dialog = lightbox(page);
+
+      await link.click();
+
+      await expect(dialog).toBeVisible();
+      await expect(dialog.locator('img')).toHaveAttribute('src', await link.locator('img').getAttribute('src'));
+      await expect(dialog.getByRole('link', { name: 'Open the image in a new tab' })).toHaveAttribute('href', await link.getAttribute('href'));
+      await expect(page.locator('html')).toHaveCSS('overflow', 'hidden');
+      expect(await scan(page, 'dialog')).toEqual([]);
+
+      await dialog.getByRole('button', { name: 'Zoom in' }).click();
+
+      await expect(dialog.getByRole('button', { name: 'Zoom out' })).toBeVisible();
+      expect(await scan(page, 'dialog')).toEqual([]);
+    });
+  }
+
+  test('opens, zooms, pans and closes from the keyboard', async ({ page }) => {
+    await open(page, DIAGRAM_PAGE, 'light');
+
+    const link = diagramLink(page);
+    const dialog = lightbox(page);
+
+    await link.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(dialog.getByRole('button', { name: 'Zoom in' })).toBeFocused();
+
+    await page.keyboard.press('Enter');
+
+    const zoomOut = dialog.getByRole('button', { name: 'Zoom out' });
+    const scrollLeft = () => zoomOut.evaluate((button) => button.parentElement.scrollLeft);
+
+    await expect(zoomOut).toBeFocused();
+
+    const before = await scrollLeft();
+
+    await page.keyboard.press('ArrowRight');
+
+    await expect.poll(scrollLeft).toBeGreaterThan(before);
+
+    await page.keyboard.press('Escape');
+
+    await expect(dialog).toHaveCount(0);
+    await expect(link).toBeFocused();
+    await expect(page.locator('html')).not.toHaveCSS('overflow', 'hidden');
+  });
+
+  test('closes with the close button and with a click beside the image', async ({ page }) => {
+    await open(page, DIAGRAM_PAGE, 'light');
+
+    const link = diagramLink(page);
+    const dialog = lightbox(page);
+
+    await link.click();
+    await dialog.getByRole('button', { name: 'Close' }).click();
+
+    await expect(dialog).toHaveCount(0);
+
+    await link.click();
+    await expect(dialog).toBeVisible();
+    await page.mouse.click(8, 792);
+
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test('leaves a click with a modifier key to the browser', async ({ page, context }) => {
+    await open(page, DIAGRAM_PAGE, 'light');
+
+    const link = diagramLink(page);
+    const popup = context.waitForEvent('page');
+
+    await link.click({ modifiers: ['ControlOrMeta'] });
+
+    expect((await popup).url()).toMatch(/\/assets\/files\/logical-architecture-[0-9a-f]+\.svg$/);
+    await expect(lightbox(page)).toHaveCount(0);
+  });
+});
+
 test.describe('home page', () => {
   const INSTALL_COMMAND = 'composer require --dev drevops/behat-steps:^4';
 
