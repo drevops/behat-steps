@@ -45,10 +45,10 @@ The `create-behat-step` skill takes a description of what a step should do, in p
 The agent works through these steps:
 
 1. It finds your `FeatureContext`, your own step traits and the commands your project runs Behat and its linters with.
-2. It looks for registered steps that already do the job, shows you any it finds and goes on only when you still want a step in your own words.
+2. It looks for registered steps that already do the job, shows you any it finds and asks whether you still want a step in your own words.
 3. It writes the step text, picks a helper for each part of the job and writes the step in your trait for that area of the site, or in a new one.
 4. It adds the trait to `FeatureContext`, and a scenario that uses the step.
-5. It checks the result with `php -l`, your linters, `behat --definitions l`, `behat --dry-run` and a run of the new scenario, then tells you which helpers the step calls.
+5. It checks the result with your linters, `behat --definitions`, `behat --dry-run` and a run of the new scenario, and runs a `Then` once more with a value it should reject. Then it tells you which helpers the step calls and the choices it made.
 
 The step calls only public helpers and Mink's own API, never a protected method, a shipped step's method or Drupal's API, so it keeps working through minor releases and on any backend that provides what it needs. The agent doesn't commit.
 
