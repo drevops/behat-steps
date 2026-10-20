@@ -17,11 +17,11 @@
         <mxCell id="prj-features" value="&lt;b&gt;features/*.feature&lt;/b&gt;&lt;br&gt;Gherkin scenarios" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#EF6C00;" vertex="1" parent="grp-project">
           <mxGeometry x="20" y="50" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="prj-behat-yml" value="&lt;b&gt;behat.yml&lt;/b&gt;&lt;br&gt;the behat_steps extension:&lt;br&gt;backends, contexts" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#EF6C00;" vertex="1" parent="grp-project">
+        <mxCell id="prj-behat-php" value="&lt;b&gt;behat.php&lt;/b&gt;&lt;br&gt;your suites and contexts,&lt;br&gt;BehatStepsExtension settings" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#EF6C00;" vertex="1" parent="grp-project">
           <mxGeometry x="310" y="50" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="prj-feature-context" value="&lt;b&gt;FeatureContext&lt;/b&gt;&lt;br&gt;your context: extends&lt;br&gt;DrupalContext or WebContext" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#EF6C00;" vertex="1" parent="grp-project">
-          <mxGeometry x="1050" y="50" width="230" height="70" as="geometry" />
+        <mxCell id="prj-feature-context" value="&lt;b&gt;FeatureContext&lt;/b&gt;&lt;br&gt;extends DrupalContext or WebContext,&lt;br&gt;uses your own step traits" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#EF6C00;" vertex="1" parent="grp-project">
+          <mxGeometry x="1040" y="50" width="250" height="70" as="geometry" />
         </mxCell>
         <mxCell id="grp-library" value="drevops/behat-steps" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#FFFFFF;swimlaneFillColor=#FFFFFF;strokeColor=#455A64;strokeWidth=1.5;" vertex="1" parent="1">
           <mxGeometry x="370" y="290" width="1270" height="1130" as="geometry" />
@@ -38,7 +38,7 @@
         <mxCell id="ctx-drupal" value="&lt;b&gt;DrupalContext&lt;/b&gt;&lt;br&gt;adds the 29 Drupal step traits" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#F9A825;" vertex="1" parent="grp-contexts">
           <mxGeometry x="600" y="50" width="230" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="grp-steps" value="Step vocabulary: src/Steps" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#E3F2FD;swimlaneFillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=1.5;" vertex="1" parent="grp-library">
+        <mxCell id="grp-steps" value="Steps layer: src/Steps" style="swimlane;startSize=30;rounded=1;arcSize=6;html=1;whiteSpace=wrap;collapsible=0;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#263238;align=left;spacingLeft=10;fillColor=#E3F2FD;swimlaneFillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=1.5;" vertex="1" parent="grp-library">
           <mxGeometry x="110" y="290" width="1140" height="140" as="geometry" />
         </mxCell>
         <mxCell id="st-exception" value="&lt;b&gt;Steps\Exception&lt;/b&gt;&lt;br&gt;AssertionException" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#C62828;" vertex="1" parent="grp-steps">
@@ -149,7 +149,7 @@
         <mxCell id="leg-swatch-steps" value="" style="rounded=1;arcSize=12;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=1.5;" vertex="1" parent="grp-legend">
           <mxGeometry x="20" y="100" width="40" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="leg-label-steps" value="Step vocabulary: src/Steps" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=12;fontColor=#263238;" vertex="1" parent="grp-legend">
+        <mxCell id="leg-label-steps" value="Steps layer: src/Steps" style="text;html=1;whiteSpace=nowrap;align=left;verticalAlign=middle;spacing=0;fontFamily=Helvetica;fontSize=12;fontColor=#263238;" vertex="1" parent="grp-legend">
           <mxGeometry x="70" y="100" width="220" height="20" as="geometry" />
         </mxCell>
         <mxCell id="leg-swatch-extension" value="" style="rounded=1;arcSize=12;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=1.5;" vertex="1" parent="grp-legend">
@@ -216,7 +216,7 @@
           <mxGeometry relative="1" as="geometry">
           </mxGeometry>
         </mxCell>
-        <mxCell id="e-behat-yml-behat" value="read by" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.727273;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="prj-behat-yml" target="out-behat">
+        <mxCell id="e-behat-php-behat" value="read by" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#455A64;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;fontColor=#37474F;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;endSize=8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.727273;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="prj-behat-php" target="out-behat">
           <mxGeometry x="-0.048101" relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="455" y="265" />

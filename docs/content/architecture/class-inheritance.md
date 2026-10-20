@@ -1,6 +1,6 @@
 ---
 title: Class inheritance
-sidebar_position: 2
+sidebar_position: 8
 description: What extends what in Behat Steps, from the contexts and the backends with their capabilities to the field handlers, the creation aliases, the browser adapters, the entity creation hooks and the exceptions.
 ---
 
@@ -8,7 +8,8 @@ description: What extends what in Behat Steps, from the contexts and the backend
 
 This view shows what extends what. Select the diagram to open it at full size.
 
-[![Class inheritance: the contexts, the backends and their capabilities, the field handlers, the creation aliases, the browser adapters, the entity creation hooks and the exceptions](class-inheritance.svg)](class-inheritance.svg)
+[![Class inheritance: the contexts, the backends and their capabilities, the field handlers, the creation aliases, the browser adapters, the entity creation hooks and the exceptions](class-inheritance.svg#gh-light-mode-only)](class-inheritance.svg)
+[![Class inheritance: the contexts, the backends and their capabilities, the field handlers, the creation aliases, the browser adapters, the entity creation hooks and the exceptions](class-inheritance.dark.svg#gh-dark-mode-only)](class-inheritance.dark.svg)
 
 The diagram holds 7 inheritance trees, 1 per panel:
 
