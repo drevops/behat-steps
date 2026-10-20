@@ -35,7 +35,7 @@ The skill sets `disable-model-invocation: true`, so the Skill tool can't load it
 Don't probe for them. Run the script, and it names whatever is missing along with its install command.
 
 - The skill: `npx skills add Agents365-ai/drawio-skill -g`. The script looks for it in `.claude/skills/drawio-skill` of this repository, then of the home directory, where Claude Code loads skills from.
-- draw.io desktop, which exports the diagrams: `brew install --cask drawio` on macOS, or a release from [jgraph/drawio-desktop](https://github.com/jgraph/drawio-desktop/releases). The script looks for `drawio` on the `PATH`, then for the macOS app, and `DRAWIO_BIN` names any other binary. The dark export needs the `--theme` option, which draw.io desktop 32 has.
+- draw.io desktop, which exports the diagrams: `brew install --cask drawio` on macOS, or a release from [jgraph/drawio-desktop](https://github.com/jgraph/drawio-desktop/releases). The script looks for `drawio` on the `PATH`, then for the macOS app, and `DRAWIO_BIN` names any other binary. The dark export needs the `--theme` option, which draw.io desktop 32 has, and the script stops when the draw.io it finds ignores it.
 - Python 3, which runs the skill's validator.
 - The `claude` command, logged in.
 

@@ -1066,7 +1066,8 @@ function draw_diagram_assert_written(string $diagram, int $since): void {
  *   The review images, 1 per theme in the order of DRAW_DIAGRAM_THEMES.
  *
  * @throws \RuntimeException
- *   When the diagram is missing or unfit, or an export fails.
+ *   When the diagram is missing or unfit, an export fails, or draw.io ignores
+ *   the theme.
  */
 function draw_diagram_export(string $diagram, string $drawio, string $root, callable $runner): array {
   if (!is_file($diagram)) {
@@ -1090,7 +1091,7 @@ function draw_diagram_export(string $diagram, string $drawio, string $root, call
     $svg = draw_diagram_svg_path($diagram, $theme);
     $png = $scratch . '/' . basename($diagram, '.drawio') . $suffix . '.png';
 
-    $svgs[] = $svg;
+    $svgs[$theme] = $svg;
     $pngs[] = $png;
     $exports[] = [$svg, ['--theme', $theme, ...DRAW_DIAGRAM_SVG_FLAGS]];
     $exports[] = [$png, ['--theme', $theme, ...DRAW_DIAGRAM_PNG_FLAGS]];
@@ -1107,12 +1108,35 @@ function draw_diagram_export(string $diagram, string $drawio, string $root, call
     }
   }
 
-  foreach ($svgs as $svg) {
+  foreach ($svgs as $theme => $svg) {
     file_put_contents($svg, draw_diagram_strip_fallbacks((string) file_get_contents($svg)));
     draw_diagram_stamp($svg, $diagram);
+    draw_diagram_assert_theme($svg, $theme);
   }
 
   return $pngs;
+}
+
+/**
+ * Asserts that an exported SVG declares the theme it was exported in.
+ *
+ * draw.io desktop ignores an option it doesn't know, so a release without
+ * '--theme' exports the light theme for both.
+ *
+ * @param string $svg
+ *   The SVG file.
+ * @param string $theme
+ *   A key of DRAW_DIAGRAM_THEMES.
+ *
+ * @throws \RuntimeException
+ *   When the root element of the SVG declares another color scheme or none.
+ */
+function draw_diagram_assert_theme(string $svg, string $theme): void {
+  if (preg_match('/<svg\b[^>]*\bcolor-scheme:\s*' . preg_quote($theme, '/') . '\b/', (string) file_get_contents($svg)) === 1) {
+    return;
+  }
+
+  throw new \RuntimeException(sprintf('draw.io ignored "--theme %s" when it exported %s. Update draw.io desktop to a release that supports "--theme".', $theme, $svg));
 }
 
 /**

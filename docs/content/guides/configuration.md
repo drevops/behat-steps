@@ -251,9 +251,9 @@ Scenario: Content created over the public API is immediately visible
   Then I should see "Lab report"
 ```
 
-The order becomes `acme-jsonapi, drupal, blackbox`, and the content step resolves to `acme-jsonapi`. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability. Promotion only affects the capabilities the promoted backend provides.
+The order becomes `api, drupal, blackbox`, and the content step resolves to `api`, the `acme-jsonapi` backend. A cache step in the same scenario still resolves to `drupal`, because `acme-jsonapi` implements no cache capability. Promotion only affects the capabilities the promoted backend provides.
 
-Repeated tags promote their names in the configured order: `@backend:blackbox @backend:api` and `@backend:api @backend:blackbox` both give `acme-jsonapi, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
+Repeated tags promote their names in the configured order: `@backend:blackbox @backend:api` and `@backend:api @backend:blackbox` both give `api, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
 
 `@backend:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo can't silently run the wrong backend, and no tag can hand a Drupal backend to a `smoke` profile that lists only `blackbox`. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
 

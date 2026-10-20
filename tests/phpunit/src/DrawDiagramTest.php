@@ -866,6 +866,36 @@ class DrawDiagramTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * Assert that an export in a theme draw.io ignored is reported.
+   *
+   * @param string $svg
+   *   The SVG draw.io writes for every export.
+   * @param string $expected_message
+   *   The expected message, with ':tmp' for the workspace.
+   */
+  #[DataProvider('dataProviderExportReportsAnIgnoredTheme')]
+  public function testExportReportsAnIgnoredTheme(string $svg, string $expected_message): void {
+    $diagram = $this->writeFixture('flow.drawio', static::DIAGRAM);
+    $runner = function (array $command) use ($svg): array {
+      $this->writeFixture($this->findOutput($command), $svg);
+
+      return ['exit_code' => 0, 'output' => '', 'errors' => '', 'is_timed_out' => FALSE];
+    };
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage(str_replace(':tmp', static::$tmp, $expected_message));
+
+    draw_diagram_export($diagram, '/bin/drawio', static::$tmp, $runner);
+  }
+
+  public static function dataProviderExportReportsAnIgnoredTheme(): array {
+    return [
+      'no color scheme' => [static::SVG, 'draw.io ignored "--theme light" when it exported :tmp/flow.svg. Update draw.io desktop to a release that supports "--theme".'],
+      'the light color scheme for both' => [str_replace('<svg ', '<svg style="color-scheme: light;" ', static::SVG), 'draw.io ignored "--theme dark" when it exported :tmp/flow.dark.svg. Update draw.io desktop to a release that supports "--theme".'],
+    ];
+  }
+
   public function testExportReportsAnSvgWithoutSvgElement(): void {
     $diagram = $this->writeFixture('flow.drawio', static::DIAGRAM);
     $runner = function (array $command): array {
@@ -1079,7 +1109,8 @@ class DrawDiagramTest extends UnitTestCase {
 
       if ($command[0] !== 'claude') {
         $target = $this->findOutput($command);
-        $this->writeFixture($target, str_ends_with($target, '.svg') ? static::SVG : 'PNG');
+        $theme = $command[(int) array_search('--theme', $command, TRUE) + 1];
+        $this->writeFixture($target, str_ends_with($target, '.svg') ? str_replace('<svg ', '<svg style="color-scheme: ' . $theme . ';" ', static::SVG) : 'PNG');
 
         return ['exit_code' => 0, 'output' => '', 'errors' => '', 'is_timed_out' => FALSE];
       }
