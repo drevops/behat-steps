@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import Lightbox, { isImageFile, LightboxImage, LightboxLink, scrollToKeep, zoomedWidth } from '../../../src/components/Lightbox';
+import Lightbox, { isImageFile, isSecondClick, LightboxImage, LightboxLink, scrollToKeep, zoomedWidth } from '../../../src/components/Lightbox';
 
 const SRC = '/assets/images/flow.svg#gh-light-mode-only';
 const HREF = '/assets/files/flow.svg';
@@ -106,6 +106,24 @@ describe('scrollToKeep', () => {
     },
   ])('brings the point back under the pointer in $name', ({ anchor, view, expected }) => {
     expect(scrollToKeep(anchor, ZOOMED, view)).toEqual(expected);
+  });
+});
+
+describe('isSecondClick', () => {
+  const FIRST = { x: 100, y: 100, time: 1000 };
+
+  test.each([
+    { name: 'a click at the same place right after it', second: { x: 100, y: 100, time: 1200 }, expected: true },
+    { name: 'a tap a fingertip away just inside the interval', second: { x: 130, y: 120, time: 1499 }, expected: true },
+    { name: 'a click at the same place once the interval is over', second: { x: 100, y: 100, time: 1500 }, expected: false },
+    { name: 'a click elsewhere right after it', second: { x: 140, y: 100, time: 1200 }, expected: false },
+    { name: 'a click from the keyboard right after it', second: null, expected: false },
+  ])('tells whether $name ends a double-click', ({ second, expected }) => {
+    expect(isSecondClick(FIRST, second)).toBe(expected);
+  });
+
+  test('finds no double-click after a click from the keyboard', () => {
+    expect(isSecondClick(null, FIRST)).toBe(false);
   });
 });
 
@@ -215,6 +233,27 @@ describe('Lightbox', () => {
     zoomAt(1200, 10);
 
     expect([view.scrollLeft, view.scrollTop]).toEqual([1216, 54]);
+  });
+
+  test('ignores the second half of the double-click that opened it', () => {
+    jest.spyOn(performance, 'now').mockReturnValue(1200);
+    open({ openedBy: { x: 640, y: 414, time: 1000 } });
+
+    const { view } = layOut();
+
+    fireEvent.click(view, { detail: 1, clientX: 640, clientY: 414 });
+    zoomAt(640, 414);
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(zoomButton()).toHaveAccessibleName('Zoom in');
+
+    fireEvent.click(zoomButton());
+
+    expect(zoomButton()).toHaveAccessibleName('Zoom out');
+
+    fireEvent.click(view, { detail: 1, clientX: 8, clientY: 790 });
+
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   test('ignores a zoom before the image has a size', () => {
@@ -434,6 +473,19 @@ describe('LightboxLink', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 
     expect(dialog()).toBeNull();
+  });
+
+  test.each([
+    { name: 'stays open through the second half of a double-click on the link', opening: { detail: 1, clientX: 50, clientY: 60 }, expected: 1 },
+    { name: 'closes on a click beside the image straight after the keyboard opens it', opening: { detail: 0 }, expected: 0 },
+  ])('$name', ({ opening, expected }) => {
+    jest.spyOn(performance, 'now').mockReturnValue(1000);
+    imageLink();
+
+    fireEvent.click(screen.getByRole('link', { name: ALT }), opening);
+    fireEvent.click(zoomButton().parentElement, { detail: 1, clientX: 50, clientY: 60 });
+
+    expect(document.querySelectorAll('dialog')).toHaveLength(expected);
   });
 
   test('opens an image with white space around it', () => {

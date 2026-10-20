@@ -189,6 +189,23 @@ test.describe('lightbox', () => {
     await expect(dialog).toHaveCount(0);
   });
 
+  // The second click of a person's double-click comes a moment after the
+  // first, so it lands on the dialog the first one opened.
+  test('opens once, fitted, on a double-click', async ({ page }) => {
+    await open(page, '/architecture/class-inheritance', 'light');
+
+    const box = await diagramLink(page).locator('img').boundingBox();
+    const dialog = page.getByRole('dialog', { name: /^Class inheritance: / });
+    const [x, y] = [box.x + box.width / 2, box.y + 200];
+
+    await page.mouse.click(x, y);
+    await expect(dialog).toBeVisible();
+    await page.mouse.click(x, y);
+
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Zoom in' })).toBeVisible();
+  });
+
   test('leaves a click with a modifier key to the browser', async ({ page, context }) => {
     await open(page, DIAGRAM_PAGE, 'light');
 

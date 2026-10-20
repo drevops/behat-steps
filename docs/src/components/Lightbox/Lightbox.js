@@ -11,6 +11,11 @@ const IMAGE_FILE = /\.(avif|gif|jpe?g|png|svg|webp)$/i;
 // A press that moves fewer pixels than this before its release is a click.
 const DRAG_THRESHOLD = 4;
 
+// A pointer click this soon after, and this close to, the click that opened
+// the dialog is the second half of a double-click or a double tap.
+const DOUBLE_CLICK_MS = 500;
+const DOUBLE_CLICK_DISTANCE = 40;
+
 // A button around an image inside a link would nest 1 control in another.
 const InsideLink = createContext(false);
 
@@ -28,12 +33,26 @@ export const scrollToKeep = ({ point, fraction }, rect, view) => ({
   top: view.scrollTop + rect.top + fraction.y * rect.height - point.y,
 });
 
+// Whether a click is the second half of a double-click that began with the
+// first. A click from the keyboard is null, so it's never either half.
+export const isSecondClick = (first, second) => {
+  if (first === null || second === null) {
+    return false;
+  }
+
+  return second.time - first.time < DOUBLE_CLICK_MS && Math.hypot(second.x - first.x, second.y - first.y) < DOUBLE_CLICK_DISTANCE;
+};
+
+// Where and when a pointer click happened, or null for a click from the
+// keyboard, which has no position.
+const clickOf = (event) => (event.detail > 0 ? { x: event.clientX, y: event.clientY, time: performance.now() } : null);
+
 const fractionOf = (position, start, length) => Math.min(Math.max((position - start) / length, 0), 1);
 
 // Shows 1 image in a modal dialog for as long as it's mounted. Selecting the
 // image switches between fitting it in the window and zooming it, and a mouse
 // drag pans a zoomed image.
-const Lightbox = ({ src, alt, href, onClose }) => {
+const Lightbox = ({ src, alt, href, openedBy = null, onClose }) => {
   const dialog = useRef(null);
   const view = useRef(null);
   const zoom = useRef(null);
@@ -68,8 +87,11 @@ const Lightbox = ({ src, alt, href, onClose }) => {
 
   const close = () => dialog.current.close();
 
+  // The second half of the double-click that opened the dialog lands on it.
+  const isOpeningClick = (event) => isSecondClick(openedBy, clickOf(event));
+
   const toggleZoom = (event) => {
-    if (dragged.current) {
+    if (dragged.current || isOpeningClick(event)) {
       return;
     }
 
@@ -155,7 +177,7 @@ const Lightbox = ({ src, alt, href, onClose }) => {
       return;
     }
 
-    if (event.target === event.currentTarget) {
+    if (event.target === event.currentTarget && !isOpeningClick(event)) {
       close();
     }
   };
@@ -171,7 +193,13 @@ const Lightbox = ({ src, alt, href, onClose }) => {
         onPointerUp={endDrag}
         onPointerCancel={cancelDrag}
       >
-        <button ref={zoom} type="button" className={clsx(styles.zoom, zoomed && styles.zoomed)} aria-label={zoomed ? 'Zoom out' : 'Zoom in'} onClick={toggleZoom}>
+        <button
+          ref={zoom}
+          type="button"
+          className={clsx(styles.zoom, zoomed && styles.zoomed)}
+          aria-label={zoomed ? 'Zoom out' : 'Zoom in'}
+          onClick={toggleZoom}
+        >
           <img ref={image} src={src} alt={alt} draggable={false} style={zoomed ? { width: `${width}px` } : undefined} />
         </button>
       </div>
@@ -192,12 +220,22 @@ const Lightbox = ({ src, alt, href, onClose }) => {
   );
 };
 
+// The handler that opens a lightbox for an image from a click, and the
+// lightbox while it's open.
+const useLightbox = (image) => {
+  const [opened, setOpened] = useState(null);
+
+  const show = (event) => setOpened({ by: clickOf(event) });
+
+  return [show, opened && <Lightbox {...image} openedBy={opened.by} onClose={() => setOpened(null)} />];
+};
+
 // Wraps an image with alt text in a button that opens it in the lightbox. An
 // image inside a link stays as it is, and so does an image without alt text,
 // since a button needs a name.
 export const LightboxImage = (props) => {
   const insideLink = useContext(InsideLink);
-  const [open, setOpen] = useState(false);
+  const [show, lightbox] = useLightbox({ src: props.src, alt: props.alt });
 
   if (insideLink || !props.alt) {
     return <MDXImg {...props} />;
@@ -205,10 +243,10 @@ export const LightboxImage = (props) => {
 
   return (
     <>
-      <button type="button" className={clsx(styles.opener, styles.imageButton)} aria-haspopup="dialog" onClick={() => setOpen(true)}>
+      <button type="button" className={clsx(styles.opener, styles.imageButton)} aria-haspopup="dialog" onClick={show}>
         <MDXImg {...props} />
       </button>
-      {open && <Lightbox src={props.src} alt={props.alt} onClose={() => setOpen(false)} />}
+      {lightbox}
     </>
   );
 };
@@ -225,21 +263,21 @@ const imageOf = (children) => {
 // link. A click with a modifier key or another mouse button keeps the
 // browser's behavior, such as opening the file in a new tab.
 const ImageLink = ({ image, ...props }) => {
-  const [open, setOpen] = useState(false);
+  const [show, lightbox] = useLightbox({ src: image.src, alt: image.alt, href: props.href });
 
-  const show = (event) => {
+  const open = (event) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return;
     }
 
     event.preventDefault();
-    setOpen(true);
+    show(event);
   };
 
   return (
     <>
-      <MDXA {...props} className={clsx(props.className, styles.opener)} aria-haspopup="dialog" onClick={show} />
-      {open && <Lightbox src={image.src} alt={image.alt} href={props.href} onClose={() => setOpen(false)} />}
+      <MDXA {...props} className={clsx(props.className, styles.opener)} aria-haspopup="dialog" onClick={open} />
+      {lightbox}
     </>
   );
 };
