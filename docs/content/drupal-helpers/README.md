@@ -1,14 +1,62 @@
 ---
 title: Drupal helpers
-description: The public helpers behind the Drupal steps, with a page per trait, which your own step definitions call the same way.
+sidebar_label: Overview
+sidebar_position: 0
+description: The helpers behind the Drupal steps, how a step of your own calls them to create content and log users in, and every trait that has them.
 custom_edit_url: null
 ---
 
 # Drupal helpers
 
-These are the public helpers the Drupal steps are built on. Your own step definitions call them on `$this`, the same way the shipped steps do, as [Scenario styles](../guides/scenario-styles.md) explains. A trait's page gives each of its helpers a signature and a description.
+The Drupal steps are thin wrappers too: each one reads its arguments and calls public methods that do the work, and those methods are yours to call. They're on `$this` in your `FeatureContext` once it extends `DrupalContext`, so a step of your own can create content, log a user in or read the site's state in a line or 2. The [web helpers](../web-helpers/README.md) explain what makes a method a helper.
 
-[HELPERS.md](../../../HELPERS.md) holds these helpers and the [web helpers](../web-helpers/README.md) on 1 page. It ships with the package, so an [AI coding agent](../guides/ai-assistants.md) in your project can read it from `vendor/`.
+Besides the helpers of the step traits, these pages list helper traits that carry no steps at all. 2 of them matter most for steps of your own:
+
+- [Entity lifecycle](entity-lifecycle.md) creates entities and deletes them when the scenario ends, so anything your step creates through it is cleaned up for you.
+- [Authentication](auth.md) creates users and roles, logs them in and removes them afterwards.
+
+## A step of your own on the helpers
+
+This trait gives 3 lines of your site's language a meaning, each in a line of PHP:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Behat\Step\Given;
+use Behat\Step\When;
+
+/**
+ * @phpstan-require-extends \DrevOps\BehatSteps\DrupalContext
+ */
+trait PublishingTrait {
+
+  #[Given('a page titled :title exists')]
+  public function publishingCreatePage(string $title): void {
+    $this->contentCreate('page', ['title' => $title]);
+  }
+
+  #[Given('I am a site administrator')]
+  public function publishingLoginAsAdministrator(): void {
+    $this->userCreateAndLogin('administrator');
+  }
+
+  #[When('I open the page titled :title')]
+  public function publishingVisitPage(string $title): void {
+    $this->contentVisitActionPageWithTitle('page', $title);
+  }
+
+}
+```
+
+`contentCreate()` creates a Basic page, `userCreateAndLogin()` creates a user with the `administrator` role and logs in through your site's login form, and `contentVisitActionPageWithTitle()` opens the page. Behat Steps deletes the page and the user when the scenario ends. [Contexts](../guides/contexts.md#your-own-steps-in-traits-of-your-own) shows where the trait lives, how `FeatureContext` uses it, and a scenario that runs it.
+
+## Reading a helper's page
+
+Each page lists the helpers of 1 trait, as signatures. Open one to read what it does, and follow the Source link for the details. [HELPERS.md](../../../HELPERS.md) holds the same list for every helper, web and Drupal, on 1 page. It ships with the package, so an [AI coding agent](../guides/ai-assistants.md) in your project can read it from `vendor/`.
+
+## Every trait with Drupal helpers
 
 [//]: # (START_INDEX)
 

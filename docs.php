@@ -8,7 +8,7 @@
  * vocabulary directory and writes:
  *
  * - STEPS.md, the step vocabulary.
- * - HELPERS.md, the toolbox a project calls from its own domain steps.
+ * - HELPERS.md, the helpers a project calls from its own domain steps.
  * - Both again for the documentation site, in 1 section per context, such as
  *   docs/content/drupal-steps/: an index in the README.md of the section, and
  *   1 page per trait or class.
@@ -82,7 +82,7 @@ const STEP_ACTORS = ['person', 'system'];
  * Attribute namespaces that mark a method as registered with Behat.
  *
  * A method carrying one of these is a step, a hook or a transformation, so it
- * is not part of the toolbox.
+ * is not a helper.
  */
 const REGISTERED_ATTRIBUTE_PREFIXES = [
   'Behat\\Step\\',
@@ -98,18 +98,17 @@ const REGISTERED_ATTRIBUTE_PREFIXES = [
 const HELPERS_DIRECTORY = 'src/Steps/Helper';
 
 /**
- * Classes published in the toolbox reference alongside the step traits.
+ * Classes published in the helper reference alongside the traits.
  *
  * The root context contributes the backend access and the scenario plumbing a
- * domain step is written against. That surface is therefore part of the
- * toolbox too.
+ * domain step is written against. Its public methods are helpers too.
  */
-const TOOLBOX_CLASSES = [WebRawContext::class];
+const HELPER_CLASSES = [WebRawContext::class];
 
 /**
- * Context the toolbox classes are published under.
+ * Context the helper classes are published under.
  */
-const TOOLBOX_CONTEXT = 'Toolbox';
+const HELPER_CLASSES_CONTEXT = 'Root context';
 
 /**
  * File holding the step reference, relative to the repository root.
@@ -117,7 +116,7 @@ const TOOLBOX_CONTEXT = 'Toolbox';
 const STEPS_FILE = 'STEPS.md';
 
 /**
- * File holding the toolbox reference, relative to the repository root.
+ * File holding the helper reference, relative to the repository root.
  */
 const HELPERS_FILE = 'HELPERS.md';
 
@@ -1081,7 +1080,7 @@ function heading_anchor(string $name): string {
 }
 
 /**
- * Parse the toolbox helpers from the classes.
+ * Parse the helpers from the classes.
  *
  * A helper is a public method a project calls from its own domain steps: one
  * carrying no Behat attribute and no '@internal' tag.
@@ -1154,8 +1153,8 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
     $info[$trait_name] = $class_info;
   }
 
-  foreach (TOOLBOX_CLASSES as $toolbox_class) {
-    $reflection = new \ReflectionClass($toolbox_class);
+  foreach (HELPER_CLASSES as $helper_class) {
+    $reflection = new \ReflectionClass($helper_class);
     $short_name = $reflection->getShortName();
 
     // A composed helper trait is published under its own name, so the context
@@ -1172,7 +1171,7 @@ function extract_helpers(array $class_names, array $exclude = [], string $base_p
       'name' => $short_name,
       'name_contextual' => $short_name,
       'class' => $reflection->getName(),
-      'context' => TOOLBOX_CONTEXT,
+      'context' => HELPER_CLASSES_CONTEXT,
       'source' => relative_source_path((string) $reflection->getFileName(), $base_path),
       'steps_anchor' => NULL,
       'helpers' => $helpers,
@@ -1247,10 +1246,10 @@ function composes_trait(\ReflectionClass $reflection, string $trait_name): bool 
 }
 
 /**
- * Collect the toolbox methods a class or trait contributes.
+ * Collect the helpers a class or trait contributes.
  *
  * Visibility is the marker: a public method that Behat does not register and
- * that carries no '@internal' tag is part of the toolbox. A protected method
+ * that carries no '@internal' tag is a helper. A protected method
  * is an implementation detail with no contract to a consuming project.
  *
  * @param \ReflectionClass<object> $reflection
@@ -1744,7 +1743,7 @@ function render_helper_index(array $info, callable $link): string {
 }
 
 /**
- * Render a class's section of the toolbox reference.
+ * Render a class's section of the helper reference.
  *
  * @param array<string, mixed> $class_info
  *   The helper info of the class from extract_helpers().
@@ -1920,9 +1919,9 @@ function render_front_matter(array $fields): string {
  *   The context the section is named after.
  */
 function page_section(string $context): string {
-  // The site has no section for the toolbox, so its pages sit with the helpers
-  // of the generic context.
-  return $context === TOOLBOX_CONTEXT ? DEFAULT_CONTEXT : $context;
+  // The site has no section for the helper classes, so their pages sit with
+  // the helpers of the generic context.
+  return $context === HELPER_CLASSES_CONTEXT ? DEFAULT_CONTEXT : $context;
 }
 
 /**

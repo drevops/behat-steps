@@ -1,14 +1,56 @@
 ---
 title: Web helpers
-description: The public helpers behind the web steps, with a page per trait or class, which your own step definitions call the same way.
+sidebar_label: Overview
+sidebar_position: 0
+description: What a helper is, how a step of your own calls one, and every trait or class whose helpers work on any website, WebRawContext included.
 custom_edit_url: null
 ---
 
 # Web helpers
 
-These are the public helpers the web steps are built on. Your own step definitions call them on `$this`, the same way the shipped steps do, as [Scenario styles](../guides/scenario-styles.md) explains. A page gives each helper of a trait or class a signature and a description, and [Root context](web-raw-context.md) covers what `WebRawContext` itself adds.
+Every shipped step is a thin wrapper. It reads its arguments and calls a public method that does the real work: the step `the cookie :name should exist` is 1 line that calls `cookieAssertExists()`. Those public methods are the helpers, and they're yours to call too. A step you write in your `FeatureContext`, or in a trait of your own that it uses, finds every helper on `$this`, exactly as the shipped steps do.
 
-[HELPERS.md](../../../HELPERS.md) holds these helpers and the [Drupal helpers](../drupal-helpers/README.md) on 1 page. It ships with the package, so an [AI coding agent](../guides/ai-assistants.md) in your project can read it from `vendor/`.
+These pages list the helpers that work on any website. The [Drupal helpers](../drupal-helpers/README.md) cover the ones that need a Drupal site.
+
+## A step of your own on a helper
+
+Say your site stores the visitor's cookie choice in a `cookie_policy` cookie. A step that checks it takes 1 line, because `CookieTrait` already knows how to read cookies under every browser:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Behat\Step\Then;
+
+/**
+ * @phpstan-require-extends \DrevOps\BehatSteps\WebContext
+ */
+trait PrivacyTrait {
+
+  #[Then('the visitor should have accepted the cookie policy')]
+  public function privacyAssertCookiePolicyAccepted(): void {
+    $this->cookieAssertExists('cookie_policy', 'accepted');
+  }
+
+}
+```
+
+`FeatureContext` uses the trait with `use PrivacyTrait;`, and the step is ready. The `@phpstan-require-extends` line tells your editor and PHPStan which class the helpers come from. [Contexts](../guides/contexts.md#your-own-steps-in-traits-of-your-own) shows the whole setup.
+
+## What makes a method a helper
+
+- It's `public`. A `protected` method is part of how a trait works inside, and any release can change it. A public one is part of the package's API, so [semantic versioning](../architecture/versioning.md) covers it: it won't change in a way that breaks your code before the next major release.
+- Its name starts with the name of its trait, such as `cookieGetAll()` in `CookieTrait`, so 2 traits mixed into 1 context never collide. Keep the methods of your own traits clear of those prefixes and yours won't collide either.
+- It isn't a step, a hook or a transform. Those belong to Behat, which calls them for you.
+
+[Root context](web-raw-context.md) lists what `WebRawContext` adds for every context: `backendFor()` to reach the site through a backend, `browserDriverFor()` to use a feature of the browser, the 3 [HTTP clients](../guides/http-clients.md), and `getOption()` and its typed relatives to read a trait's options.
+
+## Reading a helper's page
+
+Each page lists the helpers of 1 trait or class, as signatures. Open one to read what it does, and follow the Source link for the details. [HELPERS.md](../../../HELPERS.md) holds the same list for every helper, web and Drupal, on 1 page. It ships with the package, so an [AI coding agent](../guides/ai-assistants.md) in your project can read it from `vendor/`.
+
+## Every class with web helpers
 
 [//]: # (START_INDEX)
 

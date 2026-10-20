@@ -175,7 +175,7 @@ A trait reads each of its options inside a public `<trait>Get...()` method and n
 
 Every published helper names what it does with a verb: `messageGetSelector()`, not `messageSelector()`. A yes-or-no question takes `Is` or `Has`, as in `authIsLoggedIn()` and `metatagResponseHasNoindexHeader()`. A verb in the trait prefix counts, as `query` does in `queryEntityIds()`.
 
-`TraitMethodNamingTest` reads the words of every public helper against its `VERBS` list, so a helper built on a verb the toolbox hasn't used yet adds that verb to the list in the same change. Steps take their verb from the step text and hooks are named for their event, so the check skips both.
+`TraitMethodNamingTest` reads the words of every public helper against its `VERBS` list, so a helper built on a verb no helper has used yet adds that verb to the list in the same change. Steps take their verb from the step text and hooks are named for their event, so the check skips both.
 
 ### Hooks
 
@@ -308,15 +308,15 @@ A file that needs both of a pair imports each under its own name, with no alias.
 
 ## The helper API
 
-The package is 2 products in 1: the vocabulary (the steps) and the toolbox (the helpers the steps are built on). A project that outgrows the raw vocabulary stops calling the toolbox from Gherkin and starts calling it from PHP, so the helpers are public API in the same sense the step text is. [docs/content/guides/scenario-styles.md](docs/content/guides/scenario-styles.md) argues why.
+The package is 2 products in 1: the steps, and the helpers the steps are built on. A project that outgrows the shipped steps stops calling the helpers from Gherkin and starts calling them from PHP, so the helpers are public API in the same sense the step text is. [docs/content/guides/scenario-styles.md](docs/content/guides/scenario-styles.md) argues why.
 
-**Visibility is the marker.** A `public` method is the toolbox; a `protected` one is an implementation detail that promises nothing and may change in any release. Nothing else distinguishes the 2, which is why a helper worth calling from a project's own step definitions is declared `public` and one that only serves the machinery stays `protected`.
+**Visibility is the marker.** A `public` method is a helper; a `protected` one is an implementation detail that promises nothing and may change in any release. Nothing else distinguishes the 2, which is why a helper worth calling from a project's own step definitions is declared `public` and one that only serves the machinery stays `protected`.
 
 A member is published in [HELPERS.md](HELPERS.md) when all of the following hold. Everything published is covered by semantic versioning.
 
-- It is declared by a trait under `src/Steps` or `src/Steps/Helper`, or by a class in `docs.php`'s `TOOLBOX_CLASSES`. A helper is published once, under the trait whose file declares it, never under a trait that composes that one.
+- It is declared by a trait under `src/Steps` or `src/Steps/Helper`, or by a class in `docs.php`'s `HELPER_CLASSES`. A helper is published once, under the trait whose file declares it, never under a trait that composes that one.
 - It is `public`. A `private` member cannot be reached from a project's context that extends a shipped one, and has no place in a trait.
-- A trait member begins with its trait's name, which is the collision rule every trait member follows anyway. A member of a `TOOLBOX_CLASSES` class, such as `WebRawContext::backendFor()`, carries none.
+- A trait member begins with its trait's name, which is the collision rule every trait member follows anyway. A member of a `HELPER_CLASSES` class, such as `WebRawContext::backendFor()`, carries none.
 - It carries no `#[Given]`, `#[When]`, `#[Then]`, `#[Transform]` or hook attribute. Those are registered with Behat and belong to the vocabulary.
 - Its docblock carries no `@internal`.
 
@@ -927,9 +927,9 @@ Coverage is not collected on the Drupal 12 legs. Drupal 12 brings PHPUnit 12, so
 | Target | Holds |
 | --- | --- |
 | [STEPS.md](STEPS.md) | The step vocabulary, on 1 page |
-| [HELPERS.md](HELPERS.md) | The toolbox, on 1 page |
+| [HELPERS.md](HELPERS.md) | Every helper, on 1 page |
 | [docs/content/web-steps/](docs/content/web-steps), [docs/content/drupal-steps/](docs/content/drupal-steps) | The step vocabulary on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per trait |
-| [docs/content/web-helpers/](docs/content/web-helpers), [docs/content/drupal-helpers/](docs/content/drupal-helpers) | The toolbox on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per class, with `WebRawContext` among the web helpers |
+| [docs/content/web-helpers/](docs/content/web-helpers), [docs/content/drupal-helpers/](docs/content/drupal-helpers) | The helpers on the documentation site, 1 section per context: the index in the marked region of `README.md`, and 1 page per class, with `WebRawContext` among the web helpers |
 | [docs/content/guides/configuration.md](docs/content/guides/configuration.md) | The extension options and the tag reference |
 
 A trait or class with a page names it with a `@title` tag in its docblock, in its own group before any other tag: `@title Batch API` names the pages of `Drupal\BatchTrait`. The title names what the trait or class works with, in sentence case, so it reads as an entry in the sidebar, and each section lists its pages in title order.

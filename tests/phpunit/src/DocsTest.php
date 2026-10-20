@@ -3936,7 +3936,7 @@ EOD);
     $this->assertArrayNotHasKey('BareHelperTrait', extract_helpers([], [], static::$tmp));
   }
 
-  public function testExtractHelpersPublishesToolboxClasses(): void {
+  public function testExtractHelpersPublishesHelperClasses(): void {
     $setup = $this->setUpExtractInfoTest(['HelperSampleTrait']);
 
     /** @var class-string $class_name */
@@ -3944,7 +3944,7 @@ EOD);
     $actual = extract_helpers([$class_name], [], $setup['base_path']);
 
     $this->assertArrayHasKey('WebRawContext', $actual);
-    $this->assertSame('Toolbox', $actual['WebRawContext']['context']);
+    $this->assertSame('Root context', $actual['WebRawContext']['context']);
     $this->assertSame(WebRawContext::class, $actual['WebRawContext']['class']);
     $this->assertSame('Root context', $actual['WebRawContext']['title']);
     $this->assertNull($actual['WebRawContext']['steps_anchor']);
@@ -4192,7 +4192,7 @@ EOD);
     return [
       'the generic context' => ['Web', 'Web'],
       'another context' => ['Drupal', 'Drupal'],
-      'the toolbox' => ['Toolbox', 'Web'],
+      'the helper classes' => ['Root context', 'Web'],
     ];
   }
 
@@ -4205,7 +4205,7 @@ EOD);
     return [
       'the steps of the generic context' => ['steps', 'Web', 'docs/content/web-steps'],
       'the helpers of another context' => ['helpers', 'Drupal', 'docs/content/drupal-helpers'],
-      'the toolbox' => ['helpers', 'Toolbox', 'docs/content/web-helpers'],
+      'the helper classes' => ['helpers', 'Root context', 'docs/content/web-helpers'],
     ];
   }
 
@@ -4219,7 +4219,7 @@ EOD);
       'a trait of the generic context' => ['steps', 'Web', 'AccessibilityTrait', 'docs/content/web-steps/accessibility.md'],
       'a trait named in several words' => ['steps', 'Drupal', 'BigPipeTrait', 'docs/content/drupal-steps/big-pipe.md'],
       'the helpers of a trait' => ['helpers', 'Drupal', 'BigPipeTrait', 'docs/content/drupal-helpers/big-pipe.md'],
-      'a class of the toolbox' => ['helpers', 'Toolbox', 'WebRawContext', 'docs/content/web-helpers/web-raw-context.md'],
+      'a helper class' => ['helpers', 'Root context', 'WebRawContext', 'docs/content/web-helpers/web-raw-context.md'],
     ];
   }
 
@@ -4228,11 +4228,11 @@ EOD);
       'SomeTrait' => ['context' => 'Web', 'title' => 'Zebras'],
       'AnotherTrait' => ['context' => 'Web', 'title' => 'apples'],
       'OtherTrait' => ['context' => 'Drupal', 'title' => 'Mangoes'],
-      'WebRawContext' => ['context' => 'Toolbox', 'title' => 'Root context'],
+      'WebRawContext' => ['context' => 'Root context', 'title' => 'Root context'],
     ];
 
     // Positions follow the title within each section, ignoring case, and the
-    // toolbox is numbered with the generic context.
+    // helper classes are numbered with the generic context.
     $this->assertSame(['AnotherTrait' => 1, 'WebRawContext' => 2, 'SomeTrait' => 3, 'OtherTrait' => 1], page_positions('helpers', $info));
   }
 
@@ -4264,11 +4264,11 @@ EOD);
           ]),
         ],
       ],
-      'helpers, with the toolbox in the generic section' => [
+      'helpers, with the helper classes in the generic section' => [
         'helpers',
         [
           'SomeTrait' => ['name' => 'SomeTrait', 'name_contextual' => 'SomeTrait', 'context' => 'Web', 'title' => 'Some things', 'description' => 'Do the thing.', 'helpers' => [['name' => 'someValue'], ['name' => 'someOther']]],
-          'WebRawContext' => ['name' => 'WebRawContext', 'name_contextual' => 'WebRawContext', 'context' => 'Toolbox', 'title' => 'Root context', 'description' => 'Root context.', 'helpers' => [['name' => 'rawValue']]],
+          'WebRawContext' => ['name' => 'WebRawContext', 'name_contextual' => 'WebRawContext', 'context' => 'Root context', 'title' => 'Root context', 'description' => 'Root context.', 'helpers' => [['name' => 'rawValue']]],
         ],
         [
           'docs/content/web-helpers/README.md' => implode(PHP_EOL, [
@@ -4489,7 +4489,7 @@ EOD);
 
   public function testRenderHelperIndex(): void {
     $info = [
-      'WebRawContext' => ['name' => 'WebRawContext', 'name_contextual' => 'WebRawContext', 'context' => 'Toolbox', 'description' => 'Root context.', 'helpers' => [['name' => 'rawValue']]],
+      'WebRawContext' => ['name' => 'WebRawContext', 'name_contextual' => 'WebRawContext', 'context' => 'Root context', 'description' => 'Root context.', 'helpers' => [['name' => 'rawValue']]],
       'SomeTrait' => ['name' => 'SomeTrait', 'name_contextual' => 'SomeTrait', 'context' => 'Web', 'description' => 'Do the thing.', 'helpers' => [['name' => 'someValue'], ['name' => 'someOther']]],
     ];
 
@@ -4502,7 +4502,7 @@ EOD);
       '| --- | --- | --- |',
       '| [SomeTrait](#SomeTrait) | 2 | Do the thing. |',
       '',
-      '## Index of Toolbox helpers',
+      '## Index of Root context helpers',
       '',
       '| Class | Helpers | Description |',
       '| --- | --- | --- |',
@@ -4534,7 +4534,7 @@ EOD);
         'name' => 'WebRawContext',
         'name_contextual' => 'WebRawContext',
         'class' => WebRawContext::class,
-        'context' => 'Toolbox',
+        'context' => 'Root context',
         'title' => 'Root context',
         'source' => 'src/WebRawContext.php',
         'steps_anchor' => NULL,
@@ -4579,13 +4579,13 @@ EOD);
       '',
     ]), $actual['docs/content/web-helpers/some.md']);
 
-    // The toolbox page is in the generic section, positioned by its title. A
-    // class with no steps links only its source, and a helper with no example
-    // renders no code block.
-    $toolbox = $actual['docs/content/web-helpers/web-raw-context.md'];
-    $this->assertStringContainsString('title: "Root context - Web helpers"' . PHP_EOL . 'sidebar_label: "Root context"' . PHP_EOL . 'sidebar_position: 1' . PHP_EOL, $toolbox);
-    $this->assertStringContainsString('# Root context' . PHP_EOL . PHP_EOL . '`DrevOps\\BehatSteps\\WebRawContext` - [Source](../../../src/WebRawContext.php)' . PHP_EOL, $toolbox);
-    $this->assertStringNotContainsString('```', $toolbox);
+    // The helper class page is in the generic section, positioned by its
+    // title. A class with no steps links only its source, and a helper with no
+    // example renders no code block.
+    $root_context = $actual['docs/content/web-helpers/web-raw-context.md'];
+    $this->assertStringContainsString('title: "Root context - Web helpers"' . PHP_EOL . 'sidebar_label: "Root context"' . PHP_EOL . 'sidebar_position: 1' . PHP_EOL, $root_context);
+    $this->assertStringContainsString('# Root context' . PHP_EOL . PHP_EOL . '`DrevOps\\BehatSteps\\WebRawContext` - [Source](../../../src/WebRawContext.php)' . PHP_EOL, $root_context);
+    $this->assertStringNotContainsString('```', $root_context);
   }
 
   public function testRenderHelperPagesThrowsOnMissingSource(): void {

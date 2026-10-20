@@ -35,8 +35,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Tests for the shape of the library's public surface.
  *
- * Visibility marks the API. A public method Behat does not register is the
- * toolbox, published in HELPERS.md and covered by semantic versioning; a
+ * Visibility marks the API. A public method Behat does not register is a
+ * helper, published in HELPERS.md and covered by semantic versioning; a
  * protected one carries no guarantee. The backend layer publishes no
  * override point at all.
  *
@@ -109,7 +109,7 @@ class PublicSurfaceTest extends UnitTestCase {
       }
     }
 
-    $this->assertSame([], $violations, 'A public method that is neither a step nor a hook is published in HELPERS.md as part of the toolbox, so it needs a docblock summary. Write one, or make the method protected.');
+    $this->assertSame([], $violations, 'A public method that is neither a step nor a hook is published in HELPERS.md as a helper, so it needs a docblock summary. Write one, or make the method protected.');
   }
 
   public static function dataProviderPublicMethodsAreDocumented(): array {
