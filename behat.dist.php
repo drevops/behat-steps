@@ -18,17 +18,17 @@ use Behat\Config\Profile;
 use Behat\Config\Suite;
 use Behat\MinkExtension\Context\MinkContext;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
-use DrevOps\BehatSteps\DrupalContext;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
-// 'DrupalContext' extends 'WebContext' and carries every web step, so a
-// Drupal suite registers it alone.
+// 'FeatureContext' is the project's own context, which extends
+// 'DrupalContext'. A shipped context registered beside it registers every
+// web step twice.
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
-  ->addContext(DrupalContext::class)
+  ->addContext(FeatureContext::class)
   ->addContext(MinkContext::class);
 
-$profile = (new Profile('default'))
+$profile = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/bootstrap']]))
   ->withSuite($suite)
   ->withExtension(new Extension(MinkExtension::class, [
     'base_url' => 'http://your-site.local',
