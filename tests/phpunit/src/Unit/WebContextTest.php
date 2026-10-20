@@ -112,7 +112,6 @@ class UnrelatedContext {}
 class FeatureContext extends DrupalContext {}
 
 /**
- * Context extending 'WebContext', so neither it nor 'FeatureContext' extends
- * the other.
+ * Context extending 'WebContext' but not 'DrupalContext'.
  */
 class UiContext extends WebContext {}
