@@ -95,7 +95,7 @@ Some steps need the site itself rather than a page. `Given the following "page" 
 - `drush` runs Drush commands against the site.
 - `blackbox` stands for a site you can only browse, and does nothing on its own.
 
-A step never names a backend. It asks for a capability, such as creating content or clearing caches, and the first backend in your `backends` list that provides it does the work. So the same step can run in-process or through Drush, depending on that list. [Backend resolution](guides/configuration.md#backend-resolution) covers the details.
+A step never names a backend. It asks for a capability, such as creating content or clearing caches, and the first backend in your `backends` list that provides it does the work. So the same step can run in-process or through Drush, depending on that list. [How a step picks a backend](architecture/backend-layer.md#how-a-step-picks-a-backend) walks through it with a diagram, and [Backend resolution](guides/configuration.md#backend-resolution) states the rules.
 
 ### Cleanup after each scenario
 
@@ -109,7 +109,7 @@ Tags are Gherkin's labels for a scenario or a feature, such as `@javascript`. Be
 
 ## The big picture
 
-Your project registers 1 of the shipped contexts, or a context of its own, and the Behat Steps extension beside Mink's. The traits decide what each step does. A step that drives the page uses the browser session Mink's extension opens, and a step that needs the site itself asks for a capability, which the first backend in your `backends` list that provides it answers.
+Your project registers its `FeatureContext`, which extends 1 of the shipped contexts, and the Behat Steps extension beside Mink's. The traits decide what each step does. A step that drives the page uses the browser session Mink's extension opens, and a step that needs the site itself asks for a capability, which the first backend in your `backends` list that provides it answers.
 
 [![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](architecture/logical-architecture.svg#gh-light-mode-only)](architecture/logical-architecture.svg)
 [![Logical architecture: your project above the contexts and the 3 library layers, the site under test below them, and the repository tooling beside them](architecture/logical-architecture.dark.svg#gh-dark-mode-only)](architecture/logical-architecture.dark.svg)
