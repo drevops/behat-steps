@@ -304,7 +304,7 @@ How a 3.14 suite gets there depends on what it registered:
 
 - A suite that registered a `FeatureContext` extending the Drupal Extension's `DrupalContext`, as the 3.14 README showed, keeps that registration. `FeatureContext` changes its parent to `DrevOps\BehatSteps\DrupalContext`, as [Base classes](#base-classes) shows, and carries every step this package ships beside its own.
 - A suite that registered the Drupal Extension's `DrupalContext` directly drops it and registers a `FeatureContext` that extends `DrevOps\BehatSteps\DrupalContext` instead. A context of its own that extended `RawDrupalContext` can be that `FeatureContext`: it changes its parent the same way and drops the `use` lines for this package's traits.
-- A suite on a site that isn't Drupal, whose context extended Mink's `RawMinkContext`, keeps registering it, and [Base classes](#base-classes) gives its new parent.
+- A suite on a site that isn't Drupal, whose context extended Mink's `RawMinkContext`, keeps registering it. The context extends `DrevOps\BehatSteps\WebContext` and drops the `use` lines for this package's traits, or extends `DrevOps\BehatSteps\WebRawContext` and keeps them to compose only the traits it picked, as [Base classes](#base-classes) shows.
 
 In `behat.yml`, a suite of the first kind changes like this:
 
@@ -381,7 +381,7 @@ A 3.14 context extended the Drupal Extension's `DrupalContext` or `RawDrupalCont
 | 3.14 parent | 4.0 parent | Notes |
 | --- | --- | --- |
 | `Drupal\DrupalExtension\Context\RawDrupalContext` | `DrevOps\BehatSteps\WebRawContext` | A context the suite registered beside the Drupal Extension's `DrupalContext` extends `DrevOps\BehatSteps\DrupalContext` instead; see [Contexts to register](#contexts-to-register) |
-| `Behat\MinkExtension\Context\RawMinkContext`, composing this package's traits | `DrevOps\BehatSteps\WebRawContext` | |
+| `Behat\MinkExtension\Context\RawMinkContext`, composing this package's traits | `DrevOps\BehatSteps\WebRawContext` | A context that takes all 28 web step traits extends `DrevOps\BehatSteps\WebContext` instead, without the `use` lines; see [Contexts to register](#contexts-to-register) |
 | `Drupal\DrupalExtension\Context\DrupalContext` | `DrevOps\BehatSteps\DrupalContext` | Drop the `use` lines for the traits it already composes. The suite keeps registering the context; see [Contexts to register](#contexts-to-register) |
 
 ```php

@@ -35,6 +35,10 @@ class BehatDistConfigTest extends UnitTestCase {
     $this->assertSame(['FeatureContext', MinkContext::class], $contexts);
   }
 
+  public function testTheProfileAutoloadsFeatureContext(): void {
+    $this->assertSame(['%paths.base%/tests/behat/bootstrap'], static::readSetting('default')['autoload'] ?? NULL);
+  }
+
   /**
    * Collects the configuration paths a node declares and the settings omit.
    *
