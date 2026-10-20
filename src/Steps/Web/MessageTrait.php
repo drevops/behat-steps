@@ -322,7 +322,7 @@ trait MessageTrait {
    */
   protected function messageConfigSchema(): array {
     return [
-      new Option('selectors', default: [], description: 'Selectors of the message regions the message steps assert against, one per severity: `default`, `error`, `success` and `warning`.'),
+      new Option('selectors', default: [], description: 'The CSS selector of the message region for each severity the message steps check, keyed `default`, `error`, `success` and `warning`. `default` serves the steps that name no severity. None is set by default, so a message step fails until its key is set.'),
     ];
   }
 

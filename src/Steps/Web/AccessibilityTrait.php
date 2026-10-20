@@ -1693,15 +1693,15 @@ HTML;
    */
   protected function accessibilityConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Assess every page an `@accessibility` scenario visits.'),
-      new Option('auto_tag', default: self::ACCESSIBILITY_TAG, description: 'Base tag name, without its `@`, that puts a scenario into automatic mode.'),
-      new Option('default_rules', default: 'wcag2a,wcag2aa', description: 'Rule identifier passed to the engine when a scenario names none.'),
-      new Option('failure_threshold', default: 'any', description: 'Impact level at which a violation fails the scenario: `any`, `never`, or one impact identifier.'),
-      new Option('fail_on_incomplete', default: FALSE, description: 'Fail the scenario on a finding the engine could not decide.'),
-      new Option('cdn_url', default: 'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js', description: 'Location the engine source is read from.'),
-      new Option('fetch_timeout', default: 10, description: 'Per-attempt timeout, in seconds, for the engine fetch.'),
-      new Option('fetch_attempts', default: 3, description: 'How many times the engine fetch is attempted before failing.'),
-      new Option('report_dir', default: '.logs/test_results/accessibility', description: 'Directory the per-scenario reports are written to. A relative path resolves against the directory the run was launched from.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, assesses every page an `@accessibility` scenario visits and writes its reports. If `FALSE`, no page is assessed automatically and no report is written, while the accessibility steps still assess the page they run on.'),
+      new Option('auto_tag', default: self::ACCESSIBILITY_TAG, description: 'The name, without the `@`, of the tag that switches on automatic assessment for a scenario and carries its threshold, as in `@accessibility:serious`.'),
+      new Option('default_rules', default: 'wcag2a,wcag2aa', description: 'The comma-separated axe-core tags that select the rules to check, in automatic mode and in the step that names no tags.'),
+      new Option('failure_threshold', default: 'any', description: 'The impact at which a violation fails the scenario: `critical`, `serious`, `moderate` or `minor` fails on that impact or a worse one, `any` on every violation and `never` on none. Any other value fails on every violation, like `any`. An `@accessibility:VALUE` tag overrides it for 1 scenario.'),
+      new Option('fail_on_incomplete', default: FALSE, description: "If `TRUE`, a finding axe-core can't decide fails the scenario, whatever the threshold. If `FALSE`, it doesn't. `@accessibility:strict` sets it to `TRUE` for 1 scenario."),
+      new Option('cdn_url', default: 'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js', description: 'The URL of the axe-core script the trait loads into each page it assesses, or the absolute path of a local copy. The script is read once per run.'),
+      new Option('fetch_timeout', default: 10, description: 'The time, in seconds, an attempt to fetch the axe-core script over HTTP can go without receiving data before it fails.'),
+      new Option('fetch_attempts', default: 3, description: 'The number of attempts to fetch the axe-core script before the step fails, with a pause after each failed attempt that grows by half a second. A value below 1 counts as 1.'),
+      new Option('report_dir', default: '.logs/test_results/accessibility', description: "The directory each scenario's HTML and JUnit reports and the run's summary report are written to. A relative path resolves against the directory the run was launched from."),
     ];
   }
 

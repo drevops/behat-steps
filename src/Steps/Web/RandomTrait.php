@@ -413,7 +413,7 @@ trait RandomTrait {
    */
   protected function randomConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Replace `[?name:type]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, replaces `[?name]` and `[?name:type]` tokens in step arguments and table cells with random values, 1 per name for the whole scenario, though not in multiline text. If `FALSE`, a token reaches the step untouched.'),
     ];
   }
 

@@ -1000,7 +1000,7 @@ trait EmailTrait {
    */
   protected function emailConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Collect email for an `@email` scenario and clear the queue around it.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, points the mail system of an `@email` scenario at a test collector, empties the collector and restores the mail system afterwards. If `FALSE`, the tag does nothing, and a collector the email steps switch on stays on after the scenario.'),
     ];
   }
 

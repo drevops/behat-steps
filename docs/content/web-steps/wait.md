@@ -26,8 +26,8 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `wait.enabled` | boolean | `TRUE` | `@behat-steps-skip:WaitTrait` | Wait for AJAX around every navigating or submitting step of a `@javascript` scenario. |
-| `wait.ajax_timeout` | integer | `5` | - | Maximum time, in seconds, to wait for AJAX calls to complete. |
+| `wait.enabled` | boolean | `TRUE` | `@behat-steps-skip:WaitTrait` | If `TRUE`, waits for AJAX before and after every step of a `@javascript` scenario whose text, outside its quoted values, holds `follow`, `press`, `click`, `submit` or `attach`. If `FALSE`, only the wait steps wait. |
+| `wait.ajax_timeout` | integer | `5` | - | The longest time, in seconds, to wait for jQuery's AJAX calls and animations and Drupal's AJAX requests to finish, in the automatic waits and in `I wait for AJAX to finish`. |
 
 ## Steps
 

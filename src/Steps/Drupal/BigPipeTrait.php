@@ -204,8 +204,8 @@ trait BigPipeTrait {
    */
   protected function bigPipeConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Wait for BigPipe placeholders to be replaced before each step of a `@javascript` scenario.'),
-      new Option('wait_timeout', default: 10000, description: 'Maximum time, in milliseconds, to wait for BigPipe placeholders to be replaced.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, waits for BigPipe placeholders to be replaced before each step of a `@javascript` scenario, and lets `@bigpipe` set its cookie. If `FALSE`, neither happens.'),
+      new Option('wait_timeout', default: 10000, description: "The longest time, in milliseconds, to wait for BigPipe placeholders before each step. A timeout doesn't fail the step."),
     ];
   }
 

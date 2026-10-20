@@ -28,9 +28,9 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `queue.enabled` | boolean | `TRUE` | `@behat-steps-skip:QueueTrait` | Delete the queues a scenario used once it finishes. |
-| `queue.process_limit` | integer | `1000` | - | Maximum number of items a single queue-processing step handles. |
-| `queue.lease_time` | integer | `30` | - | Time, in seconds, a claimed queue item stays leased. |
+| `queue.enabled` | boolean | `TRUE` | `@behat-steps-skip:QueueTrait` | If `TRUE`, deletes every queue the queue steps used once the scenario finishes, items from before the scenario included. If `FALSE`, the queues stay. |
+| `queue.process_limit` | integer | `1000` | - | The number of items at which `the queue :queue is processed` stops and fails, as a guard against a queue that keeps refilling, so a queue holding exactly this many items fails the step too. |
+| `queue.lease_time` | integer | `30` | - | The time, in seconds, a queue item stays claimed while a processing step works on it. |
 
 ## Steps
 

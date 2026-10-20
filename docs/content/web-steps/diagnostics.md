@@ -49,11 +49,11 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `diagnostics.enabled` | boolean | `TRUE` | `@behat-steps-skip:DiagnosticsTrait` | Append a diagnostics block to the message of a failing step. |
-| `diagnostics.header` | string | `'--- Failure diagnostics ---'` | - | Header line that precedes the diagnostics block. |
-| `diagnostics.rerun_binary` | string | `'vendor/bin/behat'` | - | Binary named in the re-run command the block prints. |
-| `diagnostics.show_url` | boolean | `TRUE` | - | Include the current URL in the block. |
-| `diagnostics.show_status_code` | boolean | `TRUE` | - | Include the HTTP status code in the block. |
-| `diagnostics.show_browser_driver` | boolean | `TRUE` | - | Include the browser driver class in the block. |
-| `diagnostics.show_js_errors` | boolean | `TRUE` | - | Include the JavaScript console errors in the block. |
-| `diagnostics.show_rerun` | boolean | `TRUE` | - | Include the command that re-runs the failing scenario in the block. |
+| `diagnostics.enabled` | boolean | `TRUE` | `@behat-steps-skip:DiagnosticsTrait` | If `TRUE`, appends a diagnostics block to the message of a failing step. If `FALSE`, the message stays as the step threw it. |
+| `diagnostics.header` | string | `'--- Failure diagnostics ---'` | - | The line the diagnostics block starts with. |
+| `diagnostics.rerun_binary` | string | `'vendor/bin/behat'` | - | The command the block's re-run line starts with, before the failing scenario's file and line. It can carry options too, such as `vendor/bin/behat -p ci`. |
+| `diagnostics.show_url` | boolean | `TRUE` | - | If `TRUE`, the block includes the current URL. |
+| `diagnostics.show_status_code` | boolean | `TRUE` | - | If `TRUE`, the block includes the HTTP status code of the last response, when the browser driver reports one. |
+| `diagnostics.show_browser_driver` | boolean | `TRUE` | - | If `TRUE`, the block includes the class of the session's browser driver. |
+| `diagnostics.show_js_errors` | boolean | `TRUE` | - | If `TRUE`, the block includes the JavaScript errors `JavascriptTrait` collected, which it does only in a `@javascript` scenario. |
+| `diagnostics.show_rerun` | boolean | `TRUE` | - | If `TRUE`, the block includes the command that re-runs the failing scenario. |

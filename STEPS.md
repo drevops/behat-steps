@@ -114,15 +114,15 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `accessibility.enabled` | boolean | `TRUE` | `@behat-steps-skip:AccessibilityTrait` | Assess every page an `@accessibility` scenario visits. |
-| `accessibility.auto_tag` | string | `'accessibility'` | - | Base tag name, without its `@`, that puts a scenario into automatic mode. |
-| `accessibility.default_rules` | string | `'wcag2a,wcag2aa'` | - | Rule identifier passed to the engine when a scenario names none. |
-| `accessibility.failure_threshold` | string | `'any'` | - | Impact level at which a violation fails the scenario: `any`, `never`, or one impact identifier. |
-| `accessibility.fail_on_incomplete` | boolean | `FALSE` | - | Fail the scenario on a finding the engine could not decide. |
-| `accessibility.cdn_url` | string | `'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js'` | - | Location the engine source is read from. |
-| `accessibility.fetch_timeout` | integer | `10` | - | Per-attempt timeout, in seconds, for the engine fetch. |
-| `accessibility.fetch_attempts` | integer | `3` | - | How many times the engine fetch is attempted before failing. |
-| `accessibility.report_dir` | string | `'.logs/test_results/accessibility'` | - | Directory the per-scenario reports are written to. A relative path resolves against the directory the run was launched from. |
+| `accessibility.enabled` | boolean | `TRUE` | `@behat-steps-skip:AccessibilityTrait` | If `TRUE`, assesses every page an `@accessibility` scenario visits and writes its reports. If `FALSE`, no page is assessed automatically and no report is written, while the accessibility steps still assess the page they run on. |
+| `accessibility.auto_tag` | string | `'accessibility'` | - | The name, without the `@`, of the tag that switches on automatic assessment for a scenario and carries its threshold, as in `@accessibility:serious`. |
+| `accessibility.default_rules` | string | `'wcag2a,wcag2aa'` | - | The comma-separated axe-core tags that select the rules to check, in automatic mode and in the step that names no tags. |
+| `accessibility.failure_threshold` | string | `'any'` | - | The impact at which a violation fails the scenario: `critical`, `serious`, `moderate` or `minor` fails on that impact or a worse one, `any` on every violation and `never` on none. Any other value fails on every violation, like `any`. An `@accessibility:VALUE` tag overrides it for 1 scenario. |
+| `accessibility.fail_on_incomplete` | boolean | `FALSE` | - | If `TRUE`, a finding axe-core can't decide fails the scenario, whatever the threshold. If `FALSE`, it doesn't. `@accessibility:strict` sets it to `TRUE` for 1 scenario. |
+| `accessibility.cdn_url` | string | `'https://cdn.jsdelivr.net/npm/axe-core@4.11.4/axe.min.js'` | - | The URL of the axe-core script the trait loads into each page it assesses, or the absolute path of a local copy. The script is read once per run. |
+| `accessibility.fetch_timeout` | integer | `10` | - | The time, in seconds, an attempt to fetch the axe-core script over HTTP can go without receiving data before it fails. |
+| `accessibility.fetch_attempts` | integer | `3` | - | The number of attempts to fetch the axe-core script before the step fails, with a pause after each failed attempt that grows by half a second. A value below 1 counts as 1. |
+| `accessibility.report_dir` | string | `'.logs/test_results/accessibility'` | - | The directory each scenario's HTML and JUnit reports and the run's summary report are written to. A relative path resolves against the directory the run was launched from. |
 
 <details>
   <summary><code>@Then the page should pass accessibility checks</code></summary>
@@ -171,7 +171,7 @@ Then the page should pass accessibility checks for the tags "wcag2a"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `basic_auth.enabled` | boolean | `TRUE` | `@behat-steps-skip:BasicAuthTrait` | Apply the configured basic authentication credentials to every request. |
+| `basic_auth.enabled` | boolean | `TRUE` | `@behat-steps-skip:BasicAuthTrait` | If `TRUE`, applies the user name and password in Mink's `base_url`, as in `https://user:pass@example.com`, to the browser session before each scenario and each step. If `FALSE`, those hooks don't apply them, though a logout and the detached HTTP client still send them. |
 
 ## CommandTrait
 
@@ -193,7 +193,7 @@ Then the page should pass accessibility checks for the tags "wcag2a"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `command.timeout` | integer | `300` | - | Maximum time, in seconds, a command may run before it is terminated. |
+| `command.timeout` | integer | `300` | - | The longest time, in seconds, a command can run before it's killed and the step fails. A value of 0 or less kills every command at once. |
 
 <details>
   <summary><code>@When I run the command :command</code></summary>
@@ -535,7 +535,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `date.enabled` | boolean | `TRUE` | `@behat-steps-skip:DateTrait` | Replace `[relative:...]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched. |
+| `date.enabled` | boolean | `TRUE` | `@behat-steps-skip:DateTrait` | If `TRUE`, replaces `[relative:...]` tokens in table cells and in the `:datetime`, `:value`, `:partial_value`, `:expected_value`, `:text` and `:content` arguments of a step. If `FALSE`, a token reaches the step untouched. |
 
 ## DiagnosticsTrait
 
@@ -581,14 +581,14 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `diagnostics.enabled` | boolean | `TRUE` | `@behat-steps-skip:DiagnosticsTrait` | Append a diagnostics block to the message of a failing step. |
-| `diagnostics.header` | string | `'--- Failure diagnostics ---'` | - | Header line that precedes the diagnostics block. |
-| `diagnostics.rerun_binary` | string | `'vendor/bin/behat'` | - | Binary named in the re-run command the block prints. |
-| `diagnostics.show_url` | boolean | `TRUE` | - | Include the current URL in the block. |
-| `diagnostics.show_status_code` | boolean | `TRUE` | - | Include the HTTP status code in the block. |
-| `diagnostics.show_browser_driver` | boolean | `TRUE` | - | Include the browser driver class in the block. |
-| `diagnostics.show_js_errors` | boolean | `TRUE` | - | Include the JavaScript console errors in the block. |
-| `diagnostics.show_rerun` | boolean | `TRUE` | - | Include the command that re-runs the failing scenario in the block. |
+| `diagnostics.enabled` | boolean | `TRUE` | `@behat-steps-skip:DiagnosticsTrait` | If `TRUE`, appends a diagnostics block to the message of a failing step. If `FALSE`, the message stays as the step threw it. |
+| `diagnostics.header` | string | `'--- Failure diagnostics ---'` | - | The line the diagnostics block starts with. |
+| `diagnostics.rerun_binary` | string | `'vendor/bin/behat'` | - | The command the block's re-run line starts with, before the failing scenario's file and line. It can carry options too, such as `vendor/bin/behat -p ci`. |
+| `diagnostics.show_url` | boolean | `TRUE` | - | If `TRUE`, the block includes the current URL. |
+| `diagnostics.show_status_code` | boolean | `TRUE` | - | If `TRUE`, the block includes the HTTP status code of the last response, when the browser driver reports one. |
+| `diagnostics.show_browser_driver` | boolean | `TRUE` | - | If `TRUE`, the block includes the class of the session's browser driver. |
+| `diagnostics.show_js_errors` | boolean | `TRUE` | - | If `TRUE`, the block includes the JavaScript errors `JavascriptTrait` collected, which it does only in a `@javascript` scenario. |
+| `diagnostics.show_rerun` | boolean | `TRUE` | - | If `TRUE`, the block includes the command that re-runs the failing scenario. |
 
 ## DropzoneTrait
 
@@ -657,7 +657,7 @@ When I drop the following files on the dropzone ".dropzone":
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `element.scroll_into_view_center` | boolean | `TRUE` | - | Center an element in the viewport when scrolling to it, rather than aligning it to the top. |
+| `element.scroll_into_view_center` | boolean | `TRUE` | - | If `TRUE`, `I scroll to the element :selector` centers the element in the browser window, across and down. If `FALSE`, it aligns the element's top with the top of the window. |
 
 <details>
   <summary><code>@Given I accept all confirmation dialogs</code></summary>
@@ -1228,9 +1228,9 @@ Then the element "#main-nav" should have 3 elements matching ".menu-item"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `field.enabled` | boolean | `TRUE` | `@behat-steps-skip:FieldTrait` | Strip HTML5 validation from every form of a `@disable-form-validation` scenario. |
-| `field.add_more_button_selectors` | map | `[...]` | - | CSS selectors of the add-another-item button, tried in order. |
-| `field.required_marker_selectors` | map | `[...]` | - | CSS selectors that mark a field as required, tried in order. |
+| `field.enabled` | boolean | `TRUE` | `@behat-steps-skip:FieldTrait` | If `TRUE`, strips HTML5 validation after each step from every form of a `@disable-form-validation` scenario, and from the forms `the browser validation for the form :selector is disabled` names. If `FALSE`, the tag does nothing, and that step strips validation only from the page it runs on. |
+| `field.add_more_button_selectors` | map | `[...]` | - | The CSS selectors of the "Add another item" button of a multi-value field, tried in order within the field's wrapper. When none matches, the step looks for a button whose name contains `_add_more` or whose text contains `Add another`. |
+| `field.required_marker_selectors` | map | `[...]` | - | The CSS selectors that mark a field as required, checked on the field, on its label and inside the label. On the field and the label, only a class such as `.form-required` or an attribute such as `[required]` counts. A `*` in the label's text also marks the field as required. |
 
 <details>
   <summary><code>@Given the browser validation for the form :selector is disabled</code></summary>
@@ -1661,9 +1661,9 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `file_download.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileDownloadTrait` | Prepare and clean up the download directory around a `@download` scenario. |
-| `file_download.temp_dir` | string | `'/tmp/behat_downloads'` | - | Directory a `@download` scenario writes downloaded files into. |
-| `file_download.timeout` | integer | `120` | - | How long, in seconds, a file download may wait for data. |
+| `file_download.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileDownloadTrait` | If `TRUE`, empties and creates the `temp_dir` directory before a `@download` scenario and deletes it afterwards. If `FALSE`, the download steps need that directory to exist already. |
+| `file_download.temp_dir` | string | `'/tmp/behat_downloads'` | - | The directory the download steps write downloaded files into. A `@download` scenario deletes it, with everything in it, before and after the scenario. Give an absolute path: a relative one resolves against the working directory, which bootstrapping Drupal in-process changes. |
+| `file_download.timeout` | integer | `120` | - | The time, in seconds, a download can go without receiving data before it fails. |
 
 <details>
   <summary><code>@When I download the file from the URL :url</code></summary>
@@ -1857,8 +1857,8 @@ When I switch to the root document
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `javascript.enabled` | boolean | `TRUE` | `@behat-steps-skip:JavascriptTrait` | Collect JavaScript console errors on a `@javascript` scenario. |
-| `javascript.fail_on_errors` | boolean | `TRUE` | `@js-errors` | Fail a scenario that collected a console error. Errors are still collected when this is off. |
+| `javascript.enabled` | boolean | `TRUE` | `@behat-steps-skip:JavascriptTrait` | If `TRUE`, collects the uncaught errors, unhandled promise rejections and `console.error()` calls of the pages a `@javascript` scenario visits. The collector goes in after a page loads, so errors thrown while it loads aren't caught. If `FALSE`, nothing is collected and `fail_on_errors` has no effect. |
+| `javascript.fail_on_errors` | boolean | `TRUE` | `@js-errors` | If `TRUE`, a collected error fails the scenario. If `FALSE`, errors are still collected and don't fail it. |
 
 ## JsonTrait
 
@@ -2386,8 +2386,8 @@ Then the link "Return to site content" should not be an absolute link
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `mapping.enabled` | boolean | `TRUE` | `@behat-steps-skip:MappingTrait` | Replace `{{ Key }}` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched. |
-| `mapping.groups` | map | `[]` | - | Named value mappings grouped for organization. Group names take no part in the lookup, so a key must be unique across all groups. |
+| `mapping.enabled` | boolean | `TRUE` | `@behat-steps-skip:MappingTrait` | If `TRUE`, replaces `{{ Key }}` tokens in step arguments and table cells with values from `groups`, though not in multiline text. If `FALSE`, a token reaches the step untouched. |
+| `mapping.groups` | map | `[]` | - | The values `{{ Key }}` tokens resolve to, as a map of group names to maps of keys and their values. Group names only organize the keys, so a key has to be unique across all groups, and it matches as written, case included. A token whose key no group holds fails the step. |
 
 ## MessageTrait
 
@@ -2407,7 +2407,7 @@ Then the link "Return to site content" should not be an absolute link
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `message.selectors` | map | `[]` | - | Selectors of the message regions the message steps assert against, one per severity: `default`, `error`, `success` and `warning`. |
+| `message.selectors` | map | `[]` | - | The CSS selector of the message region for each severity the message steps check, keyed `default`, `error`, `success` and `warning`. `default` serves the steps that name no severity. None is set by default, so a message step fails until its key is set. |
 
 <details>
   <summary><code>@Then I should see the message :message</code></summary>
@@ -2850,10 +2850,10 @@ Then the following Twitter Card tags should exist:
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `modal.selectors` | map | `[...]` | - | CSS selectors of the modal container, tried in order. |
-| `modal.content_selectors` | map | `[...]` | - | CSS selectors of the modal content element, tried in order. |
-| `modal.close_selectors` | map | `[...]` | - | CSS selectors of the modal close button, tried in order. |
-| `modal.wait_timeout` | integer | `3` | - | Maximum time, in seconds, to wait for a modal to appear. |
+| `modal.selectors` | map | `[...]` | - | The CSS selectors of the modal container. The first visible match wins, taking the selectors in order, so a visible modal outranks a hidden one an earlier selector matches. |
+| `modal.content_selectors` | map | `[...]` | - | The CSS selectors of the modal's content element, tried in order within the visible modal. The first selector that matches wins. |
+| `modal.close_selectors` | map | `[...]` | - | The CSS selectors of the modal's close button, tried in order within the visible modal. The step clicks the first match. |
+| `modal.wait_timeout` | integer | `3` | - | The longest time, in seconds, `I wait for the modal to appear` waits for a modal to show. |
 
 <details>
   <summary><code>@When I close the modal</code></summary>
@@ -3102,7 +3102,7 @@ Then the URL should not have the query parameter "filter" with the value "recent
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `random.enabled` | boolean | `TRUE` | `@behat-steps-skip:RandomTrait` | Replace `[?name:type]` tokens in step arguments and table cells. Turn it off to pass a token through to a step untouched. |
+| `random.enabled` | boolean | `TRUE` | `@behat-steps-skip:RandomTrait` | If `TRUE`, replaces `[?name]` and `[?name:type]` tokens in step arguments and table cells with random values, 1 per name for the whole scenario, though not in multiline text. If `FALSE`, a token reaches the step untouched. |
 
 ## RegionTrait
 
@@ -3572,7 +3572,7 @@ When I set the viewport to "375" by "667"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | Reset the request state this trait accumulates between scenarios. |
+| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | If `TRUE`, clears the context's request headers before each scenario. Behat builds a new context for each scenario, so the headers start empty either way. |
 
 <details>
   <summary><code>@Given the REST header :name has the value :value</code></summary>
@@ -3664,8 +3664,8 @@ Then the REST response should contain "success"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `table.header_selector` | string | `'thead tr th'` | - | CSS selector of a table header cell, relative to the table. |
-| `table.body_row_selector` | string | `'tbody tr'` | - | CSS selector of a table body row, relative to the table. |
+| `table.header_selector` | string | `'thead tr th'` | - | The CSS selector of a table's header cells, within the table. Their text names the columns the table steps look up, and their order picks each column's `td` cell in a row. |
+| `table.body_row_selector` | string | `'tbody tr'` | - | The CSS selector of a table's body rows, within the table. The steps that find a row by its text search every row of the page's tables instead. |
 
 <details>
   <summary><code>@When I follow the link :link in the row containing :partial_text</code></summary>
@@ -3879,8 +3879,8 @@ Then I should not see the link "Delete" in the row containing "Article title"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `wait.enabled` | boolean | `TRUE` | `@behat-steps-skip:WaitTrait` | Wait for AJAX around every navigating or submitting step of a `@javascript` scenario. |
-| `wait.ajax_timeout` | integer | `5` | - | Maximum time, in seconds, to wait for AJAX calls to complete. |
+| `wait.enabled` | boolean | `TRUE` | `@behat-steps-skip:WaitTrait` | If `TRUE`, waits for AJAX before and after every step of a `@javascript` scenario whose text, outside its quoted values, holds `follow`, `press`, `click`, `submit` or `attach`. If `FALSE`, only the wait steps wait. |
+| `wait.ajax_timeout` | integer | `5` | - | The longest time, in seconds, to wait for jQuery's AJAX calls and animations and Drupal's AJAX requests to finish, in the automatic waits and in `I wait for AJAX to finish`. |
 
 <details>
   <summary><code>@When I wait for AJAX to finish</code></summary>
@@ -4401,8 +4401,8 @@ When I wait for the batch job to finish
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `big_pipe.enabled` | boolean | `TRUE` | `@behat-steps-skip:BigPipeTrait` | Wait for BigPipe placeholders to be replaced before each step of a `@javascript` scenario. |
-| `big_pipe.wait_timeout` | integer | `10000` | - | Maximum time, in milliseconds, to wait for BigPipe placeholders to be replaced. |
+| `big_pipe.enabled` | boolean | `TRUE` | `@behat-steps-skip:BigPipeTrait` | If `TRUE`, waits for BigPipe placeholders to be replaced before each step of a `@javascript` scenario, and lets `@bigpipe` set its cookie. If `FALSE`, neither happens. |
+| `big_pipe.wait_timeout` | integer | `10000` | - | The longest time, in milliseconds, to wait for BigPipe placeholders before each step. A timeout doesn't fail the step. |
 
 ## Drupal\BlockTrait
 
@@ -4593,7 +4593,7 @@ Then the block "My block" in the region "content" should not exist
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `cache.page_cache_bin` | string | `'page'` | - | Name of the cache bin holding the internal page cache. |
+| `cache.page_cache_bin` | string | `'page'` | - | The cache bin that holds Drupal's internal page cache, which the steps clearing the page cache for a path delete entries from. The Drush backend empties the whole bin. |
 
 <details>
   <summary><code>@Given the cache has been cleared</code></summary>
@@ -4728,7 +4728,7 @@ When cron runs
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `config_override.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigOverrideTrait` | Apply the `@disable-config-override:` tags of a scenario and restore the overrides afterwards. |
+| `config_override.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigOverrideTrait` | If `TRUE`, sends the configuration names of a scenario's `@disable-config-override:` tags in the `X-Config-No-Override` header with each request. If `FALSE`, the tags do nothing. |
 
 ## Drupal\ConfigTrait
 
@@ -4770,7 +4770,7 @@ When cron runs
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `config.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigTrait` | Restore the configuration values a scenario changed once it finishes. |
+| `config.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigTrait` | If `TRUE`, restores the configuration objects the config steps changed once the scenario finishes, and deletes the ones they created. If `FALSE`, the changes stay. |
 
 <details>
   <summary><code>@Given the config :name with the key :key has the value :value</code></summary>
@@ -5493,7 +5493,7 @@ When I visit the ECK "contact" "contact_type" entity edit page with the title "T
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `email.enabled` | boolean | `TRUE` | `@behat-steps-skip:EmailTrait` | Collect email for an `@email` scenario and clear the queue around it. |
+| `email.enabled` | boolean | `TRUE` | `@behat-steps-skip:EmailTrait` | If `TRUE`, points the mail system of an `@email` scenario at a test collector, empties the collector and restores the mail system afterwards. If `FALSE`, the tag does nothing, and a collector the email steps switch on stays on after the scenario. |
 
 <details>
   <summary><code>@When the test email system queue is cleared</code></summary>
@@ -5909,7 +5909,7 @@ Given the following "commerce_product" entities exist:
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `file.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileTrait` | Create the private and temporary directories before a scenario, and remove the unmanaged files it created afterwards. |
+| `file.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileTrait` | If `TRUE`, creates the `private://` and `temporary://` directories before each scenario, and deletes the unmanaged files the file steps wrote once it finishes. If `FALSE`, the steps still work and their files stay. |
 
 <details>
   <summary><code>@Given the following managed files exist:</code></summary>
@@ -6336,7 +6336,7 @@ Given the following menu links exist in the menu "Main navigation":
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `module.enabled` | boolean | `TRUE` | `@behat-steps-skip:ModuleTrait` | Apply the `@module:` tags of a scenario and restore the original module states afterwards. |
+| `module.enabled` | boolean | `TRUE` | `@behat-steps-skip:ModuleTrait` | If `TRUE`, applies a scenario's `@module:` tags before it starts, and restores every module the tags and the module steps changed once it finishes. If `FALSE`, the tags do nothing and the steps' changes stay. |
 
 <details>
   <summary><code>@Given the module :module is enabled</code></summary>
@@ -6508,9 +6508,9 @@ Given the following fields for the "text" paragraph exist in the field "field_co
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `queue.enabled` | boolean | `TRUE` | `@behat-steps-skip:QueueTrait` | Delete the queues a scenario used once it finishes. |
-| `queue.process_limit` | integer | `1000` | - | Maximum number of items a single queue-processing step handles. |
-| `queue.lease_time` | integer | `30` | - | Time, in seconds, a claimed queue item stays leased. |
+| `queue.enabled` | boolean | `TRUE` | `@behat-steps-skip:QueueTrait` | If `TRUE`, deletes every queue the queue steps used once the scenario finishes, items from before the scenario included. If `FALSE`, the queues stay. |
+| `queue.process_limit` | integer | `1000` | - | The number of items at which `the queue :queue is processed` stops and fails, as a guard against a queue that keeps refilling, so a queue holding exactly this many items fails the step too. |
+| `queue.lease_time` | integer | `30` | - | The time, in seconds, a queue item stays claimed while a processing step works on it. |
 
 <details>
   <summary><code>@Given the following item is in the queue :queue:</code></summary>
@@ -6764,7 +6764,7 @@ When the Search API Solr cron runs
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `state.enabled` | boolean | `TRUE` | `@behat-steps-skip:StateTrait` | Restore the state values a scenario changed once it finishes. |
+| `state.enabled` | boolean | `TRUE` | `@behat-steps-skip:StateTrait` | If `TRUE`, restores the state values the state steps changed once the scenario finishes, and deletes the ones they added. If `FALSE`, the changes stay. |
 
 <details>
   <summary><code>@Given the state :name has the value :value</code></summary>
@@ -7011,7 +7011,7 @@ Then the "Fruits" term with the name "Apple" should not exist
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `testmode.enabled` | boolean | `TRUE` | `@behat-steps-skip:TestmodeTrait` | Enable the Testmode module for a `@testmode` scenario and disable it afterwards. |
+| `testmode.enabled` | boolean | `TRUE` | `@behat-steps-skip:TestmodeTrait` | If `TRUE`, switches the Testmode module's test mode on for a `@testmode` scenario and off once it finishes. If `FALSE`, the tag does nothing. |
 
 ## Drupal\TimeTrait
 
@@ -7040,7 +7040,7 @@ Then the "Fruits" term with the name "Apple" should not exist
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `time.enabled` | boolean | `TRUE` | `@behat-steps-skip:TimeTrait` | Restore the site clock after a scenario that moved it. |
+| `time.enabled` | boolean | `TRUE` | `@behat-steps-skip:TimeTrait` | If `TRUE`, removes the time `the system time is set to :value` set once the scenario finishes. If `FALSE`, the site keeps that time. |
 
 <details>
   <summary><code>@When the system time is set to :value</code></summary>
@@ -7507,8 +7507,8 @@ Then the user "John" should not be blocked
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `watchdog.enabled` | boolean | `TRUE` | `@behat-steps-skip:WatchdogTrait` | Read the errors a scenario logged to Watchdog. Nothing is read when this is off. |
-| `watchdog.fail_on_errors` | boolean | `TRUE` | `@error` | Fail a scenario that logged an error. The errors are still read and cleared when this is off. |
+| `watchdog.enabled` | boolean | `TRUE` | `@behat-steps-skip:WatchdogTrait` | If `TRUE`, checks that the `dblog` module is enabled, then reads the PHP warnings and errors, and the entries of the `@watchdog:` types, that every scenario logs. If `FALSE`, nothing is checked or read. |
+| `watchdog.fail_on_errors` | boolean | `TRUE` | `@error` | If `TRUE`, a logged warning or error fails the scenario. If `FALSE`, they are still read and cleared without failing it. |
 
 ## Drupal\WebformTrait
 

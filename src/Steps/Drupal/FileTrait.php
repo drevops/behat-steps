@@ -442,7 +442,7 @@ trait FileTrait {
    */
   protected function fileConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Create the private and temporary directories before a scenario, and remove the unmanaged files it created afterwards.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, creates the `private://` and `temporary://` directories before each scenario, and deletes the unmanaged files the file steps wrote once it finishes. If `FALSE`, the steps still work and their files stay.'),
     ];
   }
 

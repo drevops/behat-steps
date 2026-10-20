@@ -24,7 +24,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `state.enabled` | boolean | `TRUE` | `@behat-steps-skip:StateTrait` | Restore the state values a scenario changed once it finishes. |
+| `state.enabled` | boolean | `TRUE` | `@behat-steps-skip:StateTrait` | If `TRUE`, restores the state values the state steps changed once the scenario finishes, and deletes the ones they added. If `FALSE`, the changes stay. |
 
 ## Steps
 

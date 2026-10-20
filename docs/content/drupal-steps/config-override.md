@@ -73,4 +73,4 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `config_override.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigOverrideTrait` | Apply the `@disable-config-override:` tags of a scenario and restore the overrides afterwards. |
+| `config_override.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigOverrideTrait` | If `TRUE`, sends the configuration names of a scenario's `@disable-config-override:` tags in the `X-Config-No-Override` header with each request. If `FALSE`, the tags do nothing. |

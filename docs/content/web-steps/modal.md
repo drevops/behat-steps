@@ -24,10 +24,10 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `modal.selectors` | map | `[...]` | - | CSS selectors of the modal container, tried in order. |
-| `modal.content_selectors` | map | `[...]` | - | CSS selectors of the modal content element, tried in order. |
-| `modal.close_selectors` | map | `[...]` | - | CSS selectors of the modal close button, tried in order. |
-| `modal.wait_timeout` | integer | `3` | - | Maximum time, in seconds, to wait for a modal to appear. |
+| `modal.selectors` | map | `[...]` | - | The CSS selectors of the modal container. The first visible match wins, taking the selectors in order, so a visible modal outranks a hidden one an earlier selector matches. |
+| `modal.content_selectors` | map | `[...]` | - | The CSS selectors of the modal's content element, tried in order within the visible modal. The first selector that matches wins. |
+| `modal.close_selectors` | map | `[...]` | - | The CSS selectors of the modal's close button, tried in order within the visible modal. The step clicks the first match. |
+| `modal.wait_timeout` | integer | `3` | - | The longest time, in seconds, `I wait for the modal to appear` waits for a modal to show. |
 
 ## Steps
 

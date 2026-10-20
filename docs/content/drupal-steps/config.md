@@ -45,7 +45,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `config.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigTrait` | Restore the configuration values a scenario changed once it finishes. |
+| `config.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigTrait` | If `TRUE`, restores the configuration objects the config steps changed once the scenario finishes, and deletes the ones they created. If `FALSE`, the changes stay. |
 
 ## Steps
 

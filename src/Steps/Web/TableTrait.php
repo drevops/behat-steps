@@ -546,8 +546,8 @@ trait TableTrait {
    */
   protected function tableConfigSchema(): array {
     return [
-      new Option('header_selector', default: 'thead tr th', description: 'CSS selector of a table header cell, relative to the table.'),
-      new Option('body_row_selector', default: 'tbody tr', description: 'CSS selector of a table body row, relative to the table.'),
+      new Option('header_selector', default: 'thead tr th', description: "The CSS selector of a table's header cells, within the table. Their text names the columns the table steps look up, and their order picks each column's `td` cell in a row."),
+      new Option('body_row_selector', default: 'tbody tr', description: "The CSS selector of a table's body rows, within the table. The steps that find a row by its text search every row of the page's tables instead."),
     ];
   }
 

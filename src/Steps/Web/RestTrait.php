@@ -193,7 +193,7 @@ trait RestTrait {
    */
   protected function restConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Reset the request state this trait accumulates between scenarios.'),
+      new Option('enabled', default: TRUE, description: "If `TRUE`, clears the context's request headers before each scenario. Behat builds a new context for each scenario, so the headers start empty either way."),
     ];
   }
 

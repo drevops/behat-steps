@@ -29,4 +29,4 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `testmode.enabled` | boolean | `TRUE` | `@behat-steps-skip:TestmodeTrait` | Enable the Testmode module for a `@testmode` scenario and disable it afterwards. |
+| `testmode.enabled` | boolean | `TRUE` | `@behat-steps-skip:TestmodeTrait` | If `TRUE`, switches the Testmode module's test mode on for a `@testmode` scenario and off once it finishes. If `FALSE`, the tag does nothing. |

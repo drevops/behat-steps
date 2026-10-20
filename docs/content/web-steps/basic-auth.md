@@ -26,4 +26,4 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `basic_auth.enabled` | boolean | `TRUE` | `@behat-steps-skip:BasicAuthTrait` | Apply the configured basic authentication credentials to every request. |
+| `basic_auth.enabled` | boolean | `TRUE` | `@behat-steps-skip:BasicAuthTrait` | If `TRUE`, applies the user name and password in Mink's `base_url`, as in `https://user:pass@example.com`, to the browser session before each scenario and each step. If `FALSE`, those hooks don't apply them, though a logout and the detached HTTP client still send them. |

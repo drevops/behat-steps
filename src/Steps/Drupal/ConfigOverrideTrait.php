@@ -216,7 +216,7 @@ trait ConfigOverrideTrait {
    */
   protected function configOverrideConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Apply the `@disable-config-override:` tags of a scenario and restore the overrides afterwards.'),
+      new Option('enabled', default: TRUE, description: "If `TRUE`, sends the configuration names of a scenario's `@disable-config-override:` tags in the `X-Config-No-Override` header with each request. If `FALSE`, the tags do nothing."),
     ];
   }
 

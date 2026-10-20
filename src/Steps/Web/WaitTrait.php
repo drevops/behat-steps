@@ -198,8 +198,8 @@ JS;
    */
   protected function waitConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Wait for AJAX around every navigating or submitting step of a `@javascript` scenario.'),
-      new Option('ajax_timeout', default: 5, description: 'Maximum time, in seconds, to wait for AJAX calls to complete.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, waits for AJAX before and after every step of a `@javascript` scenario whose text, outside its quoted values, holds `follow`, `press`, `click`, `submit` or `attach`. If `FALSE`, only the wait steps wait.'),
+      new Option('ajax_timeout', default: 5, description: "The longest time, in seconds, to wait for jQuery's AJAX calls and animations and Drupal's AJAX requests to finish, in the automatic waits and in `I wait for AJAX to finish`."),
     ];
   }
 

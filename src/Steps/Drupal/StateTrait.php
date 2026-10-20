@@ -246,7 +246,7 @@ trait StateTrait {
    */
   protected function stateConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Restore the state values a scenario changed once it finishes.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, restores the state values the state steps changed once the scenario finishes, and deletes the ones they added. If `FALSE`, the changes stay.'),
     ];
   }
 

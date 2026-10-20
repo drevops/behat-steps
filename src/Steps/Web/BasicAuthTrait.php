@@ -76,7 +76,7 @@ trait BasicAuthTrait {
    */
   protected function basicAuthConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'Apply the configured basic authentication credentials to every request.'),
+      new Option('enabled', default: TRUE, description: "If `TRUE`, applies the user name and password in Mink's `base_url`, as in `https://user:pass@example.com`, to the browser session before each scenario and each step. If `FALSE`, those hooks don't apply them, though a logout and the detached HTTP client still send them."),
     ];
   }
 

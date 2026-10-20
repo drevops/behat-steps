@@ -44,5 +44,5 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `big_pipe.enabled` | boolean | `TRUE` | `@behat-steps-skip:BigPipeTrait` | Wait for BigPipe placeholders to be replaced before each step of a `@javascript` scenario. |
-| `big_pipe.wait_timeout` | integer | `10000` | - | Maximum time, in milliseconds, to wait for BigPipe placeholders to be replaced. |
+| `big_pipe.enabled` | boolean | `TRUE` | `@behat-steps-skip:BigPipeTrait` | If `TRUE`, waits for BigPipe placeholders to be replaced before each step of a `@javascript` scenario, and lets `@bigpipe` set its cookie. If `FALSE`, neither happens. |
+| `big_pipe.wait_timeout` | integer | `10000` | - | The longest time, in milliseconds, to wait for BigPipe placeholders before each step. A timeout doesn't fail the step. |

@@ -59,39 +59,39 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     // phpcs:disable
     $children
       ->arrayNode('drupal')
-        ->info('Settings of the backend that bootstraps Drupal in-process.')
+        ->info('The backend that bootstraps Drupal in the test process. It\'s registered only when this section is present, and it uses Mink\'s "base_url" as the site\'s URI.')
         ->children()
           ->scalarNode('drupal_root')
             ->isRequired()
             ->cannotBeEmpty()
-            ->info('Path to the Drupal root the in-process backend bootstraps.')
+            ->info('The path to the Drupal root, the directory holding "index.php" and "core". A relative path resolves against the directory Behat runs in.')
           ->end()
           ->scalarNode('core')
-            ->info('Class of the Core the in-process backend delegates to, in place of the one the package ships for the Drupal major the backend detects. A class implements CoreInterface, and one built on a shipped Core extends the Core for that major.')
+            ->info('The class of the Core the in-process backend builds, in place of the one this package ships for the Drupal major it detects. The class implements "CoreInterface", and a class built on a shipped Core extends the Core for that major.')
           ->end()
           ->arrayNode('field_handlers')
-            ->info('Map of field types to the handler classes that turn a value a step gives a field into the value Drupal stores. An entry adds a handler for a field type the package ships none for, or replaces the shipped one. A class implements FieldHandlerInterface.' . PHP_EOL
+            ->info('The handler classes that turn a value a step gives a field into the value Drupal stores, keyed by field type. An entry adds a handler for a field type this package has none for, or replaces the shipped one. Each class implements "FieldHandlerInterface".' . PHP_EOL
               . '  rating: Acme\Behat\Field\RatingHandler' . PHP_EOL
               . '  datetime: Acme\Behat\Field\FiscalDatetimeHandler' . PHP_EOL)
             ->useAttributeAsKey('field_type')
             ->prototype('scalar')->cannotBeEmpty()->end()
           ->end()
           ->arrayNode('creation_aliases')
-            ->info('List of creation alias classes the backend registers after the ones it ships. An alias resolves a value a creation step gives an entity that is not a field of it, such as "author" on a node. An entry adds an alias, or replaces the shipped one with the same name on the same entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.' . PHP_EOL
+            ->info('The creation alias classes the backend registers after the ones it ships. An alias resolves a value a creation step gives an entity that isn\'t a field of it, such as "author" on a node. An entry adds an alias, or replaces the shipped one with the same name on the same entity type. Each class implements "PreCreateAliasInterface" or "PostCreateAliasInterface" and takes no constructor arguments.' . PHP_EOL
               . '  - Acme\Behat\Alias\OrganizationAlias' . PHP_EOL)
             ->prototype('scalar')->cannotBeEmpty()->end()
           ->end()
         ->end()
       ->end()
       ->arrayNode('drush')
-        ->info('Settings of the backend that reaches the site by running Drush 13 or newer.')
+        ->info('The backend that reaches the site by running Drush 13 or newer. It\'s registered only when this section is present, and the section needs "alias" or "root".')
         ->children()
-          ->scalarNode('alias')->info('Drush site alias to run every command against.')->end()
-          ->scalarNode('binary')->defaultValue('vendor/bin/drush')->info('Path to the Drush binary.')->end()
-          ->scalarNode('root')->info('Drupal root passed to Drush, for a site Drush cannot locate on its own.')->end()
-          ->scalarNode('global_options')->info('Options appended to every Drush command, such as "--uri=http://example.com".')->end()
+          ->scalarNode('alias')->info('The Drush site alias every command runs against, with or without the leading "@". It takes precedence over "root" when both are set.')->end()
+          ->scalarNode('binary')->defaultValue('vendor/bin/drush')->info('The path to the Drush binary. A relative path resolves against the directory Behat runs in, then its parent. A bare "drush" resolves through "COMPOSER_BIN_DIR", then "vendor/bin/drush" in the working directory, then the "PATH".')->end()
+          ->scalarNode('root')->info('The Drupal root passed to Drush as "--root", for a site Drush can\'t find on its own. The directory has to exist.')->end()
+          ->scalarNode('global_options')->info('The options added to every Drush command, such as "--uri=http://example.com". The value is split on whitespace, so an option\'s value can\'t hold a space.')->end()
           ->arrayNode('creation_aliases')
-            ->info('List of creation alias classes the backend registers after the ones it ships. The Drush backend creates only users, so it runs only the aliases for the "user" entity type. A class implements PreCreateAliasInterface or PostCreateAliasInterface and takes no constructor arguments.' . PHP_EOL
+            ->info('The creation alias classes the backend registers after the ones it ships. The Drush backend creates only users, so it runs only the aliases for the "user" entity type. Each class implements "PreCreateAliasInterface" or "PostCreateAliasInterface" and takes no constructor arguments.' . PHP_EOL
               . '  - Acme\Behat\Alias\DepartmentAlias' . PHP_EOL)
             ->prototype('scalar')->cannotBeEmpty()->end()
           ->end()
