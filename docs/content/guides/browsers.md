@@ -18,6 +18,8 @@ BrowserKit isn't a browser at all. It sends HTTP requests from PHP and reads the
 
 The Selenium2 browser driver, from `lullabot/mink-selenium2-driver`, controls a real browser, such as Chrome or Firefox, through a Selenium server. The page runs as it would for a visitor, JavaScript included, so you need a Selenium server and a browser for it to drive, usually as Docker containers.
 
+That package is a fork of `behat/mink-selenium2-driver` that speaks the W3C WebDriver protocol. Selenium 4 accepts only that protocol, and the original package, through its 1.7.0 release, can't open a session on it, as [Installation](../installation.md#javascript-browser-drivers) explains.
+
 ## Chrome
 
 The Chrome browser driver, from `dmore/chrome-mink-driver`, controls Chrome directly over the Chrome DevTools Protocol, with no Selenium server in between. Chrome usually runs headless, with no window on screen, and any image that exposes a DevTools endpoint works, such as `chromedp/headless-shell`. `dmore/behat-chrome-extension` registers it with Mink, and [Installation](../installation.md#javascript-browser-drivers) shows the settings.

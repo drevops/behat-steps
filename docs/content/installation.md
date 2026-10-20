@@ -95,9 +95,39 @@ This is the whole `MinkExtension` entry. A profile takes each extension once, an
 
 `api_url` is the address of Chrome's DevTools endpoint. In the example, `chrome` is the host name Chrome answers on, such as the name of its Docker Compose service, and 9222 is its port, so replace both with your own. Chrome loads your site itself, so it has to reach your `base_url` too. Any image that exposes a DevTools endpoint works, such as [`chromedp/headless-shell`](https://hub.docker.com/r/chromedp/headless-shell).
 
-For visual debugging on your machine, start a headed Chrome on your host with `--remote-debugging-port=9222` and a `--user-data-dir` of its own, since Chrome 136 and newer ignore the port on your everyday profile. Then point `api_url` at it for 1 run through Behat's `BEHAT_PARAMS` environment variable, as [Environment variables](guides/configuration.md#4-environment-variables) describes. That browser has to reach your site's `base_url` too.
+When your site runs in Docker Compose, a service like this one starts a headless Chrome beside it:
+
+```yaml
+services:
+  chrome:
+    image: chromedp/headless-shell:latest
+    shm_size: 1gb
+```
+
+A container in the same Compose project, such as the one Behat runs in, reaches it at `http://chrome:9222`, the `api_url` in the preceding example. Chrome reaches the site by its service name in turn, so `base_url` uses that name too, such as `http://nginx:8080`. `shm_size` gives Chrome more shared memory than Docker's 64 MB default, which a large page can run out of. This repository runs the same image as its `chrome_headless` service, in [docker-compose.yml](../../docker-compose.yml).
+
+For visual debugging on your machine, start a headed Chrome on your host with `--remote-debugging-port=9222` and a `--user-data-dir` of its own, since Chrome 136 and newer ignore the port on your everyday profile. Then add a profile that points `api_url` at it, and pick that profile when you run Behat:
+
+```php
+use Behat\Config\Config;
+use Behat\Config\Profile;
+
+// Runs with "vendor/bin/behat -p headed".
+$headed = (new Profile('headed'))
+  ->withExtension(new Extension(MinkExtension::class, [
+    'sessions' => [
+      'chrome' => ['chrome' => ['api_url' => 'http://localhost:9222']],
+    ],
+  ]));
+
+return (new Config())->withProfile($profile)->withProfile($headed);
+```
+
+A profile other than `default` starts from `default` and overrides only what it sets, so the headed run keeps every other setting. `http://localhost:9222` works when Behat runs on the same machine as that Chrome, and that browser has to reach your site's `base_url` too. `BEHAT_PARAMS` can't make this change, because it can't override a setting `behat.php` makes, as [Environment variables](guides/configuration.md#4-environment-variables) explains.
 
 To run `@javascript` scenarios through Selenium instead, add `lullabot/mink-selenium2-driver` and give Mink a `selenium2` session that points at your Selenium server, with `javascript_session` set to `selenium2`. [behat.dist.php](../../behat.dist.php) sets it up that way, with `browser_name` naming the browser Selenium starts.
+
+Use that fork, not the original `behat/mink-selenium2-driver`. The original, through its 1.7.0 release, opens a session through the JSON Wire Protocol, which Selenium 4 dropped, so a Selenium 4 server refuses it with `Could not start a new session. No nodes support the capabilities in the request`. The fork speaks the W3C WebDriver protocol Selenium 4 expects. It provides the same `Selenium2Driver` class and declares that it replaces the original, so Composer installs only 1 of them. A Drupal project that requires `drupal/core-dev` already has the fork, because `core-dev` requires it.
 
 ## Where to next
 

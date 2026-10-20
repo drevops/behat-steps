@@ -292,4 +292,16 @@ A tag on the `Feature:` line applies to every scenario in that feature. Where a 
 
 An environment variable changes 1 run, or 1 machine, without changing any committed configuration. Behat Steps reads 3 of its own, such as `BEHAT_STEPS_DISABLE_CLEANUP`, which keeps what a scenario created so you can inspect it. [Environment variables](configuration-reference.md#environment-variables) lists all 3.
 
-`BEHAT_PARAMS` is Behat's own override channel and applies here as it does to any extension: it carries a JSON object merged over the loaded configuration, which is the usual way to point `base_url` or a browser driver's `api_url` somewhere else for 1 run.
+`BEHAT_PARAMS` is Behat's own variable. It holds a JSON object of settings that Behat merges with your configuration file, and it can only add a setting the file leaves out. Behat loads `BEHAT_PARAMS` first and the file after it, so a value the file sets wins.
+
+For example, when the `chrome` session in `behat.php` has no `api_url`, this run supplies one:
+
+```bash
+BEHAT_PARAMS='{"extensions": {"Behat\\MinkExtension": {"sessions":
+  {"chrome": {"chrome": {"api_url": "http://chrome:9222"}}}}}}' \
+  vendor/bin/behat
+```
+
+The extension key can be Mink's short name, `Behat\MinkExtension`, or the class name `behat.php` registers, `Behat\MinkExtension\ServiceContainer\MinkExtension`. Both reach the same settings, and JSON writes each backslash in them twice.
+
+To change a value the file does set, for 1 run, add a profile that overrides it and pick that profile with `-p`. A profile other than `default` starts from `default`, so it names only what differs. [Installation](../installation.md#javascript-browser-drivers) shows one for a headed Chrome.
