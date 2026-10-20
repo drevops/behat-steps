@@ -37,22 +37,22 @@ Each kind of change has its own place:
 
 - A step that works on any site goes in a trait under `src/Steps/Web`, and a step that only means something on a Drupal site in a trait under `src/Steps/Drupal`.
 - Logic that several traits share goes in a helper trait under `src/Steps/Helper/Web`, or under `src/Steps/Helper/Drupal` when it only means something on a Drupal site.
-- Anything a step needs from the site goes on a capability, an interface a backend in `src/Backend` implements, such as `CacheCapabilityInterface`, never in the step itself. A Drupal step trait reaches Drupal through capabilities and nothing else, and `ahoy lint` fails one that calls Drupal directly.
+- Anything a step needs from the site goes on a capability, an interface a backend in `src/Backend` implements, such as `CacheCapabilityInterface`, never in the step itself. A step reaches it through `$this->backendFor(CacheCapabilityInterface::class)`, as [What a trait needs from the backend](../../../CONTRIBUTING.md#what-a-trait-needs-from-the-backend) explains. A Drupal step trait reaches Drupal through capabilities and nothing else, and `ahoy lint` fails one that calls Drupal directly.
 - How the library plugs into Behat and Mink lives in the extension layer, `src/Extension`.
 
 The [Architecture](../architecture/README.md) pages explain each layer, and [Layers](../../../CONTRIBUTING.md#layers) lists what each one may reach. [Anatomy of a trait](../architecture/anatomy-of-a-trait.md) shows the shape every trait follows.
 
 ## Add or change a step
 
-A step is a public method of a trait, with a `#[Given]`, `#[When]` or `#[Then]` attribute holding its text. A new trait needs a `use` line on the context that composes its side by name, `src/WebContext.php` for a web trait or `src/DrupalContext.php` for a Drupal trait, and a `@title` tag in its docblock, which names its page.
+A step is a public method of a trait, with a `#[Given]`, `#[When]` or `#[Then]` attribute holding its text. A new trait is composed by the context for its side, so add it to `src/WebContext.php` for a web trait or `src/DrupalContext.php` for a Drupal trait: an import at the top of the file and a `use` statement inside the class. Its docblock also needs a `@title` tag, which names its page.
 
 To add a step:
 
 1. Word the step by [the steps format](../../../CONTRIBUTING.md#steps-format): who acts, `Given` for a state, `When` for an action, `Then` with `should`, and where each value goes. `ahoy lint-docs` checks the rules that section marks "(lint)".
 2. Name its method by [the method naming conventions](../../../CONTRIBUTING.md#method-naming-conventions).
-3. Keep its body [thin](../../../CONTRIBUTING.md#thin-step-bodies): it parses its arguments, calls helpers and guards on what they return.
+3. Keep its body [thin](../../../CONTRIBUTING.md#thin-step-bodies): it parses its arguments, calls helpers and guards on what they return. When it fails, it throws 1 of the [exception types](../../../CONTRIBUTING.md#exception-types), with a message worded by [Failure messages](../../../CONTRIBUTING.md#failure-messages).
 4. Give it a docblock: a summary, an example between `@code` and `@endcode`, and, after the example, an `@actor:person` or `@actor:system` line. It's `person` when a person does or sees the step through the browser, a terminal or an HTTP client, and `system` otherwise. The trait's page and `STEPS.md` are generated from the docblock.
-5. Add a scenario that runs the step to the trait's feature file in `tests/behat/features`, named after the trait: `cookie.feature` for `CookieTrait`, and `drupal_big_pipe.feature` for `Drupal\BigPipeTrait`. Give the scenario a descriptive tag, such as `@datetime`, so it can run on its own with `ahoy test-bdd -- --tags=datetime`. `StepScenarioCoverageTest` in the unit suite fails any step that no scenario runs, as [Behat tests](../../../CONTRIBUTING.md#behat-tests) explains.
+5. Add a scenario that runs the step to the trait's feature file in `tests/behat/features`, named after the trait: `cookie.feature` for `CookieTrait`, and `drupal_big_pipe.feature` for `Drupal\BigPipeTrait`. Give the scenario a descriptive tag, such as `@datetime`, so it can run on its own with `ahoy test-bdd -- --tags=datetime`. `StepScenarioCoverageTest` in the unit suite fails any step that no scenario runs, as [Behat tests](../../../CONTRIBUTING.md#behat-tests) explains. To check how the step fails, add a negative scenario tagged `@test-trait:` and the trait's name, like the ones in `cookie.feature`: it runs the step in a nested Behat run and checks its failure message, as [Behat harness conventions](../../../CONTRIBUTING.md#behat-harness-conventions) describes.
 6. Run `ahoy update-docs`. The trait's page under `docs/content/web-steps/` or `docs/content/drupal-steps/`, `STEPS.md` and `HELPERS.md` change to match the code, and a new trait gets a page of its own.
 7. Commit the regenerated files with your change. `ahoy lint-docs` fails a branch whose generated pages are out of date.
 

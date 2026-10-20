@@ -19,8 +19,8 @@ The setup here runs scenarios without JavaScript, which needs nothing but PHP. [
 Make sure you have the following:
 
 - PHP 8.3 or newer, and a PHP project that uses Composer. For a site that isn't built with PHP, that can be a project of its own that holds only the tests.
-- A site running at an address Behat can reach, such as `http://your-site.local`. It can be built with anything, and a Drupal site gets the Drupal steps as well.
-- On a Drupal site, a place to run Behat that reaches Drupal's code and database, such as the site's own container, because the Drupal steps load Drupal inside the test run. Run this page's commands there.
+- A site running at an address Behat can reach from where it runs, such as `http://your-site.local`. It can be built with anything, and a Drupal site gets the Drupal steps as well.
+- On a Drupal site, a place to run Behat that reaches the same site's code and database, such as the site's own container, because the Drupal steps load Drupal inside the test run and the browser then visits what they create. Run this page's commands there.
 - On a Drupal site, a copy you can write to rather than your live site, because the Drupal steps create content and users in its database and delete them afterwards.
 - On a Drupal site, the core Database Logging module (`dblog`) enabled, because `DrupalContext` checks its log in every scenario. Part 3 shows how to switch the check off instead.
 
@@ -150,7 +150,7 @@ On a Drupal site, `drupal_root` is the folder that holds Drupal's `index.php`, a
 WatchdogTrait requires that the core "dblog" module is enabled, which does not hold. Meet the prerequisite, or switch WatchdogTrait off with the "watchdog.enabled" option or the "@behat-steps-skip:WatchdogTrait" tag.
 ```
 
-Enable the module, or switch the check off in the last extension's settings:
+Enable the module, or switch the check off with the `watchdog.enabled` option the error names, which goes under `steps` in the last extension's settings:
 
 ```php
   ->withExtension(new Extension(BehatStepsExtension::class, [
@@ -212,7 +212,7 @@ To see every step you can use, ask Behat for the list:
 vendor/bin/behat --definitions=l
 ```
 
-[Web steps](web-steps/README.md) has the same steps with an example for each.
+The list also holds Mink's basic steps from `MinkContext`. [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) show the Behat Steps ones, with an example for each.
 
 ## 6. Try a Drupal step
 
@@ -232,13 +232,13 @@ Feature: Pages
     Then I should see the heading "About us"
 ```
 
-The first step creates a Basic page called "About us" in Drupal. The second creates a user with the `administrator` role and logs in through your site's login form. When the scenario ends, whether it passed or failed, Behat Steps deletes both the page and the user, so test data doesn't pile up on your site. The scenario logs in because a new page might start unpublished, for example on a site that moderates its content, and an administrator can see it either way.
+The scenario uses the `page` content type and the `administrator` role, which a site installed with Drupal's standard profile has. The first step creates a Basic page called "About us" in Drupal. The second creates a user with the `administrator` role and logs in through your site's login form. When the scenario ends, whether it passed or failed, Behat Steps deletes both the page and the user, so test data doesn't pile up on your site. The scenario logs in because a new page might start unpublished, for example on a site that moderates its content, and an administrator can see it either way.
 
 Run `vendor/bin/behat` again, and both scenarios should pass. [Drupal steps](drupal-steps/README.md) lists the rest.
 
 ## 7. Add a step of your own
 
-Sooner or later you'll want to say something no shipped step says, in your site's own words. That's a step of your own, and it goes in your `FeatureContext`:
+Sooner or later you'll want to say something no shipped step says, in your site's own words. That's a step of your own, and it goes in your `FeatureContext`. On a Drupal site, keep `use DrevOps\BehatSteps\DrupalContext;` and `extends DrupalContext` where this example has the 2 `WebContext` lines, and add the `use Behat\Step\Then;` line and the method:
 
 ```php
 <?php
@@ -257,8 +257,6 @@ class FeatureContext extends WebContext {
 
 }
 ```
-
-On a Drupal site, keep `use DrevOps\BehatSteps\DrupalContext;` and `extends DrupalContext` in place of the `WebContext` lines, then add the `use Behat\Step\Then;` line and the method.
 
 - The `#[Then(...)]` attribute holds the step's text. `:text` is a placeholder: Behat captures the quoted value in that position and passes it to the method as `$text`.
 - The method uses Mink's `assertSession()`, which fails the step when the page's `footer` element doesn't contain the text. Your step can also call the helpers, the methods the shipped steps are built on. [HELPERS.md](../../HELPERS.md) lists them, and your project has it at `vendor/drevops/behat-steps/HELPERS.md`.

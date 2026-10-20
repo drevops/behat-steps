@@ -6,7 +6,7 @@ description: Move your project from Behat Steps 3.14 to 4.0 with the migration g
 
 # Migrating from 3.x
 
-[MIGRATION.md](../../MIGRATION.md) takes your project from 3.14 to 4.0 in the order an upgrade runs into each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, and what replaces it, whether the name came from this package or from the Drupal Extension (`drupal/drupal-extension`) and Drupal Driver (`drupal/drupal-driver`) that its Drupal traits built on. If the tables don't list a step, its text didn't change.
+[MIGRATION.md](../../MIGRATION.md) takes your project from 3.14 to 4.0 in the order an upgrade runs into each change: Composer requirements, Behat configuration, context classes, feature files, then the PHP your project writes against the package. Its tables list every name a 3.14 project used that 4.0 changes or removes, and what replaces it, whether the name came from this package or from the Drupal Extension (`drupal/drupal-extension`) and Drupal Driver (`drupal/drupal-driver`) that its Drupal traits built on. If the tables don't list a step, its text didn't change. The 4.x releases after 4.0 make no breaking change to the public API, as [Public API and versioning](architecture/versioning.md) explains, so the same changes take your project to any 4.x release.
 
 Read the guide through the link on this page rather than from your project: until Composer installs 4.0, the copy in your project's `vendor/drevops/behat-steps/` is the 3.x guide.
 
@@ -16,9 +16,17 @@ Read the guide through the link on this page rather than from your project: unti
 composer require --dev drevops/behat-steps:~3.14.0
 ```
 
+Commit that update before you start, so the migration begins from a clean working tree.
+
 ## Migrate with an AI coding agent
 
-An AI coding agent can apply the guide for you with the [`migrate-behat-steps`](../../.claude/skills/migrate-behat-steps/SKILL.md) skill. It plans every change the guide calls for, shows you the plan and changes none of your project's files until you approve it. Before that, it writes only its working files under `.artifacts/behat-steps-migration/`, which it keeps out of version control through `.git/info/exclude` when your `.gitignore` doesn't already cover them, and the skill itself, when your agent saves skills. It stops if your project is on a release older than 3.14.
+An AI coding agent can apply the guide for you with the [`migrate-behat-steps`](../../.claude/skills/migrate-behat-steps/SKILL.md) skill. It plans every change the guide calls for, shows you the plan and changes none of your project's files until you approve it. Until then, it writes only the following:
+
+- Its working files, under `.artifacts/behat-steps-migration/`.
+- A line in `.git/info/exclude` that keeps those files out of version control, when your `.gitignore` doesn't already cover them.
+- The skill itself, as `.claude/skills/migrate-behat-steps/SKILL.md`, when your agent saves skills.
+
+It stops if your project is on a release older than 3.14.
 
 Your agent needs to fetch a URL and run commands in your project. It runs Composer and Behat through your project's own commands when it has them, such as an Ahoy or Make target. Composer installs this package without the repository's `.claude/` directory, so the skill isn't in `vendor/`, and your agent fetches it instead.
 
@@ -46,7 +54,7 @@ To migrate with your agent:
    When a check fails, the agent traces the failure to the guide row behind it before it changes any code.
 4. Read the agent's report in `.artifacts/behat-steps-migration/report.md`. It gives the result of each check and lists what's left for you: every `TODO(behat-steps 4.x)` comment it added for a question you left unanswered, every change to review and every open question.
 
-Confirm that the migration is complete: you've resolved every item the report lists, and your suite passes. The agent doesn't commit, so review `git status` and `git diff` and commit the changes yourself. If your agent saved the skill, commit `.claude/skills/migrate-behat-steps/SKILL.md` to keep the migration repeatable, or delete it. `.artifacts/behat-steps-migration/` stays out of version control, so delete it when you no longer need the plan and the report.
+Confirm that the migration is complete: every check in the report passes, and you've resolved every item it lists. The agent doesn't commit, so review `git status` and `git diff` and commit the changes yourself. If your agent saved the skill, commit `.claude/skills/migrate-behat-steps/SKILL.md` to keep the migration repeatable, or delete it. `.artifacts/behat-steps-migration/` stays out of version control, so delete it when you no longer need the plan and the report.
 
 ## Migrate by hand
 

@@ -41,7 +41,7 @@ A few steps need 1 more package each, which [Optional dependencies](#optional-de
 
 ## Coming from the Drupal Extension
 
-Behat Steps does the job of `drupal/drupal-extension` and `drupal/drupal-driver` itself, and its `composer.json` declares a conflict with both, so Composer won't install it while either one is installed, whether your project requires it or another package pulls it in. The [migration guide](../../MIGRATION.md#requirements) shows how to remove them.
+Behat Steps does the job of `drupal/drupal-extension` and `drupal/drupal-driver` itself, and its `composer.json` declares a conflict with both, so Composer won't install it while either one is installed, whether your project requires it or another package pulls it in. The [migration guide](../../MIGRATION.md#requirements), which takes a project from Behat Steps 3.x to 4.0, shows how to remove them.
 
 ## Optional dependencies
 
@@ -72,7 +72,7 @@ To run `@javascript` scenarios without a Selenium server, add [`dmore/behat-chro
 composer require --dev dmore/behat-chrome-extension
 ```
 
-In `behat.php`, register its extension, and give Mink a `chrome` session that points at a headless Chrome beside the `browserkit_http` session the [Quick start](quick-start.md) sets up:
+In `behat.php`, register its extension, and give Mink a `chrome` session that points at a headless Chrome beside the `browserkit_http` session the [Quick start](quick-start.md) sets up. `$profile` is the `default` profile of that file:
 
 ```php
 use Behat\Config\Extension;
@@ -104,7 +104,7 @@ services:
     shm_size: 1gb
 ```
 
-A container in the same Compose project, such as the one Behat runs in, reaches it at `http://chrome:9222`, the `api_url` in the preceding example. Chrome reaches the site by its service name in turn, so `base_url` uses that name too, such as `http://nginx:8080`. `shm_size` gives Chrome more shared memory than Docker's 64 MB default, which a large page can run out of. This repository runs the same image as its `chrome_headless` service, in [docker-compose.yml](../../docker-compose.yml).
+A container in the same Compose project, such as the one Behat runs in, reaches it at `http://chrome:9222`, the `api_url` in the preceding example. Chrome reaches the site by its service name in turn, so `base_url` uses that name and the port the site listens on inside the Compose network, such as `http://nginx:8080`, rather than a port published to your machine. `shm_size` gives Chrome more shared memory than Docker's 64 MB default, which a large page can run out of. This repository runs the same image as its `chrome_headless` service, in [docker-compose.yml](../../docker-compose.yml).
 
 For visual debugging on your machine, start a headed Chrome on your host with `--remote-debugging-port=9222` and a `--user-data-dir` of its own, since Chrome 136 and newer ignore the port on your everyday profile. Then add a profile that points `api_url` at it, and pick that profile when you run Behat:
 
@@ -123,11 +123,16 @@ $headed = (new Profile('headed'))
 return (new Config())->withProfile($profile)->withProfile($headed);
 ```
 
-A profile other than `default` starts from `default` and overrides only what it sets, so the headed run keeps every other setting. `http://localhost:9222` works when Behat runs on the same machine as that Chrome, and that browser has to reach your site's `base_url` too. `BEHAT_PARAMS` can't make this change, because it can't override a setting `behat.php` makes, as [Environment variables](guides/configuration.md#4-environment-variables) explains.
+A profile other than `default` starts from `default` and overrides only what it sets, so the headed run keeps every other setting. This setup suits a Behat that runs on your machine, beside that Chrome: `http://localhost:9222` reaches the Chrome, and the Chrome has to reach your site's `base_url` in turn. When Behat runs in a container, `localhost` is the container itself, and a Chrome on your machine can't open a Compose address such as `http://nginx:8080`. To watch a browser in that setup, run `@javascript` scenarios through Selenium on an image that shows its browser in a web page, such as `selenium/standalone-chromium` on its port 7900, as this repository's `chrome` service does. `BEHAT_PARAMS` can't make this change, because it can't override a setting `behat.php` makes, as [Environment variables](guides/configuration.md#4-environment-variables) explains.
 
 To run `@javascript` scenarios through Selenium instead, add `lullabot/mink-selenium2-driver` and give Mink a `selenium2` session that points at your Selenium server, with `javascript_session` set to `selenium2`. [behat.dist.php](../../behat.dist.php) sets it up that way, with `browser_name` naming the browser Selenium starts.
 
-Use that fork, not the original `behat/mink-selenium2-driver`. The original, through its 1.7.0 release, opens a session through the JSON Wire Protocol, which Selenium 4 dropped, so a Selenium 4 server refuses it with `Could not start a new session. No nodes support the capabilities in the request`. The fork speaks the W3C WebDriver protocol Selenium 4 expects. It provides the same `Selenium2Driver` class and declares that it replaces the original, so Composer installs only 1 of them. A Drupal project that requires `drupal/core-dev` already has the fork, because `core-dev` requires it.
+`lullabot/mink-selenium2-driver` is a fork of `behat/mink-selenium2-driver` that works with Selenium 4. The original, up to its 1.7.0 release, opens a session through the JSON Wire Protocol, which Selenium 4 dropped, so a Selenium 4 server refuses it with `Could not start a new session. No nodes support the capabilities in the request`. The fork speaks the W3C WebDriver protocol Selenium 4 expects. It provides the same `Selenium2Driver` class and declares that it replaces the original, so Composer installs only 1 of them. A Drupal project that requires `drupal/core-dev` already has the fork, because `core-dev` requires it, and `composer show lullabot/mink-selenium2-driver` tells you whether yours does. To switch from the original, remove it and require the fork:
+
+```bash
+composer remove --dev behat/mink-selenium2-driver
+composer require --dev lullabot/mink-selenium2-driver
+```
 
 ## Where to next
 
