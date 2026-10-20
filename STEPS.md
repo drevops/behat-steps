@@ -3102,7 +3102,7 @@ Then the URL should not have the query parameter "filter" with the value "recent
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `random.enabled` | boolean | `TRUE` | `@behat-steps-skip:RandomTrait` | If `TRUE`, replaces `[?name]` and `[?name:type]` tokens in step arguments and table cells with random values, 1 per name for the whole scenario, though not in multiline text. If `FALSE`, a token reaches the step untouched. |
+| `random.enabled` | boolean | `TRUE` | `@behat-steps-skip:RandomTrait` | If `TRUE`, replaces `[?name]` and `[?name:type]` tokens in step arguments and table cells with random values, though not in multiline text. Tokens with the same name, type and arguments share 1 value for the whole scenario. If `FALSE`, a token reaches the step untouched. |
 
 ## RegionTrait
 
