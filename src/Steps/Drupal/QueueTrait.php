@@ -300,7 +300,7 @@ trait QueueTrait {
    */
   protected function queueConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'If `TRUE`, deletes every queue the queue steps used once the scenario finishes, items from before the scenario included. If `FALSE`, the queues stay.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, deletes every queue the queue steps used after the scenario finishes, items from before the scenario included. If `FALSE`, the queues stay.'),
       new Option('process_limit', default: 1000, description: 'The number of items at which `the queue :queue is processed` stops and fails, as a guard against a queue that keeps refilling, so a queue holding exactly this many items fails the step too.'),
       new Option('lease_time', default: 30, description: 'The time, in seconds, a queue item stays claimed while a processing step works on it.'),
     ];

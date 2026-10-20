@@ -2570,15 +2570,15 @@ function tag_registry(): array {
   return [
     'behat-steps-skip' => [
       'form' => 'parametrized',
-      'description' => "Switches off every hook of the named trait, such as `EmailTrait`, for the scenario, and the trait's steps still work. On a trait that declares an `enabled` option, the tag sets it to `FALSE`. A value that isn't a trait name, no value, or a trait no context of the suite composes stops the run at that scenario's start.",
+      'description' => "Switches off every hook of the named trait, such as `EmailTrait`, for the scenario, and the trait's steps still work. On a trait that declares an `enabled` option, the tag sets it to `FALSE`. A value that isn't a trait name, a missing value or a trait that no context of the suite composes stops the whole run at that scenario's start.",
     ],
     'behat-steps-entity-cleanup-skip' => [
       'form' => 'parametrized',
-      'description' => "Keeps the entities of the named entity type, such as `node`, that the scenario's steps created, instead of deleting them after the scenario. Repeat the tag to keep several types. Users and roles that the user steps create are deleted either way.",
+      'description' => "Keeps the entities of the named entity type, such as `node`, that the scenario's steps created, instead of deleting them after the scenario. Repeated tags keep several types. Users and roles that the user steps create are deleted either way.",
     ],
     'backend' => [
       'form' => 'parametrized',
-      'description' => "Moves the named backend to the front of the configured `backends` list for the scenario. Repeat the tag to promote several: the scenario's names go first, then the feature's, each group in the configured order, so the order the tags are written in doesn't matter. The tag reorders the list and never adds to it, so a name the list doesn't hold, or no name, stops the run.",
+      'description' => "Moves the named backend to the front of the configured `backends` list for the scenario. Repeated tags promote several: the scenario's names go first, then the feature's, each group in the configured order, so the order the tags are written in doesn't matter. The tag reorders the list and never adds to it, so a name the list doesn't hold, or no name, stops the whole run at that scenario's start.",
     ],
     'module' => [
       'form' => 'parametrized',
@@ -2602,7 +2602,7 @@ function tag_registry(): array {
     ],
     'accessibility' => [
       'form' => 'parametrized',
-      'description' => "Assesses every page the scenario visits with axe-core, and fails the scenario on the violations a threshold selects. `critical`, `serious`, `moderate` or `minor` fails on that impact or a worse one, `any` fails on every violation and `warning`, or `warn`, reports without failing. `strict` also fails on findings axe-core can't decide. A bare tag uses the `accessibility.failure_threshold` option. The scenario has to be `@javascript`.",
+      'description' => "Assesses every page the scenario visits with axe-core, and fails the scenario on the violations a threshold selects. `critical`, `serious`, `moderate` or `minor` fails on that impact or a worse one, `any` fails on every violation and `warning`, or `warn`, reports without failing. `strict` also fails the scenario on findings axe-core can't decide, whatever the threshold. A bare `@accessibility`, or a value outside these, uses the `accessibility.failure_threshold` option. The scenario has to be `@javascript`.",
     ],
     'bigpipe' => [
       'form' => 'flag',

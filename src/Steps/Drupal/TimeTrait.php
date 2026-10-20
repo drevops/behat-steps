@@ -105,7 +105,7 @@ trait TimeTrait {
    */
   protected function timeConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'If `TRUE`, removes the time `the system time is set to :value` set once the scenario finishes. If `FALSE`, the site keeps that time.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, removes the system time that `the system time is set to :value` sets, after the scenario finishes. If `FALSE`, the site keeps that time.'),
     ];
   }
 

@@ -23,7 +23,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `message.selectors` | map | `[]` | - | The CSS selector of the message region for each severity the message steps check, keyed `default`, `error`, `success` and `warning`. `default` serves the steps that name no severity. None is set by default, so a message step fails until its key is set. |
+| `message.selectors` | map | `[]` | - | The CSS selector of the message region for each severity the message steps check, keyed `default`, `error`, `success` and `warning`. `default` is the selector of the steps that name no severity. None is set by default, so a message step fails until its key is set. |
 
 ## Steps
 

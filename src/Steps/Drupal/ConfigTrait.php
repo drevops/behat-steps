@@ -467,7 +467,7 @@ trait ConfigTrait {
    */
   protected function configConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: 'If `TRUE`, restores the configuration objects the config steps changed once the scenario finishes, and deletes the ones they created. If `FALSE`, the changes stay.'),
+      new Option('enabled', default: TRUE, description: 'If `TRUE`, restores the configuration objects the config steps changed after the scenario finishes, and deletes the ones they created. If `FALSE`, the changes stay.'),
     ];
   }
 

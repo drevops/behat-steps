@@ -126,7 +126,7 @@ final class BehatStepsExtension implements ExtensionInterface {
 
     $children
       ->arrayNode('backends')
-        ->info('The backends a scenario can use, most preferred first. A step asks for a capability, and the first backend in the list that provides it does the work, so the list is both the allowlist and the precedence order. A bare entry names a registered backend, such as "drupal", "drush" or "blackbox". A "name: backend" entry gives the backend a name of its own, so a feature file\'s "@backend:name" tag can pick a different backend in another profile. A name holds only letters, digits, "_" and "-", and appears once, whatever its case. Leaving the list out allows every registered backend, in registration order.' . PHP_EOL
+        ->info('The backends a scenario can use, most preferred first. A step asks for a capability, and the first backend in the list that provides it does the work, so the list is both the allowlist and the precedence order. A bare entry names a registered backend, such as "drupal", "drush" or "blackbox". A "name: backend" entry gives the backend a name of its own, so each profile can map the same "@backend:name" tag to a different backend. A name holds only letters, digits, "_" and "-", and appears once, whatever its case. An empty list, the default, allows every registered backend, in registration order.' . PHP_EOL
           . '  - drupal' . PHP_EOL
           . '  - remote: drush' . PHP_EOL
           . '  - blackbox' . PHP_EOL)
@@ -135,7 +135,7 @@ final class BehatStepsExtension implements ExtensionInterface {
       ->end()
       ->scalarNode('login_field')
         ->defaultValue('name')
-        ->info('The user property whose value the login steps type into the username field. Set it to "mail" for a site that signs users in by email, or to any other property the site accepts as a login.')
+        ->info('The user property whose value the login steps type into the username field. Set it to "mail" for a site that signs users in by email, or to any other property the site accepts as a login. "text.username_field" holds the label of the field the value goes into.')
       ->end()
       ->arrayNode('regions')
         ->info('The named regions the region steps look in, each mapped to a CSS selector. A step such as "I press the button :button in the region :region" takes the name as written, and a name the map doesn\'t hold fails the step.' . PHP_EOL
@@ -147,7 +147,7 @@ final class BehatStepsExtension implements ExtensionInterface {
       ->end()
       ->arrayNode('text')
         ->info(
-          "The paths and labels of the login and logout forms, for a site whose forms differ from the defaults. The section keeps a key it doesn't declare, so a misspelled key is accepted and ignored." . PHP_EOL
+          "The paths and labels of the login and logout forms, for a site whose forms differ from the defaults. The section accepts keys it doesn't declare, so a misspelled key is ignored, and the key it was meant to set keeps its default." . PHP_EOL
           . '  login_url: "/account/login"' . PHP_EOL
           . '  logout_url: "/account/logout"' . PHP_EOL
           . '  logout_confirm_url: "/account/logout/confirm"' . PHP_EOL
@@ -192,7 +192,7 @@ final class BehatStepsExtension implements ExtensionInterface {
       ->integerNode('login_wait')
         ->min(0)
         ->defaultValue(0)
-        ->info(sprintf('The longest time, in seconds, to wait for each sign that a login took effect: the browser leaving the login form, the page rendering and the logged-in selector matching. In a JavaScript session, the waits for the browser to leave the login form and for the logged-in selector or the logout link to show on the homepage last up to %d seconds, or this value when it\'s larger. "0", the lowest value, skips every other wait. Each wait ends as soon as its sign appears.', Authenticator::JAVASCRIPT_LOGIN_WAIT))
+        ->info(sprintf('The longest time, in seconds, the login steps wait for each sign that a login took effect: the browser leaving the login form, the page rendering and the logged-in selector matching. At "0", the lowest value, they don\'t wait. In a JavaScript session, 2 waits last up to %d seconds each even at "0", or this value when it\'s larger: the one for the browser to leave the login form, and the one for the logged-in selector or the logout link to show on the homepage, the last place the login steps check. Each wait ends as soon as its sign appears.', Authenticator::JAVASCRIPT_LOGIN_WAIT))
       ->end()
       ->arrayNode('steps')
         ->info('The profile-wide defaults of the options the step traits declare, keyed by group and then by option name. A group takes the name of the trait that declares it, in snake case, so "JavascriptTrait" reads "javascript" and "BigPipeTrait" reads "big_pipe". A group or an option that no registered context declares is ignored, so 1 profile can carry the defaults of every suite. A value of the wrong type fails the context that declares the option.' . PHP_EOL
@@ -205,13 +205,13 @@ final class BehatStepsExtension implements ExtensionInterface {
         ->prototype('variable')->end()
       ->end()
       ->arrayNode('selectors')
-        ->info("The CSS selectors the login steps check pages against. The section keeps a key it doesn't declare, so a misspelled key is accepted and ignored.")
+        ->info("The CSS selectors the login steps check pages against. The section accepts keys it doesn't declare, so a misspelled key is ignored, and the key it was meant to set keeps its default.")
         ->ignoreExtraKeys(FALSE)
         ->addDefaultsIfNotSet()
         ->children()
           ->scalarNode('login_form_selector')
             ->defaultValue($defaults['selectors']['login_form_selector'] ?? NULL)
-            ->info('The CSS selector of the login form. Finding it on the page at "text.login_url" tells the login steps that nobody is logged in.')
+            ->info('The CSS selector of the login form. When the page at "text.login_url" shows it and "selectors.logged_in_selector" matches nothing, the login steps count nobody as logged in.')
           ->end()
           ->scalarNode('logged_in_selector')
             ->defaultValue($defaults['selectors']['logged_in_selector'] ?? NULL)

@@ -341,7 +341,7 @@ JS;
    */
   protected function javascriptConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: "If `TRUE`, collects the uncaught errors, unhandled promise rejections and `console.error()` calls of the pages a `@javascript` scenario visits. The collector goes in after a page loads, so errors thrown while it loads aren't caught. If `FALSE`, nothing is collected and `fail_on_errors` has no effect."),
+      new Option('enabled', default: TRUE, description: "If `TRUE`, collects the uncaught errors, unhandled promise rejections and `console.error()` calls of the pages a `@javascript` scenario visits. The collector is injected into a page after it loads, so errors thrown while the page loads aren't collected. If `FALSE`, nothing is collected and `fail_on_errors` has no effect."),
       new Option('fail_on_errors', default: TRUE, description: "If `TRUE`, a collected error fails the scenario. If `FALSE`, errors are still collected and don't fail it.", tags: [self::JAVASCRIPT_ERRORS_TAG => FALSE]),
     ];
   }

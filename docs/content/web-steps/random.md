@@ -27,4 +27,4 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `random.enabled` | boolean | `TRUE` | `@behat-steps-skip:RandomTrait` | If `TRUE`, replaces `[?name]` and `[?name:type]` tokens in step arguments and table cells with random values, though not in multiline text. Tokens with the same name, type and arguments share 1 value for the whole scenario. If `FALSE`, a token reaches the step untouched. |
+| `random.enabled` | boolean | `TRUE` | `@behat-steps-skip:RandomTrait` | If `TRUE`, replaces `[?name]` and `[?name:type]` tokens in step arguments and table cells with random values, though not in multiline text. Tokens with the same name, type and arguments share 1 value for the whole scenario. If `FALSE`, tokens stay as written. |

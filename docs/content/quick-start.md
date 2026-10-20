@@ -48,7 +48,7 @@ Behat reads steps from classes called contexts. Behat Steps puts its steps on 2 
 
 ## 3. Create your context and configuration
 
-Your project gets 2 files of its own: `FeatureContext`, the context, and `behat.php`, the configuration Behat reads. By the end of this page your project looks like this:
+Your project gets 2 files of its own: `FeatureContext.php`, which holds your context, and `behat.php`, which holds the configuration Behat reads. By the end of this page your project looks like this:
 
 ```text
 your-project/
@@ -138,7 +138,7 @@ On a Drupal site, replace the line that registers `BehatStepsExtension` with thi
 
 Here's what each part does:
 
-- The suite tells Behat where your scenarios live and which contexts to load: your `FeatureContext`, and Mink's `MinkContext`, which adds Mink's own basic steps, such as `I fill in "Title" with "About us"` and `I press "Save"`. `%paths.base%` is the folder that holds `behat.php`. Register only these 2: your context already holds every Behat Steps step, and registering `WebContext` or `DrupalContext` beside it would define every web step twice, so Behat Steps stops the run with an error that says so.
+- The suite tells Behat where your scenarios live and which contexts to load: your `FeatureContext`, and Mink's `MinkContext`, which adds Mink's own basic steps, such as `I fill in "Title" with "About us"` and `I press "Save"`. `%paths.base%` is the folder that holds `behat.php`. Register only these 2: your context already holds every Behat Steps step, and registering `WebContext` or `DrupalContext` beside it would define every web step twice, and Behat would stop the run with an error saying the step is already defined.
 - The profile's `autoload` setting tells Behat to load your classes from `tests/behat/bootstrap`, where `FeatureContext.php` lives.
 - The Mink extension gives your scenarios a browser. The `browserkit_http` session loads pages over plain HTTP from PHP, with no real browser behind it. It's quick, but it doesn't run JavaScript, and [Browsers](guides/browsers.md) covers the real browsers you can add when you need one.
 - The last extension switches Behat Steps on. A site that isn't Drupal needs no settings here, and [Configuration reference](guides/configuration-reference.md#extension-options) lists them for when you do.
@@ -213,7 +213,7 @@ To see every step you can use, ask Behat for the list:
 vendor/bin/behat --definitions=l
 ```
 
-`l` asks for the list of every step's text, and any other value searches it, as part 7 shows. The list also holds Mink's basic steps from `MinkContext`. [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) show the Behat Steps ones, with an example for each.
+`l` lists every step's text, `i` adds each step's description and the method that runs it, and any other value shows the `i` entries whose text contains it, as part 7 shows. The list also holds Mink's basic steps from `MinkContext`. [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) show the Behat Steps ones, with an example for each.
 
 ## 6. Try a Drupal step
 
@@ -233,7 +233,9 @@ Feature: Pages
     Then I should see the heading "About us"
 ```
 
-The scenario uses the `page` content type and the `administrator` role, which a site installed with Drupal's standard profile has. On a site without them, use a content type and a role your site has instead. The first step takes a table: its first row names the fields, and each row below it creates 1 page, here a Basic page called "About us". The second creates a user with the `administrator` role and logs in through your site's login form. When the scenario ends, whether it passed or failed, Behat Steps deletes both the page and the user, so test data doesn't pile up on your site. The scenario logs in because a new page might start unpublished, for example on a site that moderates its content, and an administrator can see it either way.
+The scenario uses the `page` content type and the `administrator` role, which a site installed with Drupal's standard profile has. On a site without them, use a content type and a role your site has instead. The scenario logs in because a new page might start unpublished, for example on a site that moderates its content, and an administrator can see it either way.
+
+The first step takes a table: its first row names the fields, and each row after it creates 1 page, here a Basic page called "About us". The second creates a user with the `administrator` role and logs in through your site's login form. When the scenario ends, whether it passed or failed, Behat Steps deletes both the page and the user, so test data doesn't pile up on your site.
 
 Run `vendor/bin/behat` again, and both scenarios should pass. [Drupal steps](drupal-steps/README.md) lists the rest.
 
@@ -264,7 +266,7 @@ class FeatureContext extends WebContext {
 - Name the method so it doesn't clash with one `FeatureContext` inherits. Every method a shipped trait adds starts with the trait's name, such as `element` in `elementAssertHeadingExists()`, so a name like `footerShouldMention()` stays clear of them.
 - Pick text that no shipped step uses. When 2 step definitions share the same text, Behat stops with an error before it runs the first step, so reword any step of your own that matches a shipped one. `vendor/bin/behat --definitions="footer"` lists every step whose text contains "footer", so you can check a word before you use it.
 
-`behat.php` already registers `FeatureContext` and loads it from `tests/behat/bootstrap`, so there's nothing to change there. Add a scenario that uses your step to `homepage.feature`, below the first one, with text from your own site's footer:
+`behat.php` already registers `FeatureContext` and loads it from `tests/behat/bootstrap`, so there's nothing to change there. Add a scenario that uses your step to `homepage.feature`, after the first one, with text from your own site's footer:
 
 ```gherkin
   Scenario: Visitor sees who runs the site
@@ -278,7 +280,7 @@ That step describes your site in its own terms. When you have more than a few st
 
 ## Where to next
 
-- [Key concepts](concepts.md) explains each piece you just used, from contexts to backends.
+- [Key concepts](concepts.md) explains each piece you used, from contexts to backends.
 - [Contexts](guides/contexts.md) covers what each context includes and where your own steps go, and [Usage](guides/usage.md) covers configuring the traits and the cleanup after each scenario.
 - [Web steps](web-steps/README.md) and [Drupal steps](drupal-steps/README.md) list every step, with an example for each.
 - [Configuration reference](guides/configuration-reference.md) lists every option and tag, and [behat.dist.php](../../behat.dist.php) sets every extension option as a reference.

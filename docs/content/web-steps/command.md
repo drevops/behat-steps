@@ -25,7 +25,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `command.timeout` | integer | `300` | - | The longest time, in seconds, a command can run before it's killed and the step fails. A value of 0 or less kills every command at once. |
+| `command.timeout` | integer | `300` | - | The longest time, in seconds, a command can run before the step stops it and fails. A value of 0 or less stops every command at once. |
 
 ## Steps
 

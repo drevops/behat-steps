@@ -340,7 +340,7 @@ trait ModuleTrait {
    */
   protected function moduleConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: "If `TRUE`, applies a scenario's `@module:` tags before it starts, and restores every module the tags and the module steps changed once it finishes. If `FALSE`, the tags do nothing and the steps' changes stay."),
+      new Option('enabled', default: TRUE, description: "If `TRUE`, applies a scenario's `@module:` tags before it starts, and restores every module the tags and the module steps changed after it finishes. If `FALSE`, the tags do nothing and the steps' changes stay."),
     ];
   }
 

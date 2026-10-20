@@ -575,7 +575,7 @@ trait FileDownloadTrait {
   protected function fileDownloadConfigSchema(): array {
     return [
       new Option('enabled', default: TRUE, description: 'If `TRUE`, empties and creates the `temp_dir` directory before a `@download` scenario and deletes it afterwards. If `FALSE`, the download steps need that directory to exist already.'),
-      new Option('temp_dir', default: '/tmp/behat_downloads', description: 'The directory the download steps write downloaded files into. A `@download` scenario deletes it, with everything in it, before and after the scenario. Give an absolute path: a relative one resolves against the working directory, which bootstrapping Drupal in-process changes.'),
+      new Option('temp_dir', default: '/tmp/behat_downloads', description: 'The directory the download steps write downloaded files into. A `@download` scenario deletes it, with everything in it, before and after the scenario. A relative path resolves against the working directory, which bootstrapping Drupal in-process changes, so an absolute path is safer.'),
       new Option('timeout', default: 120, description: 'The time, in seconds, a download can go without receiving data before it fails.'),
     ];
   }

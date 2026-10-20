@@ -28,7 +28,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `file.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileTrait` | If `TRUE`, creates the `private://` and `temporary://` directories before each scenario, and deletes the unmanaged files the file steps wrote once it finishes. If `FALSE`, the steps still work and their files stay. |
+| `file.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileTrait` | If `TRUE`, creates the `private://` and `temporary://` directories before each scenario, and deletes the unmanaged files the file steps wrote after it finishes. If `FALSE`, the steps still work and their files stay. |
 
 ## Steps
 

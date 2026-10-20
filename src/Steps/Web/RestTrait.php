@@ -193,7 +193,7 @@ trait RestTrait {
    */
   protected function restConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: "If `TRUE`, clears the context's request headers before each scenario. Behat builds a new context for each scenario, so the headers start empty either way."),
+      new Option('enabled', default: TRUE, description: "If `TRUE`, clears the context's request headers before each scenario. If `FALSE`, they aren't cleared, which changes nothing, because Behat builds a new context for each scenario and its headers start empty."),
     ];
   }
 

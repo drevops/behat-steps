@@ -19,6 +19,8 @@ Behat Steps reads its configuration through 4 channels, apart from the Mink sett
 
 ## 1. Suites and context arguments
 
+This section covers the 2 settings that live per suite: which feature files run with which contexts, and the constructor arguments a context takes.
+
 ### Suite per surface
 
 A suite pairs a set of feature files with a set of contexts. The [quick start](../quick-start.md) uses 1 suite with your `FeatureContext` in it, and many projects never need another. When you test more than 1 surface, such as pages in a browser and an API, you can give each surface a suite of its own, and every suite registers the same `FeatureContext`:
@@ -117,7 +119,7 @@ $ui = (new Suite('ui'))
 
 Behat 4 reads PHP configuration only, from `behat.php` or, when there's no `behat.php`, from `behat.dist.php`. Behat 3 reads the same settings from `behat.yml`. Prefer `behat.php`: both majors accept it, and it's the only format Behat 4 accepts.
 
-While your project is still on Behat 3, the YAML form of the 2 preceding suites is:
+While your project is still on Behat 3, this is the YAML form of the `ui` suite with its `fixtures_path` argument and of the `api` suite. A `config` argument goes beside `fixtures_path` the same way:
 
 ```yaml
 default:
@@ -140,7 +142,9 @@ default:
 
 ## 2. The `behat_steps` extension key
 
-Settings under this key configure how the package reaches the site: which backends a scenario may resolve and in what order, how each of them connects, what the login form looks like and which CSS selector each named region resolves to. They're read once per profile.
+Settings under this key configure how the package reaches the site: which backends a scenario may resolve and in what order, how each of them connects, what the login form looks like, which CSS selector each named region resolves to and what each trait option defaults to. They're read once per profile.
+
+`behat_steps` is the name the extension gives its settings, and you don't write it anywhere. In `behat.php`, the settings are the array you pass to `new Extension()` with `BehatStepsExtension::class`, as the following examples show. In `behat.yml`, they're the map under the extension's class name.
 
 HTTP connection settings are the exception. Certificate checks, a proxy or DNS pinning live on Mink's `browserkit_http` session as `http_client_parameters`, and requests that steps send from PHP, such as a file download, share them with the page. [HTTP clients](http-clients.md) covers how.
 
@@ -162,13 +166,13 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 
 | Authority | Decides | Where |
 | --- | --- | --- |
-| Extension | Which backends exist at all, and in what order | `behat_steps: { backends: [...] }` |
+| Extension | Which backends exist at all, and in what order | `'backends' => [...]` |
 | Profile | Which backends exist per environment | `behat -p remote` |
 | Scenario tag | Preference among the backends that exist | `@backend:NAME` |
 | Step | Which capability it needs | `backendFor(X::class)` |
 | Capability interface | Which backends are even eligible | `instanceof` during the walk |
 
-The `backends` list is both the allow-list and the precedence order. Each entry names a backend the extension registers; a keyed entry gives the backend a name of its own, so the same feature file can run against a different backend in another profile. In this profile, `api` names the backend registered as `acme-jsonapi`:
+The `backends` list is both the allowlist and the precedence order. Each entry names a backend the extension registers; a keyed entry gives the backend a name of its own, so the same feature file can run against a different backend in another profile. In this profile, `api` names the backend registered as `acme-jsonapi`:
 
 ```php
 $profile->withExtension(new Extension(BehatStepsExtension::class, [
@@ -182,7 +186,7 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
-That aliasing lets a profile swap the implementation behind a name without touching any Gherkin:
+`'blackbox' => NULL` changes nothing, since the blackbox backend is always registered. Aliasing a backend as `api` lets a profile swap the implementation behind the name without touching any Gherkin:
 
 ```php
 // Default profile: "api" is the in-process backend.
@@ -204,7 +208,7 @@ At step time the resolution is:
 2. Move every name a `@backend:` tag promotes to the front: the names on the scenario line first, then those on the feature line. Each group keeps the configured order, so the order the tags are written in never changes the result.
 3. Walk that order and return the first backend implementing the capability the step asked for, bootstrapping only that one.
 
-For example, with the `backends` list `drupal`, `api` and `blackbox` from the first example in this section, this scenario promotes `api`:
+For example, with the `backends` list `drupal`, `api` and `blackbox` that the `acme-jsonapi` example sets, this scenario promotes `api`:
 
 ```gherkin
 @backend:api
@@ -220,7 +224,7 @@ The order becomes `api, drupal, blackbox`, and the content step resolves to `api
 
 Repeated tags promote their names in the configured order: `@backend:blackbox @backend:api` and `@backend:api @backend:blackbox` both give `api, blackbox, drupal`. A `Scenario Outline` row counts the outline's tags and its `Examples:` table's tags as 1 scenario line.
 
-`@backend:NAME` reorders the configured list; it never adds to it. A name outside the list is an error at scenario start, so a typo can't silently run the wrong backend, and no tag can hand a Drupal backend to a `smoke` profile that lists only `blackbox`. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
+`@backend:NAME` takes a name as the `backends` list writes it: the key of a keyed entry, such as `api`, or the bare entry itself. The tag reorders the configured list and never adds to it. A name outside the list stops the whole run at that scenario's start, so a typo can't silently run the wrong backend, and no tag can hand a Drupal backend to a `smoke` profile that lists only `blackbox`. When no backend in the order provides the capability a step asked for, the step fails with an `UnsupportedBackendActionException` naming the capability and the resolved order.
 
 The backends also take classes of your own through the `drupal.field_handlers`, `drupal.creation_aliases`, `drush.creation_aliases` and `drupal.core` options, which [Extending the backend layer](../extending/backend.md) covers.
 
@@ -242,6 +246,8 @@ $profile->withExtension(new Extension(BehatStepsExtension::class, [
 ]));
 ```
 
+`wait.ajax_timeout` is in seconds and `big_pipe.wait_timeout` in milliseconds, as each trait's page lists.
+
 An option resolves through 5 layers, each overriding the one before it:
 
 1. The default the trait declares.
@@ -250,19 +256,28 @@ An option resolves through 5 layers, each overriding the one before it:
 4. A tag on the feature.
 5. A tag on the scenario.
 
-The 2 levels, `steps` and a context's `config`, differ in how strictly they're read, because they know different things:
+These tags set an option for their scenario or feature:
 
-- `steps` is permissive. A group there may name a trait that only 1 of the registered contexts composes, so a group or an option a context can't serve is ignored, and 1 profile can carry the defaults of every suite.
-- A context's `config` is strict. The context knows which traits it composes, so an unknown group, an unknown option or a value of the wrong type is an error naming what the context accepts.
+- `@behat-steps-skip:TRAIT` sets the `enabled` option of the trait it names to `FALSE`. It names the trait by its class name, such as `WatchdogTrait`, not by its group.
+- `@js-errors` sets `javascript.fail_on_errors` to `FALSE`.
+- `@error` sets `watchdog.fail_on_errors` to `FALSE`.
+- An `@accessibility:VALUE` threshold sets `accessibility.failure_threshold`, and `@accessibility:strict` sets `accessibility.fail_on_incomplete` to `TRUE`.
+
+Apart from the `@accessibility:` tags, these tags only switch an option off, so no tag switches back on what the profile or a context's `config` switched off.
+
+The 2 levels, `steps` and a context's `config`, differ in how strictly they're read:
+
+- `steps` is permissive. A group there can name a trait that only 1 of the registered contexts composes, so a context ignores a group or an option it doesn't declare, and 1 profile can carry the defaults of every suite. A value of the wrong type for an option the context does declare still fails it.
+- A context's `config` is strict. It's checked against the traits that context composes, so an unknown group, an unknown option or a value of the wrong type is an error naming what the context accepts.
 
 2 options recur, and they're deliberately separate switches:
 
-| Option | Effect |
+| Option | Effect of `FALSE` |
 | --- | --- |
-| `enabled` | The trait's hooks do nothing at all. Equivalent to `@behat-steps-skip:TRAIT` on every scenario. |
-| `fail_on_errors` | The trait still collects, and doesn't fail the scenario on what it found. |
+| `enabled` | The trait's hooks switch off, and its steps still work. Equivalent to `@behat-steps-skip:TRAIT` on every scenario. |
+| `fail_on_errors` | The trait still collects the errors it checks for, such as JavaScript errors or Watchdog entries, and doesn't fail the scenario on them. |
 
-`fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` says, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
+`fail_on_errors` only covers what a trait collected. A trait whose prerequisites don't hold, like `WatchdogTrait` on a site without the core `dblog` module, fails the scenario at its start whatever `fail_on_errors` is set to, so `enabled` is the switch there. [Switch a trait off](usage.md#switch-a-trait-off) has the details.
 
 Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it in your context sits outside these layers and replaces the resolution entirely. Use that override for anything the configuration can't express.
 
@@ -270,7 +285,7 @@ Where a trait offers a `<trait>Get<Noun>()` method for an option, overriding it 
 
 ## 3. Tags
 
-A tag configures 1 scenario or 1 feature. A tag that takes a value writes it after a colon, and a scenario can carry several tags:
+A tag configures 1 scenario or 1 feature. A tag's value follows a colon, and a scenario can carry several tags:
 
 ```gherkin
 @module:redirect @behat-steps-skip:WatchdogTrait
@@ -279,14 +294,14 @@ Scenario: Editor publishes a page
 
 A tag on the `Feature:` line applies to every scenario in that feature. Where a scenario and its feature carry the same kind of tag, they combine as follows:
 
-- A flag takes effect from either line.
+- A flag tag, one that takes no value, such as `@download`, takes effect from either line.
 - `@behat-steps-skip:VALUE`, `@email:VALUE`, `@watchdog:VALUE`, `@disable-config-override:VALUE` and `@behat-steps-entity-cleanup-skip:VALUE` add up across both lines.
-- `@module:VALUE` for the same module, `@breakpoint:VALUE` and an `@accessibility:VALUE` threshold take the scenario's value over the feature's, while `@accessibility:strict` applies from either line.
+- `@module:VALUE` for the same module, `@breakpoint:VALUE` and an `@accessibility:VALUE` threshold take the scenario's value over the feature's, while `@accessibility:strict` applies from either line. A `!` before a module's name uninstalls it, so a scenario's `@module:!redirect` wins over its feature's `@module:redirect`, and the scenario runs with the module uninstalled.
 - `@backend:VALUE` promotes from both lines, the scenario's names ahead of the feature's, as [backend resolution](#backend-resolution) describes.
 
 [Tags](configuration-reference.md#tags) lists every tag and what it does, with the rules for writing a tag's value.
 
-`@javascript` is Mink's own tag: it selects the browser session. [Backend resolution](#backend-resolution) and the `@backend:NAME` tag decide which backend a step runs against.
+`@javascript` is Mink's own tag: Mink runs a scenario that carries it on Mink's JavaScript session. [Backend resolution](#backend-resolution) and the `@backend:NAME` tag decide which backend a step runs against.
 
 ## 4. Environment variables
 
@@ -304,4 +319,4 @@ BEHAT_PARAMS='{"extensions": {"Behat\\MinkExtension": {"sessions":
 
 The extension key can be Mink's short name, `Behat\MinkExtension`, or the class name `behat.php` registers, `Behat\MinkExtension\ServiceContainer\MinkExtension`. Both reach the same settings, and JSON writes each backslash in them twice.
 
-To change a value the file does set, for 1 run, add a profile that overrides it and pick that profile with `-p`. A profile other than `default` starts from `default`, so it names only what differs. [Installation](../installation.md#javascript-browser-drivers) shows one for a headed Chrome.
+To change a value the file does set, for 1 run, add a profile that overrides it and pick that profile with `-p`. A profile other than `default` starts from `default`, so it names only what differs. [Installation](../installation.md#watch-the-browser-in-a-headed-chrome) shows one for a headed Chrome.

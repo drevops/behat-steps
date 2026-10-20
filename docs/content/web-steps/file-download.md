@@ -25,7 +25,7 @@ custom_edit_url: null
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
 | `file_download.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileDownloadTrait` | If `TRUE`, empties and creates the `temp_dir` directory before a `@download` scenario and deletes it afterwards. If `FALSE`, the download steps need that directory to exist already. |
-| `file_download.temp_dir` | string | `'/tmp/behat_downloads'` | - | The directory the download steps write downloaded files into. A `@download` scenario deletes it, with everything in it, before and after the scenario. Give an absolute path: a relative one resolves against the working directory, which bootstrapping Drupal in-process changes. |
+| `file_download.temp_dir` | string | `'/tmp/behat_downloads'` | - | The directory the download steps write downloaded files into. A `@download` scenario deletes it, with everything in it, before and after the scenario. A relative path resolves against the working directory, which bootstrapping Drupal in-process changes, so an absolute path is safer. |
 | `file_download.timeout` | integer | `120` | - | The time, in seconds, a download can go without receiving data before it fails. |
 
 ## Steps

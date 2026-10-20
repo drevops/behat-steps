@@ -193,7 +193,7 @@ Then the page should pass accessibility checks for the tags "wcag2a"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `command.timeout` | integer | `300` | - | The longest time, in seconds, a command can run before it's killed and the step fails. A value of 0 or less kills every command at once. |
+| `command.timeout` | integer | `300` | - | The longest time, in seconds, a command can run before the step stops it and fails. A value of 0 or less stops every command at once. |
 
 <details>
   <summary><code>@When I run the command :command</code></summary>
@@ -535,7 +535,7 @@ Then a cookie with a name containing "user" and a value containing "guest" shoul
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `date.enabled` | boolean | `TRUE` | `@behat-steps-skip:DateTrait` | If `TRUE`, replaces `[relative:...]` tokens in table cells and in the `:datetime`, `:value`, `:partial_value`, `:expected_value`, `:text` and `:content` arguments of a step. If `FALSE`, a token reaches the step untouched. |
+| `date.enabled` | boolean | `TRUE` | `@behat-steps-skip:DateTrait` | If `TRUE`, replaces `[relative:...]` tokens in table cells and in the `:datetime`, `:value`, `:partial_value`, `:expected_value`, `:text` and `:content` arguments of a step. If `FALSE`, tokens stay as written. |
 
 ## DiagnosticsTrait
 
@@ -1662,7 +1662,7 @@ Then the radio button "edit-field-choice-option-b" should not be selected
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
 | `file_download.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileDownloadTrait` | If `TRUE`, empties and creates the `temp_dir` directory before a `@download` scenario and deletes it afterwards. If `FALSE`, the download steps need that directory to exist already. |
-| `file_download.temp_dir` | string | `'/tmp/behat_downloads'` | - | The directory the download steps write downloaded files into. A `@download` scenario deletes it, with everything in it, before and after the scenario. Give an absolute path: a relative one resolves against the working directory, which bootstrapping Drupal in-process changes. |
+| `file_download.temp_dir` | string | `'/tmp/behat_downloads'` | - | The directory the download steps write downloaded files into. A `@download` scenario deletes it, with everything in it, before and after the scenario. A relative path resolves against the working directory, which bootstrapping Drupal in-process changes, so an absolute path is safer. |
 | `file_download.timeout` | integer | `120` | - | The time, in seconds, a download can go without receiving data before it fails. |
 
 <details>
@@ -1857,7 +1857,7 @@ When I switch to the root document
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `javascript.enabled` | boolean | `TRUE` | `@behat-steps-skip:JavascriptTrait` | If `TRUE`, collects the uncaught errors, unhandled promise rejections and `console.error()` calls of the pages a `@javascript` scenario visits. The collector goes in after a page loads, so errors thrown while it loads aren't caught. If `FALSE`, nothing is collected and `fail_on_errors` has no effect. |
+| `javascript.enabled` | boolean | `TRUE` | `@behat-steps-skip:JavascriptTrait` | If `TRUE`, collects the uncaught errors, unhandled promise rejections and `console.error()` calls of the pages a `@javascript` scenario visits. The collector is injected into a page after it loads, so errors thrown while the page loads aren't collected. If `FALSE`, nothing is collected and `fail_on_errors` has no effect. |
 | `javascript.fail_on_errors` | boolean | `TRUE` | `@js-errors` | If `TRUE`, a collected error fails the scenario. If `FALSE`, errors are still collected and don't fail it. |
 
 ## JsonTrait
@@ -2386,7 +2386,7 @@ Then the link "Return to site content" should not be an absolute link
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `mapping.enabled` | boolean | `TRUE` | `@behat-steps-skip:MappingTrait` | If `TRUE`, replaces `{{ Key }}` tokens in step arguments and table cells with values from `groups`, though not in multiline text. If `FALSE`, a token reaches the step untouched. |
+| `mapping.enabled` | boolean | `TRUE` | `@behat-steps-skip:MappingTrait` | If `TRUE`, replaces `{{ Key }}` tokens in step arguments and table cells with values from `groups`, though not in multiline text. If `FALSE`, tokens stay as written. |
 | `mapping.groups` | map | `[]` | - | The values `{{ Key }}` tokens resolve to, as a map of group names to maps of keys and their values. Group names only organize the keys, so a key has to be unique across all groups, and it matches as written, case included. A token whose key no group holds fails the step. |
 
 ## MessageTrait
@@ -2407,7 +2407,7 @@ Then the link "Return to site content" should not be an absolute link
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `message.selectors` | map | `[]` | - | The CSS selector of the message region for each severity the message steps check, keyed `default`, `error`, `success` and `warning`. `default` serves the steps that name no severity. None is set by default, so a message step fails until its key is set. |
+| `message.selectors` | map | `[]` | - | The CSS selector of the message region for each severity the message steps check, keyed `default`, `error`, `success` and `warning`. `default` is the selector of the steps that name no severity. None is set by default, so a message step fails until its key is set. |
 
 <details>
   <summary><code>@Then I should see the message :message</code></summary>
@@ -2850,8 +2850,8 @@ Then the following Twitter Card tags should exist:
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `modal.selectors` | map | `[...]` | - | The CSS selectors of the modal container. The first visible match wins, taking the selectors in order, so a visible modal outranks a hidden one an earlier selector matches. |
-| `modal.content_selectors` | map | `[...]` | - | The CSS selectors of the modal's content element, tried in order within the visible modal. The first selector that matches wins. |
+| `modal.selectors` | map | `[...]` | - | The CSS selectors of the modal container, tried in order. The steps use the first visible match, even when an earlier selector matches a hidden modal, and the first hidden match when none is visible. |
+| `modal.content_selectors` | map | `[...]` | - | The CSS selectors of the modal's content element, tried in order within the visible modal. The steps use the first selector that matches. |
 | `modal.close_selectors` | map | `[...]` | - | The CSS selectors of the modal's close button, tried in order within the visible modal. The step clicks the first match. |
 | `modal.wait_timeout` | integer | `3` | - | The longest time, in seconds, `I wait for the modal to appear` waits for a modal to show. |
 
@@ -3102,7 +3102,7 @@ Then the URL should not have the query parameter "filter" with the value "recent
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `random.enabled` | boolean | `TRUE` | `@behat-steps-skip:RandomTrait` | If `TRUE`, replaces `[?name]` and `[?name:type]` tokens in step arguments and table cells with random values, though not in multiline text. Tokens with the same name, type and arguments share 1 value for the whole scenario. If `FALSE`, a token reaches the step untouched. |
+| `random.enabled` | boolean | `TRUE` | `@behat-steps-skip:RandomTrait` | If `TRUE`, replaces `[?name]` and `[?name:type]` tokens in step arguments and table cells with random values, though not in multiline text. Tokens with the same name, type and arguments share 1 value for the whole scenario. If `FALSE`, tokens stay as written. |
 
 ## RegionTrait
 
@@ -3572,7 +3572,7 @@ When I set the viewport to "375" by "667"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | If `TRUE`, clears the context's request headers before each scenario. Behat builds a new context for each scenario, so the headers start empty either way. |
+| `rest.enabled` | boolean | `TRUE` | `@behat-steps-skip:RestTrait` | If `TRUE`, clears the context's request headers before each scenario. If `FALSE`, they aren't cleared, which changes nothing, because Behat builds a new context for each scenario and its headers start empty. |
 
 <details>
   <summary><code>@Given the REST header :name has the value :value</code></summary>
@@ -3664,7 +3664,7 @@ Then the REST response should contain "success"
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `table.header_selector` | string | `'thead tr th'` | - | The CSS selector of a table's header cells, within the table. Their text names the columns the table steps look up, and their order picks each column's `td` cell in a row. |
+| `table.header_selector` | string | `'thead tr th'` | - | The CSS selector of a table's header cells, within the table. The table steps find a column by its header cell's text, and take the `td` cell at that header cell's position in each row. |
 | `table.body_row_selector` | string | `'tbody tr'` | - | The CSS selector of a table's body rows, within the table. The steps that find a row by its text search every row of the page's tables instead. |
 
 <details>
@@ -4770,7 +4770,7 @@ When cron runs
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `config.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigTrait` | If `TRUE`, restores the configuration objects the config steps changed once the scenario finishes, and deletes the ones they created. If `FALSE`, the changes stay. |
+| `config.enabled` | boolean | `TRUE` | `@behat-steps-skip:ConfigTrait` | If `TRUE`, restores the configuration objects the config steps changed after the scenario finishes, and deletes the ones they created. If `FALSE`, the changes stay. |
 
 <details>
   <summary><code>@Given the config :name with the key :key has the value :value</code></summary>
@@ -5909,7 +5909,7 @@ Given the following "commerce_product" entities exist:
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `file.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileTrait` | If `TRUE`, creates the `private://` and `temporary://` directories before each scenario, and deletes the unmanaged files the file steps wrote once it finishes. If `FALSE`, the steps still work and their files stay. |
+| `file.enabled` | boolean | `TRUE` | `@behat-steps-skip:FileTrait` | If `TRUE`, creates the `private://` and `temporary://` directories before each scenario, and deletes the unmanaged files the file steps wrote after it finishes. If `FALSE`, the steps still work and their files stay. |
 
 <details>
   <summary><code>@Given the following managed files exist:</code></summary>
@@ -6336,7 +6336,7 @@ Given the following menu links exist in the menu "Main navigation":
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `module.enabled` | boolean | `TRUE` | `@behat-steps-skip:ModuleTrait` | If `TRUE`, applies a scenario's `@module:` tags before it starts, and restores every module the tags and the module steps changed once it finishes. If `FALSE`, the tags do nothing and the steps' changes stay. |
+| `module.enabled` | boolean | `TRUE` | `@behat-steps-skip:ModuleTrait` | If `TRUE`, applies a scenario's `@module:` tags before it starts, and restores every module the tags and the module steps changed after it finishes. If `FALSE`, the tags do nothing and the steps' changes stay. |
 
 <details>
   <summary><code>@Given the module :module is enabled</code></summary>
@@ -6508,7 +6508,7 @@ Given the following fields for the "text" paragraph exist in the field "field_co
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `queue.enabled` | boolean | `TRUE` | `@behat-steps-skip:QueueTrait` | If `TRUE`, deletes every queue the queue steps used once the scenario finishes, items from before the scenario included. If `FALSE`, the queues stay. |
+| `queue.enabled` | boolean | `TRUE` | `@behat-steps-skip:QueueTrait` | If `TRUE`, deletes every queue the queue steps used after the scenario finishes, items from before the scenario included. If `FALSE`, the queues stay. |
 | `queue.process_limit` | integer | `1000` | - | The number of items at which `the queue :queue is processed` stops and fails, as a guard against a queue that keeps refilling, so a queue holding exactly this many items fails the step too. |
 | `queue.lease_time` | integer | `30` | - | The time, in seconds, a queue item stays claimed while a processing step works on it. |
 
@@ -6764,7 +6764,7 @@ When the Search API Solr cron runs
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `state.enabled` | boolean | `TRUE` | `@behat-steps-skip:StateTrait` | If `TRUE`, restores the state values the state steps changed once the scenario finishes, and deletes the ones they added. If `FALSE`, the changes stay. |
+| `state.enabled` | boolean | `TRUE` | `@behat-steps-skip:StateTrait` | If `TRUE`, restores the state values the state steps changed after the scenario finishes, and deletes the ones they added. If `FALSE`, the changes stay. |
 
 <details>
   <summary><code>@Given the state :name has the value :value</code></summary>
@@ -7011,7 +7011,7 @@ Then the "Fruits" term with the name "Apple" should not exist
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `testmode.enabled` | boolean | `TRUE` | `@behat-steps-skip:TestmodeTrait` | If `TRUE`, switches the Testmode module's test mode on for a `@testmode` scenario and off once it finishes. If `FALSE`, the tag does nothing. |
+| `testmode.enabled` | boolean | `TRUE` | `@behat-steps-skip:TestmodeTrait` | If `TRUE`, switches the Testmode module's test mode on for a `@testmode` scenario and off after it finishes. If `FALSE`, the tag does nothing. |
 
 ## Drupal\TimeTrait
 
@@ -7040,7 +7040,7 @@ Then the "Fruits" term with the name "Apple" should not exist
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `time.enabled` | boolean | `TRUE` | `@behat-steps-skip:TimeTrait` | If `TRUE`, removes the time `the system time is set to :value` set once the scenario finishes. If `FALSE`, the site keeps that time. |
+| `time.enabled` | boolean | `TRUE` | `@behat-steps-skip:TimeTrait` | If `TRUE`, removes the system time that `the system time is set to :value` sets, after the scenario finishes. If `FALSE`, the site keeps that time. |
 
 <details>
   <summary><code>@When the system time is set to :value</code></summary>

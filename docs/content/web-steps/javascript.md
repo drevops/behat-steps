@@ -43,5 +43,5 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `javascript.enabled` | boolean | `TRUE` | `@behat-steps-skip:JavascriptTrait` | If `TRUE`, collects the uncaught errors, unhandled promise rejections and `console.error()` calls of the pages a `@javascript` scenario visits. The collector goes in after a page loads, so errors thrown while it loads aren't caught. If `FALSE`, nothing is collected and `fail_on_errors` has no effect. |
+| `javascript.enabled` | boolean | `TRUE` | `@behat-steps-skip:JavascriptTrait` | If `TRUE`, collects the uncaught errors, unhandled promise rejections and `console.error()` calls of the pages a `@javascript` scenario visits. The collector is injected into a page after it loads, so errors thrown while the page loads aren't collected. If `FALSE`, nothing is collected and `fail_on_errors` has no effect. |
 | `javascript.fail_on_errors` | boolean | `TRUE` | `@js-errors` | If `TRUE`, a collected error fails the scenario. If `FALSE`, errors are still collected and don't fail it. |

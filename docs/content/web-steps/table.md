@@ -24,7 +24,7 @@ custom_edit_url: null
 
 | Option | Type | Default | Tag | Description |
 | --- | --- | --- | --- | --- |
-| `table.header_selector` | string | `'thead tr th'` | - | The CSS selector of a table's header cells, within the table. Their text names the columns the table steps look up, and their order picks each column's `td` cell in a row. |
+| `table.header_selector` | string | `'thead tr th'` | - | The CSS selector of a table's header cells, within the table. The table steps find a column by its header cell's text, and take the `td` cell at that header cell's position in each row. |
 | `table.body_row_selector` | string | `'tbody tr'` | - | The CSS selector of a table's body rows, within the table. The steps that find a row by its text search every row of the page's tables instead. |
 
 ## Steps

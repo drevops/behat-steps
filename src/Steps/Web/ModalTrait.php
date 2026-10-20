@@ -364,8 +364,8 @@ trait ModalTrait {
    */
   protected function modalConfigSchema(): array {
     return [
-      new Option('selectors', default: ['.ui-dialog', 'dialog[open]', '.modal'], description: 'The CSS selectors of the modal container. The first visible match wins, taking the selectors in order, so a visible modal outranks a hidden one an earlier selector matches.'),
-      new Option('content_selectors', default: ['.ui-dialog-content', '.modal-content', '.modal-body'], description: "The CSS selectors of the modal's content element, tried in order within the visible modal. The first selector that matches wins."),
+      new Option('selectors', default: ['.ui-dialog', 'dialog[open]', '.modal'], description: 'The CSS selectors of the modal container, tried in order. The steps use the first visible match, even when an earlier selector matches a hidden modal, and the first hidden match when none is visible.'),
+      new Option('content_selectors', default: ['.ui-dialog-content', '.modal-content', '.modal-body'], description: "The CSS selectors of the modal's content element, tried in order within the visible modal. The steps use the first selector that matches."),
       new Option('close_selectors', default: ['.ui-dialog-titlebar-close', '[data-dismiss="modal"]', '.btn-close'], description: "The CSS selectors of the modal's close button, tried in order within the visible modal. The step clicks the first match."),
       new Option('wait_timeout', default: 3, description: 'The longest time, in seconds, `I wait for the modal to appear` waits for a modal to show.'),
     ];

@@ -103,7 +103,7 @@ trait TestmodeTrait {
    */
   protected function testmodeConfigSchema(): array {
     return [
-      new Option('enabled', default: TRUE, description: "If `TRUE`, switches the Testmode module's test mode on for a `@testmode` scenario and off once it finishes. If `FALSE`, the tag does nothing."),
+      new Option('enabled', default: TRUE, description: "If `TRUE`, switches the Testmode module's test mode on for a `@testmode` scenario and off after it finishes. If `FALSE`, the tag does nothing."),
     ];
   }
 
