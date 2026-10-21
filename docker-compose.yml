@@ -48,7 +48,7 @@ services:
       - container:amazeeio-ssh-agent ### Local overrides to mount host SSH keys. Automatically removed in CI.
 
   php:
-    image: uselagoon/php-${PHP_VERSION:-8.3}-fpm:26.9.0
+    image: uselagoon/php-${PHP_VERSION:-8.3}-fpm:26.10.0
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -56,7 +56,7 @@ services:
       - cli
 
   nginx:
-    image: uselagoon/nginx-drupal:26.9.0@sha256:4f6c21710ffad0fa7ef0509178e00a1b79a8ce013a0f4f9470f4ab04ef8e15c0
+    image: uselagoon/nginx-drupal:26.10.0@sha256:725fd70a12e20963a5b09e54b4b844307f420b8d56625614778376afe13c5cef
     <<: [*default-volumes, *default-user]
     environment:
       <<: *default-environment
@@ -67,7 +67,7 @@ services:
       - default
 
   mariadb:
-    image: uselagoon/mariadb-10.11-drupal:26.9.0@sha256:12de8f70404103bd12ef555c43db36add1852258d36203e9c58953db927f41bc
+    image: uselagoon/mariadb-10.11-drupal:26.10.0@sha256:209828d6e8e58281266343a818404847b8d362bd4eed2816fe8777db2630a616
     environment:
       <<: *default-environment
     ports:
