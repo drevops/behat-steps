@@ -7,21 +7,13 @@ namespace DrevOps\BehatSteps\Tests\Unit\Backend\Drupal\Core\Field;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\AbstractHandler;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DateRecurHandler;
 use DrevOps\BehatSteps\Backend\Drupal\Core\Field\FieldHandlerInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\ImmutableConfig;
-use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\Core\Language\LanguageInterface;
-use Drupal\Core\Language\LanguageManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the DateRecurHandler field handler.
- *
- * The site timezone is 'America/New_York', so a value read in the site
- * timezone differs from the same value read in UTC.
  */
 #[CoversClass(DateRecurHandler::class)]
 #[Group('fields')]
@@ -36,32 +28,6 @@ class DateRecurHandlerTest extends FieldHandlerUnitTestBase {
     if (!$this->loadDatetimeModuleClasses()) {
       $this->markTestSkipped('drupal/core datetime module classes are not available.');
     }
-
-    $config = $this->createMock(ImmutableConfig::class);
-    $config->method('get')->with('timezone.default')->willReturn('America/New_York');
-
-    $config_factory = $this->createMock(ConfigFactoryInterface::class);
-    $config_factory->method('get')->with('system.date')->willReturn($config);
-
-    // DrupalDateTime reads the current language when it parses a date.
-    $language = $this->createMock(LanguageInterface::class);
-    $language->method('getId')->willReturn('en');
-
-    $language_manager = $this->createMock(LanguageManagerInterface::class);
-    $language_manager->method('getCurrentLanguage')->willReturn($language);
-
-    $container = new ContainerBuilder();
-    $container->set('config.factory', $config_factory);
-    $container->set('language_manager', $language_manager);
-    \Drupal::setContainer($container);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function tearDown(): void {
-    \Drupal::unsetContainer();
-    parent::tearDown();
   }
 
   /**
@@ -75,22 +41,7 @@ class DateRecurHandlerTest extends FieldHandlerUnitTestBase {
    * {@inheritdoc}
    */
   public static function dataProviderExpand(): \Iterator {
-    yield 'bare scalar is read in the site timezone, which the record takes' => [
-      '2025-01-01T09:00:00',
-      [['value' => '2025-01-01T14:00:00', 'timezone' => 'America/New_York']],
-      NULL,
-      NULL,
-    ];
-    yield 'list of scalars is multiple value deltas' => [
-      ['2025-01-01T09:00:00', '2025-06-15T14:30:00'],
-      [
-        ['value' => '2025-01-01T14:00:00', 'timezone' => 'America/New_York'],
-        ['value' => '2025-06-15T18:30:00', 'timezone' => 'America/New_York'],
-      ],
-      NULL,
-      NULL,
-    ];
-    yield 'full record is read in its own timezone' => [
+    yield 'full record is relayed as stored' => [
       [
         'value' => '2025-01-01T09:00:00',
         'end_value' => '2025-01-01T17:00:00',
@@ -100,8 +51,8 @@ class DateRecurHandlerTest extends FieldHandlerUnitTestBase {
       ],
       [
         [
-          'value' => '2024-12-31T22:00:00',
-          'end_value' => '2025-01-01T06:00:00',
+          'value' => '2025-01-01T09:00:00',
+          'end_value' => '2025-01-01T17:00:00',
           'rrule' => 'FREQ=DAILY;COUNT=5',
           'timezone' => 'Australia/Sydney',
           'infinite' => 0,
@@ -110,55 +61,15 @@ class DateRecurHandlerTest extends FieldHandlerUnitTestBase {
       NULL,
       NULL,
     ];
-    yield 'record in UTC keeps its times' => [
-      [
-        'value' => '2025-01-01T09:00:00',
-        'end_value' => '2025-01-01T17:00:00',
-        'timezone' => 'UTC',
-      ],
-      [
-        [
-          'value' => '2025-01-01T09:00:00',
-          'end_value' => '2025-01-01T17:00:00',
-          'timezone' => 'UTC',
-        ],
-      ],
-      NULL,
-      NULL,
-    ];
-    yield 'list of records is read in each record timezone' => [
+    yield 'list of records is relayed as stored' => [
       [
         ['value' => '2025-01-01T09:00:00', 'timezone' => 'UTC'],
         ['value' => '2025-06-15T14:30:00', 'timezone' => 'Europe/London'],
       ],
       [
         ['value' => '2025-01-01T09:00:00', 'timezone' => 'UTC'],
-        ['value' => '2025-06-15T13:30:00', 'timezone' => 'Europe/London'],
+        ['value' => '2025-06-15T14:30:00', 'timezone' => 'Europe/London'],
       ],
-      NULL,
-      NULL,
-    ];
-    yield 'empty timezone takes the site timezone' => [
-      ['value' => '2025-01-01T09:00:00', 'timezone' => ''],
-      [['value' => '2025-01-01T14:00:00', 'timezone' => 'America/New_York']],
-      NULL,
-      NULL,
-    ];
-    yield 'value with its own offset keeps it' => [
-      ['value' => '2025-01-01T09:00:00+02:00', 'timezone' => 'Australia/Sydney'],
-      [['value' => '2025-01-01T07:00:00', 'timezone' => 'Australia/Sydney']],
-      NULL,
-      NULL,
-    ];
-    yield 'value in UTC by its suffix keeps it' => [
-      ['value' => '2025-01-01T09:00:00Z', 'timezone' => 'Australia/Sydney'],
-      [['value' => '2025-01-01T09:00:00', 'timezone' => 'Australia/Sydney']],
-      NULL,
-      NULL,
-    ];
-    yield 'relative prefix is resolved in the record timezone' => [
-      ['value' => 'relative:2025-01-02 03:04:05', 'timezone' => 'Australia/Sydney'],
-      [['value' => '2025-01-01T16:04:05', 'timezone' => 'Australia/Sydney']],
       NULL,
       NULL,
     ];
@@ -168,9 +79,9 @@ class DateRecurHandlerTest extends FieldHandlerUnitTestBase {
       NULL,
       NULL,
     ];
-    yield 'end value alone takes the site timezone' => [
-      ['value' => '', 'end_value' => '2025-01-01T17:00:00'],
-      [['value' => NULL, 'end_value' => '2025-01-01T22:00:00', 'timezone' => 'America/New_York']],
+    yield 'end value alone is relayed as stored' => [
+      ['value' => '', 'end_value' => '2025-01-01T17:00:00', 'timezone' => 'Australia/Sydney'],
+      [['value' => NULL, 'end_value' => '2025-01-01T17:00:00', 'timezone' => 'Australia/Sydney']],
       NULL,
       NULL,
     ];
@@ -187,11 +98,65 @@ class DateRecurHandlerTest extends FieldHandlerUnitTestBase {
       NULL,
     ];
 
+    yield 'bare scalar without a timezone rejected' => [
+      '2025-01-01T09:00:00',
+      NULL,
+      \RuntimeException::class,
+      'Date recur field record has a date but no "timezone".',
+    ];
+    yield 'empty timezone rejected' => [
+      ['value' => '2025-01-01T09:00:00', 'timezone' => ''],
+      NULL,
+      \RuntimeException::class,
+      'Date recur field record has a date but no "timezone".',
+    ];
+    yield 'end value without a timezone rejected' => [
+      ['value' => '', 'end_value' => '2025-01-01T17:00:00'],
+      NULL,
+      \RuntimeException::class,
+      'Date recur field record has a date but no "timezone".',
+    ];
     yield 'invalid timezone rejected' => [
       ['value' => '2025-01-01T09:00:00', 'timezone' => 'Mars/Olympus'],
       NULL,
       \RuntimeException::class,
       'Date recur field record has an invalid timezone "Mars/Olympus".',
+    ];
+    yield 'value in UTC by its suffix rejected' => [
+      ['value' => '2025-01-01T09:00:00Z', 'timezone' => 'Australia/Sydney'],
+      NULL,
+      \RuntimeException::class,
+      'Date recur field record has the "value" column "2025-01-01T09:00:00Z", which is not in the storage format "Y-m-d\TH:i:s".',
+    ];
+    yield 'value with an offset rejected' => [
+      ['value' => '2025-01-01T09:00:00+02:00', 'timezone' => 'Australia/Sydney'],
+      NULL,
+      \RuntimeException::class,
+      'Date recur field record has the "value" column "2025-01-01T09:00:00+02:00", which is not in the storage format "Y-m-d\TH:i:s".',
+    ];
+    yield 'value with a space separator rejected' => [
+      ['value' => '2025-01-01 09:00:00', 'timezone' => 'UTC'],
+      NULL,
+      \RuntimeException::class,
+      'Date recur field record has the "value" column "2025-01-01 09:00:00", which is not in the storage format "Y-m-d\TH:i:s".',
+    ];
+    yield 'relative value rejected' => [
+      ['value' => 'relative:+1 day', 'timezone' => 'UTC'],
+      NULL,
+      \RuntimeException::class,
+      'Date recur field record has the "value" column "relative:+1 day", which is not in the storage format "Y-m-d\TH:i:s".',
+    ];
+    yield 'value out of range rejected' => [
+      ['value' => '2025-02-30T09:00:00', 'timezone' => 'UTC'],
+      NULL,
+      \RuntimeException::class,
+      'Date recur field record has the "value" column "2025-02-30T09:00:00", which is not in the storage format "Y-m-d\TH:i:s".',
+    ];
+    yield 'end value not in the storage format rejected' => [
+      ['value' => '2025-01-01T09:00:00', 'end_value' => '2025-01-01', 'timezone' => 'UTC'],
+      NULL,
+      \RuntimeException::class,
+      'Date recur field record has the "end_value" column "2025-01-01", which is not in the storage format "Y-m-d\TH:i:s".',
     ];
     yield 'mixed positional and named keys rejected' => [
       ['2025-01-01T09:00:00', 'timezone' => 'UTC'],
@@ -208,32 +173,42 @@ class DateRecurHandlerTest extends FieldHandlerUnitTestBase {
   }
 
   /**
-   * Tests that a date-only field stores the date as written.
+   * Tests that a date-only field relays dates in the date storage format.
    *
    * @param mixed $input
    *   The loose input fed to 'expand()'.
-   * @param array<int, array<string, mixed>> $expected
-   *   The expected storage-shape output.
+   * @param array<int, array<string, mixed>>|null $expected
+   *   The expected storage-shape output, or NULL when an exception is
+   *   expected.
+   * @param string|null $expected_message
+   *   The expected exception message, or NULL when none is expected.
    */
   #[DataProvider('dataProviderExpandDateOnly')]
-  public function testExpandDateOnly(mixed $input, array $expected): void {
+  public function testExpandDateOnly(mixed $input, ?array $expected, ?string $expected_message): void {
+    if ($expected_message !== NULL) {
+      $this->expectException(\RuntimeException::class);
+      $this->expectExceptionMessage($expected_message);
+    }
+
     $this->assertSame($expected, $this->createDateRecurHandler('date')->expand($input));
   }
 
   /**
    * Data provider for 'testExpandDateOnly()'.
    *
-   * @return \Iterator<string, array{mixed, array<int, array<string, mixed>>}>
-   *   Rows of: input, expected storage shape.
+   * @return \Iterator<string, array{mixed, array<int, array<string, mixed>>|null, string|null}>
+   *   Rows of: input, expected storage shape, expected exception message.
    */
   public static function dataProviderExpandDateOnly(): \Iterator {
-    yield 'date in its own timezone' => [
-      ['value' => '2025-01-01', 'timezone' => 'Australia/Sydney'],
-      [['value' => '2025-01-01', 'timezone' => 'Australia/Sydney']],
+    yield 'date is relayed as stored' => [
+      ['value' => '2025-01-01', 'end_value' => '2025-01-02', 'timezone' => 'Australia/Sydney'],
+      [['value' => '2025-01-01', 'end_value' => '2025-01-02', 'timezone' => 'Australia/Sydney']],
+      NULL,
     ];
-    yield 'date without a timezone takes the site timezone' => [
-      '2025-01-01',
-      [['value' => '2025-01-01', 'timezone' => 'America/New_York']],
+    yield 'date and time rejected' => [
+      ['value' => '2025-01-01T09:00:00', 'timezone' => 'Australia/Sydney'],
+      NULL,
+      'Date recur field record has the "value" column "2025-01-01T09:00:00", which is not in the storage format "Y-m-d".',
     ];
   }
 
