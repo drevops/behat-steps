@@ -7,6 +7,7 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DrushCapabilityInterface;
+use DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 
 /**
@@ -36,6 +37,11 @@ trait DrushTrait {
    *
    * The command may carry its arguments, split into words as a shell splits
    * them: whitespace separates 2 words, and a quoted part stays in 1 word.
+   * No shell runs the command, so a redirection such as '2>&1' reaches Drush
+   * as an argument.
+   *
+   * The output holds stdout followed by stderr, so the output steps see what
+   * the command logs as well as what it prints.
    *
    * @code
    * When I run the drush command "status"
@@ -46,8 +52,7 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command')]
   public function drushRun(string $command): void {
-    [$name, $words] = $this->drushParseCommand($command);
-    $this->drushOutput = $this->drushGetBackend()->drush($name, $words);
+    $this->drushRunExpectingSuccess($command);
   }
 
   /**
@@ -66,16 +71,14 @@ trait DrushTrait {
    */
   #[When('I run the drush command :command with the arguments :arguments')]
   public function drushRunWithArguments(string $command, string $arguments): void {
-    [$name, $words] = $this->drushParseCommand($command, $arguments);
-    $this->drushOutput = $this->drushGetBackend()->drush($name, $words);
+    $this->drushRunExpectingSuccess($command, $arguments);
   }
 
   /**
    * Run a Drush command that is expected to fail.
    *
-   * A non-zero exit does not abort the step. The command output is kept in
-   * '$drushOutput' for later assertions, falling back to stderr when stdout is
-   * empty.
+   * A non-zero exit does not abort the step. The command output, stdout
+   * followed by stderr, is kept in '$drushOutput' for later assertions.
    *
    * @code
    * When I run the failing drush command "pm:uninstall no_such_module"
@@ -196,7 +199,35 @@ trait DrushTrait {
   }
 
   /**
+   * Run a Drush command expecting a zero exit, keeping its output.
+   *
+   * The output kept is stdout followed by stderr.
+   *
+   * @param string $command
+   *   The Drush command to run, which may carry arguments of its own.
+   * @param string|null $arguments
+   *   Arguments appended to the command, or NULL for none. Both are split into
+   *   words as a shell splits them.
+   *
+   * @throws \RuntimeException
+   *   When the command exits non-zero.
+   */
+  public function drushRunExpectingSuccess(string $command, ?string $arguments = NULL): void {
+    [$name, $words] = $this->drushParseCommand($command, $arguments);
+    $result = $this->drushGetBackend()->drushResult($name, $words);
+
+    $output = $this->drushCombineOutput($result);
+    $this->drushOutput = $output;
+
+    if ($result->exitCode !== 0) {
+      throw new \RuntimeException(sprintf('The drush command "%s" exited with code %d. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $result->exitCode, $output));
+    }
+  }
+
+  /**
    * Run a Drush command expecting a non-zero exit, keeping its output.
+   *
+   * The output kept is stdout followed by stderr.
    *
    * @param string $command
    *   The Drush command to run, which may carry arguments of its own.
@@ -211,14 +242,29 @@ trait DrushTrait {
     [$name, $words] = $this->drushParseCommand($command, $arguments);
     $result = $this->drushGetBackend()->drushResult($name, $words);
 
-    // The success path returns the command's output, so the failure path keeps
-    // stdout and falls back to stderr when it is empty.
-    $output = $result->output === '' ? $result->errorOutput : $result->output;
+    $output = $this->drushCombineOutput($result);
     $this->drushOutput = $output;
 
     if ($result->exitCode === 0) {
       throw new AssertionException(sprintf('The drush command "%s" was expected to fail, but it exited 0. Output:' . PHP_EOL . PHP_EOL . '%s', $command, $output));
     }
+  }
+
+  /**
+   * Join the stdout and the stderr of a Drush command, stdout first.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult $result
+   *   The result of the command.
+   *
+   * @return string
+   *   Both streams, with 1 line break between them when both hold text.
+   */
+  protected function drushCombineOutput(DrushResult $result): string {
+    if ($result->output === '' || $result->errorOutput === '') {
+      return $result->output . $result->errorOutput;
+    }
+
+    return rtrim($result->output, "\r\n") . PHP_EOL . $result->errorOutput;
   }
 
   /**
