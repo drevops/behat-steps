@@ -70,7 +70,7 @@ class DrushTraitTest extends UnitTestCase {
   #[DataProvider('dataProviderRunPassesTheParsedWords')]
   public function testRunPassesTheParsedWords(string $method, array $arguments): void {
     $drush = $this->createMock(DrushBackendInterface::class);
-    $drush->expects($this->once())->method('drush')->with('config:get', ['system.site', 'name'])->willReturn('Behat Steps');
+    $drush->expects($this->once())->method('drushResult')->with('config:get', ['system.site', 'name'])->willReturn(new DrushResult(0, 'Behat Steps', ''));
     $context = $this->createContextWithBackend($drush);
 
     $context->{$method}(...$arguments);
@@ -82,6 +82,54 @@ class DrushTraitTest extends UnitTestCase {
     yield 'arguments in the command' => ['drushRun', ['config:get system.site name']];
     yield 'arguments of their own' => ['drushRunWithArguments', ['config:get', 'system.site name']];
     yield 'arguments in both' => ['drushRunWithArguments', ['config:get system.site', 'name']];
+  }
+
+  /**
+   * Tests that a run keeps stdout followed by stderr as the output.
+   *
+   * @param string $method
+   *   The helper that runs the command.
+   * @param int $exit_code
+   *   The exit code the command returns.
+   * @param string $stdout
+   *   The stdout of the command.
+   * @param string $stderr
+   *   The stderr of the command.
+   * @param string $expected
+   *   The output kept.
+   */
+  #[DataProvider('dataProviderRunKeepsBothStreams')]
+  public function testRunKeepsBothStreams(string $method, int $exit_code, string $stdout, string $stderr, string $expected): void {
+    $drush = $this->createMock(DrushBackendInterface::class);
+    $drush->method('drushResult')->willReturn(new DrushResult($exit_code, $stdout, $stderr));
+    $context = $this->createContextWithBackend($drush);
+
+    $context->{$method}('radio_station:pull');
+
+    $this->assertSame($expected, $context->drushGetOutput());
+  }
+
+  public static function dataProviderRunKeepsBothStreams(): \Iterator {
+    foreach (['drushRunExpectingSuccess' => 0, 'drushRunExpectingFailure' => 1] as $method => $exit_code) {
+      yield $method . ', stdout only' => [$method, $exit_code, "Pulling episodes\n", '', "Pulling episodes\n"];
+      yield $method . ', stderr only' => [$method, $exit_code, '', "Created: 1\n", "Created: 1\n"];
+      yield $method . ', both' => [$method, $exit_code, "Pulling episodes\n", "Created: 1\n", "Pulling episodes\nCreated: 1\n"];
+      yield $method . ', both, stdout ending in a blank line' => [$method, $exit_code, "Pulling episodes\n\n", "Created: 1\n", "Pulling episodes\n\nCreated: 1\n"];
+      yield $method . ', both, stdout without a line break' => [$method, $exit_code, 'Pulling episodes', 'Created: 1', 'Pulling episodes' . PHP_EOL . 'Created: 1'];
+      yield $method . ', both, stdout of 0' => [$method, $exit_code, '0', 'Created: 1', '0' . PHP_EOL . 'Created: 1'];
+      yield $method . ', neither' => [$method, $exit_code, '', '', ''];
+    }
+  }
+
+  public function testRunExpectingSuccessFailsOnNonZeroExit(): void {
+    $drush = $this->createMock(DrushBackendInterface::class);
+    $drush->method('drushResult')->willReturn(new DrushResult(3, "Pulling episodes\n", "Feed unreachable.\n"));
+    $context = $this->createContextWithBackend($drush);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('The drush command "radio_station:pull" exited with code 3. Output:' . PHP_EOL . PHP_EOL . "Pulling episodes\nFeed unreachable.\n");
+
+    $context->drushRunExpectingSuccess('radio_station:pull', 'episode');
   }
 
   public function testRunExpectingFailurePassesTheParsedWords(): void {
@@ -96,7 +144,7 @@ class DrushTraitTest extends UnitTestCase {
 
   public function testRunRejectsAnEmptyCommand(): void {
     $drush = $this->createMock(DrushBackendInterface::class);
-    $drush->expects($this->never())->method('drush');
+    $drush->expects($this->never())->method('drushResult');
     $context = $this->createContextWithBackend($drush);
 
     $this->expectException(\RuntimeException::class);

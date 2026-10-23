@@ -1074,14 +1074,14 @@ The Drupal Extension matched a subject in part and in any case. `with the subjec
 
 #### Drush
 
-| 3.14 | 4.0 |
-| --- | --- |
-| `Given I run drush :command` | `When I run the drush command :command` |
-| `Given I run drush :command :arguments` | `When I run the drush command :command with the arguments :arguments` |
-| `Given I run the failing drush command :command` | `When I run the failing drush command :command` |
-| `Given I run the failing drush command :command :arguments` | `When I run the failing drush command :command with the arguments :arguments` |
-| `Then the drush output should contain :output` | `Then the drush output should contain :value` |
-| `Then the drush output should not contain :output` | `Then the drush output should not contain :value` |
+| 3.14 | 4.0 | Notes |
+| --- | --- | --- |
+| `Given I run drush :command` | `When I run the drush command :command` | |
+| `Given I run drush :command :arguments` | `When I run the drush command :command with the arguments :arguments` | No shell runs the command, so a redirection such as `2>&1` reaches Drush as an argument. Drop it, because the output already holds stderr after stdout |
+| `Given I run the failing drush command :command` | `When I run the failing drush command :command` | |
+| `Given I run the failing drush command :command :arguments` | `When I run the failing drush command :command with the arguments :arguments` | |
+| `Then the drush output should contain :output` | `Then the drush output should contain :value` | Reads stdout followed by stderr. 3.14 read stderr only when stdout was empty |
+| `Then the drush output should not contain :output` | `Then the drush output should not contain :value` | Reads stdout followed by stderr, so text the command writes to stderr, such as a Drush warning, fails the step |
 
 #### AJAX and debugging
 
@@ -2610,6 +2610,7 @@ A test that asserts on a failure message's text needs the 4.0 text. Each message
 | `CookieTrait` | `The cookie with name containing "..." was set but it should not be.` | `A cookie with a name containing "..." was set, but it should not be.` | |
 | `Core` | `No dedicated handler is registered for field "..." (type "...") on entity type "..." bundle "...", and DefaultHandler cannot marshal it: .... Register a dedicated handler via Core::registerFieldHandler().` | `No dedicated handler is registered for field "..." (type "...") on entity type "..." bundle "...", and DefaultHandler cannot marshal it: .... Map its field type to a handler class under the "drupal.field_handlers" option.` | |
 | `DraggableviewsTrait` | `The "draggableviews" module is not enabled. Add "drupal/draggableviews" to the consumer project's composer.json and enable the module as part of the site setup.` | `DraggableviewsTrait requires that the "draggableviews" module from the "drupal/draggableviews" package is enabled, which does not hold.` | |
+| `DrushTrait` | `...` | `The drush command "..." exited with code N. Output: ...` | `When I run the drush command ...` on a non-zero exit. 3.14 failed with the command's stderr alone, and 4.0 adds its stdout before the stderr |
 | `ElementTrait` | `Element(s) defined by "..." selector is not displayed within a viewport.` | `The element "..." is not displayed within the viewport.` | |
 | `ElementTrait` | `Element(s) defined by "..." selector is not displayed within a viewport with a top offset of N pixels.` | `The element "..." is not displayed within the viewport with a top offset of N pixels.` | |
 | `ElementTrait` | `Element(s) defined by "..." selector is displayed within a viewport, but should not be.` | `The element "..." is displayed within the viewport, but it should not be.` | |

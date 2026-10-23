@@ -26,6 +26,12 @@ Feature: Check that DrushTrait works
     When I run the drush command "php:eval" with the arguments "'echo 6 * 7;'"
     Then the drush output should contain "42"
 
+  Scenario: Assert "When I run the drush command :command with the arguments :arguments" keeps stderr after stdout
+    Given I am an anonymous user
+    When I run the drush command "php:eval" with the arguments "'echo 6 * 7; fwrite(STDERR, (string) (6 * 9));'"
+    Then the drush output should contain "54"
+    And the drush output should match "/42\s+54/"
+
   Scenario: Assert "When I run the failing drush command :command" works as expected
     Given I am an anonymous user
     When I run the failing drush command "pm:uninstall no_such_module"
@@ -36,6 +42,11 @@ Feature: Check that DrushTrait works
     When I run the failing drush command "pm:uninstall" with the arguments "no_such_module"
     Then the drush output should contain "no_such_module"
     And the drush output should not contain "is not defined"
+
+  Scenario: Assert "When I run the failing drush command :command with the arguments :arguments" keeps stderr after stdout
+    Given I am an anonymous user
+    When I run the failing drush command "php:eval" with the arguments "'echo 6 * 7; fwrite(STDERR, (string) (6 * 9)); throw new Exception();'"
+    Then the drush output should match "/42\s+54/"
 
   Scenario: Assert "When I print the last drush output" works as expected
     Given I am an anonymous user
@@ -127,6 +138,20 @@ Feature: Check that DrushTrait works
     Then it should fail with an exception:
       """
       "Drush Site-Install" is not a valid regular expression: Internal error.
+      """
+
+  @test-trait:Drupal\DrushTrait
+  Scenario: Assert negative "When I run the drush command :command" fails when the command fails
+    Given a configuration listing the backends "drupal, drush, blackbox"
+    And some behat configuration
+    And scenario steps:
+      """
+      When I run the drush command "pm:uninstall no_such_module"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The drush command "pm:uninstall no_such_module" exited with code 1. Output:
       """
 
   @test-trait:Drupal\DrushTrait
