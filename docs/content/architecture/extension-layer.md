@@ -17,7 +17,7 @@ Each entry names a place where Behat or Mink lets an extension in, then the piec
 
 - Configuration: `BehatStepsExtension::configure()` declares the `behat_steps` key, with `backends`, `regions`, the login text and selectors and `steps`. `DrupalBackendProvider` adds the `drupal` and `drush` settings.
 - Context initializers: `BackendAwareInitializer` hands every context Behat builds the services that [What your context receives](#what-your-context-receives) lists.
-- Event dispatcher: `ConfiguredClassListener` runs once, as the exercise starts. It builds the `drupal` backend's Core and registers the field handler and creation alias classes the options name. `SkipTagListener` and then `BackendListener` run as each scenario starts. The first rejects a `@behat-steps-skip:` tag that names no composed trait, and the second sets the backend order and publishes the scenario's tags.
+- Event dispatcher: `SkipTagListener` and then `BackendListener` run as each scenario starts. The first rejects a `@behat-steps-skip:` tag that names no composed trait, and the second sets the backend order and publishes the scenario's tags.
 - Attribute readers: `HookAttributeReader` turns `#[BeforeNodeCreate]` and the other creation hook attributes into hooks.
 - Class generator: `ClassGenerator` writes the starter context of `behat --init`, which extends `WebRawContext`.
 - Mink's browser driver factories: `BrowserKitFactory` builds `browserkit_http` sessions exactly as Mink does, and records their `http_client_parameters` for the HTTP clients.
@@ -56,7 +56,7 @@ The layer also holds these pieces:
 
 ## The Drupal half
 
-`Extension\Drupal` holds what the extension needs for a Drupal site. `DrupalBackendProvider` adds the `drupal` and `drush` settings and the Drupal login text and selector defaults. It also adds the 2 backends, each registered only when its key is set, and `ConfiguredClassListener`. The container builds the backends before Behat registers its `autoload` paths, so the listener resolves the classes the options name when the exercise starts. The node, term and language creation hooks live beside it.
+`Extension\Drupal` holds what the extension needs for a Drupal site. `DrupalBackendProvider` adds the `drupal` and `drush` settings and the Drupal login text and selector defaults. It also adds the 2 backends, each registered only when its key is set. The node, term and language creation hooks live beside it.
 
 ## What the layer may reach
 

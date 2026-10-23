@@ -48,7 +48,7 @@ class DrupalBackendConstructionKernelTest extends KernelTestBase {
     new DrupalBackend('/nonexistent/path/that/will/never/exist', 'default');
   }
 
-  public function testGetCoreBuildsTheCore(): void {
+  public function testConstructorBuildsTheCore(): void {
     $backend = new DrupalBackend($this->root, 'default');
 
     $this->assertInstanceOf(Core::class, $backend->getCore());

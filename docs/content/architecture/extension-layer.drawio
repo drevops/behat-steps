@@ -47,7 +47,7 @@
         <mxCell id="ext-initializer" value="&lt;b&gt;BackendAwareInitializer&lt;/b&gt;&lt;br&gt;hands each context its services" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
           <mxGeometry x="30" y="140" width="340" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="ext-listeners" value="&lt;b&gt;BackendListener, SkipTagListener,&lt;br&gt;ConfiguredClassListener&lt;/b&gt;&lt;br&gt;option classes, backend order, skip tags" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
+        <mxCell id="ext-listeners" value="&lt;b&gt;BackendListener, SkipTagListener&lt;/b&gt;&lt;br&gt;set the backend order; reject a bad skip tag" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">
           <mxGeometry x="30" y="230" width="340" height="70" as="geometry" />
         </mxCell>
         <mxCell id="ext-attributes" value="&lt;b&gt;HookAttributeReader&lt;/b&gt;&lt;br&gt;reads #[BeforeNodeCreate] and the other creation hooks" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#FFFFFF;strokeColor=#6A1B9A;" vertex="1" parent="grp-ext">

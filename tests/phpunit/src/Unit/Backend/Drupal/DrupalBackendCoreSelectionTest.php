@@ -61,14 +61,14 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
    * @param string $expected
    *   The class of the Core the backend is expected to build.
    */
-  #[DataProvider('dataProviderGetCoreBuildsTheVersionCore')]
-  public function testGetCoreBuildsTheVersionCore(string $version, string $expected): void {
+  #[DataProvider('dataProviderConstructorBuildsTheVersionCore')]
+  public function testConstructorBuildsTheVersionCore(string $version, string $expected): void {
     $backend = $this->createBackend($version);
 
     $this->assertSame($expected, $backend->getCore()::class);
   }
 
-  public static function dataProviderGetCoreBuildsTheVersionCore(): \Iterator {
+  public static function dataProviderConstructorBuildsTheVersionCore(): \Iterator {
     yield 'a major without a version core' => ['11.2.0', Core::class];
     yield 'the major of a version core' => ['99.0.0', Core99Core::class];
     yield 'a major newer than the newest version core' => ['100.1.0', Core99Core::class];
@@ -83,19 +83,19 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
    * @param string $class
    *   The Core class given to the backend.
    */
-  #[DataProvider('dataProviderGetCoreBuildsTheGivenCore')]
-  public function testGetCoreBuildsTheGivenCore(string $version, string $class): void {
+  #[DataProvider('dataProviderConstructorBuildsTheGivenCore')]
+  public function testConstructorBuildsTheGivenCore(string $version, string $class): void {
     $backend = $this->createBackend($version, $class);
 
     $this->assertSame($class, $backend->getCore()::class);
   }
 
-  public static function dataProviderGetCoreBuildsTheGivenCore(): \Iterator {
+  public static function dataProviderConstructorBuildsTheGivenCore(): \Iterator {
     yield 'a subclass of the base Core on a major without a version core' => ['11.2.0', ConsumerCore::class];
     yield 'a subclass of the version core on its major' => ['99.0.0', ConsumerCore99::class];
   }
 
-  public function testGetCoreHandsTheRandomGeneratorToTheCore(): void {
+  public function testConstructorHandsTheRandomGeneratorToTheCore(): void {
     $random = new RandomGenerator();
 
     $backend = $this->createBackend('11.2.0', NULL, $random);
@@ -103,37 +103,23 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
     $this->assertSame($random, $backend->getRandom());
   }
 
-  public function testConstructorLeavesTheCoreUnbuilt(): void {
-    $backend = $this->createBackend('11.2.0', 'Acme\MissingCore');
-
-    $this->assertNull((new \ReflectionProperty(DrupalBackend::class, 'core'))->getValue($backend));
-  }
-
-  public function testGetCoreBuildsTheCoreOnce(): void {
-    $backend = $this->createBackend('11.2.0');
-
-    $this->assertSame($backend->getCore(), $backend->getCore());
-  }
-
   /**
-   * Tests that a Core class the backend cannot build fails the first lookup.
+   * Tests that a Core class the backend cannot build fails the construction.
    *
    * @param string $class
    *   The Core class given to the backend.
    * @param string $expected_message
-   *   The message the lookup is expected to fail with.
+   *   The message the construction is expected to fail with.
    */
-  #[DataProvider('dataProviderGetCoreRejectsCoreClass')]
-  public function testGetCoreRejectsCoreClass(string $class, string $expected_message): void {
-    $backend = $this->createBackend('11.2.0', $class);
-
+  #[DataProvider('dataProviderConstructorRejectsCoreClass')]
+  public function testConstructorRejectsCoreClass(string $class, string $expected_message): void {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessage($expected_message);
 
-    $backend->getCore();
+    $this->createBackend('11.2.0', $class);
   }
 
-  public static function dataProviderGetCoreRejectsCoreClass(): \Iterator {
+  public static function dataProviderConstructorRejectsCoreClass(): \Iterator {
     $not_a_core = sprintf('Core class "ArrayObject" must implement "%s".', CoreInterface::class);
     $abstract = sprintf('Core class "%s" must be instantiable.', AbstractCore::class);
     $non_public = sprintf('Core class "%s" must be instantiable.', NonPublicConstructorCore::class);
@@ -144,13 +130,11 @@ class DrupalBackendCoreSelectionTest extends UnitTestCase {
     yield 'a Core with a non-public constructor' => [NonPublicConstructorCore::class, $non_public];
   }
 
-  public function testGetCoreRejectsGivenCoreOfAnotherMajor(): void {
-    $backend = $this->createBackend('99.0.0', ConsumerCore::class);
-
+  public function testConstructorRejectsGivenCoreOfAnotherMajor(): void {
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessage(sprintf(static::EXTENDS_ANOTHER_MAJOR, ConsumerCore::class, Core::class, 99, Core99Core::class));
 
-    $backend->getCore();
+    $this->createBackend('99.0.0', ConsumerCore::class);
   }
 
   /**
