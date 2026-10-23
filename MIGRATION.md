@@ -1242,7 +1242,7 @@ An entity saved again after a newer one was created no longer wins: content enti
 
 ### Relative dates
 
-`DateTrait` expands `[relative:...]` tokens in `:partial_value`, `:text` and `:content` arguments as well as in `:value`, `:datetime` and `:expected_value` ones. A token in the text a region, a row, the modal, the REST response, the command output or the drush output is checked for, or in an unmanaged file's content, is now expanded rather than compared as written.
+`DateTrait` expands `[relative:...]` tokens in `:partial_value`, `:text`, `:content`, `:title`, `:name` and `:label` arguments as well as in `:value`, `:datetime` and `:expected_value` ones. A token in the text a region, a row, the modal, the REST response, the command output or the drush output is checked for, or in an unmanaged file's content, is now expanded rather than compared as written. So is a token in the title, name or label a step finds an entity by.
 
 `DateTrait` registers its transform as `#[Transform(':expected_value')]`, where 3.14 registered `#[Transform(':expectedValue')]`. No shipped step declares `:expectedValue`, so only a step of your own that declares it and relies on the expansion changes: rename its placeholder to `:expected_value`.
 

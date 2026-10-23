@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Steps\Web;
 
 use Behat\Gherkin\Node\TableNode;
+use Behat\Transformation\Transform;
 use DrevOps\BehatSteps\Steps\Web\DateTrait;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use DrevOps\BehatSteps\WebRawContext;
@@ -121,6 +122,13 @@ class DateTraitTest extends UnitTestCase {
 
     $table = new TableNode([['created'], ['[relative:-1 day#Y-m-d]']]);
     $this->assertSame([['created'], [$expected]], $this->testObject->dateRelativeTransformTable($table)->getRows());
+  }
+
+  public function testTransformValueCoversArguments(): void {
+    $method = new \ReflectionMethod(DateTrait::class, 'dateRelativeTransformValue');
+    $patterns = array_map(static fn(\ReflectionAttribute $attribute): mixed => $attribute->getArguments()[0] ?? NULL, $method->getAttributes(Transform::class));
+
+    $this->assertSame([':datetime', ':value', ':partial_value', ':expected_value', ':text', ':content', ':title', ':name', ':label'], $patterns);
   }
 
   public function testDateGetNowReadsTheSystemClock(): void {
