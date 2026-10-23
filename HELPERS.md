@@ -2175,7 +2175,7 @@ Load multiple entities with specified type and conditions
 > Test Drupal email functionality with content verification.
 
 <details>
-  <summary><code>public function emailCollectorIsEnabled(string $type = 'default'): bool</code></summary>
+  <summary><code>public function emailCollectorIsEnabled(?string $type = NULL): bool</code></summary>
 
 <br/>
 Check whether this scenario's collector has replaced a handler type
