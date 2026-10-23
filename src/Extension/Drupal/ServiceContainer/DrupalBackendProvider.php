@@ -183,13 +183,17 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   }
 
   /**
-   * Resolves a relative directory against the working directory.
+   * Resolves a directory against the working directory to its real path.
    *
    * The backends are built on first use, after 'Core::bootstrap()' may have
    * changed the working directory, so a relative root is made absolute here.
+   * A directory that does not exist is returned as-is for the backend to
+   * reject.
    */
   public static function resolveDirectoryPath(string $path): string {
-    return str_starts_with($path, '/') ? $path : getcwd() . '/' . $path;
+    $resolved = realpath($path);
+
+    return $resolved === FALSE ? $path : $resolved;
   }
 
   /**
