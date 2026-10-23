@@ -236,15 +236,25 @@ trait UserTrait {
    * Several roles are given as a comma-separated list. The `authenticated`
    * role is implied by having an account, so it is not assigned.
    *
+   * The `anonymous` role on its own logs the current user out instead, so
+   * an Examples table can list it beside the roles of real accounts.
+   *
    * @code
    * Given I am logged in as a user with the role "editor"
    * Given I am logged in as a user with the roles "editor, admin"
+   * Given I am logged in as a user with the role "anonymous"
    * @endcode
    *
    * @actor:person
    */
   #[Given('I am logged in as a user with the role(s) :roles')]
   public function userLoginWithRoles(string $roles): void {
+    if ($this->userIsAnonymousRole($roles)) {
+      $this->authLogout(TRUE);
+
+      return;
+    }
+
     $this->userCreateAndLogin($roles);
   }
 
@@ -722,9 +732,16 @@ trait UserTrait {
    * @param string $roles
    *   A single role, or several as a comma-separated list. An empty string
    *   assigns nothing.
+   *
+   * @throws \RuntimeException
+   *   When the list names the 'anonymous' role.
    */
   public function userAssignRoles(UserCapabilityInterface $backend, EntityStubInterface $stub, string $roles): void {
     foreach (array_filter($this->stringSplitCommaSeparated($roles)) as $role) {
+      if ($this->userIsAnonymousRole($role)) {
+        throw new \RuntimeException(sprintf('The role "%s" cannot be assigned to a user.', $role));
+      }
+
       // Every account carries 'authenticated', and the role is not assignable
       // in its own right.
       if (in_array(strtolower($role), ['authenticated', 'authenticated user'], TRUE)) {
@@ -733,6 +750,22 @@ trait UserTrait {
 
       $backend->addUserRole($stub, $role);
     }
+  }
+
+  /**
+   * Check whether a role list names only the 'anonymous' role.
+   *
+   * @param string $roles
+   *   A single role, or several as a comma-separated list.
+   *
+   * @return bool
+   *   TRUE when the list holds 1 role, 'anonymous' or 'anonymous user' in any
+   *   case.
+   */
+  public function userIsAnonymousRole(string $roles): bool {
+    $roles = array_values(array_filter($this->stringSplitCommaSeparated($roles)));
+
+    return count($roles) === 1 && in_array(strtolower($roles[0]), ['anonymous', 'anonymous user'], TRUE);
   }
 
   /**

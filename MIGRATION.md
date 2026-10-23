@@ -903,7 +903,7 @@ The Drupal Extension's contexts are gone, and the step traits carry their vocabu
 | 3.14 | 4.0 | Notes |
 | --- | --- | --- |
 | `Given I am not logged in` | `Given I am an anonymous user` | |
-| `Given I am logged in as a user with the :role role(s)` | `Given I am logged in as a user with the role(s) :roles` | For the `anonymous` or `anonymous user` role, which 3.14's `OverrideTrait` turned into a logout, write `Given I am an anonymous user` |
+| `Given I am logged in as a user with the :role role(s)` | `Given I am logged in as a user with the role(s) :roles` | The `anonymous` or `anonymous user` role on its own logs the current user out, as `Given I am an anonymous user` does. Beside other roles, it fails |
 | `Given I am logged in as a/an :role` | `Given I am logged in as a user with the role(s) :roles` | |
 | `Given I am logged in as a user with the :role role(s) and I have the following fields:` | `Given I am logged in as a user with the role(s) :roles and I have the following fields:` | |
 | `Given I am logged in as a user with the :permissions permission(s)` | `Given I am logged in as a user with the permission(s) :permissions` | |
@@ -1806,7 +1806,7 @@ $value = $this->stateFindValue('my_module.launched');
 | --- | --- | --- |
 | `OverrideTrait::createNodes()` | `ContentTrait::contentCreateMultiple()` | Doesn't delete the nodes the table names before creating them |
 | `OverrideTrait::createUsers()` | `UserTrait::userCreateMultiple()` | Doesn't delete the users the table names before creating them |
-| `OverrideTrait::iAmLoggedInAsUserWithRole()` | `UserTrait::userLoginWithRoles()` | Doesn't turn the `anonymous` and `anonymous user` roles into a logout; `userLogoutSession()` logs out |
+| `OverrideTrait::iAmLoggedInAsUserWithRole()` | `UserTrait::userLoginWithRoles()` | Logs out for the `anonymous` or `anonymous user` role on its own, and fails when either sits beside other roles |
 | `OverrideTrait::overrideBootstrapDrupal()` | Removed | A step bootstraps Drupal through the backend it resolves |
 
 #### Drupal Extension methods

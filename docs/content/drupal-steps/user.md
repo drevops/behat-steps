@@ -169,6 +169,7 @@ Create a user with the roles and log in as them
 ```gherkin
 Given I am logged in as a user with the role "editor"
 Given I am logged in as a user with the roles "editor, admin"
+Given I am logged in as a user with the role "anonymous"
 ```
 
 </details>
