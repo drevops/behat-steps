@@ -50,6 +50,7 @@ These classes are where the library plugs into Behat, Mink and Symfony:
 | `Extension\Context\Initializer\BackendAwareInitializer` | `Behat\Behat\Context\Initializer\ContextInitializer` |
 | `Extension\Context\Attribute\HookAttributeReader` | `Behat\Behat\Context\Attribute\AttributeReader` |
 | `Extension\Listener\BackendListener`, `SkipTagListener` | `Symfony\Component\EventDispatcher\EventSubscriberInterface` |
+| `Extension\Drupal\Listener\ConfiguredClassListener` | `Symfony\Component\EventDispatcher\EventSubscriberInterface` |
 | `Extension\Selector\RegionSelector` | `Behat\Mink\Selector\SelectorInterface` |
 | `Extension\Generator\ClassGenerator` | `Behat\Behat\Context\ContextClass\ClassGenerator` |
 | `Extension\Browser\Element\DocumentElement` | `Behat\Mink\Element\TraversableElement`, aliased over Mink's `DocumentElement` so page text reads as a browser renders it |

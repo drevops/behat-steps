@@ -56,8 +56,8 @@
         <mxCell id="n-4-1" value="&lt;b&gt;4.1 Behat runs AfterScenario&lt;/b&gt;&lt;br&gt;the hooks of every context,&lt;br&gt;after the last step" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#546E7A;dashed=1;" vertex="1" parent="band-behat">
           <mxGeometry x="1965" y="50" width="300" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="n-1-2" value="&lt;b&gt;1.2 BehatStepsExtension&lt;/b&gt;&lt;br&gt;registers the configured backends;&lt;br&gt;wires the registries, listeners and initializer" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#6A1B9A;" vertex="1" parent="band-steps">
-          <mxGeometry x="60" y="50" width="300" height="80" as="geometry" />
+        <mxCell id="n-1-2" value="&lt;b&gt;1.2 BehatStepsExtension&lt;/b&gt;&lt;br&gt;registers the backends and listeners;&lt;br&gt;ConfiguredClassListener builds the Core&lt;br&gt;and registers the option classes" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#6A1B9A;" vertex="1" parent="band-steps">
+          <mxGeometry x="60" y="50" width="300" height="90" as="geometry" />
         </mxCell>
         <mxCell id="n-1-3" value="&lt;b&gt;1.3 WebContext::assertOneContext()&lt;/b&gt;&lt;br&gt;a BeforeSuite hook: fails a suite&lt;br&gt;with 2 contexts built on WebContext" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=13;fontColor=#263238;spacing=8;fillColor=#ffffff;strokeColor=#F9A825;" vertex="1" parent="band-steps">
           <mxGeometry x="60" y="190" width="300" height="80" as="geometry" />
