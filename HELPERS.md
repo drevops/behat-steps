@@ -47,7 +47,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\ContentBlockTrait](#drupalcontentblocktrait) | 4 | Manage Drupal content blocks. |
 | [Drupal\ContentTrait](#drupalcontenttrait) | 8 | Manage Drupal content with workflow and moderation support. |
 | [Drupal\DraggableviewsTrait](#drupaldraggableviewstrait) | 3 | Order items in the Drupal Draggable Views. |
-| [Drupal\DrushTrait](#drupaldrushtrait) | 3 | Run Drush commands and assert their output. |
+| [Drupal\DrushTrait](#drupaldrushtrait) | 4 | Run Drush commands and assert their output. |
 | [Drupal\EckTrait](#drupalecktrait) | 5 | Manage Drupal ECK entities of an existing entity type and bundle. |
 | [Drupal\EmailTrait](#drupalemailtrait) | 11 | Test Drupal email functionality with content verification. |
 | [Drupal\FileTrait](#drupalfiletrait) | 6 | Manage Drupal file entities with upload and storage operations. |
@@ -2113,6 +2113,15 @@ Return the output of the most recent Drush command
 
 <br/>
 Run a Drush command expecting a non-zero exit, keeping its output
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function drushRunExpectingSuccess(string $command, ?string $arguments = NULL): void</code></summary>
+
+<br/>
+Run a Drush command expecting a zero exit, keeping its output
 <br/><br/>
 
 </details>
