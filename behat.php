@@ -71,8 +71,9 @@ $default = (new Profile('default', ['autoload' => ['%paths.base%/tests/behat/boo
     'blackbox' => NULL,
     // Behat runs from within "build", so both roots are relative to it.
     // 'HeadlineAlias' resolves the 'headline' column of the content scenario
-    // that covers 'creation_aliases'.
-    'drupal' => ['drupal_root' => 'web', 'creation_aliases' => [HeadlineAlias::class]],
+    // that covers 'creation_aliases'. 'CommentStatusHandler' sits in the
+    // bootstrap directory, which only the 'autoload' paths above load.
+    'drupal' => ['drupal_root' => 'web', 'field_handlers' => ['comment' => CommentStatusHandler::class], 'creation_aliases' => [HeadlineAlias::class]],
     'drush' => [
       'root' => 'web',
       // Drush resolves a request URI for every command and does not
