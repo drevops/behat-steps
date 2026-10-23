@@ -62,3 +62,27 @@ Feature: Check that DateTrait works
     And I set a test cookie with name "testdate" and value "[relative:-10 years#Y-m-d]"
     Then the cookie "testdate" with the value "2014-07-15" should exist
     And the cookie "testdate" with a value containing "[relative:-10 years#Y-m]" should exist
+
+  Scenario: Assert that relative date works in title transform
+    Given the following "article" content exists:
+      | title                                   | status | moderation_state |
+      | [TEST] Dated [relative:-10 years#Y-m-d] | 1      | published        |
+    When I visit the "article" content page with the title "[TEST] Dated [relative:-10 years#Y-m-d]"
+    Then the response status code should be 200
+    And I should see "[TEST] Dated 2014-07-15"
+    And the "article" content with the title "[TEST] Dated [relative:-10 years#Y-m-d]" should be published
+    And the "article" content with the title "[TEST] Dated 2014-07-15" should be published
+
+  @phpserver
+  Scenario: Assert that relative date works in name transform
+    When I visit "http://cli:8888/cookies.html"
+    And I set a test cookie with name "dated-[relative:-10 years#Y-m-d]" and value "1"
+    Then the cookie "dated-2014-07-15" should exist
+    And the cookie "dated-[relative:-10 years#Y-m-d]" should exist
+
+  @behat-steps-skip:DateTrait
+  Scenario: Assert that the skip tag leaves relative date tokens in a title as written
+    Given the following "article" content exists:
+      | title                                     | status | moderation_state |
+      | [TEST] Literal [relative:-10 years#Y-m-d] | 1      | published        |
+    Then the "article" content with the title "[TEST] Literal [relative:-10 years#Y-m-d]" should be published
