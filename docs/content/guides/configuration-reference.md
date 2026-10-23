@@ -45,7 +45,7 @@ These options sit under the `behat_steps` extension key of a profile, as [The `b
 | `drush` | section | - | The backend that reaches the site by running Drush 13 or newer. It's registered only when this section is present, and the section needs `alias` or `root`. |
 | `drush.alias` | string | - | The Drush site alias every command runs against, with or without the leading `@`. It takes precedence over `root` when both are set. |
 | `drush.binary` | string | `'vendor/bin/drush'` | The path to the Drush binary. A relative path resolves against the directory Behat runs in, then its parent. A bare `drush` resolves through `COMPOSER_BIN_DIR`, then `vendor/bin/drush` in the directory Behat runs in, then the `PATH`. |
-| `drush.root` | string | - | The Drupal root passed to Drush as `--root`, for a site Drush can't find on its own. The directory has to exist. |
+| `drush.root` | string | - | The Drupal root passed to Drush as `--root`, for a site Drush can't find on its own. The directory has to exist. A relative path resolves against the directory Behat runs in. |
 | `drush.global_options` | string | - | The options added to every Drush command, such as `--uri=http://example.com`. The value is split on whitespace, so an option's value can't hold a space. |
 | `drush.creation_aliases` | map | `[]` | The creation alias classes the backend registers after the ones it ships. The Drush backend creates only users, so it runs only the aliases for the `user` entity type. Each class implements `PreCreateAliasInterface` or `PostCreateAliasInterface` and takes no constructor arguments.<pre><code>- Acme\Behat\Alias\DepartmentAlias<br/></code></pre> |
 

@@ -8,6 +8,7 @@ use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
+use DrevOps\BehatSteps\Extension\Drupal\ServiceContainer\DrupalBackendProvider;
 use DrevOps\BehatSteps\Extension\Generator\ClassGenerator;
 use DrevOps\BehatSteps\Extension\Http\HttpClientFactory;
 use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
@@ -198,14 +199,14 @@ class BehatStepsExtensionTest extends UnitTestCase {
     $container = $this->load(['drupal' => ['drupal_root' => 'web']]);
 
     $this->assertTrue($container->hasDefinition('behat_steps.backend.drupal'));
-    $this->assertSame('web', $container->getParameter('behat_steps.backend.drupal.drupal_root'));
+    $this->assertSame(DrupalBackendProvider::resolveDirectoryPath('web'), $container->getParameter('behat_steps.backend.drupal.drupal_root'));
   }
 
   public function testDrushBackendIsRegisteredWithItsRoot(): void {
     $container = $this->load(['drush' => ['root' => 'web']]);
 
     $this->assertTrue($container->hasDefinition('behat_steps.backend.drush'));
-    $this->assertSame('web', $container->getParameter('behat_steps.backend.drush.root'));
+    $this->assertSame(DrupalBackendProvider::resolveDirectoryPath('web'), $container->getParameter('behat_steps.backend.drush.root'));
     $this->assertNull($container->getParameter('behat_steps.backend.drush.alias'));
   }
 
