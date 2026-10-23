@@ -625,6 +625,14 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame($project . '/vendor/bin/drush', DrupalBackendProvider::resolveBinaryPath('drush'));
   }
 
+  public function testBareDrushResolvesFromRelativeComposerBinDirectory(): void {
+    $project = $this->createDrushProject();
+    chdir($project . '/web');
+    putenv('COMPOSER_BIN_DIR=../vendor/bin');
+
+    $this->assertSame(getcwd() . '/../vendor/bin/drush', DrupalBackendProvider::resolveBinaryPath('drush'));
+  }
+
   /**
    * Tests that a directory resolves against the working directory.
    *

@@ -202,7 +202,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     $composer_bin = getenv('COMPOSER_BIN_DIR');
 
     if ($composer_bin && file_exists($composer_bin . '/drush')) {
-      return $composer_bin . '/drush';
+      return self::resolveDirectoryPath($composer_bin) . '/drush';
     }
 
     $candidate = getcwd() . '/vendor/bin/drush';
