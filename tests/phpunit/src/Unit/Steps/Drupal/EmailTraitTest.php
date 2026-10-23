@@ -255,11 +255,13 @@ class EmailTraitTest extends UnitTestCase {
     $context->emailEnableCollector();
 
     $this->assertTrue($context->emailCollectorIsEnabled());
+    $this->assertTrue($context->emailCollectorIsEnabled('default'));
     $this->assertFalse($context->emailCollectorIsEnabled('contact'));
 
     $context->emailDisableCollector();
 
     $this->assertFalse($context->emailCollectorIsEnabled());
+    $this->assertFalse($context->emailCollectorIsEnabled('default'));
   }
 
   public function testCollectorIsEnabledForTheHandlerTypesTheTagsName(): void {
@@ -268,14 +270,51 @@ class EmailTraitTest extends UnitTestCase {
     $context->emailBeforeScenario($this->createBeforeScenarioScope(['email:contact'], []));
 
     $this->assertTrue($context->emailCollectorIsEnabled('contact'));
-    $this->assertFalse($context->emailCollectorIsEnabled());
+    $this->assertTrue($context->emailCollectorIsEnabled());
+    $this->assertFalse($context->emailCollectorIsEnabled('default'));
+  }
+
+  /**
+   * Tests that clearing the queue empties the collector the tags enabled.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags declared on the scenario.
+   */
+  #[DataProvider('dataProviderClearTestQueue')]
+  public function testClearTestQueue(array $scenario_tags): void {
+    $drupal = $this->createMock(DrupalBackendInterface::class);
+    // The setup hook clears the collector once, and the step clears it again.
+    $drupal->expects($this->exactly(2))->method('mailClear');
+
+    $context = $this->createCollectorContext($drupal);
+    $context->emailBeforeScenario($this->createBeforeScenarioScope($scenario_tags, []));
+
+    $context->emailClearTestQueue();
+  }
+
+  public static function dataProviderClearTestQueue(): \Iterator {
+    yield 'the bare tag' => [['email']];
+    yield 'a handler type alone' => [['email:webform']];
+    yield 'several handler types' => [['email:contact', 'email:webform']];
+  }
+
+  public function testClearTestQueueFailsWhenTheCollectorIsOff(): void {
+    $context = $this->createCollectorContext();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Clearing testing email system queue can be done only when email testing system is activated. Add @email or @email:{type} tag');
+
+    $context->emailClearTestQueue();
   }
 
   /**
    * Builds a context whose mail backend accepts every call.
+   *
+   * @param \DrevOps\BehatSteps\Backend\Drupal\DrupalBackendInterface|null $drupal
+   *   The Drupal backend, or NULL for a stub.
    */
-  protected function createCollectorContext(): EmailTraitCollectorTestImplementation {
-    $registry = new BackendRegistry(['drupal' => $this->createStub(DrupalBackendInterface::class)]);
+  protected function createCollectorContext(?DrupalBackendInterface $drupal = NULL): EmailTraitCollectorTestImplementation {
+    $registry = new BackendRegistry(['drupal' => $drupal ?? $this->createStub(DrupalBackendInterface::class)]);
     $registry->setScenarioBackends(['drupal' => 'drupal']);
 
     $context = new EmailTraitCollectorTestImplementation();

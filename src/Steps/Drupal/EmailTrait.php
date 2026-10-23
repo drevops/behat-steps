@@ -98,7 +98,7 @@ trait EmailTrait {
 
     // The step can enable the system without the '@email' tag, so the teardown
     // checks the enabled handler types instead.
-    if ($this->emailHandlerTypes === []) {
+    if (!$this->emailCollectorIsEnabled()) {
       return;
     }
 
@@ -121,7 +121,7 @@ trait EmailTrait {
     $this->assertPrerequisites(__TRAIT__);
 
     if (!$this->emailCollectorIsEnabled()) {
-      throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email tag or "When the test email system is enabled" step definition to the scenario.');
+      throw new \RuntimeException('Clearing testing email system queue can be done only when email testing system is activated. Add @email or @email:{type} tag or "When the test email system is enabled" step definition to the scenario.');
     }
 
     $this->emailClearCollectedMessages();
@@ -647,13 +647,18 @@ trait EmailTrait {
    * The check reads the handler types the scenario enabled, so a record left
    * on the site by a run that stopped early is ignored.
    *
-   * @param string $type
-   *   The handler type.
+   * @param string|null $type
+   *   The handler type, or NULL for any handler type.
    *
    * @return bool
-   *   TRUE when the scenario's collector has replaced the handler type.
+   *   TRUE when the scenario's collector has replaced the handler type, or any
+   *   handler type when none is given.
    */
-  public function emailCollectorIsEnabled(string $type = 'default'): bool {
+  public function emailCollectorIsEnabled(?string $type = NULL): bool {
+    if ($type === NULL) {
+      return $this->emailHandlerTypes !== [];
+    }
+
     return in_array($type, $this->emailHandlerTypes, TRUE);
   }
 
