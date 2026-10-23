@@ -48,15 +48,23 @@ class DrupalBackendProviderTest extends UnitTestCase {
    */
   protected string $originalCwd;
 
+  /**
+   * The 'COMPOSER_BIN_DIR' value to restore, or NULL when it was unset.
+   */
+  protected ?string $originalComposerBinDir = NULL;
+
   protected function setUp(): void {
     parent::setUp();
 
     $this->originalCwd = (string) getcwd();
+    $composer_bin_dir = getenv('COMPOSER_BIN_DIR');
+    $this->originalComposerBinDir = $composer_bin_dir === FALSE ? NULL : $composer_bin_dir;
   }
 
   protected function tearDown(): void {
     FakeVersionDrupalBackend::$nextVersion = '11.0.0';
     chdir($this->originalCwd);
+    putenv($this->originalComposerBinDir === NULL ? 'COMPOSER_BIN_DIR' : 'COMPOSER_BIN_DIR=' . $this->originalComposerBinDir);
 
     parent::tearDown();
   }
@@ -164,7 +172,7 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $container = $this->load(['drupal' => ['drupal_root' => 'web']]);
 
     $this->assertTrue($container->hasDefinition(DrupalBackendProvider::DRUPAL_SERVICE));
-    $this->assertSame('web', $container->getParameter('behat_steps.backend.drupal.drupal_root'));
+    $this->assertSame(getcwd() . '/web', $container->getParameter('behat_steps.backend.drupal.drupal_root'));
     $this->assertNull($container->getParameter(DrupalBackendProvider::CORE_PARAMETER));
     $this->assertSame([], $container->getParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER));
     $this->assertSame([], $container->getParameter(DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER));
@@ -208,7 +216,7 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $container = $this->load(['drush' => ['root' => 'web']]);
 
     $this->assertTrue($container->hasDefinition(DrupalBackendProvider::DRUSH_SERVICE));
-    $this->assertSame('web', $container->getParameter('behat_steps.backend.drush.root'));
+    $this->assertSame(getcwd() . '/web', $container->getParameter('behat_steps.backend.drush.root'));
     $this->assertNull($container->getParameter('behat_steps.backend.drush.alias'));
     $this->assertSame([], $container->getParameter(DrupalBackendProvider::DRUSH_CREATION_ALIASES_PARAMETER));
   }
@@ -224,7 +232,23 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $container = $this->load(['drush' => ['alias' => NULL, 'root' => 'web']]);
 
     $this->assertNull($container->getParameter('behat_steps.backend.drush.alias'));
-    $this->assertSame('web', $container->getParameter('behat_steps.backend.drush.root'));
+    $this->assertSame(getcwd() . '/web', $container->getParameter('behat_steps.backend.drush.root'));
+  }
+
+  public function testRelativeDrushRootResolvesAgainstTheDirectoryBehatRunsIn(): void {
+    $project = $this->createDrushProject();
+    chdir($project);
+    $container = $this->load(['drush' => ['root' => 'web']]);
+    (new DrupalBackendProvider())->process($container);
+    $backend = $container->get(DrupalBackendProvider::DRUSH_SERVICE);
+    $this->assertInstanceOf(DrushBackend::class, $backend);
+
+    // The in-process backend's bootstrap moves into the Drupal root before the
+    // lazy Drush backend is first used.
+    chdir($project . '/web');
+    $backend->getCreationAliases('user');
+
+    $this->assertSame(realpath($project . '/web'), (new \ReflectionProperty(DrushBackend::class, 'root'))->getValue($backend));
   }
 
   public function testLoadResolvesTheDrushBinary(): void {
@@ -578,7 +602,48 @@ class DrupalBackendProviderTest extends UnitTestCase {
   }
 
   public function testBareBinaryCommandIsReturnedAsIs(): void {
+    chdir(static::$tmp);
+    putenv('COMPOSER_BIN_DIR');
+
     $this->assertSame('drush', DrupalBackendProvider::resolveBinaryPath('drush'));
+    $this->assertSame('ls', DrupalBackendProvider::resolveBinaryPath('ls'));
+  }
+
+  public function testBareDrushResolvesToTheProjectDrush(): void {
+    $project = $this->createDrushProject();
+    chdir($project);
+    putenv('COMPOSER_BIN_DIR');
+
+    $this->assertSame(getcwd() . '/vendor/bin/drush', DrupalBackendProvider::resolveBinaryPath('drush'));
+  }
+
+  public function testBareDrushResolvesFromTheComposerBinDirectory(): void {
+    $project = $this->createDrushProject();
+    chdir(static::$tmp);
+    putenv('COMPOSER_BIN_DIR=' . $project . '/vendor/bin');
+
+    $this->assertSame($project . '/vendor/bin/drush', DrupalBackendProvider::resolveBinaryPath('drush'));
+  }
+
+  /**
+   * Tests that a directory resolves against the working directory.
+   *
+   * @param string $path
+   *   The configured directory.
+   * @param string $expected
+   *   The expected directory, with '{cwd}' for the working directory.
+   */
+  #[DataProvider('dataProviderResolveDirectoryPath')]
+  public function testResolveDirectoryPath(string $path, string $expected): void {
+    chdir(static::$tmp);
+
+    $this->assertSame(str_replace('{cwd}', (string) getcwd(), $expected), DrupalBackendProvider::resolveDirectoryPath($path));
+  }
+
+  public static function dataProviderResolveDirectoryPath(): \Iterator {
+    yield 'an absolute directory' => ['/var/www/web', '/var/www/web'];
+    yield 'a relative directory' => ['web', '{cwd}/web'];
+    yield 'a nested relative directory' => ['docroot/web', '{cwd}/docroot/web'];
   }
 
   public function testBinaryPathResolvesFromWorkingDirectory(): void {

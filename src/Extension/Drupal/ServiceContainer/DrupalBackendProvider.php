@@ -150,8 +150,9 @@ final class DrupalBackendProvider implements BackendProviderInterface {
    * This ensures the path remains valid after 'Core::bootstrap()' changes the
    * working directory to DRUPAL_ROOT via chdir().
    *
-   * Absolute paths and binaries without a directory separator (bare commands
-   * like 'drush' that resolve via $PATH) are returned as-is.
+   * Absolute paths are returned as-is. A bare 'drush' resolves to the
+   * project's Drush when there is one, and any other bare command is returned
+   * as-is to resolve via $PATH.
    */
   public static function resolveBinaryPath(string $binary): string {
     if (str_starts_with($binary, '/')) {
@@ -159,7 +160,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     }
 
     if (!str_contains($binary, '/')) {
-      return $binary;
+      return $binary === 'drush' ? self::resolveProjectDrush() : $binary;
     }
 
     $cwd = (string) getcwd();
@@ -179,6 +180,34 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     }
 
     return $binary;
+  }
+
+  /**
+   * Resolves a relative directory against the working directory.
+   *
+   * The backends are built on first use, after 'Core::bootstrap()' may have
+   * changed the working directory, so a relative root is made absolute here.
+   */
+  public static function resolveDirectoryPath(string $path): string {
+    return str_starts_with($path, '/') ? $path : getcwd() . '/' . $path;
+  }
+
+  /**
+   * Resolves a bare 'drush' to the project's Drush, or leaves it to $PATH.
+   *
+   * Checks 'COMPOSER_BIN_DIR', then 'vendor/bin/drush' in the working
+   * directory.
+   */
+  protected static function resolveProjectDrush(): string {
+    $composer_bin = getenv('COMPOSER_BIN_DIR');
+
+    if ($composer_bin && file_exists($composer_bin . '/drush')) {
+      return $composer_bin . '/drush';
+    }
+
+    $candidate = getcwd() . '/vendor/bin/drush';
+
+    return file_exists($candidate) ? $candidate : 'drush';
   }
 
   /**
@@ -240,7 +269,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
         throw new InvalidConfigurationException('Drupal "core" is empty. Set a value, or leave it out.');
       }
 
-      $container->setParameter('behat_steps.backend.drupal.drupal_root', $config['drupal']['drupal_root']);
+      $container->setParameter('behat_steps.backend.drupal.drupal_root', self::resolveDirectoryPath($config['drupal']['drupal_root']));
       $container->setParameter(self::CORE_PARAMETER, $config['drupal']['core'] ?? NULL);
       $container->setParameter(self::FIELD_HANDLERS_PARAMETER, $config['drupal']['field_handlers'] ?? []);
       $container->setParameter(self::DRUPAL_CREATION_ALIASES_PARAMETER, $config['drupal']['creation_aliases'] ?? []);
@@ -281,7 +310,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
       $config['drush']['binary'] = self::resolveBinaryPath($config['drush']['binary']);
       $container->setParameter('behat_steps.backend.drush.binary', $config['drush']['binary']);
 
-      $container->setParameter('behat_steps.backend.drush.root', $config['drush']['root'] ?? NULL);
+      $container->setParameter('behat_steps.backend.drush.root', isset($config['drush']['root']) ? self::resolveDirectoryPath($config['drush']['root']) : NULL);
       $container->setParameter(self::DRUSH_CREATION_ALIASES_PARAMETER, $config['drush']['creation_aliases'] ?? []);
 
       $this->setDrushOptions($container, $config);

@@ -198,14 +198,14 @@ class BehatStepsExtensionTest extends UnitTestCase {
     $container = $this->load(['drupal' => ['drupal_root' => 'web']]);
 
     $this->assertTrue($container->hasDefinition('behat_steps.backend.drupal'));
-    $this->assertSame('web', $container->getParameter('behat_steps.backend.drupal.drupal_root'));
+    $this->assertSame(getcwd() . '/web', $container->getParameter('behat_steps.backend.drupal.drupal_root'));
   }
 
   public function testDrushBackendIsRegisteredWithItsRoot(): void {
     $container = $this->load(['drush' => ['root' => 'web']]);
 
     $this->assertTrue($container->hasDefinition('behat_steps.backend.drush'));
-    $this->assertSame('web', $container->getParameter('behat_steps.backend.drush.root'));
+    $this->assertSame(getcwd() . '/web', $container->getParameter('behat_steps.backend.drush.root'));
     $this->assertNull($container->getParameter('behat_steps.backend.drush.alias'));
   }
 
