@@ -258,14 +258,15 @@ trait DrushTrait {
    *   The stderr of the command.
    *
    * @return string
-   *   Both streams, with 1 line break between them when both hold text.
+   *   Both streams, with a line break added between them when stdout holds
+   *   text that does not end with one.
    */
   protected function drushCombineOutput(string $stdout, string $stderr): string {
     if ($stdout === '' || $stderr === '') {
       return $stdout . $stderr;
     }
 
-    return rtrim($stdout, "\r\n") . PHP_EOL . $stderr;
+    return $stdout . (str_ends_with($stdout, "\n") ? '' : PHP_EOL) . $stderr;
   }
 
   /**

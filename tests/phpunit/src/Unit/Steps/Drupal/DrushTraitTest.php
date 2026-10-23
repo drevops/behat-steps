@@ -113,7 +113,8 @@ class DrushTraitTest extends UnitTestCase {
     foreach (['drushRunExpectingSuccess' => 0, 'drushRunExpectingFailure' => 1] as $method => $exit_code) {
       yield $method . ', stdout only' => [$method, $exit_code, "Pulling episodes\n", '', "Pulling episodes\n"];
       yield $method . ', stderr only' => [$method, $exit_code, '', "Created: 1\n", "Created: 1\n"];
-      yield $method . ', both' => [$method, $exit_code, "Pulling episodes\n", "Created: 1\n", 'Pulling episodes' . PHP_EOL . "Created: 1\n"];
+      yield $method . ', both' => [$method, $exit_code, "Pulling episodes\n", "Created: 1\n", "Pulling episodes\nCreated: 1\n"];
+      yield $method . ', both, stdout ending in a blank line' => [$method, $exit_code, "Pulling episodes\n\n", "Created: 1\n", "Pulling episodes\n\nCreated: 1\n"];
       yield $method . ', both, stdout without a line break' => [$method, $exit_code, 'Pulling episodes', 'Created: 1', 'Pulling episodes' . PHP_EOL . 'Created: 1'];
       yield $method . ', both, stdout of 0' => [$method, $exit_code, '0', 'Created: 1', '0' . PHP_EOL . 'Created: 1'];
       yield $method . ', neither' => [$method, $exit_code, '', '', ''];
@@ -126,7 +127,7 @@ class DrushTraitTest extends UnitTestCase {
     $context = $this->createContextWithBackend($drush);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('The drush command "radio_station:pull" exited with code 3. Output:' . PHP_EOL . PHP_EOL . 'Pulling episodes' . PHP_EOL . "Feed unreachable.\n");
+    $this->expectExceptionMessage('The drush command "radio_station:pull" exited with code 3. Output:' . PHP_EOL . PHP_EOL . "Pulling episodes\nFeed unreachable.\n");
 
     $context->drushRunExpectingSuccess('radio_station:pull', 'episode');
   }
