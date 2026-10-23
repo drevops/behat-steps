@@ -564,11 +564,16 @@ trait UserTrait {
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
    *   When no backend in the scenario's order can manage users.
+   * @throws \RuntimeException
+   *   When the roles name the 'anonymous' role. No account is created then.
    */
   public function userCreateAndLogin(string $roles, array $extra_fields = []): void {
     $backend = $this->backendFor(UserCapabilityInterface::class);
 
     $this->assertPrerequisites(__TRAIT__);
+
+    // An invalid role list fails before the account is saved.
+    $this->userParseRoles($roles);
 
     $stub = $this->userBuildStub($extra_fields);
     $this->authCreateUser($stub);
@@ -593,6 +598,9 @@ trait UserTrait {
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException
    *   When no backend in the scenario's order can manage users.
+   * @throws \RuntimeException
+   *   When the "roles" value names the 'anonymous' role. No account is
+   *   created then.
    */
   public function userCreate(array $values): EntityStubInterface {
     $backend = $this->backendFor(UserCapabilityInterface::class);
@@ -605,6 +613,9 @@ trait UserTrait {
       $roles = (string) $values['roles'];
       unset($values['roles']);
     }
+
+    // An invalid role list fails before the account is saved.
+    $this->userParseRoles($roles);
 
     // An account cannot be created with an empty password, so an empty
     // 'pass' value counts as no password given.
@@ -734,9 +745,29 @@ trait UserTrait {
    *   assigns nothing.
    *
    * @throws \RuntimeException
-   *   When the list names the 'anonymous' role.
+   *   When the list names the 'anonymous' role. No role is assigned then.
    */
   public function userAssignRoles(UserCapabilityInterface $backend, EntityStubInterface $stub, string $roles): void {
+    foreach ($this->userParseRoles($roles) as $role) {
+      $backend->addUserRole($stub, $role);
+    }
+  }
+
+  /**
+   * Parse a role list into the roles an account can be assigned.
+   *
+   * @param string $roles
+   *   A single role, or several as a comma-separated list.
+   *
+   * @return list<string>
+   *   The roles, in list order, without 'authenticated' or empty entries.
+   *
+   * @throws \RuntimeException
+   *   When the list names the 'anonymous' role.
+   */
+  public function userParseRoles(string $roles): array {
+    $parsed = [];
+
     foreach (array_filter($this->stringSplitCommaSeparated($roles)) as $role) {
       if ($this->userIsAnonymousRole($role)) {
         throw new \RuntimeException(sprintf('The role "%s" cannot be assigned to a user.', $role));
@@ -748,8 +779,10 @@ trait UserTrait {
         continue;
       }
 
-      $backend->addUserRole($stub, $role);
+      $parsed[] = $role;
     }
+
+    return $parsed;
   }
 
   /**
