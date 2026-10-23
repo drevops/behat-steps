@@ -1695,7 +1695,7 @@ Rename every call and every override. An override left under a 3.14 name is a me
 | `EmailTrait::emailFollowLinkNumber()` | `EmailTrait::emailFollowLinkWithIndexWithSubject()` | `$link_number` is `$index` |
 | `EmailTrait::emailFollowLinkNumberWithSubjectContaining()` | `EmailTrait::emailFollowLinkWithIndexWithSubjectContaining()` | `$link_number, $subject` is `$index, $partial_subject` |
 | `EmailTrait::emailGetMailSystemDefault()` | Removed | `MailCapabilityInterface::mailStartCollecting()` records the handler each type held; see [Backend contracts](#backend-contracts) |
-| `EmailTrait::emailGetMailSystemOriginal()` | `EmailTrait::emailCollectorIsEnabled()` | Answers whether the scenario's collector has replaced the handler type, from the handler types the scenario enabled, where it returned the handler recorded on the site; now `public`, no longer `static` |
+| `EmailTrait::emailGetMailSystemOriginal()` | `EmailTrait::emailCollectorIsEnabled()` | Answers whether the scenario's collector has replaced the handler type, from the handler types the scenario enabled, where it returned the handler recorded on the site; without a handler type, answers whether it has replaced any handler type; now `public`, no longer `static` |
 | `EmailTrait::emailSetMailSystemDefault()` | Removed | `MailCapabilityInterface::mailStartCollecting()` and `mailStopCollecting()` switch and restore the handlers; see [Backend contracts](#backend-contracts) |
 | `EmailTrait::emailSetMailSystemOriginal()` | Removed | `MailCapabilityInterface::mailStartCollecting()` records the handler each type held; see [Backend contracts](#backend-contracts) |
 | `FileTrait::fileAssertUnmanagedHasContent()` | `FileTrait::fileAssertUnmanagedContains()` | |

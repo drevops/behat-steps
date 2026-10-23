@@ -883,6 +883,10 @@ Feature: Check that EmailTrait works
       Test content with the handler type tag alone
       """
 
+  @email:contact
+  Scenario: As a developer, I want to clear the test email system queue when only a non-default handler type tag enables it
+    When the test email system queue is cleared
+
   @email
   Scenario: The mailsystem formatter should not be overridden when test email system is enabled
     Then the mailsystem formatter should be "php_mail"

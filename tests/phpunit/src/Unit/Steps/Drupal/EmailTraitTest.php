@@ -262,13 +262,66 @@ class EmailTraitTest extends UnitTestCase {
     $this->assertFalse($context->emailCollectorIsEnabled());
   }
 
-  public function testCollectorIsEnabledForTheHandlerTypesTheTagsName(): void {
+  /**
+   * Tests which handler types the collector reports after the setup hook.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags declared on the scenario.
+   * @param string|null $type
+   *   The handler type asked about, or NULL for any handler type.
+   * @param bool $expected
+   *   Whether the collector is expected to report the handler type enabled.
+   */
+  #[DataProvider('dataProviderCollectorIsEnabledForTheHandlerTypesTheTagsName')]
+  public function testCollectorIsEnabledForTheHandlerTypesTheTagsName(array $scenario_tags, ?string $type, bool $expected): void {
     $context = $this->createCollectorContext();
 
-    $context->emailBeforeScenario($this->createBeforeScenarioScope(['email:contact'], []));
+    $context->emailBeforeScenario($this->createBeforeScenarioScope($scenario_tags, []));
 
-    $this->assertTrue($context->emailCollectorIsEnabled('contact'));
-    $this->assertFalse($context->emailCollectorIsEnabled());
+    $this->assertSame($expected, $context->emailCollectorIsEnabled($type));
+  }
+
+  public static function dataProviderCollectorIsEnabledForTheHandlerTypesTheTagsName(): \Iterator {
+    yield 'no tag, any type' => [[], NULL, FALSE];
+    yield 'no tag, the default type' => [[], 'default', FALSE];
+    yield 'the bare tag, any type' => [['email'], NULL, TRUE];
+    yield 'the bare tag, the default type' => [['email'], 'default', TRUE];
+    yield 'the bare tag, another type' => [['email'], 'contact', FALSE];
+    yield 'a handler type alone, any type' => [['email:contact'], NULL, TRUE];
+    yield 'a handler type alone, that type' => [['email:contact'], 'contact', TRUE];
+    yield 'a handler type alone, the default type' => [['email:contact'], 'default', FALSE];
+  }
+
+  /**
+   * Tests which tags let the queue be cleared.
+   *
+   * @param list<string> $scenario_tags
+   *   Tags declared on the scenario.
+   * @param bool $expect_exception
+   *   Whether clearing the queue is expected to throw.
+   */
+  #[DataProvider('dataProviderClearTestQueue')]
+  public function testClearTestQueue(array $scenario_tags, bool $expect_exception): void {
+    $context = $this->createCollectorContext();
+
+    $context->emailBeforeScenario($this->createBeforeScenarioScope($scenario_tags, []));
+
+    if ($expect_exception) {
+      $this->expectException(\RuntimeException::class);
+      $this->expectExceptionMessage('Clearing testing email system queue can be done only when email testing system is activated. Add @email or @email:{type} tag or "When the test email system is enabled" step definition to the scenario.');
+    }
+    else {
+      $this->expectNotToPerformAssertions();
+    }
+
+    $context->emailClearTestQueue();
+  }
+
+  public static function dataProviderClearTestQueue(): \Iterator {
+    yield 'no tag' => [[], TRUE];
+    yield 'the bare tag' => [['email'], FALSE];
+    yield 'a handler type alone' => [['email:contact'], FALSE];
+    yield 'several handler types' => [['email:contact', 'email:user'], FALSE];
   }
 
   /**
