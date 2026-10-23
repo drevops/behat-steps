@@ -7,7 +7,6 @@ namespace DrevOps\BehatSteps\Steps\Drupal;
 use Behat\Step\Then;
 use Behat\Step\When;
 use DrevOps\BehatSteps\Backend\Drupal\Capability\DrushCapabilityInterface;
-use DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult;
 use DrevOps\BehatSteps\Steps\Exception\AssertionException;
 
 /**
@@ -216,7 +215,7 @@ trait DrushTrait {
     [$name, $words] = $this->drushParseCommand($command, $arguments);
     $result = $this->drushGetBackend()->drushResult($name, $words);
 
-    $output = $this->drushCombineOutput($result);
+    $output = $this->drushCombineOutput($result->output, $result->errorOutput);
     $this->drushOutput = $output;
 
     if ($result->exitCode !== 0) {
@@ -242,7 +241,7 @@ trait DrushTrait {
     [$name, $words] = $this->drushParseCommand($command, $arguments);
     $result = $this->drushGetBackend()->drushResult($name, $words);
 
-    $output = $this->drushCombineOutput($result);
+    $output = $this->drushCombineOutput($result->output, $result->errorOutput);
     $this->drushOutput = $output;
 
     if ($result->exitCode === 0) {
@@ -253,18 +252,20 @@ trait DrushTrait {
   /**
    * Join the stdout and the stderr of a Drush command, stdout first.
    *
-   * @param \DrevOps\BehatSteps\Backend\Drupal\Drush\DrushResult $result
-   *   The result of the command.
+   * @param string $stdout
+   *   The stdout of the command.
+   * @param string $stderr
+   *   The stderr of the command.
    *
    * @return string
    *   Both streams, with 1 line break between them when both hold text.
    */
-  protected function drushCombineOutput(DrushResult $result): string {
-    if ($result->output === '' || $result->errorOutput === '') {
-      return $result->output . $result->errorOutput;
+  protected function drushCombineOutput(string $stdout, string $stderr): string {
+    if ($stdout === '' || $stderr === '') {
+      return $stdout . $stderr;
     }
 
-    return rtrim($result->output, "\r\n") . PHP_EOL . $result->errorOutput;
+    return rtrim($stdout, "\r\n") . PHP_EOL . $stderr;
   }
 
   /**

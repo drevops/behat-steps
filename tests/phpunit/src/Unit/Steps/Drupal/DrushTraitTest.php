@@ -120,7 +120,7 @@ class DrushTraitTest extends UnitTestCase {
     }
   }
 
-  public function testRunExpectingSuccessFailsOnANonZeroExit(): void {
+  public function testRunExpectingSuccessFailsOnNonZeroExit(): void {
     $drush = $this->createMock(DrushBackendInterface::class);
     $drush->method('drushResult')->willReturn(new DrushResult(3, "Pulling episodes\n", "Feed unreachable.\n"));
     $context = $this->createContextWithBackend($drush);
