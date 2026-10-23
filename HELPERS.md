@@ -61,7 +61,7 @@ When no step says what a scenario needs, an AI coding agent can write a step of 
 | [Drupal\StateTrait](#drupalstatetrait) | 3 | Manage and assert Drupal State API values with automatic revert. |
 | [Drupal\TaxonomyTrait](#drupaltaxonomytrait) | 6 | Manage Drupal taxonomy terms with vocabulary organization. |
 | [Drupal\TestmodeTrait](#drupaltestmodetrait) | 2 | Configure Drupal Testmode module for controlled testing scenarios. |
-| [Drupal\UserTrait](#drupalusertrait) | 12 | Manage Drupal users with role and permission assignments. |
+| [Drupal\UserTrait](#drupalusertrait) | 14 | Manage Drupal users with role and permission assignments. |
 | [Drupal\WatchdogTrait](#drupalwatchdogtrait) | 3 | Assert Drupal does not trigger PHP errors during scenarios using Watchdog. |
 | [Drupal\WebformTrait](#drupalwebformtrait) | 4 | Manage Drupal webforms. |
 | [Drupal\AuthTrait](#drupalauthtrait) | 6 | Creates users and roles, logs them in, and removes them afterwards. |
@@ -2868,10 +2868,28 @@ Return the user with a name
 </details>
 
 <details>
+  <summary><code>public function userIsAnonymousRole(string $roles): bool</code></summary>
+
+<br/>
+Check whether a role list names only the 'anonymous' role
+<br/><br/>
+
+</details>
+
+<details>
   <summary><code>public function userLoadMultiple(array $conditions = []): array</code></summary>
 
 <br/>
 Load multiple users with specified conditions
+<br/><br/>
+
+</details>
+
+<details>
+  <summary><code>public function userParseRoles(string $roles): array</code></summary>
+
+<br/>
+Parse a role list into the roles an account can be assigned
 <br/><br/>
 
 </details>

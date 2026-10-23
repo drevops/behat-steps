@@ -194,6 +194,60 @@ Feature: Check that UserTrait works
     Then the response status code should be 200
     And I should see "[TEST] fields_user"
 
+  Scenario Outline: Assert "Given I am logged in as a user with the role(s) :roles" treats the anonymous role as a logout
+    Given I am logged in as a user with the role "<role>"
+    When I go to "admin/people"
+    Then the response status code should be <response>
+
+    Examples:
+      | role           | response |
+      | administrator  | 200      |
+      | authenticated  | 403      |
+      | anonymous      | 403      |
+      | anonymous user | 403      |
+      | Anonymous      | 403      |
+
+  Scenario Outline: Assert "Given I am logged in as a user with the role(s) :roles" logs out a logged-in user for the anonymous role
+    Given I am logged in as a user with the role "administrator"
+    And I am logged in as a user with the role "<role>"
+    When I go to "user/login"
+    Then the path should be "/user/login"
+    And the response status code should be 200
+
+    Examples:
+      | role           |
+      | anonymous      |
+      | anonymous user |
+      | Anonymous      |
+
+  @test-trait:Drupal\UserTrait
+  Scenario: Assert "Given I am logged in as a user with the role(s) :roles" fails for the anonymous role beside other roles
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given I am logged in as a user with the roles "anonymous, administrator"
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The role "anonymous" cannot be assigned to a user.
+      """
+
+  @test-trait:Drupal\UserTrait
+  Scenario: Assert "Given the following users exist:" fails for the anonymous role
+    Given some behat configuration
+    And scenario steps:
+      """
+      Given the following users exist:
+        | name                  | mail                       | roles          |
+        | [TEST] anonymous_role | anonymous_role@example.com | anonymous user |
+      """
+    When I run "behat --no-colors"
+    Then it should fail with an exception:
+      """
+      The role "anonymous user" cannot be assigned to a user.
+      """
+
   @test-trait:Drupal\UserTrait
   Scenario: Assert "When I visit my own profile page" fails for non-logged in user
     Given some behat configuration
