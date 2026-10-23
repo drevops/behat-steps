@@ -35,9 +35,14 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   protected bool $bootstrapped = FALSE;
 
   /**
-   * Drupal core object.
+   * Drupal core object, NULL until the first 'getCore()' builds it.
    */
-  protected CoreInterface $core;
+  protected ?CoreInterface $core = NULL;
+
+  /**
+   * The class of the Core the first 'getCore()' builds.
+   */
+  protected string $coreClass;
 
   /**
    * System path to the Drupal installation.
@@ -50,7 +55,9 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
   protected int $version;
 
   /**
-   * Sets the Drupal root and URI, and builds the Core.
+   * Sets the Drupal root and URI, and detects the Drupal major.
+   *
+   * The Core is built by the first 'getCore()' call.
    *
    * @param string $drupal_root
    *   The Drupal root path.
@@ -63,11 +70,10 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
    *   The random generator the Core hands out, or NULL for the Core's own.
    *
    * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
-   *   Thrown when no Drupal installation is found at the root path, when its
-   *   core major version is not numeric or below 11, or when the Core class
-   *   cannot be built for that major.
+   *   Thrown when no Drupal installation is found at the root path, or when
+   *   its core major version is not numeric or below 11.
    */
-  public function __construct(string $drupal_root, protected readonly string $uri, ?string $core_class = NULL, ?RandomGeneratorInterface $random = NULL) {
+  public function __construct(string $drupal_root, protected readonly string $uri, ?string $core_class = NULL, protected readonly ?RandomGeneratorInterface $random = NULL) {
     $resolved = realpath($drupal_root);
 
     if ($resolved === FALSE) {
@@ -76,8 +82,7 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
 
     $this->drupalRoot = $resolved;
     $this->version = $this->detectMajorVersion();
-
-    $this->setCore($this->createCore($core_class ?? $this->getVersionCoreClass(), $random));
+    $this->coreClass = $core_class ?? $this->getVersionCoreClass();
   }
 
   /**
@@ -118,9 +123,22 @@ class DrupalBackend implements DrupalBackendInterface, CreationAliasCapabilityIn
 
   /**
    * {@inheritdoc}
+   *
+   * The first call builds the Core of the class the constructor was given,
+   * or the version core for the detected major.
+   *
+   * @throws \DrevOps\BehatSteps\Backend\Exception\BootstrapException
+   *   Thrown when the Core class cannot be built for the detected major.
    */
   public function getCore(): CoreInterface {
-    return $this->core;
+    if ($this->core instanceof CoreInterface) {
+      return $this->core;
+    }
+
+    $core = $this->createCore($this->coreClass, $this->random);
+    $this->setCore($core);
+
+    return $core;
   }
 
   /**
