@@ -5,8 +5,6 @@ sidebar_position: 3
 description: Add or replace the field handlers and creation aliases the Drupal backends use, name a Core of your own for the in-process backend, and register a backend of your own.
 ---
 
-<!-- cspell:ignore autoloadable -->
-
 # Extending the backend layer
 
 The backend layer is `src/Backend`, the part that talks to the site. You extend it with classes of your own, which the `drupal` and `drush` backends take through options under the `behat_steps` key.
@@ -61,7 +59,7 @@ final class RatingHandler implements FieldHandlerInterface {
 }
 ```
 
-The class has to be autoloadable through Composer, for example from an `autoload-dev` entry. The package builds the `drupal` backend before Behat registers the paths in its `autoload` setting, so a class only those paths can load isn't found. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract fails with a `\RuntimeException` naming it when the package builds the `drupal` backend.
+Put the class where your suite loads classes from: an `autoload-dev` entry in Composer, or a path in Behat's `autoload` setting such as `tests/behat/bootstrap`. The package registers the handlers when the test run starts, after Behat has added those paths. A class that doesn't exist, doesn't implement `FieldHandlerInterface` or is abstract stops the run before its first scenario. The `InvalidConfigurationException` it throws names the option, the field type and the class.
 
 The option registers each class through `FieldHandlerCapabilityInterface`, which the `drupal` backend provides. A context of your own registers a handler the same way, and the registration lasts for the rest of the run, because the backend does:
 
@@ -151,7 +149,7 @@ Given the following article content exists:
   | Lab report | ACME         |
 ```
 
-The package builds each class with no constructor arguments when it builds the backend, so the class has to be autoloadable through Composer, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument fails with an `InvalidConfigurationException` naming the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
+The package builds each class with no constructor arguments when the test run starts, so the class can sit in the same places as a [field handler](#field-handlers). A class that doesn't exist, doesn't implement `CreationAliasInterface`, can't be instantiated or requires a constructor argument stops the run before its first scenario. The `InvalidConfigurationException` it throws names the option and the class. An alias that implements neither `PreCreateAliasInterface` nor `PostCreateAliasInterface` fails with a `\RuntimeException`, because it would never run.
 
 The options register each class through `CreationAliasCapabilityInterface`, which both Drupal backends provide. A context of your own builds an alias whose constructor takes arguments, such as a lookup service, and registers it the same way. The registration lasts for the rest of the run, because the backend does:
 
@@ -200,9 +198,9 @@ class AcmeCore extends Core {
 }
 ```
 
-The class has to be autoloadable through Composer, for example from an `autoload-dev` entry, for the same reason a [field handler](#field-handlers) does. A class that doesn't exist, doesn't implement `CoreInterface` or can't be instantiated fails with a `BootstrapException` naming it when the package builds the `drupal` backend.
+The backend builds its Core when the test run starts, so the class can sit in the same places as a [field handler](#field-handlers). A class that doesn't exist, doesn't implement `CoreInterface` or can't be instantiated stops the run before its first scenario, with a `BootstrapException` naming it.
 
-When a class builds on a Core of the package, the nearest one among its parents has to be the Core for the site's major. Otherwise, building the backend fails with `Core class "..." extends "...", which is not the Core for Drupal N. Extend "..." instead.` That happens when a site moves to a major whose Core is another class, and when a release of the package adds a version core for the major a site already runs. In both cases, change `AcmeCore` to extend the class the message names.
+When a class builds on a Core of the package, the nearest one among its parents has to be the Core for the site's major. Otherwise, the run stops before its first scenario with `Core class "..." extends "...", which is not the Core for Drupal N. Extend "..." instead.` That happens when a site moves to a major whose Core is another class, and when a release of the package adds a version core for the major a site already runs. In both cases, change `AcmeCore` to extend the class the message names.
 
 Naming a Core of the package itself, such as the base `Core` on a major with a version core, fails the same way with `Core class "..." is not the Core for Drupal N. Use "..." instead.` A suite running on 2 majors whose Cores differ picks its class per environment in `behat.php`. A class implementing `CoreInterface` without extending a Core of the package is built as it is.
 
