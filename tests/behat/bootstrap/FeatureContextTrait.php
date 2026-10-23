@@ -29,6 +29,7 @@ use DrevOps\BehatSteps\Backend\Drupal\Capability\QueueItemCapabilityInterface;
 use DrevOps\BehatSteps\Extension\Tag;
 use Drupal\Core\Database\Database;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * Defines application features from the specific context.
@@ -206,7 +207,9 @@ trait FeatureContextTrait {
       throw new \RuntimeException(sprintf('There is no "%s" capability interface.', $capability));
     }
 
-    $actual = $this->backendFor($interface)::class;
+    $backend = $this->backendFor($interface);
+    // A lazy backend can be a generated subclass of its class.
+    $actual = $backend instanceof LazyObjectInterface ? (string) get_parent_class($backend) : $backend::class;
 
     if ($actual !== $expected) {
       throw new \RuntimeException(sprintf('Expected the "%s" capability to resolve to "%s", but it resolved to "%s".', $capability, $expected, $actual));

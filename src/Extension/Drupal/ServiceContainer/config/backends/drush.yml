@@ -7,6 +7,9 @@ services:
     class: "%behat_steps.random.class%"
   behat_steps.backend.drush:
     class: "%behat_steps.backend.drush.class%"
+    # Built on first use, after Behat registers its 'autoload' paths, so the
+    # classes the options name can live there.
+    lazy: true
     arguments:
       - "%behat_steps.backend.drush.alias%"
       - "%behat_steps.backend.drush.root%"

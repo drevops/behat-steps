@@ -19,9 +19,11 @@ use DrevOps\BehatSteps\Backend\Drupal\Core99\Core as Core99Core;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
 use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
 use DrevOps\BehatSteps\Extension\Drupal\ServiceContainer\DrupalBackendProvider;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\FakeVersionDrupalBackend;
+use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\FinalDrupalBackend;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -333,11 +335,102 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame(DatetimeHandler::class, $handlers['datetime']);
   }
 
-  public function testMissingFieldHandlerClassFailsWhenTheBackendIsBuilt(): void {
+  public function testMissingFieldHandlerClassFailsWhenTheBackendIsFirstUsed(): void {
+    $backend = $this->buildBackend(['field_handlers' => ['rating' => 'Acme\MissingHandler']]);
+
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Handler class "Acme\MissingHandler" does not exist.');
 
-    $this->buildBackend(['field_handlers' => ['rating' => 'Acme\MissingHandler']]);
+    $backend->getCore();
+  }
+
+  /**
+   * Tests that the backend services are lazy.
+   *
+   * @param array<string, mixed> $config
+   *   The extension configuration, before schema normalization.
+   * @param string $service
+   *   The ID of the backend service.
+   */
+  #[DataProvider('dataProviderTheBackendServicesAreLazy')]
+  public function testTheBackendServicesAreLazy(array $config, string $service): void {
+    $this->assertTrue($this->load($config)->getDefinition($service)->isLazy());
+  }
+
+  public static function dataProviderTheBackendServicesAreLazy(): \Iterator {
+    yield 'drupal' => [['drupal' => ['drupal_root' => 'web']], DrupalBackendProvider::DRUPAL_SERVICE];
+    yield 'drush' => [['drush' => ['alias' => '@self']], DrupalBackendProvider::DRUSH_SERVICE];
+  }
+
+  /**
+   * Tests which backend classes the container builds on first use.
+   *
+   * @param string $class
+   *   The class the 'drupal' backend service is built from.
+   * @param bool $expected
+   *   Whether the service is expected to stay lazy.
+   */
+  #[DataProvider('dataProviderProcessKeepsTheBackendLazyWhenItCan')]
+  public function testProcessKeepsTheBackendLazyWhenItCan(string $class, bool $expected): void {
+    $container = $this->load(['drupal' => ['drupal_root' => 'web']]);
+    $container->setParameter('behat_steps.backend.drupal.class', $class);
+
+    (new DrupalBackendProvider())->process($container);
+
+    $this->assertSame($expected, $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->isLazy());
+  }
+
+  public static function dataProviderProcessKeepsTheBackendLazyWhenItCan(): \Iterator {
+    yield 'the shipped class' => [DrupalBackend::class, TRUE];
+    yield 'a final class' => [FinalDrupalBackend::class, FALSE];
+    yield 'a class that cannot be loaded' => ['Acme\MissingBackend', FALSE];
+  }
+
+  public function testTheBackendIsConstructedOnFirstUse(): void {
+    $container = $this->buildContainer(['drupal' => ['drupal_root' => static::DRUPAL_ROOT]]);
+    FakeVersionDrupalBackend::$nextVersion = '11.0.0';
+    $backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
+    $this->assertInstanceOf(DrupalBackend::class, $backend);
+
+    FakeVersionDrupalBackend::$nextVersion = '99.0.0';
+
+    $this->assertSame(99, $backend->getDrupalVersion());
+  }
+
+  public function testMissingDrushCreationAliasClassFailsWhenTheBackendIsFirstUsed(): void {
+    $backend = $this->buildDrushBackend(['Acme\MissingAlias']);
+
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The "drush.creation_aliases" option names the class "Acme\MissingAlias", which does not exist.');
+
+    $backend->getCreationAliases('user');
+  }
+
+  public function testClassesLoadableOnlyAfterTheBackendIsHandedOutAreRegistered(): void {
+    $namespace = 'ConsumerProject\LateLoaded';
+    $core = $namespace . '\LateCore';
+    $handler = $namespace . '\RatingHandler';
+    $alias = $namespace . '\RatingAlias';
+    $backend = $this->buildBackend(['core' => $core, 'field_handlers' => ['rating' => $handler], 'creation_aliases' => [$alias]]);
+    $this->assertFalse(class_exists($handler));
+
+    $directory = $this->writeLateLoadedClasses($namespace);
+    $autoloader = static function (string $class) use ($namespace, $directory): void {
+      if (str_starts_with($class, $namespace . '\\')) {
+        require $directory . '/' . substr($class, strlen($namespace) + 1) . '.php';
+      }
+    };
+    spl_autoload_register($autoloader);
+
+    try {
+      $this->assertSame($core, $backend->getCore()::class);
+    }
+    finally {
+      spl_autoload_unregister($autoloader);
+    }
+
+    $this->assertSame($handler, $this->readFieldHandlers($backend)['rating']);
+    $this->assertSame($alias, $backend->getCreationAliases('node')['rating']::class);
   }
 
   public function testTheBackendBuildsTheVersionCoreForItsMajor(): void {
@@ -377,14 +470,15 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame(DefaultHandler::class, $this->readFieldHandlers($backend)['rating']);
   }
 
-  public function testCoreBuiltOnTheCoreOfAnotherMajorFailsTheBuild(): void {
+  public function testCoreBuiltOnTheCoreOfAnotherMajorFailsTheFirstUse(): void {
     $template = 'Core class "%s" extends "%s", which is not the Core for Drupal 99. Extend "%s" instead.';
     $message = sprintf($template, ConsumerCore::class, Core::class, Core99Core::class);
+    $backend = $this->buildBackend(['core' => ConsumerCore::class], '99.0.0');
 
     $this->expectException(BootstrapException::class);
     $this->expectExceptionMessage($message);
 
-    $this->buildBackend(['core' => ConsumerCore::class], '99.0.0');
+    $backend->getCore();
   }
 
   public function testProcessRegistersTheCreationAliasesOnTheDrupalBackend(): void {
@@ -443,11 +537,13 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertInstanceOf(LoginAlias::class, $aliases['login']);
   }
 
-  public function testMissingCreationAliasClassFailsWhenTheBackendIsBuilt(): void {
+  public function testMissingCreationAliasClassFailsWhenTheBackendIsFirstUsed(): void {
+    $backend = $this->buildBackend(['creation_aliases' => ['Acme\MissingAlias']]);
+
     $this->expectException(InvalidConfigurationException::class);
     $this->expectExceptionMessage('The "drupal.creation_aliases" option names the class "Acme\MissingAlias", which does not exist.');
 
-    $this->buildBackend(['creation_aliases' => ['Acme\MissingAlias']]);
+    $backend->getCreationAliases('node');
   }
 
   public function testBuildCreationAliasBuildsTheClass(): void {
@@ -623,6 +719,29 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertIsArray($handlers);
 
     return $handlers;
+  }
+
+  /**
+   * Writes a Core, a field handler and an alias no autoloader loads yet.
+   *
+   * @param string $namespace
+   *   The namespace of the 3 classes.
+   *
+   * @return string
+   *   The directory holding 1 file per class, named for its short name.
+   */
+  protected function writeLateLoadedClasses(string $namespace): string {
+    $classes = [
+      'LateCore' => sprintf('class LateCore extends \%s {}', Core::class),
+      'RatingHandler' => sprintf('final class RatingHandler extends \%s {}', DefaultHandler::class),
+      'RatingAlias' => sprintf('final class RatingAlias implements \%s { public function getName(): string { return "rating"; } public function getEntityType(): string { return "node"; } public function getDescription(): string { return ""; } public function applyToStub(\%s $stub): void {} }', PreCreateAliasInterface::class, EntityStubInterface::class),
+    ];
+
+    foreach ($classes as $name => $body) {
+      $this->writeFixture('late/' . $name . '.php', sprintf("<?php\n\nnamespace %s;\n\n%s\n", $namespace, $body));
+    }
+
+    return static::$tmp . '/late';
   }
 
   /**

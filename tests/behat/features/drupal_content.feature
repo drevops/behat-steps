@@ -305,6 +305,15 @@ Feature: Check that ContentTrait works
     When I visit the "page" content page with the title "[TEST] Page from headline"
     Then I should see "[TEST] Page from headline"
 
+  Scenario: Create a node with a field a configured handler from the bootstrap directory expands
+    Given the following article content exists:
+      | title                              | comment |
+      | [TEST] Article with hidden comments | hidden  |
+    And I am logged in as a user with the role "administrator"
+    When I visit the "article" content edit page with the title "[TEST] Article with hidden comments"
+    Then the radio button "edit-comment-0-status-0" should be selected
+    And the radio button "edit-comment-0-status-2" should not be selected
+
   Scenario: Create a node with the "author" column naming its author
     Given the following users exist:
       | name                 | mail                             |

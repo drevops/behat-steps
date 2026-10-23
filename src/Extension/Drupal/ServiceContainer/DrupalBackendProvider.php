@@ -138,6 +138,9 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   public function process(ContainerBuilder $container): void {
     $this->processDrupal($container);
     $this->registerCreationAliases($container, self::DRUSH_SERVICE, self::DRUSH_CREATION_ALIASES_PARAMETER, 'drush.creation_aliases');
+
+    $this->processLazyBackend($container, self::DRUPAL_SERVICE);
+    $this->processLazyBackend($container, self::DRUSH_SERVICE);
   }
 
   /**
@@ -364,6 +367,30 @@ final class DrupalBackendProvider implements BackendProviderInterface {
       $alias->setFactory([self::class, 'buildCreationAlias']);
 
       $definition->addMethodCall('registerCreationAlias', [$alias]);
+    }
+  }
+
+  /**
+   * Builds a backend as the container hands it out when it can't be lazy.
+   *
+   * A lazy service can be a generated subclass, so a final class or a class
+   * not loadable yet is built eagerly.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+   *   The container builder.
+   * @param string $service
+   *   The ID of the backend service.
+   */
+  protected function processLazyBackend(ContainerBuilder $container, string $service): void {
+    if (!$container->hasDefinition($service)) {
+      return;
+    }
+
+    $definition = $container->getDefinition($service);
+    $class = (string) $container->getParameterBag()->resolveValue($definition->getClass());
+
+    if (!class_exists($class) || (new \ReflectionClass($class))->isFinal()) {
+      $definition->setLazy(FALSE);
     }
   }
 
