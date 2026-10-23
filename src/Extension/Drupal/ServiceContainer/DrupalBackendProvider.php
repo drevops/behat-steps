@@ -88,7 +88,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
         ->children()
           ->scalarNode('alias')->info('The Drush site alias every command runs against, with or without the leading "@". It takes precedence over "root" when both are set.')->end()
           ->scalarNode('binary')->defaultValue('vendor/bin/drush')->info('The path to the Drush binary. A relative path resolves against the directory Behat runs in, then its parent. A bare "drush" resolves through "COMPOSER_BIN_DIR", then "vendor/bin/drush" in the directory Behat runs in, then the "PATH".')->end()
-          ->scalarNode('root')->info('The Drupal root passed to Drush as "--root", for a site Drush can\'t find on its own. The directory has to exist.')->end()
+          ->scalarNode('root')->info('The Drupal root passed to Drush as "--root", for a site Drush can\'t find on its own. The directory has to exist. A relative path resolves against the directory Behat runs in.')->end()
           ->scalarNode('global_options')->info('The options added to every Drush command, such as "--uri=http://example.com". The value is split on whitespace, so an option\'s value can\'t hold a space.')->end()
           ->arrayNode('creation_aliases')
             ->info('The creation alias classes the backend registers after the ones it ships. The Drush backend creates only users, so it runs only the aliases for the "user" entity type. Each class implements "PreCreateAliasInterface" or "PostCreateAliasInterface" and takes no constructor arguments.' . PHP_EOL
