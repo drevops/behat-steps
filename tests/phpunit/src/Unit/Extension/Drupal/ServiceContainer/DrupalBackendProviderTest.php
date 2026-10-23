@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Tests\Unit\Extension\Drupal\ServiceContainer;
 
+use Behat\Testwork\EventDispatcher\ServiceContainer\EventDispatcherExtension;
 use ConsumerProject\Backend\Alias\AuthorIdAlias;
 use ConsumerProject\Backend\Alias\HeadlineAlias;
 use ConsumerProject\Backend\Alias\LoginAlias;
 use ConsumerProject\Backend\ConsumerCore;
-use DrevOps\BehatSteps\Backend\Alias\CreationAliasInterface;
 use DrevOps\BehatSteps\Backend\Alias\PreCreateAliasInterface;
 use DrevOps\BehatSteps\Backend\Alias\RolesAlias;
 use DrevOps\BehatSteps\Backend\BlackboxBackend;
@@ -18,8 +18,9 @@ use DrevOps\BehatSteps\Backend\Drupal\Core\Field\DefaultHandler;
 use DrevOps\BehatSteps\Backend\Drupal\Core99\Core as Core99Core;
 use DrevOps\BehatSteps\Backend\Drupal\DrupalBackend;
 use DrevOps\BehatSteps\Backend\Drupal\DrushBackend;
-use DrevOps\BehatSteps\Backend\Entity\EntityStub;
+use DrevOps\BehatSteps\Backend\Entity\EntityStubInterface;
 use DrevOps\BehatSteps\Backend\Exception\BootstrapException;
+use DrevOps\BehatSteps\Extension\Drupal\Listener\ConfiguredClassListener;
 use DrevOps\BehatSteps\Extension\Drupal\ServiceContainer\DrupalBackendProvider;
 use DrevOps\BehatSteps\Tests\Unit\Backend\Fixtures\FakeVersionDrupalBackend;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
@@ -29,6 +30,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Tests the settings, defaults and services the Drupal backends contribute.
@@ -288,38 +290,80 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUSH_SERVICE)->getMethodCalls());
   }
 
-  public function testProcessLeavesAnotherBackendAlone(): void {
+  public function testProcessLeavesTheDefinitionsAlone(): void {
     $container = new ContainerBuilder();
     $container->setDefinition('behat_steps.backend.blackbox', (new Definition(BlackboxBackend::class))->addTag('behat_steps.backend', ['alias' => 'blackbox']));
+    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
     $container->setParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER, ['rating' => 'Acme\RatingHandler']);
 
     (new DrupalBackendProvider())->process($container);
 
     $this->assertSame([], $container->getDefinition('behat_steps.backend.blackbox')->getMethodCalls());
-    $this->assertFalse($container->hasDefinition(DrupalBackendProvider::DRUPAL_SERVICE));
-  }
-
-  public function testProcessRegistersTheFieldHandlersOnTheDrupalBackend(): void {
-    $container = new ContainerBuilder();
-    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $handlers = ['rating' => 'Acme\RatingHandler', 'datetime' => 'Acme\DateHandler'];
-    $container->setParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER, $handlers);
-
-    (new DrupalBackendProvider())->process($container);
-
-    $calls = $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls();
-    $this->assertCount(2, $calls);
-    $this->assertSame(['registerFieldHandler', ['rating', 'Acme\RatingHandler']], $calls[0]);
-    $this->assertSame(['registerFieldHandler', ['datetime', 'Acme\DateHandler']], $calls[1]);
-  }
-
-  public function testProcessRegistersNoFieldHandlerWithoutTheSetting(): void {
-    $container = new ContainerBuilder();
-    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-
-    (new DrupalBackendProvider())->process($container);
-
     $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls());
+  }
+
+  public function testLoadDefinesNoListenerWithoutSettings(): void {
+    $container = $this->load([]);
+
+    $this->assertFalse($container->hasDefinition(DrupalBackendProvider::CONFIGURED_CLASS_LISTENER_SERVICE));
+  }
+
+  public function testLoadHandsTheDrupalOptionsToTheListener(): void {
+    $container = $this->load(['drupal' => ['drupal_root' => 'web']]);
+
+    $definition = $container->getDefinition(DrupalBackendProvider::CONFIGURED_CLASS_LISTENER_SERVICE);
+    $this->assertSame(ConfiguredClassListener::class, $definition->getClass());
+    $this->assertSame([['priority' => 0]], $definition->getTag(EventDispatcherExtension::SUBSCRIBER_TAG));
+
+    $drupal = new Reference(DrupalBackendProvider::DRUPAL_SERVICE);
+    $creation_aliases = ['drupal.creation_aliases' => ['backend' => $drupal, 'classes' => '%' . DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER . '%']];
+    $this->assertEquals([$drupal, '%' . DrupalBackendProvider::FIELD_HANDLERS_PARAMETER . '%', $creation_aliases], $definition->getArguments());
+  }
+
+  public function testLoadHandsTheDrushOptionsToTheListener(): void {
+    $container = $this->load(['drush' => ['alias' => '@self']]);
+
+    $creation_aliases = ['drush.creation_aliases' => ['backend' => new Reference(DrupalBackendProvider::DRUSH_SERVICE), 'classes' => '%' . DrupalBackendProvider::DRUSH_CREATION_ALIASES_PARAMETER . '%']];
+    $this->assertEquals([NULL, [], $creation_aliases], $container->getDefinition(DrupalBackendProvider::CONFIGURED_CLASS_LISTENER_SERVICE)->getArguments());
+  }
+
+  public function testTheBackendIsBuiltWithoutItsCore(): void {
+    $container = $this->buildContainer(['drupal' => ['drupal_root' => static::DRUPAL_ROOT, 'core' => 'Acme\MissingCore', 'field_handlers' => ['rating' => 'Acme\MissingHandler']]]);
+
+    $backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
+
+    $this->assertInstanceOf(DrupalBackend::class, $backend);
+    $this->assertNull((new \ReflectionProperty(DrupalBackend::class, 'core'))->getValue($backend));
+  }
+
+  public function testClassesLoadableOnlyOnceTheExerciseStartsAreRegistered(): void {
+    $namespace = 'ConsumerProject\LateLoaded';
+    $handler = $namespace . '\RatingHandler';
+    $alias = $namespace . '\RatingAlias';
+    $core = $namespace . '\LateCore';
+    $container = $this->buildContainer(['drupal' => ['drupal_root' => static::DRUPAL_ROOT, 'core' => $core, 'field_handlers' => ['rating' => $handler], 'creation_aliases' => [$alias]]]);
+    $backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
+    $this->assertInstanceOf(DrupalBackend::class, $backend);
+    $this->assertFalse(class_exists($handler));
+
+    $directory = $this->writeLateLoadedClasses($namespace);
+    $autoloader = static function (string $class) use ($namespace, $directory): void {
+      if (str_starts_with($class, $namespace . '\\')) {
+        require $directory . '/' . substr($class, strlen($namespace) + 1) . '.php';
+      }
+    };
+    spl_autoload_register($autoloader);
+
+    try {
+      $this->runExerciseStart($container);
+    }
+    finally {
+      spl_autoload_unregister($autoloader);
+    }
+
+    $this->assertSame($core, $backend->getCore()::class);
+    $this->assertSame($handler, $this->readFieldHandlers($backend)['rating']);
+    $this->assertSame($alias, $backend->getCreationAliases('node')['rating']::class);
   }
 
   public function testFieldHandlersReplaceAndExtendTheShippedOnes(): void {
@@ -333,9 +377,9 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertSame(DatetimeHandler::class, $handlers['datetime']);
   }
 
-  public function testMissingFieldHandlerClassFailsWhenTheBackendIsBuilt(): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Handler class "Acme\MissingHandler" does not exist.');
+  public function testMissingFieldHandlerClassFailsWhenTheExerciseStarts(): void {
+    $this->expectException(InvalidConfigurationException::class);
+    $this->expectExceptionMessage('The "drupal.field_handlers" option maps the field type "rating" to a class the backend rejects. Handler class "Acme\MissingHandler" does not exist.');
 
     $this->buildBackend(['field_handlers' => ['rating' => 'Acme\MissingHandler']]);
   }
@@ -387,43 +431,6 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->buildBackend(['core' => ConsumerCore::class], '99.0.0');
   }
 
-  public function testProcessRegistersTheCreationAliasesOnTheDrupalBackend(): void {
-    $container = new ContainerBuilder();
-    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $container->setParameter(DrupalBackendProvider::FIELD_HANDLERS_PARAMETER, ['rating' => 'Acme\RatingHandler']);
-    $container->setParameter(DrupalBackendProvider::DRUPAL_CREATION_ALIASES_PARAMETER, ['Acme\HeadlineAlias', 'Acme\AuthorIdAlias']);
-
-    (new DrupalBackendProvider())->process($container);
-
-    $calls = $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls();
-    $this->assertSame(['registerFieldHandler', 'registerCreationAlias', 'registerCreationAlias'], array_column($calls, 0));
-    $this->assertCreationAliasDefinition($calls[1][1][0], 'drupal.creation_aliases', 'Acme\HeadlineAlias');
-    $this->assertCreationAliasDefinition($calls[2][1][0], 'drupal.creation_aliases', 'Acme\AuthorIdAlias');
-  }
-
-  public function testProcessRegistersTheCreationAliasesOnTheDrushBackend(): void {
-    $container = new ContainerBuilder();
-    $container->setDefinition(DrupalBackendProvider::DRUSH_SERVICE, (new Definition(DrushBackend::class))->addTag('behat_steps.backend', ['alias' => 'drush']));
-    $container->setParameter(DrupalBackendProvider::DRUSH_CREATION_ALIASES_PARAMETER, ['Acme\LoginAlias']);
-
-    (new DrupalBackendProvider())->process($container);
-
-    $calls = $container->getDefinition(DrupalBackendProvider::DRUSH_SERVICE)->getMethodCalls();
-    $this->assertSame(['registerCreationAlias'], array_column($calls, 0));
-    $this->assertCreationAliasDefinition($calls[0][1][0], 'drush.creation_aliases', 'Acme\LoginAlias');
-  }
-
-  public function testProcessRegistersNoCreationAliasWithoutTheSetting(): void {
-    $container = new ContainerBuilder();
-    $container->setDefinition(DrupalBackendProvider::DRUPAL_SERVICE, (new Definition(DrupalBackend::class))->addTag('behat_steps.backend', ['alias' => 'drupal']));
-    $container->setDefinition(DrupalBackendProvider::DRUSH_SERVICE, (new Definition(DrushBackend::class))->addTag('behat_steps.backend', ['alias' => 'drush']));
-
-    (new DrupalBackendProvider())->process($container);
-
-    $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUPAL_SERVICE)->getMethodCalls());
-    $this->assertSame([], $container->getDefinition(DrupalBackendProvider::DRUSH_SERVICE)->getMethodCalls());
-  }
-
   public function testCreationAliasesReplaceAndExtendTheShippedOnes(): void {
     $backend = $this->buildBackend(['creation_aliases' => [HeadlineAlias::class, AuthorIdAlias::class]]);
 
@@ -443,38 +450,18 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $this->assertInstanceOf(LoginAlias::class, $aliases['login']);
   }
 
-  public function testMissingCreationAliasClassFailsWhenTheBackendIsBuilt(): void {
+  public function testMissingCreationAliasClassFailsWhenTheExerciseStarts(): void {
     $this->expectException(InvalidConfigurationException::class);
     $this->expectExceptionMessage('The "drupal.creation_aliases" option names the class "Acme\MissingAlias", which does not exist.');
 
     $this->buildBackend(['creation_aliases' => ['Acme\MissingAlias']]);
   }
 
-  public function testBuildCreationAliasBuildsTheClass(): void {
-    $this->assertInstanceOf(HeadlineAlias::class, DrupalBackendProvider::buildCreationAlias('drupal.creation_aliases', HeadlineAlias::class));
-  }
-
-  /**
-   * Tests that a class the factory cannot build fails, naming the option.
-   *
-   * @param string $class
-   *   The class the option names.
-   * @param string $expected_message
-   *   The message the build is expected to fail with.
-   */
-  #[DataProvider('dataProviderBuildCreationAliasRejectsClass')]
-  public function testBuildCreationAliasRejectsClass(string $class, string $expected_message): void {
+  public function testMissingDrushCreationAliasClassFailsWhenTheExerciseStarts(): void {
     $this->expectException(InvalidConfigurationException::class);
-    $this->expectExceptionMessage($expected_message);
+    $this->expectExceptionMessage('The "drush.creation_aliases" option names the class "Acme\MissingAlias", which does not exist.');
 
-    DrupalBackendProvider::buildCreationAlias('drush.creation_aliases', $class);
-  }
-
-  public static function dataProviderBuildCreationAliasRejectsClass(): \Iterator {
-    yield 'a missing class' => ['Acme\MissingAlias', 'The "drush.creation_aliases" option names the class "Acme\MissingAlias", which does not exist.'];
-    yield 'a class that is no alias' => [EntityStub::class, sprintf('The "drush.creation_aliases" option names the class "%s", which does not implement "%s".', EntityStub::class, CreationAliasInterface::class)];
-    yield 'an interface' => [PreCreateAliasInterface::class, sprintf('The "drush.creation_aliases" option names the class "%s", which cannot be instantiated.', PreCreateAliasInterface::class)];
-    yield 'a class with constructor arguments' => [RolesAlias::class, sprintf('The "drush.creation_aliases" option names the class "%s", whose constructor requires arguments. Build it in a context and register it through CreationAliasCapabilityInterface::registerCreationAlias().', RolesAlias::class)];
+    $this->buildDrushBackend(['Acme\MissingAlias']);
   }
 
   public function testAbsoluteBinaryPathIsReturnedAsIs(): void {
@@ -560,6 +547,9 @@ class DrupalBackendProviderTest extends UnitTestCase {
   /**
    * Builds the in-process backend the container defines, with its Core.
    *
+   * The listener runs as it does at the start of the exercise, so the
+   * backend carries the configured handlers and aliases.
+   *
    * @param array<string, mixed> $drupal
    *   The 'drupal' settings apart from the Drupal root.
    * @param string $version
@@ -572,11 +562,13 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $backend = $container->get(DrupalBackendProvider::DRUPAL_SERVICE);
     $this->assertInstanceOf(DrupalBackend::class, $backend);
 
+    $this->runExerciseStart($container);
+
     return $backend;
   }
 
   /**
-   * Builds the Drush backend the container defines.
+   * Builds the Drush backend the container defines, with its aliases.
    *
    * @param array<int, string> $creation_aliases
    *   The 'drush.creation_aliases' setting.
@@ -589,24 +581,45 @@ class DrupalBackendProviderTest extends UnitTestCase {
     $backend = $container->get(DrupalBackendProvider::DRUSH_SERVICE);
     $this->assertInstanceOf(DrushBackend::class, $backend);
 
+    $this->runExerciseStart($container);
+
     return $backend;
   }
 
   /**
-   * Asserts that a method call argument builds the alias an option names.
+   * Runs the listener the container defines, as the exercise start does.
    *
-   * @param mixed $argument
-   *   The argument of the 'registerCreationAlias()' call.
-   * @param string $option
-   *   The option expected to name the class.
-   * @param string $class
-   *   The class expected to be built.
+   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+   *   The container holding the listener.
    */
-  protected function assertCreationAliasDefinition(mixed $argument, string $option, string $class): void {
-    $this->assertInstanceOf(Definition::class, $argument);
-    $this->assertSame(CreationAliasInterface::class, $argument->getClass());
-    $this->assertSame([DrupalBackendProvider::class, 'buildCreationAlias'], $argument->getFactory());
-    $this->assertSame([$option, $class], $argument->getArguments());
+  protected function runExerciseStart(ContainerBuilder $container): void {
+    $listener = $container->get(DrupalBackendProvider::CONFIGURED_CLASS_LISTENER_SERVICE);
+    $this->assertInstanceOf(ConfiguredClassListener::class, $listener);
+
+    $listener->registerConfiguredClasses();
+  }
+
+  /**
+   * Writes a Core, a field handler and an alias no autoloader loads yet.
+   *
+   * @param string $namespace
+   *   The namespace of the 3 classes.
+   *
+   * @return string
+   *   The directory holding 1 file per class, named for its short name.
+   */
+  protected function writeLateLoadedClasses(string $namespace): string {
+    $classes = [
+      'LateCore' => sprintf('class LateCore extends \%s {}', Core::class),
+      'RatingHandler' => sprintf('final class RatingHandler extends \%s {}', DefaultHandler::class),
+      'RatingAlias' => sprintf('final class RatingAlias implements \%s { public function getName(): string { return "rating"; } public function getEntityType(): string { return "node"; } public function getDescription(): string { return ""; } public function applyToStub(\%s $stub): void {} }', PreCreateAliasInterface::class, EntityStubInterface::class),
+    ];
+
+    foreach ($classes as $name => $body) {
+      $this->writeFixture('late/' . $name . '.php', sprintf("<?php\n\nnamespace %s;\n\n%s\n", $namespace, $body));
+    }
+
+    return static::$tmp . '/late';
   }
 
   /**
