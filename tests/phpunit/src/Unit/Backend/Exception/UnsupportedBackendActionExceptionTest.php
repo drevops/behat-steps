@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\BehatSteps\Tests\Unit\Backend\Exception;
 
 use DrevOps\BehatSteps\Backend\BackendInterface;
+use DrevOps\BehatSteps\Backend\BlackboxBackend;
 use DrevOps\BehatSteps\Backend\Exception\UnsupportedBackendActionException;
 use DrevOps\BehatSteps\Tests\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * Tests the UnsupportedBackendActionException.
@@ -27,6 +30,18 @@ class UnsupportedBackendActionExceptionTest extends UnitTestCase {
     $exception = new UnsupportedBackendActionException('Action %s is not supported.', $backend);
 
     $this->assertSame(sprintf('Action %s is not supported.', $backend_class), $exception->getMessage());
+  }
+
+  public function testMessageNamesTheClassOfLazyBackend(): void {
+    $container = new ContainerBuilder();
+    $container->setDefinition('backend', (new Definition(BlackboxBackend::class))->setLazy(TRUE)->setPublic(TRUE));
+    $container->compile();
+    $backend = $container->get('backend');
+    $this->assertInstanceOf(BackendInterface::class, $backend);
+
+    $exception = new UnsupportedBackendActionException('Action %s is not supported.', $backend);
+
+    $this->assertSame(sprintf('Action %s is not supported.', BlackboxBackend::class), $exception->getMessage());
   }
 
   public function testGetBackendReturnsConstructorArgument(): void {

@@ -373,8 +373,8 @@ final class DrupalBackendProvider implements BackendProviderInterface {
   /**
    * Builds a backend as the container hands it out when it can't be lazy.
    *
-   * Before PHP 8.4, a lazy service is a generated subclass, so a final class
-   * or a class not loadable yet is built eagerly.
+   * A lazy service can be a generated subclass, so a final class or a class
+   * not loadable yet is built eagerly.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
    *   The container builder.
@@ -389,7 +389,7 @@ final class DrupalBackendProvider implements BackendProviderInterface {
     $definition = $container->getDefinition($service);
     $class = (string) $container->getParameterBag()->resolveValue($definition->getClass());
 
-    if (!class_exists($class) || (PHP_VERSION_ID < 80400 && (new \ReflectionClass($class))->isFinal())) {
+    if (!class_exists($class) || (new \ReflectionClass($class))->isFinal()) {
       $definition->setLazy(FALSE);
     }
   }

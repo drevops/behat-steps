@@ -382,7 +382,7 @@ class DrupalBackendProviderTest extends UnitTestCase {
 
   public static function dataProviderProcessKeepsTheBackendLazyWhenItCan(): \Iterator {
     yield 'the shipped class' => [DrupalBackend::class, TRUE];
-    yield 'a final class' => [FinalDrupalBackend::class, PHP_VERSION_ID >= 80400];
+    yield 'a final class' => [FinalDrupalBackend::class, FALSE];
     yield 'a class that cannot be loaded' => ['Acme\MissingBackend', FALSE];
   }
 
