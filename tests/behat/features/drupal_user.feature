@@ -207,11 +207,18 @@ Feature: Check that UserTrait works
       | anonymous user | 403      |
       | Anonymous      | 403      |
 
-  Scenario: Assert "Given I am logged in as a user with the role(s) :roles" logs out a logged-in user for the anonymous role
+  Scenario Outline: Assert "Given I am logged in as a user with the role(s) :roles" logs out a logged-in user for the anonymous role
     Given I am logged in as a user with the role "administrator"
-    And I am logged in as a user with the role "anonymous"
-    When I go to "admin/people"
-    Then the response status code should be 403
+    And I am logged in as a user with the role "<role>"
+    When I go to "user/login"
+    Then the path should be "/user/login"
+    And the response status code should be 200
+
+    Examples:
+      | role           |
+      | anonymous      |
+      | anonymous user |
+      | Anonymous      |
 
   @test-trait:Drupal\UserTrait
   Scenario: Assert "Given I am logged in as a user with the role(s) :roles" fails for the anonymous role beside other roles
