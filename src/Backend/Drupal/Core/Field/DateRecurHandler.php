@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\BehatSteps\Backend\Drupal\Core\Field;
 
+use Drupal\datetime\Plugin\Field\FieldType\DateTimeItem;
 use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 
 /**
@@ -13,49 +14,51 @@ use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
  * multi-column records ('value', 'end_value', 'rrule', 'timezone',
  * 'infinite').
  *
- * date_recur stores 'value' and 'end_value' in UTC and computes occurrences
- * in the record's 'timezone'. Both columns are read in that timezone, so a
- * record's times are local times.
+ * date_recur reads 'value' and 'end_value' as UTC and computes occurrences in
+ * the record's 'timezone'. The handler relays both columns as given, so a
+ * record holds the stored UTC values and names its 'timezone'.
  *
- * A record with a date but no 'timezone' takes the site timezone, because
- * date_recur computes no occurrences without one.
+ * A record with a date and no 'timezone', or with a date that is not in the
+ * storage format, is rejected, because date_recur would compute no
+ * occurrences or read a different time.
  *
  * The field type's preSave() derives 'infinite' from the rrule, so 'rrule'
  * and 'infinite' are relayed unchanged.
  *
  * @see https://www.drupal.org/project/date_recur
  */
-class DateRecurHandler extends DatetimeHandler {
+class DateRecurHandler extends AbstractHandler {
 
   /**
    * {@inheritdoc}
    */
   protected function doExpand(array $records): array {
-    $site_timezone = $this->getSiteTimezone()->getName();
-    $storage_timezone = new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE);
+    $format = $this->fieldInfo->getSetting('datetime_type') === DateTimeItem::DATETIME_TYPE_DATE ? DateTimeItemInterface::DATE_STORAGE_FORMAT : DateTimeItemInterface::DATETIME_STORAGE_FORMAT;
     $expanded = [];
 
     foreach ($records as $record) {
-      $value = $record['value'] ?? NULL;
-      $end_value = $record['end_value'] ?? NULL;
-
       // A record without dates keeps an empty 'timezone', so date_recur still
       // treats it as an empty item.
-      if (in_array($value, [NULL, ''], TRUE) && in_array($end_value, [NULL, ''], TRUE)) {
+      if (in_array($record['value'] ?? NULL, [NULL, ''], TRUE) && in_array($record['end_value'] ?? NULL, [NULL, ''], TRUE)) {
         $expanded[] = $record;
 
         continue;
       }
 
-      if (in_array($record['timezone'] ?? NULL, [NULL, ''], TRUE)) {
-        $record['timezone'] = $site_timezone;
-      }
+      $this->assertRecordTimezone($record['timezone'] ?? NULL);
 
-      $timezone = $this->createRecordTimezone((string) $record['timezone']);
-      $record['value'] = $this->formatDateValue($value, $timezone, $storage_timezone);
+      foreach (['value', 'end_value'] as $column) {
+        if (!array_key_exists($column, $record)) {
+          continue;
+        }
 
-      if (array_key_exists('end_value', $record)) {
-        $record['end_value'] = $this->formatDateValue($end_value, $timezone, $storage_timezone);
+        if (in_array($record[$column], [NULL, ''], TRUE)) {
+          $record[$column] = NULL;
+
+          continue;
+        }
+
+        $this->assertStorageFormat($column, (string) $record[$column], $format);
       }
 
       $expanded[] = $record;
@@ -65,23 +68,46 @@ class DateRecurHandler extends DatetimeHandler {
   }
 
   /**
-   * Creates the timezone a record's dates are written in.
+   * Asserts that a record with a date names a valid timezone.
    *
-   * @param string $name
-   *   The timezone the record names.
-   *
-   * @return \DateTimeZone
-   *   The timezone.
+   * @param mixed $timezone
+   *   The record's 'timezone' column.
    *
    * @throws \RuntimeException
-   *   Thrown when PHP does not recognize the name as a timezone.
+   *   Thrown when the timezone is empty or PHP does not recognize it.
    */
-  protected function createRecordTimezone(string $name): \DateTimeZone {
+  protected function assertRecordTimezone(mixed $timezone): void {
+    if (in_array($timezone, [NULL, ''], TRUE)) {
+      throw new \RuntimeException('Date recur field record has a date but no "timezone".');
+    }
+
     try {
-      return new \DateTimeZone($name);
+      new \DateTimeZone((string) $timezone);
     }
     catch (\Exception $exception) {
-      throw new \RuntimeException(sprintf('Date recur field record has an invalid timezone "%s".', $name), 0, $exception);
+      throw new \RuntimeException(sprintf('Date recur field record has an invalid timezone "%s".', $timezone), 0, $exception);
+    }
+  }
+
+  /**
+   * Asserts that a date column holds a value in the storage format.
+   *
+   * @param string $column
+   *   The column name: 'value' or 'end_value'.
+   * @param string $value
+   *   The column value.
+   * @param string $format
+   *   The storage format of the field's datetime type.
+   *
+   * @throws \RuntimeException
+   *   Thrown when the value does not parse in the format or carries more
+   *   than the format holds, such as a timezone offset.
+   */
+  protected function assertStorageFormat(string $column, string $value, string $format): void {
+    $date = \DateTime::createFromFormat('!' . $format, $value, new \DateTimeZone(DateTimeItemInterface::STORAGE_TIMEZONE));
+
+    if ($date === FALSE || $date->format($format) !== $value) {
+      throw new \RuntimeException(sprintf('Date recur field record has the "%s" column "%s", which is not in the storage format "%s".', $column, $value, $format));
     }
   }
 

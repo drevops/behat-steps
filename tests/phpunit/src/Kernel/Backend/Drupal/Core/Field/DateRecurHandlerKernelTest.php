@@ -19,8 +19,8 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * columns ('value', 'end_value', 'rrule', 'timezone', 'infinite'), which
  * DefaultHandler cannot marshal. This test proves the backend resolves
  * DateRecurHandler for type 'date_recur', that the multi-column storage
- * accepts what the handler emits, and that date_recur computes occurrences
- * at the local times a record names.
+ * accepts what the handler emits, and that date_recur reads the relayed
+ * values as UTC and computes occurrences in the record's timezone.
  *
  * The 'infinite' column is derived from the rrule by the field type's
  * preSave(), so it is left out of the asserted round-trip.
@@ -55,12 +55,12 @@ class DateRecurHandlerKernelTest extends FieldHandlerKernelTestBase {
     ]);
   }
 
-  public function testOccurrencesAreAtTheRecordLocalTimes(): void {
+  public function testStoredUtcValuesAreReadInTheRecordTimezone(): void {
     $this->attachField('field_schedule', 'date_recur');
 
     $item = $this->createScheduleItem([
-      'value' => '2025-01-01T09:00:00',
-      'end_value' => '2025-01-01T17:00:00',
+      'value' => '2024-12-31T22:00:00',
+      'end_value' => '2025-01-01T06:00:00',
       'rrule' => 'FREQ=DAILY;COUNT=2',
       'timezone' => 'Australia/Sydney',
     ]);
@@ -73,18 +73,16 @@ class DateRecurHandlerKernelTest extends FieldHandlerKernelTestBase {
     $this->assertSame('2025-01-02 17:00', $occurrences[1]->getEnd()->format('Y-m-d H:i'));
   }
 
-  public function testMissingTimezoneTakesSiteTimezone(): void {
-    $this->config('system.date')->set('timezone.default', 'America/New_York')->save();
+  public function testMissingTimezoneIsRejected(): void {
     $this->attachField('field_schedule', 'date_recur');
 
-    $item = $this->createScheduleItem([
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Date recur field record has a date but no "timezone".');
+
+    $this->createScheduleItem([
       'value' => '2025-01-01T09:00:00',
       'end_value' => '2025-01-01T17:00:00',
     ]);
-
-    $this->assertSame('America/New_York', $item->get('timezone')->getValue());
-    $this->assertSame('2025-01-01T14:00:00', $item->get('value')->getValue());
-    $this->assertSame('2025-01-01 09:00', $item->getHelper()->getOccurrences()[0]->getStart()->format('Y-m-d H:i'));
   }
 
   public function testDateOnlyRoundTrip(): void {
