@@ -87,7 +87,7 @@ services:
       - cli
 
   chrome_headless:
-    image: chromedp/headless-shell:158.0.8106.0@sha256:7e9783a01393515a5b1998a92a1ae46959f56ad3e05de8b9c0500f2e24fc3887
+    image: chromedp/headless-shell:158.0.8117.2@sha256:8ffed8e29a6427515410a54a93dee50b0ec3f206095233dc374e113e9324cc7a
     shm_size: '1gb'
     expose:
       - "9222"
