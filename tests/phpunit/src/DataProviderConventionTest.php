@@ -167,7 +167,7 @@ class DataProviderConventionTest extends UnitTestCase {
   protected static function readReturnTypeName(\ReflectionMethod $method): string {
     $type = $method->getReturnType();
 
-    if ($type === NULL) {
+    if (!$type instanceof \ReflectionType) {
       return 'no return type';
     }
 

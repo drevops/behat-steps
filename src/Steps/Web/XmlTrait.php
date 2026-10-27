@@ -708,7 +708,7 @@ trait XmlTrait {
     $document = new \DOMDocument();
 
     libxml_clear_errors();
-    $is_loaded = (bool) @$document->loadXML($content);
+    $is_loaded = @$document->loadXML($content);
     $errors = libxml_get_errors();
     libxml_clear_errors();
 
