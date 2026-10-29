@@ -34,7 +34,7 @@ public function pathVisit(string $path): void {
 
 `:path` is a placeholder. Behat captures the quoted value in that position, `"/"` here, and passes it to the method. A step that matches no definition is reported as undefined.
 
-Step definitions live in contexts. A context is a PHP class, and Behat builds a fresh instance of every context for every scenario, so each scenario starts from a clean object. A context can also hold hooks: methods that run before or after a scenario or a step. Behat Steps uses hooks to check for errors and to clean up after each scenario.
+Step definitions live in contexts. A context is a PHP class. Behat builds a fresh instance of every context for every scenario, so each scenario starts from a clean object. A context can also hold hooks: methods that run before or after a scenario or a step. Behat Steps uses hooks to check for errors and to clean up after each scenario.
 
 Your configuration file ties it all together:
 
@@ -63,19 +63,19 @@ Behat Steps ships its step definitions as PHP traits, each holding the steps for
 
 ### 3 contexts, each building on the last
 
-You don't register the traits 1 by 1. The library composes them into 3 contexts, and each one extends the one before it:
+The library composes the traits into 3 contexts, and each context extends the one before it:
 
 1. `WebRawContext` extends Mink's `RawMinkContext` and adds backend access, configuration, hook dispatch and 3 web helper traits. It has no steps.
 2. `WebContext` extends `WebRawContext` and adds every trait under `Steps\Web`, 28 in all.
 3. `DrupalContext` extends `WebContext` and adds every trait under `Steps\Drupal`, 29 in all.
 
-Because each context extends the one before it, `DrupalContext` already holds every web step. Your project extends exactly 1 of them in a class of its own, `FeatureContext`, and registers that class alone:
+So `DrupalContext` already holds every web step. Your project extends exactly 1 of the 3 in a class of its own, `FeatureContext`, and registers that class alone:
 
 - `FeatureContext extends DrupalContext` on a Drupal site.
 - `FeatureContext extends WebContext` on any other site.
 - `WebRawContext` is the base of a context that picks its own traits, as [Compose your own context](guides/contexts.md#compose-your-own-context) shows.
 
-Your own steps then go in `FeatureContext`, or in traits of your own that it uses. If a suite registers 2 contexts built on `WebContext`, such as `DrupalContext` beside your `FeatureContext`, every web step would be defined twice. Behat Steps stops that run before the first scenario, with an error that names both contexts and says to keep only the one lowest in the chain, here your `FeatureContext`. [Contexts](guides/contexts.md) explains what each context includes and why it's built this way.
+Your own steps then go in `FeatureContext`, or in traits of your own that it uses. A suite that registers 2 contexts built on `WebContext`, such as `DrupalContext` beside your `FeatureContext`, defines every web step twice. Behat Steps stops that run before the first scenario. Its error names both contexts and says to keep the one that extends the other, here your `FeatureContext`. [Contexts](guides/contexts.md) explains what each context includes and why it's built this way.
 
 ### Helpers behind every step
 
@@ -92,11 +92,11 @@ Each helper's name starts with the name of its trait, such as `cookieGetAll()` i
 - Which CSS selector each named region of your pages has.
 - The defaults of the traits' own options.
 
-A plain website needs none of them, and [Configuration reference](guides/configuration-reference.md#extension-options) lists them all.
+A plain website uses the extension with no settings. [Configuration reference](guides/configuration-reference.md#extension-options) lists every setting.
 
 ### Backends: reaching the site without the browser
 
-Some steps need the site itself rather than a page. `Given the following "page" content exists:` creates pages directly in Drupal, without going through its forms. A step like that reaches the site through a backend:
+Some steps work on the site itself. `Given the following "page" content exists:` creates pages directly in Drupal, with no form submitted. A step like that reaches the site through a backend:
 
 - `drupal` bootstraps Drupal inside the Behat process and calls its API.
 - `drush` runs Drush commands against the site.
@@ -106,13 +106,15 @@ A step never names a backend. It requests a capability, such as creating content
 
 ### Cleanup after each scenario
 
-Whatever the library's steps create, such as content, users or roles, the library deletes when the scenario ends, newest first, so your test site stays clean across long runs. A step of your own gets the same cleanup when it creates entities through the `entityLifecycleCreate*()` helpers, and otherwise has to [register what it creates](extending/steps.md#register-what-it-creates). [Entities a scenario creates](guides/usage.md#entities-a-scenario-creates) covers keeping them when you're debugging.
+When a scenario ends, the library deletes the content, users, roles and other entities its steps created, newest first. Your test site stays clean across long runs. A step of your own gets the same cleanup when it creates entities through the `entityLifecycleCreate*()` helpers, and otherwise has to [register what it creates](extending/steps.md#register-what-it-creates). [Entities a scenario creates](guides/usage.md#entities-a-scenario-creates) covers keeping them when you're debugging.
 
 ### Checks, tags and options
 
-Some traits run checks around every scenario instead of waiting to be called as a step. `WatchdogTrait`, which `DrupalContext` includes, fails a scenario that logs a PHP error, and `JavascriptTrait` fails one that hits a JavaScript error.
+Some traits also run checks around every scenario, through hooks. `WatchdogTrait`, which `DrupalContext` includes, fails a scenario that logs a PHP error, and `JavascriptTrait` fails one that hits a JavaScript error.
 
-Tags are Gherkin's labels for a scenario or a feature, such as `@javascript`. Behat Steps reads tags of its own, such as `@behat-steps-skip:WatchdogTrait`, which switches a trait's checks off for 1 scenario. Many traits also declare options, settings you can change for the whole profile, for 1 context or for 1 scenario. [Configure a trait](guides/usage.md#configure-a-trait) shows how to set them, and [Configuration reference](guides/configuration-reference.md#tags) lists every tag. [How a trait gets options without a constructor](architecture/extension-layer.md#how-a-trait-gets-options-without-a-constructor) shows how a trait declares them.
+Tags are Gherkin's labels for a scenario or a feature, such as `@javascript`. Behat Steps reads tags of its own: `@behat-steps-skip:WatchdogTrait` switches the checks of `WatchdogTrait` off for 1 scenario. [Configuration reference](guides/configuration-reference.md#tags) lists every tag.
+
+Many traits also declare options, settings you can change for the whole profile, for 1 context or for 1 scenario. [Configure a trait](guides/usage.md#configure-a-trait) shows how to set them. [How a trait gets options without a constructor](architecture/extension-layer.md#how-a-trait-gets-options-without-a-constructor) shows how a trait declares them.
 
 ## The big picture
 
@@ -130,7 +132,7 @@ The rest of these docs use the following terms, listed in alphabetical order:
 | Term | What it means |
 | --- | --- |
 | Backend | How a step reaches the site without the browser: `drupal`, `drush` or `blackbox` |
-| Browser driver | What runs behind a Mink session: BrowserKit for plain HTTP, Selenium2 or Chrome for a real browser |
+| Browser driver | What runs behind a Mink session: BrowserKit for HTTP requests from PHP, Selenium2 or Chrome for a real browser |
 | Capability | A job a backend can do, such as creating content. A step requests a capability, never a backend |
 | Context | A PHP class holding step definitions and hooks. Behat builds a fresh one for every scenario |
 | Extension | A package that plugs into Behat, such as Mink's extension or `BehatStepsExtension` |

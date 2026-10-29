@@ -38,7 +38,7 @@ Feature: Contact page
     And I should see the heading "Contact"
 ```
 
-Behat can only run a step once some PHP code stands behind it, and Behat Steps is that code, already written and tested. It ships steps that work on any website and steps that only mean something on a Drupal site. Every step is a thin wrapper over named helpers, which your own steps can call too.
+Behat runs a step only when PHP code stands behind it. Behat Steps is that code, already written and tested. It ships steps that work on any website and steps that only mean something on a Drupal site. Every step is a thin wrapper over named helpers, which your own steps can call too.
 
 ## Features
 
@@ -48,30 +48,32 @@ Behat can only run a step once some PHP code stands behind it, and Behat Steps i
 - Support for Behat 3.33+ and Behat 4, Drupal 11 and 12, and PHP 8.3 to 8.5.
 - BrowserKit, Selenium and Chrome DevTools [browser drivers](https://behat-steps.drevops.com/installation#javascript-browser-drivers).
 - [Cleanup](https://behat-steps.drevops.com/guides/usage#entities-a-scenario-creates) of the entities a scenario creates.
-- Step and helper references that ship with the package, for [AI coding agents](https://behat-steps.drevops.com/guides/ai-assistants), and a skill that has the agent write a step of your own on the helpers.
+- Step and helper references in the package for [AI coding agents](https://behat-steps.drevops.com/guides/ai-assistants), and a skill the agent follows to write your own steps on the helpers.
 
 ## Installation
+
+In your project's root, run the following command:
 
 ```bash
 composer require --dev drevops/behat-steps:^4
 ```
 
-Composer installs Behat, Mink and the rest of what the steps run on along with it. A few steps need a package of their own, which Behat Steps suggests rather than requires:
+The command also installs Behat, Mink and the rest of what the steps run on. A few steps need a package of their own, which Behat Steps lists under `suggest` in its `composer.json`:
 
 <!-- cspell:ignore dmore justinrainbow lullabot softcreatr -->
 
 - `softcreatr/jsonpath` and `justinrainbow/json-schema` for the JSON path and JSON schema steps.
 - `lullabot/mink-selenium2-driver` or `dmore/behat-chrome-extension` for `@javascript` scenarios, which drive a real browser.
 
-The [Quick start](https://behat-steps.drevops.com/quick-start) takes you from here to a passing scenario, and [Installation](https://behat-steps.drevops.com/installation) covers the optional dependencies and the JavaScript browser drivers. New to Behat? [Key concepts](https://behat-steps.drevops.com/concepts) explains its moving parts in plain words.
+Follow the [Quick start](https://behat-steps.drevops.com/quick-start) from here to a passing scenario. [Installation](https://behat-steps.drevops.com/installation) covers the optional dependencies and the JavaScript browser drivers. New to Behat? [Key concepts](https://behat-steps.drevops.com/concepts) explains its moving parts in plain words.
 
 ## Migrating from 3.x
 
-[MIGRATION.md](MIGRATION.md) takes a project from 3.14 to 4.0, and an AI coding agent can apply it for you. [Migrating from 3.x](https://behat-steps.drevops.com/migrating) shows how.
+[MIGRATION.md](MIGRATION.md) lists the changes from 3.14 to 4.0, and an AI coding agent can apply them for you. [Migrating from 3.x](https://behat-steps.drevops.com/migrating) shows how.
 
 ## Writing tests with AI assistants
 
-The step and helper references ship with the package as [STEPS.md](STEPS.md) and [HELPERS.md](HELPERS.md), so a coding agent in your project reads them from `vendor/drevops/behat-steps/`. The [create-behat-step](skills/create-behat-step/SKILL.md) skill ships beside them: describe a step, and your agent writes it on the helpers, in a trait your `FeatureContext` uses. [Writing tests with AI assistants](https://behat-steps.drevops.com/guides/ai-assistants) has a snippet for your `CLAUDE.md` or `AGENTS.md`, and shows how to install the skill.
+The step and helper references ship with the package as [STEPS.md](STEPS.md) and [HELPERS.md](HELPERS.md), so a coding agent in your project reads them from `vendor/drevops/behat-steps/`. The [create-behat-step](skills/create-behat-step/SKILL.md) skill ships beside them. Describe a step, and your agent writes it on the helpers, in a trait your own context uses. [Writing tests with AI assistants](https://behat-steps.drevops.com/guides/ai-assistants) has a snippet for your `CLAUDE.md` or `AGENTS.md`, and shows how to install the skill.
 
 ## Contributing
 
