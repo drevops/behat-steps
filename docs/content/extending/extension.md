@@ -102,7 +102,7 @@ public function process(ContainerBuilder $container): void {
 
 Only the class changes: the container builds yours with the arguments in the table, in that order. Everything that receives 1 of these services takes it by its interface, the contexts included, so nothing else needs replacing.
 
-`FastLogoutInterface` changes how `AuthTrait` logs out in the teardown after each scenario. With it, `AuthTrait` calls `fastLogout()`, which resets the browser session and logs out of any backend the scenario already reached, so the site runs no logout hook. Without it, `AuthTrait` calls `logout()`, and only while a user is still logged in.
+`FastLogoutInterface` changes how `AuthTrait` logs out in the teardown after each scenario. With it, `AuthTrait` calls `fastLogout()`. The shipped `Authenticator::fastLogout()` resets the browser session and logs out of any backend the scenario already reached, so the site runs no logout hook. Without it, `AuthTrait` calls `logout()`, and only while a user is still logged in.
 
 ## Replace option resolution
 

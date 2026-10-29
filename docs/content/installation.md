@@ -17,7 +17,7 @@ Check the following before you start:
 - PHP 8.3 or newer, and Composer.
 - Behat 3.33 or later, including Behat 4, or no Behat yet. Composer installs Behat with Behat Steps.
 - Drupal 11 or 12, if you want the Drupal steps.
-- Neither `drupal/drupal-extension` nor `drupal/drupal-driver`, whether your project requires them or another package pulls them in. Behat Steps does their job itself and declares a conflict with both, so Composer won't install it beside either one. The [Requirements](../../MIGRATION.md#requirements) section of the migration guide shows the command that removes them from any project. The rest of the guide lists what replaces their steps and classes.
+- Neither `drupal/drupal-extension` nor `drupal/drupal-driver`, whether your project requires them or another package pulls them in. Behat Steps does their job itself and declares a conflict with both, so Composer won't install it beside either one. The [Requirements](../../MIGRATION.md#requirements) section of the migration guide shows the command that removes them. When another package pulls either one in, remove or update that package first. The rest of the guide lists what replaces their steps and classes.
 
 [Supported versions](README.md#supported-versions) lists the full matrix.
 
