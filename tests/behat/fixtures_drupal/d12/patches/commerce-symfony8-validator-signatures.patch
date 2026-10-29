@@ -52,6 +52,18 @@ diff --git a/modules/product/src/Plugin/Validation/Constraint/ProductVariationSk
      if (!$item = $items->first()) {
        return;
      }
+diff --git a/modules/product/src/Plugin/Validation/Constraint/ProductVariationsConstraintValidator.php b/modules/product/src/Plugin/Validation/Constraint/ProductVariationsConstraintValidator.php
+--- a/modules/product/src/Plugin/Validation/Constraint/ProductVariationsConstraintValidator.php
++++ b/modules/product/src/Plugin/Validation/Constraint/ProductVariationsConstraintValidator.php
+@@ -13,7 +13,7 @@
+   /**
+    * {@inheritdoc}
+    */
+-  public function validate($items, Constraint $constraint) {
++  public function validate(mixed $items, Constraint $constraint): void {
+     /** @var \Drupal\Core\Field\EntityReferenceFieldItemListInterface $items */
+     $product_id = $items->getEntity()->id();
+     foreach ($items as $delta => $item) {
 diff --git a/modules/promotion/src/Plugin/Validation/Constraint/CouponValidConstraintValidator.php b/modules/promotion/src/Plugin/Validation/Constraint/CouponValidConstraintValidator.php
 --- a/modules/promotion/src/Plugin/Validation/Constraint/CouponValidConstraintValidator.php
 +++ b/modules/promotion/src/Plugin/Validation/Constraint/CouponValidConstraintValidator.php
