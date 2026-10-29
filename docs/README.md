@@ -6,7 +6,7 @@ This README covers the site itself: running it on your machine, how the home pag
 
 ## Working locally
 
-The site is an npm project of its own, separate from the Docker stack, and it needs Node.js 24.22.0 or newer, as `engines` in `package.json` states. Run these from `docs/`, or from the repository root with `--prefix docs`:
+The site is an npm project of its own, separate from the Docker stack, and it needs Node.js 24.22.1 or newer, as `engines` in `package.json` states. Run these from `docs/`, or from the repository root with `--prefix docs`:
 
 ```bash
 npm install                  # Install the dependencies
