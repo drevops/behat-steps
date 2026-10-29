@@ -55,9 +55,7 @@ These options sit under the `behat_steps` extension key of a profile, as [The `b
 
 A tag configures the scenario it's on, or every scenario of the feature when it's on the `Feature:` line. [Tags](configuration.md#3-tags) explains how a scenario's tags combine with its feature's.
 
-A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A flag tag takes no value. 2 parametrized tags also work bare, with no colon: `@email` and `@accessibility`, as their rows describe. Any other parametrized tag without a value is ignored, except `@behat-steps-skip` and `@backend:`, which stop the whole run at that scenario's start, like any other value they can't resolve. The other tags never stop the run: a value one of them can't use either fails only its scenario, as with `@breakpoint:`, or falls back to a default, as with `@accessibility:`.
-
-In a `@module:` tag, a `!` before the name uninstalls the module instead, as in `@module:!redirect`.
+A parametrized tag takes its value after a colon, never a hyphen: `@module:redirect`, not `@module-redirect`. A flag tag takes no value. 2 parametrized tags also work bare, with no colon: `@email` and `@accessibility`, as their rows describe. Any other parametrized tag without a value is ignored, except `@behat-steps-skip` and `@backend:`. Those 2 stop the whole run at that scenario's start, as they do for any value they can't resolve. The other tags never stop the run. A value one of them can't use either fails only its scenario, as with `@breakpoint:`, or falls back to a default, as with `@accessibility:`.
 
 The following table lists every tag Behat Steps reads:
 

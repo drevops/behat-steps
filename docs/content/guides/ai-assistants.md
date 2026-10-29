@@ -6,7 +6,7 @@ description: Point an AI coding agent at the step and helper references that shi
 
 # Writing tests with AI assistants
 
-An AI coding agent writes better scenarios from the steps your suite registers than from steps it invents. Behat prints that list, and 2 references that ship with the Behat Steps package fill in the rest. When no step says what a scenario needs, a skill that ships beside them has the agent write a step of your own. This page gives you the snippet that points your agent at all of it. The files are plain Markdown, so an agent in your project reads them from `vendor/` at the version you installed:
+An AI coding agent writes better scenarios from the steps your suite registers than from steps it invents. Behat prints that list, and 2 references that ship with the Behat Steps package add examples, options and helpers. When no step says what a scenario needs, a skill that ships beside them has the agent write a step of your own. This page holds the snippet that points your agent at all of it. The files are plain Markdown, so an agent in your project reads them from `vendor/` at the version you installed:
 
 | File | Holds |
 | --- | --- |
@@ -40,7 +40,7 @@ To add a step of your own, follow: vendor/drevops/behat-steps/skills/create-beha
 
 ## Write a step of your own
 
-The `create-behat-step` skill takes a description of what a step should do, in plain English, and writes the step in a trait of your own that your `FeatureContext` uses, the shape [Contexts](contexts.md#your-own-steps-in-traits-of-your-own) shows. It builds the step on the public helpers in `HELPERS.md`, read from your `vendor/`, so the step calls the helpers of the release you installed.
+The `create-behat-step` skill takes a plain-English description of what a step should do. It writes the step in a trait of your own that your `FeatureContext` uses, the shape [Contexts](contexts.md#your-own-steps-in-traits-of-your-own) shows. It builds the step on the public helpers in `HELPERS.md`, read from your `vendor/`, so the step calls the helpers of the release you installed.
 
 The agent works through these steps:
 
@@ -50,9 +50,9 @@ The agent works through these steps:
 4. It adds the trait to `FeatureContext`, and a scenario that uses the step.
 5. It checks the result with your linters, `behat --definitions`, `behat --dry-run` and a run of the new scenario, and runs a `Then` once more with a value it should reject. Then it tells you which helpers the step calls and the choices it made.
 
-The step calls only public helpers and Mink's own API, never a protected method, a shipped step's method or Drupal's API, so it keeps working through minor releases and on any backend that provides what it needs. The agent doesn't commit.
+The step calls only public helpers and Mink's own API, never a protected method, a shipped step's method or Drupal's API. So it keeps working through minor releases and on any backend that provides what it needs. The agent doesn't commit.
 
-With the snippet above, your agent follows the skill whenever a scenario needs a step that doesn't exist. To have your agent offer the skill by name, or to run it with a description yourself, install it as a skill of your agent.
+With the snippet in your `CLAUDE.md` or `AGENTS.md`, your agent follows the skill whenever a scenario needs a step that doesn't exist. To have your agent offer the skill by name, or to run it with a description yourself, install it as a skill of your agent.
 
 ### Install it as a skill
 
@@ -63,7 +63,7 @@ mkdir -p .claude/skills
 ln -s ../../vendor/drevops/behat-steps/skills/create-behat-step .claude/skills/create-behat-step
 ```
 
-Many other agents, such as Codex, Cursor, GitHub Copilot and Gemini CLI, read `.agents/skills/` instead, so link the skill there the same way. Commit the link: it points into `vendor/`, so the skill follows every `composer update` to the release you installed. On a system without symbolic links, copy the directory instead, and copy it again after you update the package.
+Many other agents, such as Codex, Cursor, GitHub Copilot and Gemini CLI, read `.agents/skills/` instead, so link the skill there the same way. Commit the link: it points into `vendor/`, so after every `composer update` it resolves to the skill of the release you installed. On a system without symbolic links, copy the directory instead, and copy it again after you update the package.
 
 The [skills](https://github.com/vercel-labs/skills) command-line tool installs it for each agent you pick, from your installed copy:
 
