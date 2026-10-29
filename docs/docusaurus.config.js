@@ -128,15 +128,8 @@ const config = {
             label: 'Docs',
             position: 'left',
           },
-          {
-            type: 'dropdown',
-            label: 'Steps',
-            position: 'left',
-            items: [
-              {to: '/web-steps', label: 'Web steps'},
-              {to: '/drupal-steps', label: 'Drupal steps'},
-            ],
-          },
+          {to: '/web-steps', label: 'Web steps', position: 'left', activeBasePath: '/web-steps'},
+          {to: '/drupal-steps', label: 'Drupal steps', position: 'left', activeBasePath: '/drupal-steps'},
           {
             href: 'https://packagist.org/packages/drevops/behat-steps',
             label: 'Packagist',
